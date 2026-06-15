@@ -1596,44 +1596,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
                 if (data.exchange_rate) {
-                    // Inject UI if not exists
-                    const clockContainer = document.querySelector('.clock-container') || document.querySelector('.clock-widget');
-                    if (clockContainer && !document.getElementById('global-exchange-rate-box')) {
-                        const stack = document.createElement('div');
-                        stack.className = 'header-time-stack';
-                        stack.style.display = 'flex';
-                        stack.style.flexDirection = 'column';
-                        stack.style.gap = '6px';
-                        stack.style.alignItems = 'center';
-                        
-                        clockContainer.parentNode.insertBefore(stack, clockContainer);
-                        stack.appendChild(clockContainer);
-                        
-                        // Reduce clock container padding slightly to look better stacked
-                        clockContainer.style.padding = '4px 15px';
-                        
-                        const exBox = document.createElement('div');
-                        exBox.id = 'global-exchange-rate-box';
-                        exBox.style.display = 'none';
-                        exBox.style.background = 'rgba(245, 158, 11, 0.15)';
-                        exBox.style.border = '1px solid rgba(245, 158, 11, 0.3)';
-                        exBox.style.borderRadius = '10px';
-                        exBox.style.padding = '3px 12px';
-                        exBox.style.minWidth = '90px';
-                        exBox.style.textAlign = 'center';
-                        exBox.style.boxShadow = 'inset 0 0 10px rgba(245, 158, 11, 0.1)';
-                        exBox.style.animation = 'fadeIn 0.5s ease-out';
-                        exBox.innerHTML = '<span style="color: #fbd38d; font-size: 0.7rem; font-weight: 800;">سعر الصرف: <span id="global-exchange-rate-val" style="color: #fff; font-size: 0.8rem;">-</span></span>';
-                        
-                        stack.appendChild(exBox);
-                    }
-                    
+                    // The exchange rate box is pre-built in HTML — just update its value
                     const exBox = document.getElementById('global-exchange-rate-box');
                     const exVal = document.getElementById('global-exchange-rate-val');
                     if (exBox && exVal) {
                         if (data.exchange_rate.visible) {
                             exBox.style.display = 'block';
-                            exVal.innerText = data.exchange_rate.rate;
+                            exVal.innerText = parseFloat(data.exchange_rate.rate).toLocaleString('ar-SA');
                         } else {
                             exBox.style.display = 'none';
                         }
