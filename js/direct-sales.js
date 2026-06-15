@@ -1227,15 +1227,15 @@ function submitInvoice(ignoreWarnings = false) {
         discount: parseNum(document.getElementById('t-discount').value || 0),
         vatAmount: parseNum(document.getElementById('t-vat').textContent),
         grandTotal: parseNum(grandTotal),
-        status: 'confirmed'
+        status: currentSaleType === 'preliminary' ? 'preliminary' : 'pending_delivery'
     };
 
-    // Update Bank/Safe balance
+    // Update Bank/Safe balance ONLY if not preliminary
     const paymentAccountId = document.getElementById('hdr-payment-account').value;
     const grandAmount = parseNum(grandTotal);
     let usedAccountName = '';
     
-    if (paymentMethod !== 'credit' && paymentAccountId) {
+    if (currentSaleType !== 'preliminary' && paymentMethod !== 'credit' && paymentAccountId) {
         let banks = [];
         try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e) {}
         const bIdx = banks.findIndex(b => b.id === paymentAccountId);
@@ -1264,8 +1264,8 @@ function submitInvoice(ignoreWarnings = false) {
     }
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
 
-    // Update Customer Balance (Debt)
-    if (paymentMethod === 'credit' && custId && custId !== 'walk-in') {
+    // Update Customer Balance (Debt) ONLY if not preliminary
+    if (currentSaleType !== 'preliminary' && paymentMethod === 'credit' && custId && custId !== 'walk-in') {
         let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
         const cIdx = customers.findIndex(c => c.id === custId);
         if (cIdx > -1) {
@@ -1276,31 +1276,8 @@ function submitInvoice(ignoreWarnings = false) {
         }
     }
 
-    // Deduct from local inventory cache and live objects
-    let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
-    const mainWh = document.getElementById('hdr-warehouse').value;
-    for (const row of rows) {
-        const item = ITEMS.find(i => i.id === row.itemId);
-        if (!item) continue;
-        const calcs = getRowCalcs(row);
-        const whId = row.warehouseId || mainWh;
-        const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي (السجانة)';
-        
-        let itemInv = currentInvData.find(inv => inv.itemId === row.itemId && inv.warehouse === whName);
-        if (itemInv) {
-            itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) - calcs.baseQty;
-        } else {
-            currentInvData.push({ itemId: row.itemId, warehouse: whName, qty: -calcs.baseQty, minQty: 10 });
-        }
-        
-        // Update live ITEMS array
-        if (item.actualStock && item.actualStock[whId] !== undefined) {
-            item.actualStock[whId] -= calcs.baseQty;
-        } else if (item.actualStock) {
-            item.actualStock[whId] = -calcs.baseQty;
-        }
-    }
-    localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
+    // Notice: Inventory is NO LONGER DEDUCTED HERE for new invoices!
+    // It will be deducted only upon Delivery.
 
     // Show professional success modal (we can pass the warnings array so it still shows them if desired)
     // To grab the actual warnings to display in success modal, we need to generate them again if ignoreWarnings is true.
@@ -2006,4 +1983,162 @@ function toggleGPS() {
             showToast('متصفحك لا يدعم تحديد الموقع', 'error');
         }
     }
+}
+
+// ════════════════════════════════════════
+//  DELIVERY HUB & PRELIMINARY LOGIC
+// ════════════════════════════════════════
+
+function loadDeliveryTransactions() {
+    const tbody = document.getElementById('delivery-transactions-body');
+    const emptyState = document.getElementById('delivery-empty-state');
+    
+    let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    let pendingInvoices = allSales.filter(inv => inv.status === 'pending_delivery');
+    
+    if (pendingInvoices.length === 0) {
+        tbody.innerHTML = '';
+        emptyState.style.display = 'flex';
+        return;
+    }
+    
+    emptyState.style.display = 'none';
+    tbody.innerHTML = '';
+    
+    pendingInvoices.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    let warehouses = [];
+    try { warehouses = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || []; } catch(e) {}
+    let whOptions = warehouses.map(w => `<option value='${w.id}' ${w.isPrimary ? 'selected' : ''}>${w.name}</option>`).join('');
+    if (!whOptions) whOptions = `<option value='main'>المخزن الرئيسي (السجانة)</option>`;
+
+    pendingInvoices.forEach(inv => {
+        const tr = document.createElement('tr');
+        
+        tr.innerHTML = `
+            <td style='text-align:right; font-weight:800; color:var(--gold-primary);'>${inv.invoiceNo}</td>
+            <td style='text-align:right; color:var(--text-dim);'>${new Date(inv.timestamp).toLocaleString('ar-EG')}</td>
+            <td style='text-align:right; font-weight:600;'>${inv.customerName || inv.customer || 'عميل نقدي'}</td>
+            <td style='text-align:center;'>
+                <select id='del-wh-${inv.invoiceNo}' class='v-input' style='padding: 4px; font-size: 0.8rem;'>
+                    ${whOptions}
+                </select>
+            </td>
+            <td style='text-align:center;'>
+                <button onclick="executeDelivery('${inv.invoiceNo}')" style='background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:#10b981; border-radius:6px; padding:4px 8px; cursor:pointer;'>تسليم واعتماد</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function filterDeliveryTransactions() {
+    const query = document.getElementById('delivery-search').value.toLowerCase();
+    const rows = document.querySelectorAll('#delivery-transactions-body tr');
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
+}
+
+function executeDelivery(invNo) {
+    if (!confirm('هل أنت متأكد من تسليم الفاتورة رقم ' + invNo + ' وخصم البضاعة من المخزون؟')) return;
+
+    let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    let invIndex = allSales.findIndex(i => i.invoiceNo === invNo);
+    if (invIndex === -1) return;
+
+    let inv = allSales[invIndex];
+    let selectedWhId = document.getElementById('del-wh-' + invNo).value;
+    
+    let warehouses = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+    let whName = warehouses.find(w => w.id === selectedWhId)?.name || 'المخزن الرئيسي (السجانة)';
+
+    // Deduct Inventory
+    let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+    
+    if (inv.items) {
+        for (const row of inv.items) {
+            let qtyToDeduct = row.baseQty || (row.quantity * (row.factor || 1));
+            
+            let itemInv = currentInvData.find(i => i.itemId === row.itemId && i.warehouse === whName);
+            if (itemInv) {
+                itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) - qtyToDeduct;
+            } else {
+                currentInvData.push({ itemId: row.itemId, warehouse: whName, qty: -qtyToDeduct, minQty: 10 });
+            }
+            
+            if (typeof ITEMS !== 'undefined') {
+                const item = ITEMS.find(i => i.id === row.itemId);
+                if (item) {
+                    if (item.actualStock && item.actualStock[selectedWhId] !== undefined) {
+                        item.actualStock[selectedWhId] -= qtyToDeduct;
+                    } else if (item.actualStock) {
+                        item.actualStock[selectedWhId] = -qtyToDeduct;
+                    }
+                }
+            }
+        }
+    }
+    
+    localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
+    
+    // Update Invoice Status
+    inv.status = 'delivered';
+    inv.deliveredAt = new Date().toISOString();
+    inv.deliveryWarehouse = whName;
+    
+    allSales[invIndex] = inv;
+    localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+    localStorage.setItem('erp_inv_' + invNo, JSON.stringify(inv));
+
+    showToast('تم التسليم وخصم المخزون بنجاح!', 'success');
+    loadDeliveryTransactions();
+}
+
+function convertToOfficial(invNo) {
+    if (!confirm('تحويل الفاتورة المبدئية رقم ' + invNo + ' إلى فاتورة رسمية (تحديث الحسابات)؟')) return;
+
+    let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    let invIndex = allSales.findIndex(i => i.invoiceNo === invNo);
+    if (invIndex === -1) return;
+
+    let inv = allSales[invIndex];
+    if (inv.status !== 'preliminary') return;
+
+    // Process Bank / Customer
+    const grandAmount = parseFloat(inv.grandTotal) || 0;
+    
+    if (inv.paymentMethod !== 'credit' && inv.paymentAccountId) {
+        let banks = [];
+        try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e) {}
+        const bIdx = banks.findIndex(b => b.id === inv.paymentAccountId);
+        if (bIdx > -1) {
+            let currentBalance = parseFloat(banks[bIdx].currentBalance);
+            if (isNaN(currentBalance)) currentBalance = parseFloat(banks[bIdx].openingBalance) || 0;
+            banks[bIdx].currentBalance = currentBalance + grandAmount;
+            localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+        }
+    }
+    
+    if (inv.paymentMethod === 'credit' && inv.customer && inv.customer !== 'walk-in') {
+        let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+        const cIdx = customers.findIndex(c => c.id === inv.customer);
+        if (cIdx > -1) {
+            let currentBalance = parseFloat(customers[cIdx].currentBalance);
+            if (isNaN(currentBalance)) currentBalance = 0;
+            customers[cIdx].currentBalance = currentBalance + grandAmount;
+            localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
+        }
+    }
+
+    inv.status = 'pending_delivery';
+    inv.saleType = 'pending_delivery';
+    allSales[invIndex] = inv;
+    
+    localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+    localStorage.setItem('erp_inv_' + invNo, JSON.stringify(inv));
+
+    showToast('تم تحويل الفاتورة المبدئية بنجاح!', 'success');
+    if (typeof loadHubTransactions === 'function') loadHubTransactions();
 }

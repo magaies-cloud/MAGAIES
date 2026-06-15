@@ -623,39 +623,75 @@
 
     <style>
         .hub-action-card {
-            background: rgba(18, 15, 25, 0.65);
-            border: 1px solid var(--gold-border);
-            border-radius: 16px;
-            padding: 20px;
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 12px 15px;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
+            gap: 15px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            height: 80px; /* Reduced height to ~50% of the previous tall card */
+        }
+        .hub-action-card::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            transition: all 0.6s ease;
+        }
+        .hub-action-card:hover::after {
+            left: 200%;
         }
         .hub-action-card:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
-            background: rgba(28, 24, 38, 0.85);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
         }
         .hub-action-card .icon {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 1.8rem;
+            margin-bottom: 0;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+        }
+        .hub-action-card:hover .icon {
+            transform: scale(1.1) rotate(-5deg);
+        }
+        .hub-action-card .text-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: right;
         }
         .hub-action-card .title {
-            font-size: 1.2rem;
+            font-size: 1.05rem;
             font-weight: 800;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
+            letter-spacing: 0.5px;
         }
         .hub-action-card .subtitle {
-            font-size: 0.75rem;
-            color: var(--text-dim);
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
             font-weight: 500;
-            text-align: center;
+            text-align: right;
+            margin: 0;
         }
         .hub-badge {
             padding: 4px 10px;
@@ -814,27 +850,28 @@
     <!-- ═══ SALES HUB VIEW ═══ -->
     <div id="sales-hub-view" style="display: flex; flex-direction: column; height: 100%; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 0 5px;">
         
-        <!-- Action Cards (فاتورة جديدة, تسليم, محجوزة, عامة) -->
+        <!-- Action Cards (فاتورة جديدة, تسليم, فاتورة مبدئية) -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-            <button onclick="openInvoiceEditor('direct')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(56,189,248,0.05)); border-color: rgba(56,189,248,0.3);">
-                <div class="icon" style="color: #38bdf8; text-shadow: 0 0 15px rgba(56,189,248,0.5);">➕</div>
-                <div class="title" style="color: #38bdf8;">فاتورة جديدة</div>
-                <div class="subtitle">إنشاء فاتورة مبيعات مباشرة</div>
+            <button onclick="openInvoiceEditor('pending_delivery')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(56,189,248,0.02)); border-color: rgba(56,189,248,0.2);">
+                <div class="icon" style="color: #38bdf8; text-shadow: 0 0 10px rgba(56,189,248,0.4); box-shadow: inset 0 0 10px rgba(56,189,248,0.1);">➕</div>
+                <div class="text-content">
+                    <div class="title" style="color: #38bdf8;">فاتورة جديدة</div>
+                    <div class="subtitle">إنشاء فاتورة مبيعات (بدون خصم مخزون)</div>
+                </div>
             </button>
-            <button onclick="openInvoiceEditor('delivery')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05)); border-color: rgba(16,185,129,0.3);">
-                <div class="icon" style="color: #10b981; text-shadow: 0 0 15px rgba(16,185,129,0.5);">🚚</div>
-                <div class="title" style="color: #10b981;">تسليم</div>
-                <div class="subtitle">إنشاء فاتورة تسليم بضاعة</div>
+            <button onclick="openDeliveryHub()" class="hub-action-card" style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.02)); border-color: rgba(16,185,129,0.2);">
+                <div class="icon" style="color: #10b981; text-shadow: 0 0 10px rgba(16,185,129,0.4); box-shadow: inset 0 0 10px rgba(16,185,129,0.1);">🚚</div>
+                <div class="text-content">
+                    <div class="title" style="color: #10b981;">تسليم</div>
+                    <div class="subtitle">تسليم فواتير المبيعات (خصم من المخزون)</div>
+                </div>
             </button>
-            <button onclick="openInvoiceEditor('reserved')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05)); border-color: rgba(245,158,11,0.3);">
-                <div class="icon" style="color: #f59e0b; text-shadow: 0 0 15px rgba(245,158,11,0.5);">🔒</div>
-                <div class="title" style="color: #f59e0b;">محجوزة</div>
-                <div class="subtitle">الفواتير المحجوزة مسبقاً</div>
-            </button>
-            <button onclick="openInvoiceEditor('general')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(168,85,247,0.05)); border-color: rgba(168,85,247,0.3);">
-                <div class="icon" style="color: #a855f7; text-shadow: 0 0 15px rgba(168,85,247,0.5);">📄</div>
-                <div class="title" style="color: #a855f7;">عامة</div>
-                <div class="subtitle">عمليات ومبيعات عامة</div>
+            <button onclick="openInvoiceEditor('preliminary')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(168,85,247,0.02)); border-color: rgba(168,85,247,0.2);">
+                <div class="icon" style="color: #a855f7; text-shadow: 0 0 10px rgba(168,85,247,0.4); box-shadow: inset 0 0 10px rgba(168,85,247,0.1);">📋</div>
+                <div class="text-content">
+                    <div class="title" style="color: #a855f7;">فاتورة مبدئية</div>
+                    <div class="subtitle">عرض أسعار / غير ملزمة</div>
+                </div>
             </button>
         </div>
 
@@ -874,22 +911,54 @@
         </div>
     </div>
 
+    <!-- ═══ DELIVERY HUB VIEW ═══ -->
+    <div id="delivery-hub-view" style="display: none; flex-direction: column; height: 100%; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 0 5px;">
+        <div class="neo-card" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 15px;">
+            <div class="neo-card-title" style="font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: #10b981;">🚚 فواتير قيد التسليم (Pending Delivery)</span>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="delivery-search" class="v-input" placeholder="بحث..." style="width: 250px;" oninput="filterDeliveryTransactions()">
+                    <button class="btn-action" style="width: auto; padding: 6px 12px; font-size: 0.8rem; background: rgba(255,255,255,0.05);" onclick="loadDeliveryTransactions()">🔄 تحديث</button>
+                    <button class="btn-action" style="width: auto; padding: 6px 12px; font-size: 0.8rem; background: rgba(239,68,68,0.1); color: #ef4444;" onclick="showSalesHub()">رجوع</button>
+                </div>
+            </div>
+            
+            <div class="grid-scroll-wrap" style="flex: 1; margin-top: 10px;">
+                <table class="pos-grid" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:right;">رقم الفاتورة</th>
+                            <th style="text-align:right;">التاريخ</th>
+                            <th style="text-align:right;">العميل</th>
+                            <th style="text-align:center;">المستودع</th>
+                            <th style="text-align:center;">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="delivery-transactions-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+                <div class="empty-state" id="delivery-empty-state" style="display: none;">
+                    <div class="icon">📭</div>
+                    <h3>لا توجد فواتير قيد التسليم</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ═══ INVOICE EDITOR VIEW ═══ -->
     <div id="invoice-editor-view" style="display: none; flex-direction: column; height: 100%; flex: 1;">
     <!-- ═══ TOP ACTION BAR ═══ -->
         <div class="top-action-bar">
             <div class="action-tabs" id="sale-type-tabs">
-                <a data-href="direct-sales.html" onclick="window.location.href='direct-sales.html'" class="action-tab active" style="text-decoration:none;">
-                    <span class="tab-icon">⚡</span><span class="tab-label">مباشرة</span>
+                <a onclick="openInvoiceEditor('pending_delivery')" id="tab-pending_delivery" class="action-tab active" style="text-decoration:none; cursor:pointer;">
+                    <span class="tab-icon">➕</span><span class="tab-label">فاتورة جديدة</span>
                 </a>
-                <a data-href="reserved-sales.html" onclick="window.location.href='reserved-sales.html'" class="action-tab" style="text-decoration:none;">
-                    📝 محجوزة
+                <a onclick="openDeliveryHub()" id="tab-delivery" class="action-tab" style="text-decoration:none; cursor:pointer;">
+                    <span class="tab-icon">🚚</span><span class="tab-label">التسليم</span>
                 </a>
-                <a data-href="sales-delivery.html" onclick="window.location.href='sales-delivery.html'" class="action-tab" style="text-decoration:none; background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.35); color: #10b981;">
-                    📦 التسليم
-                </a>
-                <a data-href="sales-invoice.html" onclick="window.location.href='sales-invoice.html'" class="action-tab" style="text-decoration:none;">
-                    🛒 عامة
+                <a onclick="openInvoiceEditor('preliminary')" id="tab-preliminary" class="action-tab" style="text-decoration:none; cursor:pointer;">
+                    <span class="tab-icon">📋</span><span class="tab-label">فاتورة مبدئية</span>
                 </a>
             </div>
             <div class="top-bar-meta" style="display:flex; align-items:center; gap:8px;">
@@ -1245,6 +1314,7 @@
 
         function showSalesHub() {
             document.getElementById('invoice-editor-view').style.display = 'none';
+            document.getElementById('delivery-hub-view').style.display = 'none';
             document.getElementById('sales-hub-view').style.display = 'flex';
             currentSalesView = 'hub';
             loadHubTransactions();
@@ -1257,10 +1327,12 @@
             }
         }
 
-        function openInvoiceEditor(type = 'direct') {
+        function openInvoiceEditor(type = 'pending_delivery') {
             document.getElementById('sales-hub-view').style.display = 'none';
+            document.getElementById('delivery-hub-view').style.display = 'none';
             document.getElementById('invoice-editor-view').style.display = 'flex';
             currentSalesView = 'editor';
+            currentSaleType = type;
             
             // Adjust header Back button behavior to return to hub
             const backBtn = document.querySelector('button[title="رجوع"]');
@@ -1271,16 +1343,29 @@
                 backBtn.style.padding = '0 10px';
             }
 
-            // Simulate setting the tab type based on what was clicked
-            const tabs = document.querySelectorAll('#sale-type-tabs .velvet-tab');
-            tabs.forEach(t => {
-                if(t.getAttribute('data-type') === type) {
-                    t.click();
-                }
+            // Set active tab
+            document.querySelectorAll('#sale-type-tabs .action-tab').forEach(t => {
+                t.classList.remove('active');
             });
+            const activeTab = document.getElementById('tab-' + type);
+            if(activeTab) activeTab.classList.add('active');
+
+            // Handle Preliminary UI changes
+            if (type === 'preliminary') {
+                document.getElementById('header-title').innerHTML = 'فاتورة مبدئية <span style="font-size:0.7em;color:red;">(غير ملزمة)</span>';
+            } else {
+                document.getElementById('header-title').innerText = 'فاتورة مبيعات';
+            }
             
-            // Re-render editor layout if needed (trigger resize)
             window.dispatchEvent(new Event('resize'));
+        }
+
+        function openDeliveryHub() {
+            document.getElementById('sales-hub-view').style.display = 'none';
+            document.getElementById('invoice-editor-view').style.display = 'none';
+            document.getElementById('delivery-hub-view').style.display = 'flex';
+            currentSalesView = 'delivery';
+            loadDeliveryTransactions();
         }
 
         function loadHubTransactions() {
@@ -1308,19 +1393,38 @@
             
             invoices.forEach(inv => {
                 const tr = document.createElement('tr');
-                const statusClass = inv.status === 'draft' ? 'draft' : 'completed';
-                const statusText = inv.status === 'draft' ? 'مسودة' : 'مكتملة';
+                let statusClass = 'completed';
+                let statusText = 'مكتملة';
+                if (inv.status === 'draft') { statusClass = 'draft'; statusText = 'مسودة'; }
+                else if (inv.status === 'preliminary') { statusClass = 'draft'; statusText = 'مبدئية'; }
+                else if (inv.status === 'pending_delivery') { statusClass = 'draft'; statusText = 'بانتظار التسليم'; }
+                else if (inv.status === 'delivered') { statusClass = 'completed'; statusText = 'تم التسليم'; }
                 
+                let typeText = '🛒 مباشر';
+                if (inv.saleType === 'delivery') typeText = '🚚 تسليم';
+                else if (inv.saleType === 'preliminary') typeText = '📋 مبدئية';
+                else if (inv.status === 'pending_delivery') typeText = '🛒 جديدة';
+
+                let actionBtns = `
+                    <button onclick="editHubTransaction('${inv.invoiceNo}')" style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; border-radius:6px; padding:4px 8px; cursor:pointer; margin-left:4px;">تعديل / عرض</button>
+                    <button onclick="deleteHubTransaction('${inv.invoiceNo}')" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:6px; padding:4px 8px; cursor:pointer; margin-left:4px;">حذف</button>
+                `;
+
+                if (inv.status === 'preliminary') {
+                    actionBtns = `
+                        <button onclick="convertToOfficial('${inv.invoiceNo}')" style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:#10b981; border-radius:6px; padding:4px 8px; cursor:pointer; margin-left:4px;">تحويل لرسمية</button>
+                        ` + actionBtns;
+                }
+
                 tr.innerHTML = `
                     <td style="text-align:right; font-weight:800; color:var(--gold-primary);">${inv.invoiceNo}</td>
                     <td style="text-align:right; color:var(--text-dim);">${new Date(inv.timestamp).toLocaleString('ar-EG')}</td>
                     <td style="text-align:right; font-weight:600;">${inv.customerName || 'عميل نقدي'}</td>
-                    <td style="text-align:right; color:var(--text-dim);">${inv.saleType === 'delivery' ? '🚚 تسليم' : inv.saleType === 'split' ? '🏭 مصنع' : '🛒 مباشر'}</td>
-                    <td style="text-align:center; font-weight:900; direction:ltr;">${fmtNum(inv.totals.grandTotal)} SDG</td>
+                    <td style="text-align:right; color:var(--text-dim);">${typeText}</td>
+                    <td style="text-align:center; font-weight:900; direction:ltr;">${fmtNum(inv.totals?.grandTotal || inv.grandTotal || 0)} SDG</td>
                     <td style="text-align:center;"><span class="hub-badge ${statusClass}">${statusText}</span></td>
                     <td style="text-align:center;">
-                        <button onclick="editHubTransaction('${inv.invoiceNo}')" style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; border-radius:6px; padding:4px 8px; cursor:pointer; margin-left:4px;">تعديل / عرض</button>
-                        <button onclick="deleteHubTransaction('${inv.invoiceNo}')" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:6px; padding:4px 8px; cursor:pointer;">حذف</button>
+                        ${actionBtns}
                     </td>
                 `;
                 tbody.appendChild(tr);

@@ -386,59 +386,75 @@
 
     <style>
         .hub-action-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            padding: 15px 20px;
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 12px 15px;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
+            gap: 15px;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
             position: relative;
             overflow: hidden;
-            z-index: 1;
+            height: 80px; /* Reduced height to ~50% of the previous tall card */
         }
-        .hub-action-card::before {
-            content: '';
+        .hub-action-card::after {
+            content: "";
             position: absolute;
             top: 0; left: -100%;
             width: 50%; height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%);
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%);
             transform: skewX(-25deg);
             transition: all 0.6s ease;
-            z-index: -1;
         }
-        .hub-action-card:hover::before {
+        .hub-action-card:hover::after {
             left: 200%;
         }
         .hub-action-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
         }
         .hub-action-card .icon {
-            font-size: 2.2rem;
-            margin-bottom: 8px;
-            transition: transform 0.4s ease;
+            font-size: 1.8rem;
+            margin-bottom: 0;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
         }
         .hub-action-card:hover .icon {
-            transform: scale(1.15) rotate(5deg);
+            transform: scale(1.1) rotate(-5deg);
+        }
+        .hub-action-card .text-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: right;
         }
         .hub-action-card .title {
-            font-size: 1.15rem;
+            font-size: 1.05rem;
             font-weight: 800;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
+            letter-spacing: 0.5px;
         }
         .hub-action-card .subtitle {
-            font-size: 0.75rem;
-            color: var(--text-dim);
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
             font-weight: 500;
-            text-align: center;
-            line-height: 1.4;
+            text-align: right;
+            margin: 0;
         }
         .hub-badge {
             padding: 4px 10px;
@@ -593,35 +609,39 @@
         <!-- Action Cards -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
             <!-- Purchase Invoice -->
-            <button onclick="openPurchaseEditor('direct')" class="hub-action-card bento-card" style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.02)); border-color: rgba(16,185,129,0.3); box-shadow: inset 0 0 20px rgba(16,185,129,0.05);">
-                <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 60%); pointer-events: none;"></div>
-                <div class="icon" style="color: #10b981; text-shadow: 0 0 20px rgba(16, 185, 129, 0.6);">🧾</div>
-                <div class="title" style="color: #10b981;">فاتورة مشتريات</div>
-                <div class="subtitle">إنشاء فاتورة شراء جديدة (شاملة المباشر والمصانع) تؤثر على المخزون والحسابات.</div>
+            <button onclick="openPurchaseEditor('direct')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.02)); border-color: rgba(16,185,129,0.2);">
+                <div class="icon" style="color: #10b981; text-shadow: 0 0 10px rgba(16, 185, 129, 0.4); box-shadow: inset 0 0 10px rgba(16,185,129,0.1);">🧾</div>
+                <div class="text-content">
+                    <div class="title" style="color: #10b981;">فاتورة مشتريات</div>
+                    <div class="subtitle">إنشاء فاتورة شراء جديدة تؤثر على المخزون والحسابات.</div>
+                </div>
             </button>
 
             <!-- Goods Receipt Note -->
-            <button onclick="window.location.href='purchase-receipt.html'" class="hub-action-card bento-card" style="background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(56,189,248,0.02)); border-color: rgba(56,189,248,0.3); box-shadow: inset 0 0 20px rgba(56,189,248,0.05);">
-                <div style="position: absolute; bottom: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 60%); pointer-events: none;"></div>
-                <div class="icon" style="color: #38bdf8; text-shadow: 0 0 20px rgba(56, 189, 248, 0.6);">🚛</div>
-                <div class="title" style="color: #38bdf8;">استلام بضاعة (GRN)</div>
-                <div class="subtitle">استلام البضاعة المعلقة وإدخالها فعلياً للمستودعات وتأكيد استلامها.</div>
+            <button onclick="window.location.href='purchase-receipt.html'" class="hub-action-card" style="background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(56,189,248,0.02)); border-color: rgba(56,189,248,0.2);">
+                <div class="icon" style="color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); box-shadow: inset 0 0 10px rgba(56,189,248,0.1);">🚛</div>
+                <div class="text-content">
+                    <div class="title" style="color: #38bdf8;">استلام بضاعة (GRN)</div>
+                    <div class="subtitle">استلام البضاعة المعلقة وإدخالها للمستودعات.</div>
+                </div>
             </button>
 
             <!-- Purchase Return -->
-            <button onclick="window.location.href='purchase-return.html'" class="hub-action-card bento-card" style="background: linear-gradient(135deg, rgba(244,63,94,0.1), rgba(244,63,94,0.02)); border-color: rgba(244,63,94,0.3); box-shadow: inset 0 0 20px rgba(244,63,94,0.05);">
-                <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(244,63,94,0.1) 0%, transparent 60%); pointer-events: none;"></div>
-                <div class="icon" style="color: #f43f5e; text-shadow: 0 0 20px rgba(244, 63, 94, 0.6);">↩️</div>
-                <div class="title" style="color: #f43f5e;">استرداد بضاعة</div>
-                <div class="subtitle">مردودات مشتريات من فواتير سابقة مع تأثير عكسي على الحسابات والمخزون.</div>
+            <button onclick="window.location.href='purchase-return.html'" class="hub-action-card" style="background: linear-gradient(135deg, rgba(244,63,94,0.1), rgba(244,63,94,0.02)); border-color: rgba(244,63,94,0.2);">
+                <div class="icon" style="color: #f43f5e; text-shadow: 0 0 10px rgba(244, 63, 94, 0.4); box-shadow: inset 0 0 10px rgba(244,63,94,0.1);">↩️</div>
+                <div class="text-content">
+                    <div class="title" style="color: #f43f5e;">استرداد بضاعة</div>
+                    <div class="subtitle">مردودات مشتريات مع تأثير عكسي على الحسابات.</div>
+                </div>
             </button>
 
             <!-- Proforma Invoice -->
-            <button onclick="openPurchaseEditor('proforma')" class="hub-action-card bento-card" style="background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(168,85,247,0.02)); border-color: rgba(168,85,247,0.3); box-shadow: inset 0 0 20px rgba(168,85,247,0.05);">
-                <div style="position: absolute; bottom: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(168,85,247,0.1) 0%, transparent 60%); pointer-events: none;"></div>
-                <div class="icon" style="color: #a855f7; text-shadow: 0 0 20px rgba(168, 85, 247, 0.6);">📋</div>
-                <div class="title" style="color: #a855f7;">فاتورة مبدئية</div>
-                <div class="subtitle" style="color: #cbd5e1;">عرض سعر / طلب شراء. <br><span style="color: #fbbf24; font-weight: bold;">(لا تؤثر محاسبياً ولا مخزنياً)</span></div>
+            <button onclick="openPurchaseEditor('proforma')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(168,85,247,0.02)); border-color: rgba(168,85,247,0.2);">
+                <div class="icon" style="color: #a855f7; text-shadow: 0 0 10px rgba(168, 85, 247, 0.4); box-shadow: inset 0 0 10px rgba(168,85,247,0.1);">📋</div>
+                <div class="text-content">
+                    <div class="title" style="color: #a855f7;">فاتورة مبدئية</div>
+                    <div class="subtitle">عرض سعر / طلب شراء (لا تؤثر محاسبياً ولا مخزنياً).</div>
+                </div>
             </button>
         </div>
 
