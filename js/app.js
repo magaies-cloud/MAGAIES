@@ -495,13 +495,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Global Authentication & Permission Middleware ---
     if (!window.location.pathname.includes('login')) {
         // Enforce Strict Window-Bound Session (Disable "Remember Me" across browser restarts)
-        if (document.cookie.indexOf('session_active=true') === -1) {
+        // Use sessionStorage (cleared when browser closes, NOT on F5 refresh)
+        if (!sessionStorage.getItem('session_active')) {
             if (localStorage.getItem('authToken') || localStorage.getItem('user')) {
-                // Browser was closed and reopened. Wipe data completely!
-                if (window.logout) {
-                    window.logout(true); // true = force bypass offline confirm
-                    return;
-                }
+                // Browser was closed and reopened — but DO NOT wipe, just redirect to re-login
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+                return;
             }
         }
 
