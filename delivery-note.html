@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>??????? 2026 - ??? ????? ?????</title>
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
-    <link rel="stylesheet" href="css/components.css?v=20260615">
+    <link rel="stylesheet" href="css/components.css?v=20260616_2">
         <style>
         .container { padding: 20px; padding-bottom: 100px; }
 
@@ -131,7 +131,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-    <script src="js/app.js?v=1781537955"></script>
+    <script src="js/app.js?v=20260616_2"></script>
     <script>
         let allInvoices = [];
 
@@ -234,8 +234,8 @@
                             <div class="order-id">?? ${inv.invoiceNo || inv.id || '??? ?????'}</div>
                             <div class="order-meta">
                                 ?? ${inv.customerName || inv.customer || '???? ????'}
-                                &nbsp;·&nbsp;
-                                ?? ${inv.date || '—'}
+                                &nbsp;ï¿½&nbsp;
+                                ?? ${inv.date || 'ï¿½'}
                             </div>
                         </div>
                         <span class="order-status ${isPending ? 'pending' : 'delivered'}">
@@ -279,7 +279,7 @@
             deliveries.push({
                 id:          'dn_' + Date.now(),
                 invoiceNo:   invoiceNo,
-                driverName:  driver || '—',
+                driverName:  driver || 'ï¿½',
                 deliveredAt: new Date().toISOString(),
                 deliveredBy: JSON.parse(localStorage.getItem('user') || '{}').fullName || 'system'
             });
@@ -316,7 +316,7 @@
             }
 
             if (window.logSystemAction) {
-                window.logSystemAction('Delivery', 'sales', `?? ????? ????? ???????? ${invoiceNo} — ??????: ${driver || '—'}`);
+                window.logSystemAction('Delivery', 'sales', `?? ????? ????? ???????? ${invoiceNo} ï¿½ ??????: ${driver || 'ï¿½'}`);
             }
 
             if (window.showToast) {
