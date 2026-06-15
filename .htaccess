@@ -1,0 +1,11 @@
+# Prevent access to .env files, git directories, and other sensitive files
+<FilesMatch "\.(env|pem|bat|log|md|sql)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Block access to hidden directories (like .git)
+RedirectMatch 404 /\.
+
+# Disable directory listing
+Options -Indexes

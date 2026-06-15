@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>??? ??? ????? ???? | Al-Sajana ERP</title>
+    <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260615">
+    <link rel="stylesheet" href="css/sales-invoice.css">
+    <style>
+        .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
+        .toast {
+            padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem;
+            display:flex; align-items:center; gap:8px; pointer-events:auto;
+            backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5);
+            animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
+            font-family:'Cairo',sans-serif; max-width:90vw;
+        }
+        .toast.success { background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); color:#34d399; }
+        .toast.error { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#f87171; }
+        .toast.hide { animation:toastOut 0.4s forwards; }
+        @keyframes toastIn { from { opacity:0; transform:translateY(-20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
+        @keyframes toastOut { to { opacity:0; transform:translateY(-20px) scale(0.95); } }
+
+        .top-action-bar { background: rgba(239, 68, 68, 0.1); border-bottom: 1px solid rgba(239, 68, 68, 0.2); }
+        .action-tab.active { background: #ef4444; color: #fff; border-color: #ef4444; }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-input {
+            width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-primary); padding: 10px 12px; border-radius: 8px;
+            font-family: inherit; font-size: 0.95rem; transition: all 0.2s;
+        }
+        .form-input:focus { border-color: #ef4444; background: rgba(0,0,0,0.4); outline: none; }
+        .form-input.amount { color: #f87171; font-weight: 700; font-family: monospace; font-size: 1.1rem; }
+        
+        .form-section-title { 
+            font-size: 1.1rem; font-weight: 700; color: #f87171; 
+            margin-bottom: 15px; display: flex; align-items: center; gap: 8px; 
+            border-bottom: 1px solid rgba(239,68,68,0.2); padding-bottom: 10px; 
+        }
+
+        .balance-summary {
+            background: rgba(249, 115, 22, 0.1);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            border-radius: 8px;
+            display: flex;
+            padding: 8px 15px;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: #fdba74;
+            float: left; /* Left align for RTL */
+            margin-top: -5px;
+        }
+        .bal-item strong { color: #f97316; margin-right: 5px; }
+
+        /* Custom Radio Buttons */
+        .radio-group {
+            display: flex; gap: 20px; align-items: center; padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px;
+        }
+        .radio-label {
+            display: flex; align-items: center; gap: 8px; cursor: pointer;
+            font-weight: 600; color: var(--text-primary);
+        }
+        .radio-label input[type="radio"] {
+            width: 18px; height: 18px; cursor: pointer;
+            accent-color: #ef4444;
+        }
+
+        .dynamic-section { display: none; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.1); margin-bottom: 15px; }
+        .dynamic-section.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .checkbox-label {
+            display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; margin-top: 10px;
+        }
+        .checkbox-label input { width: 16px; height: 16px; accent-color: #ef4444; }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Animated Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <div class="pos-wrapper" style="max-width: 900px; margin: 0 auto; padding-bottom: 100px;">
+        <!-- BREADCRUMB -->
+        <div class="page-breadcrumb">
+            <button onclick="window.location.href='dashboard-pro.html'" class="bc-link" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; margin-left:8px;" title="?????? ????????">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+            <a data-href="dashboard-pro.html" onclick="window.location.href='dashboard-pro.html'" class="bc-link" title="???? ??????">????????</a>
+            <span class="bc-sep">‹</span>
+            <span class="bc-current">??? ??? ????</span>
+        </div>
+
+        <!-- HEADER -->
+        <div class="top-action-bar">
+            <div class="action-tabs">
+                <button class="action-tab active">
+                    <span class="tab-icon">??</span><span class="tab-label">??? ??? ????? ????</span>
+                </button>
+            </div>
+            <div class="top-bar-meta" style="display:flex; align-items:center; gap:10px;">
+                <div class="inv-nav" style="display:flex; align-items:center; background:rgba(0,0,0,0.2); border-radius:8px; border:1px solid rgba(255,255,255,0.05); padding: 4px;">
+                    <button class="btn-icon" style="padding:4px; color:var(--text-muted); cursor:pointer; background:none; border:none; transition: color 0.2s;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='var(--text-muted)'" onclick="loadPreviousVoucher()" title="????? ??????">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                    <div class="inv-badge" id="voucher-number" style="margin:0 10px; color:#f87171; min-width:60px; text-align:center; font-size: 1.1rem;">000001</div>
+                    <button class="btn-icon" style="padding:4px; color:var(--text-muted); cursor:pointer; background:none; border:none; transition: color 0.2s;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='var(--text-muted)'" onclick="loadNextVoucher()" title="????? ??????">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN FORM -->
+        <div class="glass-panel" style="padding: 25px; margin-top: 15px;">
+            
+            <!-- SECTION 1: BENEFICIARY & BASIC INFO -->
+            <div style="margin-bottom: 25px;">
+                <div class="balance-summary">
+                    <div class="bal-item">?????: <strong id="bal-checks">50</strong></div>
+                    <div style="border-right: 1px solid rgba(249,115,22,0.3);"></div>
+                    <div class="bal-item">???????: <strong id="bal-debt">70</strong></div>
+                    <div style="border-right: 1px solid rgba(249,115,22,0.3);"></div>
+                    <div class="bal-item">???? ??????: <strong id="bal-loan">120</strong></div>
+                </div>
+                
+                <h3 class="form-section-title">?? ???????? ???????? ????????</h3>
+                
+                <div class="form-grid">
+                    <div>
+                        <label class="label">????? ?????</label>
+                        <input type="date" class="form-input" id="hdr-date">
+                    </div>
+                    <div>
+                        <label class="label">??? ????</label>
+                        <select class="form-input" id="to-account">
+                            <!-- Populated via JS -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                    <div>
+                        <label class="label">?????? (???? ????)</label>
+                        <input type="text" class="form-input amount" id="amount-local" value="0" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv('local')" onblur="this.value=fmtNum(parseNum(this.value))">
+                    </div>
+                    <div>
+                        <label class="label">??????</label>
+                        <select class="form-input" id="currency" onchange="updateCurrency()">
+                            <option value="SDG">???? (SDG)</option>
+                            <option value="USD">????? (USD)</option>
+                            <option value="AED">???? (AED)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="label">???????</label>
+                        <input type="text" class="form-input" id="exchange-rate" value="1.0" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv('rate')" readonly>
+                    </div>
+                    <div>
+                        <label class="label">?????? ??????? (?????)</label>
+                        <input type="text" class="form-input amount" id="amount-foreign" value="0" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv('foreign')" onblur="this.value=fmtNum(parseNum(this.value))">
+                    </div>
+                </div>
+
+                <div class="form-grid" style="grid-template-columns: 1fr;">
+                    <div>
+                        <label class="label">??????</label>
+                        <input type="text" class="form-input" id="to-statement" placeholder="????: ??? ???? ?????...">
+                    </div>
+                    <div>
+                        <label class="label">???????? (??????? ??????)</label>
+                        <input type="text" class="form-input" id="beneficiary-name" placeholder="??? ????? ???????...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: DISBURSE FROM -->
+            <div style="margin-bottom: 25px;">
+                <h3 class="form-section-title" style="color: #38bdf8; border-color: rgba(56,189,248,0.2);">?? ???? ??</h3>
+                <div class="form-grid">
+                    <div>
+                        <label class="label">?? ???? (?????? / ????? ??????)</label>
+                        <select class="form-input" id="from-account">
+                            <option value="safe-001">??????? ????????</option>
+                            <option value="safe-002">????? ?????????</option>
+                            <option value="bank-001">??? (???? 1)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="label">??????</label>
+                        <input type="text" class="form-input" id="from-statement" placeholder="???? ??????...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: PAYMENT METHOD -->
+            <div>
+                <h3 class="form-section-title" style="color: #fbbf24; border-color: rgba(251,191,36,0.2);">?? ????? ?????</h3>
+                
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="payment_method" value="cash" checked onchange="togglePaymentMethod()">
+                        ????
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="payment_method" value="check" onchange="togglePaymentMethod()">
+                        ???
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="payment_method" value="mobile" onchange="togglePaymentMethod()">
+                        ????? ????
+                    </label>
+                </div>
+
+                <!-- MOBILE TRANSFER FIELDS -->
+                <div id="section-mobile" class="dynamic-section">
+                    <div class="form-grid">
+                        <div>
+                            <label class="label">??? ????? ??????</label>
+                            <input type="text" class="form-input" id="mobile-transfer-no" placeholder="??? ???????...">
+                        </div>
+                        <div>
+                            <label class="label">??????</label>
+                            <input type="text" class="form-input" id="mobile-note" placeholder="??????? ???????...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHECK FIELDS -->
+                <div id="section-check" class="dynamic-section">
+                    <div class="form-grid">
+                        <div>
+                            <label class="label">??? ?????</label>
+                            <input type="text" class="form-input" id="check-no" placeholder="000000">
+                        </div>
+                        <div>
+                            <label class="label">????? ?????</label>
+                            <input type="date" class="form-input" id="check-date">
+                        </div>
+                        <div>
+                            <label class="label">????? ?????????</label>
+                            <input type="date" class="form-input" id="check-due-date">
+                        </div>
+                        <div>
+                            <label class="label">??????</label>
+                            <input type="text" class="form-input" id="check-ref" placeholder="??? ??????...">
+                        </div>
+                        <div>
+                            <label class="label">??? ??????</label>
+                            <input type="text" class="form-input" id="check-ref-no" placeholder="??? ??????...">
+                        </div>
+                        <div>
+                            <label class="label">??? ?????</label>
+                            <input type="text" class="form-input" id="check-branch" placeholder="?????...">
+                        </div>
+                    </div>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="check-settle-local">
+                        ???? ????? ??????
+                    </label>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- STICKY FOOTER -->
+        <div class="sticky-footer" style="background: rgba(15,23,42,0.95); border-top: 1px solid rgba(239,68,68,0.3); border-radius: 12px 12px 0 0; padding: 15px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;">
+            <div class="footer-actions" style="width: 100%; justify-content: center; max-width: 900px; margin: 0 auto;">
+                <button class="btn btn-ghost" onclick="resetVoucher()">?? ????</button>
+                <button class="btn btn-ghost" style="color: #f87171; border-color: rgba(239,68,68,0.3);" onclick="confirmDelete()">??? ???</button>
+                <button class="btn btn-ghost" onclick="printVoucher()">??? ?????</button>
+                <button class="btn btn-success" style="background: #ef4444; min-width: 200px;" onclick="submitVoucher()">? ?????? ???? ?????</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="js/app.js?v=1781537955"></script>`n    <script src="js/single-cash-payment.js"></script>
+</body>
+</html>
+

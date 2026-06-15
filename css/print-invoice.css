@@ -1,0 +1,271 @@
+﻿/* ═══════════════════════════════════════════════════════════
+   print-invoice.css  — Professional Invoice Print Styles
+   Shared by: direct-sales, sales-invoice, purchase, reserved-sales
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Print Preview Modal ─────────────────────────────────── */
+.print-preview-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(12px);
+    z-index: 999999;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    overflow-y: auto;
+}
+.print-preview-overlay.show { display: flex; }
+
+.print-preview-wrapper {
+    background: #fff;
+    border-radius: 12px;
+    max-width: 800px;
+    width: 100%;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+    margin: auto;
+    overflow: hidden;
+    direction: rtl;
+    font-family: 'Tajawal', 'Noto Sans Arabic', Tahoma, Arial, sans-serif;
+    color: #1a1a2e;
+}
+
+/* ── Preview Toolbar (only shown on screen, not printed) ─── */
+.print-toolbar {
+    background: #1e293b;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.print-toolbar-title {
+    color: #f8fafc;
+    font-weight: 800;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.print-toolbar-actions { display: flex; gap: 8px; align-items: center; }
+.btn-print-now {
+    background: linear-gradient(135deg, #38bdf8, #0284c7);
+    color: white; border: none; padding: 9px 20px; border-radius: 8px;
+    font-weight: 800; cursor: pointer; font-size: 0.85rem;
+    display: flex; align-items: center; gap: 6px; transition: opacity 0.2s;
+}
+.btn-print-now:hover { opacity: 0.85; }
+.btn-close-preview {
+    background: rgba(239,68,68,0.15); color: #f87171;
+    border: 1px solid rgba(239,68,68,0.3); padding: 9px 16px;
+    border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem;
+    transition: all 0.2s;
+}
+.btn-close-preview:hover { background: rgba(239,68,68,0.25); }
+.print-copy-badge {
+    font-size: 0.75rem; color: #94a3b8; background: rgba(255,255,255,0.05);
+    padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* ══════════════════════════════════════════════════════════
+   THE ACTUAL INVOICE (printed on paper)
+   ══════════════════════════════════════════════════════════ */
+.inv-doc {
+    padding: 28px 32px;
+    page-break-after: always;
+    background: #ffffff;
+    min-height: 600px;
+}
+.inv-doc:last-child { page-break-after: auto; }
+
+/* ── Header ─────────────────────────────────────────────── */
+.inv-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 3px solid #1e3a5f;
+}
+.inv-logo-section { display: flex; align-items: center; gap: 12px; }
+.inv-logo-box {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, #1e3a5f, #38bdf8);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+}
+.inv-company-name {
+    font-size: 1.3rem; font-weight: 900; color: #1e3a5f; margin: 0;
+    line-height: 1.3;
+}
+.inv-company-sub {
+    font-size: 0.78rem; color: #64748b; margin-top: 2px;
+}
+.inv-title-section { text-align: left; }
+.inv-type-badge {
+    display: inline-block;
+    background: #1e3a5f; color: white;
+    padding: 6px 18px; border-radius: 20px;
+    font-size: 1rem; font-weight: 800; letter-spacing: 0.03em;
+    margin-bottom: 8px;
+}
+.inv-number-row { font-size: 0.85rem; color: #475569; }
+.inv-number-row strong { color: #1e3a5f; font-size: 1rem; }
+
+/* ── Info Grid ──────────────────────────────────────────── */
+.inv-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 22px;
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+}
+.inv-info-block {}
+.inv-info-label {
+    font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;
+    letter-spacing: 0.08em; font-weight: 700; margin-bottom: 3px;
+}
+.inv-info-value { font-size: 0.9rem; font-weight: 700; color: #1e293b; }
+
+/* ── Items Table ─────────────────────────────────────────── */
+.inv-table {
+    width: 100%; border-collapse: collapse;
+    margin-bottom: 18px;
+    font-size: 0.85rem;
+}
+.inv-table thead tr {
+    background: #1e3a5f;
+    color: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+.inv-table th {
+    padding: 10px 10px; text-align: center;
+    font-weight: 700; font-size: 0.8rem;
+    white-space: nowrap;
+}
+.inv-table th:first-child { border-radius: 0 8px 0 0; width: 36px; }
+.inv-table th:last-child  { border-radius: 8px 0 0 0; }
+.inv-table th.text-right  { text-align: right; }
+
+.inv-table td {
+    padding: 9px 10px; text-align: center;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+}
+.inv-table td.text-right { text-align: right; }
+.inv-table tbody tr:nth-child(even) { background: #f8fafc; }
+.inv-table tbody tr:last-child td { border-bottom: none; }
+
+.inv-table tfoot tr { background: #f1f5f9; font-weight: 700; }
+.inv-table tfoot td { padding: 10px; color: #1e293b; }
+
+/* ── Totals Box ─────────────────────────────────────────── */
+.inv-totals-section {
+    display: flex;
+    justify-content: flex-start;
+    gap: 20px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+.inv-notes-box {
+    flex: 1; min-width: 180px;
+    background: #fffbeb; border: 1px solid #fde68a;
+    border-radius: 8px; padding: 12px; font-size: 0.82rem;
+    color: #78350f; max-height: 100px;
+}
+.inv-notes-label { font-weight: 800; margin-bottom: 4px; }
+.inv-totals-box {
+    min-width: 240px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px; overflow: hidden;
+    font-size: 0.85rem;
+}
+.inv-total-row {
+    display: flex; justify-content: space-between;
+    padding: 8px 14px; border-bottom: 1px solid #e2e8f0;
+    color: #475569;
+}
+.inv-total-row:last-child { border-bottom: none; }
+.inv-total-row.grand {
+    background: #1e3a5f; color: white; font-weight: 900; font-size: 1rem;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.inv-total-row .label { }
+.inv-total-row .value { font-weight: 700; }
+.inv-total-row.grand .value { color: #7dd3fc; }
+
+/* ── Signatures Row ─────────────────────────────────────── */
+.inv-signatures {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1.5px dashed #cbd5e1;
+    gap: 20px;
+}
+.inv-sig-block { text-align: center; flex: 1; }
+.inv-sig-line {
+    border-top: 1.5px solid #94a3b8;
+    margin: 30px auto 8px;
+    width: 80%;
+}
+.inv-sig-label { font-size: 0.78rem; color: #64748b; font-weight: 600; }
+
+/* ── Footer ─────────────────────────────────────────────── */
+.inv-doc-footer {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 0.72rem;
+    color: #94a3b8;
+    padding-top: 10px;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* ── Copy Separator ─────────────────────────────────────── */
+.inv-copy-header {
+    background: #f1f5f9;
+    border: 2px dashed #94a3b8;
+    border-radius: 8px;
+    padding: 6px 16px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #475569;
+    font-weight: 700;
+}
+.inv-copy-label { font-weight: 800; color: #1e3a5f; }
+
+/* ── Warehouse Note ─────────────────────────────────────── */
+.inv-wh-note-header {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    color: white; padding: 10px 18px; border-radius: 8px;
+    margin-bottom: 18px; display: flex; align-items: center; gap: 8px;
+    font-weight: 800; font-size: 0.9rem;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+
+/* ══════════════════════════════════════════════════════════
+   @MEDIA PRINT — Final paper output
+   ══════════════════════════════════════════════════════════ */
+@media print {
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+    body > *:not(#print-invoice-frame) { display: none !important; }
+    #print-invoice-frame { display: block !important; }
+
+    .print-toolbar { display: none !important; }
+    .print-preview-overlay { display: block !important; position: static !important; background: none !important; padding: 0 !important; overflow: visible !important; }
+    .print-preview-wrapper { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; }
+
+    .inv-doc { padding: 15mm 15mm; page-break-after: always; }
+    .inv-doc:last-child { page-break-after: auto; }
+}

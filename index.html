@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مؤسسة السجانة - نظام إدارة الموارد (ERP)</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface-color: rgba(30, 41, 59, 0.7);
+            --primary-accent: #38bdf8;
+            --secondary-accent: #818cf8;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(129, 140, 248, 0.15), transparent 25%);
+            background-attachment: fixed;
+        }
+
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: var(--surface-color);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Navbar */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            border-bottom: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+        }
+
+        .login-btn-nav {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .login-btn-nav:hover {
+            background: var(--primary-accent);
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #fff, var(--primary-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            animation: slideUp 1s ease-out;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 20px;
+            animation: slideUp 1.2s ease-out;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
+            color: #fff;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 1.2rem;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(56, 189, 248, 0.5);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 5%;
+            background: rgba(15, 23, 42, 0.5);
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 60px;
+            color: #fff;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+            z-index: 0;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-accent);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(56, 189, 248, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+            display: inline-block;
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.5));
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #fff;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: 1.05rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 5%;
+            text-align: center;
+            border-top: 1px solid var(--glass-border);
+            background: var(--bg-color);
+        }
+
+        footer p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Floating Animation */
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .hero p { font-size: 1.1rem; }
+            .features-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="glass-panel">
+        <a href="#" class="logo">
+            <div class="logo-icon">📊</div>
+            مؤسسة السجانة
+        </a>
+        <div style="display: flex; gap: 10px;">
+            <a data-href="register.html" onclick="window.location.href='register.html'" class="login-btn-nav" style="background: var(--primary-accent); border-color: var(--primary-accent); color: #0f172a;">إنشاء مساحة عمل</a>
+            <a data-href="login.html" onclick="window.location.href='login.html'" class="login-btn-nav">تسجيل الدخول</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="floating" style="font-size: 5rem; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(56,189,248,0.5));">🚀</div>
+        <h1>نظام السجانة لإدارة الموارد (ERP)</h1>
+        <p>الحل التقني الأمثل لإدارة المبيعات، المخازن، الحسابات، والعمليات الإدارية في مكان واحد. مصمم خصيصاً ليمنح مؤسستك سرعة الأداء ودقة النتائج.</p>
+        <div class="cta-group">
+            <a data-href="register.html" onclick="window.location.href='register.html'" class="btn-primary" style="background: linear-gradient(135deg, #10b981, #34d399); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);">
+                إنشاء مساحة عمل
+                <span>🏢</span>
+            </a>
+            <a data-href="login.html" onclick="window.location.href='login.html'" class="btn-primary" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: none;">
+                تسجيل الدخول للنظام
+                <span>🔒</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <h2 class="section-title">مميزات النظام</h2>
+        <div class="features-grid">
+            
+            <div class="feature-card glass-panel">
+                <div class="feature-icon">🛒</div>
+                <h3>إدارة المبيعات والمشتريات</h3>
+                <p>نظام نقاط بيع متطور، إصدار فواتير سريعة، إدارة عروض الأسعار، وتتبع كامل لدورة المشتريات والموردين بكل سهولة.</p>
+            </div>
+
+            <div class="feature-card glass-panel">
+                <div class="feature-icon">📦</div>
+                <h3>مراقبة المخزون</h3>
+                <p>تتبع دقيق لحركة الأصناف، تنبيهات تلقائية للنواقص، إدارة متعددة للمخازن، وجرد دوري شامل يضمن دقة الأرصدة.</p>
+            </div>
+
+            <div class="feature-card glass-panel">
+                <div class="feature-icon">📈</div>
+                <h3>تقارير مالية دقيقة</h3>
+                <p>شجرة حسابات مرنة، قيود يومية، موازنة، وتقارير أرباح وخسائر لحظية تمنحك الرؤية الشاملة للوضع المالي لمؤسستك.</p>
+            </div>
+
+            <div class="feature-card glass-panel">
+                <div class="feature-icon">🔐</div>
+                <h3>صلاحيات وأمان عالي</h3>
+                <p>نظام Zero-Trust للتوثيق، صلاحيات مخصصة لكل مستخدم، وسجل مراجعة (Audit Log) لتتبع كافة الحركات داخل النظام.</p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 مؤسسة السجانة التجارية. جميع الحقوق محفوظة. تطوير بواسطة نظام ERP السحابي.</p>
+    </footer>
+
+    <script>
+        // Navbar blur effect on scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.style.background = 'rgba(15, 23, 42, 0.9)';
+                nav.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.5)';
+            } else {
+                nav.style.background = 'rgba(30, 41, 59, 0.7)';
+                nav.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.1)';
+            }
+        });
+    </script>
+</body>
+</html>

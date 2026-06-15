@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل شركة جديدة - السجانة ERP SaaS</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+        }
+        .register-card {
+            width: 90%;
+            max-width: 450px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .input-group {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #1e293b;
+            color: white;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        .input-field:focus {
+            border-color: #38bdf8;
+            outline: none;
+        }
+        .subdomain-group {
+            display: flex;
+            align-items: center;
+        }
+        .subdomain-group .input-field {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            text-align: left;
+            direction: ltr;
+        }
+        .subdomain-addon {
+            background: #334155;
+            padding: 12px;
+            border: 1px solid #334155;
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+            color: #94a3b8;
+            direction: ltr;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-submit:hover {
+            background: #0ea5e9;
+        }
+        .link {
+            color: #38bdf8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: block;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Animated Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+
+    <div class="register-card">
+        <h2 style="margin-top:0;">🚀 ابدأ مع السجانة ERP</h2>
+        <p style="color: #94a3b8; font-size:0.9rem;">أنشئ مساحة العمل الخاصة بشركتك في ثوانٍ</p>
+
+        <div class="input-group">
+            <label>اسم الشركة (عربي أو إنجليزي)</label>
+            <input type="text" class="input-field" id="company_name" placeholder="مثال: شركة الأفق للتجارة">
+        </div>
+
+        <div class="input-group">
+            <label>الرابط المخصص للشركة</label>
+            <div class="subdomain-group">
+                <input type="text" class="input-field" id="subdomain" placeholder="alofoq" style="text-align:right;" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9\-]/g, '')">
+                <div class="subdomain-addon">.elsajana.com</div>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>الاسم الكامل لمالك الحساب</label>
+            <input type="text" class="input-field" id="owner_name" placeholder="محمد أحمد">
+        </div>
+
+        <div class="input-group">
+            <label>رقم الهاتف</label>
+            <input type="tel" class="input-field" id="owner_phone" placeholder="05XXXXXXXX">
+        </div>
+
+        <div class="input-group">
+            <label>البريد الإلكتروني</label>
+            <input type="email" class="input-field" id="owner_email" placeholder="example@email.com">
+        </div>
+
+        <div class="input-group">
+            <label>اسم المستخدم (لمدير النظام)</label>
+            <input type="text" class="input-field" id="username" placeholder="admin">
+        </div>
+
+        <div class="input-group">
+            <label>كلمة المرور</label>
+            <input type="password" class="input-field" id="password" placeholder="••••••••">
+        </div>
+
+        <button class="btn-submit" onclick="handleRegister()">إنشاء الحساب الآن</button>
+        <a data-href="login.html" onclick="window.location.href='login.html'" class="link">لديك حساب بالفعل؟ تسجيل الدخول</a>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        async function handleRegister() {
+            const company_name = document.getElementById('company_name').value;
+            const subdomain = document.getElementById('subdomain').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const owner_name = document.getElementById('owner_name').value;
+            const owner_phone = document.getElementById('owner_phone').value;
+            const owner_email = document.getElementById('owner_email').value;
+
+            if(!company_name || !subdomain || !username || !password || !owner_name || !owner_phone) {
+                alert('الرجاء تعبئة جميع الحقول الأساسية');
+                return;
+            }
+
+            try {
+                const res = await apiFetch('/auth/register', 'POST', {
+                    company_name, subdomain, username, password, owner_name, owner_phone, owner_email
+                });
+
+                if(res.success) {
+                    alert('تم إنشاء مساحة العمل بنجاح! يمكنك الآن تسجيل الدخول.');
+                    // In a real DNS wildcard setup, we might redirect to:
+                    // window.location.href = `https://${subdomain}.elsajana.com/login.html`;
+                    window.location.href = 'login.html';
+                }
+            } catch(e) {
+                alert(e.message);
+            }
+        }
+    </script>
+</body>
+</html>

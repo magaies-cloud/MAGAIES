@@ -1,0 +1,217 @@
+<!-- c:\mynewapp\frontend-pwa\audit-log.html -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>??????? 2026 - ??????? ??????</title>
+    <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260615">
+        <style>
+        .audit-container { padding: 20px; padding-bottom: 100px; }
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .filters-card {
+            background: var(--surface-color);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .filter-group { display: flex; flex-direction: column; gap: 5px; }
+        .filter-group label { font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); }
+        .filter-group select, .filter-group input {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            background: var(--bg-color);
+            color: var(--text-primary);
+        }
+
+        .data-table-wrapper {
+            background: var(--surface-color);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            overflow-x: auto;
+        }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: right; border-bottom: 1px solid var(--glass-border); }
+        th { background: rgba(0,0,0,0.2); font-weight: 800; color: var(--text-secondary); font-size: 0.9rem; }
+        [data-theme="light"] th { background: rgba(0,0,0,0.02); }
+        tr:hover { background: rgba(56, 189, 248, 0.05); }
+        
+        .badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 800;
+        }
+        
+        .empty-state { text-align: center; padding: 40px; color: var(--text-secondary); font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Animated Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    
+    <!-- Top Nav -->
+    <nav class="top-nav">
+        <div class="nav-right">
+            <button class="menu-btn" onclick="document.body.classList.toggle('sidebar-open')">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <h1 class="nav-title" style="color: #f87171;">? ??????? ?????? (??? ????????)</h1>
+        </div>
+        <div class="nav-left">
+            <button class="theme-toggle-btn" title="????? ??????">??</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content audit-container" id="main-content" style="display:none;">
+        <div class="page-title">
+            ? ??? ????? ?????? (???? 14 ???)
+        </div>
+
+        <div class="filters-card">
+            <div class="filter-group">
+                <label>????? ?????????</label>
+                <select id="filter-user" onchange="renderLogs()">
+                    <option value="all">????</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>????? ?????? / ??????</label>
+                <select id="filter-module" onchange="renderLogs()">
+                    <option value="all">????</option>
+                    <option value="login">????? ??????</option>
+                    <option value="sales">????????</option>
+                    <option value="purchase">?????????</option>
+                    <option value="finance">???????</option>
+                    <option value="master_data">???????? ????????</option>
+                    <option value="settings">????????? ??????????</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>??? ??????</label>
+                <input type="text" id="filter-search" placeholder="???? ?? ?????? ??????..." onkeyup="renderLogs()">
+            </div>
+        </div>
+
+        <div class="data-table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>????? ????????</th>
+                        <th>????????</th>
+                        <th>??????</th>
+                        <th>??? ??????</th>
+                        <th>????????</th>
+                    </tr>
+                </thead>
+                <tbody id="logs-table-body">
+                    <!-- Logs will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="js/app.js?v=1781537955"></script>
+    <script>
+        document.addEventListener('DBReady', () => {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) return;
+            const user = JSON.parse(userStr);
+            
+            // SECURITY CHECK: Only Admin or Security Level >= 8
+            if (user.securityLevel < 8 && user.role !== 'admin' && user.username !== 'admin') {
+                alert('?????? ?????? ??????? ?????? ????? ??????? ?????? ???.');
+                window.location.href = 'dashboard-pro.html';
+                return;
+            }
+            
+            document.getElementById('main-content').style.display = 'block';
+            
+            populateUserFilter();
+            renderLogs();
+        });
+
+        function populateUserFilter() {
+            const users = JSON.parse(localStorage.getItem('erp_users_v1') || '[]');
+            const select = document.getElementById('filter-user');
+            users.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.id;
+                opt.textContent = u.fullName || u.username;
+                select.appendChild(opt);
+            });
+        }
+
+        function getActionBadgeColor(action) {
+            const a = action.toLowerCase();
+            if (a.includes('delete') || a.includes('???') || a.includes('reject')) return 'background:rgba(239, 68, 68, 0.1); color:#ef4444;';
+            if (a.includes('add') || a.includes('create') || a.includes('?????') || a.includes('approve') || a.includes('login')) return 'background:rgba(16, 185, 129, 0.1); color:#10b981;';
+            if (a.includes('edit') || a.includes('update') || a.includes('?????')) return 'background:rgba(245, 158, 11, 0.1); color:#f59e0b;';
+            if (a.includes('print') || a.includes('?????')) return 'background:rgba(56, 189, 248, 0.1); color:#38bdf8;';
+            return 'background:rgba(156, 163, 175, 0.1); color:#6b7280;';
+        }
+
+        function renderLogs() {
+            const logs = JSON.parse(localStorage.getItem('erp_audit_logs') || '[]');
+            const tbody = document.getElementById('logs-table-body');
+            tbody.innerHTML = '';
+
+            const userFilter = document.getElementById('filter-user').value;
+            const moduleFilter = document.getElementById('filter-module').value;
+            const search = document.getElementById('filter-search').value.toLowerCase();
+
+            const filtered = logs.filter(l => {
+                const matchUser = userFilter === 'all' || l.userId === userFilter;
+                const matchModule = moduleFilter === 'all' || l.module === moduleFilter;
+                const matchSearch = l.description.toLowerCase().includes(search) || l.actionType.toLowerCase().includes(search);
+                return matchUser && matchModule && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="empty-state">?? ???? ????? ????? ????? ????</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(log => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-size:0.85rem; opacity:0.8;" dir="ltr">${new Date(log.timestamp).toLocaleString('en-GB')}</td>
+                    <td style="font-weight:bold;">${log.userName}</td>
+                    <td>${log.module}</td>
+                    <td><span class="badge" style="${getActionBadgeColor(log.actionType)}">${log.actionType}</span></td>
+                    <td style="max-width:300px; line-height:1.4;">${log.description}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>

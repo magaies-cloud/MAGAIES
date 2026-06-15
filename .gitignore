@@ -1,0 +1,41 @@
+# ── Environment & Secrets ──────────────────────────
+.env
+.env.local
+.env*.local
+*.pem
+*.key
+*.p12
+*.pfx
+
+# ── حماية ملفات الإعداد الحساسة ────────────────────
+setup_db.php
+test_db.php
+# لا تُرفع schema.php للإنتاج (أو قيّد وصولها عبر nginx)
+
+
+# ── Server Deploy Files ─────────────────────────────
+node_modules/
+package-lock.json
+
+# ── Deployment Scripts (sensitive) ─────────────────
+deploy_node.js
+ssh_key.pem
+upload_to_server.bat
+
+# ── OS & Editor ─────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Logs ────────────────────────────────────────────
+*.log
+npm-debug.log*
+
+# ── Vercel / Build ──────────────────────────────────
+.vercel
+dist/
+build/

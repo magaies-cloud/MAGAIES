@@ -1,0 +1,290 @@
+<!-- c:\mynewapp\frontend-pwa\login.html -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>السجانة 2026 - تسجيل الدخول</title>
+    <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260615">
+        <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--bg-color) 0%, var(--surface-color) 100%);
+        }
+        .login-card {
+            width: 90%;
+            max-width: 400px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            text-align: center;
+        }
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .title {
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: var(--primary-accent);
+        }
+        .input-group {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            background: var(--surface-color);
+            color: var(--text-primary);
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            box-shadow: 0 0 10px rgba(15, 76, 129, 0.2);
+            border-color: var(--primary-accent);
+        }
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            background: var(--primary-accent);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-login:active {
+            transform: scale(0.98);
+        }
+        .device-info {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card glass-panel">
+        <div class="logo">🏗️</div>
+        <div class="title">السجانة ERP 2026</div>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: -10px;">تسجيل الدخول (Zero-Trust Auth)</p>
+        
+        <div class="input-group">
+            <label>اسم المستخدم</label>
+            <input type="text" class="input-field" id="username" placeholder="أدخل اسم المستخدم">
+        </div>
+        
+        <div class="input-group">
+            <label>كلمة المرور</label>
+            <input type="password" class="input-field" id="password" placeholder="أدخل كلمة المرور">
+        </div>
+        
+        <button class="btn-login" onclick="handleLogin()">دخول آمن</button>
+        
+        <div class="device-info" id="device-id-display">جاري التحقق من الجهاز...</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="js/app.js?v=1781537955"></script>
+    
+    <script>
+        // Generate or get Device UUID
+        let deviceUuid = localStorage.getItem('deviceUuid');
+        if (!deviceUuid) {
+            deviceUuid = 'DEV-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
+            localStorage.setItem('deviceUuid', deviceUuid);
+        }
+        
+        document.getElementById('device-id-display').innerText = `معرف الجهاز: ${deviceUuid}`;
+
+        async function handleLogin() {
+            const username = document.getElementById('username').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                alert('يرجى إدخال اسم المستخدم وكلمة المرور');
+                return;
+            }
+
+            // --- 1. Online Login Attempt ---
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15-second timeout
+
+                const res = await fetch('api_index.php/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password }),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (res.ok) {
+                    const data = await res.json();
+                    document.cookie = "session_active=true; path=/";
+                    sessionStorage.setItem('session_active', 'true');
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    const userNameToDisplay = data.user.fullName || data.user.name || data.user.username || 'المستخدم';
+                    showLoginSuccessAnimation(userNameToDisplay);
+                    return;
+                } else {
+                    const err = await res.json();
+                    console.log("Online login failed, trying offline. Error:", err.message);
+                    // Do not return here, let it fall through to offline check
+                }
+            } catch (error) {
+                console.log('Online login failed or unreachable, checking local credentials...', error);
+            }
+
+            // --- 2. Offline Login Attempt (Scan all tenants) ---
+            let foundOfflineUser = null;
+            // First check DB_STORE if available
+            if (window.DB_STORE) {
+                for (let key in window.DB_STORE) {
+                    if (key.includes('erp_users')) {
+                        try {
+                            const users = JSON.parse(window.DB_STORE[key]);
+                            const u = users.find(x => btoa(x.username.toLowerCase()) === btoa(username) && btoa(x.password) === btoa(password));
+                            if (u) {
+                                foundOfflineUser = u;
+                                break;
+                            }
+                        } catch(e) {}
+                    }
+                }
+            }
+            
+            // Fallback to basic getItem if not found
+            if (!foundOfflineUser) {
+                const usersJson = localStorage.getItem('erp_users_v1') || localStorage.getItem('erp_users');
+                if (usersJson) {
+                    try {
+                        const users = JSON.parse(usersJson);
+                        foundOfflineUser = users.find(u => btoa(u.username.toLowerCase()) === btoa(username) && btoa(u.password) === btoa(password));
+                    } catch(e) {}
+                }
+            }
+
+            if (foundOfflineUser) {
+                document.cookie = "session_active=true; path=/";
+                sessionStorage.setItem('session_active', 'true');
+                localStorage.setItem('authToken', 'offline_token_' + Date.now());
+                localStorage.setItem('user', JSON.stringify(foundOfflineUser));
+                
+                // If it was found in a specific tenant prefix, we should set currentTenantId
+                for (let key in window.DB_STORE) {
+                    if (key.includes('erp_users') && window.DB_STORE[key].includes(username)) {
+                        const match = key.match(/tenant_(.*?)_/);
+                        if (match && match[1]) {
+                            sessionStorage.setItem('currentTenantId', match[1]);
+                        }
+                    }
+                }
+
+                const offlineNameToDisplay = foundOfflineUser.fullName || foundOfflineUser.name || foundOfflineUser.username || 'المستخدم';
+                showLoginSuccessAnimation(offlineNameToDisplay + ' (وضع الأوفلاين)');
+                return;
+            }
+
+            // DEBUG HELP: If still not found, check if "c" even exists with ANY password
+            if (username === 'c') {
+                let existingPasswords = [];
+                if (window.DB_STORE) {
+                    for (let key in window.DB_STORE) {
+                        if (key.includes('erp_users')) {
+                            try {
+                                const users = JSON.parse(window.DB_STORE[key]);
+                                const u = users.find(x => x.username.toLowerCase() === 'c');
+                                if (u) existingPasswords.push(u.password);
+                            } catch(e) {}
+                        }
+                    }
+                }
+                if (existingPasswords.length > 0) {
+                    alert('اسم المستخدم c موجود، ولكن كلمة المرور المسجلة مختلفة. الكلمة المسجلة تتكون من ' + existingPasswords[0].length + ' رموز.');
+                    return;
+                } else {
+                    alert('المستخدم c غير موجود إطلاقاً في البيانات المحلية!');
+                    return;
+                }
+            }
+
+            alert('بيانات الدخول غير صحيحة أو السيرفر غير متاح');
+        }
+
+        function showLoginSuccessAnimation(name) {
+            const btn = document.querySelector('.btn-login');
+            btn.innerHTML = '<div class="loader"></div>';
+            btn.style.pointerEvents = 'none';
+
+            setTimeout(() => {
+                const loginCard = document.querySelector('.login-card');
+                if (loginCard) {
+                    loginCard.style.transform = 'scale(0.9)';
+                    loginCard.style.opacity = '0';
+                }
+                
+                setTimeout(() => {
+                    const displayName = name || 'مدير النظام';
+                    document.body.innerHTML = '';
+                    
+                    const container = document.createElement('div');
+                    container.style.cssText = "position:fixed; top:0; left:0; width: 100%; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#0f172a; color:#fff; z-index:9999;";
+                    
+                    const icon = document.createElement('div');
+                    icon.style.cssText = "font-size:4rem; margin-bottom:20px; animation: bounce 1s infinite;";
+                    icon.textContent = "🚀";
+                    
+                    const h2 = document.createElement('h2');
+                    h2.style.cssText = "font-family:'Tajawal'; color:#38bdf8;";
+                    
+                    const hour = new Date().getHours();
+                    const greeting = (hour >= 12 && hour < 24) ? 'مساء الخير يا ' : 'صباح الخير يا ';
+                    h2.textContent = greeting + displayName;
+                    
+                    const p = document.createElement('p');
+                    p.style.cssText = "color:#94a3b8; font-family:'Tajawal';";
+                    p.textContent = "جاري تجهيز بيئة العمل...";
+                    
+                    container.appendChild(icon);
+                    container.appendChild(h2);
+                    container.appendChild(p);
+                    document.body.appendChild(container);
+
+                    setTimeout(() => {
+                        window.location.href = 'dashboard-pro.html';
+                    }, 1500);
+                }, 400);
+            }, 800);
+        }
+
+        // Add Enter key support
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
+    </script>
+</body>
+</html>

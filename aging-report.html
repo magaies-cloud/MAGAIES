@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقرير أعمار الديون | Al-Sajana ERP</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260615">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background: #0f172a; color: #f8fafc; font-family: 'Tajawal', sans-serif; }
+        
+        .report-container { max-width: 1600px; margin: 0 auto; padding: 20px 30px; }
+        
+        .header-panel {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; padding: 25px; margin-bottom: 25px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .header-title { font-size: 1.8rem; font-weight: 900; color: #fff; margin: 0; display: flex; align-items: center; gap: 10px; }
+        .header-title span { background: rgba(248, 113, 113, 0.2); padding: 10px; border-radius: 12px; color: #f87171; }
+
+        .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .s-card { background: rgba(30,41,59,0.6); border-radius: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); text-align: center; backdrop-filter: blur(10px); }
+        .s-card h4 { margin: 0 0 10px 0; color: #94a3b8; font-size: 0.9rem; }
+        .s-card .val { font-size: 1.8rem; font-weight: 800; font-family: 'Outfit'; }
+        
+        .val-total { color: #fff; }
+        .val-not-due { color: #34d399; }
+        .val-30 { color: #fbbf24; }
+        .val-60 { color: #f97316; }
+        .val-90 { color: #f87171; }
+        .val-danger { color: #ef4444; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+
+        .data-panel {
+            background: rgba(18, 15, 25, 0.65); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px; padding: 25px; backdrop-filter: blur(20px);
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { background: rgba(0,0,0,0.3); color: #cbd5e1; padding: 15px; text-align: right; font-weight: 700; border-bottom: 2px solid rgba(255,255,255,0.1); }
+        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #fff; font-weight: 500; font-family: 'Outfit', 'Tajawal'; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+
+        .btn-action { background: #3b82f6; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: 'Tajawal'; font-weight: bold; transition: 0.2s; text-decoration: none; display: inline-block; }
+        .btn-action:hover { background: #2563eb; transform: translateY(-2px); }
+
+        /* Chart container */
+        .chart-box { height: 300px; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Animated Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+
+    <div class="report-container">
+        
+        <div style="margin-bottom: 20px;">
+            <button onclick="history.back()" class="btn-action" style="background: rgba(255,255,255,0.1);">↩ رجوع</button>
+        </div>
+
+        <div class="premium-header">
+            <h1 class="header-title"><span>⏳</span> تقرير أعمار الديون (Aging Report)</h1>
+            <div>
+                <button class="btn-action btn-print" onclick="previewReport()">👁️ معاينة</button>
+            <button class="btn-action btn-print" onclick="window.print()">🖨️ طباعة</button>
+            <button class="btn-action btn-print" onclick="window.openExportModal(null, {element: document.getElementById('aging-table-wrap'), filename: 'aging-report.pdf', orientation: 'landscape'})">📥 تصدير PDF</button>
+            </div>
+        </div>
+
+        <div class="summary-cards">
+            <div class="s-card" style="border-bottom: 3px solid #3b82f6;">
+                <h4>إجمالي الديون</h4>
+                <div class="val val-total" id="kpi-total">0.00</div>
+            </div>
+            <div class="s-card" style="border-bottom: 3px solid #34d399;">
+                <h4>لم يحن وقتها</h4>
+                <div class="val val-not-due" id="kpi-not-due">0.00</div>
+            </div>
+            <div class="s-card" style="border-bottom: 3px solid #fbbf24;">
+                <h4>متأخر (1 - 30 يوم)</h4>
+                <div class="val val-30" id="kpi-30">0.00</div>
+            </div>
+            <div class="s-card" style="border-bottom: 3px solid #f97316;">
+                <h4>متأخر (31 - 60 يوم)</h4>
+                <div class="val val-60" id="kpi-60">0.00</div>
+            </div>
+            <div class="s-card" style="border-bottom: 3px solid #ef4444;">
+                <h4>ديون متعثرة (+90 يوم)</h4>
+                <div class="val val-danger" id="kpi-90">0.00</div>
+            </div>
+        </div>
+
+        <div class="data-panel" style="margin-bottom: 30px;">
+            <h3 style="margin-top:0; color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">📊 التوزيع النسبي لأعمار الديون</h3>
+            <div class="chart-box">
+                <canvas id="agingChart"></canvas>
+            </div>
+        </div>
+
+        <div class="data-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin:0; color:#fff;">📋 تفصيل الديون حسب العميل</h3>
+                <input type="text" id="searchInput" placeholder="🔍 بحث عن عميل..." style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px 15px; border-radius: 8px; width: 250px; font-family: 'Tajawal'; outline: none;">
+            </div>
+            <div style="overflow-x: auto;">
+                <table id="agingTable">
+                    <thead>
+                        <tr>
+                            <th>العميل</th>
+                            <th>رقم الهاتف</th>
+                            <th>الإجمالي</th>
+                            <th>لم يحن</th>
+                            <th>1 - 30 يوم</th>
+                            <th>31 - 60 يوم</th>
+                            <th>61 - 90 يوم</th>
+                            <th>+90 يوم (خطر)</th>
+                            <th>الإجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Data injected via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="js/app.js?v=1781537955"></script>
+    <script>
+        document.addEventListener('DBReady', () => {
+            if (!localStorage.getItem('authToken')) { window.location.href = 'login.html'; return; }
+            generateAgingReport();
+            
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                const term = e.target.value.toLowerCase();
+                const rows = document.querySelectorAll('#tableBody tr');
+                rows.forEach(row => {
+                    const name = row.cells[0].innerText.toLowerCase();
+                    row.style.display = name.includes(term) ? '' : 'none';
+                });
+            });
+        });
+
+        function generateAgingReport() {
+            // Fetch data
+            const customers = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+            const invoices = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []).filter(x => !x.deleted && x.paymentMethod === 'credit');
+
+            const today = new Date();
+            today.setHours(0,0,0,0);
+
+            // Structure to hold customer data
+            const agingData = {};
+
+            customers.forEach(c => {
+                agingData[c.id] = {
+                    name: c.name,
+                    phone: c.phone || '-',
+                    total: 0,
+                    notDue: 0,
+                    days30: 0,
+                    days60: 0,
+                    days90: 0,
+                    over90: 0
+                };
+            });
+
+            // Calculate per invoice
+            invoices.forEach(inv => {
+                // If invoice is fully paid, skip. Wait, system uses receipt vouchers.
+                // In this basic version, we assume netTotal is the debt if it's credit.
+                // Ideally we should subtract receipts. But for now, we use the netTotal.
+                
+                // Let's check if there are receipts applied
+                let paidAmount = Number(inv.paidAmount) || 0;
+                let remainingAmount = (Number(inv.netTotal) || 0) - paidAmount;
+
+                if (remainingAmount <= 0) return; // Paid
+
+                const customerId = inv.customer || inv.customerId;
+                if (!agingData[customerId]) {
+                    agingData[customerId] = { name: inv.customerName || 'عميل غير معروف', phone: '-', total: 0, notDue: 0, days30: 0, days60: 0, days90: 0, over90: 0 };
+                }
+
+                const cData = agingData[customerId];
+                cData.total += remainingAmount;
+
+                if (!inv.dueDate) {
+                    // Default assume not due if no due date specified
+                    cData.notDue += remainingAmount;
+                    return;
+                }
+
+                const dueDate = new Date(inv.dueDate);
+                dueDate.setHours(0,0,0,0);
+                
+                const diffTime = today - dueDate;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays <= 0) {
+                    cData.notDue += remainingAmount;
+                } else if (diffDays <= 30) {
+                    cData.days30 += remainingAmount;
+                } else if (diffDays <= 60) {
+                    cData.days60 += remainingAmount;
+                } else if (diffDays <= 90) {
+                    cData.days90 += remainingAmount;
+                } else {
+                    cData.over90 += remainingAmount;
+                }
+            });
+
+            // Totals
+            let tTotal = 0, tNotDue = 0, t30 = 0, t60 = 0, t90 = 0, tOver90 = 0;
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            Object.values(agingData).forEach(d => {
+                if (d.total === 0) return; // Skip customers with no debt
+
+                tTotal += d.total;
+                tNotDue += d.notDue;
+                t30 += d.days30;
+                t60 += d.days60;
+                t90 += d.days90;
+                tOver90 += d.over90;
+
+                const dangerStyle = d.over90 > 0 ? 'color: #ef4444; font-weight: bold;' : '';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="color: #38bdf8; font-weight: bold;">${d.name}</td>
+                    <td>${d.phone}</td>
+                    <td style="font-weight: bold;">${d.total.toLocaleString()}</td>
+                    <td style="color: #34d399;">${d.notDue.toLocaleString()}</td>
+                    <td style="color: #fbbf24;">${d.days30.toLocaleString()}</td>
+                    <td style="color: #f97316;">${d.days60.toLocaleString()}</td>
+                    <td style="color: #f87171;">${d.days90.toLocaleString()}</td>
+                    <td style="${dangerStyle}">${d.over90.toLocaleString()}</td>
+                    <td><a data-href="statement.html?customer=${d.name}" onclick="window.location.href='statement.html?customer=${d.name}'" class="btn-action" style="font-size: 0.8rem; background: rgba(56,189,248,0.2); color: #38bdf8;">كشف حساب</a></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if (tbody.innerHTML === '') {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding: 30px; color: #64748b;">لا توجد ديون مستحقة مسجلة.</td></tr>';
+            }
+
+            // Update KPIs
+            document.getElementById('kpi-total').innerText = tTotal.toLocaleString();
+            document.getElementById('kpi-not-due').innerText = tNotDue.toLocaleString();
+            document.getElementById('kpi-30').innerText = t30.toLocaleString();
+            document.getElementById('kpi-60').innerText = t60.toLocaleString();
+            document.getElementById('kpi-90').innerText = tOver90.toLocaleString();
+
+            // Render Chart
+            renderChart([tNotDue, t30, t60, t90, tOver90]);
+        }
+
+        function renderChart(dataArr) {
+            const ctx = document.getElementById('agingChart').getContext('2d');
+            Chart.defaults.color = '#cbd5e1';
+            Chart.defaults.font.family = "'Tajawal', sans-serif";
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['لم يحن', '1-30 يوم', '31-60 يوم', '61-90 يوم', '+90 يوم (متعثر)'],
+                    datasets: [{
+                        label: 'قيمة الديون (SDG)',
+                        data: dataArr,
+                        backgroundColor: [
+                            'rgba(52, 211, 153, 0.7)',
+                            'rgba(251, 191, 36, 0.7)',
+                            'rgba(249, 115, 22, 0.7)',
+                            'rgba(248, 113, 113, 0.7)',
+                            'rgba(239, 68, 68, 0.9)'
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { font: { family: 'Outfit' } }
+                        },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
