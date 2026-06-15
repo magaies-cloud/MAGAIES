@@ -50,6 +50,21 @@ function generateToken() {
 }
 
 // ---------------------------------------------------------
+// PUBLIC ROUTES (No token required)
+// ---------------------------------------------------------
+
+// Public: Get exchange rate (no auth needed so it always loads on the page)
+if ($resource === 'exchange-rate' && $method === 'GET') {
+    $ex_rate = ['rate' => 1.0, 'visible' => false];
+    try {
+        $stmt_ex = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'exchange_rate'");
+        $val = $stmt_ex->fetchColumn();
+        if ($val) $ex_rate = json_decode($val, true);
+    } catch(Exception $e) {}
+    jsonResponse($ex_rate);
+}
+
+// ---------------------------------------------------------
 // AUTHENTICATION ROUTES (No token required)
 // ---------------------------------------------------------
 if ($resource === 'auth') {

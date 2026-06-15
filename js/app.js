@@ -1554,6 +1554,23 @@ window.openExportModal = function(csvExportCallback, pdfExportConfig) {
     modal.style.display = 'flex';
 };
 
+// --- EXCHANGE RATE: Load on page load (public endpoint, no token needed) ---
+document.addEventListener('DOMContentLoaded', () => {
+    const exBox = document.getElementById('global-exchange-rate-box');
+    const exVal = document.getElementById('global-exchange-rate-val');
+    if (!exBox || !exVal) return; // not on a page with exchange rate box
+
+    fetch('api_index.php/exchange-rate')
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.visible) {
+                exVal.innerText = parseFloat(data.rate).toLocaleString('ar-SA');
+                exBox.style.display = 'block';
+            }
+        })
+        .catch(() => {});
+});
+
 // --- ONLINE USERS HEARTBEAT AND PULSE ANIMATION ---
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Add keyframes for heartbeat globally
