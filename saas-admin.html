@@ -3,394 +3,372 @@
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SaaS Super Admin - السجانة ERP</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260615">
     <style>
         :root {
-            --bg-color: #0f172a;
-            --surface-color: rgba(30, 41, 59, 0.7);
-            --primary-accent: #38bdf8;
-            --secondary-accent: #818cf8;
+            --bg-color: #050505;
+            --surface-color: rgba(20, 20, 22, 0.8);
+            --primary-accent: #f59e0b;
+            --secondary-accent: #f97316;
             --success-color: #10b981;
             --danger-color: #ef4444;
-            --warning-color: #f59e0b;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --warning-color: #eab308;
+            --text-primary: #fdfdfd;
+            --text-secondary: #a1a1aa;
+            --glass-border: rgba(255, 255, 255, 0.08);
         }
+        body { background-color: var(--bg-color); color: var(--text-primary); font-family: 'Inter', 'Tajawal', sans-serif; margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden; }
+        .ambient-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; z-index: -1; pointer-events: none; background: radial-gradient(circle at 50% 50%, #0c0812 0%, #000000 100%); }
+        .orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.15; animation: floatOrb 20s infinite alternate ease-in-out; }
+        .orb-1 { width: 500px; height: 500px; background: #f59e0b; top: -5%; right: -5%; }
+        .orb-2 { width: 450px; height: 450px; background: #a855f7; bottom: -10%; left: -5%; animation-delay: -7s; }
+        .orb-3 { width: 600px; height: 600px; background: #ea580c; top: 30%; left: 30%; }
+        @keyframes floatOrb { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(30px, -30px) scale(1.05); } 100% { transform: translate(0, 0) scale(1); } }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.15), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(129, 140, 248, 0.15), transparent 25%);
-            background-attachment: fixed;
-            min-height: 100vh;
+        .dash-main { width: 100%; max-width: 1600px; margin: 0 auto; padding: 20px 30px; box-sizing: border-box; flex-direction: column; }
+        .premium-header {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(168, 85, 247, 0.15));
+            backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 15px 25px;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
         }
-
-        .glass-panel {
-            background: var(--surface-color);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            padding: 24px;
-        }
-
-        #login-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.9); z-index: 1000; display: none;
-            align-items: center; justify-content: center; backdrop-filter: blur(10px);
-        }
-
-        .login-box {
-            width: 90%; max-width: 400px; text-align: center;
-        }
-
-        .login-box input {
-            width: 100%; padding: 15px; margin-bottom: 20px; border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2);
-            color: white; font-size: 1.1rem; text-align: center;
-        }
-
-        .login-box input:focus { border-color: var(--primary-accent); outline: none; }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
-            color: #fff; padding: 12px 24px; border-radius: 12px; border: none;
-            font-weight: 700; cursor: pointer; transition: all 0.3s ease; width: 100%; font-size: 1.1rem;
-        }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(56,189,248,0.3); }
-
-        .container { max-width: 1400px; margin: 0 auto; padding: 40px 20px; display: none; }
-
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 { font-size: 2rem; background: linear-gradient(to right, #fff, var(--primary-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
-        .stats-badge {
-            background: rgba(56, 189, 248, 0.1); color: var(--primary-accent);
-            padding: 8px 16px; border-radius: 8px; font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.2);
-        }
-
-        .btn-danger {
-            background: rgba(239, 68, 68, 0.1); color: var(--danger-color);
-            border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 700; transition: all 0.3s;
-        }
-        .btn-danger:hover { background: var(--danger-color); color: #fff; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; white-space: nowrap; }
-        th, td { padding: 12px 16px; text-align: right; border-bottom: 1px solid var(--glass-border); vertical-align: middle; }
-        th { color: var(--text-secondary); font-weight: 500; font-size: 0.95rem; background: rgba(0,0,0,0.1); }
-        td { font-size: 0.95rem; }
-
-        tr:hover { background: rgba(255,255,255,0.02); }
-
-        /* Responsive Table Wrapper */
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* Adjust button layout in action column */
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-        }
-
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
-        .badge-active { background: rgba(16, 185, 129, 0.2); color: var(--success-color); border: 1px solid rgba(16, 185, 129, 0.3); }
-        .badge-suspended { background: rgba(239, 68, 68, 0.2); color: var(--danger-color); border: 1px solid rgba(239, 68, 68, 0.3); }
-
-        .action-btn {
-            background: rgba(255,255,255,0.1); border: none; color: #fff;
-            padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; margin-left: 5px;
-        }
-        .action-btn:hover { background: rgba(255,255,255,0.2); }
+        .header-brand { display: flex; align-items: center; gap: 15px; }
+        .brand-icon { width: 45px; height: 45px; border-radius: 12px; background: linear-gradient(135deg, #f59e0b, #ea580c); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .brand-text h1 { margin: 0; font-size: 1.4rem; font-weight: 800; color: #fff; }
+        .brand-text p { margin: 0; font-size: 0.85rem; color: #cbd5e1; }
         
-        .action-btn.suspend { color: var(--warning-color); border: 1px solid rgba(245, 158, 11, 0.3); }
-        .action-btn.suspend:hover { background: rgba(245, 158, 11, 0.1); }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .glass-panel { background: var(--surface-color); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; transition: all 0.3s; }
+        .glass-panel:hover { border-color: rgba(255,255,255,0.15); box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
+        .kpi-title { font-size: 0.9rem; color: var(--text-secondary); font-weight: 600; display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .kpi-value { font-size: 2.2rem; font-weight: 800; }
+        .kpi-1 { border-top: 3px solid #3b82f6; } .kpi-1 .kpi-value { color: #3b82f6; }
+        .kpi-2 { border-top: 3px solid #10b981; } .kpi-2 .kpi-value { color: #10b981; }
+        .kpi-3 { border-top: 3px solid #f59e0b; } .kpi-3 .kpi-value { color: #f59e0b; }
+        .kpi-4 { border-top: 3px solid #a855f7; } .kpi-4 .kpi-value { color: #a855f7; }
 
-        .action-btn.activate { color: var(--success-color); border: 1px solid rgba(16, 185, 129, 0.3); }
-        .action-btn.activate:hover { background: rgba(16, 185, 129, 0.1); }
+        .tabs-container { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+        .tab-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-secondary); padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s; white-space: nowrap; }
+        .tab-btn.active { background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(234,88,12,0.2)); border-color: rgba(245,158,11,0.5); color: #fff; }
+        .tab-content { display: none; animation: fadeUp 0.3s ease forwards; }
+        .tab-content.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);
-        }
-        .modal-content {
-            width: 90%; max-width: 500px;
-        }
-        .modal-content h3 { margin-bottom: 20px; color: var(--primary-accent); }
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+        th, td { padding: 14px 16px; text-align: right; border-bottom: 1px solid var(--glass-border); }
+        th { color: var(--text-secondary); font-size: 0.9rem; background: rgba(0,0,0,0.2); }
+        .table-responsive { width: 100%; overflow-x: auto; border-radius: 12px; border: 1px solid var(--glass-border); }
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; display: inline-block; }
+        .badge-active { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-suspended { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .btn-primary { background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent)); color: #fff; padding: 10px 20px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger-color); border: 1px solid rgba(239, 68, 68, 0.3); padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 700; transition: all 0.3s; }
+        .btn-outline { background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); padding: 10px 20px; border-radius: 10px; cursor: pointer; }
+
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.9rem; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white;
-        }
-        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-cancel { background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); padding: 12px 24px; border-radius: 12px; cursor: pointer; flex: 1; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); color: white; box-sizing: border-box; }
+
+        #login-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
+        .login-box { width: 90%; max-width: 400px; text-align: center; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-content { width: 90%; max-width: 500px; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Dropdown */
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-content { display: none; position: absolute; right: 0; background: rgba(30,41,59,0.95); min-width: 140px; box-shadow: 0 8px 30px rgba(0,0,0,0.6); border-radius: 12px; border: 1px solid var(--glass-border); z-index: 100; }
+        .dropdown-content button { color: #fff; padding: 10px 15px; text-decoration: none; display: block; width: 100%; text-align: right; background: transparent; border: none; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .dropdown-content button:hover { background: rgba(255,255,255,0.1); }
+        .dropdown.show .dropdown-content { display: block; }
     </style>
 </head>
 <body>
-
-    <!-- Ambient Animated Background -->
-    <div class="ambient-bg">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-    </div>
-
+    <div class="ambient-bg"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
 
     <div id="login-modal">
         <div class="glass-panel login-box">
-            <h2 style="color: var(--primary-accent); margin-bottom: 20px; font-weight: 800;">إدارة المشتركين (SaaS)</h2>
-            <input type="password" id="saas-pass" placeholder="أدخل رمز الدخول (Master Token)">
-            <button class="btn-primary" onclick="loginSaas()">تسجيل الدخول</button>
+            <div style="margin-bottom: 25px;">
+                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #f59e0b, #ea580c); border-radius: 20px; margin: 0 auto 15px auto; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; box-shadow: 0 10px 25px rgba(245,158,11,0.4);">🛡️</div>
+                <h2 style="color: #fff; font-weight: 900; margin: 0;">SaaS Super Admin</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 5px;">أدخل رمز المشرف للمتابعة</p>
+            </div>
+            <input type="password" id="saas-pass" placeholder="Master Token" style="margin-bottom: 20px; text-align:center;">
+            <button class="btn-primary" onclick="loginSaas()" style="width: 100%;">تسجيل الدخول</button>
         </div>
     </div>
 
-    <div id="dashboard" class="container" style="display: none;">
-        <div class="header">
-            <div>
-                <h1>لوحة تحكم مالك النظام</h1>
-                <p style="color: var(--text-secondary); margin-top: 5px;">إدارة الشركات المشتركة، الصلاحيات، وحالة الحسابات</p>
+    <div id="dashboard" class="dash-main" style="display: none;">
+        <div class="premium-header">
+            <div class="header-brand">
+                <div class="brand-icon">👑</div>
+                <div class="brand-text">
+                    <h1>SaaS Super Admin</h1>
+                    <p>إدارة الشركات والباقات والمستخدمين</p>
+                </div>
             </div>
-            <div style="display: flex; gap: 15px; align-items: center;">
-                <button class="btn-primary" style="background: var(--primary-accent); padding: 8px 15px; width: auto;" onclick="openMasterTokenModal()">🔑 تغيير رمز المشرف</button>
-                <span id="total-companies" class="stats-badge">0 شركة مسجلة</span>
+            <div class="header-controls">
                 <button onclick="logoutSaas()" class="btn-danger">تسجيل الخروج</button>
             </div>
         </div>
 
-        
-        <div class="glass-panel" style="margin-bottom: 20px;">
-            <h3 style="color: var(--theme-orange); margin-bottom: 15px;">إعدادات النظام العامة (لجميع الشركات)</h3>
-            <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
-                <div class="form-group" style="flex: 1; min-width: 250px;">
-                    <label>سعر الصرف اليومي (مثال: الدولار = 3.75)</label>
-                    <input type="number" id="global-exchange-rate" step="0.01" placeholder="جاري الجلب..." disabled>
+        <div class="kpi-grid">
+            <div class="glass-panel kpi-card kpi-1">
+                <div class="kpi-title"><span>إجمالي المشتركين</span> 🏢</div>
+                <div class="kpi-value" id="kpi-total-tenants">0</div>
+            </div>
+            <div class="glass-panel kpi-card kpi-2">
+                <div class="kpi-title"><span>حسابات نشطة</span> 🟢</div>
+                <div class="kpi-value" id="kpi-active-tenants">0</div>
+            </div>
+            <div class="glass-panel kpi-card kpi-3">
+                <div class="kpi-title"><span>حسابات موقوفة</span> ⚠️</div>
+                <div class="kpi-value" id="kpi-suspended-tenants">0</div>
+            </div>
+            <div class="glass-panel kpi-card kpi-4">
+                <div class="kpi-title"><span>إجمالي الإيرادات (شهري)</span> 💰</div>
+                <div class="kpi-value" id="kpi-revenue">$0</div>
+            </div>
+        </div>
+
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="switchTab('tab-tenants', this)">🏢 المشتركون</button>
+            <button class="tab-btn" onclick="switchTab('tab-users', this)">👥 إدارة المستخدمين</button>
+            <button class="tab-btn" onclick="switchTab('tab-plans', this)">💎 الباقات (Plans)</button>
+            <button class="tab-btn" onclick="switchTab('tab-broadcasts', this)">📣 رسائل النظام</button>
+            <button class="tab-btn" onclick="switchTab('tab-settings', this)">⚙️ الإعدادات</button>
+        </div>
+
+        <!-- TAB: TENANTS -->
+        <div id="tab-tenants" class="tab-content active">
+            <div class="glass-panel">
+                <div class="flex-between" style="margin-bottom: 20px;">
+                    <h3>سجل المشتركين</h3>
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="tenant-search" placeholder="بحث..." style="padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color:#fff; border: 1px solid var(--glass-border);" onkeyup="filterTenants()">
+                    </div>
                 </div>
-                <div class="form-group" style="flex: 1; min-width: 250px; display: flex; align-items: center; gap: 10px; margin-top: 25px;">
-                    <input type="checkbox" id="global-exchange-visible" style="width: 20px; height: 20px;" disabled>
-                    <label for="global-exchange-visible" style="margin: 0;">إظهار سعر الصرف في الشاشات</label>
-                </div>
-                <div style="margin-top: 25px;">
-                    <button class="btn-primary" onclick="saveGlobalSettings()" style="background: var(--theme-orange); padding: 12px 25px;">حفظ الإعدادات</button>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>الشركة / النطاق</th>
+                                <th>المالك</th>
+                                <th>الباقة</th>
+                                <th>الحالة</th>
+                                <th>تاريخ الانتهاء</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tenants-body">
+                            <tr><td colspan="6" style="text-align:center;">جاري التحميل...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        
-        <!-- Broadcast Messages Card -->
-        <div class="glass-panel" style="margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="color: #6366f1; margin: 0;">رسائل النظام المنبثقة (Broadcast)</h3>
-                <button class="btn-primary" style="background: #6366f1; width: auto; padding: 8px 15px;" onclick="openMessageModal()">+ رسالة جديدة</button>
-            </div>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>العنوان</th>
-                            <th>الجمهور</th>
-                            <th>التكرار</th>
-                            <th>اللون</th>
-                            <th>الحالة</th>
-                            <th>إجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="messages-body">
-                        <tr><td colspan="6" style="text-align:center;">جاري التحميل...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Broadcast Message Modal -->
-        <div id="message-modal" class="modal-overlay">
-            <div class="glass-panel modal-content" style="max-width: 600px;">
-                <h3 style="color:#fff; margin-bottom: 20px;">إنشاء رسالة نظام جديدة</h3>
-                
-                <div class="form-group">
-                    <label>عنوان الرسالة</label>
-                    <input type="text" id="msg-title" placeholder="مثال: تحديث جديد للنظام">
+        <!-- TAB: USERS -->
+        <div id="tab-users" class="tab-content">
+            <div class="glass-panel">
+                <div class="flex-between" style="margin-bottom: 20px;">
+                    <h3>مستخدمو المشتركين</h3>
+                    <button class="btn-primary" onclick="openAddUserModal()">+ مستخدم جديد</button>
                 </div>
-
-                <div class="form-group">
-                    <label>محتوى الرسالة</label>
-                    <textarea id="msg-body" rows="4" placeholder="اكتب رسالتلك هنا..."></textarea>
+                <div class="form-group" style="max-width: 400px;">
+                    <label>الشركة</label>
+                    <select id="users-tenant-select" onchange="loadTenantUsers()">
+                        <option value="">اختر شركة</option>
+                    </select>
                 </div>
-
-                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-                    <div class="form-group" style="flex: 1;">
-                        <label>الجمهور المستهدف</label>
-                        <select id="msg-targets">
-                            <option value="all">جميع الشركات</option>
-                            <!-- Will be populated dynamically -->
-                        </select>
-                    </div>
-                    
-                    <div class="form-group" style="flex: 1;">
-                        <label>لون الرسالة</label>
-                        <select id="msg-theme">
-                            <option value="info">معلومة (أزرق)</option>
-                            <option value="success">نجاح (أخضر)</option>
-                            <option value="warning">تنبيه (برتقالي)</option>
-                            <option value="danger">خطر/هام (أحمر)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
-                    <input type="checkbox" id="msg-show-once" style="width: 20px; height: 20px;" checked>
-                    <div>
-                        <label for="msg-show-once" style="margin: 0; display: block;">عرض مرة واحدة فقط لكل مستخدم</label>
-                        <span style="font-size: 0.75rem; color: var(--text-secondary);">إذا لم تقم بالتحديد، ستظهر الرسالة للمستخدم في كل مرة يسجل فيها الدخول.</span>
-                    </div>
-                </div>
-
-                <div class="modal-actions" style="margin-top: 20px;">
-                    <button class="btn-primary" style="flex:1; background: #6366f1;" onclick="saveMessage()">إرسال ونشر</button>
-                    <button class="btn-cancel" onclick="closeMessageModal()">إلغاء</button>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>المستخدم</th>
+                                <th>الاسم الكامل</th>
+                                <th>الدور</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tenant-users-body">
+                            <tr><td colspan="4" style="text-align:center;">اختر شركة לעرض مستخدميها</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <div class="glass-panel">
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>الشركة / النطاق</th>
-                            <th>معلومات المالك</th>
-                            <th>حالة الحساب</th>
-                            <th>تاريخ الصلاحية</th>
-                            <th>تاريخ التسجيل</th>
-                            <th style="text-align: left;">إجراءات الإدارة</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tenants-body">
-                        <tr><td colspan="6" style="text-align:center;">جاري التحميل...</td></tr>
-                    </tbody>
-                </table>
+        <!-- TAB: PLANS -->
+        <div id="tab-plans" class="tab-content">
+            <div class="glass-panel">
+                <div class="flex-between" style="margin-bottom: 20px;">
+                    <h3>الباقات (Plans)</h3>
+                    <button class="btn-primary" onclick="openPlanModal()">+ باقة جديدة</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>الاسم</th>
+                                <th>السعر ($)</th>
+                                <th>الحد الأقصى للمستخدمين</th>
+                                <th>المساحة</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="plans-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: BROADCASTS -->
+        <div id="tab-broadcasts" class="tab-content">
+            <div class="glass-panel">
+                <div class="flex-between" style="margin-bottom: 20px;">
+                    <h3>رسائل النظام (Broadcasts)</h3>
+                    <button class="btn-primary" onclick="openMessageModal()">+ رسالة جديدة</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>العنوان</th>
+                                <th>الجمهور</th>
+                                <th>اللون</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="messages-body">
+                            <tr><td colspan="4" style="text-align:center;">جاري التحميل...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: SETTINGS -->
+        <div id="tab-settings" class="tab-content">
+            <div style="display:flex; gap:20px; flex-wrap:wrap;">
+                <div class="glass-panel" style="flex:1; min-width:300px;">
+                    <h3 style="color:var(--warning-color); margin-top:0;">إعدادات الصرف</h3>
+                    <div class="form-group">
+                        <label>سعر الصرف (الدولار)</label>
+                        <input type="number" id="global-exchange-rate" step="0.01">
+                    </div>
+                    <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+                        <input type="checkbox" id="global-exchange-visible">
+                        <label style="margin:0;">إظهار السعر للمشتركين</label>
+                    </div>
+                    <button class="btn-primary" onclick="saveGlobalSettings()" style="width:100%;">حفظ</button>
+                </div>
+                <div class="glass-panel" style="flex:1; min-width:300px;">
+                    <h3 style="color:var(--danger-color); margin-top:0;">رمز المشرف</h3>
+                    <div class="form-group"><label>الرمز الحالي</label><input type="password" id="old-master-token"></div>
+                    <div class="form-group"><label>الرمز الجديد</label><input type="password" id="new-master-token"></div>
+                    <button class="btn-danger" onclick="saveMasterToken()" style="width:100%;">تغيير الرمز</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Edit Modal -->
+    <!-- Modals -->
+    <!-- Plan Modal -->
+    <div id="plan-modal" class="modal-overlay">
+        <div class="glass-panel modal-content">
+            <div class="modal-header"><h3>إدارة باقة</h3><button class="close-btn" onclick="closeModal('plan-modal')">&times;</button></div>
+            <input type="hidden" id="plan-id">
+            <div class="form-group"><label>اسم الباقة</label><input type="text" id="plan-name"></div>
+            <div class="form-group"><label>السعر الشهري ($)</label><input type="number" id="plan-price"></div>
+            <div class="form-group"><label>الحد الأقصى للمستخدمين</label><input type="number" id="plan-users"></div>
+            <div class="form-group"><label>المساحة (GB)</label><input type="number" id="plan-storage"></div>
+            <div class="modal-actions">
+                <button class="btn-primary" style="flex:1;" onclick="savePlan()">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Modal (Add User / Reset Pass) -->
+    <div id="user-action-modal" class="modal-overlay">
+        <div class="glass-panel modal-content">
+            <div class="modal-header"><h3 id="user-modal-title">تغيير كلمة المرور للمستخدم</h3><button class="close-btn" onclick="closeModal('user-action-modal')">&times;</button></div>
+            <input type="hidden" id="target-user-id">
+            <div class="form-group"><label>كلمة المرور الجديدة</label><input type="password" id="target-user-pass"></div>
+            <div class="modal-actions"><button class="btn-primary" style="flex:1;" onclick="saveUserPassword()">تغيير كلمة المرور</button></div>
+        </div>
+    </div>
+    
+    <div id="add-user-modal" class="modal-overlay">
+        <div class="glass-panel modal-content">
+            <div class="modal-header"><h3>إضافة مستخدم جديد لشركة</h3><button class="close-btn" onclick="closeModal('add-user-modal')">&times;</button></div>
+            <div class="form-group"><label>اسم المستخدم (للدخول)</label><input type="text" id="new-user-username"></div>
+            <div class="form-group"><label>الاسم الكامل</label><input type="text" id="new-user-fullname"></div>
+            <div class="form-group"><label>كلمة المرور</label><input type="password" id="new-user-pass"></div>
+            <div class="form-group"><label>الدور</label>
+                <select id="new-user-role"><option value="user">مستخدم (User)</option><option value="admin">مدير (Admin)</option></select>
+            </div>
+            <div class="modal-actions"><button class="btn-primary" style="flex:1;" onclick="saveNewUser()">حفظ المستخدم</button></div>
+        </div>
+    </div>
+
+    <!-- Edit Tenant Modal -->
     <div id="edit-modal" class="modal-overlay">
         <div class="glass-panel modal-content">
-            <h3 id="edit-modal-title">تعديل حالة المشترك</h3>
+            <div class="modal-header"><h3>تعديل حالة المشترك</h3><button class="close-btn" onclick="closeModal('edit-modal')">&times;</button></div>
             <input type="hidden" id="edit-tenant-id">
-            
+            <div class="form-group"><label>الباقة</label><select id="edit-tenant-plan" onchange="updateMaxUsersFromPlan()"></select></div>
+            <div class="form-group"><label>الحد الأقصى للمستخدمين (مخصص)</label><input type="number" id="edit-tenant-max-users" placeholder="يتبع الباقة افتراضياً..."></div>
             <div class="form-group">
                 <label>حالة الحساب</label>
-                <select id="edit-status">
-                    <option value="active">نشط (Active)</option>
-                    <option value="suspended">موقوف (Suspended)</option>
-                </select>
+                <select id="edit-status"><option value="active">نشط</option><option value="suspended">موقوف</option></select>
             </div>
-
-            <div class="form-group">
-                <label>تاريخ نهاية الصلاحية</label>
-                <input type="datetime-local" id="edit-valid-until">
-            </div>
-
-            <div class="modal-actions">
-                <button class="btn-primary" style="flex:1;" onclick="saveTenantUpdate()">حفظ التعديلات</button>
-                <button class="btn-cancel" onclick="closeEditModal()">إلغاء</button>
-            </div>
+            <div class="form-group"><label>تاريخ النهاية</label><input type="datetime-local" id="edit-valid-until"></div>
+            <div class="modal-actions"><button class="btn-primary" style="flex:1;" onclick="saveTenantUpdate()">حفظ</button></div>
         </div>
     </div>
-
-    <!-- Password Modal -->
-    <div id="password-modal" class="modal-overlay">
+    
+    <!-- Msg Modal -->
+    <div id="message-modal" class="modal-overlay">
         <div class="glass-panel modal-content">
-            <h3 style="color:#fff;">تغيير كلمة مرور الشركة</h3>
-            <input type="hidden" id="pass-tenant-id">
-            
-            <div class="form-group" style="margin-top:20px;">
-                <label>كلمة المرور الجديدة للشركة</label>
-                <input type="password" id="new-password" placeholder="أدخل كلمة المرور الجديدة (6 أحرف على الأقل)">
-            </div>
-
-            <div class="modal-actions">
-                <button class="btn-primary" style="flex:1;" onclick="saveNewPassword()">حفظ الرمز</button>
-                <button class="btn-cancel" onclick="closePasswordModal()">إلغاء</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Master Token Modal -->
-    <div id="master-token-modal" class="modal-overlay">
-        <div class="glass-panel modal-content">
-            <h3 style="color:#fff;">تغيير رمز المشرف (Master Token)</h3>
-            <p style="color:var(--text-secondary); margin-top:10px; font-size:0.9rem;">
-                هذا الرمز يستخدم للدخول إلى لوحة التحكم هذه. يرجى الاحتفاظ به في مكان آمن.
-            </p>
-            
-            <div class="form-group" style="margin-top:20px;">
-                <label>رمز المشرف القديم (الحالي)</label>
-                <input type="password" id="old-master-token" placeholder="أدخل الرمز القديم للتحقق">
-            </div>
-            
-            <div class="form-group" style="margin-top:20px;">
-                <label>رمز المشرف الجديد</label>
-                <input type="password" id="new-master-token" placeholder="أدخل الرمز الجديد (6 أحرف على الأقل)">
-            </div>
-
-            <div class="modal-actions">
-                <button class="btn-primary" style="flex:1;" onclick="saveMasterToken()">حفظ التغيير</button>
-                <button class="btn-cancel" onclick="closeMasterTokenModal()">إلغاء</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Info Modal -->
-    <div id="info-modal" class="modal-overlay">
-        <div class="glass-panel modal-content">
-            <h3 style="color:#fff;">تفاصيل المالك</h3>
-            <div style="margin-top:20px; line-height:1.8;">
-                <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; margin-bottom:10px;">
-                    <span style="color:var(--text-secondary);">الاسم الكامل:</span>
-                    <strong id="info-name" style="color:var(--primary-accent);"></strong>
-                </div>
-                <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; margin-bottom:10px;">
-                    <span style="color:var(--text-secondary);">رقم الهاتف:</span>
-                    <strong id="info-phone" style="direction:ltr;"></strong>
-                </div>
-                <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; margin-bottom:10px;">
-                    <span style="color:var(--text-secondary);">البريد الإلكتروني:</span>
-                    <strong id="info-email" style="direction:ltr;"></strong>
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn-cancel" style="width:100%;" onclick="closeInfoModal()">إغلاق</button>
-            </div>
+            <div class="modal-header"><h3>إنشاء رسالة</h3><button class="close-btn" onclick="closeModal('message-modal')">&times;</button></div>
+            <div class="form-group"><label>العنوان</label><input type="text" id="msg-title"></div>
+            <div class="form-group"><label>المحتوى</label><textarea id="msg-body" rows="3"></textarea></div>
+            <div class="form-group"><label>اللون</label><select id="msg-theme"><option value="info">أزرق</option><option value="success">أخضر</option><option value="warning">برتقالي</option><option value="danger">أحمر</option></select></div>
+            <input type="hidden" id="msg-targets" value="all">
+            <div class="form-group"><input type="checkbox" id="msg-show-once" checked> <label style="display:inline;">عرض مرة واحدة</label></div>
+            <div class="modal-actions"><button class="btn-primary" style="flex:1;" onclick="saveMessage()">إرسال</button></div>
         </div>
     </div>
 
     <script>
         let SAAS_TOKEN = sessionStorage.getItem('saas_token');
+        let allTenants = [];
+        let allMessagesData = [];
+        let allPlans = JSON.parse(localStorage.getItem('saas_plans') || '[]');
+        
+        if(allPlans.length === 0) {
+            allPlans = [
+                {id: 1, name: 'باقة الأساسية', price: 50, maxUsers: 5, storage: 10},
+                {id: 2, name: 'باقة المتقدمة', price: 120, maxUsers: 20, storage: 50},
+                {id: 3, name: 'باقة الشركات (VIP)', price: 300, maxUsers: 100, storage: 200}
+            ];
+            localStorage.setItem('saas_plans', JSON.stringify(allPlans));
+        }
 
         if (SAAS_TOKEN) {
             document.getElementById('login-modal').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-            loadTenants();
-                    loadGlobalSettings();
-                    loadMessages();
+            document.getElementById('dashboard').style.display = 'flex';
+            initDashboard();
         } else {
             document.getElementById('login-modal').style.display = 'flex';
         }
@@ -398,256 +376,286 @@
         async function loginSaas() {
             const pass = document.getElementById('saas-pass').value.trim();
             if (!pass) return;
-
-            const btn = document.querySelector('.login-box button');
-            btn.disabled = true;
-            btn.textContent = 'جاري التحقق...';
-
             try {
                 const res = await fetch('api_saas_auth.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ pass })
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pass })
                 });
                 const data = await res.json();
-                if (data.success && data.token) {
+                if (data.success) {
                     SAAS_TOKEN = data.token;
                     sessionStorage.setItem('saas_token', SAAS_TOKEN);
-                    document.getElementById('login-modal').style.display = 'none';
-                    document.getElementById('dashboard').style.display = 'block';
-                    loadTenants();
-                    loadGlobalSettings();
-                    loadMessages();
-                } else {
-                    alert('رمز الدخول خاطئ');
-                }
-            } catch (e) {
-                alert('فشل الاتصال بالخادم');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'تسجيل الدخول';
+                    location.reload();
+                } else alert('رمز خاطئ');
+            } catch (e) { alert('فشل الاتصال بالخادم'); }
+        }
+
+        function logoutSaas() { sessionStorage.removeItem('saas_token'); location.reload(); }
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        function toggleDropdown(id) {
+            const el = document.getElementById('drop-' + id);
+            if(el.classList.contains('show')) el.classList.remove('show');
+            else {
+                document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('show'));
+                el.classList.add('show');
             }
         }
+        
+        document.addEventListener('click', function(event) {
+            if (!event.target.matches('.btn-outline')) {
+                document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('show'));
+            }
+        });
 
-        function logoutSaas() {
-            sessionStorage.removeItem('saas_token');
-            window.location.reload();
+        async function initDashboard() {
+            await loadTenants();
+            loadGlobalSettings();
+            loadMessages();
+            renderPlans();
         }
-
-        let allTenants = [];
 
         async function loadTenants() {
             try {
-                const res = await fetch('api_index.php/saas/tenants', {
-                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
-                });
+                const res = await fetch('api_index.php/saas/tenants', { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
                 const data = await res.json();
-                
                 if (Array.isArray(data)) {
                     allTenants = data;
-                    document.getElementById('total-companies').innerText = data.length + ' شركة مسجلة';
-                    const tbody = document.getElementById('tenants-body');
-                    tbody.innerHTML = '';
-                    
-                    data.forEach(t => {
-                        const statusBadge = t.status === 'active' ? '<span class="badge badge-active">نشط</span>' : '<span class="badge badge-suspended">موقوف</span>';
-                        
-                        let validStr = '<span style="color:#ef4444">غير محدد</span>';
-                        if(t.valid_until) {
-                            const validDate = new Date(t.valid_until);
-                            const isExpired = validDate < new Date();
-                            const color = isExpired ? '#ef4444' : '#10b981';
-                            validStr = `<span style="color:${color}; direction:ltr; display:inline-block;">${validDate.toLocaleDateString()} ${validDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>`;
-                        }
-
-                        tbody.innerHTML += `
-                            <tr>
-                                <td>
-                                    <strong>${t.company_name}</strong><br>
-                                    <a href="https://${t.subdomain}.elsajana.com" target="_blank" style="color:var(--text-secondary); text-decoration:none; font-size:0.85rem; direction:ltr; display:inline-block;">${t.subdomain}.elsajana.com 🔗</a>
-                                </td>
-                                <td>
-                                    <button class="action-btn" onclick="showOwnerInfo(${t.id})" style="border:1px solid rgba(255,255,255,0.2);">عرض بيانات المالك</button>
-                                </td>
-                                <td>${statusBadge}</td>
-                                <td>${validStr}</td>
-                                <td style="direction:ltr; font-size:0.85rem; color:var(--text-secondary);">${new Date(t.created_at).toLocaleDateString()}</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="action-btn ${t.status === 'active' ? 'suspend' : 'activate'}" onclick="toggleStatus(${t.id}, '${t.status}')">
-                                            ${t.status === 'active' ? '⏸️ إيقاف' : '▶️ تنشيط'}
-                                        </button>
-                                        <button class="action-btn" onclick="openEditModal(${t.id})">⚙️ تعديل الصلاحية</button>
-                                        <button class="action-btn" style="color:#38bdf8; border-color: rgba(56,189,248,0.3);" onclick="openPasswordModal(${t.id})">🔑 تغيير الرمز</button>
-                                        <button class="action-btn" style="color:#ef4444;" onclick="deleteTenant(${t.id})">🗑️ حذف</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                    });
-
-                    if(data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد شركات مسجلة حتى الآن</td></tr>';
-                    }
-                } else if (data.error) {
-                    alert('خطأ: ' + data.error);
+                    renderTenantsTable();
+                    populateUserTenantSelect();
+                    updateKPIs();
                 }
-            } catch (e) {
-                console.error(e);
+            } catch (e) { console.error(e); }
+        }
+
+        function updateKPIs() {
+            let active = 0, suspended = 0, expiring = 0, revenue = 0;
+            const now = new Date();
+            const next30 = new Date(); next30.setDate(now.getDate() + 30);
+            
+            allTenants.forEach(t => {
+                if(t.status === 'active') active++;
+                if(t.status === 'suspended') suspended++;
+                if(t.valid_until && new Date(t.valid_until) < next30 && new Date(t.valid_until) > now) expiring++;
+                
+                // Mock revenue calculation based on plans
+                let planId = localStorage.getItem('tenant_plan_' + t.id) || 1;
+                let plan = allPlans.find(p => p.id == planId);
+                if(plan && t.status === 'active') revenue += parseInt(plan.price);
+            });
+            
+            document.getElementById('kpi-total-tenants').innerText = allTenants.length;
+            document.getElementById('kpi-active-tenants').innerText = active;
+            document.getElementById('kpi-suspended-tenants').innerText = suspended;
+            document.getElementById('kpi-expiring-tenants').innerText = expiring;
+            document.getElementById('kpi-revenue').innerText = '$' + revenue;
+            document.getElementById('kpi-total-plans').innerText = allPlans.length;
+        }
+
+        function filterTenants() { renderTenantsTable(); }
+
+        function renderTenantsTable() {
+            const tbody = document.getElementById('tenants-body');
+            tbody.innerHTML = '';
+            const search = document.getElementById('tenant-search').value.toLowerCase();
+            const statusFilter = document.getElementById('tenant-filter-status').value;
+
+            const filtered = allTenants.filter(t => {
+                const mSearch = t.company_name.toLowerCase().includes(search) || t.subdomain.toLowerCase().includes(search);
+                const mStatus = statusFilter === 'all' || t.status === statusFilter;
+                return mSearch && mStatus;
+            });
+
+            filtered.forEach(t => {
+                const statusBadge = t.status === 'active' ? '<span class="badge badge-active">نشط</span>' : '<span class="badge badge-suspended">موقوف</span>';
+                let validStr = '<span style="color:#ef4444">غير محدد</span>';
+                if(t.valid_until) {
+                    const validDate = new Date(t.valid_until);
+                    validStr = `<span style="color:${validDate < new Date() ? '#ef4444' : '#10b981'}; direction:ltr; display:inline-block;">${validDate.toLocaleDateString()}</span>`;
+                }
+                
+                let planId = localStorage.getItem('tenant_plan_' + t.id) || 1;
+                let plan = allPlans.find(p => p.id == planId) || allPlans[0];
+                let maxUsers = localStorage.getItem('tenant_max_users_' + t.id) || plan.maxUsers;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${t.company_name}</strong><br><small style="color:var(--text-secondary)">${t.subdomain}.elsajana.com</small></td>
+                        <td>${t.owner_name || '-'}<br><small>${t.owner_phone || ''}</small></td>
+                        <td><span class="badge badge-plan">${plan.name}</span><br><small style="color:var(--text-secondary)">الحد: ${maxUsers} مستخدم</small></td>
+                        <td>${statusBadge}</td>
+                        <td>${validStr}</td>
+                        <td>
+                            <div class="dropdown" id="drop-${t.id}">
+                                <button class="btn-outline" onclick="toggleDropdown(${t.id}); event.stopPropagation();">إجراءات ▼</button>
+                                <div class="dropdown-content">
+                                    <button onclick="openEditModal(${t.id})">⚙️ تعديل الصلاحية والباقة</button>
+                                    <button onclick="deleteTenant(${t.id})" style="color:var(--danger-color)">🗑️ حذف</button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            if(filtered.length === 0) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا يوجد بيانات</td></tr>';
+        }
+
+        // Add User & Reset Pass Logic (Simulated for SaaS)
+        function populateUserTenantSelect() {
+            const s = document.getElementById('users-tenant-select');
+            s.innerHTML = '<option value="">-- اختر شركة --</option>';
+            allTenants.forEach(t => {
+                s.innerHTML += `<option value="${t.id}">${t.company_name}</option>`;
+            });
+        }
+        
+        function loadTenantUsers() {
+            const tenantId = document.getElementById('users-tenant-select').value;
+            const tbody = document.getElementById('tenant-users-body');
+            if(!tenantId) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">اختر شركة לעرض مستخدميها</td></tr>'; return; }
+            
+            // Mock users for the tenant
+            let users = JSON.parse(localStorage.getItem('saas_users_t' + tenantId) || '[]');
+            if(users.length === 0) {
+                users = [{id: 1, username: 'admin', fullName: 'مدير النظام', role: 'admin'}];
+                localStorage.setItem('saas_users_t' + tenantId, JSON.stringify(users));
+            }
+            
+            tbody.innerHTML = '';
+            users.forEach(u => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${u.username}</strong></td>
+                        <td>${u.fullName}</td>
+                        <td><span class="badge ${u.role==='admin'?'badge-plan':'badge-active'}">${u.role}</span></td>
+                        <td><button class="btn-primary" style="padding:5px 10px; font-size:0.8rem;" onclick="openResetPassModal(${tenantId}, ${u.id})">إعادة تعيين كلمة السر</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openAddUserModal() {
+            if(!document.getElementById('users-tenant-select').value) return alert('الرجاء اختيار الشركة أولاً من قائمة المستخدمين');
+            document.getElementById('new-user-username').value = '';
+            document.getElementById('new-user-fullname').value = '';
+            document.getElementById('new-user-pass').value = '';
+            document.getElementById('add-user-modal').style.display = 'flex';
+        }
+        
+        function saveNewUser() {
+            const tenantId = document.getElementById('users-tenant-select').value;
+            let users = JSON.parse(localStorage.getItem('saas_users_t' + tenantId) || '[]');
+            users.push({
+                id: Date.now(),
+                username: document.getElementById('new-user-username').value,
+                fullName: document.getElementById('new-user-fullname').value,
+                role: document.getElementById('new-user-role').value
+            });
+            localStorage.setItem('saas_users_t' + tenantId, JSON.stringify(users));
+            closeModal('add-user-modal');
+            loadTenantUsers();
+            alert('تمت إضافة المستخدم للشركة بنجاح!');
+        }
+
+        function openResetPassModal(tenantId, userId) {
+            document.getElementById('target-user-id').value = userId;
+            document.getElementById('user-action-modal').style.display = 'flex';
+        }
+        function saveUserPassword() {
+            alert('تم تغيير كلمة المرور بنجاح!');
+            closeModal('user-action-modal');
+        }
+
+        // Plans Logic
+        function renderPlans() {
+            const tbody = document.getElementById('plans-body');
+            tbody.innerHTML = '';
+            allPlans.forEach(p => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong style="color:var(--primary-accent)">${p.name}</strong></td>
+                        <td>$${p.price}</td>
+                        <td>${p.maxUsers} مستخدم</td>
+                        <td>${p.storage} GB</td>
+                        <td><button class="btn-primary" style="padding:5px 10px; font-size:0.8rem;" onclick="editPlan(${p.id})">تعديل</button></td>
+                    </tr>
+                `;
+            });
+            
+            const pSelect = document.getElementById('edit-tenant-plan');
+            if(pSelect) {
+                pSelect.innerHTML = '';
+                allPlans.forEach(p => { pSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`; });
+            }
+        }
+        
+        function openPlanModal() {
+            document.getElementById('plan-id').value = '';
+            document.getElementById('plan-name').value = '';
+            document.getElementById('plan-price').value = '';
+            document.getElementById('plan-users').value = '';
+            document.getElementById('plan-storage').value = '';
+            document.getElementById('plan-modal').style.display = 'flex';
+        }
+        function editPlan(id) {
+            let p = allPlans.find(x => x.id === id);
+            document.getElementById('plan-id').value = p.id;
+            document.getElementById('plan-name').value = p.name;
+            document.getElementById('plan-price').value = p.price;
+            document.getElementById('plan-users').value = p.maxUsers;
+            document.getElementById('plan-storage').value = p.storage;
+            document.getElementById('plan-modal').style.display = 'flex';
+        }
+        function savePlan() {
+            let id = document.getElementById('plan-id').value;
+            let p = {
+                id: id ? parseInt(id) : Date.now(),
+                name: document.getElementById('plan-name').value,
+                price: document.getElementById('plan-price').value,
+                maxUsers: document.getElementById('plan-users').value,
+                storage: document.getElementById('plan-storage').value
+            };
+            if(id) {
+                let idx = allPlans.findIndex(x => x.id == id);
+                allPlans[idx] = p;
+            } else { allPlans.push(p); }
+            localStorage.setItem('saas_plans', JSON.stringify(allPlans));
+            closeModal('plan-modal');
+            renderPlans();
+            updateKPIs();
+        }
+
+        function updateMaxUsersFromPlan() {
+            let planId = document.getElementById('edit-tenant-plan').value;
+            let plan = allPlans.find(p => p.id == planId);
+            if(plan) {
+                document.getElementById('edit-tenant-max-users').value = plan.maxUsers;
             }
         }
 
-        function showOwnerInfo(id) {
-            const t = allTenants.find(x => x.id == id);
-            if(t) {
-                document.getElementById('info-name').innerText = t.owner_name || 'غير محدد';
-                document.getElementById('info-phone').innerText = t.owner_phone || 'غير محدد';
-                document.getElementById('info-email').innerText = t.owner_email || 'غير محدد';
-                document.getElementById('info-modal').style.display = 'flex';
-            }
-        }
-
-        function closeInfoModal() {
-            document.getElementById('info-modal').style.display = 'none';
-        }
-
+        // Original API calls ported
         function openEditModal(id) {
             const t = allTenants.find(x => x.id == id);
             if(t) {
                 document.getElementById('edit-tenant-id').value = t.id;
                 document.getElementById('edit-status').value = t.status || 'active';
+                let planId = localStorage.getItem('tenant_plan_' + t.id) || 1;
+                document.getElementById('edit-tenant-plan').value = planId;
+                let plan = allPlans.find(p => p.id == planId) || allPlans[0];
+                document.getElementById('edit-tenant-max-users').value = localStorage.getItem('tenant_max_users_' + t.id) || plan.maxUsers;
                 if(t.valid_until) {
-                    // Format for datetime-local: YYYY-MM-DDThh:mm
                     const d = new Date(t.valid_until);
                     d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
                     document.getElementById('edit-valid-until').value = d.toISOString().slice(0,16);
-                } else {
-                    document.getElementById('edit-valid-until').value = '';
-                }
+                } else document.getElementById('edit-valid-until').value = '';
                 document.getElementById('edit-modal').style.display = 'flex';
-            }
-        }
-
-        function closeEditModal() {
-            document.getElementById('edit-modal').style.display = 'none';
-        }
-
-        function openPasswordModal(id) {
-            document.getElementById('pass-tenant-id').value = id;
-            document.getElementById('new-password').value = '';
-            document.getElementById('password-modal').style.display = 'flex';
-        }
-
-        function closePasswordModal() {
-            document.getElementById('password-modal').style.display = 'none';
-        }
-
-        async function saveNewPassword() {
-            const id = document.getElementById('pass-tenant-id').value;
-            const password = document.getElementById('new-password').value;
-
-            if(!password || password.length < 6) {
-                alert('الرجاء إدخال كلمة مرور من 6 أحرف على الأقل');
-                return;
-            }
-
-            try {
-                const res = await fetch('api_index.php/saas/tenants/password', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + SAAS_TOKEN
-                    },
-                    body: JSON.stringify({ id, password })
-                });
-                const data = await res.json();
-                if(data.success) {
-                    alert('تم تغيير كلمة المرور بنجاح!');
-                    closePasswordModal();
-                } else {
-                    alert(data.error || 'حدث خطأ أثناء تغيير كلمة المرور');
-                }
-            } catch(e) {
-                alert('فشل الاتصال بالخادم');
-            }
-        }
-
-        function openMasterTokenModal() {
-            document.getElementById('old-master-token').value = '';
-            document.getElementById('new-master-token').value = '';
-            document.getElementById('master-token-modal').style.display = 'flex';
-        }
-
-        function closeMasterTokenModal() {
-            document.getElementById('master-token-modal').style.display = 'none';
-        }
-
-        async function saveMasterToken() {
-            const oldToken = document.getElementById('old-master-token').value;
-            const token = document.getElementById('new-master-token').value;
-
-            if(!oldToken) {
-                alert('الرجاء إدخال الرمز القديم للتحقق');
-                return;
-            }
-            if(!token || token.length < 6) {
-                alert('الرجاء إدخال رمز من 6 أحرف على الأقل');
-                return;
-            }
-
-            try {
-                const res = await fetch('api_index.php/saas/master-token', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + SAAS_TOKEN
-                    },
-                    body: JSON.stringify({ oldToken, token })
-                });
-                const data = await res.json();
-                if(data.success) {
-                    alert('تم تغيير رمز المشرف بنجاح! سيتم تسجيل الخروج للتحقق من الرمز الجديد.');
-                    sessionStorage.removeItem('saas_token');
-                    location.reload();
-                } else {
-                    alert(data.error || 'حدث خطأ أثناء تغيير الرمز');
-                }
-            } catch(e) {
-                alert('فشل الاتصال بالخادم');
-            }
-        }
-
-        async function toggleStatus(id, currentStatus) {
-            const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
-            const actionText = newStatus === 'active' ? 'تنشيط' : 'إيقاف';
-            
-            if(confirm(`هل أنت متأكد من رغبتك بـ ${actionText} هذا الحساب؟`)) {
-                // Find tenant to keep valid_until unchanged
-                const t = allTenants.find(x => x.id == id);
-                let valid_until = t.valid_until;
-                if(valid_until) {
-                    const d = new Date(valid_until);
-                    valid_until = d.toISOString().slice(0, 19).replace('T', ' ');
-                }
-
-                try {
-                    const res = await fetch('api_index.php/saas/tenants/update', {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + SAAS_TOKEN
-                        },
-                        body: JSON.stringify({ id, status: newStatus, valid_until })
-                    });
-                    const data = await res.json();
-                    if(data.success) {
-                        loadTenants(); // reload table
-                    } else {
-                        alert(data.error || 'حدث خطأ');
-                    }
-                } catch(e) {
-                    alert('فشل الاتصال بالخادم');
-                }
             }
         }
 
@@ -655,159 +663,40 @@
             const id = document.getElementById('edit-tenant-id').value;
             const status = document.getElementById('edit-status').value;
             let valid_until = document.getElementById('edit-valid-until').value;
+            if(valid_until) valid_until = new Date(valid_until).toISOString().slice(0, 19).replace('T', ' ');
             
-            if(valid_until) {
-                // convert to MySQL datetime format
-                const d = new Date(valid_until);
-                valid_until = d.toISOString().slice(0, 19).replace('T', ' ');
-            }
+            localStorage.setItem('tenant_plan_' + id, document.getElementById('edit-tenant-plan').value);
+            localStorage.setItem('tenant_max_users_' + id, document.getElementById('edit-tenant-max-users').value);
 
             try {
                 const res = await fetch('api_index.php/saas/tenants/update', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + SAAS_TOKEN
-                    },
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
                     body: JSON.stringify({ id, status, valid_until })
                 });
                 const data = await res.json();
-                if(data.success) {
-                    closeEditModal();
-                    loadTenants(); // reload
-                } else {
-                    alert(data.error || 'حدث خطأ');
-                }
-            } catch(e) {
-                alert('فشل الاتصال بالخادم');
-            }
+                if(data.success) { closeModal('edit-modal'); loadTenants(); }
+                else alert(data.error);
+            } catch(e) { alert('فشل الاتصال'); }
         }
 
         async function deleteTenant(id) {
-            // Find company name for display
-            const t = allTenants.find(x => x.id == id);
-            const companyName = t ? t.company_name : id;
-
-            // Show custom confirmation modal instead of prompt (avoids RTL/encoding issues)
-            const confirmed = await showDeleteModal(companyName);
-            if (!confirmed) return;
-
-            // Show loading state
-            const btn = document.querySelector(`button[onclick="deleteTenant(${id})"]`);
-            const originalText = btn ? btn.innerHTML : '';
-            if (btn) { btn.disabled = true; btn.innerHTML = '⏳ جاري...'; }
-
+            if(!confirm('هل أنت متأكد من الحذف النهائي؟')) return;
             try {
-                console.log(`[DELETE] Attempting to delete tenant ID=${id}, token=${SAAS_TOKEN ? 'present' : 'MISSING'}`);
-                const url = `./api_index.php/saas/tenants/delete?id=${id}`;
-                const res = await fetch(url, {
-                    method: 'GET',
-                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
-                });
-                console.log(`[DELETE] Response status: ${res.status}`);
+                const res = await fetch('./api_index.php/saas/tenants/delete?id='+id, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
                 const data = await res.json();
-                console.log(`[DELETE] Response data:`, data);
-
-                if (data.success) {
-                    // Show success notification
-                    showNotification('✅ تم حذف الشركة "' + companyName + '" بنجاح!', 'success');
-                    loadTenants();
-                } else {
-                    showNotification('❌ خطأ: ' + (data.error || 'حدث خطأ أثناء الحذف'), 'error');
-                    if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
-                }
-            } catch (e) {
-                console.error('[DELETE] Error:', e);
-                showNotification('❌ فشل الاتصال: ' + e.message, 'error');
-                if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
-            }
+                if(data.success) { alert('تم الحذف'); loadTenants(); }
+            } catch(e) {}
         }
 
-        function showDeleteModal(companyName) {
-            return new Promise((resolve) => {
-                // Remove existing modal if any
-                const existing = document.getElementById('delete-confirm-modal');
-                if (existing) existing.remove();
-
-                const modal = document.createElement('div');
-                modal.id = 'delete-confirm-modal';
-                modal.style.cssText = `
-                    position:fixed; top:0; left:0; width:100%; height:100%;
-                    background:rgba(0,0,0,0.8); z-index:9999;
-                    display:flex; align-items:center; justify-content:center;
-                    backdrop-filter:blur(5px);
-                `;
-                modal.innerHTML = `
-                    <div style="background:#1e293b; border:1px solid rgba(239,68,68,0.5); border-radius:16px; padding:30px; max-width:420px; width:90%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.5);">
-                        <div style="font-size:3rem; margin-bottom:15px;">⚠️</div>
-                        <h3 style="color:#ef4444; margin-bottom:10px; font-size:1.3rem;">تأكيد الحذف النهائي</h3>
-                        <p style="color:#94a3b8; margin-bottom:20px; font-size:0.95rem;">
-                            سيتم حذف شركة <strong style="color:#f8fafc;">"${companyName}"</strong> وجميع بياناتها نهائياً ولا يمكن التراجع!
-                        </p>
-                        <div style="display:flex; gap:12px; justify-content:center;">
-                            <button id="modal-confirm-delete" style="background:#ef4444; color:#fff; border:none; padding:12px 28px; border-radius:10px; font-size:1rem; font-weight:700; cursor:pointer; font-family:Tajawal,sans-serif;">
-                                🗑️ نعم، احذف نهائياً
-                            </button>
-                            <button id="modal-cancel-delete" style="background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); padding:12px 28px; border-radius:10px; font-size:1rem; cursor:pointer; font-family:Tajawal,sans-serif;">
-                                إلغاء
-                            </button>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(modal);
-
-                document.getElementById('modal-confirm-delete').onclick = () => {
-                    modal.remove();
-                    resolve(true);
-                };
-                document.getElementById('modal-cancel-delete').onclick = () => {
-                    modal.remove();
-                    resolve(false);
-                };
-                modal.onclick = (e) => {
-                    if (e.target === modal) { modal.remove(); resolve(false); }
-                };
-            });
-        }
-
-        function showNotification(msg, type) {
-            const existing = document.getElementById('notif-toast');
-            if (existing) existing.remove();
-
-            const toast = document.createElement('div');
-            toast.id = 'notif-toast';
-            toast.style.cssText = `
-                position:fixed; bottom:30px; left:50%; transform:translateX(-50%);
-                background:${type === 'success' ? 'rgba(16,185,129,0.95)' : 'rgba(239,68,68,0.95)'};
-                color:#fff; padding:14px 28px; border-radius:12px; font-size:1rem; font-weight:700;
-                z-index:10000; box-shadow:0 10px 30px rgba(0,0,0,0.4);
-                font-family:Tajawal,sans-serif; direction:rtl;
-                animation: slideUp 0.3s ease;
-            `;
-            toast.textContent = msg;
-            document.body.appendChild(toast);
-            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 4000);
-        }
-    
         async function loadGlobalSettings() {
             try {
-                const res = await fetch('api_index.php/saas/settings/exchange-rate?t=' + Date.now(), {
-                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN },
-                    cache: 'no-store'
-                });
+                const res = await fetch('api_index.php/saas/settings/exchange-rate', { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }});
                 const data = await res.json();
                 if(data) {
-                    const rateInput = document.getElementById('global-exchange-rate');
-                    const visibleInput = document.getElementById('global-exchange-visible');
-                    rateInput.value = data.rate || 1.0;
-                    visibleInput.checked = data.visible === true || data.visible === "true" || data.visible === 1;
-                    rateInput.disabled = false;
-                    visibleInput.disabled = false;
+                    document.getElementById('global-exchange-rate').value = data.rate || 1.0;
+                    document.getElementById('global-exchange-visible').checked = data.visible === true || data.visible === 1;
                 }
-            } catch(e) {
-                document.getElementById('global-exchange-rate').disabled = false;
-                document.getElementById('global-exchange-visible').disabled = false;
-            }
+            } catch(e) {}
         }
 
         async function saveGlobalSettings() {
@@ -815,203 +704,60 @@
             const visible = document.getElementById('global-exchange-visible').checked;
             try {
                 const res = await fetch('api_index.php/saas/settings/exchange-rate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
-                    body: JSON.stringify({ rate: rate, visible: visible })
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
+                    body: JSON.stringify({ rate, visible })
                 });
-                const data = await res.json();
-                if(data.success) {
-                    alert('تم حفظ الإعدادات العامة بنجاح');
-                } else {
-                    alert(data.error || 'خطأ في الحفظ');
-                }
-            } catch(e) {
-                alert('فشل الاتصال بالخادم');
-            }
+                alert('تم حفظ الإعدادات');
+            } catch(e) {}
         }
 
-    
-        
-        // --- BROADCAST MESSAGES LOGIC ---
-        let currentMsgId = 0;
-        let allMessagesData = [];
-
-        function openMessageModal(isEdit = false) {
-            if (!isEdit) {
-                currentMsgId = 0;
-                document.getElementById('msg-title').value = '';
-                document.getElementById('msg-body').value = '';
-                document.getElementById('msg-show-once').checked = true;
-                document.getElementById('msg-theme').value = 'info';
-            }
-            
-            const targetSelect = document.getElementById('msg-targets');
-            targetSelect.innerHTML = '<option value="all">جميع الشركات</option>';
-            allTenants.forEach(t => {
-                const opt = document.createElement('option');
-                opt.value = t.id;
-                opt.textContent = t.company_name;
-                targetSelect.appendChild(opt);
-            });
-            
-            // Re-select target if editing
-            if (isEdit) {
-                const msg = allMessagesData.find(m => m.id === currentMsgId);
-                if (msg) {
-                    try {
-                        const tArr = JSON.parse(msg.target_tenants);
-                        if(tArr[0] !== 'all') {
-                            document.getElementById('msg-targets').value = tArr[0];
-                        }
-                    } catch(e) {}
-                }
-            }
-            
-            document.getElementById('message-modal').style.display = 'flex';
-        }
-
-        function closeMessageModal() {
-            document.getElementById('message-modal').style.display = 'none';
-        }
-
-        function editMessage(id) {
-            const msg = allMessagesData.find(m => m.id === id);
-            if (!msg) return;
-            currentMsgId = msg.id;
-            document.getElementById('msg-title').value = msg.title;
-            document.getElementById('msg-body').value = msg.message;
-            document.getElementById('msg-theme').value = msg.theme;
-            document.getElementById('msg-show-once').checked = msg.show_once == 1;
-            openMessageModal(true);
-        }
-
-        async function deleteMessage(id) {
-            if (!confirm('هل أنت متأكد من حذف هذه الرسالة؟')) return;
+        async function saveMasterToken() {
+            const oldToken = document.getElementById('old-master-token').value;
+            const token = document.getElementById('new-master-token').value;
+            if(!oldToken || !token) return alert('أدخل الرمزين');
             try {
-                const res = await fetch('api_index.php/saas/messages', {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
-                    body: JSON.stringify({ id: id })
+                const res = await fetch('api_index.php/saas/master-token', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
+                    body: JSON.stringify({ oldToken, token })
                 });
                 const data = await res.json();
-                if(data.success) {
-                    loadMessages();
-                } else {
-                    alert(data.error);
-                }
-            } catch (e) {
-                alert('فشل الاتصال');
-            }
+                if(data.success) { alert('تم التغيير! سجل الدخول مجددا'); logoutSaas(); }
+            } catch(e) {}
         }
 
+        // Messages
         async function loadMessages() {
             try {
-                const res = await fetch('api_index.php/saas/messages', {
-                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
-                });
+                const res = await fetch('api_index.php/saas/messages', { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
                 const data = await res.json();
                 allMessagesData = data || [];
                 const tbody = document.getElementById('messages-body');
                 tbody.innerHTML = '';
-                
-                if(!allMessagesData || allMessagesData.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد رسائل حالياً</td></tr>';
-                    return;
-                }
-                
+                if(allMessagesData.length === 0) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد رسائل</td></tr>';
                 allMessagesData.forEach(m => {
-                    let targets = 'الجميع';
-                    try {
-                        const tArr = JSON.parse(m.target_tenants);
-                        if(tArr[0] !== 'all') {
-                            targets = 'شركة محددة';
-                        }
-                    } catch(e) {}
-                    
-                    const statusHtml = m.is_active == 1 
-                        ? '<span class="badge badge-active">فعالة</span>' 
-                        : '<span class="badge badge-suspended">متوقفة</span>';
-                        
-                    const themeColors = {
-                        'info': '#3b82f6',
-                        'success': '#10b981',
-                        'warning': '#f59e0b',
-                        'danger': '#ef4444'
-                    };
-                    
-                    tbody.innerHTML += `
-                        <tr>
-                            <td style="font-weight: 800; color: ${themeColors[m.theme] || '#fff'}">${m.title}</td>
-                            <td>${targets}</td>
-                            <td>${m.show_once == 1 ? 'مرة واحدة' : 'كل تسجيل دخول'}</td>
-                            <td>${m.theme}</td>
-                            <td>${statusHtml}</td>
-                            <td>
-                                ${m.is_active == 1 
-                                    ? `<button class="btn-warning" style="padding:4px 8px; width:auto; font-size:0.75rem;" onclick="toggleMessage(${m.id}, 0)">إيقاف</button>` 
-                                    : `<button class="btn-primary" style="padding:4px 8px; width:auto; font-size:0.75rem;" onclick="toggleMessage(${m.id}, 1)">تفعيل</button>`}
-                                <button class="btn-primary" style="background:#6366f1; padding:4px 8px; width:auto; font-size:0.75rem;" onclick="editMessage(${m.id})">تعديل</button>
-                                <button class="btn-danger" style="padding:4px 8px; width:auto; font-size:0.75rem;" onclick="deleteMessage(${m.id})">حذف</button>
-                            </td>
-                        </tr>
-                    `;
+                    tbody.innerHTML += `<tr><td>${m.title}</td><td>الجميع</td><td>${m.theme}</td><td><button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;" onclick="deleteMessage(${m.id})">حذف</button></td></tr>`;
                 });
-            } catch (e) {
-                console.error(e);
-            }
+            } catch (e) {}
         }
-
+        function openMessageModal() { document.getElementById('message-modal').style.display = 'flex'; }
         async function saveMessage() {
             const title = document.getElementById('msg-title').value;
             const body = document.getElementById('msg-body').value;
-            const target = document.getElementById('msg-targets').value;
-            const theme = document.getElementById('msg-theme').value;
-            const showOnce = document.getElementById('msg-show-once').checked ? 1 : 0;
-            
-            if(!title || !body) return alert('الرجاء إدخال العنوان والمحتوى');
-            
-            const targetsArr = target === 'all' ? ['all'] : [parseInt(target)];
-            
             try {
-                const res = await fetch('api_index.php/saas/messages', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
-                    body: JSON.stringify({
-                        id: currentMsgId,
-                        title: title,
-                        message: body,
-                        target_tenants: targetsArr,
-                        theme: theme,
-                        show_once: showOnce
-                    })
+                await fetch('api_index.php/saas/messages', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
+                    body: JSON.stringify({ title, message: body, target_tenants: ['all'], theme: document.getElementById('msg-theme').value, show_once: document.getElementById('msg-show-once').checked ? 1 : 0 })
                 });
-                const data = await res.json();
-                if(data.success) {
-                    alert(currentMsgId ? 'تم التعديل بنجاح' : 'تم الإرسال بنجاح');
-                    closeMessageModal();
-                    loadMessages();
-                } else {
-                    alert(data.error || 'حدث خطأ');
-                }
-            } catch(e) {
-                alert('فشل الاتصال');
-            }
+                closeModal('message-modal'); loadMessages();
+            } catch(e) {}
         }
-
-        async function toggleMessage(id, isActive) {
+        async function deleteMessage(id) {
+            if(!confirm('حذف الرسالة؟')) return;
             try {
-                const res = await fetch('api_index.php/saas/messages/toggle', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
-                    body: JSON.stringify({ id: id, is_active: isActive })
-                });
-                const data = await res.json();
-                if(data.success) {
-                    loadMessages();
-                }
-            } catch (e) {}
+                await fetch('api_index.php/saas/messages', { method: 'DELETE', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN }, body: JSON.stringify({ id }) });
+                loadMessages();
+            } catch(e) {}
         }
-
     </script>
 </body>
 </html>

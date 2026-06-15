@@ -263,6 +263,9 @@
             .header-controls { justify-content: center; width: 100%; flex-wrap: wrap; }
             .charts-grid, .bottom-section { grid-template-columns: 1fr; }
         }
+        
+        /* Fix double sidebar spacing issue */
+        body.has-sidebar { padding-right: 0 !important; }
     </style>
     <style>
         :root.light-theme {

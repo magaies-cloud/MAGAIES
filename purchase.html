@@ -43,7 +43,7 @@
 
         
         .premium-header {
-            background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15), rgba(56, 189, 248, 0.15));
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(99, 102, 241, 0.15), rgba(236, 72, 153, 0.15), rgba(16, 185, 129, 0.15));
             background-size: 300% 300%;
             backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 12px 20px;
@@ -54,8 +54,6 @@
             animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1), animateGradient 12s ease infinite;
             position: relative;
             overflow: hidden;
-            margin: 15px;
-            flex-shrink: 0;
         }
 
         .premium-header::after {
@@ -98,14 +96,13 @@
 
         .user-info { display: flex; align-items: center; gap: 8px; background: rgba(15,23,42,0.6); padding: 6px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); }
         
-        .dash-main { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .dash-main { width: 100%; max-width: 1600px; margin: 0 auto; padding: 20px 30px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; flex: 1; animation: fadeIn 0.8s ease-out forwards; }
 
         body {
             background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Inter', 'Tajawal', sans-serif;
-            margin: 0; padding: 0;
-            overflow: hidden;
+            margin: 0; padding: 0; min-height: 100vh;
+            display: flex; flex-direction: column; overflow-x: hidden;
+            font-family: 'Inter', 'Tajawal', sans-serif; color: var(--text-main);
         }
         
         body.has-sidebar { padding-right: 0 !important; } /* Override default if needed */

@@ -5,7 +5,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>??????? 2026 - ??????? ??????</title>
+    <title>السجانة 2026 - سجل التدقيق</title>
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260615">
         <style>
@@ -81,41 +81,41 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
             </button>
-            <h1 class="nav-title" style="color: #f87171;">? ??????? ?????? (??? ????????)</h1>
+            <h1 class="nav-title" style="color: #f87171;">سجلات النظام (سجل التدقيق)</h1>
         </div>
         <div class="nav-left">
-            <button class="theme-toggle-btn" title="????? ??????">??</button>
+            <button class="theme-toggle-btn" title="تغيير المظهر">🌙</button>
         </div>
     </nav>
 
     <!-- Main Content -->
     <main class="main-content audit-container" id="main-content" style="display:none;">
         <div class="page-title">
-            ? ??? ????? ?????? (???? 14 ???)
+            سجل حركات النظام (لآخر 14 يوم)
         </div>
 
         <div class="filters-card">
             <div class="filter-group">
-                <label>????? ?????????</label>
+                <label>تصفية بالمستخدم</label>
                 <select id="filter-user" onchange="renderLogs()">
-                    <option value="all">????</option>
+                    <option value="all">الكل</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label>????? ?????? / ??????</label>
+                <label>تصفية بالوحدة</label>
                 <select id="filter-module" onchange="renderLogs()">
-                    <option value="all">????</option>
-                    <option value="login">????? ??????</option>
-                    <option value="sales">????????</option>
-                    <option value="purchase">?????????</option>
-                    <option value="finance">???????</option>
-                    <option value="master_data">???????? ????????</option>
-                    <option value="settings">????????? ??????????</option>
+                    <option value="all">الكل</option>
+                    <option value="login">تسجيل الدخول</option>
+                    <option value="sales">المبيعات</option>
+                    <option value="purchase">المشتريات</option>
+                    <option value="finance">المالية</option>
+                    <option value="master_data">البيانات الأساسية</option>
+                    <option value="settings">الإعدادات</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label>??? ??????</label>
-                <input type="text" id="filter-search" placeholder="???? ?? ?????? ??????..." onkeyup="renderLogs()">
+                <label>نص البحث</label>
+                <input type="text" id="filter-search" placeholder="ابحث في السجلات..." onkeyup="renderLogs()">
             </div>
         </div>
 
@@ -123,11 +123,11 @@
             <table>
                 <thead>
                     <tr>
-                        <th>????? ????????</th>
-                        <th>????????</th>
-                        <th>??????</th>
-                        <th>??? ??????</th>
-                        <th>????????</th>
+                        <th>تاريخ الحركة</th>
+                        <th>المستخدم</th>
+                        <th>الوحدة</th>
+                        <th>نوع الحركة</th>
+                        <th>التفاصيل</th>
                     </tr>
                 </thead>
                 <tbody id="logs-table-body">
@@ -148,7 +148,7 @@
             
             // SECURITY CHECK: Only Admin or Security Level >= 8
             if (user.securityLevel < 8 && user.role !== 'admin' && user.username !== 'admin') {
-                alert('?????? ?????? ??????? ?????? ????? ??????? ?????? ???.');
+                alert('عذراً، ليس لديك الصلاحية لعرض هذه الصفحة.');
                 window.location.href = 'dashboard-pro.html';
                 return;
             }
@@ -172,10 +172,10 @@
 
         function getActionBadgeColor(action) {
             const a = action.toLowerCase();
-            if (a.includes('delete') || a.includes('???') || a.includes('reject')) return 'background:rgba(239, 68, 68, 0.1); color:#ef4444;';
-            if (a.includes('add') || a.includes('create') || a.includes('?????') || a.includes('approve') || a.includes('login')) return 'background:rgba(16, 185, 129, 0.1); color:#10b981;';
-            if (a.includes('edit') || a.includes('update') || a.includes('?????')) return 'background:rgba(245, 158, 11, 0.1); color:#f59e0b;';
-            if (a.includes('print') || a.includes('?????')) return 'background:rgba(56, 189, 248, 0.1); color:#38bdf8;';
+            if (a.includes('delete') || a.includes('حذف') || a.includes('reject')) return 'background:rgba(239, 68, 68, 0.1); color:#ef4444;';
+            if (a.includes('add') || a.includes('create') || a.includes('إضافة') || a.includes('approve') || a.includes('login')) return 'background:rgba(16, 185, 129, 0.1); color:#10b981;';
+            if (a.includes('edit') || a.includes('update') || a.includes('تعديل')) return 'background:rgba(245, 158, 11, 0.1); color:#f59e0b;';
+            if (a.includes('print') || a.includes('طباعة')) return 'background:rgba(56, 189, 248, 0.1); color:#38bdf8;';
             return 'background:rgba(156, 163, 175, 0.1); color:#6b7280;';
         }
 
@@ -196,7 +196,7 @@
             });
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="empty-state">?? ???? ????? ????? ????? ????</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="empty-state">لا توجد سجلات تطابق بحثك</td></tr>`;
                 return;
             }
 
