@@ -317,6 +317,14 @@
                         </div>
                     </div>
 
+                    <!-- Customer Search Bar -->
+                    <div style="margin-bottom: 15px; display: flex; align-items: center;">
+                        <div class="input-group" style="width: 100%; max-width: 500px; position: relative; margin-bottom: 0;">
+                            <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; pointer-events: none;">🔍</span>
+                            <input type="text" id="customer-search-input" onkeyup="filterCustomers()" placeholder="ابحث ذكياً باسم العميل، رقم الهاتف، أو الإيميل..." style="padding-right: 45px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3); background: rgba(0,0,0,0.3); font-size: 1rem; color: #fff; width: 100%; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);">
+                        </div>
+                    </div>
+
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table">
                             <thead><tr><th>اسم العميل</th><th>رقم الهاتف</th><th>الرصيد الحالي</th><th>حد الائتمان (المسموح)</th><th>الإجراء</th></tr></thead>
@@ -945,7 +953,7 @@
             renderCustomers();
         }
 
-        function renderCustomers() {
+        function renderCustomers(query = '') {
             const tbody = document.getElementById('customers-tbody');
             if(!tbody) return;
             let customers = [];
@@ -956,11 +964,26 @@
                 customers = [];
             }
             customers = customers.filter(c => !c.deleted);
+
+            if (query) {
+                const q = query.toLowerCase();
+                customers = customers.filter(c => 
+                    (c.name && c.name.toLowerCase().includes(q)) || 
+                    (c.phone && c.phone.toLowerCase().includes(q)) || 
+                    (c.email && c.email.toLowerCase().includes(q))
+                );
+            }
+
             tbody.innerHTML = '';
             customers.forEach(c => {
                 const statusBadge = c.status === 'vip' ? '🌟 VIP' : (c.status === 'blacklisted' ? '🔴 موقوف' : '🟢 نشط');
                 tbody.insertAdjacentHTML('beforeend', `<tr><td>${c.name} <small>${statusBadge}</small></td><td>${c.phone || '-'}</td><td>${c.currentBalance} SDG</td><td>${c.creditLimit} SDG</td><td><button class="btn-text" onclick="editCustomer('${c.id}')">تعديل</button><button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteCustomer('${c.id}')">حذف</button></td></tr>`);
             });
+        }
+
+        function filterCustomers() {
+            const query = document.getElementById('customer-search-input').value;
+            renderCustomers(query);
         }
 
         function addCustomerBankAccount(data = null) {

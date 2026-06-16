@@ -1,4 +1,4 @@
-/* ═══════════════════════════════════════════════════════
+﻿/* ═══════════════════════════════════════════════════════
    sales-invoice.js — POS Engine v6.0
    Real-time Reactive Calculations · Sequential Invoices
    ═══════════════════════════════════════════════════════ */
@@ -351,20 +351,55 @@ function collapseFinancialPanel() {
 function addNewCustomer() {
     const name = document.getElementById('new-cust-name').value.trim();
     const phone = document.getElementById('new-cust-phone').value.trim();
-    const credit = parseNum(document.getElementById('new-cust-credit').value);
+    const whatsapp = document.getElementById('new-cust-whatsapp') ? document.getElementById('new-cust-whatsapp').value.trim() : '';
+    const email = document.getElementById('new-cust-email') ? document.getElementById('new-cust-email').value.trim() : '';
+    const address = document.getElementById('new-cust-address') ? document.getElementById('new-cust-address').value.trim() : '';
+    const securityLevel = document.getElementById('new-cust-security') ? document.getElementById('new-cust-security').value : '1';
+    const openingBalance = document.getElementById('new-cust-opening') ? parseNum(document.getElementById('new-cust-opening').value) : 0;
+    const credit = document.getElementById('new-cust-credit') ? parseNum(document.getElementById('new-cust-credit').value) : 0;
+
     if (!name) { showToast('❌ يرجى إدخال اسم العميل', 'error'); return; }
 
-    const newId = 'c-' + String(Date.now()).slice(-6);
-    const newCust = { id:newId, name, ledger:0, checks:0, creditLimit:credit };
-    CUSTOMERS.push(newCust);
+    const newId = 'C-' + String(Date.now()).slice(-6);
+    const newCust = { 
+        id: newId, 
+        name: name, 
+        phone: phone,
+        whatsapp: whatsapp,
+        email: email,
+        address: address,
+        securityLevel: securityLevel,
+        currentBalance: openingBalance,
+        creditLimit: credit,
+        status: 'active',
+        bankAccounts: [],
+        timestamp: new Date().toISOString()
+    };
+    
+    if (typeof CUSTOMERS !== 'undefined') {
+        CUSTOMERS.push(newCust);
+    }
+
+    let allCustomers = [];
+    try {
+        allCustomers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+    } catch(e) {}
+    allCustomers.push(newCust);
+    localStorage.setItem('erp_customers_v1', JSON.stringify(allCustomers));
 
     selectCustomer(newId, name);
-
     closeModal('add-customer-modal');
+    
     document.getElementById('new-cust-name').value = '';
     document.getElementById('new-cust-phone').value = '';
-    document.getElementById('new-cust-credit').value = '';
-    showToast(`✅ تم إضافة العميل: ${name}`);
+    if(document.getElementById('new-cust-whatsapp')) document.getElementById('new-cust-whatsapp').value = '';
+    if(document.getElementById('new-cust-email')) document.getElementById('new-cust-email').value = '';
+    if(document.getElementById('new-cust-address')) document.getElementById('new-cust-address').value = '';
+    if(document.getElementById('new-cust-opening')) document.getElementById('new-cust-opening').value = '';
+    if(document.getElementById('new-cust-credit')) document.getElementById('new-cust-credit').value = '';
+    if(document.getElementById('new-cust-security')) document.getElementById('new-cust-security').value = '1';
+
+    showToast('✅ تم إضافة العميل بنجاح');
 }
 
 function loadPreviousInvoice() {
@@ -2142,3 +2177,4 @@ function convertToOfficial(invNo) {
     showToast('تم تحويل الفاتورة المبدئية بنجاح!', 'success');
     if (typeof loadHubTransactions === 'function') loadHubTransactions();
 }
+

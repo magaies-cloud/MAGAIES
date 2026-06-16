@@ -739,13 +739,13 @@
 
     <!-- ═══ Add Customer Modal ═══ -->
     <div class="modal-overlay" id="add-customer-modal">
-        <div class="modal-card">
+        <div class="modal-card" style="max-width: 600px;">
             <div class="modal-header">
                 <h3>➕ إضافة عميل جديد</h3>
                 <button class="modal-close" onclick="closeModal('add-customer-modal')">✕</button>
             </div>
-            <div class="modal-body">
-                <div class="form-group">
+            <div class="modal-body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group" style="grid-column: 1 / -1;">
                     <label class="label">اسم العميل</label>
                     <input type="text" class="ctrl-input" id="new-cust-name" placeholder="اسم العميل...">
                 </div>
@@ -754,7 +754,33 @@
                     <input type="tel" class="ctrl-input" id="new-cust-phone" placeholder="09XXXXXXXX">
                 </div>
                 <div class="form-group">
-                    <label class="label">حد الائتمان</label>
+                    <label class="label">الواتساب</label>
+                    <input type="tel" class="ctrl-input" id="new-cust-whatsapp" placeholder="رقم الواتساب">
+                </div>
+                <div class="form-group">
+                    <label class="label">الإيميل</label>
+                    <input type="email" class="ctrl-input" id="new-cust-email" placeholder="example@email.com">
+                </div>
+                <div class="form-group">
+                    <label class="label">درجة السرية</label>
+                    <select class="ctrl-input" id="new-cust-security">
+                        <option value="1">1 (الأقل سرية)</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5 (الأعلى سرية)</option>
+                    </select>
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label class="label">العنوان</label>
+                    <input type="text" class="ctrl-input" id="new-cust-address" placeholder="عنوان العميل...">
+                </div>
+                <div class="form-group">
+                    <label class="label">الرصيد الافتتاحي</label>
+                    <input type="text" inputmode="decimal" class="ctrl-input" id="new-cust-opening" placeholder="0" onfocus="this.select()" onblur="this.value=fmtNum(parseNum(this.value))">
+                </div>
+                <div class="form-group">
+                    <label class="label">حد الائتمان (المسموح)</label>
                     <input type="text" inputmode="decimal" class="ctrl-input" id="new-cust-credit" placeholder="0" onfocus="this.select()" onblur="this.value=fmtNum(parseNum(this.value))">
                 </div>
             </div>
