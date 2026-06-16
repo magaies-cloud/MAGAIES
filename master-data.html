@@ -45,7 +45,7 @@
         .orb-3 { width: 600px; height: 600px; background: var(--theme-blue); top: 30%; left: 30%; animation-duration: 25s; opacity: 0.1; }
         @keyframes floatOrb { 0% { transform: translate(0, 0) scale(1); } 33% { transform: translate(30px, -50px) scale(1.1); } 66% { transform: translate(-30px, 30px) scale(0.9); } 100% { transform: translate(0, 0) scale(1); } }
 
-        .dash-main { width: 100%; max-width: 1600px; margin: 0 auto; margin: 0 auto; padding: 20px 30px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; flex: 1; animation: fadeIn 0.8s ease-out forwards; }
+        .dash-main { width: 96%; max-width: 1600px; margin: 0 auto; padding: 20px 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; flex: 1; animation: fadeIn 0.8s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
         
@@ -280,37 +280,41 @@
 
             <div id="tab-customers" class="md-tab-content">
                 <div class="md-card">
-                    <div class="md-card-header">
-                        <h3 class="md-card-title">👥 دليل العملاء</h3>
-                        <button class="btn-add" onclick="openNewCustomerForm()">+ إضافة عميل جديد</button>
-                    </div>
-                    <div id="customer-form" class="md-card" style="display: none;">
-                        <h4 style="margin-top:0; margin-bottom: 15px; color: var(--primary-accent); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">إضافة/تعديل عميل</h4>
+                    <div id="customer-form" class="md-card" style="display: block; margin-bottom: 25px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-bottom: 10px;">
+                            <h4 style="margin: 0; font-size: 1.1rem; color: var(--primary-accent); display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 1.2rem;">👥</span> إضافة / تعديل بيانات عميل
+                            </h4>
+                            <button onclick="clearCustomerForm()" class="btn-action" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">🔄 تفريغ الحقول (عميل جديد)</button>
+                        </div>
                         <div class="form-grid">
-                            <div class="input-group"><label>كود العميل</label><input type="text" id="cust-id" disabled style="background: rgba(0,0,0,0.05); font-weight: bold; cursor: not-allowed; border-color: transparent;"></div>
-                            <div class="input-group"><label>اسم العميل / الشركة</label>
-<input type="text" id="cust-name" placeholder="مثال: أحمد للتجارة"></div>
+                            <div class="input-group"><label>اسم العميل / الشركة</label><input type="text" id="cust-name" placeholder="مثال: أحمد للتجارة"></div>
                             <div class="input-group"><label>رقم الهاتف</label><input type="text" id="cust-phone" placeholder="09xxxxxxxx"></div>
-                            <div class="input-group"><label>العنوان</label><input type="text" id="cust-address" placeholder="مثال: الخرطوم، السجانة"></div>
+                            <div class="input-group"><label>رقم الواتساب</label><input type="text" id="cust-whatsapp" placeholder="09xxxxxxxx"></div>
+                            <div class="input-group"><label>الايميل (البريد الإلكتروني)</label><input type="email" id="cust-email" placeholder="example@email.com"></div>
+                            <div class="input-group" style="grid-column: span 2;"><label>العنوان</label><input type="text" id="cust-address" placeholder="مثال: الخرطوم، السجانة"></div>
                             <div class="input-group"><label>الرصيد الافتتاحي (أول المدة)</label><input type="number" id="cust-opening" placeholder="0.00 SDG"></div>
                             <div class="input-group"><label style="color: var(--danger-color);">حد الائتمان (أقصى سقف)</label><input type="number" id="cust-limit" placeholder="المبلغ المسموح للدين"></div>
                             <div class="input-group"><label>درجة السرية</label><select id="cust-security"><option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option></select></div>
                             <div class="input-group"><label>حالة العميل (القائمة السوداء)</label><select id="cust-status" style="font-weight: bold;"><option value="active" style="color: var(--success-color);">🟢 نشط (عادي)</option><option value="vip" style="color: var(--primary-accent);">🌟 VIP (مميز)</option><option value="blacklisted" style="color: var(--danger-color);">🔴 قائمة سوداء (محظور)</option></select></div>
+                            <div class="input-group"><label>كود العميل</label><input type="text" id="cust-id" disabled style="background: rgba(0,0,0,0.05); font-weight: bold; cursor: not-allowed; border-color: transparent;" placeholder="تلقائي عند الحفظ"></div>
+                            <div class="input-group"><label>الشخص المسؤول</label><input type="text" id="cust-contact" placeholder="اسم المندوب / الشخص المسؤول"></div>
                             <div class="input-group" style="grid-column: 1 / -1;"><label>ملاحظات إضافية</label><textarea id="cust-notes" placeholder="أضف أي ملاحظات عن العميل هنا..." style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--bg-color); color: var(--text-primary); outline: none; font-family: inherit; resize: none; height: 50px; box-sizing: border-box;"></textarea></div>
 
                             <!-- بيانات الحساب البنكي للعميل -->
-                            <div style="grid-column: 1 / -1; margin-top: 15px; padding: 15px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(0,0,0,0.1);">
-                                <h4 style="margin: 0 0 15px 0; color: var(--primary-accent); display:flex; align-items:center; gap:8px;"><span>🏦</span> بيانات الحساب البنكي للعميل</h4>
-                                <div class="form-grid" style="row-gap: 15px;">
-                                    <div class="input-group"><label>رقم الحساب</label><input type="text" id="cust-bank-acc" placeholder="رقم الحساب البنكي للعميل"></div>
-                                    <div class="input-group"><label>اسم البنك</label><input type="text" id="cust-bank-name" placeholder="مثال: بنك الخرطوم"></div>
-                                    <div class="input-group"><label>درجة سرية البنك</label><select id="cust-bank-security"><option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option></select></div>
-                                    <div class="input-group" style="display:flex; align-items:flex-end;"><label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:bold; color:var(--danger-color); margin-bottom:10px;"><input type="checkbox" id="cust-bank-deactive" style="width:18px; height:18px; accent-color:var(--danger-color);">عدم تفعيل الحساب</label></div>
+                            <div style="grid-column: 1 / -1; margin-top: 10px; padding: 15px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(0,0,0,0.1);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                    <h4 style="margin: 0; color: var(--primary-accent); display:flex; align-items:center; gap:8px;"><span>🏦</span> بيانات الحسابات البنكية للعميل</h4>
+                                    <button type="button" onclick="addCustomerBankAccount()" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold;">+ إضافة حساب آخر</button>
+                                </div>
+                                <div id="cust-bank-accounts-container" style="display: flex; flex-direction: column; gap: 15px;">
+                                    <!-- Bank accounts will be injected here -->
                                 </div>
                             </div>
                         </div>
-                        <button class="btn-add" style="background: var(--success-color); padding: 8px 15px;" onclick="saveCustomer()">💾 حفظ العميل</button>
-                        <button class="btn-add" style="background: var(--danger-color); padding: 8px 15px; margin-right: 10px;" onclick="document.getElementById('customer-form').style.display='none'">✖ إلغاء</button>
+                        <div style="margin-top: 20px; text-align: right;">
+                            <button class="btn-add" style="background: var(--success-color); padding: 10px 25px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);" onclick="saveCustomer()">💾 حفظ العميل</button>
+                        </div>
                     </div>
 
                     <div class="table-responsive" style="overflow-x: auto;">
@@ -325,40 +329,28 @@
             <!-- Suppliers Tab -->
             <div id="tab-suppliers" class="md-tab-content">
                 <div class="md-card">
-                    <div class="md-card-header"><h3 class="md-card-title">🏭 دليل الموردين والمصانع</h3><button class="btn-add" onclick="openNewSupplierForm()">+ إضافة مورد جديد</button></div>
-                    
-                    <div id="supplier-form" class="md-card" style="display: none;">
-                        <h4 style="margin-top:0; margin-bottom: 15px; color: var(--primary-accent); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">إضافة/تعديل مورد</h4>
-                        <div class="inner-tabs">
-                            <button class="inner-tab-btn active" onclick="switchSupplierTab(event, 'sup-basic-info')">البيانات الأساسية والمالية</button>
-                            <button class="inner-tab-btn" onclick="switchSupplierTab(event, 'sup-bank-info')">البيانات البنكية</button>
+                    <div id="supplier-form" class="md-card" style="display: block; margin-bottom: 25px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-bottom: 10px;">
+                            <h4 style="margin: 0; font-size: 1.1rem; color: var(--primary-accent); display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 1.2rem;">🏭</span> إضافة / تعديل بيانات مورد
+                            </h4>
+                            <button onclick="clearSupplierForm()" class="btn-action" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">🔄 تفريغ الحقول (مورد جديد)</button>
                         </div>
-                        <div id="sup-basic-info" class="inner-tab-content active">
-                            <div class="form-grid">
-                                <div class="input-group"><label>كود المورد</label><input type="text" id="sup-id" disabled style="background: rgba(0,0,0,0.05); font-weight: bold; cursor: not-allowed; border-color: transparent;"></div>
-                                <div class="input-group"><label>اسم المورد / المصنع</label><input type="text" id="sup-name" placeholder="مثال: مصنع جياد"></div>
-                                <div class="input-group"><label>رقم الهاتف</label><input type="text" id="sup-phone" placeholder="09xxxxxxxx"></div>
-                                <div class="input-group"><label>العنوان</label><input type="text" id="sup-address" placeholder="موقع المصنع / المعرض"></div>
-                                <div class="input-group"><label>الشخص المرجعي</label><input type="text" id="sup-contact-person" placeholder="اسم مدير المبيعات"></div>
-                                <div class="input-group"><label>الرصيد الافتتاحي</label><input type="number" id="sup-opening" placeholder="0.00 SDG"></div>
-                                <div class="input-group"><label>حد الائتمان</label><input type="number" id="sup-limit" placeholder="أقصى سقف"></div>
-                                <div class="input-group"><label>فترة السماح (أيام)</label><input type="number" id="sup-grace-period" placeholder="عدد أيام السداد"></div>
-                                <div class="input-group"><label>درجة السرية</label><select id="sup-security"><option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option></select></div>
-                                <div class="input-group"><label>حالة المورد</label><select id="sup-status"><option value="active">🟢 مورد نشط</option><option value="blacklisted">🔴 قائمة سوداء</option></select></div>
-                                <div class="input-group" style="grid-column: 1 / -1;"><label>ملاحظات إضافية</label><input type="text" id="sup-notes" placeholder="أي ملاحظات حول المورد"></div>
-                            </div>
+                        <div class="form-grid">
+                            <div class="input-group"><label>اسم المورد / المصنع</label><input type="text" id="sup-name" placeholder="مثال: مصنع جياد"></div>
+                            <div class="input-group"><label>رقم الهاتف</label><input type="text" id="sup-phone" placeholder="09xxxxxxxx"></div>
+                            <div class="input-group"><label>رقم الواتساب</label><input type="text" id="sup-whatsapp" placeholder="09xxxxxxxx"></div>
+                            <div class="input-group"><label>الايميل (البريد الإلكتروني)</label><input type="email" id="sup-email" placeholder="example@email.com"></div>
+                            <div class="input-group" style="grid-column: span 2;"><label>العنوان</label><input type="text" id="sup-address" placeholder="موقع المصنع / المعرض"></div>
+                            <div class="input-group"><label>الرصيد الافتتاحي (أول المدة)</label><input type="number" id="sup-opening" placeholder="0.00 SDG"></div>
+                            <div class="input-group"><label style="color: var(--danger-color);">حد الائتمان (أقصى سقف)</label><input type="number" id="sup-limit" placeholder="أقصى سقف"></div>
+                            <div class="input-group"><label>درجة السرية</label><select id="sup-security"><option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option></select></div>
+                            <div class="input-group"><label>حالة المورد</label><select id="sup-status" style="font-weight: bold;"><option value="active" style="color: var(--success-color);">🟢 مورد نشط</option><option value="blacklisted" style="color: var(--danger-color);">🔴 قائمة سوداء</option></select></div>
+                            <div class="input-group"><label>كود المورد</label><input type="text" id="sup-id" disabled style="background: rgba(0,0,0,0.05); font-weight: bold; cursor: not-allowed; border-color: transparent;" placeholder="تلقائي عند الحفظ"></div>
+                            <div class="input-group" style="grid-column: 1 / -1;"><label>ملاحظات إضافية</label><textarea id="sup-notes" placeholder="أي ملاحظات حول المورد..." style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--bg-color); color: var(--text-primary); outline: none; font-family: inherit; resize: none; height: 50px; box-sizing: border-box;"></textarea></div>
                         </div>
-                        <div id="sup-bank-info" class="inner-tab-content">
-                            <h4 style="margin-top: 0; margin-bottom: 15px; color: var(--primary-accent); display: flex; align-items: center; gap: 8px;"><span>🏦</span> بيانات الحساب البنكي للمورد</h4>
-                            <div class="form-grid" style="row-gap: 15px;">
-                                <div class="input-group"><label>رقم الحساب</label><input type="text" id="sup-bank-acc" placeholder="رقم الحساب البنكي للمورد"></div>
-                                <div class="input-group"><label>اسم البنك</label><input type="text" id="sup-bank-name" placeholder="اسم البنك"></div>
-                                <div class="input-group"><label>اسم صاحب الحساب</label><input type="text" id="sup-bank-holder" placeholder="الاسم المطابق للحساب"></div>
-                            </div>
-                        </div>
-                        <div style="margin-top: 20px; display: flex; gap: 10px;">
-                            <button class="btn-add" style="background: var(--success-color); padding: 8px 15px;" onclick="saveSupplier()">💾 حفظ بيانات المورد</button>
-                            <button class="btn-add" style="background: var(--danger-color); padding: 8px 15px;" onclick="document.getElementById('supplier-form').style.display='none'">✖ إلغاء</button>
+                        <div style="margin-top: 20px; text-align: right;">
+                            <button class="btn-add" style="background: var(--success-color); padding: 10px 25px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);" onclick="saveSupplier()">💾 حفظ بيانات المورد</button>
                         </div>
                     </div>
 
@@ -469,45 +461,48 @@
                         <h3 class="md-card-title" style="font-size: 1.5rem; color: #fff;">📦 إدارة الأصناف والمخزون</h3>
                     </div>
 
-                    <!-- KPI Cards for Items -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px;">
-                        <div class="neon-glass-panel neon-border-primary" style="padding: 20px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                                <span style="color:var(--text-secondary); font-size:0.85rem;">إجمالي الأصناف</span>
-                                <span style="font-size:1.5rem;">📦</span>
+                    <!-- Compact KPIs and Quick Actions Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                        
+                        <!-- KPIs -->
+                        <div class="neon-glass-panel neon-border-primary" style="padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <span style="color:var(--text-secondary); font-size:0.85rem; display: block; margin-bottom: 5px;">إجمالي الأصناف</span>
+                                <h3 id="kpi-total-items" class="neon-text-primary" style="margin:0; font-size:1.4rem; font-weight:900;">0 صنف</h3>
                             </div>
-                            <h3 id="kpi-total-items" class="neon-text-primary" style="margin:0; font-size:1.6rem; font-weight:900;">0 صنف</h3>
+                            <span style="font-size:1.8rem; background: rgba(56,189,248,0.1); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3); box-shadow: inset 0 0 10px rgba(56,189,248,0.2);">📦</span>
                         </div>
-                        <div class="neon-glass-panel neon-border-success" style="padding: 20px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                                <span style="color:var(--text-secondary); font-size:0.85rem;">الفئات النشطة</span>
-                                <span style="font-size:1.5rem;">🗂️</span>
+                        
+                        <div class="neon-glass-panel neon-border-success" style="padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <span style="color:var(--text-secondary); font-size:0.85rem; display: block; margin-bottom: 5px;">الفئات النشطة</span>
+                                <h3 id="kpi-total-categories" class="neon-text-success" style="margin:0; font-size:1.4rem; font-weight:900;">1 فئة</h3>
                             </div>
-                            <h3 id="kpi-total-categories" class="neon-text-success" style="margin:0; font-size:1.6rem; font-weight:900;">1 فئة</h3>
+                            <span style="font-size:1.8rem; background: rgba(52,211,153,0.1); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid rgba(52,211,153,0.3); box-shadow: inset 0 0 10px rgba(52,211,153,0.2);">🗂️</span>
                         </div>
-                        <div class="neon-glass-panel neon-border-danger" style="padding: 20px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                                <span style="color:var(--text-secondary); font-size:0.85rem;">تنبيهات نواقص المخزون</span>
-                                <span style="font-size:1.5rem;">⚠️</span>
+                        
+                        <div class="neon-glass-panel neon-border-danger" style="padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <span style="color:var(--text-secondary); font-size:0.85rem; display: block; margin-bottom: 5px;">تنبيه نواقص المخزون</span>
+                                <h3 id="kpi-low-stock" class="neon-text-danger" style="margin:0; font-size:1.4rem; font-weight:900;">0 صنف</h3>
                             </div>
-                            <h3 id="kpi-low-stock" class="neon-text-danger" style="margin:0; font-size:1.6rem; font-weight:900;">0 صنف</h3>
+                            <span style="font-size:1.8rem; background: rgba(244,63,94,0.1); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid rgba(244,63,94,0.3); box-shadow: inset 0 0 10px rgba(244,63,94,0.2);">⚠️</span>
                         </div>
-                    </div>
 
-                    <!-- Ultra Premium Quick Actions Grid for Items -->
-                    <div class="neon-glass-panel" style="padding: 20px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.05);">
-                        <h3 style="margin: 0 0 15px 0; color: #fff; font-size: 1.1rem; font-weight: 800; display:flex; align-items:center; gap:10px;">
-                            <span>⚡</span> إجراءات سريعة
-                        </h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                            <button onclick="openItemForm()" class="btn-add" style="display:flex; align-items:center; gap:10px; justify-content:center; padding:15px; font-size:1rem; background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(15,76,129,0.5)); border: 1px solid #38bdf8;">
-                                <span style="font-size:1.4rem;">📦</span> تعريف صنف جديد
+                        <!-- Quick Actions Compact -->
+                        <div class="neon-glass-panel" style="padding: 12px 15px; border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; grid-column: 1 / -1; flex-wrap: wrap;">
+                            <span style="font-size: 1rem; margin-left: 5px; color: #fff; font-weight: 800; display:flex; align-items:center; gap:5px;"><span>⚡</span> إجراءات:</span>
+                            
+                            <button onclick="openItemForm()" class="btn-action hover-glow" style="flex: 1; min-width: 150px; display:flex; align-items:center; gap:8px; justify-content:center; padding:8px 15px; font-size:0.95rem; font-weight:bold; border-radius: 8px; background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(15,76,129,0.4)); border: 1px solid rgba(56,189,248,0.5); color: #fff; cursor: pointer;">
+                                <span style="font-size:1.2rem;">📦</span> تعريف صنف
                             </button>
-                            <button onclick="openInnerTab(event, 'inner-categories')" class="btn-add" style="display:flex; align-items:center; gap:10px; justify-content:center; padding:15px; font-size:1rem; background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(88,28,135,0.5)); border: 1px solid #a855f7; color: #fff;">
-                                <span style="font-size:1.4rem;">🗂️</span> إدارة الفئات
+                            
+                            <button onclick="openInnerTab(event, 'inner-categories')" class="btn-action hover-glow" style="flex: 1; min-width: 150px; display:flex; align-items:center; gap:8px; justify-content:center; padding:8px 15px; font-size:0.95rem; font-weight:bold; border-radius: 8px; background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(88,28,135,0.4)); border: 1px solid rgba(168,85,247,0.5); color: #fff; cursor: pointer;">
+                                <span style="font-size:1.2rem;">🗂️</span> إدارة الفئات
                             </button>
-                            <button onclick="alert('جاري التجهيز للطباعة...')" class="btn-add" style="display:flex; align-items:center; gap:10px; justify-content:center; padding:15px; font-size:1rem; background: linear-gradient(135deg, rgba(52,211,153,0.2), rgba(6,78,59,0.5)); border: 1px solid #34d399; color: #fff;">
-                                <span style="font-size:1.4rem;">🖨️</span> طباعة الباركود
+                            
+                            <button onclick="alert('جاري التجهيز للطباعة...')" class="btn-action hover-glow" style="flex: 1; min-width: 150px; display:flex; align-items:center; gap:8px; justify-content:center; padding:8px 15px; font-size:0.95rem; font-weight:bold; border-radius: 8px; background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(6,78,59,0.4)); border: 1px solid rgba(52,211,153,0.5); color: #fff; cursor: pointer;">
+                                <span style="font-size:1.2rem;">🖨️</span> طباعة باركود
                             </button>
                         </div>
                     </div>
@@ -750,6 +745,8 @@
                 const tabBtn = document.querySelector(`button[onclick*="${tabId}"]`);
                 if (tabBtn) tabBtn.click();
             }
+            clearCustomerForm();
+            clearSupplierForm();
             renderCustomers();
             renderSuppliers();
             renderEmployees();
@@ -897,16 +894,26 @@
             const id = document.getElementById('cust-id').value || 'CUST-' + Date.now();
             const name = document.getElementById('cust-name').value;
             const phone = document.getElementById('cust-phone').value;
+            const whatsapp = document.getElementById('cust-whatsapp').value;
+            const email = document.getElementById('cust-email').value;
+            const contactPerson = document.getElementById('cust-contact').value;
             const address = document.getElementById('cust-address').value;
             const opening = parseFloat(document.getElementById('cust-opening').value) || 0;
             const limit = parseFloat(document.getElementById('cust-limit').value) || 0;
             const security = parseInt(document.getElementById('cust-security').value) || 1;
             const status = document.getElementById('cust-status').value || 'active';
             const notes = document.getElementById('cust-notes').value;
-            const bankAcc = document.getElementById('cust-bank-acc').value;
-            const bankName = document.getElementById('cust-bank-name').value;
-            const bankSecurity = parseInt(document.getElementById('cust-bank-security').value) || 1;
-            const bankDeactive = document.getElementById('cust-bank-deactive').checked;
+
+            const bankAccounts = [];
+            document.querySelectorAll('.cust-bank-row').forEach(row => {
+                bankAccounts.push({
+                    bankName: row.querySelector('.bank-name').value,
+                    branch: row.querySelector('.bank-branch').value,
+                    accountNo: row.querySelector('.bank-acc').value,
+                    securityLevel: parseInt(row.querySelector('.bank-security').value) || 1,
+                    isDeactivated: row.querySelector('.bank-deactive').checked
+                });
+            });
 
             if (!name) { alert('الرجاء إدخال اسم العميل'); return; }
 
@@ -921,9 +928,9 @@
             const existingIdx = customers.findIndex(c => c.id === id);
             
             const custData = {
-                id, name, phone, address, openingBalance: opening, currentBalance: opening, creditLimit: limit,
+                id, name, phone, whatsapp, email, contactPerson, address, openingBalance: opening, currentBalance: opening, creditLimit: limit,
                 securityLevel: security, status: status, notes,
-                bankDetails: { accountNo: bankAcc, bankName: bankName, securityLevel: bankSecurity, isDeactivated: bankDeactive }
+                bankAccounts: bankAccounts
             };
 
             if (existingIdx > -1) {
@@ -934,7 +941,7 @@
             }
 
             localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
-            document.getElementById('customer-form').style.display = 'none';
+            clearCustomerForm();
             renderCustomers();
         }
 
@@ -956,10 +963,60 @@
             });
         }
 
-        function openNewCustomerForm() {
+        function addCustomerBankAccount(data = null) {
+            const container = document.getElementById('cust-bank-accounts-container');
+            if(!container) return;
+            const row = document.createElement('div');
+            row.className = 'cust-bank-row';
+            row.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; padding: 15px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; position: relative; animation: fadeIn 0.3s ease-out;';
+            
+            row.innerHTML = `
+                <div class="input-group"><label>اسم البنك</label><input type="text" class="bank-name" placeholder="مثال: بنك الخرطوم" value="${data ? (data.bankName || '') : ''}"></div>
+                <div class="input-group"><label>الفرع</label><input type="text" class="bank-branch" placeholder="مثال: فرع الرياض" value="${data ? (data.branch || '') : ''}"></div>
+                <div class="input-group"><label>رقم الحساب</label><input type="text" class="bank-acc" placeholder="رقم الحساب البنكي" value="${data ? (data.accountNo || '') : ''}"></div>
+                <div class="input-group"><label>درجة سرية البنك</label>
+                    <select class="bank-security">
+                        <option value="1" ${data && data.securityLevel == 1 ? 'selected' : ''}>1 (الأقل سرية)</option>
+                        <option value="2" ${data && data.securityLevel == 2 ? 'selected' : ''}>2</option>
+                        <option value="3" ${data && data.securityLevel == 3 ? 'selected' : ''}>3</option>
+                        <option value="4" ${data && data.securityLevel == 4 ? 'selected' : ''}>4</option>
+                        <option value="5" ${data && data.securityLevel == 5 ? 'selected' : ''}>5</option>
+                        <option value="6" ${data && data.securityLevel == 6 ? 'selected' : ''}>6</option>
+                        <option value="7" ${data && data.securityLevel == 7 ? 'selected' : ''}>7</option>
+                        <option value="8" ${data && data.securityLevel == 8 ? 'selected' : ''}>8</option>
+                        <option value="9" ${data && data.securityLevel == 9 ? 'selected' : ''}>9</option>
+                        <option value="10" ${data && data.securityLevel == 10 ? 'selected' : ''}>10 (الأعلى سرية)</option>
+                    </select>
+                </div>
+                <div class="input-group" style="display:flex; align-items:flex-end; gap: 10px;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:bold; color:var(--danger-color); margin-bottom:10px;">
+                        <input type="checkbox" class="bank-deactive" style="width:18px; height:18px; accent-color:var(--danger-color);" ${data && data.isDeactivated ? 'checked' : ''}> إيقاف
+                    </label>
+                    <button type="button" onclick="this.closest('.cust-bank-row').remove()" style="background: rgba(244,63,94,0.15); color: #f43f5e; border: 1px solid rgba(244,63,94,0.3); border-radius: 6px; cursor: pointer; padding: 6px 12px; margin-bottom: 5px; margin-right: auto;" title="حذف الحساب">🗑️ حذف</button>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+
+        function clearCustomerForm() {
             document.getElementById('cust-id').value = '';
             document.getElementById('cust-name').value = '';
-            document.getElementById('customer-form').style.display = 'block';
+            document.getElementById('cust-phone').value = '';
+            document.getElementById('cust-whatsapp').value = '';
+            document.getElementById('cust-email').value = '';
+            document.getElementById('cust-contact').value = '';
+            document.getElementById('cust-address').value = '';
+            document.getElementById('cust-opening').value = '';
+            document.getElementById('cust-limit').value = '';
+            document.getElementById('cust-security').value = '1';
+            document.getElementById('cust-status').value = 'active';
+            document.getElementById('cust-notes').value = '';
+            
+            const bankContainer = document.getElementById('cust-bank-accounts-container');
+            if(bankContainer) {
+                bankContainer.innerHTML = '';
+                addCustomerBankAccount();
+            }
         }
 
         function editCustomer(id) {
@@ -976,6 +1033,9 @@
             document.getElementById('cust-id').value = cust.id;
             document.getElementById('cust-name').value = cust.name;
             document.getElementById('cust-phone').value = cust.phone || '';
+            document.getElementById('cust-whatsapp').value = cust.whatsapp || '';
+            document.getElementById('cust-email').value = cust.email || '';
+            document.getElementById('cust-contact').value = cust.contactPerson || '';
             document.getElementById('cust-address').value = cust.address || '';
             document.getElementById('cust-opening').value = cust.openingBalance || '';
             document.getElementById('cust-limit').value = cust.creditLimit || '';
@@ -983,14 +1043,18 @@
             document.getElementById('cust-status').value = cust.status || 'active';
             document.getElementById('cust-notes').value = cust.notes || '';
             
-            if (cust.bankDetails) {
-                document.getElementById('cust-bank-acc').value = cust.bankDetails.accountNo || '';
-                document.getElementById('cust-bank-name').value = cust.bankDetails.bankName || '';
-                document.getElementById('cust-bank-security').value = cust.bankDetails.securityLevel || '1';
-                document.getElementById('cust-bank-deactive').checked = cust.bankDetails.isDeactivated || false;
+            const bankContainer = document.getElementById('cust-bank-accounts-container');
+            if(bankContainer) bankContainer.innerHTML = '';
+            
+            if (cust.bankAccounts && cust.bankAccounts.length > 0) {
+                cust.bankAccounts.forEach(acc => addCustomerBankAccount(acc));
+            } else if (cust.bankDetails) {
+                addCustomerBankAccount(cust.bankDetails);
+            } else {
+                addCustomerBankAccount();
             }
             
-            document.getElementById('customer-form').style.display = 'block';
+            document.getElementById('customer-form').scrollIntoView({ behavior: 'smooth' });
         }
         
         function deleteCustomer(id) {
@@ -1013,6 +1077,16 @@
         function saveSupplier() {
             const id = document.getElementById('sup-id').value || 'SUP-' + Date.now();
             const name = document.getElementById('sup-name').value;
+            const phone = document.getElementById('sup-phone').value;
+            const whatsapp = document.getElementById('sup-whatsapp').value;
+            const email = document.getElementById('sup-email').value;
+            const address = document.getElementById('sup-address').value;
+            const opening = parseFloat(document.getElementById('sup-opening').value) || 0;
+            const limit = parseFloat(document.getElementById('sup-limit').value) || 0;
+            const security = parseInt(document.getElementById('sup-security').value) || 1;
+            const status = document.getElementById('sup-status').value || 'active';
+            const notes = document.getElementById('sup-notes').value;
+
             if (!name) { alert('الرجاء إدخال اسم المورد'); return; }
 
             let suppliers = [];
@@ -1026,12 +1100,8 @@
             const existingIdx = suppliers.findIndex(s => s.id === id);
             
             const supData = {
-                id, name, phone: document.getElementById('sup-phone').value, address: document.getElementById('sup-address').value,
-                contactPerson: document.getElementById('sup-contact-person').value, openingBalance: parseFloat(document.getElementById('sup-opening').value)||0,
-                currentBalance: parseFloat(document.getElementById('sup-opening').value)||0, creditLimit: parseFloat(document.getElementById('sup-limit').value)||0,
-                gracePeriod: parseInt(document.getElementById('sup-grace-period').value)||0, securityLevel: parseInt(document.getElementById('sup-security').value)||1,
-                status: document.getElementById('sup-status').value, notes: document.getElementById('sup-notes').value,
-                bankDetails: { accountNo: document.getElementById('sup-bank-acc').value, bankName: document.getElementById('sup-bank-name').value, accountHolder: document.getElementById('sup-bank-holder').value }
+                id, name, phone, whatsapp, email, address, openingBalance: opening, currentBalance: opening, creditLimit: limit,
+                securityLevel: security, status: status, notes
             };
 
             if (existingIdx > -1) {
@@ -1042,7 +1112,7 @@
             }
 
             localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
-            document.getElementById('supplier-form').style.display = 'none';
+            clearSupplierForm();
             renderSuppliers();
         }
 
@@ -1060,15 +1130,22 @@
             tbody.innerHTML = '';
             suppliers.forEach(s => {
                 const statusBadge = s.status === 'blacklisted' ? '🔴 موقوف' : '🟢 نشط';
-                tbody.insertAdjacentHTML('beforeend', `<tr><td>${s.name} <small>${statusBadge}</small></td><td>${s.contactPerson||'-'} <br><small>${s.phone||'-'}</small></td><td>${s.currentBalance} SDG</td><td>${s.creditLimit} SDG</td><td><button class="btn-text" onclick="editSupplier('${s.id}')">تعديل</button><button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteSupplier('${s.id}')">حذف</button></td></tr>`);
+                tbody.insertAdjacentHTML('beforeend', `<tr><td>${s.name} <small>${statusBadge}</small></td><td>${s.phone||'-'}</td><td>${s.currentBalance} SDG</td><td>${s.creditLimit} SDG</td><td><button class="btn-text" onclick="editSupplier('${s.id}')">تعديل</button><button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteSupplier('${s.id}')">حذف</button></td></tr>`);
             });
         }
         
-        function openNewSupplierForm() {
+        function clearSupplierForm() {
             document.getElementById('sup-id').value = '';
             document.getElementById('sup-name').value = '';
-            document.getElementById('supplier-form').style.display = 'block';
-            document.querySelectorAll('#supplier-form .inner-tab-btn')[0].click();
+            document.getElementById('sup-phone').value = '';
+            document.getElementById('sup-whatsapp').value = '';
+            document.getElementById('sup-email').value = '';
+            document.getElementById('sup-address').value = '';
+            document.getElementById('sup-opening').value = '';
+            document.getElementById('sup-limit').value = '';
+            document.getElementById('sup-security').value = '1';
+            document.getElementById('sup-status').value = 'active';
+            document.getElementById('sup-notes').value = '';
         }
         
         function editSupplier(id) {
@@ -1085,22 +1162,16 @@
             document.getElementById('sup-id').value = sup.id;
             document.getElementById('sup-name').value = sup.name;
             document.getElementById('sup-phone').value = sup.phone || '';
+            document.getElementById('sup-whatsapp').value = sup.whatsapp || '';
+            document.getElementById('sup-email').value = sup.email || '';
             document.getElementById('sup-address').value = sup.address || '';
-            document.getElementById('sup-contact-person').value = sup.contactPerson || '';
             document.getElementById('sup-opening').value = sup.openingBalance || '';
             document.getElementById('sup-limit').value = sup.creditLimit || '';
-            document.getElementById('sup-grace-period').value = sup.gracePeriod || '';
             document.getElementById('sup-security').value = sup.securityLevel || '1';
             document.getElementById('sup-status').value = sup.status || 'active';
             document.getElementById('sup-notes').value = sup.notes || '';
             
-            if (sup.bankDetails) {
-                document.getElementById('sup-bank-acc').value = sup.bankDetails.accountNo || '';
-                document.getElementById('sup-bank-name').value = sup.bankDetails.bankName || '';
-                document.getElementById('sup-bank-holder').value = sup.bankDetails.accountHolder || '';
-            }
-            
-            document.getElementById('supplier-form').style.display = 'block';
+            document.getElementById('supplier-form').scrollIntoView({ behavior: 'smooth' });
         }
         
         function deleteSupplier(id) {
