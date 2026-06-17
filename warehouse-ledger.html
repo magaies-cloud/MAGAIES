@@ -5,7 +5,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>??????? ERP - ???? ?????? ???????</title>
+    <title>السجانة ERP - كشف المخزن التحليلي</title>
     <link rel="stylesheet" href="css/theme.css?v=neon2">
     <link rel="stylesheet" href="css/components.css?v=neon2">
         <style>
@@ -52,36 +52,36 @@
     <div class="ledger-container">
         <!-- Quick Nav -->
         <div class="nav-tabs">
-            <a data-href="inventory-report.html" onclick="window.location.href='inventory-report.html'" class="nav-tab">??? ??????? ?????</a>
-            <a data-href="item-ledger.html" onclick="window.location.href='item-ledger.html'" class="nav-tab">???? ??? (???? ?????)</a>
-            <a data-href="warehouse-ledger.html" onclick="window.location.href='warehouse-ledger.html'" class="nav-tab active">???? ???? ???????</a>
+            <a data-href="inventory-report.html" onclick="window.location.href='inventory-report.html'" class="nav-tab">جرد المخزون الفعلي</a>
+            <a data-href="item-ledger.html" onclick="window.location.href='item-ledger.html'" class="nav-tab">كارت صنف (حركة منتج)</a>
+            <a data-href="warehouse-ledger.html" onclick="window.location.href='warehouse-ledger.html'" class="nav-tab active">كشف حركة المخازن</a>
         </div>
 
         <!-- Header -->
         <header class="premium-header" style="display:flex; justify-content:space-between; align-items:center; padding:15px 25px; flex-wrap:wrap; gap:15px;">
             <div>
-                <h2 style="margin:0; color:#fff; font-size:1.5rem; font-weight:900;">???? ?????? ???????</h2>
-                <p style="margin:5px 0 0; color:var(--text-secondary); font-size:0.85rem;">?????? ???? ?????? ?????? ??????? ????? ????</p>
+                <h2 style="margin:0; color:#fff; font-size:1.5rem; font-weight:900;">كشف المخزن التحليلي</h2>
+                <p style="margin:5px 0 0; color:var(--text-secondary); font-size:0.85rem;">تفاصيل حركة الأصناف داخل المخزن خلال فترة محددة</p>
             </div>
-            <button class="btn-action btn-print" onclick="previewReport()">??? ??????</button>
-            <button class="btn-action btn-print" onclick="window.print()">??? ?????</button>
-            <button class="btn-action btn-print" onclick="window.openExportModal(null, {element: document.getElementById('ledger-table-wrap'), filename: 'warehouse-ledger.pdf', orientation: 'landscape'})">?? ????? PDF</button>
+            <button class="btn-action btn-print" onclick="previewReport()">معاينة الطباعة</button>
+            <button class="btn-action btn-print" onclick="window.print()">طباعة الكشف</button>
+            <button class="btn-action btn-print" onclick="window.openExportModal(null, {element: document.getElementById('ledger-table-wrap'), filename: 'warehouse-ledger.pdf', orientation: 'landscape'})">تصدير PDF</button>
         </header>
 
         <!-- Filters -->
         <div class="neon-glass-panel filter-row" style="padding:20px;">
             <div class="input-group" style="grid-column: span 2;">
-                <label>???? ??????</label>
+                <label>اختر المخزن</label>
                 <select id="warehouse-select" onchange="loadLedger()">
-                    <option value="">-- ???? ?????? ???? --</option>
+                    <option value="">-- يرجى اختيار مخزن --</option>
                 </select>
             </div>
             <div class="input-group">
-                <label>?? ?????</label>
+                <label>من تاريخ</label>
                 <input type="date" id="date-from" onchange="loadLedger()">
             </div>
             <div class="input-group">
-                <label>??? ?????</label>
+                <label>إلى تاريخ</label>
                 <input type="date" id="date-to" onchange="loadLedger()">
             </div>
         </div>
@@ -92,16 +92,16 @@
                 <table class="pro-table">
                     <thead>
                         <tr>
-                            <th>???????</th>
-                            <th>??? ??????</th>
-                            <th>?????? / ???????</th>
-                            <th>?????</th>
-                            <th style="color:#34d399;">???? (????)</th>
-                            <th style="color:#f87171;">????? (????)</th>
+                            <th>التاريخ</th>
+                            <th>رقم المستند</th>
+                            <th>المستند / البيان</th>
+                            <th>الصنف</th>
+                            <th style="color:#34d399;">وارد (دخول)</th>
+                            <th style="color:#f87171;">منصرف (خروج)</th>
                         </tr>
                     </thead>
                     <tbody id="ledger-tbody">
-                        <tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-secondary);">???? ?????? ???? ???? ????? ?????????</td></tr>
+                        <tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-secondary);">الرجاء اختيار مخزن وتحديد الفترة للبحث</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -134,7 +134,7 @@
             let itemsDb = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
             let getItemName = (id) => {
                 let item = itemsDb.find(i => i.id === id);
-                return item ? item.name : '??? ??? ?????';
+                return item ? item.name : 'صنف غير معروف';
             };
 
             // 1. Get Purchases
@@ -158,7 +158,7 @@
                         history.push({
                             date: new Date(inv.date || inv.receiveDate || Date.now()),
                             typeCode: 'in',
-                            typeName: '?????? ???????',
+                            typeName: 'فاتورة مشتريات',
                             ref: inv.invoiceNo || inv.poNumber || inv.id,
                             docId: inv.invoiceNo || inv.id, // Fixed docId for drill-down
                             itemName: getItemName(itemId), // Support new schema
@@ -193,7 +193,7 @@
                         history.push({
                             date: new Date(inv.date || Date.now()),
                             typeCode: 'out',
-                            typeName: '?????? ??????',
+                            typeName: 'فاتورة مبيعات',
                             ref: inv.invoiceNo || 'INV',
                             docId: inv.invoiceNo || inv.id, // Fixed docId for drill-down
                             itemName: getItemName(itemId),
@@ -212,7 +212,7 @@
             const tbody = document.getElementById('ledger-tbody');
             
             if (!wh) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-secondary);">???? ?????? ???? ???? ????? ?????????</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-secondary);">الرجاء اختيار مخزن وتحديد الفترة للبحث</td></tr>`;
                 return;
             }
 
@@ -233,7 +233,7 @@
             tbody.innerHTML = '';
 
             if (history.length === 0) {
-                 tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-secondary);">?? ???? ????? ???? ?????? ?? ??? ??????</td></tr>`;
+                 tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-secondary);">لا توجد حركات لهذا المخزن في هذه الفترة</td></tr>`;
             }
 
             history.forEach(row => {
@@ -251,7 +251,7 @@
                 let refHtml = row.ref;
                 if (row.docId && target) {
                     tr.style.cursor = 'pointer';
-                    tr.title = '???? ???? ??????? ??????';
+                    tr.title = 'عرض تفاصيل المستند الأصلي';
                     tr.onclick = () => { window.open(target, '_blank'); };
                     tr.onmouseover = () => tr.style.background = 'rgba(56, 189, 248, 0.05)';
                     tr.onmouseout = () => tr.style.background = '';
@@ -260,7 +260,7 @@
                         <div style="display:flex; align-items:center; gap:8px;">
                             <span>${row.ref}</span>
                             <button onclick="event.stopPropagation(); window.open('${target}', '_blank')" style="background:rgba(56,189,248,0.1); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); border-radius:6px; padding:3px 8px; cursor:pointer; font-size:0.75rem; font-weight:bold; display:flex; align-items:center; gap:4px; transition:all 0.2s;" onmouseover="this.style.background='#38bdf8'; this.style.color='#fff';" onmouseout="this.style.background='rgba(56,189,248,0.1)'; this.style.color='#38bdf8';">
-                                ?? ??? ?????
+                                لم يتم العثور
                             </button>
                         </div>
                     `;

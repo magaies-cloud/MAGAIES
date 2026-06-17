@@ -1,11 +1,10 @@
-<!-- c:\xampp\htdocs\magaees\payroll.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>??????? 2026 - ??????? ???????</title>
+    <title>الرواتب والأجور | السجانة ERP</title>
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260616_2">
         <style>
@@ -119,118 +118,118 @@
     </div>
 
     <nav class="navbar glass-panel">
-        <button class="back-btn" onclick="history.back()">?</button>
-        <h1 class="brand-title">??????? ???????</h1>
+        <button class="back-btn" onclick="history.back()">🔙</button>
+        <h1 class="brand-title">الرواتب والأجور</h1>
         <div style="width: 30px;"></div>
     </nav>
 
     <div class="container">
 
-        <!-- ???? ?????? ????? -->
+        <!-- اختر الشهر والسنة -->
         <div class="month-bar">
-            <label>?? ??? ?????:</label>
+            <label>عن شهر الدفع:</label>
             <input type="month" id="payroll-month">
-            <button class="btn-add-emp" onclick="loadPayroll()" style="white-space:nowrap;">?????</button>
+            <button class="btn-add-emp" onclick="loadPayroll()" style="white-space:nowrap;">تحديث</button>
         </div>
 
-        <!-- ?????? ?????? -->
+        <!-- إجمالي الرواتب -->
         <div class="summary-row">
             <div class="sum-card glass-panel">
-                <div class="sum-label">?????? ???????</div>
+                <div class="sum-label">إجمالي الرواتب</div>
                 <div class="sum-value" id="total-gross" style="color: var(--primary-accent);">0 SDG</div>
             </div>
             <div class="sum-card glass-panel">
-                <div class="sum-label">?? ?????</div>
+                <div class="sum-label">تم دفعه</div>
                 <div class="sum-value" id="total-paid" style="color: #34d399;">0 SDG</div>
             </div>
             <div class="sum-card glass-panel">
-                <div class="sum-label">???????</div>
+                <div class="sum-label">المتبقي</div>
                 <div class="sum-value" id="total-remaining" style="color: #f87171;">0 SDG</div>
             </div>
         </div>
 
-        <!-- ????? ????? ???? -->
+        <!-- إضافة موظف جديد -->
         <div class="add-emp-section">
             <button class="btn-add-emp" onclick="openAddEmployee()">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                ????? ???? ????
+                + إضافة موظف
             </button>
         </div>
 
-        <!-- ????? ???????? -->
+        <!-- قائمة الموظفين -->
         <h3 style="margin-bottom: 15px; color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">
-            ?? ??? ???????
+            لا يوجد موظفين
         </h3>
         <div id="employees-container"></div>
     </div>
 
-    <!-- ????? ??? ?????? -->
+    <!-- تسجيل دفع الراتب -->
     <div class="pay-modal-overlay" id="pay-modal">
         <div class="pay-modal glass-panel">
-            <h3>?? ??? ???? ??????</h3>
+            <h3>تسجيل دفع راتب الموظف</h3>
             <div class="form-group">
-                <label>??? ??????</label>
+                <label>اسم الموظف</label>
                 <input type="text" id="pay-emp-name" readonly>
             </div>
             <div class="form-group">
-                <label>?????? ???????</label>
+                <label>الراتب الأساسي</label>
                 <input type="number" id="pay-basic" oninput="calcNetPay()">
             </div>
             <div class="form-group">
-                <label>??????? ????????? (+)</label>
+                <label>البدلات والمكافآت (+)</label>
                 <input type="number" id="pay-allowance" value="0" oninput="calcNetPay()">
             </div>
             <div class="form-group">
-                <label>?????????? (-)</label>
+                <label>الاستقطاعات (-)</label>
                 <input type="number" id="pay-deductions" value="0" oninput="calcNetPay()">
             </div>
             <div class="form-group">
-                <label>?????? ???????</label>
+                <label>الصافي المستحق</label>
                 <input type="number" id="pay-net" readonly style="font-weight: 900; font-size: 1.1rem; color: #34d399;">
             </div>
             <div class="form-group">
-                <label>??????? / ???? ?????</label>
+                <label>الخزينة / طريقة الدفع</label>
                 <select id="pay-account"></select>
             </div>
             <div class="form-group">
-                <label>???????</label>
-                <input type="text" id="pay-notes" placeholder="?? ???????...">
+                <label>ملاحظات</label>
+                <input type="text" id="pay-notes" placeholder="أي ملاحظات...">
             </div>
             <input type="hidden" id="pay-emp-id">
             <div class="pay-modal-btns">
-                <button class="btn-cancel-pay" onclick="closePayModal()">?????</button>
-                <button class="btn-confirm-pay" onclick="confirmPaySalary()">? ????? ?????</button>
+                <button class="btn-cancel-pay" onclick="closePayModal()">إلغاء</button>
+                <button class="btn-confirm-pay" onclick="confirmPaySalary()">✓ اعتماد الدفع</button>
             </div>
         </div>
     </div>
 
-    <!-- ????? ????? ???? -->
+    <!-- إضافة موظف جديد -->
     <div class="pay-modal-overlay" id="add-emp-modal">
         <div class="pay-modal glass-panel">
-            <h3>? ????? ????</h3>
+            <h3>إضافة موظف جديد</h3>
             <div class="form-group">
-                <label>????? ??????</label>
-                <input type="text" id="new-emp-name" placeholder="??? ??????">
+                <label>اسم الموظف الثلاثي</label>
+                <input type="text" id="new-emp-name" placeholder="اسم الموظف">
             </div>
             <div class="form-group">
-                <label>?????? ???????</label>
-                <input type="text" id="new-emp-role" placeholder="????: ?????? ??????...">
+                <label>المسمى الوظيفي</label>
+                <input type="text" id="new-emp-role" placeholder="مثال: محاسب مالي...">
             </div>
             <div class="form-group">
-                <label>??? ??????</label>
+                <label>رقم الهاتف</label>
                 <input type="tel" id="new-emp-phone" placeholder="+249...">
             </div>
             <div class="form-group">
-                <label>?????? ??????? ?????? (SDG)</label>
+                <label>الراتب الأساسي الشهري (SDG)</label>
                 <input type="number" id="new-emp-salary" placeholder="0">
             </div>
             <div class="form-group">
-                <label>????? ????????</label>
+                <label>تاريخ التعيين</label>
                 <input type="date" id="new-emp-join-date">
             </div>
             <div class="pay-modal-btns">
-                <button class="btn-cancel-pay" onclick="closeAddEmployee()">?????</button>
-                <button class="btn-confirm-pay" onclick="saveNewEmployee()">?? ???</button>
+                <button class="btn-cancel-pay" onclick="closeAddEmployee()">إلغاء</button>
+                <button class="btn-confirm-pay" onclick="saveNewEmployee()">✓ حفظ</button>
             </div>
         </div>
     </div>
@@ -247,7 +246,7 @@
             const now = new Date();
             const yr  = now.getFullYear();
             const mo  = String(now.getMonth() + 1).padStart(2, '0');
-            document.getElementById('payroll-month').value = `${yr}-${mo}`;
+            document.getElementById('payroll-month').value = \`\${yr}-\${mo}\`;
             loadPayroll();
         });
 
@@ -264,12 +263,12 @@
         function renderEmployees() {
             const container = document.getElementById('employees-container');
             if (employees.length === 0) {
-                container.innerHTML = `
+                container.innerHTML = \`
                     <div style="text-align:center; padding:40px; color:var(--text-secondary);">
-                        <div style="font-size:3rem; margin-bottom:16px;">??</div>
-                        <p>?? ???? ?????? ?????? ???.</p>
-                        <p style="font-size:0.85rem;">???? "????? ???? ????" ?????.</p>
-                    </div>`;
+                        <div style="font-size:3rem; margin-bottom:16px;">👥</div>
+                        <p>لا توجد بيانات موظفين مسجلة.</p>
+                        <p style="font-size:0.85rem;">اضغط "إضافة موظف جديد" للبدء.</p>
+                    </div>\`;
                 return;
             }
 
@@ -278,43 +277,43 @@
                 const isPaid = !!rec;
                 const net    = isPaid ? rec.net : emp.salary || 0;
 
-                return `
+                return \`
                 <div class="employee-card glass-panel">
                     <div class="emp-header">
                         <div>
-                            <div class="emp-name">${emp.name}</div>
-                            <div class="emp-role">${emp.role || '????'}</div>
+                            <div class="emp-name">\${emp.name}</div>
+                            <div class="emp-role">\${emp.role || 'موظف'}</div>
                         </div>
-                        <span class="emp-status ${isPaid ? 'paid' : 'unpaid'}">
-                            ${isPaid ? '? ?????' : '? ?? ?????'}
+                        <span class="emp-status \${isPaid ? 'paid' : 'unpaid'}">
+                            \${isPaid ? '✓ مدفوع' : '✗ غير مدفوع'}
                         </span>
                     </div>
                     <div class="emp-grid">
                         <div class="emp-field">
-                            <span class="emp-field-label">?????? ???????</span>
-                            <span class="emp-field-value">${(emp.salary || 0).toLocaleString()} SDG</span>
+                            <span class="emp-field-label">الراتب الأساسي</span>
+                            <span class="emp-field-value">\${(emp.salary || 0).toLocaleString()} SDG</span>
                         </div>
                         <div class="emp-field">
-                            <span class="emp-field-label">?????? ???????</span>
-                            <span class="emp-field-value ${isPaid ? 'green' : ''}">${isPaid ? net.toLocaleString() + ' SDG' : '�'}</span>
+                            <span class="emp-field-label">الصافي المستحق</span>
+                            <span class="emp-field-value \${isPaid ? 'green' : ''}">\${isPaid ? net.toLocaleString() + ' SDG' : '-'}</span>
                         </div>
                         <div class="emp-field">
-                            <span class="emp-field-label">????? ?????</span>
-                            <span class="emp-field-value">${isPaid ? new Date(rec.paidAt).toLocaleDateString('ar-SD') : '�'}</span>
+                            <span class="emp-field-label">حالة الدفع</span>
+                            <span class="emp-field-value">\${isPaid ? new Date(rec.paidAt).toLocaleDateString('ar-SD') : '-'}</span>
                         </div>
                     </div>
                     <div style="display:flex; gap:8px;">
-                        <button class="btn-pay ${isPaid ? 'paid-btn' : ''}"
-                            onclick="openPayModal('${emp.id}', '${emp.name}', ${emp.salary || 0})"
-                            ${isPaid ? 'disabled' : ''}>
-                            ${isPaid ? '? ?? ?????' : '?? ??? ??????'}
+                        <button class="btn-pay \${isPaid ? 'paid-btn' : ''}"
+                            onclick="openPayModal('\${emp.id}', '\${emp.name}', \${emp.salary || 0})"
+                            \${isPaid ? 'disabled' : ''}>
+                            \${isPaid ? 'تم الدفع' : 'تسجيل دفع الراتب'}
                         </button>
-                        <button onclick="deleteEmployee('${emp.id}')"
-                            style="padding:10px; border-radius:8px; background:rgba(239,68,68,0.1); color:#f87171; border:1px solid rgba(239,68,68,0.3); cursor:pointer;" title="???">
-                            ???
+                        <button onclick="deleteEmployee('\${emp.id}')"
+                            style="padding:10px; border-radius:8px; background:rgba(239,68,68,0.1); color:#f87171; border:1px solid rgba(239,68,68,0.3); cursor:pointer;" title="حذف">
+                            🗑️
                         </button>
                     </div>
-                </div>`;
+                </div>\`;
             }).join('');
         }
 
@@ -346,9 +345,9 @@
             const banks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]');
             const sel = document.getElementById('pay-account');
             sel.innerHTML = banks.filter(b => b.type === 'safe')
-                .map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+                .map(b => \`<option value="\${b.id}">\${b.name}</option>\`).join('');
             if (sel.options.length === 0) {
-                sel.innerHTML = '<option value="default">??????? ????????</option>';
+                sel.innerHTML = '<option value="default">الخزينة الرئيسية</option>';
             }
 
             document.getElementById('pay-modal').classList.add('show');
@@ -404,14 +403,14 @@
             // Audit log
             const emp = employees.find(e => e.id === empId);
             if (window.logSystemAction) {
-                window.logSystemAction('Payroll', 'finance', `??? ???? ${emp?.name || empId} � ${net.toLocaleString()} SDG ???? ${currentMonth}`);
+                window.logSystemAction('Payroll', 'finance', \`صرف راتب \${emp?.name || empId} بقيمة \${net.toLocaleString()} SDG لشهر \${currentMonth}\`);
             }
 
             closePayModal();
             loadPayroll();
 
             if (window.showToast) {
-                window.showToast(`? ?? ??? ???? ${emp?.name || ''} ?????`, 'success');
+                window.showToast(\`✓ تم دفع راتب \${emp?.name || ''} بنجاح\`, 'success');
             }
         }
 
@@ -431,7 +430,7 @@
 
         function saveNewEmployee() {
             const name = document.getElementById('new-emp-name').value.trim();
-            if (!name) { alert('???? ????? ??? ??????'); return; }
+            if (!name) { alert('الرجاء إدخال اسم الموظف'); return; }
 
             const emp = {
                 id:       'emp_' + Date.now(),
@@ -449,12 +448,12 @@
             loadPayroll();
 
             if (window.logSystemAction) {
-                window.logSystemAction('Employee Add', 'finance', `?? ????? ?????? ${name}`);
+                window.logSystemAction('Employee Add', 'finance', \`تم إضافة الموظف \${name}\`);
             }
         }
 
         function deleteEmployee(empId) {
-            if (!confirm('?? ???? ??? ??? ???????')) return;
+            if (!confirm('هل أنت متأكد من حذف الموظف؟')) return;
             employees = employees.filter(e => e.id !== empId);
             localStorage.setItem('erp_employees_v1', JSON.stringify(employees));
             loadPayroll();

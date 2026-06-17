@@ -4,7 +4,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>????? ????? ???????? | Al-Sajana ERP</title>
+    <title>تصفير بيانات التطبيق | Al-Sajana ERP</title>
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260616_2">
     <style>
@@ -37,60 +37,60 @@
         <div class="orb orb-3"></div>
     </div>
 
-<div class="result-toast" id="result-toast">? ?? ??? ???????? ?????!</div>
+<div class="result-toast" id="result-toast">تم مسح البيانات بنجاح!</div>
 
 <div class="reset-card">
-    <div style="text-align:center; margin-bottom:20px; font-size:3rem;">??</div>
-    <div class="reset-title" style="text-align:center;">????? ????? ?????? ??????</div>
-    <div class="reset-subtitle" style="text-align:center;">???? ???????? ???? ???? ????? ????? ?? ???</div>
+    <div style="text-align:center; margin-bottom:20px; font-size:3rem;">🗑️</div>
+    <div class="reset-title" style="text-align:center;">مركز مسح البيانات الشامل</div>
+    <div class="reset-subtitle" style="text-align:center;">حدد الجداول التي تريد مسحها نهائياً من النظام</div>
 
     <div class="warning-box">
-        ?? <strong>?????:</strong> ??? ??????? <strong>?? ???? ??????? ????</strong>. ???? ??? ???????? ???????? ??????? ?? ??????? ??????? ???????.
+        ⚠️ <strong>تحذير:</strong> هذه العملية <strong>لا يمكن التراجع عنها</strong>. سيتم حذف البيانات المحددة نهائياً من مساحة التخزين المحلية.
     </div>
 
     <div class="select-all-row">
-        <button class="btn-select" onclick="selectAll(true)">? ????? ????</button>
-        <button class="btn-select" onclick="selectAll(false)">? ????? ????</button>
+        <button class="btn-select" onclick="selectAll(true)">✓ تحديد الكل</button>
+        <button class="btn-select" onclick="selectAll(false)">✗ إلغاء الكل</button>
     </div>
 
     <div id="items-list"></div>
 
-    <button class="btn-reset btn-do-reset" onclick="doReset()">??? ??? ???????? ???????</button>
-    <button class="btn-reset btn-cancel" onclick="history.back()">?? ???? ???? ???</button>
+    <button class="btn-reset btn-do-reset" onclick="doReset()">مسح كل البيانات المحددة</button>
+    <button class="btn-reset btn-cancel" onclick="history.back()">لا أريد، رجوع للوراء</button>
 </div>
 
 <script>
 const DATA_KEYS = [
-    { key: 'erp_customers_v1',         label: '???????',                icon: '??' },
-    { key: 'erp_suppliers_v1',          label: '????????',               icon: '??' },
-    { key: 'erp_products_v1',           label: '???????? ????????',      icon: '??' },
-    { key: 'erp_accounts_v1',           label: '???????? ???????',       icon: '??' },
-    { key: 'erp_invoices_v1',           label: '?????? ????????',        icon: '??' },
-    { key: 'erp_purchases_v1',          label: '?????? ?????????',       icon: '???' },
-    { key: 'erp_single_receipts_v1',    label: '????? ????? ???????',    icon: '??' },
-    { key: 'erp_single_payments_v1',    label: '????? ????? ???????',    icon: '??' },
-    { key: 'erp_journal_vouchers_v1',   label: '???? ???????',           icon: '??' },
-    { key: 'erp_batch_receipts_v1',     label: '????? ????? ???????',   icon: '??' },
-    { key: 'erp_batch_payments_v1',     label: '????? ????? ???????',   icon: '??' },
-    { key: 'erp_inventory_moves_v1',    label: '????? ???????',          icon: '??' },
-    { key: 'erp_payroll_v1',            label: '?????? ???????',         icon: '??' },
+    { key: 'erp_customers_v1',         label: 'العملاء',                icon: '👥' },
+    { key: 'erp_suppliers_v1',          label: 'الموردون',               icon: '🏢' },
+    { key: 'erp_products_v1',           label: 'المنتجات والمخزون',      icon: '📦' },
+    { key: 'erp_accounts_v1',           label: 'الحسابات المالية',       icon: '💼' },
+    { key: 'erp_invoices_v1',           label: 'فواتير المبيعات',        icon: '📄' },
+    { key: 'erp_purchases_v1',          label: 'فواتير المشتريات',       icon: '🛒' },
+    { key: 'erp_single_receipts_v1',    label: 'سندات قبض مفردة',    icon: '💵' },
+    { key: 'erp_single_payments_v1',    label: 'سندات صرف مفردة',    icon: '💸' },
+    { key: 'erp_journal_vouchers_v1',   label: 'قيود اليومية',           icon: '📓' },
+    { key: 'erp_batch_receipts_v1',     label: 'سندات قبض مجمعة',   icon: '💰' },
+    { key: 'erp_batch_payments_v1',     label: 'سندات صرف مجمعة',   icon: '💳' },
+    { key: 'erp_inventory_moves_v1',    label: 'حركات المخزون',          icon: '🔄' },
+    { key: 'erp_payroll_v1',            label: 'كشوفات الرواتب',         icon: '👨‍💼' },
     // Sequences
-    { key: 'erp_invoice_seq',           label: '????? ???????? (????)',  icon: '??' },
-    { key: 'erp_purchase_seq',          label: '????? ????????? (????)', icon: '??' },
-    { key: 'erp_single_receipt_seq',    label: '????? ????? ?????',     icon: '??' },
-    { key: 'erp_single_payment_seq',    label: '????? ????? ?????',     icon: '??' },
-    { key: 'erp_jv_seq',                label: '????? ???? ???????',     icon: '??' },
+    { key: 'erp_invoice_seq',           label: 'عداد المبيعات (تسلسل)',  icon: '🔢' },
+    { key: 'erp_purchase_seq',          label: 'عداد المشتريات (تسلسل)', icon: '🔢' },
+    { key: 'erp_single_receipt_seq',    label: 'عداد قبض مفرد',     icon: '🔢' },
+    { key: 'erp_single_payment_seq',    label: 'عداد صرف مفرد',     icon: '🔢' },
+    { key: 'erp_jv_seq',                label: 'عداد قيود اليومية',     icon: '🔢' },
 ];
 
 function getCount(key) {
     try {
         const raw = localStorage.getItem(key);
-        if (!raw) return '�';
+        if (!raw) return '—';
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) return parsed.length + ' ???';
-        if (typeof parsed === 'number') return '??????: ' + parsed;
-        return '?????';
-    } catch { return '?????'; }
+        if (Array.isArray(parsed)) return parsed.length + ' سجل';
+        if (typeof parsed === 'number') return 'تسلسل: ' + parsed;
+        return 'موجود';
+    } catch { return 'موجود'; }
 }
 
 function renderList() {
@@ -116,14 +116,14 @@ function selectAll(val) {
 
 function doReset() {
     const selected = Array.from(document.querySelectorAll('.data-checkbox:checked')).map(cb => cb.dataset.key);
-    if (selected.length === 0) { alert('?? ???? ?? ?????? ?????!'); return; }
+    if (selected.length === 0) { alert('قم بتحديد أي جدول أولاً!'); return; }
 
-    if (!confirm(`?? ??? ????? ?????? ?? ??? ${selected.length} ?????? ???????\n\n??? ??????? ?? ???? ??????? ???!`)) return;
+    if (!confirm(`هل أنت متأكد تماماً من مسح ${selected.length} جداول محددة؟\n\nهذه العملية لا يمكن التراجع عنها!`)) return;
 
     selected.forEach(key => localStorage.removeItem(key));
 
     const toast = document.getElementById('result-toast');
-    toast.textContent = `? ?? ??? ${selected.length} ?????? ?????? ?????!`;
+    toast.textContent = `✓ تم مسح ${selected.length} جداول بنجاح!`;
     toast.style.display = 'block';
     setTimeout(() => { toast.style.display = 'none'; renderList(); }, 3000);
 }

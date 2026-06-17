@@ -179,13 +179,17 @@
 
         /* Compact KPI Cards */
         .kpi-cards {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;
         }
-        .kpi-title { color:var(--text-secondary); font-size:0.85rem; font-weight: 600; }
-        .kpi-icon-bg { padding: 6px 8px; border-radius: 10px; }
-        .kpi-icon-bg span { font-size: 1.2rem; }
-        .kpi-val { margin:5px 0 0; font-size:1.4rem; font-weight:900; font-family: 'Outfit', sans-serif; }
-        .kpi-desc { font-size:0.75rem; margin-top:5px; font-weight: 600; }
+        .kpi-cards .glass-panel {
+            padding: 8px 12px;
+            border-radius: 12px;
+        }
+        .kpi-title { color:var(--text-secondary); font-size:0.75rem; font-weight: 700; }
+        .kpi-icon-bg { padding: 4px 6px; border-radius: 8px; }
+        .kpi-icon-bg span { font-size: 1rem; }
+        .kpi-val { margin:2px 0 0; font-size:1.15rem; font-weight:900; font-family: 'Outfit', sans-serif; line-height: 1.2; }
+        .kpi-desc { font-size:0.65rem; margin-top:2px; font-weight: 600; }
 
         /* Compact Charts Grid */
         .charts-grid {
@@ -788,6 +792,7 @@
         }
 
         // Initialize Chart.js Graphs
+        // Initialize Chart.js Graphs
         function initProCharts() {
             const data = loadDynamicDashboardData();
             
@@ -798,28 +803,60 @@
             Chart.defaults.font.family = "'Tajawal', sans-serif";
             Chart.defaults.font.size = 11; // Smaller default font
 
-            // 1. Cashflow Chart
-            let baseVal = data.banks.length > 0 ? 500 : 0;
+            // 1. Cashflow Chart (Dynamic Weekly)
+            const sReceipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+            const sPayments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+            
+            let daysLabels = [];
+            let receiptsData = [0,0,0,0,0,0,0];
+            let paymentsData = [0,0,0,0,0,0,0];
+            
+            const today = new Date();
+            for(let i=6; i>=0; i--) {
+                let d = new Date(today);
+                d.setDate(d.getDate() - i);
+                const dayStr = d.toLocaleDateString('ar-EG', { weekday: 'short' });
+                daysLabels.push(dayStr);
+                
+                const dStr = d.toISOString().split('T')[0];
+                
+                let dayReceipts = sReceipts.filter(r => (r.date || '').startsWith(dStr) && !r.deleted).reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+                // Also add sales invoices that are cash for today? For simplicity, we just use single receipts and payments for cashflow, or all invoices if they are cash.
+                let cashSales = data.invoices.filter(inv => (inv.date || '').startsWith(dStr) && inv.paymentMethod !== 'credit' && !inv.deleted).reduce((sum, inv) => sum + (Number(inv.netTotal) || 0), 0);
+                
+                let dayPayments = sPayments.filter(p => (p.date || '').startsWith(dStr) && !p.deleted).reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+                const purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted);
+                let cashPurchases = purchases.filter(inv => (inv.date || '').startsWith(dStr) && inv.paymentMethod !== 'credit').reduce((sum, inv) => sum + (Number(inv.netTotal) || 0), 0);
+
+                receiptsData[6-i] = dayReceipts + cashSales;
+                paymentsData[6-i] = dayPayments + cashPurchases;
+            }
+
             new Chart(document.getElementById('cashflowChart').getContext('2d'), {
                 type: 'line',
                 data: {
-                    labels: ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'],
+                    labels: daysLabels,
                     datasets: [
-                        { label: 'المقبوضات', data: [baseVal+100, baseVal+300, baseVal+200, baseVal+500, baseVal+400, baseVal+800, baseVal+200], borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.15)', fill: true, borderWidth: 2, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#10b981' },
-                        { label: 'المصروفات', data: [baseVal, baseVal+100, baseVal+250, baseVal+100, baseVal+300, baseVal+150, baseVal+50], borderColor: '#f87171', backgroundColor: 'rgba(248,113,113,0.15)', fill: true, borderWidth: 2, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#f87171' }
+                        { label: 'المقبوضات', data: receiptsData, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.15)', fill: true, borderWidth: 2, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#10b981' },
+                        { label: 'المصروفات', data: paymentsData, borderColor: '#f87171', backgroundColor: 'rgba(248,113,113,0.15)', fill: true, borderWidth: 2, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#f87171' }
                     ]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { usePointStyle: true, padding: 10, font: {family: "'Tajawal'", size: 11} } } }, scales: { x: { grid: { color: gridColor } }, y: { grid: { color: gridColor } } } }
             });
 
-            // 2. Sales by Category
-            const cats = {};
-            data.items.forEach(i => {
-                let c = i.category || 'أخرى';
-                cats[c] = (cats[c] || 0) + 1;
+            // 2. Sales by Category (Dynamic from Sales Invoices)
+            const catSales = {};
+            data.invoices.forEach(inv => {
+                if(inv.items && Array.isArray(inv.items)) {
+                    inv.items.forEach(item => {
+                        let c = item.category || 'أخرى';
+                        let total = (Number(item.qty) || 0) * (Number(item.price) || 0);
+                        catSales[c] = (catSales[c] || 0) + total;
+                    });
+                }
             });
-            const catLabels = Object.keys(cats).length > 0 ? Object.keys(cats) : ['بدون بيانات'];
-            const catData = Object.keys(cats).length > 0 ? Object.values(cats) : [1];
+            const catLabels = Object.keys(catSales).length > 0 ? Object.keys(catSales) : ['بدون مبيعات'];
+            const catData = Object.keys(catSales).length > 0 ? Object.values(catSales) : [1];
 
             new Chart(document.getElementById('categoryChart').getContext('2d'), {
                 type: 'doughnut',
@@ -827,38 +864,54 @@
                     labels: catLabels,
                     datasets: [{ data: catData, backgroundColor: ['#3b82f6', '#f59e0b', '#f87171', '#10b981', '#c084fc', '#ec4899'], borderWidth: 0, hoverOffset: 10 }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right', labels: { usePointStyle: true, padding: 10, font: {family: "'Tajawal'", size: 11} } } } }
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right', labels: { usePointStyle: true, padding: 10, font: {family: "'Tajawal'", size: 11} } }, tooltip: { callbacks: { label: function(context) { return ' ' + context.label + ': ' + context.raw.toLocaleString() + ' SDG'; } } } } }
             });
 
-            // 3. Inventory Radar
-            const radarItems = data.items.slice(0, 5);
+            // 3. Inventory Radar (Dynamic - Lowest Stock Items)
+            // Calculate ratio of available to safeLimit
+            let radarItemsList = [...data.items].map(i => {
+                let avail = i.units && i.units[0] ? Number(i.units[0].stock) || 0 : 0;
+                let safe = Number(i.safeLimit) || 10;
+                let ratio = safe > 0 ? avail / safe : 1;
+                return { ...i, avail, safe, ratio };
+            });
+            // Sort by lowest ratio
+            radarItemsList.sort((a, b) => a.ratio - b.ratio);
+            const radarItems = radarItemsList.slice(0, 5);
+            
             const radarLabels = radarItems.length > 0 ? radarItems.map(i => i.name) : ['لا يوجد'];
-            const radarAvail = radarItems.length > 0 ? radarItems.map(i => i.units && i.units[0] ? i.units[0].stock : 0) : [0];
-            const radarSafe = radarItems.length > 0 ? radarItems.map(i => i.safeLimit || 10) : [0];
+            const radarAvail = radarItems.length > 0 ? radarItems.map(i => i.avail) : [0];
+            const radarSafe = radarItems.length > 0 ? radarItems.map(i => i.safe) : [0];
 
             new Chart(document.getElementById('inventoryChart').getContext('2d'), {
                 type: 'radar',
                 data: {
                     labels: radarLabels,
                     datasets: [
-                        { label: 'المتوفر', data: radarAvail, backgroundColor: 'rgba(245,158,11,0.2)', borderColor: '#f59e0b', pointBackgroundColor: '#f59e0b', borderWidth: 1.5 },
+                        { label: 'المتوفر', data: radarAvail, backgroundColor: 'rgba(248,113,113,0.2)', borderColor: '#f87171', pointBackgroundColor: '#f87171', borderWidth: 1.5 },
                         { label: 'حد الأمان', data: radarSafe, backgroundColor: 'rgba(59,130,246,0.2)', borderColor: '#3b82f6', pointBackgroundColor: '#3b82f6', borderWidth: 1.5 }
                     ]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { usePointStyle: true, padding: 10, font: {family: "'Tajawal'", size: 11} } } }, scales: { r: { grid: { color: gridColor }, angleLines: { color: gridColor }, ticks: { display: false } } } }
             });
 
-            // 4. Warehouses Capacity
+            // 4. Warehouses Capacity (Dynamic approximate based on Item Count vs arbitrary capacity)
+            // Assuming 1000 items is 100% capacity for main warehouse
+            let totalItemsCount = data.items.reduce((sum, i) => sum + (i.units && i.units[0] ? Number(i.units[0].stock) || 0 : 0), 0);
+            let warehouseCap = 5000; // arbitrary max
+            let used = totalItemsCount;
+            let free = Math.max(0, warehouseCap - used);
+
             new Chart(document.getElementById('warehousesChart').getContext('2d'), {
-                type: 'polarArea',
+                type: 'doughnut', // Changed to doughnut for capacity visualization
                 data: {
-                    labels: ['المخزن الرئيسي'],
-                    datasets: [{ data: [data.items.length || 1], backgroundColor: ['rgba(248,113,113,0.5)'], borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1 }]
+                    labels: ['المساحة المستخدمة', 'المساحة الفارغة'],
+                    datasets: [{ data: [used, free], backgroundColor: ['rgba(248,113,113,0.8)', 'rgba(16,185,129,0.3)'], borderColor: 'rgba(255,255,255,0.05)', borderWidth: 1 }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { usePointStyle: true, padding: 10, font: {family: "'Tajawal'", size: 11} } } }, scales: { r: { grid: { color: gridColor }, ticks: { display: false } } } }
+                options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 10, font: {family: "'Tajawal'", size: 11} } } } }
             });
 
-            // 5. Customer Credit (Horizontal Bar)
+            // 5. Customer Credit (Horizontal Bar - Already Correct)
             const activeCustomers = data.customers.filter(c => c.creditLimit > 0 || c.currentBalance > 0);
             activeCustomers.sort((a, b) => (b.currentBalance || 0) - (a.currentBalance || 0));
             const topCustomers = activeCustomers.slice(0, 5);

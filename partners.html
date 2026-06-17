@@ -1,11 +1,10 @@
-<!-- c:\mynewapp\frontend-pwa\partners.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>??????? 2026 - ???? ????????</title>
+    <title>إدارة الشركاء 2026 - السجانة ERP</title>
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260616_2">
         <style>
@@ -91,49 +90,49 @@
 
 
     <nav class="navbar glass-panel">
-        <button class="back-btn" onclick="history.back()">?</button>
-        <h1 class="brand-title">???? ????????</h1>
+        <button class="back-btn" onclick="history.back()">🔙</button>
+        <h1 class="brand-title">إدارة جهات الاتصال</h1>
         <div style="width: 30px;"></div>
     </nav>
 
     <div class="container">
         <!-- Add New Form -->
         <div class="glass-panel" style="padding: 20px; border-radius: 15px;">
-            <h3 style="margin-top: 0; color: var(--primary-accent);">????? ???? ????</h3>
+            <h3 style="margin-top: 0; color: var(--primary-accent);">إضافة شريك جديد</h3>
             
             <div class="form-group">
-                <label class="form-label">?????</label>
-                <input type="text" class="form-input" id="p-name" placeholder="????: ???? (????), ???? ???...">
+                <label class="form-label">الاسم</label>
+                <input type="text" class="form-input" id="p-name" placeholder="مثال: أحمد (عميل)، شركة كذا...">
             </div>
             
             <div class="form-group">
-                <label class="form-label">?????</label>
+                <label class="form-label">النوع</label>
                 <select class="form-select" id="p-type">
-                    <option value="CUSTOMER">???? (????)</option>
-                    <option value="SUPPLIER">???? (????/????)</option>
-                    <option value="EMPLOYEE">????</option>
+                    <option value="CUSTOMER">عميل (مبيعات)</option>
+                    <option value="SUPPLIER">مورد (مشتريات/مصروفات)</option>
+                    <option value="EMPLOYEE">موظف</option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label class="form-label">??? ?????? (???????)</label>
+                <label class="form-label">رقم الهاتف (اختياري)</label>
                 <input type="text" class="form-input" id="p-phone">
             </div>
 
-            <button class="btn-add" onclick="addPartner()">+ ??? ??????</button>
+            <button class="btn-add" onclick="addPartner()">+ حفظ الشريك</button>
         </div>
 
         <!-- Filters -->
         <div class="tabs" style="margin-top: 25px;">
-            <button class="tab-btn active" onclick="loadPartners('')">????</button>
-            <button class="tab-btn" onclick="loadPartners('CUSTOMER')">???????</button>
-            <button class="tab-btn" onclick="loadPartners('SUPPLIER')">????????</button>
+            <button class="tab-btn active" onclick="loadPartners('')">الكل</button>
+            <button class="tab-btn" onclick="loadPartners('CUSTOMER')">العملاء</button>
+            <button class="tab-btn" onclick="loadPartners('SUPPLIER')">الموردون</button>
         </div>
 
         <!-- List -->
         <div class="partners-list" id="list-container">
             <!-- Populated via JS -->
-            <div style="text-align:center; color:var(--text-secondary);">???? ???????...</div>
+            <div style="text-align:center; color:var(--text-secondary);">جاري التحميل...</div>
         </div>
     </div>
 
@@ -142,9 +141,9 @@
     <script>
         // Mock data for UI preview
         let localPartners = [
-            { id: 1, name: '????? ??????? ?????????', type: 'CUSTOMER', phone: '0912345678' },
-            { id: 2, name: '???? ?????? ??????', type: 'SUPPLIER', phone: '0123456789' },
-            { id: 3, name: '???? ???? ??????', type: 'EMPLOYEE', phone: '0111111111' }
+            { id: 1, name: 'شركة السجانة التجارية', type: 'CUSTOMER', phone: '0912345678' },
+            { id: 2, name: 'مصنع الإسمنت الحديث', type: 'SUPPLIER', phone: '0123456789' },
+            { id: 3, name: 'أحمد محمد إبراهيم', type: 'EMPLOYEE', phone: '0111111111' }
         ];
 
         document.addEventListener('DBReady', () => {
@@ -157,7 +156,11 @@
         function loadPartners(filterType) {
             // Update active tab UI
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            if(event && event.target && event.target.classList) {
+                 event.target.classList.add('active');
+            } else {
+                 document.querySelector('.tab-btn').classList.add('active');
+            }
 
             const container = document.getElementById('list-container');
             container.innerHTML = '';
@@ -168,21 +171,21 @@
             }
 
             if (filtered.length === 0) {
-                container.innerHTML = '<div style="text-align:center;">?? ???? ??????</div>';
+                container.innerHTML = '<div style="text-align:center;">لا توجد بيانات</div>';
                 return;
             }
 
             filtered.forEach(p => {
-                const typeLabel = p.type === 'CUSTOMER' ? '????' : p.type === 'SUPPLIER' ? '????' : '????';
-                container.innerHTML += `
+                const typeLabel = p.type === 'CUSTOMER' ? 'عميل' : p.type === 'SUPPLIER' ? 'مورد' : 'موظف';
+                container.innerHTML += \`
                     <div class="partner-card glass-panel">
                         <div>
-                            <div class="partner-name">${p.name}</div>
-                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top:5px;">${p.phone || '?? ???? ????'}</div>
+                            <div class="partner-name">\${p.name}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top:5px;">\${p.phone || 'لا يوجد هاتف'}</div>
                         </div>
-                        <div class="partner-type type-${p.type}">${typeLabel}</div>
+                        <div class="partner-type type-\${p.type}">\${typeLabel}</div>
                     </div>
-                `;
+                \`;
             });
         }
 
@@ -192,7 +195,7 @@
             const phone = document.getElementById('p-phone').value;
 
             if (!name) {
-                alert('??? ????? ?????');
+                alert('يرجى إدخال الاسم');
                 return;
             }
 
@@ -202,7 +205,7 @@
                 name, type, phone
             });
 
-            alert('?? ????? ?????!');
+            alert('تمت الإضافة بنجاح!');
             document.getElementById('p-name').value = '';
             document.getElementById('p-phone').value = '';
             

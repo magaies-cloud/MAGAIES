@@ -4,7 +4,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>???? ??????? | Al-Sajana ERP</title>
+    <title>دورة الشيكات | Al-Sajana ERP</title>
     <!-- Fonts -->
         <!-- Base Styles -->
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
@@ -253,16 +253,16 @@
         <header class="premium-header" style="display:flex; justify-content:space-between; align-items:center; padding:15px; margin-bottom:15px; gap:15px; border-radius: 16px;">
             <!-- Left: Logo / Brand -->
             <div style="display:flex; align-items:center; gap:12px; flex:1;">
-                <div style="background:linear-gradient(135deg,#3b82f6,#60a5fa); width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">??</div>
+                <div style="background:linear-gradient(135deg,#3b82f6,#60a5fa); width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">🔄</div>
                 <div>
-                    <div style="color:#fff; font-weight:800; font-size:1rem; letter-spacing:0.5px;">??????? ERP</div>
-                    <div style="color:var(--text-secondary); font-size:0.7rem;">???? ????? ??????</div>
+                    <div style="color:#fff; font-weight:800; font-size:1rem; letter-spacing:0.5px;">السجانة ERP</div>
+                    <div style="color:var(--text-secondary); font-size:0.7rem;">نظام الإدارة الشاملة</div>
                 </div>
             </div>
 
             <!-- Center: Page Title -->
             <div style="flex:1; text-align:center;">
-                <h2 style="margin:0; color:#fff; font-size:1.2rem; font-weight:900; white-space:nowrap; text-shadow: 0 2px 10px rgba(59,130,246,0.5);">?? ???? ???????</h2>
+                <h2 style="margin:0; color:#fff; font-size:1.2rem; font-weight:900; white-space:nowrap; text-shadow: 0 2px 10px rgba(59,130,246,0.5);">دورة الشيكات (القبض والصرف)</h2>
             </div>
 
             <!-- Right: Controls -->
@@ -270,44 +270,44 @@
                 <!-- Clock -->
                 <div style="display:flex; flex-direction:column; align-items:center; background:rgba(15,23,42,0.6); padding:6px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); min-width:110px;">
                     <span id="header-clock" style="color:#60a5fa; font-size:1.1rem; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:1px; text-shadow: 0 0 10px rgba(59,130,246,0.5);">00:00:00</span>
-                    <span id="header-date-mini" style="color:var(--text-secondary); font-size:0.65rem; margin-top:1px;">???? ???????...</span>
+                    <span id="header-date-mini" style="color:var(--text-secondary); font-size:0.65rem; margin-top:1px;">جاري التحميل...</span>
                 </div>
                 <!-- Theme -->
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <button class="theme-toggle-btn" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; color:var(--text-primary); transition:0.2s;" title="????? ??????">??</button>
-                    <button class="back-arrow-btn" onclick="history.back()" style="background:rgba(255,255,255,0.1); border:none; border-radius:12px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; color:var(--text-primary); transition:0.2s;" title="????">??</button>
+                    <button class="theme-toggle-btn" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; color:var(--text-primary); transition:0.2s;" title="تبديل المظهر">🌗</button>
+                    <button class="back-arrow-btn" onclick="history.back()" style="background:rgba(255,255,255,0.1); border:none; border-radius:12px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; color:var(--text-primary); transition:0.2s;" title="رجوع">🔙</button>
                 </div>
             </div>
         </header>
         <!-- Tabs -->
         <div class="tabs-container">
             <button class="tab-btn active" onclick="switchTab('incoming')" id="tab-incoming">
-                <span>??</span> ????? ????? (????? ???????)
+                <span>📥</span> شيكات مقبوضة (أوراق قبض)
             </button>
             <button class="tab-btn" onclick="switchTab('outgoing')" id="tab-outgoing">
-                <span>??</span> ????? ????? (????? ????????)
+                <span>📤</span> شيكات مصدرة (أوراق دفع)
             </button>
         </div>
 
         <!-- Filters -->
         <div class="filters-panel">
             <div class="filter-group">
-                <label>????? ??? ?????? (Status)</label>
+                <label>تصفية حسب الحالة (Status)</label>
                 <select class="filter-input" id="filter-status" onchange="renderTable()">
-                    <option value="all">???? (All)</option>
-                    <option value="?? ??????">?? ?????? (In Safe)</option>
-                    <option value="???? ???????">???? ??????? (Under Collection)</option>
-                    <option value="????">???? (Cleared)</option>
-                    <option value="?????">????? (Bounced)</option>
-                    <option value="????">???? (Endorsed)</option>
+                    <option value="all">الكل (All)</option>
+                    <option value="في الخزينة">في الخزينة (In Safe)</option>
+                    <option value="تحت التحصيل">تحت التحصيل (Under Collection)</option>
+                    <option value="محصل">محصل (Cleared)</option>
+                    <option value="مرتجع">مرتجع (Bounced)</option>
+                    <option value="مجير">مجيّر (Endorsed)</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label>????? ????????? ??? (Due Date To)</label>
+                <label>تاريخ الاستحقاق إلى (Due Date To)</label>
                 <input type="date" class="filter-input" id="filter-date" onchange="renderTable()">
             </div>
             <div class="filter-group" style="flex: 0;">
-                <button class="btn btn-primary" style="height: 44px; margin-bottom: 2px;" onclick="renderTable()">??? ??</button>
+                <button class="btn btn-primary" style="height: 44px; margin-bottom: 2px;" onclick="renderTable()">بحث</button>
             </div>
         </div>
 
@@ -317,12 +317,12 @@
                 <thead>
                     <tr>
                         <th style="width: 40px;"><input type="checkbox" id="selectAll" class="row-checkbox" onchange="toggleSelectAll()"></th>
-                        <th>??? ????? (Check No.)</th>
-                        <th id="th-partner">?????? (Customer)</th>
-                        <th>????? (Bank)</th>
-                        <th>?????? (Amount)</th>
-                        <th>????? ????????? (Due Date)</th>
-                        <th>?????? (Status)</th>
+                        <th>رقم الشيك (Check No.)</th>
+                        <th id="th-partner">العميل (Customer)</th>
+                        <th>البنك (Bank)</th>
+                        <th>المبلغ (Amount)</th>
+                        <th>تاريخ الاستحقاق (Due Date)</th>
+                        <th>الحالة (Status)</th>
                     </tr>
                 </thead>
                 <tbody id="checks-tbody">
@@ -333,26 +333,26 @@
 
         <!-- Actions -->
         <div class="actions-bar" id="incoming-actions">
-            <button class="btn btn-bank" onclick="changeSelectedStatus('???? ???????')">
-                ?? ????? ????? (Send to Bank)
+            <button class="btn btn-bank" onclick="changeSelectedStatus('تحت التحصيل')">
+                إرسال للبنك (Send to Bank)
             </button>
-            <button class="btn btn-clear" onclick="changeSelectedStatus('????')">
-                ? ????? ??????? (Clear Check)
+            <button class="btn btn-clear" onclick="changeSelectedStatus('محصل')">
+                تأكيد التحصيل (Clear Check)
             </button>
-            <button class="btn btn-bounce" onclick="changeSelectedStatus('?????')">
-                ? ????? (Bounce)
+            <button class="btn btn-bounce" onclick="changeSelectedStatus('مرتجع')">
+                إرجاع (Bounce)
             </button>
-            <button class="btn btn-endorse" onclick="changeSelectedStatus('????')">
-                ?? ????? ????? (Endorse)
+            <button class="btn btn-endorse" onclick="changeSelectedStatus('مجير')">
+                تجيير لجهة أخرى (Endorse)
             </button>
         </div>
 
         <div class="actions-bar" id="outgoing-actions" style="display: none;">
-            <button class="btn btn-clear" onclick="changeSelectedStatus('?????')">
-                ? ????? ????? (Cleared from Bank)
+            <button class="btn btn-clear" onclick="changeSelectedStatus('محصل')">
+                تم الصرف (Cleared from Bank)
             </button>
-            <button class="btn btn-bounce" onclick="changeSelectedStatus('?????')">
-                ? ????? (Returned)
+            <button class="btn btn-bounce" onclick="changeSelectedStatus('مرتجع')">
+                مرتجع (Returned)
             </button>
         </div>
 

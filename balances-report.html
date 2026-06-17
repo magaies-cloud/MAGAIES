@@ -4,7 +4,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>????? ??????? ????????? | Al-Sajana ERP</title>
+    <title>تقرير الأرصدة الإجمالية | Al-Sajana ERP</title>
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260616_2">
     <link rel="stylesheet" href="css/sales-invoice.css">
@@ -90,72 +90,72 @@
         <button onclick="history.back()" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; padding:4px 8px; border-radius:4px; margin-left:8px; color:#94a3b8; display:flex;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </button>
-        <a data-href="financial-reports.html" onclick="window.location.href='financial-reports.html'" style="color:#38bdf8; text-decoration:none; font-weight:700;">???????? ???????</a>
-        <span style="margin:0 10px; color:#475569;">�</span>
-        <span style="color:#f8fafc;">????? ??????? ?????????</span>
+        <a data-href="financial-reports.html" onclick="window.location.href='financial-reports.html'" style="color:#38bdf8; text-decoration:none; font-weight:700;">التقارير المالية</a>
+        <span style="margin:0 10px; color:#475569;">/</span>
+        <span style="color:#f8fafc;">تقرير الأرصدة الإجمالية</span>
     </div>
 
     <!-- TITLE -->
     <div style="margin-bottom: 25px;" class="no-print">
         <h1 style="color:#fff; margin:0 0 5px 0; font-size:2rem; font-weight:900;">
-            ?? ????? ??????? ????????? 
+            عن تقرير الأرصدة الإجمالية 
             <span class="badge-sgl">Global Balances</span>
         </h1>
-        <p style="color:#64748b; margin:0;">Global Balances & Aging Report � ????? ?????? ????? ???????? ???????? ????????</p>
+        <p style="color:#64748b; margin:0;">Global Balances & Aging Report — تقرير تفصيلي لجميع الأرصدة للعملاء والموردين</p>
     </div>
 
     <!-- FILTERS -->
     <div class="report-header no-print">
         <div class="filter-row">
             <div class="filter-group">
-                <label>??? ???????? (Group Type)</label>
+                <label>نوع المجموعة (Group Type)</label>
                 <select class="filter-input" id="filter-group">
-                    <option value="ALL">?? ??????? ?????????</option>
-                    <option value="CUST">?? ??????? ???</option>
-                    <option value="SUPP">?? ???????? ???</option>
+                    <option value="ALL">كل الأرصدة الإجمالية</option>
+                    <option value="CUST">كل العملاء فقط</option>
+                    <option value="SUPP">كل الموردين فقط</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label>????? ??? (Sort By)</label>
+                <label>ترتيب حسب (Sort By)</label>
                 <select class="filter-input" id="filter-sort">
-                    <option value="BALANCE_DESC">?????? (?????? ??????)</option>
-                    <option value="BALANCE_ASC">?????? (?????? ??????)</option>
-                    <option value="NAME">??? ?????? (?????)</option>
-                    <option value="LAST_DATE">????? ??? ???? (??????)</option>
+                    <option value="BALANCE_DESC">الرصيد (الأعلى للأسفل)</option>
+                    <option value="BALANCE_ASC">الرصيد (الأدنى للأعلى)</option>
+                    <option value="NAME">اسم الحساب (أبجدي)</option>
+                    <option value="LAST_DATE">تاريخ آخر حركة (الأحدث)</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label>???? ??????? (Cost Center)</label>
+                <label>مركز التكلفة (Cost Center)</label>
                 <select class="filter-input" id="filter-costcenter">
-                    <option value="ALL">???? ????? ??????? (?????)</option>
+                    <option value="ALL">جميع مراكز التكلفة (الكل)</option>
                 </select>
             </div>
         </div>
         <div style="display:flex; gap:12px; margin-top:10px; align-items:center; flex-wrap:wrap;">
             <button class="btn-run" onclick="runReport()">
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                ??? ???????
+                تشغيل التقرير
             </button>
-            <button class="btn-action btn-print" onclick="previewReport()">??? ??????</button>
-            <button class="btn-action btn-print" onclick="window.print()">??? ?????</button>
-            <button class="btn-action btn-print" onclick="window.openExportModal(exportExcel, {element: document.getElementById('report-table-wrap'), filename: 'balances-report.pdf', orientation: 'landscape'})">?? ?????</button>
+            <button class="btn-action btn-print" onclick="previewReport()">عرض للطباعة</button>
+            <button class="btn-action btn-print" onclick="window.print()">طباعة مباشرة</button>
+            <button class="btn-action btn-print" onclick="window.openExportModal(exportExcel, {element: document.getElementById('report-table-wrap'), filename: 'balances-report.pdf', orientation: 'landscape'})">تصدير PDF/Excel</button>
             
-            <button class="btn-action" onclick="alert('????? ??? ????? ????????? ??????? ??????')">?? Secure Email</button>
+            <button class="btn-action" onclick="alert('تم إرسال التقرير عبر البريد الإلكتروني للعميل المباشر')">عبر Secure Email</button>
         </div>
     </div>
 
     <!-- SUMMARY CARDS -->
     <div class="summary-cards" id="summary-cards" style="display:none;">
         <div class="summary-card" style="border-top:3px solid #34d399;">
-            <div class="s-label">?????? ????? ??????? (???? ???)</div>
+            <div class="s-label">إجمالي أرصدة العملاء (مدين لنا)</div>
             <div class="s-val td-debit" id="sum-customers">0.00</div>
         </div>
         <div class="summary-card" style="border-top:3px solid #f87171;">
-            <div class="s-label">?????? ????? ???????? (???? ?????)</div>
+            <div class="s-label">إجمالي أرصدة الموردين (دائن علينا)</div>
             <div class="s-val td-credit" id="sum-suppliers">0.00</div>
         </div>
         <div class="summary-card" style="border-top:3px solid #38bdf8;">
-            <div class="s-label">?????? ???????? ??????</div>
+            <div class="s-label">إجمالي المحصلة الصافية</div>
             <div class="s-val" id="sum-net" style="color:#38bdf8;">0.00</div>
         </div>
     </div>
@@ -164,29 +164,29 @@
     <div class="glass-panel" style="padding:0; overflow:hidden;">
         <!-- Print Header -->
         <div style="padding:20px 20px 0 20px; display:none;" id="print-header">
-            <h2 style="text-align:center; margin:0 0 5px 0;">???????? ??????? ???????</h2>
-            <h3 style="text-align:center; color:#555; margin:0 0 20px 0;">????? ??????? ????????? ???????</h3>
+            <h2 style="text-align:center; margin:0 0 5px 0;">التقرير المالي للإدارة</h2>
+            <h3 style="text-align:center; color:#555; margin:0 0 20px 0;">تقرير الأرصدة الإجمالية المفصل</h3>
         </div>
 
         <div class="table-wrap">
             <table class="balances-table">
                 <thead>
                     <tr>
-                        <th>??? ??????</th>
-                        <th>??? ?????? / ??????</th>
-                        <th>?????? ?????????</th>
-                        <th>?????? ????</th>
-                        <th>?????? ????</th>
-                        <th>?????? ??????</th>
-                        <th>???? ??????</th>
-                        <th>??? ????</th>
+                        <th>كود الحساب</th>
+                        <th>اسم الحساب / العميل</th>
+                        <th>الرصيد الافتتاحي</th>
+                        <th>حركات مدين</th>
+                        <th>حركات دائن</th>
+                        <th>الرصيد النهائي</th>
+                        <th>حالة الحساب</th>
+                        <th>آخر حركة</th>
                     </tr>
                 </thead>
                 <tbody id="balances-tbody">
                     <tr>
                         <td colspan="8" class="empty-state">
-                            <span style="font-size:3rem; display:block; margin-bottom:15px;">??</span>
-                            <div>???? "??? ???????" ?????? ????? ????????</div>
+                            <span style="font-size:3rem; display:block; margin-bottom:15px;">🔍</span>
+                            <div>إضغط "تشغيل التقرير" لجلب جميع الأرصدة</div>
                         </td>
                     </tr>
                 </tbody>
@@ -195,15 +195,15 @@
 
         <!-- Audit Stamp -->
         <div class="audit-stamp" id="audit-stamp" style="display:none;">
-            <span>??</span>
-            <span>ENCRYPTED_DATA_LOCK: ???????? ??????? ????? ??? ????????? ?? ??????? ????? ?????? ?????.</span>
+            <span>✔️</span>
+            <span>ENCRYPTED_DATA_LOCK: البيانات الواردة نهائية وتم استخراجها من السجلات المالية المشفرة للنظام.</span>
         </div>
     </div>
 
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-    <script src="js/app.js?v=20260616_2"></script>
+<script src="js/app.js?v=20260616_2"></script>
 <script src="js/balances-report.js"></script>
 </body>
 </html>

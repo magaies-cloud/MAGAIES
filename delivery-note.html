@@ -1,11 +1,10 @@
-<!-- c:\xampp\htdocs\magaees\delivery-note.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>??????? 2026 - ??? ????? ?????</title>
+    <title>أذونات التسليم 2026 - نظام الإدارة الشاملة</title>
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260616_2">
         <style>
@@ -100,33 +99,33 @@
     </div>
 
     <nav class="navbar glass-panel">
-        <button class="back-btn" onclick="history.back()">?</button>
-        <h1 class="brand-title">??? ????? ???????</h1>
+        <button class="back-btn" onclick="history.back()">🔙</button>
+        <h1 class="brand-title">أذونات تسليم البضائع</h1>
         <div style="width: 30px;"></div>
     </nav>
 
     <div class="container">
 
-        <!-- ???? ????? ???????? -->
+        <!-- الفلاتر والبحث -->
         <div class="filter-bar glass-panel">
-            <input type="text" id="search-input" placeholder="?? ??? ???? ???????? ?? ??????..." oninput="renderOrders()">
+            <input type="text" id="search-input" placeholder="ابحث برقم الفاتورة أو العميل..." oninput="renderOrders()">
             <select id="filter-status" onchange="renderOrders()">
-                <option value="all">????</option>
-                <option value="pending" selected>??????? ???????</option>
-                <option value="delivered">?? ???????</option>
+                <option value="all">الكل</option>
+                <option value="pending" selected>بانتظار التسليم</option>
+                <option value="delivered">تم التسليم</option>
             </select>
-            <input type="date" id="filter-date-from" onchange="renderOrders()" title="?? ?????">
-            <input type="date" id="filter-date-to" onchange="renderOrders()" title="??? ?????">
+            <input type="date" id="filter-date-from" onchange="renderOrders()" title="من تاريخ">
+            <input type="date" id="filter-date-to" onchange="renderOrders()" title="إلى تاريخ">
         </div>
 
-        <!-- ???? -->
+        <!-- الملخص -->
         <div class="summary-bar">
-            <div class="sum-chip all">?? ????: <strong id="cnt-all">0</strong></div>
-            <div class="sum-chip pending">? ?????: <strong id="cnt-pending">0</strong></div>
-            <div class="sum-chip done">? ??????: <strong id="cnt-done">0</strong></div>
+            <div class="sum-chip all">الكل: <strong id="cnt-all">0</strong></div>
+            <div class="sum-chip pending">انتظار: <strong id="cnt-pending">0</strong></div>
+            <div class="sum-chip done">مكتمل: <strong id="cnt-done">0</strong></div>
         </div>
 
-        <!-- ????? ???????? -->
+        <!-- قائمة الأذونات -->
         <div id="orders-container"></div>
     </div>
 
@@ -140,22 +139,19 @@
         });
 
         function loadData() {
-            // ??? ???????? ???????? (??? ???????) ?? localStorage
+            // جلب المبيعات المحجوزة
             const sales      = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')    || '[]');
             const reserved   = JSON.parse(localStorage.getItem('erp_reserved_sales_v1')    || '[]');
             const deliveries = JSON.parse(localStorage.getItem('erp_delivery_notes_v1')    || '[]');
 
-            // ???? ???????? ??? ???????? ???????? ?? ??? ???????
             const reservedInvs = reserved.filter(inv =>
                 inv.status === 'confirmed' || inv.status === 'reserved' || inv.saleType === 'reserved'
             );
 
-            // ???: ???????? ??????? ???? ????? ??????
             const needDelivery = sales.filter(inv =>
                 inv.saleType === 'reserved' || inv.needsDelivery === true
             );
 
-            // ???? ????? ?????
             allInvoices = [...reservedInvs, ...needDelivery].map(inv => {
                 const deliveryRec = deliveries.find(d => d.invoiceNo === inv.invoiceNo);
                 return {
@@ -166,15 +162,14 @@
                 };
             });
 
-            // ??? ?? ???? ?????? ??????? ??? ?????? ????????
             if (allInvoices.length === 0) {
                 document.getElementById('orders-container').innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-icon">??</div>
-                        <h3>?? ???? ?????? ?????</h3>
-                        <p>????? ??? ???????? ???????? ????????? ???? ????? ??????? ??????.</p>
+                        <div class="empty-icon">📦</div>
+                        <h3>لا توجد فواتير معتمدة</h3>
+                        <p>يرجى عمل فاتورة مبيعات معتمدة لتظهر قائمة التسليم هنا.</p>
                         <p style="font-size:0.8rem; margin-top:8px; color:var(--text-muted);">
-                            ???????? ???? ?? ???? <strong>???????? ????????</strong>
+                            الفواتير تظهر من شاشة <strong>فواتير المبيعات</strong>
                         </p>
                     </div>`;
                 updateCounters(0, 0, 0);
@@ -207,39 +202,39 @@
 
             const container = document.getElementById('orders-container');
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="empty-state"><div class="empty-icon">??</div><p>?? ???? ????? ??????</p></div>`;
+                container.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><p>لا توجد طلبات مطابقة</p></div>`;
                 return;
             }
 
             container.innerHTML = filtered.map(inv => {
                 const isPending = inv.deliveryStatus === 'pending';
-                const items     = (inv.items || []).slice(0, 5); // ??? ??? 5 ?????
+                const items     = (inv.items || []).slice(0, 5); // أقصى حد 5 أصناف
 
                 const itemsHtml = items.length > 0
                     ? items.map(item => `
                         <div class="item-row">
-                            <span class="item-name">${item.itemName || item.name || '???'}</span>
+                            <span class="item-name">${item.itemName || item.name || 'صنف'}</span>
                             <span class="item-qty">${(item.quantity || 0)} ${item.selectedUnit || item.unit || ''}</span>
                         </div>`).join('')
-                    : '<div class="item-row" style="color:var(--text-muted);">?? ???? ?????? ?????</div>';
+                    : '<div class="item-row" style="color:var(--text-muted);">لا توجد أصناف مسجلة</div>';
 
                 const moreItems = (inv.items || []).length > 5
-                    ? `<div style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:4px;">? ${(inv.items||[]).length - 5} ????? ????...</div>`
+                    ? `<div style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:4px;">+ ${(inv.items||[]).length - 5} أصناف أخرى...</div>`
                     : '';
 
                 return `
                 <div class="order-card glass-panel ${isPending ? 'pending' : 'delivered'}">
                     <div class="order-header">
                         <div>
-                            <div class="order-id">?? ${inv.invoiceNo || inv.id || '??? ?????'}</div>
+                            <div class="order-id"># ${inv.invoiceNo || inv.id || 'رقم غير محدد'}</div>
                             <div class="order-meta">
-                                ?? ${inv.customerName || inv.customer || '???? ????'}
-                                &nbsp;�&nbsp;
-                                ?? ${inv.date || '�'}
+                                👤 ${inv.customerName || inv.customer || 'عميل نقدي'}
+                                &nbsp;•&nbsp;
+                                📅 ${inv.date || '-'}
                             </div>
                         </div>
                         <span class="order-status ${isPending ? 'pending' : 'delivered'}">
-                            ${isPending ? '? ??????? ???????' : '? ?? ???????'}
+                            ${isPending ? '⏳ بانتظار التسليم' : '✓ تم التسليم'}
                         </span>
                     </div>
 
@@ -248,13 +243,13 @@
 
                     <div class="order-footer">
                         <div class="order-total">
-                            ????????: <span>${(inv.grandTotal || inv.total || 0).toLocaleString()} ${inv.currency || 'SDG'}</span>
-                            ${inv.deliveredAt ? `<br><span style="color:#34d399;">??????: ${new Date(inv.deliveredAt).toLocaleDateString('ar-SD')}</span>` : ''}
+                            الإجمالي: <span>${(inv.grandTotal || inv.total || 0).toLocaleString()} ${inv.currency || 'SDG'}</span>
+                            ${inv.deliveredAt ? `<br><span style="color:#34d399;">تاريخ التسليم: ${new Date(inv.deliveredAt).toLocaleDateString('ar-SD')}</span>` : ''}
                         </div>
                         <button class="btn-dispatch"
                             onclick="dispatchOrder('${inv.invoiceNo || inv.id}')"
                             ${!isPending ? 'disabled' : ''}>
-                            ?? ${isPending ? '????? ???????' : '???????'}
+                            📦 ${isPending ? 'تسليم البضاعة' : 'تم التسليم'}
                         </button>
                     </div>
                 </div>`;
@@ -271,7 +266,7 @@
             const inv = allInvoices.find(i => (i.invoiceNo || i.id) === invoiceNo);
             if (!inv) return;
 
-            const driver = prompt(`????? ????? ???????? ${invoiceNo}\n\n??? ?????? / ??????? (???????):`);
+            const driver = prompt(`تأكيد تسليم الفاتورة ${invoiceNo}\n\nاسم المستلم / السائق (اختياري):`);
             if (driver === null) return; // user cancelled
 
             // Save delivery record
@@ -279,7 +274,7 @@
             deliveries.push({
                 id:          'dn_' + Date.now(),
                 invoiceNo:   invoiceNo,
-                driverName:  driver || '�',
+                driverName:  driver || '-',
                 deliveredAt: new Date().toISOString(),
                 deliveredBy: JSON.parse(localStorage.getItem('user') || '{}').fullName || 'system'
             });
@@ -316,11 +311,11 @@
             }
 
             if (window.logSystemAction) {
-                window.logSystemAction('Delivery', 'sales', `?? ????? ????? ???????? ${invoiceNo} � ??????: ${driver || '�'}`);
+                window.logSystemAction('Delivery', 'sales', `تم تأكيد تسليم الفاتورة ${invoiceNo} - المستلم: ${driver || '-'}`);
             }
 
             if (window.showToast) {
-                window.showToast(`? ?? ????? ????? ???????? ${invoiceNo} ?????`, 'success', 4000);
+                window.showToast(`✓ تم تأكيد تسليم الفاتورة ${invoiceNo} بنجاح`, 'success', 4000);
             }
 
             loadData();

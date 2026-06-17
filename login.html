@@ -14,16 +14,61 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background: linear-gradient(135deg, var(--bg-color) 0%, var(--surface-color) 100%);
+            background: linear-gradient(-45deg, #0f172a, #1e293b, #0f172a, #020617);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow: hidden;
+            position: relative;
         }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.4)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 25px rgba(56, 189, 248, 0.8)); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.4)); }
+        }
+        
+        .ambient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 10s infinite ease-in-out alternate;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, -50px); }
+        }
+
         .login-card {
             width: 90%;
-            max-width: 400px;
-            padding: 30px;
+            max-width: 420px;
+            padding: 40px 30px;
             display: flex;
             flex-direction: column;
             gap: 20px;
             text-align: center;
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.2);
+            background: rgba(15, 23, 42, 0.6);
+            z-index: 10;
         }
         .logo {
             font-size: 3rem;
@@ -41,36 +86,46 @@
         .input-group label {
             display: block;
             margin-bottom: 8px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
+            color: #e2e8f0;
+            font-size: 0.95rem;
             font-weight: 600;
         }
         .input-field {
             width: 100%;
             padding: 15px;
             border-radius: 12px;
-            border: 1px solid var(--glass-border);
-            background: var(--surface-color);
-            color: var(--text-primary);
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.05);
+            color: #f8fafc;
             font-size: 1rem;
             outline: none;
             transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .input-field::placeholder {
+            color: rgba(255,255,255,0.4);
         }
         .input-field:focus {
-            box-shadow: 0 0 10px rgba(15, 76, 129, 0.2);
-            border-color: var(--primary-accent);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+            border-color: #38bdf8;
+            background: rgba(255, 255, 255, 0.1);
         }
         .btn-login {
             width: 100%;
             padding: 15px;
             border-radius: 12px;
-            background: var(--primary-accent);
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.3);
             color: white;
             font-size: 1.1rem;
             font-weight: 800;
             border: none;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-login:hover {
+            box-shadow: 0 15px 25px rgba(56, 189, 248, 0.5);
         }
         .btn-login:active {
             transform: scale(0.98);
@@ -83,11 +138,15 @@
     </style>
 </head>
 <body>
+    <div class="ambient-orb" style="width: 400px; height: 400px; background: #38bdf8; top: -10%; left: -10%;"></div>
+    <div class="ambient-orb" style="width: 350px; height: 350px; background: #818cf8; bottom: -10%; right: -10%; animation-duration: 15s; animation-direction: alternate-reverse;"></div>
 
-    <div class="login-card glass-panel">
-        <div class="logo">🏗️</div>
-        <div class="title">السجانة ERP 2026</div>
-        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: -10px;">تسجيل الدخول (Zero-Trust Auth)</p>
+    <div class="login-card">
+        <div class="logo-container" style="animation: pulse 4s infinite; mix-blend-mode: screen; filter: invert(1) hue-rotate(180deg) brightness(1.2) drop-shadow(0 0 20px rgba(56, 189, 248, 0.6));">
+            <img src="assets/logo.png" alt="Logo" style="width: 140px; height: auto;">
+        </div>
+        <div class="title" style="background: linear-gradient(to right, #38bdf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px;">السجانة ERP 2026</div>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: -15px; font-weight: 700;">نظام إدارة موارد المؤسسات المتكامل الذكي</p>
         
         <div class="input-group">
             <label>اسم المستخدم</label>

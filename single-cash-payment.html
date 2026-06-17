@@ -4,7 +4,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>??? ??? ????? ???? | Al-Sajana ERP</title>
+    <title>سند صرف نقدية مفرد | Al-Sajana ERP</title>
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260616_2">
     <link rel="stylesheet" href="css/sales-invoice.css">
@@ -99,28 +99,28 @@
     <div class="pos-wrapper" style="max-width: 900px; margin: 0 auto; padding-bottom: 100px;">
         <!-- BREADCRUMB -->
         <div class="page-breadcrumb">
-            <button onclick="window.location.href='dashboard-pro.html'" class="bc-link" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; margin-left:8px;" title="?????? ????????">
+            <button onclick="window.location.href='dashboard-pro.html'" class="bc-link" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; margin-left:8px;" title="العودة للرئيسية">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </button>
-            <a data-href="dashboard-pro.html" onclick="window.location.href='dashboard-pro.html'" class="bc-link" title="???? ??????">????????</a>
-            <span class="bc-sep">�</span>
-            <span class="bc-current">??? ??? ????</span>
+            <a data-href="dashboard-pro.html" onclick="window.location.href='dashboard-pro.html'" class="bc-link" title="الرئيسية">الرئيسية</a>
+            <span class="bc-sep">/</span>
+            <span class="bc-current">سند صرف نقدية مفرد</span>
         </div>
 
         <!-- HEADER -->
         <div class="top-action-bar">
             <div class="action-tabs">
                 <button class="action-tab active">
-                    <span class="tab-icon">??</span><span class="tab-label">??? ??? ????? ????</span>
+                    <span class="tab-icon">💸</span><span class="tab-label">سند صرف نقدية مفرد</span>
                 </button>
             </div>
             <div class="top-bar-meta" style="display:flex; align-items:center; gap:10px;">
                 <div class="inv-nav" style="display:flex; align-items:center; background:rgba(0,0,0,0.2); border-radius:8px; border:1px solid rgba(255,255,255,0.05); padding: 4px;">
-                    <button class="btn-icon" style="padding:4px; color:var(--text-muted); cursor:pointer; background:none; border:none; transition: color 0.2s;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='var(--text-muted)'" onclick="loadPreviousVoucher()" title="????? ??????">
+                    <button class="btn-icon" style="padding:4px; color:var(--text-muted); cursor:pointer; background:none; border:none; transition: color 0.2s;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='var(--text-muted)'" onclick="loadPreviousVoucher()" title="السند السابق">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </button>
                     <div class="inv-badge" id="voucher-number" style="margin:0 10px; color:#f87171; min-width:60px; text-align:center; font-size: 1.1rem;">000001</div>
-                    <button class="btn-icon" style="padding:4px; color:var(--text-muted); cursor:pointer; background:none; border:none; transition: color 0.2s;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='var(--text-muted)'" onclick="loadNextVoucher()" title="????? ??????">
+                    <button class="btn-icon" style="padding:4px; color:var(--text-muted); cursor:pointer; background:none; border:none; transition: color 0.2s;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='var(--text-muted)'" onclick="loadNextVoucher()" title="السند التالي">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                     </button>
                 </div>
@@ -133,22 +133,22 @@
             <!-- SECTION 1: BENEFICIARY & BASIC INFO -->
             <div style="margin-bottom: 25px;">
                 <div class="balance-summary">
-                    <div class="bal-item">?????: <strong id="bal-checks">50</strong></div>
+                    <div class="bal-item">نقدية: <strong id="bal-checks">50</strong></div>
                     <div style="border-right: 1px solid rgba(249,115,22,0.3);"></div>
-                    <div class="bal-item">???????: <strong id="bal-debt">70</strong></div>
+                    <div class="bal-item">شيكات: <strong id="bal-debt">70</strong></div>
                     <div style="border-right: 1px solid rgba(249,115,22,0.3);"></div>
-                    <div class="bal-item">???? ??????: <strong id="bal-loan">120</strong></div>
+                    <div class="bal-item">عهد موظفين: <strong id="bal-loan">120</strong></div>
                 </div>
                 
-                <h3 class="form-section-title">?? ???????? ???????? ????????</h3>
+                <h3 class="form-section-title">بيانات الحساب المدين (المستلم)</h3>
                 
                 <div class="form-grid">
                     <div>
-                        <label class="label">????? ?????</label>
+                        <label class="label">تاريخ السند</label>
                         <input type="date" class="form-input" id="hdr-date">
                     </div>
                     <div>
-                        <label class="label">??? ????</label>
+                        <label class="label">رقم السند</label>
                         <select class="form-input" id="to-account">
                             <!-- Populated via JS -->
                         </select>
@@ -157,74 +157,74 @@
 
                 <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
                     <div>
-                        <label class="label">?????? (???? ????)</label>
+                        <label class="label">المبلغ (عملة الدفع)</label>
                         <input type="text" class="form-input amount" id="amount-local" value="0" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv('local')" onblur="this.value=fmtNum(parseNum(this.value))">
                     </div>
                     <div>
-                        <label class="label">??????</label>
+                        <label class="label">العملة</label>
                         <select class="form-input" id="currency" onchange="updateCurrency()">
-                            <option value="SDG">???? (SDG)</option>
-                            <option value="USD">????? (USD)</option>
-                            <option value="AED">???? (AED)</option>
+                            <option value="SDG">جنيه (SDG)</option>
+                            <option value="USD">دولار (USD)</option>
+                            <option value="AED">درهم (AED)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="label">???????</label>
+                        <label class="label">المعامل</label>
                         <input type="text" class="form-input" id="exchange-rate" value="1.0" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv('rate')" readonly>
                     </div>
                     <div>
-                        <label class="label">?????? ??????? (?????)</label>
+                        <label class="label">المبلغ المعادل (محلي)</label>
                         <input type="text" class="form-input amount" id="amount-foreign" value="0" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv('foreign')" onblur="this.value=fmtNum(parseNum(this.value))">
                     </div>
                 </div>
 
                 <div class="form-grid" style="grid-template-columns: 1fr;">
                     <div>
-                        <label class="label">??????</label>
-                        <input type="text" class="form-input" id="to-statement" placeholder="????: ??? ???? ?????...">
+                        <label class="label">البيان</label>
+                        <input type="text" class="form-input" id="to-statement" placeholder="مثال: سداد دفعة مقدمة...">
                     </div>
                     <div>
-                        <label class="label">???????? (??????? ??????)</label>
-                        <input type="text" class="form-input" id="beneficiary-name" placeholder="??? ????? ???????...">
+                        <label class="label">المستفيد (المستلم الفعلي)</label>
+                        <input type="text" class="form-input" id="beneficiary-name" placeholder="اسم الشخص المستلم...">
                     </div>
                 </div>
             </div>
 
             <!-- SECTION 2: DISBURSE FROM -->
             <div style="margin-bottom: 25px;">
-                <h3 class="form-section-title" style="color: #38bdf8; border-color: rgba(56,189,248,0.2);">?? ???? ??</h3>
+                <h3 class="form-section-title" style="color: #38bdf8; border-color: rgba(56,189,248,0.2);">من حساب الدفع</h3>
                 <div class="form-grid">
                     <div>
-                        <label class="label">?? ???? (?????? / ????? ??????)</label>
+                        <label class="label">من حساب (الخزينة / البنك / العهدة)</label>
                         <select class="form-input" id="from-account">
-                            <option value="safe-001">??????? ????????</option>
-                            <option value="safe-002">????? ?????????</option>
-                            <option value="bank-001">??? (???? 1)</option>
+                            <option value="safe-001">الخزينة الرئيسية</option>
+                            <option value="safe-002">خزينة المشتريات</option>
+                            <option value="bank-001">بنك (حساب 1)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="label">??????</label>
-                        <input type="text" class="form-input" id="from-statement" placeholder="???? ??????...">
+                        <label class="label">بيان الدفع...</label>
+                        <input type="text" class="form-input" id="from-statement" placeholder="بيان الدفع...">
                     </div>
                 </div>
             </div>
 
             <!-- SECTION 3: PAYMENT METHOD -->
             <div>
-                <h3 class="form-section-title" style="color: #fbbf24; border-color: rgba(251,191,36,0.2);">?? ????? ?????</h3>
+                <h3 class="form-section-title" style="color: #fbbf24; border-color: rgba(251,191,36,0.2);">أو طريقة أخرى</h3>
                 
                 <div class="radio-group">
                     <label class="radio-label">
                         <input type="radio" name="payment_method" value="cash" checked onchange="togglePaymentMethod()">
-                        ????
+                        نقدي
                     </label>
                     <label class="radio-label">
                         <input type="radio" name="payment_method" value="check" onchange="togglePaymentMethod()">
-                        ???
+                        شيك
                     </label>
                     <label class="radio-label">
                         <input type="radio" name="payment_method" value="mobile" onchange="togglePaymentMethod()">
-                        ????? ????
+                        تحويل بنكي
                     </label>
                 </div>
 
@@ -232,12 +232,12 @@
                 <div id="section-mobile" class="dynamic-section">
                     <div class="form-grid">
                         <div>
-                            <label class="label">??? ????? ??????</label>
-                            <input type="text" class="form-input" id="mobile-transfer-no" placeholder="??? ???????...">
+                            <label class="label">رقم حساب التحويل</label>
+                            <input type="text" class="form-input" id="mobile-transfer-no" placeholder="رقم الحساب...">
                         </div>
                         <div>
-                            <label class="label">??????</label>
-                            <input type="text" class="form-input" id="mobile-note" placeholder="??????? ???????...">
+                            <label class="label">ملاحظات التحويل...</label>
+                            <input type="text" class="form-input" id="mobile-note" placeholder="ملاحظات التحويل...">
                         </div>
                     </div>
                 </div>
@@ -246,33 +246,33 @@
                 <div id="section-check" class="dynamic-section">
                     <div class="form-grid">
                         <div>
-                            <label class="label">??? ?????</label>
+                            <label class="label">رقم الشيك</label>
                             <input type="text" class="form-input" id="check-no" placeholder="000000">
                         </div>
                         <div>
-                            <label class="label">????? ?????</label>
+                            <label class="label">تاريخ الشيك</label>
                             <input type="date" class="form-input" id="check-date">
                         </div>
                         <div>
-                            <label class="label">????? ?????????</label>
+                            <label class="label">تاريخ الاستحقاق</label>
                             <input type="date" class="form-input" id="check-due-date">
                         </div>
                         <div>
-                            <label class="label">??????</label>
-                            <input type="text" class="form-input" id="check-ref" placeholder="??? ??????...">
+                            <label class="label">رقم الدفتر...</label>
+                            <input type="text" class="form-input" id="check-ref" placeholder="رقم الدفتر...">
                         </div>
                         <div>
-                            <label class="label">??? ??????</label>
-                            <input type="text" class="form-input" id="check-ref-no" placeholder="??? ??????...">
+                            <label class="label">رقم الدفتر</label>
+                            <input type="text" class="form-input" id="check-ref-no" placeholder="رقم الدفتر...">
                         </div>
                         <div>
-                            <label class="label">??? ?????</label>
-                            <input type="text" class="form-input" id="check-branch" placeholder="?????...">
+                            <label class="label">اسم البنك</label>
+                            <input type="text" class="form-input" id="check-branch" placeholder="الفرع...">
                         </div>
                     </div>
                     <label class="checkbox-label">
                         <input type="checkbox" id="check-settle-local">
-                        ???? ????? ??????
+                        إرفاق صورة المستند
                     </label>
                 </div>
             </div>
@@ -282,16 +282,16 @@
         <!-- STICKY FOOTER -->
         <div class="sticky-footer" style="background: rgba(15,23,42,0.95); border-top: 1px solid rgba(239,68,68,0.3); border-radius: 12px 12px 0 0; padding: 15px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;">
             <div class="footer-actions" style="width: 100%; justify-content: center; max-width: 900px; margin: 0 auto;">
-                <button class="btn btn-ghost" onclick="resetVoucher()">?? ????</button>
-                <button class="btn btn-ghost" style="color: #f87171; border-color: rgba(239,68,68,0.3);" onclick="confirmDelete()">??? ???</button>
-                <button class="btn btn-ghost" onclick="printVoucher()">??? ?????</button>
-                <button class="btn btn-success" style="background: #ef4444; min-width: 200px;" onclick="submitVoucher()">? ?????? ???? ?????</button>
+                <button class="btn btn-ghost" onclick="resetVoucher()">جديد</button>
+                <button class="btn btn-ghost" style="color: #f87171; border-color: rgba(239,68,68,0.3);" onclick="confirmDelete()">حذف السند</button>
+                <button class="btn btn-ghost" onclick="printVoucher()">طباعة السند</button>
+                <button class="btn btn-success" style="background: #ef4444; min-width: 200px;" onclick="submitVoucher()">✓ حفظ واعتماد السند</button>
             </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-    <script src="js/app.js?v=20260616_2"></script>`n    <script src="js/single-cash-payment.js"></script>
+    <script src="js/app.js?v=20260616_2"></script>
+    <script src="js/single-cash-payment.js"></script>
 </body>
 </html>
-
