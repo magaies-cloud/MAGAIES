@@ -66,6 +66,40 @@ function generateToken() {
 // PUBLIC ROUTES (No token required)
 // ---------------------------------------------------------
 
+// TEMP DEBUG: ?r=debug&token=YOUR_TOKEN
+if ($resource === 'debug' && $method === 'GET') {
+    $reqToken = $_GET['token'] ?? '';
+    $saasDbgSecret = defined('SAAS_ADMIN_TOKEN') ? SAAS_ADMIN_TOKEN : (getenv('SAAS_ADMIN_TOKEN') ?: 'SUPER_ADMIN_SECRET_2026');
+    if ($reqToken !== $saasDbgSecret) {
+        jsonResponse(['error' => 'Unauthorized'], 401);
+    }
+    $dbg = [
+        'db_connected' => false,
+        'tables' => [],
+        'tenants_count' => 0,
+        'tenants_sample' => [],
+        'request_uri' => $_SERVER['REQUEST_URI'],
+        'path_info' => $_SERVER['PATH_INFO'] ?? 'N/A',
+        'env_db_host' => getenv('DB_HOST') ?: 'NOT SET',
+        'env_db_name' => getenv('DB_NAME') ?: 'NOT SET',
+        'token_match' => ($reqToken === $saasDbgSecret) ? 'YES' : 'NO',
+    ];
+    try {
+        $dbg['db_connected'] = true;
+        $tables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+        $dbg['tables'] = $tables;
+        if (in_array('tenants', $tables)) {
+            $dbg['tenants_count'] = (int)$pdo->query("SELECT COUNT(*) FROM tenants")->fetchColumn();
+            $dbg['tenants_sample'] = $pdo->query("SELECT id, company_name, subdomain, owner_name, status, valid_until FROM tenants LIMIT 5")->fetchAll();
+        } else {
+            $dbg['tenants_table_exists'] = false;
+        }
+    } catch (Exception $e) {
+        $dbg['db_error'] = $e->getMessage();
+    }
+    jsonResponse($dbg);
+}
+
 // Public: Get exchange rate (no auth needed so it always loads on the page)
 if ($resource === 'exchange-rate' && $method === 'GET') {
     $ex_rate = ['rate' => 1.0, 'visible' => false];
