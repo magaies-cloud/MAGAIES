@@ -38,6 +38,19 @@ if ($base_index !== false) {
     $action   = isset($requestUri[1]) ? $requestUri[1] : null;
 }
 
+// Fallback: support query param routing (?r=resource&a=action&a2=sub-action)
+// This is used when the server doesn't pass PATH_INFO segments after .php
+if (empty($resource) && isset($_GET['r'])) {
+    $resource = preg_replace('/[^a-zA-Z0-9_-]/', '', $_GET['r'] ?? '');
+    $action   = preg_replace('/[^a-zA-Z0-9_-]/', '', $_GET['a'] ?? '');
+    // Rebuild requestUri so sub-action checks like $requestUri[$base_index+3] work
+    $base_index = 0;
+    $requestUri = ['api_index.php', $resource, $action];
+    if (isset($_GET['a2'])) {
+        $requestUri[] = preg_replace('/[^a-zA-Z0-9_-]/', '', $_GET['a2']);
+    }
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 $rawInput = file_get_contents("php://input");
 $input  = json_decode($rawInput, true);

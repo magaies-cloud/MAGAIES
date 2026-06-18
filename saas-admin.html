@@ -422,17 +422,51 @@
             renderPlans();
         }
 
+        // Helper: build API URL with automatic fallback to query params
+        let useQueryParams = false;
+        function apiUrl(resource, action, subAction) {
+            if (useQueryParams) {
+                let url = `api_index.php?r=${resource}&a=${action}`;
+                if (subAction) url += `&a2=${subAction}`;
+                return url;
+            }
+            let url = `api_index.php/${resource}/${action}`;
+            if (subAction) url += `/${subAction}`;
+            return url;
+        }
+
         async function loadTenants() {
+            const tbody = document.getElementById('tenants-body');
             try {
-                const res = await fetch('api_index.php/saas/tenants', { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
+                let url = apiUrl('saas', 'tenants');
+                let res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
+                
+                // If PATH_INFO failed (404/500), retry with query params
+                if ((res.status === 404 || res.status === 500) && !useQueryParams) {
+                    console.warn('PATH_INFO not supported, switching to query params...');
+                    useQueryParams = true;
+                    url = apiUrl('saas', 'tenants');
+                    res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
+                }
+
                 const data = await res.json();
+                console.log('Tenants API response:', res.status, data);
+
                 if (Array.isArray(data)) {
                     allTenants = data;
                     renderTenantsTable();
                     populateUserTenantSelect();
                     updateKPIs();
+                } else {
+                    // Show error in table
+                    const msg = data.error || JSON.stringify(data);
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#ef4444;">❌ خطأ من الخادم: ${msg}</td></tr>`;
+                    console.error('API error:', data);
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#ef4444;">❌ فشل الاتصال بالـ API: ${e.message}</td></tr>`;
+                console.error('Fetch error:', e);
+            }
         }
 
         function updateKPIs() {
@@ -454,9 +488,7 @@
             document.getElementById('kpi-total-tenants').innerText = allTenants.length;
             document.getElementById('kpi-active-tenants').innerText = active;
             document.getElementById('kpi-suspended-tenants').innerText = suspended;
-            document.getElementById('kpi-expiring-tenants').innerText = expiring;
             document.getElementById('kpi-revenue').innerText = '$' + revenue;
-            document.getElementById('kpi-total-plans').innerText = allPlans.length;
         }
 
         function filterTenants() { renderTenantsTable(); }
@@ -465,7 +497,8 @@
             const tbody = document.getElementById('tenants-body');
             tbody.innerHTML = '';
             const search = document.getElementById('tenant-search').value.toLowerCase();
-            const statusFilter = document.getElementById('tenant-filter-status').value;
+            const filterEl = document.getElementById('tenant-filter-status');
+            const statusFilter = filterEl ? filterEl.value : 'all';
 
             const filtered = allTenants.filter(t => {
                 const mSearch = t.company_name.toLowerCase().includes(search) || t.subdomain.toLowerCase().includes(search);
@@ -669,7 +702,7 @@
             localStorage.setItem('tenant_max_users_' + id, document.getElementById('edit-tenant-max-users').value);
 
             try {
-                const res = await fetch('api_index.php/saas/tenants/update', {
+                const res = await fetch(apiUrl('saas', 'tenants', 'update'), {
                     method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
                     body: JSON.stringify({ id, status, valid_until })
                 });
@@ -682,7 +715,10 @@
         async function deleteTenant(id) {
             if(!confirm('هل أنت متأكد من الحذف النهائي؟')) return;
             try {
-                const res = await fetch('./api_index.php/saas/tenants/delete?id='+id, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
+                let delUrl = useQueryParams
+                    ? `api_index.php?r=saas&a=tenants&a2=delete&id=${id}`
+                    : `api_index.php/saas/tenants/delete?id=${id}`;
+                const res = await fetch(delUrl, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
                 const data = await res.json();
                 if(data.success) { alert('تم الحذف'); loadTenants(); }
             } catch(e) {}
@@ -690,7 +726,7 @@
 
         async function loadGlobalSettings() {
             try {
-                const res = await fetch('api_index.php/saas/settings/exchange-rate', { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }});
+                const res = await fetch(apiUrl('saas', 'settings', 'exchange-rate'), { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }});
                 const data = await res.json();
                 if(data) {
                     document.getElementById('global-exchange-rate').value = data.rate || 1.0;
@@ -703,7 +739,7 @@
             const rate = document.getElementById('global-exchange-rate').value;
             const visible = document.getElementById('global-exchange-visible').checked;
             try {
-                const res = await fetch('api_index.php/saas/settings/exchange-rate', {
+                const res = await fetch(apiUrl('saas', 'settings', 'exchange-rate'), {
                     method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
                     body: JSON.stringify({ rate, visible })
                 });
@@ -716,7 +752,7 @@
             const token = document.getElementById('new-master-token').value;
             if(!oldToken || !token) return alert('أدخل الرمزين');
             try {
-                const res = await fetch('api_index.php/saas/master-token', {
+                const res = await fetch(apiUrl('saas', 'master-token'), {
                     method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
                     body: JSON.stringify({ oldToken, token })
                 });
@@ -725,10 +761,9 @@
             } catch(e) {}
         }
 
-        // Messages
         async function loadMessages() {
             try {
-                const res = await fetch('api_index.php/saas/messages', { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
+                const res = await fetch(apiUrl('saas', 'messages'), { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
                 const data = await res.json();
                 allMessagesData = data || [];
                 const tbody = document.getElementById('messages-body');
@@ -744,7 +779,7 @@
             const title = document.getElementById('msg-title').value;
             const body = document.getElementById('msg-body').value;
             try {
-                await fetch('api_index.php/saas/messages', {
+                await fetch(apiUrl('saas', 'messages'), {
                     method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
                     body: JSON.stringify({ title, message: body, target_tenants: ['all'], theme: document.getElementById('msg-theme').value, show_once: document.getElementById('msg-show-once').checked ? 1 : 0 })
                 });
@@ -754,7 +789,7 @@
         async function deleteMessage(id) {
             if(!confirm('حذف الرسالة؟')) return;
             try {
-                await fetch('api_index.php/saas/messages', { method: 'DELETE', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN }, body: JSON.stringify({ id }) });
+                await fetch(apiUrl('saas', 'messages'), { method: 'DELETE', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN }, body: JSON.stringify({ id }) });
                 loadMessages();
             } catch(e) {}
         }
