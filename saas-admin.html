@@ -163,13 +163,14 @@
                                 <th>الشركة / النطاق</th>
                                 <th>المالك</th>
                                 <th>الباقة</th>
+                                <th>المساحة المستهلكة</th>
                                 <th>الحالة</th>
                                 <th>تاريخ الانتهاء</th>
                                 <th>إجراءات</th>
                             </tr>
                         </thead>
                         <tbody id="tenants-body">
-                            <tr><td colspan="6" style="text-align:center;">جاري التحميل...</td></tr>
+                            <tr><td colspan="7" style="text-align:center;">جاري التحميل...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -355,6 +356,8 @@
         let allTenants = [];
         let allMessagesData = [];
         let allPlans = JSON.parse(localStorage.getItem('saas_plans') || '[]');
+        // Must be declared before initDashboard() is called (Nginx: PATH_INFO not supported)
+        let useQueryParams = true;
         
         if(allPlans.length === 0) {
             allPlans = [
@@ -422,33 +425,18 @@
             renderPlans();
         }
 
-        // Helper: build API URL with automatic fallback to query params
-        let useQueryParams = false;
+        // Helper: build API URL using query params (Nginx doesn't support PHP PATH_INFO)
         function apiUrl(resource, action, subAction) {
-            if (useQueryParams) {
-                let url = `api_index.php?r=${resource}&a=${action}`;
-                if (subAction) url += `&a2=${subAction}`;
-                return url;
-            }
-            let url = `api_index.php/${resource}/${action}`;
-            if (subAction) url += `/${subAction}`;
+            let url = `api_index.php?r=${resource}&a=${action}`;
+            if (subAction) url += `&a2=${subAction}`;
             return url;
         }
 
         async function loadTenants() {
             const tbody = document.getElementById('tenants-body');
             try {
-                let url = apiUrl('saas', 'tenants');
-                let res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
-                
-                // If PATH_INFO failed (404/500), retry with query params
-                if ((res.status === 404 || res.status === 500) && !useQueryParams) {
-                    console.warn('PATH_INFO not supported, switching to query params...');
-                    useQueryParams = true;
-                    url = apiUrl('saas', 'tenants');
-                    res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
-                }
-
+                const url = apiUrl('saas', 'tenants');
+                const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
                 const data = await res.json();
                 console.log('Tenants API response:', res.status, data);
 
@@ -458,13 +446,12 @@
                     populateUserTenantSelect();
                     updateKPIs();
                 } else {
-                    // Show error in table
                     const msg = data.error || JSON.stringify(data);
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#ef4444;">❌ خطأ من الخادم: ${msg}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#ef4444;">❌ خطأ: ${msg}</td></tr>`;
                     console.error('API error:', data);
                 }
             } catch (e) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#ef4444;">❌ فشل الاتصال بالـ API: ${e.message}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#ef4444;">❌ فشل الاتصال: ${e.message}</td></tr>`;
                 console.error('Fetch error:', e);
             }
         }
@@ -521,14 +508,21 @@
                     }
 
                     let planId = localStorage.getItem('tenant_plan_' + t.id) || 1;
-                    let plan = allPlans.find(p => p.id == planId) || allPlans[0] || {name: 'غير محدد', maxUsers: '-'};
+                    let plan = allPlans.find(p => p.id == planId) || allPlans[0] || {name: 'غير محدد', maxUsers: '-', storage: '-'};
                     let maxUsers = localStorage.getItem('tenant_max_users_' + t.id) || plan.maxUsers || '-';
+
+                    let storageBytes = parseInt(t.storage_used) || 0;
+                    let storageStr = storageBytes + ' B';
+                    if (storageBytes >= 1073741824) storageStr = (storageBytes / 1073741824).toFixed(2) + ' GB';
+                    else if (storageBytes >= 1048576) storageStr = (storageBytes / 1048576).toFixed(2) + ' MB';
+                    else if (storageBytes >= 1024) storageStr = (storageBytes / 1024).toFixed(2) + ' KB';
 
                     tbody.innerHTML += `
                         <tr>
                             <td><strong>${t.company_name || '—'}</strong><br><small style="color:var(--text-secondary)">${t.subdomain || '—'}.elsajana.com</small></td>
                             <td>${t.owner_name || '-'}<br><small>${t.owner_phone || ''}</small></td>
                             <td><span class="badge badge-plan">${plan.name}</span><br><small style="color:var(--text-secondary)">الحد: ${maxUsers} مستخدم</small></td>
+                            <td style="direction: ltr;">${storageStr} <br><small style="color:var(--text-secondary)">الحد: ${plan.storage || '-'} GB</small></td>
                             <td>${statusBadge}</td>
                             <td>${validStr}</td>
                             <td>
@@ -546,7 +540,7 @@
                     console.error('Error rendering tenant row:', t, rowErr);
                 }
             });
-            if(filtered.length === 0) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا يوجد بيانات</td></tr>';
+            if(filtered.length === 0) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا يوجد بيانات</td></tr>';
         }
 
         // Add User & Reset Pass Logic (Simulated for SaaS)
@@ -724,10 +718,7 @@
         async function deleteTenant(id) {
             if(!confirm('هل أنت متأكد من الحذف النهائي؟')) return;
             try {
-                let delUrl = useQueryParams
-                    ? `api_index.php?r=saas&a=tenants&a2=delete&id=${id}`
-                    : `api_index.php/saas/tenants/delete?id=${id}`;
-                const res = await fetch(delUrl, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
+                const res = await fetch(`api_index.php?r=saas&a=tenants&a2=delete&id=${id}`, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
                 const data = await res.json();
                 if(data.success) { alert('تم الحذف'); loadTenants(); }
             } catch(e) {}

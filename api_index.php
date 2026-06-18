@@ -250,7 +250,27 @@ if ($token === $saasSecret) {
         // GET all tenants (only when no sub-action like /delete)
         if ($method === 'GET' && $action === 'tenants' && !isset($requestUri[$base_index + 3])) {
             $stmt = $pdo->query("SELECT id, company_name, subdomain, owner_name, owner_phone, owner_email, status, valid_until, created_at FROM tenants ORDER BY created_at DESC");
-            jsonResponse($stmt->fetchAll());
+            $tenants = $stmt->fetchAll();
+            
+            // Calculate storage size for each tenant (sum of LENGTH(data) across all tenant-aware tables)
+            $tables = ["users", "customers", "suppliers", "items", "inventory", "sales_invoices", "purchase_invoices", "receipts", "payments", "journal_vouchers", "settings", "warehouses", "banks", "categories", "roles", "checks", "gl_entries", "single_receipts", "single_payments", "partners", "employees", "payroll", "reserved_sales", "delivery_notes", "accounts"];
+            $unionQueries = [];
+            foreach ($tables as $t) {
+                $unionQueries[] = "SELECT tenant_id, IFNULL(SUM(LENGTH(data)), 0) as sz FROM $t GROUP BY tenant_id";
+            }
+            try {
+                $sql = "SELECT tenant_id, SUM(sz) as total_size FROM (" . implode(" UNION ALL ", $unionQueries) . ") as all_sizes GROUP BY tenant_id";
+                $sizeStmt = $pdo->query($sql);
+                $sizes = $sizeStmt->fetchAll(PDO::FETCH_KEY_PAIR);
+            } catch (Exception $e) {
+                $sizes = [];
+            }
+            
+            foreach ($tenants as &$tenant) {
+                $tenant['storage_used'] = isset($sizes[$tenant['id']]) ? (int)$sizes[$tenant['id']] : 0;
+            }
+            
+            jsonResponse($tenants);
         }
         if ($method === 'POST' && $action === 'tenants' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'update') {
             $tenantId = intval($input['id'] ?? 0);
