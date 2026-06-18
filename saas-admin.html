@@ -161,6 +161,7 @@
                         <thead>
                             <tr>
                                 <th>الشركة / النطاق</th>
+                                <th>اسم المستخدم</th>
                                 <th>المالك</th>
                                 <th>الباقة</th>
                                 <th>المساحة المستهلكة</th>
@@ -170,7 +171,7 @@
                             </tr>
                         </thead>
                         <tbody id="tenants-body">
-                            <tr><td colspan="7" style="text-align:center;">جاري التحميل...</td></tr>
+                            <tr><td colspan="8" style="text-align:center;">جاري التحميل...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -520,6 +521,7 @@
                     tbody.innerHTML += `
                         <tr>
                             <td><strong>${t.company_name || '—'}</strong><br><small style="color:var(--text-secondary)">${t.subdomain || '—'}.elsajana.com</small></td>
+                            <td><span style="color:var(--primary-accent); font-weight: bold;">${t.admin_username || 'غير متوفر'}</span></td>
                             <td>${t.owner_name || '-'}<br><small>${t.owner_phone || ''}</small></td>
                             <td><span class="badge badge-plan">${plan.name}</span><br><small style="color:var(--text-secondary)">الحد: ${maxUsers} مستخدم</small></td>
                             <td style="direction: ltr;">${storageStr} <br><small style="color:var(--text-secondary)">الحد: ${plan.storage || '-'} GB</small></td>
@@ -540,7 +542,7 @@
                     console.error('Error rendering tenant row:', t, rowErr);
                 }
             });
-            if(filtered.length === 0) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا يوجد بيانات</td></tr>';
+            if(filtered.length === 0) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">لا يوجد بيانات</td></tr>';
         }
 
         // Add User & Reset Pass Logic (Simulated for SaaS)

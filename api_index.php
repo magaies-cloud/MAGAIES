@@ -249,7 +249,7 @@ if ($token === $saasSecret) {
         }
         // GET all tenants (only when no sub-action like /delete)
         if ($method === 'GET' && $action === 'tenants' && !isset($requestUri[$base_index + 3])) {
-            $stmt = $pdo->query("SELECT id, company_name, subdomain, owner_name, owner_phone, owner_email, status, valid_until, created_at FROM tenants ORDER BY created_at DESC");
+            $stmt = $pdo->query("SELECT t.id, t.company_name, t.subdomain, t.owner_name, t.owner_phone, t.owner_email, t.status, t.valid_until, t.created_at, (SELECT username FROM users WHERE tenant_id = t.id AND role = 'admin' LIMIT 1) AS admin_username FROM tenants t ORDER BY t.created_at DESC");
             $tenants = $stmt->fetchAll();
             
             // Calculate storage size for each tenant (sum of LENGTH(data) across all tenant-aware tables)
