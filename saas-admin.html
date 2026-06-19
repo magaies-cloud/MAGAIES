@@ -613,7 +613,7 @@
                     if(t.status === 'suspended') statusColor = '#ef4444'; // Red
 
                     const statusBadge = `
-                        <select onchange="updateTenantStatus(${t.id}, this.value)" style="padding: 6px 12px; border-radius: 20px; background: rgba(0,0,0,0.3); color: ${statusColor}; border: 1px solid ${statusColor}; font-family: Tajawal; cursor: pointer; outline: none; width: 130px; font-weight: bold; text-align: center;">
+                        <select onchange="updateTenantStatus(${t.id}, this.value, this)" style="padding: 6px 12px; border-radius: 20px; background: rgba(0,0,0,0.3); color: ${statusColor}; border: 1px solid ${statusColor}; font-family: Tajawal; cursor: pointer; outline: none; width: 130px; font-weight: bold; text-align: center;">
                             <option value="active" ${t.status === 'active' ? 'selected' : ''} style="color:#10b981;">نشط</option>
                             <option value="pending" ${t.status === 'pending' ? 'selected' : ''} style="color:#f59e0b;">قيد المراجعة</option>
                             <option value="suspended" ${t.status === 'suspended' ? 'selected' : ''} style="color:#ef4444;">موقوف</option>
@@ -923,7 +923,12 @@
             } catch(e) {}
         }
 
-        async function updateTenantStatus(id, newStatus) {
+        async function updateTenantStatus(id, newStatus, selectEl) {
+            if (selectEl) {
+                let color = newStatus === 'active' ? '#10b981' : (newStatus === 'pending' ? '#f59e0b' : '#ef4444');
+                selectEl.style.color = color;
+                selectEl.style.borderColor = color;
+            }
             try {
                 const res = await fetch(apiUrl('saas', 'tenants', 'update'), {
                     method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
