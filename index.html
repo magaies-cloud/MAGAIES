@@ -297,7 +297,7 @@
                     grid.innerHTML = '';
                     data.plans.forEach((plan, index) => {
                         const isRecommended = index === 1; // Middle plan is usually recommended
-                        const badgeHtml = isRecommended ? '<div class="plan-badge">الأكثر شيوعاً</div>' : '';
+                        const badgeHtml = isRecommended ? '<div class="plan-badge">الأكثر شيوعاً</div>' : (plan.isTrial ? '<div class="plan-badge" style="background:#10b981;">باقة تجريبية</div>' : '');
                         const btnClass = isRecommended ? 'btn-primary' : 'btn-nav';
                         const btnStyle = isRecommended ? 'width: 100%; border-radius: 12px;' : 'width: 100%; text-align:center; background:rgba(255,255,255,0.05);';
                         

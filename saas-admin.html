@@ -228,6 +228,7 @@
                             <tr>
                                 <th>الاسم</th>
                                 <th>السعر ($)</th>
+                                <th>المدة</th>
                                 <th>الحد الأقصى للمستخدمين</th>
                                 <th>المساحة</th>
                                 <th>إجراءات</th>
@@ -323,8 +324,13 @@
             <input type="hidden" id="plan-id">
             <div class="form-group"><label>اسم الباقة</label><input type="text" id="plan-name"></div>
             <div class="form-group"><label>السعر الشهري ($)</label><input type="number" id="plan-price"></div>
+            <div class="form-group"><label>مدة الباقة (بالأيام)</label><input type="number" id="plan-duration" value="30" placeholder="مثال: 30"></div>
             <div class="form-group"><label>الحد الأقصى للمستخدمين</label><input type="number" id="plan-users"></div>
             <div class="form-group"><label>المساحة (GB)</label><input type="number" id="plan-storage"></div>
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="plan-is-trial" style="width: auto;">
+                <label for="plan-is-trial" style="margin: 0; color: var(--primary-accent);">تحديد كباقة تجريبية مجانية</label>
+            </div>
             <div class="modal-actions">
                 <button class="btn-primary" style="flex:1;" onclick="savePlan()">حفظ</button>
             </div>
@@ -694,10 +700,13 @@
             const tbody = document.getElementById('plans-body');
             tbody.innerHTML = '';
             allPlans.forEach(p => {
+                let badge = p.isTrial ? '<span style="background:var(--primary-accent);color:#000;padding:2px 6px;border-radius:4px;font-size:0.7rem;">تجريبية</span>' : '';
+                let durationTxt = p.duration ? `${p.duration} يوم` : 'غير محدد';
                 tbody.innerHTML += `
                     <tr>
-                        <td><strong style="color:var(--primary-accent)">${p.name}</strong></td>
+                        <td><strong style="color:var(--primary-accent)">${p.name}</strong> ${badge}</td>
                         <td>$${p.price}</td>
+                        <td>${durationTxt}</td>
                         <td>${p.maxUsers} مستخدم</td>
                         <td>${p.storage} GB</td>
                         <td><button class="btn-primary" style="padding:5px 10px; font-size:0.8rem;" onclick="editPlan(${p.id})">تعديل</button></td>
@@ -716,8 +725,10 @@
             document.getElementById('plan-id').value = '';
             document.getElementById('plan-name').value = '';
             document.getElementById('plan-price').value = '';
+            document.getElementById('plan-duration').value = '30';
             document.getElementById('plan-users').value = '';
             document.getElementById('plan-storage').value = '';
+            document.getElementById('plan-is-trial').checked = false;
             document.getElementById('plan-modal').style.display = 'flex';
         }
         function editPlan(id) {
@@ -725,8 +736,10 @@
             document.getElementById('plan-id').value = p.id;
             document.getElementById('plan-name').value = p.name;
             document.getElementById('plan-price').value = p.price;
+            document.getElementById('plan-duration').value = p.duration || 30;
             document.getElementById('plan-users').value = p.maxUsers;
             document.getElementById('plan-storage').value = p.storage;
+            document.getElementById('plan-is-trial').checked = !!p.isTrial;
             document.getElementById('plan-modal').style.display = 'flex';
         }
         async function savePlan() {
@@ -735,8 +748,10 @@
                 id: id ? parseInt(id) : Date.now(),
                 name: document.getElementById('plan-name').value,
                 price: document.getElementById('plan-price').value,
+                duration: document.getElementById('plan-duration').value,
                 maxUsers: document.getElementById('plan-users').value,
-                storage: document.getElementById('plan-storage').value
+                storage: document.getElementById('plan-storage').value,
+                isTrial: document.getElementById('plan-is-trial').checked
             };
             if(id) {
                 let idx = allPlans.findIndex(x => x.id == id);
