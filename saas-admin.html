@@ -143,6 +143,7 @@
             <button class="tab-btn active" onclick="switchTab('tab-tenants', this)">🏢 المشتركون</button>
             <button class="tab-btn" onclick="switchTab('tab-users', this)">👥 إدارة المستخدمين</button>
             <button class="tab-btn" onclick="switchTab('tab-plans', this)">💎 الباقات (Plans)</button>
+            <button class="tab-btn" onclick="switchTab('tab-partners', this)">🤝 الشركاء والعملاء</button>
             <button class="tab-btn" onclick="switchTab('tab-broadcasts', this)">📣 رسائل النظام</button>
             <button class="tab-btn" onclick="switchTab('tab-settings', this)">⚙️ الإعدادات</button>
         </div>
@@ -234,6 +235,31 @@
             </div>
         </div>
 
+        
+        <!-- TAB: PARTNERS -->
+        <div id="tab-partners" class="tab-content">
+            <div class="glass-panel">
+                <div class="flex-between" style="margin-bottom: 20px;">
+                    <h3>الشركاء والعملاء</h3>
+                    <button class="btn-primary" onclick="openPartnerModal()">+ شريك جديد</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>اسم الشريك</th>
+                                <th>الشعار</th>
+                                <th>الرابط</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="partners-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- TAB: BROADCASTS -->
         <div id="tab-broadcasts" class="tab-content">
             <div class="glass-panel">
@@ -300,6 +326,21 @@
         </div>
     </div>
 
+    
+    <!-- Partner Modal -->
+    <div id="partner-modal" class="modal-overlay">
+        <div class="glass-panel modal-content">
+            <div class="modal-header"><h3>إدارة شريك</h3><button class="close-btn" onclick="closeModal('partner-modal')">&times;</button></div>
+            <input type="hidden" id="partner-id">
+            <div class="form-group"><label>الاسم</label><input type="text" id="partner-name"></div>
+            <div class="form-group"><label>رابط الشعار</label><input type="text" id="partner-logo"></div>
+            <div class="form-group"><label>رابط الموقع</label><input type="text" id="partner-link"></div>
+            <div class="modal-actions">
+                <button class="btn-primary" style="flex:1;" onclick="savePartner()">حفظ</button>
+            </div>
+        </div>
+    </div>
+
     <!-- User Modal (Add User / Reset Pass) -->
     <div id="user-action-modal" class="modal-overlay">
         <div class="glass-panel modal-content">
@@ -356,18 +397,12 @@
         let SAAS_TOKEN = sessionStorage.getItem('saas_token');
         let allTenants = [];
         let allMessagesData = [];
-        let allPlans = JSON.parse(localStorage.getItem('saas_plans') || '[]');
+        let allPlans = [];
+        let allPartners = [];
         // Must be declared before initDashboard() is called (Nginx: PATH_INFO not supported)
         let useQueryParams = true;
         
-        if(allPlans.length === 0) {
-            allPlans = [
-                {id: 1, name: 'باقة الأساسية', price: 50, maxUsers: 5, storage: 10},
-                {id: 2, name: 'باقة المتقدمة', price: 120, maxUsers: 20, storage: 50},
-                {id: 3, name: 'باقة الشركات (VIP)', price: 300, maxUsers: 100, storage: 200}
-            ];
-            localStorage.setItem('saas_plans', JSON.stringify(allPlans));
-        }
+        
 
         if (SAAS_TOKEN) {
             document.getElementById('login-modal').style.display = 'none';
@@ -423,7 +458,14 @@
             await loadTenants();
             loadGlobalSettings();
             loadMessages();
+            try {
+                const resPub = await fetch('api_index.php?r=public');
+                const dataPub = await resPub.json();
+                allPlans = dataPub.plans || [];
+                allPartners = dataPub.partners || [];
+            } catch(e) {}
             renderPlans();
+            renderPartners();
         }
 
         // Helper: build API URL using query params (Nginx doesn't support PHP PATH_INFO)
@@ -664,7 +706,7 @@
                 let idx = allPlans.findIndex(x => x.id == id);
                 allPlans[idx] = p;
             } else { allPlans.push(p); }
-            localStorage.setItem('saas_plans', JSON.stringify(allPlans));
+            try { await fetch(apiUrl('saas', 'settings', 'plans'), { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN }, body: JSON.stringify({ plans: allPlans }) }); } catch(e){}
             closeModal('plan-modal');
             renderPlans();
             updateKPIs();
@@ -676,6 +718,63 @@
             if(plan) {
                 document.getElementById('edit-tenant-max-users').value = plan.maxUsers;
             }
+        }
+
+        
+        function renderPartners() {
+            const tbody = document.getElementById('partners-body');
+            tbody.innerHTML = '';
+            allPartners.forEach(p => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${p.name}</strong></td>
+                        <td><img src="${p.logo}" height="30" alt="logo"></td>
+                        <td><a href="${p.link}" target="_blank" style="color:var(--primary-accent)">رابط</a></td>
+                        <td>
+                            <button class="btn-primary" style="padding:5px 10px; font-size:0.8rem;" onclick="editPartner(${p.id})">تعديل</button>
+                            <button class="btn-danger" style="padding:5px 10px; font-size:0.8rem;" onclick="deletePartner(${p.id})">حذف</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        function openPartnerModal() {
+            document.getElementById('partner-id').value = '';
+            document.getElementById('partner-name').value = '';
+            document.getElementById('partner-logo').value = '';
+            document.getElementById('partner-link').value = '';
+            document.getElementById('partner-modal').style.display = 'flex';
+        }
+        function editPartner(id) {
+            let p = allPartners.find(x => x.id === id);
+            document.getElementById('partner-id').value = p.id;
+            document.getElementById('partner-name').value = p.name;
+            document.getElementById('partner-logo').value = p.logo;
+            document.getElementById('partner-link').value = p.link;
+            document.getElementById('partner-modal').style.display = 'flex';
+        }
+        async function savePartner() {
+            let id = document.getElementById('partner-id').value;
+            let p = {
+                id: id ? parseInt(id) : Date.now(),
+                name: document.getElementById('partner-name').value,
+                logo: document.getElementById('partner-logo').value,
+                link: document.getElementById('partner-link').value
+            };
+            if(id) {
+                let idx = allPartners.findIndex(x => x.id == id);
+                allPartners[idx] = p;
+            } else { allPartners.push(p); }
+            
+            try { await fetch(apiUrl('saas', 'settings', 'partners'), { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN }, body: JSON.stringify({ partners: allPartners }) }); } catch(e){}
+            closeModal('partner-modal');
+            renderPartners();
+        }
+        async function deletePartner(id) {
+            if(!confirm('هل أنت متأكد من الحذف؟')) return;
+            allPartners = allPartners.filter(x => x.id !== id);
+            try { await fetch(apiUrl('saas', 'settings', 'partners'), { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN }, body: JSON.stringify({ partners: allPartners }) }); } catch(e){}
+            renderPartners();
         }
 
         // Original API calls ported

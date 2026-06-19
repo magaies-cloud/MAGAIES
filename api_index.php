@@ -66,6 +66,38 @@ function generateToken() {
 // PUBLIC ROUTES (No token required)
 // ---------------------------------------------------------
 
+if ($resource === 'public' && $method === 'GET') {
+    $data = ['plans' => [], 'partners' => []];
+    try {
+        $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('saas_plans', 'saas_partners')");
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rows as $row) {
+            if ($row['setting_key'] === 'saas_plans') $data['plans'] = json_decode($row['setting_value'], true);
+            if ($row['setting_key'] === 'saas_partners') $data['partners'] = json_decode($row['setting_value'], true);
+        }
+    } catch (Exception $e) {}
+    
+    // Add default plans if empty
+    if (empty($data['plans'])) {
+        $data['plans'] = [
+            ['id' => 1, 'name' => 'باقة الأساسية', 'price' => 50, 'maxUsers' => 5, 'storage' => 10],
+            ['id' => 2, 'name' => 'باقة المتقدمة', 'price' => 120, 'maxUsers' => 20, 'storage' => 50],
+            ['id' => 3, 'name' => 'باقة الشركات (VIP)', 'price' => 300, 'maxUsers' => 100, 'storage' => 200]
+        ];
+    }
+    // Add default partners if empty
+    if (empty($data['partners'])) {
+        $data['partners'] = [
+            ['id' => 1, 'name' => 'مقاييس', 'logo' => 'https://ui-avatars.com/api/?name=%D9%85%D9%82%D8%A7%D9%8A%D9%8A%D8%B3&background=38bdf8&color=fff&size=100', 'link' => '#'],
+            ['id' => 2, 'name' => 'مصنع الأسعد', 'logo' => 'https://ui-avatars.com/api/?name=%D9%85%D8%B5%D9%86%D8%B9+%D8%A7%D9%84%D8%A3%D8%B3%D8%B9%D8%AF&background=818cf8&color=fff&size=100', 'link' => '#'],
+            ['id' => 3, 'name' => 'أوميغا', 'logo' => 'https://ui-avatars.com/api/?name=%D8%A3%D9%88%D9%85%D9%8A%D8%BA%D8%A7&background=10b981&color=fff&size=100', 'link' => '#'],
+            ['id' => 4, 'name' => 'بنك الخرطوم', 'logo' => 'https://ui-avatars.com/api/?name=%D8%A8%D9%86%D9%83+%D8%A7%D9%84%D8%AE%D8%B1%D8%B7%D9%88%D9%85&background=f59e0b&color=fff&size=100', 'link' => '#'],
+            ['id' => 5, 'name' => 'بنك المزارع', 'logo' => 'https://ui-avatars.com/api/?name=%D8%A8%D9%86%D9%83+%D8%A7%D9%84%D9%85%D8%B2%D8%A7%D8%B1%D8%B9&background=ef4444&color=fff&size=100', 'link' => '#']
+        ];
+    }
+    jsonResponse($data);
+}
+
 // TEMP DEBUG: ?r=debug&token=YOUR_TOKEN
 if ($resource === 'debug' && $method === 'GET') {
     $reqToken = $_GET['token'] ?? '';
@@ -320,6 +352,16 @@ if ($token === $saasSecret) {
             } catch (Exception $e) {
                 jsonResponse(['error' => 'Database error: ' . $e->getMessage()], 500);
             }
+        }
+        if ($method === 'POST' && $action === 'settings' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'plans') {
+            $val = json_encode($input['plans'] ?? []);
+            $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('saas_plans', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$val, $val]);
+            jsonResponse(['success' => true]);
+        }
+        if ($method === 'POST' && $action === 'settings' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'partners') {
+            $val = json_encode($input['partners'] ?? []);
+            $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('saas_partners', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$val, $val]);
+            jsonResponse(['success' => true]);
         }
         // --- BROADCAST MESSAGES ---
         if ($method === 'GET' && $action === 'messages') {

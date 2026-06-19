@@ -109,8 +109,12 @@
 
 
     <div class="register-card">
-        <h2 style="margin-top:0;">🚀 ابدأ مع السجانة ERP</h2>
-        <p style="color: #94a3b8; font-size:0.9rem;">أنشئ مساحة العمل الخاصة بشركتك في ثوانٍ</p>
+        <h2 style="margin-top:0;">🚀 إنشاء حساب جديد</h2>
+        <p style="color: #94a3b8; font-size:0.9rem;">أنشئ حساب شركتك في ثوانٍ لاستخدام السجانة ERP</p>
+        
+        <div id="plan-info" style="display:none; background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); padding:10px; border-radius:10px; margin-bottom:15px; color:#38bdf8; font-weight:bold;">
+            الباقة المختارة: <span id="plan-name-display">جاري التحميل...</span>
+        </div>
 
         <div class="input-group">
             <label>اسم الشركة (عربي أو إنجليزي)</label>
@@ -156,6 +160,19 @@
 
     <script src="js/api.js"></script>
     <script>
+        let selectedPlanId = new URLSearchParams(window.location.search).get('plan');
+        
+        if (selectedPlanId) {
+            document.getElementById('plan-info').style.display = 'block';
+            fetch('api_index.php?r=public').then(r => r.json()).then(data => {
+                if(data.plans) {
+                    const p = data.plans.find(x => x.id == selectedPlanId);
+                    if(p) document.getElementById('plan-name-display').innerText = p.name;
+                    else document.getElementById('plan-info').style.display = 'none';
+                }
+            }).catch(() => { document.getElementById('plan-info').style.display = 'none'; });
+        }
+
         async function handleRegister() {
             const company_name = document.getElementById('company_name').value;
             const subdomain = document.getElementById('subdomain').value;
@@ -172,13 +189,15 @@
 
             try {
                 const res = await apiFetch('/auth/register', 'POST', {
-                    company_name, subdomain, username, password, owner_name, owner_phone, owner_email
+                    company_name, subdomain, username, password, owner_name, owner_phone, owner_email, plan_id: selectedPlanId
                 });
 
                 if(res.success) {
-                    alert('تم إنشاء مساحة العمل بنجاح! يمكنك الآن تسجيل الدخول.');
-                    // In a real DNS wildcard setup, we might redirect to:
-                    // window.location.href = `https://${subdomain}.elsajana.com/login.html`;
+                    if (selectedPlanId && res.tenant_id) {
+                        // Attempt to save plan locally as a fallback (admin usually manages this)
+                        localStorage.setItem('tenant_plan_' + res.tenant_id, selectedPlanId);
+                    }
+                    alert('تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.');
                     window.location.href = 'login.html';
                 }
             } catch(e) {
