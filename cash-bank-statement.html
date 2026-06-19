@@ -337,11 +337,25 @@
     </div>
 
     <script>
+
         // Set Default Dates to First Day of current month and Today
         const today = new Date();
         const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
         document.getElementById('date-from').valueAsDate = firstDay;
         document.getElementById('date-to').valueAsDate = today;
+
+        // Load Accounts (Banks/Safes) dynamically
+        document.addEventListener('DOMContentLoaded', () => {
+            const banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+            const select = document.getElementById('account-select');
+            select.innerHTML = '<option value="">اختر الحساب...</option>';
+            banks.forEach(b => {
+                select.innerHTML += `<option value="${b.id}">${b.name} ${b.type === 'safe' ? '(خزينة)' : '(بنك)'}</option>`;
+            });
+            if(banks.length > 0) select.value = banks[0].id;
+        });
+
+        function parseNum(n) { return parseFloat(String(n || '0').replace(/,/g, '')) || 0; }
 
         // Animated Number Counter
         function animateValue(obj, start, end, duration) {
@@ -361,7 +375,14 @@
         }
 
         function generateReport() {
-            // UI States for Loading
+            const accountId = parseInt(document.getElementById('account-select').value);
+            if (!accountId) return alert('الرجاء اختيار حساب!');
+            
+            const dateFrom = document.getElementById('date-from').value;
+            const dateTo = document.getElementById('date-to').value;
+            
+            if (!dateFrom || !dateTo) return alert('الرجاء تحديد فترة التاريخ!');
+
             const btnText = document.getElementById('run-text');
             const btnIcon = document.getElementById('run-icon');
             const loader = document.getElementById('run-loader');
@@ -371,85 +392,146 @@
             btnText.innerText = 'جاري المعالجة...';
             btnIcon.style.display = 'none';
             loader.style.display = 'block';
-            
-            // Hide KPIs initially
             kpiCards.forEach(card => card.classList.remove('show'));
 
-            // Print info
-            const accName = document.getElementById('account-select').options[document.getElementById('account-select').selectedIndex].text;
-            document.getElementById('print-subtitle').innerText = 'الحساب: ' + accName + ' | الفترة من: ' + document.getElementById('date-from').value + ' إلى: ' + document.getElementById('date-to').value;
+            const accSelect = document.getElementById('account-select');
+            const accName = accSelect.options[accSelect.selectedIndex].text;
+            document.getElementById('print-subtitle').innerText = 'الحساب: ' + accName + ' | الفترة من: ' + dateFrom + ' إلى: ' + dateTo;
 
-            // Clear table with loading shimmer
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px; color:#38bdf8;">جاري جلب السجلات وتدقيق الأرصدة... ⏳</td></tr>';
-            
-            // Simulate API request delay for WOW effect
+
             setTimeout(() => {
-                const dummyData = [
-                    { date: '2023-10-01', ref: 'رصيد افتتاحي', note: 'رصيد مرحل من الفترة المالية السابقة', in: 0, out: 0, isOpening: true, bal: 250000.00 },
-                    { date: '2023-10-03', ref: 'س.ق-1029', note: 'مقبوضات مبيعات نقدية معرض أ (الفاتورة #992)', in: 45500.00, out: 0 },
-                    { date: '2023-10-06', ref: 'س.ص-4432', note: 'سداد دفعة للمورد شركة الأمان الذهبية', in: 0, out: 25000.00 },
-                    { date: '2023-10-09', ref: 'س.ق-1035', note: 'تحصيل شيك بنكي من العميل محمد أحمد (شيك #433)', in: 15000.00, out: 0 },
-                    { date: '2023-10-12', ref: 'تحويل-092', note: 'تحويل نقدية إلى الخزينة الرئيسية المركزية', in: 0, out: 12000.00 },
-                    { date: '2023-10-15', ref: 'س.ص-4440', note: 'مصروفات تشغيلية نثرية (صيانة معدات وتكييف)', in: 0, out: 4500.00 },
-                    { date: '2023-10-18', ref: 'س.ق-1044', note: 'مبيعات نقدية مجمعة (نهاية الأسبوع)', in: 85000.00, out: 0 },
-                ];
-
-                let openingBal = 0, totalIn = 0, totalOut = 0, currentBal = 0;
-                tbody.innerHTML = '';
-
-                // Build Rows
-                dummyData.forEach((row, index) => {
-                    let tr = document.createElement('tr');
-                    // Add animation delay for staggered row entrance
-                    tr.style.transitionDelay = \`\${index * 0.05}s\`;
-
-                    if (row.isOpening) {
-                        openingBal = row.bal; currentBal = openingBal;
-                        tr.style.background = 'rgba(56,189,248,0.05)';
-                        tr.innerHTML = \`
-                            <td>\${row.date}</td>
-                            <td><span class="tag-ref" style="background:rgba(255,255,255,0.1); color:#fff; border-color:rgba(255,255,255,0.2);">\${row.ref}</span></td>
-                            <td style="color:#94a3b8; font-weight:600;">\${row.note}</td>
-                            <td>—</td>
-                            <td>—</td>
-                            <td class="val-bal">\${currentBal.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
-                        \`;
-                    } else {
-                        currentBal = currentBal + row.in - row.out;
-                        totalIn += row.in; totalOut += row.out;
-                        tr.innerHTML = \`
-                            <td><span style="color:#cbd5e1;">\${row.date}</span></td>
-                            <td><span class="tag-ref">\${row.ref}</span></td>
-                            <td style="color:#e2e8f0;">\${row.note}</td>
-                            <td class="val-in">\${row.in > 0 ? '+' + row.in.toLocaleString() : '—'}</td>
-                            <td class="val-out">\${row.out > 0 ? '-' + row.out.toLocaleString() : '—'}</td>
-                            <td class="val-bal">\${currentBal.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
-                        \`;
+                // Fetch Data from Local Storage
+                let txns = [];
+                
+                // Single Receipts (Cash In)
+                const receipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+                receipts.forEach(r => {
+                    if (parseInt(r.toAccount) === accountId && r.toType === 'bank') {
+                        txns.push({
+                            date: r.date,
+                            ref: 'س.ق-' + r.id,
+                            note: r.statement || 'مقبوضات',
+                            in: parseNum(r.amountLocal),
+                            out: 0
+                        });
                     }
-                    tbody.appendChild(tr);
-                    
-                    // Trigger row entrance animation
-                    setTimeout(() => { tr.classList.add('show-row'); }, 50);
                 });
 
-                // Reset Button State
+                // Single Payments (Cash Out)
+                const payments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+                payments.forEach(p => {
+                    if (parseInt(p.fromAccount) === accountId && p.fromType === 'bank') {
+                        txns.push({
+                            date: p.date,
+                            ref: 'س.ص-' + p.id,
+                            note: p.statement || 'مدفوعات',
+                            in: 0,
+                            out: parseNum(p.amountLocal)
+                        });
+                    }
+                });
+
+                // Journal Vouchers (can be both)
+                const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
+                jvs.forEach(v => {
+                    if (!v.lines) return;
+                    v.lines.forEach(line => {
+                        if (parseInt(line.account) === accountId && line.type === 'bank') {
+                            let deb = parseNum(line.debit);
+                            let cred = parseNum(line.credit);
+                            // In a Bank/Safe ledger: Debit = Cash In, Credit = Cash Out
+                            txns.push({
+                                date: v.date,
+                                ref: 'ق.ي-' + v.id,
+                                note: v.statement || line.note || 'تسوية يومية',
+                                in: deb,
+                                out: cred
+                            });
+                        }
+                    });
+                });
+
+                // Calculate Opening Balance (all txns BEFORE dateFrom)
+                let openingBal = 0;
+                let filteredTxns = [];
+                
+                // Get bank opening balance from definition if available
+                const banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+                const b = banks.find(x => x.id == accountId);
+                if (b && b.openingBalance) {
+                    openingBal += parseNum(b.openingBalance);
+                }
+
+                txns.forEach(t => {
+                    if (t.date < dateFrom) {
+                        openingBal += (t.in - t.out);
+                    } else if (t.date <= dateTo) {
+                        filteredTxns.push(t);
+                    }
+                });
+
+                filteredTxns.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                let totalIn = 0, totalOut = 0, currentBal = openingBal;
+                tbody.innerHTML = '';
+
+                // Insert Opening Balance Row
+                let openingTr = document.createElement('tr');
+                openingTr.style.transitionDelay = '0s';
+                openingTr.style.background = 'rgba(56,189,248,0.05)';
+                openingTr.innerHTML = `
+                    <td>${dateFrom}</td>
+                    <td><span class="tag-ref" style="background:rgba(255,255,255,0.1); color:#fff; border-color:rgba(255,255,255,0.2);">رصيد افتتاحي</span></td>
+                    <td style="color:#94a3b8; font-weight:600;">رصيد مرحل من الفترة السابقة</td>
+                    <td>—</td>
+                    <td>—</td>
+                    <td class="val-bal">${currentBal.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+                `;
+                tbody.appendChild(openingTr);
+                setTimeout(() => { openingTr.classList.add('show-row'); }, 50);
+
+                // Build Transaction Rows
+                filteredTxns.forEach((row, index) => {
+                    let tr = document.createElement('tr');
+                    tr.style.transitionDelay = `${(index + 1) * 0.05}s`;
+                    
+                    currentBal = currentBal + row.in - row.out;
+                    totalIn += row.in; totalOut += row.out;
+                    
+                    tr.innerHTML = `
+                        <td><span style="color:#cbd5e1;">${row.date}</span></td>
+                        <td><span class="tag-ref">${row.ref}</span></td>
+                        <td style="color:#e2e8f0;">${row.note}</td>
+                        <td class="val-in">${row.in > 0 ? '+' + row.in.toLocaleString(undefined, {minimumFractionDigits:2}) : '—'}</td>
+                        <td class="val-out">${row.out > 0 ? '-' + row.out.toLocaleString(undefined, {minimumFractionDigits:2}) : '—'}</td>
+                        <td class="val-bal">${currentBal.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+                    `;
+                    
+                    tbody.appendChild(tr);
+                    setTimeout(() => { tr.classList.add('show-row'); }, 50 + ((index + 1) * 50));
+                });
+
+                if(filteredTxns.length === 0) {
+                    tbody.innerHTML += '<tr><td colspan="6" style="text-align:center; padding:30px; color:#94a3b8;">لا توجد حركات خلال هذه الفترة.</td></tr>';
+                }
+
                 btnText.innerText = 'استخراج الكشف الذكي';
                 btnIcon.style.display = 'inline';
                 loader.style.display = 'none';
 
-                // Show KPIs with Staggered Animation
                 kpiCards.forEach((card, index) => {
                     setTimeout(() => { card.classList.add('show'); }, index * 100);
                 });
 
-                // Animate Numbers
                 animateValue(document.getElementById('kpi-opening'), 0, openingBal, 1000);
                 animateValue(document.getElementById('kpi-in'), 0, totalIn, 1200);
                 animateValue(document.getElementById('kpi-out'), 0, totalOut, 1400);
                 animateValue(document.getElementById('kpi-balance'), 0, currentBal, 1800);
 
-            }, 800); // 800ms loading effect
+            }, 800);
         }
+
     </script>
 </body>
 </html>
