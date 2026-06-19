@@ -22,38 +22,49 @@ function safeGetJSON(key, defaultVal) {
     return defaultVal;
 }
 
-let ROLES = safeGetJSON('erp_roles_v1', []);
-let USERS = safeGetJSON('erp_users_v1', []);
+let ROLES = [];
+let USERS = [];
 
-// Seed Default Roles and Admin User if empty
-if (ROLES.length === 0) {
-    const defaultPermissions = {};
-    MODULES.forEach(m => {
-        defaultPermissions[m.id] = { view: true, add: true, edit: true, delete: true };
-    });
-    
-    ROLES.push({
-        id: 'role_' + Date.now(),
-        name: 'مدير نظام',
-        securityLevel: 5,
-        permissions: defaultPermissions,
-        isSystem: true // cannot be deleted
-    });
-    localStorage.setItem('erp_roles_v1', JSON.stringify(ROLES));
-}
+function loadData() {
+    ROLES = safeGetJSON('erp_roles_v1', []);
+    USERS = safeGetJSON('erp_users_v1', []);
 
-if (USERS.length === 0) {
-    USERS.push({
-        id: 'u_' + Date.now(),
-        username: 'admin',
-        password: '', // Should be set by user securely
-        fullName: 'أحمد الإداري',
-        roleId: ROLES[0].id,
-        warehouse: 'all',
-        status: 'active',
-        isSystem: true // cannot be deleted
-    });
-    localStorage.setItem('erp_users_v1', JSON.stringify(USERS));
+    let changes = false;
+    // Seed Default Roles and Admin User if empty
+    if (ROLES.length === 0) {
+        const defaultPermissions = {};
+        MODULES.forEach(m => {
+            defaultPermissions[m.id] = { view: true, add: true, edit: true, delete: true };
+        });
+        
+        ROLES.push({
+            id: 'role_' + Date.now(),
+            name: 'مدير نظام',
+            securityLevel: 5,
+            permissions: defaultPermissions,
+            isSystem: true // cannot be deleted
+        });
+        changes = true;
+    }
+
+    if (USERS.length === 0) {
+        USERS.push({
+            id: 'u_' + Date.now(),
+            username: 'admin',
+            password: '', // Should be set by user securely
+            fullName: 'مدير النظام',
+            roleId: ROLES[0].id,
+            warehouse: 'all',
+            status: 'active',
+            isSystem: true // cannot be deleted
+        });
+        changes = true;
+    }
+
+    if (changes) {
+        localStorage.setItem('erp_roles_v1', JSON.stringify(ROLES));
+        localStorage.setItem('erp_users_v1', JSON.stringify(USERS));
+    }
 }
 
 // ════════════════════════════════════════
@@ -65,6 +76,9 @@ document.addEventListener('DBReady', () => {
         window.location.href = 'login.html';
         return;
     }
+
+    // Load data safely now that DB is ready
+    loadData();
 
     // Initialize Dropdowns
     populateRoleDropdown();
@@ -90,6 +104,13 @@ function showToast(message, type = 'success', duration = 3000) {
         toast.classList.add('hide');
         setTimeout(() => toast.remove(), 400);
     }, duration);
+}
+
+function flashError(elementId) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    el.classList.add('error-flash');
+    setTimeout(() => el.classList.remove('error-flash'), 800);
 }
 
 // ════════════════════════════════════════
@@ -266,8 +287,14 @@ function saveUser() {
         });
     }
 
-    if (!fullName || !username || !roleId) {
-        showToast('يرجى تعبئة جميع الحقول المطلوبة', 'warning');
+    let hasError = false;
+    if (!fullName) { flashError('user-fullname'); hasError = true; }
+    if (!username) { flashError('user-username'); hasError = true; }
+    if (!roleId) { flashError('user-role'); hasError = true; }
+    if (!id && !password) { flashError('user-password'); hasError = true; }
+
+    if (hasError) {
+        showToast('يرجى تعبئة الحقول المحددة باللون الأحمر', 'warning');
         return;
     }
     
@@ -492,7 +519,8 @@ function saveRole() {
     const securityLevel = parseInt(document.getElementById('role-security-level').value);
 
     if (!name) {
-        showToast('يرجى إدخال اسم الدور الوظيفي', 'warning');
+        flashError('role-name');
+        showToast('يرجى إدخال اسم الدور الوظيفي (مظلل باللون الأحمر)', 'warning');
         return;
     }
 
