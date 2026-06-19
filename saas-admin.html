@@ -428,18 +428,39 @@
 
         async function loginSaas() {
             const pass = document.getElementById('saas-pass').value.trim();
-            if (!pass) return;
+            if (!pass) return alert('الرجاء إدخال الرمز');
+            
+            const btn = document.querySelector('.login-box button');
+            const oldText = btn.innerText;
+            btn.innerText = 'جاري التحقق...';
+            btn.disabled = true;
+
             try {
                 const res = await fetch('api_saas_auth.php?_=' + Date.now(), {
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pass })
                 });
-                const data = await res.json();
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch(e) {
+                    alert('استجابة غير مفهومة من الخادم: ' + text.substring(0, 60));
+                    throw e;
+                }
+                
                 if (data.success) {
                     SAAS_TOKEN = data.token;
                     sessionStorage.setItem('saas_token', SAAS_TOKEN);
                     location.reload();
-                } else alert('رمز خاطئ');
-            } catch (e) { alert('فشل الاتصال بالخادم'); }
+                } else {
+                    alert(data.error || 'رمز خاطئ');
+                }
+            } catch (e) { 
+                console.error(e);
+            } finally {
+                btn.innerText = oldText;
+                btn.disabled = false;
+            }
         }
 
         function logoutSaas() { sessionStorage.removeItem('saas_token'); location.reload(); }
