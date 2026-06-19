@@ -408,7 +408,7 @@
             });
         }
 
-        let SAAS_TOKEN = sessionStorage.getItem('saas_token');
+        let SAAS_TOKEN = localStorage.getItem('saas_token');
         let allTenants = [];
         let allMessagesData = [];
         let allPlans = [];
@@ -450,7 +450,8 @@
                 
                 if (data.success) {
                     SAAS_TOKEN = data.token;
-                    sessionStorage.setItem('saas_token', SAAS_TOKEN);
+                    localStorage.setItem('saas_token', SAAS_TOKEN);
+                    alert("تم التحقق بنجاح! جاري تحويلك للوحة التحكم...");
                     location.reload();
                 } else {
                     alert(data.error || 'رمز خاطئ');
@@ -463,7 +464,7 @@
             }
         }
 
-        function logoutSaas() { sessionStorage.removeItem('saas_token'); location.reload(); }
+        function logoutSaas() { localStorage.removeItem('saas_token'); location.reload(); }
 
         function switchTab(tabId, btn) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
