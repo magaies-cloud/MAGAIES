@@ -76,8 +76,10 @@
         .form-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.9rem; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); color: white; box-sizing: border-box; }
 
-        #login-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
-        .login-box { width: 90%; max-width: 400px; text-align: center; }
+        #login-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
+        .login-box { width: 90%; max-width: 400px; text-align: center; padding: 40px 35px; }
+        .login-box input { width: 100%; padding: 14px; border-radius: 10px; background: rgba(255,255,255,0.07); color: #fff; border: 1px solid var(--glass-border); font-size: 1.1rem; box-sizing: border-box; margin-bottom: 15px; font-family: 'Tajawal',sans-serif; }
+        .login-box input:focus { outline: none; border-color: var(--primary-accent); }
         
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal-content { width: 90%; max-width: 500px; }
@@ -101,8 +103,8 @@
                 <h2 style="color: #fff; font-weight: 900; margin: 0;">SaaS Super Admin</h2>
                 <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 5px;">أدخل رمز المشرف للمتابعة</p>
             </div>
-            <input type="password" id="saas-pass" placeholder="Master Token" style="margin-bottom: 20px; text-align:center;">
-            <button class="btn-primary" onclick="loginSaas()" style="width: 100%;">تسجيل الدخول</button>
+            <input type="password" id="saas-pass" placeholder="Master Token">
+            <button class="btn-primary" onclick="loginSaas()" style="width: 100%; font-family:'Tajawal',sans-serif;">تسجيل الدخول</button>
         </div>
     </div>
 
