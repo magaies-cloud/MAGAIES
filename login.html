@@ -351,14 +351,10 @@
                             if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.localhost')) {
                                 redirectUrl = `http://${userSubdomain}.localhost${port}/dashboard-pro.html`;
                             } else {
-                                // Workaround for DNS Wildcard not being propagated/configured
-                                let baseHost = host;
-                                if (host.split('.').length > 2) {
-                                    const parts = host.split('.');
-                                    parts.shift();
-                                    baseHost = parts.join('.');
-                                }
-                                redirectUrl = `http://${baseHost}${port}/dashboard-pro.html?tenant=${userSubdomain}`;
+                                let parts = host.split('.');
+                                if (parts.length > 2) parts.shift();
+                                let baseDomain = parts.join('.') || 'elsajana.com';
+                                redirectUrl = `http://${userSubdomain}.${baseDomain}${port}/dashboard-pro.html`;
                             }
                         }
                         window.location.href = redirectUrl;
