@@ -19,13 +19,14 @@
 
                 if (needsRedirect) {
                     const port = window.location.port ? ':' + window.location.port : '';
+                    const protocol = window.location.protocol;
                     if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.localhost')) {
-                        window.location.href = `http://${userSubdomain}.localhost${port}${window.location.pathname}`;
+                        window.location.href = `${protocol}//${userSubdomain}.localhost${port}${window.location.pathname}`;
                     } else {
                         let parts = host.split('.');
                         if (parts.length > 2) parts.shift();
                         let baseDomain = parts.join('.') || 'elsajana.com';
-                        window.location.href = `http://${userSubdomain}.${baseDomain}${port}${window.location.pathname}`;
+                        window.location.href = `${protocol}//${userSubdomain}.${baseDomain}${port}${window.location.pathname}`;
                     }
                     return; // Stop execution to allow redirect
                 }
