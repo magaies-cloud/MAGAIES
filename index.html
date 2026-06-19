@@ -63,9 +63,10 @@
         .partners p { text-align: center; color: var(--text-secondary); font-size: 1.1rem; font-weight: 600; margin-bottom: 30px; letter-spacing: 1px; }
         .marquee-wrapper { display: flex; width: 200%; animation: scroll 30s linear infinite; gap: 40px; align-items: center; }
         .marquee-wrapper:hover { animation-play-state: paused; }
-        .partner-logo { filter: grayscale(100%) opacity(0.7); transition: all 0.3s; display: flex; align-items: center; gap: 15px; color: #fff; text-decoration: none; font-size: 1.2rem; font-weight: 700; }
+        .partner-logo { filter: grayscale(100%) opacity(0.7); transition: all 0.3s; display: flex; align-items: center; gap: 15px; color: #fff; text-decoration: none; font-size: 1.2rem; font-weight: 700; white-space: nowrap; }
         .partner-logo img { height: 50px; border-radius: 10px; }
         .partner-logo:hover { filter: grayscale(0%) opacity(1); transform: scale(1.05); }
+        .partner-avatar { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900; color: #fff; flex-shrink: 0; }
         
         @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(50%); } }
 
@@ -150,8 +151,16 @@
     <section class="partners">
         <p>يثق بنا قادة الصناعة والأعمال</p>
         <div class="marquee-wrapper" id="partners-marquee">
-            <!-- Will be loaded dynamically -->
-            <div style="color:var(--text-secondary); text-align:center; width:100%;">جاري تحميل قائمة الشركاء...</div>
+            <a href="#" class="partner-logo"><span class="partner-avatar" style="background:#38bdf8;">م</span> مقاييس</a>
+            <a href="#" class="partner-logo"><span class="partner-avatar" style="background:#818cf8;">أ</span> مصنع الأسعد</a>
+            <a href="#" class="partner-logo"><span class="partner-avatar" style="background:#10b981;">أ</span> أوميغا</a>
+            <a href="#" class="partner-logo"><span class="partner-avatar" style="background:#f59e0b;">ب</span> بنك الخرطوم</a>
+            <a href="#" class="partner-logo"><span class="partner-avatar" style="background:#ef4444;">ب</span> بنك المزارع</a>
+            <a href="#" class="partner-logo"><span class="partner-avatar" style="background:#38bdf8;">م</span> مقاييس</a>
+            <a href="#" class="partner-logo"><span class="partner-avatar" style="background:#818cf8;">أ</span> مصنع الأسعد</a>
+            <a href="#" class="partner-logo"><span class="partner-avatar" style="background:#10b981;">أ</span> أوميغا</a>
+            <a href="#" class="partner-logo"><span class="partner-avatar" style="background:#f59e0b;">ب</span> بنك الخرطوم</a>
+            <a href="#" class="partner-logo"><span class="partner-avatar" style="background:#ef4444;">ب</span> بنك المزارع</a>
         </div>
     </section>
 
@@ -198,7 +207,40 @@
         <p class="section-subtitle">خطط تسعير مرنة تناسب الشركات الناشئة والمؤسسات الكبرى على حد سواء. ابدأ الآن واكتشف الفارق.</p>
         
         <div class="pricing-grid" id="pricing-grid">
-            <div style="text-align:center; width:100%; color:var(--text-secondary);">جاري تحميل الباقات...</div>
+            <div class="plan-card">
+                <h3 class="plan-name">باقة الأساسية</h3>
+                <div class="plan-price">50<span>$</span><span>/شهرياً</span></div>
+                <ul class="plan-features">
+                    <li>حتى 5 مستخدمين</li>
+                    <li>مساحة تخزينية 10 GB</li>
+                    <li>دعم فني وتحديثات مستمرة</li>
+                    <li>نسخ احتياطي يومي تلقائي</li>
+                </ul>
+                <a href="register.html?plan=1" class="btn-nav" style="width:100%; text-align:center; background:rgba(255,255,255,0.05);">اختيار الباقة</a>
+            </div>
+            <div class="plan-card recommended">
+                <div class="plan-badge">الأكثر شيوعاً</div>
+                <h3 class="plan-name">باقة المتقدمة</h3>
+                <div class="plan-price">120<span>$</span><span>/شهرياً</span></div>
+                <ul class="plan-features">
+                    <li>حتى 20 مستخدمين</li>
+                    <li>مساحة تخزينية 50 GB</li>
+                    <li>دعم فني وتحديثات مستمرة</li>
+                    <li>نسخ احتياطي يومي تلقائي</li>
+                </ul>
+                <a href="register.html?plan=2" class="btn-primary" style="width:100%; border-radius:12px;">اختيار الباقة</a>
+            </div>
+            <div class="plan-card">
+                <h3 class="plan-name">باقة الشركات (VIP)</h3>
+                <div class="plan-price">300<span>$</span><span>/شهرياً</span></div>
+                <ul class="plan-features">
+                    <li>حتى 100 مستخدمين</li>
+                    <li>مساحة تخزينية 200 GB</li>
+                    <li>دعم فني وتحديثات مستمرة</li>
+                    <li>نسخ احتياطي يومي تلقائي</li>
+                </ul>
+                <a href="register.html?plan=3" class="btn-nav" style="width:100%; text-align:center; background:rgba(255,255,255,0.05);">اختيار الباقة</a>
+            </div>
         </div>
     </section>
 
