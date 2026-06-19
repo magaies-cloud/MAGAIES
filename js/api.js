@@ -15,6 +15,11 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
         headers['Authorization'] = `Bearer ${token}`;
     }
 
+    const tenantSubdomain = getSubdomain();
+    if (tenantSubdomain) {
+        headers['X-Tenant-Subdomain'] = tenantSubdomain;
+    }
+
     const options = {
         method,
         headers
@@ -50,8 +55,22 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
 
 // Utility to extract tenant subdomain if needed
 function getSubdomain() {
+    // 1. Check URL parameters for localhost testing
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('tenant')) {
+        return params.get('tenant');
+    }
+    
+    // 2. Check hostname for live environment
     const host = window.location.hostname;
     const parts = host.split('.');
+    
+    // For localhost testing with modified hosts file (e.g. alofoq.localhost)
+    if (host.endsWith('.localhost') && parts.length >= 2) {
+        return parts[0];
+    }
+    
+    // For live environment (e.g. alofoq.elsajana.com)
     if (parts.length > 2) {
         return parts[0];
     }

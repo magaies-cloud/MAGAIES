@@ -1,6 +1,37 @@
 
 // --- CLOUD SYNC ENGINE (Offline-First to SaaS Bridge) ---
 (function() {
+    // --- Subdomain Enforcement for Logged-In Users ---
+    try {
+        const userStr = localStorage.getItem('user');
+        if (userStr && !window.location.pathname.includes('login.html') && !window.location.pathname.includes('register.html') && !window.location.pathname.includes('saas-admin.html') && !window.location.pathname.includes('index.html')) {
+            const user = JSON.parse(userStr);
+            const userSubdomain = user.subdomain;
+            if (userSubdomain) {
+                const host = window.location.hostname;
+                let needsRedirect = false;
+                
+                if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.localhost')) {
+                    if (host !== `${userSubdomain}.localhost`) needsRedirect = true;
+                } else if (!host.startsWith(userSubdomain + '.')) {
+                    needsRedirect = true;
+                }
+
+                if (needsRedirect) {
+                    const port = window.location.port ? ':' + window.location.port : '';
+                    if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.localhost')) {
+                        window.location.href = `http://${userSubdomain}.localhost${port}${window.location.pathname}`;
+                    } else {
+                        let parts = host.split('.');
+                        if (parts.length > 2) parts.shift();
+                        let baseDomain = parts.join('.') || 'elsajana.com';
+                        window.location.href = `http://${userSubdomain}.${baseDomain}${port}${window.location.pathname}`;
+                    }
+                    return; // Stop execution to allow redirect
+                }
+            }
+        }
+    } catch(e) {}
     const SYNC_PULL_URL = "api_index.php/sync/pull";
     const SYNC_PUSH_URL = "api_index.php/sync/push";
 
@@ -377,11 +408,37 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('glass-alert-modal').remove();
         }
 
+        // --- Smart Type Detection ---
+        let type = 'info';
+        let iconHtml = 'ℹ️';
+        let mainColorRGB = '56, 189, 248'; // Blue
+        let btnGradient = 'linear-gradient(135deg, #38bdf8, #0284c7)';
+        let iconAnimation = 'floatIcon 2s ease-in-out infinite';
+
+        if (message.includes('نجاح') || message.includes('تم ') || message.includes('بنجاح')) {
+            type = 'success';
+            iconHtml = '✅';
+            mainColorRGB = '16, 185, 129'; // Green
+            btnGradient = 'linear-gradient(135deg, #10b981, #059669)';
+            iconAnimation = 'bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        } else if (message.includes('خطأ') || message.includes('فشل') || message.includes('غير صحيح') || message.includes('معلّق') || message.includes('موقوف') || message.includes('مستخد') || message.includes('مطلوب')) {
+            type = 'error';
+            iconHtml = '❌';
+            mainColorRGB = '239, 68, 68'; // Red
+            btnGradient = 'linear-gradient(135deg, #ef4444, #b91c1c)';
+            iconAnimation = 'shakeIcon 0.5s';
+        } else if (message.includes('تنبيه') || message.includes('تحذير') || message.includes('هل أنت متأكد')) {
+            type = 'warning';
+            iconHtml = '⚠️';
+            mainColorRGB = '245, 158, 11'; // Orange
+            btnGradient = 'linear-gradient(135deg, #f59e0b, #d97706)';
+        }
+
         const overlay = document.createElement('div');
         overlay.id = 'glass-alert-modal';
         overlay.style.cssText = `
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
             z-index: 9999999; display: flex; justify-content: center; align-items: center;
             opacity: 0; animation: fadeInGlass 0.3s forwards;
             font-family: 'Inter', sans-serif; direction: rtl;
@@ -389,9 +446,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const modal = document.createElement('div');
         modal.style.cssText = `
-            background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-            border-radius: 20px; padding: 30px; width: 90%; max-width: 420px; text-align: center;
+            background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(${mainColorRGB}, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            border-radius: 20px; padding: 40px 30px 30px; width: 90%; max-width: 400px; text-align: center;
             transform: scale(0.9) translateY(20px); animation: slideUpGlass 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             position: relative; overflow: hidden;
         `;
@@ -399,24 +456,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const glow = document.createElement('div');
         glow.style.cssText = `
             position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
-            width: 150px; height: 150px; background: radial-gradient(circle, rgba(56,189,248,0.4) 0%, transparent 70%);
+            width: 150px; height: 150px; background: radial-gradient(circle, rgba(${mainColorRGB},0.4) 0%, transparent 70%);
             border-radius: 50%; pointer-events: none;
         `;
 
         const icon = document.createElement('div');
-        icon.innerHTML = '⚠️';
-        icon.style.cssText = `font-size: 3.5rem; margin-bottom: 15px; filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.6)); animation: floatIcon 2s ease-in-out infinite;`;
+        icon.innerHTML = iconHtml;
+        icon.style.cssText = `font-size: 4rem; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(${mainColorRGB}, 0.6)); animation: ${iconAnimation};`;
 
         const text = document.createElement('p');
         text.innerText = message;
-        text.style.cssText = `color: #f8fafc; font-size: 1.1rem; font-weight: 600; line-height: 1.6; margin-bottom: 25px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);`;
+        text.style.cssText = `color: #f8fafc; font-size: 1.1rem; font-weight: 600; line-height: 1.6; margin-bottom: 30px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);`;
 
         const btn = document.createElement('button');
         btn.innerText = 'حسناً';
         btn.style.cssText = `
-            background: linear-gradient(135deg, #38bdf8, #0284c7); color: white; border: none; padding: 12px 30px;
+            background: ${btnGradient}; color: white; border: none; padding: 12px 30px;
             border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4); transition: all 0.2s ease; width: 100%;
+            box-shadow: 0 4px 15px rgba(${mainColorRGB}, 0.4); transition: all 0.2s ease; width: 100%;
+            outline: none;
         `;
         
         btn.onmouseover = () => btn.style.transform = 'translateY(-2px)';
@@ -437,6 +495,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 @keyframes slideUpGlass { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
                 @keyframes slideDownGlass { from { opacity: 1; transform: scale(1) translateY(0); } to { opacity: 0; transform: scale(0.9) translateY(20px); } }
                 @keyframes floatIcon { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+                @keyframes bounceIn { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+                @keyframes shakeIcon { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 50% { transform: translateX(10px); } 75% { transform: translateX(-10px); } }
             `;
             document.head.appendChild(style);
         }

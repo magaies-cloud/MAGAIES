@@ -101,7 +101,7 @@ http.createServer((req, res) => {
     });
 
 }).listen(PORT, () => {
-    console.log(`✅ السيرفر المحلي يعمل على: http://localhost:${PORT}/login.html`);
+    console.log(`✅ السيرفر المحلي يعمل على: http://localhost:${PORT}/index.html`);
     console.log(`🔗 طلبات API تُعاد توجيهها إلى السيرفر المدمج (PHP) على المنفذ 8080 لتجربة التعديلات محلياً.`);
     
     // تشغيل خادم PHP المدمج تلقائياً
@@ -111,4 +111,3 @@ http.createServer((req, res) => {
         console.error('❌ فشل تشغيل خادم PHP:', err.message);
     });
 });
-

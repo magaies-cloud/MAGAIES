@@ -85,8 +85,8 @@
         /* Pricing Section */
         .pricing { padding: 100px 5%; position: relative; background: radial-gradient(circle at center, rgba(139,92,246,0.05), transparent 60%); }
         .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; max-width: 1400px; margin: 0 auto; }
-        .plan-card { padding: 50px 40px; border-radius: 30px; text-align: center; transition: all 0.4s; position: relative; background: var(--surface-color); border: 1px solid var(--glass-border); display: flex; flex-direction: column; }
-        .plan-card:hover { transform: translateY(-10px); box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
+        .plan-card { padding: 50px 40px; border-radius: 30px; text-align: center; transition: all 0.4s; position: relative; background: var(--surface-color); border: 2px solid var(--glass-border); display: flex; flex-direction: column; }
+        .plan-card:hover { transform: translateY(-10px); box-shadow: 0 30px 60px rgba(0,0,0,0.5); border-color: var(--primary-accent); }
         .plan-name { font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 10px; }
         .plan-price { font-size: 3.5rem; font-weight: 900; color: var(--primary-accent); margin-bottom: 5px; font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; }
         .plan-price span { font-size: 1.2rem; color: var(--text-secondary); font-weight: 500; margin-top: 15px; margin-right: 5px; }
@@ -295,9 +295,15 @@
                 const grid = document.getElementById('pricing-grid');
                 if(data && data.plans && data.plans.length > 0) {
                     grid.innerHTML = '';
-                    data.plans.forEach((plan, index) => {
-                        const isRecommended = index === 1; // Middle plan is usually recommended
-                        const badgeHtml = isRecommended ? '<div class="plan-badge">الأكثر شيوعاً</div>' : (plan.isTrial ? '<div class="plan-badge" style="background:#10b981;">باقة تجريبية</div>' : '');
+                    // وضع الباقة التجريبية في الأول
+                    const normalPlans = data.plans.filter(p => !(p.isTrial || p.name.includes('تجريب')));
+                    const trialPlans = data.plans.filter(p => p.isTrial || p.name.includes('تجريب'));
+                    const sortedPlans = [...trialPlans, ...normalPlans];
+
+                    sortedPlans.forEach((plan, index) => {
+                        const isRecommended = plan.name.includes('متقدمة');
+                        const isTrialPlan = plan.isTrial || plan.name.includes('تجريب');
+                        const badgeHtml = isRecommended ? '<div class="plan-badge">الأكثر شيوعاً</div>' : (isTrialPlan ? '<div class="plan-badge" style="background:#10b981;">باقة تجريبية</div>' : '');
                         const btnClass = isRecommended ? 'btn-primary' : 'btn-nav';
                         const btnStyle = isRecommended ? 'width: 100%; border-radius: 12px;' : 'width: 100%; text-align:center; background:rgba(255,255,255,0.05);';
                         
@@ -305,7 +311,7 @@
                             <div class="plan-card ${isRecommended ? 'recommended' : ''}">
                                 ${badgeHtml}
                                 <h3 class="plan-name">${plan.name}</h3>
-                                <div class="plan-price">${plan.isTrial ? 'مجاناً' : plan.price + '<span>$</span>'}<span style="font-size:0.9rem;opacity:0.8;display:block;">${plan.duration ? 'لمدة ' + plan.duration + ' يوماً' : 'شهرياً'}</span></div>
+                                <div class="plan-price">${isTrialPlan ? 'مجاناً' : plan.price + '<span>$</span>'}<span style="font-size:0.9rem;opacity:0.8;display:block;">${plan.duration ? 'لمدة ' + plan.duration + ' يوماً' : 'شهرياً'}</span></div>
                                 <ul class="plan-features">
                                     <li>حتى ${plan.maxUsers} مستخدمين</li>
                                     <li>مساحة تخزينية ${plan.storage} GB</li>

@@ -157,6 +157,9 @@ if ($resource === 'auth') {
         $owner_name   = trim($input['owner_name'] ?? '');
         $owner_phone  = trim($input['owner_phone'] ?? '');
         $owner_email  = trim($input['owner_email'] ?? '');
+        $owner_phone2 = trim($input['owner_phone2'] ?? '');
+        $plan_id      = $input['plan_id'] ?? null;
+        $receipt_base64 = $input['receipt_base64'] ?? null;
 
         if (!$company_name || !$subdomain || !$username || !$password || !$owner_name || !$owner_phone) {
             jsonResponse(['error' => 'جميع الحقول الأساسية مطلوبة'], 400);
@@ -170,12 +173,51 @@ if ($resource === 'auth') {
             jsonResponse(['error' => 'النطاق يجب أن يحتوي على أحرف صغيرة وأرقام وشرطات فقط'], 400);
         }
 
+        // Determine if plan is trial
+        $isTrial = true;
+        $status = 'active';
+        $activation_delay_hours = 12;
+        try {
+            $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('saas_plans', 'activation_delay_hours')");
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $plans = [];
+            foreach ($rows as $row) {
+                if ($row['setting_key'] === 'saas_plans') $plans = json_decode($row['setting_value'], true);
+                if ($row['setting_key'] === 'activation_delay_hours') $activation_delay_hours = (int)$row['setting_value'];
+            }
+            if ($plans && $plan_id) {
+                foreach ($plans as $p) {
+                    if ($p['id'] == $plan_id) {
+                        $isTrial = !empty($p['isTrial']) || strpos($p['name'], 'تجريب') !== false;
+                        break;
+                    }
+                }
+            }
+        } catch(Exception $e) {}
+
+        $receipt_path = null;
+        if (!$isTrial) {
+            $status = 'pending';
+            if ($receipt_base64) {
+                if (strpos($receipt_base64, 'data:') === 0 && strpos($receipt_base64, ';base64,') !== false) {
+                    $parts = explode(';base64,', $receipt_base64);
+                    $mime = explode(':', $parts[0])[1] ?? 'image/png';
+                    $data = base64_decode($parts[1]);
+                    $ext = ($mime === 'application/pdf') ? 'pdf' : 'png';
+                    $filename = 'receipt_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
+                    $filepath = __DIR__ . '/uploads/receipts/' . $filename;
+                    file_put_contents($filepath, $data);
+                    $receipt_path = 'uploads/receipts/' . $filename;
+                }
+            }
+        }
+
         $pdo->beginTransaction();
         try {
             // Default valid_until is 14 days from now
             $valid_until = date('Y-m-d H:i:s', strtotime('+14 days'));
-            $stmt = $pdo->prepare("INSERT INTO tenants (company_name, subdomain, owner_name, owner_phone, owner_email, valid_until) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$company_name, $subdomain, $owner_name, $owner_phone, $owner_email, $valid_until]);
+            $stmt = $pdo->prepare("INSERT INTO tenants (company_name, subdomain, owner_name, owner_phone, phone2, owner_email, valid_until, status, receipt_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$company_name, $subdomain, $owner_name, $owner_phone, $owner_phone2, $owner_email, $valid_until, $status, $receipt_path]);
             $tenant_id = $pdo->lastInsertId();
 
             $hashed = password_hash($password, PASSWORD_DEFAULT);
@@ -183,7 +225,8 @@ if ($resource === 'auth') {
             $stmt->execute([$tenant_id, $username, $hashed]);
 
             $pdo->commit();
-            jsonResponse(['success' => true, 'message' => 'تم إنشاء الحساب بنجاح!']);
+            $msg = $isTrial ? 'تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.' : "تم إنشاء الحساب بنجاح! سيتم تفعيل حسابك خلال $activation_delay_hours ساعة.";
+            jsonResponse(['success' => true, 'message' => $msg, 'tenant_id' => $tenant_id]);
         } catch (Exception $e) {
             $pdo->rollBack();
             error_log('Register error: ' . $e->getMessage());
@@ -195,18 +238,35 @@ if ($resource === 'auth') {
     if ($action === 'login' && $method === 'POST') {
         $username = trim($input['username'] ?? '');
         $password = $input['password'] ?? '';
+        $tenantSubdomain = $_SERVER['HTTP_X_TENANT_SUBDOMAIN'] ?? null;
 
         if (!$username || !$password) {
             jsonResponse(['error' => 'اسم المستخدم وكلمة المرور مطلوبان'], 400);
         }
 
-        $stmt = $pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE u.username = ?");
-        $stmt->execute([$username]);
-        $user = $stmt->fetch();
+        if ($tenantSubdomain) {
+            $stmt = $pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE u.username = ? AND t.subdomain = ?");
+            $stmt->execute([$username, $tenantSubdomain]);
+            $user = $stmt->fetch();
+        } else {
+            $stmt = $pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE u.username = ?");
+            $stmt->execute([$username]);
+            $users = $stmt->fetchAll();
+            if (count($users) > 1) {
+                jsonResponse(['error' => 'يوجد أكثر من شركة تستخدم نفس اسم المستخدم. يرجى تسجيل الدخول عبر الرابط المخصص لشركتك.'], 400);
+            }
+            $user = $users[0] ?? null;
+        }
 
         if ($user && password_verify($password, $user['password'])) {
+            if ($user['status'] === 'pending') {
+                jsonResponse(['error' => 'حساب شركتك لا يزال قيد المراجعة. للاستفسار تواصل معنا عبر واتساب: 0113981477'], 403);
+            }
+            if ($user['status'] === 'suspended') {
+                jsonResponse(['error' => 'حساب شركتك موقوف مؤقتاً. للاستفسار تواصل معنا عبر واتساب: 0113981477'], 403);
+            }
             if ($user['status'] !== 'active') {
-                jsonResponse(['error' => 'الحساب معلّق، يرجى التواصل مع الإدارة'], 403);
+                jsonResponse(['error' => 'الحساب معلّق، يرجى التواصل مع الإدارة. واتساب: 0113981477'], 403);
             }
             if (!empty($user['valid_until']) && strtotime($user['valid_until']) < time()) {
                 jsonResponse(['error' => 'انتهى اشتراكك، الرجاء التواصل مع الإدارة للتجديد'], 403);
@@ -281,7 +341,7 @@ if ($token === $saasSecret) {
         }
         // GET all tenants (only when no sub-action like /delete)
         if ($method === 'GET' && $action === 'tenants' && !isset($requestUri[$base_index + 3])) {
-            $stmt = $pdo->query("SELECT t.id, t.company_name, t.subdomain, t.owner_name, t.owner_phone, t.owner_email, t.status, t.valid_until, t.created_at, (SELECT username FROM users WHERE tenant_id = t.id AND role = 'admin' LIMIT 1) AS admin_username FROM tenants t ORDER BY t.created_at DESC");
+            $stmt = $pdo->query("SELECT t.id, t.company_name, t.subdomain, t.owner_name, t.owner_phone, t.phone2, t.owner_email, t.status, t.receipt_path, t.valid_until, t.created_at, (SELECT username FROM users WHERE tenant_id = t.id AND role = 'admin' LIMIT 1) AS admin_username FROM tenants t ORDER BY t.created_at DESC");
             $tenants = $stmt->fetchAll();
             
             // Calculate storage size for each tenant (sum of LENGTH(data) across all tenant-aware tables)
@@ -307,10 +367,19 @@ if ($token === $saasSecret) {
         if ($method === 'POST' && $action === 'tenants' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'update') {
             $tenantId = intval($input['id'] ?? 0);
             $newStatus = $input['status'] ?? 'active';
-            $newValidUntil = $input['valid_until'] ?? null;
             if (!$tenantId) jsonResponse(['error' => 'معرّف الشركة مطلوب'], 400);
             
-            $pdo->prepare("UPDATE tenants SET status = ?, valid_until = ? WHERE id = ?")->execute([$newStatus, $newValidUntil, $tenantId]);
+            if (array_key_exists('valid_until', $input)) {
+                $pdo->prepare("UPDATE tenants SET status = ?, valid_until = ? WHERE id = ?")->execute([$newStatus, $input['valid_until'], $tenantId]);
+            } else {
+                $pdo->prepare("UPDATE tenants SET status = ? WHERE id = ?")->execute([$newStatus, $tenantId]);
+            }
+            jsonResponse(['success' => true]);
+        }
+        if ($method === 'POST' && $action === 'tenants' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'activate') {
+            $tenantId = intval($input['id'] ?? 0);
+            if (!$tenantId) jsonResponse(['error' => 'معرّف الشركة مطلوب'], 400);
+            $pdo->prepare("UPDATE tenants SET status = 'active' WHERE id = ?")->execute([$tenantId]);
             jsonResponse(['success' => true]);
         }
         if ($method === 'POST' && $action === 'tenants' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'password') {
@@ -328,15 +397,24 @@ if ($token === $saasSecret) {
         // --- GLOBAL SETTINGS ---
         if ($method === 'GET' && $action === 'settings' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'exchange-rate') {
             try {
-                $stmt = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'exchange_rate'");
-                $val = $stmt->fetchColumn();
-                if ($val) {
-                    jsonResponse(json_decode($val, true));
-                } else {
-                    jsonResponse(['rate' => 1.0, 'visible' => false]);
+                $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('exchange_rate', 'activation_delay_hours')");
+                $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $res = ['rate' => 1.0, 'visible' => false, 'activation_delay_hours' => 12];
+                foreach ($rows as $row) {
+                    if ($row['setting_key'] === 'exchange_rate') {
+                        $ex = json_decode($row['setting_value'], true);
+                        if ($ex) {
+                            $res['rate'] = $ex['rate'] ?? 1.0;
+                            $res['visible'] = $ex['visible'] ?? false;
+                        }
+                    }
+                    if ($row['setting_key'] === 'activation_delay_hours') {
+                        $res['activation_delay_hours'] = (int)$row['setting_value'];
+                    }
                 }
+                jsonResponse($res);
             } catch (Exception $e) {
-                jsonResponse(['rate' => 1.0, 'visible' => false]);
+                jsonResponse(['rate' => 1.0, 'visible' => false, 'activation_delay_hours' => 12]);
             }
         }
         if ($method === 'POST' && $action === 'settings' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'exchange-rate') {
@@ -345,9 +423,12 @@ if ($token === $saasSecret) {
             }
             $rate = floatval($input['rate'] ?? 1.0);
             $visible = isset($input['visible']) ? (bool)$input['visible'] : false;
+            $activation_delay_hours = isset($input['activation_delay_hours']) ? (int)$input['activation_delay_hours'] : 12;
+            
             $val = json_encode(['rate' => $rate, 'visible' => $visible]);
             try {
                 $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('exchange_rate', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$val, $val]);
+                $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('activation_delay_hours', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$activation_delay_hours, $activation_delay_hours]);
                 jsonResponse(['success' => true, 'saved' => $val]);
             } catch (Exception $e) {
                 jsonResponse(['error' => 'Database error: ' . $e->getMessage()], 500);

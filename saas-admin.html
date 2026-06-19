@@ -159,7 +159,13 @@
                 <div class="flex-between" style="margin-bottom: 20px;">
                     <h3>سجل المشتركين</h3>
                     <div style="display:flex; gap:10px;">
-                        <input type="text" id="tenant-search" placeholder="بحث..." style="padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color:#fff; border: 1px solid var(--glass-border);" onkeyup="filterTenants()">
+                        <input type="text" id="tenant-search" placeholder="بحث ذكي (الشركة، النطاق، المالك، المستخدم، الباقة...)" style="padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color:#fff; border: 1px solid var(--glass-border); width: 350px;" onkeyup="filterTenants()">
+                        <select id="tenant-filter-status" style="padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color:#fff; border: 1px solid var(--glass-border);" onchange="filterTenants()">
+                            <option value="all">الكل</option>
+                            <option value="active">نشط</option>
+                            <option value="pending">قيد المراجعة</option>
+                            <option value="suspended">موقوف</option>
+                        </select>
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -303,6 +309,10 @@
                     <div class="form-group" style="display:flex; align-items:center; gap:10px;">
                         <input type="checkbox" id="global-exchange-visible">
                         <label style="margin:0;">إظهار السعر للمشتركين</label>
+                    </div>
+                    <div class="form-group">
+                        <label>زمن التفعيل المتوقع (بالساعات)</label>
+                        <input type="number" id="global-activation-delay" value="12">
                     </div>
                     <button class="btn-primary" onclick="saveGlobalSettings()" style="width:100%;">حفظ</button>
                 </div>
@@ -573,19 +583,42 @@
             const statusFilter = filterEl ? filterEl.value : 'all';
 
             const filtered = allTenants.filter(t => {
-                // Null-safe: some DB records may have null company_name or subdomain
                 const companyName = (t.company_name || '').toLowerCase();
                 const subdomain   = (t.subdomain || '').toLowerCase();
-                const mSearch = companyName.includes(search) || subdomain.includes(search);
+                const ownerName   = (t.owner_name || '').toLowerCase();
+                const ownerPhone  = (t.owner_phone || '').toLowerCase();
+                const adminUser   = (t.admin_username || '').toLowerCase();
+                
+                let planId = localStorage.getItem('tenant_plan_' + t.id) || 1;
+                let plan = allPlans.find(p => p.id == planId) || allPlans[0] || {name: ''};
+                const planName = (plan.name || '').toLowerCase();
+
+                const mSearch = search === '' || 
+                             companyName.includes(search) || 
+                             subdomain.includes(search) || 
+                             ownerName.includes(search) || 
+                             ownerPhone.includes(search) || 
+                             adminUser.includes(search) || 
+                             planName.includes(search);
+
                 const mStatus = statusFilter === 'all' || t.status === statusFilter;
                 return mSearch && mStatus;
             });
 
             filtered.forEach(t => {
                 try {
-                    const statusBadge = t.status === 'active'
-                        ? '<span class="badge badge-active">نشط</span>'
-                        : '<span class="badge badge-suspended">موقوف</span>';
+                    let statusColor = '#94a3b8'; // Default
+                    if(t.status === 'active') statusColor = '#10b981'; // Green
+                    if(t.status === 'pending') statusColor = '#f59e0b'; // Orange
+                    if(t.status === 'suspended') statusColor = '#ef4444'; // Red
+
+                    const statusBadge = `
+                        <select onchange="updateTenantStatus(${t.id}, this.value)" style="padding: 6px 12px; border-radius: 20px; background: rgba(0,0,0,0.3); color: ${statusColor}; border: 1px solid ${statusColor}; font-family: Tajawal; cursor: pointer; outline: none; width: 130px; font-weight: bold; text-align: center;">
+                            <option value="active" ${t.status === 'active' ? 'selected' : ''} style="color:#10b981;">نشط</option>
+                            <option value="pending" ${t.status === 'pending' ? 'selected' : ''} style="color:#f59e0b;">قيد المراجعة</option>
+                            <option value="suspended" ${t.status === 'suspended' ? 'selected' : ''} style="color:#ef4444;">موقوف</option>
+                        </select>
+                    `;
                     let validStr = '<span style="color:#ef4444">غير محدد</span>';
                     if(t.valid_until) {
                         const validDate = new Date(t.valid_until);
@@ -606,7 +639,7 @@
                         <tr>
                             <td><strong>${t.company_name || '—'}</strong><br><small style="color:var(--text-secondary)">${t.subdomain || '—'}.elsajana.com</small></td>
                             <td><span style="color:var(--primary-accent); font-weight: bold;">${t.admin_username || 'غير متوفر'}</span></td>
-                            <td>${t.owner_name || '-'}<br><small>${t.owner_phone || ''}</small></td>
+                            <td>${t.owner_name || '-'}<br><small>${t.owner_phone || ''}</small>${t.phone2 ? '<br><small>'+t.phone2+'</small>' : ''}</td>
                             <td><span class="badge badge-plan">${plan.name}</span><br><small style="color:var(--text-secondary)">الحد: ${maxUsers} مستخدم</small></td>
                             <td style="direction: ltr;">${storageStr} <br><small style="color:var(--text-secondary)">الحد: ${plan.storage || '-'} GB</small></td>
                             <td>${statusBadge}</td>
@@ -615,6 +648,8 @@
                                 <div class="dropdown" id="drop-${t.id}">
                                     <button class="btn-outline" onclick="toggleDropdown(${t.id}); event.stopPropagation();">إجراءات ▼</button>
                                     <div class="dropdown-content">
+                                        ${t.status === 'pending' ? `<button onclick="activateTenant(${t.id})" style="color:var(--success-color)">✅ تفعيل الحساب</button>` : ''}
+                                        ${t.receipt_path ? `<a href="${t.receipt_path}" target="_blank" style="display:block; padding:8px 12px; color:var(--primary-accent); text-decoration:none;">📄 عرض الإشعار</a>` : ''}
                                         <button onclick="openEditModal(${t.id})">⚙️ تعديل الصلاحية والباقة</button>
                                         <button onclick="deleteTenant(${t.id})" style="color:var(--danger-color)">🗑️ حذف</button>
                                     </div>
@@ -876,6 +911,35 @@
             } catch(e) {}
         }
 
+        async function activateTenant(id) {
+            if(!confirm('هل تأكدت من وصول الدفعة وتود تفعيل الحساب؟')) return;
+            try {
+                const res = await fetch(apiUrl('saas', 'tenants', 'activate'), {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
+                    body: JSON.stringify({ id })
+                });
+                const data = await res.json();
+                if(data.success) { alert('تم التفعيل بنجاح'); loadTenants(); }
+            } catch(e) {}
+        }
+
+        async function updateTenantStatus(id, newStatus) {
+            try {
+                const res = await fetch(apiUrl('saas', 'tenants', 'update'), {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
+                    body: JSON.stringify({ id, status: newStatus })
+                });
+                const data = await res.json();
+                if(!data.success) {
+                    alert('حدث خطأ أثناء تحديث الحالة');
+                    loadTenants(); // Revert
+                }
+            } catch(e) {
+                alert('فشل الاتصال');
+                loadTenants(); // Revert
+            }
+        }
+
         async function loadGlobalSettings() {
             try {
                 const res = await fetch(apiUrl('saas', 'settings', 'exchange-rate'), { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }});
@@ -883,6 +947,9 @@
                 if(data) {
                     document.getElementById('global-exchange-rate').value = data.rate || 1.0;
                     document.getElementById('global-exchange-visible').checked = data.visible === true || data.visible === 1;
+                    if(data.activation_delay_hours !== undefined) {
+                        document.getElementById('global-activation-delay').value = data.activation_delay_hours;
+                    }
                 }
             } catch(e) {}
         }
@@ -890,10 +957,11 @@
         async function saveGlobalSettings() {
             const rate = document.getElementById('global-exchange-rate').value;
             const visible = document.getElementById('global-exchange-visible').checked;
+            const activation_delay_hours = document.getElementById('global-activation-delay').value;
             try {
                 const res = await fetch(apiUrl('saas', 'settings', 'exchange-rate'), {
                     method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
-                    body: JSON.stringify({ rate, visible })
+                    body: JSON.stringify({ rate, visible, activation_delay_hours })
                 });
                 alert('تم حفظ الإعدادات');
             } catch(e) {}

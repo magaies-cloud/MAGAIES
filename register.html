@@ -22,7 +22,7 @@
         }
         .register-card {
             width: 90%;
-            max-width: 450px;
+            max-width: 800px;
             padding: 30px;
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
@@ -34,6 +34,19 @@
         .input-group {
             text-align: right;
             margin-bottom: 15px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .form-grid .input-group {
+            margin-bottom: 0;
+        }
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
         }
         .input-group label {
             display: block;
@@ -96,6 +109,115 @@
             display: block;
             margin-top: 15px;
         }
+
+        /* Custom Modal Styles */
+        .custom-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .custom-modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .custom-modal {
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            transform: translateY(20px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .custom-modal-overlay.active .custom-modal {
+            transform: translateY(0) scale(1);
+        }
+        .custom-modal-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        .custom-modal-icon.success {
+            color: #10b981;
+            animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .custom-modal-icon.error {
+            color: #ef4444;
+            animation: shake 0.5s;
+        }
+        .custom-modal-title {
+            color: #f8fafc;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .custom-modal-message {
+            color: #94a3b8;
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+        .whatsapp-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        .whatsapp-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3);
+            color: white;
+        }
+        .whatsapp-icon {
+            margin-left: 10px;
+            font-size: 1.2rem;
+        }
+        .modal-action-btn {
+            background: transparent;
+            color: #38bdf8;
+            border: 1px solid #38bdf8;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        .modal-action-btn:hover {
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+        }
     </style>
 </head>
 <body>
@@ -116,62 +238,129 @@
             الباقة المختارة: <span id="plan-name-display">جاري التحميل...</span>
         </div>
 
-        <div class="input-group">
-            <label>اسم الشركة (عربي أو إنجليزي)</label>
-            <input type="text" class="input-field" id="company_name" placeholder="مثال: شركة الأفق للتجارة">
-        </div>
-
-        <div class="input-group">
-            <label>الرابط المخصص للشركة</label>
-            <div class="subdomain-group">
-                <input type="text" class="input-field" id="subdomain" placeholder="alofoq" style="text-align:right;" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9\-]/g, '')">
-                <div class="subdomain-addon">.elsajana.com</div>
+        <div class="form-grid">
+            <div class="input-group">
+                <label>اسم الشركة (عربي أو إنجليزي)</label>
+                <input type="text" class="input-field" id="company_name" placeholder="مثال: شركة الأفق للتجارة">
             </div>
-        </div>
 
-        <div class="input-group">
-            <label>الاسم الكامل لمالك الحساب</label>
-            <input type="text" class="input-field" id="owner_name" placeholder="محمد أحمد">
-        </div>
+            <div class="input-group">
+                <label>الرابط المخصص للشركة</label>
+                <div class="subdomain-group">
+                    <input type="text" class="input-field" id="subdomain" placeholder="alofoq" style="text-align:right;" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9\-]/g, '')">
+                    <div class="subdomain-addon">.elsajana.com</div>
+                </div>
+            </div>
 
-        <div class="input-group">
-            <label>رقم الهاتف</label>
-            <input type="tel" class="input-field" id="owner_phone" placeholder="05XXXXXXXX">
-        </div>
+            <div class="input-group">
+                <label>الاسم الكامل لمالك الحساب</label>
+                <input type="text" class="input-field" id="owner_name" placeholder="محمد أحمد">
+            </div>
 
-        <div class="input-group">
-            <label>البريد الإلكتروني</label>
-            <input type="email" class="input-field" id="owner_email" placeholder="example@email.com">
-        </div>
+            <div class="input-group">
+                <label>رقم الهاتف</label>
+                <input type="tel" class="input-field" id="owner_phone" placeholder="05XXXXXXXX">
+            </div>
 
-        <div class="input-group">
-            <label>اسم المستخدم (لمدير النظام)</label>
-            <input type="text" class="input-field" id="username" placeholder="admin">
-        </div>
+            <div class="input-group">
+                <label>رقم هاتف إضافي (اختياري)</label>
+                <input type="tel" class="input-field" id="owner_phone2" placeholder="05XXXXXXXX">
+            </div>
 
-        <div class="input-group">
-            <label>كلمة المرور</label>
-            <input type="password" class="input-field" id="password" placeholder="••••••••">
+            <div class="input-group">
+                <label>البريد الإلكتروني</label>
+                <input type="email" class="input-field" id="owner_email" placeholder="example@email.com">
+            </div>
+
+            <div class="input-group">
+                <label>اسم المستخدم (لمدير النظام)</label>
+                <input type="text" class="input-field" id="username" placeholder="admin">
+            </div>
+
+            <div class="input-group">
+                <label>كلمة المرور</label>
+                <input type="password" class="input-field" id="password" placeholder="••••••••">
+            </div>
+
+            <div class="input-group" id="receipt-group" style="grid-column: 1 / -1; display: none;">
+                <label>إشعار الدفع (اختياري)</label>
+                <input type="file" class="input-field" id="receipt_file" accept="image/*,.pdf" style="padding: 9px;">
+            </div>
         </div>
 
         <button class="btn-submit" onclick="handleRegister()">إنشاء الحساب الآن</button>
         <a data-href="login.html" onclick="window.location.href='login.html'" class="link">لديك حساب بالفعل؟ تسجيل الدخول</a>
     </div>
 
+    <!-- Custom Modal -->
+    <div class="custom-modal-overlay" id="custom-modal">
+        <div class="custom-modal">
+            <div class="custom-modal-icon" id="modal-icon">✅</div>
+            <div class="custom-modal-title" id="modal-title">نجاح</div>
+            <div class="custom-modal-message" id="modal-message">تمت العملية بنجاح.</div>
+            
+            <a href="https://wa.me/249113981477" target="_blank" class="whatsapp-btn" id="modal-whatsapp" style="display:none;">
+                <span class="whatsapp-icon">💬</span>
+                للاستفسار: 0113981477
+            </a>
+            
+            <button class="modal-action-btn" id="modal-action-btn" onclick="closeModal()">حسناً</button>
+        </div>
+    </div>
+
     <script src="js/api.js"></script>
     <script>
-        let selectedPlanId = new URLSearchParams(window.location.search).get('plan');
-        
-        if (selectedPlanId) {
-            document.getElementById('plan-info').style.display = 'block';
-            fetch('api_index.php?r=public').then(r => r.json()).then(data => {
+        const urlParams = new URLSearchParams(window.location.search);
+        let selectedPlanId = urlParams.get('plan');
+
+        async function loadPlanInfo() {
+            try {
+                const r = await fetch('api_index.php?r=public&_=' + Date.now());
+                const data = await r.json();
                 if(data.plans) {
-                    const p = data.plans.find(x => x.id == selectedPlanId);
-                    if(p) document.getElementById('plan-name-display').innerText = p.name;
-                    else document.getElementById('plan-info').style.display = 'none';
+                    window.allPlans = data.plans;
+                    if (selectedPlanId) {
+                        const p = data.plans.find(x => x.id == selectedPlanId);
+                        if(p) {
+                            document.getElementById('plan-name-display').innerText = p.name;
+                            const isTrial = p.isTrial || p.name.includes('تجريب');
+                            if (!isTrial) document.getElementById('receipt-group').style.display = 'block';
+                            else document.getElementById('receipt-group').style.display = 'none';
+                        }
+                    } else {
+                        // Create a dropdown if no plan was selected
+                        let selectHTML = '<select id="manual-plan-select" class="input-field" onchange="changeManualPlan(this.value)" style="margin-top:10px; padding:5px;">';
+                        selectHTML += '<option value="">-- يرجى اختيار الباقة --</option>';
+                        data.plans.forEach(plan => {
+                            selectHTML += `<option value="${plan.id}">${plan.name} - ${plan.price}$</option>`;
+                        });
+                        selectHTML += '</select>';
+                        document.getElementById('plan-name-display').innerHTML = selectHTML;
+                    }
                 }
-            }).catch(() => { document.getElementById('plan-info').style.display = 'none'; });
+            } catch (e) {
+                document.getElementById('plan-name-display').innerHTML = '<span style="color:#ef4444;">حدث خطأ في تحميل الباقة. يرجى تحديث الصفحة.</span>';
+                document.getElementById('receipt-group').style.display = 'block'; // Fallback to show it just in case
+            }
         }
+        
+        window.changeManualPlan = function(val) {
+            selectedPlanId = val;
+            if(!val) {
+                document.getElementById('receipt-group').style.display = 'none';
+                return;
+            }
+            const p = window.allPlans.find(x => x.id == val);
+            if(p) {
+                const isTrial = p.isTrial || p.name.includes('تجريب');
+                if (!isTrial) document.getElementById('receipt-group').style.display = 'block';
+                else document.getElementById('receipt-group').style.display = 'none';
+            }
+        };
+
+        // Always show plan-info block to either show selected plan or the dropdown
+        document.getElementById('plan-info').style.display = 'block';
+        loadPlanInfo();
 
         async function handleRegister() {
             const company_name = document.getElementById('company_name').value;
@@ -181,15 +370,28 @@
             const owner_name = document.getElementById('owner_name').value;
             const owner_phone = document.getElementById('owner_phone').value;
             const owner_email = document.getElementById('owner_email').value;
+            const owner_phone2 = document.getElementById('owner_phone2') ? document.getElementById('owner_phone2').value : '';
 
             if(!company_name || !subdomain || !username || !password || !owner_name || !owner_phone) {
-                alert('الرجاء تعبئة جميع الحقول الأساسية');
+                showModal('error', 'خطأ في الإدخال', 'الرجاء تعبئة جميع الحقول الأساسية');
                 return;
+            }
+
+            // قراءة الإشعار كـ Base64
+            let receipt_base64 = null;
+            const fileInput = document.getElementById('receipt_file');
+            if (fileInput && fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                receipt_base64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsDataURL(file);
+                });
             }
 
             try {
                 const res = await apiFetch('/auth/register', 'POST', {
-                    company_name, subdomain, username, password, owner_name, owner_phone, owner_email, plan_id: selectedPlanId
+                    company_name, subdomain, username, password, owner_name, owner_phone, owner_phone2, owner_email, plan_id: selectedPlanId, receipt_base64
                 });
 
                 if(res.success) {
@@ -197,11 +399,65 @@
                         // Attempt to save plan locally as a fallback (admin usually manages this)
                         localStorage.setItem('tenant_plan_' + res.tenant_id, selectedPlanId);
                     }
-                    alert('تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.');
-                    window.location.href = 'login.html';
+                    
+                    let currentHost = window.location.hostname;
+                    const port = window.location.port ? ':' + window.location.port : '';
+                    let redirectUrl = '';
+                    if (currentHost === 'localhost' || currentHost === '127.0.0.1' || currentHost.endsWith('.localhost')) {
+                        redirectUrl = `http://${subdomain}.localhost${port}/login.html`;
+                    } else {
+                        let parts = currentHost.split('.');
+                        if (parts.length > 2) parts.shift();
+                        let baseDomain = parts.join('.');
+                        if (!baseDomain) baseDomain = 'elsajana.com';
+                        redirectUrl = `http://${subdomain}.${baseDomain}${port}/login.html`;
+                    }
+                    
+                    showModal('success', 'تهانينا! 🎉', res.message || 'تم إنشاء حساب شركتك بنجاح! سيتم تفعيل حسابك قريباً.', true, () => {
+                        window.location.href = redirectUrl;
+                    });
                 }
             } catch(e) {
-                alert(e.message);
+                showModal('error', 'حدث خطأ', e.message);
+            }
+        }
+
+        // Modal Logic
+        function showModal(type, title, message, showWhatsapp = false, onAction = null) {
+            const modal = document.getElementById('custom-modal');
+            const icon = document.getElementById('modal-icon');
+            const titleEl = document.getElementById('modal-title');
+            const msgEl = document.getElementById('modal-message');
+            const waBtn = document.getElementById('modal-whatsapp');
+            const actionBtn = document.getElementById('modal-action-btn');
+
+            if (type === 'success') {
+                icon.innerHTML = '✨';
+                icon.className = 'custom-modal-icon success';
+            } else {
+                icon.innerHTML = '⚠️';
+                icon.className = 'custom-modal-icon error';
+            }
+
+            titleEl.innerText = title;
+            msgEl.innerText = message;
+            waBtn.style.display = showWhatsapp ? 'inline-flex' : 'none';
+
+            window.modalActionCallback = onAction;
+            if (onAction) {
+                actionBtn.innerText = 'الانتقال لتسجيل الدخول';
+            } else {
+                actionBtn.innerText = 'حسناً';
+            }
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('custom-modal');
+            modal.classList.remove('active');
+            if (window.modalActionCallback) {
+                window.modalActionCallback();
             }
         }
     </script>

@@ -167,6 +167,16 @@
             localStorage.setItem('deviceUuid', deviceUuid);
         }
         
+        function getSubdomain() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.has('tenant')) return params.get('tenant');
+            const host = window.location.hostname;
+            const parts = host.split('.');
+            if (host.endsWith('.localhost') && parts.length >= 2) return parts[0];
+            if (parts.length > 2) return parts[0];
+            return null;
+        }
+        
         document.getElementById('device-id-display').innerText = `معرف الجهاز: ${deviceUuid}`;
 
         async function handleLogin() {
@@ -183,9 +193,13 @@
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 15000); // 15-second timeout
 
+                const tenantSubdomain = getSubdomain();
+                const headers = { 'Content-Type': 'application/json' };
+                if (tenantSubdomain) headers['X-Tenant-Subdomain'] = tenantSubdomain;
+
                 const res = await fetch('api_index.php/auth/login', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: headers,
                     body: JSON.stringify({ username, password }),
                     signal: controller.signal
                 });
@@ -198,11 +212,15 @@
                     localStorage.setItem('authToken', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
                     const userNameToDisplay = data.user.fullName || data.user.name || data.user.username || 'المستخدم';
-                    showLoginSuccessAnimation(userNameToDisplay);
+                    showLoginSuccessAnimation(userNameToDisplay, data.user.subdomain);
                     return;
                 } else {
                     const err = await res.json();
-                    console.log("Online login failed, trying offline. Error:", err.message);
+                    if (res.status === 403 || res.status === 400) {
+                        alert(err.error || err.message);
+                        return;
+                    }
+                    console.log("Online login failed, trying offline. Error:", err.error || err.message);
                     // Do not return here, let it fall through to offline check
                 }
             } catch (error) {
@@ -285,7 +303,7 @@
             alert('بيانات الدخول غير صحيحة أو السيرفر غير متاح');
         }
 
-        function showLoginSuccessAnimation(name) {
+        function showLoginSuccessAnimation(name, userSubdomain) {
             const btn = document.querySelector('.btn-login');
             btn.innerHTML = '<div class="loader"></div>';
             btn.style.pointerEvents = 'none';
@@ -325,7 +343,21 @@
                     document.body.appendChild(container);
 
                     setTimeout(() => {
-                        window.location.href = 'dashboard-pro.html';
+                        let redirectUrl = 'dashboard-pro.html';
+                        if (userSubdomain) {
+                            const host = window.location.hostname;
+                            const port = window.location.port ? ':' + window.location.port : '';
+                            
+                            if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.localhost')) {
+                                redirectUrl = `http://${userSubdomain}.localhost${port}/dashboard-pro.html`;
+                            } else {
+                                let parts = host.split('.');
+                                if (parts.length > 2) parts.shift();
+                                let baseDomain = parts.join('.') || 'elsajana.com';
+                                redirectUrl = `http://${userSubdomain}.${baseDomain}${port}/dashboard-pro.html`;
+                            }
+                        }
+                        window.location.href = redirectUrl;
                     }, 1500);
                 }, 400);
             }, 800);
