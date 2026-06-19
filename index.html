@@ -218,12 +218,19 @@
         // Load Public Data
         async function loadPublicData() {
             try {
-                const res = await fetch('api_index.php?r=public');
-                const data = await res.json();
+                const res = await fetch('/api_index.php?r=public');
+                if (!res.ok) throw new Error('HTTP error ' + res.status);
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch(e) {
+                    throw new Error('Invalid JSON response: ' + text.substring(0, 100));
+                }
                 
                 // Render Partners
                 const pWrapper = document.getElementById('partners-marquee');
-                if(data.partners && data.partners.length > 0) {
+                if(data && data.partners && data.partners.length > 0) {
                     let html = '';
                     const renderLogos = () => {
                         data.partners.forEach(p => {
@@ -236,12 +243,12 @@
                     renderLogos(); // Duplicate for infinite scroll effect
                     pWrapper.innerHTML = html;
                 } else {
-                    pWrapper.parentElement.style.display = 'none';
+                    if(pWrapper) pWrapper.parentElement.style.display = 'none';
                 }
 
                 // Render Plans
                 const grid = document.getElementById('pricing-grid');
-                if(data.plans && data.plans.length > 0) {
+                if(data && data.plans && data.plans.length > 0) {
                     grid.innerHTML = '';
                     data.plans.forEach((plan, index) => {
                         const isRecommended = index === 1; // Middle plan is usually recommended
@@ -265,11 +272,15 @@
                         \`;
                     });
                 } else {
-                    grid.innerHTML = '<div style="text-align:center; width:100%;">لا توجد باقات متاحة حالياً.</div>';
+                    if(grid) grid.innerHTML = '<div style="text-align:center; width:100%;">لا توجد باقات متاحة حالياً.</div>';
                 }
 
             } catch (e) {
                 console.error("Failed to load public data", e);
+                const grid = document.getElementById('pricing-grid');
+                if(grid) grid.innerHTML = '<div style="text-align:center; width:100%; color:red;">حدث خطأ أثناء تحميل البيانات: ' + e.message + '</div>';
+                const pWrapper = document.getElementById('partners-marquee');
+                if(pWrapper) pWrapper.innerHTML = '<div style="text-align:center; width:100%; color:red;">خطأ: ' + e.message + '</div>';
             }
         }
 
