@@ -9,11 +9,12 @@
             const userSubdomain = user.subdomain;
             if (userSubdomain) {
                 const host = window.location.hostname;
+                const params = new URLSearchParams(window.location.search);
                 let needsRedirect = false;
                 
                 if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.localhost')) {
                     if (host !== `${userSubdomain}.localhost`) needsRedirect = true;
-                } else if (!host.startsWith(userSubdomain + '.')) {
+                } else if (!host.startsWith(userSubdomain + '.') && params.get('tenant') !== userSubdomain) {
                     needsRedirect = true;
                 }
 
@@ -22,10 +23,14 @@
                     if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.localhost')) {
                         window.location.href = `http://${userSubdomain}.localhost${port}${window.location.pathname}`;
                     } else {
-                        let parts = host.split('.');
-                        if (parts.length > 2) parts.shift();
-                        let baseDomain = parts.join('.') || 'elsajana.com';
-                        window.location.href = `http://${userSubdomain}.${baseDomain}${port}${window.location.pathname}`;
+                        // Workaround for DNS Wildcard
+                        let baseHost = host;
+                        if (host.split('.').length > 2) {
+                            const parts = host.split('.');
+                            parts.shift();
+                            baseHost = parts.join('.');
+                        }
+                        window.location.href = `http://${baseHost}${port}${window.location.pathname}?tenant=${userSubdomain}`;
                     }
                     return; // Stop execution to allow redirect
                 }
