@@ -729,7 +729,7 @@
             document.getElementById('plan-storage').value = p.storage;
             document.getElementById('plan-modal').style.display = 'flex';
         }
-        function savePlan() {
+        async function savePlan() {
             let id = document.getElementById('plan-id').value;
             let p = {
                 id: id ? parseInt(id) : Date.now(),
