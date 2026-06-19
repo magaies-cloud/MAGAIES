@@ -406,11 +406,14 @@
                     if (currentHost === 'localhost' || currentHost === '127.0.0.1' || currentHost.endsWith('.localhost')) {
                         redirectUrl = `http://${subdomain}.localhost${port}/login.html`;
                     } else {
-                        let parts = currentHost.split('.');
-                        if (parts.length > 2) parts.shift();
-                        let baseDomain = parts.join('.');
-                        if (!baseDomain) baseDomain = 'elsajana.com';
-                        redirectUrl = `http://${subdomain}.${baseDomain}${port}/login.html`;
+                        // Workaround for DNS Wildcard not being propagated/configured
+                        let baseHost = currentHost;
+                        if (currentHost.split('.').length > 2) {
+                            const parts = currentHost.split('.');
+                            parts.shift();
+                            baseHost = parts.join('.');
+                        }
+                        redirectUrl = `http://${baseHost}${port}/login.html?tenant=${subdomain}`;
                     }
                     
                     showModal('success', 'تهانينا! 🎉', res.message || 'تم إنشاء حساب شركتك بنجاح! سيتم تفعيل حسابك قريباً.', true, () => {
