@@ -4,7 +4,7 @@
     // --- Subdomain Enforcement for Logged-In Users ---
     try {
         const userStr = localStorage.getItem('user');
-        if (userStr && !window.location.pathname.includes('login.html') && !window.location.pathname.includes('register.html') && !window.location.pathname.includes('saas-admin.html') && !window.location.pathname.includes('index.html')) {
+        if (userStr && !window.location.pathname.includes('login.html') && !window.location.pathname.includes('register.html') && !window.location.pathname.includes('saas-admin.html')) {
             const user = JSON.parse(userStr);
             const userSubdomain = user.subdomain;
             if (userSubdomain) {
@@ -12,7 +12,8 @@
                 let needsRedirect = false;
                 
                 if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.localhost')) {
-                    if (host !== `${userSubdomain}.localhost`) needsRedirect = true;
+                    // Skip subdomain redirection on localhost to avoid Windows hosts file issues
+                    needsRedirect = false;
                 } else if (!host.startsWith(userSubdomain + '.')) {
                     needsRedirect = true;
                 }
@@ -20,14 +21,10 @@
                 if (needsRedirect) {
                     const port = window.location.port ? ':' + window.location.port : '';
                     const protocol = window.location.protocol;
-                    if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.localhost')) {
-                        window.location.href = `${protocol}//${userSubdomain}.localhost${port}${window.location.pathname}`;
-                    } else {
-                        let parts = host.split('.');
-                        if (parts.length > 2) parts.shift();
-                        let baseDomain = parts.join('.') || 'elsajana.com';
-                        window.location.href = `${protocol}//${userSubdomain}.${baseDomain}${port}${window.location.pathname}`;
-                    }
+                    let parts = host.split('.');
+                    if (parts.length > 2) parts.shift();
+                    let baseDomain = parts.join('.') || 'elsajana.com';
+                    window.location.href = `${protocol}//${userSubdomain}.${baseDomain}${port}${window.location.pathname}`;
                     return; // Stop execution to allow redirect
                 }
             }
@@ -929,7 +926,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 2. Global Smart Sidebar ---
     function injectSidebar() {
-        if (window.location.pathname.includes('login')) return;
+        if (window.location.pathname.includes('login') || window.location.pathname.includes('index.html')) return;
         if (document.querySelector('.global-sidebar')) return; 
         
         const user = JSON.parse(localStorage.getItem('user') || '{}');
