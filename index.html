@@ -279,9 +279,9 @@
                     let html = '';
                     const renderLogos = () => {
                         data.partners.forEach(p => {
-                            html += \`<a href="\${p.link || '#'}" class="partner-logo" target="_blank" title="\${p.name}">
-                                <img src="\${p.logo}" alt="\${p.name}"> \${p.name}
-                            </a>\`;
+                            html += `<a href="${p.link || '#'}" class="partner-logo" target="_blank" title="${p.name}">
+                                <img src="${p.logo}" alt="${p.name}"> ${p.name}
+                            </a>`;
                         });
                     };
                     renderLogos();
@@ -301,20 +301,20 @@
                         const btnClass = isRecommended ? 'btn-primary' : 'btn-nav';
                         const btnStyle = isRecommended ? 'width: 100%; border-radius: 12px;' : 'width: 100%; text-align:center; background:rgba(255,255,255,0.05);';
                         
-                        grid.innerHTML += \`
-                            <div class="plan-card \${isRecommended ? 'recommended' : ''}">
-                                \${badgeHtml}
-                                <h3 class="plan-name">\${plan.name}</h3>
-                                <div class="plan-price">\${plan.price}<span>$</span><span>/شهرياً</span></div>
+                        grid.innerHTML += `
+                            <div class="plan-card ${isRecommended ? 'recommended' : ''}">
+                                ${badgeHtml}
+                                <h3 class="plan-name">${plan.name}</h3>
+                                <div class="plan-price">${plan.isTrial ? 'مجاناً' : plan.price + '<span>$</span>'}<span style="font-size:0.9rem;opacity:0.8;display:block;">${plan.duration ? 'لمدة ' + plan.duration + ' يوماً' : 'شهرياً'}</span></div>
                                 <ul class="plan-features">
-                                    <li>حتى \${plan.maxUsers} مستخدمين</li>
-                                    <li>مساحة تخزينية \${plan.storage} GB</li>
+                                    <li>حتى ${plan.maxUsers} مستخدمين</li>
+                                    <li>مساحة تخزينية ${plan.storage} GB</li>
                                     <li>دعم فني وتحديثات مستمرة</li>
                                     <li>نسخ احتياطي يومي تلقائي</li>
                                 </ul>
-                                <a href="register.html?plan=\${plan.id}" class="\${btnClass}" style="\${btnStyle}">اختيار الباقة</a>
+                                <a href="register.html?plan=${plan.id}" class="${btnClass}" style="${btnStyle}">اختيار الباقة</a>
                             </div>
-                        \`;
+                        `;
                     });
                 } else {
                     if(grid) grid.innerHTML = '<div style="text-align:center; width:100%;">لا توجد باقات متاحة حالياً.</div>';
