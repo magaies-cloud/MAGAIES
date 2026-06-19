@@ -1,4 +1,4 @@
-// Version: 1781440000 (Force update to bust cache for login.html)
+// Version: 20260619002500 (Force update to bust cache for index.html)
 self.addEventListener('install', (event) => {
     // Force the new service worker to become active immediately
     self.skipWaiting();
