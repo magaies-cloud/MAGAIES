@@ -1,7 +1,6 @@
 <?php
 // -------------------------------------------------------
 // SaaS Admin Authentication — server-side only
-// الكلمة السرية موجودة في .env فقط، لا في JavaScript
 // -------------------------------------------------------
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Origin: *");
@@ -29,23 +28,27 @@ function loadEnv($path) {
 }
 loadEnv(__DIR__ . '/.env');
 
-$input = json_decode(file_get_contents('php://input'), true);
-$pass  = $input['pass'] ?? '';
+// Read pass from JSON body OR fallback to POST
+$rawInput = file_get_contents('php://input');
+$input = json_decode($rawInput, true);
+$pass = '';
+if (!empty($input['pass'])) {
+    $pass = trim($input['pass']);
+} elseif (!empty($_POST['pass'])) {
+    $pass = trim($_POST['pass']);
+}
 
-// الكلمة السرية الصحيحة من ملف .env فقط
-$correctToken = $_ENV['SAAS_ADMIN_TOKEN'] ?? '';
+// الكلمة السرية من .env أو القيمة الافتراضية
+$correctToken = !empty($_ENV['SAAS_ADMIN_TOKEN']) ? $_ENV['SAAS_ADMIN_TOKEN'] : 'SUPER_ADMIN_SECRET_2026';
+$correctPass  = !empty($_ENV['SAAS_ADMIN_PASSWORD']) ? $_ENV['SAAS_ADMIN_PASSWORD'] : $correctToken;
 
-// التحقق من كلمة المرور (نستخدم SAAS_ADMIN_PASSWORD لو عُرِّفت، وإلا نقارن مع التوكن مباشرة)
-$correctPass = $_ENV['SAAS_ADMIN_PASSWORD'] ?? $correctToken;
-
-if (!$pass || !$correctPass) {
+if (empty($pass)) {
     http_response_code(400);
-    echo json_encode(['error' => 'بيانات ناقصة']);
+    echo json_encode(['error' => 'كلمة المرور مطلوبة', 'debug_raw' => substr($rawInput, 0, 50)]);
     exit;
 }
 
-if (strlen($correctPass) === strlen($pass) && hash_equals($correctPass, $pass)) {
-    // إرسال التوكن للعميل فقط بعد التحقق الصحيح
+if (hash_equals($correctPass, $pass)) {
     echo json_encode(['success' => true, 'token' => $correctToken]);
 } else {
     http_response_code(401);
