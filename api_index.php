@@ -230,8 +230,8 @@ if ($resource === 'auth') {
         try {
             // Default valid_until is 14 days from now
             $valid_until = date('Y-m-d H:i:s', strtotime('+14 days'));
-            $stmt = $pdo->prepare("INSERT INTO tenants (company_name, subdomain, owner_name, owner_phone, phone2, owner_email, valid_until, status, receipt_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$company_name, $subdomain, $owner_name, $owner_phone, $owner_phone2, $owner_email, $valid_until, $status, $receipt_path]);
+            $stmt = $pdo->prepare("INSERT INTO tenants (company_name, subdomain, owner_name, owner_phone, phone2, owner_email, valid_until, status, receipt_path, plan_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$company_name, $subdomain, $owner_name, $owner_phone, $owner_phone2, $owner_email, $valid_until, $status, $receipt_path, $plan_id]);
             $tenant_id = $pdo->lastInsertId();
 
             $hashed = password_hash($password, PASSWORD_DEFAULT);
@@ -385,7 +385,7 @@ if ($token === $saasSecret) {
         }
         // GET all tenants (only when no sub-action like /delete)
         if ($method === 'GET' && $action === 'tenants' && !isset($requestUri[$base_index + 3])) {
-            $stmt = $pdo->query("SELECT t.id, t.company_name, t.subdomain, t.owner_name, t.owner_phone, t.phone2, t.owner_email, t.status, t.receipt_path, t.valid_until, t.created_at, (SELECT username FROM users WHERE tenant_id = t.id AND role = 'admin' LIMIT 1) AS admin_username FROM tenants t ORDER BY t.created_at DESC");
+            $stmt = $pdo->query("SELECT t.id, t.company_name, t.subdomain, t.owner_name, t.owner_phone, t.phone2, t.owner_email, t.status, t.receipt_path, t.valid_until, t.max_users, t.plan_id, t.created_at, (SELECT username FROM users WHERE tenant_id = t.id AND role = 'admin' LIMIT 1) AS admin_username FROM tenants t ORDER BY t.created_at DESC");
             $tenants = $stmt->fetchAll();
             
             // Calculate storage size for each tenant (sum of LENGTH(data) across all tenant-aware tables)
@@ -411,12 +411,14 @@ if ($token === $saasSecret) {
         if ($method === 'POST' && $action === 'tenants' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'update') {
             $tenantId = intval($input['id'] ?? 0);
             $newStatus = $input['status'] ?? 'active';
+            $maxUsers = isset($input['max_users']) && $input['max_users'] !== '' ? intval($input['max_users']) : null;
+            $planId = isset($input['plan_id']) && $input['plan_id'] !== '' ? intval($input['plan_id']) : null;
             if (!$tenantId) jsonResponse(['error' => 'معرّف الشركة مطلوب'], 400);
             
             if (array_key_exists('valid_until', $input)) {
-                $pdo->prepare("UPDATE tenants SET status = ?, valid_until = ? WHERE id = ?")->execute([$newStatus, $input['valid_until'], $tenantId]);
+                $pdo->prepare("UPDATE tenants SET status = ?, valid_until = ?, max_users = ?, plan_id = ? WHERE id = ?")->execute([$newStatus, $input['valid_until'], $maxUsers, $planId, $tenantId]);
             } else {
-                $pdo->prepare("UPDATE tenants SET status = ? WHERE id = ?")->execute([$newStatus, $tenantId]);
+                $pdo->prepare("UPDATE tenants SET status = ?, max_users = ?, plan_id = ? WHERE id = ?")->execute([$newStatus, $maxUsers, $planId, $tenantId]);
             }
             jsonResponse(['success' => true]);
         }
@@ -435,6 +437,39 @@ if ($token === $saasSecret) {
             $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
             // Change password for the primary admin user of this tenant
             $pdo->prepare("UPDATE users SET password = ? WHERE tenant_id = ? AND role = 'admin' LIMIT 1")->execute([$hashed, $tenantId]);
+            jsonResponse(['success' => true]);
+        }
+        
+        if ($method === 'GET' && $action === 'users') {
+            $tenantId = intval($_GET['tenant_id'] ?? 0);
+            if (!$tenantId) jsonResponse(['error' => 'معرّف الشركة مطلوب'], 400);
+            $stmt = $pdo->prepare("SELECT id, username, JSON_UNQUOTE(JSON_EXTRACT(data, '$.fullName')) as fullName, role FROM users WHERE tenant_id = ?");
+            $stmt->execute([$tenantId]);
+            jsonResponse($stmt->fetchAll());
+        }
+        if ($method === 'POST' && $action === 'users' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'add') {
+            $tenantId = intval($input['tenant_id'] ?? 0);
+            $username = trim($input['username'] ?? '');
+            $fullName = trim($input['fullName'] ?? '');
+            $password = $input['password'] ?? '';
+            $role = $input['role'] ?? 'user';
+            if (!$tenantId || !$username || !$password) jsonResponse(['error' => 'البيانات غير مكتملة'], 400);
+            
+            $hashed = password_hash($password, PASSWORD_DEFAULT);
+            $data = json_encode(['fullName' => $fullName]);
+            $frontend_id = 'u_' . uniqid();
+            
+            $stmt = $pdo->prepare("INSERT INTO users (tenant_id, username, password, role, frontend_id, data) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$tenantId, $username, $hashed, $role, $frontend_id, $data]);
+            jsonResponse(['success' => true]);
+        }
+        if ($method === 'POST' && $action === 'users' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'password') {
+            $userId = intval($input['user_id'] ?? 0);
+            $newPassword = $input['password'] ?? '';
+            if (!$userId || empty($newPassword)) jsonResponse(['error' => 'المستخدم وكلمة المرور مطلوبان'], 400);
+            if (strlen($newPassword) < 6) jsonResponse(['error' => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'], 400);
+            $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
+            $pdo->prepare("UPDATE users SET password = ? WHERE id = ?")->execute([$hashed, $userId]);
             jsonResponse(['success' => true]);
         }
         

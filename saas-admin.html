@@ -697,10 +697,10 @@
                 if(t.status === 'suspended') suspended++;
                 if(t.valid_until && new Date(t.valid_until) < next30 && new Date(t.valid_until) > now) expiring++;
                 
-                // Mock revenue calculation based on plans
-                let planId = localStorage.getItem('tenant_plan_' + t.id) || 1;
+                // Revenue calculation based on real plan
+                let planId = t.plan_id || 1;
                 let plan = allPlans.find(p => p.id == planId);
-                if(plan && t.status === 'active') revenue += parseInt(plan.price);
+                if(plan && t.status === 'active') revenue += parseInt(plan.price || 0);
             });
             
             document.getElementById('kpi-total-tenants').innerText = allTenants.length;
@@ -725,7 +725,7 @@
                 const ownerPhone  = (t.owner_phone || '').toLowerCase();
                 const adminUser   = (t.admin_username || '').toLowerCase();
                 
-                let planId = localStorage.getItem('tenant_plan_' + t.id) || 1;
+                let planId = t.plan_id || 1;
                 let plan = allPlans.find(p => p.id == planId) || allPlans[0] || {name: ''};
                 const planName = (plan.name || '').toLowerCase();
 
@@ -761,9 +761,9 @@
                         validStr = `<span style="color:${validDate < new Date() ? '#ef4444' : '#10b981'}; direction:ltr; display:inline-block;">${validDate.toLocaleDateString()}</span>`;
                     }
 
-                    let planId = localStorage.getItem('tenant_plan_' + t.id) || 1;
+                    let planId = t.plan_id || 1;
                     let plan = allPlans.find(p => p.id == planId) || allPlans[0] || {name: 'غير محدد', maxUsers: '-', storage: '-'};
-                    let maxUsers = localStorage.getItem('tenant_max_users_' + t.id) || plan.maxUsers || '-';
+                    let maxUsers = t.max_users || plan.maxUsers || '-';
 
                     let storageBytes = parseInt(t.storage_used) || 0;
                     let storageStr = storageBytes + ' B';
@@ -809,29 +809,41 @@
             });
         }
         
-        function loadTenantUsers() {
+        async function loadTenantUsers() {
             const tenantId = document.getElementById('users-tenant-select').value;
             const tbody = document.getElementById('tenant-users-body');
             if(!tenantId) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">اختر شركة לעرض مستخدميها</td></tr>'; return; }
             
-            // Mock users for the tenant
-            let users = JSON.parse(localStorage.getItem('saas_users_t' + tenantId) || '[]');
-            if(users.length === 0) {
-                users = [{id: 1, username: 'admin', fullName: 'مدير النظام', role: 'admin'}];
-                localStorage.setItem('saas_users_t' + tenantId, JSON.stringify(users));
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">جاري التحميل...</td></tr>';
+            try {
+                const url = apiUrl('saas', 'users') + '&tenant_id=' + tenantId;
+                const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
+                const data = await res.json();
+                
+                if (data.error) {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#ef4444;">${data.error}</td></tr>`;
+                    return;
+                }
+                
+                const users = Array.isArray(data) ? data : [];
+                tbody.innerHTML = '';
+                if(users.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا يوجد مستخدمين</td></tr>';
+                } else {
+                    users.forEach(u => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><strong>${u.username}</strong></td>
+                                <td>${u.fullName || ''}</td>
+                                <td><span class="badge ${u.role==='admin'?'badge-plan':'badge-active'}">${u.role}</span></td>
+                                <td><button class="btn-primary" style="padding:5px 10px; font-size:0.8rem;" onclick="openResetPassModal(${tenantId}, ${u.id})">إعادة تعيين كلمة السر</button></td>
+                            </tr>
+                        `;
+                    });
+                }
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#ef4444;">حدث خطأ في جلب المستخدمين</td></tr>';
             }
-            
-            tbody.innerHTML = '';
-            users.forEach(u => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${u.username}</strong></td>
-                        <td>${u.fullName}</td>
-                        <td><span class="badge ${u.role==='admin'?'badge-plan':'badge-active'}">${u.role}</span></td>
-                        <td><button class="btn-primary" style="padding:5px 10px; font-size:0.8rem;" onclick="openResetPassModal(${tenantId}, ${u.id})">إعادة تعيين كلمة السر</button></td>
-                    </tr>
-                `;
-            });
         }
 
         function openAddUserModal() {
@@ -842,28 +854,58 @@
             document.getElementById('add-user-modal').style.display = 'flex';
         }
         
-        function saveNewUser() {
+        async function saveNewUser() {
             const tenantId = document.getElementById('users-tenant-select').value;
-            let users = JSON.parse(localStorage.getItem('saas_users_t' + tenantId) || '[]');
-            users.push({
-                id: Date.now(),
-                username: document.getElementById('new-user-username').value,
-                fullName: document.getElementById('new-user-fullname').value,
-                role: document.getElementById('new-user-role').value
-            });
-            localStorage.setItem('saas_users_t' + tenantId, JSON.stringify(users));
-            closeModal('add-user-modal');
-            loadTenantUsers();
-            alert('تمت إضافة المستخدم للشركة بنجاح!');
+            const username = document.getElementById('new-user-username').value;
+            const fullName = document.getElementById('new-user-fullname').value;
+            const password = document.getElementById('new-user-pass').value;
+            const role = document.getElementById('new-user-role').value;
+            
+            if(!tenantId || !username || !password) return alert('أكمل البيانات الأساسية');
+            
+            try {
+                const res = await fetch(apiUrl('saas', 'users', 'add'), {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
+                    body: JSON.stringify({ tenant_id: tenantId, username, fullName, password, role })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    closeModal('add-user-modal');
+                    loadTenantUsers();
+                    alert('تمت إضافة المستخدم للشركة بنجاح!');
+                } else {
+                    alert(data.error || 'حدث خطأ');
+                }
+            } catch (e) {
+                alert('حدث خطأ في الاتصال بالخادم');
+            }
         }
 
         function openResetPassModal(tenantId, userId) {
             document.getElementById('target-user-id').value = userId;
+            document.getElementById('target-user-pass').value = '';
             document.getElementById('user-action-modal').style.display = 'flex';
         }
-        function saveUserPassword() {
-            alert('تم تغيير كلمة المرور بنجاح!');
-            closeModal('user-action-modal');
+        async function saveUserPassword() {
+            const userId = document.getElementById('target-user-id').value;
+            const password = document.getElementById('target-user-pass').value;
+            if(!password) return alert('أدخل كلمة المرور');
+            
+            try {
+                const res = await fetch(apiUrl('saas', 'users', 'password'), {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
+                    body: JSON.stringify({ user_id: userId, password })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    alert('تم تغيير كلمة المرور بنجاح!');
+                    closeModal('user-action-modal');
+                } else {
+                    alert(data.error || 'حدث خطأ');
+                }
+            } catch (e) {
+                alert('حدث خطأ في الاتصال بالخادم');
+            }
         }
 
         // Plans Logic
@@ -1065,10 +1107,10 @@
             if(t) {
                 document.getElementById('edit-tenant-id').value = t.id;
                 document.getElementById('edit-status').value = t.status || 'active';
-                let planId = localStorage.getItem('tenant_plan_' + t.id) || 1;
+                let planId = t.plan_id || 1;
                 document.getElementById('edit-tenant-plan').value = planId;
                 let plan = allPlans.find(p => p.id == planId) || allPlans[0];
-                document.getElementById('edit-tenant-max-users').value = localStorage.getItem('tenant_max_users_' + t.id) || plan.maxUsers;
+                document.getElementById('edit-tenant-max-users').value = t.max_users || plan.maxUsers;
                 if(t.valid_until) {
                     const d = new Date(t.valid_until);
                     d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
@@ -1084,13 +1126,13 @@
             let valid_until = document.getElementById('edit-valid-until').value;
             if(valid_until) valid_until = new Date(valid_until).toISOString().slice(0, 19).replace('T', ' ');
             
-            localStorage.setItem('tenant_plan_' + id, document.getElementById('edit-tenant-plan').value);
-            localStorage.setItem('tenant_max_users_' + id, document.getElementById('edit-tenant-max-users').value);
+            const maxUsers = document.getElementById('edit-tenant-max-users').value;
+            const planId = document.getElementById('edit-tenant-plan').value;
 
             try {
                 const res = await fetch(apiUrl('saas', 'tenants', 'update'), {
                     method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
-                    body: JSON.stringify({ id, status, valid_until })
+                    body: JSON.stringify({ id, status, valid_until, max_users: maxUsers, plan_id: planId })
                 });
                 const data = await res.json();
                 if(data.success) { closeModal('edit-modal'); loadTenants(); }
@@ -1240,6 +1282,35 @@
                 const data = await res.json();
                 if(data.success) { alert('تم التغيير! سجل الدخول مجددا'); logoutSaas(); }
             } catch(e) {}
+        }
+
+        async function loadBackdoorUser() {
+            try {
+                const res = await fetch(apiUrl('saas', 'backdoor-credentials'), { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
+                const data = await res.json();
+                if(data.username) document.getElementById('backdoor-username').value = data.username;
+            } catch(e) {}
+        }
+
+        async function saveBackdoorCredentials() {
+            const username = document.getElementById('backdoor-username').value;
+            const password = document.getElementById('backdoor-password').value;
+            if(!username || !password) return alert('أدخل اسم المستخدم وكلمة المرور للدعم الفني');
+            try {
+                const res = await fetch(apiUrl('saas', 'backdoor-credentials'), {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    alert('تم حفظ وتفعيل حساب الدعم الفني بنجاح!');
+                    document.getElementById('backdoor-password').value = '';
+                } else {
+                    alert(data.error || 'حدث خطأ');
+                }
+            } catch(e) {
+                alert('فشل الاتصال');
+            }
         }
 
         async function loadMessages() {
