@@ -586,26 +586,41 @@ document.addEventListener('DOMContentLoaded', () => {
             user.securityLevel = 10;
         }
         
-        let perms = user.permissions || {};
-        
-        // Resolve permissions from local roles array if missing
-        if (Object.keys(perms).length === 0 && user.roleId) {
-            try {
-                const prefix = user.tenant_id ? ('tenant_' + user.tenant_id + '_') : 'tenant_default_';
-                const rolesStr = localStorage.getItem(prefix + 'erp_roles_v1');
-                if (rolesStr) {
-                    const rolesArr = JSON.parse(rolesStr);
-                    const matchedRole = rolesArr.find(r => r.id === user.roleId);
-                    if (matchedRole && matchedRole.permissions) {
-                        perms = matchedRole.permissions;
-                        // Also upgrade security level if needed
-                        if (matchedRole.securityLevel && matchedRole.securityLevel > (user.securityLevel || 0)) {
-                            user.securityLevel = matchedRole.securityLevel;
+        window.resolveUserPermissions = function(userObj) {
+            let userOverrides = (userObj.permissionsOverrides && Object.keys(userObj.permissionsOverrides).length > 0) ? userObj.permissionsOverrides : (userObj.permissions || {});
+            let finalPerms = JSON.parse(JSON.stringify(userOverrides)); // Clone
+
+            if (userObj.roleId) {
+                try {
+                    const prefix = userObj.tenant_id ? ('tenant_' + userObj.tenant_id + '_') : 'tenant_default_';
+                    const rolesStr = localStorage.getItem(prefix + 'erp_roles_v1');
+                    if (rolesStr) {
+                        const matchedRole = JSON.parse(rolesStr).find(r => r.id === userObj.roleId);
+                        if (matchedRole && matchedRole.permissions) {
+                            const rolePerms = matchedRole.permissions;
+                            // Additive merge: Role Perms + User Overrides
+                            const modulesList = ['dashboard','sales','purchase','inventory','finance','master_data','reports','settings'];
+                            for (let mod of modulesList) {
+                                if (!finalPerms[mod]) finalPerms[mod] = {};
+                                if (!rolePerms[mod]) rolePerms[mod] = {};
+                                finalPerms[mod].view = !!(rolePerms[mod].view || finalPerms[mod].view);
+                                finalPerms[mod].add = !!(rolePerms[mod].add || finalPerms[mod].add);
+                                finalPerms[mod].edit = !!(rolePerms[mod].edit || finalPerms[mod].edit);
+                                finalPerms[mod].delete = !!(rolePerms[mod].delete || finalPerms[mod].delete);
+                                finalPerms[mod].print = !!(rolePerms[mod].print || finalPerms[mod].print);
+                                finalPerms[mod].approve = !!(rolePerms[mod].approve || finalPerms[mod].approve);
+                            }
+                            if (matchedRole.securityLevel && matchedRole.securityLevel > (userObj.securityLevel || 0)) {
+                                userObj.securityLevel = matchedRole.securityLevel;
+                            }
                         }
                     }
-                }
-            } catch(e) { console.error("Error resolving permissions", e); }
-        }
+                } catch(e) { console.error("Error resolving permissions", e); }
+            }
+            return finalPerms;
+        };
+
+        let perms = window.resolveUserPermissions(user);
         
         // Fallback for legacy admin session or missing permissions, and Super Admin Bypass
         if (user.username === 'admin' || user.role === 'admin' || user.roleId === 'admin_fallback' || user.securityLevel >= 9) {
@@ -949,18 +964,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (document.querySelector('.global-sidebar')) return; 
         
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        let perms = user.permissions || {};
-        
-        if (Object.keys(perms).length === 0 && user.roleId) {
-            try {
-                const prefix = user.tenant_id ? ('tenant_' + user.tenant_id + '_') : 'tenant_default_';
-                const rolesStr = localStorage.getItem(prefix + 'erp_roles_v1');
-                if (rolesStr) {
-                    const matchedRole = JSON.parse(rolesStr).find(r => r.id === user.roleId);
-                    if (matchedRole && matchedRole.permissions) perms = matchedRole.permissions;
-                }
-            } catch(e) {}
-        }
+        let perms = typeof window.resolveUserPermissions === 'function' ? window.resolveUserPermissions(user) : {};
         
         if (user.username === 'admin' || user.role === 'admin' || user.roleId === 'admin_fallback') {
             perms = {
@@ -1093,23 +1097,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!userStr) return false;
         const user = JSON.parse(userStr);
         
-        let perms = user.permissions || {};
-        
-        if (Object.keys(perms).length === 0 && user.roleId) {
-            try {
-                const prefix = user.tenant_id ? ('tenant_' + user.tenant_id + '_') : 'tenant_default_';
-                const rolesStr = localStorage.getItem(prefix + 'erp_roles_v1');
-                if (rolesStr) {
-                    const matchedRole = JSON.parse(rolesStr).find(r => r.id === user.roleId);
-                    if (matchedRole && matchedRole.permissions) {
-                        perms = matchedRole.permissions;
-                        if (matchedRole.securityLevel && matchedRole.securityLevel > (user.securityLevel || 0)) {
-                            user.securityLevel = matchedRole.securityLevel;
-                        }
-                    }
-                }
-            } catch(e) {}
-        }
+        let perms = typeof window.resolveUserPermissions === 'function' ? window.resolveUserPermissions(user) : {};
         
         if (user.username === 'admin' || user.role === 'admin' || user.securityLevel >= 5) {
             if (!perms[moduleId]) perms[moduleId] = {};
