@@ -1109,14 +1109,29 @@
             try {
                 const res = await fetch(apiUrl('saas', 'messages'), { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
                 const data = await res.json();
-                allMessagesData = data || [];
+                
                 const tbody = document.getElementById('messages-body');
                 tbody.innerHTML = '';
-                if(allMessagesData.length === 0) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد رسائل</td></tr>';
-                allMessagesData.forEach(m => {
-                    tbody.innerHTML += `<tr><td>${m.title}</td><td>الجميع</td><td>${m.theme}</td><td><button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;" onclick="deleteMessage(${m.id})">حذف</button></td></tr>`;
-                });
-            } catch (e) {}
+                
+                if (data.error) {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">خطأ: ${data.error}</td></tr>`;
+                    return;
+                }
+                
+                allMessagesData = Array.isArray(data) ? data : [];
+                
+                if(allMessagesData.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد رسائل</td></tr>';
+                } else {
+                    allMessagesData.forEach(m => {
+                        tbody.innerHTML += `<tr><td>${m.title || 'بدون عنوان'}</td><td>الجميع</td><td>${m.theme || 'info'}</td><td><button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;" onclick="deleteMessage(${m.id})">حذف</button></td></tr>`;
+                    });
+                }
+            } catch (e) {
+                console.error("Error loading messages:", e);
+                const tbody = document.getElementById('messages-body');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">حدث خطأ في جلب الرسائل.</td></tr>';
+            }
         }
         function openMessageModal() { document.getElementById('message-modal').style.display = 'flex'; }
         async function saveMessage() {
