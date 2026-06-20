@@ -38,7 +38,7 @@ function loadData() {
         });
         
         ROLES.push({
-            id: 'role_' + Date.now(),
+            id: 'role_admin_default',
             name: 'مدير نظام',
             securityLevel: 5,
             permissions: defaultPermissions,
@@ -49,7 +49,7 @@ function loadData() {
 
     if (USERS.length === 0) {
         USERS.push({
-            id: 'u_' + Date.now(),
+            id: 'u_admin_default',
             username: 'admin',
             password: '', // Should be set by user securely
             fullName: 'مدير النظام',
@@ -245,7 +245,7 @@ function getCurrentGPS() {
     }
 }
 
-function saveUser() {
+async function saveUser() {
     const id = document.getElementById('user-id').value;
     const fullName = document.getElementById('user-fullname').value.trim();
     const username = document.getElementById('user-username').value.trim().toLowerCase();
@@ -303,11 +303,46 @@ function saveUser() {
         return;
     }
 
-    // Check for duplicate username
+    // Check for duplicate username locally
     const duplicate = USERS.find(u => u.username === username && u.id !== id);
     if (duplicate) {
-        showToast('اسم المستخدم هذا مستخدم مسبقاً!', 'error');
+        showToast('اسم المستخدم هذا مستخدم مسبقاً في شركتك!', 'error');
         return;
+    }
+
+    // Check for duplicate username globally (SaaS requirement)
+    const existingUser = id ? USERS.find(u => u.id === id) : null;
+    if (!existingUser || existingUser.username !== username) {
+        if (!navigator.onLine) {
+            showToast('يجب الاتصال بالإنترنت للتحقق من توافر اسم المستخدم الجديد', 'error');
+            return;
+        }
+        try {
+            const saveBtn = document.querySelector('#user-form-container .btn-save');
+            const originalText = saveBtn.innerText;
+            saveBtn.innerText = 'جاري التحقق...';
+            saveBtn.disabled = true;
+            
+            const res = await fetch('api_index.php/public/check-username?username=' + encodeURIComponent(username));
+            const data = await res.json();
+            
+            saveBtn.innerText = originalText;
+            saveBtn.disabled = false;
+            
+            if (data.exists) {
+                showToast('اسم المستخدم هذا محجوز لشركة أو مستخدم آخر في النظام! الرجاء اختيار اسم مختلف.', 'error');
+                flashError('user-username');
+                return;
+            }
+        } catch (e) {
+            const saveBtn = document.querySelector('#user-form-container .btn-save');
+            if (saveBtn) {
+                saveBtn.innerText = '💾 حفظ المستخدم';
+                saveBtn.disabled = false;
+            }
+            showToast('حدث خطأ أثناء الاتصال بالخادم للتحقق من الاسم', 'error');
+            return;
+        }
     }
 
     if (id) {

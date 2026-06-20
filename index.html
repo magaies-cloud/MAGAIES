@@ -517,9 +517,10 @@
                     let html = '';
                     const renderLogos = () => {
                         data.partners.forEach(p => {
-                            html += `<a href="${p.link || '#'}" class="partner-logo" target="_blank" title="${p.name}">
-                                <img src="${p.logo}" alt="${p.name}"> ${p.name}
-                            </a>`;
+                            if (p.active === false) return;
+                            html += `<div class="partner-logo" title="${p.name}" style="display:inline-flex; align-items:center; gap:8px;">
+                                <img src="${p.logo}" alt="${p.name}" style="height:35px; border-radius:4px;"> ${p.name}
+                            </div>`;
                         });
                     };
                     renderLogos();

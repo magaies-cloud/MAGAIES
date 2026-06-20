@@ -144,6 +144,19 @@ if ($resource === 'exchange-rate' && $method === 'GET') {
     jsonResponse($ex_rate);
 }
 
+// Public: Check Username Uniqueness Globally
+if ($resource === 'public' && $action === 'check-username' && $method === 'GET') {
+    $username = $_GET['username'] ?? '';
+    if (empty($username)) {
+        jsonResponse(['success' => false, 'error' => 'Username required'], 400);
+    }
+    $query = "SELECT COUNT(*) FROM users WHERE username = ?";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([$username]);
+    $count = $stmt->fetchColumn();
+    jsonResponse(['success' => true, 'exists' => ($count > 0)]);
+}
+
 // ---------------------------------------------------------
 // AUTHENTICATION ROUTES (No token required)
 // ---------------------------------------------------------
@@ -509,6 +522,41 @@ if ($token === $saasSecret) {
                 jsonResponse(['error' => 'Failed to save file'], 500);
             }
         }
+        
+        // --- UPLOAD PARTNER LOGO ---
+        if ($method === 'POST' && $action === 'upload-partner') {
+            if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+                jsonResponse(['error' => 'No file uploaded or upload error'], 400);
+            }
+            $file = $_FILES['image'];
+            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+            if (!in_array(strtolower($ext), $allowed)) {
+                jsonResponse(['error' => 'Invalid file type'], 400);
+            }
+            
+            $dir = __DIR__ . '/uploads/partners/';
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+            
+            $filename = 'partner_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
+            $filepath = $dir . $filename;
+            
+            if (move_uploaded_file($file['tmp_name'], $filepath)) {
+                jsonResponse(['success' => true, 'url' => 'uploads/partners/' . $filename]);
+            } else {
+                jsonResponse(['error' => 'Failed to save file'], 500);
+            }
+        }
+        // Get global settings (public)
+        if ($method === 'GET' && $action === 'settings') {
+            $stmt = $pdo->query("SELECT ads, partners FROM global_settings LIMIT 1");
+            $settings = $stmt->fetch(PDO::FETCH_ASSOC);
+            jsonResponse(['success' => true, 'settings' => $settings]);
+        }
+        
+        // Removed check-username from here
         // --- BROADCAST MESSAGES ---
         if ($method === 'GET' && $action === 'messages') {
             try {
@@ -771,13 +819,45 @@ if ($resource === 'sync') {
             if ($table === 'settings') continue; // keep skipping settings if not implemented
             try {
                 if ($table === 'users') {
-                    $stmt = $pdo->prepare("SELECT data FROM `users` WHERE tenant_id = ? AND data IS NOT NULL");
+                    // Find the actual admin role ID from roles table to prevent dropdown mismatch
+                    $stmtRoles = $pdo->prepare("SELECT data FROM `roles` WHERE tenant_id = ?");
+                    $stmtRoles->execute([$tenant_id]);
+                    $roleRows = $stmtRoles->fetchAll(PDO::FETCH_COLUMN);
+                    $adminRoleId = 'role_admin_default';
+                    foreach ($roleRows as $roleJson) {
+                        $roleObj = json_decode($roleJson, true);
+                        if ($roleObj && isset($roleObj['isSystem']) && $roleObj['isSystem'] === true) {
+                            $adminRoleId = $roleObj['id'];
+                            break;
+                        }
+                    }
+
+                    $stmt = $pdo->prepare("SELECT id, username, data, role, status FROM `users` WHERE tenant_id = ?");
+                    $stmt->execute([$tenant_id]);
+                    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    $parsed_rows = [];
+                    foreach ($rows as $r) {
+                        if ($r['data']) {
+                            $parsed_rows[] = json_decode($r['data'], true);
+                        } else {
+                            $parsed_rows[] = [
+                                'id' => 'u_admin_default',
+                                'username' => $r['username'],
+                                'password' => '',
+                                'fullName' => 'مدير النظام (' . $r['username'] . ')',
+                                'roleId' => $adminRoleId,
+                                'warehouse' => 'all',
+                                'status' => $r['status'] ?? 'active',
+                                'isSystem' => ($r['role'] === 'admin')
+                            ];
+                        }
+                    }
                 } else {
                     $stmt = $pdo->prepare("SELECT data FROM `$table` WHERE tenant_id = ?");
+                    $stmt->execute([$tenant_id]);
+                    $rows        = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                    $parsed_rows = array_map(function ($r) { return json_decode($r, true); }, $rows);
                 }
-                $stmt->execute([$tenant_id]);
-                $rows        = $stmt->fetchAll(PDO::FETCH_COLUMN);
-                $parsed_rows = array_map(function ($r) { return json_decode($r, true); }, $rows);
                 
                 // Map table names back to frontend keys
                 $frontendKey = $table;
