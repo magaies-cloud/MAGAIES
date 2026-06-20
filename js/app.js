@@ -1482,11 +1482,16 @@ document.addEventListener("DOMContentLoaded", function() {
     const userData = JSON.parse(localStorage.getItem('user') || '{}');
     const nameEl = document.getElementById('header-user-name');
     const companyTopEl = document.getElementById('header-company-name-top');
+    const mainBrandEl = document.getElementById('main-brand-name');
     
-    const finalCompanyName = userData.company_name || localStorage.getItem('companyName');
+    let erpSettings = {};
+    try { erpSettings = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}'); } catch(e){}
+
+    const finalCompanyName = erpSettings.companyName || userData.company_name || localStorage.getItem('companyName');
     
     if (finalCompanyName) {
         if (companyTopEl) companyTopEl.innerText = finalCompanyName;
+        if (mainBrandEl) mainBrandEl.innerText = finalCompanyName;
     }
     
     if (nameEl && userData.username) {

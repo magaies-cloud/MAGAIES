@@ -372,6 +372,13 @@
                     <span class="slider"></span>
                 </label>
             </div>
+            <div class="setting-row" style="margin-top: 15px;">
+                <span class="form-label" style="margin:0;">إظهار الأذكار في الترويسة العلوية</span>
+                <label class="switch">
+                    <input type="checkbox" id="cfg-show-athkar" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
         </div>
 
         <!-- إدارة المستخدمين -->
@@ -429,6 +436,7 @@
         // UI
         if (cfg.fontSize)  document.getElementById('cfg-font-size').value = cfg.fontSize;
         document.getElementById('cfg-auto-dark').checked = cfg.autoDark !== false; // default true
+        document.getElementById('cfg-show-athkar').checked = cfg.showAthkar !== false; // default true
     }
 
     // ─── Save Settings ─────────────────────────────────────────
@@ -454,6 +462,7 @@
             // UI
             fontSize:          document.getElementById('cfg-font-size').value,
             autoDark:          document.getElementById('cfg-auto-dark').checked,
+            showAthkar:        document.getElementById('cfg-show-athkar').checked,
 
             savedAt: new Date().toISOString()
         };
