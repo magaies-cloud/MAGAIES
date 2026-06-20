@@ -67,13 +67,14 @@ function generateToken() {
 // ---------------------------------------------------------
 
 if ($resource === 'public' && $method === 'GET') {
-    $data = ['plans' => [], 'partners' => []];
+    $data = ['plans' => [], 'partners' => [], 'ads' => []];
     try {
-        $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('saas_plans', 'saas_partners')");
+        $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('saas_plans', 'saas_partners', 'saas_ads')");
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as $row) {
             if ($row['setting_key'] === 'saas_plans') $data['plans'] = json_decode($row['setting_value'], true);
             if ($row['setting_key'] === 'saas_partners') $data['partners'] = json_decode($row['setting_value'], true);
+            if ($row['setting_key'] === 'saas_ads') $data['ads'] = json_decode($row['setting_value'], true);
         }
     } catch (Exception $e) {}
     
@@ -474,6 +475,39 @@ if ($token === $saasSecret) {
             $val = json_encode($input['partners'] ?? []);
             $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('saas_partners', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$val, $val]);
             jsonResponse(['success' => true]);
+        }
+        
+        // --- ADS ---
+        if ($method === 'POST' && $action === 'settings' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'ads') {
+            $val = json_encode($input['ads'] ?? []);
+            $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('saas_ads', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$val, $val]);
+            jsonResponse(['success' => true]);
+        }
+        
+        if ($method === 'POST' && $action === 'upload-ad') {
+            if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+                jsonResponse(['error' => 'No file uploaded or upload error'], 400);
+            }
+            $file = $_FILES['image'];
+            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            if (!in_array(strtolower($ext), $allowed)) {
+                jsonResponse(['error' => 'Invalid file type'], 400);
+            }
+            
+            $dir = __DIR__ . '/uploads/ads/';
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+            
+            $filename = 'ad_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
+            $filepath = $dir . $filename;
+            
+            if (move_uploaded_file($file['tmp_name'], $filepath)) {
+                jsonResponse(['success' => true, 'url' => 'uploads/ads/' . $filename]);
+            } else {
+                jsonResponse(['error' => 'Failed to save file'], 500);
+            }
         }
         // --- BROADCAST MESSAGES ---
         if ($method === 'GET' && $action === 'messages') {
