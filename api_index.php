@@ -310,16 +310,25 @@ if ($resource === 'auth') {
             $tokenExpiry = date('Y-m-d H:i:s', strtotime('+24 hours'));
             $pdo->prepare("UPDATE users SET token = ?, token_expires_at = ? WHERE id = ?")->execute([$token, $tokenExpiry, $user['id']]);
 
+            $userData = [
+                'username'     => $user['username'],
+                'role'         => $user['role'],
+                'tenant_id'    => $user['tenant_id'],
+                'company_name' => $user['company_name'],
+                'subdomain'    => $user['subdomain']
+            ];
+            
+            if (!empty($user['data'])) {
+                $extraData = json_decode($user['data'], true);
+                if (is_array($extraData)) {
+                    $userData = array_merge($userData, $extraData);
+                }
+            }
+
             jsonResponse([
                 'success' => true,
                 'token'   => $token,
-                'user'    => [
-                    'username'     => $user['username'],
-                    'role'         => $user['role'],
-                    'tenant_id'    => $user['tenant_id'],
-                    'company_name' => $user['company_name'],
-                    'subdomain'    => $user['subdomain']
-                ]
+                'user'    => $userData
             ]);
         } else {
             jsonResponse(['error' => 'اسم المستخدم أو كلمة المرور غير صحيحة'], 401);

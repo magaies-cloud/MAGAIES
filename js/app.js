@@ -588,6 +588,25 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let perms = user.permissions || {};
         
+        // Resolve permissions from local roles array if missing
+        if (Object.keys(perms).length === 0 && user.roleId) {
+            try {
+                const prefix = user.tenant_id ? ('tenant_' + user.tenant_id + '_') : 'tenant_default_';
+                const rolesStr = localStorage.getItem(prefix + 'erp_roles_v1');
+                if (rolesStr) {
+                    const rolesArr = JSON.parse(rolesStr);
+                    const matchedRole = rolesArr.find(r => r.id === user.roleId);
+                    if (matchedRole && matchedRole.permissions) {
+                        perms = matchedRole.permissions;
+                        // Also upgrade security level if needed
+                        if (matchedRole.securityLevel && matchedRole.securityLevel > (user.securityLevel || 0)) {
+                            user.securityLevel = matchedRole.securityLevel;
+                        }
+                    }
+                }
+            } catch(e) { console.error("Error resolving permissions", e); }
+        }
+        
         // Fallback for legacy admin session or missing permissions, and Super Admin Bypass
         if (user.username === 'admin' || user.role === 'admin' || user.roleId === 'admin_fallback' || user.securityLevel >= 9) {
             perms = {
@@ -932,6 +951,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         let perms = user.permissions || {};
         
+        if (Object.keys(perms).length === 0 && user.roleId) {
+            try {
+                const prefix = user.tenant_id ? ('tenant_' + user.tenant_id + '_') : 'tenant_default_';
+                const rolesStr = localStorage.getItem(prefix + 'erp_roles_v1');
+                if (rolesStr) {
+                    const matchedRole = JSON.parse(rolesStr).find(r => r.id === user.roleId);
+                    if (matchedRole && matchedRole.permissions) perms = matchedRole.permissions;
+                }
+            } catch(e) {}
+        }
+        
         if (user.username === 'admin' || user.role === 'admin' || user.roleId === 'admin_fallback') {
             perms = {
                 sales:{view:true,add:true,edit:true,delete:true}, 
@@ -1064,6 +1094,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const user = JSON.parse(userStr);
         
         let perms = user.permissions || {};
+        
+        if (Object.keys(perms).length === 0 && user.roleId) {
+            try {
+                const prefix = user.tenant_id ? ('tenant_' + user.tenant_id + '_') : 'tenant_default_';
+                const rolesStr = localStorage.getItem(prefix + 'erp_roles_v1');
+                if (rolesStr) {
+                    const matchedRole = JSON.parse(rolesStr).find(r => r.id === user.roleId);
+                    if (matchedRole && matchedRole.permissions) {
+                        perms = matchedRole.permissions;
+                        if (matchedRole.securityLevel && matchedRole.securityLevel > (user.securityLevel || 0)) {
+                            user.securityLevel = matchedRole.securityLevel;
+                        }
+                    }
+                }
+            } catch(e) {}
+        }
+        
         if (user.username === 'admin' || user.role === 'admin' || user.securityLevel >= 5) {
             if (!perms[moduleId]) perms[moduleId] = {};
             perms[moduleId].edit = true; // Admins always have edit capability implicitly here
