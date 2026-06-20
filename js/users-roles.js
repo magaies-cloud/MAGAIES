@@ -48,9 +48,18 @@ function loadData() {
     }
 
     if (USERS.length === 0) {
+        let defaultUsername = 'admin';
+        try {
+            const currentUserStr = localStorage.getItem('user');
+            if (currentUserStr) {
+                const cu = JSON.parse(currentUserStr);
+                if (cu.username) defaultUsername = cu.username;
+            }
+        } catch(e) {}
+
         USERS.push({
             id: 'u_admin_default',
-            username: 'admin',
+            username: defaultUsername,
             password: '', // Should be set by user securely
             fullName: 'مدير النظام',
             roleId: ROLES[0].id,
@@ -719,3 +728,10 @@ window.selectAllUserPermissions = function() {
     
     tbody.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = !allChecked);
 };
+
+window.addEventListener('cloudDataRestored', () => {
+    loadData();
+    renderRolesTable();
+    renderUsersTable();
+});
+

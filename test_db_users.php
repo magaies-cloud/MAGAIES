@@ -1,0 +1,1 @@
+<?php require 'api/db.php'; $tenant_id = 2; $stmt = $pdo->prepare('SELECT id, username, data, role, status FROM users WHERE tenant_id = ?'); $stmt->execute([$tenant_id]); $rows = $stmt->fetchAll(PDO::FETCH_ASSOC); print_r($rows); ?>

@@ -890,22 +890,12 @@ if ($resource === 'sync') {
                         if (!empty($records)) {
                             try {
                                 if ($table === 'users') {
-                                    $stmtCheck = $pdo->prepare("SELECT id, username, password, data FROM `users` WHERE tenant_id = ?");
+                                    $stmtCheck = $pdo->prepare("SELECT id, username, password FROM `users` WHERE tenant_id = ?");
                                     $stmtCheck->execute([$tenant_id]);
                                     $existingUsers = $stmtCheck->fetchAll(PDO::FETCH_ASSOC);
-                                    
-                                    $userMapByLocalId = [];
-                                    $userMapByUsername = [];
+                                    $userMap = [];
                                     foreach ($existingUsers as $eu) {
-                                        $userMapByUsername[$eu['username']] = $eu['id'];
-                                        if ($eu['data']) {
-                                            $decoded = json_decode($eu['data'], true);
-                                            if ($decoded && isset($decoded['id'])) {
-                                                $userMapByLocalId[$decoded['id']] = $eu['id'];
-                                            }
-                                        } else if (isset($eu['role']) && $eu['role'] === 'admin') {
-                                            $userMapByLocalId['u_admin_default'] = $eu['id'];
-                                        }
+                                        $userMap[$eu['username']] = $eu['id'];
                                     }
                                     
                                     $usersToUpdatePass = [];
@@ -920,24 +910,16 @@ if ($resource === 'sync') {
                                         
                                         if ($username === 'admin') continue;
                                         
-                                        $frontendId = $record['id'] ?? null;
-                                        
                                         $recordData = $record;
                                         unset($recordData['password']);
                                         $jsonData = json_encode($recordData, JSON_UNESCAPED_UNICODE);
                                         
-                                        $uId = null;
-                                        if ($frontendId && isset($userMapByLocalId[$frontendId])) {
-                                            $uId = $userMapByLocalId[$frontendId];
-                                        } else if (isset($userMapByUsername[$username])) {
-                                            $uId = $userMapByUsername[$username];
-                                        }
-                                        
-                                        if ($uId) {
+                                        if (isset($userMap[$username])) {
+                                            $uId = $userMap[$username];
                                             if (!empty($password)) {
-                                                $usersToUpdatePass[$uId] = [password_hash($password, PASSWORD_DEFAULT), $jsonData, $status, $username];
+                                                $usersToUpdatePass[$uId] = [password_hash($password, PASSWORD_DEFAULT), $jsonData, $status];
                                             } else {
-                                                $usersToUpdateNoPass[$uId] = [$jsonData, $status, $username];
+                                                $usersToUpdateNoPass[$uId] = [$jsonData, $status];
                                             }
                                         } else {
                                             $usersToInsert[] = [$tenant_id, $username, password_hash($password, PASSWORD_DEFAULT), 'employee', $status, $jsonData];
@@ -948,31 +930,27 @@ if ($resource === 'sync') {
                                         $sql = "UPDATE `users` SET password = CASE id ";
                                         $sqlData = "data = CASE id ";
                                         $sqlStatus = "status = CASE id ";
-                                        $sqlUsername = "username = CASE id ";
                                         $ids = [];
                                         foreach ($usersToUpdatePass as $uId => $vals) {
                                             $sql .= "WHEN $uId THEN " . $pdo->quote($vals[0]) . " ";
                                             $sqlData .= "WHEN $uId THEN " . $pdo->quote($vals[1]) . " ";
                                             $sqlStatus .= "WHEN $uId THEN " . $pdo->quote($vals[2]) . " ";
-                                            $sqlUsername .= "WHEN $uId THEN " . $pdo->quote($vals[3]) . " ";
                                             $ids[] = $uId;
                                         }
-                                        $sql .= "END, " . $sqlData . "END, " . $sqlStatus . "END, " . $sqlUsername . "END WHERE id IN (" . implode(',', $ids) . ")";
+                                        $sql .= "END, " . $sqlData . "END, " . $sqlStatus . "END WHERE id IN (" . implode(',', $ids) . ")";
                                         $pdo->exec($sql);
                                     }
                                     
                                     if (!empty($usersToUpdateNoPass)) {
                                         $sqlData = "UPDATE `users` SET data = CASE id ";
                                         $sqlStatus = "status = CASE id ";
-                                        $sqlUsername = "username = CASE id ";
                                         $ids = [];
                                         foreach ($usersToUpdateNoPass as $uId => $vals) {
                                             $sqlData .= "WHEN $uId THEN " . $pdo->quote($vals[0]) . " ";
                                             $sqlStatus .= "WHEN $uId THEN " . $pdo->quote($vals[1]) . " ";
-                                            $sqlUsername .= "WHEN $uId THEN " . $pdo->quote($vals[2]) . " ";
                                             $ids[] = $uId;
                                         }
-                                        $sqlData .= "END, " . $sqlStatus . "END, " . $sqlUsername . "END WHERE id IN (" . implode(',', $ids) . ")";
+                                        $sqlData .= "END, " . $sqlStatus . "END WHERE id IN (" . implode(',', $ids) . ")";
                                         $pdo->exec($sqlData);
                                     }
                                     
