@@ -280,12 +280,17 @@
                     <label>اسم الشركة (عربي أو إنجليزي)</label>
                 </div>
 
-                <div class="input-group">
+                <div class="input-group" style="margin-bottom: 25px; text-align: right;">
+                    <label style="position: static; font-size: 1rem; color: #38bdf8; background: none; padding: 0; margin-bottom: 5px; display: block; pointer-events: auto;">
+                        الرابط المخصص للشركة
+                    </label>
+                    <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 0; margin-bottom: 10px; line-height: 1.4;">
+                        (يجب أن يكون باللغة الإنجليزية وبدون مسافات. هذا هو الرابط الفريد الذي ستدخل من خلاله أنت وموظفيك إلى النظام)
+                    </p>
                     <div class="subdomain-group">
-                        <input type="text" class="input-field" id="subdomain" placeholder=" " style="text-align:right;" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9\-]/g, '')" onblur="checkUnique('subdomain', 'subdomain', 'هذا الرابط مستخدم مسبقاً، يرجى اختيار رابط آخر')">
+                        <input type="text" class="input-field" id="subdomain" placeholder="مثال: alofoq" style="text-align:right;" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9\-]/g, '')" onblur="checkUnique('subdomain', 'subdomain', 'هذا الرابط مستخدم مسبقاً، يرجى اختيار رابط آخر')">
                         <div class="subdomain-addon">.elsajana.com</div>
                     </div>
-                    <label style="top: -10px; font-size: 0.8rem; background:transparent;">الرابط المخصص للشركة</label>
                 </div>
 
                 <button type="button" class="btn-submit" onclick="nextStep(2)">التالي ⬅️</button>
@@ -465,15 +470,34 @@
             document.getElementById('strength-text').style.color = color;
         }
 
-        function nextStep(step) {
+        async function nextStep(step) {
             if (step === 2) {
                 if (!document.getElementById('company_name').value || !document.getElementById('subdomain').value) {
                     showModal('error', 'نقص البيانات', 'يرجى إدخال اسم الشركة والرابط المخصص');
                     return;
                 }
+                document.querySelector('#step-1 .btn-submit').innerText = 'جاري التحقق...';
+                const isSubUnique = await checkUnique('subdomain', 'subdomain', 'هذا الرابط مستخدم مسبقاً، يرجى اختيار رابط آخر');
+                document.querySelector('#step-1 .btn-submit').innerText = 'التالي ⬅️';
+                if (!isSubUnique) {
+                    showModal('error', 'الرابط محجوز', 'الرابط المخصص الذي أدخلته محجوز لشركة أخرى. يرجى كتابة رابط مختلف.');
+                    return;
+                }
             } else if (step === 3) {
                 if (!document.getElementById('owner_name').value || !document.getElementById('owner_phone').value || !document.getElementById('owner_email').value) {
                     showModal('error', 'نقص البيانات', 'يرجى إكمال بيانات التواصل الأساسية');
+                    return;
+                }
+                
+                document.querySelector('#step-2 .btn-submit:nth-child(2)').innerText = 'جاري التحقق...';
+                const uPhone = await checkUnique('owner_phone', 'phone', 'رقم الهاتف هذا مسجل لدينا مسبقاً');
+                const uPhone2 = await checkUnique('owner_phone2', 'phone', 'رقم الهاتف مسجل لدينا مسبقاً');
+                const uEmail = await checkUnique('owner_email', 'email', 'البريد الإلكتروني مستخدم مسبقاً');
+                document.querySelector('#step-2 .btn-submit:nth-child(2)').innerText = 'التالي ⬅️';
+                
+                let p2Val = document.getElementById('owner_phone2').value;
+                if (!uPhone || (!uPhone2 && p2Val) || !uEmail) {
+                    showModal('error', 'بيانات مكررة', 'بعض البيانات المدخلة (كالهاتف أو الإيميل) مسجلة مسبقاً باللون الأحمر. يرجى تصحيحها.');
                     return;
                 }
             }
