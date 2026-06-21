@@ -144,17 +144,36 @@ if ($resource === 'exchange-rate' && $method === 'GET') {
     jsonResponse($ex_rate);
 }
 
-// Public: Check Username Uniqueness Globally
-if ($resource === 'public' && $action === 'check-username' && $method === 'GET') {
-    $username = $_GET['username'] ?? '';
-    if (empty($username)) {
-        jsonResponse(['success' => false, 'error' => 'Username required'], 400);
+// Public: Check Uniqueness Globally
+if ($resource === 'public' && $action === 'check-unique' && $method === 'GET') {
+    $field = $_GET['field'] ?? '';
+    $value = $_GET['value'] ?? '';
+    if (empty($field) || empty($value)) {
+        jsonResponse(['success' => false, 'error' => 'Field and value required'], 400);
     }
-    $query = "SELECT COUNT(*) FROM users WHERE username = ?";
-    $stmt = $pdo->prepare($query);
-    $stmt->execute([$username]);
-    $count = $stmt->fetchColumn();
-    jsonResponse(['success' => true, 'exists' => ($count > 0)]);
+    
+    $exists = false;
+    if ($field === 'username') {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+        $stmt->execute([$value]);
+        $exists = ($stmt->fetchColumn() > 0);
+    } elseif ($field === 'subdomain') {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM tenants WHERE subdomain = ?");
+        $stmt->execute([$value]);
+        $exists = ($stmt->fetchColumn() > 0);
+    } elseif ($field === 'email') {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM tenants WHERE owner_email = ?");
+        $stmt->execute([$value]);
+        $exists = ($stmt->fetchColumn() > 0);
+    } elseif ($field === 'phone') {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM tenants WHERE owner_phone = ? OR phone2 = ?");
+        $stmt->execute([$value, $value]);
+        $exists = ($stmt->fetchColumn() > 0);
+    } else {
+        jsonResponse(['success' => false, 'error' => 'Invalid field'], 400);
+    }
+    
+    jsonResponse(['success' => true, 'exists' => $exists]);
 }
 
 // ---------------------------------------------------------

@@ -259,7 +259,7 @@
             <div class="input-group">
                 <label>الرابط المخصص للشركة</label>
                 <div class="subdomain-group">
-                    <input type="text" class="input-field" id="subdomain" placeholder="alofoq" style="text-align:right;" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9\-]/g, '')">
+                    <input type="text" class="input-field" id="subdomain" placeholder="alofoq" style="text-align:right;" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9\-]/g, '')" onblur="checkUnique('subdomain', 'subdomain', 'هذا الرابط مستخدم مسبقاً، يرجى اختيار رابط آخر')">
                     <div class="subdomain-addon">.elsajana.com</div>
                 </div>
             </div>
@@ -271,22 +271,22 @@
 
             <div class="input-group">
                 <label>رقم الهاتف الأساسي <span style="color: #ef4444;">*</span></label>
-                <input type="tel" class="input-field" id="owner_phone" placeholder="09XXXXXXXX">
+                <input type="tel" class="input-field" id="owner_phone" placeholder="09XXXXXXXX" onblur="checkUnique('owner_phone', 'phone', 'رقم الهاتف هذا مسجل لدينا مسبقاً')">
             </div>
 
             <div class="input-group">
                 <label>رقم هاتف إضافي (اختياري)</label>
-                <input type="tel" class="input-field" id="owner_phone2" placeholder="09XXXXXXXX">
+                <input type="tel" class="input-field" id="owner_phone2" placeholder="09XXXXXXXX" onblur="checkUnique('owner_phone2', 'phone', 'رقم الهاتف هذا مسجل لدينا مسبقاً')">
             </div>
 
             <div class="input-group">
                 <label>البريد الإلكتروني</label>
-                <input type="email" class="input-field" id="owner_email" placeholder="example@email.com">
+                <input type="email" class="input-field" id="owner_email" placeholder="example@email.com" onblur="checkUnique('owner_email', 'email', 'البريد الإلكتروني هذا مستخدم مسبقاً')">
             </div>
 
             <div class="input-group">
                 <label>اسم المستخدم (لمدير النظام)</label>
-                <input type="text" class="input-field" id="username" placeholder="admin">
+                <input type="text" class="input-field" id="username" placeholder="admin" onblur="checkUnique('username', 'username', 'اسم المستخدم هذا غير متاح، يرجى اختيار اسم آخر')">
             </div>
 
             <div class="input-group">
@@ -407,6 +407,42 @@
             document.getElementById('strength-text').style.color = color;
         }
 
+        async function checkUnique(fieldId, fieldType, errorMsg) {
+            const el = document.getElementById(fieldId);
+            if (!el || !el.value.trim()) return true;
+            
+            const existingError = document.getElementById('error-' + fieldId);
+            if (existingError) existingError.remove();
+            el.style.borderColor = '#334155';
+            
+            try {
+                const res = await fetch(`api_index.php/public/check-unique?field=${fieldType}&value=${encodeURIComponent(el.value.trim())}`);
+                const data = await res.json();
+                if (data.exists) {
+                    el.style.borderColor = '#ef4444';
+                    const err = document.createElement('div');
+                    err.id = 'error-' + fieldId;
+                    err.style.color = '#ef4444';
+                    err.style.fontSize = '0.8rem';
+                    err.style.marginTop = '5px';
+                    err.style.textAlign = 'right';
+                    err.innerText = errorMsg;
+                    
+                    // If subdomain, append to parent of subdomain-group, else append to input-group
+                    if(fieldId === 'subdomain') el.parentElement.parentElement.appendChild(err);
+                    else el.parentElement.appendChild(err);
+                    
+                    return false;
+                } else {
+                    el.style.borderColor = '#22c55e';
+                    return true;
+                }
+            } catch (e) {
+                console.error("Uniqueness check failed", e);
+                return true;
+            }
+        }
+
         async function handleRegister() {
             const company_name = document.getElementById('company_name').value;
             const subdomain = document.getElementById('subdomain').value;
@@ -425,6 +461,23 @@
 
             if(password !== confirm_password) {
                 showModal('error', 'خطأ في الإدخال', 'كلمة المرور وتأكيد كلمة المرور غير متطابقتين!');
+                return;
+            }
+
+            // Ensure all fields are unique before proceeding
+            document.querySelector('.btn-submit').innerHTML = 'جاري التحقق...';
+            document.querySelector('.btn-submit').disabled = true;
+
+            const uSub = await checkUnique('subdomain', 'subdomain', 'هذا الرابط مستخدم مسبقاً، يرجى اختيار رابط آخر');
+            const uPhone = await checkUnique('owner_phone', 'phone', 'رقم الهاتف هذا مسجل لدينا مسبقاً');
+            const uPhone2 = await checkUnique('owner_phone2', 'phone', 'رقم الهاتف هذا مسجل لدينا مسبقاً');
+            const uEmail = await checkUnique('owner_email', 'email', 'البريد الإلكتروني هذا مستخدم مسبقاً');
+            const uUser = await checkUnique('username', 'username', 'اسم المستخدم هذا غير متاح، يرجى اختيار اسم آخر');
+
+            if (!uSub || !uPhone || (!uPhone2 && owner_phone2) || (!uEmail && owner_email) || !uUser) {
+                document.querySelector('.btn-submit').innerHTML = 'إنشاء الحساب الآن';
+                document.querySelector('.btn-submit').disabled = false;
+                showModal('error', 'بيانات مسجلة مسبقاً', 'يرجى تصحيح الأخطاء المحددة باللون الأحمر والمحاولة مرة أخرى');
                 return;
             }
 
