@@ -538,7 +538,6 @@
                             </div>
                             
                             <div style="padding:25px; background: rgba(0,0,0,0.2);">
-                                <input type="hidden" id="item-code">
 
                                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
                                     
@@ -552,7 +551,10 @@
                                             <div id="item-qr-box" style="width:100px; height:100px; border:2px dashed rgba(56,189,248,0.4); border-radius:14px; display:flex; flex-direction:column; justify-content:center; align-items:center; background:rgba(0,0,0,0.4); flex-shrink:0; transition: all 0.3s;"><span style="font-size:2rem;">📱</span><span style="font-size:0.75rem; color:#38bdf8; margin-top:5px; font-weight:bold;">QR تلقائي</span></div>
                                             <div class="form-grid" style="flex:1; grid-template-columns: 1fr;">
                                                 <div class="input-group"><label style="color:#fff;">اسم الصنف <span style="color:#ef4444;">*</span></label><input type="text" id="item-name-input" placeholder="مثال: سيخ 3 لنيه ماستر" style="border-color: rgba(56,189,248,0.5); background: rgba(0,0,0,0.3);"></div>
-                                                <div class="input-group"><label>الاسم اللاتيني</label><input type="text" id="item-name-latin" placeholder="Rebar 3 Linia"></div>
+                                                <div style="display:flex; gap:10px;">
+                                                    <div class="input-group" style="flex:1;"><label>كود الصنف (SKU)</label><input type="text" id="item-code" placeholder="تلقائي إذا تُرك فارغاً" style="color:#38bdf8; font-weight:bold;"></div>
+                                                    <div class="input-group" style="flex:1;"><label>الاسم اللاتيني</label><input type="text" id="item-name-latin" placeholder="Rebar 3 Linia"></div>
+                                                </div>
                                             </div>
                                         </div>
                                         
@@ -1697,8 +1699,11 @@ function openSafeForm() {
                     units.push({ unitName: inputs[0].value || baseUnit, factor: parseFloat(inputs[1].value) || 1, barcode: inputs[2].value, cashPrice: parseFloat(inputs[3].value) || 0, creditPrice: parseFloat(inputs[4].value) || 0, minPrice: parseFloat(inputs[5].value) || 0, weight: parseFloat(inputs[6].value) || 0, stock: 0 });
                 }
             });
+            const itemBarcode = document.getElementById('item-barcode').value;
+            const newBarcodes = [itemBarcode, ...units.map(u => u.barcode)].filter(b => b && b.trim() !== '');
+
             const costRadio = document.querySelector('input[name="cost_method"]:checked');
-            const itemData = { id, name, nameLatin: document.getElementById('item-name-latin').value, barcode: document.getElementById('item-barcode').value, category: document.getElementById('item-category').value, subCategory: document.getElementById('item-sub-category').value, nature: document.getElementById('item-nature').value, brand: document.getElementById('item-brand').value, status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive', sellingPrice: parseFloat(document.getElementById('item-selling-price').value) || 0, maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0, taxable: document.getElementById('item-taxable').checked, taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0, costMethod: costRadio ? costRadio.value : 'lastPurchase', openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0, openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0, binLocation: document.getElementById('item-bin-location').value, maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0, minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0, reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0, baseUnit, units, description: document.getElementById('item-description').value };
+            const itemData = { id, name, nameLatin: document.getElementById('item-name-latin').value, barcode: itemBarcode, category: document.getElementById('item-category').value, subCategory: document.getElementById('item-sub-category').value, nature: document.getElementById('item-nature').value, brand: document.getElementById('item-brand').value, status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive', sellingPrice: parseFloat(document.getElementById('item-selling-price').value) || 0, maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0, taxable: document.getElementById('item-taxable').checked, taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0, costMethod: costRadio ? costRadio.value : 'lastPurchase', openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0, openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0, binLocation: document.getElementById('item-bin-location').value, maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0, minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0, reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0, baseUnit, units, description: document.getElementById('item-description').value };
             let items = [];
             try {
                 items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
@@ -1707,6 +1712,17 @@ function openSafeForm() {
                 items = [];
             }
             items = items.filter(i => !i.deleted);
+            
+            const duplicateName = items.find(i => i.name.trim() === name.trim() && i.id !== id);
+            if (duplicateName) { alert('هذا الصنف مسجل مسبقاً بنفس الاسم.'); return; }
+            
+            for (const b of newBarcodes) {
+                const duplicateBarcode = items.find(i => i.id !== id && (i.barcode === b || (i.units && i.units.some(u => u.barcode === b))));
+                if (duplicateBarcode) {
+                    alert('الباركود (' + b + ') مستخدم مسبقاً في صنف آخر: ' + duplicateBarcode.name);
+                    return;
+                }
+            }
             const ei = items.findIndex(i => i.id === id);
             if(ei > -1) { if(items[ei].units) { itemData.units.forEach((u,i) => { if(items[ei].units[i]) u.stock = items[ei].units[i].stock || 0; }); } items[ei] = itemData; }
             else { itemData.units[0].stock = itemData.openingQty; items.push(itemData); }
@@ -1739,7 +1755,8 @@ function openSafeForm() {
             
             if (currentItemSearchQuery) {
                 items = items.filter(i => {
-                    const str = (i.id + ' ' + i.name + ' ' + (i.category||'') + ' ' + (i.barcode||'')).toLowerCase();
+                    const unitBarcodes = i.units ? i.units.map(u => u.barcode || '').join(' ') : '';
+                    const str = (i.id + ' ' + i.name + ' ' + (i.category||'') + ' ' + (i.barcode||'') + ' ' + unitBarcodes).toLowerCase();
                     return str.includes(currentItemSearchQuery);
                 });
             }
