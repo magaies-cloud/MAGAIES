@@ -1725,32 +1725,72 @@ function openSafeForm() {
                 items = [];
             }
             items = items.filter(i => !i.deleted);
+            
             const totalEl = document.getElementById('kpi-total-items');
             if(totalEl) totalEl.innerText = items.length + ' صنف';
+            
             let lowStock = 0;
-            tbody.innerHTML = '';
             items.forEach(i => {
-                let bu = i.baseUnit || (i.units && i.units[0] ? i.units[0].unitName : '-');
-                let price = i.sellingPrice || (i.units && i.units[0] ? i.units[0].cashPrice : 0);
                 let stock = i.units && i.units[0] ? (i.units[0].stock || 0) : 0;
                 if(stock <= (i.minLimit || 5)) lowStock++;
+            });
+            const lowEl = document.getElementById('kpi-low-stock');
+            if(lowEl) lowEl.innerText = lowStock + ' صنف';
+            
+            if (currentItemSearchQuery) {
+                items = items.filter(i => {
+                    const str = (i.id + ' ' + i.name + ' ' + (i.category||'') + ' ' + (i.barcode||'')).toLowerCase();
+                    return str.includes(currentItemSearchQuery);
+                });
+            }
+            
+            const totalPages = Math.ceil(items.length / itemsPerPage) || 1;
+            if (currentPageItems > totalPages) currentPageItems = totalPages;
+            const start = (currentPageItems - 1) * itemsPerPage;
+            const paginatedItems = items.slice(start, start + itemsPerPage);
+            
+            tbody.innerHTML = '';
+            paginatedItems.forEach(i => {
+                let bu = i.baseUnit || (i.units && i.units[0] ? i.units[0].unitName : '-');
+                let price = i.sellingPrice || (i.units && i.units[0] ? i.units[0].cashPrice : 0);
                 const badge = i.status === 'inactive' ? '<span style="color:var(--danger-color); font-size:0.8rem; font-weight:bold; background:rgba(239,68,68,0.1); padding:3px 8px; border-radius:6px;">🔴 موقوف</span>' : '<span style="color:var(--success-color); font-size:0.8rem; font-weight:bold; background:rgba(52,211,153,0.1); padding:3px 8px; border-radius:6px;">🟢 نشط</span>';
                 const subCat = i.subCategory ? ' <small style="color:var(--text-secondary);">(' + i.subCategory + ')</small>' : '';
                 tbody.insertAdjacentHTML('beforeend', `<tr class="item-row"><td class="item-id-cell" style="font-weight:bold; color:#38bdf8;">${i.id}</td><td class="item-name-cell" style="font-weight:bold;">${i.name}${subCat}</td><td><span style="background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:6px; font-size:0.85rem;">${i.category || '-'}</span></td><td>${bu}</td><td style="font-weight:bold; color:var(--success-color);">${price.toLocaleString()} SDG</td><td>${badge}</td><td><button class="btn-text" style="color:#a855f7; font-size:1.1rem; margin-left:8px;" onclick="editItem('${i.id}')" title="تعديل">✏️</button><button class="btn-text" style="color:var(--danger-color); font-size:1.1rem;" onclick="deleteItem('${i.id}')" title="حذف">🗑️</button></td></tr>`);
             });
-            const lowEl = document.getElementById('kpi-low-stock');
-            if(lowEl) lowEl.innerText = lowStock + ' صنف';
+            
+            renderItemsPagination(totalPages);
             renderCategoriesList();
         }
+        
+        function renderItemsPagination(totalPages) {
+            let pagContainer = document.getElementById('items-pagination-container');
+            if (!pagContainer) {
+                const tableWrap = document.querySelector('#inner-products .table-responsive');
+                if (tableWrap) {
+                    tableWrap.insertAdjacentHTML('afterend', '<div id="items-pagination-container" style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; padding:10px 20px; background:rgba(0,0,0,0.2); border-radius:10px;"></div>');
+                    pagContainer = document.getElementById('items-pagination-container');
+                }
+            }
+            if (pagContainer) {
+                pagContainer.innerHTML = `
+                    <button class="btn-action" style="padding:5px 15px;" onclick="if(currentPageItems>1){currentPageItems--; renderItems();}">السابق</button>
+                    <span style="color:var(--text-secondary); font-weight:bold;">صفحة ${currentPageItems} من ${totalPages}</span>
+                    <button class="btn-action" style="padding:5px 15px;" onclick="if(currentPageItems<${totalPages}){currentPageItems++; renderItems();}">التالي</button>
+                `;
+            }
+        }
+
+        let currentPageItems = 1;
+        const itemsPerPage = 20;
+        let currentItemSearchQuery = '';
 
         let itemSearchTimeout = null;
         function filterItemsTable() {
             clearTimeout(itemSearchTimeout);
             itemSearchTimeout = setTimeout(() => {
-                const f = (document.getElementById('item-search').value || '').toLowerCase();
-                document.querySelectorAll('.item-row').forEach(r => {
-                    r.style.display = r.textContent.toLowerCase().includes(f) ? '' : 'none';
-                });
+                currentItemSearchQuery = (document.getElementById('item-search').value || '').toLowerCase();
+                currentPageItems = 1;
+                renderItems();
             }, 300);
         }
 
