@@ -288,7 +288,7 @@
                         (يجب أن يكون باللغة الإنجليزية وبدون مسافات. هذا هو الرابط الفريد الذي ستدخل من خلاله أنت وموظفيك إلى النظام)
                     </p>
                     <div class="subdomain-group">
-                        <input type="text" class="input-field step-1-input" id="subdomain" placeholder="مثال: alofoq" style="text-align:right;" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9\-]/g, '')" onblur="checkUnique('subdomain', 'subdomain', 'هذا الرابط مستخدم مسبقاً، يرجى اختيار رابط آخر')">
+                        <input type="text" class="input-field step-1-input" id="subdomain" placeholder="مثال: alofoq" style="text-align:right;" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9\-]/g, ''); debounceCheckUnique('subdomain', 'subdomain', 'هذا الرابط مستخدم مسبقاً، يرجى اختيار رابط آخر')">
                         <div class="subdomain-addon">.elsajana.com</div>
                     </div>
                 </div>
@@ -570,13 +570,22 @@
             btn.disabled = false;
         }
 
+        let checkTimeout;
+        function debounceCheckUnique(fieldId, fieldType, errorMsg) {
+            clearTimeout(checkTimeout);
+            checkTimeout = setTimeout(() => {
+                checkUnique(fieldId, fieldType, errorMsg);
+            }, 400); // 400ms delay after typing stops
+        }
+
         async function checkUnique(fieldId, fieldType, errorMsg) {
             const el = document.getElementById(fieldId);
-            if (!el || !el.value.trim()) return true;
-            
-            const existingError = document.getElementById('error-' + fieldId);
-            if (existingError) existingError.remove();
-            el.style.borderColor = '#334155';
+            if (!el || !el.value.trim()) {
+                const oldErr = document.getElementById('error-' + fieldId);
+                if (oldErr) oldErr.remove();
+                if (el) el.style.borderColor = '#334155';
+                return true;
+            }
             
             try {
                 const res = await fetch(`api_index.php?r=public&a=check-unique&field=${fieldType}&value=${encodeURIComponent(el.value.trim())}`);
