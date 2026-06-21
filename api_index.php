@@ -198,7 +198,7 @@ if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
     $stmt->execute([$email, $otp]);
     
     // إرسال الإيميل عبر خدمة Brevo
-    $brevo_api_key = getenv('BREVO_API_KEY') ?: 'YOUR_BREVO_API_KEY'; // سيتم تغييره بمجرد الحصول عليه
+    $brevo_api_key = getenv('BREVO_API_KEY') ?: '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';
     
     if ($brevo_api_key === 'YOUR_BREVO_API_KEY' || empty($brevo_api_key)) {
         // وضع التطوير (المحاكاة) إذا لم يتم تفعيل الـ API
