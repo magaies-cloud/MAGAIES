@@ -9,9 +9,13 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS tenants (
     subdomain VARCHAR(255), 
     owner_name VARCHAR(255), 
     owner_phone VARCHAR(255), 
+    phone2 VARCHAR(255) DEFAULT NULL,
     owner_email VARCHAR(255), 
     status VARCHAR(50) DEFAULT 'active', 
     valid_until DATETIME, 
+    plan_id INT DEFAULT 1,
+    max_users INT DEFAULT 5,
+    receipt_path VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );");
 
