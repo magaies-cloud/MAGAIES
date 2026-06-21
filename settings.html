@@ -272,9 +272,9 @@
     <!-- Settings Grid -->
     <div class="settings-grid">
 
-        <!-- إعدادات الشركة -->
-        <div class="glass-panel">
-            <div class="setting-title">🏢 إعدادات الشركة والمنشأة</div>
+        <!-- إعدادات النظام الأساسية -->
+        <div class="glass-panel" id="panel-company">
+            <div class="setting-title">🏢 بيانات الشركة الأساسية</div>
             <div class="form-group">
                 <label class="form-label">اسم الشركة المطبوع على الفواتير</label>
                 <input type="text" class="form-input" id="cfg-company-name" placeholder="مثال: مؤسسة السجانة للتجارة">
@@ -294,7 +294,7 @@
         </div>
 
         <!-- إعدادات المالية -->
-        <div class="glass-panel">
+        <div class="glass-panel" id="panel-finance">
             <div class="setting-title">💰 الإعدادات المالية والضرائب</div>
             <div class="form-group">
                 <label class="form-label">العملة الافتراضية للنظام</label>
@@ -305,6 +305,16 @@
                     <option value="AED">درهم إماراتي (AED)</option>
                     <option value="EGP">جنيه مصري (EGP)</option>
                 </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">العملات النشطة في النظام (تظهر في قوائم الفلتر والفواتير)</label>
+                <div class="checkbox-group" id="cfg-active-currencies" style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 5px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                    <label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" value="SDG" checked> جنيه سوداني (SDG)</label>
+                    <label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" value="USD" checked> دولار أمريكي (USD)</label>
+                    <label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" value="SAR" checked> ريال سعودي (SAR)</label>
+                    <label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" value="AED" checked> درهم إماراتي (AED)</label>
+                    <label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" value="EGP" checked> جنيه مصري (EGP)</label>
+                </div>
             </div>
             <div class="form-group">
                 <label class="form-label">نسبة ضريبة القيمة المضافة الافتراضية (VAT %)</label>
@@ -321,7 +331,7 @@
         </div>
 
         <!-- قواعد المخزون والتسعير -->
-        <div class="glass-panel">
+        <div class="glass-panel" id="panel-inventory-rules">
             <div class="setting-title">📦 قواعد المخزون والعمليات</div>
             <div class="setting-row">
                 <span class="form-label" style="margin:0;">السماح بالبيع بالسالب (تجاوز رصيد المخزون)</span>
@@ -354,7 +364,7 @@
         </div>
 
         <!-- إعدادات الواجهة -->
-        <div class="glass-panel">
+        <div class="glass-panel" id="panel-ui">
             <div class="setting-title">🎨 واجهة المستخدم والمظهر</div>
             <div class="form-group">
                 <label class="form-label">حجم الخط الرئيسي للنظام (Font Size)</label>
@@ -382,14 +392,14 @@
         </div>
 
         <!-- إدارة المستخدمين -->
-        <div class="glass-panel">
+        <div class="glass-panel" id="panel-users">
             <div class="setting-title">👥 المستخدمين وصلاحيات الوصول</div>
             <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0; line-height: 1.6;">إدارة حسابات الموظفين، تحديد الأدوار (أدمن، محاسب، بائع، كاشير)، وتخصيص صلاحيات الدخول لكل شاشة.</p>
             <button class="action-btn btn-users" onclick="window.location.href='users-roles.html'">⚙️ إدارة المستخدمين والصلاحيات</button>
         </div>
 
         <!-- النسخ الاحتياطي -->
-        <div class="glass-panel">
+        <div class="glass-panel" id="panel-backup">
             <div class="setting-title">💾 النسخ الاحتياطي والأمان</div>
             <p style="color: #94a3b8; font-size: 0.9rem; margin: 0 0 20px; line-height: 1.6;">تنزيل نسخة احتياطية آمنة من جميع بيانات التخزين المحلي (JSON) لحمايتها من الفقدان.</p>
             <button class="action-btn btn-backup" onclick="backupData()">⬇️ تنزيل نسخة احتياطية للبيانات</button>
@@ -410,6 +420,37 @@
             window.location.href = 'login.html';
             return;
         }
+
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const perms = window.resolveUserPermissions ? window.resolveUserPermissions(user) : {};
+        
+        const hasSettings = user.role === 'admin' || user.role === 'Admin' || user.role === 'مدير النظام' || (perms.settings && perms.settings.view);
+        const hasInvRules = user.role === 'admin' || user.role === 'Admin' || user.role === 'مدير النظام' || (perms.inventory_rules && perms.inventory_rules.view);
+        
+        if (!hasSettings && !hasInvRules) {
+            window.location.href = 'dashboard-pro.html';
+            return;
+        }
+        
+        if (!hasSettings) {
+            document.getElementById('panel-company').style.display = 'none';
+            document.getElementById('panel-finance').style.display = 'none';
+            document.getElementById('panel-ui').style.display = 'none';
+            document.getElementById('panel-users').style.display = 'none';
+            document.getElementById('panel-backup').style.display = 'none';
+            document.querySelector('.page-title').innerText = 'قواعد المخزون والعمليات';
+        }
+        if (!hasInvRules && !hasSettings) {
+            document.getElementById('panel-inventory-rules').style.display = 'none';
+        }
+
+        const canEditSettings = user.role === 'admin' || user.role === 'Admin' || user.role === 'مدير النظام' || (perms.settings && perms.settings.edit);
+        const canEditInvRules = user.role === 'admin' || user.role === 'Admin' || user.role === 'مدير النظام' || (perms.inventory_rules && perms.inventory_rules.edit);
+        
+        if (!canEditSettings && !canEditInvRules) {
+            document.querySelector('.save-btn-main').style.display = 'none';
+        }
+
         loadSettings();
     });
 
@@ -424,6 +465,12 @@
 
         // Financial
         if (cfg.currency)       document.getElementById('cfg-currency').value         = cfg.currency;
+        if (cfg.activeCurrencies) {
+            const checkboxes = document.querySelectorAll('#cfg-active-currencies input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = cfg.activeCurrencies.includes(cb.value);
+            });
+        }
         if (cfg.vat !== undefined) document.getElementById('cfg-vat').value           = cfg.vat;
         if (cfg.decimalPlaces !== undefined) document.getElementById('cfg-decimal-places').value = cfg.decimalPlaces;
 
@@ -441,6 +488,8 @@
 
     // ─── Save Settings ─────────────────────────────────────────
     function saveSettings() {
+        const activeCurrencies = Array.from(document.querySelectorAll('#cfg-active-currencies input[type="checkbox"]:checked')).map(cb => cb.value);
+
         const cfg = {
             // Company
             companyName:       document.getElementById('cfg-company-name').value.trim(),
@@ -450,6 +499,7 @@
 
             // Financial
             currency:          document.getElementById('cfg-currency').value,
+            activeCurrencies:  activeCurrencies,
             vat:               parseFloat(document.getElementById('cfg-vat').value) || 0,
             decimalPlaces:     parseInt(document.getElementById('cfg-decimal-places').value) || 2,
 

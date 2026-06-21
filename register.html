@@ -399,19 +399,7 @@
                         // Attempt to save plan locally as a fallback (admin usually manages this)
                         localStorage.setItem('tenant_plan_' + res.tenant_id, selectedPlanId);
                     }
-                    
-                    let currentHost = window.location.hostname;
-                    const port = window.location.port ? ':' + window.location.port : '';
-                    let redirectUrl = '';
-                    if (currentHost === 'localhost' || currentHost === '127.0.0.1' || currentHost.endsWith('.localhost')) {
-                        redirectUrl = `http://${subdomain}.localhost${port}/login.html`;
-                    } else {
-                        let parts = currentHost.split('.');
-                        if (parts.length > 2) parts.shift();
-                        let baseDomain = parts.join('.');
-                        if (!baseDomain) baseDomain = 'elsajana.com';
-                        redirectUrl = `http://${subdomain}.${baseDomain}${port}/login.html`;
-                    }
+                    let redirectUrl = 'login.html';
                     
                     showModal('success', 'تهانينا! 🎉', res.message || 'تم إنشاء حساب شركتك بنجاح! سيتم تفعيل حسابك قريباً.', true, () => {
                         window.location.href = redirectUrl;

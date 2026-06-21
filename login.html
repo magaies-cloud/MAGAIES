@@ -308,6 +308,31 @@
             btn.innerHTML = '<div class="loader"></div>';
             btn.style.pointerEvents = 'none';
 
+            // --- START PARALLEL SSL CHECK ---
+            let targetUrl = 'dashboard-pro.html';
+            let checkCompleted = false;
+
+            if (userSubdomain && window.location.hostname !== userSubdomain + '.elsajana.com' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
+                const subdomainUrl = `https://${userSubdomain}.elsajana.com`;
+                const testImg = new Image();
+                
+                testImg.onload = () => {
+                    if (!checkCompleted) {
+                        targetUrl = `${subdomainUrl}/dashboard-pro.html`;
+                        checkCompleted = true;
+                    }
+                };
+                testImg.onerror = () => {
+                    if (!checkCompleted) checkCompleted = true;
+                };
+                
+                setTimeout(() => { checkCompleted = true; }, 2500); // 2.5s max wait
+                testImg.src = `${subdomainUrl}/assets/logo.png?_t=` + Date.now();
+            } else {
+                checkCompleted = true;
+            }
+            // --- END PARALLEL SSL CHECK ---
+
             setTimeout(() => {
                 const loginCard = document.querySelector('.login-card');
                 if (loginCard) {
@@ -442,21 +467,7 @@
                     `;
 
                     setTimeout(() => {
-                        let redirectUrl = 'dashboard-pro.html';
-                        if (userSubdomain) {
-                            const host = window.location.hostname;
-                            const port = window.location.port ? ':' + window.location.port : '';
-                            
-                            if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.localhost')) {
-                                redirectUrl = `http://${userSubdomain}.localhost${port}/dashboard-pro.html`;
-                            } else {
-                                let parts = host.split('.');
-                                if (parts.length > 2) parts.shift();
-                                let baseDomain = parts.join('.') || 'elsajana.com';
-                                redirectUrl = `http://${userSubdomain}.${baseDomain}${port}/dashboard-pro.html`;
-                            }
-                        }
-                        window.location.href = redirectUrl;
+                        window.location.href = targetUrl;
                     }, 2800);
                 }, 400);
             }, 800);

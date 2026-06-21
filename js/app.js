@@ -1,35 +1,5 @@
-
 // --- CLOUD SYNC ENGINE (Offline-First to SaaS Bridge) ---
 (function() {
-    // --- Subdomain Enforcement for Logged-In Users ---
-    try {
-        const userStr = localStorage.getItem('user');
-        if (userStr && !window.location.pathname.includes('login.html') && !window.location.pathname.includes('register.html') && !window.location.pathname.includes('saas-admin.html')) {
-            const user = JSON.parse(userStr);
-            const userSubdomain = user.subdomain;
-            if (userSubdomain) {
-                const host = window.location.hostname;
-                let needsRedirect = false;
-                
-                if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.localhost')) {
-                    // Skip subdomain redirection on localhost to avoid Windows hosts file issues
-                    needsRedirect = false;
-                } else if (!host.startsWith(userSubdomain + '.')) {
-                    needsRedirect = true;
-                }
-
-                if (needsRedirect) {
-                    const port = window.location.port ? ':' + window.location.port : '';
-                    const protocol = window.location.protocol;
-                    let parts = host.split('.');
-                    if (parts.length > 2) parts.shift();
-                    let baseDomain = parts.join('.') || 'elsajana.com';
-                    window.location.href = `${protocol}//${userSubdomain}.${baseDomain}${port}${window.location.pathname}`;
-                    return; // Stop execution to allow redirect
-                }
-            }
-        }
-    } catch(e) {}
     const SYNC_PULL_URL = "api_index.php/sync/pull";
     const SYNC_PUSH_URL = "api_index.php/sync/push";
 
@@ -1029,6 +999,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Filter Nav Items based on user permissions
         const navItems = allNavItems.filter(item => {
             if (item.module === 'dashboard') return true;
+            if (item.href === 'settings.html') {
+                return (perms.settings && perms.settings.view) || (perms.inventory_rules && perms.inventory_rules.view);
+            }
             return perms[item.module] && perms[item.module].view === true;
         });
 
@@ -1865,3 +1838,62 @@ function showSystemMessages(messages, index) {
         }, 400);
     };
 }
+
+// --- Active Currencies Support ---
+window.getCurrencyOptionsHtml = function(selectedValue) {
+    let settings = {};
+    try {
+        const str = localStorage.getItem('erp_settings_v1');
+        settings = JSON.parse(str || '{}');
+    } catch(e) {}
+    
+    // Fallback to proxy
+    try {
+        if (window.DB_STORE && window.getTenantKey) {
+            const tk = window.getTenantKey('erp_settings_v1');
+            if (window.DB_STORE[tk]) settings = JSON.parse(window.DB_STORE[tk]);
+        }
+    } catch(e) {}
+
+    const activeCurrencies = settings.activeCurrencies || ['SDG', 'USD', 'SAR', 'AED', 'EGP'];
+    const defaultCurrency = settings.currency || 'SDG';
+    const currencyLabels = {
+        'SDG': 'جنيه سوداني (SDG)',
+        'USD': 'دولار أمريكي (USD)',
+        'SAR': 'ريال سعودي (SAR)',
+        'AED': 'درهم إماراتي (AED)',
+        'EGP': 'جنيه مصري (EGP)'
+    };
+    
+    let html = '';
+    activeCurrencies.forEach(c => {
+        const selected = (selectedValue && c === selectedValue) ? 'selected' : (!selectedValue && c === defaultCurrency ? 'selected' : '');
+        html += `<option value="${c}" ${selected}>${currencyLabels[c] || c}</option>`;
+    });
+    return html;
+};
+
+window.populateCurrencyDropdowns = function() {
+    const selects = document.querySelectorAll('.system-currency-select');
+    selects.forEach(select => {
+        const currentVal = select.getAttribute('data-value') || select.value;
+        select.innerHTML = window.getCurrencyOptionsHtml(currentVal);
+    });
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    window.populateCurrencyDropdowns();
+    
+    // Load Chatbot for authenticated sessions
+    setTimeout(() => {
+        try {
+            const userStr = localStorage.getItem('user');
+            if (userStr && !window.location.pathname.includes('login.html') && !window.location.pathname.includes('register.html')) {
+                const script = document.createElement('script');
+                script.src = 'js/chatbot.js';
+                script.defer = true;
+                document.body.appendChild(script);
+            }
+        } catch(e) {}
+    }, 1000);
+});
