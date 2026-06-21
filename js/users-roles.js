@@ -11,7 +11,8 @@ const MODULES = [
     { id: 'finance', name: 'المعاملات المالية' },
     { id: 'master_data', name: 'البيانات الأساسية' },
     { id: 'reports', name: 'التقارير التحليلية' },
-    { id: 'settings', name: 'الإعدادات والصلاحيات' }
+    { id: 'settings', name: 'الإعدادات والصلاحيات' },
+    { id: 'inventory_rules', name: 'قواعد المخزون والعمليات' }
 ];
 
 function safeGetJSON(key, defaultVal) {
