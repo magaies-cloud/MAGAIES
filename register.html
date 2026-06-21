@@ -580,33 +580,53 @@
 
         async function checkUnique(fieldId, fieldType, errorMsg) {
             const el = document.getElementById(fieldId);
+            
+            // دائماً احذف رسالة الخطأ السابقة (إن وجدت) قبل البدء بفحص جديد
+            const existingError = document.getElementById('error-' + fieldId);
+            if (existingError) {
+                existingError.remove();
+            }
+
             if (!el || !el.value.trim()) {
-                const oldErr = document.getElementById('error-' + fieldId);
-                if (oldErr) oldErr.remove();
-                if (el) el.style.borderColor = '#334155';
+                if (el) {
+                    el.style.borderColor = '#334155';
+                    el.style.backgroundColor = '';
+                }
                 return true;
             }
             
             try {
                 const res = await fetch(`api_index.php?r=public&a=check-unique&field=${fieldType}&value=${encodeURIComponent(el.value.trim())}`);
                 const data = await res.json();
+                
+                // للحماية الإضافية، تأكد من إزالة أي رسالة خطأ ظهرت أثناء الانتظار
+                const doubleCheckError = document.getElementById('error-' + fieldId);
+                if (doubleCheckError) {
+                    doubleCheckError.remove();
+                }
+
                 if (data.exists) {
                     el.style.borderColor = '#ef4444';
+                    el.style.backgroundColor = '#fef2f2';
                     const err = document.createElement('div');
                     err.id = 'error-' + fieldId;
                     err.style.color = '#ef4444';
-                    err.style.fontSize = '0.8rem';
+                    err.style.fontWeight = 'bold';
+                    err.style.fontSize = '0.85rem';
                     err.style.marginTop = '5px';
                     err.style.textAlign = 'right';
                     err.innerText = errorMsg;
                     
-                    // If subdomain, append to parent of subdomain-group, else append to input-group
-                    if(fieldId === 'subdomain') el.parentElement.parentElement.appendChild(err);
-                    else el.parentElement.appendChild(err);
+                    if (fieldId === 'subdomain') {
+                        el.parentElement.parentElement.appendChild(err);
+                    } else {
+                        el.parentElement.appendChild(err);
+                    }
                     
                     return false;
                 } else {
                     el.style.borderColor = '#22c55e';
+                    el.style.backgroundColor = '';
                     return true;
                 }
             } catch (e) {
