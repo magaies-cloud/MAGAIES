@@ -502,7 +502,7 @@
                             <span style="font-size: 1rem; margin-left: 5px; color: #fff; font-weight: 800; display:flex; align-items:center; gap:5px;"><span>⚡</span> إجراءات:</span>
                             
                             <button onclick="openItemForm()" class="btn-action hover-glow" style="flex: 1; min-width: 150px; display:flex; align-items:center; gap:8px; justify-content:center; padding:8px 15px; font-size:0.95rem; font-weight:bold; border-radius: 8px; background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(15,76,129,0.4)); border: 1px solid rgba(56,189,248,0.5); color: #fff; cursor: pointer;">
-                                <span style="font-size:1.2rem;">📦</span> تعريف صنف
+                                <span style="font-size:1.2rem;">📦</span> إضافة صنف جديد
                             </button>
                             
                             <button onclick="openInnerTab(event, 'inner-categories')" class="btn-action hover-glow" style="flex: 1; min-width: 150px; display:flex; align-items:center; gap:8px; justify-content:center; padding:8px 15px; font-size:0.95rem; font-weight:bold; border-radius: 8px; background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(88,28,135,0.4)); border: 1px solid rgba(168,85,247,0.5); color: #fff; cursor: pointer;">
@@ -529,7 +529,7 @@
                             <div style="background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(15,23,42,0.95)); padding:20px 25px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; border-bottom:1px solid rgba(56,189,248,0.3);">
                                 <div style="display:flex; align-items:center; gap:15px;">
                                     <div style="width:50px; height:50px; background:linear-gradient(135deg, #38bdf8, #818cf8); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.6rem; box-shadow: 0 4px 15px rgba(56,189,248,0.4);">📦</div>
-                                    <div><h3 id="form-mode-indicator" style="margin:0; color:#fff; font-size:1.4rem; font-weight:800; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">إدخال صنف جديد</h3><small style="color:#cbd5e1; font-size: 0.85rem;">إدارة بطاقة الصنف وتفاصيل التسعير والوحدات</small></div>
+                                    <div><h3 id="form-mode-indicator" style="margin:0; color:#fff; font-size:1.4rem; font-weight:800; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">إضافة صنف جديد</h3><small style="color:#cbd5e1; font-size: 0.85rem;">إدارة بطاقة الصنف وتفاصيل التسعير والوحدات</small></div>
                                 </div>
                                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
                                     <button class="btn-add" style="background:linear-gradient(135deg, var(--success-color), #059669); padding:10px 25px; font-size: 1rem; box-shadow: 0 4px 15px rgba(16,185,129,0.3);" onclick="saveItem()">💾 حفظ الصنف</button>
@@ -1882,7 +1882,17 @@ function openSafeForm() {
         }
 
         function openItemForm() {
-            document.getElementById('form-mode-indicator').innerText = 'إدخال صنف جديد';
+            const tabItems = document.getElementById('tab-items');
+            if(tabItems) {
+                tabItems.querySelectorAll('.inner-tab-content').forEach(c => c.classList.remove('active'));
+                tabItems.querySelectorAll('.inner-tab-btn').forEach(b => b.classList.remove('active'));
+                const productsTab = document.getElementById('inner-products');
+                if(productsTab) productsTab.classList.add('active');
+                const productsBtn = tabItems.querySelector('button[onclick*="inner-products"]');
+                if(productsBtn) productsBtn.classList.add('active');
+            }
+            
+            document.getElementById('form-mode-indicator').innerText = 'إضافة صنف جديد';
             document.getElementById('item-code').value = '';
             document.getElementById('item-name-input').value = '';
             document.getElementById('item-name-latin').value = '';
