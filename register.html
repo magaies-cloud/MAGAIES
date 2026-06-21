@@ -276,19 +276,19 @@
             <div class="step active" id="step-1">
                 <h3 style="margin-top:0; color:#38bdf8;">بيانات الشركة</h3>
                 <div class="input-group">
-                    <input type="text" class="input-field" id="company_name" placeholder=" ">
+                    <input type="text" class="input-field step-1-input" id="company_name" placeholder=" ">
                     <label>اسم الشركة (عربي أو إنجليزي)</label>
                 </div>
 
                 <div class="input-group" style="margin-bottom: 25px; text-align: right;">
-                    <label style="position: static; font-size: 1rem; color: #38bdf8; background: none; padding: 0; margin-bottom: 5px; display: block; pointer-events: auto;">
+                    <label style="position: static; font-size: 1rem; color: #0ea5e9; background: none; padding: 0; margin-bottom: 5px; display: block; pointer-events: auto;">
                         الرابط المخصص للشركة
                     </label>
-                    <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 0; margin-bottom: 10px; line-height: 1.4;">
+                    <p style="color: #64748b; font-size: 0.85rem; margin-top: 0; margin-bottom: 10px; line-height: 1.4;">
                         (يجب أن يكون باللغة الإنجليزية وبدون مسافات. هذا هو الرابط الفريد الذي ستدخل من خلاله أنت وموظفيك إلى النظام)
                     </p>
                     <div class="subdomain-group">
-                        <input type="text" class="input-field" id="subdomain" placeholder="مثال: alofoq" style="text-align:right;" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9\-]/g, '')" onblur="checkUnique('subdomain', 'subdomain', 'هذا الرابط مستخدم مسبقاً، يرجى اختيار رابط آخر')">
+                        <input type="text" class="input-field step-1-input" id="subdomain" placeholder="مثال: alofoq" style="text-align:right;" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9\-]/g, '')" onblur="checkUnique('subdomain', 'subdomain', 'هذا الرابط مستخدم مسبقاً، يرجى اختيار رابط آخر')">
                         <div class="subdomain-addon">.elsajana.com</div>
                     </div>
                 </div>
@@ -296,25 +296,25 @@
                 <button type="button" class="btn-submit" onclick="nextStep(2)">التالي ⬅️</button>
             </div>
 
+            <!-- الخطوة 2: معلومات التواصل -->
             <div class="step" id="step-2">
-                <h3 style="margin-top:0; color:#38bdf8;">بيانات التواصل</h3>
+                <h3 style="margin-top:0; color:#fff; text-align:right; font-size:1.3rem;">بيانات التواصل</h3>
+                <p style="color:#94a3b8; text-align:right; font-size:0.9rem; margin-bottom:20px;">هذه البيانات ضرورية لكي نتمكن من التواصل معك</p>
+
                 <div class="input-group">
-                    <input type="text" class="input-field" id="owner_name" placeholder=" ">
+                    <input type="text" class="input-field step-2-input" id="owner_name" placeholder=" ">
                     <label>الاسم الكامل لمالك الحساب</label>
                 </div>
-
                 <div class="input-group">
-                    <input type="email" class="input-field" id="owner_email" placeholder=" " onblur="checkUnique('owner_email', 'email', 'البريد الإلكتروني هذا مستخدم مسبقاً')">
-                    <label>البريد الإلكتروني <span style="color: #ef4444;">*</span></label>
+                    <input type="email" class="input-field step-2-input" id="owner_email" placeholder=" " onblur="checkUnique('owner_email', 'email', 'البريد الإلكتروني هذا مستخدم مسبقاً')">
+                    <label>البريد الإلكتروني للإدارة</label>
                 </div>
-
                 <div class="input-group">
-                    <input type="tel" class="input-field" id="owner_phone" placeholder=" " onblur="checkUnique('owner_phone', 'phone', 'رقم الهاتف هذا مسجل لدينا مسبقاً')">
-                    <label>رقم الهاتف الأساسي <span style="color: #ef4444;">*</span></label>
+                    <input type="tel" class="input-field step-2-input" id="owner_phone" placeholder=" " onblur="checkUnique('owner_phone', 'phone', 'رقم الهاتف هذا مسجل لدينا مسبقاً')">
+                    <label>رقم الهاتف الأساسي (مثال: 05xxxxxxx)</label>
                 </div>
-
-                <div class="input-group">
-                    <input type="tel" class="input-field" id="owner_phone2" placeholder=" " onblur="checkUnique('owner_phone2', 'phone', 'رقم الهاتف هذا مسجل لدينا مسبقاً')">
+                <div class="input-group" style="margin-bottom: 30px;">
+                    <input type="tel" class="input-field step-2-input" id="owner_phone2" placeholder=" " onblur="checkUnique('owner_phone2', 'phone', 'رقم الهاتف هذا مسجل لدينا مسبقاً')">
                     <label>رقم هاتف إضافي (اختياري)</label>
                 </div>
 
@@ -324,20 +324,19 @@
                 </div>
             </div>
 
+            <!-- الخطوة 3: بيانات الحماية والتأمين -->
             <div class="step" id="step-3">
-                <h3 style="margin-top:0; color:#38bdf8;">إعداد الحماية</h3>
-                
-                <!-- Honeypot -->
-                <input type="text" id="hp_field" name="company_website" style="display:none" tabindex="-1" autocomplete="off">
+                <h3 style="margin-top:0; color:#fff; text-align:right; font-size:1.3rem;">بيانات الدخول والأمان</h3>
+                <p style="color:#94a3b8; text-align:right; font-size:0.9rem; margin-bottom:20px;">يرجى حفظ هذه البيانات جيداً لتتمكن من الدخول لنظامك</p>
 
                 <div class="input-group">
-                    <input type="text" class="input-field" id="username" placeholder=" " onblur="checkUnique('username', 'username', 'اسم المستخدم هذا غير متاح، يرجى اختيار اسم آخر')" autocomplete="new-password">
-                    <label>اسم المستخدم (لمدير النظام)</label>
+                    <input type="text" class="input-field step-3-input" id="username" placeholder=" " onblur="checkUnique('username', 'username', 'اسم المستخدم هذا غير متاح، يرجى اختيار اسم آخر')" autocomplete="new-password">
+                    <label>اسم المستخدم (للدخول كمدير)</label>
                 </div>
 
-                <div class="input-group">
-                    <input type="password" class="input-field" id="password" placeholder=" " oninput="checkPasswordStrength(this.value)" autocomplete="new-password">
-                    <label>كلمة المرور المشرف <span style="color: #ef4444;">*</span></label>
+                <div class="input-group" style="margin-bottom: 10px;">
+                    <input type="password" class="input-field step-3-input" id="password" placeholder=" " oninput="checkPasswordStrength(this.value)" autocomplete="new-password">
+                    <label>كلمة المرور (يجب أن تكون قوية)</label>
                     <div class="strength-bar-container" id="strength-bar">
                         <div class="strength-segment" id="seg-1"></div>
                         <div class="strength-segment" id="seg-2"></div>
@@ -548,7 +547,7 @@
             btn.disabled = true;
             
             try {
-                const res = await fetch('api_index.php/public/send-otp', {
+                const res = await fetch('api_index.php?r=public&a=send-otp', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ email: document.getElementById('owner_email').value })
@@ -580,7 +579,7 @@
             el.style.borderColor = '#334155';
             
             try {
-                const res = await fetch(`api_index.php/public/check-unique?field=${fieldType}&value=${encodeURIComponent(el.value.trim())}`);
+                const res = await fetch(`api_index.php?r=public&a=check-unique&field=${fieldType}&value=${encodeURIComponent(el.value.trim())}`);
                 const data = await res.json();
                 if (data.exists) {
                     el.style.borderColor = '#ef4444';
@@ -641,7 +640,7 @@
             }
 
             try {
-                const res = await apiFetch('/auth/register', 'POST', {
+                const res = await apiFetch('?r=auth&a=register', 'POST', {
                     company_name, subdomain, username, password, owner_name, owner_phone, owner_phone2, owner_email, plan_id: selectedPlanId, receipt_base64, hp_field, otp
                 });
 
