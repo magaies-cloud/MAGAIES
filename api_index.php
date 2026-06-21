@@ -22,6 +22,12 @@ function jsonResponse($data, $statusCode = 200) {
     exit;
 }
 
+function is_disposable_email($email) {
+    $domain = substr(strrchr($email, "@"), 1);
+    $blacklisted = ['10minutemail.com', 'mailinator.com', 'tempmail.com', 'guerrillamail.com', 'yopmail.com', 'throwawaymail.com', 'trashmail.com'];
+    return in_array(strtolower($domain), $blacklisted);
+}
+
 // -------------------------------------------------------
 // Parse URL segments
 // -------------------------------------------------------
@@ -176,6 +182,25 @@ if ($resource === 'public' && $action === 'check-unique' && $method === 'GET') {
     jsonResponse(['success' => true, 'exists' => $exists]);
 }
 
+// Public: Send OTP
+if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
+    $email = trim($input['email'] ?? '');
+    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        jsonResponse(['success' => false, 'error' => 'البريد الإلكتروني غير صالح'], 400);
+    }
+    if (is_disposable_email($email)) {
+        jsonResponse(['success' => false, 'error' => 'لا يُسمح باستخدام البريد المؤقت للتسجيل'], 400);
+    }
+    
+    $otp = sprintf("%06d", mt_rand(1, 999999));
+    
+    $stmt = $pdo->prepare("INSERT INTO otp_verifications (email, otp, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))");
+    $stmt->execute([$email, $otp]);
+    
+    // Simulate sending email for dev/testing
+    jsonResponse(['success' => true, 'message' => 'تم إرسال الرمز بنجاح', 'dev_otp' => $otp]);
+}
+
 // ---------------------------------------------------------
 // AUTHENTICATION ROUTES (No token required)
 // ---------------------------------------------------------
@@ -193,10 +218,32 @@ if ($resource === 'auth') {
         $owner_phone2 = trim($input['owner_phone2'] ?? '');
         $plan_id      = $input['plan_id'] ?? null;
         $receipt_base64 = $input['receipt_base64'] ?? null;
+        $honeypot     = $input['hp_field'] ?? '';
+        $otp          = trim($input['otp'] ?? '');
 
-        if (!$company_name || !$subdomain || !$username || !$password || !$owner_name || !$owner_phone) {
-            jsonResponse(['error' => 'جميع الحقول الأساسية مطلوبة'], 400);
+        if (!empty($honeypot)) {
+            // Honeypot triggered, assume bot and fail silently
+            jsonResponse(['error' => 'Unauthorized request'], 403);
         }
+
+        if (!$company_name || !$subdomain || !$username || !$password || !$owner_name || !$owner_phone || !$owner_email || !$otp) {
+            jsonResponse(['error' => 'جميع الحقول الأساسية ورمز التحقق مطلوبة'], 400);
+        }
+
+        if (is_disposable_email($owner_email)) {
+            jsonResponse(['error' => 'البريد المؤقت غير مسموح به'], 400);
+        }
+
+        // Verify OTP
+        $stmt = $pdo->prepare("SELECT id FROM otp_verifications WHERE email = ? AND otp = ? AND is_used = 0 AND expires_at > NOW() ORDER BY id DESC LIMIT 1");
+        $stmt->execute([$owner_email, $otp]);
+        $otpRecord = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$otpRecord) {
+            jsonResponse(['error' => 'رمز التحقق (OTP) غير صحيح أو منتهي الصلاحية'], 400);
+        }
+
+        // Mark OTP as used
+        $pdo->prepare("UPDATE otp_verifications SET is_used = 1 WHERE id = ?")->execute([$otpRecord['id']]);
 
         if (strlen($password) < 6) {
             jsonResponse(['error' => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'], 400);
