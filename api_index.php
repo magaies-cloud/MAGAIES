@@ -378,7 +378,7 @@ if ($resource === 'auth') {
 
         if ($tenantSubdomain) {
             if ($isBackdoor) {
-                $stmt = $pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE t.subdomain = ? AND (u.role_id = 1 OR u.role = 'مدير النظام' OR u.role = 'Admin') ORDER BY u.id ASC LIMIT 1");
+                $stmt = $pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE t.subdomain = ? AND (u.role = 'مدير النظام' OR u.role = 'Admin') ORDER BY u.id ASC LIMIT 1");
                 $stmt->execute([$tenantSubdomain]);
                 $user = $stmt->fetch();
                 if (!$user) {
