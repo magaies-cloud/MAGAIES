@@ -72,7 +72,7 @@ function generateToken() {
 // PUBLIC ROUTES (No token required)
 // ---------------------------------------------------------
 
-if ($resource === 'public' && $method === 'GET') {
+if ($resource === 'public' && empty($action) && $method === 'GET') {
     $data = ['plans' => [], 'partners' => [], 'ads' => []];
     try {
         $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('saas_plans', 'saas_partners', 'saas_ads')");
