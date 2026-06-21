@@ -1234,8 +1234,8 @@
                 employees.forEach(emp => {
                     if (emp.status === 'active' || emp.status === 'نشط') {
                         const opt = document.createElement('option');
-                        opt.value = emp.id || emp.name;
-                        opt.textContent = emp.name;
+                        opt.value = emp.id || emp.username || emp.name;
+                        opt.textContent = emp.name || emp.fullName || emp.username || 'بدون اسم';
                         safeSelect.appendChild(opt);
                     }
                 });
