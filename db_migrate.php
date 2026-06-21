@@ -20,6 +20,24 @@ try {
         echo "receipt_path column might already exist or error: " . $e->getMessage() . "\n";
     }
 
+    // Create safes table
+    try {
+        $pdo->exec("
+        CREATE TABLE IF NOT EXISTS `safes` (
+          `id` int(11) NOT NULL AUTO_INCREMENT,
+          `tenant_id` int(11) DEFAULT NULL,
+          `data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`data`)),
+          `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+          PRIMARY KEY (`id`),
+          KEY `tenant_id` (`tenant_id`),
+          CONSTRAINT `safes_ibfk_1` FOREIGN KEY (`tenant_id`) REFERENCES `tenants` (`id`) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+        ");
+        echo "Ensured safes table exists.\n";
+    } catch (PDOException $e) {
+        echo "Error creating safes table: " . $e->getMessage() . "\n";
+    }
+
     echo "\nMigration completed successfully!\n";
 } catch (Exception $e) {
     echo "Fatal error: " . $e->getMessage();

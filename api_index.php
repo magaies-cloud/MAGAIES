@@ -957,7 +957,7 @@ if ($resource === 'system' && $method === 'POST' && isset($requestUri[$base_inde
 $allowed_tables = [
     'users', 'customers', 'suppliers', 'items', 'inventory',
     'sales_invoices', 'purchase_invoices', 'receipts', 'payments',
-    'journal_vouchers', 'settings', 'warehouses', 'banks',
+    'journal_vouchers', 'settings', 'warehouses', 'banks', 'safes',
     'categories', 'roles',
     // Extended tables (now synced to cloud)
     'checks', 'gl_entries', 'single_receipts', 'single_payments',
@@ -1019,6 +1019,8 @@ if ($resource === 'sync') {
                 // Map table names back to frontend keys
                 $frontendKey = $table;
                 if ($table === 'gl_entries') $frontendKey = 'gl';
+                if ($table === 'sales_invoices') $frontendKey = 'sales';
+                if ($table === 'purchase_invoices') $frontendKey = 'purchases';
                 $key = "erp_" . $frontendKey . "_v1";
                 
                 $data_payload[$key] = $parsed_rows;
@@ -1042,6 +1044,8 @@ if ($resource === 'sync') {
                     $table = $matches[1];
                     // Map frontend keys back to database tables
                     if ($table === 'gl') $table = 'gl_entries';
+                    if ($table === 'sales') $table = 'sales_invoices';
+                    if ($table === 'purchases') $table = 'purchase_invoices';
                     
                     if (in_array($table, $allowed_tables) && $table !== 'settings' && is_array($records)) {
                         if (!empty($records)) {
