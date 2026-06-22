@@ -302,8 +302,85 @@
         return totalSalesAmt;
     }
 
+    function getLowStockItems() {
+        let items = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+        let lowStock = [];
+        items.forEach(item => {
+            if(item.deleted) return;
+            const res = getItemStock(item.name);
+            if(res && res.stock <= (parseNum(item.minLimit) || 0)) {
+                lowStock.push({ name: item.name, stock: res.stock, limit: parseNum(item.minLimit) || 0 });
+            }
+        });
+        return lowStock;
+    }
+
+    function getUnpaidInvoices() {
+        const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
+        let count = 0;
+        let totalUnpaid = 0;
+        sales.forEach(inv => {
+            if (inv.paymentMethod === 'credit') {
+                let total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
+                if (total === 0 && inv.items) {
+                    total = inv.items.reduce((s, i) => s + (parseNum(i.total) || parseNum(i.quantity) * parseNum(i.price)), 0);
+                    total += parseNum(inv.laborCost||0) + parseNum(inv.transportCost||0) + parseNum(inv.additions||0) + parseNum(inv.taxAmt||0) - parseNum(inv.discountAmt||0);
+                }
+                const paid = parseNum(inv.paidAmount || inv.paid || 0);
+                if (paid < total) {
+                    count++;
+                    totalUnpaid += (total - paid);
+                }
+            }
+        });
+        return { count, totalUnpaid };
+    }
+
+    function getDailyCash(type) {
+        const d = new Date();
+        const todayStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        const data = JSON.parse(localStorage.getItem(type === 'receipt' ? 'erp_single_receipts_v1' : 'erp_single_payments_v1') || '[]');
+        const todayData = data.filter(v => v.date === todayStr);
+        let total = todayData.reduce((sum, v) => sum + parseNum(v.amountLocal), 0);
+        return { count: todayData.length, total };
+    }
+
     // --- NLP RULES ---
     const dynamicKb = [
+        {
+            regex: /(?:ما|ماهي|ما هي) (?:النواقص|البضاعة المنتهية|الاصناف المنتهية|نواقص المخزون|أوشكت على النفاذ)/i,
+            handler: () => {
+                const low = getLowStockItems();
+                if(low.length === 0) return "مخزونك ممتاز! لا توجد نواقص حالياً. ✅";
+                let res = `⚠️ <b>تنبيه! هناك ${low.length} صنف وصل للحد الأدنى:</b><br><ul style="padding-right: 20px; margin-top:10px;">`;
+                low.slice(0, 5).forEach(l => { res += `<li><b>${l.name}</b>: متوفر <span style="color:#f87171;">${l.stock}</span> (الحد: ${l.limit})</li>`; });
+                if(low.length > 5) res += `<li>... والمزيد.</li>`;
+                res += `</ul>`;
+                return res;
+            }
+        },
+        {
+            regex: /(?:كم|ماهي|ما هي) (?:الفواتير غير المدفوعة|فواتير غير مدفوعة|ديون السوق|الفواتير الآجلة|فواتير آجلة)/i,
+            handler: () => {
+                const unpaid = getUnpaidInvoices();
+                if(unpaid.count === 0) return "ممتاز! لا توجد فواتير آجلة غير مسددة. 🎉";
+                return `🧾 <b>تقرير الفواتير غير المدفوعة:</b><br><br>يوجد عدد <b>${unpaid.count}</b> فاتورة آجلة بانتظار السداد.<br>إجمالي المبالغ المتبقية: <span style="font-size:1.5rem;font-weight:bold;color:#f59e0b;">${unpaid.totalUnpaid.toLocaleString()} SDG</span>`;
+            }
+        },
+        {
+            regex: /(?:كم|ماهي|ما هي) (?:منصرفات اليوم|مصروفات اليوم|المنصرفات اليومية|المصروفات اليومية)/i,
+            handler: () => {
+                const expenses = getDailyCash('payment');
+                return `💸 <b>منصرفات اليوم:</b><br><br>تم تسجيل <b>${expenses.count}</b> سند صرف.<br>بإجمالي: <span style="font-size:1.5rem;font-weight:bold;color:#ef4444;">${expenses.total.toLocaleString()} SDG</span>`;
+            }
+        },
+        {
+            regex: /(?:كم|ماهي|ما هي) (?:مقبوضات اليوم|ايرادات اليوم|المقبوضات اليومية|الإيرادات اليومية)/i,
+            handler: () => {
+                const receipts = getDailyCash('receipt');
+                return `💰 <b>مقبوضات اليوم:</b><br><br>تم تسجيل <b>${receipts.count}</b> سند قبض.<br>بإجمالي: <span style="font-size:1.5rem;font-weight:bold;color:#10b981;">${receipts.total.toLocaleString()} SDG</span>`;
+            }
+        },
         {
             regex: /(?:كم|ماهي|ما هي|ما هو) (?:السيولة|النقدية|إجمالي النقدية|رصيد الشركة)/i,
             handler: () => {
@@ -427,6 +504,26 @@
             keywords: ['باركود', 'طباعة باركود', 'ليبل', 'ملصقات'],
             response: 'لطباعة ملصقات الباركود للمنتجات للصقها على البضاعة، يمكنك استخدام شاشة <b>طباعة الباركود</b> المخصصة.',
             link: 'barcode-printer.html', linkText: '🖨️ طباعة الباركود'
+        },
+        {
+            keywords: ['كيف اضيف مستخدم', 'تغيير باسورد', 'تغيير كلمة المرور', 'صلاحيات', 'إدارة المستخدمين', 'تعديل صلاحية'],
+            response: 'لإدارة المستخدمين، إعطاء صلاحيات الموظفين، أو تغيير كلمات المرور، يرجى الانتقال إلى شاشة <b>المستخدمين والصلاحيات</b>.',
+            link: 'users-roles.html', linkText: '🔐 المستخدمين والصلاحيات'
+        },
+        {
+            keywords: ['تغيير الضريبة', 'تعديل اسم الشركة', 'تغيير اللوجو', 'شعار الشركة', 'نسبة الضريبة', 'الرقم الضريبي'],
+            response: 'لتغيير بيانات الشركة، اللوجو، أو تعديل نسبة الضريبة الافتراضية، يرجى زيارة شاشة <b>الإعدادات العامة</b>.',
+            link: 'settings.html', linkText: '⚙️ الإعدادات العامة'
+        },
+        {
+            keywords: ['كيف اخذ نسخة', 'مسح البيانات', 'نسخة احتياطية', 'باك اب', 'backup', 'استعادة البيانات'],
+            response: 'لأخذ نسخة احتياطية (باك أب) لضمان أمان بياناتك، أو للقيام بمسح بعض البيانات القديمة، يرجى التوجه لشاشة <b>النسخ الاحتياطي</b>.',
+            link: 'backup.html', linkText: '💾 النسخ الاحتياطي وإدارة البيانات'
+        },
+        {
+            keywords: ['شجرة الحسابات', 'كيف اضيف حساب', 'اضافة حساب محاسبي', 'الدليل المحاسبي'],
+            response: 'لتعريف حسابات محاسبية جديدة وإدارتها، يرجى التوجه إلى <b>الدورة المحاسبية</b> وإدارة شجرة الحسابات.',
+            link: 'accounting-workflow.html', linkText: '🌳 الدورة المحاسبية وشجرة الحسابات'
         },
         {
             keywords: ['مندوب', 'مندوبين', 'شريك', 'شركاء', 'وسطاء', 'عمولة', 'عمولات'],
