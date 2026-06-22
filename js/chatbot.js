@@ -60,9 +60,11 @@
                 <div class="chat-msg bot">
                     أهلاً بك! 🌟<br>أنا مرتبط بقاعدة بيانات النظام مباشرة الآن. جرب أن تسألني:
                     <div class="chat-options">
-                        <span class="chat-pill" onclick="sendPill('كم مديونية عميل محمد؟')">مثال: مديونية عميل...</span>
+                        <span class="chat-pill" onclick="sendPill('كم السيولة؟')">كم السيولة؟ 💰</span>
+                        <span class="chat-pill" onclick="sendPill('كم مديونية عميل محمد؟')">مديونية عميل...</span>
                         <span class="chat-pill" onclick="sendPill('كم عدد فواتير اليوم؟')">فواتير اليوم 📊</span>
-                        <span class="chat-pill" onclick="sendPill('كيف أصدر فاتورة جديدة؟')">مساعدة عامة</span>
+                        <span class="chat-pill" onclick="sendPill('أريد شاشة الكاشير')">شاشة الكاشير 🛒</span>
+                        <span class="chat-pill" onclick="sendPill('من هم أكبر المدينين؟')">أكبر المديونيات ⚠️</span>
                     </div>
                 </div>
             </div>
@@ -249,8 +251,91 @@
         return { count: todaySales.length, total: totalSalesAmt };
     }
 
+    function getTotalLiquidity() {
+        let safes = JSON.parse(localStorage.getItem('erp_safes_v1') || '[]');
+        let banks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]');
+        let total = 0;
+        safes.forEach(s => { const res = calculateSafeBalance(s.name); if(res) total += res.balance; });
+        banks.forEach(b => { const res = calculateSafeBalance(b.name); if(res) total += res.balance; });
+        return total;
+    }
+
+    function getTotalInventoryValue() {
+        let items = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+        let totalValue = 0;
+        items.forEach(item => {
+            if(item.deleted) return;
+            const res = getItemStock(item.name);
+            if(res) {
+                let cost = parseNum(item.openingValue) / (parseNum(item.openingQty) || 1);
+                if (cost === 0 && item.units && item.units[0]) {
+                    cost = parseNum(item.units[0].cashPrice) * 0.8; 
+                }
+                totalValue += res.stock * cost;
+            }
+        });
+        return totalValue;
+    }
+
+    function getTopDebtors() {
+        let custs = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
+        let debtors = [];
+        custs.forEach(c => {
+            const res = calculatePartnerBalance(c.name);
+            if(res && res.balance > 0) debtors.push({ name: c.name, balance: res.balance });
+        });
+        debtors.sort((a,b) => b.balance - a.balance);
+        return debtors.slice(0, 3);
+    }
+    
+    function getTotalSalesAllTime() {
+        const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
+        let totalSalesAmt = 0;
+        sales.forEach(inv => {
+            let total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
+            if (total === 0 && inv.items) {
+                total = inv.items.reduce((s, i) => s + (parseNum(i.total) || parseNum(i.quantity) * parseNum(i.price)), 0);
+                total += parseNum(inv.laborCost||0) + parseNum(inv.transportCost||0) + parseNum(inv.additions||0) + parseNum(inv.taxAmt||0) - parseNum(inv.discountAmt||0);
+            }
+            totalSalesAmt += total;
+        });
+        return totalSalesAmt;
+    }
+
     // --- NLP RULES ---
     const dynamicKb = [
+        {
+            regex: /(?:كم|ماهي|ما هي|ما هو) (?:السيولة|النقدية|إجمالي النقدية|رصيد الشركة)/i,
+            handler: () => {
+                const total = getTotalLiquidity();
+                return `💰 <b>السيولة النقدية الكلية في النظام:</b><br><span style="font-size:1.5rem;font-weight:bold;color:#4ade80;">${total.toLocaleString('en-US', {minimumFractionDigits:2})} SDG</span>`;
+            }
+        },
+        {
+            regex: /(?:كم|ماهي|ما هي) (?:قيمة المخزون|قيمة البضاعة|إجمالي المخزون)/i,
+            handler: () => {
+                const total = getTotalInventoryValue();
+                return `📦 <b>القيمة التقديرية للمخزون الحالي:</b><br><span style="font-size:1.5rem;font-weight:bold;color:#38bdf8;">${total.toLocaleString('en-US', {minimumFractionDigits:2})} SDG</span>`;
+            }
+        },
+        {
+            regex: /(?:كم|ماهي|ما هي) (?:المبيعات الكلية|إجمالي المبيعات|كل المبيعات)/i,
+            handler: () => {
+                const total = getTotalSalesAllTime();
+                return `📈 <b>إجمالي المبيعات (منذ البداية):</b><br><span style="font-size:1.5rem;font-weight:bold;color:#a855f7;">${total.toLocaleString('en-US', {minimumFractionDigits:2})} SDG</span>`;
+            }
+        },
+        {
+            regex: /(?:من|ماهي|ما هي) (?:أكبر المديونيات|أكبر العملاء|الديون الكبيرة|أكثر المدينين|اكبر المدينين)/i,
+            handler: () => {
+                const top = getTopDebtors();
+                if(top.length === 0) return "لا يوجد عملاء عليهم مديونيات حالياً. 🎉";
+                let res = `⚠️ <b>أكبر 3 عملاء عليهم مديونية:</b><br><ol style="padding-right: 20px; margin-top:10px;">`;
+                top.forEach(t => { res += `<li><b>${t.name}</b>: <span style="color:#f87171; font-weight:bold;">${t.balance.toLocaleString()} SDG</span></li>`; });
+                res += `</ol>`;
+                return res;
+            }
+        },
         {
             // Matches: كم مديونية عميل محمد؟ / ما هو حساب شركة الأمل / رصيد مورد أحمد
             regex: /(?:كم|ماهي|ما هي|ما هو) (?:مديونية|حساب|رصيد|ديون) (?:عميل|مورد|شركة)?\s*(.+)/i,
@@ -317,6 +402,36 @@
         {
             keywords: ['سلام', 'السلام', 'مرحبا', 'أهلا', 'اهلين', 'مرحب', 'كيف حالك', 'شخبارك', 'مسا', 'صباح'],
             response: 'وعليكم السلام ورحمة الله وبركاته! 👋 أهلاً بك. أنا المساعد الذكي للنظام، كيف يمكنني مساعدتك اليوم؟'
+        },
+        {
+            keywords: ['كاشير', 'نقطة بيع', 'بيع مباشر', 'شاشة الكاشير'],
+            response: 'للدخول إلى شاشة نقطة البيع (POS) المباشرة السريعة، يرجى الانتقال إلى <b>نقطة البيع (الكاشير)</b>.',
+            link: 'direct-sales.html', linkText: '🛒 فتح شاشة الكاشير'
+        },
+        {
+            keywords: ['رواتب', 'راتب', 'موظف', 'موظفين', 'سلفيات', 'خصومات', 'حضور', 'شؤون الموظفين'],
+            response: 'لإدارة الموظفين والرواتب والحضور والانصراف والسلفيات، يرجى الذهاب إلى شاشة <b>شؤون الموظفين والرواتب</b>.',
+            link: 'payroll.html', linkText: '👥 شؤون الموظفين'
+        },
+        {
+            keywords: ['تسليم', 'مذكرة تسليم', 'بضاعة محجوزة', 'حجز بضاعة', 'محجوزات'],
+            response: 'لإدارة المبيعات المحجوزة وإصدار مذكرات تسليم البضاعة لاحقاً، يرجى التوجه إلى قسم <b>المبيعات المحجوزة والتسليم</b>.',
+            link: 'reserved-sales.html', linkText: '🚚 المبيعات المحجوزة والتسليم'
+        },
+        {
+            keywords: ['دفتر استاذ', 'ميزان مراجعة', 'ارباح وخسائر', 'أرباح وخسائر', 'قيود محاسبية', 'ميزانية عمومية', 'دفتر الأستاذ'],
+            response: 'يمكنك الوصول إلى التقارير المالية المتقدمة كدفتر الأستاذ العام وميزان المراجعة والأرباح والخسائر من <b>التقارير المالية</b>.',
+            link: 'financial-reports.html', linkText: '📊 التقارير المالية (المتقدمة)'
+        },
+        {
+            keywords: ['باركود', 'طباعة باركود', 'ليبل', 'ملصقات'],
+            response: 'لطباعة ملصقات الباركود للمنتجات للصقها على البضاعة، يمكنك استخدام شاشة <b>طباعة الباركود</b> المخصصة.',
+            link: 'barcode-printer.html', linkText: '🖨️ طباعة الباركود'
+        },
+        {
+            keywords: ['مندوب', 'مندوبين', 'شريك', 'شركاء', 'وسطاء', 'عمولة', 'عمولات'],
+            response: 'لإدارة الشركاء والمندوبين وحساب عمولاتهم من المبيعات، يرجى الذهاب إلى شاشة <b>المندوبين والشركاء</b>.',
+            link: 'partners.html', linkText: '🤝 المندوبين والشركاء'
         },
         {
             keywords: ['من انت', 'من أنت', 'وظيفتك', 'بتعمل ايه', 'فائدتك', 'مين انت', 'ما هو عملك'],
