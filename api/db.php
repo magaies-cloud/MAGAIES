@@ -34,11 +34,15 @@ $options = [
 
 // إضافة SSL إذا توفر مسار الشهادة
 if ($ssl_ca && file_exists($ssl_ca)) {
-    $options[PDO::MYSQL_ATTR_SSL_CA]                  = $ssl_ca;
-    $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT]  = false; // DigitalOcean managed DB
+    $options[PDO::MYSQL_ATTR_SSL_CA] = $ssl_ca;
+    if (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
+        $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+    }
 } else {
     // إذا لم تتوفر الشهادة، اتصل بدون تحقق SSL
-    $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT]  = false;
+    if (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
+        $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+    }
 }
 
 try {

@@ -110,4 +110,8 @@ http.createServer((req, res) => {
     phpServer.on('error', (err) => {
         console.error('❌ فشل تشغيل خادم PHP:', err.message);
     });
+
+    // فتح المتصفح تلقائياً على الرابط المحلي
+    const { exec } = require('child_process');
+    exec(`start http://localhost:${PORT}/saas-admin.html`);
 });
