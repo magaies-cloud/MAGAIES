@@ -3,7 +3,7 @@
 let currentType = 'cash';
 let allAccounts = [];
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DBReady', () => {
     // Initialize date and serial
     const now = new Date();
     document.getElementById('current-date').innerText = now.toISOString().split('T')[0];

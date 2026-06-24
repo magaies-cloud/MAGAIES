@@ -4,12 +4,7 @@
 
 // Load real accounts from master-data
 let ACCOUNTS = [];
-const localBanks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
-localBanks.forEach(b => ACCOUNTS.push({ id: b.id, name: b.name }));
-const localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-const localSups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
-localCusts.forEach(c => ACCOUNTS.push({ id: c.id, name: c.name }));
-localSups.forEach(s => ACCOUNTS.push({ id: s.id, name: s.name }));
+// (Moved to DBReady event)
 
 let jvData = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
 let currentViewedIndex = -1; 
@@ -31,6 +26,14 @@ function showToast(msg, type = 'success', ms = 3000) {
 }
 
 document.addEventListener('DBReady', () => {
+    // Load real accounts from master-data
+    const localBanks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+    localBanks.forEach(b => ACCOUNTS.push({ id: b.id, name: b.name }));
+    const localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+    const localSups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+    localCusts.forEach(c => ACCOUNTS.push({ id: c.id, name: c.name }));
+    localSups.forEach(s => ACCOUNTS.push({ id: s.id, name: s.name }));
+
     document.getElementById('hdr-date').valueAsDate = new Date();
     setNextVoucherNumber();
     
