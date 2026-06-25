@@ -222,5 +222,22 @@
 
 <script src="js/app.js?v=20260620_3"></script>
 <script src="js/statement.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        const params = new URLSearchParams(window.location.search);
+        const accId = params.get('accountId');
+        if (accId) {
+            const select = document.getElementById('account-select');
+            if (select) {
+                select.value = accId;
+                if (typeof window.runReport === 'function') {
+                    window.runReport();
+                }
+            }
+        }
+    }, 500);
+});
+</script>
 </body>
 </html>

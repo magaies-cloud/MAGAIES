@@ -2030,5 +2030,20 @@ function openSafeForm() {
 
 
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        const params = new URLSearchParams(window.location.search);
+        const tabParam = params.get('tab');
+        if (tabParam) {
+            const tabId = 'tab-' + tabParam;
+            const targetBtn = document.querySelector(`button[onclick*="'${tabId}'"]`);
+            if (targetBtn) {
+                targetBtn.click();
+            }
+        }
+    }, 100);
+});
+</script>
 </body>
 </html>
