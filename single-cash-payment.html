@@ -553,8 +553,8 @@
         <div class="premium-header">
             <!-- Left side (RTL Start): Title and Date -->
             <div class="header-group group-primary">
-                <div class="crystal-pill title-crystal hover-scale">
-                    <div class="icon-box bg-gradient-red">💸</div>
+                <div class="crystal-pill title-crystal hover-scale hover-glow">
+                    <div class="icon-box bg-gradient-red icon-pulse">💸</div>
                     <span class="pill-text">سند صرف منفرد</span>
                 </div>
                 
@@ -638,11 +638,11 @@
                     <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 0;">
                         <div>
                             <label class="label">رقم الشيك</label>
-                            <input type="text" class="form-input" id="check-no" placeholder="000000" style="padding: 10px 12px; background: rgba(0,0,0,0.3);">
+                            <input type="text" class="form-input input-glow-focus hover-glow" id="check-no" placeholder="000000" style="padding: 10px 12px; background: rgba(0,0,0,0.3);">
                         </div>
                         <div>
                             <label class="label">اسم البنك</label>
-                            <input type="text" class="form-input" id="check-branch" placeholder="الفرع..." style="padding: 10px 12px; background: rgba(0,0,0,0.3);">
+                            <input type="text" class="form-input input-glow-focus hover-glow" id="check-branch" placeholder="الفرع..." style="padding: 10px 12px; background: rgba(0,0,0,0.3);">
                         </div>
                         <div>
                             <label class="label">تاريخ الشيك</label>
@@ -675,9 +675,9 @@
                     <!-- Column 1: المدين المستلم (Focus Zone 1) -->
                     <div class="focus-zone" id="zone-recipient" style="padding: 10px 15px; background: rgba(239, 68, 68, 0.04); border-color: rgba(239, 68, 68, 0.15);">
                         <h3 class="form-section-title" style="margin-bottom: 8px; padding-bottom: 2px; justify-content: space-between; display: flex; align-items: center; border-bottom: 2px solid rgba(239, 68, 68, 0.2);">
-                            <div>
-                                <span style="display:inline-block; margin-left:8px; font-size:1.3rem;">👤</span> 
-                                المدين المستلم
+                            <div style="display: flex; align-items: center;">
+                                <div class="vivid-icon vivid-blue"><span class="icon-pulse">👤</span></div> 
+                                <span style="margin-right: 10px;">المدين المستلم</span>
                             </div>
                             <div style="display: flex; gap: 6px;">
                                 <button type="button" class="crystal-btn-sm btn-blue-glass" title="انتقال لشاشة إضافة عميل جديد" onclick="window.location.href='master-data.html?tab=customers'">
@@ -686,6 +686,9 @@
                                 <button type="button" class="crystal-btn-sm btn-green-glass" title="انتقال لشاشة إضافة مورد جديد" onclick="window.location.href='master-data.html?tab=suppliers'">
                                     <span style="font-size: 1.1rem; margin-left: 3px;">🏢</span> مورد
                                 </button>
+                                <button type="button" class="crystal-btn-sm btn-orange-glass" title="انتقال لشاشة إضافة مركز تكلفة" onclick="window.location.href='master-data.html?tab=costcenters'">
+                                    <span style="font-size: 1.1rem; margin-left: 3px;">📊</span> مركز تكلفة
+                                </button>
                             </div>
                         </h3>
                         
@@ -693,11 +696,11 @@
                             
                             <!-- 1. صرفنا المبلغ -->
                             <div style="background: linear-gradient(145deg, rgba(51, 65, 85, 0.8), rgba(30, 41, 59, 0.8)); padding: 18px; border-radius: 16px; border: 1px solid rgba(239, 68, 68, 0.3); box-shadow: 0 8px 25px rgba(0,0,0,0.4), inset 0 2px 10px rgba(255,255,255,0.05); text-align: center; margin-bottom: 15px; backdrop-filter: blur(10px);">
-                                <label class="label" style="color:#cbd5e1 !important; font-weight:800; font-size:1.2rem !important; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display:block; text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;">
-                                    <span style="font-size:1.4rem; vertical-align:middle; margin-left:5px;">💰</span> المبلغ المصروف
+                                <label class="label" style="display:flex; align-items:center; justify-content:center; color:#cbd5e1 !important; font-weight:800; font-size:1.2rem !important; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;">
+                                    <div class="vivid-icon vivid-green" style="width:36px; height:36px; margin-left:10px;"><span class="icon-pulse" style="font-size:1.2rem !important;">💰</span></div> المبلغ المصروف
                                 </label>
                                 <div style="position: relative; display: inline-block; width: 100%;">
-                                    <input type="text" class="form-input amount hover-scale" id="amount-local" data-next="to-account" autofocus value="0" inputmode="numeric" onfocus="this.select()" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let v = this.value.replace(/[^0-9.]/g, ''); this.value = v ? Number(v.replace(/,/g, '')).toLocaleString('en-US') : '0'; calcEquiv('local')" style="padding: 5px 20px 10px; text-align: center; border-radius: 12px; font-family: 'Inter', 'Segoe UI', sans-serif; transition: all 0.3s; height: 85px;">
+                                    <input type="text" class="form-input amount hover-scale input-glow-focus hover-glow" id="amount-local" data-next="to-account" autofocus value="0" inputmode="numeric" onfocus="this.select()" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let v = this.value.replace(/[^0-9.]/g, ''); this.value = v ? Number(v.replace(/,/g, '')).toLocaleString('en-US') : '0'; calcEquiv('local')" style="padding: 5px 20px 10px; text-align: center; border-radius: 12px; font-family: 'Inter', 'Segoe UI', sans-serif; transition: all 0.3s; height: 85px;">
                                 </div>
                             </div>
 
@@ -735,17 +738,17 @@
                                     <span style="opacity:0.8; font-size:1.1rem;">📝</span> البيان
                                 </label>
                                 <div style="flex-grow: 1; min-width: 0;">
-                                    <input type="text" class="form-input" id="to-statement" data-next="currency" placeholder="اكتب تفاصيل أو سبب الصرف..." style="padding: 8px 12px; border-radius: 8px; height: 38px;">
+                                    <input type="text" class="form-input input-glow-focus hover-glow" id="to-statement" data-next="currency" placeholder="اكتب تفاصيل أو سبب الصرف..." style="padding: 8px 12px; border-radius: 8px; height: 38px;">
                                 </div>
                             </div>
 
-                            <!-- 4 & 5. Currency Section (Grouped visually) -->
-                            <div style="background: rgba(0, 0, 0, 0.15); padding: 10px; border-radius: 10px; border: 1px dashed rgba(255, 255, 255, 0.1); display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <!-- 4 & 5 & 6. Currency Section (Grouped visually) -->
+                            <div style="background: rgba(0, 0, 0, 0.15); padding: 10px; border-radius: 10px; border: 1px dashed rgba(255, 255, 255, 0.1); display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                                 <div>
                                     <label class="label" style="display:flex; align-items:center; gap:5px; margin-bottom: 4px;">
                                         <span style="opacity:0.8; font-size:1.1rem;">💱</span> العملة
                                     </label>
-                                    <select class="form-input system-currency-select" id="currency" data-next="exchange-rate" onchange="updateCurrency(); document.getElementById('exchange-rate').focus(); document.getElementById('exchange-rate').select();" style="padding: 8px 12px; border-radius: 8px; height: 42px;">
+                                    <select class="form-input system-currency-select input-glow-focus hover-glow" id="currency" data-next="exchange-rate" onchange="updateCurrency(); document.getElementById('exchange-rate').focus(); document.getElementById('exchange-rate').select();" style="padding: 8px 12px; border-radius: 8px; height: 42px;">
                                         <option value="SDG">جنيه (SDG)</option>
                                         <option value="USD">دولار (USD)</option>
                                         <option value="AED">درهم (AED)</option>
@@ -755,17 +758,23 @@
                                     <label class="label" style="display:flex; align-items:center; gap:5px; margin-bottom: 4px;">
                                         <span style="opacity:0.8; font-size:1.1rem;">⚖️</span> التعادل
                                     </label>
-                                    <input type="text" class="form-input" id="exchange-rate" data-next="beneficiary-name" value="1.0" inputmode="decimal" onfocus="this.select()" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); calcEquiv('rate')" style="padding: 8px 12px; border-radius: 8px; text-align: center; height: 42px;">
+                                    <input type="text" class="form-input input-glow-focus hover-glow" id="exchange-rate" data-next="amount-foreign" value="1.0" inputmode="decimal" onfocus="this.select()" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); calcEquiv('rate')" style="padding: 8px 12px; border-radius: 8px; text-align: center; height: 42px;">
+                                </div>
+                                <div>
+                                    <label class="label" style="display:flex; align-items:center; gap:5px; margin-bottom: 4px;">
+                                        <span style="opacity:0.8; font-size:1.1rem;">💵</span> القيمة
+                                    </label>
+                                    <input type="text" class="form-input amount input-glow-focus hover-glow" id="amount-foreign" data-next="beneficiary-name" value="0" inputmode="decimal" onfocus="this.select()" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let v = this.value.replace(/[^0-9.]/g, ''); this.value = v ? Number(v.replace(/,/g, '')).toLocaleString('en-US') : '0'; calcEquiv('foreign')" style="padding: 8px 12px; border-radius: 8px; text-align: center; height: 42px; color: #38bdf8 !important;">
                                 </div>
                             </div>
 
                             <!-- 6. المستفيد -->
                             <div style="display:flex; align-items:center; gap:10px;">
                                 <label class="label" style="color:#fbbf24 !important; font-weight:800; display:flex; align-items:center; gap:5px; margin-bottom: 0; min-width: 120px; flex-shrink: 0; white-space: nowrap;">
-                                    <span style="font-size:1.1rem;">👨‍💼</span> المستفيد
+                                    <div class="vivid-icon vivid-yellow"><span class="icon-pulse">👨‍💼</span></div> المستفيد
                                 </label>
                                 <div style="flex-grow: 1; min-width: 0;">
-                                    <input type="text" class="form-input" id="beneficiary-name" data-next="from-account" placeholder="اسم المستفيد الفعلي النهائي..." style="padding: 8px 12px; border-radius: 8px; border-color: rgba(251, 191, 36, 0.4); height: 38px;">
+                                    <input type="text" class="form-input input-glow-focus hover-glow" id="beneficiary-name" data-next="from-account" placeholder="اكتب اسم المستفيد النهائي (اختياري)..." style="padding: 8px 12px; border-radius: 8px; border-color: rgba(251, 191, 36, 0.4); height: 38px;">
                                 </div>
                             </div>
                             
@@ -888,7 +897,7 @@
                 lastEnterTime = now;
                 
                 let current = document.activeElement;
-                if (current.tagName === 'TEXTAREA') return; 
+                if (current.tagName === 'TEXTAREA' && current.id !== 'from-statement') return; 
 
                 // Determine sequence based on current focus ID
                 let id = current.id;
@@ -923,6 +932,8 @@
                 } else if (id === 'currency') {
                     nextAction = () => { let n = document.getElementById('exchange-rate'); n.focus(); n.select(); };
                 } else if (id === 'exchange-rate') {
+                    nextAction = () => { let n = document.getElementById('beneficiary-name'); n.focus(); n.select(); };
+                } else if (id === 'amount-foreign') {
                     nextAction = () => { let n = document.getElementById('beneficiary-name'); n.focus(); n.select(); };
                 } else if (id === 'beneficiary-name') {
                     nextAction = () => { 

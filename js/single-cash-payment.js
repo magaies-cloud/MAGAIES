@@ -539,3 +539,38 @@ function confirmDelete() {
         resetVoucherSilent();
     }
 }
+
+// ================= UI/UX ENHANCEMENTS (ANIMATIONS & VALIDATION) =================
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Strict Number Validation & Feedback
+    const numberInputs = document.querySelectorAll('input[inputmode="numeric"], input[inputmode="decimal"], .amount');
+    numberInputs.forEach(input => {
+        input.addEventListener('keydown', (e) => {
+            if (e.key.length === 1 && !/[0-9.]/.test(e.key) && !e.ctrlKey && !e.metaKey) {
+                e.preventDefault();
+                // Visual feedback for invalid input
+                input.style.boxShadow = '0 0 15px rgba(239, 68, 68, 0.8)';
+                input.style.borderColor = '#ef4444';
+                input.style.transform = 'translateY(-2px) rotate(1deg)';
+                setTimeout(() => {
+                    input.style.boxShadow = '';
+                    input.style.borderColor = '';
+                    input.style.transform = '';
+                }, 200);
+            }
+        });
+    });
+
+    // 2. Enhance Enter Navigation visually
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            setTimeout(() => {
+                const active = document.activeElement;
+                if(active && active.tagName === 'INPUT') {
+                    active.style.boxShadow = '0 0 20px hsla(160, 70%, 45%, 0.4)';
+                    setTimeout(() => active.style.boxShadow = '', 300);
+                }
+            }, 50);
+        }
+    });
+});
