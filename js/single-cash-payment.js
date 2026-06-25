@@ -5,22 +5,7 @@
 let ACCOUNTS = [];
 
 // Load real accounts from master-data
-let localCusts = [];
-            try {
-                localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-                if (!Array.isArray(localCusts)) localCusts = [];
-            } catch(e) {
-                localCusts = [];
-            }
-let localSups = [];
-            try {
-                localSups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
-                if (!Array.isArray(localSups)) localSups = [];
-            } catch(e) {
-                localSups = [];
-            }
-localCusts.forEach(c => ACCOUNTS.push({ id: c.id, name: c.name, balances: { checks: 0, debt: parseFloat(c.currentBalance) || 0, loan: 0 } }));
-localSups.forEach(s => ACCOUNTS.push({ id: s.id, name: s.name, balances: { checks: 0, debt: 0, loan: parseFloat(s.currentBalance) || 0 } }));
+// (Moved to DBReady event)
 
 let singlePaymentsData = [];
             try {
@@ -63,6 +48,16 @@ function showDuplicateModal(transferNo) {
 }
 
 document.addEventListener('DBReady', () => {
+    // Load accounts dynamically here to ensure DB_STORE is populated
+    let localCusts = [];
+    try { localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || []; } catch(e) { localCusts = []; }
+    let localSups = [];
+    try { localSups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []; } catch(e) { localSups = []; }
+    
+    ACCOUNTS = [];
+    localCusts.forEach(c => ACCOUNTS.push({ id: c.id, name: c.name, balances: { checks: 0, debt: parseFloat(c.currentBalance) || 0, loan: 0 } }));
+    localSups.forEach(s => ACCOUNTS.push({ id: s.id, name: s.name, balances: { checks: 0, debt: 0, loan: parseFloat(s.currentBalance) || 0 } }));
+
     document.getElementById('hdr-date').valueAsDate = new Date();
     setNextVoucherNumber();
 

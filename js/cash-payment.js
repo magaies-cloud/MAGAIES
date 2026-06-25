@@ -14,11 +14,7 @@ const COST_CENTERS = [
 let ACCOUNTS = [];
 
 // Load real accounts from master-data
-const localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-const localSups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
-localCusts.forEach(c => ACCOUNTS.push({ id: c.id, name: c.name }));
-localSups.forEach(s => ACCOUNTS.push({ id: s.id, name: s.name }));
-
+// (Moved to DBReady event)
 
 // ════════════════════════════════════════
 //  STATE
@@ -51,6 +47,13 @@ function showToast(msg, type = 'success', ms = 3000) {
 //  INITIALIZATION
 // ════════════════════════════════════════
 document.addEventListener('DBReady', () => {
+    // Load accounts dynamically here to ensure DB_STORE is populated
+    const localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+    const localSups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+    ACCOUNTS = [];
+    localCusts.forEach(c => ACCOUNTS.push({ id: c.id, name: c.name }));
+    localSups.forEach(s => ACCOUNTS.push({ id: s.id, name: s.name }));
+
     // Set today's date
     document.getElementById('hdr-date').valueAsDate = new Date();
     
