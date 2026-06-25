@@ -26,9 +26,27 @@ function loadPartners() {
     ALL_PARTNERS = [];
     const custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
     const sups  = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+    const banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+    const safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
+    const expenses = JSON.parse(localStorage.getItem('erp_expenses_v1')) || [];
+    const ccs = JSON.parse(localStorage.getItem('erp_cost_centers_v1')) || [];
+    const employees = JSON.parse(localStorage.getItem('erp_employees_v1')) || [];
+    const warehouses = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
     
     custs.forEach(c => ALL_PARTNERS.push({ id: c.id, name: c.name, type: 'عميل', icon: '👤' }));
     sups.forEach(s  => ALL_PARTNERS.push({ id: s.id, name: s.name, type: 'مورد', icon: '🏭' }));
+    
+    banks.forEach(b => {
+        ALL_PARTNERS.push({ id: b.id, name: b.name, type: 'بنك', icon: '🏦' });
+    });
+    safes.forEach(s => {
+        ALL_PARTNERS.push({ id: s.id, name: s.name, type: 'خزينة', icon: '💰' });
+    });
+    
+    expenses.forEach(e => ALL_PARTNERS.push({ id: e.id, name: e.name, type: 'مصروف', icon: '📉' }));
+    ccs.forEach(c => ALL_PARTNERS.push({ id: c.id, name: c.name, type: 'مركز تكلفة', icon: '📊' }));
+    employees.forEach(e => ALL_PARTNERS.push({ id: e.id, name: e.name, type: 'موظف', icon: '👨‍💼' }));
+    warehouses.forEach(w => ALL_PARTNERS.push({ id: w.id, name: w.name, type: 'مخزن', icon: '🏢' }));
 }
 
 function collectPartnerTransactions(partnerId) {
@@ -105,13 +123,13 @@ function collectPartnerTransactions(partnerId) {
     // 4. Sales Invoices
     const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     sales.forEach(inv => {
+        const total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
+        const refNo = inv.invoiceNo || inv.id;
+        let curr = inv.currency || 'SDG';
+        let rate = parseNum(inv.exchangeRate) || 1;
+        let origTotal = total > 0 ? (total / rate) : 0;
+        
         if (inv.customerId === partnerId || inv.customer === partnerId) {
-            const total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
-            const refNo = inv.invoiceNo || inv.id;
-            let curr = inv.currency || 'SDG';
-            let rate = parseNum(inv.exchangeRate) || 1;
-            let origTotal = total > 0 ? (total / rate) : 0;
-            
             txns.push({
                 date: inv.date, ref: refNo, type: 'invoice', typeLabel: 'فاتورة مبيعات',
                 statement: inv.paymentMethod === 'credit' ? 'مبيعات آجلة' : 'مبيعات نقدية',
@@ -137,22 +155,33 @@ function collectPartnerTransactions(partnerId) {
                 }
             }
         }
+        
+        const accountId = inv.toAccount || inv.safeId || 'safe-001';
+        const paid = inv.paymentMethod === 'credit' ? parseNum(inv.paidAmount || inv.paid) : total;
+        if (paid > 0 && accountId === partnerId) {
+            txns.push({
+                date: inv.date, ref: refNo + '-PAID', type: 'receipt', typeLabel: 'مقبوضات مبيعات',
+                statement: 'مقبوضات نقدية من فاتورة مبيعات',
+                debit: paid, credit: 0,
+                currency: curr, rate: rate, origDebit: paid / rate, origCredit: 0
+            });
+        }
     });
 
     // 5. Purchase Invoices
     const purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
     purchases.forEach(inv => {
-        if (inv.supplierId === partnerId || inv.supplier === partnerId || inv.customer === partnerId) {
-            let total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
-            if (total === 0 && inv.items && inv.items.length > 0) {
-                total = inv.items.reduce((sum, item) => sum + (parseNum(item.total) || parseNum(item.quantity) * parseNum(item.price)), 0);
-                total += parseNum(inv.laborCost || 0) + parseNum(inv.transportCost || 0) + parseNum(inv.additions || 0) + parseNum(inv.taxAmt || 0) - parseNum(inv.discountAmt || 0);
-            }
-            const refNo = inv.invoiceNo || inv.id;
-            let curr = inv.currency || 'SDG';
-            let rate = parseNum(inv.exchangeRate) || 1;
-            let origTotal = total > 0 ? (total / rate) : 0;
+        let total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
+        if (total === 0 && inv.items && inv.items.length > 0) {
+            total = inv.items.reduce((sum, item) => sum + (parseNum(item.total) || parseNum(item.quantity) * parseNum(item.price)), 0);
+            total += parseNum(inv.laborCost || 0) + parseNum(inv.transportCost || 0) + parseNum(inv.additions || 0) + parseNum(inv.taxAmt || 0) - parseNum(inv.discountAmt || 0);
+        }
+        const refNo = inv.invoiceNo || inv.id;
+        let curr = inv.currency || 'SDG';
+        let rate = parseNum(inv.exchangeRate) || 1;
+        let origTotal = total > 0 ? (total / rate) : 0;
 
+        if (inv.supplierId === partnerId || inv.supplier === partnerId || inv.customer === partnerId) {
             txns.push({
                 date: inv.date, ref: refNo, type: 'purchase', typeLabel: 'فاتورة مشتريات',
                 statement: inv.paymentMethod === 'credit' ? 'مشتريات آجلة' : 'مشتريات نقدية',
@@ -178,6 +207,17 @@ function collectPartnerTransactions(partnerId) {
                 }
             }
         }
+
+        const accountId = inv.fromAccount || inv.safeId || 'safe-001';
+        const paid = inv.paymentMethod === 'credit' ? parseNum(inv.paidAmount || inv.paid) : total;
+        if (paid > 0 && accountId === partnerId) {
+            txns.push({
+                date: inv.date, ref: refNo + '-PAID', type: 'payment', typeLabel: 'مدفوعات مشتريات',
+                statement: 'مدفوعات نقدية لفاتورة مشتريات',
+                debit: 0, credit: paid,
+                currency: curr, rate: rate, origDebit: 0, origCredit: paid / rate
+            });
+        }
     });
 
     // Sort by date ascending
@@ -201,9 +241,11 @@ function onPartnerSearch() {
 
     let matches = [];
     if (!q) { 
-        matches = ALL_PARTNERS.slice(0, 20);
+        matches = ALL_PARTNERS.slice(0, 300); // Show enough to see all types
     } else {
-        matches = ALL_PARTNERS.filter(a => (a.name || '').includes(q)).slice(0, 10);
+        matches = ALL_PARTNERS.filter(a => 
+            (a.name || '').includes(q) || (a.type || '').includes(q)
+        ).slice(0, 50);
     }
 
     if (matches.length === 0) {
@@ -307,6 +349,12 @@ function runReport() {
     let intrinsicBal = 0;
     let custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
     let sups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+    let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+    let safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
+    let expenses = JSON.parse(localStorage.getItem('erp_expenses_v1')) || [];
+    let employees = JSON.parse(localStorage.getItem('erp_employees_v1')) || [];
+    let warehouses = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+    
     const cust = custs.find(c => c.id === partnerId);
     if (cust) {
         intrinsicBal = parseNum(cust.openingBalance || cust.initialBalance || 0); // debit
@@ -314,6 +362,29 @@ function runReport() {
         const sup = sups.find(s => s.id === partnerId);
         if (sup) {
             intrinsicBal = -parseNum(sup.openingBalance || sup.initialBalance || 0); // credit
+        } else {
+            const bnk = banks.find(b => b.id === partnerId);
+            if (bnk) {
+                intrinsicBal = parseNum(bnk.openingBalance || bnk.initialBalance || 0); // debit
+            } else {
+                const sfe = safes.find(s => s.id === partnerId);
+                if (sfe) {
+                    intrinsicBal = parseNum(sfe.openingBalance || sfe.initialBalance || 0); // debit
+                } else {
+                    const exp = expenses.find(e => e.id === partnerId);
+                    if (exp) {
+                        intrinsicBal = parseNum(exp.openingBalance || exp.initialBalance || 0); // debit
+                    } else {
+                        const emp = employees.find(e => e.id === partnerId);
+                        if (emp) {
+                            intrinsicBal = parseNum(emp.openingBalance || emp.initialBalance || 0); // debit
+                        } else {
+                            const wh = warehouses.find(w => w.id === partnerId);
+                            if (wh) intrinsicBal = parseNum(wh.openingBalance || wh.initialBalance || 0);
+                        }
+                    }
+                }
+            }
         }
     }
 

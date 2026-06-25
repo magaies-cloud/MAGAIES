@@ -158,12 +158,28 @@
         .clock-time { color: #38bdf8; font-size: 1rem; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: 1px; text-shadow: 0 0 8px rgba(56,189,248,0.5); font-family: 'Outfit', sans-serif;}
         .clock-date { color: var(--text-secondary); font-size: 0.65rem; margin-top: 1px; }
 
+        @keyframes tactileBuzz {
+            0% { transform: translateY(-3px) scale(1.02) rotate(0deg); }
+            25% { transform: translateY(-3px) scale(1.02) rotate(-0.5deg); }
+            50% { transform: translateY(-3px) scale(1.02) rotate(0.5deg); }
+            75% { transform: translateY(-3px) scale(1.02) rotate(-0.5deg); }
+            100% { transform: translateY(-3px) scale(1.02) rotate(0deg); }
+        }
+
         .icon-btn {
             background: rgba(255,255,255,0.03); border: 1px solid var(--border); width: 36px; height: 36px;
             border-radius: 10px; color: #fff; font-size: 1rem; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.3s ease; position: relative;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); position: relative;
         }
-        .icon-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); box-shadow: 0 5px 10px rgba(0,0,0,0.3); }
+        .icon-btn:hover { 
+            animation: tactileBuzz 0.1s linear infinite;
+            background: rgba(56, 189, 248, 0.1); 
+            border-color: #38bdf8; 
+            box-shadow: 0 0 15px rgba(56,189,248,0.5), 0 0 30px rgba(56,189,248,0.3), inset 0 0 10px rgba(56,189,248,0.2); 
+            z-index: 10;
+        }
+        .icon-btn > * { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: inline-block; }
+        .icon-btn:hover > * { transform: scale(1.2); }
 
         .user-info {
             display: flex; align-items: center; gap: 8px; background: rgba(15,23,42,0.6); padding: 6px 12px; 
@@ -202,6 +218,34 @@
         .kpi-val { margin:2px 0 0; font-size:1.15rem; font-weight:900; font-family: 'Outfit', sans-serif; line-height: 1.2; }
         .kpi-desc { font-size:0.65rem; margin-top:2px; font-weight: 600; }
 
+        /* Dynamic Spotlight Glass Effect for KPI Cards */
+        .spotlight-card {
+            position: relative;
+            overflow: hidden;
+            transform: translateZ(0);
+        }
+        .spotlight-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(
+                450px circle at var(--mouse-x, 0) var(--mouse-y, 0),
+                rgba(255, 255, 255, 0.12),
+                transparent 45%
+            );
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .spotlight-card:hover::before {
+            opacity: 1;
+        }
+        .spotlight-card > * {
+            position: relative;
+            z-index: 1;
+        }
+
         /* Compact Charts Grid */
         .charts-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px;
@@ -230,31 +274,34 @@
             color: #fff; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255,255,255,0.08);
             box-shadow: 0 3px 10px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.05);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            transition: all 0.3s ease; position: relative; overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); position: relative; overflow: hidden;
             font-family: 'Tajawal', sans-serif;
         }
         .quick-action-btn:hover { 
-            transform: translateY(-3px) scale(1.02); box-shadow: 0 10px 20px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.2); 
+            animation: tactileBuzz 0.1s linear infinite;
             border-color: rgba(255,255,255,0.3);
+            z-index: 10;
         }
 
         .qa-primary { border-bottom: 2px solid rgba(56,189,248,0.5); }
-        .qa-primary:hover { background: rgba(56,189,248,0.1); color: #38bdf8; border-color: #38bdf8; }
+        .qa-primary:hover { background: rgba(56,189,248,0.1); color: #38bdf8; border-color: #38bdf8; box-shadow: 0 0 15px rgba(56,189,248,0.6), 0 0 30px rgba(56,189,248,0.3), inset 0 0 15px rgba(56,189,248,0.2) !important; }
         
         .qa-warning { border-bottom: 2px solid rgba(251,191,36,0.5); }
-        .qa-warning:hover { background: rgba(251,191,36,0.1); color: #fbbf24; border-color: #fbbf24; }
+        .qa-warning:hover { background: rgba(251,191,36,0.1); color: #fbbf24; border-color: #fbbf24; box-shadow: 0 0 15px rgba(251,191,36,0.6), 0 0 30px rgba(251,191,36,0.3), inset 0 0 15px rgba(251,191,36,0.2) !important; }
         
         .qa-success { border-bottom: 2px solid rgba(52,211,153,0.5); }
-        .qa-success:hover { background: rgba(52,211,153,0.1); color: #34d399; border-color: #34d399; }
+        .qa-success:hover { background: rgba(52,211,153,0.1); color: #34d399; border-color: #34d399; box-shadow: 0 0 15px rgba(52,211,153,0.6), 0 0 30px rgba(52,211,153,0.3), inset 0 0 15px rgba(52,211,153,0.2) !important; }
         
         .qa-danger { border-bottom: 2px solid rgba(248,113,113,0.5); }
-        .qa-danger:hover { background: rgba(248,113,113,0.1); color: #f87171; border-color: #f87171; }
+        .qa-danger:hover { background: rgba(248,113,113,0.1); color: #f87171; border-color: #f87171; box-shadow: 0 0 15px rgba(248,113,113,0.6), 0 0 30px rgba(248,113,113,0.3), inset 0 0 15px rgba(248,113,113,0.2) !important; }
         
         .qa-purple { border-bottom: 2px solid rgba(192,132,252,0.5); }
-        .qa-purple:hover { background: rgba(192,132,252,0.1); color: #c084fc; border-color: #c084fc; }
+        .qa-purple:hover { background: rgba(192,132,252,0.1); color: #c084fc; border-color: #c084fc; box-shadow: 0 0 15px rgba(192,132,252,0.6), 0 0 30px rgba(192,132,252,0.3), inset 0 0 15px rgba(192,132,252,0.2) !important; }
 
-        .qa-icon { font-size: 1.1rem; transition: transform 0.3s; display: inline-block; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
-        .quick-action-btn:hover .qa-icon { transform: scale(1.15) rotate(5deg) translateY(-2px); }
+        .quick-action-btn:not([class*="qa-"]):hover { box-shadow: 0 0 15px rgba(255,255,255,0.4), 0 0 30px rgba(255,255,255,0.2), inset 0 0 15px rgba(255,255,255,0.1) !important; }
+
+        .qa-icon { font-size: 1.1rem; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: inline-block; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
+        .quick-action-btn:hover .qa-icon { transform: scale(1.2) rotate(5deg) translateY(-2px); }
 
         /* Compact Tables */
         .premium-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.85rem; }
@@ -446,7 +493,7 @@
 
         <!-- KPI Cards -->
         <div class="kpi-cards">
-            <div class="glass-panel neon-border-primary">
+            <div class="glass-panel spotlight-card neon-border-primary">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span class="kpi-title">مبيعات اليوم</span>
                     <div class="kpi-icon-bg" style="background: rgba(59, 130, 246, 0.1);"><span>🛒</span></div>
@@ -455,7 +502,7 @@
                 <div class="kpi-desc" style="color:#34d399;">↑ 15% مقارنة بالأمس</div>
             </div>
             
-            <div class="glass-panel neon-border-success">
+            <div class="glass-panel spotlight-card neon-border-success">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span class="kpi-title">السيولة (صندوق/بنك)</span>
                     <div class="kpi-icon-bg" style="background: rgba(16, 185, 129, 0.1);"><span>💰</span></div>
@@ -464,7 +511,7 @@
                 <div class="kpi-desc" style="color:#34d399;">↑ 5% منذ بداية الأسبوع</div>
             </div>
             
-            <div class="glass-panel neon-border-warning">
+            <div class="glass-panel spotlight-card neon-border-warning">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span class="kpi-title">إجمالي المخزون</span>
                     <div class="kpi-icon-bg" style="background: rgba(245, 158, 11, 0.1);"><span>📦</span></div>
@@ -473,7 +520,7 @@
                 <div class="kpi-desc" style="color:#fbbf24;">موزعة على 3 مخازن</div>
             </div>
             
-            <div class="glass-panel neon-border-danger">
+            <div class="glass-panel spotlight-card neon-border-danger">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span class="kpi-title">تنبيهات مخزون</span>
                     <div class="kpi-icon-bg" style="background: rgba(248, 113, 113, 0.1);"><span>⚠️</span></div>
@@ -579,6 +626,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
     <script src="js/app.js?v=20260620_3"></script>
     <script>
+        // Spotlight Effect Mouse Tracker
+        document.addEventListener('mousemove', e => {
+            for(const card of document.querySelectorAll('.spotlight-card')) {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            }
+        });
+
         // Check Authentication
         document.addEventListener('DBReady', () => {
             if (!localStorage.getItem('authToken')) {

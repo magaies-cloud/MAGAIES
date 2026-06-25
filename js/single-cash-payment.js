@@ -228,16 +228,36 @@ function resetVoucher() {
 function resetVoucherSilent() {
     currentViewedIndex = -1;
     document.getElementById('hdr-date').valueAsDate = new Date();
+    
     document.getElementById('to-account').value = '';
-    document.getElementById('amount-local').value = '0';
+    if (window.toAccChoice) {
+        window.toAccChoice.removeActiveItems();
+        window.toAccChoice.setChoiceByValue('');
+    }
+    
+    document.getElementById('amount-local').value = '';
     document.getElementById('currency').value = 'SDG';
     document.getElementById('exchange-rate').value = '1.0';
     document.getElementById('exchange-rate').readOnly = true;
-    document.getElementById('amount-foreign').value = '0';
+    document.getElementById('amount-foreign').value = '';
     document.getElementById('to-statement').value = '';
     document.getElementById('beneficiary-name').value = '';
     
-    document.getElementById('from-account').value = 'safe-001';
+    document.getElementById('from-account').value = '';
+    if (window.fromAccChoice) {
+        window.fromAccChoice.removeActiveItems();
+        window.fromAccChoice.setChoiceByValue('');
+    }
+    
+    const costCenterEl = document.getElementById('cost-center');
+    if (costCenterEl) {
+        costCenterEl.value = '';
+        if (window.ccChoice) {
+            window.ccChoice.removeActiveItems();
+            window.ccChoice.setChoiceByValue('');
+        }
+    }
+    
     document.getElementById('from-statement').value = '';
 
     // Reset Radio to Cash
@@ -293,6 +313,8 @@ function renderVoucher(v) {
     document.getElementById('hdr-date').value = v.date;
     
     document.getElementById('to-account').value = v.toAccount || '';
+    if (window.toAccChoice) window.toAccChoice.setChoiceByValue(v.toAccount || '');
+
     document.getElementById('amount-local').value = fmtNum(v.amountLocal);
     document.getElementById('currency').value = v.currency || 'SDG';
     document.getElementById('exchange-rate').value = v.rate || 1.0;
@@ -301,6 +323,14 @@ function renderVoucher(v) {
     document.getElementById('beneficiary-name').value = v.beneficiaryName || '';
     
     document.getElementById('from-account').value = v.fromAccount || 'safe-001';
+    if (window.fromAccChoice) window.fromAccChoice.setChoiceByValue(v.fromAccount || 'safe-001');
+
+    const costCenterEl = document.getElementById('cost-center');
+    if (costCenterEl) {
+        costCenterEl.value = v.costCenter || '';
+        if (window.ccChoice) window.ccChoice.setChoiceByValue(v.costCenter || '');
+    }
+
     document.getElementById('from-statement').value = v.fromStatement || '';
 
     // Set Payment Method
@@ -329,6 +359,7 @@ function submitVoucher() {
     try { // WRAPPED
     const amtLocal = parseNum(document.getElementById('amount-local').value);
     const toAcc = document.getElementById('to-account').value;
+    const fromAcc = document.getElementById('from-account').value;
 
     if (amtLocal <= 0) {
         showToast("لا يمكن اعتماد سند بقيمة صفر", "error");
@@ -336,6 +367,10 @@ function submitVoucher() {
     }
     if (!toAcc) {
         showToast("يرجى اختيار الحساب المستفيد", "error");
+        return;
+    }
+    if (!fromAcc) {
+        showToast("يرجى اختيار حساب الدفع (الدافع)", "error");
         return;
     }
 
@@ -360,6 +395,7 @@ function submitVoucher() {
         
         fromAccount: document.getElementById('from-account').value,
         fromStatement: document.getElementById('from-statement').value,
+        costCenter: document.getElementById('cost-center') ? document.getElementById('cost-center').value : '',
         
         paymentMethod: method,
         
@@ -367,21 +403,35 @@ function submitVoucher() {
     };
 
     if (method === 'mobile') {
-        const transferNo = document.getElementById('mobile-transfer-no').value;
-        if (transferNo) {
-            let allPayments = [];
-            try {
-                allPayments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
-                if (!Array.isArray(allPayments)) allPayments = [];
-            } catch(e) {
-                allPayments = [];
-            }
-            const isDuplicate = allPayments.some(v => v.mobileTransferNo === transferNo && v.id !== document.getElementById('voucher-number').innerText);
-            if (isDuplicate) {
-                showDuplicateModal(transferNo);
-                return; // Prevent saving
-            }
+        const transferNo = document.getElementById('mobile-transfer-no').value.trim();
+        
+        if (!transferNo) {
+            showToast("يرجى إدخال رقم حساب التحويل", "error");
+            document.getElementById('mobile-transfer-no').focus();
+            return;
         }
+
+        if (transferNo.length < 5) {
+            showToast("يجب أن لا يقل عدد خانات رقم حساب التحويل عن 5 خانات", "error");
+            document.getElementById('mobile-transfer-no').focus();
+            return;
+        }
+
+        let allPayments = [];
+        try {
+            allPayments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+            if (!Array.isArray(allPayments)) allPayments = [];
+        } catch(e) {
+            allPayments = [];
+        }
+        
+        const isDuplicate = allPayments.some(v => v.mobileTransferNo === transferNo && v.id !== document.getElementById('voucher-number').innerText);
+        if (isDuplicate) {
+            showToast("رقم التحويل مكرر. يجب أن لا يتكرر الرقم في النظام.", "error");
+            showDuplicateModal(transferNo);
+            return; // Prevent saving
+        }
+
         voucherData.mobileTransferNo = transferNo;
         voucherData.mobileNote = document.getElementById('mobile-note').value;
     } else if (method === 'check') {
