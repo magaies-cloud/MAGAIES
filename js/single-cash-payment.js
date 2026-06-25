@@ -49,23 +49,84 @@ function showDuplicateModal(transferNo) {
 
 document.addEventListener('DBReady', () => {
     // Load accounts dynamically here to ensure DB_STORE is populated
-    let localCusts = [];
-    try { localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || []; } catch(e) { localCusts = []; }
-    let localSups = [];
-    try { localSups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []; } catch(e) { localSups = []; }
+    let localCusts = [], localSups = [], localBanks = [], localSafes = [], localExp = [], localJobs = [];
+    try { localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || []; } catch(e) {}
+    try { localSups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []; } catch(e) {}
+    try { localBanks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e) {}
+    try { localSafes = JSON.parse(localStorage.getItem('erp_safes_v1')) || []; } catch(e) {}
+    try { localExp = JSON.parse(localStorage.getItem('erp_accounts_v1')) || []; } catch(e) {}
+    try { localJobs = JSON.parse(localStorage.getItem('erp_jobs_v1')) || []; } catch(e) {}
     
     ACCOUNTS = [];
-    localCusts.forEach(c => ACCOUNTS.push({ id: c.id, name: c.name, balances: { checks: 0, debt: parseFloat(c.currentBalance) || 0, loan: 0 } }));
-    localSups.forEach(s => ACCOUNTS.push({ id: s.id, name: s.name, balances: { checks: 0, debt: 0, loan: parseFloat(s.currentBalance) || 0 } }));
+    localCusts.forEach(c => ACCOUNTS.push({ id: `cust-${c.id}`, name: c.name, balances: { checks: 0, debt: parseFloat(c.currentBalance) || 0, loan: 0 } }));
+    localSups.forEach(s => ACCOUNTS.push({ id: `supp-${s.id}`, name: s.name, balances: { checks: 0, debt: 0, loan: parseFloat(s.currentBalance) || 0 } }));
+    localBanks.forEach(b => ACCOUNTS.push({ id: `bank-${b.id}`, name: b.name, balances: { checks: 0, debt: parseFloat(b.currentBalance) || 0, loan: 0 } }));
+    localSafes.forEach(s => ACCOUNTS.push({ id: `safe-${s.id}`, name: s.name, balances: { checks: 0, debt: parseFloat(s.currentBalance) || 0, loan: 0 } }));
+    localExp.forEach(e => ACCOUNTS.push({ id: `exp-${e.id}`, name: e.name, balances: { checks: 0, debt: parseFloat(e.currentBalance) || 0, loan: 0 } }));
 
     document.getElementById('hdr-date').valueAsDate = new Date();
     setNextVoucherNumber();
 
-    // Populate to-account options
+    function buildOptions() {
+        let html = '<option value="">-- اختر الحساب --</option>';
+        if (localBanks.length || localSafes.length) {
+            html += '<optgroup label="حسابات البنوك والخزن">';
+            localSafes.forEach(s => html += `<option value="safe-${s.id}">${s.name}</option>`);
+            localBanks.forEach(b => html += `<option value="bank-${b.id}">${b.name}</option>`);
+            html += '</optgroup>';
+        }
+        if (localCusts.length) {
+            html += '<optgroup label="العملاء والزبائن">';
+            localCusts.forEach(c => html += `<option value="cust-${c.id}">${c.name}</option>`);
+            html += '</optgroup>';
+        }
+        if (localSups.length) {
+            html += '<optgroup label="الموردين">';
+            localSups.forEach(s => html += `<option value="supp-${s.id}">${s.name}</option>`);
+            html += '</optgroup>';
+        }
+        if (localExp.length) {
+            html += '<optgroup label="المصاريف">';
+            localExp.forEach(e => html += `<option value="exp-${e.id}">${e.name}</option>`);
+            html += '</optgroup>';
+        }
+        return html;
+    }
+
     const toAccEl = document.getElementById('to-account');
-    let accOptions = `<option value="">-- اختر الحساب المستفيد --</option>`;
-    ACCOUNTS.forEach(a => accOptions += `<option value="${a.id}">${a.name}</option>`);
-    toAccEl.innerHTML = accOptions;
+    const fromAccEl = document.getElementById('from-account');
+    const costCenterEl = document.getElementById('cost-center');
+
+    const opts = buildOptions();
+    if(toAccEl) toAccEl.innerHTML = opts;
+    if(fromAccEl) fromAccEl.innerHTML = opts;
+
+    if (costCenterEl) {
+        let jobOpts = '<option value="">-- بدون مركز تكلفة --</option>';
+        localJobs.forEach(j => jobOpts += `<option value="${j.id}">${j.name}</option>`);
+        costCenterEl.innerHTML = jobOpts;
+    }
+
+    // Initialize Smart Search (Choices.js)
+    if (window.Choices) {
+        window.toAccChoice = new Choices(toAccEl, { searchEnabled: true, itemSelectText: '', renderChoiceLimit: 15 });
+        window.fromAccChoice = new Choices(fromAccEl, { searchEnabled: true, itemSelectText: '', renderChoiceLimit: 15 });
+        if (costCenterEl) window.ccChoice = new Choices(costCenterEl, { searchEnabled: true, itemSelectText: '', renderChoiceLimit: 15 });
+
+        // Auto-jump to next field on selection
+        toAccEl.addEventListener('change', (e) => {
+            if(e.detail && e.detail.value) document.getElementById('to-statement').focus();
+        });
+        fromAccEl.addEventListener('change', (e) => {
+            if(e.detail && e.detail.value) {
+                if (window.ccChoice) window.ccChoice.showDropdown();
+                else document.getElementById('from-statement').focus();
+            }
+        });
+        if (costCenterEl) costCenterEl.addEventListener('change', (e) => {
+            if(e.detail && e.detail.value) document.getElementById('from-statement').focus();
+        });
+    }
 
     toAccEl.addEventListener('change', updateBalances);
     

@@ -4,11 +4,104 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سند صرف نقدية مفرد | Al-Sajana ERP</title>
+    <title>سند صرف منفرد | Al-Sajana ERP</title>
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260620_3">
     <link rel="stylesheet" href="css/sales-invoice.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
     <style>
+        /* -------------------------------------------
+           ✨ ADVANCED UI / UX VISUAL EFFECTS ✨
+           ------------------------------------------- */
+        /* Glassmorphism & Blur */
+        .main-panel, .side-panel, .premium-header, .sticky-footer {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        
+        /* Fluid Transitions & State Changes */
+        .form-input, .btn, .pm-tab-content, .choices__inner {
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important;
+        }
+        
+        /* Hover Effects & Neumorphism / Glow */
+        .form-input:hover, .choices__inner:hover, textarea.form-input:hover {
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3) !important;
+        }
+        .form-input:focus, .choices.is-focused .choices__inner {
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4) !important;
+            border-color: #38bdf8 !important;
+            transform: translateY(-2px);
+        }
+        
+        /* Amount Field Premium Glow */
+        #amount-local:focus {
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.6) !important;
+            border-color: #ef4444 !important;
+            transform: scale(1.02);
+        }
+
+        /* Micro-interactions (Buttons & Payment Tabs) */
+        .btn:hover, .pm-tab input:checked + .pm-tab-content {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4) !important;
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Focus Zones Subtle Glow & Blur */
+        .focus-zone {
+            transition: filter 0.5s ease, opacity 0.5s ease, transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.5s ease !important;
+            border-radius: 16px;
+            backdrop-filter: blur(8px);
+        }
+        .interactive-columns:focus-within .focus-zone:not(:focus-within) {
+            filter: grayscale(30%) blur(0.5px) brightness(0.85);
+            transform: scale(0.99);
+            opacity: 0.9;
+        }
+        .interactive-columns:focus-within .focus-zone:focus-within {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transform: translateY(-4px);
+            z-index: 10;
+        }
+
+        /* Continuous Shine Animation for Amount */
+        @keyframes subtleShine {
+            0% { text-shadow: 0 0 10px rgba(239,68,68,0.3); box-shadow: 0 0 15px rgba(239,68,68,0.1); }
+            50% { text-shadow: 0 0 20px rgba(239,68,68,0.8), 0 0 30px rgba(239,68,68,0.4); box-shadow: 0 0 25px rgba(239,68,68,0.3); }
+            100% { text-shadow: 0 0 10px rgba(239,68,68,0.3); box-shadow: 0 0 15px rgba(239,68,68,0.1); }
+        }
+        #amount-local { animation: subtleShine 3s infinite alternate; }
+
+        /* Typography Scale for Clarity */
+        .label { font-size: 1.2rem !important; font-weight: 800 !important; color: #ffffff !important; text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important; }
+        .form-input, textarea.form-input { font-size: 1.2rem !important; font-weight: 700 !important; color: #ffffff !important; background: rgba(0,0,0,0.4) !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        #amount-local { 
+            font-size: 3.8rem !important; 
+            font-weight: 900 !important; 
+            color: #b91c1c !important; /* Medium elegant red */
+            background: #d6d3d1 !important; /* Warm, calm beige/gray, not bright white */
+            border: 2px solid #991b1b !important;
+            text-shadow: none !important;
+            box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.15) !important;
+            line-height: 1 !important;
+            padding-top: 5px !important;
+        }
+        #amount-local:focus {
+            border-color: #7f1d1d !important;
+            background: #e7e5e4 !important; /* Slightly lighter warm gray on focus, still not white */
+            box-shadow: 0 0 15px rgba(127, 29, 29, 0.3), inset 0 3px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .choices { margin-bottom: 0 !important; }
+        .choices__inner { font-size: 1.2rem !important; font-weight: 700 !important; min-height: 42px !important; padding: 4px 12px !important; border-radius: 8px !important; background: rgba(0,0,0,0.4) !important; border: 1px solid rgba(255,255,255,0.2) !important; color: #ffffff !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .choices__input { color: #ffffff !important; font-size: 1.2rem !important; font-weight: 700 !important; }
+        .choices__list--dropdown { background: #1e293b !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.1) !important; z-index: 1000 !important; }
+        .choices__list--dropdown .choices__item { font-size: 1.15rem !important; font-weight: 500 !important; }
+        .choices__list--dropdown .choices__item--selectable.is-highlighted { background: #38bdf8 !important; color: #fff !important; }
         .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
         .toast {
             padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem;
@@ -29,22 +122,24 @@
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 10px;
         }
         
         .form-input {
-            width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
-            color: var(--text-primary); padding: 10px 12px; border-radius: 8px;
-            font-family: inherit; font-size: 0.95rem; transition: all 0.2s;
+            width: 100%; border: 1px solid rgba(255,255,255,0.2);
+            padding: 8px 12px; border-radius: 8px;
+            font-family: inherit; transition: all 0.2s;
         }
-        .form-input:focus { border-color: #ef4444; background: rgba(0,0,0,0.4); outline: none; }
-        .form-input.amount { color: #f87171; font-weight: 700; font-family: monospace; font-size: 1.1rem; }
+        .form-input:focus { border-color: #ef4444; background: rgba(0,0,0,0.6) !important; outline: none; }
+        .form-input.amount { color: #f87171 !important; font-weight: 900 !important; font-family: monospace; }
         
         .form-section-title { 
-            font-size: 1.1rem; font-weight: 700; color: #f87171; 
-            margin-bottom: 15px; display: flex; align-items: center; gap: 8px; 
-            border-bottom: 1px solid rgba(239,68,68,0.2); padding-bottom: 10px; 
+            font-size: 1.3rem; font-weight: 800; color: #f87171; 
+            border-bottom: 2px solid rgba(239, 68, 68, 0.2);
+            padding-bottom: 5px; margin-bottom: 15px; 
+            display: flex; align-items: center; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
         .balance-summary {
@@ -59,7 +154,9 @@
             float: left; /* Left align for RTL */
             margin-top: -5px;
         }
-        .bal-item strong { color: #f97316; margin-right: 5px; }
+        .bal-item strong { color: #f97316; margin-right: 5px; font-family: monospace; font-size: 1.05rem; }
+        .hover-animate { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .hover-animate:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(249,115,22,0.2) !important; }
 
         /* Custom Radio Buttons */
         .radio-group {
@@ -83,6 +180,176 @@
             display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; margin-top: 10px;
         }
         .checkbox-label input { width: 16px; height: 16px; accent-color: #ef4444; }
+
+        /* Premium Header Styling */
+        .premium-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 6px 15px; 
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95)); /* Elegant Dark Slate */
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            gap: 10px; flex-wrap: nowrap; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            border-radius: 12px; margin-bottom: 2px;
+        }
+        .header-group { display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; }
+        
+        .crystal-pill {
+            display: flex; align-items: center; gap: 10px;
+            height: 42px; /* Slimmer height */
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 0 12px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        .title-crystal { border-color: rgba(239, 68, 68, 0.6); box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), inset 0 2px 10px rgba(255,255,255,0.1); }
+        .date-crystal { border-color: rgba(56, 189, 248, 0.6); box-shadow: 0 0 20px rgba(56, 189, 248, 0.3), inset 0 2px 10px rgba(255,255,255,0.1); }
+        .bal-crystal { border-color: rgba(249, 115, 22, 0.6); box-shadow: 0 0 20px rgba(249, 115, 22, 0.3), inset 0 2px 10px rgba(255,255,255,0.1); gap: 15px; }
+        .nav-crystal { border-color: rgba(16, 185, 129, 0.6); box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), inset 0 2px 10px rgba(255,255,255,0.1); padding: 0 8px; }
+        
+        .icon-box {
+            width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; font-size: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .bg-gradient-red { background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; }
+        .bg-gradient-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; }
+        .pill-text { font-size: 1.15rem; color: #ffffff; font-weight: 800; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .date-input { 
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); 
+            color: #ffffff; border-radius: 6px; padding: 2px 10px;
+            font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 700; 
+            outline: none; cursor: pointer; height: 32px; line-height: 1; text-align: center;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); transition: all 0.2s;
+        }
+        .date-input:focus { border-color: #38bdf8; background: rgba(0,0,0,0.8); }
+        .date-input::-webkit-calendar-picker-indicator { 
+            filter: invert(1); opacity: 0.8; cursor: pointer; 
+            margin-left: 8px; width: 16px; height: 16px; padding: 0;
+        }
+
+        /* Unused balance-container replaced by crystal-pill */
+        .bal-card { display: flex; align-items: center; gap: 8px; }
+        .bal-icon { font-size: 1.3rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+        .bal-info { display: flex; flex-direction: column; line-height: 1.1; }
+        .bal-label { font-size: 0.8rem; color: #e2e8f0; font-weight: 700; }
+        .bal-val { font-size: 1.25rem; color: #f97316; font-family: 'Inter', monospace; font-weight: 900; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .cash-card .bal-val { color: #10b981; }
+        .check-card .bal-val { color: #3b82f6; }
+        .loan-card .bal-val { color: #f59e0b; }
+        .bal-divider { width: 1px; height: 30px; background: rgba(255,255,255,0.1); }
+
+        /* Unused nav-pill replaced by crystal-pill */
+        .nav-btn {
+            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+            border-radius: 8px; background: transparent; border: none; color: #94a3b8; cursor: pointer; transition: all 0.2s;
+        }
+        .nav-btn:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .nav-badge { display: flex; flex-direction: column; align-items: center; padding: 0 15px; min-width: 90px; }
+        .badge-label { font-size: 0.7rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .badge-val { font-size: 1.2rem; color: #ef4444; font-family: 'Inter', monospace; font-weight: 800; text-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+
+        .hover-scale { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease; }
+        .hover-scale:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 25px rgba(0,0,0,0.3); z-index: 10; }
+        
+        /* Entrance animation */
+        .premium-header { animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Advanced Layout & Animations */
+        .split-layout-wrapper {
+            display: flex; gap: 20px; margin-top: 15px; width: 100%; transition: all 0.6s cubic-bezier(0.25, 1, 0.2, 1);
+        }
+        
+        /* Side Panel */
+        .side-panel {
+            width: 0; opacity: 0; overflow: hidden; transform: translateX(-80px) scale(0.95);
+            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(25px); border-radius: 16px;
+            border: 1px solid rgba(251, 191, 36, 0.3); box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            transition: all 0.6s cubic-bezier(0.25, 1, 0.2, 1); flex-shrink: 0;
+            padding: 0; /* Padding is 0 when hidden */
+        }
+        
+        /* When side panel is active */
+        .split-layout-wrapper.has-sidebar .side-panel {
+            width: 380px; opacity: 1; transform: translateX(0) scale(1); padding: 25px;
+        }
+
+        /* Main Panel */
+        .main-panel {
+            flex-grow: 1; transition: all 0.6s cubic-bezier(0.25, 1, 0.2, 1);
+            background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(12px);
+            border-radius: 16px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform-origin: left center;
+        }
+        
+        .interactive-columns {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .interactive-columns { grid-template-columns: 1fr; }
+            .split-layout-wrapper.has-sidebar { flex-direction: column; }
+            .split-layout-wrapper.has-sidebar .side-panel { width: 100%; transform: translateX(0) translateY(-20px); }
+        }
+
+        /* Focus Zones */
+        .focus-zone {
+            background: rgba(0, 0, 0, 0.2); padding: 25px; border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.2, 1);
+            transform-origin: center;
+        }
+        
+        /* When Main Form has focus somewhere, handle siblings */
+        .interactive-columns:focus-within .focus-zone {
+            opacity: 0.4; transform: scale(0.96) translateY(5px); filter: grayscale(50%);
+        }
+        /* Elevate and light up the zone that actually contains focus */
+        .interactive-columns:focus-within .focus-zone:focus-within {
+            opacity: 1; transform: scale(1.02) translateY(-5px); filter: grayscale(0%);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            background: rgba(30, 41, 59, 0.7);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Specialized glowing borders for active zones */
+        #zone-recipient:focus-within { border-bottom: 4px solid #ef4444; }
+        #zone-sender:focus-within { border-bottom: 4px solid #38bdf8; }
+
+        /* Payment Methods Tabs (Modern Apple-like Segmented Control) */
+        .payment-methods-tabs {
+            display: flex; gap: 10px; background: rgba(0,0,0,0.4); padding: 8px;
+            border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .pm-tab { flex: 1; cursor: pointer; }
+        .pm-tab input { display: none; }
+        .pm-tab-content {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 15px 5px; gap: 10px; border-radius: 10px; transition: all 0.4s cubic-bezier(0.25, 1, 0.2, 1);
+            color: #94a3b8; font-weight: 700; font-size: 0.9rem;
+        }
+        .pm-icon { font-size: 1.8rem; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s; filter: grayscale(100%); opacity: 0.5; }
+        
+        .pm-tab input:checked + .pm-tab-content {
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05)); 
+            color: #fff; box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            transform: translateY(-4px);
+        }
+        .pm-tab input:checked + .pm-tab-content .pm-icon {
+            transform: scale(1.3); filter: grayscale(0%); opacity: 1;
+            text-shadow: 0 4px 15px rgba(255,255,255,0.3);
+        }
+
+        /* Enlarge footer buttons but keep height slim */
+        .footer-actions .btn {
+            font-size: 1.25rem !important;
+            font-weight: 800 !important;
+            padding: 8px 20px !important;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
@@ -104,197 +371,446 @@
             </button>
             <a data-href="dashboard-pro.html" onclick="window.location.href='dashboard-pro.html'" class="bc-link" title="الرئيسية">الرئيسية</a>
             <span class="bc-sep">/</span>
-            <span class="bc-current">سند صرف نقدية مفرد</span>
+            <span class="bc-current">سند صرف منفرد</span>
         </div>
 
         <!-- HEADER -->
-        <div class="top-action-bar">
-            <div class="action-tabs">
-                <button class="action-tab active">
-                    <span class="tab-icon">💸</span><span class="tab-label">سند صرف نقدية مفرد</span>
-                </button>
+        <div class="premium-header">
+            <!-- Left side (RTL Start): Title and Date -->
+            <div class="header-group group-primary">
+                <div class="crystal-pill title-crystal hover-scale">
+                    <div class="icon-box bg-gradient-red">💸</div>
+                    <span class="pill-text">سند صرف منفرد</span>
+                </div>
+                
+                <div class="crystal-pill date-crystal hover-scale">
+                    <div class="icon-box bg-gradient-blue">📅</div>
+                    <input type="date" id="hdr-date" class="date-input">
+                </div>
             </div>
-            <div class="top-bar-meta" style="display:flex; align-items:center; gap:10px;">
-                <div class="inv-nav" style="display:flex; align-items:center; background:rgba(0,0,0,0.2); border-radius:8px; border:1px solid rgba(255,255,255,0.05); padding: 4px;">
-                    <button class="btn-icon" style="padding:4px; color:var(--text-muted); cursor:pointer; background:none; border:none; transition: color 0.2s;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='var(--text-muted)'" onclick="loadPreviousVoucher()" title="السند السابق">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            
+            <!-- Middle: Balances -->
+            <div class="header-group group-balances">
+                <div class="crystal-pill bal-crystal hover-scale">
+                    <div class="bal-card cash-card">
+                        <span class="bal-icon">💵</span>
+                        <div class="bal-info">
+                            <span class="bal-label">نقدية</span>
+                            <strong id="bal-checks" class="bal-val">50</strong>
+                        </div>
+                    </div>
+                    <div class="bal-divider"></div>
+                    <div class="bal-card check-card">
+                        <span class="bal-icon">🧾</span>
+                        <div class="bal-info">
+                            <span class="bal-label">شيكات</span>
+                            <strong id="bal-debt" class="bal-val">70</strong>
+                        </div>
+                    </div>
+                    <div class="bal-divider"></div>
+                    <div class="bal-card loan-card">
+                        <span class="bal-icon">💼</span>
+                        <div class="bal-info">
+                            <span class="bal-label">عهد</span>
+                            <strong id="bal-loan" class="bal-val">120</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right side (RTL End): Nav -->
+            <div class="header-group group-nav">
+                <div class="crystal-pill nav-crystal hover-scale">
+                    <button class="nav-btn prev-btn" onclick="loadPreviousVoucher()" title="السند السابق">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </button>
-                    <div class="inv-badge" id="voucher-number" style="margin:0 10px; color:#f87171; min-width:60px; text-align:center; font-size: 1.1rem;">000001</div>
-                    <button class="btn-icon" style="padding:4px; color:var(--text-muted); cursor:pointer; background:none; border:none; transition: color 0.2s;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='var(--text-muted)'" onclick="loadNextVoucher()" title="السند التالي">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    <div class="nav-badge">
+                        <span class="badge-label">رقم السند</span>
+                        <span id="voucher-number" class="badge-val">000001</span>
+                    </div>
+                    <button class="nav-btn next-btn" onclick="loadNextVoucher()" title="السند التالي">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- MAIN FORM -->
-        <div class="glass-panel" style="padding: 15px; margin-top: 15px;">
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+        <!-- MAIN FORM - ADVANCED SPLIT LAYOUT -->
+        <div class="split-layout-wrapper" id="main-layout-wrapper">
+            <!-- Left Side Panel (Hidden by default, slides in when Check/Transfer is active) -->
+            <div class="side-panel" id="payment-details-panel">
+                <h3 class="form-section-title" style="color: #fbbf24; border-color: rgba(251,191,36,0.2);">
+                    <span style="display:inline-block; margin-left:8px; font-size:1.3rem;">📋</span> 
+                    تفاصيل <span id="panel-title-type">الشيك</span>
+                </h3>
                 
-                <!-- Column 1: Beneficiary & Basic Info -->
-                <div style="background: rgba(0,0,0,0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                    <div class="balance-summary" style="float: none; margin-bottom: 15px; display:flex; justify-content: space-between;">
-                        <div class="bal-item">نقدية: <strong id="bal-checks">50</strong></div>
-                        <div style="border-right: 1px solid rgba(249,115,22,0.3);"></div>
-                        <div class="bal-item">شيكات: <strong id="bal-debt">70</strong></div>
-                        <div style="border-right: 1px solid rgba(249,115,22,0.3);"></div>
-                        <div class="bal-item">عهد موظفين: <strong id="bal-loan">120</strong></div>
-                    </div>
-                    
-                    <h3 class="form-section-title">بيانات الحساب المدين (المستلم)</h3>
-                    
-                    <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <!-- MOBILE TRANSFER FIELDS -->
+                <div id="section-mobile" class="dynamic-section" style="padding:0; background:none; border:none; margin:0;">
+                    <div class="form-grid" style="grid-template-columns: 1fr; gap: 15px; margin-bottom: 0;">
                         <div>
-                            <label class="label">تاريخ السند</label>
-                            <input type="date" class="form-input" id="hdr-date" style="padding: 6px 10px;">
+                            <label class="label">رقم حساب التحويل</label>
+                            <input type="text" class="form-input" id="mobile-transfer-no" placeholder="رقم الحساب..." style="padding: 10px 12px; background: rgba(0,0,0,0.3);">
                         </div>
                         <div>
-                            <label class="label">الحساب</label>
-                            <select class="form-input" id="to-account" style="padding: 6px 10px;">
-                                <!-- Populated via JS -->
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-grid" style="grid-template-columns: 1fr; gap: 10px; margin-bottom: 10px;">
-                        <div>
-                            <label class="label">المستفيد (المستلم الفعلي)</label>
-                            <input type="text" class="form-input" id="beneficiary-name" placeholder="اسم الشخص المستلم..." style="padding: 6px 10px;">
-                        </div>
-                        <div>
-                            <label class="label">البيان</label>
-                            <input type="text" class="form-input" id="to-statement" placeholder="مثال: سداد دفعة مقدمة..." style="padding: 6px 10px;">
+                            <label class="label">ملاحظات التحويل...</label>
+                            <input type="text" class="form-input" id="mobile-note" placeholder="ملاحظات التحويل..." style="padding: 10px 12px; background: rgba(0,0,0,0.3);">
                         </div>
                     </div>
                 </div>
 
-                <!-- Column 2: Amount & Disburse From -->
-                <div style="background: rgba(0,0,0,0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                    <h3 class="form-section-title" style="color: #38bdf8; border-color: rgba(56,189,248,0.2);">تفاصيل المبلغ وحساب الدفع</h3>
-                    
-                    <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <!-- CHECK FIELDS -->
+                <div id="section-check" class="dynamic-section" style="padding:0; background:none; border:none; margin:0;">
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 0;">
                         <div>
-                            <label class="label">المبلغ (عملة الدفع)</label>
-                            <input type="text" class="form-input amount" id="amount-local" value="0" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv('local')" onblur="this.value=fmtNum(parseNum(this.value))" style="padding: 6px 10px; font-size: 1rem;">
+                            <label class="label">رقم الشيك</label>
+                            <input type="text" class="form-input" id="check-no" placeholder="000000" style="padding: 10px 12px; background: rgba(0,0,0,0.3);">
                         </div>
                         <div>
-                            <label class="label">العملة</label>
-                            <select class="form-input system-currency-select" id="currency" onchange="updateCurrency()" style="padding: 6px 10px;">
-                                <option value="SDG">جنيه (SDG)</option>
-                                <option value="USD">دولار (USD)</option>
-                                <option value="AED">درهم (AED)</option>
-                            </select>
+                            <label class="label">اسم البنك</label>
+                            <input type="text" class="form-input" id="check-branch" placeholder="الفرع..." style="padding: 10px 12px; background: rgba(0,0,0,0.3);">
                         </div>
                         <div>
-                            <label class="label">المعامل</label>
-                            <input type="text" class="form-input" id="exchange-rate" value="1.0" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv('rate')" readonly style="padding: 6px 10px;">
+                            <label class="label">تاريخ الشيك</label>
+                            <input type="date" class="form-input" id="check-date" style="padding: 10px 12px; background: rgba(0,0,0,0.3);">
                         </div>
                         <div>
-                            <label class="label">المبلغ المعادل</label>
-                            <input type="text" class="form-input amount" id="amount-foreign" value="0" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv('foreign')" onblur="this.value=fmtNum(parseNum(this.value))" style="padding: 6px 10px; font-size: 1rem;">
-                        </div>
-                    </div>
-
-                    <div class="form-grid" style="grid-template-columns: 1fr; gap: 10px; margin-bottom: 10px;">
-                        <div>
-                            <label class="label">من حساب (الخزينة / البنك / العهدة)</label>
-                            <select class="form-input" id="from-account" style="padding: 6px 10px;">
-                                <option value="safe-001">الخزينة الرئيسية</option>
-                                <option value="safe-002">خزينة المشتريات</option>
-                                <option value="bank-001">بنك (حساب 1)</option>
-                            </select>
+                            <label class="label">تاريخ الاستحقاق</label>
+                            <input type="date" class="form-input" id="check-due-date" style="padding: 10px 12px; background: rgba(0,0,0,0.3);">
                         </div>
                         <div>
-                            <label class="label">بيان الدفع...</label>
-                            <input type="text" class="form-input" id="from-statement" placeholder="بيان الدفع..." style="padding: 6px 10px;">
+                            <label class="label">رقم الدفتر...</label>
+                            <input type="text" class="form-input" id="check-ref" placeholder="رقم الدفتر..." style="padding: 10px 12px; background: rgba(0,0,0,0.3);">
+                        </div>
+                        <div>
+                            <label class="label">رقم الدفتر</label>
+                            <input type="text" class="form-input" id="check-ref-no" placeholder="رقم الدفتر..." style="padding: 10px 12px; background: rgba(0,0,0,0.3);">
                         </div>
                     </div>
+                    <label class="checkbox-label" style="margin-top: 20px;">
+                        <input type="checkbox" id="check-settle-local">
+                        إرفاق صورة المستند
+                    </label>
                 </div>
+            </div>
 
-                <!-- Column 3: Payment Method -->
-                <div style="background: rgba(0,0,0,0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                    <h3 class="form-section-title" style="color: #fbbf24; border-color: rgba(251,191,36,0.2);">طريقة الدفع</h3>
-                    
-                    <div class="radio-group" style="padding: 5px 0; margin-bottom: 10px;">
-                        <label class="radio-label">
-                            <input type="radio" name="payment_method" value="cash" checked onchange="togglePaymentMethod()">
-                            نقدي
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="payment_method" value="check" onchange="togglePaymentMethod()">
-                            شيك
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="payment_method" value="mobile" onchange="togglePaymentMethod()">
-                            تحويل
-                        </label>
-                    </div>
+            <!-- Right Side (Main Content area) -->
+            <div class="main-panel" id="main-form-panel" style="padding: 10px; margin-bottom: 15px;">
 
-                    <!-- MOBILE TRANSFER FIELDS -->
-                    <div id="section-mobile" class="dynamic-section" style="padding: 10px; margin-bottom: 10px;">
-                        <div class="form-grid" style="grid-template-columns: 1fr; gap: 10px; margin-bottom: 0;">
+                <div class="interactive-columns">
+                    <!-- Column 1: المدين المستلم (Focus Zone 1) -->
+                    <div class="focus-zone" id="zone-recipient" style="padding: 10px 15px; background: rgba(239, 68, 68, 0.04); border-color: rgba(239, 68, 68, 0.15);">
+                        <h3 class="form-section-title" style="margin-bottom: 8px; padding-bottom: 2px; justify-content: space-between; display: flex; align-items: center; border-bottom: 2px solid rgba(239, 68, 68, 0.2);">
                             <div>
-                                <label class="label">رقم حساب التحويل</label>
-                                <input type="text" class="form-input" id="mobile-transfer-no" placeholder="رقم الحساب..." style="padding: 6px 10px;">
+                                <span style="display:inline-block; margin-left:8px; font-size:1.3rem;">👤</span> 
+                                المدين المستلم
                             </div>
-                            <div>
-                                <label class="label">ملاحظات التحويل...</label>
-                                <input type="text" class="form-input" id="mobile-note" placeholder="ملاحظات التحويل..." style="padding: 6px 10px;">
+                            <div style="display: flex; gap: 6px;">
+                                <button type="button" class="btn hover-scale" style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem;" title="انتقال لشاشة إضافة عميل جديد" onclick="window.open('master-data.html?tab=customers', '_blank')">
+                                    <span style="font-size: 1rem; margin-left: 3px;">👤</span> عميل
+                                </button>
+                                <button type="button" class="btn hover-scale" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem;" title="انتقال لشاشة إضافة مورد جديد" onclick="window.open('master-data.html?tab=suppliers', '_blank')">
+                                    <span style="font-size: 1rem; margin-left: 3px;">🏢</span> مورد
+                                </button>
                             </div>
+                        </h3>
+                        
+                        <div class="form-grid" style="grid-template-columns: 1fr; gap: 10px; margin-bottom: 10px;">
+                            
+                            <!-- 1. صرفنا المبلغ -->
+                            <div style="background: linear-gradient(145deg, rgba(51, 65, 85, 0.8), rgba(30, 41, 59, 0.8)); padding: 18px; border-radius: 16px; border: 1px solid rgba(239, 68, 68, 0.3); box-shadow: 0 8px 25px rgba(0,0,0,0.4), inset 0 2px 10px rgba(255,255,255,0.05); text-align: center; margin-bottom: 15px; backdrop-filter: blur(10px);">
+                                <label class="label" style="color:#cbd5e1 !important; font-weight:800; font-size:1.2rem !important; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display:block; text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;">
+                                    <span style="font-size:1.4rem; vertical-align:middle; margin-left:5px;">💰</span> المبلغ المصروف
+                                </label>
+                                <div style="position: relative; display: inline-block; width: 100%;">
+                                    <input type="text" class="form-input amount hover-scale" id="amount-local" data-next="to-account" autofocus value="0" inputmode="numeric" onfocus="this.select()" oninput="let v = this.value.replace(/[^0-9]/g, ''); this.value = v ? Number(v).toLocaleString('en-US') : '0'; calcEquiv('local')" style="padding: 5px 20px 10px; text-align: center; border-radius: 12px; font-family: 'Inter', 'Segoe UI', sans-serif; transition: all 0.3s; height: 85px;">
+                                </div>
+                            </div>
+
+                            <!-- 2. إلى حساب -->
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <label class="label" style="display:flex; align-items:center; gap:5px; margin-bottom: 0; min-width: 120px; flex-shrink: 0; white-space: nowrap;">
+                                    <span style="opacity:0.8; font-size:1.1rem;">🏦</span> إلى حساب
+                                </label>
+                                <div style="flex-grow: 1; width: 100%; min-width: 0;">
+                                <select class="form-input" id="to-account" style="padding: 8px 12px; border-radius: 8px; height: 38px;">
+                                    <optgroup label="حسابات البنوك والخزن">
+                                        <option value="safe-001">الخزينة الرئيسية</option>
+                                        <option value="safe-002">خزينة فرعية</option>
+                                        <option value="bank-001">بنك الخرطوم</option>
+                                        <option value="bank-002">بنك فيصل</option>
+                                    </optgroup>
+                                    <optgroup label="العملاء والزبائن">
+                                        <option value="cust-001">شركة الأمل</option>
+                                        <option value="cust-002">مؤسسة النور</option>
+                                    </optgroup>
+                                    <optgroup label="الموردين">
+                                        <option value="supp-001">مورد معدات</option>
+                                    </optgroup>
+                                    <optgroup label="المصاريف">
+                                        <option value="exp-001">مصاريف تشغيلية</option>
+                                        <option value="exp-002">مصاريف إدارية</option>
+                                    </optgroup>
+                                </select>
+                                </div>
+                            </div>
+
+                            <!-- 3. البيان -->
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <label class="label" style="display:flex; align-items:center; gap:5px; margin-bottom: 0; min-width: 120px; flex-shrink: 0; white-space: nowrap;">
+                                    <span style="opacity:0.8; font-size:1.1rem;">📝</span> البيان
+                                </label>
+                                <div style="flex-grow: 1; min-width: 0;">
+                                    <input type="text" class="form-input" id="to-statement" data-next="currency" placeholder="اكتب تفاصيل أو سبب الصرف..." style="padding: 8px 12px; border-radius: 8px; height: 38px;">
+                                </div>
+                            </div>
+
+                            <!-- 4 & 5. Currency Section (Grouped visually) -->
+                            <div style="background: rgba(0, 0, 0, 0.15); padding: 10px; border-radius: 10px; border: 1px dashed rgba(255, 255, 255, 0.1); display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <div>
+                                    <label class="label" style="display:flex; align-items:center; gap:5px; margin-bottom: 4px;">
+                                        <span style="opacity:0.8; font-size:1.1rem;">💱</span> العملة
+                                    </label>
+                                    <select class="form-input system-currency-select" id="currency" data-next="exchange-rate" onchange="updateCurrency(); document.getElementById('exchange-rate').focus(); document.getElementById('exchange-rate').select();" style="padding: 8px 12px; border-radius: 8px; height: 42px;">
+                                        <option value="SDG">جنيه (SDG)</option>
+                                        <option value="USD">دولار (USD)</option>
+                                        <option value="AED">درهم (AED)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="label" style="display:flex; align-items:center; gap:5px; margin-bottom: 4px;">
+                                        <span style="opacity:0.8; font-size:1.1rem;">⚖️</span> التعادل
+                                    </label>
+                                    <input type="text" class="form-input" id="exchange-rate" data-next="beneficiary-name" value="1.0" inputmode="decimal" onfocus="this.select()" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); calcEquiv('rate')" style="padding: 8px 12px; border-radius: 8px; text-align: center; height: 42px;">
+                                </div>
+                            </div>
+
+                            <!-- 6. المستفيد -->
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <label class="label" style="color:#fbbf24 !important; font-weight:800; display:flex; align-items:center; gap:5px; margin-bottom: 0; min-width: 120px; flex-shrink: 0; white-space: nowrap;">
+                                    <span style="font-size:1.1rem;">👨‍💼</span> المستفيد
+                                </label>
+                                <div style="flex-grow: 1; min-width: 0;">
+                                    <input type="text" class="form-input" id="beneficiary-name" data-next="from-account" placeholder="اسم المستفيد الفعلي النهائي..." style="padding: 8px 12px; border-radius: 8px; border-color: rgba(251, 191, 36, 0.4); height: 38px;">
+                                </div>
+                            </div>
+                            
                         </div>
                     </div>
 
-                    <!-- CHECK FIELDS -->
-                    <div id="section-check" class="dynamic-section" style="padding: 10px; margin-bottom: 10px;">
-                        <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 0;">
+                    <!-- Column 2: الدائن الدافع (Focus Zone 2) -->
+                    <div class="focus-zone" id="zone-sender" style="padding: 10px 15px; background: rgba(56, 189, 248, 0.04); border-color: rgba(56, 189, 248, 0.15);">
+                        <h3 class="form-section-title" style="color: #38bdf8; border-color: rgba(56,189,248,0.2); margin-bottom: 8px; padding-bottom: 2px; justify-content: space-between; display: flex; align-items: center;">
                             <div>
-                                <label class="label">رقم الشيك</label>
-                                <input type="text" class="form-input" id="check-no" placeholder="000000" style="padding: 6px 10px;">
+                                <span style="display:inline-block; margin-left:8px; font-size:1.3rem;">🏦</span> 
+                                الدائن الدافع
                             </div>
                             <div>
-                                <label class="label">اسم البنك</label>
-                                <input type="text" class="form-input" id="check-branch" placeholder="الفرع..." style="padding: 6px 10px;">
+                                <button type="button" class="btn hover-scale" style="background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.4); color: #fbbf24; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem;" title="عرض كشف حساب للجهة المحددة" onclick="let acc = document.getElementById('to-account').value; if(acc) window.open('statement.html?accountId=' + acc, '_blank'); else window.open('statement.html', '_blank');">
+                                    <span style="font-size: 1rem; margin-left: 3px;">📊</span> كشف حساب
+                                </button>
                             </div>
-                            <div>
-                                <label class="label">تاريخ الشيك</label>
-                                <input type="date" class="form-input" id="check-date" style="padding: 6px 10px;">
+                        </h3>
+                        
+                        <div class="form-grid" style="grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px;">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <label class="label" style="margin-bottom: 0; min-width: 135px; flex-shrink: 0; white-space: nowrap;">تصرف من حساب</label>
+                                <div style="flex-grow: 1; width: 100%; min-width: 0;">
+                                <select class="form-input" id="from-account" style="padding: 8px 12px; border-radius: 8px; height: 38px;">
+                                    <optgroup label="حسابات البنوك والخزن">
+                                        <option value="safe-001">الخزينة الرئيسية</option>
+                                        <option value="safe-002">خزينة فرعية</option>
+                                        <option value="bank-001">بنك الخرطوم</option>
+                                        <option value="bank-002">بنك فيصل</option>
+                                    </optgroup>
+                                    <optgroup label="العملاء والزبائن">
+                                        <option value="cust-001">شركة الأمل</option>
+                                        <option value="cust-002">مؤسسة النور</option>
+                                    </optgroup>
+                                    <optgroup label="الموردين">
+                                        <option value="supp-001">مورد معدات</option>
+                                    </optgroup>
+                                    <optgroup label="المصاريف">
+                                        <option value="exp-001">مصاريف تشغيلية</option>
+                                        <option value="exp-002">مصاريف إدارية</option>
+                                    </optgroup>
+                                </select>
+                                </div>
                             </div>
-                            <div>
-                                <label class="label">تاريخ الاستحقاق</label>
-                                <input type="date" class="form-input" id="check-due-date" style="padding: 6px 10px;">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <label class="label" style="margin-bottom: 0; min-width: 135px; flex-shrink: 0; white-space: nowrap;">مركز التكلفة</label>
+                                <div style="flex-grow: 1; width: 100%; min-width: 0;">
+                                <select class="form-input" id="cost-center" style="padding: 8px 12px; border-radius: 8px; height: 38px;">
+                                    <!-- Populated via JS -->
+                                </select>
+                                </div>
                             </div>
-                            <div>
-                                <label class="label">رقم الدفتر...</label>
-                                <input type="text" class="form-input" id="check-ref" placeholder="رقم الدفتر..." style="padding: 6px 10px;">
-                            </div>
-                            <div>
-                                <label class="label">رقم الدفتر</label>
-                                <input type="text" class="form-input" id="check-ref-no" placeholder="رقم الدفتر..." style="padding: 6px 10px;">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <label class="label" style="margin-bottom: 0; min-width: 135px; flex-shrink: 0; white-space: nowrap;">بيان الدفع</label>
+                                <div style="flex-grow: 1; min-width: 0;">
+                                <textarea class="form-input" id="from-statement" data-next="btn-save" placeholder="اكتب مبرر أو تفاصيل الدفع..." rows="1" style="resize:none; padding: 8px 12px; height: 38px; border-radius: 8px;"></textarea>
+                                </div>
                             </div>
                         </div>
-                        <label class="checkbox-label" style="margin-top: 15px;">
-                            <input type="checkbox" id="check-settle-local">
-                            إرفاق صورة المستند
-                        </label>
+
+                        <!-- Payment Method Box -->
+                        <div class="payment-method-box" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed rgba(56,189,248,0.2);">
+                            <h4 style="color:#fbbf24; margin-bottom:10px; font-size:0.95rem; display:flex; align-items:center; gap:8px;">
+                                <span>💳</span> طريقة الدفع
+                            </h4>
+                            
+                            <div class="payment-methods-tabs">
+                                <label class="pm-tab">
+                                    <input type="radio" name="payment_method" value="cash" checked onchange="togglePaymentMethod()">
+                                    <div class="pm-tab-content" style="padding: 10px 5px; gap: 5px;">
+                                        <span class="pm-icon" style="font-size: 1.5rem;">💵</span>
+                                        <span class="pm-label">نقدي</span>
+                                    </div>
+                                </label>
+                                <label class="pm-tab">
+                                    <input type="radio" name="payment_method" value="check" onchange="togglePaymentMethod()">
+                                    <div class="pm-tab-content" style="padding: 10px 5px; gap: 5px;">
+                                        <span class="pm-icon" style="font-size: 1.5rem;">🧾</span>
+                                        <span class="pm-label">شيك</span>
+                                    </div>
+                                </label>
+                                <label class="pm-tab">
+                                    <input type="radio" name="payment_method" value="mobile" onchange="togglePaymentMethod()">
+                                    <div class="pm-tab-content" style="padding: 10px 5px; gap: 5px;">
+                                        <span class="pm-icon" style="font-size: 1.5rem;">📱</span>
+                                        <span class="pm-label">تحويل</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- STICKY FOOTER -->
-        <div class="sticky-footer" style="background: rgba(15,23,42,0.95); border-top: 1px solid rgba(239,68,68,0.3); border-radius: 12px 12px 0 0; padding: 15px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;">
-            <div class="footer-actions" style="width: 100%; justify-content: center; max-width: 98%; margin: 0 auto;">
+        <div class="sticky-footer" style="background: rgba(15,23,42,0.95); border-top: 1px solid rgba(56, 189, 248, 0.3); border-left: 1px solid rgba(56, 189, 248, 0.3); border-right: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px 12px 0 0; padding: 6px 10px; position: sticky; bottom: 0; z-index: 100; box-shadow: 0 -10px 30px rgba(0,0,0,0.5);">
+            <div class="footer-actions" style="width: 100%; justify-content: center; gap: 10px; display: flex;">
                 <button class="btn btn-ghost" onclick="resetVoucher()">جديد</button>
                 <button class="btn btn-ghost" style="color: #f87171; border-color: rgba(239,68,68,0.3);" onclick="confirmDelete()">حذف السند</button>
                 <button class="btn btn-ghost" onclick="printVoucher()">طباعة السند</button>
-                <button class="btn btn-success" style="background: #ef4444; min-width: 200px;" onclick="submitVoucher()">✓ حفظ واعتماد السند</button>
+                <button class="btn btn-success" id="btn-save" style="background: #ef4444; min-width: 200px;" onclick="submitVoucher()">✓ حفظ واعتماد السند</button>
             </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="js/app.js?v=20260620_3"></script>
-    <script src="js/single-cash-payment.js"></script>
+    <script src="js/single-cash-payment.js?v=20260625_3"></script>
+    <script>
+        let lastEnterTime = 0;
+        // Perfected Exact Path Enter Navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                let now = Date.now();
+                if (now - lastEnterTime < 200) { e.preventDefault(); return; } // prevent rapid double jump
+                lastEnterTime = now;
+                
+                let current = document.activeElement;
+                if (current.tagName === 'TEXTAREA') return; 
+
+                // Determine sequence based on current focus ID
+                let id = current.id;
+                
+                // If focus is inside a choices container, figure out which one (ignore choices inner IDs)
+                if (current.closest('.choices')) {
+                    let choicesDiv = current.closest('.choices');
+                    if (choicesDiv.classList.contains('is-open')) return; // let choices select item
+                    
+                    let originalSelect = choicesDiv.querySelector('select');
+                    if (originalSelect) id = originalSelect.id;
+                    else {
+                        let prev = choicesDiv.previousElementSibling;
+                        if (prev && prev.tagName === 'SELECT') id = prev.id;
+                    }
+                }
+
+                if (!id) return;
+                
+                let nextAction = null;
+
+                if (id === 'amount-local') {
+                    nextAction = () => { 
+                        if(window.toAccChoice) window.toAccChoice.showDropdown(); 
+                        let cc = document.getElementById('to-account').closest('.choices');
+                        if(cc) { let inp = cc.querySelector('.choices__input.choices__input--cloned') || cc.querySelector('.choices__input'); if(inp) inp.focus(); }
+                    };
+                } else if (id === 'to-account') {
+                    nextAction = () => { let n = document.getElementById('to-statement'); n.focus(); n.select(); };
+                } else if (id === 'to-statement') {
+                    nextAction = () => { let n = document.getElementById('currency'); n.focus(); };
+                } else if (id === 'currency') {
+                    nextAction = () => { let n = document.getElementById('exchange-rate'); n.focus(); n.select(); };
+                } else if (id === 'exchange-rate') {
+                    nextAction = () => { let n = document.getElementById('beneficiary-name'); n.focus(); n.select(); };
+                } else if (id === 'beneficiary-name') {
+                    nextAction = () => { 
+                        if(window.fromAccChoice) window.fromAccChoice.showDropdown(); 
+                        let cc = document.getElementById('from-account').closest('.choices');
+                        if(cc) { let inp = cc.querySelector('.choices__input.choices__input--cloned') || cc.querySelector('.choices__input'); if(inp) inp.focus(); }
+                    };
+                } else if (id === 'from-account') {
+                    nextAction = () => { 
+                        if(window.ccChoice) window.ccChoice.showDropdown(); 
+                        let cc = document.getElementById('cost-center').closest('.choices');
+                        if(cc) { let inp = cc.querySelector('.choices__input.choices__input--cloned') || cc.querySelector('.choices__input'); if(inp) inp.focus(); }
+                        else { let n = document.getElementById('from-statement'); n.focus(); n.select(); } 
+                    };
+                } else if (id === 'cost-center') {
+                    nextAction = () => { let n = document.getElementById('from-statement'); n.focus(); n.select(); };
+                } else if (id === 'from-statement') {
+                    nextAction = () => { document.getElementById('btn-save').focus(); };
+                }
+
+                if (nextAction) {
+                    e.preventDefault();
+                    // Small timeout ensures Choices.js DOM is ready if it just opened
+                    setTimeout(nextAction, 10);
+                }
+            }
+        });
+
+        // Advanced Sliding Animation Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const originalToggle = window.togglePaymentMethod;
+            
+            // Override togglePaymentMethod to handle the sliding wrapper
+            window.togglePaymentMethod = function() {
+                // Call original logic if it exists (which toggles dynamic-sections inside)
+                if(typeof originalToggle === 'function') {
+                    originalToggle();
+                } else {
+                    // Fallback logic if original isn't defined yet
+                    const method = document.querySelector('input[name="payment_method"]:checked').value;
+                    document.querySelectorAll('.dynamic-section').forEach(el => el.classList.remove('active'));
+                    if(method === 'check' || method === 'mobile') {
+                        document.getElementById('section-' + method).classList.add('active');
+                    }
+                }
+                
+                // Sidebar Logic
+                const method = document.querySelector('input[name="payment_method"]:checked').value;
+                const wrapper = document.getElementById('main-layout-wrapper');
+                const titleType = document.getElementById('panel-title-type');
+                
+                if(method === 'check' || method === 'mobile') {
+                    wrapper.classList.add('has-sidebar');
+                    titleType.innerText = method === 'check' ? 'الشيك' : 'التحويل';
+                } else {
+                    wrapper.classList.remove('has-sidebar');
+                }
+            };
+            
+            // Initialize once to set correct state
+            setTimeout(() => {
+                if(window.togglePaymentMethod) window.togglePaymentMethod();
+            }, 100);
+        });
+    </script>
 </body>
 </html>
