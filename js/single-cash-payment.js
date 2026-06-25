@@ -109,9 +109,9 @@ document.addEventListener('DBReady', () => {
 
     // Initialize Smart Search (Choices.js)
     if (window.Choices) {
-        window.toAccChoice = new Choices(toAccEl, { searchEnabled: true, itemSelectText: '', renderChoiceLimit: 15 });
-        window.fromAccChoice = new Choices(fromAccEl, { searchEnabled: true, itemSelectText: '', renderChoiceLimit: 15 });
-        if (costCenterEl) window.ccChoice = new Choices(costCenterEl, { searchEnabled: true, itemSelectText: '', renderChoiceLimit: 15 });
+        window.toAccChoice = new Choices(toAccEl, { searchEnabled: true, searchPlaceholderValue: '🔍 ابحث هنا...', itemSelectText: '', renderChoiceLimit: 15 });
+        window.fromAccChoice = new Choices(fromAccEl, { searchEnabled: true, searchPlaceholderValue: '🔍 ابحث هنا...', itemSelectText: '', renderChoiceLimit: 15 });
+        if (costCenterEl) window.ccChoice = new Choices(costCenterEl, { searchEnabled: true, searchPlaceholderValue: '🔍 ابحث هنا...', itemSelectText: '', renderChoiceLimit: 15 });
 
         // Auto-jump to next field on selection
         toAccEl.addEventListener('change', (e) => {

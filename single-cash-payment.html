@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="css/sales-invoice.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
     <style>
+        html { font-size: 14.5px; } /* Slightly reduce overall scale to make everything beautifully compact */
         /* -------------------------------------------
            ✨ ADVANCED UI / UX VISUAL EFFECTS ✨
            ------------------------------------------- */
@@ -77,8 +78,8 @@
         #amount-local { animation: subtleShine 3s infinite alternate; }
 
         /* Typography Scale for Clarity */
-        .label { font-size: 1.2rem !important; font-weight: 800 !important; color: #ffffff !important; text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important; }
-        .form-input, textarea.form-input { font-size: 1.2rem !important; font-weight: 700 !important; color: #ffffff !important; background: rgba(0,0,0,0.4) !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .label { font-size: 1.2rem !important; font-weight: 900 !important; color: #f8fafc !important; text-shadow: 0 2px 4px rgba(0,0,0,0.9) !important; }
+        .form-input, textarea.form-input { font-size: 1.2rem !important; font-weight: 800 !important; color: #ffffff !important; background: #0f172a !important; border: 1px solid #38bdf8 !important; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); text-shadow: none !important; }
         #amount-local { 
             font-size: 3.8rem !important; 
             font-weight: 900 !important; 
@@ -97,10 +98,10 @@
         }
         
         .choices { margin-bottom: 0 !important; }
-        .choices__inner { font-size: 1.2rem !important; font-weight: 700 !important; min-height: 42px !important; padding: 4px 12px !important; border-radius: 8px !important; background: rgba(0,0,0,0.4) !important; border: 1px solid rgba(255,255,255,0.2) !important; color: #ffffff !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
-        .choices__input { color: #ffffff !important; font-size: 1.2rem !important; font-weight: 700 !important; }
+        .choices__inner { font-size: 0.9rem !important; font-weight: 800 !important; min-height: 42px !important; padding: 4px 12px !important; border-radius: 8px !important; background: #0f172a !important; border: 1px solid #38bdf8 !important; color: #ffffff !important; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); text-shadow: none !important; }
+        .choices__input { color: #ffffff !important; font-size: 0.9rem !important; font-weight: 700 !important; }
         .choices__list--dropdown { background: #1e293b !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.1) !important; z-index: 1000 !important; }
-        .choices__list--dropdown .choices__item { font-size: 1.15rem !important; font-weight: 500 !important; }
+        .choices__list--dropdown .choices__item { font-size: 0.9rem !important; font-weight: 500 !important; }
         .choices__list--dropdown .choices__item--selectable.is-highlighted { background: #38bdf8 !important; color: #fff !important; }
         .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
         .toast {
@@ -343,12 +344,186 @@
             text-shadow: 0 4px 15px rgba(255,255,255,0.3);
         }
 
-        /* Enlarge footer buttons but keep height slim */
-        .footer-actions .btn {
-            font-size: 1.25rem !important;
-            font-weight: 800 !important;
-            padding: 8px 20px !important;
-            letter-spacing: 0.5px;
+        /* -------------------------------------------
+           💎 CRYSTAL FOOTER BUTTONS 💎
+           ------------------------------------------- */
+        .crystal-btn {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.95rem !important;
+            padding: 7px 18px !important;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            z-index: 1;
+        }
+        .crystal-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            animation: crystalShine 6s infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+        @keyframes crystalShine { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+        
+        .crystal-btn:hover {
+            transform: translateY(-5px) scale(1.03) !important;
+        }
+        .crystal-btn:active {
+            transform: translateY(2px) scale(0.98) !important;
+        }
+
+        .btn-exit {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.4));
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #fca5a5;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
+        }
+        .btn-exit:hover {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.4), rgba(185, 28, 28, 0.6));
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4), inset 0 2px 5px rgba(255,255,255,0.2);
+            color: #fff;
+        }
+
+        .btn-new {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(3, 105, 161, 0.4));
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            color: #bae6fd;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
+        }
+        .btn-new:hover {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.4), rgba(3, 105, 161, 0.6));
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.4), inset 0 2px 5px rgba(255,255,255,0.2);
+            color: #fff;
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(194, 65, 12, 0.4));
+            border: 1px solid rgba(249, 115, 22, 0.5);
+            color: #fdba74;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
+        }
+        .btn-delete:hover {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.4), rgba(194, 65, 12, 0.6));
+            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.4), inset 0 2px 5px rgba(255,255,255,0.2);
+            color: #fff;
+        }
+
+        .btn-print {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(107, 33, 168, 0.4));
+            border: 1px solid rgba(168, 85, 247, 0.5);
+            color: #d8b4fe;
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
+        }
+        .btn-print:hover {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.4), rgba(107, 33, 168, 0.6));
+            box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4), inset 0 2px 5px rgba(255,255,255,0.2);
+            color: #fff;
+        }
+
+        .btn-save-master {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.6), rgba(4, 120, 87, 0.8));
+            border: 1px solid rgba(52, 211, 153, 0.8);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4), inset 0 2px 10px rgba(255,255,255,0.2);
+            font-size: 1.1rem !important;
+            padding: 8px 24px !important;
+            animation: pulseGlow 2s infinite alternate;
+        }
+        .btn-save-master:hover {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.8), rgba(4, 120, 87, 1));
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.6), inset 0 2px 10px rgba(255,255,255,0.4);
+            transform: translateY(-6px) scale(1.05) !important;
+        }
+        @keyframes pulseGlow { 0% { box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); } 100% { box-shadow: 0 4px 35px rgba(16, 185, 129, 0.8); } }
+
+        /* Small Crystal Buttons */
+        .crystal-btn-sm {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            z-index: 1;
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            color: #fff;
+        }
+        .crystal-btn-sm::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            animation: crystalShine 6s infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .crystal-btn-sm:hover {
+            transform: translateY(-3px) scale(1.05) !important;
+        }
+        .crystal-btn-sm:active {
+            transform: translateY(1px) scale(0.95) !important;
+        }
+        .crystal-btn-icon-only {
+            padding: 6px !important;
+            border-radius: 50%;
+        }
+        .btn-blue-glass {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(3, 105, 161, 0.4));
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
+        }
+        .btn-blue-glass:hover {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.4), rgba(3, 105, 161, 0.6));
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.4), inset 0 2px 5px rgba(255,255,255,0.2);
+        }
+        .btn-green-glass {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(4, 120, 87, 0.4));
+            border: 1px solid rgba(52, 211, 153, 0.5);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
+        }
+        .btn-green-glass:hover {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(4, 120, 87, 0.6));
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4), inset 0 2px 5px rgba(255,255,255,0.2);
+        }
+        .btn-orange-glass {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(194, 65, 12, 0.4));
+            border: 1px solid rgba(249, 115, 22, 0.5);
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
+        }
+        .btn-orange-glass:hover {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.4), rgba(194, 65, 12, 0.6));
+            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.4), inset 0 2px 5px rgba(255,255,255,0.2);
+        }
+        .btn-slate-glass {
+            background: linear-gradient(135deg, rgba(148, 163, 184, 0.2), rgba(71, 85, 105, 0.4));
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            box-shadow: 0 4px 15px rgba(148, 163, 184, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
+        }
+        .btn-slate-glass:hover {
+            background: linear-gradient(135deg, rgba(148, 163, 184, 0.4), rgba(71, 85, 105, 0.6));
+            box-shadow: 0 8px 25px rgba(148, 163, 184, 0.4), inset 0 2px 5px rgba(255,255,255,0.2);
         }
     </style>
 </head>
@@ -366,7 +541,7 @@
     <div class="pos-wrapper" style="width: 100%; max-width: 98%; margin: 0 auto; padding-bottom: 100px;">
         <!-- BREADCRUMB -->
         <div class="page-breadcrumb">
-            <button onclick="window.location.href='dashboard-pro.html'" class="bc-link" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; margin-left:8px;" title="العودة للرئيسية">
+            <button onclick="window.location.href='dashboard-pro.html'" class="crystal-btn-sm btn-slate-glass crystal-btn-icon-only" title="العودة للرئيسية" style="margin-left:8px;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </button>
             <a data-href="dashboard-pro.html" onclick="window.location.href='dashboard-pro.html'" class="bc-link" title="الرئيسية">الرئيسية</a>
@@ -421,14 +596,14 @@
             <!-- Right side (RTL End): Nav -->
             <div class="header-group group-nav">
                 <div class="crystal-pill nav-crystal hover-scale">
-                    <button class="nav-btn prev-btn" onclick="loadPreviousVoucher()" title="السند السابق">
+                    <button class="crystal-btn-sm btn-blue-glass crystal-btn-icon-only prev-btn" onclick="loadPreviousVoucher()" title="السند السابق">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </button>
                     <div class="nav-badge">
                         <span class="badge-label">رقم السند</span>
                         <span id="voucher-number" class="badge-val">000001</span>
                     </div>
-                    <button class="nav-btn next-btn" onclick="loadNextVoucher()" title="السند التالي">
+                    <button class="crystal-btn-sm btn-blue-glass crystal-btn-icon-only next-btn" onclick="loadNextVoucher()" title="السند التالي">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
                     </button>
                 </div>
@@ -505,11 +680,11 @@
                                 المدين المستلم
                             </div>
                             <div style="display: flex; gap: 6px;">
-                                <button type="button" class="btn hover-scale" style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem;" title="انتقال لشاشة إضافة عميل جديد" onclick="window.location.href='master-data.html?tab=customers'">
-                                    <span style="font-size: 1rem; margin-left: 3px;">👤</span> عميل
+                                <button type="button" class="crystal-btn-sm btn-blue-glass" title="انتقال لشاشة إضافة عميل جديد" onclick="window.location.href='master-data.html?tab=customers'">
+                                    <span style="font-size: 1.1rem; margin-left: 3px;">👤</span> عميل
                                 </button>
-                                <button type="button" class="btn hover-scale" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem;" title="انتقال لشاشة إضافة مورد جديد" onclick="window.location.href='master-data.html?tab=suppliers'">
-                                    <span style="font-size: 1rem; margin-left: 3px;">🏢</span> مورد
+                                <button type="button" class="crystal-btn-sm btn-green-glass" title="انتقال لشاشة إضافة مورد جديد" onclick="window.location.href='master-data.html?tab=suppliers'">
+                                    <span style="font-size: 1.1rem; margin-left: 3px;">🏢</span> مورد
                                 </button>
                             </div>
                         </h3>
@@ -522,7 +697,7 @@
                                     <span style="font-size:1.4rem; vertical-align:middle; margin-left:5px;">💰</span> المبلغ المصروف
                                 </label>
                                 <div style="position: relative; display: inline-block; width: 100%;">
-                                    <input type="text" class="form-input amount hover-scale" id="amount-local" data-next="to-account" autofocus value="0" inputmode="numeric" onfocus="this.select()" oninput="let v = this.value.replace(/[^0-9]/g, ''); this.value = v ? Number(v).toLocaleString('en-US') : '0'; calcEquiv('local')" style="padding: 5px 20px 10px; text-align: center; border-radius: 12px; font-family: 'Inter', 'Segoe UI', sans-serif; transition: all 0.3s; height: 85px;">
+                                    <input type="text" class="form-input amount hover-scale" id="amount-local" data-next="to-account" autofocus value="0" inputmode="numeric" onfocus="this.select()" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let v = this.value.replace(/[^0-9.]/g, ''); this.value = v ? Number(v.replace(/,/g, '')).toLocaleString('en-US') : '0'; calcEquiv('local')" style="padding: 5px 20px 10px; text-align: center; border-radius: 12px; font-family: 'Inter', 'Segoe UI', sans-serif; transition: all 0.3s; height: 85px;">
                                 </div>
                             </div>
 
@@ -580,7 +755,7 @@
                                     <label class="label" style="display:flex; align-items:center; gap:5px; margin-bottom: 4px;">
                                         <span style="opacity:0.8; font-size:1.1rem;">⚖️</span> التعادل
                                     </label>
-                                    <input type="text" class="form-input" id="exchange-rate" data-next="beneficiary-name" value="1.0" inputmode="decimal" onfocus="this.select()" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); calcEquiv('rate')" style="padding: 8px 12px; border-radius: 8px; text-align: center; height: 42px;">
+                                    <input type="text" class="form-input" id="exchange-rate" data-next="beneficiary-name" value="1.0" inputmode="decimal" onfocus="this.select()" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); calcEquiv('rate')" style="padding: 8px 12px; border-radius: 8px; text-align: center; height: 42px;">
                                 </div>
                             </div>
 
@@ -605,8 +780,8 @@
                                 الدائن الدافع
                             </div>
                             <div>
-                                <button type="button" class="btn hover-scale" style="background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.4); color: #fbbf24; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem;" title="عرض كشف حساب للجهة المحددة" onclick="let acc = document.getElementById('to-account').value; if(acc) window.location.href='statement.html?accountId=' + acc; else window.location.href='statement.html';">
-                                    <span style="font-size: 1rem; margin-left: 3px;">📊</span> كشف حساب
+                                <button type="button" class="crystal-btn-sm btn-orange-glass" title="عرض كشف حساب للجهة المحددة" onclick="let acc = document.getElementById('to-account').value; if(acc) window.location.href='statement.html?accountId=' + acc; else window.location.href='statement.html';">
+                                    <span style="font-size: 1.1rem; margin-left: 3px;">📊</span> كشف حساب
                                 </button>
                             </div>
                         </h3>
@@ -688,13 +863,13 @@
         </div>
 
         <!-- STICKY FOOTER -->
-        <div class="sticky-footer" style="background: rgba(15,23,42,0.95); border-top: 1px solid rgba(56, 189, 248, 0.3); border-left: 1px solid rgba(56, 189, 248, 0.3); border-right: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px 12px 0 0; padding: 6px 10px; position: sticky; bottom: 0; z-index: 100; box-shadow: 0 -10px 30px rgba(0,0,0,0.5);">
-            <div class="footer-actions" style="width: 100%; justify-content: center; gap: 10px; display: flex;">
-                <button type="button" class="btn btn-ghost" onclick="if(document.referrer) { window.history.back(); } else { window.location.href='dashboard-pro.html'; }" style="color: #94a3b8; border-color: rgba(255,255,255,0.2);" title="الرجوع للشاشة السابقة">خروج</button>
-                <button type="button" class="btn btn-ghost" onclick="resetVoucher()">جديد</button>
-                <button type="button" class="btn btn-ghost" style="color: #f87171; border-color: rgba(239,68,68,0.3);" onclick="confirmDelete()">حذف السند</button>
-                <button type="button" class="btn btn-ghost" onclick="printVoucher()">طباعة السند</button>
-                <button type="button" class="btn btn-success" id="btn-save" style="background: #ef4444; min-width: 200px;" onclick="submitVoucher()">✓ حفظ واعتماد السند</button>
+        <div class="sticky-footer" style="background: rgba(15,23,42,0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border-top: 1px solid rgba(56, 189, 248, 0.4); border-left: 1px solid rgba(56, 189, 248, 0.4); border-right: 1px solid rgba(56, 189, 248, 0.4); border-radius: 20px 20px 0 0; padding: 8px 15px; position: sticky; bottom: 0; z-index: 100; box-shadow: 0 -10px 40px rgba(0,0,0,0.6), inset 0 2px 15px rgba(255,255,255,0.05);">
+            <div class="footer-actions" style="width: 100%; justify-content: center; gap: 10px; display: flex; flex-wrap: wrap;">
+                <button type="button" class="btn crystal-btn btn-exit" onclick="if(document.referrer) { window.history.back(); } else { window.location.href='dashboard-pro.html'; }" title="الرجوع للشاشة السابقة">🚪 خروج</button>
+                <button type="button" class="btn crystal-btn btn-new" onclick="resetVoucher()">✨ مستند جديد</button>
+                <button type="button" class="btn crystal-btn btn-print" onclick="printVoucher()">🖨️ طباعة</button>
+                <button type="button" class="btn crystal-btn btn-delete" onclick="confirmDelete()">🗑️ حذف السند</button>
+                <button type="button" class="btn crystal-btn btn-save-master" id="btn-save" onclick="submitVoucher()">✅ حفظ واعتماد السند</button>
             </div>
         </div>
     </div>

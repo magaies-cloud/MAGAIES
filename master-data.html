@@ -214,6 +214,13 @@
                         <button onclick="toggleNotifications()" class="icon-btn" title="الإشعارات">
                             🔔<span id="notif-badge" style="display:none; position:absolute; top:-4px; right:-4px; background:#f87171; color:#fff; font-size:0.55rem; padding:2px 5px; border-radius:8px; font-weight:800; border: 2px solid var(--surface);">0</span>
                         </button>
+                        <button onclick="goBackOrExit()" class="icon-btn" title="رجوع / خروج" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #ef4444;">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
@@ -244,6 +251,8 @@
             <button class="md-tab-btn" onclick="openTab(event, 'tab-safes')"><span class="md-tab-icon">💰</span> الخزن</button>
             <button class="md-tab-btn" onclick="openTab(event, 'tab-items')"><span class="md-tab-icon">📦</span> الأصناف والوحدات</button>
             <button class="md-tab-btn" onclick="openTab(event, 'tab-employees')"><span class="md-tab-icon">👥</span> الموظفين</button>
+            <div style="flex: 1;"></div>
+            <button class="md-tab-btn" onclick="goBackOrExit()" style="color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.1); font-weight: 900; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);"><span class="md-tab-icon">🚪</span> خروج / رجوع</button>
         </aside>
 
         <main class="md-content-area">
@@ -2029,6 +2038,13 @@ function openSafeForm() {
         }
 
 
+        function goBackOrExit() {
+            if (window.history.length > 1 && document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
+                window.history.back();
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
