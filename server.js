@@ -3,18 +3,7 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
-const { spawn, execSync } = require('child_process');
-
-// ---- سحب آخر التحديثات من GitHub تلقائياً عند التشغيل ----
-try {
-    console.log('🔄 جاري التحقق من التحديثات وسحب آخر التعديلات من GitHub لضمان التزامن مع الفريق...');
-    const pullOutput = execSync('git pull origin main', { encoding: 'utf8' });
-    console.log(pullOutput);
-    console.log('✅ اكتمل التزامن بنجاح!');
-} catch (err) {
-    console.error('❌ حدث خطأ أثناء سحب التحديثات من GitHub. تأكد من اتصالك أو حل التعارضات:', err.message);
-}
-
+const { spawn } = require('child_process');
 
 const PORT = 3000;
 const DIR = __dirname;

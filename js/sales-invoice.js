@@ -26,7 +26,18 @@ let CUSTOMERS = [
 ];
 
 // Load real customer data from master-data
-// (Moved to DBReady event)
+const localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+if(localCusts.length > 0) {
+    CUSTOMERS = localCusts.map(c => ({
+        id: c.id,
+        name: c.name,
+        ledger: Math.abs(c.currentBalance < 0 ? c.currentBalance : 0),
+        checks: 0,
+        creditLimit: c.creditLimit || 0,
+        status: c.status || 'active'
+    }));
+    CUSTOMERS.unshift({ id:'walk-in', name:'زبون نقدي (Walk-in)', ledger:0, checks:0, creditLimit:0, status:'active' });
+}
 
 let UOMS = JSON.parse(localStorage.getItem('erp_uoms_v1')) || [
     {code: 'TON', name: 'طن'},
@@ -106,20 +117,6 @@ function commitInvoiceNumber(type) {
 //  INIT
 // ════════════════════════════════════════
 document.addEventListener('DBReady', () => {
-    // Load real customer data from master-data
-    const localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-    if(localCusts.length > 0) {
-        CUSTOMERS = localCusts.map(c => ({
-            id: c.id,
-            name: c.name,
-            ledger: Math.abs(c.currentBalance < 0 ? c.currentBalance : 0),
-            checks: 0,
-            creditLimit: c.creditLimit || 0,
-            status: c.status || 'active'
-        }));
-        CUSTOMERS.unshift({ id:'walk-in', name:'زبون نقدي (Walk-in)', ledger:0, checks:0, creditLimit:0, status:'active' });
-    }
-
     // Load Master Data Items
     const rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
     const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];

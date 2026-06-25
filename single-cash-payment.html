@@ -96,7 +96,7 @@
 
     <div class="toast-container" id="toast-container"></div>
 
-    <div class="pos-wrapper" style="width: 100%; max-width: 98%; margin: 0 auto; padding-bottom: 100px;">
+    <div class="pos-wrapper" style="max-width: 900px; margin: 0 auto; padding-bottom: 100px;">
         <!-- BREADCRUMB -->
         <div class="page-breadcrumb">
             <button onclick="window.location.href='dashboard-pro.html'" class="bc-link" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; margin-left:8px;" title="العودة للرئيسية">
@@ -128,163 +128,160 @@
         </div>
 
         <!-- MAIN FORM -->
-        <div class="glass-panel" style="padding: 15px; margin-top: 15px;">
+        <div class="glass-panel" style="padding: 25px; margin-top: 15px;">
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+            <!-- SECTION 1: BENEFICIARY & BASIC INFO -->
+            <div style="margin-bottom: 25px;">
+                <div class="balance-summary">
+                    <div class="bal-item">نقدية: <strong id="bal-checks">50</strong></div>
+                    <div style="border-right: 1px solid rgba(249,115,22,0.3);"></div>
+                    <div class="bal-item">شيكات: <strong id="bal-debt">70</strong></div>
+                    <div style="border-right: 1px solid rgba(249,115,22,0.3);"></div>
+                    <div class="bal-item">عهد موظفين: <strong id="bal-loan">120</strong></div>
+                </div>
                 
-                <!-- Column 1: Beneficiary & Basic Info -->
-                <div style="background: rgba(0,0,0,0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                    <div class="balance-summary" style="float: none; margin-bottom: 15px; display:flex; justify-content: space-between;">
-                        <div class="bal-item">نقدية: <strong id="bal-checks">50</strong></div>
-                        <div style="border-right: 1px solid rgba(249,115,22,0.3);"></div>
-                        <div class="bal-item">شيكات: <strong id="bal-debt">70</strong></div>
-                        <div style="border-right: 1px solid rgba(249,115,22,0.3);"></div>
-                        <div class="bal-item">عهد موظفين: <strong id="bal-loan">120</strong></div>
+                <h3 class="form-section-title">بيانات الحساب المدين (المستلم)</h3>
+                
+                <div class="form-grid">
+                    <div>
+                        <label class="label">تاريخ السند</label>
+                        <input type="date" class="form-input" id="hdr-date">
                     </div>
-                    
-                    <h3 class="form-section-title">بيانات الحساب المدين (المستلم)</h3>
-                    
-                    <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-                        <div>
-                            <label class="label">تاريخ السند</label>
-                            <input type="date" class="form-input" id="hdr-date" style="padding: 6px 10px;">
-                        </div>
-                        <div>
-                            <label class="label">الحساب</label>
-                            <select class="form-input" id="to-account" style="padding: 6px 10px;">
-                                <!-- Populated via JS -->
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-grid" style="grid-template-columns: 1fr; gap: 10px; margin-bottom: 10px;">
-                        <div>
-                            <label class="label">المستفيد (المستلم الفعلي)</label>
-                            <input type="text" class="form-input" id="beneficiary-name" placeholder="اسم الشخص المستلم..." style="padding: 6px 10px;">
-                        </div>
-                        <div>
-                            <label class="label">البيان</label>
-                            <input type="text" class="form-input" id="to-statement" placeholder="مثال: سداد دفعة مقدمة..." style="padding: 6px 10px;">
-                        </div>
+                    <div>
+                        <label class="label">رقم السند</label>
+                        <select class="form-input" id="to-account">
+                            <!-- Populated via JS -->
+                        </select>
                     </div>
                 </div>
 
-                <!-- Column 2: Amount & Disburse From -->
-                <div style="background: rgba(0,0,0,0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                    <h3 class="form-section-title" style="color: #38bdf8; border-color: rgba(56,189,248,0.2);">تفاصيل المبلغ وحساب الدفع</h3>
-                    
-                    <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-                        <div>
-                            <label class="label">المبلغ (عملة الدفع)</label>
-                            <input type="text" class="form-input amount" id="amount-local" value="0" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv('local')" onblur="this.value=fmtNum(parseNum(this.value))" style="padding: 6px 10px; font-size: 1rem;">
-                        </div>
-                        <div>
-                            <label class="label">العملة</label>
-                            <select class="form-input system-currency-select" id="currency" onchange="updateCurrency()" style="padding: 6px 10px;">
-                                <option value="SDG">جنيه (SDG)</option>
-                                <option value="USD">دولار (USD)</option>
-                                <option value="AED">درهم (AED)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="label">المعامل</label>
-                            <input type="text" class="form-input" id="exchange-rate" value="1.0" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv('rate')" readonly style="padding: 6px 10px;">
-                        </div>
-                        <div>
-                            <label class="label">المبلغ المعادل</label>
-                            <input type="text" class="form-input amount" id="amount-foreign" value="0" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv('foreign')" onblur="this.value=fmtNum(parseNum(this.value))" style="padding: 6px 10px; font-size: 1rem;">
-                        </div>
+                <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                    <div>
+                        <label class="label">المبلغ (عملة الدفع)</label>
+                        <input type="text" class="form-input amount" id="amount-local" value="0" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv('local')" onblur="this.value=fmtNum(parseNum(this.value))">
                     </div>
-
-                    <div class="form-grid" style="grid-template-columns: 1fr; gap: 10px; margin-bottom: 10px;">
-                        <div>
-                            <label class="label">من حساب (الخزينة / البنك / العهدة)</label>
-                            <select class="form-input" id="from-account" style="padding: 6px 10px;">
-                                <option value="safe-001">الخزينة الرئيسية</option>
-                                <option value="safe-002">خزينة المشتريات</option>
-                                <option value="bank-001">بنك (حساب 1)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="label">بيان الدفع...</label>
-                            <input type="text" class="form-input" id="from-statement" placeholder="بيان الدفع..." style="padding: 6px 10px;">
-                        </div>
+                    <div>
+                        <label class="label">العملة</label>
+                        <select class="form-input system-currency-select" id="currency" onchange="updateCurrency()"
+                            <option value="SDG">جنيه (SDG)</option>
+                            <option value="USD">دولار (USD)</option>
+                            <option value="AED">درهم (AED)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="label">المعامل</label>
+                        <input type="text" class="form-input" id="exchange-rate" value="1.0" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv('rate')" readonly>
+                    </div>
+                    <div>
+                        <label class="label">المبلغ المعادل (محلي)</label>
+                        <input type="text" class="form-input amount" id="amount-foreign" value="0" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv('foreign')" onblur="this.value=fmtNum(parseNum(this.value))">
                     </div>
                 </div>
 
-                <!-- Column 3: Payment Method -->
-                <div style="background: rgba(0,0,0,0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                    <h3 class="form-section-title" style="color: #fbbf24; border-color: rgba(251,191,36,0.2);">طريقة الدفع</h3>
-                    
-                    <div class="radio-group" style="padding: 5px 0; margin-bottom: 10px;">
-                        <label class="radio-label">
-                            <input type="radio" name="payment_method" value="cash" checked onchange="togglePaymentMethod()">
-                            نقدي
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="payment_method" value="check" onchange="togglePaymentMethod()">
-                            شيك
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="payment_method" value="mobile" onchange="togglePaymentMethod()">
-                            تحويل
-                        </label>
+                <div class="form-grid" style="grid-template-columns: 1fr;">
+                    <div>
+                        <label class="label">البيان</label>
+                        <input type="text" class="form-input" id="to-statement" placeholder="مثال: سداد دفعة مقدمة...">
                     </div>
-
-                    <!-- MOBILE TRANSFER FIELDS -->
-                    <div id="section-mobile" class="dynamic-section" style="padding: 10px; margin-bottom: 10px;">
-                        <div class="form-grid" style="grid-template-columns: 1fr; gap: 10px; margin-bottom: 0;">
-                            <div>
-                                <label class="label">رقم حساب التحويل</label>
-                                <input type="text" class="form-input" id="mobile-transfer-no" placeholder="رقم الحساب..." style="padding: 6px 10px;">
-                            </div>
-                            <div>
-                                <label class="label">ملاحظات التحويل...</label>
-                                <input type="text" class="form-input" id="mobile-note" placeholder="ملاحظات التحويل..." style="padding: 6px 10px;">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CHECK FIELDS -->
-                    <div id="section-check" class="dynamic-section" style="padding: 10px; margin-bottom: 10px;">
-                        <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 0;">
-                            <div>
-                                <label class="label">رقم الشيك</label>
-                                <input type="text" class="form-input" id="check-no" placeholder="000000" style="padding: 6px 10px;">
-                            </div>
-                            <div>
-                                <label class="label">اسم البنك</label>
-                                <input type="text" class="form-input" id="check-branch" placeholder="الفرع..." style="padding: 6px 10px;">
-                            </div>
-                            <div>
-                                <label class="label">تاريخ الشيك</label>
-                                <input type="date" class="form-input" id="check-date" style="padding: 6px 10px;">
-                            </div>
-                            <div>
-                                <label class="label">تاريخ الاستحقاق</label>
-                                <input type="date" class="form-input" id="check-due-date" style="padding: 6px 10px;">
-                            </div>
-                            <div>
-                                <label class="label">رقم الدفتر...</label>
-                                <input type="text" class="form-input" id="check-ref" placeholder="رقم الدفتر..." style="padding: 6px 10px;">
-                            </div>
-                            <div>
-                                <label class="label">رقم الدفتر</label>
-                                <input type="text" class="form-input" id="check-ref-no" placeholder="رقم الدفتر..." style="padding: 6px 10px;">
-                            </div>
-                        </div>
-                        <label class="checkbox-label" style="margin-top: 15px;">
-                            <input type="checkbox" id="check-settle-local">
-                            إرفاق صورة المستند
-                        </label>
+                    <div>
+                        <label class="label">المستفيد (المستلم الفعلي)</label>
+                        <input type="text" class="form-input" id="beneficiary-name" placeholder="اسم الشخص المستلم...">
                     </div>
                 </div>
             </div>
+
+            <!-- SECTION 2: DISBURSE FROM -->
+            <div style="margin-bottom: 25px;">
+                <h3 class="form-section-title" style="color: #38bdf8; border-color: rgba(56,189,248,0.2);">من حساب الدفع</h3>
+                <div class="form-grid">
+                    <div>
+                        <label class="label">من حساب (الخزينة / البنك / العهدة)</label>
+                        <select class="form-input" id="from-account">
+                            <option value="safe-001">الخزينة الرئيسية</option>
+                            <option value="safe-002">خزينة المشتريات</option>
+                            <option value="bank-001">بنك (حساب 1)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="label">بيان الدفع...</label>
+                        <input type="text" class="form-input" id="from-statement" placeholder="بيان الدفع...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: PAYMENT METHOD -->
+            <div>
+                <h3 class="form-section-title" style="color: #fbbf24; border-color: rgba(251,191,36,0.2);">أو طريقة أخرى</h3>
+                
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="payment_method" value="cash" checked onchange="togglePaymentMethod()">
+                        نقدي
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="payment_method" value="check" onchange="togglePaymentMethod()">
+                        شيك
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="payment_method" value="mobile" onchange="togglePaymentMethod()">
+                        تحويل بنكي
+                    </label>
+                </div>
+
+                <!-- MOBILE TRANSFER FIELDS -->
+                <div id="section-mobile" class="dynamic-section">
+                    <div class="form-grid">
+                        <div>
+                            <label class="label">رقم حساب التحويل</label>
+                            <input type="text" class="form-input" id="mobile-transfer-no" placeholder="رقم الحساب...">
+                        </div>
+                        <div>
+                            <label class="label">ملاحظات التحويل...</label>
+                            <input type="text" class="form-input" id="mobile-note" placeholder="ملاحظات التحويل...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHECK FIELDS -->
+                <div id="section-check" class="dynamic-section">
+                    <div class="form-grid">
+                        <div>
+                            <label class="label">رقم الشيك</label>
+                            <input type="text" class="form-input" id="check-no" placeholder="000000">
+                        </div>
+                        <div>
+                            <label class="label">تاريخ الشيك</label>
+                            <input type="date" class="form-input" id="check-date">
+                        </div>
+                        <div>
+                            <label class="label">تاريخ الاستحقاق</label>
+                            <input type="date" class="form-input" id="check-due-date">
+                        </div>
+                        <div>
+                            <label class="label">رقم الدفتر...</label>
+                            <input type="text" class="form-input" id="check-ref" placeholder="رقم الدفتر...">
+                        </div>
+                        <div>
+                            <label class="label">رقم الدفتر</label>
+                            <input type="text" class="form-input" id="check-ref-no" placeholder="رقم الدفتر...">
+                        </div>
+                        <div>
+                            <label class="label">اسم البنك</label>
+                            <input type="text" class="form-input" id="check-branch" placeholder="الفرع...">
+                        </div>
+                    </div>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="check-settle-local">
+                        إرفاق صورة المستند
+                    </label>
+                </div>
+            </div>
+
         </div>
 
         <!-- STICKY FOOTER -->
         <div class="sticky-footer" style="background: rgba(15,23,42,0.95); border-top: 1px solid rgba(239,68,68,0.3); border-radius: 12px 12px 0 0; padding: 15px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;">
-            <div class="footer-actions" style="width: 100%; justify-content: center; max-width: 98%; margin: 0 auto;">
+            <div class="footer-actions" style="width: 100%; justify-content: center; max-width: 900px; margin: 0 auto;">
                 <button class="btn btn-ghost" onclick="resetVoucher()">جديد</button>
                 <button class="btn btn-ghost" style="color: #f87171; border-color: rgba(239,68,68,0.3);" onclick="confirmDelete()">حذف السند</button>
                 <button class="btn btn-ghost" onclick="printVoucher()">طباعة السند</button>
