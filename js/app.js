@@ -243,7 +243,7 @@
         let payload = {};
         let hasData = false;
         syncKeys.forEach(k => {
-            const data = originalGetItem(prefix + k);
+            const data = window.DB_STORE[prefix + k] || originalGetItem(prefix + k);
             if (data) {
                 try {
                     payload[k] = JSON.parse(data);
@@ -304,7 +304,6 @@
         if (!hasLocalData) {
             showSyncOverlay('جاري جلب أحدث البيانات من السيرفر...');
         }
-
         return fetch(SYNC_PULL_URL, { headers: getAuthHeaders() })
             .then(res => {
                 if (res.status === 401) {
@@ -318,12 +317,15 @@
                 if (data.success && data.data) {
                     Object.keys(data.data).forEach(key => {
                         if (data.data[key]) {
-                            const localDataStr = originalGetItem(prefix + key);
+                            const localDataStr = window.DB_STORE[prefix + key] || originalGetItem(prefix + key);
                             let localData = [];
                             try { localData = JSON.parse(localDataStr || '[]'); } catch(e){}
                             // ONLY overwrite if server has data, or if local is empty. Do not wipe local data with empty server data!
                             if (data.data[key].length > 0 || localData.length === 0) {
-                                originalSetItem(prefix + key, JSON.stringify(data.data[key]));
+                                const valStr = JSON.stringify(data.data[key]);
+                                window.DB_STORE[prefix + key] = valStr;
+                                localforage.setItem(prefix + key, valStr).catch(e=>{});
+                                try { originalSetItem(prefix + key, valStr); } catch(e){}
                             } else {
                                 console.log(`Skipping overwrite of ${key}: server sent empty array but local has data. You should PUSH to restore server.`);
                             }
@@ -1015,7 +1017,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </a>`).join('');
 
         const sidebarHTML = `
-        <aside class="global-sidebar">
+        <aside class="global-sidebar" style="z-index: 999999 !important; display: flex !important; visibility: visible !important;">
             <div class="sidebar-header">
                 <span class="sidebar-logo-icon">
                     <svg width="26" height="26" fill="none" stroke="#38bdf8" viewBox="0 0 24 24">

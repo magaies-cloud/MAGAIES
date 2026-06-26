@@ -23,7 +23,7 @@ scp -i "ssh_key_nopass.pem" -o StrictHostKeyChecking=no -r C:\xampp\htdocs\magae
 
 echo.
 echo Step 2: Fixing permissions and restarting Nginx...
-ssh -i "ssh_key_nopass.pem" -o StrictHostKeyChecking=no root@147.182.214.194 "chmod -R 755 /var/www/magaees && systemctl reload nginx && echo DONE"
+ssh -i "ssh_key_nopass.pem" -o StrictHostKeyChecking=no root@147.182.214.194 "chown -R www-data:www-data /var/www/magaees && chmod -R 755 /var/www/magaees && systemctl reload nginx && echo DONE"
 
 echo.
 echo =======================================================

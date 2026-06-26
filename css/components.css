@@ -885,13 +885,13 @@
 }
 
 body.has-sidebar {
-    margin-right: var(--sb-collapsed);
+    margin-right: var(--sb-collapsed) !important;
     transition: margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     /* Ensure content never scrolls behind the sidebar */
     overflow-x: hidden;
 }
 body.has-sidebar.sidebar-open {
-    margin-right: var(--sb-expanded);
+    margin-right: var(--sb-expanded) !important;
 }
 
 /* Prevent ANY element from accidentally going behind the sidebar */

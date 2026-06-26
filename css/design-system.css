@@ -201,219 +201,7 @@ body {
 ::-webkit-scrollbar-corner       { background: transparent; }
 
 /* ═══════════════════════════════════════════════════════════════════
-   4. SIDEBAR — Polished RTL Navigation
-   ═══════════════════════════════════════════════════════════════════ */
-body.has-sidebar {
-  margin-right: var(--sb-collapsed);
-  transition: margin-right var(--duration-slow) var(--ease-in-out);
-}
-body.has-sidebar.sidebar-open {
-  margin-right: var(--sb-expanded);
-}
-
-.global-sidebar {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: var(--sb-collapsed);
-  height: 100vh;
-  background: rgba(6, 9, 20, 0.97);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-left: 1px solid var(--border-subtle);
-  z-index: var(--z-sidebar);
-  display: flex;
-  flex-direction: column;
-  box-shadow: -8px 0 40px rgba(0,0,0,0.6);
-  transition: width var(--duration-slow) var(--ease-in-out);
-  will-change: width;
-}
-
-.global-sidebar:hover {
-  width: var(--sb-expanded);
-  border-left-color: var(--border-brand);
-}
-
-/* Sidebar Header */
-.sidebar-header {
-  position: relative;
-  height: 68px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid var(--border-subtle);
-  overflow: hidden;
-}
-
-.sidebar-header::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  left: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, hsla(210, 85%, 56%, 0.3), transparent);
-}
-
-.sidebar-logo-icon {
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: var(--sb-collapsed);
-  height: 68px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  filter: drop-shadow(0 0 10px hsla(210, 85%, 56%, 0.8));
-  z-index: 1;
-  transition: filter var(--duration-normal);
-}
-.global-sidebar:hover .sidebar-logo-icon {
-  filter: drop-shadow(0 0 14px hsla(210, 85%, 56%, 1));
-}
-
-.sidebar-logo-text {
-  font-size: var(--text-sm);
-  font-weight: var(--font-extrabold);
-  color: var(--text-base);
-  padding-right: var(--space-2);
-  opacity: 0;
-  max-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  letter-spacing: var(--tracking-tight);
-  transition: max-width var(--duration-slow) var(--ease-out),
-              opacity var(--duration-normal) var(--ease-out);
-}
-
-.global-sidebar:hover .sidebar-logo-text {
-  max-width: 200px;
-  opacity: 1;
-  transition-delay: 60ms;
-}
-
-/* Sidebar Nav */
-.sidebar-nav {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: var(--space-2) 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: none;
-}
-.sidebar-nav::-webkit-scrollbar { display: none; }
-
-/* Sidebar Items */
-.sidebar-item {
-  position: relative;
-  display: block;
-  height: 52px;
-  text-decoration: none;
-  color: var(--text-secondary);
-  transition: color var(--duration-fast) var(--ease-default),
-              background var(--duration-fast) var(--ease-default);
-  outline: none;
-}
-
-.sidebar-item::before {
-  content: '';
-  position: absolute;
-  inset: 4px 6px;
-  border-radius: var(--radius-md);
-  background: transparent;
-  transition: background var(--duration-fast) var(--ease-default);
-  z-index: 0;
-}
-
-.sidebar-item:hover::before {
-  background: hsla(210, 30%, 80%, 0.04);
-}
-
-.sidebar-item:hover {
-  color: var(--text-base);
-}
-
-.sidebar-item.active {
-  color: #fff;
-}
-.sidebar-item.active::before {
-  background: hsla(210, 85%, 56%, 0.10);
-}
-
-/* Active indicator bar */
-.sidebar-item.active::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 10px;
-  bottom: 10px;
-  width: 3px;
-  background: linear-gradient(180deg, var(--color-brand-400), var(--color-brand-600));
-  border-radius: 2px 0 0 2px;
-  box-shadow: var(--glow-brand);
-}
-
-/* Sidebar Icon */
-.sidebar-icon {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: var(--sb-collapsed);
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-  transition: transform var(--duration-normal) var(--ease-spring),
-              filter var(--duration-normal);
-}
-
-.sidebar-item:hover .sidebar-icon {
-  transform: translateY(-50%) scale(1.15);
-  filter: brightness(1.3);
-}
-
-.sidebar-item.active .sidebar-icon {
-  filter: brightness(1.2) drop-shadow(0 0 8px currentColor);
-}
-
-/* Sidebar Text */
-.sidebar-text {
-  position: absolute;
-  right: var(--sb-collapsed);
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  white-space: nowrap;
-  overflow: hidden;
-  max-width: 0;
-  opacity: 0;
-  letter-spacing: var(--tracking-normal);
-  transition: max-width var(--duration-slow) var(--ease-out),
-              opacity var(--duration-normal) var(--ease-out);
-  z-index: 1;
-}
-
-.global-sidebar:hover .sidebar-text {
-  max-width: 180px;
-  opacity: 1;
-  transition-delay: 60ms;
-}
-
-/* Sidebar Footer */
-.sidebar-footer {
-  flex-shrink: 0;
-  padding: var(--space-2) 0;
-  border-top: 1px solid var(--border-subtle);
-}
-
-.sidebar-logout { color: var(--color-danger-400); }
-.sidebar-logout:hover::before {
-  background: hsla(355, 80%, 58%, 0.06);
-}
+/* Global Sidebar styles moved to components.css for universal consistency */
 
 /* ═══════════════════════════════════════════════════════════════════
    5. GLASSMORPHISM PANELS — Refined
@@ -1258,7 +1046,7 @@ body.has-sidebar.sidebar-open .sticky-footer { right: var(--sb-expanded); }
   }
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    /* transform removed */
   }
 }
 
@@ -1734,12 +1522,12 @@ body.has-sidebar.sidebar-open .sticky-footer { right: var(--sb-expanded); }
 
 /* Screen Entrance Animation */
 body {
-  animation: screenFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  /* animation removed */ 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes screenFadeIn {
   from { opacity: 0; transform: scale(0.98) translateY(10px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  to { opacity: 1; /* transform removed */ }
 }
 
 /* Button Kinetic Pulse & Glow */
