@@ -165,6 +165,51 @@
             .header-controls { justify-content: center; width: 100%; flex-wrap: wrap; }
             .md-tabs-sidebar { padding: 8px; }
         }
+
+        /* --- تحسينات الخطوط والتفاعلات المطلوبة --- */
+        body { font-size: 1.05rem; }
+        .input-group label { font-size: 1rem; font-weight: 600; }
+        input, select { font-size: 1.05rem !important; }
+        table.pro-table { font-size: 0.95rem !important; }
+        
+        .split-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        .split-panel {
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            z-index: 1;
+            border-radius: 12px;
+        }
+        .split-container:hover .split-panel {
+            filter: blur(5px);
+            opacity: 0.6;
+            transform: scale(0.98);
+        }
+        .split-container .split-panel:hover,
+        .split-container .split-panel:focus-within {
+            filter: blur(0);
+            opacity: 1;
+            transform: scale(1.03);
+            z-index: 10;
+            box-shadow: 0 0 40px rgba(56, 189, 248, 0.15), inset 0 0 15px rgba(255, 255, 255, 0.05);
+        }
+        
+        /* تأثيرات حركية وضوئية للأزرار */
+        .btn-action:hover, .btn-add:hover, .hover-glow:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(168, 85, 247, 0.5) !important;
+            filter: brightness(1.2);
+            animation: pulse-glow 1.5s infinite;
+        }
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 15px rgba(168,85,247,0.4); }
+            50% { box-shadow: 0 0 30px rgba(168,85,247,0.8); }
+            100% { box-shadow: 0 0 15px rgba(168,85,247,0.4); }
+        }
+        /* ------------------------------------------- */
     </style>
 
 </head>
@@ -249,7 +294,7 @@
             <button class="md-tab-btn" onclick="openTab(event, 'tab-suppliers')"><span class="md-tab-icon">🏭</span> الموردين</button>
             <button class="md-tab-btn" onclick="openTab(event, 'tab-banks')"><span class="md-tab-icon">🏦</span> البنوك</button>
             <button class="md-tab-btn" onclick="openTab(event, 'tab-safes')"><span class="md-tab-icon">💰</span> الخزن</button>
-            <button class="md-tab-btn" onclick="openTab(event, 'tab-items')"><span class="md-tab-icon">📦</span> الأصناف والوحدات</button>
+            <button class="md-tab-btn" onclick="openTab(event, 'tab-items'); setTimeout(openItemForm, 50);"><span class="md-tab-icon">📦</span> الأصناف والوحدات</button>
             <button class="md-tab-btn" onclick="openTab(event, 'tab-employees')"><span class="md-tab-icon">👥</span> الموظفين</button>
             <button class="md-tab-btn" onclick="openTab(event, 'tab-costcenters')"><span class="md-tab-icon">📊</span> مراكز التكلفة</button>
             <div style="flex: 1;"></div>
@@ -475,84 +520,48 @@
             <!-- Items Tab -->
             <div id="tab-items" class="md-tab-content">
                 <div class="md-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h3 class="md-card-title" style="font-size: 1.5rem; color: #fff;">📦 إدارة الأصناف والمخزون</h3>
-                    </div>
+                    <!-- Header and redundant KPIs removed to utilize vertical space -->
+                    <!-- Quick Actions moved to the item form -->
 
-                    <!-- Compact KPIs and Quick Actions Grid -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                        
-                        <!-- KPIs -->
-                        <div class="neon-glass-panel neon-border-primary" style="padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;">
-                            <div>
-                                <span style="color:var(--text-secondary); font-size:0.85rem; display: block; margin-bottom: 5px;">إجمالي الأصناف</span>
-                                <h3 id="kpi-total-items" class="neon-text-primary" style="margin:0; font-size:1.4rem; font-weight:900;">0 صنف</h3>
-                            </div>
-                            <span style="font-size:1.8rem; background: rgba(56,189,248,0.1); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3); box-shadow: inset 0 0 10px rgba(56,189,248,0.2);">📦</span>
-                        </div>
-                        
-                        <div class="neon-glass-panel neon-border-success" style="padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;">
-                            <div>
-                                <span style="color:var(--text-secondary); font-size:0.85rem; display: block; margin-bottom: 5px;">الفئات النشطة</span>
-                                <h3 id="kpi-total-categories" class="neon-text-success" style="margin:0; font-size:1.4rem; font-weight:900;">1 فئة</h3>
-                            </div>
-                            <span style="font-size:1.8rem; background: rgba(52,211,153,0.1); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid rgba(52,211,153,0.3); box-shadow: inset 0 0 10px rgba(52,211,153,0.2);">🗂️</span>
-                        </div>
-                        
-                        <div class="neon-glass-panel neon-border-danger" style="padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;">
-                            <div>
-                                <span style="color:var(--text-secondary); font-size:0.85rem; display: block; margin-bottom: 5px;">تنبيه نواقص المخزون</span>
-                                <h3 id="kpi-low-stock" class="neon-text-danger" style="margin:0; font-size:1.4rem; font-weight:900;">0 صنف</h3>
-                            </div>
-                            <span style="font-size:1.8rem; background: rgba(244,63,94,0.1); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid rgba(244,63,94,0.3); box-shadow: inset 0 0 10px rgba(244,63,94,0.2);">⚠️</span>
-                        </div>
-
-                        <!-- Quick Actions Compact -->
-                        <div class="neon-glass-panel" style="padding: 12px 15px; border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; grid-column: 1 / -1; flex-wrap: wrap;">
-                            <span style="font-size: 1rem; margin-left: 5px; color: #fff; font-weight: 800; display:flex; align-items:center; gap:5px;"><span>⚡</span> إجراءات:</span>
-                            
-                            <button onclick="openItemForm()" class="btn-action hover-glow" style="flex: 1; min-width: 150px; display:flex; align-items:center; gap:8px; justify-content:center; padding:8px 15px; font-size:0.95rem; font-weight:bold; border-radius: 8px; background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(15,76,129,0.4)); border: 1px solid rgba(56,189,248,0.5); color: #fff; cursor: pointer;">
-                                <span style="font-size:1.2rem;">📦</span> إضافة صنف جديد
-                            </button>
-                            
-                            <button onclick="openInnerTab(event, 'inner-categories')" class="btn-action hover-glow" style="flex: 1; min-width: 150px; display:flex; align-items:center; gap:8px; justify-content:center; padding:8px 15px; font-size:0.95rem; font-weight:bold; border-radius: 8px; background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(88,28,135,0.4)); border: 1px solid rgba(168,85,247,0.5); color: #fff; cursor: pointer;">
-                                <span style="font-size:1.2rem;">🗂️</span> إدارة الفئات
-                            </button>
-                            
-                            <button onclick="alert('جاري التجهيز للطباعة...')" class="btn-action hover-glow" style="flex: 1; min-width: 150px; display:flex; align-items:center; gap:8px; justify-content:center; padding:8px 15px; font-size:0.95rem; font-weight:bold; border-radius: 8px; background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(6,78,59,0.4)); border: 1px solid rgba(52,211,153,0.5); color: #fff; cursor: pointer;">
-                                <span style="font-size:1.2rem;">🖨️</span> طباعة باركود
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Main Inner Tabs for List/Categories -->
-                    <div class="inner-tabs" style="border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom:20px;">
-                        <button class="inner-tab-btn active" onclick="openInnerTab(event, 'inner-products')" style="font-size: 1.05rem; padding: 10px 20px;">دليل الأصناف (قائمة المنتجات)</button>
-                        <button class="inner-tab-btn" onclick="openInnerTab(event, 'inner-categories')" style="font-size: 1.05rem; padding: 10px 20px;">الفئات (التصنيفات)</button>
-                    </div>
+                    <!-- Main Inner Tabs removed as requested -->
 
                     <div id="inner-products" class="inner-tab-content active">
                         
                         <!-- Premium Item Form Modal -->
                         <div id="item-form" class="md-card" style="display: none; padding: 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
                             <!-- HEADER BAR -->
-                            <div style="background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(15,23,42,0.95)); padding:20px 25px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; border-bottom:1px solid rgba(56,189,248,0.3);">
+                            <div style="background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(15,23,42,0.95)); padding:12px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; border-bottom:1px solid rgba(56,189,248,0.3);">
                                 <div style="display:flex; align-items:center; gap:15px;">
                                     <div style="width:50px; height:50px; background:linear-gradient(135deg, #38bdf8, #818cf8); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.6rem; box-shadow: 0 4px 15px rgba(56,189,248,0.4);">📦</div>
                                     <div><h3 id="form-mode-indicator" style="margin:0; color:#fff; font-size:1.4rem; font-weight:800; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">إضافة صنف جديد</h3><small style="color:#cbd5e1; font-size: 0.85rem;">إدارة بطاقة الصنف وتفاصيل التسعير والوحدات</small></div>
                                 </div>
-                                <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                                    <button class="btn-add" style="background:linear-gradient(135deg, var(--success-color), #059669); padding:10px 25px; font-size: 1rem; box-shadow: 0 4px 15px rgba(16,185,129,0.3);" onclick="saveItem()">💾 حفظ الصنف</button>
-                                    <button onclick="closeItemForm()" style="background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.5); padding:10px 25px; border-radius:10px; cursor:pointer; font-weight:bold; transition: all 0.3s;" onmouseover="this.style.background='rgba(239,68,68,0.2)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">✖ إلغاء</button>
+                                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items: center;">
+                                    <!-- Low Stock Mini -->
+                                    <div class="neon-glass-panel neon-border-danger" style="padding: 5px 12px; display: flex; align-items: center; gap: 8px; border-radius: 8px; border: 1px solid rgba(244,63,94,0.3); margin-left: 10px;">
+                                        <span style="font-size:1rem; background: rgba(244,63,94,0.1); width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 6px;">⚠️</span>
+                                        <div>
+                                            <span style="color:var(--text-secondary); font-size:0.7rem; display: block; line-height: 1; margin-bottom: 3px;">النواقص</span>
+                                            <strong id="kpi-low-stock" class="neon-text-danger" style="font-size:0.95rem; font-weight:800; line-height: 1;">0 صنف</strong>
+                                        </div>
+                                    </div>
+                                    
+                                    <button onclick="openInnerTab(event, 'inner-categories')" class="btn-action hover-glow" style="display:flex; align-items:center; gap:5px; justify-content:center; padding:10px 20px; font-size:0.95rem; font-weight:bold; border-radius: 8px; background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(88,28,135,0.6)); border: 1px solid rgba(168,85,247,0.5); color: #fff; cursor: pointer;">
+                                        <span style="font-size:1.1rem;">🗂️</span> أنواع الأصناف
+                                    </button>
+                                    <button onclick="alert('جاري التجهيز للطباعة...')" class="btn-action hover-glow" style="display:flex; align-items:center; gap:5px; justify-content:center; padding:10px 20px; font-size:0.95rem; font-weight:bold; border-radius: 8px; background: linear-gradient(135deg, rgba(52,211,153,0.2), rgba(6,78,59,0.6)); border: 1px solid rgba(52,211,153,0.5); color: #fff; cursor: pointer;">
+                                        <span style="font-size:1.1rem;">🖨️</span> طباعة باركود
+                                    </button>
+                                    <button class="btn-add hover-glow" style="background:linear-gradient(135deg, var(--success-color), #059669); padding:10px 25px; font-size: 1rem; border-radius: 8px; box-shadow: 0 4px 15px rgba(16,185,129,0.3); border: 1px solid rgba(16,185,129,0.5); color: #fff; cursor: pointer;" onclick="saveItem()">💾 حفظ الصنف</button>
+                                    <button onclick="closeItemForm()" style="background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.5); padding:10px 25px; border-radius:8px; cursor:pointer; font-weight:bold; transition: all 0.3s;" onmouseover="this.style.background='rgba(239,68,68,0.2)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">✖ إلغاء</button>
                                 </div>
                             </div>
                             
                             <div style="padding:25px; background: rgba(0,0,0,0.2);">
 
-                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
+                                <div class="split-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
                                     
                                     <!-- SEC 1: General -->
-                                    <div class="neon-glass-panel" style="padding: 20px; border-top: 3px solid #38bdf8; background: linear-gradient(to bottom, rgba(56,189,248,0.05), transparent);">
+                                    <div class="neon-glass-panel split-panel" style="padding: 20px; border-top: 3px solid #38bdf8; background: linear-gradient(to bottom, rgba(56,189,248,0.05), transparent);">
                                         <div style="display:flex; align-items:center; gap:10px; margin-bottom: 20px;">
                                             <span style="font-size:1.5rem;">📋</span><h4 style="margin:0; color:#38bdf8; font-weight: 800;">البيانات العامة والتعريف</h4>
                                         </div>
@@ -579,7 +588,7 @@
                                     </div>
 
                                     <!-- Right Column Stack -->
-                                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                                    <div class="split-panel" style="display: flex; flex-direction: column; gap: 20px;">
                                         
                                         <!-- SEC 2: Pricing & Tax -->
                                         <div class="neon-glass-panel" style="padding: 20px; border-top: 3px solid #34d399; background: linear-gradient(to bottom, rgba(52,211,153,0.05), transparent);">

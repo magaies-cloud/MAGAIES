@@ -96,7 +96,11 @@ document.addEventListener('DBReady', () => {
     }
     WAREHOUSES.unshift({ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام (لم تحدد بعد)' });
 
-    VENDORS = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).map(s => ({
+    const supps = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+    // For Purchase Invoices, we only want Suppliers, NOT Customers.
+    const uniquePartners = Array.from(new Map(supps.map(item => [item.id, item])).values());
+    
+    VENDORS = uniquePartners.map(s => ({
         id: s.id, name: s.name,
         ledger: parseFloat(s.currentBalance) || 0, checks: 0,
         creditLimit: s.creditLimit || 0
@@ -308,6 +312,20 @@ function populateDropdowns() {
         whSel.appendChild(o);
     });
     
+    // Cost Centers
+    const ccSel = document.getElementById('hdr-cost-center');
+    if (ccSel) {
+        ccSel.innerHTML = '<option value="">-- بدون مركز تكلفة --</option>';
+        try {
+            const costCenters = JSON.parse(localStorage.getItem('erp_jobs_v1')) || [];
+            costCenters.forEach(cc => {
+                const o = document.createElement('option');
+                o.value = cc.id; o.textContent = cc.name;
+                ccSel.appendChild(o);
+            });
+        } catch(e) {}
+    }
+    
     // Init Payment Account
     togglePaymentAccount();
 }
@@ -328,16 +346,25 @@ function togglePaymentAccount() {
     select.innerHTML = '';
     
     let banks = [];
+    let safes = [];
     try {
         banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+        safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
     } catch(e) {}
     
-    banks.forEach(b => {
-        // Show all banks and safes regardless of payment method
-        const typeLabel = b.type === 'bank' ? '🏦' : '💰';
+    // Add Safes first
+    safes.forEach(s => {
         const o = document.createElement('option');
-        o.value = b.id; 
-        o.textContent = `${typeLabel} ${b.name}`;
+        o.value = s.id || s.code; 
+        o.textContent = `💰 ${s.name}`;
+        select.appendChild(o);
+    });
+
+    // Add Banks next
+    banks.forEach(b => {
+        const o = document.createElement('option');
+        o.value = b.id || b.code; 
+        o.textContent = `🏦 ${b.name}`;
         select.appendChild(o);
     });
     
