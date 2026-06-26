@@ -389,6 +389,17 @@
                     <span class="slider"></span>
                 </label>
             </div>
+            <div class="form-group" style="margin-top: 15px;">
+                <label class="form-label">مدة تسجيل الخروج التلقائي عند عدم النشاط</label>
+                <select class="form-select" id="cfg-auto-logout">
+                    <option value="0" selected>بدون (معطل)</option>
+                    <option value="30">30 ثانية</option>
+                    <option value="60">1 دقيقة</option>
+                    <option value="300">5 دقائق</option>
+                    <option value="600">10 دقائق</option>
+                    <option value="1800">30 دقيقة</option>
+                </select>
+            </div>
         </div>
 
         <!-- إدارة المستخدمين -->
@@ -484,6 +495,7 @@
         if (cfg.fontSize)  document.getElementById('cfg-font-size').value = cfg.fontSize;
         document.getElementById('cfg-auto-dark').checked = cfg.autoDark !== false; // default true
         document.getElementById('cfg-show-athkar').checked = cfg.showAthkar !== false; // default true
+        if (cfg.autoLogoutTime !== undefined) document.getElementById('cfg-auto-logout').value = cfg.autoLogoutTime;
     }
 
     // ─── Save Settings ─────────────────────────────────────────
@@ -513,6 +525,7 @@
             fontSize:          document.getElementById('cfg-font-size').value,
             autoDark:          document.getElementById('cfg-auto-dark').checked,
             showAthkar:        document.getElementById('cfg-show-athkar').checked,
+            autoLogoutTime:    document.getElementById('cfg-auto-logout').value,
 
             savedAt: new Date().toISOString()
         };

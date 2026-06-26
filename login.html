@@ -143,12 +143,12 @@
         
         <div class="input-group">
             <label>اسم المستخدم</label>
-            <input type="text" class="input-field" id="username" placeholder="أدخل اسم المستخدم">
+            <input type="text" class="input-field" id="username" placeholder="أدخل اسم المستخدم" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
         </div>
         
         <div class="input-group">
             <label>كلمة المرور</label>
-            <input type="password" class="input-field" id="password" placeholder="أدخل كلمة المرور">
+            <input type="password" class="input-field" id="password" placeholder="أدخل كلمة المرور" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
         </div>
         
         <button class="btn-login" onclick="handleLogin()">دخول آمن</button>
@@ -478,6 +478,23 @@
             if (e.key === 'Enter') {
                 handleLogin();
             }
+        });
+
+        // Aggressively clear fields on load to prevent auto-fill
+        window.addEventListener('pageshow', () => {
+            const u = document.getElementById('username');
+            const p = document.getElementById('password');
+            if(u) u.value = '';
+            if(p) p.value = '';
+            
+            // Interval to catch delayed autofills by the browser
+            let clearCount = 0;
+            const clrInterval = setInterval(() => {
+                if(u && u.hasAttribute('readonly')) u.value = '';
+                if(p && p.hasAttribute('readonly')) p.value = '';
+                clearCount++;
+                if(clearCount > 10) clearInterval(clrInterval); // Stop after 1 second
+            }, 100);
         });
     </script>
 </body>

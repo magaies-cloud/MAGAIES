@@ -1899,3 +1899,44 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e) {}
     }, 1000);
 });
+
+// --- Auto Logout Feature ---
+(function() {
+    let activityTimer;
+    function resetActivityTimer() {
+        if (activityTimer) clearTimeout(activityTimer);
+        
+        let settings = {};
+        try {
+            const str = localStorage.getItem('erp_settings_v1');
+            if (str) settings = JSON.parse(str);
+        } catch(e) {}
+        
+        // Settings could be in DB_STORE proxy if offline
+        try {
+            if (window.DB_STORE && window.getTenantKey) {
+                const tk = window.getTenantKey('erp_settings_v1');
+                if (window.DB_STORE[tk]) settings = JSON.parse(window.DB_STORE[tk]);
+            }
+        } catch(e) {}
+
+        const autoLogoutTimeStr = settings.autoLogoutTime || "0";
+        const autoLogoutTime = parseInt(autoLogoutTimeStr, 10);
+        
+        if (autoLogoutTime > 0 && !window.location.pathname.includes('login.html')) {
+            activityTimer = setTimeout(() => {
+                alert('تم تسجيل الخروج التلقائي بسبب عدم النشاط للحفاظ على الأمان.');
+                if (window.logout) window.logout(true);
+            }, autoLogoutTime * 1000);
+        }
+    }
+
+    if (!window.location.pathname.includes('login.html') && !window.location.pathname.includes('register.html')) {
+        ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => {
+            document.addEventListener(evt, resetActivityTimer, { passive: true });
+        });
+        document.addEventListener('DOMContentLoaded', resetActivityTimer);
+        resetActivityTimer();
+    }
+})();
+
