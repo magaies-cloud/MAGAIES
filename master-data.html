@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>السجانة ERP - البيانات الأساسية</title>
-    <link rel="stylesheet" href="css/design-system.css?v=20260626_3">
+    <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
-    <link rel="stylesheet" href="css/components.css?v=20260626_3">
+    <link rel="stylesheet" href="css/components.css?v=20260626_4">
     <style>
         :root {
             --bg-color: #050308;
@@ -45,7 +45,7 @@
         .orb-3 { width: 600px; height: 600px; background: var(--theme-blue); top: 30%; left: 30%; animation-duration: 25s; opacity: 0.1; }
         @keyframes floatOrb { 0% { transform: translate(0, 0) scale(1); } 33% { transform: translate(30px, -50px) scale(1.1); } 66% { transform: translate(-30px, 30px) scale(0.9); } 100% { transform: translate(0, 0) scale(1); } }
 
-        .dash-main { width: 100%; max-width: 1600px; margin: 0 auto; padding: 20px 30px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; flex: 1; animation: fadeIn 0.8s ease-out forwards; }
+        .dash-main { width: 96%; max-width: 1600px; margin: 0 auto; padding: 20px 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; flex: 1; animation: fadeIn 0.8s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
         
@@ -542,163 +542,146 @@
                                     <div><h3 id="form-mode-indicator" style="margin:0; color:#fff; font-size:1.4rem; font-weight:800; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">إضافة صنف جديد</h3><small style="color:#cbd5e1; font-size: 0.85rem;">إدارة بطاقة الصنف وتفاصيل التسعير والوحدات</small></div>
                                 </div>
                                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                                    <button class="btn-add hover-glow" style="background:linear-gradient(135deg, var(--success-color), #059669); padding:10px 25px; font-size: 1rem; box-shadow: 0 4px 15px rgba(16,185,129,0.3);" onclick="saveItem()">💾 حفظ الصنف</button>
+                                    <button class="btn-add" style="background:linear-gradient(135deg, var(--success-color), #059669); padding:10px 25px; font-size: 1rem; box-shadow: 0 4px 15px rgba(16,185,129,0.3);" onclick="saveItem()">💾 حفظ الصنف</button>
                                     <button onclick="closeItemForm()" style="background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.5); padding:10px 25px; border-radius:10px; cursor:pointer; font-weight:bold; transition: all 0.3s;" onmouseover="this.style.background='rgba(239,68,68,0.2)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">✖ إلغاء</button>
                                 </div>
                             </div>
                             
-                            <!-- TABS NAVIGATION -->
-                            <div style="display: flex; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0 20px; overflow-x: auto; scrollbar-width: none;">
-                                <button class="item-tab-btn active" onclick="switchItemTab('tab-general', this)" style="padding: 15px 20px; background: transparent; border: none; color: #38bdf8; font-weight: bold; font-size: 1.05rem; cursor: pointer; border-bottom: 3px solid #38bdf8; transition: all 0.3s; white-space: nowrap;">📋 البيانات العامة</button>
-                                <button class="item-tab-btn" onclick="switchItemTab('tab-sales', this)" style="padding: 15px 20px; background: transparent; border: none; color: #cbd5e1; font-weight: bold; font-size: 1.05rem; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; white-space: nowrap;">💵 المبيعات والتسعير</button>
-                                <button class="item-tab-btn" onclick="switchItemTab('tab-purchases', this)" style="padding: 15px 20px; background: transparent; border: none; color: #cbd5e1; font-weight: bold; font-size: 1.05rem; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; white-space: nowrap;">🛒 المشتريات والتكلفة</button>
-                                <button class="item-tab-btn" onclick="switchItemTab('tab-inventory', this)" style="padding: 15px 20px; background: transparent; border: none; color: #cbd5e1; font-weight: bold; font-size: 1.05rem; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; white-space: nowrap;">📦 المخزون والأرصدة</button>
-                                <button class="item-tab-btn" onclick="switchItemTab('tab-units', this)" style="padding: 15px 20px; background: transparent; border: none; color: #cbd5e1; font-weight: bold; font-size: 1.05rem; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; white-space: nowrap;">⚖️ الوحدات والتحويل</button>
-                                <button class="item-tab-btn" onclick="switchItemTab('tab-desc', this)" style="padding: 15px 20px; background: transparent; border: none; color: #cbd5e1; font-weight: bold; font-size: 1.05rem; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; white-space: nowrap;">📝 الوصف والملاحظات</button>
-                            </div>
+                            <div style="padding:25px; background: rgba(0,0,0,0.2);">
 
-                            <div style="padding:25px; background: rgba(0,0,0,0.2); min-height: 450px; position: relative;">
-
-                                <!-- TAB 1: General -->
-                                <div id="tab-general" class="item-tab-content" style="display: block; animation: fadeIn 0.4s ease;">
-                                    <div class="neon-glass-panel" style="padding: 25px; border-top: 3px solid #38bdf8; background: linear-gradient(to bottom, rgba(56,189,248,0.05), transparent);">
-                                        <div style="display:flex; gap:25px; flex-wrap:wrap;">
-                                            <!-- Image / QR Box -->
-                                            <div style="display: flex; flex-direction: column; gap: 15px;">
-                                                <div id="item-image-box" onclick="document.getElementById('item-image-upload').click()" style="width:140px; height:140px; border:2px dashed rgba(56,189,248,0.4); border-radius:14px; display:flex; flex-direction:column; justify-content:center; align-items:center; background:rgba(0,0,0,0.4); cursor:pointer; transition: all 0.3s; overflow:hidden;" onmouseover="this.style.borderColor='#38bdf8'; this.style.background='rgba(56,189,248,0.1)'" onmouseout="this.style.borderColor='rgba(56,189,248,0.4)'; this.style.background='rgba(0,0,0,0.4)'">
-                                                    <span style="font-size:3rem; margin-bottom:5px;">📸</span>
-                                                    <span style="font-size:0.8rem; color:#38bdf8; font-weight:bold; text-align:center;">إرفاق صورة<br>(اختياري)</span>
-                                                    <img id="item-image-preview" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
+                                    
+                                    <!-- SEC 1: General -->
+                                    <div class="neon-glass-panel" style="padding: 20px; border-top: 3px solid #38bdf8; background: linear-gradient(to bottom, rgba(56,189,248,0.05), transparent);">
+                                        <div style="display:flex; align-items:center; gap:10px; margin-bottom: 20px;">
+                                            <span style="font-size:1.5rem;">📋</span><h4 style="margin:0; color:#38bdf8; font-weight: 800;">البيانات العامة والتعريف</h4>
+                                        </div>
+                                        
+                                        <div style="display:flex; gap:20px;">
+                                            <div id="item-qr-box" style="width:100px; height:100px; border:2px dashed rgba(56,189,248,0.4); border-radius:14px; display:flex; flex-direction:column; justify-content:center; align-items:center; background:rgba(0,0,0,0.4); flex-shrink:0; transition: all 0.3s;"><span style="font-size:2rem;">📱</span><span style="font-size:0.75rem; color:#38bdf8; margin-top:5px; font-weight:bold;">QR تلقائي</span></div>
+                                            <div class="form-grid" style="flex:1; grid-template-columns: 1fr;">
+                                                <div class="input-group"><label style="color:#fff;">اسم الصنف <span style="color:#ef4444;">*</span></label><input type="text" id="item-name-input" placeholder="مثال: سيخ 3 لنيه ماستر" style="border-color: rgba(56,189,248,0.5); background: rgba(0,0,0,0.3);"></div>
+                                                <div style="display:flex; gap:10px;">
+                                                    <div class="input-group" style="flex:1;"><label>كود الصنف (SKU)</label><input type="text" id="item-code" placeholder="تلقائي إذا تُرك فارغاً" style="color:#38bdf8; font-weight:bold;"></div>
+                                                    <div class="input-group" style="flex:1;"><label>الاسم اللاتيني</label><input type="text" id="item-name-latin" placeholder="Rebar 3 Linia"></div>
                                                 </div>
-                                                <input type="file" id="item-image-upload" style="display:none;" accept="image/*" onchange="previewItemImage(event)">
-                                                
-                                                <div id="item-qr-box" style="width:140px; height:100px; border:1px solid rgba(255,255,255,0.1); border-radius:14px; display:flex; flex-direction:column; justify-content:center; align-items:center; background:rgba(0,0,0,0.2);">
-                                                    <span style="font-size:2rem;">📱</span><span style="font-size:0.75rem; color:#cbd5e1; margin-top:5px;">QR تلقائي</span>
-                                                </div>
-                                            </div>
-
-                                            <div class="form-grid" style="flex:1; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
-                                                <div class="input-group" style="grid-column: 1 / -1;"><label style="color:#fff;">اسم الصنف <span style="color:#ef4444;">*</span></label><input type="text" id="item-name-input" placeholder="مثال: سيخ 3 لنيه ماستر" style="border-color: rgba(56,189,248,0.5); background: rgba(0,0,0,0.3); font-size:1.1rem; padding:12px;"></div>
-                                                
-                                                <div class="input-group"><label>كود الصنف (SKU)</label><input type="text" id="item-code" placeholder="تلقائي إذا تُرك فارغاً" style="color:#38bdf8; font-weight:bold;"></div>
-                                                <div class="input-group"><label>الاسم اللاتيني</label><input type="text" id="item-name-latin" placeholder="Rebar 3 Linia"></div>
-                                                
-                                                <div class="input-group"><label>الباركود</label><input type="text" id="item-barcode" placeholder="امسح بالليزر..."></div>
-                                                <div class="input-group"><label>الماركة / المنشأ</label><input type="text" id="item-brand" placeholder="مثال: تركي، جياد"></div>
-                                                
-                                                <div class="input-group"><label>الفئة الرئيسية <span style="color:#ef4444;">*</span></label><div style="display:flex; gap:5px;"><select id="item-category" style="flex:1;"></select><button class="btn-text" style="color:#a855f7; background:rgba(168,85,247,0.1); border-radius:8px; padding:0 10px;" onclick="quickAddCategory()" title="إضافة فئة">➕</button></div></div>
-                                                <div class="input-group"><label>الفئة الفرعية (للجرد)</label><input type="text" id="item-sub-category" placeholder="مثال: كمر 12 متر"></div>
-                                                
-                                                <div class="input-group"><label>طبيعة الصنف</label><select id="item-nature"><option value="مخزني">📦 مخزني (يتم جرده)</option><option value="خدمي">🔧 خدمي (لا يجرد)</option><option value="تجميعي">🏗️ تجميعي</option></select></div>
-                                                <div class="input-group"><label>حالة التفعيل</label><div style="display:flex; align-items:center; gap:10px; padding:10px; background: rgba(0,0,0,0.2); border-radius: 8px;"><label class="toggle-sw"><input type="checkbox" id="item-active-toggle" checked onchange="updateToggleLabel()"><span class="toggle-sl"></span></label><span id="item-active-label" style="color:var(--success-color); font-weight:bold; font-size:0.9rem;">🟢 نشط</span></div></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- TAB 2: Sales -->
-                                <div id="tab-sales" class="item-tab-content" style="display: none; animation: fadeIn 0.4s ease;">
-                                    <div class="neon-glass-panel" style="padding: 25px; border-top: 3px solid #34d399; background: linear-gradient(to bottom, rgba(52,211,153,0.05), transparent);">
-                                        <div class="form-grid" style="grid-template-columns: repeat(2, 1fr);">
-                                            <div class="input-group"><label>سعر البيع الافتراضي (SDG)</label><input type="number" id="item-selling-price" placeholder="0.00" style="font-weight:bold; color:var(--success-color); border-color: rgba(52,211,153,0.4); font-size: 1.1rem; background: rgba(52,211,153,0.05);"></div>
-                                            <div class="input-group"><label>الحد الأقصى للخصم %</label><input type="number" id="item-max-discount" placeholder="0" max="100"></div>
-                                            <div class="input-group"><label>خاضع للضريبة</label><div style="padding:10px; background:rgba(0,0,0,0.2); border-radius:8px;"><label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0;"><input type="checkbox" id="item-taxable" onchange="document.getElementById('item-tax-rate').disabled=!this.checked" style="width:18px; height:18px; accent-color:#34d399;"> نعم، خاضع للضريبة</label></div></div>
-                                            <div class="input-group"><label>نسبة الضريبة %</label><input type="number" id="item-tax-rate" placeholder="0" disabled></div>
-                                            <div class="input-group" style="grid-column: 1 / -1;"><label style="color:#34d399;">حساب الإيرادات (Sales Revenue Account)</label><select id="item-sales-account"><option value="">-- الافتراضي حسب الفئة --</option></select><small style="color:#cbd5e1; margin-top:5px; display:block;">حساب الأستاذ العام الذي ستُرحل إليه إيرادات مبيعات هذا الصنف.</small></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- TAB 3: Purchases -->
-                                <div id="tab-purchases" class="item-tab-content" style="display: none; animation: fadeIn 0.4s ease;">
-                                    <div class="neon-glass-panel" style="padding: 25px; border-top: 3px solid #f59e0b; background: linear-gradient(to bottom, rgba(245,158,11,0.05), transparent);">
-                                        <div class="form-grid" style="grid-template-columns: repeat(2, 1fr);">
-                                            <div class="input-group" style="grid-column: 1 / -1;"><label style="color:#f59e0b;">طريقة التكلفة (Costing Method)</label>
-                                                <div style="display:flex; gap:15px; flex-wrap:wrap; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
-                                                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="radio" name="cost_method" value="movingAverage" checked style="accent-color:#f59e0b; width:18px; height:18px;"> المتوسط المرجح (Moving Average)</label>
-                                                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="radio" name="cost_method" value="fifo" style="accent-color:#f59e0b; width:18px; height:18px;"> الوارد أولاً صادر أولاً (FIFO)</label>
-                                                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="radio" name="cost_method" value="lastPurchase" style="accent-color:#f59e0b; width:18px; height:18px;"> آخر شراء</label>
-                                                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="radio" name="cost_method" value="standard" style="accent-color:#f59e0b; width:18px; height:18px;"> تكلفة ثابتة</label>
-                                                </div>
-                                            </div>
-                                            <div class="input-group"><label>المورد الافتراضي (Preferred Supplier)</label><select id="item-preferred-supplier"><option value="">-- بدون مورد محدد --</option></select></div>
-                                            <div class="input-group"><label>رقم الصنف لدى المورد</label><input type="text" id="item-supplier-code" placeholder="مثال: SUP-ITM-123"></div>
-                                            <div class="input-group" style="grid-column: 1 / -1;"><label style="color:#f59e0b;">حساب تكلفة البضاعة المباعة (COGS Account)</label><select id="item-cogs-account"><option value="">-- الافتراضي حسب الفئة --</option></select><small style="color:#cbd5e1; margin-top:5px; display:block;">حساب الأستاذ العام الذي ستُرحل إليه تكلفة البضاعة المباعة عند فاتورة المبيعات.</small></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- TAB 4: Inventory -->
-                                <div id="tab-inventory" class="item-tab-content" style="display: none; animation: fadeIn 0.4s ease;">
-                                    <div class="neon-glass-panel" style="padding: 25px; border-top: 3px solid #ef4444; background: linear-gradient(to bottom, rgba(239,68,68,0.05), transparent);">
-                                        <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
-                                            <div class="input-group"><label>الرصيد الافتتاحي</label><input type="number" id="item-opening-qty" placeholder="0"></div>
-                                            <div class="input-group"><label>تكلفة الافتتاحي (للوحدة)</label><input type="number" id="item-opening-value" placeholder="0.00"></div>
-                                            <div class="input-group"><label>مكان الصنف / الرف (Bin Location)</label><input type="text" id="item-bin-location" placeholder="ممر 3، رف ب"></div>
-                                            
-                                            <div class="input-group"><label style="color:#ef4444;">الحد الأدنى</label><input type="number" id="item-min-limit" placeholder="20"></div>
-                                            <div class="input-group"><label style="color:#ef4444;">الحد الأعلى</label><input type="number" id="item-max-limit" placeholder="500"></div>
-                                            <div class="input-group"><label style="color:#f59e0b;">حد إعادة الطلب</label><input type="number" id="item-reorder-level" placeholder="50"></div>
-
-                                            <div class="input-group" style="grid-column: 1 / -1;"><label style="color:#ef4444;">حساب الأصول المخزنية (Inventory Asset Account)</label><select id="item-inventory-account"><option value="">-- الافتراضي حسب الفئة --</option></select><small style="color:#cbd5e1; margin-top:5px; display:block;">حساب الأستاذ العام الذي يمثل قيمة المخزون لهذا الصنف في الميزانية.</small></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- TAB 5: Units -->
-                                <div id="tab-units" class="item-tab-content" style="display: none; animation: fadeIn 0.4s ease;">
-                                    <div class="neon-glass-panel" style="padding: 25px; border-top: 3px solid #a855f7; background: linear-gradient(to bottom, rgba(168,85,247,0.05), transparent);">
-                                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
-                                            <div style="display:flex; align-items:center; gap:15px; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 12px; border: 1px solid rgba(168,85,247,0.3); box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);">
-                                                <label style="color:#a855f7; font-weight:bold; margin:0; font-size: 1.1rem;">الوحدة الأساسية (Base Unit) <span style="color:#ef4444;">*</span></label>
-                                                <input type="text" id="item-base-unit" placeholder="مثال: قطعة، حبة" oninput="updateBaseUnitRow()" style="border:none; border-bottom: 2px solid #a855f7; background:transparent; color:#fff; font-weight:bold; font-size: 1.2rem; padding: 5px; outline:none; width: 150px; text-align: center; transition: all 0.3s;" onfocus="this.style.borderBottomColor='#d8b4fe'">
                                             </div>
                                         </div>
                                         
-                                        <div style="background:rgba(15,23,42,0.8); border-radius:14px; border:1px solid rgba(168,85,247,0.2); overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.2);">
-                                            <div style="display:flex; justify-content:space-between; align-items:center; padding:15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(168,85,247,0.05);">
-                                                <span style="color:#cbd5e1; font-weight: 600;">جدول تحويل الوحدات (المعامل Factor يجب أن يكون 1 للوحدة الأساسية)</span>
-                                                <button class="btn-text hover-glow" style="color:#fff; font-weight:bold; background:linear-gradient(135deg, #a855f7, #9333ea); padding:8px 15px; border-radius:8px; box-shadow: 0 4px 10px rgba(168,85,247,0.3); border: none; cursor: pointer; display: flex; align-items: center; gap: 5px;" onclick="addUnitRow()"><span style="font-size: 1.2rem;">+</span> إضافة وحدة جديدة (مثل كرتونة، درزن)</button>
+                                        <div class="form-grid" style="margin-top: 15px;">
+                                            <div class="input-group"><label>الباركود</label><input type="text" id="item-barcode" placeholder="امسح بالليزر..."></div>
+                                            <div class="input-group"><label>الماركة / المنشأ</label><input type="text" id="item-brand" placeholder="مثال: تركي، جياد"></div>
+                                            <div class="input-group"><label>الفئة الرئيسية</label><div style="display:flex; gap:5px;"><select id="item-category" style="flex:1;"></select><button class="btn-text" style="color:#a855f7; background:rgba(168,85,247,0.1); border-radius:8px; padding:0 10px;" onclick="quickAddCategory()" title="إضافة فئة">➕</button></div></div>
+                                            <div class="input-group"><label>الفئة الفرعية (للجرد)</label><input type="text" id="item-sub-category" placeholder="مثال: كمر 12 متر"></div>
+                                            <div class="input-group"><label>طبيعة الصنف</label><select id="item-nature"><option value="مخزني">📦 مخزني (يتم جرده)</option><option value="خدمي">🔧 خدمي (لا يجرد)</option><option value="تجميعي">🏗️ تجميعي</option></select></div>
+                                            <div class="input-group"><label>حالة التفعيل</label><div style="display:flex; align-items:center; gap:10px; padding:10px; background: rgba(0,0,0,0.2); border-radius: 8px;"><label class="toggle-sw"><input type="checkbox" id="item-active-toggle" checked onchange="updateToggleLabel()"><span class="toggle-sl"></span></label><span id="item-active-label" style="color:var(--success-color); font-weight:bold; font-size:0.9rem;">🟢 نشط</span></div></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Right Column Stack -->
+                                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                                        
+                                        <!-- SEC 2: Pricing & Tax -->
+                                        <div class="neon-glass-panel" style="padding: 20px; border-top: 3px solid #34d399; background: linear-gradient(to bottom, rgba(52,211,153,0.05), transparent);">
+                                            <div style="display:flex; align-items:center; gap:10px; margin-bottom: 15px;">
+                                                <span style="font-size:1.5rem;">💰</span><h4 style="margin:0; color:#34d399; font-weight: 800;">التسعير والضرائب</h4>
                                             </div>
-                                            <div class="table-responsive" style="overflow-x: auto;">
-                                                <table class="pro-table" style="width: 100%; min-width: 1000px;">
-                                                    <thead><tr style="background: rgba(0,0,0,0.2);">
-                                                        <th style="padding: 15px; width: 40px; text-align: center;">م</th>
-                                                        <th style="padding: 15px;">اسم الوحدة</th>
-                                                        <th style="padding: 15px; text-align: center;">المعادل (Factor)</th>
-                                                        <th style="padding: 15px;">باركود الوحدة</th>
-                                                        <th style="padding: 15px; color: #34d399;">سعر نقدي</th>
-                                                        <th style="padding: 15px; color: #60a5fa;">سعر آجل</th>
-                                                        <th style="padding: 15px; color: #f87171;">أقل سعر</th>
-                                                        <th style="padding: 15px;">وزن (Kg)</th>
-                                                        <th style="padding: 15px; text-align: center;">إجراء</th>
-                                                    </tr></thead>
-                                                    <tbody id="units-matrix-body">
-                                                        <tr style="background:rgba(52,211,153,0.05); border-right:4px solid var(--success-color); transition: background 0.3s;" onmouseover="this.style.background='rgba(52,211,153,0.1)'" onmouseout="this.style.background='rgba(52,211,153,0.05)'">
-                                                            <td style="text-align: center; font-weight: bold; color: var(--text-secondary);">1</td>
-                                                            <td><input type="text" id="base-unit-name-display" value="" disabled style="width:100%; background:transparent; border:none; color:var(--success-color); font-weight:bold; font-size: 1.1rem; outline: none;"></td>
-                                                            <td><input type="number" value="1" disabled style="width:100%; background:transparent; border:none; color:var(--success-color); font-weight:bold; text-align:center; font-size:1.2rem; outline: none;"></td>
-                                                            <td><input type="text" placeholder="باركود الوحدة..." style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:10px; border-radius:8px; transition: border-color 0.3s; outline: none;" onfocus="this.style.borderColor='#38bdf8'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></td>
-                                                            <td><input type="number" placeholder="0.00" style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.1); color:#34d399; padding:10px; border-radius:8px; font-weight:bold; transition: border-color 0.3s; outline: none;" onfocus="this.style.borderColor='#34d399'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></td>
-                                                            <td><input type="number" placeholder="0.00" style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.1); color:#60a5fa; padding:10px; border-radius:8px; font-weight:bold; transition: border-color 0.3s; outline: none;" onfocus="this.style.borderColor='#60a5fa'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></td>
-                                                            <td><input type="number" placeholder="0.00" style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.1); color:#f87171; padding:10px; border-radius:8px; font-weight:bold; transition: border-color 0.3s; outline: none;" onfocus="this.style.borderColor='#f87171'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></td>
-                                                            <td><input type="number" placeholder="0.00" style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:10px; border-radius:8px; transition: border-color 0.3s; outline: none;" onfocus="this.style.borderColor='#38bdf8'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></td>
-                                                            <td style="text-align: center;"><span style="font-size:0.8rem; color:var(--success-color); font-weight:bold; background:rgba(52,211,153,0.2); border: 1px solid rgba(52,211,153,0.4); padding:6px 12px; border-radius:6px; display: inline-block; box-shadow: 0 2px 5px rgba(52,211,153,0.2);">وحدة أساسية</span></td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
+                                            <div class="form-grid" style="grid-template-columns: repeat(2, 1fr);">
+                                                <div class="input-group"><label>سعر البيع الافتراضي (SDG)</label><input type="number" id="item-selling-price" placeholder="0.00" style="font-weight:bold; color:var(--success-color); border-color: rgba(52,211,153,0.4); font-size: 1.1rem; background: rgba(52,211,153,0.05);"></div>
+                                                <div class="input-group"><label>الحد الأقصى للخصم %</label><input type="number" id="item-max-discount" placeholder="0" max="100"></div>
+                                                <div class="input-group"><label>خاضع للضريبة</label><div style="padding:10px; background:rgba(0,0,0,0.2); border-radius:8px;"><label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0;"><input type="checkbox" id="item-taxable" onchange="document.getElementById('item-tax-rate').disabled=!this.checked" style="width:18px; height:18px; accent-color:#34d399;"> نعم، خاضع</label></div></div>
+                                                <div class="input-group"><label>نسبة الضريبة %</label><input type="number" id="item-tax-rate" placeholder="0" disabled></div>
                                             </div>
+                                        </div>
+
+                                        <!-- SEC 3 & 4: Costing & Warehousing in one row inside column -->
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                            <div class="neon-glass-panel" style="padding: 20px; border-top: 3px solid #f59e0b; background: linear-gradient(to bottom, rgba(245,158,11,0.05), transparent);">
+                                                <div style="display:flex; align-items:center; gap:10px; margin-bottom: 15px;">
+                                                    <span style="font-size:1.2rem;">📊</span><h5 style="margin:0; color:#f59e0b; font-weight: 800;">التكلفة والأرصدة</h5>
+                                                </div>
+                                                <div class="input-group" style="margin-bottom: 10px; grid-column: 1 / -1;"><label style="color:#f59e0b;">طريقة التكلفة</label>
+                                                    <div style="display:flex; gap:10px; flex-wrap:wrap; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
+                                                        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size: 0.85rem;"><input type="radio" name="cost_method" value="lastPurchase" checked style="accent-color:#f59e0b;"> آخر شراء</label>
+                                                        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size: 0.85rem;"><input type="radio" name="cost_method" value="highest" style="accent-color:#f59e0b;"> الأعلى</label>
+                                                        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size: 0.85rem;"><input type="radio" name="cost_method" value="opening" style="accent-color:#f59e0b;"> الافتتاحي</label>
+                                                    </div>
+                                                </div>
+                                                <div class="input-group" style="margin-bottom: 10px;"><label>الكمية الافتتاحية</label><input type="number" id="item-opening-qty" placeholder="0"></div>
+                                                <div class="input-group"><label>تكلفة الافتتاحي</label><input type="number" id="item-opening-value" placeholder="0.00"></div>
+                                            </div>
+
+                                            <div class="neon-glass-panel" style="padding: 20px; border-top: 3px solid #ef4444; background: linear-gradient(to bottom, rgba(239,68,68,0.05), transparent);">
+                                                <div style="display:flex; align-items:center; gap:10px; margin-bottom: 15px;">
+                                                    <span style="font-size:1.2rem;">🏭</span><h5 style="margin:0; color:#ef4444; font-weight: 800;">حدود المخزون</h5>
+                                                </div>
+                                                <div class="input-group" style="margin-bottom: 10px;"><label>مكان الصنف / الرف</label><input type="text" id="item-bin-location" placeholder="ممر 3، رف ب"></div>
+                                                <div style="display:flex; gap:10px; margin-bottom: 10px;">
+                                                    <div class="input-group" style="flex:1;"><label style="color:#ef4444; font-size: 0.75rem;">الحد الأعلى</label><input type="number" id="item-max-limit" placeholder="500"></div>
+                                                    <div class="input-group" style="flex:1;"><label style="color:#ef4444; font-size: 0.75rem;">الحد الأدنى</label><input type="number" id="item-min-limit" placeholder="20"></div>
+                                                </div>
+                                                <div class="input-group"><label style="color:#f59e0b;">حد إعادة الطلب</label><input type="number" id="item-reorder-level" placeholder="50"></div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <!-- SEC 5: Unit Matrix (Full Width) -->
+                                <div class="neon-glass-panel" style="margin-top: 20px; padding: 25px; border-top: 3px solid #a855f7; background: linear-gradient(to bottom, rgba(168,85,247,0.05), transparent); box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                                        <div style="display:flex; align-items:center; gap:10px;">
+                                            <span style="font-size:1.8rem; filter: drop-shadow(0 0 8px rgba(168,85,247,0.5));">📐</span><h4 style="margin:0; color:#a855f7; font-weight: 800; font-size: 1.3rem;">مصفوفة الوحدات والتحويل</h4>
+                                        </div>
+                                        <div style="display:flex; align-items:center; gap:15px; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(168,85,247,0.3); box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);">
+                                            <label style="color:#a855f7; font-weight:bold; margin:0; font-size: 1rem;">الوحدة الأساسية <span style="color:#ef4444;">*</span></label>
+                                            <input type="text" id="item-base-unit" placeholder="مثال: سيخة، قطعة" oninput="updateBaseUnitRow()" style="border:none; border-bottom: 2px solid #a855f7; background:transparent; color:#fff; font-weight:bold; font-size: 1.1rem; padding: 5px; outline:none; width: 150px; text-align: center; transition: all 0.3s;" onfocus="this.style.borderBottomColor='#d8b4fe'">
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="background:rgba(15,23,42,0.8); border-radius:14px; border:1px solid rgba(168,85,247,0.2); overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.2);">
+                                        <div style="display:flex; justify-content:space-between; align-items:center; padding:15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(168,85,247,0.05);">
+                                            <span style="color:#cbd5e1; font-weight: 600;">جدول تحويل الوحدات وتسعيرها (المعادل بالوحدة الأساسية)</span>
+                                            <button class="btn-text" style="color:#fff; font-weight:bold; background:linear-gradient(135deg, #a855f7, #9333ea); padding:8px 15px; border-radius:8px; box-shadow: 0 4px 10px rgba(168,85,247,0.3); border: none; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'" onclick="addUnitRow()"><span style="font-size: 1.2rem;">+</span> إضافة وحدة جديدة</button>
+                                        </div>
+                                        <div class="table-responsive" style="overflow-x: auto;">
+                                            <table class="pro-table" style="width: 100%; min-width: 1000px;">
+                                                <thead><tr style="background: rgba(0,0,0,0.2);">
+                                                    <th style="padding: 15px; width: 40px; text-align: center;">م</th>
+                                                    <th style="padding: 15px;">اسم الوحدة</th>
+                                                    <th style="padding: 15px; text-align: center;">المعادل (Factor)</th>
+                                                    <th style="padding: 15px;">باركود</th>
+                                                    <th style="padding: 15px; color: #34d399;">سعر نقدي</th>
+                                                    <th style="padding: 15px; color: #60a5fa;">سعر آجل</th>
+                                                    <th style="padding: 15px; color: #f87171;">أقل سعر</th>
+                                                    <th style="padding: 15px;">وزن (Kg)</th>
+                                                    <th style="padding: 15px; text-align: center;">إجراء</th>
+                                                </tr></thead>
+                                                <tbody id="units-matrix-body">
+                                                    <tr style="background:rgba(52,211,153,0.05); border-right:4px solid var(--success-color); transition: background 0.3s;" onmouseover="this.style.background='rgba(52,211,153,0.1)'" onmouseout="this.style.background='rgba(52,211,153,0.05)'">
+                                                        <td style="text-align: center; font-weight: bold; color: var(--text-secondary);">1</td>
+                                                        <td><input type="text" id="base-unit-name-display" value="" disabled style="width:100%; background:transparent; border:none; color:var(--success-color); font-weight:bold; font-size: 1.1rem; outline: none;"></td>
+                                                        <td><input type="number" value="1" disabled style="width:100%; background:transparent; border:none; color:var(--success-color); font-weight:bold; text-align:center; font-size:1.2rem; outline: none;"></td>
+                                                        <td><input type="text" placeholder="باركود الوحدة..." style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:10px; border-radius:8px; transition: border-color 0.3s; outline: none;" onfocus="this.style.borderColor='#38bdf8'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></td>
+                                                        <td><input type="number" placeholder="0.00" style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.1); color:#34d399; padding:10px; border-radius:8px; font-weight:bold; transition: border-color 0.3s; outline: none;" onfocus="this.style.borderColor='#34d399'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></td>
+                                                        <td><input type="number" placeholder="0.00" style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.1); color:#60a5fa; padding:10px; border-radius:8px; font-weight:bold; transition: border-color 0.3s; outline: none;" onfocus="this.style.borderColor='#60a5fa'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></td>
+                                                        <td><input type="number" placeholder="0.00" style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.1); color:#f87171; padding:10px; border-radius:8px; font-weight:bold; transition: border-color 0.3s; outline: none;" onfocus="this.style.borderColor='#f87171'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></td>
+                                                        <td><input type="number" placeholder="0.00" style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:10px; border-radius:8px; transition: border-color 0.3s; outline: none;" onfocus="this.style.borderColor='#38bdf8'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></td>
+                                                        <td style="text-align: center;"><span style="font-size:0.8rem; color:var(--success-color); font-weight:bold; background:rgba(52,211,153,0.2); border: 1px solid rgba(52,211,153,0.4); padding:6px 12px; border-radius:6px; display: inline-block; box-shadow: 0 2px 5px rgba(52,211,153,0.2);">وحدة أساسية</span></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- TAB 6: Description -->
-                                <div id="tab-desc" class="item-tab-content" style="display: none; animation: fadeIn 0.4s ease;">
-                                    <div class="neon-glass-panel" style="padding: 25px; border-top: 3px solid #94a3b8; background: linear-gradient(to bottom, rgba(148,163,184,0.05), transparent);">
-                                        <textarea id="item-description" placeholder="أضف وصفاً طويلاً أو ملاحظات داخلية عن الصنف..." style="width:100%; min-height:200px; padding:15px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff; font-family:inherit; resize:vertical; box-sizing:border-box; transition: border-color 0.3s; font-size: 1rem; outline: none;" onfocus="this.style.borderColor='#94a3b8'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
+                                <!-- SEC 6: Description -->
+                                <div class="neon-glass-panel" style="margin-top: 20px; padding: 20px; border-top: 3px solid #94a3b8; background: linear-gradient(to bottom, rgba(148,163,184,0.05), transparent);">
+                                    <div style="display:flex; align-items:center; gap:10px; margin-bottom: 15px;">
+                                        <span style="font-size:1.2rem;">📝</span><h5 style="margin:0; color:#94a3b8; font-weight: 800;">الوصف والملاحظات</h5>
                                     </div>
+                                    <textarea id="item-description" placeholder="أضف وصفاً أو ملاحظات داخلية عن الصنف..." style="width:100%; min-height:100px; padding:15px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff; font-family:inherit; resize:vertical; box-sizing:border-box; transition: border-color 0.3s; font-size: 0.95rem; outline: none;" onfocus="this.style.borderColor='#94a3b8'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
                                 </div>
-
                             </div>
                         </div>
                         
@@ -803,7 +786,7 @@
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_3"></script>
+    <script src="js/app.js?v=20260626_4"></script>
     <script>
         document.addEventListener('DBReady', () => {
             if (!localStorage.getItem('authToken')) window.location.href = 'login.html';
@@ -1543,19 +1526,9 @@
 
         function saveItem() {
             const name = document.getElementById('item-name-input').value;
-            if(!name) { 
-                switchItemTab('tab-general');
-                document.getElementById('item-name-input').focus();
-                alert('الرجاء إدخال اسم الصنف'); 
-                return; 
-            }
+            if(!name) { alert('الرجاء إدخال اسم الصنف'); return; }
             const baseUnit = document.getElementById('item-base-unit').value;
-            if(!baseUnit) { 
-                switchItemTab('tab-units');
-                document.getElementById('item-base-unit').focus();
-                alert('الرجاء إدخال الوحدة الأساسية'); 
-                return; 
-            }
+            if(!baseUnit) { alert('الرجاء إدخال الوحدة الأساسية'); return; }
             const id = document.getElementById('item-code').value || 'ITEM-' + Date.now();
             const units = [];
             document.querySelectorAll('#units-matrix-body tr').forEach((row) => {
@@ -1745,7 +1718,6 @@ function openSafeForm() {
             try {
                 cats = JSON.parse(localStorage.getItem('erp_categories_v1')) || ['مواد بناء','أدوات صحية','كهرباء'];
                 if (!Array.isArray(cats)) cats = ['مواد بناء','أدوات صحية','كهرباء'];
-                if (cats.length === 0) cats = ['مواد بناء','أدوات صحية','كهرباء'];
             } catch(e) {
                 cats = ['مواد بناء','أدوات صحية','كهرباء'];
             }
@@ -1753,43 +1725,6 @@ function openSafeForm() {
             updateCategoryDropdowns();
             document.getElementById('item-category').value = name;
             renderCategoriesList();
-        }
-
-        function switchItemTab(tabId, btnElement) {
-            document.querySelectorAll('.item-tab-content').forEach(c => {
-                c.style.display = 'none';
-                c.classList.remove('active-tab');
-            });
-            document.querySelectorAll('.item-tab-btn').forEach(b => {
-                b.classList.remove('active');
-                b.style.color = '#cbd5e1';
-                b.style.borderBottomColor = 'transparent';
-            });
-            const tab = document.getElementById(tabId);
-            if(tab) {
-                tab.style.display = 'block';
-                tab.classList.add('active-tab');
-            }
-            if(btnElement) {
-                btnElement.classList.add('active');
-                btnElement.style.color = '#38bdf8';
-                btnElement.style.borderBottomColor = '#38bdf8';
-            }
-        }
-
-        function previewItemImage(event) {
-            const file = event.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.getElementById('item-image-preview');
-                    img.src = e.target.result;
-                    img.style.display = 'block';
-                    document.getElementById('item-image-box').querySelector('span').style.display = 'none';
-                    document.getElementById('item-image-box').querySelectorAll('span')[1].style.display = 'none';
-                }
-                reader.readAsDataURL(file);
-            }
         }
 
         function saveItem() {
@@ -1809,36 +1744,7 @@ function openSafeForm() {
             const newBarcodes = [itemBarcode, ...units.map(u => u.barcode)].filter(b => b && b.trim() !== '');
 
             const costRadio = document.querySelector('input[name="cost_method"]:checked');
-            
-            // Collect new fields
-            const salesAccount = document.getElementById('item-sales-account').value;
-            const preferredSupplier = document.getElementById('item-preferred-supplier').value;
-            const supplierCode = document.getElementById('item-supplier-code').value;
-            const cogsAccount = document.getElementById('item-cogs-account').value;
-            const inventoryAccount = document.getElementById('item-inventory-account').value;
-            const imagePreview = document.getElementById('item-image-preview');
-            const imageBase64 = imagePreview.style.display !== 'none' ? imagePreview.src : null;
-
-            const itemData = { 
-                id, name, nameLatin: document.getElementById('item-name-latin').value, barcode: itemBarcode, 
-                category: document.getElementById('item-category').value, subCategory: document.getElementById('item-sub-category').value, 
-                nature: document.getElementById('item-nature').value, brand: document.getElementById('item-brand').value, 
-                status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive', 
-                sellingPrice: parseFloat(document.getElementById('item-selling-price').value) || 0, 
-                maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0, 
-                taxable: document.getElementById('item-taxable').checked, 
-                taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0, 
-                costMethod: costRadio ? costRadio.value : 'movingAverage', 
-                openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0, 
-                openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0, 
-                binLocation: document.getElementById('item-bin-location').value, 
-                maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0, 
-                minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0, 
-                reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0, 
-                baseUnit, units, description: document.getElementById('item-description').value,
-                salesAccount, preferredSupplier, supplierCode, cogsAccount, inventoryAccount, imageBase64
-            };
-            
+            const itemData = { id, name, nameLatin: document.getElementById('item-name-latin').value, barcode: itemBarcode, category: document.getElementById('item-category').value, subCategory: document.getElementById('item-sub-category').value, nature: document.getElementById('item-nature').value, brand: document.getElementById('item-brand').value, status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive', sellingPrice: parseFloat(document.getElementById('item-selling-price').value) || 0, maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0, taxable: document.getElementById('item-taxable').checked, taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0, costMethod: costRadio ? costRadio.value : 'lastPurchase', openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0, openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0, binLocation: document.getElementById('item-bin-location').value, maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0, minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0, reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0, baseUnit, units, description: document.getElementById('item-description').value };
             let items = [];
             try {
                 items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
@@ -1925,9 +1831,9 @@ function openSafeForm() {
             }
             if (pagContainer) {
                 pagContainer.innerHTML = `
-                    <button class="btn-action" style="padding:5px 15px; background: ${currentPageItems > 1 ? 'var(--primary-accent)' : 'rgba(255,255,255,0.1)'}; color: ${currentPageItems > 1 ? '#fff' : '#888'}; border:none; cursor: ${currentPageItems > 1 ? 'pointer' : 'not-allowed'};" onclick="if(currentPageItems>1){currentPageItems--; renderItems();}" ${currentPageItems > 1 ? '' : 'disabled'}>السابق</button>
+                    <button class="btn-action" style="padding:5px 15px;" onclick="if(currentPageItems>1){currentPageItems--; renderItems();}">السابق</button>
                     <span style="color:var(--text-secondary); font-weight:bold;">صفحة ${currentPageItems} من ${totalPages}</span>
-                    <button class="btn-action" style="padding:5px 15px; background: ${currentPageItems < totalPages ? 'var(--primary-accent)' : 'rgba(255,255,255,0.1)'}; color: ${currentPageItems < totalPages ? '#fff' : '#888'}; border:none; cursor: ${currentPageItems < totalPages ? 'pointer' : 'not-allowed'};" onclick="if(currentPageItems<${totalPages}){currentPageItems++; renderItems();}" ${currentPageItems < totalPages ? '' : 'disabled'}>التالي</button>
+                    <button class="btn-action" style="padding:5px 15px;" onclick="if(currentPageItems<${totalPages}){currentPageItems++; renderItems();}">التالي</button>
                 `;
             }
         }
@@ -1955,7 +1861,6 @@ function openSafeForm() {
         }
 
         function editItem(id) {
-            populateAccountsAndSuppliers();
             let items = [];
             try {
                 items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
@@ -1983,7 +1888,7 @@ function openSafeForm() {
             document.getElementById('item-taxable').checked = item.taxable || false;
             document.getElementById('item-tax-rate').value = item.taxRate || '';
             document.getElementById('item-tax-rate').disabled = !item.taxable;
-            const cm = document.querySelector('input[name="cost_method"][value="' + (item.costMethod || 'movingAverage') + '"]');
+            const cm = document.querySelector('input[name="cost_method"][value="' + (item.costMethod || 'lastPurchase') + '"]');
             if(cm) cm.checked = true;
             document.getElementById('item-opening-qty').value = item.openingQty || '';
             document.getElementById('item-opening-value').value = item.openingValue || '';
@@ -1993,39 +1898,11 @@ function openSafeForm() {
             document.getElementById('item-reorder-level').value = item.reorderLevel || '';
             document.getElementById('item-base-unit').value = item.baseUnit || '';
             document.getElementById('item-description').value = item.description || '';
-            
-            // New fields
-            document.getElementById('item-sales-account').value = item.salesAccount || '';
-            document.getElementById('item-preferred-supplier').value = item.preferredSupplier || '';
-            document.getElementById('item-supplier-code').value = item.supplierCode || '';
-            document.getElementById('item-cogs-account').value = item.cogsAccount || '';
-            document.getElementById('item-inventory-account').value = item.inventoryAccount || '';
-
-            const imgPreview = document.getElementById('item-image-preview');
-            const imgBoxSpans = document.getElementById('item-image-box').querySelectorAll('span');
-            if (item.imageBase64) {
-                imgPreview.src = item.imageBase64;
-                imgPreview.style.display = 'block';
-                if(imgBoxSpans.length > 0) imgBoxSpans[0].style.display = 'none';
-                if(imgBoxSpans.length > 1) imgBoxSpans[1].style.display = 'none';
-            } else {
-                imgPreview.src = '';
-                imgPreview.style.display = 'none';
-                if(imgBoxSpans.length > 0) imgBoxSpans[0].style.display = 'block';
-                if(imgBoxSpans.length > 1) imgBoxSpans[1].style.display = 'block';
-            }
-            document.getElementById('item-image-upload').value = '';
-
             updateBaseUnitRow();
             const tbody = document.getElementById('units-matrix-body');
             tbody.innerHTML = '';
             if(item.units && item.units.length > 0) { item.units.forEach((u, idx) => { tbody.insertAdjacentHTML('beforeend', buildUnitRow(idx + 1, u, idx === 0)); }); }
             document.getElementById('item-form').style.display = 'block';
-            
-            // Reset tabs to general
-            const firstTabBtn = document.querySelector('.item-tab-btn');
-            if(firstTabBtn) switchItemTab('tab-general', firstTabBtn);
-            
             document.getElementById('item-form').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -2046,7 +1923,6 @@ function openSafeForm() {
         }
 
         function openItemForm() {
-            populateAccountsAndSuppliers();
             const tabItems = document.getElementById('tab-items');
             if(tabItems) {
                 tabItems.querySelectorAll('.inner-tab-content').forEach(c => c.classList.remove('active'));
@@ -2071,7 +1947,7 @@ function openSafeForm() {
             document.getElementById('item-taxable').checked = false;
             document.getElementById('item-tax-rate').value = '';
             document.getElementById('item-tax-rate').disabled = true;
-            document.querySelector('input[name="cost_method"][value="movingAverage"]').checked = true;
+            document.querySelector('input[name="cost_method"][value="lastPurchase"]').checked = true;
             document.getElementById('item-opening-qty').value = '';
             document.getElementById('item-opening-value').value = '';
             document.getElementById('item-bin-location').value = '';
@@ -2080,29 +1956,9 @@ function openSafeForm() {
             document.getElementById('item-reorder-level').value = '';
             document.getElementById('item-base-unit').value = '';
             document.getElementById('item-description').value = '';
-            
-            document.getElementById('item-sales-account').value = '';
-            document.getElementById('item-preferred-supplier').value = '';
-            document.getElementById('item-supplier-code').value = '';
-            document.getElementById('item-cogs-account').value = '';
-            document.getElementById('item-inventory-account').value = '';
-            
-            const imgPreview = document.getElementById('item-image-preview');
-            const imgBoxSpans = document.getElementById('item-image-box').querySelectorAll('span');
-            imgPreview.src = '';
-            imgPreview.style.display = 'none';
-            if(imgBoxSpans.length > 0) imgBoxSpans[0].style.display = 'block';
-            if(imgBoxSpans.length > 1) imgBoxSpans[1].style.display = 'block';
-            document.getElementById('item-image-upload').value = '';
-
             updateCategoryDropdowns();
             document.getElementById('units-matrix-body').innerHTML = buildUnitRow(1, { unitName: '', factor: 1 }, true);
             document.getElementById('item-form').style.display = 'block';
-
-            // Reset tabs to general
-            const firstTabBtn = document.querySelector('.item-tab-btn');
-            if(firstTabBtn) switchItemTab('tab-general', firstTabBtn);
-
             document.getElementById('item-form').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -2137,7 +1993,6 @@ function openSafeForm() {
             try {
                 cats = JSON.parse(localStorage.getItem('erp_categories_v1')) || ['مواد بناء','أدوات صحية','كهرباء'];
                 if (!Array.isArray(cats)) cats = ['مواد بناء','أدوات صحية','كهرباء'];
-                if (cats.length === 0) cats = ['مواد بناء','أدوات صحية','كهرباء'];
             } catch(e) {
                 cats = ['مواد بناء','أدوات صحية','كهرباء'];
             }
@@ -2163,14 +2018,7 @@ function openSafeForm() {
         function editCategory(oldName) {
             const newName = prompt('تعديل اسم الفئة:', oldName);
             if(!newName || newName === oldName) return;
-            let cats = [];
-            try {
-                cats = JSON.parse(localStorage.getItem('erp_categories_v1')) || ['مواد بناء','أدوات صحية','كهرباء'];
-                if (!Array.isArray(cats)) cats = ['مواد بناء','أدوات صحية','كهرباء'];
-                if (cats.length === 0) cats = ['مواد بناء','أدوات صحية','كهرباء'];
-            } catch(e) {
-                cats = ['مواد بناء','أدوات صحية','كهرباء'];
-            }
+            let cats = JSON.parse(localStorage.getItem('erp_categories_v1')) || [];
             const idx = cats.indexOf(oldName);
             if(idx > -1) { cats[idx] = newName; localStorage.setItem('erp_categories_v1', JSON.stringify(cats)); }
             // Update all items that use this category
@@ -2195,7 +2043,6 @@ function openSafeForm() {
             try {
                 cats = JSON.parse(localStorage.getItem('erp_categories_v1')) || ['مواد بناء','أدوات صحية','كهرباء'];
                 if (!Array.isArray(cats)) cats = ['مواد بناء','أدوات صحية','كهرباء'];
-                if (cats.length === 0) cats = ['مواد بناء','أدوات صحية','كهرباء'];
             } catch(e) {
                 cats = ['مواد بناء','أدوات صحية','كهرباء'];
             }
@@ -2213,7 +2060,6 @@ function openSafeForm() {
             try {
                 cats = JSON.parse(localStorage.getItem('erp_categories_v1')) || ['مواد بناء','أدوات صحية','كهرباء'];
                 if (!Array.isArray(cats)) cats = ['مواد بناء','أدوات صحية','كهرباء'];
-                if (cats.length === 0) cats = ['مواد بناء','أدوات صحية','كهرباء'];
             } catch(e) {
                 cats = ['مواد بناء','أدوات صحية','كهرباء'];
             }
@@ -2221,62 +2067,6 @@ function openSafeForm() {
             select.innerHTML = '';
             cats.forEach(c => { select.insertAdjacentHTML('beforeend', '<option value="' + c + '">' + c + '</option>'); });
             if(cats.includes(val)) select.value = val;
-        }
-
-        function populateAccountsAndSuppliers() {
-            let accounts = [];
-            try {
-                accounts = JSON.parse(localStorage.getItem('erp_accounts_v1')) || [];
-            } catch(e) {}
-            
-            // Standard fallback accounts if none exist for professional setup
-            if (accounts.length === 0) {
-                accounts = [
-                    { id: 'AC-REV-01', name: 'إيرادات المبيعات', type: 'revenue' },
-                    { id: 'AC-COGS-01', name: 'تكلفة البضاعة المباعة', type: 'expense' },
-                    { id: 'AC-INV-01', name: 'أصول مخزون', type: 'asset' }
-                ];
-            }
-
-            const salesSelect = document.getElementById('item-sales-account');
-            const cogsSelect = document.getElementById('item-cogs-account');
-            const invSelect = document.getElementById('item-inventory-account');
-            
-            if (salesSelect && cogsSelect && invSelect) {
-                const salesVal = salesSelect.value;
-                const cogsVal = cogsSelect.value;
-                const invVal = invSelect.value;
-
-                salesSelect.innerHTML = '<option value="">-- الافتراضي حسب الفئة (إيرادات المبيعات) --</option>';
-                cogsSelect.innerHTML = '<option value="">-- الافتراضي حسب الفئة (تكلفة بضاعة مباعة) --</option>';
-                invSelect.innerHTML = '<option value="">-- الافتراضي حسب الفئة (مخزون) --</option>';
-
-                accounts.forEach(acc => {
-                    const opt1 = `<option value="${acc.id}">${acc.name} (${acc.id})</option>`;
-                    salesSelect.insertAdjacentHTML('beforeend', opt1);
-                    cogsSelect.insertAdjacentHTML('beforeend', opt1);
-                    invSelect.insertAdjacentHTML('beforeend', opt1);
-                });
-
-                if (salesVal) salesSelect.value = salesVal;
-                if (cogsVal) cogsSelect.value = cogsVal;
-                if (invVal) invSelect.value = invVal;
-            }
-
-            let suppliers = [];
-            try {
-                suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
-            } catch(e) {}
-
-            const supplierSelect = document.getElementById('item-preferred-supplier');
-            if (supplierSelect) {
-                const suppVal = supplierSelect.value;
-                supplierSelect.innerHTML = '<option value="">-- بدون مورد محدد --</option>';
-                suppliers.forEach(sup => {
-                    supplierSelect.insertAdjacentHTML('beforeend', `<option value="${sup.id}">${sup.name}</option>`);
-                });
-                if (suppVal) supplierSelect.value = suppVal;
-            }
         }
 
 
