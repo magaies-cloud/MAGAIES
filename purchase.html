@@ -1234,7 +1234,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
     <script src="js/app.js?v=20260626_4"></script>
     <script src="js/print-engine.js"></script>
-    <script src="js/purchase-pro.js?v=22"></script>
+    <script src="js/purchase-pro.js?v=23"></script>
 </div>
 
     <script>
@@ -1301,7 +1301,7 @@
             emptyState.style.display = 'none';
             tbody.innerHTML = '';
             
-            invoices.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+            invoices.sort((a,b) => new Date(b.timestamp || b.date) - new Date(a.timestamp || a.date));
             
             invoices.forEach(inv => {
                 const tr = document.createElement('tr');
@@ -1310,10 +1310,10 @@
                 
                 tr.innerHTML = `
                     <td style="text-align:right; font-weight:800; color:var(--gold-primary);">${inv.invoiceNo}</td>
-                    <td style="text-align:right; color:var(--text-dim);">${new Date(inv.timestamp).toLocaleString('ar-EG')}</td>
-                    <td style="text-align:right; font-weight:600;">${inv.supplierName || 'مورد غير محدد'}</td>
+                    <td style="text-align:right; color:var(--text-dim);">${new Date(inv.timestamp || inv.date).toLocaleString('ar-EG')}</td>
+                    <td style="text-align:right; font-weight:600;">${inv.supplierName || inv.customer || 'مورد غير محدد'}</td>
                     <td style="text-align:right; color:var(--text-dim);">${inv.saleType === 'delivery' ? '🚚 استيراد' : inv.saleType === 'split' ? '🏭 مصنع' : '🛒 مباشر'}</td>
-                    <td style="text-align:center; font-weight:900; direction:ltr;">${fmtNum(inv.totals.grandTotal)} SDG</td>
+                    <td style="text-align:center; font-weight:900; direction:ltr;">${fmtNum(inv.totals?.grandTotal || inv.grandTotal || 0)} SDG</td>
                     <td style="text-align:center;"><span class="hub-badge ${statusClass}">${statusText}</span></td>
                     <td style="text-align:center;">
                         <button onclick="editHubTransaction('${inv.invoiceNo}')" style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; border-radius:6px; padding:4px 8px; cursor:pointer; margin-left:4px;">تعديل / عرض</button>
