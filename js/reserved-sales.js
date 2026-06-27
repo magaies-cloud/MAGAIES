@@ -212,7 +212,7 @@ function togglePaymentAccount() {
     }
     
     if (dueDateGroup) dueDateGroup.style.display = 'none';
-    group.style.display = 'block';
+    group.style.display = 'flex';
     select.innerHTML = '';
     
     let banks = [];

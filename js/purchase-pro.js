@@ -391,7 +391,7 @@ function togglePaymentAccount() {
         return;
     }
     
-    group.style.display = 'block';
+    group.style.display = 'flex';
     select.innerHTML = '';
     
     let banks = [];
@@ -468,8 +468,14 @@ function onCustomerChange() {
     const cur = document.getElementById('hdr-currency').value;
 
     if (!cust || id === '') {
+        const invBox = document.getElementById('invoice-info-box');
         const finCard = document.getElementById('customer-financial-card');
-        if(finCard) finCard.style.display = 'none';
+        if (invBox) invBox.style.flex = "1";
+        if(finCard) {
+            finCard.style.flex = "0";
+            finCard.style.opacity = "0";
+            setTimeout(() => { if(finCard.style.opacity === "0") finCard.style.display = 'none'; }, 400);
+        }
         
         ['fin-ledger','fin-checks','fin-total-debt','fin-credit-limit','fin-remaining'].forEach(el => {
             const dom = document.getElementById(el);
@@ -480,8 +486,17 @@ function onCustomerChange() {
         return;
     }
     
+    const invBox = document.getElementById('invoice-info-box');
     const finCard = document.getElementById('customer-financial-card');
-    if(finCard) finCard.style.display = 'flex';
+    if (invBox && finCard) {
+        finCard.style.display = 'flex';
+        setTimeout(() => {
+            invBox.style.flex = "0.7";
+            finCard.style.flex = "1";
+            finCard.style.opacity = "1";
+            finCard.style.paddingLeft = "10px";
+        }, 10);
+    }
 
     const totalDebt = cust.ledger + cust.checks;
     const remaining = cust.creditLimit - totalDebt;

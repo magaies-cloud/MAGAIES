@@ -386,7 +386,15 @@
             .split-left { overflow: visible; }
             .table-container { min-height: 400px; }
         }
-    </style>
+    
+        .fin-strip-inline.visible {
+            flex: 0 0 43% !important;
+            width: auto !important;
+            opacity: 1 !important;
+            min-width: 400px !important;
+            margin-left: 5px;
+        }
+\n</style>
 
     <style>
         .hub-action-card {
@@ -893,12 +901,45 @@
     <div id="purchase-editor-view" style="display: none; flex-direction: column; height: 100%; flex: 1; overflow-y: auto; padding-bottom: 30px;">
     
 
-    <!-- Financial Strip Wrapper -->
-    <div style="padding: 0 15px 5px 15px; display: flex; justify-content: flex-end; align-items: center; gap: 15px;">
+    <!-- Form Fields (Now first in DOM, rendering on the Right in RTL) -->
+        <div class="neo-card expanded-form" id="form-fields-card" style="margin-bottom: 0;">
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                
+                
+                <!-- ROW 0 WRAPPER (Dynamic Split) -->
+                <div style="display: flex; width: 100%; gap: 15px; margin-bottom: 12px; transition: all 0.4s ease;">
+                    
+                    <!-- LEFT: Invoice & Date -->
+                    <div id="invoice-info-box" style="flex: 1.3; display: flex; gap: 20px; width: 100%; background: linear-gradient(90deg, rgba(30,58,138,0.2), rgba(15,23,42,0.4)); padding: 6px 15px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); align-items: center; transition: all 0.4s ease;">
+                        
+                        <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:15px; margin:0;; flex-direction: row !important;">
+                            <div style="display:flex; align-items:center; justify-content:center; width: 32px; height: 32px; border-radius: 8px; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3);">
+                                <span style="font-size: 1.2rem;">🧾</span>
+                            </div>
+                            <label class="h-label" style="margin:0; color:#38bdf8; font-size: 0.9rem; font-weight:bold; white-space:nowrap; text-shadow: 0 0 5px rgba(56,189,248,0.3);">رقم الفاتورة:</label>
+                            <div style="display:flex; align-items:center; justify-content:space-between; flex:1; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                                <button class="pro-serial-btn" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❮</button>
+                                <span id="inv-number" class="pro-serial-number" style="font-size: 0.9rem; font-family: 'Outfit', sans-serif; font-weight: 900; color: #38bdf8; letter-spacing: 2px; text-shadow: 0 0 10px rgba(56,189,248,0.5);">INV-000001</span>
+                                <input type="hidden" id="hdr-inv-no">
+                                <button class="pro-serial-btn" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❯</button>
+                            </div>
+                        </div>
 
-        <!-- Right Side: Financial Status (Toggled by JS) -->
-        <div id="customer-financial-card" style="display: none; flex: 1; background: rgba(15, 23, 42, 0.65); border: 1px solid var(--glass-border); border-radius: 8px; padding: 6px 15px; align-items: center; justify-content: space-between; gap: 10px; animation: slideDown 0.3s ease;">
-            <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 2px; height: 40px; background: rgba(255,255,255,0.1); margin: 0 10px;"></div>
+
+                        <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:15px; margin:0;; flex-direction: row !important;">
+                            <div style="display:flex; align-items:center; justify-content:center; width: 32px; height: 32px; border-radius: 8px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);">
+                                <span style="font-size: 1.2rem;">📅</span>
+                            </div>
+                            <label class="h-label" id="hdr-date-label" style="margin:0; color:#ef4444; font-size: 0.9rem; font-weight:bold; white-space:nowrap; text-shadow: 0 0 5px rgba(239,68,68,0.3);">التاريخ:</label>
+                            <input type="date" class="v-input ctrl-input" id="hdr-date" style="flex:1; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; color:#ef4444; padding:4px 8px; font-family:'Outfit',sans-serif; font-weight:bold; font-size:0.95rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
+                        </div>
+                    </div>
+                    
+                    <!-- RIGHT: Financial Strip -->
+                    <div id="customer-financial-card" class="fin-strip-inline" style="flex: 0; width: 0; opacity: 0; overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); display: flex;">
+                        <div style="width: 100%; background: linear-gradient(90deg, rgba(15,23,42,0.4), rgba(30,58,138,0.2)); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 4px 10px; display: flex; align-items: center; justify-content: space-around; gap: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); min-width: 500px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="font-size: 1.2rem;">📊</span>
                 <div style="display:flex; flex-direction:column;">
                     <span style="font-weight: 800; color:#fff; font-size:0.8rem;">الحالة المالية للمورد</span>
@@ -936,196 +977,15 @@
                     <span id="fin-remaining" style="font-weight:900; color:#34d399; font-size:0.9rem;">0</span>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- ═══ HORIZONTAL LAYOUT ═══ -->
-    <style>
-        .purchase-top-row .neo-card { padding: 12px 15px !important; border-top: 2px solid rgba(56, 189, 248, 0.4); border-radius: 8px; }
-        .purchase-top-row .neo-card-title { display: none !important; }
-        
-        .h-form-group {
-            display: flex; align-items: center; justify-content: flex-start; gap: 12px;
-            border-radius: 8px; padding: 4px 12px; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            flex: 0 1 auto; min-width: 220px;
-            border: 1px solid rgba(255,255,255,0.05);
-            position: relative; overflow: visible;
-            box-shadow: inset 0 0 10px rgba(255,255,255,0.01);
-        }
-        /* Subtle glow line at the top of each block */
-        .h-form-group::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(56,189,248,0.2), transparent);
-            opacity: 0.5; transition: opacity 0.4s;
-        }
-        .h-form-group:nth-child(odd) { background: linear-gradient(135deg, rgba(15, 23, 42, 0.5), rgba(15, 23, 42, 0.3)); }
-        .h-form-group:nth-child(even) { background: linear-gradient(135deg, rgba(30, 41, 59, 0.55), rgba(30, 41, 59, 0.35)); border-color: rgba(255,255,255,0.08); }
-        
-        .h-form-group:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.5), inset 0 0 15px rgba(56, 189, 248, 0.05);
-            border-color: rgba(56, 189, 248, 0.2);
-            z-index: 5;
-        }
-        
-        /* The specific "Deep Dark / Luminous Active" state requested by the user */
-        .h-form-group:focus-within {
-            border-color: rgba(56, 189, 248, 0.8); 
-            background: rgba(2, 6, 23, 0.95); /* Deeply dark as requested */
-            transform: translateY(-4px) scale(1.03);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.7), 0 0 20px rgba(56, 189, 248, 0.3), inset 0 0 20px rgba(56, 189, 248, 0.15);
-            z-index: 10;
-        }
-        .h-form-group:focus-within::before { opacity: 1; background: linear-gradient(90deg, transparent, rgba(56,189,248,0.8), transparent); }
-        
-        .h-label {
-            font-size: 1.15rem; font-weight: 900; color: #ffffff; margin: 0 0 0 12px; white-space: nowrap;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.8); transition: color 0.3s; letter-spacing: 0.5px;
-        }
-        .h-form-group:focus-within .h-label { color: #38bdf8; text-shadow: 0 0 10px rgba(56,189,248,0.4); }
-        
-        .h-input-wrapper {
-            flex: 1; display: flex; align-items: center; min-width: 150px; position: relative;
-        }
-        .h-input-wrapper .v-input, .h-input-wrapper .custom-dropdown-input-wrap input {
-            height: 38px !important; min-height: 38px !important; font-size: 1.1rem !important; font-weight: 700;
-            padding: 0 12px !important; margin: 0 !important; background: rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; width: 100%; color: #ffffff;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
-        }
-        .h-input-wrapper .v-input:hover, .h-input-wrapper .custom-dropdown-input-wrap input:hover {
-            background: rgba(0,0,0,0.6); border-color: rgba(56, 189, 248, 0.3);
-        }
-        .h-input-wrapper .v-input:focus, .h-input-wrapper .custom-dropdown-input-wrap input:focus {
-            background: rgba(0,0,0,0.8); border-color: #38bdf8;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.8), 0 0 15px rgba(56, 189, 248, 0.2);
-            outline: none;
-        }
-        .h-input-wrapper .custom-dropdown { width: 100%; }
-        
-        .grid-layout-master {
-            display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
-        }
-        .grid-full-width { flex: 1 1 100%; min-width: 100%; }
-        
-        body { font-size: 1.08rem !important; }
-        .v-input, button, td, th { font-size: 1.05em; }
-
-        /* ========================================================
-           PREMIUM SECTION THEMES (Distinct Colors & Animations) 
-           ======================================================== */
-        @keyframes pulseSection {
-            0% { transform: scale(1); filter: brightness(1); }
-            100% { transform: scale(1.006); filter: brightness(1.15); box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
-        }
-
-        /* 1. Supplier Data (البيانات الأساسية) - Sapphire Theme */
-        .purchase-top-row .neo-card {
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.75), rgba(30, 58, 138, 0.35)) !important;
-            border-top: 2px solid #3b82f6 !important;
-            border-bottom: 1px solid rgba(59, 130, 246, 0.2) !important;
-            transition: all 0.4s;
-        }
-        .purchase-top-row .neo-card:hover {
-            animation: pulseSection 2s infinite alternate ease-in-out;
-            border-top: 2px solid #60a5fa !important;
-        }
-
-        /* 2. Items Table (الأصناف) - Amethyst Theme */
-        .table-container {
-            background: linear-gradient(135deg, rgba(18, 15, 25, 0.8), rgba(88, 28, 135, 0.25)) !important;
-            border-top: 2px solid #a855f7 !important;
-            border-bottom: 1px solid rgba(168, 85, 247, 0.2) !important;
-            transition: all 0.4s;
-        }
-        .table-container:hover {
-            animation: pulseSection 2s infinite alternate ease-in-out;
-            border-top: 2px solid #c084fc !important;
-        }
-
-        /* 3. Action Toolbar (البحث والإجراءات) - Ruby Theme */
-        .items-toolbar {
-            background: linear-gradient(135deg, rgba(20, 10, 10, 0.8), rgba(153, 27, 27, 0.35)) !important;
-            border-top: 2px solid #ef4444 !important;
-            border-bottom: 1px solid rgba(239, 68, 68, 0.2) !important;
-            transition: all 0.4s;
-        }
-        .items-toolbar:hover {
-            animation: pulseSection 2s infinite alternate ease-in-out;
-            border-top: 2px solid #f87171 !important;
-        }
-
-        /* 4. Bottom Notes & Totals (المستطيلات اللي تحت) - Emerald/Teal Theme */
-        .invoice-footer-layout .neo-card {
-            background: linear-gradient(135deg, rgba(10, 20, 20, 0.8), rgba(4, 120, 87, 0.25)) !important;
-            border-top: 2px solid #10b981 !important;
-            border-bottom: 1px solid rgba(16, 185, 129, 0.2) !important;
-            transition: all 0.4s;
-        }
-        .invoice-footer-layout .neo-card:hover {
-            animation: pulseSection 2s infinite alternate ease-in-out;
-            border-top: 2px solid #34d399 !important;
-        }
-        /* 5. Dynamic Totals Card Animation */
-        #form-fields-card {
-            transition: flex 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), min-width 0.8s, max-width 0.8s;
-            flex: 75;
-            min-width: 450px;
-        }
-        #totals-calc-card {
-            transition: flex 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), min-width 0.8s, opacity 0.5s ease-in-out, transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-            transform-origin: left center;
-            flex: 25;
-            min-width: 250px;
-        }
-        .hidden-totals {
-            flex: 0 0 0% !important;
-            min-width: 0 !important;
-            max-width: 0 !important;
-            padding: 0 !important;
-            border-width: 0 !important;
-            opacity: 0 !important;
-            margin: 0 !important;
-            overflow: hidden !important;
-            pointer-events: none !important;
-        }
-        .expanded-form {
-            flex: 1 1 100% !important;
-            max-width: 100% !important;
-        }
-    </style>
-    <div class="purchase-top-row" style="display: flex; gap: 15px; padding: 0 15px; flex-wrap: wrap; align-items: stretch;">
-        
-        <!-- Form Fields (Now first in DOM, rendering on the Right in RTL) -->
-        <div class="neo-card expanded-form" id="form-fields-card" style="margin-bottom: 0;">
-            <div style="display: flex; flex-direction: column; gap: 15px;">
-                
-                <!-- Row 0: Invoice Number & Date -->
-                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                    <div class="h-form-group" style="flex: 1; min-width: 150px;">
-                        <label class="h-label">رقم الفاتورة</label>
-                        <div class="h-input-wrapper" style="justify-content: space-between; padding: 0 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; height: 38px;">
-                            <button class="pro-serial-btn" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #38bdf8; font-size: 1.2rem; cursor: pointer; padding: 0;">❮</button>
-                            <span id="inv-number" class="pro-serial-number" style="font-size: 1.1rem; font-family: 'Outfit', sans-serif; font-weight: 900; color: #38bdf8; text-shadow: 0 0 8px rgba(56,189,248,0.4);">INV-000001</span>
-                            <input type="hidden" id="hdr-inv-no">
-                            <button class="pro-serial-btn" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; color: #38bdf8; font-size: 1.2rem; cursor: pointer; padding: 0;">❯</button>
                         </div>
                     </div>
 
-                    <div class="h-form-group" style="flex: 1; min-width: 150px;">
-                        <label class="h-label" id="hdr-date-label">التاريخ</label>
-                        <div class="h-input-wrapper">
-                            <input type="date" class="v-input ctrl-input" id="hdr-date" style="text-align: center;">
-                        </div>
-                    </div>
                 </div>
-
                 <!-- Row 1: Supplier, Currency, Payment -->
-                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                    <div class="h-form-group" style="flex: 1.5; min-width: 200px;">
-                        <label class="h-label">المورد</label>
-                        <div class="h-input-wrapper" style="gap: 8px;">
+                <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 5px;">
+                    <div class="h-form-group" style="flex: 1.5; min-width: 200px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">المورد</label>
+                          <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1;">
                             <div class="custom-dropdown" style="flex: 1;">
                                 <div class="custom-dropdown-input-wrap" style="width: 100%;">
                                     <input type="text" class="v-input ctrl-input" name="search_supplier_dummy" id="hdr-customer-search" placeholder="ابحث..." onfocus="showCustomerDropdown()" onclick="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" autocomplete="off">
@@ -1139,9 +999,9 @@
                         </div>
                     </div>
 
-                    <div class="h-form-group" style="flex: 1.6; min-width: 220px;">
-                        <label class="h-label">سعر الصرف</label>
-                        <div class="h-input-wrapper" style="gap: 5px;">
+                    <div class="h-form-group" style="flex: 1.6; min-width: 220px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">سعر الصرف</label>
+                          <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 5px; flex: 1;">
                             <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="document.getElementById('hdr-exchange-rate').disabled = (this.value === 'SDG'); document.getElementById('hdr-exchange-rate').value = (this.value === 'SDG') ? '1' : ''; recalcAll();" style="flex: 1;">
                                 <option value="SDG">🇸🇩 جنيه</option>
                                 <option value="USD">🇺🇸 دولار</option>
@@ -1153,9 +1013,9 @@
                         </div>
                     </div>
 
-                    <div class="h-form-group" style="flex: 1; min-width: 120px;">
-                        <label class="h-label">الدفع</label>
-                        <div class="h-input-wrapper">
+                    <div class="h-form-group" style="flex: 1; min-width: 120px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">الدفع</label>
+                          <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
                             <select class="v-input ctrl-input" id="hdr-payment-method" onchange="togglePaymentAccount()">
                                 <option value="cash">نقدي فوري</option>
                                 <option value="credit">آجل (على الحساب)</option>
@@ -1168,45 +1028,45 @@
 
                 <!-- Row 1.5: Payment Details (Hidden by default, shown for Bank/Cheque) -->
                 <div id="payment-details-row" style="display: none; gap: 15px; flex-wrap: wrap; margin-top: -5px; padding: 10px; background: rgba(56, 189, 248, 0.05); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 8px;">
-                    <div class="h-form-group" style="flex: 1; min-width: 120px;">
-                        <label class="h-label" id="pay-detail-1-label" style="font-size:0.9rem; color:#38bdf8;">رقم المرجع</label>
-                        <div class="h-input-wrapper">
+                    <div class="h-form-group" style="flex: 1; min-width: 120px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                          <label class="h-label" id="pay-detail-1-label" style="margin: 0; white-space: nowrap; font-size:0.9rem; color:#38bdf8;">رقم المرجع</label>
+                          <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
                             <input type="text" class="v-input ctrl-input" id="pay-detail-1" placeholder="..." style="height: 32px !important; min-height: 32px !important; font-size: 0.95rem !important;">
                         </div>
                     </div>
-                    <div class="h-form-group" style="flex: 1; min-width: 120px;">
-                        <label class="h-label" id="pay-detail-2-label" style="font-size:0.9rem; color:#38bdf8;">اسم البنك</label>
-                        <div class="h-input-wrapper">
+                    <div class="h-form-group" style="flex: 1; min-width: 120px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                          <label class="h-label" id="pay-detail-2-label" style="margin: 0; white-space: nowrap; font-size:0.9rem; color:#38bdf8;">اسم البنك</label>
+                          <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
                             <input type="text" class="v-input ctrl-input" id="pay-detail-2" placeholder="..." style="height: 32px !important; min-height: 32px !important; font-size: 0.95rem !important;">
                         </div>
                     </div>
-                    <div class="h-form-group" style="flex: 1; min-width: 120px;">
-                        <label class="h-label" id="pay-detail-3-label" style="font-size:0.9rem; color:#38bdf8;">الفرع</label>
-                        <div class="h-input-wrapper">
+                    <div class="h-form-group" style="flex: 1; min-width: 120px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                          <label class="h-label" id="pay-detail-3-label" style="margin: 0; white-space: nowrap; font-size:0.9rem; color:#38bdf8;">الفرع</label>
+                          <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
                             <input type="text" class="v-input ctrl-input" id="pay-detail-3" placeholder="..." style="height: 32px !important; min-height: 32px !important; font-size: 0.95rem !important;">
                         </div>
                     </div>
                 </div>
 
                 <!-- Row 2: Treasury, Warehouse, Cost Center -->
-                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                    <div class="h-form-group" id="payment-account-group" style="flex: 1; min-width: 150px;">
-                        <label class="h-label">الخزينة / البنك</label>
-                        <div class="h-input-wrapper">
+                <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 5px;">
+                    <div class="h-form-group" id="payment-account-group" style="flex: 1; min-width: 150px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 80px;">الخزينة / البنك</label>
+                          <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
                             <select class="v-input ctrl-input" id="hdr-payment-account"></select>
                         </div>
                     </div>
 
-                    <div class="h-form-group" style="flex: 1; min-width: 150px;">
-                        <label class="h-label">المخزن</label>
-                        <div class="h-input-wrapper">
+                    <div class="h-form-group" style="flex: 1; min-width: 150px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">المخزن</label>
+                          <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
                             <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange()"></select>
                         </div>
                     </div>
 
-                    <div class="h-form-group" style="flex: 1; min-width: 150px;">
-                        <label class="h-label">مركز الكلفة</label>
-                        <div class="h-input-wrapper">
+                    <div class="h-form-group" style="flex: 1; min-width: 150px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                        <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 80px;">مركز الكلفة</label>
+                        <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
                             <select class="v-input ctrl-input" id="hdr-cost-center">
                                 <option value="">-- بدون مركز --</option>
                                 <option value="C1">المركز الرئيسي</option>
@@ -1218,19 +1078,19 @@
                 </div>
 
                 <!-- Row 4: Description -->
-                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                    <div class="h-form-group" style="flex: 1; min-width: 100%;">
-                        <label class="h-label">البيان</label>
-                        <div class="h-input-wrapper">
+                <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 5px;">
+                    <div class="h-form-group" style="flex: 1; min-width: 100%; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                        <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">البيان</label>
+                        <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
                             <input type="text" class="v-input ctrl-input" id="hdr-description" placeholder="ملاحظات، أرقام مرجعية...">
                         </div>
                     </div>
                 </div>
                 
                 <!-- Due Date (hidden normally) -->
-                <div class="h-form-group" id="due-date-group" style="display:none; border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.05);">
+                <div class="h-form-group" id="due-date-group" style="display:none; border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.05);; flex-direction: row !important;">
                     <label class="h-label" style="color: #f59e0b;">الاستحقاق</label>
-                    <div class="h-input-wrapper">
+                    <div class="h-input-wrapper" style="display: flex !important; flex-direction: row !important; align-items: center !important; flex: 1;">
                         <input type="date" class="v-input ctrl-input" id="hdr-due-date" style="color:#f59e0b; background: rgba(245,158,11,0.1);">
                     </div>
                 </div>

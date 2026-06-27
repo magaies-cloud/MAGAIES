@@ -100,15 +100,20 @@ http.createServer((req, res) => {
 
     console.log(`[STATIC] ${req.method} ${reqUrl}`);
 
-    const ext = path.extname(file);
-    fs.readFile(file, (err, data) => {
+    fs.readFile(file, (err, content) => {
         if (err) {
-            res.writeHead(404, { 'Content-Type': 'text/plain' });
-            res.end('Not Found');
-            return;
+            res.writeHead(404);
+            res.end('File not found');
+        } else {
+            let ext = path.extname(file);
+            res.writeHead(200, { 
+                'Content-Type': MIME[ext] || 'text/plain',
+                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            });
+            res.end(content, 'utf-8');
         }
-        res.writeHead(200, { 'Content-Type': MIME[ext] || 'text/plain' });
-        res.end(data);
     });
 
 }).listen(PORT, () => {

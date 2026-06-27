@@ -1,1 +1,0 @@
-<?php $opts = ['http'=>['method'=>'GET', 'header'=>'Authorization: Bearer <token>\r\n']]; $context = stream_context_create($opts); $json = file_get_contents('http://127.0.0.1:8080/api_index.php/sync/pull?tenant_id=2', false, $context); print_r(json_decode($json, true)); ?>

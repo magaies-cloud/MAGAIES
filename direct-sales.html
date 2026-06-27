@@ -94,7 +94,7 @@
         
 
         .header-brand { display: flex; align-items: center; gap: 12px; }
-        .brand-icon { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #10b981, #34d399); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 6px 15px rgba(16, 185, 129, 0.4), inset 0 2px 5px rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2); }
+        .brand-icon { width: 32px; height: 32px; border-radius: 12px; background: linear-gradient(135deg, #10b981, #34d399); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 6px 15px rgba(16, 185, 129, 0.4), inset 0 2px 5px rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2); }
         .brand-text h1 { margin: 0; font-size: 1.1rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; text-shadow: 0 2px 5px rgba(255,255,255,0.1); }
         .brand-text p { margin: 0; font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
         .header-center { text-align: center; }
@@ -116,6 +116,81 @@
         @media (max-width: 768px) {
             .premium-header { flex-direction: column; gap: 12px; }
             .header-controls { justify-content: center; width: 100%; flex-wrap: wrap; }
+        }
+
+        
+        /* ── تصميم ترويسة نقطة البيع الليمونية ── */
+        .pos-lemon-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, rgba(163, 230, 53, 0.15), rgba(132, 204, 22, 0.05));
+            border: 1px solid rgba(163, 230, 53, 0.4);
+            padding: 8px 28px;
+            border-radius: 50px;
+            box-shadow: 0 0 20px rgba(163, 230, 53, 0.2), inset 0 0 10px rgba(163, 230, 53, 0.1);
+            animation: pulseLemonGlow 2.5s infinite alternate ease-in-out;
+            position: relative;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        .pos-lemon-title::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(163, 230, 53, 0.2) 0%, transparent 60%);
+            animation: rotateLemonOrb 8s linear infinite;
+        }
+
+        @keyframes pulseLemonGlow {
+            from { box-shadow: 0 0 15px rgba(163, 230, 53, 0.1), inset 0 0 5px rgba(163, 230, 53, 0.05); }
+            to { box-shadow: 0 0 30px rgba(163, 230, 53, 0.5), inset 0 0 15px rgba(163, 230, 53, 0.25); }
+        }
+
+        @keyframes rotateLemonOrb {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .pos-icon-svg {
+            width: 32px;
+            height: 32px;
+            fill: #bef264;
+            filter: drop-shadow(0 0 8px rgba(163, 230, 53, 0.8));
+            position: relative;
+            z-index: 1;
+            animation: floatPosIcon 3s infinite alternate ease-in-out;
+        }
+        
+        @keyframes floatPosIcon {
+            from { transform: translateY(-2px); }
+            to { transform: translateY(2px); }
+        }
+
+        .pos-text {
+            font-size: 1.7rem;
+            font-weight: 900;
+            color: #d9f99d;
+            text-shadow: 0 0 12px rgba(163, 230, 53, 0.6);
+            font-family: 'Cairo', 'Outfit', sans-serif;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pos-en {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #a3e635;
+            background: rgba(132, 204, 22, 0.15);
+            padding: 2px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(132, 204, 22, 0.3);
+            letter-spacing: 1.5px;
         }
 
         /* ═══ POS PAGE: إلغاء تضاعف مسافة الشريط الجانبي ═══
@@ -228,23 +303,36 @@
         }
 
         /* ── شريط الحالة المالية الأفقي ── */
+        .fin-strip-inline.visible {
+            flex: 0 0 43% !important; min-width: 400px !important;
+            opacity: 1 !important;
+            margin-left: 5px;
+        }
+
         .fin-strip {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
             overflow: hidden;
             max-height: 0;
             opacity: 0;
             margin-top: 0;
-            transition:
-                max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-                opacity    0.4s ease,
-                margin-top 0.4s ease;
+            margin-bottom: 0;
+            padding: 0 15px;
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid transparent;
+            border-radius: 8px;
+            transition: all 0.4s ease;
+            width: auto;
+            min-width: 400px;
         }
         .fin-strip.visible {
-            max-height: 120px;
+            max-height: 80px;
             opacity: 1;
-            margin-top: 8px;
+            padding: 6px 15px;
+            border-color: rgba(56, 189, 248, 0.3);
+            margin-bottom: 4px;
         }
         .fin-strip-card {
             display: flex;
@@ -850,7 +938,16 @@
         </div>
 
         <div class="header-center">
-            <h2>🛒 نقاط البيع (POS)</h2>
+            
+            <h2 class="pos-lemon-title">
+                <svg class="pos-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 6h16v10H4z" opacity="0.3"/>
+                    <path d="M20 4H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h4v2H6v2h12v-2h-2v-2h4c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 12H4V6h16v10z"/>
+                    <path d="M8 8h8v2H8zm0 4h5v2H8z"/>
+                </svg>
+                <span class="pos-text">نقطة البيع <span class="pos-en">POS</span></span>
+            </h2>
+
         </div>
 
         <div class="header-controls">
@@ -1011,11 +1108,12 @@
     <div id="invoice-editor-view" style="display: none; flex-direction: column; height: 100%; flex: 1;">
     
         <!-- ═══ MAIN BODY ═══ -->
-        <div class="ds-body" style="padding-top: 15px;">
+        <div class="ds-body" style="padding-top: 5px;">
 
             <!-- ══ TOP ROW: بيانات الفاتورة (مدمجة) ══ -->
             <div class="purchase-top-row" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: stretch; width: 100%;">
 
+                
                 <!-- Form Fields -->
                 <div class="neo-card expanded-form" id="form-fields-card" style="
                     margin-bottom: 0; 
@@ -1036,16 +1134,20 @@
                     <div style="display: flex; flex-direction: column; gap: 18px; position:relative; z-index:1;">
                         
                         
-                        <!-- Row 1: Invoice Number & Date -->
-                        <div style="display: flex; gap: 20px; width: 100%; background: linear-gradient(90deg, rgba(30,58,138,0.2), rgba(15,23,42,0.4)); padding: 12px 20px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); align-items: center;">
+                        
+    <!-- ROW 1 WRAPPER (Dynamic Split) -->
+    <div style="display: flex; width: 100%; gap: 15px; margin-bottom: 12px; transition: all 0.4s ease;">
+        
+        <!-- Row 1: Invoice Number & Date -->
+                        <div id="invoice-info-box" style="flex: 1; display: flex; gap: 20px; width: 100%; background: linear-gradient(90deg, rgba(30,58,138,0.2), rgba(15,23,42,0.4)); padding: 6px 15px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); align-items: center;">
                             <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:15px; margin:0;">
-                                <div style="display:flex; align-items:center; justify-content:center; width: 40px; height: 40px; border-radius: 8px; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3);">
+                                <div style="display:flex; align-items:center; justify-content:center; width: 32px; height: 32px; border-radius: 8px; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3);">
                                     <span style="font-size: 1.2rem;">🧾</span>
                                 </div>
                                 <label class="h-label" style="margin:0; color:#38bdf8; font-size: 1.1rem; font-weight:bold; white-space:nowrap; text-shadow: 0 0 5px rgba(56,189,248,0.3);">رقم الفاتورة:</label>
-                                <div style="display:flex; align-items:center; justify-content:space-between; flex:1; background: rgba(0,0,0,0.3); padding: 5px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                                <div style="display:flex; align-items:center; justify-content:space-between; flex:1; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
                                     <button class="pro-serial-btn" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❮</button>
-                                    <span id="inv-number" class="pro-serial-number" style="font-size: 1.4rem; font-family: 'Outfit', sans-serif; font-weight: 900; color: #38bdf8; letter-spacing: 2px; text-shadow: 0 0 10px rgba(56,189,248,0.5);">INV-000001</span>
+                                    <span id="inv-number" class="pro-serial-number" style="font-size: 1.05rem; font-family: 'Outfit', sans-serif; font-weight: 900; color: #38bdf8; letter-spacing: 2px; text-shadow: 0 0 10px rgba(56,189,248,0.5);">INV-000001</span>
                                     <input type="hidden" id="hdr-inv-no">
                                     <button class="pro-serial-btn" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❯</button>
                                 </div>
@@ -1054,15 +1156,61 @@
                             <div style="width: 2px; height: 40px; background: rgba(255,255,255,0.1); margin: 0 10px;"></div>
 
                             <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:15px; margin:0;">
-                                <div style="display:flex; align-items:center; justify-content:center; width: 40px; height: 40px; border-radius: 8px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);">
+                                <div style="display:flex; align-items:center; justify-content:center; width: 32px; height: 32px; border-radius: 8px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);">
                                     <span style="font-size: 1.2rem;">📅</span>
                                 </div>
                                 <label class="h-label" id="hdr-date-label" style="margin:0; color:#ef4444; font-size: 1.1rem; font-weight:bold; white-space:nowrap; text-shadow: 0 0 5px rgba(239,68,68,0.3);">التاريخ:</label>
-                                <input type="date" class="v-input ctrl-input" id="hdr-date" style="flex:1; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; color:#ef4444; padding:8px 12px; font-family:'Outfit',sans-serif; font-weight:bold; font-size:1.2rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
+                                <input type="date" class="v-input ctrl-input" id="hdr-date" style="flex:1; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; color:#ef4444; padding:4px 8px; font-family:'Outfit',sans-serif; font-weight:bold; font-size:1.2rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
                             </div>
                         </div>
 
-                        <!-- Row 2: Customer, Currency, Payment -->
+        <!-- RIGHT: Financial Strip -->
+        <div id="fin-strip" class="fin-strip-inline" style="flex: 0; width: 0; opacity: 0; overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); display: flex;">
+            <div style="width: 100%; background: linear-gradient(90deg, rgba(15,23,42,0.4), rgba(30,58,138,0.2)); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 4px 10px; display: flex; align-items: center; justify-content: space-around; gap: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); min-width: 500px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.2rem;">📊</span>
+                            <div style="display:flex; flex-direction:column;">
+                                <span style="font-weight: 800; color:#fff; font-size:0.75rem;">الحالة المالية للعميل</span>
+                                <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span></span>
+                            </div>
+                        </div>
+                        
+                        <div style="display:flex; gap: 15px; align-items: center;">
+                            <div style="display:flex; flex-direction:column; align-items:center;">
+                                <span style="font-size:0.6rem; color:#94a3b8; font-weight:700;">الرصيد الدفتري</span>
+                                <span id="fin-ledger" style="font-weight:800; color:#fff; font-size:0.75rem;">0</span>
+                            </div>
+                            <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
+                            
+                            <div style="display:flex; flex-direction:column; align-items:center;">
+                                <span style="font-size:0.6rem; color:#f59e0b; font-weight:700;">شيكات معلقة</span>
+                                <span id="fin-checks" style="font-weight:800; color:#f59e0b; font-size:0.75rem;">0</span>
+                            </div>
+                            <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
+                            
+                            <div style="display:flex; flex-direction:column; align-items:center;">
+                                <span style="font-size:0.6rem; color:#ef4444; font-weight:700;">المديونية</span>
+                                <span id="fin-total-debt" style="font-weight:800; color:#ef4444; font-size:0.75rem;">0</span>
+                            </div>
+                            <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
+                            
+                            <div style="display:flex; flex-direction:column; align-items:center;">
+                                <span style="font-size:0.6rem; color:#38bdf8; font-weight:700;">حد الائتمان</span>
+                                <span id="fin-credit-limit" style="font-weight:800; color:#38bdf8; font-size:0.75rem;">0</span>
+                            </div>
+                            <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
+                            
+                            <div style="display:flex; flex-direction:column; align-items:center; background: rgba(16,185,129,0.1); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.2);">
+                                <span style="font-size:0.6rem; color:#34d399; font-weight:800;">✨ المتاح</span>
+                                <span id="fin-remaining" style="font-weight:900; color:#34d399; font-size:0.85rem;">0</span>
+                            </div>
+                        </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <!-- Row 2: Customer, Currency, Payment -->
                         <div style="display: flex; gap: 20px; width: 100%;">
                             
                             <!-- Customer Field (35% width) -->
@@ -1111,47 +1259,23 @@
                             </div>
                         </div>
 
-                        <!-- Row 2.5: Financial Strip -->
-                        <div class="fin-strip" id="fin-strip" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px;">
-                            <div class="fin-strip-card">
-                                <span class="fin-strip-lbl">📒 رصيد الدفتر</span>
-                                <span class="fin-strip-val" id="fin-ledger">0</span>
-                            </div>
-                            <div class="fin-strip-card">
-                                <span class="fin-strip-lbl">🏦 شيكات معلقة</span>
-                                <span class="fin-strip-val" id="fin-checks">0</span>
-                            </div>
-                            <div class="fin-strip-card warn">
-                                <span class="fin-strip-lbl">⚠️ المديونية</span>
-                                <span class="fin-strip-val" id="fin-total-debt">0</span>
-                            </div>
-                            <div class="fin-strip-card">
-                                <span class="fin-strip-lbl">💳 حد الائتمان</span>
-                                <span class="fin-strip-val" id="fin-credit-limit">0</span>
-                            </div>
-                            <div class="fin-strip-card avail">
-                                <span class="fin-strip-lbl">✨ المتاح</span>
-                                <span class="fin-strip-val" id="fin-remaining">0</span>
-                            </div>
-                        </div>
-
                         <!-- Payment Details -->
-                        <div id="payment-details-row" style="display: none; gap: 15px; width: 100%; padding: 10px; background: rgba(56, 189, 248, 0.1); border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 8px;">
-                            <div class="h-form-group" style="flex: 1; min-width: 120px;">
-                                <label class="h-label" id="pay-detail-1-label" style="font-size:0.9rem; color:#38bdf8;">رقم المرجع</label>
-                                <div class="h-input-wrapper">
+                        <div id="payment-details-row" style="display: none; gap: 15px; width: 100%; padding: 6px 10px; background: rgba(56, 189, 248, 0.1); border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 8px;">
+                            <div class="h-form-group" style="flex: 1; min-width: 120px; display:flex; align-items:center; gap:8px;">
+                                  <label class="h-label" id="pay-detail-1-label" style="font-size:0.9rem; color:#38bdf8; margin:0; white-space:nowrap;">رقم المرجع</label>
+                                <div class="h-input-wrapper" style="flex:1;">
                                     <input type="text" class="v-input ctrl-input" id="pay-detail-1" placeholder="..." style="height: 34px !important; min-height: 34px !important; font-size: 0.95rem !important; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
                                 </div>
                             </div>
-                            <div class="h-form-group" style="flex: 1; min-width: 120px;">
-                                <label class="h-label" id="pay-detail-2-label" style="font-size:0.9rem; color:#38bdf8;">اسم البنك</label>
-                                <div class="h-input-wrapper">
+                            <div class="h-form-group" style="flex: 1; min-width: 120px; display:flex; align-items:center; gap:8px;">
+                                  <label class="h-label" id="pay-detail-2-label" style="font-size:0.9rem; color:#38bdf8; margin:0; white-space:nowrap;">اسم البنك</label>
+                                <div class="h-input-wrapper" style="flex:1;">
                                     <input type="text" class="v-input ctrl-input" id="pay-detail-2" placeholder="..." style="height: 34px !important; min-height: 34px !important; font-size: 0.95rem !important; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
                                 </div>
                             </div>
-                            <div class="h-form-group" style="flex: 1; min-width: 120px;">
-                                <label class="h-label" id="pay-detail-3-label" style="font-size:0.9rem; color:#38bdf8;">الفرع (أو تاريخ)</label>
-                                <div class="h-input-wrapper">
+                            <div class="h-form-group" style="flex: 1; min-width: 120px; display:flex; align-items:center; gap:8px;">
+                                  <label class="h-label" id="pay-detail-3-label" style="font-size:0.9rem; color:#38bdf8; margin:0; white-space:nowrap;">الفرع (أو تاريخ)</label>
+                                <div class="h-input-wrapper" style="flex:1;">
                                     <input type="text" class="v-input ctrl-input" id="pay-detail-3" placeholder="..." style="height: 34px !important; min-height: 34px !important; font-size: 0.95rem !important; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
                                 </div>
                             </div>

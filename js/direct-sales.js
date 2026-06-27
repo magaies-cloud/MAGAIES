@@ -200,39 +200,47 @@ function populateDropdowns() {
 
 function togglePaymentAccount() {
     const method = document.getElementById('hdr-payment-method').value;
-
-    // إخفاء جميع المناطق أولاً
-    ['zone-cash','zone-credit','zone-bank','zone-cheque'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-    });
-
-    // إظهار المنطقة المناسبة مع أنيميشن
-    const zoneId = {
-        cash:   'zone-cash',
-        credit: 'zone-credit',
-        bank:   'zone-bank',
-        cheque: 'zone-cheque'
-    }[method] || 'zone-cash';
-
-    const zone = document.getElementById(zoneId);
-    if (zone) {
-        zone.style.display = 'grid';
-        // إعادة تشغيل الأنيميشن
-        zone.style.animation = 'none';
-        requestAnimationFrame(() => {
-            zone.style.animation = 'fadeSlideIn 0.35s cubic-bezier(0.16,1,0.3,1) both';
-        });
+    const detailsRow = document.getElementById('payment-details-row');
+    const lbl1 = document.getElementById('pay-detail-1-label');
+    const lbl2 = document.getElementById('pay-detail-2-label');
+    const lbl3 = document.getElementById('pay-detail-3-label');
+    
+    // إخفاء أو إظهار منطقة التفاصيل
+    if (method === 'cheque' || method === 'bank') {
+        if (detailsRow) {
+            detailsRow.style.display = 'flex';
+            detailsRow.style.animation = 'none';
+            requestAnimationFrame(() => {
+                detailsRow.style.animation = 'fadeSlideIn 0.35s cubic-bezier(0.16,1,0.3,1) both';
+            });
+        }
+        
+        if (method === 'cheque') {
+            if (lbl1) lbl1.innerText = 'رقم الشيك';
+            if (lbl2) lbl2.innerText = 'اسم البنك';
+            if (lbl3) lbl3.innerText = 'الفرع';
+        } else if (method === 'bank') {
+            if (lbl1) lbl1.innerText = 'رقم التحويل';
+            if (lbl2) lbl2.innerText = 'البنك المحول إليه';
+            if (lbl3) lbl3.innerText = 'الفرع / المرجع';
+        }
+    } else {
+        if (detailsRow) detailsRow.style.display = 'none';
     }
 
-    // تحديث قوائم الحسابات للنقدي
-    if (method === 'cash') {
-        const select = document.getElementById('hdr-payment-account');
-        if (select) populateAccountSelect(select, 'safe');
-    }
-    if (method === 'bank') {
-        const select = document.getElementById('hdr-bank-account');
-        if (select) populateAccountSelect(select, 'bank');
+    // تحديث قائمة الصندوق/الخزنة بناءً على طريقة الدفع
+    const select = document.getElementById('hdr-payment-account');
+    if (select) {
+        if (method === 'cash') {
+            select.disabled = false;
+            populateAccountSelect(select, 'safe');
+        } else if (method === 'bank' || method === 'cheque') {
+            select.disabled = false;
+            populateAccountSelect(select, 'bank');
+        } else if (method === 'credit') {
+            select.innerHTML = '<option value="">-- آجل (على الحساب) --</option>';
+            select.disabled = true;
+        }
     }
 }
 
@@ -888,6 +896,7 @@ function onMainWarehouseChange() {
 //  ROW MANAGEMENT
 // ════════════════════════════════════════
 function addRow(silent = false) {
+    let quiet = silent;
     rowIdCounter++;
     rows.push({
         id: rowIdCounter,
@@ -900,7 +909,7 @@ function addRow(silent = false) {
         selectedUnit: ''
     });
     renderGrid();
-    if (!silent) showToast('📦 تم إضافة صنف جديد', 'success', 1500);
+    if (!quiet) showToast('📦 تم إضافة صنف جديد', 'success', 1500);
 }
 
 function removeRow(id) {
@@ -921,11 +930,21 @@ function updateRow(id, field, value) {
         }
         if (field === 'fcPrice') {
             const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
-            row.price = row.fcPrice * exRate;
+            const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
+            if (isBaseSDG) {
+                row.price = row.fcPrice * exRate;
+            } else {
+                row.price = row.fcPrice / exRate;
+            }
         }
         if (field === 'price') {
             const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
-            row.fcPrice = row.price / exRate;
+            const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
+            if (isBaseSDG) {
+                row.fcPrice = row.price / exRate;
+            } else {
+                row.fcPrice = row.price * exRate;
+            }
         }
         if (field === 'customBaseQty') {
             const item = ITEMS.find(i => i.id === row.itemId);
@@ -969,15 +988,6 @@ function updateRow(id, field, value) {
     }
     // Live update without full re-render (keeps focus)
     updateRowCalcs(id);
-    
-    // Check stock warning
-    if (field === 'quantity' || field === 'customBaseQty' || field === 'itemId' || field === 'selectedUnit') {
-        const calcs = getRowCalcs(row);
-        if (calcs.availQty !== '—' && calcs.availQty !== undefined && calcs.baseQty > calcs.availQty) {
-            showToast(`⚠️ تحذير: الكمية المطلوبة تتجاوز المخزون المتاح للصنف`, 'warning', 3500);
-        }
-    }
-
     recalcAll();
 }
 
@@ -1004,7 +1014,7 @@ function getRowCalcs(row) {
     }
 
     const total = row.quantity * row.price;
-    
+
     let baseQty = 0;
     if (row.customBaseQty !== undefined) {
         baseQty = row.customBaseQty;
@@ -1012,12 +1022,14 @@ function getRowCalcs(row) {
         baseQty = item ? row.quantity * selectedUnitFactor * item.conversionFactor : 0;
     }
     const bundles = item ? row.quantity * item.bundleFactor : 0;
-    const whId = getResolvedWarehouse(row);
-    const actualQty = item && item.actualStock && item.actualStock[whId] !== undefined ? item.actualStock[whId] : 0;
-    const reservedQty = item && item.reservedStock && item.reservedStock[whId] !== undefined ? item.reservedStock[whId] : 0;
-    const availQty = actualQty - reservedQty;
     
-    return { total, baseQty, bundles, actualQty, availQty, unit: selectedUnitName, unitFactor: selectedUnitFactor };
+    const shilaFactor = item && item.bundleFactor > 0 ? item.bundleFactor : 1;
+    const shilaQty = baseQty ? Math.floor(baseQty / shilaFactor) : 0;
+    const shilaRem = baseQty ? (baseQty % shilaFactor) : 0;
+
+    const whId = getResolvedWarehouse(row);
+    const availQty = item && item.stock[whId] !== undefined ? item.stock[whId] : '—';
+    return { total, baseQty, bundles, shilaQty, shilaRem, availQty, unit: selectedUnitName, unitFactor: selectedUnitFactor };
 }
 
 function updateRowCalcs(id) {
@@ -1030,28 +1042,44 @@ function updateRowCalcs(id) {
     const baseEl = document.querySelector(`[data-base-input="${id}"]`);
     const availEl = document.querySelector(`[data-avail="${id}"]`);
     const bundleEl = document.querySelector(`[data-bundle="${id}"]`);
+    const shilaEl = document.querySelector(`[data-shila="${id}"]`);
+    const shilaRemEl = document.querySelector(`[data-shila-rem="${id}"]`);
     const priceEl = document.querySelector(`[data-price-input="${id}"]`);
-    const qtyEl = document.querySelector(`[data-qty-input="${id}"]`);
+    const fcPriceEl = document.querySelector(`[data-fcprice-input="${id}"]`);
+    const totalFcEl = document.querySelector(`[data-total-fc="${id}"]`);
 
     if (totalEl) totalEl.textContent = fmtNum(calcs.total);
     if (baseEl && document.activeElement !== baseEl) baseEl.value = fmtNum(calcs.baseQty);
     if (bundleEl) bundleEl.textContent = fmtNum(calcs.bundles);
+    if (shilaEl) shilaEl.textContent = fmtNum(calcs.shilaQty);
+    if (shilaRemEl) shilaRemEl.textContent = fmtNum(calcs.shilaRem);
     if (priceEl && document.activeElement !== priceEl) priceEl.value = fmtNum(row.price);
-    if (qtyEl && document.activeElement !== qtyEl) qtyEl.value = Number.isInteger(row.quantity) ? row.quantity : parseFloat((row.quantity || 0).toFixed(4));
 
-    const actualEl = document.querySelector(`[data-actual="${id}"]`);
-    if (actualEl) {
-        actualEl.textContent = calcs.actualQty === '—' ? '—' : fmtNum(calcs.actualQty);
-    }
+    const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
+    const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
+    let computedFcPrice = row.fcPrice !== undefined ? row.fcPrice : (isBaseSDG ? row.price / exRate : row.price * exRate);
+    
+    if (fcPriceEl && document.activeElement !== fcPriceEl) fcPriceEl.value = fmtNum(computedFcPrice);
+    if (totalFcEl) totalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0));
 
     if (availEl) {
         availEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty);
-        availEl.className = 'g-readonly ' + (calcs.availQty !== '—' && calcs.availQty !== undefined && calcs.availQty < calcs.baseQty ? 'warn-val' : 'avail-val');
+        availEl.className = 'g-readonly ' + (calcs.availQty !== '—' && calcs.availQty < row.quantity ? 'warn-val' : 'avail-val');
     }
 
     // Mobile
     const mTotal = document.querySelector(`[data-m-total="${id}"]`);
     if (mTotal) mTotal.textContent = fmtNum(calcs.total) + ' ' + getCurrency();
+
+    const mFcPriceEl = document.querySelector(`[data-m-fcprice-input="${id}"]`);
+    const mTotalFcEl = document.querySelector(`[data-m-total-fc="${id}"]`);
+    if (mFcPriceEl && document.activeElement !== mFcPriceEl) mFcPriceEl.value = fmtNum(computedFcPrice);
+    if (mTotalFcEl) mTotalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0));
+
+    const mShilaEl = document.querySelector(`[data-m-shila="${id}"]`);
+    const mShilaRemEl = document.querySelector(`[data-m-shila-rem="${id}"]`);
+    if (mShilaEl) mShilaEl.textContent = fmtNum(calcs.shilaQty);
+    if (mShilaRemEl) mShilaRemEl.textContent = fmtNum(calcs.shilaRem);
 }
 
 function getCurrency() {
@@ -1070,7 +1098,7 @@ function renderGrid() {
     mCards.innerHTML = '';
 
     if (rows.length === 0) {
-        empty.style.display = 'block';
+        addRow(true);
         return;
     }
     empty.style.display = 'none';
@@ -1093,6 +1121,7 @@ function renderGrid() {
             <td style="position:relative;">
                 <input type="text" class="g-input" id="item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
                     value="${item ? item.name : ''}" autocomplete="new-password"
+                    style="font-size: 1.15rem !important; font-weight: 800 !important;"
                     onfocus="this.select(); showItemDropdown(${row.id})" 
                     onblur="hideItemDropdownDelayed(${row.id})" 
                     oninput="filterItemDropdown(${row.id})">
@@ -1108,24 +1137,63 @@ function renderGrid() {
             <td><input type="text" inputmode="decimal" class="g-input" value="${row.customFactor !== undefined ? row.customFactor : calcs.unitFactor}" placeholder="1"
                 onfocus="this.select()" oninput="updateRow(${row.id},'customFactor',this.value)"
                 onblur="this.value=parseNum(this.value)||1" tabindex="-1"></td>
-            <td><input type="text" inputmode="decimal" class="g-input" data-qty-input="${row.id}" value="${Number.isInteger(row.quantity) ? row.quantity : parseFloat((row.quantity || 0).toFixed(4)) || ''}" placeholder="0"
+            <td><input type="text" inputmode="decimal" class="g-input" value="${row.quantity || ''}" placeholder="0"
                 onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)"
                 onblur="this.value=parseNum(this.value)||''"></td>
-            <td><input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
-                onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
-                onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700;" tabindex="-1"></td>
-            <td><span class="g-readonly ${calcs.availQty !== '—' && calcs.availQty !== undefined && calcs.availQty < calcs.baseQty ? 'warn-val' : 'avail-val'}" data-avail="${row.id}">${calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty)}</span></td>
+            <td>
+                <div style="display:flex; align-items:center; gap:4px;">
+                    <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price)}"
+                        onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
+                        onblur="this.value=fmtNum(parseNum(this.value))" style="flex:1;">
+                    <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'sales')" title="سجل أسعار الصنف للعميل" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:4px; padding:4px; border:1px solid rgba(56,189,248,0.2); cursor:pointer;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    </button>
+                </div>
+            </td>
+            <td><span class="g-readonly total-val" style="color:var(--gold-primary); font-weight:bold;" data-total="${row.id}">${fmtNum(calcs.total)}</span></td>
+            <td>
+                <div style="display:flex; align-items:center; gap:4px; justify-content:center;">
+                    <input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
+                        onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
+                        onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700; width:100%;" tabindex="-1">
+                    <span style="font-size:11px; color:var(--text-muted); white-space:nowrap;">${item ? item.baseUnit : ''}</span>
+                </div>
+            </td>
+            <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.availableQty !== undefined ? fmtNum(row.availableQty) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'availableQty',this.value)" onblur="this.value=fmtNum(parseNum(this.value))" style="color:#0ea5e9; font-weight:bold;"></td>
+            <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.remainingQty !== undefined ? fmtNum(row.remainingQty) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'remainingQty',this.value)" onblur="this.value=fmtNum(parseNum(this.value))" style="color:#f59e0b; font-weight:bold;"></td>
+            <td>
+                <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}"
+                    onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
+                    onblur="this.value=fmtNum(parseNum(this.value))" style="color:#10b981; font-weight:700;" tabindex="-1">
+            </td>
+            <td><span class="g-readonly total-fc-val" style="color:#10b981; font-weight:bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0))}</span></td>
+
             <td>
                 <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1">
                     <option value="">نفس الفاتورة ↩</option>
                     ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
                 </select>
             </td>
-            <td><span class="g-readonly total-val" data-total="${row.id}">${fmtNum(calcs.total)}</span></td>
-            <td><button class="del-btn" onclick="removeRow(${row.id})" title="حذف السطر">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-            </button></td>
+
+            <td><span class="g-readonly" style="color:#6366f1; font-weight:bold;" data-shila="${row.id}">${fmtNum(calcs.shilaQty)}</span></td>
+            <td><span class="g-readonly" style="color:#ef4444; font-weight:bold;" data-shila-rem="${row.id}">${fmtNum(calcs.shilaRem)}</span></td>
+
+            <td><input type="text" class="g-input" placeholder="ملحوظة..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)"></td>
+            <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.buyPrice !== undefined ? fmtNum(row.buyPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'buyPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))"></td>
+            <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.sellPrice !== undefined ? fmtNum(row.sellPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'sellPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))"></td>
+
+            <td>
+                <div style="display: flex; gap: 5px; justify-content: center;">
+                    <button class="edit-btn" onclick="document.getElementById('item-search-${row.id}').focus()" title="تعديل السطر" style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.2); color: #38bdf8; border-radius: 6px; padding: 6px; cursor: pointer;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </button>
+                    <button class="del-btn" onclick="removeRow(${row.id})" title="حذف السطر">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                </div>
+            </td>
         `;
+        if (window.reorderTds) window.reorderTds(tr);
         tbody.appendChild(tr);
 
         // ── Mobile Card ──
@@ -1133,13 +1201,18 @@ function renderGrid() {
         card.className = 'm-card';
         card.innerHTML = `
             <div class="m-card-num">${idx + 1}</div>
-            <button class="m-card-del" onclick="removeRow(${row.id})" title="حذف">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-            </button>
+            <div style="position: absolute; left: 10px; top: 10px; display: flex; gap: 5px;">
+                <button class="m-card-edit" onclick="document.getElementById('m-item-search-${row.id}').focus()" title="تعديل" style="background: transparent; border: none; color: #38bdf8; cursor: pointer;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                </button>
+                <button class="m-card-del" onclick="removeRow(${row.id})" title="حذف">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
+            </div>
             <div class="ctrl-group m-card-full" style="padding-top:4px; position:relative;">
                 <label class="label">الصنف</label>
                 <input type="text" class="ctrl-input" id="m-item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
-                    value="${item ? item.name + ' — ' + item.unit : ''}" autocomplete="new-password"
+                    value="${item ? item.name : ''}" autocomplete="new-password"
                     onfocus="this.select(); showItemDropdown(${row.id}, true)" 
                     onblur="hideItemDropdownDelayed(${row.id}, true)" 
                     oninput="filterItemDropdown(${row.id}, true)">
@@ -1150,20 +1223,28 @@ function renderGrid() {
             <div class="m-card-grid">
                 <div class="ctrl-group">
                     <label class="label">الوحدة</label>
-                    <select class="ctrl-input" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();">
+                    <select class="ctrl-input" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();" tabindex="-1">
                         ${itemUnitsHtml}
                     </select>
                 </div>
                 <div class="ctrl-group">
                     <label class="label">التعادل</label>
                     <input type="text" inputmode="decimal" class="ctrl-input" value="${row.customFactor !== undefined ? row.customFactor : calcs.unitFactor}" placeholder="1"
-                        onfocus="this.select()" oninput="updateRow(${row.id},'customFactor',this.value)"
-                        onblur="this.value=parseNum(this.value)||1">
+                onfocus="this.select()" oninput="updateRow(${row.id},'customFactor',this.value)"
+                onblur="this.value=parseNum(this.value)||1" tabindex="-1">
                 </div>
                 <div class="ctrl-group">
-                    <label class="label">الكمية</label>
+                    <label class="label">الكمية الوحدة</label>
                     <input type="text" inputmode="decimal" class="ctrl-input" data-qty-input="${row.id}" value="${Number.isInteger(row.quantity) ? row.quantity : parseFloat((row.quantity || 0).toFixed(4)) || ''}" placeholder="0"
                         onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)">
+                </div>
+                <div class="ctrl-group">
+                    <label class="label" style="color:#6366f1;">الشيلة</label>
+                    <div class="ctrl-input readonly" data-m-shila="${row.id}" style="color:#6366f1; font-weight:bold; text-align:center;">${fmtNum(calcs.shilaQty)}</div>
+                </div>
+                <div class="ctrl-group">
+                    <label class="label" style="color:#ef4444;">باقي سيخ</label>
+                    <div class="ctrl-input readonly" data-m-shila-rem="${row.id}" style="color:#ef4444; font-weight:bold; text-align:center;">${fmtNum(calcs.shilaRem)}</div>
                 </div>
                 <div class="ctrl-group">
                     <label class="label">السعر (محلي / أجنبي) <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'sales')" title="سجل أسعار الصنف للعميل" style="color:#38bdf8; background:none; border:none; cursor:pointer; padding:0; margin-right:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></button></label>
@@ -1171,27 +1252,44 @@ function renderGrid() {
                         <input type="text" inputmode="decimal" class="ctrl-input" value="${fmtNum(row.price)}" placeholder="0"
                             onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
                             onblur="this.value=fmtNum(parseNum(this.value))" style="flex:1;">
-                        <input type="text" inputmode="decimal" class="ctrl-input" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}" placeholder="أجنبي"
+                        <input type="text" inputmode="decimal" class="ctrl-input" data-m-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}" placeholder="${document.getElementById('hdr-currency').value === 'SDG' ? 'أجنبي' : 'جنيه'}"
                             onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
                             onblur="this.value=fmtNum(parseNum(this.value))" style="flex:1; color:#10b981;">
                     </div>
                 </div>
                 <div class="ctrl-group">
-                    <label class="label">الكمية بالعدد</label>
+                    <label class="label fc-total-label">${document.getElementById('hdr-currency').value === 'SDG' ? 'جملة الوحدة أجنبي' : 'جملة الوحدة جنيه'}</label>
+                    <div class="ctrl-input readonly" data-m-total-fc="${row.id}" style="text-align:center;color:#10b981;">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0))}</div>
+                </div>
+                <div class="ctrl-group">
+                    <label class="label">عدد ${item ? item.baseUnit : ''}</label>
                     <input type="text" inputmode="decimal" class="ctrl-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
-                        onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
-                        onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700;">
+                onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
+                onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700;" tabindex="-1">
                 </div>
                 <div class="ctrl-group">
                     <label class="label">المخزن</label>
-                    <select class="ctrl-input" onchange="updateRow(${row.id},'warehouseId',this.value)">
+                    <select class="ctrl-input" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1">
                         <option value="">الرئيسي ↩</option>
                         ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
                     </select>
                 </div>
+
+            </div>
+            <div style="padding: 10px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 8px;">
                 <div class="ctrl-group">
-                    <label class="label">المتاح</label>
-                    <div class="ctrl-input readonly" style="text-align:center;color:#38bdf8;">${calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty)}</div>
+                    <label class="label">ملحوظة</label>
+                    <input type="text" class="ctrl-input" placeholder="ملحوظة..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)">
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <div class="ctrl-group" style="flex:1;">
+                        <label class="label">سعر الشراء</label>
+                        <input type="text" inputmode="decimal" class="ctrl-input" placeholder="0" value="${row.buyPrice !== undefined ? fmtNum(row.buyPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'buyPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))">
+                    </div>
+                    <div class="ctrl-group" style="flex:1;">
+                        <label class="label">سعر البيع</label>
+                        <input type="text" inputmode="decimal" class="ctrl-input" placeholder="0" value="${row.sellPrice !== undefined ? fmtNum(row.sellPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'sellPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))">
+                    </div>
                 </div>
             </div>
             <div class="m-card-total" data-m-total="${row.id}">${fmtNum(calcs.total)} ${getCurrency()}</div>

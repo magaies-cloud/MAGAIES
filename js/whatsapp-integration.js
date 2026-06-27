@@ -101,8 +101,8 @@ async function fetchWAQRCode() {
                     checkWAStatus();
                 }
             }, 5000);
-        } else if (data.status === 'INITIALIZING') {
-            // Still loading, try again in 3s
+        } else if (data.status !== 'CONNECTED' && data.status !== 'AUTHENTICATED') {
+            // Still loading or waiting, try again in 3s
             setTimeout(fetchWAQRCode, 3000);
         }
     } catch (err) {
@@ -130,6 +130,7 @@ function getWAUserId() {
     let currentUser = localStorage.getItem('erp_currentUser');
     if (!currentUser) {
         currentUser = 'default_user_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('erp_currentUser', currentUser);
     }
     return 'wa_user_' + currentUser;
 }
