@@ -652,7 +652,7 @@
 
     <style>
         .hub-action-card {
-            background: rgba(15, 23, 42, 0.4);
+            background: rgba(15, 23, 42, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-top: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
@@ -1003,90 +1003,86 @@
 
     <!-- ═══ INVOICE EDITOR VIEW ═══ -->
     <div id="invoice-editor-view" style="display: none; flex-direction: column; height: 100%; flex: 1;">
-    <!-- ═══ TOP ACTION BAR ═══ -->
-        <div class="top-action-bar">
-            <div class="action-tabs" id="sale-type-tabs">
-                <a onclick="openInvoiceEditor('pending_delivery')" id="tab-pending_delivery" class="action-tab active" style="text-decoration:none; cursor:pointer;">
-                    <span class="tab-icon">➕</span><span class="tab-label">فاتورة جديدة</span>
-                </a>
-                <a onclick="openDeliveryHub()" id="tab-delivery" class="action-tab" style="text-decoration:none; cursor:pointer;">
-                    <span class="tab-icon">🚚</span><span class="tab-label">التسليم</span>
-                </a>
-                <a onclick="openInvoiceEditor('preliminary')" id="tab-preliminary" class="action-tab" style="text-decoration:none; cursor:pointer;">
-                    <span class="tab-icon">📋</span><span class="tab-label">فاتورة مبدئية</span>
-                </a>
-            </div>
-            <div class="top-bar-meta" style="display:flex; align-items:center; gap:8px;">
-            </div>
-        </div>
+    
         <!-- ═══ MAIN BODY ═══ -->
-        <div class="ds-body">
+        <div class="ds-body" style="padding-top: 15px;">
 
-            <!-- ══ TOP ROW: بيانات الفاتورة (مدمجة) + الإجماليات ══ -->
-            
-            <!-- ══ TOP ROW: بيانات الفاتورة (مدمجة) + الإجماليات ══ -->
-            <div class="purchase-top-row" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: stretch;">
+            <!-- ══ TOP ROW: بيانات الفاتورة (مدمجة) ══ -->
+            <div class="purchase-top-row" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: stretch; width: 100%;">
 
-                <!-- Form Fields (Now first in DOM, rendering on the Right in RTL) -->
-                <div class="neo-card expanded-form" id="form-fields-card" style="margin-bottom: 0;">
-                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                <!-- Form Fields -->
+                <div class="neo-card expanded-form" id="form-fields-card" style="
+                    margin-bottom: 0; 
+                    padding: 25px; 
+                    border-radius: 16px; 
+                    background: rgba(15, 23, 42, 0.15); 
+                    border: 1px solid rgba(56, 189, 248, 0.3); 
+                    backdrop-filter: blur(25px); 
+                    -webkit-backdrop-filter: blur(25px); 
+                    box-shadow: 0 0 20px rgba(56, 189, 248, 0.15), inset 0 0 15px rgba(255,255,255,0.05);
+                    position: relative;
+                    overflow: hidden;
+                    width: 100%;
+                ">
+                    <!-- Neon glow effect -->
+                    <div style="position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 60%); z-index:0; pointer-events:none;"></div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 18px; position:relative; z-index:1;">
                         
-                        <!-- Row 0: Invoice Number & Date -->
-                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                            <div class="h-form-group" style="flex: 1; min-width: 150px;">
-                                <label class="h-label">رقم الفاتورة</label>
-                                <div class="h-input-wrapper" style="justify-content: space-between; padding: 0 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; height: 38px;">
-                                    <button class="pro-serial-btn" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #38bdf8; font-size: 1.2rem; cursor: pointer; padding: 0;">❮</button>
-                                    <span id="inv-number" class="pro-serial-number" style="font-size: 1.1rem; font-family: 'Outfit', sans-serif; font-weight: 900; color: #38bdf8; text-shadow: 0 0 8px rgba(56,189,248,0.4);">INV-000001</span>
+                        <!-- Row 1: Invoice Number & Date -->
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <div class="h-form-group" style="flex: 1; min-width: 250px; display:flex; align-items:center; gap:10px; background: rgba(0,0,0,0.5); padding: 10px 15px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.2);">
+                                <label class="h-label" style="margin:0; color:#38bdf8; font-weight:bold; white-space:nowrap; min-width:80px;">رقم الفاتورة:</label>
+                                <div style="display:flex; align-items:center; justify-content:space-between; flex:1;">
+                                    <button class="pro-serial-btn" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❮</button>
+                                    <span id="inv-number" class="pro-serial-number" style="font-size: 1.3rem; font-family: 'Outfit', sans-serif; font-weight: 900; color: #38bdf8; letter-spacing: 1px;">INV-000001</span>
                                     <input type="hidden" id="hdr-inv-no">
-                                    <button class="pro-serial-btn" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; color: #38bdf8; font-size: 1.2rem; cursor: pointer; padding: 0;">❯</button>
+                                    <button class="pro-serial-btn" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❯</button>
                                 </div>
                             </div>
 
-                            <div class="h-form-group" style="flex: 1; min-width: 150px;">
-                                <label class="h-label" id="hdr-date-label">التاريخ</label>
-                                <div class="h-input-wrapper">
-                                    <input type="date" class="v-input ctrl-input" id="hdr-date" style="text-align: center;">
-                                </div>
+                            <div class="h-form-group" style="flex: 1; min-width: 250px; display:flex; align-items:center; gap:10px; background: rgba(0,0,0,0.5); padding: 10px 15px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.2);">
+                                <label class="h-label" id="hdr-date-label" style="margin:0; color:#38bdf8; font-weight:bold; white-space:nowrap; min-width:60px;">التاريخ:</label>
+                                <input type="date" class="v-input ctrl-input" id="hdr-date" style="flex:1; text-align: center; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color:#f59e0b; padding:6px 10px; font-family:'Outfit',sans-serif; font-weight:bold; font-size:1.1rem;">
                             </div>
                         </div>
 
-                        <!-- Row 1: Customer, Currency, Payment -->
-                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                            <div class="h-form-group" style="flex: 1.5; min-width: 200px;">
-                                <label class="h-label">اسم العميل <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span> <span id="fin-status-txt">لا يوجد</span></span></label>
-                                <div class="h-input-wrapper" style="gap: 8px;">
+                        <!-- Row 2: Customer, Currency, Payment -->
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <div class="h-form-group" style="flex: 1.5; min-width: 260px; display:flex; align-items:center; gap:10px;">
+                                <label class="h-label" style="margin:0; white-space:nowrap; min-width:80px;">اسم العميل <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span> <span id="fin-status-txt">لا يوجد</span></span></label>
+                                <div class="h-input-wrapper" style="gap: 8px; flex:1;">
                                     <div class="custom-dropdown" style="flex: 1;">
                                         <div class="custom-dropdown-input-wrap" style="width: 100%;">
-                                            <input type="text" class="v-input ctrl-input" name="search_customer_dummy" id="hdr-customer-search" placeholder="ابحث أو اختر العميل..." onfocus="showCustomerDropdown()" onclick="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" autocomplete="off">
+                                            <input type="text" class="v-input ctrl-input" name="search_customer_dummy" id="hdr-customer-search" placeholder="ابحث أو اختر العميل..." onfocus="showCustomerDropdown()" onclick="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" autocomplete="off" style="background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);">
                                             <input type="hidden" id="hdr-customer" onchange="onCustomerChange()">
                                             <div class="custom-dropdown-list" id="customer-dropdown-list"></div>
                                         </div>
                                     </div>
-                                    <button onclick="openModal('add-customer-modal')" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid rgba(16,212,143,0.3); width: 32px; height: 32px; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2); transition: 0.2s;" title="إضافة عميل">
+                                    <button onclick="openModal('add-customer-modal')" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid rgba(16,212,143,0.3); width: 38px; height: 38px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2); transition: 0.2s;" title="إضافة عميل">
                                         ➕
                                     </button>
                                 </div>
                             </div>
 
-                            <div class="h-form-group" style="flex: 1.6; min-width: 220px;">
-                                <label class="h-label">سعر الصرف</label>
-                                <div class="h-input-wrapper" style="gap: 5px;">
-                                    <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="document.getElementById('hdr-exchange-rate').disabled = (this.value === 'SDG'); document.getElementById('hdr-exchange-rate').value = (this.value === 'SDG') ? '1' : ''; recalcAll();" style="flex: 1;">
+                            <div class="h-form-group" style="flex: 1; min-width: 200px; display:flex; align-items:center; gap:10px;">
+                                <label class="h-label" style="margin:0; white-space:nowrap;">سعر الصرف</label>
+                                <div class="h-input-wrapper" style="gap: 5px; flex:1;">
+                                    <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="document.getElementById('hdr-exchange-rate').disabled = (this.value === 'SDG'); document.getElementById('hdr-exchange-rate').value = (this.value === 'SDG') ? '1' : ''; recalcAll();" style="flex: 1; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
                                         <option value="SDG">🇸🇩 جنيه</option>
                                         <option value="USD">🇺🇸 دولار</option>
                                         <option value="SAR">🇸🇦 ريال</option>
                                         <option value="AED">🇦🇪 درهم</option>
                                         <option value="EGP">🇪🇬 مصري</option>
                                     </select>
-                                    <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" disabled oninput="recalcAll()" style="flex: 1.5; text-align: center;" placeholder="الصرف">
+                                    <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" disabled oninput="recalcAll()" style="flex: 1; text-align: center; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);" placeholder="الصرف">
                                 </div>
                             </div>
 
-                            <div class="h-form-group" style="flex: 1; min-width: 120px;">
-                                <label class="h-label">طريقة الدفع</label>
-                                <div class="h-input-wrapper">
-                                    <select class="v-input ctrl-input" id="hdr-payment-method" onchange="togglePaymentAccount()">
+                            <div class="h-form-group" style="flex: 1; min-width: 150px; display:flex; align-items:center; gap:10px;">
+                                <label class="h-label" style="margin:0; white-space:nowrap;">طريقة الدفع</label>
+                                <div class="h-input-wrapper" style="flex:1;">
+                                    <select class="v-input ctrl-input" id="hdr-payment-method" onchange="togglePaymentAccount()" style="background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
                                         <option value="cash">نقدي فوري</option>
                                         <option value="credit">آجل (على الحساب)</option>
                                         <option value="bank">تحويل بنكي</option>
@@ -1096,8 +1092,8 @@
                             </div>
                         </div>
 
-                        <!-- ══ شريط الحالة المالية الأفقي ══ -->
-                        <div class="fin-strip" id="fin-strip">
+                        <!-- Row 2.5: Financial Strip -->
+                        <div class="fin-strip" id="fin-strip" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px;">
                             <div class="fin-strip-card">
                                 <span class="fin-strip-lbl">📒 رصيد الدفتر</span>
                                 <span class="fin-strip-val" id="fin-ledger">0</span>
@@ -1115,53 +1111,53 @@
                                 <span class="fin-strip-val" id="fin-credit-limit">0</span>
                             </div>
                             <div class="fin-strip-card avail">
-                                <span class="fin-strip-lbl">✨ الائتمان المتاح</span>
+                                <span class="fin-strip-lbl">✨ المتاح</span>
                                 <span class="fin-strip-val" id="fin-remaining">0</span>
                             </div>
                         </div>
 
-                        <!-- Row 1.5: Payment Details (Hidden by default, shown for Bank/Cheque) -->
-                        <div id="payment-details-row" style="display: none; gap: 15px; flex-wrap: wrap; margin-top: -5px; padding: 10px; background: rgba(56, 189, 248, 0.05); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 8px;">
+                        <!-- Payment Details -->
+                        <div id="payment-details-row" style="display: none; gap: 15px; flex-wrap: wrap; padding: 10px; background: rgba(56, 189, 248, 0.1); border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 8px;">
                             <div class="h-form-group" style="flex: 1; min-width: 120px;">
                                 <label class="h-label" id="pay-detail-1-label" style="font-size:0.9rem; color:#38bdf8;">رقم المرجع</label>
                                 <div class="h-input-wrapper">
-                                    <input type="text" class="v-input ctrl-input" id="pay-detail-1" placeholder="..." style="height: 32px !important; min-height: 32px !important; font-size: 0.95rem !important;">
+                                    <input type="text" class="v-input ctrl-input" id="pay-detail-1" placeholder="..." style="height: 34px !important; min-height: 34px !important; font-size: 0.95rem !important; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
                                 </div>
                             </div>
                             <div class="h-form-group" style="flex: 1; min-width: 120px;">
                                 <label class="h-label" id="pay-detail-2-label" style="font-size:0.9rem; color:#38bdf8;">اسم البنك</label>
                                 <div class="h-input-wrapper">
-                                    <input type="text" class="v-input ctrl-input" id="pay-detail-2" placeholder="..." style="height: 32px !important; min-height: 32px !important; font-size: 0.95rem !important;">
+                                    <input type="text" class="v-input ctrl-input" id="pay-detail-2" placeholder="..." style="height: 34px !important; min-height: 34px !important; font-size: 0.95rem !important; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
                                 </div>
                             </div>
                             <div class="h-form-group" style="flex: 1; min-width: 120px;">
                                 <label class="h-label" id="pay-detail-3-label" style="font-size:0.9rem; color:#38bdf8;">الفرع (أو تاريخ)</label>
                                 <div class="h-input-wrapper">
-                                    <input type="text" class="v-input ctrl-input" id="pay-detail-3" placeholder="..." style="height: 32px !important; min-height: 32px !important; font-size: 0.95rem !important;">
+                                    <input type="text" class="v-input ctrl-input" id="pay-detail-3" placeholder="..." style="height: 34px !important; min-height: 34px !important; font-size: 0.95rem !important; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Row 2: Treasury, Warehouse, Cost Center -->
-                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                            <div class="h-form-group" id="payment-account-group" style="flex: 1; min-width: 150px;">
-                                <label class="h-label">الخزينة / الصندوق</label>
-                                <div class="h-input-wrapper">
-                                    <select class="v-input ctrl-input" id="hdr-payment-account"></select>
+                        <!-- Row 3: Treasury, Warehouse, Cost Center -->
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <div class="h-form-group" id="payment-account-group" style="flex: 1; min-width: 150px; display:flex; align-items:center; gap:10px;">
+                                <label class="h-label" style="margin:0; white-space:nowrap; min-width:80px;">الصندوق/الخزنة</label>
+                                <div class="h-input-wrapper" style="flex:1;">
+                                    <select class="v-input ctrl-input" id="hdr-payment-account" style="background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);"></select>
                                 </div>
                             </div>
 
-                            <div class="h-form-group" style="flex: 1; min-width: 150px;">
-                                <label class="h-label">المخزن</label>
-                                <div class="h-input-wrapper">
-                                    <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange()"></select>
+                            <div class="h-form-group" style="flex: 1; min-width: 150px; display:flex; align-items:center; gap:10px;">
+                                <label class="h-label" style="margin:0; white-space:nowrap; min-width:60px;">المخزن</label>
+                                <div class="h-input-wrapper" style="flex:1;">
+                                    <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange()" style="background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);"></select>
                                 </div>
                             </div>
 
-                            <div class="h-form-group" style="flex: 1; min-width: 150px;">
-                                <label class="h-label">مركز التكلفة</label>
-                                <div class="h-input-wrapper">
-                                    <select class="v-input ctrl-input" id="hdr-cost-center">
+                            <div class="h-form-group" style="flex: 1; min-width: 150px; display:flex; align-items:center; gap:10px;">
+                                <label class="h-label" style="margin:0; white-space:nowrap; min-width:75px;">مركز التكلفة</label>
+                                <div class="h-input-wrapper" style="flex:1;">
+                                    <select class="v-input ctrl-input" id="hdr-cost-center" style="background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
                                         <option value="cc-001">الفرع الرئيسي</option>
                                         <option value="cc-002">فرع بحري</option>
                                     </select>
@@ -1170,20 +1166,20 @@
                         </div>
 
                         <!-- Row 4: Description -->
-                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                            <div class="h-form-group" style="flex: 1; min-width: 100%;">
-                                <label class="h-label">البيان</label>
-                                <div class="h-input-wrapper">
-                                    <input type="text" class="v-input ctrl-input" id="hdr-description" placeholder="ملاحظات، أرقام مرجعية...">
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <div class="h-form-group" style="flex: 1; min-width: 100%; display:flex; align-items:center; gap:10px;">
+                                <label class="h-label" style="margin:0; white-space:nowrap; min-width:80px;">البيان</label>
+                                <div class="h-input-wrapper" style="flex:1;">
+                                    <input type="text" class="v-input ctrl-input" id="hdr-description" placeholder="ملاحظات، أرقام مرجعية..." style="background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
                                 </div>
                             </div>
                         </div>
                         
                         <!-- Due Date (hidden normally) -->
-                        <div class="h-form-group" id="due-date-group" style="display:none; border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.05);">
+                        <div class="h-form-group" id="due-date-group" style="display:none; border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.05); padding:10px; border-radius:8px;">
                             <label class="h-label" style="color: #f59e0b;">الاستحقاق</label>
                             <div class="h-input-wrapper">
-                                <input type="date" class="v-input ctrl-input" id="hdr-due-date" style="color:#f59e0b; background: rgba(245,158,11,0.1);">
+                                <input type="date" class="v-input ctrl-input" id="hdr-due-date" style="color:#f59e0b; background: rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.2);">
                             </div>
                         </div>
 
@@ -1240,11 +1236,7 @@
                             oninput="filterQuickItemDropdown()" autocomplete="new-password">
                         <div class="custom-dropdown-list" id="quick-item-dropdown-list" style="text-align:right;"></div>
                     </div>
-                    <button class="btn btn-primary btn-sm" onclick="addRow()" id="add-row-btn"
-                        title="إضافة صنف جديد (Ctrl+N)"
-                        style="margin-right: auto; padding: 4px 10px; font-size: 0.78rem; min-width: 0; white-space: nowrap;">
-                        ➕
-                    </button>
+                    
 
                 </div>
 
@@ -1290,6 +1282,23 @@
 
 
 
+        
+        <div class="items-toolbar" style="display: flex; align-items: center; justify-content: center; padding: 15px; border-radius: 12px; background: rgba(18, 15, 25, 0.8); border: 1px solid rgba(255,255,255,0.05); margin-top: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+            <div class="toolbar-actions" style="display: flex; gap: 12px; width: 100%; align-items: center;">
+                <button class="btn-action" style="flex: 1; height: 45px; background: #10b981; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);" onmouseover="this.style.background='#059669'; this.style.boxShadow='0 4px 15px rgba(16, 185, 129, 0.5)';" onmouseout="this.style.background='#10b981'; this.style.boxShadow='0 2px 10px rgba(16, 185, 129, 0.3)';" onclick="addRow()" id="add-row-btn">➕ إضافة سطر</button>
+                
+                <button class="btn-action" id="attach-btn" style="flex: 1; height: 45px; background: #8b5cf6; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);" onmouseover="this.style.background='#7c3aed'; this.style.boxShadow='0 4px 15px rgba(139, 92, 246, 0.5)';" onmouseout="this.style.background='#8b5cf6'; this.style.boxShadow='0 2px 10px rgba(139, 92, 246, 0.3)';" onclick="document.getElementById('hdr-attachment').click()">📎 إرفاق مستند</button>
+                <input type="file" id="hdr-attachment" accept="image/*,application/pdf" style="display:none;" onchange="document.getElementById('attach-btn').innerText = this.files.length > 0 ? '📎 تم الإرفاق' : '📎 إرفاق مستند'; document.getElementById('attach-btn').style.background = this.files.length > 0 ? '#10b981' : '#8b5cf6';">
+                
+                <button class="btn-action btn-draft" style="flex: 1; height: 45px; background: #f97316; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(249, 115, 22, 0.3);" onmouseover="this.style.background='#ea580c'; this.style.boxShadow='0 4px 15px rgba(249, 115, 22, 0.5)';" onmouseout="this.style.background='#f97316'; this.style.boxShadow='0 2px 10px rgba(249, 115, 22, 0.3)';" onclick="saveDraft()">💾 مسودة</button>
+                
+                <button class="btn-action btn-delete" style="flex: 1; height: 45px; background: #ef4444; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(239, 68, 68, 0.3);" onmouseover="this.style.background='#dc2626'; this.style.boxShadow='0 4px 15px rgba(239, 68, 68, 0.5)';" onmouseout="this.style.background='#ef4444'; this.style.boxShadow='0 2px 10px rgba(239, 68, 68, 0.3)';" onclick="confirmDeleteTransaction()">❌ إلغاء</button>
+                
+                <span style="display:none;" id="footer-grand"></span>
+                <button class="btn-action btn-submit" style="flex: 1.5; height: 45px; box-shadow: 0 2px 10px rgba(56, 189, 248, 0.4); background: linear-gradient(135deg, #0ea5e9, #2563eb); color: #fff; border: none; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.boxShadow='0 6px 20px rgba(56, 189, 248, 0.6)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(56, 189, 248, 0.4)';" onclick="submitInvoice()">✅ تأكيد وحفظ</button>
+            </div>
+        </div>
+
         <div id="adjustments-panel" style="display: none;">
             <input type="text" id="discount-amt" value="0">
             <input type="number" id="discount-pct" value="0">
@@ -1300,24 +1309,14 @@
         </div>
 
         <!-- ═══ STICKY FOOTER ═══ -->
-        <div class="sticky-footer">
-            <div class="footer-total">
-                <span class="ft-label">الصافي:</span>
-                <span class="ft-value" id="footer-grand">0</span>
-            </div>
-            <div class="footer-actions">
-                <button class="btn btn-ghost" style="color: #f87171; border: 1px solid rgba(239,68,68,0.2);" onclick="confirmDeleteTransaction()">🗑️ حذف العملية</button>
-                <button class="btn btn-ghost" onclick="saveDraft()">📑 حفظ مسودة</button>
-                <button class="btn btn-success" onclick="submitInvoice()">✅ تأكيد الفاتورة</button>
-            </div>
         </div>
-        </div>
+</div>
 </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1782529808922"></script>
     <script src="js/print-engine.js"></script>
-    <script src="js/direct-sales.js?v=23"></script>
+    <script src="js/direct-sales.js?v=1782529808921"></script>
 
     <script>
         // Sales Hub Logic
@@ -1400,7 +1399,11 @@
             tbody.innerHTML = '';
             
             // Sort by date/time descending
-            invoices.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+            invoices.sort((a,b) => {
+                const dateA = new Date(a.timestamp || a.date).getTime();
+                const dateB = new Date(b.timestamp || b.date).getTime();
+                return dateB - dateA;
+            });
             
             invoices.forEach(inv => {
                 const tr = document.createElement('tr');
@@ -1429,8 +1432,8 @@
 
                 tr.innerHTML = `
                     <td style="text-align:right; font-weight:800; color:var(--gold-primary);">${inv.invoiceNo}</td>
-                    <td style="text-align:right; color:var(--text-dim);">${new Date(inv.timestamp).toLocaleString('ar-EG')}</td>
-                    <td style="text-align:right; font-weight:600;">${inv.customerName || 'عميل نقدي'}</td>
+                    <td style="text-align:right; color:var(--text-dim);">${inv.timestamp ? new Date(inv.timestamp).toLocaleString('ar-EG') : inv.date}</td>
+                    <td style="text-align:right; font-weight:600;">${inv.customerName || (inv.customer && inv.customer !== 'walk-in' ? inv.customer : 'عميل نقدي')}</td>
                     <td style="text-align:right; color:var(--text-dim);">${typeText}</td>
                     <td style="text-align:center; font-weight:900; direction:ltr;">${fmtNum(inv.totals?.grandTotal || inv.grandTotal || 0)} SDG</td>
                     <td style="text-align:center;"><span class="hub-badge ${statusClass}">${statusText}</span></td>
