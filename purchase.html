@@ -1234,7 +1234,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
     <script src="js/app.js?v=20260626_4"></script>
     <script src="js/print-engine.js"></script>
-    <script src="js/purchase-pro.js?v=21"></script>
+    <script src="js/purchase-pro.js?v=22"></script>
 </div>
 
     <script>
@@ -1342,11 +1342,11 @@
         
         function deleteHubTransaction(invNo) {
             if(confirm('هل أنت متأكد من حذف الفاتورة ' + invNo + ' نهائياً؟')) {
-                let savedData = localStorage.getItem('erp_purchase_invoices');
+                let savedData = localStorage.getItem('erp_purchase_invoices_v1');
                 if (savedData) {
                     let invoices = JSON.parse(savedData);
                     invoices = invoices.filter(i => i.invoiceNo !== invNo);
-                    localStorage.setItem('erp_purchase_invoices', JSON.stringify(invoices));
+                    localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(invoices));
                     showToast('تم حذف الفاتورة بنجاح', 'success');
                     loadHubTransactions();
                 }
