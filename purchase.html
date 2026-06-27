@@ -1286,7 +1286,7 @@
             const tbody = document.getElementById('hub-transactions-body');
             const emptyState = document.getElementById('hub-empty-state');
             
-            const savedData = localStorage.getItem('erp_purchase_invoices');
+            const savedData = localStorage.getItem('erp_purchase_invoices_v1');
             let invoices = [];
             if (savedData) {
                 try { invoices = JSON.parse(savedData); } catch(e) {}
