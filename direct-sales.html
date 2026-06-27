@@ -619,7 +619,36 @@
             .ds-right { position: static; }
             .ds-notes-bar { grid-template-columns: 1fr; }
         }
+
+        /* 5. Dynamic Totals Card Animation */
+        #form-fields-card {
+            transition: flex 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), min-width 0.8s, max-width 0.8s;
+            flex: 75;
+            min-width: 450px;
+        }
+        #totals-calc-card {
+            transition: flex 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), min-width 0.8s, opacity 0.5s ease-in-out, transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-origin: left center;
+            flex: 25;
+            min-width: 250px;
+        }
+        .hidden-totals {
+            flex: 0 0 0% !important;
+            min-width: 0 !important;
+            max-width: 0 !important;
+            padding: 0 !important;
+            border-width: 0 !important;
+            opacity: 0 !important;
+            margin: 0 !important;
+            overflow: hidden !important;
+            pointer-events: none !important;
+        }
+        .expanded-form {
+            flex: 1 1 100% !important;
+            max-width: 100% !important;
+        }
     </style>
+
 
     <style>
         .hub-action-card {
@@ -988,260 +1017,216 @@
                 </a>
             </div>
             <div class="top-bar-meta" style="display:flex; align-items:center; gap:8px;">
-                <input type="date" class="ctrl-input" id="hdr-date" style="padding:5px 8px; font-size:0.78rem; width:130px;" title="تاريخ الفاتورة">
-
-                <div style="display:flex; align-items:center; background:rgba(0,0,0,0.2); border-radius:8px; border:1px solid rgba(255,255,255,0.06); padding:3px;">
-                    <button class="btn-icon" style="width:28px;height:28px;" onclick="loadPreviousInvoice()" title="السابقة">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                    </button>
-                    <div class="inv-badge" id="inv-number" style="margin:0 4px; font-size:0.78rem; padding:4px 10px;">000001</div>
-                    <button class="btn-icon" style="width:28px;height:28px;" onclick="loadNextInvoice()" title="التالية">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                    </button>
-                </div>
-                <input type="hidden" id="hdr-inv-no">
-
-                <button class="btn-icon" id="btn-gps" onclick="toggleGPS()" title="GPS" style="gap:4px; padding:4px 8px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.06); border-radius:8px; width:auto; height:32px; font-size:0.72rem; font-weight:700; color:var(--text-muted);">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                    <span id="gps-status">GPS</span>
-                </button>
-                <input type="hidden" id="hdr-gps-lat">
-                <input type="hidden" id="hdr-gps-lng">
-
-                <button class="btn-icon" onclick="toggleFullScreen()" title="ملء الشاشة" style="width:32px;height:32px; color:var(--text-muted);">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
-                </button>
-                <button class="back-arrow-btn" onclick="window.location.href='dashboard-pro.html'" title="رجوع">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><polyline points="12 19 5 12 12 5"></polyline></svg>
-                </button>
             </div>
         </div>
-
         <!-- ═══ MAIN BODY ═══ -->
         <div class="ds-body">
 
             <!-- ══ TOP ROW: بيانات الفاتورة (مدمجة) + الإجماليات ══ -->
-            <div class="ds-top-row">
+            
+            <!-- ══ TOP ROW: بيانات الفاتورة (مدمجة) + الإجماليات ══ -->
+            <div class="purchase-top-row" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: stretch;">
 
-                <!-- ═══ بيانات الفاتورة + الحالة المالية (مستطيل واحد) ═══ -->
-                <div class="panel pro-panel" id="invoice-data-panel" style="z-index: 60;">
-                    <div class="panel-title">📝 بيانات الفاتورة
-                        <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span> <span id="fin-status-txt">لا يوجد</span></span>
-                    </div>
-
-                    <!-- ── صف 1: العميل + طريقة الدفع + العملة في سطر واحد ── -->
-                    <div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:10px; margin-bottom:2px;">
-                        <div class="ctrl-group" style="margin:0;">
-                            <label class="label">👤 اسم العميل</label>
-                            <div class="custom-dropdown">
-                                <div class="custom-dropdown-input-wrap">
-                                    <input type="text" class="ctrl-input" id="hdr-customer-search" placeholder="ابحث أو اختر العميل..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()">
-                                    <input type="hidden" id="hdr-customer" onchange="onCustomerChange()">
-                                    <div class="custom-dropdown-list" id="customer-dropdown-list"></div>
+                <!-- Form Fields (Now first in DOM, rendering on the Right in RTL) -->
+                <div class="neo-card expanded-form" id="form-fields-card" style="margin-bottom: 0;">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        
+                        <!-- Row 0: Invoice Number & Date -->
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <div class="h-form-group" style="flex: 1; min-width: 150px;">
+                                <label class="h-label">رقم الفاتورة</label>
+                                <div class="h-input-wrapper" style="justify-content: space-between; padding: 0 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; height: 38px;">
+                                    <button class="pro-serial-btn" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #38bdf8; font-size: 1.2rem; cursor: pointer; padding: 0;">❮</button>
+                                    <span id="inv-number" class="pro-serial-number" style="font-size: 1.1rem; font-family: 'Outfit', sans-serif; font-weight: 900; color: #38bdf8; text-shadow: 0 0 8px rgba(56,189,248,0.4);">INV-000001</span>
+                                    <input type="hidden" id="hdr-inv-no">
+                                    <button class="pro-serial-btn" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; color: #38bdf8; font-size: 1.2rem; cursor: pointer; padding: 0;">❯</button>
                                 </div>
-                                <button class="btn-icon-add" onclick="openModal('add-customer-modal')" title="إضافة عميل">+</button>
                             </div>
-                        </div>
-                        <div class="ctrl-group" style="margin:0;">
-                            <label class="label">💰 طريقة الدفع</label>
-                            <select class="ctrl-input" id="hdr-payment-method" onchange="togglePaymentAccount()">
-                                <option value="cash">💵 نقدي فوري</option>
-                                <option value="credit">📅 آجل</option>
-                                <option value="bank">🏛️ تحويل بنكي</option>
-                                <option value="cheque">📄 شيك</option>
-                            </select>
-                        </div>
-                        <div class="ctrl-group" style="margin:0;">
-                            <label class="label">🌐 العملة</label>
-                            <select class="ctrl-input system-currency-select" id="hdr-currency" onchange="document.getElementById('hdr-exchange-rate').disabled=(this.value==='SDG'); document.getElementById('hdr-exchange-rate').value=(this.value==='SDG')?'1':''; recalcAll();"
-                                <option value="SDG">🇸🇩 جنيه (SDG)</option>
-                                <option value="USD">🇺🇸 دولار (USD)</option>
-                                <option value="SAR">🇸🇦 ريال (SAR)</option>
-                                <option value="AED">🇦🇪 درهم (AED)</option>
-                                <option value="EGP">🇪🇬 جنيه مصري</option>
-                            </select>
-                        </div>
-                    </div>
 
-                    <!-- ══ شريط الحالة المالية الأفقي ══ -->
-                    <div class="fin-strip" id="fin-strip">
-                        <div class="fin-strip-card">
-                            <span class="fin-strip-lbl">📒 رصيد الدفتر</span>
-                            <span class="fin-strip-val" id="fin-ledger">0</span>
-                        </div>
-                        <div class="fin-strip-card">
-                            <span class="fin-strip-lbl">🏦 شيكات معلقة</span>
-                            <span class="fin-strip-val" id="fin-checks">0</span>
-                        </div>
-                        <div class="fin-strip-card warn">
-                            <span class="fin-strip-lbl">⚠️ المديونية</span>
-                            <span class="fin-strip-val" id="fin-total-debt">0</span>
-                        </div>
-                        <div class="fin-strip-card">
-                            <span class="fin-strip-lbl">💳 حد الائتمان</span>
-                            <span class="fin-strip-val" id="fin-credit-limit">0</span>
-                        </div>
-                        <div class="fin-strip-card avail">
-                            <span class="fin-strip-lbl">✨ الائتمان المتاح</span>
-                            <span class="fin-strip-val" id="fin-remaining">0</span>
-                        </div>
-                    </div>
-
-
-                    <!-- فاصل -->
-                    <div style="height:1px; background:rgba(255,255,255,0.05); margin:8px 0;"></div>
-
-                    <!-- ══ منطقة تفاصيل الدفع الشرطية ══ -->
-                    <div id="payment-details-zone">
-
-                        <!-- 💵 نقدي فوري: خزينة + مخزن + مركز التكلفة + صرف -->
-                        <div id="zone-cash" class="pzone-inner">
-                            <div class="ctrl-group">
-                                <label class="label">🏦 الخزينة / الصندوق</label>
-                                <select class="ctrl-input" id="hdr-payment-account"></select>
-                            </div>
-                            <div class="ctrl-group">
-                                <label class="label">📦 المخزن</label>
-                                <select class="ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange()"></select>
-                            </div>
-                            <div class="ctrl-group">
-                                <label class="label">🏢 مركز التكلفة</label>
-                                <select class="ctrl-input" id="hdr-cost-center">
-                                    <option value="cc-001">الفرع الرئيسي</option>
-                                    <option value="cc-002">فرع بحري</option>
-                                </select>
-                            </div>
-                            <div class="ctrl-group">
-                                <label class="label">📈 سعر الصرف</label>
-                                <input type="number" class="ctrl-input" id="hdr-exchange-rate" value="1" disabled placeholder="الصرف" oninput="recalcAll()">
+                            <div class="h-form-group" style="flex: 1; min-width: 150px;">
+                                <label class="h-label" id="hdr-date-label">التاريخ</label>
+                                <div class="h-input-wrapper">
+                                    <input type="date" class="v-input ctrl-input" id="hdr-date" style="text-align: center;">
+                                </div>
                             </div>
                         </div>
 
-                        <!-- 📅 آجل: تاريخ السداد -->
-                        <div id="zone-credit" class="pzone-inner" style="display:none;">
-                            <div class="ctrl-group">
-                                <label class="label" style="color:var(--danger-color);">📅 آخر موعد سداد</label>
-                                <input type="date" class="ctrl-input" id="hdr-due-date">
+                        <!-- Row 1: Customer, Currency, Payment -->
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <div class="h-form-group" style="flex: 1.5; min-width: 200px;">
+                                <label class="h-label">اسم العميل <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span> <span id="fin-status-txt">لا يوجد</span></span></label>
+                                <div class="h-input-wrapper" style="gap: 8px;">
+                                    <div class="custom-dropdown" style="flex: 1;">
+                                        <div class="custom-dropdown-input-wrap" style="width: 100%;">
+                                            <input type="text" class="v-input ctrl-input" name="search_customer_dummy" id="hdr-customer-search" placeholder="ابحث أو اختر العميل..." onfocus="showCustomerDropdown()" onclick="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" autocomplete="off">
+                                            <input type="hidden" id="hdr-customer" onchange="onCustomerChange()">
+                                            <div class="custom-dropdown-list" id="customer-dropdown-list"></div>
+                                        </div>
+                                    </div>
+                                    <button onclick="openModal('add-customer-modal')" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid rgba(16,212,143,0.3); width: 32px; height: 32px; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2); transition: 0.2s;" title="إضافة عميل">
+                                        ➕
+                                    </button>
+                                </div>
                             </div>
-                            <div class="ctrl-group">
-                                <label class="label">📦 المخزن</label>
-                                <select class="ctrl-input" id="hdr-warehouse-credit" onchange="syncWarehouse(this)"></select>
+
+                            <div class="h-form-group" style="flex: 1.6; min-width: 220px;">
+                                <label class="h-label">سعر الصرف</label>
+                                <div class="h-input-wrapper" style="gap: 5px;">
+                                    <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="document.getElementById('hdr-exchange-rate').disabled = (this.value === 'SDG'); document.getElementById('hdr-exchange-rate').value = (this.value === 'SDG') ? '1' : ''; recalcAll();" style="flex: 1;">
+                                        <option value="SDG">🇸🇩 جنيه</option>
+                                        <option value="USD">🇺🇸 دولار</option>
+                                        <option value="SAR">🇸🇦 ريال</option>
+                                        <option value="AED">🇦🇪 درهم</option>
+                                        <option value="EGP">🇪🇬 مصري</option>
+                                    </select>
+                                    <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" disabled oninput="recalcAll()" style="flex: 1.5; text-align: center;" placeholder="الصرف">
+                                </div>
                             </div>
-                            <div class="ctrl-group">
-                                <label class="label">🏢 مركز التكلفة</label>
-                                <select class="ctrl-input" id="hdr-cost-center-credit">
-                                    <option value="cc-001">الفرع الرئيسي</option>
-                                    <option value="cc-002">فرع بحري</option>
-                                </select>
-                            </div>
-                            <div class="ctrl-group">
-                                <label class="label">📈 سعر الصرف</label>
-                                <input type="number" class="ctrl-input" id="hdr-exchange-rate-credit" value="1" disabled placeholder="الصرف" oninput="recalcAll()">
+
+                            <div class="h-form-group" style="flex: 1; min-width: 120px;">
+                                <label class="h-label">طريقة الدفع</label>
+                                <div class="h-input-wrapper">
+                                    <select class="v-input ctrl-input" id="hdr-payment-method" onchange="togglePaymentAccount()">
+                                        <option value="cash">نقدي فوري</option>
+                                        <option value="credit">آجل (على الحساب)</option>
+                                        <option value="bank">تحويل بنكي</option>
+                                        <option value="cheque">شيك</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- 🏛️ تحويل بنكي -->
-                        <div id="zone-bank" class="pzone-inner" style="display:none;">
-                            <div class="ctrl-group">
-                                <label class="label">🏦 الحساب البنكي</label>
-                                <select class="ctrl-input" id="hdr-bank-account"></select>
+                        <!-- ══ شريط الحالة المالية الأفقي ══ -->
+                        <div class="fin-strip" id="fin-strip">
+                            <div class="fin-strip-card">
+                                <span class="fin-strip-lbl">📒 رصيد الدفتر</span>
+                                <span class="fin-strip-val" id="fin-ledger">0</span>
                             </div>
-                            <div class="ctrl-group">
-                                <label class="label">📄 رقم الحوالة</label>
-                                <input type="text" class="ctrl-input" id="hdr-bank-ref" placeholder="رقم التحويل / المرجع...">
+                            <div class="fin-strip-card">
+                                <span class="fin-strip-lbl">🏦 شيكات معلقة</span>
+                                <span class="fin-strip-val" id="fin-checks">0</span>
                             </div>
-                            <div class="ctrl-group">
-                                <label class="label">📦 المخزن</label>
-                                <select class="ctrl-input" id="hdr-warehouse-bank" onchange="syncWarehouse(this)"></select>
+                            <div class="fin-strip-card warn">
+                                <span class="fin-strip-lbl">⚠️ المديونية</span>
+                                <span class="fin-strip-val" id="fin-total-debt">0</span>
                             </div>
-                            <div class="ctrl-group">
-                                <label class="label">📈 سعر الصرف</label>
-                                <input type="number" class="ctrl-input" id="hdr-exchange-rate-bank" value="1" disabled placeholder="الصرف" oninput="recalcAll()">
+                            <div class="fin-strip-card">
+                                <span class="fin-strip-lbl">💳 حد الائتمان</span>
+                                <span class="fin-strip-val" id="fin-credit-limit">0</span>
                             </div>
-                        </div>
-
-                        <!-- 📄 شيك -->
-                        <div id="zone-cheque" class="pzone-inner" style="display:none;">
-                            <div class="ctrl-group">
-                                <label class="label" style="color:#fbbf24;">🔢 رقم الشيك</label>
-                                <input type="text" class="ctrl-input" id="hdr-cheque-number" placeholder="رقم الشيك...">
-                            </div>
-                            <div class="ctrl-group">
-                                <label class="label" style="color:#fbbf24;">🏦 البنك المسحوب عليه</label>
-                                <input type="text" class="ctrl-input" id="hdr-cheque-bank" placeholder="اسم البنك...">
-                            </div>
-                            <div class="ctrl-group">
-                                <label class="label" style="color:#fbbf24;">📅 تاريخ الشيك</label>
-                                <input type="date" class="ctrl-input" id="hdr-cheque-date">
-                            </div>
-                            <div class="ctrl-group">
-                                <label class="label">📦 المخزن</label>
-                                <select class="ctrl-input" id="hdr-warehouse-cheque" onchange="syncWarehouse(this)"></select>
-                            </div>
-                            <div class="ctrl-group">
-                                <label class="label">📈 سعر الصرف</label>
-                                <input type="number" class="ctrl-input" id="hdr-exchange-rate-cheque" value="1" disabled placeholder="الصرف" oninput="recalcAll()">
+                            <div class="fin-strip-card avail">
+                                <span class="fin-strip-lbl">✨ الائتمان المتاح</span>
+                                <span class="fin-strip-val" id="fin-remaining">0</span>
                             </div>
                         </div>
 
-                    </div><!-- end payment-details-zone -->
-
-                </div><!-- end invoice-data-panel -->
-
-
-                <!-- الإجماليات النهائية (sticky sidebar) -->
-                <div class="ds-right">
-                    <div class="totals-sidebar-panel pro-panel">
-                        <div class="totals-title">🧮 الإجماليات</div>
-
-                        <!-- قائمة عمودية نظيفة -->
-                        <div class="totals-vlist">
-
-                            <div class="tv-row">
-                                <span class="tv-label">إجمالي الأصناف</span>
-                                <span class="tv-value" id="t-invoice-total">0</span>
+                        <!-- Row 1.5: Payment Details (Hidden by default, shown for Bank/Cheque) -->
+                        <div id="payment-details-row" style="display: none; gap: 15px; flex-wrap: wrap; margin-top: -5px; padding: 10px; background: rgba(56, 189, 248, 0.05); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 8px;">
+                            <div class="h-form-group" style="flex: 1; min-width: 120px;">
+                                <label class="h-label" id="pay-detail-1-label" style="font-size:0.9rem; color:#38bdf8;">رقم المرجع</label>
+                                <div class="h-input-wrapper">
+                                    <input type="text" class="v-input ctrl-input" id="pay-detail-1" placeholder="..." style="height: 32px !important; min-height: 32px !important; font-size: 0.95rem !important;">
+                                </div>
                             </div>
-
-                            <div class="tv-sep"></div>
-
-                            <div class="tv-row editable">
-                                <span class="tv-label">🔧 مناولة / عمالة</span>
-                                <input type="text" inputmode="decimal" class="tl-input" id="t-labor" value="0"
-                                    onfocus="this.select()" oninput="recalcAll()" onblur="this.value=fmtNum(parseNum(this.value))">
+                            <div class="h-form-group" style="flex: 1; min-width: 120px;">
+                                <label class="h-label" id="pay-detail-2-label" style="font-size:0.9rem; color:#38bdf8;">اسم البنك</label>
+                                <div class="h-input-wrapper">
+                                    <input type="text" class="v-input ctrl-input" id="pay-detail-2" placeholder="..." style="height: 32px !important; min-height: 32px !important; font-size: 0.95rem !important;">
+                                </div>
                             </div>
-                            <div class="tv-row editable">
-                                <span class="tv-label">🚚 نقل / شحن</span>
-                                <input type="text" inputmode="decimal" class="tl-input" id="t-transport" value="0"
-                                    onfocus="this.select()" oninput="recalcAll()" onblur="this.value=fmtNum(parseNum(this.value))">
+                            <div class="h-form-group" style="flex: 1; min-width: 120px;">
+                                <label class="h-label" id="pay-detail-3-label" style="font-size:0.9rem; color:#38bdf8;">الفرع (أو تاريخ)</label>
+                                <div class="h-input-wrapper">
+                                    <input type="text" class="v-input ctrl-input" id="pay-detail-3" placeholder="..." style="height: 32px !important; min-height: 32px !important; font-size: 0.95rem !important;">
+                                </div>
                             </div>
-
-                            <div class="tv-sep"></div>
-
-                            <div class="tv-row">
-                                <span class="tv-label">➕ إضافات</span>
-                                <span class="tv-value" id="t-additions" style="color:#34d399;">+ 0</span>
-                            </div>
-                            <div class="tv-row">
-                                <span class="tv-label">🧾 ضريبة</span>
-                                <span class="tv-value" id="t-tax" style="color:#fbbf24;">+ 0</span>
-                            </div>
-                            <div class="tv-row">
-                                <span class="tv-label">🏷️ خصم</span>
-                                <span class="tv-value" id="t-discount" style="color:#f87171;">- 0</span>
-                            </div>
-
                         </div>
 
-                        <!-- الصافي النهائي -->
-                        <div class="tv-grand" style="animation:grandBreath 3.5s ease-in-out infinite;">
-                            <span class="tv-grand-label">الصافي النهائي</span>
-                            <span class="tv-grand-value" id="t-grand">0</span>
+                        <!-- Row 2: Treasury, Warehouse, Cost Center -->
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <div class="h-form-group" id="payment-account-group" style="flex: 1; min-width: 150px;">
+                                <label class="h-label">الخزينة / الصندوق</label>
+                                <div class="h-input-wrapper">
+                                    <select class="v-input ctrl-input" id="hdr-payment-account"></select>
+                                </div>
+                            </div>
+
+                            <div class="h-form-group" style="flex: 1; min-width: 150px;">
+                                <label class="h-label">المخزن</label>
+                                <div class="h-input-wrapper">
+                                    <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange()"></select>
+                                </div>
+                            </div>
+
+                            <div class="h-form-group" style="flex: 1; min-width: 150px;">
+                                <label class="h-label">مركز التكلفة</label>
+                                <div class="h-input-wrapper">
+                                    <select class="v-input ctrl-input" id="hdr-cost-center">
+                                        <option value="cc-001">الفرع الرئيسي</option>
+                                        <option value="cc-002">فرع بحري</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row 4: Description -->
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <div class="h-form-group" style="flex: 1; min-width: 100%;">
+                                <label class="h-label">البيان</label>
+                                <div class="h-input-wrapper">
+                                    <input type="text" class="v-input ctrl-input" id="hdr-description" placeholder="ملاحظات، أرقام مرجعية...">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Due Date (hidden normally) -->
+                        <div class="h-form-group" id="due-date-group" style="display:none; border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.05);">
+                            <label class="h-label" style="color: #f59e0b;">الاستحقاق</label>
+                            <div class="h-input-wrapper">
+                                <input type="date" class="v-input ctrl-input" id="hdr-due-date" style="color:#f59e0b; background: rgba(245,158,11,0.1);">
+                            </div>
                         </div>
 
                     </div>
                 </div>
 
+                <!-- Totals Card (Now second in DOM, rendering on the Left in RTL) -->
+                <div class="neo-card totals-card hidden-totals" id="totals-calc-card" style="margin-bottom: 0; display: none; flex-direction: column; justify-content: space-between; border-top: 2px solid var(--gold-primary);">
+                    <div class="neo-card-title" style="margin-bottom: 10px; text-align: center; color: var(--gold-primary); font-size: 1.1rem;">🧮 الإجماليات</div>
+                    
+                    <div class="tot-row" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <span class="tot-lbl">قيمة الأصناف</span>
+                        <span class="tot-val" id="t-invoice-total">0</span>
+                    </div>
+                    
+                    <div class="tot-row" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <span class="tot-lbl">الترحيل</span>
+                        <input type="text" inputmode="decimal" class="v-input tot-input tl-input" id="t-transport" value="0" onfocus="this.select()" oninput="recalcAll()" onblur="this.value=fmtNum(parseNum(this.value))" style="width:120px; text-align:left; background: rgba(0,0,0,0.3);">
+                    </div>
+                    <div class="tot-row" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <span class="tot-lbl">تكلفة العمالة</span>
+                        <input type="text" inputmode="decimal" class="v-input tot-input tl-input" id="t-labor" value="0" onfocus="this.select()" oninput="recalcAll()" onblur="this.value=fmtNum(parseNum(this.value))" style="width:120px; text-align:left; background: rgba(0,0,0,0.3);">
+                    </div>
+                    <div class="tot-row" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <span class="tot-lbl">إضافات أخرى</span>
+                        <span class="tot-val" id="t-additions" style="color:var(--gold-primary);">+ 0</span>
+                    </div>
+                    <div class="tot-row" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <span class="tot-lbl">الضريبة</span>
+                        <span class="tot-val" id="t-tax" style="color:var(--danger-color);">+ 0</span>
+                    </div>
+                    <div class="tot-row" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <span class="tot-lbl">خصم مسموح</span>
+                        <span class="tot-val" id="t-discount" style="color:var(--danger-color);">- 0</span>
+                    </div>
+
+                    <div class="tot-grand-row" style="margin-top: 15px; padding: 12px; background: rgba(56, 189, 248, 0.1); border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); text-align: center;">
+                        <div style="font-size: 0.9rem; color: #38bdf8; margin-bottom: 5px;">الصافي النهائي</div>
+                        <div id="t-grand" style="font-size: 1.8rem; font-weight: 900; color: #fff; direction: ltr;">0</div>
+                    </div>
+                </div>
             </div><!-- end ds-top-row -->
+
 
             <!-- ══ FULL-WIDTH: جدول الأصناف ══ -->
             <div class="panel" id="items-panel" style="z-index: 50;">
@@ -1332,7 +1317,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
     <script src="js/app.js?v=20260626_4"></script>
     <script src="js/print-engine.js"></script>
-    <script src="js/direct-sales.js?v=4"></script>
+    <script src="js/direct-sales.js?v=23"></script>
 
     <script>
         // Sales Hub Logic

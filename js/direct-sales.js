@@ -1107,6 +1107,25 @@ function recalcAll() {
 
     // Footer
     document.getElementById('footer-grand').textContent = fmtNum(grand) + ' ' + cur;
+
+    // Dynamic UI Animation — toggle CSS classes
+    const totalsCard = document.getElementById('totals-calc-card');
+    const formCard = document.getElementById('form-fields-card');
+    if (totalsCard && formCard) {
+        const hasItems = rows.some(r => r.itemId !== '' || parseFloat(r.price) > 0 || parseFloat(r.quantity) > 0);
+
+        if (hasItems) {
+            // Remove hiding classes, add showing classes
+            totalsCard.classList.remove('hidden-totals');
+            formCard.classList.remove('expanded-form');
+            totalsCard.style.display = 'flex';
+        } else {
+            // Add hiding classes, add expanded class
+            totalsCard.classList.add('hidden-totals');
+            formCard.classList.add('expanded-form');
+            totalsCard.style.display = 'none';
+        }
+    }
 }
 
 // ════════════════════════════════════════
