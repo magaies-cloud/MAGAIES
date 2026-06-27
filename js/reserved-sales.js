@@ -791,12 +791,15 @@ function getRowCalcs(row) {
         baseQty = item ? row.quantity * selectedUnitFactor * item.conversionFactor : 0;
     }
     const bundles = item ? row.quantity * item.bundleFactor : 0;
+    const shilaFactor = item && item.bundleFactor > 0 ? item.bundleFactor : 1;
+    const shilaQty = row.quantity ? (row.quantity / shilaFactor) : 0;
+    const shilaRem = row.quantity ? (row.quantity % shilaFactor) : 0;
     const whId = getResolvedWarehouse(row);
     const actualQty = item && item.actualStock && item.actualStock[whId] !== undefined ? item.actualStock[whId] : 0;
     const reservedQty = item && item.reservedStock && item.reservedStock[whId] !== undefined ? item.reservedStock[whId] : 0;
     const availQty = actualQty - reservedQty;
     
-    return { total, baseQty, bundles, actualQty, reservedQty, availQty, unit: selectedUnitName, unitFactor: selectedUnitFactor };
+    return { total, baseQty, bundles, shilaQty, shilaRem, actualQty, reservedQty, availQty, unit: selectedUnitName, unitFactor: selectedUnitFactor };
 }
 
 function updateRowCalcs(id) {
@@ -810,6 +813,8 @@ function updateRowCalcs(id) {
     const baseEl = document.querySelector(`[data-base-input="${id}"]`);
     const availEl = document.querySelector(`[data-avail="${id}"]`);
     const bundleEl = document.querySelector(`[data-bundle="${id}"]`);
+    const shilaEl = document.querySelector(`[data-shila="${id}"]`);
+    
     const priceEl = document.querySelector(`[data-price-input="${id}"]`);
     const qtyEl = document.querySelector(`[data-qty-input="${id}"]`);
 
@@ -820,6 +825,8 @@ function updateRowCalcs(id) {
     }
     if (baseEl && document.activeElement !== baseEl) baseEl.value = fmtNum(calcs.baseQty);
     if (bundleEl) bundleEl.textContent = fmtNum(calcs.bundles);
+    if (shilaEl) shilaEl.textContent = fmtNum(calcs.shilaQty);
+    
     if (priceEl && document.activeElement !== priceEl) priceEl.value = fmtNum(row.price);
     if (qtyEl && document.activeElement !== qtyEl) qtyEl.value = Number.isInteger(row.quantity) ? row.quantity : parseFloat((row.quantity || 0).toFixed(4));
 
@@ -837,6 +844,9 @@ function updateRowCalcs(id) {
     // Mobile
     const mTotal = document.querySelector(`[data-m-total="${id}"]`);
     if (mTotal) mTotal.textContent = fmtNum(calcs.total) + ' ' + getCurrency();
+    const mShilaEl = document.querySelector(`[data-m-shila="${id}"]`);
+        if (mShilaEl) mShilaEl.textContent = fmtNum(calcs.shilaQty);
+    
 }
 
 function getCurrency() {

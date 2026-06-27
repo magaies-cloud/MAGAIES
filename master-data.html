@@ -548,6 +548,9 @@
                                     <button onclick="openInnerTab(event, 'inner-categories')" class="btn-action hover-glow" style="display:flex; align-items:center; gap:5px; justify-content:center; padding:10px 20px; font-size:0.95rem; font-weight:bold; border-radius: 8px; background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(88,28,135,0.6)); border: 1px solid rgba(168,85,247,0.5); color: #fff; cursor: pointer;">
                                         <span style="font-size:1.1rem;">🗂️</span> أنواع الأصناف
                                     </button>
+                                    <button onclick="openInnerTab(event, 'inner-units')" class="btn-action hover-glow" style="display:flex; align-items:center; gap:5px; justify-content:center; padding:10px 20px; font-size:0.95rem; font-weight:bold; border-radius: 8px; background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(14,165,233,0.6)); border: 1px solid rgba(56,189,248,0.5); color: #fff; cursor: pointer;">
+                                        <span style="font-size:1.1rem;">📐</span> الوحدات
+                                    </button>
                                     <button onclick="alert('جاري التجهيز للطباعة...')" class="btn-action hover-glow" style="display:flex; align-items:center; gap:5px; justify-content:center; padding:10px 20px; font-size:0.95rem; font-weight:bold; border-radius: 8px; background: linear-gradient(135deg, rgba(52,211,153,0.2), rgba(6,78,59,0.6)); border: 1px solid rgba(52,211,153,0.5); color: #fff; cursor: pointer;">
                                         <span style="font-size:1.1rem;">🖨️</span> طباعة باركود
                                     </button>
@@ -644,7 +647,14 @@
                                         </div>
                                         <div style="display:flex; align-items:center; gap:15px; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(168,85,247,0.3); box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);">
                                             <label style="color:#a855f7; font-weight:bold; margin:0; font-size: 1rem;">الوحدة الأساسية <span style="color:#ef4444;">*</span></label>
-                                            <input type="text" id="item-base-unit" placeholder="مثال: سيخة، قطعة" oninput="updateBaseUnitRow()" style="border:none; border-bottom: 2px solid #a855f7; background:transparent; color:#fff; font-weight:bold; font-size: 1.1rem; padding: 5px; outline:none; width: 150px; text-align: center; transition: all 0.3s;" onfocus="this.style.borderBottomColor='#d8b4fe'">
+                                            <div style="display:flex; align-items:center; gap:5px;">
+                                                <select id="item-base-unit" onchange="updateBaseUnitRow()" style="border:none; border-bottom: 2px solid #a855f7; background:transparent; color:#fff; font-weight:bold; font-size: 1.1rem; padding: 5px; outline:none; width: 150px; text-align: center; transition: all 0.3s;" onfocus="this.style.borderBottomColor='#d8b4fe'">
+                                                    <option value="">-- اختر الوحدة --</option>
+                                                </select>
+                                                <button class="btn-text" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:8px; padding:0 8px; font-size:0.9rem;" onclick="quickAddUnit()" title="إضافة وحدة سريعة">➕</button>
+                                            </div>
+                                            <label style="color:#a855f7; font-weight:bold; margin:0; font-size: 1rem; margin-right: 20px;">الشيلة</label>
+                                            <input type="number" id="item-bundle-factor" placeholder="مثال: 15" value="1" min="1" style="border:none; border-bottom: 2px solid #a855f7; background:transparent; color:#fff; font-weight:bold; font-size: 1.1rem; padding: 5px; outline:none; width: 80px; text-align: center; transition: all 0.3s;" onfocus="this.style.borderBottomColor='#d8b4fe'">
                                         </div>
                                     </div>
                                     
@@ -727,6 +737,27 @@
                                 <thead><tr><th>اسم الفئة</th><th>عدد الأصناف</th><th>الإجراء</th></tr></thead>
                                 <tbody id="categories-table-body">
                                     <!-- Dynamic categories -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Units Tab -->
+                    <div id="inner-units" class="inner-tab-content">
+                        <div class="md-card neon-glass-panel neon-border-info" style="margin-bottom:20px; border-color: rgba(56,189,248,0.3);">
+                            <h4 style="margin-top:0; color:#38bdf8;">إضافة/تعديل وحدة</h4>
+                            <div class="form-grid">
+                                <div class="input-group"><label>اسم الوحدة</label><input type="text" id="unit-name-input" placeholder="مثال: دزينة، صندوق، حبة"></div>
+                                <div style="display:flex; align-items:flex-end;">
+                                    <button class="btn-add" style="background:linear-gradient(135deg, rgba(56,189,248,0.2), rgba(14,165,233,0.6)); border: 1px solid rgba(56,189,248,0.5); padding:10px 20px; height:fit-content;" onclick="saveGlobalUnit()">💾 حفظ الوحدة</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive" style="overflow-x: auto;">
+                            <table class="pro-table">
+                                <thead><tr><th>اسم الوحدة</th><th>الإجراء</th></tr></thead>
+                                <tbody id="units-table-body">
+                                    <!-- Dynamic units -->
                                 </tbody>
                             </table>
                         </div>
@@ -1547,7 +1578,7 @@
                 }
             });
             const costRadio = document.querySelector('input[name="cost_method"]:checked');
-            const itemData = { id, name, nameLatin: document.getElementById('item-name-latin').value, barcode: document.getElementById('item-barcode').value, category: document.getElementById('item-category').value, subCategory: document.getElementById('item-sub-category').value, nature: document.getElementById('item-nature').value, brand: document.getElementById('item-brand').value, status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive', sellingPrice: parseFloat(document.getElementById('item-selling-price').value) || 0, maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0, taxable: document.getElementById('item-taxable').checked, taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0, costMethod: costRadio ? costRadio.value : 'lastPurchase', openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0, openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0, binLocation: document.getElementById('item-bin-location').value, maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0, minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0, reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0, baseUnit, units, description: document.getElementById('item-description').value };
+            const itemData = { id, name, nameLatin: document.getElementById('item-name-latin').value, barcode: document.getElementById('item-barcode').value, category: document.getElementById('item-category').value, subCategory: document.getElementById('item-sub-category').value, nature: document.getElementById('item-nature').value, brand: document.getElementById('item-brand').value, status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive', sellingPrice: parseFloat(document.getElementById('item-selling-price').value) || 0, maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0, taxable: document.getElementById('item-taxable').checked, taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0, costMethod: costRadio ? costRadio.value : 'lastPurchase', openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0, openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0, binLocation: document.getElementById('item-bin-location').value, maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0, minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0, reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0, baseUnit, bundleFactor: parseFloat(document.getElementById('item-bundle-factor').value) || 1, units, description: document.getElementById('item-description').value };
             let items = [];
             try {
                 items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
@@ -1744,16 +1775,34 @@ function openSafeForm() {
             const id = document.getElementById('item-code').value || 'ITEM-' + Date.now();
             const units = [];
             document.querySelectorAll('#units-matrix-body tr').forEach((row) => {
-                const inputs = row.querySelectorAll('input');
-                if(inputs.length >= 7) {
-                    units.push({ unitName: inputs[0].value || baseUnit, factor: parseFloat(inputs[1].value) || 1, barcode: inputs[2].value, cashPrice: parseFloat(inputs[3].value) || 0, creditPrice: parseFloat(inputs[4].value) || 0, minPrice: parseFloat(inputs[5].value) || 0, weight: parseFloat(inputs[6].value) || 0, stock: 0 });
+                const unitNameElem = row.querySelector('input[type="text"]:first-of-type, select.unit-name-input');
+                const inputs = row.querySelectorAll('input[type="number"], input[type="text"]:not(#base-unit-name-display)');
+                
+                // inputs now has:
+                // [number factor, text barcode, number cash, number credit, number min, number weight]
+                // but wait, let's just get them by specific selectors or index correctly to avoid bugs.
+                
+                const factorInput = row.querySelector('input[type="number"]:nth-of-type(1)'); // wait, nth-of-type(1) might be wrong if there are multiple td's.
+                // It's safer to get all inputs AND selects and map them, or use specific classes/indices.
+                // Let's use the td index.
+                const tds = row.querySelectorAll('td');
+                if (tds.length >= 8) {
+                    const uName = tds[1].querySelector('input, select')?.value || baseUnit;
+                    const uFactor = parseFloat(tds[2].querySelector('input')?.value) || 1;
+                    const uBarcode = tds[3].querySelector('input')?.value || '';
+                    const uCash = parseFloat(tds[4].querySelector('input')?.value) || 0;
+                    const uCredit = parseFloat(tds[5].querySelector('input')?.value) || 0;
+                    const uMin = parseFloat(tds[6].querySelector('input')?.value) || 0;
+                    const uWeight = parseFloat(tds[7].querySelector('input')?.value) || 0;
+                    
+                    units.push({ unitName: uName, factor: uFactor, barcode: uBarcode, cashPrice: uCash, creditPrice: uCredit, minPrice: uMin, weight: uWeight, stock: 0 });
                 }
             });
             const itemBarcode = document.getElementById('item-barcode').value;
             const newBarcodes = [itemBarcode, ...units.map(u => u.barcode)].filter(b => b && b.trim() !== '');
 
             const costRadio = document.querySelector('input[name="cost_method"]:checked');
-            const itemData = { id, name, nameLatin: document.getElementById('item-name-latin').value, barcode: itemBarcode, category: document.getElementById('item-category').value, subCategory: document.getElementById('item-sub-category').value, nature: document.getElementById('item-nature').value, brand: document.getElementById('item-brand').value, status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive', sellingPrice: parseFloat(document.getElementById('item-selling-price').value) || 0, maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0, taxable: document.getElementById('item-taxable').checked, taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0, costMethod: costRadio ? costRadio.value : 'lastPurchase', openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0, openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0, binLocation: document.getElementById('item-bin-location').value, maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0, minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0, reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0, baseUnit, units, description: document.getElementById('item-description').value };
+            const itemData = { id, name, nameLatin: document.getElementById('item-name-latin').value, barcode: itemBarcode, category: document.getElementById('item-category').value, subCategory: document.getElementById('item-sub-category').value, nature: document.getElementById('item-nature').value, brand: document.getElementById('item-brand').value, status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive', sellingPrice: parseFloat(document.getElementById('item-selling-price').value) || 0, maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0, taxable: document.getElementById('item-taxable').checked, taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0, costMethod: costRadio ? costRadio.value : 'lastPurchase', openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0, openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0, binLocation: document.getElementById('item-bin-location').value, maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0, minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0, reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0, baseUnit, bundleFactor: parseFloat(document.getElementById('item-bundle-factor').value) || 1, units, description: document.getElementById('item-description').value };
             let items = [];
             try {
                 items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
@@ -1861,12 +1910,38 @@ function openSafeForm() {
             }, 300);
         }
 
+        function quickAddUnit() {
+            const name = prompt('أدخل اسم الوحدة الجديدة:');
+            if(name) {
+                let units = [];
+                try { units = JSON.parse(localStorage.getItem('erp_global_units_v1')) || []; } catch(e) {}
+                if(!units.includes(name)) {
+                    units.push(name);
+                    localStorage.setItem('erp_global_units_v1', JSON.stringify(units));
+                    renderGlobalUnitsList();
+                    updateUnitDropdowns(name);
+                }
+            }
+        }
+
         function buildUnitRow(num, u, isBase) {
             const dis = isBase ? 'disabled' : '';
             const bg = isBase ? 'style="background:rgba(52,211,153,0.08); border-right:3px solid var(--success-color);"' : '';
             const act = isBase ? '<span style="font-size:0.75rem; color:var(--success-color); font-weight:bold; background:rgba(52,211,153,0.2); padding:3px 8px; border-radius:4px;">أساسية</span>' : "<button class=\"btn-text\" style=\"color:var(--danger-color);\" onclick=\"this.closest('tr').remove()\">✖</button>";
-            const idAttr = isBase ? ' id="base-unit-name-display"' : '';
-            return '<tr ' + bg + '><td>' + num + '</td><td><input type="text"' + idAttr + ' value="' + (u.unitName || '') + '" ' + dis + ' style="width:100px; background:' + (isBase ? 'transparent' : 'var(--bg-color)') + '; border:' + (isBase ? 'none' : '1px solid rgba(255,255,255,0.15)') + '; color:' + (isBase ? 'var(--success-color)' : '#fff') + '; font-weight:bold; text-align:center; padding:5px; border-radius:6px;"></td><td><input type="number" value="' + (u.factor || 1) + '" ' + dis + ' style="width:60px; background:transparent; border:' + (isBase ? 'none' : '1px solid rgba(255,255,255,0.15)') + '; color:' + (isBase ? 'var(--success-color)' : '#fff') + '; font-weight:bold; text-align:center; padding:5px; border-radius:6px;"></td><td><input type="text" value="' + (u.barcode || '') + '" placeholder="باركود..." style="width:100px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td><input type="number" value="' + (u.cashPrice || '') + '" placeholder="0.00" style="width:85px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px; font-weight:bold;"></td><td><input type="number" value="' + (u.creditPrice || '') + '" placeholder="0.00" style="width:85px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td><input type="number" value="' + (u.minPrice || '') + '" placeholder="0.00" style="width:85px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td><input type="number" value="' + (u.weight || '') + '" placeholder="0.00" style="width:60px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td>' + act + '</td></tr>';
+            const idAttr = isBase ? ' id="base-unit-name-display"' : ' class="unit-name-input"';
+            
+            let units = [];
+            try { units = JSON.parse(localStorage.getItem('erp_global_units_v1')) || []; } catch(e) {}
+            const val = u.unitName || '';
+            if (val && !units.includes(val)) units.push(val); // Ensure backward compat display
+            
+            let opts = `<option value="">-- اختر --</option>` + units.map(un => `<option value="${un}" ${un === val ? 'selected' : ''}>${un}</option>`).join('');
+            
+            let unitField = isBase ? 
+                `<input type="text" id="base-unit-name-display" value="${val}" disabled style="width:100px; background:transparent; border:none; color:var(--success-color); font-weight:bold; text-align:center; padding:5px; border-radius:6px;">` : 
+                `<select ${idAttr} style="width:120px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; font-weight:bold; text-align:center; padding:5px; border-radius:6px; outline:none;">${opts}</select>`;
+
+            return '<tr ' + bg + '><td>' + num + '</td><td>' + unitField + '</td><td><input type="number" value="' + (u.factor || 1) + '" ' + dis + ' style="width:60px; background:transparent; border:' + (isBase ? 'none' : '1px solid rgba(255,255,255,0.15)') + '; color:' + (isBase ? 'var(--success-color)' : '#fff') + '; font-weight:bold; text-align:center; padding:5px; border-radius:6px;"></td><td><input type="text" value="' + (u.barcode || '') + '" placeholder="باركود..." style="width:100px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td><input type="number" value="' + (u.cashPrice || '') + '" placeholder="0.00" style="width:85px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px; font-weight:bold;"></td><td><input type="number" value="' + (u.creditPrice || '') + '" placeholder="0.00" style="width:85px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td><input type="number" value="' + (u.minPrice || '') + '" placeholder="0.00" style="width:85px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td><input type="number" value="' + (u.weight || '') + '" placeholder="0.00" style="width:60px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td>' + act + '</td></tr>';
         }
 
         function editItem(id) {
@@ -1906,6 +1981,7 @@ function openSafeForm() {
             document.getElementById('item-min-limit').value = item.minLimit || '';
             document.getElementById('item-reorder-level').value = item.reorderLevel || '';
             document.getElementById('item-base-unit').value = item.baseUnit || '';
+            document.getElementById('item-bundle-factor').value = item.bundleFactor || 1;
             document.getElementById('item-description').value = item.description || '';
             updateBaseUnitRow();
             const tbody = document.getElementById('units-matrix-body');
@@ -1964,6 +2040,7 @@ function openSafeForm() {
             document.getElementById('item-min-limit').value = '';
             document.getElementById('item-reorder-level').value = '';
             document.getElementById('item-base-unit').value = '';
+            document.getElementById('item-bundle-factor').value = '1';
             document.getElementById('item-description').value = '';
             updateCategoryDropdowns();
             document.getElementById('units-matrix-body').innerHTML = buildUnitRow(1, { unitName: '', factor: 1 }, true);
@@ -1976,6 +2053,96 @@ function openSafeForm() {
             if(!tbody) return;
             const count = tbody.querySelectorAll('tr').length + 1;
             tbody.insertAdjacentHTML('beforeend', buildUnitRow(count, { unitName: '', factor: 1 }, false));
+        }
+
+        // ================= UNITS LOGIC =================
+        function saveGlobalUnit() {
+            const name = document.getElementById('unit-name-input').value;
+            if(!name) { alert('أدخل اسم الوحدة'); return; }
+            let units = [];
+            try {
+                units = JSON.parse(localStorage.getItem('erp_global_units_v1')) || [];
+            } catch(e) { units = []; }
+            if(!units.includes(name)) { 
+                units.push(name); 
+                localStorage.setItem('erp_global_units_v1', JSON.stringify(units)); 
+            }
+            document.getElementById('unit-name-input').value = '';
+            renderGlobalUnitsList();
+            updateUnitDropdowns();
+        }
+
+        function renderGlobalUnitsList() {
+            const tbody = document.getElementById('units-table-body');
+            if(!tbody) return;
+            let units = [];
+            try {
+                units = JSON.parse(localStorage.getItem('erp_global_units_v1')) || [];
+            } catch(e) { units = []; }
+            tbody.innerHTML = '';
+            units.forEach(u => {
+                tbody.insertAdjacentHTML('beforeend', `<tr>
+                    <td><strong style="color:#38bdf8;">${u}</strong></td>
+                    <td><button class="btn-text" style="color:var(--danger-color);" onclick="deleteGlobalUnit('${u}')">حذف</button></td>
+                </tr>`);
+            });
+        }
+
+        function deleteGlobalUnit(name) {
+            if(!confirm('هل أنت متأكد من حذف هذه الوحدة؟')) return;
+            let units = [];
+            try {
+                units = JSON.parse(localStorage.getItem('erp_global_units_v1')) || [];
+            } catch(e) { units = []; }
+            units = units.filter(u => u !== name);
+            localStorage.setItem('erp_global_units_v1', JSON.stringify(units));
+            renderGlobalUnitsList();
+            updateUnitDropdowns();
+        }
+
+        function importLegacyUnits() {
+            // Import units that were manually typed in older items
+            let items = [];
+            try { items = JSON.parse(localStorage.getItem('erp_items_v1')) || []; } catch(e) {}
+            if(items.length === 0) return;
+            let units = [];
+            try { units = JSON.parse(localStorage.getItem('erp_global_units_v1')) || []; } catch(e) {}
+            let added = false;
+            items.forEach(i => {
+                if(i.baseUnit && !units.includes(i.baseUnit)) { units.push(i.baseUnit); added = true; }
+                if(i.units) {
+                    i.units.forEach(u => {
+                        if(u.unitName && !units.includes(u.unitName)) { units.push(u.unitName); added = true; }
+                    });
+                }
+            });
+            if(added) {
+                localStorage.setItem('erp_global_units_v1', JSON.stringify(units));
+            }
+        }
+
+        function updateUnitDropdowns(selectedValue = '') {
+            let units = [];
+            try {
+                units = JSON.parse(localStorage.getItem('erp_global_units_v1')) || [];
+            } catch(e) { units = []; }
+            
+            const options = units.map(u => `<option value="${u}">${u}</option>`).join('');
+            const baseSelect = document.getElementById('item-base-unit');
+            if(baseSelect) {
+                const current = selectedValue || baseSelect.value;
+                baseSelect.innerHTML = `<option value="">-- اختر الوحدة --</option>` + options;
+                if(current) baseSelect.value = current;
+            }
+            
+            // Also update any dynamic selects in the matrix
+            document.querySelectorAll('.unit-name-input').forEach(sel => {
+                if(sel.tagName === 'SELECT') {
+                    const current = sel.value;
+                    sel.innerHTML = `<option value="">-- اختر الوحدة --</option>` + options;
+                    if(current) sel.value = current;
+                }
+            });
         }
 
         // ================= CATEGORY LOGIC =================
@@ -2181,6 +2348,11 @@ function openSafeForm() {
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    // Units Init
+    importLegacyUnits();
+    renderGlobalUnitsList();
+    updateUnitDropdowns();
+    
     setTimeout(() => {
         const params = new URLSearchParams(window.location.search);
         const tabParam = params.get('tab');

@@ -106,79 +106,87 @@ function commitInvoiceNumber(type) {
 //  INIT
 // ════════════════════════════════════════
 document.addEventListener('DBReady', () => {
-    // Load real customer data from master-data
-    const localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-    if(localCusts.length > 0) {
-        CUSTOMERS = localCusts.map(c => ({
-            id: c.id,
-            name: c.name,
-            ledger: Math.abs(c.currentBalance < 0 ? c.currentBalance : 0),
-            checks: 0,
-            creditLimit: c.creditLimit || 0,
-            status: c.status || 'active'
-        }));
-        CUSTOMERS.unshift({ id:'walk-in', name:'زبون نقدي (Walk-in)', ledger:0, checks:0, creditLimit:0, status:'active' });
-    }
+    window.refreshAllMasterData = function() {
+        // Load real customer data from master-data
+        const localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+        if(localCusts.length > 0) {
+            CUSTOMERS = localCusts.map(c => ({
+                id: c.id,
+                name: c.name,
+                ledger: Math.abs(c.currentBalance < 0 ? c.currentBalance : 0),
+                checks: 0,
+                creditLimit: c.creditLimit || 0,
+                status: c.status || 'active'
+            }));
+            CUSTOMERS.unshift({ id:'walk-in', name:'زبون نقدي (Walk-in)', ledger:0, checks:0, creditLimit:0, status:'active' });
+        }
 
-    // Load Master Data Items
-    const rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
-    const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
-    
-    if (rawItems.length === 0) {
-        alert('تنبيه: لا توجد أصناف في النظام! يرجى إضافة الأصناف من شاشة (البيانات الأساسية) أولاً.');
-    }
-
-    // Map raw items to POS expected format
-    ITEMS = rawItems.map(item => {
-        let actualStockMap = {};
-        let reservedStockMap = {};
-        let itemInv = invData.filter(inv => inv.itemId === item.id);
-        itemInv.forEach(inv => {
-            let whId = WAREHOUSES.find(w => w.name === inv.warehouse)?.id || 'w-001';
-            actualStockMap[whId] = (actualStockMap[whId] || 0) + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0);
-            reservedStockMap[whId] = (reservedStockMap[whId] || 0) + (parseFloat(inv.reservedQuantity) || 0);
-        });
-
-        // Clean price — support new schema (sellingPrice) and old (salePrice/price)
-        let sp = item.sellingPrice || item.salePrice || item.price || 0;
-        sp = sp.toString().replace(/,/g, '');
+        const rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+        const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
         
-        const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
-
-        // Build unitsArray from new schema (item.units[]) or old (item.unitsArray[])
-        let unitsArray = [];
-        if (item.units && item.units.length > 0) {
-            // New Item Master schema: units[{unitName, factor, cashPrice, ...}]
-            unitsArray = item.units.map(u => ({ name: u.unitName, factor: u.factor || 1 }));
-        } else if (item.unitsArray && item.unitsArray.length > 0) {
-            // Old schema: unitsArray[{name, factor}]
-            unitsArray = item.unitsArray;
-        }
-        // Ensure base unit is always first
-        if (unitsArray.length === 0 || !unitsArray.find(u => u.name === baseUnit)) {
-            unitsArray = [{ name: baseUnit, factor: 1 }, ...unitsArray];
+        if (rawItems.length === 0) {
+            console.warn('تنبيه: لا توجد أصناف في النظام! يرجى إضافة الأصناف من شاشة (البيانات الأساسية) أولاً.');
         }
 
-        return {
-            id: item.id,
-            name: item.name,
-            unit: baseUnit,
-            baseUnit: baseUnit,
-            conversionFactor: 1, 
-            bundleFactor: 1,
-            price: parseFloat(sp) || 0,
-            actualStock: actualStockMap,
-            reservedStock: reservedStockMap,
-            unitsArray: unitsArray,
-            maxDiscount: item.maxDiscount || 0,
-            status: item.status || 'active'
-        };
-    }).filter(item => item.status !== 'inactive');
+        ITEMS = rawItems.map(item => {
+            let actualStockMap = {};
+            let reservedStockMap = {};
+            let itemInv = invData.filter(inv => inv.itemId === item.id);
+            itemInv.forEach(inv => {
+                let whId = WAREHOUSES.find(w => w.name === inv.warehouse)?.id || 'w-001';
+                actualStockMap[whId] = (actualStockMap[whId] || 0) + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0);
+                reservedStockMap[whId] = (reservedStockMap[whId] || 0) + (parseFloat(inv.reservedQuantity) || 0);
+            });
 
-    populateDropdowns();
-    initHeader();
-    renderGrid();
-    recalcAll();
+            let sp = item.sellingPrice || item.salePrice || item.price || 0;
+            sp = sp.toString().replace(/,/g, '');
+            
+            const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
+
+            let unitsArray = [];
+            if (item.units && item.units.length > 0) {
+                unitsArray = item.units.map(u => ({ name: u.unitName, factor: u.factor || 1 }));
+            } else if (item.unitsArray && item.unitsArray.length > 0) {
+                unitsArray = item.unitsArray;
+            }
+            if (unitsArray.length === 0 || !unitsArray.find(u => u.name === baseUnit)) {
+                unitsArray = [{ name: baseUnit, factor: 1 }, ...unitsArray];
+            }
+
+            return {
+                id: item.id,
+                name: item.name,
+                unit: baseUnit,
+                baseUnit: baseUnit,
+                conversionFactor: 1, 
+                bundleFactor: 1,
+                price: parseFloat(sp) || 0,
+                actualStock: actualStockMap,
+                reservedStock: reservedStockMap,
+                unitsArray: unitsArray,
+                maxDiscount: item.maxDiscount || 0,
+                status: item.status || 'active'
+            };
+        }).filter(item => item.status !== 'inactive');
+
+        populateDropdowns();
+        initHeader();
+        renderGrid();
+        recalcAll();
+    };
+
+    window.refreshAllMasterData();
+
+    // Auto-sync items across tabs dynamically
+    const localSyncChannel = new BroadcastChannel('erp_db_sync');
+    localSyncChannel.addEventListener('message', (ev) => {
+        if (ev.data && ev.data.type === 'SYNC_KEY') {
+            const key = ev.data.tenantKey || '';
+            if (key.includes('erp_items_v1') || key.includes('erp_inventory_v1') || key.includes('erp_customers_v1')) {
+                window.refreshAllMasterData();
+            }
+        }
+    });
 
     // Deep Drill-down: Check if URL has ?id= to load specific invoice
     const urlParams = new URLSearchParams(window.location.search);
@@ -203,6 +211,7 @@ function populateDropdowns() {
     
     // Warehouses (Header)
     const whSel = document.getElementById('hdr-warehouse');
+    whSel.innerHTML = '';
     WAREHOUSES.forEach(w => {
         const o = document.createElement('option');
         o.value = w.id; o.textContent = w.name;
@@ -268,6 +277,12 @@ function initHeader() {
 // ════════════════════════════════════════
 function setSaleType(btn, type) {
     currentSaleType = type;
+    
+    // Refresh all master data when switching invoice types
+    if (window.refreshAllMasterData) {
+        window.refreshAllMasterData();
+    }
+    
     document.querySelectorAll('.action-tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
     const invNo = peekNextInvoiceNumber(type);
@@ -544,7 +559,7 @@ function renderItemDropdown(rowId, isMobile = false, filter = '') {
     matches.forEach(i => {
         const div = document.createElement('div');
         div.className = 'custom-dropdown-item';
-        div.textContent = isMobile ? `${i.name} — ${i.unit}` : i.name;
+        div.textContent = i.name;
         div.onmousedown = () => {
             updateRow(rowId, 'itemId', i.id);
             renderGrid();
@@ -590,7 +605,7 @@ function hideItemDropdownDelayed(rowId, isMobile = false) {
             if (row && row.itemId) {
                 const item = ITEMS.find(i => i.id === row.itemId);
                 if (item) {
-                    searchEl.value = isMobile ? `${item.name} — ${item.unit}` : item.name;
+                    searchEl.value = item.name;
                 }
             } else {
                 searchEl.value = '';
@@ -630,7 +645,7 @@ function renderQuickItemDropdown(filter = '') {
     matches.forEach(i => {
         const div = document.createElement('div');
         div.className = 'custom-dropdown-item';
-        div.textContent = `${i.name} — ${i.unit}`;
+        div.textContent = i.name;
         div.onmousedown = () => {
             selectQuickItem(i.id);
         };
@@ -922,9 +937,14 @@ function renderGrid() {
                     </div>
                 </div>
             </td>
-            <td><input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
-                onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
-                onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700;" tabindex="-1"></td>
+            <td>
+                <div style="display:flex; align-items:center; gap:4px; justify-content:center;">
+                    <input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
+                        onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
+                        onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700; width:100%;" tabindex="-1">
+                    <span style="font-size:11px; color:var(--text-muted); white-space:nowrap;">${item ? item.baseUnit : ''}</span>
+                </div>
+            </td>
             <td><span class="g-readonly ${calcs.availQty !== '—' && calcs.availQty !== undefined && calcs.availQty < calcs.baseQty ? 'warn-val' : 'avail-val'}" data-avail="${row.id}">${calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty)}</span></td>
             <td>
                 <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1">
@@ -950,7 +970,7 @@ function renderGrid() {
             <div class="ctrl-group m-card-full" style="padding-top:4px; position:relative;">
                 <label class="label">الصنف</label>
                 <input type="text" class="ctrl-input" id="m-item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
-                    value="${item ? item.name + ' — ' + item.unit : ''}" autocomplete="new-password"
+                    value="${item ? item.name : ''}" autocomplete="new-password"
                     onfocus="this.select(); showItemDropdown(${row.id}, true)" 
                     onblur="hideItemDropdownDelayed(${row.id}, true)" 
                     oninput="filterItemDropdown(${row.id}, true)">
@@ -988,7 +1008,7 @@ function renderGrid() {
                     </div>
                 </div>
                 <div class="ctrl-group">
-                    <label class="label">الكمية بالعدد</label>
+                    <label class="label">عدد ${item ? item.baseUnit : ''}</label>
                     <input type="text" inputmode="decimal" class="ctrl-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
                         onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
                         onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700;">

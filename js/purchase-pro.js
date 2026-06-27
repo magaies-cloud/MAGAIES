@@ -89,104 +89,111 @@ function commitInvoiceNumber(type) {
 //  INIT
 // ════════════════════════════════════════
 document.addEventListener('DBReady', () => {
-    // Initialize Globals
-    try {
-        WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1'));
-    } catch(e) { WAREHOUSES = null; }
-    
-    if (!WAREHOUSES || WAREHOUSES.length === 0) {
-        WAREHOUSES = [{ id:'w-main', name:'المخزن الرئيسي (السجانة)' }];
-    }
-    WAREHOUSES.unshift({ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام (لم تحدد بعد)' });
+    window.refreshAllMasterData = function() {
+        try {
+            WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1'));
+        } catch(e) { WAREHOUSES = null; }
+        
+        if (!WAREHOUSES || WAREHOUSES.length === 0) {
+            WAREHOUSES = [{ id:'w-main', name:'المخزن الرئيسي (السجانة)' }];
+        }
+        WAREHOUSES.unshift({ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام (لم تحدد بعد)' });
 
-    let supps = [];
-    try {
-        supps = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
-    } catch(e) { supps = []; }
-    
-    // For Purchase Invoices, we only want Suppliers, NOT Customers.
-    const uniquePartners = Array.from(new Map(supps.map(item => [item.id, item])).values());
-    
-    VENDORS = uniquePartners.map(s => ({
-        id: s.id, name: s.name,
-        ledger: parseFloat(s.currentBalance) || 0, checks: 0,
-        creditLimit: s.creditLimit || 0
-    }));
+        let supps = [];
+        try {
+            supps = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+        } catch(e) { supps = []; }
+        
+        // For Purchase Invoices, we only want Suppliers, NOT Customers.
+        const uniquePartners = Array.from(new Map(supps.map(item => [item.id, item])).values());
+        
+        VENDORS = uniquePartners.map(s => ({
+            id: s.id, name: s.name,
+            ledger: parseFloat(s.currentBalance) || 0, checks: 0,
+            creditLimit: s.creditLimit || 0
+        }));
 
-    try {
-        UOMS = JSON.parse(localStorage.getItem('erp_uoms_v1')) || [
-            {code: 'TON', name: 'طن'},
-            {code: 'KG', name: 'كيلو'},
-            {code: 'PCS', name: 'حبة'},
-            {code: 'BAG', name: 'كيس'},
-            {code: 'REBAR', name: 'سيخة / عود'},
-            {code: 'GAL', name: 'جالون'}
-        ];
-    } catch(e) {
-        UOMS = [
-            {code: 'TON', name: 'طن'},
-            {code: 'KG', name: 'كيلو'},
-            {code: 'PCS', name: 'حبة'},
-            {code: 'BAG', name: 'كيس'},
-            {code: 'REBAR', name: 'سيخة / عود'},
-            {code: 'GAL', name: 'جالون'}
-        ];
-    }
+        try {
+            UOMS = JSON.parse(localStorage.getItem('erp_uoms_v1')) || [
+                {code: 'TON', name: 'طن'},
+                {code: 'KG', name: 'كيلو'},
+                {code: 'PCS', name: 'حبة'},
+                {code: 'BAG', name: 'كيس'},
+                {code: 'REBAR', name: 'سيخة / عود'},
+                {code: 'GAL', name: 'جالون'}
+            ];
+        } catch(e) {
+            UOMS = [
+                {code: 'TON', name: 'طن'},
+                {code: 'KG', name: 'كيلو'},
+                {code: 'PCS', name: 'حبة'},
+                {code: 'BAG', name: 'كيس'},
+                {code: 'REBAR', name: 'سيخة / عود'},
+                {code: 'GAL', name: 'جالون'}
+            ];
+        }
 
-    // Load Master Data Items
-    const rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
-    const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
-    
-    if (rawItems.length === 0) {
-        alert('تنبيه: لا توجد أصناف في النظام! يرجى إضافة الأصناف من شاشة (البيانات الأساسية) أولاً.');
-    }
+        const rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+        const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+        
+        if (rawItems.length === 0) {
+            console.warn('تنبيه: لا توجد أصناف في النظام! يرجى إضافة الأصناف من شاشة (البيانات الأساسية) أولاً.');
+        }
 
-    // Map raw items to POS expected format
-    ITEMS = rawItems.map(item => {
-        let stockMap = {};
-        let itemInv = invData.filter(inv => inv.itemId === item.id);
-        itemInv.forEach(inv => {
-            let whId = WAREHOUSES.find(w => w.name === inv.warehouse)?.id || 'w-001';
-            stockMap[whId] = (stockMap[whId] || 0) + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0);
+        ITEMS = rawItems.map(item => {
+            let stockMap = {};
+            let itemInv = invData.filter(inv => inv.itemId === item.id);
+            itemInv.forEach(inv => {
+                let whId = WAREHOUSES.find(w => w.name === inv.warehouse)?.id || 'w-001';
+                stockMap[whId] = (stockMap[whId] || 0) + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0);
+            });
+
+            let sp = item.sellingPrice || item.salePrice || item.price || 0;
+            sp = sp.toString().replace(/,/g, '');
+
+            const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
+
+            let unitsArray = [];
+            if (item.units && item.units.length > 0) {
+                unitsArray = item.units.map(u => ({ name: u.unitName, factor: u.factor || 1 }));
+            } else if (item.unitsArray && item.unitsArray.length > 0) {
+                unitsArray = item.unitsArray;
+            }
+            if (unitsArray.length === 0 || !unitsArray.find(u => u.name === baseUnit)) {
+                unitsArray = [{ name: baseUnit, factor: 1 }, ...unitsArray];
+            }
+
+            return {
+                id: item.id,
+                name: item.name,
+                unit: baseUnit,
+                baseUnit: baseUnit,
+                conversionFactor: 1, 
+                bundleFactor: parseFloat(item.bundleFactor) || parseFloat(item.shila) || parseFloat(item.bundleQty) || 1,
+                price: parseFloat(sp) || 0,
+                stock: stockMap,
+                unitsArray: unitsArray
+            };
         });
 
-        // Clean price — support new schema (sellingPrice) and old (salePrice/price)
-        let sp = item.sellingPrice || item.salePrice || item.price || 0;
-        sp = sp.toString().replace(/,/g, '');
+        populateDropdowns();
+        initHeader();
+        renderGrid();
+        recalcAll();
+    };
 
-        const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
+    window.refreshAllMasterData();
 
-        // Build unitsArray from new schema (item.units[]) or old (item.unitsArray[])
-        let unitsArray = [];
-        if (item.units && item.units.length > 0) {
-            // New Item Master schema: units[{unitName, factor, cashPrice, ...}]
-            unitsArray = item.units.map(u => ({ name: u.unitName, factor: u.factor || 1 }));
-        } else if (item.unitsArray && item.unitsArray.length > 0) {
-            // Old schema
-            unitsArray = item.unitsArray;
+    // Auto-sync items across tabs dynamically
+    const localSyncChannel = new BroadcastChannel('erp_db_sync');
+    localSyncChannel.addEventListener('message', (ev) => {
+        if (ev.data && ev.data.type === 'SYNC_KEY') {
+            const key = ev.data.tenantKey || '';
+            if (key.includes('erp_items_v1') || key.includes('erp_inventory_v1') || key.includes('erp_warehouses_v1') || key.includes('erp_suppliers_v1')) {
+                window.refreshAllMasterData();
+            }
         }
-        // Ensure base unit is always first
-        if (unitsArray.length === 0 || !unitsArray.find(u => u.name === baseUnit)) {
-            unitsArray = [{ name: baseUnit, factor: 1 }, ...unitsArray];
-        }
-
-        return {
-            id: item.id,
-            name: item.name,
-            unit: baseUnit,
-            baseUnit: baseUnit,
-            conversionFactor: 1, 
-            bundleFactor: 1,
-            price: parseFloat(sp) || 0,
-            stock: stockMap,
-            unitsArray: unitsArray
-        };
     });
-
-    populateDropdowns();
-    initHeader();
-    renderGrid();
-    recalcAll();
 
     // Deep Drill-down: Check if URL has ?id= to load specific invoice
     const urlParams = new URLSearchParams(window.location.search);
@@ -325,6 +332,7 @@ function populateDropdowns() {
     
     // Warehouses (Header)
     const whSel = document.getElementById('hdr-warehouse');
+    whSel.innerHTML = '';
     WAREHOUSES.forEach(w => {
         const o = document.createElement('option');
         o.value = w.id; o.textContent = w.name;
@@ -432,6 +440,11 @@ function initHeader() {
 // ════════════════════════════════════════
 function setSaleType(type) {
     currentSaleType = type;
+    
+    // Refresh all master data when switching invoice types
+    if (window.refreshAllMasterData) {
+        window.refreshAllMasterData();
+    }
     
     const badge = document.getElementById('current-sale-type-badge');
     if (badge) {
@@ -714,7 +727,7 @@ async function renderCustomerDropdown(filter = '') {
             });
         }
 
-        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values()).slice(0, 5);
+        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values()).slice(0, 50);
 
         listEl.innerHTML = '';
         if (finalMatches.length === 0) {
@@ -855,7 +868,7 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
                     unit: baseUnit,
                     baseUnit: baseUnit,
                     conversionFactor: 1, 
-                    bundleFactor: 1,
+                    bundleFactor: parseFloat(item.bundleFactor) || parseFloat(item.shila) || parseFloat(item.bundleQty) || 1,
                     price: parseFloat(sp) || 0,
                     stock: stockMap,
                     unitsArray: unitsArray
@@ -866,7 +879,10 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
         });
 
         // Deduplicate localMatches by id
-        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
+        let finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
+        
+        const usedItemIds = new Set(rows.filter(r => r.id !== rowId && r.itemId).map(r => String(r.itemId)));
+        finalMatches = finalMatches.filter(m => !usedItemIds.has(String(m.id)));
 
         if (finalMatches.length === 0) {
             listEl.innerHTML = '<div class="custom-dropdown-empty">لا يوجد صنف بهذا الاسم</div>';
@@ -877,7 +893,7 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
         finalMatches.forEach(existing => {
             const div = document.createElement('div');
             div.className = 'custom-dropdown-item';
-            div.textContent = isMobile ? `${existing.name} — ${existing.unit}` : existing.name;
+            div.textContent = existing.name;
             div.onmousedown = () => { updateRow(rowId, 'itemId', existing.id); renderGrid(); };
             div.onpointerdown = () => { updateRow(rowId, 'itemId', existing.id); renderGrid(); };
             listEl.appendChild(div);
@@ -925,7 +941,7 @@ function hideItemDropdownDelayed(rowId, isMobile = false) {
             if (row && row.itemId) {
                 const item = ITEMS.find(i => i.id === row.itemId);
                 if (item) {
-                    searchEl.value = `${item.name} — ${row.selectedUnit || item.unit || ''}`;
+                    searchEl.value = item.name;
                 }
             } else {
                 searchEl.value = '';
@@ -1004,7 +1020,7 @@ async function renderQuickItemDropdown(filter = '') {
                     unit: baseUnit,
                     baseUnit: baseUnit,
                     conversionFactor: 1, 
-                    bundleFactor: 1,
+                    bundleFactor: parseFloat(item.bundleFactor) || parseFloat(item.shila) || parseFloat(item.bundleQty) || 1,
                     price: parseFloat(sp) || 0,
                     stock: stockMap,
                     unitsArray: unitsArray
@@ -1014,7 +1030,10 @@ async function renderQuickItemDropdown(filter = '') {
             }
         });
 
-        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
+        let finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
+        
+        const usedItemIds = new Set(rows.filter(r => r.itemId).map(r => String(r.itemId)));
+        finalMatches = finalMatches.filter(m => !usedItemIds.has(String(m.id)));
 
         if (finalMatches.length === 0) {
             listEl.innerHTML = '<div class="custom-dropdown-empty">لا يوجد صنف بهذا الاسم</div>';
@@ -1025,7 +1044,7 @@ async function renderQuickItemDropdown(filter = '') {
         finalMatches.forEach(existing => {
             const div = document.createElement('div');
             div.className = 'custom-dropdown-item';
-            div.textContent = `${existing.name} — ${existing.unit}`;
+            div.textContent = existing.name;
             div.onmousedown = () => selectQuickItem(existing.id);
             div.onpointerdown = () => selectQuickItem(existing.id);
             listEl.appendChild(div);
@@ -1113,11 +1132,21 @@ function updateRow(id, field, value) {
         }
         if (field === 'fcPrice') {
             const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
-            row.price = row.fcPrice * exRate;
+            const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
+            if (isBaseSDG) {
+                row.price = row.fcPrice * exRate;
+            } else {
+                row.price = row.fcPrice / exRate;
+            }
         }
         if (field === 'price') {
             const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
-            row.fcPrice = row.price / exRate;
+            const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
+            if (isBaseSDG) {
+                row.fcPrice = row.price / exRate;
+            } else {
+                row.fcPrice = row.price * exRate;
+            }
         }
         if (field === 'customBaseQty') {
             const item = ITEMS.find(i => i.id === row.itemId);
@@ -1195,9 +1224,14 @@ function getRowCalcs(row) {
         baseQty = item ? row.quantity * selectedUnitFactor * item.conversionFactor : 0;
     }
     const bundles = item ? row.quantity * item.bundleFactor : 0;
+    
+    const shilaFactor = item && item.bundleFactor > 0 ? item.bundleFactor : 1;
+    const shilaQty = baseQty ? Math.floor(baseQty / shilaFactor) : 0;
+    const shilaRem = baseQty ? (baseQty % shilaFactor) : 0;
+
     const whId = getResolvedWarehouse(row);
     const availQty = item && item.stock[whId] !== undefined ? item.stock[whId] : '—';
-    return { total, baseQty, bundles, availQty, unit: selectedUnitName, unitFactor: selectedUnitFactor };
+    return { total, baseQty, bundles, shilaQty, shilaRem, availQty, unit: selectedUnitName, unitFactor: selectedUnitFactor };
 }
 
 function updateRowCalcs(id) {
@@ -1210,12 +1244,25 @@ function updateRowCalcs(id) {
     const baseEl = document.querySelector(`[data-base-input="${id}"]`);
     const availEl = document.querySelector(`[data-avail="${id}"]`);
     const bundleEl = document.querySelector(`[data-bundle="${id}"]`);
+    const shilaEl = document.querySelector(`[data-shila="${id}"]`);
+    const shilaRemEl = document.querySelector(`[data-shila-rem="${id}"]`);
     const priceEl = document.querySelector(`[data-price-input="${id}"]`);
+    const fcPriceEl = document.querySelector(`[data-fcprice-input="${id}"]`);
+    const totalFcEl = document.querySelector(`[data-total-fc="${id}"]`);
 
     if (totalEl) totalEl.textContent = fmtNum(calcs.total);
     if (baseEl && document.activeElement !== baseEl) baseEl.value = fmtNum(calcs.baseQty);
     if (bundleEl) bundleEl.textContent = fmtNum(calcs.bundles);
+    if (shilaEl) shilaEl.textContent = fmtNum(calcs.shilaQty);
+    if (shilaRemEl) shilaRemEl.textContent = fmtNum(calcs.shilaRem);
     if (priceEl && document.activeElement !== priceEl) priceEl.value = fmtNum(row.price);
+
+    const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
+    const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
+    let computedFcPrice = row.fcPrice !== undefined ? row.fcPrice : (isBaseSDG ? row.price / exRate : row.price * exRate);
+    
+    if (fcPriceEl && document.activeElement !== fcPriceEl) fcPriceEl.value = fmtNum(computedFcPrice);
+    if (totalFcEl) totalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0));
 
     if (availEl) {
         availEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty);
@@ -1225,6 +1272,16 @@ function updateRowCalcs(id) {
     // Mobile
     const mTotal = document.querySelector(`[data-m-total="${id}"]`);
     if (mTotal) mTotal.textContent = fmtNum(calcs.total) + ' ' + getCurrency();
+
+    const mFcPriceEl = document.querySelector(`[data-m-fcprice-input="${id}"]`);
+    const mTotalFcEl = document.querySelector(`[data-m-total-fc="${id}"]`);
+    if (mFcPriceEl && document.activeElement !== mFcPriceEl) mFcPriceEl.value = fmtNum(computedFcPrice);
+    if (mTotalFcEl) mTotalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0));
+
+    const mShilaEl = document.querySelector(`[data-m-shila="${id}"]`);
+    const mShilaRemEl = document.querySelector(`[data-m-shila-rem="${id}"]`);
+    if (mShilaEl) mShilaEl.textContent = fmtNum(calcs.shilaQty);
+    if (mShilaRemEl) mShilaRemEl.textContent = fmtNum(calcs.shilaRem);
 }
 
 function getCurrency() {
@@ -1265,7 +1322,8 @@ function renderGrid() {
             <td><div class="row-num">${idx + 1}</div></td>
             <td style="position:relative;">
                 <input type="text" class="g-input" id="item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
-                    value="${item ? item.name + ' — ' + (row.selectedUnit || item.unit || '') : ''}" autocomplete="new-password"
+                    value="${item ? item.name : ''}" autocomplete="new-password"
+                    style="font-size: 1.15rem !important; font-weight: 800 !important;"
                     onfocus="this.select(); showItemDropdown(${row.id})" 
                     onblur="hideItemDropdownDelayed(${row.id})" 
                     oninput="filterItemDropdown(${row.id})">
@@ -1294,22 +1352,38 @@ function renderGrid() {
                     </button>
                 </div>
             </td>
+            <td><span class="g-readonly total-val" style="color:var(--gold-primary); font-weight:bold;" data-total="${row.id}">${fmtNum(calcs.total)}</span></td>
             <td>
-                <input type="text" inputmode="decimal" class="g-input" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}"
+                <div style="display:flex; align-items:center; gap:4px; justify-content:center;">
+                    <input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
+                        onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
+                        onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700; width:100%;" tabindex="-1">
+                    <span style="font-size:11px; color:var(--text-muted); white-space:nowrap;">${item ? item.baseUnit : ''}</span>
+                </div>
+            </td>
+            <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.availableQty !== undefined ? fmtNum(row.availableQty) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'availableQty',this.value)" onblur="this.value=fmtNum(parseNum(this.value))" style="color:#0ea5e9; font-weight:bold;"></td>
+            <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.remainingQty !== undefined ? fmtNum(row.remainingQty) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'remainingQty',this.value)" onblur="this.value=fmtNum(parseNum(this.value))" style="color:#f59e0b; font-weight:bold;"></td>
+            <td>
+                <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}"
                     onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
                     onblur="this.value=fmtNum(parseNum(this.value))" style="color:#10b981; font-weight:700;" tabindex="-1">
             </td>
-            <td><input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
-                onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
-                onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700;" tabindex="-1"></td>
-            <td><span class="g-readonly ${calcs.availQty !== '—' && calcs.availQty < row.quantity ? 'warn-val' : 'avail-val'}" data-avail="${row.id}">${calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty)}</span></td>
+            <td><span class="g-readonly total-fc-val" style="color:#10b981; font-weight:bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0))}</span></td>
+
             <td>
                 <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1">
                     <option value="">نفس الفاتورة ↩</option>
                     ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
                 </select>
             </td>
-            <td><span class="g-readonly total-val" data-total="${row.id}">${fmtNum(calcs.total)}</span></td>
+
+            <td><span class="g-readonly" style="color:#6366f1; font-weight:bold;" data-shila="${row.id}">${fmtNum(calcs.shilaQty)}</span></td>
+            <td><span class="g-readonly" style="color:#ef4444; font-weight:bold;" data-shila-rem="${row.id}">${fmtNum(calcs.shilaRem)}</span></td>
+
+            <td><input type="text" class="g-input" placeholder="ملحوظة..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)"></td>
+            <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.buyPrice !== undefined ? fmtNum(row.buyPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'buyPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))"></td>
+            <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.sellPrice !== undefined ? fmtNum(row.sellPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'sellPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))"></td>
+
             <td>
                 <div style="display: flex; gap: 5px; justify-content: center;">
                     <button class="edit-btn" onclick="document.getElementById('item-search-${row.id}').focus()" title="تعديل السطر" style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.2); color: #38bdf8; border-radius: 6px; padding: 6px; cursor: pointer;">
@@ -1321,6 +1395,7 @@ function renderGrid() {
                 </div>
             </td>
         `;
+        if (window.reorderTds) window.reorderTds(tr);
         tbody.appendChild(tr);
 
         // ── Mobile Card ──
@@ -1339,7 +1414,7 @@ function renderGrid() {
             <div class="ctrl-group m-card-full" style="padding-top:4px; position:relative;">
                 <label class="label">الصنف</label>
                 <input type="text" class="ctrl-input" id="m-item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
-                    value="${item ? item.name + ' — ' + item.unit : ''}" autocomplete="new-password"
+                    value="${item ? item.name : ''}" autocomplete="new-password"
                     onfocus="this.select(); showItemDropdown(${row.id}, true)" 
                     onblur="hideItemDropdownDelayed(${row.id}, true)" 
                     oninput="filterItemDropdown(${row.id}, true)">
@@ -1361,9 +1436,17 @@ function renderGrid() {
                 onblur="this.value=parseNum(this.value)||1" tabindex="-1">
                 </div>
                 <div class="ctrl-group">
-                    <label class="label">الكمية</label>
+                    <label class="label">الكمية الوحدة</label>
                     <input type="text" inputmode="decimal" class="ctrl-input" data-qty-input="${row.id}" value="${Number.isInteger(row.quantity) ? row.quantity : parseFloat((row.quantity || 0).toFixed(4)) || ''}" placeholder="0"
                         onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)">
+                </div>
+                <div class="ctrl-group">
+                    <label class="label" style="color:#6366f1;">الشيلة</label>
+                    <div class="ctrl-input readonly" data-m-shila="${row.id}" style="color:#6366f1; font-weight:bold; text-align:center;">${fmtNum(calcs.shilaQty)}</div>
+                </div>
+                <div class="ctrl-group">
+                    <label class="label" style="color:#ef4444;">باقي سيخ</label>
+                    <div class="ctrl-input readonly" data-m-shila-rem="${row.id}" style="color:#ef4444; font-weight:bold; text-align:center;">${fmtNum(calcs.shilaRem)}</div>
                 </div>
                 <div class="ctrl-group">
                     <label class="label">السعر (محلي / أجنبي) <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'purchase')" title="سجل أسعار الصنف للمورد" style="color:#38bdf8; background:none; border:none; cursor:pointer; padding:0; margin-right:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></button></label>
@@ -1371,13 +1454,17 @@ function renderGrid() {
                         <input type="text" inputmode="decimal" class="ctrl-input" value="${fmtNum(row.price)}" placeholder="0"
                             onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
                             onblur="this.value=fmtNum(parseNum(this.value))" style="flex:1;">
-                        <input type="text" inputmode="decimal" class="ctrl-input" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}" placeholder="أجنبي"
+                        <input type="text" inputmode="decimal" class="ctrl-input" data-m-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}" placeholder="${document.getElementById('hdr-currency').value === 'SDG' ? 'أجنبي' : 'جنيه'}"
                             onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
                             onblur="this.value=fmtNum(parseNum(this.value))" style="flex:1; color:#10b981;">
                     </div>
                 </div>
                 <div class="ctrl-group">
-                    <label class="label">الكمية بالعدد</label>
+                    <label class="label fc-total-label">${document.getElementById('hdr-currency').value === 'SDG' ? 'جملة الوحدة أجنبي' : 'جملة الوحدة جنيه'}</label>
+                    <div class="ctrl-input readonly" data-m-total-fc="${row.id}" style="text-align:center;color:#10b981;">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0))}</div>
+                </div>
+                <div class="ctrl-group">
+                    <label class="label">عدد ${item ? item.baseUnit : ''}</label>
                     <input type="text" inputmode="decimal" class="ctrl-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
                 onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
                 onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700;" tabindex="-1">
@@ -1389,9 +1476,22 @@ function renderGrid() {
                         ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
                     </select>
                 </div>
+
+            </div>
+            <div style="padding: 10px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 8px;">
                 <div class="ctrl-group">
-                    <label class="label">المتاح</label>
-                    <div class="ctrl-input readonly" style="text-align:center;color:#38bdf8;">${calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty)}</div>
+                    <label class="label">ملحوظة</label>
+                    <input type="text" class="ctrl-input" placeholder="ملحوظة..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)">
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <div class="ctrl-group" style="flex:1;">
+                        <label class="label">سعر الشراء</label>
+                        <input type="text" inputmode="decimal" class="ctrl-input" placeholder="0" value="${row.buyPrice !== undefined ? fmtNum(row.buyPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'buyPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))">
+                    </div>
+                    <div class="ctrl-group" style="flex:1;">
+                        <label class="label">سعر البيع</label>
+                        <input type="text" inputmode="decimal" class="ctrl-input" placeholder="0" value="${row.sellPrice !== undefined ? fmtNum(row.sellPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'sellPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))">
+                    </div>
                 </div>
             </div>
             <div class="m-card-total" data-m-total="${row.id}">${fmtNum(calcs.total)} ${getCurrency()}</div>
@@ -1426,6 +1526,34 @@ function onAdjAmtChange(type) {
 // ════════════════════════════════════════
 function recalcAll() {
     const cur = getCurrency();
+    const isBaseSDG = (cur === 'SDG');
+    const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
+    
+    // Update secondary price header text based on currency
+    const thFcPrice = document.querySelector('.th-fcprice');
+    if (thFcPrice) {
+        thFcPrice.textContent = isBaseSDG ? 'سعر الوحدة أجنبي' : 'سعر الوحدة جنيه';
+    }
+    const thFcTotal = document.querySelector('.th-fctotal');
+    if (thFcTotal) {
+        thFcTotal.textContent = isBaseSDG ? 'جملة الوحدة أجنبي' : 'جملة الوحدة جنيه';
+    }
+    
+    // Update mobile labels if any
+    document.querySelectorAll('.fc-total-label').forEach(lbl => {
+        lbl.textContent = isBaseSDG ? 'جملة الوحدة أجنبي' : 'جملة الوحدة جنيه';
+    });
+
+    // Recompute fcPrice for all rows and update DOM
+    rows.forEach(row => {
+        if (isBaseSDG) {
+            row.fcPrice = row.price / exRate;
+        } else {
+            row.fcPrice = row.price * exRate;
+        }
+        updateRowCalcs(row.id);
+    });
+
     const invTotal = getInvoiceTotal();
     const labor = parseNum(document.getElementById('t-labor').value);
     const transport = parseNum(document.getElementById('t-transport').value);

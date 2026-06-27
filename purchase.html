@@ -27,6 +27,10 @@
             --theme-blue: #3b82f6;
         }
 
+        html {
+            font-size: 18px;
+        }
+
         .ambient-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
             overflow: hidden; z-index: -1; pointer-events: none;
@@ -495,6 +499,120 @@
             localStorage.setItem('erp_theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
         }
     </script>
+    <style>
+        /* CSS for table enhancements */
+        .pos-grid th, .pos-grid td {
+            font-size: 0.8rem !important;
+            padding: 8px 10px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .pos-grid .g-input, .pos-grid .g-select, .pos-grid .g-readonly {
+            font-size: 0.85rem !important;
+            padding: 8px 10px !important;
+            background: rgba(15, 23, 42, 0.5) !important;
+            color: #f8fafc !important; /* Restore bright text */
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 8px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Modern Glassmorphism Styling */
+        .grid-scroll-wrap {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .pos-grid thead th {
+            background: rgba(15, 23, 42, 0.8) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--gold-primary) !important;
+            color: var(--gold-primary) !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .pos-grid tbody tr {
+            background: rgba(255, 255, 255, 0.02) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        /* Hover effect on rows - Dynamic Elevation */
+        .pos-grid tbody tr:hover td {
+            background-color: rgba(56, 189, 248, 0.08) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(255,255,255,0.1);
+        }
+        
+        .pos-grid tbody tr:hover {
+            transform: translateY(-2px) scale(1.002);
+            box-shadow: 0 12px 40px rgba(56, 189, 248, 0.15);
+            z-index: 2;
+            position: relative;
+        }
+
+        /* Input Focus Glow Effect */
+        .pos-grid .g-input:focus, .pos-grid .g-select:focus {
+            background: rgba(15, 23, 42, 0.9) !important;
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.4), 0 0 15px rgba(56, 189, 248, 0.3) !important;
+            transform: scale(1.02);
+            z-index: 10;
+        }
+        
+        .pos-grid .g-input::placeholder {
+            color: #94a3b8 !important;
+        }
+
+        /* Resizable columns */
+        .pos-grid th {
+            position: relative;
+        }
+        .resizer {
+            width: 5px;
+            cursor: col-resize;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            background-color: transparent;
+            z-index: 10;
+        }
+        .resizer:hover, .resizing {
+            background-color: var(--gold-primary);
+        }
+
+        /* Context Menu */
+        #col-context-menu {
+            position: absolute;
+            z-index: 100000;
+            background: var(--velvet-panel-hover);
+            border: 1px solid var(--gold-border);
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            display: none;
+            min-width: 150px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .col-toggle-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 0.8rem;
+            border-radius: 4px;
+        }
+        .col-toggle-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
 </head>
 <body>
     <div class="toast-container" id="toast-container"></div>
@@ -1015,7 +1133,7 @@
                                     <div class="custom-dropdown-list" id="customer-dropdown-list"></div>
                                 </div>
                             </div>
-                            <button onclick="openModal('add-customer-modal')" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid rgba(16,212,143,0.3); width: 32px; height: 32px; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2); transition: 0.2s;" title="إضافة مورد">
+                            <button onclick="window.location.href='master-data.html?tab=suppliers'" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid rgba(16,212,143,0.3); width: 32px; height: 32px; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2); transition: 0.2s;" title="البيانات الأساسية للموردين">
                                 ➕
                             </button>
                         </div>
@@ -1172,13 +1290,20 @@
                             <th class="th-item" style="width:25%; min-width:180px; text-align:right;">الصنف المورد</th>
                             <th class="th-unit" style="width:8%; min-width:80px; text-align:center;">الوحدة</th>
                             <th class="th-factor" style="width:7%; min-width:70px; text-align:center;">معادل</th>
-                            <th class="th-qty" style="width:8%; min-width:80px; text-align:center;">الكمية</th>
-                            <th class="th-price" style="width:10%; min-width:100px; text-align:center;">سعر الشراء</th>
-                            <th class="th-fcprice" style="width:10%; min-width:100px; text-align:center;">سعر أجنبي</th>
-                            <th class="th-baseqty" style="width:7%; min-width:70px; text-align:center;">بالحبة</th>
-                            <th class="th-avail" style="width:7%; min-width:70px; text-align:center;">بالمخزن</th>
+                            <th class="th-qty" style="width:8%; min-width:80px; text-align:center;">الكمية الوحدة</th>
+                            <th class="th-price" style="width:10%; min-width:100px; text-align:center;">سعر الوحدة</th>
+                            <th class="th-total" style="width:9%; min-width:100px; text-align:center;">الجملة</th>
+                            <th class="th-baseqty" style="width:7%; min-width:70px; text-align:center;">العدد</th>
+                            <th class="th-available" style="width:7%; min-width:70px; text-align:center;">الكمية المتاحة</th>
+                            <th class="th-remaining" style="width:7%; min-width:70px; text-align:center;">الكمية المتبقية</th>
+                            <th class="th-fcprice" style="width:10%; min-width:100px; text-align:center;">سعر الوحدة أجنبي</th>
+                            <th class="th-fctotal" style="width:10%; min-width:100px; text-align:center;">جملة الوحدة أجنبي</th>
                             <th class="th-wh" style="width:9%; min-width:100px; text-align:center;">المخزن</th>
-                            <th class="th-total" style="width:9%; min-width:100px; text-align:center;">القيمة</th>
+                            <th class="th-shila" style="width:7%; min-width:70px; text-align:center;">الشيلة</th>
+                            <th class="th-shila-rem" style="width:7%; min-width:70px; text-align:center;">باقي سيخ</th>
+                            <th class="th-note" style="width:10%; min-width:100px; text-align:center;">ملحوظة</th>
+                            <th class="th-buy-price" style="width:8%; min-width:80px; text-align:center;">سعر الشراء</th>
+                            <th class="th-sell-price" style="width:8%; min-width:80px; text-align:center;">سعر البيع</th>
                             <th class="th-del" style="width:80px; text-align:center;">إجراء</th>
                         </tr>
                     </thead>
@@ -1426,5 +1551,329 @@ async function sendInvoiceWA(invoiceNo) {
     }
 }
 </script>
+        <!-- Context Menu for Columns -->
+    <div id="col-context-menu">
+        <div style="font-size: 0.75rem; color: var(--gold-primary); margin-bottom: 8px; font-weight: bold; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">إظهار/إخفاء الأعمدة</div>
+        <div id="col-toggle-list" style="max-height: 300px; overflow-y: auto;"></div>
+    </div>
+
+    <script>
+    function initTableEnhancements() {
+        const table = document.getElementById('pos-grid');
+        if(!table) return;
+
+        // --- Column Resizing ---
+        const ths = table.querySelectorAll('thead th');
+        ths.forEach((th, index) => {
+            if(th.querySelector('.resizer')) return; // already added
+
+            const resizer = document.createElement('div');
+            resizer.classList.add('resizer');
+            th.appendChild(resizer);
+            
+            let x = 0;
+            let w = 0;
+            
+            const mouseDownHandler = function(e) {
+                x = e.clientX;
+                const styles = window.getComputedStyle(th);
+                w = parseInt(styles.width, 10);
+                
+                document.addEventListener('mousemove', mouseMoveHandler);
+                document.addEventListener('mouseup', mouseUpHandler);
+                resizer.classList.add('resizing');
+            };
+            
+            const mouseMoveHandler = function(e) {
+                const dx = e.clientX - x;
+                // RTL layout: moving left decreases X, increasing dx negatively.
+                // Left resizer drag to left (dx < 0) means width increases.
+                const isRTL = document.dir === 'rtl' || document.documentElement.dir === 'rtl' || getComputedStyle(document.body).direction === 'rtl';
+                th.style.width = isRTL ? `${w - dx}px` : `${w + dx}px`;
+                th.style.minWidth = th.style.width;
+            };
+            
+            const mouseUpHandler = function() {
+                document.removeEventListener('mousemove', mouseMoveHandler);
+                document.removeEventListener('mouseup', mouseUpHandler);
+                resizer.classList.remove('resizing');
+            };
+            
+            resizer.addEventListener('mousedown', mouseDownHandler);
+        });
+
+        // --- Context Menu ---
+        const menu = document.getElementById('col-context-menu');
+        const toggleList = document.getElementById('col-toggle-list');
+        
+        const updateMenu = () => {
+            toggleList.innerHTML = '';
+            const currentThs = table.querySelectorAll('thead th');
+            currentThs.forEach((th, index) => {
+                let title = th.textContent.trim() || 'إجراء';
+                
+                const item = document.createElement('label');
+                item.className = 'col-toggle-item';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = th.style.display !== 'none';
+                checkbox.dataset.colIndex = index + 1;
+                
+                checkbox.addEventListener('change', (e) => {
+                    const isChecked = e.target.checked;
+                    const colIndex = e.target.dataset.colIndex;
+                    
+                    table.querySelector(`thead th:nth-child(${colIndex})`).style.display = isChecked ? '' : 'none';
+                    
+                    const rows = table.querySelectorAll('tbody tr');
+                    rows.forEach(row => {
+                        const td = row.querySelector(`td:nth-child(${colIndex})`);
+                        if(td) td.style.display = isChecked ? '' : 'none';
+                    });
+                    
+                    if (window.saveColumnVisibility) window.saveColumnVisibility();
+                });
+                
+                item.appendChild(checkbox);
+                item.appendChild(document.createTextNode(title));
+                toggleList.appendChild(item);
+            });
+        };
+
+        table.addEventListener('contextmenu', (e) => {
+            // Check if context menu is within table body or header
+            if(e.target.closest('table') === table) {
+                e.preventDefault();
+                updateMenu();
+                menu.style.display = 'block';
+                menu.style.left = `${e.pageX}px`;
+                menu.style.top = `${e.pageY}px`;
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!menu.contains(e.target) && e.button !== 2) {
+                menu.style.display = 'none';
+            }
+        });
+
+        // Observer for dynamically added rows
+        if(!window.tableObserver) {
+            const tbody = document.getElementById('grid-body');
+            if(tbody) {
+                window.tableObserver = new MutationObserver((mutations) => {
+                    mutations.forEach(mutation => {
+                        if (mutation.addedNodes.length > 0) {
+                            const currentThs = table.querySelectorAll('thead th');
+                            currentThs.forEach((th, index) => {
+                                if(th.style.display === 'none') {
+                                    const colIndex = index + 1;
+                                    mutation.addedNodes.forEach(row => {
+                                        if(row.nodeType === 1 && row.tagName === 'TR') {
+                                            const td = row.querySelector(`td:nth-child(${colIndex})`);
+                                            if(td) td.style.display = 'none';
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                });
+                window.tableObserver.observe(tbody, { childList: true });
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', initTableEnhancements);
+    // --- Column Reordering Logic ---
+    let dragSrcCol = null;
+
+    function initDraggableColumns() {
+        const theadTr = document.querySelector('#pos-grid thead tr');
+        if(!theadTr) return;
+        const ths = theadTr.querySelectorAll('th');
+        ths.forEach((th, index) => {
+            if(!th.hasAttribute('data-col-id')) {
+                th.setAttribute('data-col-id', index);
+            }
+            th.setAttribute('draggable', 'true');
+            th.style.cursor = 'grab';
+            
+            th.addEventListener('dragstart', handleColDragStart);
+            th.addEventListener('dragenter', handleColDragEnter);
+            th.addEventListener('dragover', handleColDragOver);
+            th.addEventListener('dragleave', handleColDragLeave);
+            th.addEventListener('drop', handleColDrop);
+            th.addEventListener('dragend', handleColDragEnd);
+        });
+        
+        applySavedColumnOrder();
+    }
+
+    function handleColDragStart(e) {
+        // Prevent drag if clicking on resizer
+        if(e.target.classList.contains('resizer')) {
+            e.preventDefault();
+            return;
+        }
+        dragSrcCol = this;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.innerHTML);
+        this.style.opacity = '0.4';
+    }
+
+    function handleColDragOver(e) {
+        if (e.preventDefault) e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+    }
+
+    function handleColDragEnter(e) {
+        let th = e.target.closest('th');
+        if (th && th !== dragSrcCol) {
+            th.style.border = '2px dashed #38bdf8';
+        }
+    }
+
+    function handleColDragLeave(e) {
+        let th = e.target.closest('th');
+        if (th && th !== dragSrcCol) {
+            th.style.border = '';
+            th.style.borderBottom = '2px solid rgba(255,255,255,0.05)';
+        }
+    }
+
+    function handleColDrop(e) {
+        if (e.stopPropagation) e.stopPropagation();
+        let targetTh = e.target.closest('th');
+        if (dragSrcCol && targetTh && dragSrcCol !== targetTh) {
+            const tr = targetTh.parentElement;
+            const children = Array.from(tr.children);
+            const srcIdx = children.indexOf(dragSrcCol);
+            const targetIdx = children.indexOf(targetTh);
+
+            if (srcIdx < targetIdx) {
+                targetTh.after(dragSrcCol);
+            } else {
+                targetTh.before(dragSrcCol);
+            }
+            
+            saveColumnOrder();
+            applySavedColumnOrder(true);
+        }
+        return false;
+    }
+
+    function handleColDragEnd(e) {
+        this.style.opacity = '1';
+        let ths = document.querySelectorAll('#pos-grid thead th');
+        ths.forEach(th => {
+            th.style.border = '';
+            th.style.borderBottom = '2px solid rgba(255,255,255,0.05)';
+        });
+    }
+
+    function saveColumnOrder() {
+        let ths = document.querySelectorAll('#pos-grid thead tr th');
+        let order = Array.from(ths).map(th => parseInt(th.getAttribute('data-col-id')));
+        localStorage.setItem('erp_purchase_col_order', JSON.stringify(order));
+    }
+
+    window.reorderTds = function(tr) {
+        let orderStr = localStorage.getItem('erp_purchase_col_order');
+        let hiddenStr = localStorage.getItem('erp_purchase_col_vis');
+        let hidden = hiddenStr ? JSON.parse(hiddenStr) : [];
+        
+        if (!orderStr && hidden.length === 0) return;
+        
+        let order = orderStr ? JSON.parse(orderStr) : null;
+        let tds = Array.from(tr.children);
+        
+        if (tds.length > 0 && !tds[0].hasAttribute('data-col-id')) {
+            tds.forEach((td, idx) => td.setAttribute('data-col-id', idx));
+        }
+        
+        if (order) {
+            order.forEach(id => {
+                let td = tds.find(t => parseInt(t.getAttribute('data-col-id')) === id);
+                if (td) tr.appendChild(td);
+            });
+        }
+        
+        if (hidden.length > 0) {
+            Array.from(tr.children).forEach(td => {
+                let id = parseInt(td.getAttribute('data-col-id'));
+                if (hidden.includes(id)) {
+                    td.style.display = 'none';
+                } else {
+                    td.style.display = '';
+                }
+            });
+        }
+    };
+
+    function applySavedColumnOrder(forceTbody = false) {
+        let orderStr = localStorage.getItem('erp_purchase_col_order');
+        if (!orderStr) return;
+        let order = JSON.parse(orderStr);
+        
+        let theadTr = document.querySelector('#pos-grid thead tr');
+        if (theadTr) {
+            let ths = Array.from(theadTr.children);
+            order.forEach(id => {
+                let th = ths.find(t => parseInt(t.getAttribute('data-col-id')) === id);
+                if (th) theadTr.appendChild(th);
+            });
+        }
+        
+        if (forceTbody) {
+            let trs = document.querySelectorAll('#pos-grid tbody tr');
+            trs.forEach(tr => window.reorderTds(tr));
+        }
+    }
+
+    window.saveColumnVisibility = function() {
+        let ths = document.querySelectorAll('#pos-grid thead th');
+        let hidden = [];
+        ths.forEach(th => {
+            if(th.style.display === 'none') hidden.push(parseInt(th.getAttribute('data-col-id')));
+        });
+        localStorage.setItem('erp_purchase_col_vis', JSON.stringify(hidden));
+    };
+
+    window.applySavedColumnVisibility = function() {
+        let hiddenStr = localStorage.getItem('erp_purchase_col_vis');
+        if(!hiddenStr) return;
+        let hidden = JSON.parse(hiddenStr);
+        
+        let ths = document.querySelectorAll('#pos-grid thead th');
+        ths.forEach(th => {
+            let id = parseInt(th.getAttribute('data-col-id'));
+            if(hidden.includes(id)) {
+                th.style.display = 'none';
+            }
+        });
+        
+        let trs = document.querySelectorAll('#pos-grid tbody tr');
+        trs.forEach(tr => {
+            let tds = Array.from(tr.children);
+            tds.forEach(td => {
+                let id = parseInt(td.getAttribute('data-col-id'));
+                if(id !== null && !isNaN(id) && hidden.includes(id)) {
+                    td.style.display = 'none';
+                }
+            });
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            initDraggableColumns();
+            window.applySavedColumnVisibility();
+        }, 600);
+    });
+    </script>
+
 </body>
 </html>

@@ -1,0 +1,290 @@
+diff --git a/js/purchase-pro.js b/js/purchase-pro.js
+index d120054..458016a 100644
+--- a/js/purchase-pro.js
++++ b/js/purchase-pro.js
+@@ -866,7 +866,10 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
+         });
+ 
+         // Deduplicate localMatches by id
+-        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
++        let finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
++        
++        const usedItemIds = new Set(rows.filter(r => r.id !== rowId && r.itemId).map(r => String(r.itemId)));
++        finalMatches = finalMatches.filter(m => !usedItemIds.has(String(m.id)));
+ 
+         if (finalMatches.length === 0) {
+             listEl.innerHTML = '<div class="custom-dropdown-empty">لا يوجد صنف بهذا الاسم</div>';
+@@ -877,7 +880,7 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
+         finalMatches.forEach(existing => {
+             const div = document.createElement('div');
+             div.className = 'custom-dropdown-item';
+-            div.textContent = isMobile ? `${existing.name} — ${existing.unit}` : existing.name;
++            div.textContent = existing.name;
+             div.onmousedown = () => { updateRow(rowId, 'itemId', existing.id); renderGrid(); };
+             div.onpointerdown = () => { updateRow(rowId, 'itemId', existing.id); renderGrid(); };
+             listEl.appendChild(div);
+@@ -1014,7 +1017,10 @@ async function renderQuickItemDropdown(filter = '') {
+             }
+         });
+ 
+-        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
++        let finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
++        
++        const usedItemIds = new Set(rows.filter(r => r.itemId).map(r => String(r.itemId)));
++        finalMatches = finalMatches.filter(m => !usedItemIds.has(String(m.id)));
+ 
+         if (finalMatches.length === 0) {
+             listEl.innerHTML = '<div class="custom-dropdown-empty">لا يوجد صنف بهذا الاسم</div>';
+@@ -1025,7 +1031,7 @@ async function renderQuickItemDropdown(filter = '') {
+         finalMatches.forEach(existing => {
+             const div = document.createElement('div');
+             div.className = 'custom-dropdown-item';
+-            div.textContent = `${existing.name} — ${existing.unit}`;
++            div.textContent = existing.name;
+             div.onmousedown = () => selectQuickItem(existing.id);
+             div.onpointerdown = () => selectQuickItem(existing.id);
+             listEl.appendChild(div);
+@@ -1113,11 +1119,21 @@ function updateRow(id, field, value) {
+         }
+         if (field === 'fcPrice') {
+             const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
+-            row.price = row.fcPrice * exRate;
++            const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
++            if (isBaseSDG) {
++                row.price = row.fcPrice * exRate;
++            } else {
++                row.price = row.fcPrice / exRate;
++            }
+         }
+         if (field === 'price') {
+             const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
+-            row.fcPrice = row.price / exRate;
++            const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
++            if (isBaseSDG) {
++                row.fcPrice = row.price / exRate;
++            } else {
++                row.fcPrice = row.price * exRate;
++            }
+         }
+         if (field === 'customBaseQty') {
+             const item = ITEMS.find(i => i.id === row.itemId);
+@@ -1195,9 +1211,14 @@ function getRowCalcs(row) {
+         baseQty = item ? row.quantity * selectedUnitFactor * item.conversionFactor : 0;
+     }
+     const bundles = item ? row.quantity * item.bundleFactor : 0;
++    
++    const shilaFactor = item && item.bundleFactor > 0 ? item.bundleFactor : 1;
++    const shilaQty = row.quantity ? Math.floor(row.quantity / shilaFactor) : 0;
++    const shilaRem = row.quantity ? (row.quantity % shilaFactor) : 0;
++
+     const whId = getResolvedWarehouse(row);
+     const availQty = item && item.stock[whId] !== undefined ? item.stock[whId] : '—';
+-    return { total, baseQty, bundles, availQty, unit: selectedUnitName, unitFactor: selectedUnitFactor };
++    return { total, baseQty, bundles, shilaQty, shilaRem, availQty, unit: selectedUnitName, unitFactor: selectedUnitFactor };
+ }
+ 
+ function updateRowCalcs(id) {
+@@ -1210,13 +1231,26 @@ function updateRowCalcs(id) {
+     const baseEl = document.querySelector(`[data-base-input="${id}"]`);
+     const availEl = document.querySelector(`[data-avail="${id}"]`);
+     const bundleEl = document.querySelector(`[data-bundle="${id}"]`);
++    const shilaEl = document.querySelector(`[data-shila="${id}"]`);
++    const shilaRemEl = document.querySelector(`[data-shila-rem="${id}"]`);
+     const priceEl = document.querySelector(`[data-price-input="${id}"]`);
++    const fcPriceEl = document.querySelector(`[data-fcprice-input="${id}"]`);
++    const totalFcEl = document.querySelector(`[data-total-fc="${id}"]`);
+ 
+     if (totalEl) totalEl.textContent = fmtNum(calcs.total);
+     if (baseEl && document.activeElement !== baseEl) baseEl.value = fmtNum(calcs.baseQty);
+     if (bundleEl) bundleEl.textContent = fmtNum(calcs.bundles);
++    if (shilaEl) shilaEl.textContent = fmtNum(calcs.shilaQty);
++    if (shilaRemEl) shilaRemEl.textContent = fmtNum(calcs.shilaRem);
+     if (priceEl && document.activeElement !== priceEl) priceEl.value = fmtNum(row.price);
+ 
++    const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
++    const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
++    let computedFcPrice = row.fcPrice !== undefined ? row.fcPrice : (isBaseSDG ? row.price / exRate : row.price * exRate);
++    
++    if (fcPriceEl && document.activeElement !== fcPriceEl) fcPriceEl.value = fmtNum(computedFcPrice);
++    if (totalFcEl) totalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0));
++
+     if (availEl) {
+         availEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty);
+         availEl.className = 'g-readonly ' + (calcs.availQty !== '—' && calcs.availQty < row.quantity ? 'warn-val' : 'avail-val');
+@@ -1225,6 +1259,16 @@ function updateRowCalcs(id) {
+     // Mobile
+     const mTotal = document.querySelector(`[data-m-total="${id}"]`);
+     if (mTotal) mTotal.textContent = fmtNum(calcs.total) + ' ' + getCurrency();
++
++    const mFcPriceEl = document.querySelector(`[data-m-fcprice-input="${id}"]`);
++    const mTotalFcEl = document.querySelector(`[data-m-total-fc="${id}"]`);
++    if (mFcPriceEl && document.activeElement !== mFcPriceEl) mFcPriceEl.value = fmtNum(computedFcPrice);
++    if (mTotalFcEl) mTotalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0));
++
++    const mShilaEl = document.querySelector(`[data-m-shila="${id}"]`);
++    const mShilaRemEl = document.querySelector(`[data-m-shila-rem="${id}"]`);
++    if (mShilaEl) mShilaEl.textContent = fmtNum(calcs.shilaQty);
++    if (mShilaRemEl) mShilaRemEl.textContent = fmtNum(calcs.shilaRem);
+ }
+ 
+ function getCurrency() {
+@@ -1250,66 +1294,26 @@ function renderGrid() {
+ 
+     rows.forEach((row, idx) => {
+         const item = ITEMS.find(i => i.id === row.itemId);
+-        const calcs = getRowCalcs(row);
+-
+-        let itemUnitsHtml = '';
+-        if (item && item.unitsArray && item.unitsArray.length > 0) {
+-            itemUnitsHtml = item.unitsArray.map(u => `<option value="${u.name}" ${row.selectedUnit === u.name ? 'selected' : ''}>${u.name}</option>`).join('');
+-        } else {
+-            itemUnitsHtml = `<option value="${item ? item.unit : ''}">${item ? item.unit : '—'}</option>`;
+-        }
+-
+-        // ── Desktop Row ──
+-        const tr = document.createElement('tr');
+-        tr.innerHTML = `
+-            <td><div class="row-num">${idx + 1}</div></td>
+-            <td style="position:relative;">
+-                <input type="text" class="g-input" id="item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
+-                    value="${item ? item.name + ' — ' + (row.selectedUnit || item.unit || '') : ''}" autocomplete="new-password"
+-                    onfocus="this.select(); showItemDropdown(${row.id})" 
+-                    onblur="hideItemDropdownDelayed(${row.id})" 
+-                    oninput="filterItemDropdown(${row.id})">
+-                <div class="custom-dropdown-list" id="item-dropdown-list-${row.id}" style="text-align:right; min-width: 220px; white-space: normal;">
+-                    <!-- populated by JS -->
+-                </div>
+-            </td>
+-            <td>
+-                <select class="g-select" style="min-width: 80px;" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();" tabindex="-1">
+-                    ${itemUnitsHtml}
+-                </select>
+-            </td>
+-            <td><input type="text" inputmode="decimal" class="g-input" value="${row.customFactor !== undefined ? row.customFactor : calcs.unitFactor}" placeholder="1"
+-                onfocus="this.select()" oninput="updateRow(${row.id},'customFactor',this.value)"
+-                onblur="this.value=parseNum(this.value)||1" tabindex="-1"></td>
+-            <td><input type="text" inputmode="decimal" class="g-input" value="${row.quantity || ''}" placeholder="0"
+-                onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)"
+-                onblur="this.value=parseNum(this.value)||''"></td>
+-            <td>
+-                <div style="display:flex; align-items:center; gap:4px;">
+-                    <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price)}"
+-                        onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
+-                        onblur="this.value=fmtNum(parseNum(this.value))" style="flex:1;">
+-                    <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'purchase')" title="سجل أسعار الصنف للمورد" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:4px; padding:4px; border:1px solid rgba(56,189,248,0.2); cursor:pointer;">
+-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+-                    </button>
+-                </div>
+-            </td>
++             <td><span class="g-readonly total-val" style="color:var(--gold-primary); font-weight:bold;" data-total="${row.id}">${fmtNum(calcs.total)}</span></td>
++            <td><input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
++                onfocus="        `;  <td><span class="g-readonly total-val" style="color:var(--gold-primary); font-weight:bold;" data-total="${row.id}">${fmtNum(calcs.total)}</span></td>
++            <td><input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
++                onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
++                onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700;" tabindex="-1"></td>
+             <td>
+-                <input type="text" inputmode="decimal" class="g-input" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}"
++                <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}"
+                     onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
+                     onblur="this.value=fmtNum(parseNum(this.value))" style="color:#10b981; font-weight:700;" tabindex="-1">
+             </td>
+-            <td><input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
+-                onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
+-                onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700;" tabindex="-1"></td>
+-            <td><span class="g-readonly ${calcs.availQty !== '—' && calcs.availQty < row.quantity ? 'warn-val' : 'avail-val'}" data-avail="${row.id}">${calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty)}</span></td>
++            <td><span class="g-readonly total-fc-val" style="color:#10b981; font-weight:bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0))}</span></td>
++
+             <td>
+                 <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1">
+                     <option value="">نفس الفاتورة ↩</option>
+                     ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
+                 </select>
+             </td>
+-            <td><span class="g-readonly total-val" data-total="${row.id}">${fmtNum(calcs.total)}</span></td>
++
+             <td>
+                 <div style="display: flex; gap: 5px; justify-content: center;">
+                     <button class="edit-btn" onclick="document.getElementById('item-search-${row.id}').focus()" title="تعديل السطر" style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.2); color: #38bdf8; border-radius: 6px; padding: 6px; cursor: pointer;">
+@@ -1361,21 +1365,33 @@ function renderGrid() {
+                 onblur="this.value=parseNum(this.value)||1" tabindex="-1">
+                 </div>
+                 <div class="ctrl-group">
+-                    <label class="label">الكمية</label>
++                    <label class="label">الكمية الوحدة</label>
+                     <input type="text" inputmode="decimal" class="ctrl-input" data-qty-input="${row.id}" value="${Number.isInteger(row.quantity) ? row.quantity : parseFloat((row.quantity || 0).toFixed(4)) || ''}" placeholder="0"
+                         onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)">
+                 </div>
++                <div class="ctrl-group">
++                    <label class="label" style="color:#6366f1;">الشيلة</label>
++                    <div class="ctrl-input readonly" data-m-shila="${row.id}" style="color:#6366f1; font-weight:bold; text-align:center;">${fmtNum(calcs.shilaQty)}</div>
++                </div>
++                <div class="ctrl-group">
++                    <label class="label" style="color:#ef4444;">باقي سيخ</label>
++                    <div class="ctrl-input readonly" data-m-shila-rem="${row.id}" style="color:#ef4444; font-weight:bold; text-align:center;">${fmtNum(calcs.shilaRem)}</div>
++                </div>
+                 <div class="ctrl-group">
+                     <label class="label">السعر (محلي / أجنبي) <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'purchase')" title="سجل أسعار الصنف للمورد" style="color:#38bdf8; background:none; border:none; cursor:pointer; padding:0; margin-right:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></button></label>
+                     <div style="display:flex; gap:4px;">
+                         <input type="text" inputmode="decimal" class="ctrl-input" value="${fmtNum(row.price)}" placeholder="0"
+                             onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
+                             onblur="this.value=fmtNum(parseNum(this.value))" style="flex:1;">
+-                        <input type="text" inputmode="decimal" class="ctrl-input" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}" placeholder="أجنبي"
++                        <input type="text" inputmode="decimal" class="ctrl-input" data-m-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}" placeholder="${document.getElementById('hdr-currency').value === 'SDG' ? 'أجنبي' : 'جنيه'}"
+                             onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
+                             onblur="this.value=fmtNum(parseNum(this.value))" style="flex:1; color:#10b981;">
+                     </div>
+                 </div>
++                <div class="ctrl-group">
++                    <label class="label fc-total-label">${document.getElementById('hdr-currency').value === 'SDG' ? 'جملة الوحدة أجنبي' : 'جملة الوحدة جنيه'}</label>
++                    <div class="ctrl-input readonly" data-m-total-fc="${row.id}" style="text-align:center;color:#10b981;">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0))}</div>
++                </div>
+                 <div class="ctrl-group">
+                     <label class="label">الكمية بالعدد</label>
+                     <input type="text" inputmode="decimal" class="ctrl-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
+@@ -1389,10 +1405,7 @@ function renderGrid() {
+                         ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
+                     </select>
+                 </div>
+-                <div class="ctrl-group">
+-                    <label class="label">المتاح</label>
+-                    <div class="ctrl-input readonly" style="text-align:center;color:#38bdf8;">${calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty)}</div>
+-                </div>
++
+             </div>
+             <div class="m-card-total" data-m-total="${row.id}">${fmtNum(calcs.total)} ${getCurrency()}</div>
+         `;
+@@ -1426,6 +1439,34 @@ function onAdjAmtChange(type) {
+ // ════════════════════════════════════════
+ function recalcAll() {
+     const cur = getCurrency();
++    const isBaseSDG = (cur === 'SDG');
++    const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
++    
++    // Update secondary price header text based on currency
++    const thFcPrice = document.querySelector('.th-fcprice');
++    if (thFcPrice) {
++        thFcPrice.textContent = isBaseSDG ? 'سعر الوحدة أجنبي' : 'سعر الوحدة جنيه';
++    }
++    const thFcTotal = document.querySelector('.th-fctotal');
++    if (thFcTotal) {
++        thFcTotal.textContent = isBaseSDG ? 'جملة الوحدة أجنبي' : 'جملة الوحدة جنيه';
++    }
++    
++    // Update mobile labels if any
++    document.querySelectorAll('.fc-total-label').forEach(lbl => {
++        lbl.textContent = isBaseSDG ? 'جملة الوحدة أجنبي' : 'جملة الوحدة جنيه';
++    });
++
++    // Recompute fcPrice for all rows and update DOM
++    rows.forEach(row => {
++        if (isBaseSDG) {
++            row.fcPrice = row.price / exRate;
++        } else {
++            row.fcPrice = row.price * exRate;
++        }
++        updateRowCalcs(row.id);
++    });
++
+     const invTotal = getInvoiceTotal();
+     const labor = parseNum(document.getElementById('t-labor').value);
+     const transport = parseNum(document.getElementById('t-transport').value);
