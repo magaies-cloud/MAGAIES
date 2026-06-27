@@ -592,34 +592,103 @@ function selectCustomer(id, name) {
 // ════════════════════════════════════════
 //  ITEMS DROPDOWN LOGIC
 // ════════════════════════════════════════
-function renderItemDropdown(rowId, isMobile = false, filter = '') {
+async function renderItemDropdown(rowId, isMobile = false, filter = '') {
     const prefix = isMobile ? 'm-' : '';
     const listEl = document.getElementById(`${prefix}item-dropdown-list-${rowId}`);
     if (!listEl) return;
     
-    listEl.innerHTML = '';
+    listEl.innerHTML = '<div class="custom-dropdown-empty">جاري البحث...</div>';
     const term = filter.toLowerCase().trim();
     
-    let matches = ITEMS;
-    if (term) {
-        matches = ITEMS.filter(i => i.name.toLowerCase().includes(term));
-    }
+    try {
+        let localMatches = ITEMS;
+        if (term) {
+            // Smart filter: match from the beginning of ANY word in the item name
+            localMatches = ITEMS.filter(i => {
+                const nameWords = i.name.toLowerCase().split(' ');
+                const bcMatches = i.barcode && i.barcode.toLowerCase().startsWith(term);
+                return nameWords.some(w => w.startsWith(term)) || bcMatches;
+            });
+        }
 
-    if (matches.length === 0) {
-        listEl.innerHTML = '<div class="custom-dropdown-empty">لا يوجد صنف بهذا الاسم</div>';
-        return;
-    }
+        let dbMatches = [];
+        try {
+            const res = await fetch('/api/items_search.php?q=' + encodeURIComponent(term));
+            const rawMatches = await res.json();
+            if (Array.isArray(rawMatches)) {
+                dbMatches = rawMatches;
+            }
+        } catch(err) {
+            console.error('API Search Failed:', err);
+        }
+        
+        const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+        const WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+        const rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+        
+        // Merge dbMatches and newly added rawItems
+        const allNew = [...rawItems, ...dbMatches];
+        allNew.forEach(item => {
+            let existing = ITEMS.find(i => String(i.id) === String(item.id));
+            if (!existing) {
+                let stockMap = {};
+                let itemInv = invData.filter(inv => String(inv.itemId) === String(item.id));
+                itemInv.forEach(inv => {
+                    let whId = WAREHOUSES.find(w => w.name === inv.warehouse)?.id || 'w-001';
+                    stockMap[whId] = (stockMap[whId] || 0) + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0);
+                });
 
-    matches.forEach(i => {
-        const div = document.createElement('div');
-        div.className = 'custom-dropdown-item';
-        div.textContent = isMobile ? `${i.name} — ${i.unit}` : i.name;
-        div.onmousedown = () => {
-            updateRow(rowId, 'itemId', i.id);
-            renderGrid();
-        };
-        listEl.appendChild(div);
-    });
+                let sp = item.sellingPrice || item.salePrice || item.price || 0;
+                sp = sp.toString().replace(/,/g, '');
+                const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
+
+                let unitsArray = [];
+                if (item.units && item.units.length > 0) {
+                    unitsArray = item.units.map(u => ({ name: u.unitName, factor: u.factor || 1 }));
+                } else if (item.unitsArray && item.unitsArray.length > 0) {
+                    unitsArray = item.unitsArray;
+                }
+                if (unitsArray.length === 0 || !unitsArray.find(u => u.name === baseUnit)) {
+                    unitsArray = [{ name: baseUnit, factor: 1 }, ...unitsArray];
+                }
+
+                existing = {
+                    id: item.id,
+                    name: item.name,
+                    unit: baseUnit,
+                    baseUnit: baseUnit,
+                    conversionFactor: 1, 
+                    bundleFactor: 1,
+                    price: parseFloat(sp) || 0,
+                    stock: stockMap,
+                    unitsArray: unitsArray
+                };
+                ITEMS.push(existing);
+                localMatches.push(existing); // Add to display list
+            }
+        });
+
+        // Deduplicate localMatches by id
+        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
+
+        if (finalMatches.length === 0) {
+            listEl.innerHTML = '<div class="custom-dropdown-empty">لا يوجد صنف بهذا الاسم</div>';
+            return;
+        }
+
+        listEl.innerHTML = '';
+        finalMatches.forEach(existing => {
+            const div = document.createElement('div');
+            div.className = 'custom-dropdown-item';
+            div.textContent = isMobile ? `${existing.name} — ${existing.unit}` : existing.name;
+            div.onmousedown = () => { updateRow(rowId, 'itemId', existing.id); renderGrid(); };
+            div.onpointerdown = () => { updateRow(rowId, 'itemId', existing.id); renderGrid(); };
+            listEl.appendChild(div);
+        });
+    } catch (e) {
+        console.error(e);
+        listEl.innerHTML = '<div class="custom-dropdown-empty">خطأ في الاتصال</div>';
+    }
 }
 
 function showItemDropdown(rowId, isMobile = false) {
@@ -679,32 +748,100 @@ function filterItemDropdown(rowId, isMobile = false) {
 // ════════════════════════════════════════
 //  QUICK ITEM ADD LOGIC
 // ════════════════════════════════════════
-function renderQuickItemDropdown(filter = '') {
+async function renderQuickItemDropdown(filter = '') {
     const listEl = document.getElementById('quick-item-dropdown-list');
     if (!listEl) return;
     
-    listEl.innerHTML = '';
+    listEl.innerHTML = '<div class="custom-dropdown-empty">جاري البحث...</div>';
     const term = filter.toLowerCase().trim();
     
-    let matches = ITEMS;
-    if (term) {
-        matches = ITEMS.filter(i => i.name.toLowerCase().includes(term));
-    }
+    try {
+        let localMatches = ITEMS;
+        if (term) {
+            // Smart filter: match from the beginning of ANY word in the item name
+            localMatches = ITEMS.filter(i => {
+                const nameWords = i.name.toLowerCase().split(' ');
+                const bcMatches = i.barcode && i.barcode.toLowerCase().startsWith(term);
+                return nameWords.some(w => w.startsWith(term)) || bcMatches;
+            });
+        }
 
-    if (matches.length === 0) {
-        listEl.innerHTML = '<div class="custom-dropdown-empty">لا يوجد صنف بهذا الاسم</div>';
-        return;
-    }
+        let dbMatches = [];
+        try {
+            const res = await fetch('/api/items_search.php?q=' + encodeURIComponent(term));
+            const rawMatches = await res.json();
+            if (Array.isArray(rawMatches)) {
+                dbMatches = rawMatches;
+            }
+        } catch(err) {
+            console.error('API Search Failed:', err);
+        }
+        
+        const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+        const WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+        const rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+        
+        const allNew = [...rawItems, ...dbMatches];
+        allNew.forEach(item => {
+            let existing = ITEMS.find(i => String(i.id) === String(item.id));
+            if (!existing) {
+                let stockMap = {};
+                let itemInv = invData.filter(inv => String(inv.itemId) === String(item.id));
+                itemInv.forEach(inv => {
+                    let whId = WAREHOUSES.find(w => w.name === inv.warehouse)?.id || 'w-001';
+                    stockMap[whId] = (stockMap[whId] || 0) + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0);
+                });
 
-    matches.forEach(i => {
-        const div = document.createElement('div');
-        div.className = 'custom-dropdown-item';
-        div.textContent = `${i.name} — ${i.unit}`;
-        div.onmousedown = () => {
-            selectQuickItem(i.id);
-        };
-        listEl.appendChild(div);
-    });
+                let sp = item.sellingPrice || item.salePrice || item.price || 0;
+                sp = sp.toString().replace(/,/g, '');
+                const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
+
+                let unitsArray = [];
+                if (item.units && item.units.length > 0) {
+                    unitsArray = item.units.map(u => ({ name: u.unitName, factor: u.factor || 1 }));
+                } else if (item.unitsArray && item.unitsArray.length > 0) {
+                    unitsArray = item.unitsArray;
+                }
+                if (unitsArray.length === 0 || !unitsArray.find(u => u.name === baseUnit)) {
+                    unitsArray = [{ name: baseUnit, factor: 1 }, ...unitsArray];
+                }
+
+                existing = {
+                    id: item.id,
+                    name: item.name,
+                    unit: baseUnit,
+                    baseUnit: baseUnit,
+                    conversionFactor: 1, 
+                    bundleFactor: 1,
+                    price: parseFloat(sp) || 0,
+                    stock: stockMap,
+                    unitsArray: unitsArray
+                };
+                ITEMS.push(existing);
+                localMatches.push(existing);
+            }
+        });
+
+        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
+
+        if (finalMatches.length === 0) {
+            listEl.innerHTML = '<div class="custom-dropdown-empty">لا يوجد صنف بهذا الاسم</div>';
+            return;
+        }
+
+        listEl.innerHTML = '';
+        finalMatches.forEach(existing => {
+            const div = document.createElement('div');
+            div.className = 'custom-dropdown-item';
+            div.textContent = `${existing.name} — ${existing.unit}`;
+            div.onmousedown = () => { selectQuickItem(existing.id); };
+            div.onpointerdown = () => { selectQuickItem(existing.id); };
+            listEl.appendChild(div);
+        });
+    } catch (e) {
+        console.error(e);
+        listEl.innerHTML = '<div class="custom-dropdown-empty">خطأ في الاتصال</div>';
+    }
 }
 
 function showQuickItemDropdown() {
@@ -1284,7 +1421,9 @@ function submitInvoice(ignoreWarnings = false) {
         discount: parseNum(document.getElementById('t-discount').value || 0),
         vatAmount: parseNum(document.getElementById('t-vat').textContent),
         grandTotal: parseNum(grandTotal),
-        status: currentSaleType === 'preliminary' ? 'preliminary' : 'pending_delivery'
+        status: currentSaleType === 'preliminary' ? 'preliminary' : 'pending_delivery',
+        timestamp: new Date().toISOString(),
+        customerName: cust ? cust.name : 'عميل نقدي'
     };
 
     // Update Bank/Safe balance ONLY if not preliminary
@@ -2200,3 +2339,64 @@ function convertToOfficial(invNo) {
     if (typeof loadHubTransactions === 'function') loadHubTransactions();
 }
 
+async function sendInvoiceWA(invoiceNo) {
+    try {
+        const userId = typeof getWAUserId === 'function' ? getWAUserId() : localStorage.getItem('erp_wa_user_id');
+        const res = await fetch(`http://localhost:3001/wa/status?userId=${userId}`);
+        const data = await res.json();
+        
+        if (data.status !== 'CONNECTED' && data.status !== 'AUTHENTICATED') {
+            const wantsToConnect = typeof showWAConnectPrompt === 'function' ? await showWAConnectPrompt() : confirm('رقم الواتساب غير مربوط. هل تريد الربط الآن؟');
+            if (wantsToConnect) {
+                if (typeof openWAModal === 'function') {
+                    openWAModal();
+                } else {
+                    alert('يرجى الذهاب إلى شاشة الإعدادات لربط الواتساب.');
+                }
+            }
+            return;
+        }
+    } catch (err) {
+        alert('خدمة الواتساب غير متاحة حالياً. تأكد من تشغيل الخادم.');
+        return;
+    }
+
+    let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    let inv = allSales.find(i => i.invoiceNo === invoiceNo);
+    if (!inv) { alert('لم يتم العثور على الفاتورة'); return; }
+
+    const phone = prompt('أدخل رقم هاتف العميل (مع المفتاح الدولي، مثلاً 249912345678):', '');
+    if (!phone) return;
+
+    const htmlContent = window.InvoicePrinter.buildHTML(inv);
+    
+    const printContainer = document.createElement('div');
+    printContainer.style.position = 'absolute';
+    printContainer.style.left = '-9999px';
+    printContainer.style.width = '800px';
+    printContainer.style.background = '#fff';
+    printContainer.style.color = '#000';
+    printContainer.style.padding = '20px';
+    
+    const styleSheet = `
+        <style>
+            .inv-doc { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; direction: rtl; }
+            table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: right; }
+            th { background-color: #f8fafc; color: #1e293b; }
+            .inv-total-row { display: flex; justify-content: space-between; padding: 5px 0; font-weight: bold; }
+        </style>
+    `;
+    printContainer.innerHTML = styleSheet + htmlContent;
+    document.body.appendChild(printContainer);
+
+    const message = 'مرحباً، مرفق فاتورتكم رقم ' + invoiceNo + ' من مؤسسة السجانة للتجارة. شكراً لتعاملكم معنا!';
+    
+    try {
+        await sendPDFViaWhatsApp(printContainer, phone, message);
+    } catch (e) {
+        console.error(e);
+    } finally {
+        printContainer.remove();
+    }
+}

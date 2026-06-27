@@ -319,7 +319,8 @@ window.InvoicePrinter = (function () {
          */
         print: showPreview,
         closePreview: closePreview,
-        doPrint: doPrint
+        doPrint: doPrint,
+        buildHTML: buildInvoiceHTML
     };
 
 })();

@@ -12,10 +12,11 @@ try {
         if (!empty($row['data'])) {
             $data = json_decode($row['data'], true);
             if (is_array($data)) {
-                // If search query is provided, filter by name
                 if ($q !== '') {
                     $name = mb_strtolower($data['name'] ?? '');
-                    if (mb_strpos($name, mb_strtolower($q)) === false) {
+                    // Smart filter: match from the beginning of ANY word in the item name
+                    $qLower = mb_strtolower($q);
+                    if (!preg_match('/(^|\s)' . preg_quote($qLower, '/') . '/u', $name)) {
                         continue;
                     }
                 }

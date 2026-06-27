@@ -60,7 +60,7 @@
     // Load data from IndexedDB into DB_STORE
     async function initDB() {
         try {
-            for (let key of syncKeys) {
+            await Promise.all(syncKeys.map(async (key) => {
                 const tenantKey = window.getTenantKey(key);
                 const val = await localforage.getItem(tenantKey);
                 if (val !== null) {
@@ -70,12 +70,13 @@
                     const oldVal = originalGetItem(key);
                     if (oldVal !== null) {
                         window.DB_STORE[tenantKey] = oldVal;
-                        await localforage.setItem(tenantKey, oldVal);
-                        originalRemoveItem(key); // FIX: Use originalRemoveItem to avoid proxy deletion
+                        // Fire and forget setItem to avoid blocking initialization
+                        localforage.setItem(tenantKey, oldVal).catch(e => console.error(e));
+                        originalRemoveItem(key);
                         console.log(`[Migration] Moved ${key} to IndexedDB.`);
                     }
                 }
-            }
+            }));
         } catch (e) {
             console.error("IndexedDB Initialization Error:", e);
         }
