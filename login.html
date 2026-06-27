@@ -354,6 +354,17 @@
                     @keyframes progressBarLoad { 0% { width: 0%; } 100% { width: 100%; } }
                     @keyframes rotateDashIntro { 100% { transform: rotate(360deg); } }
                     @keyframes bgGradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+                    @keyframes slideDownFadePrayer { from { opacity: 0; transform: translateY(-40px); filter: blur(5px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
+
+                    .market-prayer {
+                        position: absolute; top: 8vh; width: 90%; max-width: 800px; text-align: center;
+                        font-family: 'Tajawal', sans-serif; font-size: 1.4rem; font-weight: 800;
+                        color: #fef08a;
+                        text-shadow: 1px 1px 0px rgba(255,255,255,0.3), -1px -2px 3px rgba(0,0,0,0.9), 0 5px 20px rgba(217, 119, 6, 0.6);
+                        opacity: 0;
+                        animation: slideDownFadePrayer 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+                        z-index: 10; line-height: 1.8;
+                    }
 
                     .premium-intro-bg {
                         position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
@@ -442,6 +453,11 @@
 
                     <div class="premium-intro-bg">
                         <div class="intro-particles"></div>
+                        
+                        <div class="market-prayer">
+                            "لا إلهَ إلاَّ اللَّهُ وحْدَهُ لا شَرِيكَ لهُ، لَهُ المُلْكُ ولَهُ الحَمْدُ، يُحْيِي ويُمِيتُ، وهُوَ حَيٌّ لا يَمُوتُ، بِيَدِهِ الخَيْرُ، وهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ"
+                        </div>
+
                         <div class="ai-brain-container">
                             <div class="ai-ring r1"></div>
                             <div class="ai-ring r2"></div>
