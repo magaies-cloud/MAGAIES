@@ -719,18 +719,41 @@
     <script>
     document.addEventListener('DBReady', async () => {
         try {
-            const sr = (await localforage.getItem(window.getTenantKey('erp_single_receipts_v1'))) || JSON.parse(localStorage.getItem('erp_single_receipts_v1')||'[]');
-            const br = (await localforage.getItem(window.getTenantKey('erp_receipts_v1'))) || JSON.parse(localStorage.getItem('erp_receipts_v1')||'[]');
-            const sp = (await localforage.getItem(window.getTenantKey('erp_single_payments_v1'))) || JSON.parse(localStorage.getItem('erp_single_payments_v1')||'[]');
-            const bp = (await localforage.getItem(window.getTenantKey('erp_payments_v1'))) || JSON.parse(localStorage.getItem('erp_payments_v1')||'[]');
+            const tkSR = window.getTenantKey ? window.getTenantKey('erp_single_receipts_v1') : 'erp_single_receipts_v1';
+            const tkBR = window.getTenantKey ? window.getTenantKey('erp_receipts_v1') : 'erp_receipts_v1';
+            const tkSP = window.getTenantKey ? window.getTenantKey('erp_single_payments_v1') : 'erp_single_payments_v1';
+            const tkBP = window.getTenantKey ? window.getTenantKey('erp_payments_v1') : 'erp_payments_v1';
+
+            let sr = [], br = [], sp = [], bp = [];
+            
+            if (typeof localforage !== 'undefined') {
+                sr = (await localforage.getItem(tkSR)) || [];
+                br = (await localforage.getItem(tkBR)) || [];
+                sp = (await localforage.getItem(tkSP)) || [];
+                bp = (await localforage.getItem(tkBP)) || [];
+            }
+
+            if (!Array.isArray(sr) || sr.length === 0) sr = JSON.parse(localStorage.getItem(tkSR) || localStorage.getItem('erp_single_receipts_v1') || '[]');
+            if (!Array.isArray(br) || br.length === 0) br = JSON.parse(localStorage.getItem(tkBR) || localStorage.getItem('erp_receipts_v1') || '[]');
+            if (!Array.isArray(sp) || sp.length === 0) sp = JSON.parse(localStorage.getItem(tkSP) || localStorage.getItem('erp_single_payments_v1') || '[]');
+            if (!Array.isArray(bp) || bp.length === 0) bp = JSON.parse(localStorage.getItem(tkBP) || localStorage.getItem('erp_payments_v1') || '[]');
+
+            sr = Array.isArray(sr) ? sr : Object.values(sr);
+            br = Array.isArray(br) ? br : Object.values(br);
+            sp = Array.isArray(sp) ? sp : Object.values(sp);
+            bp = Array.isArray(bp) ? bp : Object.values(bp);
             
             let all = [];
-            sr.forEach(x => { if(!x.deleted) all.push({...x, _type: 'سند قبض مفرد', _color: '#10b981', _date: new Date(x.date || x.createdAt || 0)})});
-            br.forEach(x => { if(!x.deleted) all.push({...x, _type: 'سند قبض مجمع', _color: '#38bdf8', _date: new Date(x.date || x.createdAt || 0)})});
-            sp.forEach(x => { if(!x.deleted) all.push({...x, _type: 'سند صرف مفرد', _color: '#f43f5e', _date: new Date(x.date || x.createdAt || 0)})});
-            bp.forEach(x => { if(!x.deleted) all.push({...x, _type: 'سند صرف مجمع', _color: '#f59e0b', _date: new Date(x.date || x.createdAt || 0)})});
+            sr.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند قبض مفرد', _color: '#10b981', _date: new Date(x.date || x.createdAt || 0)})});
+            br.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند قبض مجمع', _color: '#38bdf8', _date: new Date(x.date || x.createdAt || 0)})});
+            sp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف مفرد', _color: '#f43f5e', _date: new Date(x.date || x.createdAt || 0)})});
+            bp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف مجمع', _color: '#f59e0b', _date: new Date(x.date || x.createdAt || 0)})});
             
-            all.sort((a,b) => b._date - a._date);
+            all.sort((a,b) => {
+                const dateA = isNaN(a._date.getTime()) ? 0 : a._date.getTime();
+                const dateB = isNaN(b._date.getTime()) ? 0 : b._date.getTime();
+                return dateB - dateA;
+            });
             let top = all.slice(0, 10);
             
             let tbody = document.getElementById('recent-transactions-body');
@@ -741,16 +764,16 @@
             
             tbody.innerHTML = top.map(x => `
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
-                    <td style="padding: 12px 10px; font-weight: bold; color: ${x._color};">${x.id}</td>
+                    <td style="padding: 12px 10px; font-weight: bold; color: ${x._color};">${x.id || '-'}</td>
                     <td style="padding: 12px 10px;"><span style="background: ${x._color}20; color: ${x._color}; padding: 3px 8px; border-radius: 6px; font-size: 0.85rem;">${x._type}</span></td>
-                    <td style="padding: 12px 10px; color: #cbd5e1;">${x._date.toLocaleDateString('en-GB')}</td>
+                    <td style="padding: 12px 10px; color: #cbd5e1;">${!isNaN(x._date.getTime()) ? x._date.toLocaleDateString('en-GB') : '-'}</td>
                     <td style="padding: 12px 10px; color: #cbd5e1;">${x.description || x.notes || '-'}</td>
                     <td style="padding: 12px 10px; font-weight: bold; color: #fff;">${(x.amount || x.totalAmount || 0).toLocaleString()}</td>
                 </tr>
             `).join('');
         } catch(e) {
             console.error(e);
-            document.getElementById('recent-transactions-body').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#ef4444;">خطأ في جلب البيانات</td></tr>';
+            document.getElementById('recent-transactions-body').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#ef4444;">خطأ في جلب البيانات: ' + (e.message || e) + '</td></tr>';
         }
     });
     </script>
