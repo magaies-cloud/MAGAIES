@@ -1,4 +1,4 @@
-﻿/* ═══════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════
    sales-invoice.css — POS Professional UI v6.0
    Cyberpunk Neon Glassmorphism · RTL-First · Responsive
    ═══════════════════════════════════════════════════════ */
@@ -17,7 +17,7 @@ body {
 /* ── POS WRAPPER ── */
 .pos-wrapper {
     width: 100%;
-    padding: 10px 8px 100px 10px;
+    padding: 10px 10px 100px 10px; /* symmetric L/R */
 }
 
 /* ── BREADCRUMB ── */

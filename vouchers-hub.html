@@ -588,7 +588,7 @@
                 <div class="icon-wrapper">
                     <span class="v-icon">💸</span>
                 </div>
-                <h3 class="v-title">صرف مفرد</h3>
+                <h3 class="v-title">حركية مالية</h3>
                 <p class="v-subtitle">صرف مبلغ لجهة واحدة.</p>
                 <div class="v-footer">
                     <span class="v-badge">Payment</span>
@@ -597,24 +597,7 @@
             </div>
         </a>
 
-        <!-- 4. Batch Payment -->
-        <a data-href="cash-payment.html" onclick="window.location.href='cash-payment.html'" class="premium-card">
-            <div class="card-glow"></div>
-            <div class="flow-badge">
-                <span>🔴</span> مدفوعات
-            </div>
-            <div class="card-content">
-                <div class="icon-wrapper">
-                    <span class="v-icon">📤</span>
-                </div>
-                <h3 class="v-title">صرف مجمع</h3>
-                <p class="v-subtitle">صرف دفعات لعدة جهات.</p>
-                <div class="v-footer">
-                    <span class="v-badge">Batch</span>
-                    <span class="v-arrow">←</span>
-                </div>
-            </div>
-        </a>
+
 
 
 
@@ -674,7 +657,7 @@
             let all = [];
             sr.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند قبض مفرد', _color: '#10b981', _date: new Date(x.date || x.createdAt || 0)})});
             br.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند قبض مجمع', _color: '#38bdf8', _date: new Date(x.date || x.createdAt || 0)})});
-            sp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف مفرد', _color: '#f43f5e', _date: new Date(x.date || x.createdAt || 0)})});
+            sp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'حركية مالية', _color: '#f43f5e', _date: new Date(x.date || x.createdAt || 0)})});
             bp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف مجمع', _color: '#f59e0b', _date: new Date(x.date || x.createdAt || 0)})});
             
             all.sort((a,b) => {
