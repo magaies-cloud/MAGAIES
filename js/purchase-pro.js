@@ -448,7 +448,7 @@ function setSaleType(type) {
     
     const badge = document.getElementById('current-sale-type-badge');
     if (badge) {
-        if (type === 'direct') badge.innerHTML = '🛒 شراء مباشر';
+        if (type === 'direct') badge.innerHTML = '🛒 فاتورة مشتريات مباشرة';
         else if (type === 'split') badge.innerHTML = '🏭 مصنع';
         else if (type === 'delivery') badge.innerHTML = '🚚 استيراد';
         else if (type === 'proforma') badge.innerHTML = '📋 فاتورة مبدئية';
@@ -477,6 +477,16 @@ function onCustomerChange() {
             setTimeout(() => { if(finCard.style.opacity === "0") finCard.style.display = 'none'; }, 400);
         }
         
+        // Restore fonts
+        const invLbl = document.getElementById('hdr-inv-label');
+        const invVal = document.getElementById('inv-number');
+        const dateLbl = document.getElementById('hdr-date-label');
+        const dateVal = document.getElementById('hdr-date');
+        if(invLbl) invLbl.style.fontSize = "0.9rem";
+        if(invVal) invVal.style.fontSize = "0.9rem";
+        if(dateLbl) dateLbl.style.fontSize = "0.9rem";
+        if(dateVal) dateVal.style.fontSize = "0.95rem";
+        
         ['fin-ledger','fin-checks','fin-total-debt','fin-credit-limit','fin-remaining'].forEach(el => {
             const dom = document.getElementById(el);
             if(dom) dom.textContent = '0';
@@ -495,6 +505,16 @@ function onCustomerChange() {
             finCard.style.flex = "1";
             finCard.style.opacity = "1";
             finCard.style.paddingLeft = "10px";
+            
+            // Shrink fonts
+            const invLbl = document.getElementById('hdr-inv-label');
+            const invVal = document.getElementById('inv-number');
+            const dateLbl = document.getElementById('hdr-date-label');
+            const dateVal = document.getElementById('hdr-date');
+            if(invLbl) invLbl.style.fontSize = "0.75rem";
+            if(invVal) invVal.style.fontSize = "0.75rem";
+            if(dateLbl) dateLbl.style.fontSize = "0.75rem";
+            if(dateVal) dateVal.style.fontSize = "0.8rem";
         }, 10);
     }
 
@@ -1583,7 +1603,7 @@ function recalcAll() {
     document.getElementById('t-additions').textContent = '+ ' + fmtNum(additionAmt) + ' ' + cur;
     document.getElementById('t-tax').textContent = '+ ' + fmtNum(taxAmt) + ' ' + cur;
     document.getElementById('t-discount').textContent = '- ' + fmtNum(discountAmt) + ' ' + cur;
-    document.getElementById('t-grand').textContent = fmtNum(grand) + ' ' + cur;
+    document.getElementById('t-grand').innerHTML = fmtNum(grand) + ' <span style="color: #ef4444; font-size: 0.9em; text-shadow: none;">' + cur + '</span>';
 
     // Footer
     document.getElementById('footer-grand').textContent = fmtNum(grand) + ' ' + cur;
@@ -1592,18 +1612,16 @@ function recalcAll() {
     const totalsCard = document.getElementById('totals-calc-card');
     const formCard = document.getElementById('form-fields-card');
     if (totalsCard && formCard) {
-        const hasItems = rows.some(r => r.itemId !== '' || parseFloat(r.price) > 0 || parseFloat(r.quantity) > 0);
+        const hasItems = rows.some(r => (parseFloat(r.price) || 0) * (parseFloat(r.quantity) || 0) > 0);
 
         if (hasItems) {
             // Remove hiding classes, add showing classes
             totalsCard.classList.remove('hidden-totals');
             formCard.classList.remove('expanded-form');
-            totalsCard.style.display = 'flex';
         } else {
             // Add hiding classes, add expanded class
             totalsCard.classList.add('hidden-totals');
             formCard.classList.add('expanded-form');
-            totalsCard.style.display = 'none';
         }
     }
 }

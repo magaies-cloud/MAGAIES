@@ -264,8 +264,17 @@
         </div>
 
         <div class="header-center">
-            <h2 id="total-alarms-badge" style="font-size: 1.3rem;">⏳ جاري الفحص...</h2>
-            <div id="last-refresh-time">آخر تحديث: جاري التحميل...</div>
+            <h2 style="display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 2.2rem; font-weight: 900; color: #3b82f6; text-shadow: 0 4px 15px rgba(59, 130, 246, 0.5); margin: 0; font-family: 'Outfit', 'Cairo', sans-serif; letter-spacing: 1px;">
+                <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 4px 6px rgba(59, 130, 246, 0.4));">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                التنبيهات
+            </h2>
+            <div style="display: flex; gap: 10px; align-items: center; justify-content: center; margin-top: 8px;">
+                <span id="total-alarms-badge" style="font-size: 0.9rem; font-weight: bold; padding: 2px 8px; border-radius: 6px;">⏳ جاري الفحص...</span>
+                <span id="last-refresh-time" style="font-size: 0.8rem; color: #94a3b8; font-weight: 600;">آخر تحديث: جاري التحميل...</span>
+            </div>
         </div>
 
         <div class="header-controls">
@@ -453,21 +462,47 @@ function renderLowStock() {
     }
 
     el.innerHTML = results.slice(0, 15).map(item => {
-        const isCritical = item.stock === 0;
+        const percentage = Math.min(100, Math.round((item.stock / item.safe) * 100)) || 0;
+        const colorHex = isCritical ? '#fb7185' : '#fcd34d';
+        const colorBg = isCritical ? 'rgba(244,63,94,0.15)' : 'rgba(245,158,11,0.15)';
+        const unitName = item.units && item.units[0] ? item.units[0].name : '';
+
         return `
-        <div class="alarm-card ${isCritical ? 'critical' : 'warning'}">
-            <div class="alarm-icon-wrap ${isCritical ? 'critical' : 'warning'}">${isCritical ? '🚫' : '⚠️'}</div>
-            <div class="alarm-content">
-                <div class="alarm-title">${item.name || 'صنف'}</div>
-                <div class="alarm-meta">
-                    الرصيد الحالي: <strong style="color:${isCritical?'#fb7185':'#fcd34d'}">${item.stock}</strong>
-                    &nbsp;|&nbsp; الحد الآمن: <strong style="color:#fff">${item.safe}</strong>
-                    ${item.units && item.units[0] ? ` (${item.units[0].name || 'وحدة'})` : ''}
-                </div>
-                <span class="alarm-badge ${isCritical?'badge-red':'badge-yellow'}">${isCritical ? 'نفد!' : 'ناقص'}</span>
+        <div style="background: rgba(15,23,42,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 20px; transition: transform 0.3s, box-shadow 0.3s; position: relative; overflow: hidden; border-right: 4px solid ${colorHex};" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            
+            <!-- Corner Status Badge -->
+            <div style="position: absolute; top:0; right:0; padding: 4px 15px; background: ${colorHex}; color: #000; font-size: 0.7rem; font-weight: 900; border-bottom-left-radius: 12px; box-shadow: -2px 2px 10px rgba(0,0,0,0.2);">
+                ${isCritical ? 'مخزون صفري!' : 'ناقص عن الحد'}
             </div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
-                <a data-href="purchase.html" onclick="window.location.href='purchase.html'" class="alarm-action ${isCritical?'red':'yellow'}">طلب شراء</a>
+            
+            <!-- Stock Value Block -->
+            <div style="width: 70px; height: 70px; border-radius: 14px; background: ${colorBg}; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);">
+                <span style="font-size: 1.6rem; color: ${colorHex}; font-weight: 900; line-height: 1; text-shadow: 0 2px 10px ${colorBg};">${item.stock}</span>
+                <span style="font-size: 0.65rem; color: rgba(255,255,255,0.6); margin-top: 4px; font-weight:bold;">متوفر</span>
+            </div>
+            
+            <!-- Item Details & Progress Bar -->
+            <div style="flex: 1;">
+                <div style="font-size: 1.2rem; font-weight: 800; color: #fff; margin-bottom: 12px; letter-spacing: 0.5px;">${item.name || 'صنف غير معروف'}</div>
+                
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; white-space: nowrap; min-width: 90px;">الحد الآمن: ${item.safe} ${unitName}</span>
+                    <div style="flex: 1; height: 8px; background: rgba(0,0,0,0.3); border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
+                        <div style="width: ${percentage}%; height: 100%; background: ${colorHex}; border-radius: 6px; box-shadow: 0 0 10px ${colorBg}; transition: width 1s ease-out;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Button -->
+            <div>
+                <button onclick="window.location.href='purchase.html'" style="background: rgba(255,255,255,0.03); color: ${colorHex}; border: 1px solid rgba(255,255,255,0.1); padding: 12px 20px; border-radius: 12px; font-weight: 900; font-family: 'Outfit', 'Cairo', sans-serif; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; font-size: 0.9rem;" onmouseover="this.style.background='${colorHex}'; this.style.color='#000'; this.style.borderColor='transparent';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='${colorHex}'; this.style.borderColor='rgba(255,255,255,0.1)';">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="21" r="2"></circle>
+                        <circle cx="20" cy="21" r="2"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    طلب شراء
+                </button>
             </div>
         </div>`;
     }).join('');

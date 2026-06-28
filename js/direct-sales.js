@@ -1338,7 +1338,7 @@ function recalcAll() {
     document.getElementById('t-additions').textContent = '+ ' + fmtNum(additionAmt) + ' ' + cur;
     document.getElementById('t-tax').textContent = '+ ' + fmtNum(taxAmt) + ' ' + cur;
     document.getElementById('t-discount').textContent = '- ' + fmtNum(discountAmt) + ' ' + cur;
-    document.getElementById('t-grand').textContent = fmtNum(grand) + ' ' + cur;
+    document.getElementById('t-grand').innerHTML = fmtNum(grand) + ' <span style="color: #ef4444; font-size: 0.9em; text-shadow: none;">' + cur + '</span>';
 
     // Footer
     document.getElementById('footer-grand').textContent = fmtNum(grand) + ' ' + cur;
@@ -1353,12 +1353,12 @@ function recalcAll() {
             // Remove hiding classes, add showing classes
             totalsCard.classList.remove('hidden-totals');
             formCard.classList.remove('expanded-form');
-            totalsCard.style.display = 'flex';
+
         } else {
             // Add hiding classes, add expanded class
             totalsCard.classList.add('hidden-totals');
             formCard.classList.add('expanded-form');
-            totalsCard.style.display = 'none';
+
         }
     }
 }

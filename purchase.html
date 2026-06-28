@@ -394,7 +394,20 @@
             min-width: 400px !important;
             margin-left: 5px;
         }
-\n</style>
+\n
+    #purchase-top-container #totals-calc-card.hidden-totals {
+        flex: 0 0 0px !important;
+        min-width: 0px !important;
+        width: 0px !important;
+        opacity: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        transform: scaleX(0);
+    }
+
+</style>
 
     <style>
         .hub-action-card {
@@ -621,6 +634,473 @@
             background: rgba(255, 255, 255, 0.1);
         }
     </style>
+
+<style>
+/* Purchase Top Container CSS */
+        #purchase-top-container {
+        display: flex; gap: 20px; align-items: stretch; width: 100%; margin-bottom: 15px;
+    }
+    #purchase-top-container #form-fields-card {
+        flex: 1; 
+        min-width: 0; 
+        transition: flex 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), max-width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+    }
+    #purchase-top-container #totals-calc-card {
+        display: flex !important;
+        flex: 0 0 360px;
+        min-width: 360px;
+        max-width: 360px;
+        opacity: 1;
+        overflow: hidden;
+        white-space: nowrap;
+        background: linear-gradient(180deg, rgba(15,23,42,0.8), rgba(154,52,18,0.4));
+        border: 1px solid rgba(249, 115, 22, 0.3);
+        border-top: 3px solid #f97316 !important;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        transform-origin: right center;
+    }
+    #purchase-top-container #totals-calc-card.hidden-totals {
+        flex: 0 0 0px !important;
+        min-width: 0px !important;
+        max-width: 0px !important;
+        opacity: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-width: 0 !important;
+    }
+    .tot-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,0.05);
+        }
+        .tot-row:last-child { border-bottom: none; }
+        .tot-lbl { font-size: 0.7rem; color: var(--text-dim); font-weight: 600; }
+        .tot-val { font-size: 0.85rem; font-weight: 800; direction: ltr; }
+        .tot-input { width: 70px; padding: 2px 6px; font-size: 0.75rem; text-align: left; }
+        .tot-grand {
+            margin-top: 10px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3);
+            border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .tot-grand .lbl { color: var(--success-color); font-weight: 800; font-size: 0.8rem; }
+        .tot-grand .val { color: var(--success-color); font-weight: 900; font-size: 1.2rem; direction: ltr; text-shadow: 0 0 15px rgba(16,185,129,0.4); }
+
+        /* Action Footer in Right Panel */
+        .right-footer {
+            padding: 15px; border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex; flex-direction: column; gap: 8px; background: transparent;
+        }
+        .btn-action {
+            width: 100%; padding: 12px; border-radius: 8px; font-weight: 800; font-size: 0.9rem;
+            cursor: pointer; border: none; transition: 0.3s;
+        }
+        .btn-submit { background: linear-gradient(135deg, #38bdf8, #818cf8); color: #fff; box-shadow: 0 4px 15px var(--gold-glow); }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--gold-glow); }
+        .btn-draft { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; }
+        .btn-draft:hover { background: rgba(255,255,255,0.1); }
+        .btn-delete { background: rgba(239,68,68,0.1); color: var(--danger-color); border: 1px solid rgba(239,68,68,0.2); }
+        .btn-delete:hover { background: rgba(239,68,68,0.2); }
+
+        /* LEFT PANEL: ITEMS & SEARCH (Flex 1) */
+        .split-left {
+            flex: 1; display: flex; flex-direction: column; padding: 0 15px 15px 15px;
+            overflow: hidden; background: transparent;
+        }
+
+        /* Toolbar above table */
+        .items-toolbar {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+            background: rgba(18, 15, 25, 0.65); padding: 12px 15px; border-radius: 18px;
+            border: 1px solid var(--gold-border); box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        }
+        .quick-search {
+            flex: 1; max-width: 400px; position: relative;
+        }
+        .quick-search input {
+            width: 100%; padding: 10px 15px; background: rgba(0,0,0,0.4); border: 1px solid var(--gold-border);
+            border-radius: 8px; color: #fff; font-size: 0.9rem; outline: none; transition: 0.3s; box-sizing: border-box;
+        }
+        .quick-search input:focus { border-color: var(--gold-primary); box-shadow: 0 0 15px rgba(251,191,36,0.1); }
+
+        /* Table Area */
+        .table-container {
+            background: rgba(18, 15, 25, 0.65); border-radius: 18px;
+            border: 1px solid var(--gold-border); box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            overflow: visible; display: flex; flex-direction: column;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        }
+        .grid-scroll-wrap { overflow-y: visible; overflow-x: auto; }
+        .grid-scroll-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
+        .grid-scroll-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 6px; }
+        
+        .pos-grid { width: 100%; border-collapse: separate; border-spacing: 0 8px; min-width: 900px; }
+        .pos-grid thead th {
+            background: transparent; color: #94a3b8; font-size: 0.85rem; font-weight: 800;
+            padding: 10px 15px; text-align: center; position: sticky; top: 0; z-index: 5;
+            border-bottom: 2px solid rgba(255,255,255,0.05); text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .pos-grid tbody tr {
+            background: rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        .pos-grid tbody tr:hover {
+            background: rgba(255,255,255,0.05); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .pos-grid tbody td {
+            padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.02);
+            border-top: 1px solid rgba(255,255,255,0.02);
+            font-size: 0.85rem; vertical-align: middle;
+        }
+        .pos-grid tbody td:first-child { border-radius: 12px 0 0 12px; border-right: 1px solid rgba(255,255,255,0.02); }
+        .pos-grid tbody td:last-child { border-radius: 0 12px 12px 0; border-left: 1px solid rgba(255,255,255,0.02); }
+        
+        .g-input, .g-select {
+            width: 100%; padding: 10px 12px; background: rgba(15,23,42,0.4); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; color: #f8fafc; text-align: center; outline: none; font-size: 0.9rem; font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .g-input:focus, .g-select:focus { 
+            border-color: #38bdf8; background: rgba(15,23,42,0.8); box-shadow: 0 0 0 2px rgba(56,189,248,0.2), inset 0 2px 4px rgba(0,0,0,0.2); 
+        }
+        .g-input[type="text"] { text-align: right; }
+        
+        .g-readonly {
+            display: inline-block; padding: 8px 12px; background: rgba(255,255,255,0.05); border-radius: 8px; font-weight: 800; text-align: center; width: 100%; box-sizing: border-box;
+        }
+        
+        .del-btn {
+            width: 32px; height: 32px; border-radius: 8px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
+            color: var(--danger-color); cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;
+        }
+        .del-btn:hover { background: var(--danger-color); color: #fff; box-shadow: 0 4px 10px rgba(239,68,68,0.4); transform: scale(1.1); }
+
+        .empty-state {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; color: var(--text-dim); padding: 40px;
+        }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 10px; opacity: 0.5; filter: drop-shadow(0 0 10px var(--gold-glow)); }
+
+        /* Notes Bar at Bottom of Left Panel */
+        .notes-bar {
+            margin-top: 15px; background: rgba(18, 15, 25, 0.65); padding: 15px; border-radius: 18px;
+            border: 1px solid var(--gold-border); box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        }
+        .notes-bar textarea {
+            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px; color: #fff; padding: 10px; resize: vertical; min-height: 40px; outline: none;
+            box-sizing: border-box; font-family: 'Inter', sans-serif;
+        }
+        .notes-bar textarea:focus { border-color: var(--gold-primary); }
+
+        /* Modal specific to theme */
+        .modal-card { background: var(--velvet-panel); border: 1px solid var(--gold-border); box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
+        .modal-header h3 { color: var(--gold-primary); }
+        .modal-header { border-bottom-color: rgba(255,255,255,0.05); }
+        .modal-footer { border-top-color: rgba(255,255,255,0.05); }
+
+        @media (max-width: 1024px) {
+            .split-layout { flex-direction: column; overflow-y: auto; height: auto; }
+            .split-right { width: 100%; min-width: 100%; border-left: none; border-bottom: 1px solid var(--gold-border); }
+            .split-left { overflow: visible; }
+            .table-container { min-height: 400px; }
+        }
+    
+        .fin-strip-inline.visible {
+            flex: 0 0 43% !important;
+            width: auto !important;
+            opacity: 1 !important;
+            min-width: 400px !important;
+            margin-left: 5px;
+        }
+\n
+    #purchase-top-container #totals-calc-card.hidden-totals {
+        flex: 0 0 0px !important;
+        min-width: 0px !important;
+        width: 0px !important;
+        opacity: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        transform: scaleX(0);
+    }
+
+</style>
+
+    <style>
+        .hub-action-card {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            height: 80px; /* Reduced height to ~50% of the previous tall card */
+        }
+        .hub-action-card::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            transition: all 0.6s ease;
+        }
+        .hub-action-card:hover::after {
+            left: 200%;
+        }
+        .hub-action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+        }
+        .hub-action-card .icon {
+            font-size: 1.8rem;
+            margin-bottom: 0;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+        }
+        .hub-action-card:hover .icon {
+            transform: scale(1.1) rotate(-5deg);
+        }
+        .hub-action-card .text-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: right;
+        }
+        .hub-action-card .title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin-bottom: 3px;
+            letter-spacing: 0.5px;
+        }
+        .hub-action-card .subtitle {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+            text-align: right;
+            margin: 0;
+        }
+        .hub-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .hub-badge.completed { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+        .hub-badge.draft { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    </style>
+        <style>
+        :root.light-theme {
+            --bg-color: #f1f5f9;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-secondary: #475569;
+            --border-color: #e2e8f0;
+        }
+        :root.light-theme body { background-color: var(--bg-color); color: var(--text-main); }
+        :root.light-theme .premium-header {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(241,245,249,0.9));
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        :root.light-theme .header-center h2 { background: linear-gradient(to right, #0f172a, #334155); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        :root.light-theme .brand-text h1 { color: #0f172a; text-shadow: none; }
+        :root.light-theme .brand-text p { color: #475569; text-shadow: none; }
+        :root.light-theme .icon-btn, :root.light-theme .user-info, :root.light-theme .clock-container { background: rgba(255,255,255,0.8); color: #0f172a; border-color: rgba(0,0,0,0.1); }
+        :root.light-theme .icon-btn:hover { background: #f8fafc; color: #000; box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
+        :root.light-theme #header-user-name { color: #0f172a !important; }
+        :root.light-theme .online-users { background: rgba(16,185,129,0.1) !important; border-color: rgba(16,185,129,0.2) !important; }
+    </style>
+    <script>
+        if(localStorage.getItem('erp_theme') === 'light') document.documentElement.classList.add('light-theme');
+        function toggleTheme() {
+            document.documentElement.classList.toggle('light-theme');
+            localStorage.setItem('erp_theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
+        }
+    </script>
+    <style>
+        /* CSS for table enhancements */
+        .pos-grid th, .pos-grid td {
+            font-size: 0.8rem !important;
+            padding: 8px 10px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .pos-grid .g-input, .pos-grid .g-select, .pos-grid .g-readonly {
+            font-size: 0.85rem !important;
+            padding: 8px 10px !important;
+            background: rgba(15, 23, 42, 0.5) !important;
+            color: #f8fafc !important; /* Restore bright text */
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 8px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Modern Glassmorphism Styling */
+        .grid-scroll-wrap {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .pos-grid thead th {
+            background: rgba(15, 23, 42, 0.8) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--gold-primary) !important;
+            color: var(--gold-primary) !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .pos-grid tbody tr {
+            background: rgba(255, 255, 255, 0.02) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        /* Hover effect on rows - Dynamic Elevation */
+        .pos-grid tbody tr:hover td {
+            background-color: rgba(56, 189, 248, 0.08) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(255,255,255,0.1);
+        }
+        
+        .pos-grid tbody tr:hover {
+            transform: translateY(-2px) scale(1.002);
+            box-shadow: 0 12px 40px rgba(56, 189, 248, 0.15);
+            z-index: 2;
+            position: relative;
+        }
+
+        /* Input Focus Glow Effect */
+        .pos-grid .g-input:focus, .pos-grid .g-select:focus {
+            background: rgba(15, 23, 42, 0.9) !important;
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.4), 0 0 15px rgba(56, 189, 248, 0.3) !important;
+            transform: scale(1.02);
+            z-index: 10;
+        }
+        
+        .pos-grid .g-input::placeholder {
+            color: #94a3b8 !important;
+        }
+
+        /* Resizable columns */
+        .pos-grid th {
+            position: relative;
+        }
+        .resizer {
+            width: 5px;
+            cursor: col-resize;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            background-color: transparent;
+            z-index: 10;
+        }
+        .resizer:hover, .resizing {
+            background-color: var(--gold-primary);
+        }
+
+        /* Context Menu */
+        #col-context-menu {
+            position: absolute;
+            z-index: 100000;
+            background: var(--velvet-panel-hover);
+            border: 1px solid var(--gold-border);
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            display: none;
+            min-width: 150px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .col-toggle-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 0.8rem;
+            border-radius: 4px;
+        }
+        .col-toggle-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+
+<style>
+/* Purchase Top Container CSS */
+    #purchase-top-container {
+        display: flex; gap: 20px; align-items: stretch; width: 100%; margin-bottom: 15px;
+    }
+    #purchase-top-container #form-fields-card {
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        flex: 1; /* Grows to take all available space automatically */
+        min-width: 0; /* Prevents flex blowout on small screens */
+    }
+    #purchase-top-container #form-fields-card {
+        transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+    }
+    #purchase-top-container #totals-calc-card {
+        transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        flex: 0 0 360px; /* Fixed professional width for the totals */
+        min-width: 360px;
+        opacity: 1;
+        overflow: hidden;
+        transform-origin: right center;
+        background: linear-gradient(180deg, rgba(15,23,42,0.8), rgba(30,58,138,0.4));
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        border-top: 3px solid #38bdf8 !important;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    .tot-row {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 3px 0; border-bottom: 1px dashed rgba(255,255,255,0.1);
+    }
+    .tot-lbl { font-size: 0.75rem; font-weight: 700; color: #94a3b8; }
+    .tot-val { font-size: 0.85rem; font-weight: 900; color: #fff; font-family: 'Outfit', sans-serif; }
+    .tot-input { font-weight: bold; font-family: 'Outfit', sans-serif; font-size: 0.9rem !important; }
+    .tot-grand {
+        margin-top: 15px; background: rgba(16,185,129,0.15); padding: 15px; border-radius: 8px; border: 1px solid rgba(16,185,129,0.3); box-shadow: 0 0 15px rgba(16,185,129,0.2);
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .tot-grand .lbl { font-size: 0.75rem; font-weight: 900; color: #34d399; }
+    .tot-grand .val { font-size: 1.15rem; font-weight: 900; color: #fff; font-family: 'Outfit', sans-serif; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+
+    
+</style>
 </head>
 <body>
     <div class="toast-container" id="toast-container"></div>
@@ -672,7 +1152,14 @@
         </div>
 
         <div class="header-center" id="default-header-title">
-            <h2 style="font-size: 1.2rem; margin: 0;">🛒 المشتريات والموردين</h2>
+            <h2 style="display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 2.2rem; font-weight: 900; color: #f97316; text-shadow: 0 4px 15px rgba(249, 115, 22, 0.5); margin: 0; font-family: 'Outfit', 'Cairo', sans-serif; letter-spacing: 1px;">
+                <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 4px 6px rgba(249, 115, 22, 0.4));">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+                المشتريات
+            </h2>
         </div>
         
         <div class="header-center" id="editor-header-controls" style="display: none; width: 100%; justify-content: flex-start; align-items: center; gap: 15px; margin-right: 20px;">
@@ -736,7 +1223,7 @@
                 .pro-serial-number {
                     font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 0.95rem;
                     color: #38bdf8; padding: 0 12px; letter-spacing: 1px;
-                    text-shadow: 0 0 8px rgba(56,189,248,0.4);
+                    text-shadow: 0 0 8px rgba(249, 115, 22, 0.4);
                 }
                 /* Specific override for the gold date as requested by user */
                 #hdr-date-label { color: #fbbf24 !important; text-shadow: 0 0 10px rgba(251, 191, 36, 0.6) !important; }
@@ -751,8 +1238,8 @@
                 }
             </style>
             
-            <div class="pro-badge" style="transform: scale(0.9); margin-left: -5px;">
-                <span id="current-sale-type-badge">🛒 شراء مباشر</span>
+            <div style="flex: 1; display: flex; justify-content: center; align-items: center;">
+                <span id="current-sale-type-badge" style="font-size: 1.8rem; font-weight: 900; color: #fbbf24; text-shadow: 0 0 15px rgba(245,158,11,0.5); font-family: 'Outfit', 'Cairo', sans-serif;">🛒 فاتورة مشتريات مباشرة</span>
             </div>
             
         </div>
@@ -902,7 +1389,10 @@
     
 
     <!-- Form Fields (Now first in DOM, rendering on the Right in RTL) -->
-        <div class="neo-card expanded-form" id="form-fields-card" style="margin-bottom: 0;">
+        
+<!-- WRAPPER FOR TOP SECTION -->
+<div id="purchase-top-container" style="display: flex; gap: 15px; align-items: stretch; transition: all 0.5s ease; width: 100%; margin-bottom: 10px;">
+<div class="neo-card expanded-form" id="form-fields-card" style="margin-bottom: 0;">
             <div style="display: flex; flex-direction: column; gap: 15px;">
                 
                 
@@ -913,13 +1403,11 @@
                     <div id="invoice-info-box" style="flex: 1.3; display: flex; gap: 20px; width: 100%; background: linear-gradient(90deg, rgba(30,58,138,0.2), rgba(15,23,42,0.4)); padding: 6px 15px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); align-items: center; transition: all 0.4s ease;">
                         
                         <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:15px; margin:0;; flex-direction: row !important;">
-                            <div style="display:flex; align-items:center; justify-content:center; width: 32px; height: 32px; border-radius: 8px; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3);">
-                                <span style="font-size: 1.2rem;">🧾</span>
-                            </div>
-                            <label class="h-label" style="margin:0; color:#38bdf8; font-size: 0.9rem; font-weight:bold; white-space:nowrap; text-shadow: 0 0 5px rgba(56,189,248,0.3);">رقم الفاتورة:</label>
+
+                            <label id="hdr-inv-label" class="h-label" style="margin:0; color:#38bdf8; font-size: 0.9rem; font-weight:bold; white-space:nowrap; text-shadow: 0 0 5px rgba(56,189,248,0.3); transition: all 0.3s ease;">رقم الفاتورة:</label>
                             <div style="display:flex; align-items:center; justify-content:space-between; flex:1; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
                                 <button class="pro-serial-btn" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❮</button>
-                                <span id="inv-number" class="pro-serial-number" style="font-size: 0.9rem; font-family: 'Outfit', sans-serif; font-weight: 900; color: #38bdf8; letter-spacing: 2px; text-shadow: 0 0 10px rgba(56,189,248,0.5);">INV-000001</span>
+                                <span id="inv-number" class="pro-serial-number" style="font-size: 0.9rem; font-family: 'Outfit', sans-serif; font-weight: 900; color: #38bdf8; letter-spacing: 2px; text-shadow: 0 0 10px rgba(56,189,248,0.5); transition: all 0.3s ease;">INV-000001</span>
                                 <input type="hidden" id="hdr-inv-no">
                                 <button class="pro-serial-btn" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❯</button>
                             </div>
@@ -928,11 +1416,9 @@
                         <div style="width: 2px; height: 40px; background: rgba(255,255,255,0.1); margin: 0 10px;"></div>
 
                         <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:15px; margin:0;; flex-direction: row !important;">
-                            <div style="display:flex; align-items:center; justify-content:center; width: 32px; height: 32px; border-radius: 8px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);">
-                                <span style="font-size: 1.2rem;">📅</span>
-                            </div>
-                            <label class="h-label" id="hdr-date-label" style="margin:0; color:#ef4444; font-size: 0.9rem; font-weight:bold; white-space:nowrap; text-shadow: 0 0 5px rgba(239,68,68,0.3);">التاريخ:</label>
-                            <input type="date" class="v-input ctrl-input" id="hdr-date" style="flex:1; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; color:#ef4444; padding:4px 8px; font-family:'Outfit',sans-serif; font-weight:bold; font-size:0.95rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
+
+                            <label class="h-label" id="hdr-date-label" style="margin:0; color:#ef4444; font-size: 0.9rem; font-weight:bold; white-space:nowrap; text-shadow: 0 0 5px rgba(239,68,68,0.3); transition: all 0.3s ease;">التاريخ:</label>
+                            <input type="date" class="v-input ctrl-input" id="hdr-date" style="flex:1; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; color:#ef4444; padding:4px 8px; font-family:'Outfit',sans-serif; font-weight:bold; font-size:0.95rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); transition: all 0.3s ease;">
                         </div>
                     </div>
                     
@@ -948,25 +1434,25 @@
             </div>
             
             <div style="display:flex; gap: 15px; align-items: center;">
-                <div style="display:flex; flex-direction:column; align-items:center;">
+                <div id="fin-wrap-ledger" style="display:flex; flex-direction:column; align-items:center;">
                     <span style="font-size:0.6rem; color:#94a3b8; font-weight:700;">الرصيد الدفتري</span>
                     <span id="fin-ledger" style="font-weight:800; color:#fff; font-size:0.8rem;">0</span>
                 </div>
                 <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
                 
-                <div style="display:flex; flex-direction:column; align-items:center;">
+                <div id="fin-wrap-debt" style="display:flex; flex-direction:column; align-items:center;">
                     <span style="font-size:0.6rem; color:#ef4444; font-weight:700;">المديونية علينا</span>
                     <span id="fin-total-debt" style="font-weight:800; color:#ef4444; font-size:0.8rem;">0</span>
                 </div>
                 <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
                 
-                <div style="display:flex; flex-direction:column; align-items:center;">
+                <div id="fin-wrap-checks" style="display:flex; flex-direction:column; align-items:center;">
                     <span style="font-size:0.6rem; color:#f59e0b; font-weight:700;">شيكات مدفوعة</span>
                     <span id="fin-checks" style="font-weight:800; color:#f59e0b; font-size:0.8rem;">0</span>
                 </div>
                 <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
                 
-                <div style="display:flex; flex-direction:column; align-items:center;">
+                <div id="fin-wrap-limit" style="display:flex; flex-direction:column; align-items:center;">
                     <span style="font-size:0.6rem; color:#38bdf8; font-weight:700;">حد المورد</span>
                     <span id="fin-credit-limit" style="font-weight:800; color:#38bdf8; font-size:0.8rem;">0</span>
                 </div>
@@ -1063,7 +1549,6 @@
                             <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange()"></select>
                         </div>
                     </div>
-
                     <div class="h-form-group" style="flex: 1; min-width: 150px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
                         <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 80px;">مركز الكلفة</label>
                         <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
@@ -1099,21 +1584,19 @@
         </div>
 
         <!-- Totals Card (Now second in DOM, rendering on the Left in RTL) -->
-        <div class="neo-card totals-card hidden-totals" id="totals-calc-card" style="margin-bottom: 0; display: none; flex-direction: column; justify-content: space-between; border-top: 2px solid var(--gold-primary);">
-            <div class="neo-card-title" style="margin-bottom: 10px; text-align: center; color: var(--gold-primary); font-size: 1.1rem;">🧮 الإجماليات</div>
+        <div class="neo-card totals-card hidden-totals" id="totals-calc-card" style="margin-bottom: 0; flex-direction: column; justify-content: space-between; border-top: 2px solid var(--gold-primary);">
+            <div class="neo-card-title" style="margin-bottom: 10px; text-align: center; color: var(--gold-primary); font-size: 0.95rem;">🧮 الإجماليات</div>
             
-            <div class="tot-row" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <span class="tot-lbl">قيمة الأصناف</span>
-                <span class="tot-val" id="t-invoice-total">0</span>
-            </div>
+            <!-- Hidden: keeps JS id reference working -->
+            <span id="t-invoice-total" style="display:none;">0</span>
             
             <div class="tot-row" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
                 <span class="tot-lbl">الترحيل</span>
-                <input type="text" inputmode="decimal" class="v-input tot-input tl-input" id="t-transport" value="0" onfocus="this.select()" oninput="recalcAll()" onblur="this.value=fmtNum(parseNum(this.value))" style="width:120px; text-align:left; background: rgba(0,0,0,0.3);">
+                <input type="text" inputmode="decimal" class="v-input tot-input tl-input" id="t-transport" value="0" onfocus="this.select()" oninput="recalcAll()" onblur="this.value=fmtNum(parseNum(this.value))" style="width:120px; text-align:left; background: rgba(249, 115, 22, 0.15); border: 1px solid rgba(249, 115, 22, 0.4); border-radius: 6px; padding: 2px 8px; height: 26px; color: #fff; font-size: 0.85rem; line-height: 1;">
             </div>
             <div class="tot-row" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
                 <span class="tot-lbl">تكلفة العمالة</span>
-                <input type="text" inputmode="decimal" class="v-input tot-input tl-input" id="t-labor" value="0" onfocus="this.select()" oninput="recalcAll()" onblur="this.value=fmtNum(parseNum(this.value))" style="width:120px; text-align:left; background: rgba(0,0,0,0.3);">
+                <input type="text" inputmode="decimal" class="v-input tot-input tl-input" id="t-labor" value="0" onfocus="this.select()" oninput="recalcAll()" onblur="this.value=fmtNum(parseNum(this.value))" style="width:120px; text-align:left; background: rgba(249, 115, 22, 0.15); border: 1px solid rgba(249, 115, 22, 0.4); border-radius: 6px; padding: 2px 8px; height: 26px; color: #fff; font-size: 0.85rem; line-height: 1;">
             </div>
             <div class="tot-row" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
                 <span class="tot-lbl">إضافات أخرى</span>
@@ -1395,7 +1878,8 @@ async function sendInvoiceWA(invoiceNo) {
             th, td { border: 1px solid #ddd; padding: 8px; text-align: right; }
             th { background-color: #f8fafc; color: #1e293b; }
             .inv-total-row { display: flex; justify-content: space-between; padding: 5px 0; font-weight: bold; }
-        </style>
+        
+    </style>
     `;
     printContainer.innerHTML = styleSheet + htmlContent;
     document.body.appendChild(printContainer);

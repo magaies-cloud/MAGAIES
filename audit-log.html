@@ -61,6 +61,42 @@
         }
         
         .empty-state { text-align: center; padding: 40px; color: var(--text-secondary); font-weight: 600; }
+    
+        .premium-header {
+            background: linear-gradient(135deg, rgba(244, 114, 182, 0.15), rgba(168, 85, 247, 0.15), rgba(99, 102, 241, 0.15), rgba(56, 189, 248, 0.15));
+            background-size: 300% 300%;
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 12px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            height: 110px; box-sizing: border-box;
+            margin-bottom: 20px; width: 100%;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 1px rgba(0,0,0,0.3);
+            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1), animateGradient 12s ease infinite;
+            position: relative; overflow: hidden; margin: 0;
+        }
+        .premium-header::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 40%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg); animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite; pointer-events: none;
+        }
+        @keyframes animateGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes shimmer { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .header-brand { display: flex; align-items: center; gap: 12px; }
+        .brand-icon { width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, #f472b6, #ec4899); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 6px 15px rgba(236, 72, 153, 0.4), inset 0 2px 5px rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2); }
+        .brand-text h1 { margin: 0; font-size: 1.1rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; text-shadow: 0 2px 5px rgba(255,255,255,0.1); }
+        .brand-text p { margin: 0; font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
+        .header-center { text-align: center; }
+        .header-controls { display: flex; align-items: center; gap: 15px; }
+        .icon-btn { width: 38px; height: 38px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .icon-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.2); }
+        .icon-btn:active { transform: translateY(0); }
+        :root.light-theme .premium-header { background: linear-gradient(135deg, rgba(244, 114, 182, 0.1), rgba(168, 85, 247, 0.1), rgba(99, 102, 241, 0.1), rgba(56, 189, 248, 0.1)); border-color: rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        :root.light-theme .brand-text h1 { color: #0f172a; }
+        :root.light-theme .brand-text p { color: #64748b; }
+        :root.light-theme .icon-btn { background: #fff; border-color: #e2e8f0; color: #64748b; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        :root.light-theme .icon-btn:hover { background: #f8fafc; color: #0f172a; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+
     </style>
 </head>
 <body>
@@ -73,26 +109,49 @@
     </div>
 
     
-    <!-- Top Nav -->
-    <nav class="top-nav">
-        <div class="nav-right">
-            <button class="menu-btn" onclick="document.body.classList.toggle('sidebar-open')">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+    
+    <!-- Unified Premium Header -->
+    <header class="premium-header" style="margin-bottom: 15px; margin-top: 15px; margin-left: 20px; margin-right: 20px; width: calc(100% - 40px);">
+        <div class="header-brand">
+            <div class="brand-icon">🛡️</div>
+            <div class="brand-text">
+                <h1 id="main-brand-name">السجانة ERP</h1>
+                <p>الأمان والتدقيق</p>
+            </div>
+        </div>
+
+        <div class="header-center">
+            <h2 style="display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 2.2rem; font-weight: 900; color: #f472b6; text-shadow: 0 4px 15px rgba(244, 114, 182, 0.5); margin: 0; font-family: 'Outfit', 'Cairo', sans-serif; letter-spacing: 1px;">
+                <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="#f472b6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 4px 6px rgba(244, 114, 182, 0.4));">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 </svg>
-            </button>
-            <h1 class="nav-title" style="color: #f87171;">سجلات النظام (سجل التدقيق)</h1>
+                سجل النظام
+            </h2>
         </div>
-        <div class="nav-left">
-            <button class="theme-toggle-btn" title="تغيير المظهر">🌙</button>
+
+        <div class="header-controls">
+            <div class="header-time-stack" style="display:flex; flex-direction:column; gap:6px; align-items:center;">
+                <div class="clock-container" style="display: flex; flex-direction: column; align-items: center; justify-content:center; background: rgba(15,23,42,0.6); padding: 4px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); min-width: 90px;">
+                    <span class="clock-time" id="header-clock" style="color: #38bdf8; font-size: 1.15rem; font-weight: 900; letter-spacing: 1px; line-height:1.2;">00:00:00</span>
+                    <span class="clock-date" id="header-date-mini" style="color: var(--text-secondary); font-size: 0.65rem; margin-top:2px;">جاري التحميل...</span>
+                </div>
+            </div>
+            
+            <div style="display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:6px;">
+                <div style="display:flex; gap:6px;">
+                    <button onclick="toggleTheme()" class="icon-btn theme-toggle" title="تغيير المظهر">🌓</button>
+                    <button onclick="window.location.href='dashboard-pro.html'" class="icon-btn" title="الرئيسية">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    </button>
+                </div>
+            </div>
         </div>
-    </nav>
+    </header>
+
 
     <!-- Main Content -->
     <main class="main-content audit-container" id="main-content" style="display:none;">
-        <div class="page-title">
-            سجل حركات النظام (لآخر 14 يوم)
-        </div>
+        
 
         <div class="filters-card">
             <div class="filter-group">
