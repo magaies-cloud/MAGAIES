@@ -657,6 +657,29 @@
             border-color: rgba(139, 92, 246, 0.3) !important;
             color: #c084fc !important;
         }
+
+        /* أنماط السحب والإفلات */
+        .sortable-ghost {
+            opacity: 0.4;
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            border: 1px dashed rgba(255, 255, 255, 0.4) !important;
+            border-radius: 16px;
+            box-shadow: none !important;
+        }
+        .report-category-header {
+            cursor: grab;
+            transition: background 0.3s;
+        }
+        .report-category-header:hover {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+        }
+        .report-link-item {
+            cursor: grab;
+        }
+        .report-category-header:active, .report-link-item:active {
+            cursor: grabbing;
+        }
     </style>
 
     <div class="reports-directory-grid">
@@ -710,10 +733,30 @@
             </div>
             <div class="report-links-list">
                 <a href="general-ledger.html" class="report-link-item"><span class="icon">📓</span> دفتر الأستاذ العام</a>
-                <a href="cash-bank-statement.html" class="report-link-item"><span class="icon">🏦</span> دفتر الأستاذ (الخزن والبنوك)</a>
-                <a href="trial-balance.html" class="report-link-item"><span class="icon">⚖️</span> ميزان المراجعة</a>
-                <a href="journal-voucher.html" class="report-link-item"><span class="icon">✍️</span> سندات القيد اليومية</a>
                 <a href="vouchers-hub.html" class="report-link-item"><span class="icon">💵</span> إدارة المقبوضات والمدفوعات</a>
+                <a href="posting-accounts.html" class="report-link-item"><span class="icon">✔️</span> ترحيل الحسابات</a>
+                <a href="account-statement.html" class="report-link-item"><span class="icon">📄</span> كشف الحساب</a>
+                <a href="checks-cycle.html" class="report-link-item"><span class="icon">💳</span> دورة الشيكات</a>
+                <a href="journal-ledger.html" class="report-link-item"><span class="icon">📅</span> دفتر اليومية</a>
+                <a href="journal-voucher.html" class="report-link-item"><span class="icon">📝</span> قيد اليومية</a>
+                <a href="analytics.html" class="report-link-item"><span class="icon">📈</span> الإحصاء والتحليل</a>
+                <a href="trial-balance.html" class="report-link-item"><span class="icon">⚖️</span> ميزانية المراجعة</a>
+                <a href="pl-statement.html" class="report-link-item"><span class="icon">📉</span> قائمة الدخل</a>
+                <a href="balance-sheet.html" class="report-link-item"><span class="icon">🏢</span> الميزانية العمومية</a>
+                <a href="aging-report.html" class="report-link-item"><span class="icon">⏳</span> أعمار الأرصدة</a>
+                <a href="#" class="report-link-item"><span class="icon">📜</span> كشف حساب التاريخي</a>
+                <a href="#" class="report-link-item"><span class="icon">📑</span> كشف حساب مختصر</a>
+                <a href="#" class="report-link-item"><span class="icon">🗂️</span> كشف حساب عام</a>
+                <a href="#" class="report-link-item"><span class="icon">🏢</span> تقارير مركز التكلفة</a>
+                <a href="#" class="report-link-item"><span class="icon">📊</span> المصاريف والإيرادات الإحصائية</a>
+                <a href="#" class="report-link-item"><span class="icon">📉</span> قائمة الدخل التشغيلي</a>
+                <a href="#" class="report-link-item"><span class="icon">📓</span> اليومية التوزيعية</a>
+                <a href="#" class="report-link-item"><span class="icon">📔</span> دفتر الأستاذ التوزيعي</a>
+                <a href="#" class="report-link-item"><span class="icon">⚖️</span> ميزانية المراجعة التوزيعية</a>
+                <a href="#" class="report-link-item"><span class="icon">📉</span> قائمة الدخل التوزيعي</a>
+                <a href="#" class="report-link-item"><span class="icon">🏢</span> تقرير الميزانية التوزيعي</a>
+                <a href="#" class="report-link-item"><span class="icon">🎯</span> تقرير مركز التكلفة التوزيعي</a>
+                <a href="#" class="report-link-item"><span class="icon">⚙️</span> مركز مولد التقارير</a>
             </div>
         </div>
 
@@ -992,3 +1035,33 @@
     }
 </script>
 
+<!-- مكتبة السحب والإفلات -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof Sortable !== 'undefined') {
+            // تفعيل السحب والإفلات للأقسام الرئيسية (البطاقات الكبيرة)
+            const grid = document.querySelector('.reports-directory-grid');
+            if (grid) {
+                new Sortable(grid, {
+                    animation: 300,
+                    ghostClass: 'sortable-ghost',
+                    handle: '.report-category-header',
+                    easing: "cubic-bezier(0.2, 0.8, 0.2, 1)"
+                });
+            }
+            
+            // تفعيل السحب والإفلات للروابط داخل كل قسم
+            const lists = document.querySelectorAll('.report-links-list');
+            lists.forEach(function(list) {
+                new Sortable(list, {
+                    animation: 250,
+                    ghostClass: 'sortable-ghost',
+                    easing: "cubic-bezier(0.2, 0.8, 0.2, 1)"
+                });
+            });
+        }
+    });
+</script>
+</body>
+</html>

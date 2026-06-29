@@ -306,31 +306,53 @@ function submitVoucher() {
     };
 
     if (method === 'mobile') {
-        const transferNo = document.getElementById('mobile-transfer-no').value;
-        if (transferNo) {
-            let allReceipts = [];
-            try {
-                allReceipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
-                if (!Array.isArray(allReceipts)) allReceipts = [];
-            } catch(e) {
-                allReceipts = [];
-            }
-            const isDuplicate = allReceipts.some(v => v.mobileTransferNo === transferNo && v.id !== document.getElementById('voucher-number').innerText);
-            if (isDuplicate) {
-                showDuplicateModal(transferNo);
-                return; // Prevent saving
-            }
+        const transferNo = document.getElementById('mobile-transfer-no').value.trim();
+        
+        if (!transferNo) {
+            showToast("يرجى إدخال رقم حساب التحويل", "error");
+            document.getElementById('mobile-transfer-no').focus();
+            return;
         }
+
+        if (transferNo.length < 6) {
+            showToast("يجب أن يكون رقم التحويل أكثر من 5 أرقام", "error");
+            document.getElementById('mobile-transfer-no').focus();
+            return;
+        }
+
+        if (!window.isBankReferenceUnique(transferNo, 'mobile', document.getElementById('voucher-number').innerText)) {
+            showToast("رقم التحويل مكرر. يجب أن لا يتكرر الرقم نهائياً في النظام.", "error");
+            showDuplicateModal(transferNo);
+            return; // Prevent saving
+        }
+
         voucherData.mobileTransferNo = transferNo;
         voucherData.mobileNote = document.getElementById('mobile-note').value;
     } else if (method === 'check') {
-        voucherData.checkNo = document.getElementById('check-no').value;
+        voucherData.checkNo = document.getElementById('check-no').value.trim();
+        
+        if (!voucherData.checkNo || voucherData.checkNo.length < 6) {
+            showToast("يجب أن يكون رقم الشيك أكثر من 5 أرقام", "error");
+            document.getElementById('check-no').focus();
+            return;
+        }
+
+        if (!window.isBankReferenceUnique(voucherData.checkNo, 'check', document.getElementById('voucher-number').innerText)) {
+            showToast("رقم الشيك مكرر. يجب أن لا يتكرر الرقم نهائياً في النظام.", "error");
+            return; // Prevent saving
+        }
+
         voucherData.checkDate = document.getElementById('check-date').value;
         voucherData.checkDueDate = document.getElementById('check-due-date').value;
         voucherData.checkRef = document.getElementById('check-ref').value;
         voucherData.checkRefNo = document.getElementById('check-ref-no').value;
         voucherData.checkBranch = document.getElementById('check-branch').value;
         voucherData.checkSettleLocal = document.getElementById('check-settle-local').checked;
+        
+        if (!voucherData.checkBranch) {
+            showToast("يرجى إدخال اسم البنك", "error");
+            return;
+        }
     }
 
     singleReceiptsData = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];

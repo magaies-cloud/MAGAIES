@@ -149,6 +149,41 @@
         return originalGetItem(tenantKey) || originalGetItem(key);
     };
 
+    // Global helper for checking uniqueness of Check/Transfer Numbers across all vouchers
+    window.isBankReferenceUnique = function(num, type, excludeVoucherId = null) {
+        if (!num) return true;
+        
+        // We will check all these stores because they can all contain financial transactions
+        const storesToCheck = [
+            'erp_receipts_v1', 'erp_payments_v1', 
+            'erp_single_receipts_v1', 'erp_single_payments_v1', 
+            'erp_journal_vouchers_v1'
+        ];
+        
+        for (const store of storesToCheck) {
+            const dataStr = localStorage.getItem(store);
+            if (!dataStr) continue;
+            let arr = [];
+            try {
+                const data = JSON.parse(dataStr);
+                arr = Array.isArray(data) ? data : Object.values(data);
+            } catch(e) { continue; }
+            
+            for (const item of arr) {
+                // If we are editing, we ignore the same voucher ID
+                if (excludeVoucherId && item.id === excludeVoucherId) continue;
+                
+                if (type === 'check' && item.checkNo && item.checkNo.toString() === num.toString()) {
+                    return false;
+                }
+                if (type === 'mobile' && item.mobileTransferNo && item.mobileTransferNo.toString() === num.toString()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    };
+
     localStorage.removeItem = function(key) {
         const sessionKeys = ['session_active'];
         if (sessionKeys.includes(key)) {
@@ -1938,6 +1973,213 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         document.addEventListener('DOMContentLoaded', resetActivityTimer);
         resetActivityTimer();
+    }
+})();
+
+/* =====================================================================
+   GLOBAL SYSTEM-WIDE NUMBER FORMATTING (Per-Input)
+   ===================================================================== */
+(function() {
+    // Inject Context Menu HTML into Body if it doesn't exist
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!document.getElementById('sys-number-format-menu')) {
+            const menuHtml = `
+            <div class="context-menu" id="sys-number-format-menu" style="position: absolute; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px; box-shadow: 0 15px 40px rgba(0,0,0,0.5); z-index: 999999; display: none; min-width: 250px; flex-direction: column; gap: 8px;">
+                <div style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; font-weight: bold; text-align: center;">🎨 خصائص الرقم (مخصص)</div>
+                <div style="font-size: 0.7rem; color: #94a3b8; text-align: center; margin-bottom: 10px; word-break: break-all;" id="sys-num-target-id"></div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <label style="color: #fff; font-size: 0.85rem;">اللون</label>
+                    <input type="color" id="sys-num-color" style="width: 30px; height: 30px; border: none; border-radius: 5px; cursor: pointer; background: transparent; padding: 0;">
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <label style="color: #fff; font-size: 0.85rem;">حجم الخط (px)</label>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <button type="button" id="sys-num-size-dec" style="background: rgba(255,255,255,0.1); border:none; color:#fff; border-radius:4px; padding:2px 8px; cursor:pointer;">-</button>
+                        <input type="number" id="sys-num-size" style="width: 50px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; text-align: center; font-size: 0.85rem; padding: 2px;" readonly>
+                        <button type="button" id="sys-num-size-inc" style="background: rgba(255,255,255,0.1); border:none; color:#fff; border-radius:4px; padding:2px 8px; cursor:pointer;">+</button>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <label style="color: #fff; font-size: 0.85rem;">الخانات العشرية</label>
+                    <select id="sys-num-decimals" style="background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 2px; font-size: 0.85rem; width: 60px;">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </div>
+
+                <label style="display: flex; align-items: center; justify-content: space-between; color: #fff; font-size: 0.85rem; cursor: pointer; padding-top: 5px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <span>الفاصلة الألفية (1,000)</span>
+                    <input type="checkbox" id="sys-num-thousands" style="accent-color: #f97316; width: 16px; height: 16px;">
+                </label>
+            </div>`;
+            document.body.insertAdjacentHTML('beforeend', menuHtml);
+            initSystemNumberFormatting();
+        }
+    });
+
+    let activePrefKey = null;
+    let activeElement = null;
+
+    function getPageName() {
+        let path = window.location.pathname;
+        let page = path.split('/').pop() || 'index.html';
+        return page;
+    }
+
+    function getPrefKey(el) {
+        let key = null;
+        if (el.id) key = '#' + el.id;
+        else {
+            const validClasses = Array.from(el.classList).filter(c => c !== 'form-input' && c !== 'hover-scale' && c !== 'input-glow-focus' && c !== 'hover-glow' && c !== 'g-input');
+            if (validClasses.length > 0) key = '.' + validClasses[0];
+        }
+        if (key) return getPageName() + '_' + key;
+        return null;
+    }
+
+    // Expose a clean numeric helper that strips commas globally
+    window.cleanNumGlobal = function(str) {
+        return Number(String(str).replace(/,/g, '')) || 0;
+    };
+
+    window.applySystemNumberFormatting = function() {
+        const allPrefs = JSON.parse(localStorage.getItem('systemNumberPrefs') || '{}');
+        const currentPage = getPageName();
+
+        Object.keys(allPrefs).forEach(key => {
+            if (!key.startsWith(currentPage + '_')) return;
+            const selector = key.substring(currentPage.length + 1);
+            const prefs = allPrefs[key];
+            
+            try {
+                const els = document.querySelectorAll(selector);
+                els.forEach(el => {
+                    if (prefs.color) el.style.setProperty('color', prefs.color, 'important');
+                    if (prefs.size) el.style.setProperty('font-size', prefs.size + 'px', 'important');
+                    
+                    // Format if it's an input and not active
+                    if (el.tagName === 'INPUT' && document.activeElement !== el) {
+                        const val = window.cleanNumGlobal(el.value);
+                        if (val !== 0 || el.value !== '') {
+                            let dec = prefs.decimals !== undefined ? parseInt(prefs.decimals) : 2;
+                            let opts = { minimumFractionDigits: dec, maximumFractionDigits: dec };
+                            if (prefs.thousands === false) opts.useGrouping = false;
+                            el.value = val.toLocaleString('en-US', opts);
+                        }
+                    } else if (el.tagName !== 'INPUT' && el.textContent.trim() !== '') {
+                        // Try to reformat text content safely
+                        const txt = el.textContent;
+                        if (/^[0-9.,-]+$/.test(txt.trim())) {
+                            const val = window.cleanNumGlobal(txt);
+                            let dec = prefs.decimals !== undefined ? parseInt(prefs.decimals) : 2;
+                            let opts = { minimumFractionDigits: dec, maximumFractionDigits: dec };
+                            if (prefs.thousands === false) opts.useGrouping = false;
+                            el.textContent = val.toLocaleString('en-US', opts);
+                        }
+                    }
+                });
+            } catch(e) { }
+        });
+    };
+
+    function initSystemNumberFormatting() {
+        const menu = document.getElementById('sys-number-format-menu');
+        const cp = document.getElementById('sys-num-color');
+        const si = document.getElementById('sys-num-size');
+        const sdDec = document.getElementById('sys-num-size-dec');
+        const sdInc = document.getElementById('sys-num-size-inc');
+        const ds = document.getElementById('sys-num-decimals');
+        const tc = document.getElementById('sys-num-thousands');
+        const targetIdLabel = document.getElementById('sys-num-target-id');
+
+        function saveAndApply() {
+            if (!activePrefKey) return;
+            const allPrefs = JSON.parse(localStorage.getItem('systemNumberPrefs') || '{}');
+            allPrefs[activePrefKey] = {
+                color: cp.value,
+                size: parseInt(si.value),
+                decimals: parseInt(ds.value),
+                thousands: tc.checked
+            };
+            localStorage.setItem('systemNumberPrefs', JSON.stringify(allPrefs));
+            window.applySystemNumberFormatting();
+        }
+
+        cp.addEventListener('input', saveAndApply);
+        ds.addEventListener('change', saveAndApply);
+        tc.addEventListener('change', saveAndApply);
+        
+        sdDec.addEventListener('click', () => { si.value = Math.max(10, parseInt(si.value) - 1); saveAndApply(); });
+        sdInc.addEventListener('click', () => { si.value = Math.min(48, parseInt(si.value) + 1); saveAndApply(); });
+
+        document.addEventListener('contextmenu', (e) => {
+            const isNumeric = e.target.closest('input[type="number"], input[inputmode="numeric"], input[inputmode="decimal"], .amount, .sub-amount, .col-fc, .total-val, #total-amount, #exchange-rate, #amount-foreign, .g-readonly');
+            if (isNumeric) {
+                const key = getPrefKey(isNumeric);
+                if (key) {
+                    e.preventDefault();
+                    activePrefKey = key;
+                    activeElement = isNumeric;
+                    
+                    const selectorOnly = key.substring(getPageName().length + 1);
+                    targetIdLabel.innerText = 'الهدف: ' + selectorOnly + ' (في هذه الشاشة فقط)';
+                    
+                    const allPrefs = JSON.parse(localStorage.getItem('systemNumberPrefs') || '{}');
+                    const prefs = allPrefs[key] || { color: '#ffffff', size: parseInt(window.getComputedStyle(isNumeric).fontSize) || 16, decimals: 2, thousands: true };
+                    
+                    cp.value = prefs.color || '#ffffff';
+                    si.value = prefs.size || 16;
+                    ds.value = prefs.decimals !== undefined ? prefs.decimals : 2;
+                    tc.checked = prefs.thousands !== undefined ? prefs.thousands : true;
+
+                    menu.style.display = 'flex';
+                    menu.style.top = e.pageY + 'px';
+                    menu.style.left = e.pageX + 'px';
+                    
+                    // Keep menu in bounds
+                    const rect = menu.getBoundingClientRect();
+                    if (rect.right > window.innerWidth) menu.style.left = (window.innerWidth - rect.width - 10) + 'px';
+                    if (rect.bottom > window.innerHeight) menu.style.top = (window.innerHeight - rect.height - 10) + 'px';
+                }
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (menu.style.display === 'flex' && !menu.contains(e.target)) {
+                menu.style.display = 'none';
+            }
+        });
+
+        // Global blur interceptor for dynamic formatting
+        document.addEventListener('focusout', (e) => {
+            if (e.target.tagName === 'INPUT') {
+                const key = getPrefKey(e.target);
+                if (key) {
+                    const allPrefs = JSON.parse(localStorage.getItem('systemNumberPrefs') || '{}');
+                    const prefs = allPrefs[key];
+                    if (prefs) {
+                        const val = window.cleanNumGlobal(e.target.value);
+                        if (val !== 0 || e.target.value !== '') {
+                            let dec = prefs.decimals !== undefined ? parseInt(prefs.decimals) : 2;
+                            let opts = { minimumFractionDigits: dec, maximumFractionDigits: dec };
+                            if (prefs.thousands === false) opts.useGrouping = false;
+                            e.target.value = val.toLocaleString('en-US', opts);
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Initial application
+        setTimeout(window.applySystemNumberFormatting, 500);
+        // Apply periodically for dynamic tables
+        setInterval(window.applySystemNumberFormatting, 2000);
     }
 })();
 

@@ -4,7 +4,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المعاملات المالية | Al-Sajana ERP</title>
+    <title>الحسابات | Al-Sajana ERP</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
@@ -228,7 +228,7 @@
         /* Content Grid */
         .vouchers-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 15px;
             width: 100%;
         }
@@ -514,7 +514,7 @@
                     <line x1="12" y1="1" x2="12" y2="23"></line>
                     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                 </svg>
-                المعاملات المالية
+                الحسابات
             </h2>
         </div>
 
@@ -535,6 +535,9 @@
             <div style="display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:6px;">
                 <div id="header-company-name-top" style="color:#38bdf8; font-weight:900; font-size:1.05rem; letter-spacing:0.5px; margin-right:5px;">السجانة ERP</div>
                 <div style="display:flex; gap:6px;">
+                    <button onclick="toggleEditMode()" id="edit-order-btn" class="icon-btn" title="تعديل ترتيب الأيقونات" style="background: rgba(234,179,8,0.2); color: #fbbf24; border-color: rgba(234,179,8,0.4); font-family: 'Tajawal', sans-serif; font-weight: bold; width: auto; padding: 0 10px;">
+                        ⚙️ ترتيب
+                    </button>
                     <button onclick="toggleTheme()" class="icon-btn theme-toggle" title="تغيير المظهر">
                         🌓
                     </button>
@@ -576,7 +579,24 @@
     <!-- Vouchers Grid - Full Width -->
     <div class="vouchers-grid">
 
-
+        <!-- Custom Center Statement Shortcut -->
+        <a data-href="account-statement.html?model=v-classic-ent" onclick="window.location.href='account-statement.html?model=v-classic-ent'" class="premium-card" style="--card-color: #f43f5e; --card-rgb: 244, 63, 94;">
+            <div class="card-glow"></div>
+            <div class="flow-badge" style="background: rgba(244,63,94,0.1); color: #f43f5e; border: 1px solid rgba(244,63,94,0.2);">
+                <span>🏢</span> مؤسسي
+            </div>
+            <div class="card-content">
+                <div class="icon-wrapper">
+                    <span class="v-icon">📄</span>
+                </div>
+                <h3 class="v-title">المركز المحاسبي الشامل</h3>
+                <p class="v-subtitle">النموذج المؤسسي المخصص - وصول سريع.</p>
+                <div class="v-footer">
+                    <span class="v-badge" style="background: rgba(244,63,94,0.15); color: #f43f5e; border-color: rgba(244,63,94,0.3);">Enterprise</span>
+                    <span class="v-arrow" style="background: #f43f5e; color: #fff;">←</span>
+                </div>
+            </div>
+        </a>
 
         <!-- 3. Single Payment -->
         <a data-href="single-cash-payment.html" onclick="window.location.href='single-cash-payment.html'" class="premium-card" style="width: 90%; height: 70%; margin: 0 auto;">
@@ -593,6 +613,139 @@
                 <div class="v-footer">
                     <span class="v-badge">Payment</span>
                     <span class="v-arrow">←</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- Grouped Payment -->
+        <a data-href="multi-cash-payment.html" onclick="window.location.href='multi-cash-payment.html'" class="premium-card" style="--card-color: #f97316; --card-rgb: 249, 115, 22;">
+            <div class="card-glow"></div>
+            <div class="flow-badge" style="background: rgba(249,115,22,0.1); color: #f97316; border: 1px solid rgba(249,115,22,0.2);">
+                <span>👥</span> مجمعة
+            </div>
+            <div class="card-content">
+                <div class="icon-wrapper">
+                    <span class="v-icon">🧾</span>
+                </div>
+                <h3 class="v-title">حركة مالية مجمعة</h3>
+                <p class="v-subtitle">صرف أو قبض من عدة حسابات.</p>
+                <div class="v-footer">
+                    <span class="v-badge" style="background: rgba(249,115,22,0.15); color: #f97316; border-color: rgba(249,115,22,0.3);">Multi</span>
+                    <span class="v-arrow" style="background: #f97316; color: #fff;">←</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- Journal Voucher -->
+        <a data-href="journal-voucher.html" onclick="window.location.href='journal-voucher.html'" class="premium-card" style="--card-color: #a855f7; --card-rgb: 168, 85, 247;">
+            <div class="card-glow"></div>
+            <div class="flow-badge" style="background: rgba(168,85,247,0.1); color: #a855f7; border: 1px solid rgba(168,85,247,0.2);">
+                <span>📈</span> قيود
+            </div>
+            <div class="card-content">
+                <div class="icon-wrapper">
+                    <span class="v-icon">📝</span>
+                </div>
+                <h3 class="v-title">قيد يومية</h3>
+                <p class="v-subtitle">إدخال قيود محاسبية وتسويات مالية.</p>
+                <div class="v-footer">
+                    <span class="v-badge" style="background: rgba(168,85,247,0.15); color: #a855f7; border-color: rgba(168,85,247,0.3);">Journal</span>
+                    <span class="v-arrow" style="background: #a855f7; color: #fff;">←</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- Checks Cycle -->
+        <a data-href="checks-cycle.html" onclick="window.location.href='checks-cycle.html'" class="premium-card" style="--card-color: #f59e0b; --card-rgb: 245, 158, 11;">
+            <div class="card-glow"></div>
+            <div class="flow-badge" style="background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2);">
+                <span>🧾</span> شيكات
+            </div>
+            <div class="card-content">
+                <div class="icon-wrapper">
+                    <span class="v-icon">💳</span>
+                </div>
+                <h3 class="v-title">دورة الشيكات</h3>
+                <p class="v-subtitle">إدارة ومتابعة الشيكات الصادرة والواردة.</p>
+                <div class="v-footer">
+                    <span class="v-badge" style="background: rgba(245,158,11,0.15); color: #f59e0b; border-color: rgba(245,158,11,0.3);">Checks</span>
+                    <span class="v-arrow" style="background: #f59e0b; color: #fff;">←</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- Account Statement -->
+        <a data-href="account-statement.html" onclick="window.location.href='account-statement.html'" class="premium-card" style="--card-color: #3b82f6; --card-rgb: 59, 130, 246;">
+            <div class="card-glow"></div>
+            <div class="flow-badge" style="background: rgba(59,130,246,0.1); color: #3b82f6; border: 1px solid rgba(59,130,246,0.2);">
+                <span>📊</span> كشف
+            </div>
+            <div class="card-content">
+                <div class="icon-wrapper">
+                    <span class="v-icon">📄</span>
+                </div>
+                <h3 class="v-title">كشف حساب</h3>
+                <p class="v-subtitle">استعراض تفصيلي لحركات الأرصدة والعملاء.</p>
+                <div class="v-footer">
+                    <span class="v-badge" style="background: rgba(59,130,246,0.15); color: #3b82f6; border-color: rgba(59,130,246,0.3);">Statement</span>
+                    <span class="v-arrow" style="background: #3b82f6; color: #fff;">←</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- Account Posting (Auditing) -->
+        <a data-href="posting-accounts.html" onclick="window.location.href='posting-accounts.html'" class="premium-card" style="--card-color: #eab308; --card-rgb: 234, 179, 8;">
+            <div class="card-glow"></div>
+            <div class="flow-badge" style="background: rgba(234,179,8,0.1); color: #eab308; border: 1px solid rgba(234,179,8,0.2);">
+                <span>✔️</span> ترحيل
+            </div>
+            <div class="card-content">
+                <div class="icon-wrapper">
+                    <span class="v-icon">✅</span>
+                </div>
+                <h3 class="v-title">ترحيل الحسابات</h3>
+                <p class="v-subtitle">مراجعة واعتماد الحركات غير المرحّلة (قيود، فواتير).</p>
+                <div class="v-footer">
+                    <span class="v-badge" style="background: rgba(234,179,8,0.15); color: #eab308; border-color: rgba(234,179,8,0.3);">Posting</span>
+                    <span class="v-arrow" style="background: #eab308; color: #fff;">←</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- Analytics -->
+        <a data-href="analytics.html" onclick="window.location.href='analytics.html'" class="premium-card" style="--card-color: #6366f1; --card-rgb: 99, 102, 241;">
+            <div class="card-glow"></div>
+            <div class="flow-badge" style="background: rgba(99,102,241,0.1); color: #6366f1; border: 1px solid rgba(99,102,241,0.2);">
+                <span>📊</span> إحصائيات
+            </div>
+            <div class="card-content">
+                <div class="icon-wrapper">
+                    <span class="v-icon">📈</span>
+                </div>
+                <h3 class="v-title">إحصائيات وتحليلات</h3>
+                <p class="v-subtitle">مؤشرات الأداء والتحليلات المالية والرسوم البيانية.</p>
+                <div class="v-footer">
+                    <span class="v-badge" style="background: rgba(99,102,241,0.15); color: #6366f1; border-color: rgba(99,102,241,0.3);">Analytics</span>
+                    <span class="v-arrow" style="background: #6366f1; color: #fff;">←</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- 1. Journal Ledger -->
+        <a data-href="journal-ledger.html" onclick="window.location.href='journal-ledger.html'" class="premium-card" style="--card-color: #14b8a6; --card-rgb: 20, 184, 166;">
+            <div class="card-glow"></div>
+            <div class="flow-badge" style="background: rgba(20,184,166,0.1); color: #14b8a6; border: 1px solid rgba(20,184,166,0.2);">
+                <span>📔</span> دفتر
+            </div>
+            <div class="card-content">
+                <div class="icon-wrapper">
+                    <span class="v-icon">📅</span>
+                </div>
+                <h3 class="v-title">دفتر يومية</h3>
+                <p class="v-subtitle">سجل بجميع القيود والحركات المحاسبية اليومية.</p>
+                <div class="v-footer">
+                    <span class="v-badge" style="background: rgba(20,184,166,0.15); color: #14b8a6; border-color: rgba(20,184,166,0.3);">Ledger</span>
+                    <span class="v-arrow" style="background: #14b8a6; color: #fff;">←</span>
                 </div>
             </div>
         </a>
@@ -687,6 +840,113 @@
             document.getElementById('recent-transactions-body').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#ef4444;">خطأ في جلب البيانات: ' + (e.message || e) + '</td></tr>';
         }
     });
+    </script>
+    <style>
+        @keyframes shakeEdit {
+            0% { transform: rotate(-1deg); }
+            50% { transform: rotate(1.5deg); }
+            100% { transform: rotate(-1deg); }
+        }
+        .vouchers-grid.edit-mode .premium-card {
+            animation: shakeEdit 0.4s infinite;
+            cursor: grab !important;
+            box-shadow: 0 0 15px rgba(234,179,8,0.5);
+            /* Disable normal hover effects during edit mode */
+            transform: none !important;
+        }
+        .vouchers-grid.edit-mode .premium-card:active {
+            cursor: grabbing !important;
+        }
+        .sortable-ghost {
+            opacity: 0.4;
+            background: rgba(255,255,255,0.1);
+        }
+    </style>
+    <!-- SortableJS for Drag and Drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script>
+        let isEditMode = false;
+        let sortableInstance = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.querySelector('.vouchers-grid');
+            const savedOrder = JSON.parse(localStorage.getItem('vouchers_hub_order') || '[]');
+            
+            if (savedOrder && savedOrder.length > 0) {
+                const cards = Array.from(grid.children);
+                cards.sort((a, b) => {
+                    const idA = a.getAttribute('data-href');
+                    const idB = b.getAttribute('data-href');
+                    if(!idA || !idB) return 0;
+                    const indexA = savedOrder.indexOf(idA);
+                    const indexB = savedOrder.indexOf(idB);
+                    const posA = indexA === -1 ? 999 : indexA;
+                    const posB = indexB === -1 ? 999 : indexB;
+                    return posA - posB;
+                });
+                cards.forEach(card => grid.appendChild(card));
+            }
+
+            sortableInstance = new Sortable(grid, {
+                animation: 150,
+                disabled: true,
+                ghostClass: 'sortable-ghost',
+                onEnd: function () {
+                    const newOrder = Array.from(grid.children)
+                        .map(c => c.getAttribute('data-href'))
+                        .filter(href => href);
+                    localStorage.setItem('vouchers_hub_order', JSON.stringify(newOrder));
+                }
+            });
+
+            // Prevent clicks when in edit mode
+            grid.addEventListener('click', (e) => {
+                if (isEditMode) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }, true);
+            
+            // Override onclick attributes during edit mode to prevent navigation
+            const cards = grid.querySelectorAll('.premium-card');
+            cards.forEach(card => {
+                const originalOnClick = card.getAttribute('onclick');
+                if (originalOnClick) {
+                    card.setAttribute('data-onclick', originalOnClick);
+                    card.onclick = function(e) {
+                        if (isEditMode) {
+                            e.preventDefault();
+                            return false;
+                        } else {
+                            // execute original onclick
+                            window.location.href = card.getAttribute('data-href');
+                        }
+                    };
+                }
+            });
+        });
+
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const btn = document.getElementById('edit-order-btn');
+            const grid = document.querySelector('.vouchers-grid');
+            
+            if (isEditMode) {
+                btn.innerHTML = '✔️ حفظ الترتيب';
+                btn.style.background = '#10b981';
+                btn.style.color = '#fff';
+                btn.style.borderColor = '#059669';
+                grid.classList.add('edit-mode');
+                sortableInstance.option('disabled', false);
+            } else {
+                btn.innerHTML = '⚙️ ترتيب';
+                btn.style.background = 'rgba(234,179,8,0.2)';
+                btn.style.color = '#fbbf24';
+                btn.style.borderColor = 'rgba(234,179,8,0.4)';
+                grid.classList.remove('edit-mode');
+                sortableInstance.option('disabled', true);
+            }
+        }
     </script>
 </body>
 </html>
