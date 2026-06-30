@@ -121,14 +121,14 @@ http.createServer((req, res) => {
     console.log(`🔗 طلبات API تُعاد توجيهها إلى السيرفر المدمج (PHP) على المنفذ 8080 لتجربة التعديلات محلياً.`);
     
     // تشغيل خادم PHP المدمج تلقائياً
-    const phpServer = spawn('php', ['-S', '127.0.0.1:8080'], { stdio: 'inherit' });
+    const phpServer = spawn('php', ['-S', '127.0.0.1:8080'], { stdio: 'inherit', shell: true });
     
     phpServer.on('error', (err) => {
         console.error('❌ فشل تشغيل خادم PHP:', err.message);
     });
 
     // تشغيل خدمة الواتساب تلقائياً
-    const waServer = spawn('node', ['whatsapp-service.js'], { stdio: 'inherit' });
+    const waServer = spawn('node', ['whatsapp-service.js'], { stdio: 'inherit', shell: true });
     
     waServer.on('error', (err) => {
         console.error('❌ فشل تشغيل خدمة الواتساب:', err.message);

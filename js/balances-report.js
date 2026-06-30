@@ -2,9 +2,45 @@
    balances-report.js — Global Balances & Aging Report
    ═══════════════════════════════════════════════════════ */
 
-function fmtNum(n) {
+window.colConfigs = [
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' },
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' },
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' },
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' },
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' },
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' },
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' },
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }
+];
+window.colOrder = [0, 1, 2, 3, 4, 5, 6, 7];
+
+function loadLayout() {
+    try {
+        const saved = localStorage.getItem('balancesReportLayout');
+        if (saved) {
+            const layout = JSON.parse(saved);
+            if (layout.colConfigs && layout.colOrder) {
+                window.colConfigs = layout.colConfigs;
+                window.colOrder = layout.colOrder;
+            }
+        }
+    } catch(e) { console.error('Error loading layout', e); }
+}
+loadLayout();
+
+function saveLayout() {
+    const layout = {
+        colConfigs: window.colConfigs,
+        colOrder: window.colOrder
+    };
+    localStorage.setItem('balancesReportLayout', JSON.stringify(layout));
+    showToast('تم حفظ التصميم بنجاح', 'success');
+}
+
+function fmtColNum(n, origIdx) {
+    const d = window.colConfigs[origIdx].decimals;
     const val = parseFloat(n) || 0;
-    return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return val.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
 }
 function parseNum(str) {
     return parseFloat(String(str || '0').replace(/,/g, '')) || 0;
@@ -267,7 +303,6 @@ function bindContextMenu() {
     const togglesContainer = document.getElementById('columnToggles');
 
     thead.addEventListener('contextmenu', function(e) {
-        // Prevent default if we clicked on a TH or inside it
         const th = e.target.closest('th');
         if (!th) return;
         
@@ -275,20 +310,55 @@ function bindContextMenu() {
         
         const ths = table.querySelectorAll('thead th');
         togglesContainer.innerHTML = '';
-        ths.forEach((thEl, index) => {
+        ths.forEach((thEl, visualIndex) => {
             const isHidden = thEl.style.display === 'none';
-            // clean up text from child elements
             let text = thEl.innerText.replace('اسحب لتغيير عرض العمود (Double click للإرجاع)', '').trim();
-            if(!text) text = 'عمود ' + (index+1);
+            if(!text) text = 'عمود ' + (visualIndex+1);
+            
+            const origIdx = parseInt(thEl.getAttribute('data-orig-idx'));
+            const conf = window.colConfigs[origIdx];
 
             const div = document.createElement('div');
-            div.style.padding = '6px 5px';
-            div.style.cursor = 'pointer';
-            div.style.borderBottom = '1px solid #f1f5f9';
-            div.innerHTML = `<label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:600; font-size:0.9rem;">
-                <input type="checkbox" style="width:16px; height:16px; cursor:pointer;" ${!isHidden ? 'checked' : ''} onchange="toggleColumn(${index}, this.checked)"> 
-                ${text}
-            </label>`;
+            div.style.marginBottom = '8px';
+            div.style.border = '1px solid #e2e8f0';
+            div.style.borderRadius = '6px';
+            div.style.overflow = 'hidden';
+            
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#f8fafc; cursor:pointer;" onclick="const p = document.getElementById('config-panel-${visualIndex}'); p.style.display = p.style.display === 'none' ? 'block' : 'none'">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; font-size:0.9rem; margin:0;" onclick="event.stopPropagation()">
+                        <input type="checkbox" style="width:16px; height:16px; cursor:pointer;" ${!isHidden ? 'checked' : ''} onchange="toggleColumn(${visualIndex}, this.checked)"> 
+                        ${text}
+                    </label>
+                    <span style="font-size:0.8rem; color:#475569;">⚙️</span>
+                </div>
+                <div id="config-panel-${visualIndex}" style="display:none; padding:12px; background:#fff; border-top:1px solid #e2e8f0;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
+                        <span style="font-size:0.8rem; font-weight:bold; color:#475569;">الخط:</span>
+                        <div style="display:flex; gap:4px;">
+                            <button onclick="changeColFs(${origIdx}, ${visualIndex}, -0.1)" style="padding:2px 8px; cursor:pointer; border-radius:4px; border:1px solid #ccc; background:#f1f5f9;">-</button>
+                            <button onclick="changeColFs(${origIdx}, ${visualIndex}, 0.1)" style="padding:2px 8px; cursor:pointer; border-radius:4px; border:1px solid #ccc; background:#f1f5f9;">+</button>
+                            <button onclick="toggleColBold(${origIdx}, ${visualIndex})" style="padding:2px 8px; cursor:pointer; font-weight:bold; border-radius:4px; border:1px solid #ccc; background:${conf.bold ? '#cbd5e1' : '#f1f5f9'}">B</button>
+                        </div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
+                        <span style="font-size:0.8rem; font-weight:bold; color:#475569;">الخانات:</span>
+                        <div style="display:flex; gap:4px;">
+                            <button onclick="setColDecimals(${origIdx}, ${visualIndex}, 0)" style="padding:2px 8px; cursor:pointer; border-radius:4px; border:1px solid #ccc; background:${conf.decimals === 0 ? '#cbd5e1' : '#f1f5f9'}">0</button>
+                            <button onclick="setColDecimals(${origIdx}, ${visualIndex}, 2)" style="padding:2px 8px; cursor:pointer; border-radius:4px; border:1px solid #ccc; background:${conf.decimals === 2 ? '#cbd5e1' : '#f1f5f9'}">2</button>
+                            <button onclick="setColDecimals(${origIdx}, ${visualIndex}, 3)" style="padding:2px 8px; cursor:pointer; border-radius:4px; border:1px solid #ccc; background:${conf.decimals === 3 ? '#cbd5e1' : '#f1f5f9'}">3</button>
+                        </div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span style="font-size:0.8rem; font-weight:bold; color:#475569;">لون النص:</span>
+                        <input type="color" value="${conf.color || '#000000'}" onchange="setColColor(${origIdx}, ${visualIndex}, 'color', this.value)" style="width:30px; height:25px; padding:0; border:none; background:transparent; cursor:pointer;">
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.8rem; font-weight:bold; color:#475569;">لون الخلفية:</span>
+                        <input type="color" value="${conf.bg || '#ffffff'}" onchange="setColColor(${origIdx}, ${visualIndex}, 'bg', this.value)" style="width:30px; height:25px; padding:0; border:none; background:transparent; cursor:pointer;">
+                    </div>
+                </div>
+            `;
             togglesContainer.appendChild(div);
         });
 
@@ -304,21 +374,111 @@ function bindContextMenu() {
     });
 }
 
-window.toggleColumn = function(index, show) {
+window.toggleColumn = function(visualIndex, show) {
     const table = document.getElementById('balances-table');
-    const rows = table.querySelectorAll('tr');
     const display = show ? '' : 'none';
+    const ths = table.querySelectorAll('thead th');
+    if (ths[visualIndex]) ths[visualIndex].style.display = display;
+    
+    const rows = table.querySelectorAll('tbody tr:not(.empty-state)');
     rows.forEach(row => {
         const cells = row.children;
-        // Ignore rows that don't have enough cells (like empty states)
-        if (cells.length > 1 && cells[index]) {
-            cells[index].style.display = display;
+        if (cells.length > visualIndex) {
+            cells[visualIndex].style.display = display;
+        }
+    });
+}
+
+function updateColDOM(visualIndex, origIdx) {
+    const conf = window.colConfigs[origIdx];
+    const table = document.getElementById('balances-table');
+    const th = table.querySelectorAll('thead th')[visualIndex];
+    if(th) {
+        th.style.fontWeight = conf.bold ? '900' : 'bold'; // Headers are bold by default, 900 for thicker
+        th.style.fontSize = conf.fs + 'em';
+        if(conf.color) th.style.color = conf.color; else th.style.color = '';
+        if(conf.bg && conf.bg !== '#ffffff') th.style.backgroundColor = conf.bg; else th.style.backgroundColor = '';
+    }
+    
+    const rows = table.querySelectorAll('tbody tr:not(.empty-state)');
+    rows.forEach(row => {
+        const cell = row.children[visualIndex];
+        if(cell) {
+            cell.style.fontWeight = conf.bold ? 'bold' : '';
+            cell.style.fontSize = conf.fs + 'em';
+            if(conf.color) cell.style.color = conf.color; else cell.style.color = '';
+            if(conf.bg && conf.bg !== '#ffffff') cell.style.backgroundColor = conf.bg; else cell.style.backgroundColor = '';
+        }
+    });
+}
+
+window.changeColFs = function(origIdx, visualIndex, delta) {
+    window.colConfigs[origIdx].fs += delta;
+    if(window.colConfigs[origIdx].fs < 0.5) window.colConfigs[origIdx].fs = 0.5;
+    if(window.colConfigs[origIdx].fs > 2.5) window.colConfigs[origIdx].fs = 2.5;
+    updateColDOM(visualIndex, origIdx);
+}
+window.toggleColBold = function(origIdx, visualIndex) {
+    window.colConfigs[origIdx].bold = !window.colConfigs[origIdx].bold;
+    updateColDOM(visualIndex, origIdx);
+    document.getElementById('columnContextMenu').style.display = 'none'; // quick close to refresh UI
+}
+window.setColDecimals = function(origIdx, visualIndex, d) {
+    window.colConfigs[origIdx].decimals = d;
+    if (window.lastResults) renderTable(window.lastResults);
+}
+window.setColColor = function(origIdx, visualIndex, type, val) {
+    window.colConfigs[origIdx][type] = val;
+    updateColDOM(visualIndex, origIdx);
+}
+
+function bindColumnReorder() {
+    const table = document.getElementById('balances-table');
+    const tr = table.querySelector('thead tr');
+    if (!window.Sortable) return;
+    
+    const ths = tr.querySelectorAll('th');
+    ths.forEach(th => th.style.cursor = 'grab');
+
+    if (window.colSortable) {
+        window.colSortable.destroy();
+    }
+    
+    window.colSortable = new Sortable(tr, {
+        animation: 150,
+        filter: '.resizer',
+        preventOnFilter: false,
+        onStart: function(evt) {
+            evt.item.style.cursor = 'grabbing';
+        },
+        onEnd: function(evt) {
+            evt.item.style.cursor = 'grab';
+            const oldIndex = evt.oldIndex;
+            const newIndex = evt.newIndex;
+            if (oldIndex === newIndex) return;
+            
+            // update window.colOrder
+            const movedIdx = window.colOrder.splice(oldIndex, 1)[0];
+            window.colOrder.splice(newIndex, 0, movedIdx);
+
+            const tbody = table.querySelector('tbody');
+            const rows = tbody.querySelectorAll('tr:not(.empty-state)');
+            rows.forEach(row => {
+                const cellsArray = Array.from(row.children);
+                if (cellsArray.length > oldIndex && cellsArray.length > newIndex) {
+                    const movedCell = cellsArray.splice(oldIndex, 1)[0];
+                    cellsArray.splice(newIndex, 0, movedCell);
+                    row.innerHTML = '';
+                    cellsArray.forEach(c => row.appendChild(c));
+                }
+            });
         }
     });
 }
 
 
 function renderTable(results) {
+    window.lastResults = results;
     const tbody = document.getElementById('balances-tbody');
     
     if(results.length === 0) {
@@ -333,32 +493,44 @@ function renderTable(results) {
     let sumCust = 0;
     let sumSupp = 0;
 
+    function getCellStyle(origIdx) {
+        const conf = window.colConfigs[origIdx];
+        let style = '';
+        if(conf.bold) style += 'font-weight:bold;';
+        if(conf.fs !== 1.0) style += `font-size:${conf.fs}em;`;
+        if(conf.color) style += `color:${conf.color};`;
+        if(conf.bg && conf.bg !== '#ffffff') style += `background-color:${conf.bg};`;
+        return style;
+    }
+
     results.forEach(p => {
         const bal = (p.openingDebit + p.debit) - (p.openingCredit + p.credit);
         let balStr = '';
-        if(bal > 0) { balStr = fmtNum(bal) + ' (عليه)'; sumCust += bal; }
-        else if(bal < 0) { balStr = fmtNum(Math.abs(bal)) + ' (له)'; sumSupp += Math.abs(bal); }
+        if(bal > 0) { balStr = fmtColNum(bal, 5) + ' (عليه)'; sumCust += bal; }
+        else if(bal < 0) { balStr = fmtColNum(Math.abs(bal), 6) + ' (له)'; sumSupp += Math.abs(bal); }
         else { balStr = '0.00'; }
 
-        rows += `<tr>
-            <td>${p.name} <span style="color:#64748b;font-size:0.7rem;margin-right:5px;">(${p.type === 'CUST' ? 'عميل' : 'مورد'})</span></td>
-            <td class="num" dir="ltr">${p.phone}</td>
-            <td class="num">${p.taxNumber}</td>
-            <td class="num">${p.openingDebit > 0 ? fmtNum(p.openingDebit) : '-'}</td>
-            <td class="num">${p.openingCredit > 0 ? fmtNum(p.openingCredit) : '-'}</td>
-            <td class="num">${p.debit > 0 ? fmtNum(p.debit) : '-'}</td>
-            <td class="num">${p.credit > 0 ? fmtNum(p.credit) : '-'}</td>
-            <td style="max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${p.notes || ''}">${p.notes || '-'}</td>
-        </tr>`;
+        let cells = [];
+        cells[0] = `<td style="${getCellStyle(0)}">${p.name} <span style="color:#64748b;font-size:0.7rem;margin-right:5px;">(${p.type === 'CUST' ? 'عميل' : 'مورد'})</span></td>`;
+        cells[1] = `<td class="num" dir="ltr" style="${getCellStyle(1)}">${p.phone}</td>`;
+        cells[2] = `<td class="num" style="${getCellStyle(2)}">${p.taxNumber}</td>`;
+        cells[3] = `<td class="num" style="${getCellStyle(3)}">${p.openingDebit > 0 ? fmtColNum(p.openingDebit, 3) : '-'}</td>`;
+        cells[4] = `<td class="num" style="${getCellStyle(4)}">${p.openingCredit > 0 ? fmtColNum(p.openingCredit, 4) : '-'}</td>`;
+        cells[5] = `<td class="num" style="${getCellStyle(5)}">${p.debit > 0 ? fmtColNum(p.debit, 5) : '-'}</td>`;
+        cells[6] = `<td class="num" style="${getCellStyle(6)}">${p.credit > 0 ? fmtColNum(p.credit, 6) : '-'}</td>`;
+        cells[7] = `<td style="max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; ${getCellStyle(7)}" title="${p.notes || ''}">${p.notes || '-'}</td>`;
+        
+        let orderedCells = window.colOrder.map(idx => cells[idx]).join('');
+        rows += `<tr>${orderedCells}</tr>`;
     });
 
     tbody.innerHTML = rows;
 
-    document.getElementById('kpi-dr').textContent = fmtNum(sumCust);
-    document.getElementById('kpi-cr').textContent = fmtNum(sumSupp);
+    document.getElementById('kpi-dr').textContent = fmtColNum(sumCust, 5);
+    document.getElementById('kpi-cr').textContent = fmtColNum(sumSupp, 6);
     
     const net = sumCust - sumSupp;
-    document.getElementById('kpi-bal').textContent = fmtNum(Math.abs(net)) + (net >= 0 ? ' (لنا)' : ' (علينا)');
+    document.getElementById('kpi-bal').textContent = fmtColNum(Math.abs(net), 5) + (net >= 0 ? ' (لنا)' : ' (علينا)');
 
     document.getElementById('analytics-dashboard').style.display = 'block';
     document.getElementById('actions-panel').style.display = 'flex';
@@ -369,29 +541,40 @@ function renderTable(results) {
     bindResizers();
     bindNumberFocus();
     bindContextMenu();
+    bindColumnReorder();
 }
 
 function exportExcel() {
+    const table = document.getElementById('balances-table');
+    const visibleIndices = [];
+    const headers = Array.from(table.querySelectorAll('thead th'))
+        .filter((th, idx) => {
+            if (th.style.display !== 'none') {
+                visibleIndices.push(idx);
+                return true;
+            }
+            return false;
+        })
+        .map(th => th.innerText.replace('اسحب لتغيير عرض العمود (Double click للإرجاع)', '').trim());
+
     const rows = document.querySelectorAll('#balances-tbody tr:not(.empty-state)');
     if (rows.length === 0) return showToast('لا توجد بيانات للتصدير', 'warning');
 
     let csv = '\uFEFF';
-    csv += 'اسم الحساب,رقم الهاتف,الرقم الضريبي,عليه عملة,له عملة,عليه,له,ملحوظة\n';
+    csv += headers.map(h => `"${h}"`).join(',') + '\n';
+    
     rows.forEach(r => {
         const cells = Array.from(r.querySelectorAll('td'));
-        const name = cells[0].innerText.replace('(عميل)', '').replace('(مورد)', '').trim();
-        const phone = cells[1].innerText;
-        const tax = cells[2].innerText;
-        const opDeb = cells[3].innerText.replace(/-/g, '0');
-        const opCred = cells[4].innerText.replace(/-/g, '0');
-        const txDeb = cells[5].innerText.replace(/-/g, '0');
-        const txCred = cells[6].innerText.replace(/-/g, '0');
-        const notes = cells[7].innerText;
-        
-        csv += `"${name}","${phone}","${tax}","${opDeb}","${opCred}","${txDeb}","${txCred}","${notes}"\n`;
+        const rowData = visibleIndices.map(idx => {
+            let text = cells[idx].innerText.replace('(عميل)', '').replace('(مورد)', '').trim();
+            if (text === '-') text = '0';
+            return `"${text}"`;
+        });
+        csv += rowData.join(',') + '\n';
     });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `Global-Balances-${new Date().toISOString().slice(0,10)}.csv`;

@@ -396,8 +396,9 @@
 <body>
 
 <div class="container">
-    <div class="no-print" style="margin-bottom: 15px;">
+    <div class="no-print" style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
         <button onclick="history.back()" class="btn-secondary" style="padding: 8px 16px; font-size: 0.9rem; border-radius: 8px;">&rarr; عودة للبرنامج</button>
+        <button onclick="openSettingsDrawer()" class="btn-primary" style="padding: 10px 20px; font-size: 1rem; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #38bdf8, #2563eb); color: #fff; box-shadow: 0 4px 15px rgba(56,189,248,0.3); transition: 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">⚙️ إعدادات التقرير</button>
     </div>
 
     <!-- 12 Lightweight Template Switcher -->
@@ -816,12 +817,12 @@
     </div>
 </div>
 
-<!-- Context Menu Element (Draggable & Inline Rename) -->
+<!-- Context Menu Element (Side Drawer) -->
+<div id="drawerOverlay" class="drawer-overlay" onclick="closeMenu()"></div>
 <div id="contextMenu" class="context-menu no-print">
     <div class="c-drag-header" id="drag-header">
-        <span>⚙️ إعدادات التقرير (اسحب للتحريك)</span>
+        <span>⚙️ إعدادات التقرير</span>
         <div style="display: flex; gap: 10px; align-items: center;">
-            <span class="c-maximize" onclick="toggleMaximizeMenu()" title="تكبير/تصغير الشاشة">🗖</span>
             <span class="c-close" onclick="closeMenu()">✖</span>
         </div>
     </div>
@@ -860,6 +861,162 @@
         <button class="btn-save-layout" style="margin:10px 0 5px 0; padding:12px; background:linear-gradient(135deg, #f59e0b, #d97706);" onclick="printVoucher()">🖨️ طباعة السند</button>
     </div>
 </div>
+
+<style>
+/* New Context Menu Custom Design - Side Drawer */
+#contextMenu.context-menu {
+    background: linear-gradient(135deg, #061121 0%, #0c1f36 100%);
+    border: none;
+    border-left: 1px solid rgba(56, 189, 248, 0.3);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.8);
+    position: fixed;
+    top: 0 !important;
+    right: 0 !important;
+    left: auto !important;
+    bottom: 0 !important;
+    width: 420px;
+    max-width: 90vw;
+    height: 100vh !important;
+    border-radius: 0;
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.4s;
+    display: flex !important;
+    visibility: hidden;
+    flex-direction: column;
+    z-index: 10001;
+    animation: none !important;
+}
+#contextMenu.context-menu.active {
+    transform: translateX(0);
+    visibility: visible;
+}
+.drawer-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+    z-index: 10000; opacity: 0; visibility: hidden; transition: 0.4s ease;
+}
+.drawer-overlay.active {
+    opacity: 1; visibility: visible;
+}
+#contextMenu .c-drag-header {
+    background: transparent;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    text-shadow: none;
+    cursor: default;
+}
+#contextMenu .c-title {
+    color: #f8fafc;
+    text-align: center;
+    font-size: 0.95rem;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.c-item-complex {
+    background: transparent !important;
+    padding: 15px 20px !important;
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+    border-left: 2px solid transparent !important;
+    transition: 0.3s;
+}
+.c-item-complex.on {
+    border-left-color: #00ff88 !important;
+}
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #1e293b; transition: .4s; border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.slider:before {
+    position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 3px;
+    background-color: white; transition: .4s; border-radius: 50%;
+}
+input:checked + .slider { background-color: #00ff88; border-color: #00ff88; }
+input:checked + .slider:before { transform: translateX(20px); }
+
+.default-label {
+    color: #64748b; font-size: 0.85rem; font-weight: 700;
+}
+.input-row {
+    display: flex; gap: 10px; align-items: stretch;
+}
+.column-name-input {
+    flex-grow: 1;
+    background: #030f1c !important;
+    border: 1px solid rgba(255,255,255,0.05) !important;
+    border-radius: 8px !important;
+    padding: 10px 15px !important;
+    color: #fff !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    text-align: right;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.5) !important;
+}
+.column-name-input:focus {
+    outline: none;
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 10px rgba(56,189,248,0.3) !important;
+}
+.reset-btn {
+    background: rgba(56,189,248,0.1);
+    border: 1px solid rgba(56,189,248,0.2);
+    border-radius: 8px;
+    width: 42px; display: flex; align-items: center; justify-content: center;
+    color: #38bdf8; cursor: pointer; transition: 0.3s; font-size: 1.1rem;
+}
+.reset-btn:hover { background: #38bdf8; color: #fff; }
+.font-row {
+    justify-content: flex-end; gap: 8px; display: flex; align-items: center;
+}
+.font-label {
+    color: #94a3b8; font-size: 0.85rem; font-weight: 700;
+}
+.font-btn {
+    background: #0a192f;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 6px;
+    width: 28px; height: 28px;
+    color: #fff; font-weight: 900;
+    cursor: pointer; transition: 0.3s;
+    display: flex; align-items: center; justify-content: center; font-family: inherit;
+}
+.font-btn:hover { background: rgba(255,255,255,0.1); }
+.font-btn.active { background: #007bff; border-color: #007bff; }
+.color-row {
+    display: flex; justify-content: space-between; align-items: center;
+}
+.color-picker-group {
+    display: flex; align-items: center; gap: 8px;
+}
+.color-label {
+    color: #f8fafc; font-size: 0.85rem; font-weight: 700;
+}
+.color-input-wrapper {
+    display: flex; align-items: center; gap: 5px;
+}
+.color-input-wrapper input[type="color"] {
+    width: 24px; height: 24px;
+    padding: 0; border: none; border-radius: 4px;
+    cursor: pointer; background: transparent;
+}
+.clear-color {
+    background: #b91c1c; border: none; border-radius: 50%;
+    width: 18px; height: 18px; color: #fff; font-size: 0.6rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.clear-color:hover { background: #ef4444; }
+</style>
 
 <script>
     // --- Data Rendering Engine (All Data) ---
@@ -964,8 +1121,8 @@
         decimals: 2,
         numFont: 'JetBrains Mono',
         columns: [
-            { id: 'date', defaultName: 'التاريخ', name: 'التاريخ', visible: true, isNum: true, fontSize: 0.95, color: '', isBold: false },
             { id: 'desc', defaultName: 'البيان', name: 'البيان', visible: true, isNum: false, fontSize: 0.95, color: '', isBold: false },
+            { id: 'date', defaultName: 'التاريخ', name: 'التاريخ', visible: true, isNum: true, fontSize: 0.95, color: '', isBold: false },
             { id: 'contraAccount', defaultName: 'الحساب المقابل', name: 'الحساب المقابل', visible: true, isNum: false, fontSize: 0.95, color: '', isBold: false },
             { id: 'notes', defaultName: 'ملاحظات', name: 'ملاحظات إضافية', visible: false, isNum: false, fontSize: 0.95, color: '', isBold: false },
             { id: 'costCenter', defaultName: 'مركز التكلفة', name: 'مركز التكلفة', visible: false, isNum: false, fontSize: 0.95, color: '', isBold: false },
@@ -1221,45 +1378,55 @@
         entState.columns.forEach((col, index) => {
             const isOn = col.visible ? 'on' : '';
             html += `<div class="c-item-complex ${isOn}">
-                        <div style="display:flex; flex-direction:column; flex-grow:1;">
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <span style="font-size:0.8rem; color:#64748b; font-weight:700;">الافتراضي: ${col.defaultName}</span>
-                                <div class="c-switch" onclick="toggleColumn(${index})"></div>
-                            </div>
-                            <div style="display:flex; gap:5px; margin-top:6px;">
-                                <input type="text" class="c-input-rename" value="${col.name}" onchange="inlineRename(${index}, this.value)" placeholder="أدخل اسماً جديداً..." style="flex-grow:1; margin-top:0;">
-                                <button onclick="resetColumnName(${index})" title="إرجاع للاسم الافتراضي" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; cursor:pointer; padding:0 8px; font-size:0.9rem; transition:0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">🔄</button>
-                            </div>
-                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:5px; margin-top:8px; background:rgba(0,0,0,0.03); padding:6px 8px; border-radius:6px; border:1px solid rgba(0,0,0,0.05);">
-                                <div style="display:flex; gap:5px; align-items:center;">
-                                    <span style="font-size:0.7rem; font-weight:bold; margin-left:2px;">الخط:</span>
-                                    <button class="c-btn-small" onclick="adjustColFont(${index}, -0.05)" style="padding:2px 8px; font-size:0.8rem;">-</button>
-                                    <button class="c-btn-small" onclick="adjustColFont(${index}, 0.05)" style="padding:2px 8px; font-size:0.8rem;">+</button>
-                                    <button class="c-btn-small" onclick="toggleColBold(${index})" style="padding:2px 8px; font-size:0.8rem; font-weight:900; ${col.isBold ? 'background:#38bdf8; color:#fff;' : ''}" title="عريض (Bold)">B</button>
-                                </div>
-                                ${col.isMoney ? `
-                                <div style="display:flex; gap:2px; align-items:center;">
-                                    <span style="font-size:0.7rem; font-weight:bold; margin-left:2px;">عشري:</span>
-                                    <button class="c-btn-small" onclick="adjustColDecimals(${index}, -1)" style="padding:2px 6px; font-size:0.8rem;">-</button>
-                                    <span style="font-size:0.75rem; color:#fff; background:rgba(255,255,255,0.1); padding:0 4px; border-radius:3px;">${col.decimals !== undefined ? col.decimals : entState.decimals}</span>
-                                    <button class="c-btn-small" onclick="adjustColDecimals(${index}, 1)" style="padding:2px 6px; font-size:0.8rem;">+</button>
-                                </div>
-                                ` : ''}
-                                <div style="display:flex; gap:6px; align-items:center; width:100%; justify-content:space-between; margin-top:4px; border-top:1px solid rgba(255,255,255,0.05); padding-top:8px;">
-                                    <div style="display:flex; align-items:center; gap:4px;">
-                                        <span style="font-size:0.7rem; font-weight:bold;">لون النص:</span>
-                                        <input type="color" value="${col.color || '#000000'}" onchange="changeColColor(${index}, this.value)" style="width:20px; height:20px; padding:0; border:none; border-radius:4px; cursor:pointer; background:transparent;">
-                                        <button class="c-btn-small" style="padding:2px 6px; font-size:0.6rem; background:rgba(239,68,68,0.2); color:#fca5a5;" onclick="changeColColor(${index}, '')" title="إلغاء">✖</button>
-                                    </div>
-                                    <div style="display:flex; align-items:center; gap:4px;">
-                                        <span style="font-size:0.7rem; font-weight:bold;">لون الخلفية:</span>
-                                        <input type="color" value="${col.bgColor || '#ffffff'}" onchange="changeColBg(${index}, this.value)" style="width:20px; height:20px; padding:0; border:none; border-radius:4px; cursor:pointer; background:transparent;">
-                                        <button class="c-btn-small" style="padding:2px 6px; font-size:0.6rem; background:rgba(239,68,68,0.2); color:#fca5a5;" onclick="changeColBg(${index}, '')" title="إلغاء">✖</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                     </div>`;
+    <div class="setting-row">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="drag-handle" style="cursor: grab; color: #94a3b8; font-size: 1.2rem; padding: 0 5px;" title="اسحب للترتيب">☰</span>
+            <span class="default-label">الافتراضي: ${col.defaultName}</span>
+        </div>
+        <label class="switch">
+            <input type="checkbox" ${col.visible ? 'checked' : ''} onchange="toggleColumn(${index})">
+            <span class="slider round"></span>
+        </label>
+    </div>
+    
+    <div class="setting-row input-row" style="margin-top: 10px;">
+        <input type="text" class="column-name-input" value="${col.name}" onchange="inlineRename(${index}, this.value)" placeholder="أدخل اسماً جديداً...">
+        <button class="reset-btn" onclick="resetColumnName(${index})" title="إرجاع للاسم الافتراضي">🔄</button>
+    </div>
+    
+    <div class="setting-row font-row" style="margin-top: 15px;">
+        <span class="font-label">الخط:</span>
+        <button class="font-btn dec" onclick="adjustColFont(${index}, -0.05)">-</button>
+        <button class="font-btn inc" onclick="adjustColFont(${index}, 0.05)">+</button>
+        <button class="font-btn bold ${col.isBold ? 'active' : ''}" onclick="toggleColBold(${index})">B</button>
+    </div>
+
+    ${col.isMoney ? `
+    <div class="setting-row font-row" style="margin-top: 10px;">
+        <span class="font-label">عشري:</span>
+        <button class="font-btn dec" onclick="adjustColDecimals(${index}, -1)">-</button>
+        <span class="dec-val">${col.decimals !== undefined ? col.decimals : entState.decimals}</span>
+        <button class="font-btn inc" onclick="adjustColDecimals(${index}, 1)">+</button>
+    </div>
+    ` : ''}
+    
+    <div class="setting-row color-row" style="margin-top: 15px;">
+        <div class="color-picker-group">
+            <span class="color-label">لون النص:</span>
+            <div class="color-input-wrapper">
+                <input type="color" value="${col.color || '#000000'}" onchange="changeColColor(${index}, this.value)">
+                <button class="clear-color" onclick="changeColColor(${index}, '')">✖</button>
+            </div>
+        </div>
+        <div class="color-picker-group">
+            <span class="color-label">لون الخلفية:</span>
+            <div class="color-input-wrapper">
+                <input type="color" value="${col.bgColor || '#ffffff'}" onchange="changeColBg(${index}, this.value)">
+                <button class="clear-color" onclick="changeColBg(${index}, '')">✖</button>
+            </div>
+        </div>
+    </div>
+</div>`;
         });
         container.innerHTML = html;
         
@@ -1268,7 +1435,7 @@
         }
         window.sortableInstance = new Sortable(container, {
             animation: 150,
-            handle: '.c-item-complex',
+            handle: '.drag-handle',
             onEnd: function (evt) {
                 const oldIndex = evt.oldIndex;
                 const newIndex = evt.newIndex;
@@ -1291,27 +1458,14 @@
     }
 
     const ctxMenu = document.getElementById('contextMenu');
-    const dragHeader = document.getElementById('drag-header');
-    let isDragging = false, dragOffsetX, dragOffsetY;
+    const drawerOverlay = document.getElementById('drawerOverlay');
 
-    dragHeader.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        dragOffsetX = e.clientX - ctxMenu.offsetLeft;
-        dragOffsetY = e.clientY - ctxMenu.offsetTop;
-        document.body.style.userSelect = 'none'; 
-    });
-    
-    document.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-            ctxMenu.style.left = (e.clientX - dragOffsetX) + 'px';
-            ctxMenu.style.top = (e.clientY - dragOffsetY) + 'px';
-        }
-    });
-    
-    document.addEventListener('mouseup', () => {
-        isDragging = false;
-        document.body.style.userSelect = '';
-    });
+    function openSettingsDrawer() {
+        closeRowMenu();
+        ctxMenu.classList.add('active');
+        if(drawerOverlay) drawerOverlay.classList.add('active');
+        renderContextToggles();
+    }
 
     let currentRowRef = '';
     
@@ -1331,22 +1485,12 @@
                 rowMenu.style.top = posY + 'px';
                 rowMenu.classList.add('active');
             }
-        } else {
-            const x = e.clientX, y = e.clientY;
-            let posX = x, posY = y;
-            if (window.innerWidth - x < 350) posX = window.innerWidth - 380;
-            if (window.innerHeight - y < 650) posY = Math.max(10, window.innerHeight - 660);
-            
-            ctxMenu.style.left = posX + 'px'; 
-            ctxMenu.style.top = posY + 'px';
-            ctxMenu.classList.remove('fullscreen');
-            ctxMenu.classList.add('active');
-            renderContextToggles();
         }
     });
     
     function closeMenu() {
         ctxMenu.classList.remove('active');
+        if(drawerOverlay) drawerOverlay.classList.remove('active');
     }
 
     function toggleMaximizeMenu() {
@@ -1641,7 +1785,7 @@
     }
 
     function saveLayout() {
-        localStorage.setItem('erp_entState', JSON.stringify(entState));
+        localStorage.setItem('erp_entState_v2', JSON.stringify(entState));
         const btn = document.querySelector('.btn-save-layout');
         const oldText = btn.innerHTML;
         btn.innerHTML = '✅ تم الحفظ بنجاح!';
@@ -1656,7 +1800,7 @@
     window.onload = () => {
         initCsDropdown();
         generateSimpleReport();
-        const savedState = localStorage.getItem('erp_entState');
+        const savedState = localStorage.getItem('erp_entState_v2');
         if (savedState) {
             try {
                 const parsed = JSON.parse(savedState);

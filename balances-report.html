@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
     <link rel="stylesheet" href="css/sales-invoice.css">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
         .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
         .toast { padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:8px; pointer-events:auto; backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5); animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both; font-family:'Cairo',sans-serif; }
@@ -107,9 +108,10 @@
 
 <div class="toast-container" id="toast-container"></div>
 
-<div id="columnContextMenu" style="display:none; position:absolute; z-index:10000; background:#fff; border:2px solid #111827; border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.5); padding:10px; width:220px; color:#000;">
-    <div style="font-weight:900; border-bottom:2px solid #e2e8f0; padding-bottom:8px; margin-bottom:8px; text-align:center; font-size:0.95rem;">إدارة الأعمدة</div>
-    <div id="columnToggles" style="max-height: 300px; overflow-y: auto;"></div>
+<div id="columnContextMenu" style="display:none; position:absolute; z-index:10000; background:#fff; border:2px solid #111827; border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.5); padding:15px; width:300px; color:#000; max-height: 85vh; overflow-y: auto;">
+    <div style="font-weight:900; border-bottom:2px solid #e2e8f0; padding-bottom:8px; margin-bottom:10px; text-align:center; font-size:1.05rem;">⚙️ إعدادات الأعمدة</div>
+    <div id="columnToggles"></div>
+    <button onclick="saveLayout()" style="width: 100%; margin-top: 15px; padding: 10px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 6px; font-weight: bold; font-family:'Tajawal', sans-serif; cursor: pointer; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);">💾 حفظ التصميم</button>
 </div>
 
 <div style="max-width: 1600px; margin: 0 auto; padding: 20px 30px; padding-bottom: 80px;">
@@ -228,15 +230,15 @@
 
             <table id="balances-table">
                 <thead>
-                    <tr>
-                        <th>اسم الحساب<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
-                        <th>رقم الهاتف<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
-                        <th>الرقم الضريبي<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
-                        <th>عليه عملة<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
-                        <th>له عملة<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
-                        <th>عليه<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
-                        <th>له<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
-                        <th>ملحوظة<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
+                    <tr id="balances-header-row">
+                        <th data-orig-idx="0">اسم الحساب<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
+                        <th data-orig-idx="1">رقم الهاتف<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
+                        <th data-orig-idx="2">الرقم الضريبي<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
+                        <th data-orig-idx="3">عليه عملة<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
+                        <th data-orig-idx="4">له عملة<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
+                        <th data-orig-idx="5">عليه<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
+                        <th data-orig-idx="6">له<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
+                        <th data-orig-idx="7">ملحوظة<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
                     </tr>
                 </thead>
                 <tbody id="balances-tbody">
