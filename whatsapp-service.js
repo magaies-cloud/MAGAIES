@@ -23,9 +23,16 @@ function initClient(userId) {
     console.log(`Initializing WhatsApp Client for User: ${userId}`);
     statuses[userId] = 'INITIALIZING';
 
+    const fs = require('fs');
+    let execPath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+    if (!fs.existsSync(execPath)) {
+        execPath = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
+    }
+
     const client = new Client({
         authStrategy: new LocalAuth({ clientId: userId }),
         puppeteer: { 
+            executablePath: execPath,
             args: ['--no-sandbox', '--disable-setuid-sandbox'],
             headless: true
         }

@@ -173,7 +173,6 @@ function togglePaymentMethod() {
 }
 
 function setNextVoucherNumber() {
-    const seq = parseInt(localStorage.getItem('erp_single_payment_seq') || '0') + 1;
     let prefix = '';
     try {
         const userStr = localStorage.getItem('user');
@@ -184,7 +183,24 @@ function setNextVoucherNumber() {
             }
         }
     } catch(e) {}
-    document.getElementById('voucher-number').innerText = prefix + String(seq).padStart(6, '0');
+
+    let spData = [];
+    try {
+        spData = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+    } catch(e) {}
+
+    let unique5 = "";
+    let isUnique = false;
+    let attempts = 0;
+    while (!isUnique && attempts < 1000) {
+        unique5 = Math.floor(10000 + Math.random() * 90000).toString();
+        const testNo = prefix + unique5;
+        const exists = spData.some(v => v.voucherNo === testNo);
+        if (!exists) isUnique = true;
+        attempts++;
+    }
+
+    document.getElementById('voucher-number').innerText = prefix + unique5;
 }
 
 function updateCurrency() {

@@ -173,11 +173,19 @@
                 // If we are editing, we ignore the same voucher ID
                 if (excludeVoucherId && item.id === excludeVoucherId) continue;
                 
-                if (type === 'check' && item.checkNo && item.checkNo.toString() === num.toString()) {
-                    return false;
+                if (type === 'check' && item.checkNo) {
+                    const itemVal = item.checkNo.toString().trim();
+                    const inputVal = num.toString().trim();
+                    const itemLast5 = itemVal.length >= 5 ? itemVal.slice(-5) : itemVal;
+                    const inputLast5 = inputVal.length >= 5 ? inputVal.slice(-5) : inputVal;
+                    if (itemLast5 === inputLast5) return false;
                 }
-                if (type === 'mobile' && item.mobileTransferNo && item.mobileTransferNo.toString() === num.toString()) {
-                    return false;
+                if (type === 'mobile' && item.mobileTransferNo) {
+                    const itemVal = item.mobileTransferNo.toString().trim();
+                    const inputVal = num.toString().trim();
+                    const itemLast5 = itemVal.length >= 5 ? itemVal.slice(-5) : itemVal;
+                    const inputLast5 = inputVal.length >= 5 ? inputVal.slice(-5) : inputVal;
+                    if (itemLast5 === inputLast5) return false;
                 }
             }
         }

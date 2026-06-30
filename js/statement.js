@@ -35,18 +35,30 @@ function loadPartners() {
     
     custs.forEach(c => ALL_PARTNERS.push({ id: c.id, name: c.name, type: 'عميل', icon: '👤' }));
     sups.forEach(s  => ALL_PARTNERS.push({ id: s.id, name: s.name, type: 'مورد', icon: '🏭' }));
-    
-    banks.forEach(b => {
-        ALL_PARTNERS.push({ id: b.id, name: b.name, type: 'بنك', icon: '🏦' });
-    });
-    safes.forEach(s => {
-        ALL_PARTNERS.push({ id: s.id, name: s.name, type: 'خزينة', icon: '💰' });
-    });
-    
+    banks.forEach(b => ALL_PARTNERS.push({ id: b.id, name: b.name, type: 'بنك', icon: '🏦' }));
+    safes.forEach(s => ALL_PARTNERS.push({ id: s.id, name: s.name, type: 'خزينة', icon: '💰' }));
     expenses.forEach(e => ALL_PARTNERS.push({ id: e.id, name: e.name, type: 'مصروف', icon: '📉' }));
     ccs.forEach(c => ALL_PARTNERS.push({ id: c.id, name: c.name, type: 'مركز تكلفة', icon: '📊' }));
     employees.forEach(e => ALL_PARTNERS.push({ id: e.id, name: e.name, type: 'موظف', icon: '👨‍💼' }));
     warehouses.forEach(w => ALL_PARTNERS.push({ id: w.id, name: w.name, type: 'مخزن', icon: '🏢' }));
+
+    const sel = document.getElementById('filter-partner');
+    if (sel) {
+        let html = '<option value="">-- اختر الحساب --</option>';
+        if (custs.length) html += `<optgroup label="العملاء">${custs.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</optgroup>`;
+        if (sups.length) html += `<optgroup label="الموردين">${sups.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}</optgroup>`;
+        if (banks.length) html += `<optgroup label="البنوك">${banks.map(b => `<option value="${b.id}">${b.name}</option>`).join('')}</optgroup>`;
+        if (safes.length) html += `<optgroup label="الخزن">${safes.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}</optgroup>`;
+        if (expenses.length) html += `<optgroup label="المصاريف">${expenses.map(e => `<option value="${e.id}">${e.name}</option>`).join('')}</optgroup>`;
+        if (ccs.length || employees.length || warehouses.length) {
+            html += `<optgroup label="أرصدة">`;
+            html += ccs.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            html += employees.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+            html += warehouses.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
+            html += `</optgroup>`;
+        }
+        sel.innerHTML = html;
+    }
 }
 
 function collectPartnerTransactions(partnerId) {
@@ -225,77 +237,7 @@ function collectPartnerTransactions(partnerId) {
     return txns;
 }
 
-/* ─── Search Auto-complete Logic ─── */
-let acActiveIdx = -1;
-
-function onPartnerSearch() {
-    const q = document.getElementById('partner-search-input').value.trim();
-    const list = document.getElementById('autocomplete-list');
-    const chip = document.getElementById('selected-chip');
-    acActiveIdx = -1;
-
-    if (q) {
-        chip.style.display = 'none';
-        document.getElementById('filter-partner').value = '';
-    }
-
-    let matches = [];
-    if (!q) { 
-        matches = ALL_PARTNERS.slice(0, 300); // Show enough to see all types
-    } else {
-        matches = ALL_PARTNERS.filter(a => 
-            (a.name || '').includes(q) || (a.type || '').includes(q)
-        ).slice(0, 50);
-    }
-
-    if (matches.length === 0) {
-        list.innerHTML = `<li style="color:#64748b; cursor:default;">لا توجد نتائج</li>`;
-    } else {
-        list.innerHTML = matches.map((a, i) => `
-            <li onclick="selectPartner('${a.id}','${a.name || 'بدون اسم'}','${a.icon}')">
-                <span>${a.icon}</span>
-                <span>${a.name || 'بدون اسم'}</span>
-                <span class="ac-badge">${a.type}</span>
-            </li>`).join('');
-    }
-    list.style.display = 'block';
-}
-
-function onPartnerSearchKey(e) {
-    const list = document.getElementById('autocomplete-list');
-    const items = list.querySelectorAll('li:not([style*="cursor:default"])');
-    if (!items.length) return;
-    if (e.key === 'ArrowDown') { acActiveIdx = Math.min(acActiveIdx + 1, items.length - 1); }
-    else if (e.key === 'ArrowUp') { acActiveIdx = Math.max(acActiveIdx - 1, 0); }
-    else if (e.key === 'Enter' && acActiveIdx >= 0) { items[acActiveIdx].click(); return; }
-    else if (e.key === 'Escape') { list.style.display = 'none'; return; }
-    items.forEach((li, i) => li.classList.toggle('active', i === acActiveIdx));
-}
-
-function selectPartner(id, name, icon) {
-    document.getElementById('filter-partner').value = id;
-    document.getElementById('partner-search-input').value = '';
-    document.getElementById('autocomplete-list').style.display = 'none';
-
-    const chip = document.getElementById('selected-chip');
-    document.getElementById('chip-icon').textContent = icon;
-    document.getElementById('chip-name').textContent = name;
-    chip.style.display = 'flex';
-}
-
-function clearPartnerSearch() {
-    document.getElementById('filter-partner').value = '';
-    document.getElementById('partner-search-input').value = '';
-    document.getElementById('autocomplete-list').style.display = 'none';
-    document.getElementById('selected-chip').style.display = 'none';
-}
-
-document.addEventListener('click', e => {
-    if (!e.target.closest('.search-wrap')) {
-        const list = document.getElementById('autocomplete-list');
-        if (list) list.style.display = 'none';
-    }
-});
+/* Search Auto-complete Logic Removed (Using Native Select) */
 
 /* ─── Drill Down Logic ─── */
 function openDrillDown(type, ref) {
@@ -513,7 +455,8 @@ function renderTable(txns, partnerId, fromDate, toDate) {
     summaryCards.style.display = 'grid';
     tableWrap.style.display = 'block';
 
-    const partnerName = document.getElementById('chip-name').textContent;
+    const sel = document.getElementById('filter-partner');
+    const partnerName = sel.options[sel.selectedIndex]?.text || '';
     document.getElementById('print-header').style.display = 'block';
     document.getElementById('print-meta').innerHTML = `
         <span>جهة الحساب: <strong>${partnerName}</strong></span>
@@ -591,7 +534,9 @@ function exportStatementCSV() {
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `Statement-${document.getElementById('chip-name').textContent}-${new Date().toISOString().slice(0,10)}.csv`;
+    const sel = document.getElementById('filter-partner');
+    const partnerName = sel.options[sel.selectedIndex]?.text || '';
+    link.download = `Statement-${partnerName}-${new Date().toISOString().slice(0,10)}.csv`;
     link.click();
     showToast('📥 تم التصدير بنجاح', 'success');
 }
@@ -608,7 +553,7 @@ document.addEventListener('DBReady', () => {
     if (partnerId) {
         const partner = ALL_PARTNERS.find(p => p.id === partnerId);
         if (partner) {
-            selectPartner(partner.id, partner.name, partner.icon);
+            document.getElementById('filter-partner').value = partner.id;
             setTimeout(runReport, 300);
         }
     }

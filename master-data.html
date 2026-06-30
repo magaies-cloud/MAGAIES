@@ -355,7 +355,11 @@
                             <div class="input-group"><label>رقم الواتساب</label><input type="text" id="cust-whatsapp" placeholder="09xxxxxxxx"></div>
                             <div class="input-group"><label>الايميل (البريد الإلكتروني)</label><input type="email" id="cust-email" placeholder="example@email.com"></div>
                             <div class="input-group" style="grid-column: span 2;"><label>العنوان</label><input type="text" id="cust-address" placeholder="مثال: الخرطوم، السجانة"></div>
-                            <div class="input-group"><label>الرصيد الافتتاحي (أول المدة)</label><input type="number" id="cust-opening" placeholder="0.00 SDG"></div>
+                            <div class="input-group"><label>العملة</label><select id="cust-currency"><option value="SDG">SDG</option><option value="USD">USD</option><option value="SAR">SAR</option><option value="AED">AED</option></select></div>
+                            <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="cust-tax" placeholder="الرقم الضريبي للعميل"></div>
+                            <div class="input-group"><label>رقم الحساب</label><input type="text" id="cust-account-no" placeholder="رقم حساب العميل"></div>
+                            <div class="input-group"><label>رصيد افتتاحي (عليه)</label><input type="number" id="cust-opening-debit" placeholder="0.00"></div>
+                            <div class="input-group"><label>رصيد افتتاحي (له)</label><input type="number" id="cust-opening-credit" placeholder="0.00"></div>
                             <div class="input-group"><label style="color: var(--danger-color);">حد الائتمان (أقصى سقف)</label><input type="number" id="cust-limit" placeholder="المبلغ المسموح للدين"></div>
                             <div class="input-group"><label>درجة السرية</label><select id="cust-security"><option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option></select></div>
                             <div class="input-group"><label>حالة العميل (القائمة السوداء)</label><select id="cust-status" style="font-weight: bold;"><option value="active" style="color: var(--success-color);">🟢 نشط (عادي)</option><option value="vip" style="color: var(--primary-accent);">🌟 VIP (مميز)</option><option value="blacklisted" style="color: var(--danger-color);">🔴 قائمة سوداء (محظور)</option></select></div>
@@ -412,7 +416,11 @@
                             <div class="input-group"><label>رقم الواتساب</label><input type="text" id="sup-whatsapp" placeholder="09xxxxxxxx"></div>
                             <div class="input-group"><label>الايميل (البريد الإلكتروني)</label><input type="email" id="sup-email" placeholder="example@email.com"></div>
                             <div class="input-group" style="grid-column: span 2;"><label>العنوان</label><input type="text" id="sup-address" placeholder="موقع المصنع / المعرض"></div>
-                            <div class="input-group"><label>الرصيد الافتتاحي (أول المدة)</label><input type="number" id="sup-opening" placeholder="0.00 SDG"></div>
+                            <div class="input-group"><label>العملة</label><select id="sup-currency"><option value="SDG">SDG</option><option value="USD">USD</option><option value="SAR">SAR</option><option value="AED">AED</option></select></div>
+                            <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="sup-tax" placeholder="الرقم الضريبي للمورد"></div>
+                            <div class="input-group"><label>رقم الحساب</label><input type="text" id="sup-account-no" placeholder="رقم حساب المورد"></div>
+                            <div class="input-group"><label>رصيد افتتاحي (عليه)</label><input type="number" id="sup-opening-debit" placeholder="0.00"></div>
+                            <div class="input-group"><label>رصيد افتتاحي (له)</label><input type="number" id="sup-opening-credit" placeholder="0.00"></div>
                             <div class="input-group"><label style="color: var(--danger-color);">حد الائتمان (أقصى سقف)</label><input type="number" id="sup-limit" placeholder="أقصى سقف"></div>
                             <div class="input-group"><label>درجة السرية</label><select id="sup-security"><option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option></select></div>
                             <div class="input-group"><label>حالة المورد</label><select id="sup-status" style="font-weight: bold;"><option value="active" style="color: var(--success-color);">🟢 مورد نشط</option><option value="blacklisted" style="color: var(--danger-color);">🔴 قائمة سوداء</option></select></div>
@@ -997,7 +1005,11 @@
             const email = document.getElementById('cust-email').value;
             const contactPerson = document.getElementById('cust-contact').value;
             const address = document.getElementById('cust-address').value;
-            const opening = parseFloat(document.getElementById('cust-opening').value) || 0;
+            const openingDebit = parseFloat(document.getElementById('cust-opening-debit').value) || 0;
+            const openingCredit = parseFloat(document.getElementById('cust-opening-credit').value) || 0;
+            const currency = document.getElementById('cust-currency').value || 'SDG';
+            const taxNumber = document.getElementById('cust-tax').value || '';
+            const accountNo = document.getElementById('cust-account-no').value || '';
             const limit = parseFloat(document.getElementById('cust-limit').value) || 0;
             const security = parseInt(document.getElementById('cust-security').value) || 1;
             const status = document.getElementById('cust-status').value || 'active';
@@ -1027,7 +1039,11 @@
             const existingIdx = customers.findIndex(c => c.id === id);
             
             const custData = {
-                id, name, phone, whatsapp, email, contactPerson, address, openingBalance: opening, currentBalance: opening, creditLimit: limit,
+                id, name, phone, whatsapp, email, contactPerson, address, 
+                openingDebit, openingCredit, 
+                currency, taxNumber, accountNo,
+                currentBalance: (openingDebit - openingCredit), 
+                creditLimit: limit,
                 securityLevel: security, status: status, notes,
                 bankAccounts: bankAccounts
             };
@@ -1120,7 +1136,11 @@
             document.getElementById('cust-email').value = '';
             document.getElementById('cust-contact').value = '';
             document.getElementById('cust-address').value = '';
-            document.getElementById('cust-opening').value = '';
+            document.getElementById('cust-opening-debit').value = '';
+            document.getElementById('cust-opening-credit').value = '';
+            document.getElementById('cust-currency').value = 'SDG';
+            document.getElementById('cust-tax').value = '';
+            document.getElementById('cust-account-no').value = '';
             document.getElementById('cust-limit').value = '';
             document.getElementById('cust-security').value = '1';
             document.getElementById('cust-status').value = 'active';
@@ -1151,7 +1171,11 @@
             document.getElementById('cust-email').value = cust.email || '';
             document.getElementById('cust-contact').value = cust.contactPerson || '';
             document.getElementById('cust-address').value = cust.address || '';
-            document.getElementById('cust-opening').value = cust.openingBalance || '';
+            document.getElementById('cust-opening-debit').value = cust.openingDebit || '';
+            document.getElementById('cust-opening-credit').value = cust.openingCredit || '';
+            document.getElementById('cust-currency').value = cust.currency || 'SDG';
+            document.getElementById('cust-tax').value = cust.taxNumber || '';
+            document.getElementById('cust-account-no').value = cust.accountNo || '';
             document.getElementById('cust-limit').value = cust.creditLimit || '';
             document.getElementById('cust-security').value = cust.securityLevel || '1';
             document.getElementById('cust-status').value = cust.status || 'active';
@@ -1195,7 +1219,11 @@
             const whatsapp = document.getElementById('sup-whatsapp').value;
             const email = document.getElementById('sup-email').value;
             const address = document.getElementById('sup-address').value;
-            const opening = parseFloat(document.getElementById('sup-opening').value) || 0;
+            const openingDebit = parseFloat(document.getElementById('sup-opening-debit').value) || 0;
+            const openingCredit = parseFloat(document.getElementById('sup-opening-credit').value) || 0;
+            const currency = document.getElementById('sup-currency').value || 'SDG';
+            const taxNumber = document.getElementById('sup-tax').value || '';
+            const accountNo = document.getElementById('sup-account-no').value || '';
             const limit = parseFloat(document.getElementById('sup-limit').value) || 0;
             const security = parseInt(document.getElementById('sup-security').value) || 1;
             const status = document.getElementById('sup-status').value || 'active';
@@ -1214,7 +1242,11 @@
             const existingIdx = suppliers.findIndex(s => s.id === id);
             
             const supData = {
-                id, name, phone, whatsapp, email, address, openingBalance: opening, currentBalance: opening, creditLimit: limit,
+                id, name, phone, whatsapp, email, address, 
+                openingDebit, openingCredit, 
+                currency, taxNumber, accountNo,
+                currentBalance: (openingDebit - openingCredit), 
+                creditLimit: limit,
                 securityLevel: security, status: status, notes
             };
 
@@ -1255,7 +1287,11 @@
             document.getElementById('sup-whatsapp').value = '';
             document.getElementById('sup-email').value = '';
             document.getElementById('sup-address').value = '';
-            document.getElementById('sup-opening').value = '';
+            document.getElementById('sup-opening-debit').value = '';
+            document.getElementById('sup-opening-credit').value = '';
+            document.getElementById('sup-currency').value = 'SDG';
+            document.getElementById('sup-tax').value = '';
+            document.getElementById('sup-account-no').value = '';
             document.getElementById('sup-limit').value = '';
             document.getElementById('sup-security').value = '1';
             document.getElementById('sup-status').value = 'active';
@@ -1279,7 +1315,11 @@
             document.getElementById('sup-whatsapp').value = sup.whatsapp || '';
             document.getElementById('sup-email').value = sup.email || '';
             document.getElementById('sup-address').value = sup.address || '';
-            document.getElementById('sup-opening').value = sup.openingBalance || '';
+            document.getElementById('sup-opening-debit').value = sup.openingDebit || '';
+            document.getElementById('sup-opening-credit').value = sup.openingCredit || '';
+            document.getElementById('sup-currency').value = sup.currency || 'SDG';
+            document.getElementById('sup-tax').value = sup.taxNumber || '';
+            document.getElementById('sup-account-no').value = sup.accountNo || '';
             document.getElementById('sup-limit').value = sup.creditLimit || '';
             document.getElementById('sup-security').value = sup.securityLevel || '1';
             document.getElementById('sup-status').value = sup.status || 'active';

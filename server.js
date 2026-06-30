@@ -127,6 +127,13 @@ http.createServer((req, res) => {
         console.error('❌ فشل تشغيل خادم PHP:', err.message);
     });
 
+    // تشغيل خدمة الواتساب تلقائياً
+    const waServer = spawn('node', ['whatsapp-service.js'], { stdio: 'inherit' });
+    
+    waServer.on('error', (err) => {
+        console.error('❌ فشل تشغيل خدمة الواتساب:', err.message);
+    });
+
     // فتح المتصفح تلقائياً على الرابط المحلي
     const { exec } = require('child_process');
     exec(`start http://localhost:${PORT}/saas-admin.html`);

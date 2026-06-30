@@ -27,8 +27,20 @@ function loadData() {
     const custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
     const sups  = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
     
-    custs.forEach(c => ALL_PARTNERS.push({ id: c.id, code: c.code || '-', name: c.name, type: 'CUST', debit: 0, credit: 0, lastDate: null }));
-    sups.forEach(s  => ALL_PARTNERS.push({ id: s.id, code: s.code || '-', name: s.name, type: 'SUPP', debit: 0, credit: 0, lastDate: null }));
+    custs.forEach(c => ALL_PARTNERS.push({ 
+        id: c.id, code: c.accountNo || c.code || '-', name: c.name, type: 'CUST', 
+        phone: c.phone || '', taxNumber: c.taxNumber || '', currency: c.currency || 'SDG',
+        openingDebit: parseNum(c.openingDebit || 0), openingCredit: parseNum(c.openingCredit || 0),
+        notes: c.notes || '',
+        debit: 0, credit: 0, lastDate: null 
+    }));
+    sups.forEach(s  => ALL_PARTNERS.push({ 
+        id: s.id, code: s.accountNo || s.code || '-', name: s.name, type: 'SUPP', 
+        phone: s.phone || '', taxNumber: s.taxNumber || '', currency: s.currency || 'SDG',
+        openingDebit: parseNum(s.openingDebit || 0), openingCredit: parseNum(s.openingCredit || 0),
+        notes: s.notes || '',
+        debit: 0, credit: 0, lastDate: null 
+    }));
     
     // We reuse the collector logic from SGL, modified to only grab partner transactions
     ALL_TXNS = [];
@@ -160,8 +172,8 @@ function runReport() {
 
     // Sort
     results.sort((a, b) => {
-        const balA = Math.abs(a.debit - a.credit);
-        const balB = Math.abs(b.debit - b.credit);
+        const balA = Math.abs((a.openingDebit + a.debit) - (a.openingCredit + a.credit));
+        const balB = Math.abs((b.openingDebit + b.debit) - (b.openingCredit + b.credit));
         if(sortFilter === 'BALANCE_DESC') return balB - balA;
         if(sortFilter === 'BALANCE_ASC') return balA - balB;
         if(sortFilter === 'NAME') return a.name.localeCompare(b.name);
@@ -172,13 +184,148 @@ function runReport() {
     renderTable(results);
 }
 
+function openWhatsAppModal() {
+    document.getElementById('whatsapp-modal').style.display = 'flex';
+}
+
+function closeWhatsAppModal() {
+    document.getElementById('whatsapp-modal').style.display = 'none';
+}
+
+let startX, startWidth, resizingTh;
+
+function bindResizers() {
+    const table = document.getElementById('balances-table');
+    if (!table) return;
+    const resizers = table.querySelectorAll('.resizer');
+    resizers.forEach(resizer => {
+        resizer.addEventListener('mousedown', initResize);
+        resizer.addEventListener('dblclick', autoSize);
+    });
+}
+
+function autoSize(e) {
+    e.stopPropagation();
+    const th = e.target.parentElement;
+    th.style.width = 'auto'; 
+}
+
+function initResize(e) {
+    e.stopPropagation();
+    resizingTh = e.target.parentElement;
+    startX = e.clientX;
+    startWidth = parseInt(window.getComputedStyle(resizingTh).width, 10);
+    
+    const ths = document.querySelectorAll('#balances-table th');
+    ths.forEach((th) => {
+        if (!th.style.width) {
+            th.style.width = window.getComputedStyle(th).width;
+        }
+    });
+    
+    const table = document.getElementById('balances-table');
+    table.style.width = 'max-content';
+    
+    document.addEventListener('mousemove', doResize);
+    document.addEventListener('mouseup', stopResize);
+    e.target.classList.add('resizing');
+}
+
+function doResize(e) {
+    const delta = startX - e.clientX; 
+    const newWidth = startWidth + delta;
+    if (newWidth > 40) {
+        resizingTh.style.width = newWidth + 'px';
+    }
+}
+
+function stopResize(e) {
+    document.removeEventListener('mousemove', doResize);
+    document.removeEventListener('mouseup', stopResize);
+    document.querySelectorAll('.resizer').forEach(r => r.classList.remove('resizing'));
+}
+
+function bindNumberFocus() {
+    const nums = document.querySelectorAll('#balances-tbody td.num');
+    nums.forEach(td => {
+        td.addEventListener('click', function(e) {
+            const cell = e.target;
+            if (cell.classList.contains('focused-num')) {
+                cell.classList.remove('focused-num');
+            } else {
+                document.querySelectorAll('.focused-num').forEach(c => c.classList.remove('focused-num'));
+                cell.classList.add('focused-num');
+            }
+        });
+    });
+}
+
+function bindContextMenu() {
+    const table = document.getElementById('balances-table');
+    const thead = table.querySelector('thead');
+    const ctxMenu = document.getElementById('columnContextMenu');
+    const togglesContainer = document.getElementById('columnToggles');
+
+    thead.addEventListener('contextmenu', function(e) {
+        // Prevent default if we clicked on a TH or inside it
+        const th = e.target.closest('th');
+        if (!th) return;
+        
+        e.preventDefault();
+        
+        const ths = table.querySelectorAll('thead th');
+        togglesContainer.innerHTML = '';
+        ths.forEach((thEl, index) => {
+            const isHidden = thEl.style.display === 'none';
+            // clean up text from child elements
+            let text = thEl.innerText.replace('اسحب لتغيير عرض العمود (Double click للإرجاع)', '').trim();
+            if(!text) text = 'عمود ' + (index+1);
+
+            const div = document.createElement('div');
+            div.style.padding = '6px 5px';
+            div.style.cursor = 'pointer';
+            div.style.borderBottom = '1px solid #f1f5f9';
+            div.innerHTML = `<label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:600; font-size:0.9rem;">
+                <input type="checkbox" style="width:16px; height:16px; cursor:pointer;" ${!isHidden ? 'checked' : ''} onchange="toggleColumn(${index}, this.checked)"> 
+                ${text}
+            </label>`;
+            togglesContainer.appendChild(div);
+        });
+
+        ctxMenu.style.display = 'block';
+        ctxMenu.style.left = e.pageX + 'px';
+        ctxMenu.style.top = e.pageY + 'px';
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!ctxMenu.contains(e.target)) {
+            ctxMenu.style.display = 'none';
+        }
+    });
+}
+
+window.toggleColumn = function(index, show) {
+    const table = document.getElementById('balances-table');
+    const rows = table.querySelectorAll('tr');
+    const display = show ? '' : 'none';
+    rows.forEach(row => {
+        const cells = row.children;
+        // Ignore rows that don't have enough cells (like empty states)
+        if (cells.length > 1 && cells[index]) {
+            cells[index].style.display = display;
+        }
+    });
+}
+
+
 function renderTable(results) {
     const tbody = document.getElementById('balances-tbody');
     
     if(results.length === 0) {
         tbody.innerHTML = `<tr><td colspan="8" class="empty-state">لا توجد حسابات مسجلة تطابق الفلتر</td></tr>`;
-        document.getElementById('summary-cards').style.display = 'none';
-        document.getElementById('audit-stamp').style.display = 'none';
+        document.getElementById('analytics-dashboard').style.display = 'none';
+        document.getElementById('actions-panel').style.display = 'none';
+        document.getElementById('print-container').style.display = 'none';
         return;
     }
 
@@ -187,37 +334,41 @@ function renderTable(results) {
     let sumSupp = 0;
 
     results.forEach(p => {
-        const bal = p.debit - p.credit;
+        const bal = (p.openingDebit + p.debit) - (p.openingCredit + p.credit);
         let balStr = '';
-        if(bal > 0) { balStr = fmtNum(bal) + ' (مدين)'; sumCust += bal; }
-        else if(bal < 0) { balStr = fmtNum(Math.abs(bal)) + ' (دائن)'; sumSupp += Math.abs(bal); }
+        if(bal > 0) { balStr = fmtNum(bal) + ' (عليه)'; sumCust += bal; }
+        else if(bal < 0) { balStr = fmtNum(Math.abs(bal)) + ' (له)'; sumSupp += Math.abs(bal); }
         else { balStr = '0.00'; }
 
         rows += `<tr>
-            <td class="td-code">${p.code}</td>
-            <td class="td-name">${p.name} <span style="color:#64748b;font-size:0.7rem;margin-right:5px;">(${p.type === 'CUST' ? 'عميل' : 'مورد'})</span></td>
-            <td style="color:#64748b;">0.00</td>
-            <td class="td-debit">${p.debit > 0 ? fmtNum(p.debit) : '-'}</td>
-            <td class="td-credit">${p.credit > 0 ? fmtNum(p.credit) : '-'}</td>
-            <td class="td-balance">${balStr}</td>
-            <td><span class="badge-active">نشط</span></td>
-            <td class="td-date">${p.lastDate ? p.lastDate.substring(0, 10) : 'لا يوجد حركات'}</td>
+            <td>${p.name} <span style="color:#64748b;font-size:0.7rem;margin-right:5px;">(${p.type === 'CUST' ? 'عميل' : 'مورد'})</span></td>
+            <td class="num" dir="ltr">${p.phone}</td>
+            <td class="num">${p.taxNumber}</td>
+            <td class="num">${p.openingDebit > 0 ? fmtNum(p.openingDebit) : '-'}</td>
+            <td class="num">${p.openingCredit > 0 ? fmtNum(p.openingCredit) : '-'}</td>
+            <td class="num">${p.debit > 0 ? fmtNum(p.debit) : '-'}</td>
+            <td class="num">${p.credit > 0 ? fmtNum(p.credit) : '-'}</td>
+            <td style="max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${p.notes || ''}">${p.notes || '-'}</td>
         </tr>`;
     });
 
     tbody.innerHTML = rows;
 
-    document.getElementById('sum-customers').textContent = fmtNum(sumCust);
-    document.getElementById('sum-suppliers').textContent = fmtNum(sumSupp);
+    document.getElementById('kpi-dr').textContent = fmtNum(sumCust);
+    document.getElementById('kpi-cr').textContent = fmtNum(sumSupp);
     
     const net = sumCust - sumSupp;
-    document.getElementById('sum-net').textContent = fmtNum(Math.abs(net)) + (net >= 0 ? ' (صالحنا)' : ' (علينا)');
+    document.getElementById('kpi-bal').textContent = fmtNum(Math.abs(net)) + (net >= 0 ? ' (لنا)' : ' (علينا)');
 
-    document.getElementById('summary-cards').style.display = 'grid';
-    document.getElementById('audit-stamp').style.display = 'flex';
-    document.getElementById('print-header').style.display = 'block';
+    document.getElementById('analytics-dashboard').style.display = 'block';
+    document.getElementById('actions-panel').style.display = 'flex';
+    document.getElementById('print-container').style.display = 'block';
 
     showToast(`✅ تم تجميع أرصدة ${results.length} حساب بنجاح`, 'success');
+    
+    bindResizers();
+    bindNumberFocus();
+    bindContextMenu();
 }
 
 function exportExcel() {
@@ -225,19 +376,19 @@ function exportExcel() {
     if (rows.length === 0) return showToast('لا توجد بيانات للتصدير', 'warning');
 
     let csv = '\uFEFF';
-    csv += 'كود الحساب,اسم المورد / الزبون,الرصيد الافتتاحي,إجمالي مدين,إجمالي دائن,الرصيد الحالي,حالة الحساب,آخر حركة\n';
+    csv += 'اسم الحساب,رقم الهاتف,الرقم الضريبي,عليه عملة,له عملة,عليه,له,ملحوظة\n';
     rows.forEach(r => {
         const cells = Array.from(r.querySelectorAll('td'));
-        const code = cells[0].innerText;
-        const name = cells[1].innerText.replace('(عميل)', '').replace('(مورد)', '').trim();
-        const op = cells[2].innerText;
-        const deb = cells[3].innerText.replace(/-/g, '0');
-        const cred = cells[4].innerText.replace(/-/g, '0');
-        const bal = cells[5].innerText;
-        const state = cells[6].innerText;
-        const last = cells[7].innerText;
+        const name = cells[0].innerText.replace('(عميل)', '').replace('(مورد)', '').trim();
+        const phone = cells[1].innerText;
+        const tax = cells[2].innerText;
+        const opDeb = cells[3].innerText.replace(/-/g, '0');
+        const opCred = cells[4].innerText.replace(/-/g, '0');
+        const txDeb = cells[5].innerText.replace(/-/g, '0');
+        const txCred = cells[6].innerText.replace(/-/g, '0');
+        const notes = cells[7].innerText;
         
-        csv += `"${code}","${name}","${op}","${deb}","${cred}","${bal}","${state}","${last}"\n`;
+        csv += `"${name}","${phone}","${tax}","${opDeb}","${opCred}","${txDeb}","${txCred}","${notes}"\n`;
     });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -245,48 +396,40 @@ function exportExcel() {
     a.href = URL.createObjectURL(blob);
     a.download = `Global-Balances-${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
-    showToast('📥 تم التصدير بنجاح', 'success');
+    showToast('📥 تم التصدير للإكسل بنجاح', 'success');
 }
 
-
-function previewReport() {
-    const tableWrap = document.getElementById('report-table-wrap');
-    if (!tableWrap || tableWrap.style.display === 'none') {
-        if(typeof showToast !== 'undefined') showToast('الرجاء تشغيل التقرير أولاً للمعاينة', 'warning');
-        else alert('الرجاء تشغيل التقرير أولاً للمعاينة');
-        return;
+function exportPDF() {
+    const element = document.getElementById('print-container');
+    if (!element || element.style.display === 'none') {
+        return showToast('الرجاء تشغيل التقرير أولاً للتصدير', 'warning');
     }
+    showToast('⏳ جاري تصدير التقرير كملف PDF...');
     
-    const printHeader = document.getElementById('print-header') ? document.getElementById('print-header').innerHTML : '';
-    const tableHtml = tableWrap.outerHTML; // or just the table
-    
-    const win = window.open('', '_blank', 'width=1000,height=700');
-    win.document.write(`
-        <html dir="rtl" lang="ar">
-        <head>
-            <title>معاينة أرصدة الحسابات</title>
-            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-            <style>
-                body { font-family: 'Tajawal', sans-serif; padding: 30px; background: #fff; color: #000; direction: rtl; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; }
-                th, td { border: 1px solid #ddd; padding: 10px; text-align: right; }
-                th { background: #f3f4f6; color: #333; font-weight: bold; }
-                .td-debit { color: #059669; font-weight: bold; }
-                .td-credit { color: #dc2626; font-weight: bold; }
-                h2, h3 { text-align: center; margin: 5px 0; }
-                #print-meta { display: flex; justify-content: space-between; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 15px; font-weight: bold; }
-                @media print { .no-print { display: none !important; } }
-            </style>
-        </head>
-        <body>
-            ${printHeader}
-            ${tableHtml}
-            <div style="margin-top: 30px; text-align: center;" class="no-print">
-                <button onclick="window.print()" style="padding: 10px 20px; background: #38bdf8; border: none; border-radius: 5px; color: #fff; cursor: pointer; font-family: inherit; font-weight: bold; margin: 10px;">🖨️ طباعة</button>
-                <button onclick="window.close()" style="padding: 10px 20px; background: #94a3b8; border: none; border-radius: 5px; color: #fff; cursor: pointer; font-family: inherit; font-weight: bold; margin: 10px;">❌ إغلاق</button>
-            </div>
-        </body>
-        </html>
-    `);
-    win.document.close();
+    // Using html2pdf if included
+    if(typeof html2pdf !== 'undefined') {
+        var opt = {
+          margin:       0.5,
+          filename:     'Balances-Report.pdf',
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2 },
+          jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
+        };
+        html2pdf().set(opt).from(element).save().then(() => {
+            showToast('✅ تم التصدير بنجاح!', 'success');
+        });
+    } else {
+        window.print();
+    }
 }
+
+function shareEmail() {
+    showToast('تم فتح تطبيق البريد لإرسال التقرير', 'success');
+    window.location.href = "mailto:?subject=تقرير الأرصدة الإجمالية&body=تجدون مرفقاً التقرير...";
+}
+
+function shareWhatsApp() {
+    showToast('جاري التحويل للواتساب...', 'success');
+    window.open("https://api.whatsapp.com/send?text=تم إرسال تقرير الأرصدة من النظام المالي", "_blank");
+}
+

@@ -113,23 +113,9 @@
         <div class="filter-row">
             <div class="filter-group">
                 <label>اختيار الحساب</label>
-                <div class="search-wrap">
-                    <input type="text" class="filter-input" id="partner-search-input"
-                        placeholder="🔍 اكتب اسم الحساب (عميل، مورد، خزينة، بنك...)"
-                        autocomplete="off"
-                        oninput="onPartnerSearch()"
-                        onfocus="onPartnerSearch()"
-                        onclick="onPartnerSearch()"
-                        onkeydown="onPartnerSearchKey(event)"
-                    >
-                    <ul class="autocomplete-list" id="autocomplete-list"></ul>
-                </div>
-                <div class="selected-account-chip" id="selected-chip">
-                    <span id="chip-icon">👤</span>
-                    <span id="chip-name">—</span>
-                    <button class="chip-remove" onclick="clearPartnerSearch()" title="إزالة">✕</button>
-                </div>
-                <input type="hidden" id="filter-partner" value="">
+                <select class="filter-input" id="filter-partner" onchange="runReport()">
+                    <option value="">-- اختر الحساب --</option>
+                </select>
             </div>
             <div class="filter-group">
                 <label>من تاريخ</label>
