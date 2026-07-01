@@ -578,7 +578,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Browser was closed and reopened — but DO NOT wipe, just redirect to re-login
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('user');
-                window.location.href = 'login.html';
+                window.location.href = 'login.php';
                 return;
             }
         }
@@ -594,7 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const userStr = localStorage.getItem('user');
         
         if (!token || !userStr) {
-            fetch('log?msg=redirecting_to_login'); window.location.href = 'login.html';
+            fetch('log?msg=redirecting_to_login'); window.location.href = 'login.php';
             return;
         }
 
@@ -655,41 +655,41 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         }
         
-        const currentPage = window.location.pathname.split('/').pop() || 'dashboard-pro.html';
+        const currentPage = window.location.pathname.split('/').pop() || 'dashboard-pro.php';
 
         const pageModuleMap = {
-            'dashboard-pro.html': 'dashboard',
-            'sales-invoice.html': 'sales',
-            'direct-sales.html': 'sales',
-            'reserved-sales.html': 'sales',
-            'sales-delivery.html': 'sales',
-            'purchase.html': 'purchase',
+            'dashboard-pro.php': 'dashboard',
+            'sales-invoice.php': 'sales',
+            'direct-sales.php': 'sales',
+            'reserved-sales.php': 'sales',
+            'sales-delivery.php': 'sales',
+            'purchase.php': 'purchase',
             'purchase-order.html': 'purchase',
-            'inventory-report.html': 'inventory',
-            'inventory.html': 'inventory',
-            'item-ledger.html': 'inventory',
-            'warehouse-ledger.html': 'inventory',
-            'vouchers-hub.html': 'finance',
-            'cash-receipt.html': 'finance',
-            'cash-payment.html': 'finance',
-            'single-cash-receipt.html': 'finance',
-            'single-cash-payment.html': 'finance',
-            'payment-voucher.html': 'finance',
-            'journal-voucher.html': 'finance',
-            'general-ledger.html': 'finance',
-            'checks-cycle.html': 'finance',
-            'accounting-workflow.html': 'finance',
-            'payroll.html': 'finance',
-            'master-data.html': 'master_data',
-            'partners.html': 'master_data',
-            'analytics.html': 'reports',
-            'financial-reports.html': 'reports',
-            'balances-report.html': 'reports',
-            'statement.html': 'reports',
-            'settings.html': 'settings',
-            'users-roles.html': 'settings',
-            'audit-log.html': 'settings',
-            'audit-logs.html': 'settings'
+            'inventory-report.php': 'inventory',
+            'inventory.php': 'inventory',
+            'item-ledger.php': 'inventory',
+            'warehouse-ledger.php': 'inventory',
+            'vouchers-hub.php': 'finance',
+            'cash-receipt.php': 'finance',
+            'cash-payment.php': 'finance',
+            'single-cash-receipt.php': 'finance',
+            'single-cash-payment.php': 'finance',
+            'payment-voucher.php': 'finance',
+            'journal-voucher.php': 'finance',
+            'general-ledger.php': 'finance',
+            'checks-cycle.php': 'finance',
+            'accounting-workflow.php': 'finance',
+            'payroll.php': 'finance',
+            'master-data.php': 'master_data',
+            'partners.php': 'master_data',
+            'analytics.php': 'reports',
+            'financial-reports.php': 'reports',
+            'balances-report.php': 'reports',
+            'statement.php': 'reports',
+            'settings.php': 'settings',
+            'users-roles.php': 'settings',
+            'audit-log.php': 'settings',
+            'audit-logs.php': 'settings'
         };
 
         const currentModule = pageModuleMap[currentPage];
@@ -698,7 +698,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentModule && currentModule !== 'dashboard') {
             if (!perms[currentModule] || !perms[currentModule].view) {
                 alert('عفواً، ليس لديك صلاحية للدخول إلى هذه الشاشة.');
-                window.location.href = 'dashboard-pro.html';
+                window.location.href = 'dashboard-pro.php';
                 return;
             }
         }
@@ -709,7 +709,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!localUuid || localUuid !== user.deviceUuid) {
                 alert('عفواً، لا يمكنك الدخول. حسابك مقيد للعمل من جهاز محدد فقط.');
                 if (window.logout) window.logout();
-                else { localStorage.removeItem('authToken'); fetch('log?msg=redirecting_to_login'); window.location.href = 'login.html'; }
+                else { localStorage.removeItem('authToken'); fetch('log?msg=redirecting_to_login'); window.location.href = 'login.php'; }
                 return;
             }
         }
@@ -721,7 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!user.allowedDays || !user.allowedDays.includes(currentDay)) {
                 alert('عفواً، لا يُسمح لك بالدخول في هذا اليوم بناءً على إعدادات الأمان.');
                 if (window.logout) window.logout();
-                else { localStorage.removeItem('authToken'); fetch('log?msg=redirecting_to_login'); window.location.href = 'login.html'; }
+                else { localStorage.removeItem('authToken'); fetch('log?msg=redirecting_to_login'); window.location.href = 'login.php'; }
                 return;
             }
 
@@ -730,7 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (currentTimeStr < user.timeFrom || currentTimeStr > user.timeTo) {
                     alert(`عفواً، الدخول مسموح لك فقط من الساعة ${user.timeFrom} إلى ${user.timeTo}.`);
                     if (window.logout) window.logout();
-                    else { localStorage.removeItem('authToken'); fetch('log?msg=redirecting_to_login'); window.location.href = 'login.html'; }
+                    else { localStorage.removeItem('authToken'); fetch('log?msg=redirecting_to_login'); window.location.href = 'login.php'; }
                     return;
                 }
             }
@@ -770,7 +770,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     alert(`انتهت مهلة الـ 10 دقائق (خارج نطاق العمل). سيتم تسجيل الخروج الآن.`);
                                     localStorage.removeItem('geo_outside_since');
                                     if (window.logout) window.logout();
-                                    else { localStorage.removeItem('authToken'); fetch('log?msg=redirecting_to_login'); window.location.href = 'login.html'; }
+                                    else { localStorage.removeItem('authToken'); fetch('log?msg=redirecting_to_login'); window.location.href = 'login.php'; }
                                 } else {
                                     const minsLeft = Math.ceil((gracePeriodMs - timeOutside) / 60000);
                                     console.warn(`أنت خارج النطاق الجغرافي للعمل (${Math.round(dist)} متر). سيتم تسجيل خروجك بعد ${minsLeft} دقائق.`);
@@ -979,7 +979,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 2. Global Smart Sidebar ---
     function injectSidebar() {
-        if (window.location.pathname.includes('login') || window.location.pathname.includes('index.html')) return;
+        if (window.location.pathname.includes('login') || window.location.pathname.includes('index.php')) return;
         if (document.querySelector('.global-sidebar')) return; 
         
         const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -1000,39 +1000,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const allNavItems = [
             {
-                href: 'dashboard-pro.html', label: 'لوحة التحكم', color: '#22d3ee', module: 'dashboard',
+                href: 'dashboard-pro.php', label: 'لوحة التحكم', color: '#22d3ee', module: 'dashboard',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>'
             },
             {
-                href: 'direct-sales.html', label: 'المبيعات', color: '#34d399', module: 'sales',
+                href: 'direct-sales.php', label: 'المبيعات', color: '#34d399', module: 'sales',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>'
             },
             {
-                href: 'purchase.html', label: 'المشتريات', color: '#fb923c', badge: true, module: 'purchase',
+                href: 'purchase.php', label: 'المشتريات', color: '#fb923c', badge: true, module: 'purchase',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1"/>'
             },
             {
-                href: 'inventory-report.html', label: 'المخزون والجرد', color: '#a78bfa', module: 'inventory',
+                href: 'inventory-report.php', label: 'المخزون والجرد', color: '#a78bfa', module: 'inventory',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>'
             },
             {
-                href: 'vouchers-hub.html', label: 'المعاملات المالية', color: '#fbbf24', module: 'finance',
+                href: 'vouchers-hub.php', label: 'المعاملات المالية', color: '#fbbf24', module: 'finance',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>'
             },
             {
-                href: 'master-data.html', label: 'البيانات الأساسية', color: '#f472b6', module: 'master_data',
+                href: 'master-data.php', label: 'البيانات الأساسية', color: '#f472b6', module: 'master_data',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>'
             },
             {
-                href: 'analytics.html', label: 'التقارير', color: '#38bdf8', module: 'reports',
+                href: 'analytics.php', label: 'التقارير', color: '#38bdf8', module: 'reports',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>'
             },
             {
-                href: 'alarm.html', label: 'التنبيهات', color: '#f87171', badge: true, module: 'dashboard',
+                href: 'alarm.php', label: 'التنبيهات', color: '#f87171', badge: true, module: 'dashboard',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>'
             },
             {
-                href: 'settings.html', label: 'الإعدادات', color: '#a3e635', module: 'settings',
+                href: 'settings.php', label: 'الإعدادات', color: '#a3e635', module: 'settings',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 11-6 0 3 3 0 016 0z"/>'
             },
         ];
@@ -1040,7 +1040,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add Audit Log dynamically for admins only
         if (user.securityLevel >= 8 || user.role === 'admin' || user.username === 'admin') {
             allNavItems.push({
-                href: 'audit-log.html', label: 'الصندوق الأسود (السجلات)', color: '#111827', module: 'dashboard', // set to dashboard so it ignores normal perms
+                href: 'audit-log.php', label: 'الصندوق الأسود (السجلات)', color: '#111827', module: 'dashboard', // set to dashboard so it ignores normal perms
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>'
             });
         }
@@ -1048,7 +1048,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Filter Nav Items based on user permissions
         const navItems = allNavItems.filter(item => {
             if (item.module === 'dashboard') return true;
-            if (item.href === 'settings.html') {
+            if (item.href === 'settings.php') {
                 return (perms.settings && perms.settings.view) || (perms.inventory_rules && perms.inventory_rules.view);
             }
             return perms[item.module] && perms[item.module].view === true;
@@ -1090,7 +1090,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('has-sidebar');
 
         // Highlight active link
-        const currentPage = window.location.pathname.split('/').pop() || 'dashboard-pro.html';
+        const currentPage = window.location.pathname.split('/').pop() || 'dashboard-pro.php';
         document.querySelectorAll('.sidebar-item').forEach(link => {
             if (link.getAttribute('data-href') === currentPage || link.getAttribute('href') === currentPage) link.classList.add('active');
         });
@@ -1590,7 +1590,7 @@ window.logout = function(force = false) {
     */
     
     // 3. Redirect
-    window.location.href = 'login.html';
+    window.location.href = 'login.php';
 };
 
 // --- GLOBAL EXPORT MODAL ---
@@ -1937,7 +1937,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         try {
             const userStr = localStorage.getItem('user');
-            if (userStr && !window.location.pathname.includes('login.html') && !window.location.pathname.includes('register.html')) {
+            if (userStr && !window.location.pathname.includes('login.php') && !window.location.pathname.includes('register.php')) {
                 const script = document.createElement('script');
                 script.src = 'js/chatbot.js';
                 script.defer = true;
@@ -1970,7 +1970,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const autoLogoutTimeStr = settings.autoLogoutTime || "0";
         const autoLogoutTime = parseInt(autoLogoutTimeStr, 10);
         
-        if (autoLogoutTime > 0 && !window.location.pathname.includes('login.html')) {
+        if (autoLogoutTime > 0 && !window.location.pathname.includes('login.php')) {
             activityTimer = setTimeout(() => {
                 alert('تم تسجيل الخروج التلقائي بسبب عدم النشاط للحفاظ على الأمان.');
                 if (window.logout) window.logout(true);
@@ -1978,7 +1978,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    if (!window.location.pathname.includes('login.html') && !window.location.pathname.includes('register.html')) {
+    if (!window.location.pathname.includes('login.php') && !window.location.pathname.includes('register.php')) {
         ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => {
             document.addEventListener(evt, resetActivityTimer, { passive: true });
         });
@@ -2039,7 +2039,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getPageName() {
         let path = window.location.pathname;
-        let page = path.split('/').pop() || 'index.html';
+        let page = path.split('/').pop() || 'index.php';
         return page;
     }
 

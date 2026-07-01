@@ -1,0 +1,274 @@
+<?php $page_title = 'تسليم المبيعات - إذن المنصرف'; ?>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسليم المبيعات - إذن المنصرف</title>
+    <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260626_4">
+    <link rel="stylesheet" href="css/sales-invoice.css">
+    <link rel="stylesheet" href="css/print-invoice.css">
+    <style>
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .status-badge.delivered {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        
+        .grid-scroll-wrap { min-height: 300px; }
+        .pos-grid th, .pos-grid td { font-size: 1rem; padding: 12px 8px; }
+        .pos-grid td.qty-col { font-weight: 900; color: #38bdf8; font-size: 1.2rem; }
+        
+        /* Toast */
+        .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
+        .toast { padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:8px; pointer-events:auto; backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5); animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both; font-family:'Cairo',sans-serif; max-width:90vw; }
+        .toast.success { background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); color:#34d399; }
+        .toast.error { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#f87171; }
+        .toast.warning { background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); color:#fbbf24; }
+        .toast.hide { animation:toastOut 0.4s forwards; }
+        @keyframes toastIn { from { opacity:0; transform:translateY(-20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
+        @keyframes toastOut { to { opacity:0; transform:translateY(-20px) scale(0.95); } }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Animated Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- QR Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+    <div class="pos-wrapper" style="padding: 20px; max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; height: 100vh;">
+
+        <!-- BREADCRUMB NAV & SIMULATOR -->
+        <div class="page-breadcrumb" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; background: var(--bg-secondary); padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button onclick="history.back()" class="btn btn-icon" title="العودة" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); padding: 5px 10px; border-radius: 6px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+                <a data-href="dashboard-pro.php" onclick="window.location.href='dashboard-pro.php'" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">الرئيسية</a>
+                <span style="color: var(--text-muted);">/</span>
+                <span style="color: var(--primary-color); font-weight: bold; font-size: 1rem;">إذن تسليم مبيعات (منصرف)</span>
+            </div>
+            
+            <!-- SIMULATE ROLE -->
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label style="font-size: 0.85rem; color: var(--text-muted);">بوابة المنصرف:</label>
+                <select id="demo-role-select" onchange="simulateUserRole(this.value)" class="g-input" style="padding: 4px 10px; font-size: 0.85rem; width: auto; height: auto;">
+                    <option value="1">البوابة 1</option>
+                    <option value="2">البوابة 2</option>
+                    <option value="3">البوابة 3</option>
+                    <option value="4" selected>البوابة 4</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- SECURITY LEVELS TABS -->
+        <div class="auth-levels-container" id="auth-tabs-container" style="display:flex; gap:10px; margin-bottom: 20px;">
+            <!-- Rendered by JS -->
+        </div>
+
+        <!-- MAIN DASHBOARD GRID -->
+        <div style="display: grid; grid-template-columns: 1fr 320px; gap: 24px; margin-bottom: 24px;">
+            
+            <!-- RIGHT PANEL: SEARCH & INVOICE DETAILS -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                
+                <!-- OMNIBOX SEARCH (L2+) -->
+                <div id="advanced-search-box" style="display: none; position: relative;">
+                    <div style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </div>
+                    <input type="text" id="smart-omnibox" class="g-input" placeholder="بحث ذكي: رقم الفاتورة، الباركود، المستند، أو اسم العميل..." 
+                        style="width: 100%; padding: 14px 48px 14px 16px; font-size: 0.95rem; font-family: 'Inter', 'Cairo', sans-serif; border-radius: 8px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"
+                        onkeydown="handleSmartSearch(event)" oninput="filterSmartSearch(this.value)">
+                    <div id="smart-search-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 8px; border-radius: 8px; background: #1e293b; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 9999; max-height: 250px; overflow-y: auto;"></div>
+                </div>
+
+                <!-- INVOICE INFO CARD -->
+                <div id="inv-info" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; flex: 1; display: flex; flex-direction: column;">
+                    <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.1); border-radius: 8px 8px 0 0;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            <h3 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-primary); letter-spacing: 0.5px;">البيانات الأساسية للعميل</h3>
+                        </div>
+                        <div id="lbl-admin-status" style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);">
+                            تفاصيل الفاتورة
+                        </div>
+                    </div>
+
+                    <div style="padding: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 600;">رقم إذن المنصرف</label>
+                            <div id="lbl-inv-no" style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); font-family: 'Inter', monospace;">---</div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 600;">تاريخ التسليم</label>
+                            <div id="lbl-date" style="font-size: 1rem; color: var(--text-primary);">---</div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 600;">المستند المرجعي (فاتورة)</label>
+                            <div id="lbl-status" style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">---</div>
+                        </div>
+                        
+                        <div style="grid-column: span 3; display: flex; flex-direction: column; gap: 6px; padding: 16px; background: rgba(56, 189, 248, 0.03); border: 1px solid rgba(56, 189, 248, 0.1); border-radius: 6px;">
+                            <label style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--primary-color); font-weight: 600;">المستلم المعتمد (اسم المندوب)</label>
+                            <div id="lbl-customer" style="font-size: 1.2rem; font-weight: 800; color: var(--text-primary);">---</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--border-color); background: rgba(0,0,0,0.1); border-radius: 0 0 8px 8px;">
+                        <label style="display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 6px;">الرمز التعريفي المشفر (Secure Hash)</label>
+                        <div id="lbl-hash" style="font-family: 'Inter', monospace; font-size: 0.8rem; color: #64748b; word-break: break-all;">---</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LEFT PANEL: SECURITY CAMERA & VERIFICATION -->
+            <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; display: flex; flex-direction: column; overflow: hidden;">
+                <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.1);">
+                    <h3 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">بيانات العميل</h3>
+                    <div id="verification-badge" style="font-size: 0.75rem; font-weight: 700; padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(148, 163, 184, 0.3); color: #94a3b8; background: rgba(148, 163, 184, 0.1);">غير مؤكد</div>
+                </div>
+
+                <div style="padding: 20px; flex: 1; display: flex; flex-direction: column;">
+                    <!-- Camera Container -->
+                    <div id="qr-reader" style="width: 100%; border-radius: 6px; overflow: hidden; display: none; border: 1px solid var(--primary-color); margin-bottom: 16px; aspect-ratio: 4/3; background: #000;"></div>
+                    
+                    <!-- Camera Placeholder -->
+                    <div id="camera-placeholder" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border: 1px dashed var(--border-color); border-radius: 6px; padding: 24px 16px; text-align: center; min-height: 160px; margin-bottom: 16px;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" style="margin-bottom: 12px; opacity: 0.5;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">البيانات فارغة. يرجى البحث.</span>
+                        <button class="btn btn-primary" onclick="startCamera()" style="width: 100%; font-size: 0.85rem; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--primary-color); border: none;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                            طباعة إذن المنصرف
+                        </button>
+                    </div>
+
+                    <!-- Manual Attachment -->
+                    <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                        <input type="file" id="invoice-image" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                        <button class="btn btn-secondary" onclick="document.getElementById('invoice-image').click()" style="width: 100%; font-size: 0.85rem; padding: 10px; background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                            تأكيد تسليم البضاعة (خروج)
+                        </button>
+                        
+                        <div id="attachment-preview" style="margin-top: 12px; display: none; text-align: center;">
+                            <img id="attachment-thumb" src="" style="max-height: 80px; border-radius: 4px; border: 1px solid var(--border-color); margin-bottom: 8px; width: 100%; object-fit: cover;">
+                            <div style="color: #34d399; font-size: 0.75rem; font-weight: 700;">تم تسليم الفاتورة بالكامل</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRID -->
+        <div class="grid-scroll-wrap" style="flex: 1;">
+            <table class="pos-grid" id="delivery-grid">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;">#</th>
+                        <th style="width: 150px;">كود الصنف</th>
+                        <th>الصنف</th>
+                        <th style="width: 120px;">الكمية المطلوبة</th>
+                        <th style="width: 120px;">الوحدة</th>
+                        <th style="width: 180px; color: #f87171;">الكمية الجاهزة للتسليم</th>
+                        <th style="width: 120px;">حالة التسليم</th>
+                    </tr>
+                </thead>
+                <tbody id="delivery-tbody">
+                    <tr><td colspan="7" class="empty-state">يرجى بحث المستند لعرض بنود الفاتورة هنا.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- --- الملاحظات والشروط الإضافية للتسليم --- -->
+        <div id="review-notes-panel" style="display: none; margin-top: 20px; background: var(--bg-secondary); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 8px; overflow: hidden; box-shadow: 0 0 20px rgba(251,191,36,0.06);">
+            <div style="padding: 12px 20px; border-bottom: 1px solid rgba(251,191,36,0.2); background: rgba(251,191,36,0.07); display: flex; align-items: center; gap: 10px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                <span style="font-weight: 800; font-size: 0.9rem; color: #fbbf24; letter-spacing: 0.3px;">الملاحظات والشروط الإضافية للتسليم</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted); margin-right: auto;">هذه الحقول تظهر فقط للمشرف عند تعديل الفاتورة</span>
+                <span style="font-size: 0.75rem; font-weight: 700; color: #f87171; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); padding: 2px 8px; border-radius: 20px;">مطلوب !</span>
+            </div>
+            <div style="padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <!-- ملاحظات أمين المخزن -->
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label style="font-size: 0.78rem; font-weight: 700; color: #fbbf24; display: flex; align-items: center; gap: 6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+                        ملاحظات أمين المخزن <span style="color: #f87171;">*</span>
+                    </label>
+                    <textarea id="warehouse-notes" rows="3"
+                        placeholder="سجل حالة البضاعة عند التسليم أو أي نواقص محتملة أو أعطال بالتعبئة..."
+                        style="width: 100%; padding: 12px; background: rgba(0,0,0,0.25); border: 1px solid rgba(251,191,36,0.35); border-radius: 8px; color: var(--text-primary); font-family: 'Cairo', sans-serif; font-size: 0.88rem; line-height: 1.6; resize: vertical; min-height: 80px; transition: border-color 0.2s; outline: none;"
+                        oninput="onReviewNotesChange()"
+                        onfocus="if(!this.value.trim()){this.style.borderColor='#fbbf24'; this.style.boxShadow='0 0 0 3px rgba(251,191,36,0.15)'}"
+                        onblur="if(!this.value.trim()){this.style.borderColor='rgba(251,191,36,0.35)'; this.style.boxShadow='none'}"
+                    ></textarea>
+                    <div id="warehouse-notes-hint" style="font-size: 0.72rem; color: #f87171; display: none;">لا يمكن تسليم البضاعة دون كتابة ملاحظات واضحة للمخزن.</div>
+                </div>
+
+                <!-- ملاحظات سائق العربة -->
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        ملاحظات سائق العربة <span style="font-size: 0.7rem; font-weight: 400; color: #64748b;">(اختياري)</span>
+                    </label>
+                    <textarea id="personal-notes" rows="3"
+                        placeholder="أي تفاصيل تخص السائق، المستلم، وقت التسليم، أو شكوى من العميل..."
+                        style="width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: var(--text-primary); font-family: 'Cairo', sans-serif; font-size: 0.88rem; line-height: 1.6; resize: vertical; min-height: 80px; transition: border-color 0.2s; outline: none;"
+                        onfocus="this.style.borderColor='rgba(100,116,139,0.6)'; this.style.boxShadow='0 0 0 3px rgba(100,116,139,0.1)'"
+                        onblur="this.style.borderColor='rgba(255,255,255,0.08)'; this.style.boxShadow='none'"
+                    ></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTION FOOTER -->
+        <div class="sticky-footer" style="position: static; margin-top: 24px; border-radius: 8px; background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 20px rgba(0,0,0,0.2);">
+            <div style="flex: 1; display:flex; align-items:center;">
+                <div id="verification-status" style="color: #fbbf24; font-weight: 700; font-size: 0.85rem; padding: 8px 16px; background: rgba(245,158,11,0.1); border-radius: 6px; border: 1px solid rgba(245,158,11,0.3); display: flex; align-items: center; gap: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    اعتماد التسليم النهائي
+                </div>
+            </div>
+            <div class="footer-actions" style="display: flex; gap: 16px;">
+                <button class="btn btn-warning" id="btn-partial" disabled onclick="reportIssue()" style="background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.4); color: #fbbf24; font-size: 0.9rem; font-weight: 600; padding: 10px 20px; display: flex; align-items: center; gap: 8px; border-radius: 6px; transition: all 0.2s;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    عودة من غير حفظ
+                </button>
+                <button class="btn btn-success" id="btn-deliver" disabled onclick="executeDelivery()" style="font-size: 0.95rem; font-weight: 700; padding: 10px 32px; background: #10b981; color: #fff; border: none; border-radius: 6px; display: flex; align-items: center; gap: 8px; opacity: 0.5; transition: all 0.2s;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                    تأكيد واعتماد التسليم
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global App JS (for Auth, Themes) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/print-engine.js"></script>
+    <script src="js/sales-delivery.js"></script>
+</body>
+</html>

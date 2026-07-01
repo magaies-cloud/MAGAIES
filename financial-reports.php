@@ -1,0 +1,397 @@
+<?php $page_title = 'التقارير الشاملة'; ?>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التقارير الشاملة | Al-Sajana ERP</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260626_4">
+    <style>
+        :root {
+            --bg-color: #050308;
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: #f1f5f9;
+            font-family: 'Tajawal', sans-serif;
+            margin: 0; padding: 0;
+            overflow-x: hidden;
+        }
+
+        body.has-sidebar { padding-right: 0 !important; }
+
+        /* Ambient Animated Background */
+        .ambient-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            z-index: -1; overflow: hidden; pointer-events: none;
+            background: radial-gradient(circle at 50% 50%, #0c0812 0%, #000000 100%);
+        }
+        .orb {
+            position: absolute; border-radius: 50%; filter: blur(120px);
+            animation: floatOrb 20s infinite alternate ease-in-out; opacity: 0.15;
+        }
+        .orb-1 { width: 600px; height: 600px; background: #38bdf8; top: -10%; right: -10%; }
+        .orb-2 { width: 500px; height: 500px; background: #c084fc; bottom: -10%; left: -10%; animation-delay: -5s; }
+        .orb-3 { width: 400px; height: 400px; background: #34d399; top: 40%; left: 40%; animation-delay: -10s; opacity: 0.1;}
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        .hub-container {
+            max-width: 1600px; margin: 0 auto; padding: 20px 30px;
+        }
+
+        /* Premium Header */
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .premium-header {
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.15), rgba(249, 115, 22, 0.15), rgba(245, 158, 11, 0.15), rgba(251, 113, 133, 0.15));
+            background-size: 300% 300%;
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 12px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 1px rgba(0,0,0,0.3);
+            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1), animateGradient 12s ease infinite;
+            position: relative; overflow: hidden; margin-bottom: 40px;
+        }
+
+        .premium-header::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 40%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg); animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite; pointer-events: none;
+        }
+
+        @keyframes animateGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes shimmer { 0% { left: -100%; } 25% { left: 200%; } 100% { left: 200%; } }
+
+        .header-brand { display: flex; align-items: center; gap: 15px; }
+        .brand-icon {
+            width: 50px; height: 50px; border-radius: 16px;
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+            box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4), inset 0 2px 5px rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .brand-text h1 { margin: 0; font-size: 1.4rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; text-shadow: 0 2px 10px rgba(255,255,255,0.1); }
+        .brand-text p { margin: 0; font-size: 0.85rem; color: #94a3b8; font-weight: 500; }
+        
+        .header-center { text-align: center; }
+        .header-center h2 { margin: 0; font-size: 1.6rem; font-weight: 900; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; }
+
+        .header-controls { display: flex; align-items: center; gap: 15px; }
+        .clock-widget { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 8px 20px; border-radius: 14px; text-align: center; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); }
+        .clock-widget #header-clock { color: #e2e8f0; font-size: 1.25rem; font-weight: 800; letter-spacing: 1.5px; font-family: 'Outfit', sans-serif; }
+        .clock-widget #header-date-mini { color: #64748b; font-size: 0.7rem; display: block; margin-top: 2px; font-weight: 600; }
+        .icon-btn { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); width: 46px; height: 46px; border-radius: 14px; color: #fff; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; }
+        .icon-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        /* Section Headings */
+        .section-heading {
+            font-size: 1.6rem; font-weight: 900; color: #fff; margin: 0 0 20px 0;
+            display: flex; align-items: center; gap: 12px;
+            animation: fadeIn 0.8s ease backwards;
+        }
+        .heading-icon {
+            display: flex; align-items: center; justify-content: center;
+            width: 45px; height: 45px; border-radius: 12px; font-size: 1.4rem;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Bento Grid Layout */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-auto-flow: dense;
+            gap: 20px;
+            margin-bottom: 50px;
+            animation: fadeIn 1s ease backwards;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Staggered Animations */
+        .section-1 { animation-delay: 0.1s; }
+        .grid-1 { animation-delay: 0.2s; }
+        .section-2 { animation-delay: 0.3s; }
+        .grid-2 { animation-delay: 0.4s; }
+        .section-3 { animation-delay: 0.5s; }
+        .grid-3 { animation-delay: 0.6s; }
+        .section-4 { animation-delay: 0.7s; }
+        .grid-4 { animation-delay: 0.8s; }
+
+        /* Bento Card Ultra Premium */
+        .bento-card {
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 24px;
+            padding: 25px;
+            text-decoration: none;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 15px;
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform-style: preserve-3d;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .bento-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 100%;
+            background: radial-gradient(circle at top left, var(--glow-color), transparent 60%);
+            opacity: 0.05; transition: opacity 0.5s ease;
+        }
+        
+        .bento-card::after {
+            content: ''; position: absolute; inset: 0;
+            border-radius: 24px; padding: 2px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent 50%, var(--glow-color));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            opacity: 0; transition: opacity 0.5s ease;
+        }
+
+        .bento-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 20px var(--glow-color);
+            background: rgba(15, 23, 42, 0.7);
+            z-index: 10;
+        }
+
+        .bento-card:hover::before { opacity: 0.15; }
+        .bento-card:hover::after { opacity: 1; }
+
+        .card-icon-wrapper {
+            width: 65px; height: 65px; border-radius: 18px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative; z-index: 2;
+        }
+
+        .bento-card:hover .card-icon-wrapper {
+            transform: scale(1.15) rotate(5deg);
+            background: var(--glow-color);
+            border-color: transparent;
+            box-shadow: 0 10px 25px var(--glow-color);
+        }
+
+        .card-content { position: relative; z-index: 2; }
+        .card-title { font-size: 1.35rem; font-weight: 800; margin: 0 0 8px 0; color: #f8fafc; letter-spacing: -0.3px; }
+        .card-desc { font-size: 0.9rem; color: #94a3b8; line-height: 1.6; font-weight: 500; margin: 0; }
+        
+        .bento-large {
+            grid-column: span 2;
+            flex-direction: row;
+            align-items: center;
+            gap: 25px;
+        }
+        
+        /* Status Badges */
+        .badge {
+            position: absolute; top: 20px; left: 20px; z-index: 3;
+            font-size: 0.7rem; font-weight: 800; padding: 4px 12px; border-radius: 20px;
+            background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3);
+            letter-spacing: 0.5px; opacity: 0.8; transition: 0.3s;
+        }
+        .badge-new { background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); }
+        .bento-card:hover .badge { opacity: 1; transform: scale(1.05); }
+
+        @media (max-width: 900px) {
+            .bento-large { grid-column: span 1; flex-direction: column; align-items: flex-start; }
+            .bento-grid { grid-template-columns: 1fr; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="hub-container">
+        
+        <?php include 'includes/header.php'; ?>
+
+        <!-- 1. Treasury & Banks -->
+        <h2 class="section-heading section-1"><span class="heading-icon" style="color:#38bdf8; box-shadow:0 0 15px rgba(56,189,248,0.2);">🏦</span> تقارير الخزينة والبنوك</h2>
+        <div class="bento-grid grid-1">
+            <a data-href="cash-bank-statement.php" onclick="window.location.href='cash-bank-statement.php'" class="bento-card bento-large" style="--glow-color: rgba(56, 189, 248, 0.6);">
+                <span class="badge">مفعل</span>
+                <div class="card-icon-wrapper">📓</div>
+                <div class="card-content">
+                    <h3 class="card-title">كشف حساب الخزن والبنوك</h3>
+                    <p class="card-desc">دفتر الأستاذ التفصيلي للحسابات النقدية والبنكية مع مراقبة الأرصدة والتحويلات اللحظية بدقة متناهية.</p>
+                </div>
+            </a>
+            <a data-href="checks-cycle.php" onclick="window.location.href='checks-cycle.php'" class="bento-card" style="--glow-color: rgba(56, 189, 248, 0.6);">
+                <span class="badge">مفعل</span>
+                <div class="card-icon-wrapper">🧾</div>
+                <div class="card-content">
+                    <h3 class="card-title">دورة محفظة الشيكات</h3>
+                    <p class="card-desc">مراقبة دورة حياة الشيكات الواردة والصادرة وأوراق القبض والدفع.</p>
+                </div>
+            </a>
+            <a data-href="single-cash-receipt.php" onclick="window.location.href='single-cash-receipt.php'" class="bento-card" style="--glow-color: rgba(56, 189, 248, 0.6);">
+                <span class="badge">مفعل</span>
+                <div class="card-icon-wrapper">💸</div>
+                <div class="card-content">
+                    <h3 class="card-title">إيصالات وحركة الصندوق</h3>
+                    <p class="card-desc">مراجعة سريعة لسندات القبض النقدية وحركة الخزينة اليومية.</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- 2. Partners -->
+        <h2 class="section-heading section-2"><span class="heading-icon" style="color:#c084fc; box-shadow:0 0 15px rgba(192,132,252,0.2);">🤝</span> تقارير العملاء والموردين</h2>
+        <div class="bento-grid grid-2">
+            <a data-href="statement.php" onclick="window.location.href='statement.php'" class="bento-card bento-large" style="--glow-color: rgba(192, 132, 252, 0.6);">
+                <span class="badge">مفعل</span>
+                <div class="card-icon-wrapper">📋</div>
+                <div class="card-content">
+                    <h3 class="card-title">كشف الحساب التفصيلي</h3>
+                    <p class="card-desc">تقرير شامل يوضح كل العمليات المالية والمطالبات للعميل أو المورد مع احتساب الرصيد التراكمي خطوة بخطوة.</p>
+                </div>
+            </a>
+            <a data-href="balances-report.php" onclick="window.location.href='balances-report.php'" class="bento-card" style="--glow-color: rgba(192, 132, 252, 0.6);">
+                <span class="badge">مفعل</span>
+                <div class="card-icon-wrapper">👥</div>
+                <div class="card-content">
+                    <h3 class="card-title">الأرصدة المجمعة</h3>
+                    <p class="card-desc">نظرة عامة على أرصدة جميع الشركاء التجاريين لتقييم المديونيات بشكل سريع.</p>
+                </div>
+            </a>
+            <a data-href="aging-report.php" onclick="window.location.href='aging-report.php'" class="bento-card" style="--glow-color: rgba(192, 132, 252, 0.6);">
+                <span class="badge badge-new">جديد احترافي</span>
+                <div class="card-icon-wrapper">⏳</div>
+                <div class="card-content">
+                    <h3 class="card-title">أعمار الديون (Aging)</h3>
+                    <p class="card-desc">تحليل المتأخرات وفترات الاستحقاق لمعرفة الديون المعدومة وقيد التحصيل.</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- 3. Inventory -->
+        <h2 class="section-heading section-3"><span class="heading-icon" style="color:#34d399; box-shadow:0 0 15px rgba(52,211,153,0.2);">📦</span> تقارير المخزون والمستودعات</h2>
+        <div class="bento-grid grid-3">
+            <a data-href="inventory-report.php" onclick="window.location.href='inventory-report.php'" class="bento-card bento-large" style="--glow-color: rgba(52, 211, 153, 0.6);">
+                <span class="badge">مفعل</span>
+                <div class="card-icon-wrapper">🏭</div>
+                <div class="card-content">
+                    <h3 class="card-title">جرد أرصدة المستودعات</h3>
+                    <p class="card-desc">تقرير تفصيلي يوضح الكميات المتاحة، المحجوزة للطلبيات، والفعلية لكل صنف في كافة فروع المؤسسة.</p>
+                </div>
+            </a>
+            <a data-href="item-ledger.php" onclick="window.location.href='item-ledger.php'" class="bento-card" style="--glow-color: rgba(52, 211, 153, 0.6);">
+                <span class="badge">مفعل</span>
+                <div class="card-icon-wrapper">🏷️</div>
+                <div class="card-content">
+                    <h3 class="card-title">بطاقة الصنف (حركة مادة)</h3>
+                    <p class="card-desc">تتبع دقيق لحركات الإضافة والصرف لصنف معين داخل المستودع.</p>
+                </div>
+            </a>
+            <a data-href="warehouse-ledger.php" onclick="window.location.href='warehouse-ledger.php'" class="bento-card" style="--glow-color: rgba(52, 211, 153, 0.6);">
+                <span class="badge badge-new">شامل</span>
+                <div class="card-icon-wrapper">🔄</div>
+                <div class="card-content">
+                    <h3 class="card-title">حركة المستودعات</h3>
+                    <p class="card-desc">مراقبة أذونات الصرف والإضافة وتتبع مسارات النقل بين الفروع.</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- 4. Final Statements -->
+        <h2 class="section-heading section-4"><span class="heading-icon" style="color:#fbbf24; box-shadow:0 0 15px rgba(251,191,36,0.2);">🏛️</span> القوائم الختامية والمحاسبية</h2>
+        <div class="bento-grid grid-4">
+            <a data-href="general-ledger.php" onclick="window.location.href='general-ledger.php'" class="bento-card bento-large" style="--glow-color: rgba(251, 191, 36, 0.6);">
+                <span class="badge">مفعل</span>
+                <div class="card-icon-wrapper">📓</div>
+                <div class="card-content">
+                    <h3 class="card-title">دفتر الأستاذ العام (GL)</h3>
+                    <p class="card-desc">المركز الرئيسي لمراقبة الحسابات الرئيسية والفرعية وكافة العمليات المقيدة على شجرة الحسابات.</p>
+                </div>
+            </a>
+            <a data-href="trial-balance.php" onclick="window.location.href='trial-balance.php'" class="bento-card" style="--glow-color: rgba(251, 191, 36, 0.6);">
+                <span class="badge badge-new">متقدم</span>
+                <div class="card-icon-wrapper">⚖️</div>
+                <div class="card-content">
+                    <h3 class="card-title">ميزان المراجعة</h3>
+                    <p class="card-desc">كشف بأرصدة الحسابات ومجاميعها لضمان التوازن المحاسبي الكامل.</p>
+                </div>
+            </a>
+            <a data-href="pl-statement.php" onclick="window.location.href='pl-statement.php'" class="bento-card" style="--glow-color: rgba(251, 191, 36, 0.6);">
+                <span class="badge badge-new">متقدم</span>
+                <div class="card-icon-wrapper">📊</div>
+                <div class="card-content">
+                    <h3 class="card-title">قائمة الأرباح والخسائر</h3>
+                    <p class="card-desc">تحليل دقيق للإيرادات والمصروفات لاستخراج صافي الدخل.</p>
+                </div>
+            </a>
+            <a data-href="journal-voucher.php" onclick="window.location.href='journal-voucher.php'" class="bento-card" style="--glow-color: rgba(251, 191, 36, 0.6);">
+                <span class="badge">مفعل</span>
+                <div class="card-icon-wrapper">✍️</div>
+                <div class="card-content">
+                    <h3 class="card-title">قيود اليومية</h3>
+                    <p class="card-desc">مراجعة كافة قيود التسوية والقيود اليدوية والآلية (القيد المزدوج).</p>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <script src="js/app.js?v=20260626_4"></script>
+    <script>
+        // Clock functionality for header
+        function updateClock() {
+            const now = new Date();
+            const timeElement = document.getElementById('header-clock');
+            const dateElement = document.getElementById('header-date-mini');
+            if(timeElement) timeElement.textContent = now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', hour12: true});
+            if(dateElement) dateElement.textContent = now.toLocaleDateString('ar-EG');
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // High Performance 3D Parallax effect on Bento Cards
+        document.querySelectorAll('.bento-card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left; 
+                const y = e.clientY - rect.top;  
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                // Calculate rotation (max 4 degrees for subtle premium feel)
+                const rotateX = ((y - centerY) / centerY) * -4;
+                const rotateY = ((x - centerX) / centerX) * 4;
+                
+                card.style.transform = `translateY(-8px) scale(1.02) perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `translateY(0) scale(1) perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+            });
+        });
+    </script>
+</body>
+</html>

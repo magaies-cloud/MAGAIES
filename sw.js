@@ -21,10 +21,24 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-    // Always fetch from network to prevent serving stale files after the massive architecture update
+    // Skip cross-origin requests and non-GET requests
+    if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) {
+        return;
+    }
+    
+    // Always fetch from network first (Network First Strategy)
     event.respondWith(
-        fetch(event.request).catch(() => {
-            // Fallback for offline mode if needed, but primarily we want network first
+        fetch(event.request).then((networkResponse) => {
+            // Check if we received a valid response
+            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+                const responseToCache = networkResponse.clone();
+                caches.open('magaies-dynamic-v1').then((cache) => {
+                    cache.put(event.request, responseToCache);
+                });
+            }
+            return networkResponse;
+        }).catch(() => {
+            // Fallback for offline mode
             return caches.match(event.request);
         })
     );

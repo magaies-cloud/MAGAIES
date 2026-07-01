@@ -1,0 +1,232 @@
+<?php $page_title = 'ترحيل الحسابات'; ?>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ترحيل الحسابات | السجانة ERP</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260626_4">
+    <style>
+        body { background: #0f172a; color: #f8fafc; overflow: hidden; font-family: 'Tajawal', sans-serif; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Header & Filters */
+        .header-area { flex-shrink: 0; background: rgba(15,23,42,0.95); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .filters-wrapper { background: rgba(15,23,42,0.9); padding: 12px 20px; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        
+        .status-toggle { display: inline-flex; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 4px; border: 1px solid rgba(255,255,255,0.05); }
+        .status-btn { background: transparent; color: #94a3b8; border: none; padding: 6px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; font-family: 'Tajawal', sans-serif; font-size: 0.9rem; }
+        .status-btn.active.unposted { background: #eab308; color: #fff; box-shadow: 0 2px 10px rgba(234,179,8,0.2); }
+        .status-btn.active.posted { background: #10b981; color: #fff; box-shadow: 0 2px 10px rgba(16,185,129,0.2); }
+
+        .type-filters { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+        .type-chip { background: rgba(255,255,255,0.03); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        .type-chip:hover { background: rgba(255,255,255,0.1); }
+        .type-chip.active { background: #3b82f6; color: #fff; border-color: #3b82f6; box-shadow: 0 2px 10px rgba(59,130,246,0.3); }
+
+        /* Split View Layout */
+        .split-layout { flex: 1; display: flex; overflow: hidden; }
+        
+        /* Master List (Right) */
+        .master-pane { flex: 0 0 65%; border-left: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; background: #0f172a; position: relative; }
+        .table-scroll { flex: 1; overflow-y: auto; overflow-x: auto; padding: 15px; padding-bottom: 100px; }
+        
+        .erp-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 800px; }
+        .erp-table thead { position: sticky; top: 0; background: #1e293b; z-index: 10; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .erp-table th { padding: 12px 10px; text-align: right; color: #94a3b8; font-size: 0.85rem; font-weight: bold; white-space: nowrap; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        
+        .main-row { cursor: pointer; transition: 0.2s; background: rgba(30,41,59,0.5); border-radius: 8px; }
+        .main-row:hover { background: rgba(59,130,246,0.1); }
+        .main-row.selected { background: rgba(59,130,246,0.15); box-shadow: inset -4px 0 0 #3b82f6; }
+        
+        .main-row td { padding: 12px 10px; color: #f8fafc; font-size: 0.9rem; vertical-align: middle; border-bottom: 5px solid #0f172a; }
+        .main-row td:first-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+        .main-row td:last-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+        
+        .amount-col { font-family: 'Inter', monospace; font-weight: 700; color: #10b981; font-size: 1rem; }
+        .ref-col { font-family: 'Inter', monospace; color: #cbd5e1; font-weight: 600; }
+        .date-col { color: #94a3b8; font-size: 0.85rem; }
+        .customer-col { font-weight: bold; color: #e2e8f0; }
+        
+        .type-badge { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+        .type-sales { background: rgba(16,185,129,0.15); color: #34d399; }
+        .type-purchases { background: rgba(239,68,68,0.15); color: #f87171; }
+        .type-receipt { background: rgba(59,130,246,0.15); color: #60a5fa; }
+        .type-payment { background: rgba(245,158,11,0.15); color: #fbbf24; }
+        .type-journal { background: rgba(168,85,247,0.15); color: #c084fc; }
+
+        input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #3b82f6; }
+
+        /* Detail Pane (Left) */
+        .detail-pane { flex: 0 0 35%; background: #1e293b; overflow-y: auto; padding: 20px; box-shadow: -5px 0 20px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+        
+        .empty-detail { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #64748b; text-align: center; }
+        .empty-detail-icon { font-size: 4rem; opacity: 0.3; margin-bottom: 15px; }
+        
+        .detail-header { border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px; margin-bottom: 15px; }
+        .detail-title { font-size: 1.2rem; font-weight: 900; color: #fff; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .detail-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .meta-item { display: flex; flex-direction: column; gap: 4px; }
+        .meta-label { font-size: 0.75rem; color: #94a3b8; font-weight: bold; text-transform: uppercase; }
+        .meta-val { font-size: 0.95rem; color: #f8fafc; font-weight: bold; }
+        
+        .detail-section { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.03); }
+        .section-title { font-size: 0.95rem; font-weight: bold; color: #38bdf8; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .section-title::before { content: ''; display: inline-block; width: 4px; height: 14px; background: #38bdf8; border-radius: 2px; }
+
+        .detail-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .detail-table th { text-align: right; color: #94a3b8; padding: 6px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .detail-table td { padding: 8px 6px; color: #e2e8f0; border-bottom: 1px dashed rgba(255,255,255,0.03); }
+        .detail-table tr:last-child td { border-bottom: none; }
+        
+        .dr-text { color: #34d399; font-weight: bold; font-family: 'Inter', monospace; }
+        .cr-text { color: #f87171; font-weight: bold; font-family: 'Inter', monospace; }
+
+        .flow-diagram { display: flex; align-items: center; justify-content: center; gap: 15px; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 8px; }
+        .flow-box { flex: 1; text-align: center; background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; font-weight: bold; color: #e2e8f0; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.05); }
+        .flow-arrow { display: flex; flex-direction: column; align-items: center; color: #64748b; font-weight: bold; }
+
+        .btn-post-single { background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 800; font-size: 1.05rem; font-family: 'Tajawal', sans-serif; cursor: pointer; box-shadow: 0 4px 15px rgba(16,185,129,0.3); transition: 0.2s; width: 100%; margin-top: auto; }
+        .btn-post-single:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16,185,129,0.4); }
+
+        /* Sticky Action Bar for Batch */
+        .sticky-action-bar { position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%); background: #0f172a; border: 1px solid rgba(59,130,246,0.5); border-radius: 12px; padding: 12px 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); display: flex; align-items: center; gap: 20px; z-index: 1000; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .sticky-action-bar.show { bottom: 20px; }
+        .selected-count { color: #38bdf8; font-size: 1.2rem; font-weight: 900; }
+        .btn-post-batch { background: #3b82f6; color: #fff; border: none; padding: 8px 20px; border-radius: 8px; font-weight: bold; font-family: 'Tajawal', sans-serif; cursor: pointer; transition: 0.2s; }
+        .btn-post-batch:hover { background: #2563eb; }
+
+        /* Toasts */
+        .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
+        .toast { padding:12px 20px; border-radius:8px; font-weight:bold; font-size:0.9rem; display:flex; align-items:center; gap:8px; pointer-events:auto; backdrop-filter:blur(20px); box-shadow:0 10px 30px rgba(0,0,0,0.5); animation:toastIn 0.3s cubic-bezier(0.16,1,0.3,1) both; }
+        .toast.success { background:rgba(16,185,129,0.9); color:#fff; }
+        .toast.error { background:rgba(239,68,68,0.9); color:#fff; }
+        @keyframes toastIn { from { opacity:0; transform:translateY(-20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
+        @keyframes toastOut { to { opacity:0; transform:translateY(-20px) scale(0.95); } }
+    </style>
+</head>
+<body>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Header Area -->
+    <div class="header-area">
+        <header style="display:flex; justify-content:space-between; align-items:center; padding:15px 20px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="background:rgba(59,130,246,0.1); width:35px; height:35px; border-radius:8px; border:1px solid rgba(59,130,246,0.3); display:flex; align-items:center; justify-content:center; font-size:1.1rem; color:#60a5fa;">📑</div>
+                <div>
+                    <h1 style="margin:0; color:#fff; font-size:1.2rem; font-weight:800;">مراجعة واعتماد الحسابات</h1>
+                    <div style="color:#94a3b8; font-size:0.8rem;">واجهة التخطيط المقسم (Master/Detail) لسرعة ودقة المراجعة.</div>
+                </div>
+            </div>
+            <button onclick="history.back()" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:6px 15px; cursor:pointer; font-size:0.85rem; color:#fff; transition:0.2s;">عودة 🔙</button>
+        </header>
+
+        <!-- Filters -->
+        <div class="filters-wrapper">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="status-toggle">
+                    <button class="status-btn active unposted" id="status-unposted" onclick="setStatus('unposted')">⏳ معلقة (للترحيل)</button>
+                    <button class="status-btn posted" id="status-posted" onclick="setStatus('posted')">✅ مكتملة (مرحلة)</button>
+                </div>
+                <div class="type-filters" id="type-filters">
+                    <button class="type-chip active" id="type-all" onclick="setType('all')">الكل</button>
+                    <button class="type-chip" id="type-sales" onclick="setType('sales')">مبيعات</button>
+                    <button class="type-chip" id="type-purchases" onclick="setType('purchases')">مشتريات</button>
+                    <button class="type-chip" id="type-receipt" onclick="setType('receipt')">سندات قبض</button>
+                    <button class="type-chip" id="type-payment" onclick="setType('payment')">سندات صرف</button>
+                    <button class="type-chip" id="type-journal" onclick="setType('journal')">قيود يومية</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Split Layout -->
+    <div class="split-layout">
+        
+        <!-- Master Pane (Right) -->
+        <div class="master-pane">
+            <div class="table-scroll">
+                <table class="erp-table" id="data-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px; text-align: center;">
+                                <input type="checkbox" id="check-all-rows" onchange="toggleAllRows(this)" title="تحديد الكل">
+                            </th>
+                            <th style="width: 100px;">النوع</th>
+                            <th style="width: 100px;">التاريخ</th>
+                            <th style="width: 120px;">الرقم/المرجع</th>
+                            <th>العميل / المورد / البيان</th>
+                            <th style="width: 110px;">الاستحقاق</th>
+                            <th style="width: 100px;">طريقة الدفع</th>
+                            <th style="width: 130px; text-align: left;">المبلغ الإجمالي</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Rows injected via JS -->
+                    </tbody>
+                </table>
+
+                <div id="no-data-msg" style="display: none; text-align: center; padding: 60px 20px; color: #94a3b8; background: rgba(255,255,255,0.02); border-radius: 12px; margin-top: 20px;">
+                    <div style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;">📭</div>
+                    <h2 style="color: #fff; font-size: 1.1rem;">لا توجد عمليات تطابق الفلتر!</h2>
+                    <button onclick="injectDummyData()" style="margin-top: 15px; background: rgba(59,130,246,0.1); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); padding: 8px 15px; border-radius: 6px; cursor: pointer; font-family: 'Tajawal', sans-serif;">
+                        ➕ إضافة بيانات تجريبية (للاختبار)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sticky Action Bar for Master Pane -->
+            <div class="sticky-action-bar" id="sticky-bar">
+                <div style="color: #94a3b8; font-size: 0.9rem;">
+                    محدد <span class="selected-count" id="selected-count">0</span>
+                </div>
+                <button class="btn-post-batch" onclick="postAllChecked()">ترحيل الدفعة المحددة ✔️</button>
+            </div>
+        </div>
+
+        <!-- Detail Pane (Left) -->
+        <div class="detail-pane" id="detail-pane">
+            <div class="empty-detail" id="empty-detail">
+                <div class="empty-detail-icon">👈</div>
+                <h3 style="color:#f8fafc; margin-bottom:10px;">لم يتم تحديد أي عملية</h3>
+                <p style="font-size:0.9rem;">اضغط على أي سطر من القائمة لعرض ومراجعة التفاصيل بالكامل هنا.</p>
+            </div>
+            
+            <div id="detail-content" style="display: none; display: flex; flex-direction: column; height: 100%;">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="js/posting-accounts.js"></script>
+    <script>
+        function injectDummyData() {
+            const dummySales = [{
+                id: 'INV-1001', invoiceNo: 'INV-1001', date: new Date().toISOString().split('T')[0],
+                customerId: 'CUST-001', customerName: 'شركة الآفاق الحديثة',
+                totalAmount: 12500, paymentMethod: 'credit', paymentAccountId: '',
+                dueDate: '2026-07-15', description: 'مبيعات آجلة - توريد أجهزة مكتبية', isPosted: false,
+                items: [
+                    { itemName: 'حاسب آلي مكتبي', qty: 2, price: 4000, total: 8000 },
+                    { itemName: 'طابعة ليزر', qty: 3, price: 1500, total: 4500 }
+                ]
+            }];
+            const dummyPayment = [{
+                id: 'PAY-205', voucherNo: 'PAY-205', date: new Date().toISOString().split('T')[0],
+                toAccount: 'exp-rent', fromAccount: 'bank-002',
+                amountLocal: 4000, toStatement: 'دفع إيجار المقر بشيك', isPosted: false,
+                paymentMethod: 'cheque', dueDate: '2026-06-30',
+                description: 'سداد الإيجار الشهري عبر شيك بنكي'
+            }];
+            localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(dummySales));
+            localStorage.setItem('erp_single_payments_v1', JSON.stringify(dummyPayment));
+            alert('تم حقن الفاتورة (الآجلة) والسند (الشيك) بنجاح!');
+            location.reload();
+        }
+    </script>
+</body>
+</html>

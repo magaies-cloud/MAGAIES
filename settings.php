@@ -1,0 +1,590 @@
+<?php $page_title = 'السجانة 2026 - الإعدادات'; ?>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>السجانة 2026 - الإعدادات</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260626_4">
+    <style>
+        :root {
+            --bg-color: #050308;
+            --surface: rgba(18, 15, 25, 0.65);
+            --surface-hover: rgba(28, 24, 38, 0.85);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(255, 255, 255, 0.2);
+            
+            --primary-accent: #6366f1;
+            --theme-pink: #ec4899;
+            --theme-blue: #3b82f6;
+            --theme-green: #10b981;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            margin: 0; padding: 0;
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            overflow-x: hidden;
+            font-family: 'Tajawal', sans-serif;
+            color: #fff;
+        }
+
+        /* Ambient Animated Background Orbs */
+        .ambient-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            overflow: hidden; z-index: -1; pointer-events: none;
+            background: radial-gradient(circle at 50% 50%, #0c0812 0%, #000000 100%);
+        }
+
+        .orb {
+            position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.15;
+            animation: floatOrb 20s infinite alternate ease-in-out;
+        }
+
+        .orb-1 { width: 500px; height: 500px; background: var(--primary-accent); top: -5%; right: -5%; }
+        .orb-2 { width: 450px; height: 450px; background: var(--theme-pink); bottom: -10%; left: -5%; animation-delay: -7s; }
+        .orb-3 { width: 600px; height: 600px; background: var(--theme-blue); top: 30%; left: 30%; animation-duration: 25s; opacity: 0.1; }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-30px, 30px) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        /* Layout Container */
+        .settings-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 25px 25px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            flex: 1;
+        }
+
+        /* Ultra Premium Header */
+        
+
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+
+        
+        .premium-header {
+            background: linear-gradient(135deg, rgba(71, 85, 105, 0.15), rgba(14, 165, 233, 0.15), rgba(99, 102, 241, 0.15), rgba(100, 116, 139, 0.15));
+            background-size: 300% 300%;
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 12px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 1px rgba(0,0,0,0.3);
+            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1), animateGradient 12s ease infinite;
+            position: relative;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        .premium-header::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 40%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
+            pointer-events: none;
+        }
+
+        @keyframes animateGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            25% { left: 200%; }
+            100% { left: 200%; }
+        }
+        
+
+        .header-brand { display: flex; align-items: center; gap: 15px; }
+        .brand-icon {
+            width: 50px; height: 50px; border-radius: 16px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4), inset 0 2px 5px rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2);
+        }
+        .brand-text h1 { margin: 0; font-size: 1.4rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; text-shadow: 0 2px 10px rgba(255,255,255,0.1); }
+        .brand-text p { margin: 0; font-size: 0.85rem; color: #94a3b8; font-weight: 500; }
+
+        .header-center { text-align: center; }
+        .header-center h2 { margin: 0; font-size: 1.6rem; font-weight: 900; background: linear-gradient(to right, #fff, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; }
+
+        .header-controls { display: flex; align-items: center; gap: 15px; }
+        .icon-btn {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border); width: 46px; height: 46px;
+            border-radius: 14px; color: #fff; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .icon-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        .save-btn-main {
+            background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399;
+            padding: 10px 24px; border-radius: 14px; font-size: 1rem; font-weight: 800; cursor: pointer;
+            transition: all 0.3s; display: flex; align-items: center; gap: 8px; font-family: 'Tajawal', sans-serif;
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.1);
+        }
+        .save-btn-main:hover { background: rgba(16, 185, 129, 0.25); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.5); color: #fff;}
+
+        /* Save Badge */
+        .save-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3);
+            color: #34d399; padding: 10px 20px; border-radius: 20px;
+            font-size: 0.95rem; font-weight: 800; opacity: 0; transition: opacity 0.4s;
+            position: fixed; top: 110px; left: 50%; transform: translateX(-50%); z-index: 1000;
+            backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); pointer-events: none;
+        }
+        .save-badge.show { opacity: 1; pointer-events: all; }
+
+        /* Settings Grid */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 30px;
+        }
+
+        /* Glass Panel Settings Card */
+        .glass-panel {
+            background: var(--surface); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border); border-radius: 24px; padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.03);
+            transition: all 0.4s ease; display: flex; flex-direction: column;
+            animation: fadeUpIn 0.6s ease-out both;
+        }
+        .glass-panel:nth-child(1) { animation-delay: 0.1s; }
+        .glass-panel:nth-child(2) { animation-delay: 0.2s; }
+        .glass-panel:nth-child(3) { animation-delay: 0.3s; }
+        .glass-panel:nth-child(4) { animation-delay: 0.4s; }
+        .glass-panel:nth-child(5) { animation-delay: 0.5s; }
+        
+        .glass-panel:hover { border-color: var(--border-highlight); box-shadow: 0 20px 45px rgba(0,0,0,0.4); transform: translateY(-5px); }
+
+        .setting-title {
+            font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 25px;
+            padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        /* Form Controls */
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.95rem; color: #94a3b8; }
+        
+        .form-input, .form-select {
+            width: 100%; padding: 14px 16px; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3);
+            color: #fff; box-sizing: border-box; font-family: 'Tajawal', sans-serif;
+            font-size: 1rem; transition: all 0.3s;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none; border-color: var(--primary-accent); background: rgba(0,0,0,0.5);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+        }
+        .form-select option { background: #0c0812; color: #fff; }
+
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 10px 0; border-bottom: 1px dashed rgba(255,255,255,0.05); }
+        .setting-row:last-child { border-bottom: none; margin-bottom: 0; }
+
+        /* Premium Toggle Switch */
+        .switch { position: relative; display: inline-block; width: 54px; height: 28px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 34px; border: 1px solid rgba(255,255,255,0.05); }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 3px; background-color: #94a3b8; transition: .4s cubic-bezier(0.68, -0.55, 0.265, 1.55); border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        
+        input:checked + .slider { background-color: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.4); }
+        input:checked + .slider:before { transform: translateX(26px); background-color: #34d399; box-shadow: 0 0 10px rgba(52, 211, 153, 0.5); }
+
+        /* Action Buttons */
+        .action-btn {
+            width: 100%; padding: 14px; border-radius: 12px; font-weight: 800; font-size: 1rem;
+            border: none; cursor: pointer; margin-top: 10px; transition: all 0.3s;
+            font-family: 'Tajawal', sans-serif; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-users { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .btn-users:hover { background: rgba(56, 189, 248, 0.2); color: #fff; transform: translateY(-2px); }
+        
+        .btn-backup { background: rgba(168, 85, 247, 0.1); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); margin-bottom: 10px; }
+        .btn-backup:hover { background: rgba(168, 85, 247, 0.2); color: #fff; transform: translateY(-2px); }
+        
+        .btn-restore { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .btn-restore:hover { background: rgba(245, 158, 11, 0.2); color: #fff; transform: translateY(-2px); }
+
+        @keyframes fadeUpIn { from { opacity: 0; transform: translateY(40px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        @media (max-width: 768px) {
+            .settings-grid { grid-template-columns: 1fr; }
+            .premium-header { flex-direction: column; gap: 15px; }
+        }
+        
+        /* Fix double sidebar spacing issue */
+        body.has-sidebar { padding-right: 0 !important; }
+    </style>
+</head>
+<body>
+
+<!-- Ambient Animated Background -->
+<div class="ambient-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+</div>
+
+<div class="settings-container">
+
+    <div id="save-badge" class="save-badge">✅ تم حفظ الإعدادات بنجاح</div>
+
+    <!-- Unified Premium Header -->
+    <?php include 'includes/header.php'; ?>
+
+    <!-- Settings Grid -->
+    <div class="settings-grid">
+
+        <!-- إعدادات النظام الأساسية -->
+        <div class="glass-panel" id="panel-company">
+            <div class="setting-title">🏢 بيانات الشركة الأساسية</div>
+            <div class="form-group">
+                <label class="form-label">اسم الشركة المطبوع على الفواتير</label>
+                <input type="text" class="form-input" id="cfg-company-name" placeholder="مثال: مؤسسة السجانة للتجارة">
+            </div>
+            <div class="form-group">
+                <label class="form-label">رقم التسجيل التجاري</label>
+                <input type="text" class="form-input" id="cfg-reg-number" placeholder="رقم السجل التجاري">
+            </div>
+            <div class="form-group">
+                <label class="form-label">رقم الهاتف للتواصل</label>
+                <input type="tel" class="form-input" id="cfg-phone" placeholder="+249...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">العنوان والموقع</label>
+                <input type="text" class="form-input" id="cfg-address" placeholder="العنوان الكامل للطباعة">
+            </div>
+        </div>
+
+        <!-- إعدادات المالية -->
+        <div class="glass-panel" id="panel-finance">
+            <div class="setting-title">💰 الإعدادات المالية والضرائب</div>
+            <div class="form-group">
+                <label class="form-label">العملة الافتراضية للنظام</label>
+                <select class="form-select" id="cfg-currency">
+                    <option value="SDG">جنيه سوداني (SDG)</option>
+                    <option value="USD">دولار أمريكي (USD)</option>
+                    <option value="SAR">ريال سعودي (SAR)</option>
+                    <option value="AED">درهم إماراتي (AED)</option>
+                    <option value="EGP">جنيه مصري (EGP)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">العملات النشطة في النظام (تظهر في قوائم الفلتر والفواتير)</label>
+                <div class="checkbox-group" id="cfg-active-currencies" style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 5px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                    <label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" value="SDG" checked> جنيه سوداني (SDG)</label>
+                    <label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" value="USD" checked> دولار أمريكي (USD)</label>
+                    <label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" value="SAR" checked> ريال سعودي (SAR)</label>
+                    <label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" value="AED" checked> درهم إماراتي (AED)</label>
+                    <label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" value="EGP" checked> جنيه مصري (EGP)</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">نسبة ضريبة القيمة المضافة الافتراضية (VAT %)</label>
+                <input type="number" class="form-input" id="cfg-vat" value="0" min="0" max="100" step="0.5">
+            </div>
+            <div class="form-group">
+                <label class="form-label">عدد الأرقام العشرية في الأسعار</label>
+                <select class="form-select" id="cfg-decimal-places">
+                    <option value="0">0 (بدون كسور)</option>
+                    <option value="2" selected>2 (مثال: 0.00)</option>
+                    <option value="3">3 (مثال: 0.000)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- قواعد المخزون والتسعير -->
+        <div class="glass-panel" id="panel-inventory-rules">
+            <div class="setting-title">📦 قواعد المخزون والعمليات</div>
+            <div class="setting-row">
+                <span class="form-label" style="margin:0;">السماح بالبيع بالسالب (تجاوز رصيد المخزون)</span>
+                <label class="switch">
+                    <input type="checkbox" id="cfg-allow-negative-stock">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <span class="form-label" style="margin:0;">تفعيل دورة البيع الثنائية (فاتورة ثم إذن صرف)</span>
+                <label class="switch">
+                    <input type="checkbox" id="cfg-two-step-sale" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <span class="form-label" style="margin:0;">إلزامية تحديد اسم العميل في كل فاتورة</span>
+                <label class="switch">
+                    <input type="checkbox" id="cfg-require-customer">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <span class="form-label" style="margin:0;">منع الموظفين من البيع بأقل من سعر التكلفة</span>
+                <label class="switch">
+                    <input type="checkbox" id="cfg-prevent-below-cost">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- إعدادات الواجهة -->
+        <div class="glass-panel" id="panel-ui">
+            <div class="setting-title">🎨 واجهة المستخدم والمظهر</div>
+            <div class="form-group">
+                <label class="form-label">حجم الخط الرئيسي للنظام (Font Size)</label>
+                <select class="form-select" id="cfg-font-size" onchange="previewFontSize(this.value)">
+                    <option value="14">صغير جداً (14px)</option>
+                    <option value="16" selected>متوسط (16px - افتراضي)</option>
+                    <option value="18">كبير (18px)</option>
+                    <option value="20">كبير جداً (20px)</option>
+                </select>
+            </div>
+            <div class="setting-row">
+                <span class="form-label" style="margin:0;">تفعيل الوضع الليلي التلقائي العميق</span>
+                <label class="switch">
+                    <input type="checkbox" id="cfg-auto-dark" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-row" style="margin-top: 15px;">
+                <span class="form-label" style="margin:0;">إظهار الأذكار في الترويسة العلوية</span>
+                <label class="switch">
+                    <input type="checkbox" id="cfg-show-athkar" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="form-group" style="margin-top: 15px;">
+                <label class="form-label">مدة تسجيل الخروج التلقائي عند عدم النشاط</label>
+                <select class="form-select" id="cfg-auto-logout">
+                    <option value="0" selected>بدون (معطل)</option>
+                    <option value="30">30 ثانية</option>
+                    <option value="60">1 دقيقة</option>
+                    <option value="300">5 دقائق</option>
+                    <option value="600">10 دقائق</option>
+                    <option value="1800">30 دقيقة</option>
+                </select>
+            </div>
+        </div>
+        <!-- ربط واتساب -->
+        <div class="glass-panel" id="panel-whatsapp">
+            <div class="setting-title">📱 إعدادات ربط الواتساب</div>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0; line-height: 1.6;">ربط رقمك الشخصي لإرسال الفواتير للعملاء والموردين مباشرة من النظام. هذا الربط خاص بحسابك الحالي فقط.</p>
+            <button class="action-btn" style="background: rgba(37,211,102,0.1); color: #25d366; border: 1px solid rgba(37,211,102,0.3);" onclick="openWAModal()">📱 إدارة ربط الواتساب</button>
+        </div>
+
+        <!-- إدارة المستخدمين -->
+        <div class="glass-panel" id="panel-users">
+            <div class="setting-title">👥 المستخدمين وصلاحيات الوصول</div>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0; line-height: 1.6;">إدارة حسابات الموظفين، تحديد الأدوار (أدمن، محاسب، بائع، كاشير)، وتخصيص صلاحيات الدخول لكل شاشة.</p>
+            <button class="action-btn btn-users" onclick="window.location.href='users-roles.php'">⚙️ إدارة المستخدمين والصلاحيات</button>
+        </div>
+
+        <!-- النسخ الاحتياطي -->
+        <div class="glass-panel" id="panel-backup">
+            <div class="setting-title">💾 النسخ الاحتياطي والأمان</div>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin: 0 0 20px; line-height: 1.6;">تنزيل نسخة احتياطية آمنة من جميع بيانات التخزين المحلي (JSON) لحمايتها من الفقدان.</p>
+            <button class="action-btn btn-backup" onclick="backupData()">⬇️ تنزيل نسخة احتياطية للبيانات</button>
+            <button class="action-btn btn-restore" onclick="document.getElementById('restore-file').click()">⬆️ استعادة من ملف احتياطي سابق</button>
+            <input type="file" id="restore-file" accept=".json" style="display:none" onchange="restoreData(this)">
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/whatsapp-integration.js"></script>
+<script>
+    // ─── Load Settings on Page Open ───────────────────────────
+    document.addEventListener('DBReady', () => {
+        if (!localStorage.getItem('authToken')) {
+            window.location.href = 'login.php';
+            return;
+        }
+
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const perms = window.resolveUserPermissions ? window.resolveUserPermissions(user) : {};
+        
+        const hasSettings = user.role === 'admin' || user.role === 'Admin' || user.role === 'مدير النظام' || (perms.settings && perms.settings.view);
+        const hasInvRules = user.role === 'admin' || user.role === 'Admin' || user.role === 'مدير النظام' || (perms.inventory_rules && perms.inventory_rules.view);
+        
+        if (!hasSettings && !hasInvRules) {
+            window.location.href = 'dashboard-pro.php';
+            return;
+        }
+        
+        if (!hasSettings) {
+            document.getElementById('panel-company').style.display = 'none';
+            document.getElementById('panel-finance').style.display = 'none';
+            document.getElementById('panel-ui').style.display = 'none';
+            document.getElementById('panel-users').style.display = 'none';
+            document.getElementById('panel-backup').style.display = 'none';
+            document.querySelector('.page-title').innerText = 'قواعد المخزون والعمليات';
+        }
+        if (!hasInvRules && !hasSettings) {
+            document.getElementById('panel-inventory-rules').style.display = 'none';
+        }
+
+        const canEditSettings = user.role === 'admin' || user.role === 'Admin' || user.role === 'مدير النظام' || (perms.settings && perms.settings.edit);
+        const canEditInvRules = user.role === 'admin' || user.role === 'Admin' || user.role === 'مدير النظام' || (perms.inventory_rules && perms.inventory_rules.edit);
+        
+        if (!canEditSettings && !canEditInvRules) {
+            document.querySelector('.save-btn-main').style.display = 'none';
+        }
+
+        loadSettings();
+    });
+
+    function loadSettings() {
+        const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+
+        // Company
+        if (cfg.companyName)    document.getElementById('cfg-company-name').value = cfg.companyName;
+        if (cfg.regNumber)      document.getElementById('cfg-reg-number').value   = cfg.regNumber;
+        if (cfg.phone)          document.getElementById('cfg-phone').value         = cfg.phone;
+        if (cfg.address)        document.getElementById('cfg-address').value       = cfg.address;
+
+        // Financial
+        if (cfg.currency)       document.getElementById('cfg-currency').value         = cfg.currency;
+        if (cfg.activeCurrencies) {
+            const checkboxes = document.querySelectorAll('#cfg-active-currencies input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = cfg.activeCurrencies.includes(cb.value);
+            });
+        }
+        if (cfg.vat !== undefined) document.getElementById('cfg-vat').value           = cfg.vat;
+        if (cfg.decimalPlaces !== undefined) document.getElementById('cfg-decimal-places').value = cfg.decimalPlaces;
+
+        // Inventory Rules
+        document.getElementById('cfg-allow-negative-stock').checked = cfg.allowNegativeStock || false;
+        document.getElementById('cfg-two-step-sale').checked         = cfg.twoStepSale !== false; // default true
+        document.getElementById('cfg-require-customer').checked      = cfg.requireCustomer || false;
+        document.getElementById('cfg-prevent-below-cost').checked    = cfg.preventBelowCost || false;
+
+        // UI
+        if (cfg.fontSize)  document.getElementById('cfg-font-size').value = cfg.fontSize;
+        document.getElementById('cfg-auto-dark').checked = cfg.autoDark !== false; // default true
+        document.getElementById('cfg-show-athkar').checked = cfg.showAthkar !== false; // default true
+        if (cfg.autoLogoutTime !== undefined) document.getElementById('cfg-auto-logout').value = cfg.autoLogoutTime;
+    }
+
+    // ─── Save Settings ─────────────────────────────────────────
+    function saveSettings() {
+        const activeCurrencies = Array.from(document.querySelectorAll('#cfg-active-currencies input[type="checkbox"]:checked')).map(cb => cb.value);
+
+        const cfg = {
+            // Company
+            companyName:       document.getElementById('cfg-company-name').value.trim(),
+            regNumber:         document.getElementById('cfg-reg-number').value.trim(),
+            phone:             document.getElementById('cfg-phone').value.trim(),
+            address:           document.getElementById('cfg-address').value.trim(),
+
+            // Financial
+            currency:          document.getElementById('cfg-currency').value,
+            activeCurrencies:  activeCurrencies,
+            vat:               parseFloat(document.getElementById('cfg-vat').value) || 0,
+            decimalPlaces:     parseInt(document.getElementById('cfg-decimal-places').value) || 2,
+
+            // Inventory
+            allowNegativeStock: document.getElementById('cfg-allow-negative-stock').checked,
+            twoStepSale:       document.getElementById('cfg-two-step-sale').checked,
+            requireCustomer:   document.getElementById('cfg-require-customer').checked,
+            preventBelowCost:  document.getElementById('cfg-prevent-below-cost').checked,
+
+            // UI
+            fontSize:          document.getElementById('cfg-font-size').value,
+            autoDark:          document.getElementById('cfg-auto-dark').checked,
+            showAthkar:        document.getElementById('cfg-show-athkar').checked,
+            autoLogoutTime:    document.getElementById('cfg-auto-logout').value,
+
+            savedAt: new Date().toISOString()
+        };
+
+        localStorage.setItem('erp_settings_v1', JSON.stringify(cfg));
+
+        // Apply font size immediately
+        document.documentElement.style.fontSize = cfg.fontSize + 'px';
+
+        // Show success badge
+        const badge = document.getElementById('save-badge');
+        badge.classList.add('show');
+        setTimeout(() => badge.classList.remove('show'), 3000);
+
+        if (window.logSystemAction) {
+            window.logSystemAction('Settings Update', 'settings', 'تم تحديث إعدادات النظام');
+        }
+    }
+
+    function previewFontSize(size) {
+        document.documentElement.style.fontSize = size + 'px';
+    }
+
+    // ─── Backup Data ───────────────────────────────────────────
+    function backupData() {
+        if (!window.DB_STORE || Object.keys(window.DB_STORE).length === 0) {
+            alert('لا توجد بيانات للنسخ الاحتياطي!');
+            return;
+        }
+
+        const blob = new Blob([JSON.stringify(window.DB_STORE, null, 2)], { type: 'application/json' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = `magaees_backup_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        if (window.logSystemAction) {
+            window.logSystemAction('Data Backup', 'settings', 'تم تنزيل نسخة احتياطية للبيانات بالكامل');
+        }
+    }
+
+    // ─── Restore Data ──────────────────────────────────────────
+    function restoreData(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const backup = JSON.parse(e.target.result);
+                if (typeof backup !== 'object' || Array.isArray(backup)) throw new Error('Invalid format');
+                
+                if (confirm('⚠️ سيتم استبدال جميع البيانات الحالية بالنسخة الاحتياطية. هل أنت متأكد؟')) {
+                    // Update in-memory and IndexedDB
+                    for (let [k, v] of Object.entries(backup)) {
+                        window.DB_STORE[k] = typeof v === 'string' ? v : JSON.stringify(v);
+                        await localforage.setItem(k, window.DB_STORE[k]);
+                    }
+                    alert('✅ تمت استعادة البيانات بنجاح! سيتم إعادة تحميل الصفحة.');
+                    window.location.reload();
+                }
+            } catch(err) {
+                console.error(err);
+                alert('❌ ملف غير صالح. يرجى اختيار ملف نسخة احتياطية صحيح (.json)');
+            }
+        };
+        reader.readAsText(file);
+        input.value = '';
+    }
+</script>
+</body>
+</html>

@@ -36,7 +36,7 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
             // Token expired or invalid
             localStorage.removeItem('authToken');
             localStorage.removeItem('user');
-            window.location.href = 'login.html';
+            window.location.href = 'login.php';
             throw new Error('Unauthorized');
         }
 

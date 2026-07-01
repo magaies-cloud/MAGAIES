@@ -1,0 +1,421 @@
+<?php $page_title = 'السجانة ERP - إدارة المستخدمين والصلاحيات'; ?>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>السجانة ERP - إدارة المستخدمين والصلاحيات</title>
+    <link rel="stylesheet" href="css/theme.css?v=neon2">
+    <link rel="stylesheet" href="css/components.css?v=neon2">
+        <style>
+        /* SCROLL ALLOWED */
+        html { background: var(--bg-color); scroll-behavior: smooth; }
+        body { padding: 0; min-height: 100vh; height: auto; overflow-x: hidden; overflow-y: auto; overscroll-behavior-y: auto; font-family: 'Inter', sans-serif; background: var(--bg-color); }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.4); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(56, 189, 248, 0.8); }
+        
+        .md-container { display: flex; flex-direction: column; height: auto; min-height: calc(100vh - 80px); background: var(--bg-color); }
+        .md-tabs-sidebar { width: 100%; background: var(--surface-color); border-bottom: 1px solid var(--glass-border); padding: 0 20px; display: flex; flex-direction: row; align-items: center; box-shadow: var(--shadow-sm); z-index: 10; overflow-x: auto; position: sticky; top: 80px; }
+        .md-tab-btn { background: none; border: none; text-align: center; padding: 15px 20px; font-size: 0.95rem; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px; white-space: nowrap; border-bottom: 4px solid transparent; }
+        .md-tab-btn:hover { background: rgba(15, 76, 129, 0.05); color: var(--primary-accent); }
+        .md-tab-btn.active { color: var(--primary-accent); border-bottom: 4px solid var(--primary-accent); font-weight: 800; background: rgba(15, 76, 129, 0.05); }
+        
+        .md-content-area { flex: 1; padding: 20px; display: flex; flex-direction: column; max-width: 1600px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .md-tab-content { display: none; height: 100%; animation: fadeInSlideUp 0.4s ease-out forwards; }
+        .md-tab-content.active { display: flex; flex-direction: column; }
+        
+        @keyframes fadeInSlideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .md-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 16px; padding: 25px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); margin-bottom: 20px; transition: transform 0.3s, box-shadow 0.3s; position: relative; overflow: hidden; }
+        .md-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.05), transparent); transform: skewX(-20deg); transition: 0.5s; pointer-events: none; }
+        .md-card:hover::before { left: 200%; }
+        .md-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(56, 189, 248, 0.2); border-color: rgba(56, 189, 248, 0.4); }
+        
+        .md-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .md-card-title { margin: 0; font-size: 1.3rem; color: #fff; text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        
+        .btn-add { background: linear-gradient(135deg, var(--primary-accent), #38bdf8); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(15, 76, 129, 0.2); transition: transform 0.2s, box-shadow 0.2s; }
+        .btn-add:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(15, 76, 129, 0.3); }
+        .btn-save { background: var(--success-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s; margin-top: 15px; }
+        .btn-cancel { background: transparent; color: var(--text-secondary); border: 1px solid var(--glass-border); padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; margin-right: 10px; }
+        
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .input-group { position: relative; }
+        .input-group label { display: block; margin-bottom: 8px; font-size: 0.85rem; color: #94a3b8; font-weight: 700; transition: color 0.3s; }
+        .input-group input, .input-group select { width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid rgba(56, 189, 248, 0.2); background: rgba(0, 0, 0, 0.2); color: #fff; font-size: 1rem; outline: none; box-sizing: border-box; transition: all 0.3s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+        .input-group input:focus, .input-group select:focus { border-color: #38bdf8; background: rgba(15, 23, 42, 0.8); box-shadow: 0 0 15px rgba(56, 189, 248, 0.3), inset 0 2px 4px rgba(0,0,0,0.2); }
+        .input-group:focus-within label { color: #38bdf8; text-shadow: 0 0 8px rgba(56, 189, 248, 0.5); }
+        
+        /* Permissions Matrix Styles */
+        .matrix-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: var(--bg-color); border-radius: 8px; overflow: hidden; border: 1px solid var(--glass-border); }
+        .matrix-table th, .matrix-table td { padding: 12px 15px; text-align: center; border-bottom: 1px solid var(--glass-border); }
+        .matrix-table th { background: rgba(15, 76, 129, 0.1); color: var(--text-primary); font-weight: 800; font-size: 0.9rem; }
+        .matrix-table th:first-child, .matrix-table td:first-child { text-align: right; font-weight: bold; color: var(--primary-accent); }
+        .matrix-table tr:last-child td { border-bottom: none; }
+        
+        /* Toggle Switch CSS for Matrix */
+        .toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; margin: 0 auto; vertical-align: middle; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .3s; border-radius: 22px; border: 1px solid var(--glass-border); }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: #94a3b8; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        input:checked + .slider { background-color: var(--primary-accent); border-color: var(--primary-accent); }
+        input:checked + .slider:before { transform: translateX(18px); background-color: white; }
+        input:disabled + .slider { opacity: 0.5; cursor: not-allowed; }
+        
+        .table-responsive { overflow-x: auto; width: 100%; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.1); background: rgba(0,0,0,0.1); }
+        .pro-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        .pro-table th, .pro-table td { padding: 15px; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .pro-table th { color: #94a3b8; font-weight: 700; background: rgba(0,0,0,0.4); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
+        .pro-table tbody tr { transition: all 0.2s; }
+        .pro-table tbody tr:hover { background: rgba(56, 189, 248, 0.05); transform: scale(1.002); }
+        
+        /* Floating Brain & Numbers Animation */
+        @keyframes floatBrain {
+            0% { transform: translateY(0) scale(1) rotate(0deg); filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.6)); }
+            50% { transform: translateY(-8px) scale(1.02) rotate(1deg); filter: drop-shadow(0 0 25px rgba(56, 189, 248, 0.8)); }
+            100% { transform: translateY(0) scale(1) rotate(0deg); filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.6)); }
+        }
+        .ai-brain-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            animation: floatBrain 4s ease-in-out infinite;
+            border: 2px solid rgba(139, 92, 246, 0.4);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4), inset 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+        
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+        .badge-admin { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-user { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        
+        .action-btn { background: none; border: none; cursor: pointer; padding: 5px; margin: 0 2px; border-radius: 4px; transition: 0.2s; }
+        .action-btn:hover { background: rgba(255,255,255,0.1); }
+        .edit-btn { color: #38bdf8; }
+        .del-btn { color: #f87171; }
+        
+        .error-flash {
+            animation: errorFlash 0.8s ease-in-out;
+            border-color: #ef4444 !important;
+        }
+        @keyframes errorFlash {
+            0% { box-shadow: 0 0 0px #ef4444; }
+            50% { box-shadow: 0 0 15px #ef4444; }
+            100% { box-shadow: 0 0 0px #ef4444; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Animated Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <?php include 'includes/header.php'; ?>
+
+    <div class="md-container">
+        <aside class="md-tabs-sidebar">
+            <button class="md-tab-btn active" onclick="openTab(event, 'tab-users')"><span class="md-tab-icon">👥</span> المستخدمين (الموظفين)</button>
+            <button class="md-tab-btn" onclick="openTab(event, 'tab-roles')"><span class="md-tab-icon">🔑</span> الأدوار والصلاحيات</button>
+        </aside>
+
+        <main class="md-content-area">
+            
+            <!-- Users Tab -->
+            <div id="tab-users" class="md-tab-content active">
+                <div class="md-card">
+                    <div class="md-card-header">
+                        <h3 class="md-card-title">👥 قائمة المستخدمين</h3>
+                        <button class="btn-add" onclick="showUserForm()">+ إضافة مستخدم جديد</button>
+                    </div>
+                    
+                    <div id="user-form-container" class="md-card neon-glass-panel" style="display:none;">
+                        <h4 style="margin-top:0; color:var(--primary-accent);" id="user-form-title">إضافة مستخدم جديد</h4>
+                        <input type="hidden" id="user-id">
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label>الاسم الكامل</label>
+                                <input type="text" id="user-fullname" placeholder="مثال: أحمد محمد">
+                            </div>
+                            <div class="input-group">
+                                <label>اسم الدخول (Username)</label>
+                                <input type="text" id="user-username" placeholder="مثال: ahmed" autocomplete="off">
+                            </div>
+                            <div class="input-group">
+                                <label>كلمة المرور</label>
+                                <div style="position: relative;">
+                                    <input type="password" id="user-password" placeholder="أدخل كلمة المرور" autocomplete="new-password" style="padding-left: 40px; width: 100%;">
+                                    <button type="button" onclick="const p=document.getElementById('user-password'); p.type=p.type==='password'?'text':'password'; this.style.opacity=p.type==='password'?'0.7':'1';" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; opacity: 0.7; font-size: 1.2rem;">👁️</button>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>رقم الجوال / واتساب</label>
+                                <input type="text" id="user-phone" placeholder="مثال: 0912345678">
+                            </div>
+                            <div class="input-group">
+                                <label>الدور الوظيفي (Role)</label>
+                                <select id="user-role">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>المخزن الافتراضي</label>
+                                <select id="user-warehouse">
+                                    <option value="all">الكل (بدون تقييد)</option>
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>الحالة</label>
+                                <select id="user-status">
+                                    <option value="active">نشط</option>
+                                    <option value="inactive">موقوف</option>
+                                </select>
+                            </div>
+                            
+                            <!-- 3 Restrictions in one row -->
+                            <div style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 10px;">
+                                
+                                <!-- Geofencing -->
+                                <div class="input-group" style="background: rgba(15, 76, 129, 0.05); padding: 10px; border-radius: 8px; border: 1px dashed var(--primary-accent);">
+                                    <label style="display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--primary-accent); font-size: 0.85rem;">
+                                        <input type="checkbox" id="user-geo-restricted" class="perm-checkbox" onchange="toggleGeoFields()">
+                                        📍 تقييد جغرافي (GPS)
+                                    </label>
+                                    <div id="geo-fields" style="display: none; margin-top: 10px; gap: 10px; flex-direction: column;">
+                                        <input type="number" id="user-geo-lat" step="any" placeholder="خط العرض" style="padding: 5px; font-size: 0.8rem;">
+                                        <input type="number" id="user-geo-lng" step="any" placeholder="خط الطول" style="padding: 5px; font-size: 0.8rem;">
+                                        <input type="number" id="user-geo-radius" value="100" min="10" placeholder="النطاق (م)" style="padding: 5px; font-size: 0.8rem;">
+                                        <button type="button" class="btn-cancel" style="padding: 5px; font-size: 0.8rem; border-color: var(--primary-accent); color: var(--primary-accent);" onclick="getCurrentGPS()">🎯 تحديد موقعي الحالي</button>
+                                    </div>
+                                </div>
+
+                                <!-- Device Binding -->
+                                <div class="input-group" style="background: rgba(239, 68, 68, 0.05); padding: 10px; border-radius: 8px; border: 1px dashed #ef4444;">
+                                    <label style="display: flex; align-items: center; gap: 8px; font-weight: 800; color: #ef4444; font-size: 0.85rem;">
+                                        <input type="checkbox" id="user-device-restricted" class="perm-checkbox" onchange="toggleDeviceFields()">
+                                        💻 تقييد بجهاز محدد
+                                    </label>
+                                    <div id="device-fields" style="display: none; margin-top: 10px;">
+                                        <input type="text" id="user-device-uuid" placeholder="المعرف الفريد (UUID)" style="padding: 5px; font-size: 0.8rem;">
+                                    </div>
+                                </div>
+
+                                <!-- Time Restrictions -->
+                                <div class="input-group" style="background: rgba(245, 158, 11, 0.05); padding: 10px; border-radius: 8px; border: 1px dashed #f59e0b;">
+                                    <label style="display: flex; align-items: center; gap: 8px; font-weight: 800; color: #f59e0b; font-size: 0.85rem;">
+                                        <input type="checkbox" id="user-time-restricted" class="perm-checkbox" onchange="toggleTimeFields()">
+                                        ⏱️ تقييد بالوقت والأيام
+                                    </label>
+                                    <div id="time-fields" style="display: none; margin-top: 10px; gap: 10px; flex-direction: column;">
+                                        <div style="display: flex; gap: 10px;">
+                                            <div style="flex: 1;"><label style="font-size: 0.75rem;">من</label><input type="time" id="user-time-from" value="08:00" style="padding: 5px; font-size: 0.8rem;"></div>
+                                            <div style="flex: 1;"><label style="font-size: 0.75rem;">إلى</label><input type="time" id="user-time-to" value="17:00" style="padding: 5px; font-size: 0.8rem;"></div>
+                                        </div>
+                                        <div style="display:flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; font-size: 0.75rem;" id="user-allowed-days">
+                                            <label><input type="checkbox" value="0" checked> ح</label>
+                                            <label><input type="checkbox" value="1" checked> ن</label>
+                                            <label><input type="checkbox" value="2" checked> ث</label>
+                                            <label><input type="checkbox" value="3" checked> ر</label>
+                                            <label><input type="checkbox" value="4" checked> خ</label>
+                                            <label><input type="checkbox" value="5"> ج</label>
+                                            <label><input type="checkbox" value="6" checked> س</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Data Scoping -->
+                            <div class="input-group" style="grid-column: 1 / -1; background: rgba(16, 185, 129, 0.05); padding: 15px; border-radius: 8px; border: 1px dashed #10b981; margin-top: 10px;">
+                                <label style="display: flex; align-items: center; gap: 10px; font-weight: 800; color: #10b981; font-size: 1rem;">
+                                    👁️ رؤية البيانات (Data Scoping)
+                                </label>
+                                <div style="margin-top: 10px;">
+                                    <select id="user-data-scope">
+                                        <option value="all">رؤية جميع البيانات المتاحة (بياناته وبيانات غيره)</option>
+                                        <option value="own">تقييد: رؤية بياناته وحركاته فقط (لا يرى فواتير غيره)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- User Permissions Overrides -->
+                            <div class="input-group" style="grid-column: 1 / -1; background: rgba(56, 189, 248, 0.05); padding: 15px; border-radius: 8px; border: 1px dashed #38bdf8; margin-top: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <label style="font-weight: 800; color: #38bdf8; font-size: 1rem; margin:0;">
+                                        🛡️ تخصيص استثناءات الصلاحيات (User-Level Overrides)
+                                    </label>
+                                    <button type="button" class="btn-cancel" style="padding: 5px 10px; font-size: 0.8rem; margin:0; border-color: #38bdf8; color: #38bdf8;" onclick="selectAllUserPermissions()">تحديد الكل</button>
+                                </div>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px; margin-bottom: 12px;">في حال تفعيل أي صلاحية هنا، ستكون هذه الصلاحية خاصة به وتتجاوز صلاحيات دوره الوظيفي الأساسي.</p>
+                                <div class="table-responsive">
+                                    <table class="matrix-table">
+                                        <thead>
+                                            <tr>
+                                                <th>القسم / الشاشة</th>
+                                                <th>دخول (View)</th>
+                                                <th>إضافة (Add)</th>
+                                                <th>تعديل (Edit)</th>
+                                                <th>حذف (Delete)</th>
+                                                <th>طباعة (Print)</th>
+                                                <th>اعتماد (Approve)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="user-permissions-matrix-body">
+                                            <!-- Populated dynamically via JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <button class="btn-save" onclick="saveUser()">💾 حفظ المستخدم</button>
+                            <button class="btn-cancel" onclick="hideUserForm()">إلغاء</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="pro-table">
+                            <thead>
+                                <tr>
+                                    <th>اسم المستخدم</th>
+                                    <th>الاسم الكامل</th>
+                                    <th>الدور الوظيفي</th>
+                                    <th>المخزن الافتراضي</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Roles Tab -->
+            <div id="tab-roles" class="md-tab-content">
+                <div class="md-card">
+                    <div class="md-card-header">
+                        <h3 class="md-card-title">🔑 الأدوار والصلاحيات</h3>
+                        <button class="btn-add" onclick="showRoleForm()">+ إنشاء دور جديد</button>
+                    </div>
+                    
+                    <div id="role-form-container" class="md-card neon-glass-panel" style="display:none;">
+                        <h4 style="margin-top:0; color:var(--primary-accent);" id="role-form-title">إضافة دور جديد</h4>
+                        <input type="hidden" id="role-id">
+                        
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label>اسم الدور (مثال: محاسب، كاشير)</label>
+                                <input type="text" id="role-name" placeholder="اسم الدور">
+                            </div>
+                            <div class="input-group">
+                                <label>درجة الأمان والسرية (1 إلى 10)</label>
+                                <select id="role-security-level">
+                                    <option value="10">10 - سري للغاية (مُلاك ومدراء عامون)</option>
+                                    <option value="9">9 - إدارة عليا (مدير مالي، مدير فرع)</option>
+                                    <option value="8">8 - رقابة وتدقيق (مراجع داخلي)</option>
+                                    <option value="7">7 - إدارة وسطى متقدمة</option>
+                                    <option value="6">6 - إدارة وسطى (رئيس حسابات، مشرف مستودعات)</option>
+                                    <option value="5">5 - مستوى تنفيذي متقدم (محاسب عام)</option>
+                                    <option value="4">4 - مستوى تنفيذي (مبيعات/مشتريات)</option>
+                                    <option value="3">3 - مدخل بيانات متقدم</option>
+                                    <option value="2">2 - مدخل بيانات (كاشير، أمين مخزن)</option>
+                                    <option value="1">1 - مستوى أساسي جداً (استعلام فقط)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; margin-top: 20px;">
+                            <h5 style="margin: 0; color: var(--text-primary);">مصفوفة الصلاحيات:</h5>
+                            <button type="button" class="btn-cancel" style="padding: 5px 10px; font-size: 0.8rem; margin:0;" onclick="selectAllRolePermissions()">تحديد الكل</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="matrix-table">
+                                <thead>
+                                    <tr>
+                                        <th>القسم / الشاشة</th>
+                                        <th>عرض (View)</th>
+                                        <th>إضافة (Add)</th>
+                                        <th>تعديل (Edit)</th>
+                                        <th>حذف (Delete)</th>
+                                        <th>طباعة (Print)</th>
+                                        <th>اعتماد (Approve)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="permissions-matrix-body">
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <h5 style="margin-bottom: 5px; margin-top: 20px; color: var(--text-primary);">سرية البيانات (Data Visibility):</h5>
+                        <div class="form-grid" style="background: rgba(0,0,0,0.02); padding: 15px; border-radius: 8px; border: 1px solid var(--glass-border);">
+                            <div class="input-group" style="grid-column: 1 / -1;">
+                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                    <input type="checkbox" id="role-hide-costs" class="perm-checkbox">
+                                    إخفاء تكلفة البضاعة وهوامش الربح (Hide Costs/Profits)
+                                </label>
+                            </div>
+                            <div class="input-group" style="grid-column: 1 / -1;">
+                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                    <input type="checkbox" id="role-hide-balances" class="perm-checkbox">
+                                    إخفاء إجمالي مديونيات العملاء/الموردين (Hide Master Balances)
+                                </label>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px;">
+                            <button class="btn-save" onclick="saveRole()">💾 حفظ الدور</button>
+                            <button class="btn-cancel" onclick="hideRoleForm()">إلغاء</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="pro-table">
+                            <thead>
+                                <tr>
+                                    <th>اسم الدور</th>
+                                    <th>درجة الأمان</th>
+                                    <th>عدد المستخدمين</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="roles-table-body">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container" style="position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none;"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/users-roles.js?v=20260626_4"></script>
+    <script>
+        // Simple Tab Switcher for this page
+        function openTab(evt, tabId) {
+            document.querySelectorAll('.md-tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.md-tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>

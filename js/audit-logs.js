@@ -1,6 +1,6 @@
 document.addEventListener('DBReady', () => {
     if (!localStorage.getItem('authToken')) {
-        window.location.href = 'login.html';
+        window.location.href = 'login.php';
         return;
     }
     renderLogs();

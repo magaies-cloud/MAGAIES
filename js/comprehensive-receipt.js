@@ -144,5 +144,5 @@ function saveVoucher() {
     localStorage.setItem('erp_comprehensive_receipts_v1', JSON.stringify(existingVouchers));
 
     alert('تم حفظ السند الشامل بنجاح!');
-    window.location.href = 'vouchers-hub.html';
+    window.location.href = 'vouchers-hub.php';
 }

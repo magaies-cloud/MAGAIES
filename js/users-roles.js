@@ -83,7 +83,7 @@ function loadData() {
 document.addEventListener('DBReady', () => {
     // Basic Authentication Check
     if (!localStorage.getItem('authToken')) {
-        window.location.href = 'login.html';
+        window.location.href = 'login.php';
         return;
     }
 

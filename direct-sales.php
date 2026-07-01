@@ -1,0 +1,1662 @@
+<?php $page_title = 'المبيعات المباشرة'; ?>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المبيعات المباشرة | Al-Sajana Protocol</title>
+    <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260626_4">
+    <link rel="stylesheet" href="css/sales-invoice.css">
+    <link rel="stylesheet" href="css/print-invoice.css">
+    <style>
+
+        :root {
+            --bg-color: #050308;
+            --surface: rgba(18, 15, 25, 0.65);
+            --surface-hover: rgba(28, 24, 38, 0.85);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(255, 255, 255, 0.2);
+            --primary-accent: #6366f1;
+            --theme-pink: #ec4899;
+            --theme-blue: #3b82f6;
+            --theme-green: #10b981;
+            --theme-orange: #f59e0b;
+            --theme-red: #f87171;
+            --theme-purple: #c084fc;
+        }
+        body {
+            background-color: var(--bg-color);
+            margin: 0; padding: 0; min-height: 100vh;
+            display: flex; flex-direction: column; overflow-x: hidden;
+            font-family: 'Tajawal', sans-serif; color: #fff;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.4); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.8); }
+
+        .ambient-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            overflow: hidden; z-index: -1; pointer-events: none;
+            background: radial-gradient(circle at 50% 50%, #0c0812 0%, #000000 100%);
+        }
+        .orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.15; animation: floatOrb 20s infinite alternate ease-in-out; }
+        .orb-1 { width: 500px; height: 500px; background: var(--primary-accent); top: -5%; right: -5%; }
+        .orb-2 { width: 450px; height: 450px; background: var(--theme-pink); bottom: -10%; left: -5%; animation-delay: -7s; }
+        .orb-3 { width: 600px; height: 600px; background: var(--theme-blue); top: 30%; left: 30%; animation-duration: 25s; opacity: 0.1; }
+        @keyframes floatOrb { 0% { transform: translate(0, 0) scale(1); } 33% { transform: translate(30px, -50px) scale(1.1); } 66% { transform: translate(-30px, 30px) scale(0.9); } 100% { transform: translate(0, 0) scale(1); } }
+
+        .dash-main { width: 100%; max-width: 1600px; margin: 0 auto; margin: 0 auto; padding: 20px 30px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; flex: 1; animation: fadeIn 0.8s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+        
+        .premium-header {
+            background: linear-gradient(135deg, rgba(163, 230, 53, 0.15), rgba(250, 204, 21, 0.15), rgba(249, 115, 22, 0.15), rgba(56, 189, 248, 0.15));
+            background-size: 300% 300%;
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 12px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            height: 110px; box-sizing: border-box;
+            margin-bottom: 20px; width: 100%;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 1px rgba(0,0,0,0.3);
+            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1), animateGradient 12s ease infinite;
+            position: relative;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        .premium-header::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 40%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
+            pointer-events: none;
+        }
+
+        @keyframes animateGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            25% { left: 200%; }
+            100% { left: 200%; }
+        }
+        
+
+        .header-brand { display: flex; align-items: center; gap: 12px; }
+        .brand-icon { width: 32px; height: 32px; border-radius: 12px; background: linear-gradient(135deg, #10b981, #34d399); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 6px 15px rgba(16, 185, 129, 0.4), inset 0 2px 5px rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2); }
+        .brand-text h1 { margin: 0; font-size: 1.1rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; text-shadow: 0 2px 5px rgba(255,255,255,0.1); }
+        .brand-text p { margin: 0; font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
+        .header-center { text-align: center; }
+        .header-center h2 { margin: 0; font-size: 1.2rem; font-weight: 900; background: linear-gradient(to right, #fff, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; }
+        .header-controls { display: flex; align-items: center; gap: 12px; }
+        
+        .clock-container { display: flex; flex-direction: column; align-items: center; background: rgba(15,23,42,0.6); padding: 6px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); min-width: 100px; }
+        .clock-time { color: #34d399; font-size: 1rem; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: 1px; text-shadow: 0 0 8px rgba(16,185,129,0.5); font-family: 'Outfit', sans-serif;}
+        .clock-date { color: var(--text-secondary); font-size: 0.65rem; margin-top: 1px; }
+
+        .icon-btn { background: rgba(255,255,255,0.03); border: 1px solid var(--border); width: 36px; height: 36px; border-radius: 10px; color: #fff; font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; position: relative; }
+        .icon-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); box-shadow: 0 5px 10px rgba(0,0,0,0.3); }
+
+        .user-info { display: flex; align-items: center; gap: 8px; background: rgba(15,23,42,0.6); padding: 6px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); }
+
+        /* Disable old background on pos-wrapper */
+        .pos-wrapper { background: transparent !important; }
+        
+        @media (max-width: 768px) {
+            .premium-header { flex-direction: column; gap: 12px; }
+            .header-controls { justify-content: center; width: 100%; flex-wrap: wrap; }
+        }
+
+        
+        /* ── تصميم ترويسة نقطة البيع الليمونية ── */
+        .pos-lemon-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, rgba(163, 230, 53, 0.15), rgba(132, 204, 22, 0.05));
+            border: 1px solid rgba(163, 230, 53, 0.4);
+            padding: 8px 28px;
+            border-radius: 50px;
+            box-shadow: 0 0 20px rgba(163, 230, 53, 0.2), inset 0 0 10px rgba(163, 230, 53, 0.1);
+            animation: pulseLemonGlow 2.5s infinite alternate ease-in-out;
+            position: relative;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        .pos-lemon-title::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(163, 230, 53, 0.2) 0%, transparent 60%);
+            animation: rotateLemonOrb 8s linear infinite;
+        }
+
+        @keyframes pulseLemonGlow {
+            from { box-shadow: 0 0 15px rgba(163, 230, 53, 0.1), inset 0 0 5px rgba(163, 230, 53, 0.05); }
+            to { box-shadow: 0 0 30px rgba(163, 230, 53, 0.5), inset 0 0 15px rgba(163, 230, 53, 0.25); }
+        }
+
+        @keyframes rotateLemonOrb {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .pos-icon-svg {
+            width: 32px;
+            height: 32px;
+            fill: #bef264;
+            filter: drop-shadow(0 0 8px rgba(163, 230, 53, 0.8));
+            position: relative;
+            z-index: 1;
+            animation: floatPosIcon 3s infinite alternate ease-in-out;
+        }
+        
+        @keyframes floatPosIcon {
+            from { transform: translateY(-2px); }
+            to { transform: translateY(2px); }
+        }
+
+        .pos-text {
+            font-size: 1.7rem;
+            font-weight: 900;
+            color: #d9f99d;
+            text-shadow: 0 0 12px rgba(163, 230, 53, 0.6);
+            font-family: 'Cairo', 'Outfit', sans-serif;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pos-en {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #a3e635;
+            background: rgba(132, 204, 22, 0.15);
+            padding: 2px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(132, 204, 22, 0.3);
+            letter-spacing: 1.5px;
+        }
+
+        /* ═══ POS PAGE: إلغاء تضاعف مسافة الشريط الجانبي ═══
+           theme.css   → padding-right: 64px
+           components.css → margin-right: 62px
+           المجموع: 126px فراغ — نحذف الـ padding الزائد */
+        body.has-sidebar {
+            padding-right: 0 !important;
+        }
+        /* Toast Notifications */
+
+        .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
+        .toast {
+            padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem;
+            display:flex; align-items:center; gap:8px; pointer-events:auto;
+            backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5);
+            animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
+            font-family:'Cairo',sans-serif; max-width:90vw;
+        }
+        .toast.success { background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); color:#34d399; }
+        .toast.error { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#f87171; }
+        .toast.warning { background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); color:#fbbf24; }
+        .toast.hide { animation:toastOut 0.4s forwards; }
+        @keyframes toastIn { from { opacity:0; transform:translateY(-20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
+        @keyframes toastOut { to { opacity:0; transform:translateY(-20px) scale(0.95); } }
+        @keyframes fadeSlideIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+
+        /* Cheque fields highlight */
+        #cheque-number-group .ctrl-input,
+        #cheque-bank-group .ctrl-input {
+            border-color: rgba(251,191,36,0.4) !important;
+            background: rgba(251,191,36,0.04);
+        }
+        #cheque-number-group .ctrl-input:focus,
+        #cheque-bank-group .ctrl-input:focus {
+            border-color: rgba(251,191,36,0.7) !important;
+            box-shadow: 0 0 0 2px rgba(251,191,36,0.12);
+        }
+
+        /* Custom Dropdown for Customers */
+        .custom-dropdown { position: relative; width: 100%; display: flex; gap: 6px; }
+        .custom-dropdown-input-wrap { position: relative; flex: 1; }
+        .custom-dropdown-list {
+            position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
+            max-height: 300px; overflow-y: auto;
+            background: var(--surface-color);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+            z-index: 99999;
+            display: none; flex-direction: column;
+            min-width: 350px;
+        }
+        .custom-dropdown-list.show { display: flex; }
+        td:has(.custom-dropdown-list.show),
+        .m-card-full:has(.custom-dropdown-list.show),
+        .custom-dropdown-input-wrap:has(.custom-dropdown-list.show) { z-index: 99999 !important; }
+        .custom-dropdown-item {
+            padding: 10px 12px; cursor: pointer; font-size: 0.85rem; font-weight: 600;
+            color: var(--text-primary); border-bottom: 1px solid var(--glass-border);
+            transition: background 0.2s;
+        }
+        .custom-dropdown-item:hover, .custom-dropdown-item.selected {
+            background: rgba(56,189,248,0.15); color: var(--primary-accent);
+        }
+        .custom-dropdown-item:last-child { border-bottom: none; }
+        .custom-dropdown-empty { padding: 10px 12px; font-size: 0.8rem; color: var(--text-muted); text-align: center; }
+
+        input[type="date"]::-webkit-datetime-edit-text,
+        input[type="date"]::-webkit-datetime-edit-month-field,
+        input[type="date"]::-webkit-datetime-edit-day-field,
+        input[type="date"]::-webkit-datetime-edit-year-field {
+            color: #ef4444 !important;
+        }
+
+        /* ═══════════════════════════════════════════════
+           COMPACT SCREEN LAYOUT — Max space utilization
+           ═══════════════════════════════════════════════ */
+
+        /* Remove default pos-wrapper bottom padding — footer handles it */
+        .pos-wrapper {
+            padding-bottom: 72px !important;
+        }
+
+        /* Top bar — tighter */
+        .page-breadcrumb { padding: 6px 0 8px; }
+        .top-action-bar  { margin-bottom: 8px; }
+
+        /* منطقة الدفع الشرطية */
+        .pzone-inner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            animation: fadeSlideIn 0.35s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        /* ── New Layout: Top row (3 cols) + Full-width items + Notes ── */
+        .ds-body {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Top row: بيانات الفاتورة (مدمجة) + الإجماليات */
+        .ds-top-row {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 10px;
+            align-items: start;
+        }
+
+        /* ── شريط الحالة المالية الأفقي ── */
+        .fin-strip-inline.visible {
+            flex: 0 0 43% !important; min-width: 400px !important;
+            opacity: 1 !important;
+            margin-left: 5px;
+        }
+
+        .fin-strip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+            padding: 0 15px;
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid transparent;
+            border-radius: 8px;
+            transition: all 0.4s ease;
+            width: auto;
+            min-width: 400px;
+        }
+        .fin-strip.visible {
+            max-height: 80px;
+            opacity: 1;
+            padding: 6px 15px;
+            border-color: rgba(56, 189, 248, 0.3);
+            margin-bottom: 4px;
+        }
+        .fin-strip-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 6px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+            gap: 4px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            animation: cardPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        .fin-strip-card:nth-child(1) { animation-delay: 0.00s; }
+        .fin-strip-card:nth-child(2) { animation-delay: 0.06s; }
+        .fin-strip-card:nth-child(3) { animation-delay: 0.12s; }
+        .fin-strip-card:nth-child(4) { animation-delay: 0.18s; }
+        .fin-strip-card:nth-child(5) { animation-delay: 0.24s; }
+        @keyframes cardPopIn {
+            from { opacity:0; transform:translateY(-8px) scale(0.92); }
+            to   { opacity:1; transform:translateY(0)    scale(1); }
+        }
+        .fin-strip-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .fin-strip-card.warn  { border-color: rgba(251,191,36,0.25); background: rgba(251,191,36,0.05); }
+        .fin-strip-card.avail {
+            border-color: rgba(56,189,248,0.35);
+            background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(16,185,129,0.07));
+            box-shadow: 0 0 14px rgba(56,189,248,0.12);
+            animation: cardPopIn 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.24s both,
+                       breatheGlow 3s ease-in-out 0.7s infinite;
+        }
+        .fin-strip-lbl {
+            font-size: 0.58rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-align: center;
+            white-space: nowrap;
+        }
+        .fin-strip-val {
+            font-size: 0.82rem;
+            font-weight: 900;
+            color: var(--text-primary);
+            direction: ltr;
+        }
+        .fin-strip-card.warn  .fin-strip-val  { color: #fbbf24; }
+        .fin-strip-card.avail .fin-strip-val  { color: #38bdf8; text-shadow: 0 0 8px rgba(56,189,248,0.4); font-size: 0.9rem; }
+        /* badge الحالة بجانب العميل */
+        #fin-status-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 0.65rem; font-weight: 700;
+            padding: 2px 8px; border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            margin-right: 6px;
+            vertical-align: middle;
+            transition: all 0.3s;
+        }
+
+        /* Professional Equal-Height Panels */
+        .pro-panel {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.7), rgba(10, 17, 40, 0.9));
+            border: 1px solid rgba(56, 189, 248, 0.15);
+            border-radius: 14px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            padding: 8px 12px;
+        }
+        .pro-panel::before {
+            content: '';
+            position: absolute; top:0; left:0; right:0; height:2px;
+            background: linear-gradient(90deg, transparent, rgba(56,189,248,0.5), rgba(16,185,129,0.3), transparent);
+            opacity: 0.5;
+            transition: opacity 0.4s ease;
+        }
+        .pro-panel:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: 0 12px 40px 0 rgba(56, 189, 248, 0.15);
+            transform: translateY(-2px);
+        }
+        .pro-panel:hover::before {
+            opacity: 1;
+        }
+        /* Override defaults for pro-panel */
+        .pro-panel.panel { margin-bottom: 0; padding: 14px; }
+
+        /* Left column (legacy - now unused wrapper) */
+        .ds-left { display: contents; }
+
+        /* ── header-grid no longer needed as wrapper ── */
+        .header-grid {
+            display: contents;
+        }
+
+        /* ── Panel compact overrides ── */
+        .panel { padding: 8px 12px; margin-bottom: 0; }
+        .panel-title { font-size: 0.67rem; margin-bottom: 6px; }
+
+        /* ── Compact form grid ── */
+        .header-form {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+        .header-form .ctrl-full {
+            grid-column: span 2;
+        }
+
+        /* ── Compact inputs ── */
+        .ctrl-input, .g-input {
+            padding: 3px 7px;
+            font-size: 0.78rem;
+            border-radius: 6px;
+        }
+        .label { font-size: 0.63rem; margin-bottom: 1px; }
+        .ctrl-group { gap: 1px; }
+
+        /* ── Financial panel — vertical list layout ── */
+        .fin-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .fin-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.03);
+            border-left: 2px solid rgba(255,255,255,0.06);
+            transition: background 0.2s;
+        }
+        .fin-row:hover { background: rgba(255,255,255,0.06); }
+        .fin-row.warn { border-left-color: rgba(251,191,36,0.5); }
+        .fin-row-label {
+            font-size: 0.62rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .fin-row-value {
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            direction: ltr;
+            letter-spacing: 0.02em;
+        }
+        .fin-row-value.warn  { color: #fbbf24; }
+        .fin-row-value.success { color: #34d399; }
+
+        /* الائتمان المتاح — بطاقة مميزة */
+        .fin-available-card {
+            margin-top: 6px;
+            padding: 7px 10px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(16,185,129,0.08));
+            border: 1px solid rgba(56,189,248,0.25);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 12px rgba(56,189,248,0.1);
+            animation: breatheGlow 3s ease-in-out infinite;
+        }
+        @keyframes breatheGlow {
+            0%,100% { box-shadow: 0 0 8px rgba(56,189,248,0.08); }
+            50% { box-shadow: 0 0 18px rgba(56,189,248,0.22); }
+        }
+        .fin-available-label {
+            font-size: 0.62rem;
+            font-weight: 700;
+            color: #38bdf8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .fin-available-value {
+            font-size: 1rem;
+            font-weight: 900;
+            color: #38bdf8;
+            text-shadow: 0 0 10px rgba(56,189,248,0.5);
+            direction: ltr;
+        }
+
+        /* ── Items panel ── */
+        #items-panel { flex: 1; }
+        .panel-header-row { margin-bottom: 10px; }
+        .quick-add-box { max-width: 280px !important; }
+
+        /* ── Table compact ── */
+        .pos-grid thead th { padding: 6px 5px; font-size: 0.65rem; }
+        .pos-grid tbody td { padding: 3px; }
+        .g-input { padding: 4px 6px; font-size: 0.78rem; }
+        .del-btn { width: 24px; height: 24px; font-size: 0.8rem; }
+        .row-num { width: 20px; height: 20px; font-size: 0.65rem; }
+        .empty-state { padding: 20px 16px; }
+        .empty-icon { font-size: 2rem; }
+
+        /* ── RIGHT SIDEBAR PANEL ── */
+        .ds-right {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* ── NOTES BAR — full width below table ── */
+        .ds-notes-bar {
+            background: rgba(10, 17, 40, 0.60);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px;
+            padding: 12px 16px;
+            backdrop-filter: blur(12px);
+            display: grid;
+            grid-template-columns: auto 1fr;
+            align-items: start;
+            gap: 12px;
+        }
+        .ds-notes-bar .label {
+            display: block;
+            margin-bottom: 0;
+            padding-top: 8px;
+            white-space: nowrap;
+        }
+        .ds-notes-bar textarea {
+            min-height: 38px;
+            max-height: 80px;
+            resize: vertical;
+            font-size: 0.82rem;
+        }
+
+        /* Totals panel — right sidebar */
+        .totals-sidebar-panel {
+            flex: 1;
+        }
+        .totals-sidebar-panel::before {
+            content: '';
+            position: absolute; top:0; left:0; right:0; height:1px;
+            background: linear-gradient(90deg, transparent, rgba(56,189,248,0.35), rgba(16,185,129,0.25), transparent);
+        }
+
+        .totals-title {
+            font-size: 0.62rem;
+            font-weight: 800;
+            color: rgba(148,163,184,0.9);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ── Vertical Totals List ── */
+        .totals-vlist {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .tv-sep {
+            height: 1px;
+            background: rgba(255,255,255,0.05);
+            margin: 4px 0;
+        }
+        .tv-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 7px;
+            border-radius: 5px;
+            background: rgba(0,0,0,0.12);
+            transition: background 0.2s;
+        }
+        .tv-row:hover { background: rgba(255,255,255,0.05); }
+        .tv-row.editable { background: rgba(56,189,248,0.04); border: 1px solid rgba(56,189,248,0.1); }
+        .tv-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .tv-value {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            direction: ltr;
+        }
+        /* Grand total card */
+        .tv-grand {
+            margin-top: 6px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(52,211,153,0.05));
+            border: 1px solid rgba(16,185,129,0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tv-grand-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #34d399;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .tv-grand-value {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: #34d399;
+            text-shadow: 0 0 12px rgba(52,211,153,0.5);
+            direction: ltr;
+        }
+        /* tl-input used inside tv-row */
+        .tv-row .tl-input {
+            width: 75px;
+            padding: 2px 5px;
+            font-size: 0.7rem;
+            border-radius: 4px;
+        }
+
+        /* Divider line */
+        .totals-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.05);
+            margin: 4px 0;
+        }
+        /* tl-input base */
+        .tl-input {
+            padding: 2px 6px;
+            font-size: 0.7rem;
+            border-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0,0,0,0.3);
+            color: var(--text-primary);
+            font-family: var(--font-base);
+            font-weight: 700;
+            text-align: left;
+            direction: ltr;
+            outline: none;
+            width: 75px;
+        }
+        .tl-input:focus {
+            border-color: rgba(56,189,248,0.5);
+            box-shadow: 0 0 0 2px rgba(56,189,248,0.1);
+        }
+
+        /* Notes inside right panel */
+        .notes-panel {
+            background: rgba(10, 17, 40, 0.70);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 12px 14px;
+            backdrop-filter: blur(12px);
+        }
+        .notes-panel .label { display: block; margin-bottom: 6px; }
+        .ctrl-textarea { min-height: 52px; resize: vertical; font-size: 0.8rem; }
+
+        /* ── Sticky footer adjustments ── */
+        .sticky-footer { padding: 8px 20px; }
+        .ft-value { font-size: 1.05rem; }
+        .footer-actions .btn { padding: 7px 14px; font-size: 0.78rem; }
+
+        /* ── Back arrow ── */
+        .back-arrow-btn { width: 34px; height: 34px; border-radius: 10px; }
+
+        /* ── Responsive collapse ── */
+        @media (max-width: 1100px) {
+            .ds-top-row { grid-template-columns: 2fr 1fr 240px; }
+        }
+        @media (max-width: 860px) {
+            .ds-top-row { grid-template-columns: 1fr; }
+            .ds-right { position: static; }
+            .ds-notes-bar { grid-template-columns: 1fr; }
+        }
+
+        /* 5. Dynamic Totals Card Animation */
+        #form-fields-card {
+            transition: flex 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), min-width 0.8s, max-width 0.8s;
+            flex: 75;
+            min-width: 450px;
+        }
+        #totals-calc-card {
+            transition: flex 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), min-width 0.8s, opacity 0.5s ease-in-out, transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-origin: left center;
+            flex: 25;
+            min-width: 250px;
+        }
+        .hidden-totals {
+            flex: 0 0 0% !important;
+            min-width: 0 !important;
+            max-width: 0 !important;
+            padding: 0 !important;
+            border-width: 0 !important;
+            opacity: 0 !important;
+            margin: 0 !important;
+            overflow: hidden !important;
+            pointer-events: none !important;
+        }
+        .expanded-form {
+            flex: 1 1 100% !important;
+            max-width: 100% !important;
+        }
+    
+    /* Kinetic Animation for Sales Layout */
+    #sales-top-container {
+        display: flex; gap: 20px; align-items: stretch; width: 100%; margin-bottom: 15px;
+    }
+    #sales-top-container #form-fields-card {
+        flex: 1; 
+        min-width: 0; 
+        transition: flex 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), max-width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+    }
+    #sales-top-container #totals-calc-card {
+        display: flex !important;
+        flex: 0 0 360px;
+        min-width: 360px;
+        max-width: 360px;
+        opacity: 1;
+        overflow: hidden;
+        white-space: nowrap;
+        background: linear-gradient(180deg, rgba(15,23,42,0.8), rgba(30,58,138,0.4));
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        border-top: 3px solid #38bdf8 !important;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        transform-origin: right center;
+    }
+    #sales-top-container #totals-calc-card.hidden-totals {
+        flex: 0 0 0px !important;
+        min-width: 0px !important;
+        max-width: 0px !important;
+        opacity: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-width: 0 !important;
+    }
+    .tot-row {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 3px 0; border-bottom: 1px dashed rgba(255,255,255,0.1);
+    }
+    .tot-lbl { font-size: 0.75rem; font-weight: 700; color: #94a3b8; }
+    .tot-val { font-size: 0.85rem; font-weight: 900; color: #fff; font-family: 'Outfit', sans-serif; }
+    .tot-grand {
+        margin-top: 15px; background: rgba(56, 189, 248, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); box-shadow: 0 0 15px rgba(56,189,248,0.2);
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .tot-grand .lbl { font-size: 0.75rem; font-weight: 900; color: #38bdf8; }
+    .tot-grand .val { font-size: 1.15rem; font-weight: 900; color: #fff; font-family: 'Outfit', sans-serif; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+</style>
+
+
+    <style>
+        .hub-action-card {
+            background: rgba(15, 23, 42, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            height: 80px; /* Reduced height to ~50% of the previous tall card */
+        }
+        .hub-action-card::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            transition: all 0.6s ease;
+        }
+        .hub-action-card:hover::after {
+            left: 200%;
+        }
+        .hub-action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+        }
+        .hub-action-card .icon {
+            font-size: 1.8rem;
+            margin-bottom: 0;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+        }
+        .hub-action-card:hover .icon {
+            transform: scale(1.1) rotate(-5deg);
+        }
+        .hub-action-card .text-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: right;
+        }
+        .hub-action-card .title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin-bottom: 3px;
+            letter-spacing: 0.5px;
+        }
+        .hub-action-card .subtitle {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+            text-align: right;
+            margin: 0;
+        }
+        .hub-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .hub-badge.completed { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+        .hub-badge.draft { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    </style>
+        <style>
+        :root.light-theme {
+            --bg-color: #f1f5f9;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-secondary: #475569;
+            --border-color: #e2e8f0;
+        }
+        :root.light-theme body { background-color: var(--bg-color); color: var(--text-main); }
+        :root.light-theme .premium-header {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(241,245,249,0.9));
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        :root.light-theme .header-center h2 { background: linear-gradient(to right, #0f172a, #334155); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        :root.light-theme .brand-text h1 { color: #0f172a; text-shadow: none; }
+        :root.light-theme .brand-text p { color: #475569; text-shadow: none; }
+        :root.light-theme .icon-btn, :root.light-theme .user-info, :root.light-theme .clock-container { background: rgba(255,255,255,0.8); color: #0f172a; border-color: rgba(0,0,0,0.1); }
+        :root.light-theme .icon-btn:hover { background: #f8fafc; color: #000; box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
+        :root.light-theme #header-user-name { color: #0f172a !important; }
+        :root.light-theme .online-users { background: rgba(16,185,129,0.1) !important; border-color: rgba(16,185,129,0.2) !important; }
+    
+        /* User request: Sky Blue outer border for invoice header inputs */
+        .ds-top-row .ctrl-input, 
+        .ds-top-row select.ctrl-input, 
+        .ds-top-row input.ctrl-input,
+        .ds-top-row textarea.ctrl-input,
+        .pro-panel .ctrl-input {
+            border: 1px solid #38bdf8 !important;
+            box-shadow: 0 0 3px rgba(56, 189, 248, 0.3) !important;
+            background: rgba(30, 41, 59, 0.85) !important;
+        }
+        .ds-top-row .ctrl-input:focus, 
+        .ds-top-row select.ctrl-input:focus, 
+        .ds-top-row input.ctrl-input:focus,
+        .ds-top-row textarea.ctrl-input:focus,
+        .pro-panel .ctrl-input:focus {
+            border: 1px solid #7dd3fc !important;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.6) !important;
+            outline: none !important;
+        }
+        
+        /* Make sure date input gets the same treatment */
+        #hdr-date {
+            border: 1px solid #38bdf8 !important;
+            color: #38bdf8 !important;
+            text-shadow: 0 0 5px rgba(56, 189, 248, 0.3) !important;
+        }
+        #hdr-date-label {
+            color: #38bdf8 !important;
+            text-shadow: 0 0 5px rgba(56, 189, 248, 0.3) !important;
+        }
+        .date-icon-wrap {
+            background: rgba(56, 189, 248, 0.1) !important;
+            border: 1px solid rgba(56, 189, 248, 0.3) !important;
+        }
+
+    </style>
+    <script>
+        if(localStorage.getItem('erp_theme') === 'light') document.documentElement.classList.add('light-theme');
+        function toggleTheme() {
+            document.documentElement.classList.toggle('light-theme');
+            localStorage.setItem('erp_theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
+        }
+    </script>
+</head>
+<body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- ═══ Add Customer Modal ═══ -->
+    <div class="modal-overlay" id="add-customer-modal">
+        <div class="modal-card" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>➕ إضافة عميل جديد</h3>
+                <button class="modal-close" onclick="closeModal('add-customer-modal')">✕</button>
+            </div>
+            <div class="modal-body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label class="label">اسم العميل</label>
+                    <input type="text" class="ctrl-input" id="new-cust-name" placeholder="اسم العميل...">
+                </div>
+                <div class="form-group">
+                    <label class="label">رقم الهاتف</label>
+                    <input type="tel" class="ctrl-input" id="new-cust-phone" placeholder="09XXXXXXXX">
+                </div>
+                <div class="form-group">
+                    <label class="label">الواتساب</label>
+                    <input type="tel" class="ctrl-input" id="new-cust-whatsapp" placeholder="رقم الواتساب">
+                </div>
+                <div class="form-group">
+                    <label class="label">الإيميل</label>
+                    <input type="email" class="ctrl-input" id="new-cust-email" placeholder="example@email.com">
+                </div>
+                <div class="form-group">
+                    <label class="label">درجة السرية</label>
+                    <select class="ctrl-input" id="new-cust-security">
+                        <option value="1">1 (الأقل سرية)</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5 (الأعلى سرية)</option>
+                    </select>
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label class="label">العنوان</label>
+                    <input type="text" class="ctrl-input" id="new-cust-address" placeholder="عنوان العميل...">
+                </div>
+                <div class="form-group">
+                    <label class="label">الرصيد الافتتاحي</label>
+                    <input type="text" inputmode="decimal" class="ctrl-input" id="new-cust-opening" placeholder="0" onfocus="this.select()" onblur="this.value=fmtNum(parseNum(this.value))">
+                </div>
+                <div class="form-group">
+                    <label class="label">حد الائتمان (المسموح)</label>
+                    <input type="text" inputmode="decimal" class="ctrl-input" id="new-cust-credit" placeholder="0" onfocus="this.select()" onblur="this.value=fmtNum(parseNum(this.value))">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeModal('add-customer-modal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="addNewCustomer()">💾 حفظ العميل</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="pos-wrapper dash-main">
+
+        <!-- ═══ BREADCRUMB + TOP BAR ═══ -->
+                <!-- Unified Header -->
+        
+    <!-- Ambient Animated Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Unified Premium Header -->
+    <?php include 'includes/header.php'; ?>
+
+
+        
+    <!-- ═══ SALES HUB VIEW ═══ -->
+    <div id="sales-hub-view" style="display: flex; flex-direction: column; height: 100%; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 0 5px;">
+        
+        <!-- Action Cards (فاتورة جديدة, تسليم, فاتورة مبدئية) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <button onclick="openInvoiceEditor('pending_delivery')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(56,189,248,0.02)); border-color: rgba(56,189,248,0.2);">
+                <div class="icon" style="color: #38bdf8; text-shadow: 0 0 10px rgba(56,189,248,0.4); box-shadow: inset 0 0 10px rgba(56,189,248,0.1);">➕</div>
+                <div class="text-content">
+                    <div class="title" style="color: #38bdf8;">فاتورة جديدة</div>
+                    <div class="subtitle">إنشاء فاتورة مبيعات (بدون خصم مخزون)</div>
+                </div>
+            </button>
+            <button onclick="openDeliveryHub()" class="hub-action-card" style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.02)); border-color: rgba(16,185,129,0.2);">
+                <div class="icon" style="color: #10b981; text-shadow: 0 0 10px rgba(16,185,129,0.4); box-shadow: inset 0 0 10px rgba(16,185,129,0.1);">🚚</div>
+                <div class="text-content">
+                    <div class="title" style="color: #10b981;">تسليم</div>
+                    <div class="subtitle">تسليم فواتير المبيعات (خصم من المخزون)</div>
+                </div>
+            </button>
+            <button onclick="openInvoiceEditor('preliminary')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(168,85,247,0.02)); border-color: rgba(168,85,247,0.2);">
+                <div class="icon" style="color: #a855f7; text-shadow: 0 0 10px rgba(168,85,247,0.4); box-shadow: inset 0 0 10px rgba(168,85,247,0.1);">📋</div>
+                <div class="text-content">
+                    <div class="title" style="color: #a855f7;">فاتورة مبدئية</div>
+                    <div class="subtitle">عرض أسعار / غير ملزمة</div>
+                </div>
+            </button>
+        </div>
+
+        <!-- Recent Transactions Table -->
+        <div class="neo-card" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 15px;">
+            <div class="neo-card-title" style="font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;">
+                <span>📋 العمليات الأخيرة (Recent Transactions)</span>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="hub-search" class="v-input" placeholder="بحث برقم الفاتورة أو العميل..." style="width: 250px;" oninput="filterHubTransactions()">
+                    <button class="btn-action" style="width: auto; padding: 6px 12px; font-size: 0.8rem; background: rgba(255,255,255,0.05);" onclick="loadHubTransactions()">🔄 تحديث</button>
+                </div>
+            </div>
+            
+            <div class="grid-scroll-wrap" style="flex: 1; margin-top: 10px;">
+                <table class="pos-grid" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:right;">رقم الفاتورة</th>
+                            <th style="text-align:right;">التاريخ</th>
+                            <th style="text-align:right;">العميل</th>
+                            <th style="text-align:right;">النوع</th>
+                            <th style="text-align:center;">الإجمالي</th>
+                            <th style="text-align:center;">الحالة</th>
+                            <th style="text-align:center;">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hub-transactions-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+                <div class="empty-state" id="hub-empty-state" style="display: none;">
+                    <div class="icon">📭</div>
+                    <h3>لا توجد عمليات مسجلة</h3>
+                    <p>اضغط على "فاتورة جديدة" للبدء.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ DELIVERY HUB VIEW ═══ -->
+    <div id="delivery-hub-view" style="display: none; flex-direction: column; height: 100%; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 0 5px;">
+        <div class="neo-card" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 15px;">
+            <div class="neo-card-title" style="font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: #10b981;">🚚 فواتير قيد التسليم (Pending Delivery)</span>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="delivery-search" class="v-input" placeholder="بحث..." style="width: 250px;" oninput="filterDeliveryTransactions()">
+                    <button class="btn-action" style="width: auto; padding: 6px 12px; font-size: 0.8rem; background: rgba(255,255,255,0.05);" onclick="loadDeliveryTransactions()">🔄 تحديث</button>
+                    <button class="btn-action" style="width: auto; padding: 6px 12px; font-size: 0.8rem; background: rgba(239,68,68,0.1); color: #ef4444;" onclick="showSalesHub()">رجوع</button>
+                </div>
+            </div>
+            
+            <div class="grid-scroll-wrap" style="flex: 1; margin-top: 10px;">
+                <table class="pos-grid" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:right;">رقم الفاتورة</th>
+                            <th style="text-align:right;">التاريخ</th>
+                            <th style="text-align:right;">العميل</th>
+                            <th style="text-align:center;">المستودع</th>
+                            <th style="text-align:center;">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="delivery-transactions-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+                <div class="empty-state" id="delivery-empty-state" style="display: none;">
+                    <div class="icon">📭</div>
+                    <h3>لا توجد فواتير قيد التسليم</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ INVOICE EDITOR VIEW ═══ -->
+    <div id="invoice-editor-view" style="display: none; flex-direction: column; height: 100%; flex: 1;">
+    
+        <!-- ═══ MAIN BODY ═══ -->
+        <div class="ds-body" style="padding-top: 5px;">
+
+            <!-- ══ TOP ROW: بيانات الفاتورة (مدمجة) ══ -->
+            <div id="sales-top-container">
+
+                
+                <!-- Form Fields -->
+                <div class="neo-card expanded-form" id="form-fields-card" style="
+                    margin-bottom: 0; 
+                    padding: 25px; 
+                    border-radius: 16px; 
+                    background: rgba(15, 23, 42, 0.15); 
+                    border: 1px solid rgba(56, 189, 248, 0.3); 
+                    backdrop-filter: blur(25px); 
+                    -webkit-backdrop-filter: blur(25px); 
+                    box-shadow: 0 0 20px rgba(56, 189, 248, 0.15), inset 0 0 15px rgba(255,255,255,0.05);
+                    position: relative;
+                    overflow: hidden;
+                    width: 100%;
+                ">
+                    <!-- Neon glow effect -->
+                    <div style="position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 60%); z-index:0; pointer-events:none;"></div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 18px; position:relative; z-index:1;">
+                        
+                        
+                        
+    <!-- ROW 1 WRAPPER (Dynamic Split) -->
+    <div style="display: flex; width: 100%; gap: 15px; margin-bottom: 12px; transition: all 0.4s ease;">
+        
+        <!-- Row 1: Invoice Number & Date -->
+                        <div id="invoice-info-box" style="flex: 1; display: flex; gap: 20px; width: 100%; background: linear-gradient(90deg, rgba(30,58,138,0.2), rgba(15,23,42,0.4)); padding: 6px 15px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); align-items: center;">
+                            <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:15px; margin:0;">
+                                <div style="display:flex; align-items:center; justify-content:center; width: 32px; height: 32px; border-radius: 8px; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3);">
+                                    <span style="font-size: 1.2rem;">🧾</span>
+                                </div>
+                                <label class="h-label" style="margin:0; color:#38bdf8; font-size: 1.1rem; font-weight:bold; white-space:nowrap; text-shadow: 0 0 5px rgba(56,189,248,0.3);">رقم الفاتورة:</label>
+                                <div style="display:flex; align-items:center; justify-content:space-between; flex:1; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                                    <button class="pro-serial-btn" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❮</button>
+                                    <span id="inv-number" class="pro-serial-number" style="font-size: 1.05rem; font-family: 'Outfit', sans-serif; font-weight: 900; color: #38bdf8; letter-spacing: 2px; text-shadow: 0 0 10px rgba(56,189,248,0.5);">INV-000001</span>
+                                    <input type="hidden" id="hdr-inv-no">
+                                    <button class="pro-serial-btn" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❯</button>
+                                </div>
+                            </div>
+
+                            <div style="width: 2px; height: 40px; background: rgba(255,255,255,0.1); margin: 0 10px;"></div>
+
+                            <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:15px; margin:0;">
+                                <div style="display:flex; align-items:center; justify-content:center; width: 32px; height: 32px; border-radius: 8px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3);">
+                                    <span style="font-size: 1.2rem;">📅</span>
+                                </div>
+                                <label class="h-label" id="hdr-date-label" style="margin:0; color:#ef4444; font-size: 1.1rem; font-weight:bold; white-space:nowrap; text-shadow: 0 0 5px rgba(239,68,68,0.3);">التاريخ:</label>
+                                <input type="date" class="v-input ctrl-input" id="hdr-date" style="flex:1; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; color:#ef4444; padding:4px 8px; font-family:'Outfit',sans-serif; font-weight:bold; font-size:1.2rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
+                            </div>
+                        </div>
+
+        <!-- RIGHT: Financial Strip -->
+        <div id="fin-strip" class="fin-strip-inline" style="flex: 0; width: 0; opacity: 0; overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); display: flex;">
+            <div style="width: 100%; background: linear-gradient(90deg, rgba(15,23,42,0.4), rgba(30,58,138,0.2)); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 4px 10px; display: flex; align-items: center; justify-content: space-around; gap: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); min-width: 500px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.2rem;">📊</span>
+                            <div style="display:flex; flex-direction:column;">
+                                <span style="font-weight: 800; color:#fff; font-size:0.75rem;">الحالة المالية للعميل</span>
+                                <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span></span>
+                            </div>
+                        </div>
+                        
+                        <div style="display:flex; gap: 15px; align-items: center;">
+                            <div style="display:flex; flex-direction:column; align-items:center;">
+                                <span style="font-size:0.6rem; color:#94a3b8; font-weight:700;">الرصيد الدفتري</span>
+                                <span id="fin-ledger" style="font-weight:800; color:#fff; font-size:0.75rem;">0</span>
+                            </div>
+                            <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
+                            
+                            <div style="display:flex; flex-direction:column; align-items:center;">
+                                <span style="font-size:0.6rem; color:#f59e0b; font-weight:700;">شيكات معلقة</span>
+                                <span id="fin-checks" style="font-weight:800; color:#f59e0b; font-size:0.75rem;">0</span>
+                            </div>
+                            <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
+                            
+                            <div style="display:flex; flex-direction:column; align-items:center;">
+                                <span style="font-size:0.6rem; color:#ef4444; font-weight:700;">المديونية</span>
+                                <span id="fin-total-debt" style="font-weight:800; color:#ef4444; font-size:0.75rem;">0</span>
+                            </div>
+                            <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
+                            
+                            <div style="display:flex; flex-direction:column; align-items:center;">
+                                <span style="font-size:0.6rem; color:#38bdf8; font-weight:700;">حد الائتمان</span>
+                                <span id="fin-credit-limit" style="font-weight:800; color:#38bdf8; font-size:0.75rem;">0</span>
+                            </div>
+                            <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
+                            
+                            <div style="display:flex; flex-direction:column; align-items:center; background: rgba(16,185,129,0.1); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.2);">
+                                <span style="font-size:0.6rem; color:#34d399; font-weight:800;">✨ المتاح</span>
+                                <span id="fin-remaining" style="font-weight:900; color:#34d399; font-size:0.85rem;">0</span>
+                            </div>
+                        </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <!-- Row 2: Customer, Currency, Payment -->
+                        <div style="display: flex; gap: 20px; width: 100%;">
+                            
+                            <!-- Customer Field (35% width) -->
+                            <div class="h-form-group" style="flex: 0 0 35%; display:flex; align-items:center; gap:10px;">
+                                <label class="h-label" style="margin:0; white-space:nowrap;">اسم العميل <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span></span></label>
+                                <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1; width: 100%;">
+                                    <div id="hdr-customer-container" style="flex: 1; min-width: 0;"></div>
+                                    <button onclick="openModal('add-customer-modal')" style="flex-shrink: 0; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid rgba(16,212,143,0.3); width: 38px; height: 38px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2); transition: 0.2s;" title="إضافة عميل">
+                                        ➕
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Exchange Rate Field (40% width) -->
+                            <div class="h-form-group" style="flex: 0 0 40%; display:flex; align-items:center; gap:10px;">
+                                <label class="h-label" style="margin:0; white-space:nowrap;">سعر الصرف</label>
+                                <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1; width: 100%;">
+                                    <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="document.getElementById('hdr-exchange-rate').disabled = (this.value === 'SDG'); document.getElementById('hdr-exchange-rate').value = (this.value === 'SDG') ? '1' : ''; recalcAll();" style="flex: 1; min-width:0; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
+                                        <option value="SDG">🇸🇩 جنيه</option>
+                                        <option value="USD">🇺🇸 دولار</option>
+                                        <option value="SAR">🇸🇦 ريال</option>
+                                        <option value="AED">🇦🇪 درهم</option>
+                                        <option value="EGP">🇪🇬 مصري</option>
+                                    </select>
+                                    <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" disabled oninput="recalcAll()" style="flex: 1; min-width:0; text-align: center; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);" placeholder="الصرف">
+                                </div>
+                            </div>
+
+                            <!-- Payment Method Field (25% width) -->
+                            <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:10px;">
+                                <label class="h-label" style="margin:0; white-space:nowrap;">طريقة الدفع</label>
+                                <div style="flex: 1; width: 100%;">
+                                    <select class="v-input ctrl-input" id="hdr-payment-method" onchange="togglePaymentAccount()" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
+                                        <option value="cash">نقدي فوري</option>
+                                        <option value="credit">آجل (على الحساب)</option>
+                                        <option value="bank">تحويل بنكي</option>
+                                        <option value="cheque">شيك</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Details -->
+                        <div id="payment-details-row" style="display: none; gap: 15px; width: 100%; padding: 6px 10px; background: rgba(56, 189, 248, 0.1); border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 8px;">
+                            <div class="h-form-group" style="flex: 1; min-width: 120px; display:flex; align-items:center; gap:8px;">
+                                  <label class="h-label" id="pay-detail-1-label" style="font-size:0.9rem; color:#38bdf8; margin:0; white-space:nowrap;">رقم المرجع</label>
+                                <div class="h-input-wrapper" style="flex:1;">
+                                    <input type="text" class="v-input ctrl-input" id="pay-detail-1" placeholder="..." style="height: 34px !important; min-height: 34px !important; font-size: 0.95rem !important; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
+                                </div>
+                            </div>
+                            <div class="h-form-group" style="flex: 1; min-width: 120px; display:flex; align-items:center; gap:8px;">
+                                  <label class="h-label" id="pay-detail-2-label" style="font-size:0.9rem; color:#38bdf8; margin:0; white-space:nowrap;">اسم البنك</label>
+                                <div class="h-input-wrapper" style="flex:1;">
+                                    <input type="text" class="v-input ctrl-input" id="pay-detail-2" placeholder="..." style="height: 34px !important; min-height: 34px !important; font-size: 0.95rem !important; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
+                                </div>
+                            </div>
+                            <div class="h-form-group" style="flex: 1; min-width: 120px; display:flex; align-items:center; gap:8px;">
+                                  <label class="h-label" id="pay-detail-3-label" style="font-size:0.9rem; color:#38bdf8; margin:0; white-space:nowrap;">الفرع (أو تاريخ)</label>
+                                <div class="h-input-wrapper" style="flex:1;">
+                                    <input type="text" class="v-input ctrl-input" id="pay-detail-3" placeholder="..." style="height: 34px !important; min-height: 34px !important; font-size: 0.95rem !important; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row 3: Treasury, Warehouse, Cost Center -->
+                        <div style="display: flex; gap: 20px; width: 100%;">
+                            <div class="h-form-group" id="payment-account-group" style="flex: 1; display:flex; align-items:center; gap:10px;">
+                                <label class="h-label" style="margin:0; white-space:nowrap; min-width:80px;">الصندوق/الخزنة</label>
+                                <div style="flex:1;">
+                                    <select class="v-input ctrl-input" id="hdr-payment-account" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);"></select>
+                                </div>
+                            </div>
+
+                            <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:10px;">
+                                <label class="h-label" style="margin:0; white-space:nowrap; min-width:60px;">المخزن</label>
+                                <div style="flex:1;">
+                                    <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange()" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);"></select>
+                                </div>
+                            </div>
+
+                            <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:10px;">
+                                <label class="h-label" style="margin:0; white-space:nowrap; min-width:75px;">مركز التكلفة</label>
+                                <div style="flex:1;">
+                                    <select class="v-input ctrl-input" id="hdr-cost-center" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
+                                        <option value="cc-001">الفرع الرئيسي</option>
+                                        <option value="cc-002">فرع بحري</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row 4: Description -->
+                        <div style="display: flex; gap: 20px; width: 100%;">
+                            <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:10px;">
+                                <label class="h-label" style="margin:0; white-space:nowrap; min-width:80px;">البيان</label>
+                                <div style="flex:1;">
+                                    <input type="text" class="v-input ctrl-input" id="hdr-description" placeholder="ملاحظات، أرقام مرجعية..." style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Due Date (hidden normally) -->
+                        <div class="h-form-group" id="due-date-group" style="display:none; border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.05); padding:10px; border-radius:8px;">
+                            <label class="h-label" style="color: #f59e0b;">الاستحقاق</label>
+                            <div class="h-input-wrapper">
+                                <input type="date" class="v-input ctrl-input" id="hdr-due-date" style="color:#f59e0b; background: rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.2);">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Totals Card (Now second in DOM, rendering on the Left in RTL) -->
+                <div class="neo-card totals-card hidden-totals" id="totals-calc-card" style="margin-bottom: 0; flex-direction: column; justify-content: space-between; border-top: 2px solid var(--gold-primary);">
+                    <div class="neo-card-title" style="margin-bottom: 10px; text-align: center; color: var(--gold-primary); font-size: 0.95rem;">🧮 الإجماليات</div>
+                    
+                    <!-- Hidden: keeps JS id reference working -->
+                    <span id="t-invoice-total" style="display:none;">0</span>
+                    
+                    <div class="tot-row" style="padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <span class="tot-lbl">الترحيل</span>
+                        <input type="text" inputmode="decimal" class="v-input tot-input tl-input" id="t-transport" value="0" onfocus="this.select()" oninput="recalcAll()" onblur="this.value=fmtNum(parseNum(this.value))" style="width:120px; text-align:left; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); border-radius: 6px; padding: 2px 8px; height: 26px; color: #fff; font-size: 0.85rem; line-height: 1;">
+                    </div>
+                    <div class="tot-row" style="padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <span class="tot-lbl">تكلفة العمالة</span>
+                        <input type="text" inputmode="decimal" class="v-input tot-input tl-input" id="t-labor" value="0" onfocus="this.select()" oninput="recalcAll()" onblur="this.value=fmtNum(parseNum(this.value))" style="width:120px; text-align:left; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); border-radius: 6px; padding: 2px 8px; height: 26px; color: #fff; font-size: 0.85rem; line-height: 1;">
+                    </div>
+                    <div class="tot-row" style="padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <span class="tot-lbl">إضافات أخرى</span>
+                        <span class="tot-val" id="t-additions" style="color:var(--gold-primary);">+ 0</span>
+                    </div>
+                    <div class="tot-row" style="padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <span class="tot-lbl">الضريبة</span>
+                        <span class="tot-val" id="t-tax" style="color:var(--danger-color);">+ 0</span>
+                    </div>
+                    <div class="tot-row" style="padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <span class="tot-lbl">خصم مسموح</span>
+                        <span class="tot-val" id="t-discount" style="color:var(--danger-color);">- 0</span>
+                    </div>
+
+                    <div class="tot-grand">
+                        <div class="lbl">الصافي النهائي</div>
+                        <div class="val" id="t-grand">0 <span style="color: #ef4444; font-size: 0.8em; text-shadow: none;">SDG</span></div>
+                    </div>
+                </div>
+            </div><!-- end ds-top-row -->
+
+
+            <!-- ══ FULL-WIDTH: جدول الأصناف ══ -->
+            <div class="panel" id="items-panel" style="z-index: 50;">
+                <div class="panel-header-row" style="display: flex; align-items: center;">
+                    <div class="panel-title">📦 أصناف الفاتورة</div>
+                    <div class="quick-add-box" style="flex: 1; max-width: 320px; margin-right: 12px; position: relative; z-index: 99999;">
+                        <input type="text" class="g-input" id="quick-item-search" placeholder="بحث صنف أو باركود..."
+                            style="background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.35); border-radius: 8px; color: var(--text-primary); padding: 5px 10px;"
+                            onfocus="this.select(); showQuickItemDropdown()"
+                            onblur="hideQuickItemDropdownDelayed()"
+                            oninput="filterQuickItemDropdown()" autocomplete="new-password">
+                        <div class="custom-dropdown-list" id="quick-item-dropdown-list" style="text-align:right;"></div>
+                    </div>
+                    
+
+                </div>
+
+                <!-- Desktop Table -->
+                <div class="grid-scroll-wrap">
+                    <table class="pos-grid" id="pos-grid">
+                        <thead>
+                            <tr>
+                                <th class="th-num">#</th>
+                                <th class="th-item">الصنف</th>
+                                <th class="th-unit">الوحدة</th>
+                                <th class="th-factor">التعادل</th>
+                                <th class="th-qty">الكمية</th>
+                                <th class="th-baseqty">بالعدد</th>
+                                <th class="th-avail" style="color:#10b981;">المتاح</th>
+                                <th class="th-wh">المخزن</th>
+                            <th class="th-shila" style="width:7%; min-width:70px; text-align:center;">الشيلة X</th>
+                            
+                                <th class="th-total">الإجمالي</th>
+                                <th class="th-del"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="grid-body"></tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Cards -->
+                <div class="mobile-cards" id="mobile-cards"></div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-icon">📭</div>
+                    <p>لم يتم إضافة أصناف بعد</p>
+                    <span class="empty-hint">اضغط <strong>"+ صنف"</strong> أو <kbd>Ctrl+N</kbd></span>
+                </div>
+            </div><!-- end items-panel -->
+
+            <!-- ══ NOTES BAR: ملاحظات الفاتورة (full width below table) ══ -->
+            <div class="ds-notes-bar" style="display: none;">
+                <label class="label">📝 ملاحظات الفاتورة</label>
+                <textarea class="ctrl-input" id="inv-notes" rows="2" placeholder="أي ملاحظات إضافية على الفاتورة..."></textarea>
+            </div>
+
+        </div><!-- end ds-body -->
+
+
+
+        
+        <div class="items-toolbar" style="display: flex; align-items: center; justify-content: center; padding: 15px; border-radius: 12px; background: rgba(18, 15, 25, 0.8); border: 1px solid rgba(255,255,255,0.05); margin-top: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+            <div class="toolbar-actions" style="display: flex; gap: 12px; width: 100%; align-items: center;">
+                <button class="btn-action" style="flex: 1; height: 45px; background: #10b981; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);" onmouseover="this.style.background='#059669'; this.style.boxShadow='0 4px 15px rgba(16, 185, 129, 0.5)';" onmouseout="this.style.background='#10b981'; this.style.boxShadow='0 2px 10px rgba(16, 185, 129, 0.3)';" onclick="addRow()" id="add-row-btn">➕ إضافة سطر</button>
+                
+                <button class="btn-action" id="attach-btn" style="flex: 1; height: 45px; background: #8b5cf6; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);" onmouseover="this.style.background='#7c3aed'; this.style.boxShadow='0 4px 15px rgba(139, 92, 246, 0.5)';" onmouseout="this.style.background='#8b5cf6'; this.style.boxShadow='0 2px 10px rgba(139, 92, 246, 0.3)';" onclick="document.getElementById('hdr-attachment').click()">📎 إرفاق مستند</button>
+                <input type="file" id="hdr-attachment" accept="image/*,application/pdf" style="display:none;" onchange="document.getElementById('attach-btn').innerText = this.files.length > 0 ? '📎 تم الإرفاق' : '📎 إرفاق مستند'; document.getElementById('attach-btn').style.background = this.files.length > 0 ? '#10b981' : '#8b5cf6';">
+                
+                <button class="btn-action btn-draft" style="flex: 1; height: 45px; background: #f97316; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(249, 115, 22, 0.3);" onmouseover="this.style.background='#ea580c'; this.style.boxShadow='0 4px 15px rgba(249, 115, 22, 0.5)';" onmouseout="this.style.background='#f97316'; this.style.boxShadow='0 2px 10px rgba(249, 115, 22, 0.3)';" onclick="saveDraft()">💾 مسودة</button>
+                
+                <button class="btn-action btn-delete" style="flex: 1; height: 45px; background: #ef4444; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(239, 68, 68, 0.3);" onmouseover="this.style.background='#dc2626'; this.style.boxShadow='0 4px 15px rgba(239, 68, 68, 0.5)';" onmouseout="this.style.background='#ef4444'; this.style.boxShadow='0 2px 10px rgba(239, 68, 68, 0.3)';" onclick="confirmDeleteTransaction()">❌ إلغاء</button>
+                
+                <span style="display:none;" id="footer-grand"></span>
+                <button class="btn-action btn-submit" style="flex: 1.5; height: 45px; box-shadow: 0 2px 10px rgba(56, 189, 248, 0.4); background: linear-gradient(135deg, #0ea5e9, #2563eb); color: #fff; border: none; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.boxShadow='0 6px 20px rgba(56, 189, 248, 0.6)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(56, 189, 248, 0.4)';" onclick="submitInvoice()">✅ تأكيد وحفظ</button>
+            </div>
+        </div>
+
+        <div id="adjustments-panel" style="display: none;">
+            <input type="text" id="discount-amt" value="0">
+            <input type="number" id="discount-pct" value="0">
+            <input type="text" id="tax-amt" value="0">
+            <input type="number" id="tax-pct" value="0">
+            <input type="text" id="addition-amt" value="0">
+            <input type="number" id="addition-pct" value="0">
+        </div>
+
+        <!-- ═══ STICKY FOOTER ═══ -->
+        </div>
+</div>
+</div>
+
+    <script src="js/localforage.min.js"></script>
+    <script src="js/html2pdf.bundle.min.js"></script>
+    <script src="js/whatsapp-integration.js"></script>
+    <script src="js/app.js?v=1782530467440"></script>
+    <script src="js/print-engine.js"></script>
+    <script src="js/smart-select.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+          SmartSelectManager.init('hdr-customer-container', 'hdr-customer', {
+              placeholder: 'ابحث أو اختر العميل...',
+              dataTypes: ['CUST'],
+              onChange: function() { if(typeof onCustomerChange === 'function') onCustomerChange(); }
+          });
+      });
+    </script>
+    <script src="js/direct-sales.js?v=1782530467440"></script>
+
+    <script>
+        // Sales Hub Logic
+        let currentSalesView = 'hub'; // 'hub' or 'editor'
+
+        function showSalesHub() {
+            document.getElementById('invoice-editor-view').style.display = 'none';
+            document.getElementById('delivery-hub-view').style.display = 'none';
+            document.getElementById('sales-hub-view').style.display = 'flex';
+            currentSalesView = 'hub';
+            loadHubTransactions();
+            
+            // Adjust header Back button behavior
+            const backBtn = document.querySelector('button[title="رجوع"]');
+            if (backBtn) {
+                backBtn.onclick = function() { window.location.href = 'dashboard-pro.php'; };
+                backBtn.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><polyline points="12 19 5 12 12 5"></polyline></svg>';
+            }
+        }
+
+        function openInvoiceEditor(type = 'pending_delivery') {
+            document.getElementById('sales-hub-view').style.display = 'none';
+            document.getElementById('delivery-hub-view').style.display = 'none';
+            document.getElementById('invoice-editor-view').style.display = 'flex';
+            currentSalesView = 'editor';
+            currentSaleType = type;
+            
+            // Adjust header Back button behavior to return to hub
+            const backBtn = document.querySelector('button[title="رجوع"]');
+            if (backBtn) {
+                backBtn.onclick = function() { showSalesHub(); };
+                backBtn.innerHTML = '<span style="font-weight:bold; font-size:0.8rem; padding: 0 4px;">العودة للقائمة</span>';
+                backBtn.style.width = 'auto';
+                backBtn.style.padding = '0 10px';
+            }
+
+            // Set active tab
+            document.querySelectorAll('#sale-type-tabs .action-tab').forEach(t => {
+                t.classList.remove('active');
+            });
+            const activeTab = document.getElementById('tab-' + type);
+            if(activeTab) activeTab.classList.add('active');
+
+            // Handle Preliminary UI changes
+            if (type === 'preliminary') {
+                document.getElementById('header-title').innerHTML = 'فاتورة مبدئية <span style="font-size:0.7em;color:red;">(غير ملزمة)</span>';
+            } else {
+                document.getElementById('header-title').innerText = 'فاتورة مبيعات';
+            }
+            
+            window.dispatchEvent(new Event('resize'));
+        }
+
+        function openDeliveryHub() {
+            document.getElementById('sales-hub-view').style.display = 'none';
+            document.getElementById('invoice-editor-view').style.display = 'none';
+            document.getElementById('delivery-hub-view').style.display = 'flex';
+            currentSalesView = 'delivery';
+            loadDeliveryTransactions();
+        }
+
+        function loadHubTransactions() {
+            const tbody = document.getElementById('hub-transactions-body');
+            const emptyState = document.getElementById('hub-empty-state');
+            
+            // Fetch from localStorage
+            const savedData = localStorage.getItem('erp_sales_invoices_v1');
+            let invoices = [];
+            if (savedData) {
+                try { invoices = JSON.parse(savedData); } catch(e) {}
+            }
+            
+            if (!invoices || invoices.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'flex';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            tbody.innerHTML = '';
+            
+            // Sort by date/time descending
+            invoices.sort((a,b) => {
+                const dateA = new Date(a.timestamp || a.date).getTime();
+                const dateB = new Date(b.timestamp || b.date).getTime();
+                return dateB - dateA;
+            });
+            
+            invoices.forEach(inv => {
+                const tr = document.createElement('tr');
+                let statusClass = 'completed';
+                let statusText = 'مكتملة';
+                if (inv.status === 'draft') { statusClass = 'draft'; statusText = 'مسودة'; }
+                else if (inv.status === 'preliminary') { statusClass = 'draft'; statusText = 'مبدئية'; }
+                else if (inv.status === 'pending_delivery') { statusClass = 'draft'; statusText = 'بانتظار التسليم'; }
+                else if (inv.status === 'delivered') { statusClass = 'completed'; statusText = 'تم التسليم'; }
+                
+                let typeText = '🛒 مباشر';
+                if (inv.saleType === 'delivery') typeText = '🚚 تسليم';
+                else if (inv.saleType === 'preliminary') typeText = '📋 مبدئية';
+                else if (inv.status === 'pending_delivery') typeText = '🛒 جديدة';
+
+                // Check if the invoice is from 27/6/2026 to highlight numbers in red
+                let isTargetDate = false;
+                if (inv.date === '2026-06-27' || (inv.timestamp && inv.timestamp.startsWith('2026-06-27'))) {
+                    isTargetDate = true;
+                }
+                const numColor = isTargetDate ? '#ef4444' : 'inherit';
+
+                let actionBtns = `
+                    <button onclick="editHubTransaction('${inv.invoiceNo}')" style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; border-radius:6px; padding:4px 8px; cursor:pointer; margin-left:4px;">تعديل / عرض</button>
+                    <button onclick="sendInvoiceWA('${inv.invoiceNo}')" style="background:rgba(37,211,102,0.1); border:1px solid rgba(37,211,102,0.3); color:#25d366; border-radius:6px; padding:4px 10px; cursor:pointer; margin-left:4px; display:inline-flex; align-items:center; justify-content:center;" title="إرسال عبر الواتساب">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    </button>
+                    <button onclick="deleteHubTransaction('${inv.invoiceNo}')" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:6px; padding:4px 8px; cursor:pointer; margin-left:4px;">حذف</button>
+                `;
+
+                if (inv.status === 'preliminary') {
+                    actionBtns = `
+                        <button onclick="convertToOfficial('${inv.invoiceNo}')" style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:#10b981; border-radius:6px; padding:4px 8px; cursor:pointer; margin-left:4px;">تحويل لرسمية</button>
+                        ` + actionBtns;
+                }
+
+                tr.innerHTML = `
+                    <td style="text-align:right; font-weight:800; color:var(--gold-primary);">${inv.invoiceNo}</td>
+                    <td style="text-align:right; color:#ef4444; font-weight:bold;" dir="ltr">${inv.date}</td>
+                    <td style="text-align:right; font-weight:600;">${inv.customerName || (inv.customer && inv.customer !== 'walk-in' ? inv.customer : 'عميل نقدي')}</td>
+                    <td style="text-align:right; color:var(--text-dim);">${typeText}</td>
+                    <td style="text-align:center; font-weight:900; direction:ltr; color:${numColor};">${fmtNum(inv.totals?.grandTotal || inv.grandTotal || 0)} SDG</td>
+                    <td style="text-align:center;"><span class="hub-badge ${statusClass}">${statusText}</span></td>
+                    <td style="text-align:center;">
+                        ${actionBtns}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function filterHubTransactions() {
+            const query = document.getElementById('hub-search').value.toLowerCase();
+            const rows = document.querySelectorAll('#hub-transactions-body tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        function editHubTransaction(invNo) {
+            // Load it using the existing loadInvoice function in sales-pro.js
+            // First we need to open the editor
+            openInvoiceEditor();
+            // Then load it
+            if(typeof loadInvoice === 'function') {
+                setTimeout(() => loadInvoice(invNo), 100);
+            }
+        }
+        
+        function deleteHubTransaction(invNo) {
+            if(confirm('هل أنت متأكد من حذف الفاتورة ' + invNo + ' نهائياً؟')) {
+                let savedData = localStorage.getItem('erp_sales_invoices_v1');
+                if (savedData) {
+                    let invoices = JSON.parse(savedData);
+                    invoices = invoices.filter(i => i.invoiceNo !== invNo);
+                    localStorage.setItem('erp_sales_invoices', JSON.stringify(invoices));
+                    showToast('تم حذف الفاتورة بنجاح', 'success');
+                    loadHubTransactions();
+                }
+            }
+        }
+
+        // Initialize view on load
+        document.addEventListener('DBReady', () => {
+            // Wait a brief moment for other scripts to initialize
+            setTimeout(() => {
+                showSalesHub();
+            }, 50);
+        });
+    </script>
+    </body>
+</html>
