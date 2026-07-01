@@ -792,7 +792,7 @@
 
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+<script src="js/localforage.min.js"></script>
     <script src="js/app.js?v=20260626_4"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {

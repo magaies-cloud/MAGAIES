@@ -99,8 +99,8 @@
     function parseNum(str) { return parseFloat(String(str || '0').replace(/,/g, '')) || 0; }
 
     function calculatePartnerBalance(partnerName) {
-        let custs = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
-        let sups = JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]');
+        let custs = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]').filter(x => !x.deleted);
+        let sups = JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]').filter(x => !x.deleted);
         
         let partner = custs.find(c => c.name && c.name.includes(partnerName)) || 
                       sups.find(s => s.name && s.name.includes(partnerName));
@@ -212,7 +212,7 @@
     }
 
     function getItemStock(itemName) {
-        const items = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+        const items = JSON.parse(localStorage.getItem('erp_items_v1') || '[]').filter(x => !x.deleted);
         const item = items.find(i => i.name && i.name.includes(itemName) && !i.deleted);
         if(!item) return null;
         
@@ -261,7 +261,7 @@
     }
 
     function getTotalInventoryValue() {
-        let items = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+        let items = JSON.parse(localStorage.getItem('erp_items_v1') || '[]').filter(x => !x.deleted);
         let totalValue = 0;
         items.forEach(item => {
             if(item.deleted) return;
@@ -278,7 +278,7 @@
     }
 
     function getTopDebtors() {
-        let custs = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
+        let custs = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]').filter(x => !x.deleted);
         let debtors = [];
         custs.forEach(c => {
             const res = calculatePartnerBalance(c.name);
@@ -303,7 +303,7 @@
     }
 
     function getLowStockItems() {
-        let items = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+        let items = JSON.parse(localStorage.getItem('erp_items_v1') || '[]').filter(x => !x.deleted);
         let lowStock = [];
         items.forEach(item => {
             if(item.deleted) return;

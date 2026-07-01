@@ -488,53 +488,64 @@
     </style>
 
     <script>
+
+        // Dynamic Company Header
+        function loadCompanyHeader() {
+            try {
+                const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+                
+                const cName = document.getElementById('hdr-c-name');
+                const cReg = document.getElementById('hdr-c-reg');
+                const cVat = document.getElementById('hdr-c-vat');
+                const cAddr = document.getElementById('hdr-c-addr');
+                const cLogo = document.getElementById('company-logo');
+
+                if (cName && cfg.companyName) cName.innerText = cfg.companyName;
+                if (cReg && cfg.regNumber) cReg.innerText = 'سجل تجاري: ' + cfg.regNumber;
+                if (cVat && cfg.vat) cVat.innerText = 'الرقم الضريبي: ' + cfg.vat;
+                if (cAddr && cfg.address) cAddr.innerText = cfg.address;
+                
+                if (cLogo && cfg.logoBase64) {
+                    cLogo.src = cfg.logoBase64;
+                }
+            } catch(e) {}
+        }
+        document.addEventListener('DOMContentLoaded', loadCompanyHeader);
+
         let accountsData = [];
 
         function loadAccountsFromDB() {
             accountsData = [{ id: 'all_accounts', name: '🌟 جميع الحسابات (شامل)', group: 'عام' }];
             
             // 1. العملاء
-            const customers = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
+            const customers = (JSON.parse(localStorage.getItem('erp_customers_v1') || '[]')).filter(x => !x.deleted);
             customers.forEach(c => {
-                accountsData.push({ id: c.id || c.code || Math.random().toString(), name: c.name, phone: c.phone || '', group: 'العملاء' });
+                accountsData.push({ id: c.id, name: c.name, phone: c.phone || '', group: 'العملاء' });
             });
 
             // 2. الموردين
-            const suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]');
+            const suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]')).filter(x => !x.deleted);
             suppliers.forEach(s => {
-                accountsData.push({ id: s.id || s.code || Math.random().toString(), name: s.name, phone: s.phone || '', group: 'الموردين' });
+                accountsData.push({ id: s.id, name: s.name, phone: s.phone || '', group: 'الموردين' });
             });
 
             // 3. البنوك
-            const banks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]');
+            const banks = (JSON.parse(localStorage.getItem('erp_banks_v1') || '[]')).filter(x => !x.deleted);
             banks.forEach(b => {
-                accountsData.push({ id: b.id || b.code || Math.random().toString(), name: b.name, phone: b.accountNumber || '', group: 'البنوك' });
+                accountsData.push({ id: b.id, name: b.bankName || b.name || 'بنك غير محدد', phone: b.accountNumber || '', group: 'البنوك' });
             });
 
             // 4. الخزن
-            const safes = JSON.parse(localStorage.getItem('erp_safes_v1') || '[]');
+            const safes = (JSON.parse(localStorage.getItem('erp_safes_v1') || '[]')).filter(x => !x.deleted);
             safes.forEach(s => {
-                accountsData.push({ id: s.id || s.code || Math.random().toString(), name: s.name, phone: '', group: 'الخزن' });
+                accountsData.push({ id: s.id, name: s.safeName || s.name || 'خزينة غير محددة', phone: '', group: 'الخزن' });
             });
 
             // 5. الحسابات والمصروفات
-            const generalAccounts = JSON.parse(localStorage.getItem('erp_accounts_v1') || '[]');
+            const generalAccounts = (JSON.parse(localStorage.getItem('erp_accounts_v1') || '[]')).filter(x => !x.deleted);
             generalAccounts.forEach((acc, idx) => {
-                const accName = acc.name || 'غير محدد';
-                accountsData.push({ id: acc.id || acc.code || ('ACC-' + idx), name: accName, phone: '', group: 'المصروفات والحسابات' });
+                accountsData.push({ id: acc.id, name: acc.name || 'غير محدد', phone: '', group: 'المصروفات والحسابات' });
             });
-
-            // Fallback mock data if DB is entirely empty
-            if (accountsData.length === 1) {
-                accountsData.push(
-                    { id: 'ع-001', name: 'شركة الأفق للتجارة (عميل افتراضي)', phone: '966500000001', group: 'العملاء' },
-                    { id: 'ع-002', name: 'مؤسسة التقنية (عميل افتراضي)', phone: '966500000002', group: 'العملاء' },
-                    { id: 'م-001', name: 'مصنع الجودة (مورد افتراضي)', phone: '966500000003', group: 'الموردين' },
-                    { id: 'خ-001', name: 'الصندوق الرئيسي (افتراضي)', group: 'الخزن' },
-                    { id: 'ب-001', name: 'مصرف الراجحي (افتراضي)', group: 'البنوك' },
-                    { id: 'مص-001', name: 'مصروفات تشغيلية (افتراضي)', group: 'المصروفات' }
-                );
-            }
         }
 
         function initCsDropdown() {
@@ -576,7 +587,8 @@
         }
 
         function filterCs() {
-            const query = document.getElementById('cs-input').value.toLowerCase();
+            const rawQuery = document.getElementById('cs-input').value;
+            const query = window.normalizeArabic ? window.normalizeArabic(rawQuery) : rawQuery.toLowerCase();
             const dd = document.getElementById('cs-dropdown');
             const options = dd.querySelectorAll('.cs-option');
             const groups = dd.querySelectorAll('.cs-group');
@@ -589,7 +601,8 @@
             groups.forEach(g => groupHasVisible[g.getAttribute('data-group')] = false);
             
             options.forEach(opt => {
-                const text = opt.innerText.toLowerCase();
+                const textRaw = opt.innerText;
+                const text = window.normalizeArabic ? window.normalizeArabic(textRaw) : textRaw.toLowerCase();
                 const grp = accountsData.find(a => a.id === opt.getAttribute('data-id')).group;
                 if (text.includes(query)) {
                     opt.style.display = 'block';
@@ -639,7 +652,76 @@
 
         window.addEventListener('beforeprint', updatePrintTimestamp);
 
-        function generateSimpleReport() {
+        
+    function getAccountName(id) {
+        if(!window.allAccountsCache) {
+            let accs = [];
+            try { accs = accs.concat(JSON.parse(localStorage.getItem('erp_accounts_v1'))||[]); }catch(e){}
+            try { accs = accs.concat(JSON.parse(localStorage.getItem('erp_customers_v1'))||[]); }catch(e){}
+            try { accs = accs.concat(JSON.parse(localStorage.getItem('erp_suppliers_v1'))||[]); }catch(e){}
+            try { accs = accs.concat(JSON.parse(localStorage.getItem('erp_banks_v1'))||[]); }catch(e){}
+            try { accs = accs.concat(JSON.parse(localStorage.getItem('erp_safes_v1'))||[]); }catch(e){}
+            window.allAccountsCache = accs;
+        }
+        const found = window.allAccountsCache.find(a => a.id === id);
+        return found ? (found.name || found.bankName || found.safeName || 'غير محدد') : id;
+    }
+
+    function loadTransactions(accountId) {
+        transactions = [];
+        if (!accountId) return;
+        
+        let vouchers = [];
+        try {
+            vouchers = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
+        } catch(e) {}
+        
+        vouchers.sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        let runningBalance = 0;
+        
+        vouchers.forEach(v => {
+            if (!v.rows) return;
+            const accRows = v.rows.filter(r => r.accountId === accountId);
+            if (accRows.length === 0) return;
+            
+            const otherRows = v.rows.filter(r => r.accountId !== accountId);
+            let contraAccount = otherRows.length > 0 ? (otherRows.map(r => getAccountName(r.accountId)).join('، ')) : '-';
+            if(contraAccount.length > 30) contraAccount = contraAccount.substring(0, 30) + '...';
+            
+            accRows.forEach(r => {
+                const dr = parseFloat(r.debit) || 0;
+                const cr = parseFloat(r.credit) || 0;
+                runningBalance += (dr - cr);
+                
+                let dateStr = v.date || '-';
+                if(dateStr !== '-') {
+                    const d = new Date(dateStr);
+                    if(!isNaN(d)) dateStr = d.toLocaleDateString('en-GB'); // dd/mm/yyyy
+                }
+
+                transactions.push({
+                    date: dateStr,
+                    ref: v.refNo || '-',
+                    voucher: v.id || '-',
+                    desc: r.description || v.notes || 'حركة مالية',
+                    contraAccount: contraAccount,
+                    notes: v.notes || '',
+                    costCenter: v.costCenter || '-',
+                    dr: dr,
+                    cr: cr,
+                    bal: runningBalance,
+                    curr: v.currency || 'SDG',
+                    rate: parseFloat(v.currencyRate) || 1,
+                    dr_fc: dr / (parseFloat(v.currencyRate) || 1),
+                    cr_fc: cr / (parseFloat(v.currencyRate) || 1),
+                    bal_fc: runningBalance / (parseFloat(v.currencyRate) || 1)
+                });
+            });
+        });
+    }
+
+    function generateSimpleReport() {
             const accSelect = document.getElementById('accountSelect');
             const csInput = document.getElementById('cs-input');
             const container = document.getElementById('print-container');
@@ -652,6 +734,13 @@
                     titleEl.innerText = `كشف حساب - ${accName}`;
                 }
                 updatePrintTimestamp();
+                
+                // Fetch real data
+                if(typeof loadTransactions === 'function') {
+                    loadTransactions(accSelect.value);
+                    if(typeof renderEnterprise === 'function') renderEnterprise();
+                    if(typeof renderOthers === 'function') renderOthers();
+                }
             }
         }
     </script>
@@ -678,10 +767,10 @@
                 
                 <!-- Right Side: Company Details -->
                 <div style="flex: 1; text-align: right; color: #111827;">
-                    <h2 style="margin: 0 0 5px 0; font-size: 1.6rem; font-weight: 900;">شركة الأفق للتجارة</h2>
-                    <p style="margin: 0 0 3px 0; font-size: 0.95rem; font-weight: 600;">سجل تجاري: 1010101010</p>
-                    <p style="margin: 0 0 3px 0; font-size: 0.95rem; font-weight: 600;">الرقم الضريبي: 300000000000003</p>
-                    <p style="margin: 0 0 3px 0; font-size: 0.95rem; font-weight: 600;">الرياض، المملكة العربية السعودية</p>
+                    <h2 id="hdr-c-name" style="margin: 0 0 5px 0; font-size: 1.6rem; font-weight: 900;">شركة الأفق للتجارة</h2>
+                    <p id="hdr-c-reg" style="margin: 0 0 3px 0; font-size: 0.95rem; font-weight: 600;">سجل تجاري: 1010101010</p>
+                    <p id="hdr-c-vat" style="margin: 0 0 3px 0; font-size: 0.95rem; font-weight: 600;">الرقم الضريبي: 300000000000003</p>
+                    <p id="hdr-c-addr" style="margin: 0 0 3px 0; font-size: 0.95rem; font-weight: 600;">الرياض، المملكة العربية السعودية</p>
                 </div>
 
                 <!-- Center Side: Report Title -->
@@ -1021,12 +1110,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 <script>
     // --- Data Rendering Engine (All Data) ---
-    const transactions = [
-        { date: '01/06/2026', ref: 'OB-01', voucher: 'JV-001', desc: 'رصيد افتتاحي', contraAccount: 'رأس المال', notes: 'مطابق', costCenter: 'الرئيسي', dr: 15000, cr: 0, bal: 15000, curr: 'USD', rate: 3.75, dr_fc: 4000, cr_fc: 0, bal_fc: 4000 },
-        { date: '10/06/2026', ref: 'INV-9092', voucher: 'JV-045', desc: 'فاتورة مبيعات', contraAccount: 'المبيعات', notes: 'مستودع أ', costCenter: 'الرياض', dr: 4500, cr: 0, bal: 19500, curr: 'USD', rate: 3.75, dr_fc: 1200, cr_fc: 0, bal_fc: 5200 },
-        { date: '15/06/2026', ref: 'RCP-110', voucher: 'JV-088', desc: 'سند قبض بنكي', contraAccount: 'الصندوق', notes: 'الراجحي', costCenter: 'الرئيسي', dr: 0, cr: 10000, bal: 9500, curr: 'USD', rate: 3.75, dr_fc: 0, cr_fc: 2666.67, bal_fc: 2533.33 },
-        { date: '20/06/2026', ref: 'EXP-40', voucher: 'JV-102', desc: 'مصروفات تشغيل', contraAccount: 'الصندوق', notes: 'صيانة', costCenter: 'فرع جدة', dr: 1200, cr: 0, bal: 10700, curr: 'SAR', rate: 1, dr_fc: 1200, cr_fc: 0, bal_fc: 10700 }
-    ];
+    let transactions = [];
 
     function formatNumber(num, colDecimals) { 
         if(num === 0 || num === null || num === undefined) return '-';

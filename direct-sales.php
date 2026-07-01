@@ -1139,11 +1139,13 @@
                     -webkit-backdrop-filter: blur(25px); 
                     box-shadow: 0 0 20px rgba(56, 189, 248, 0.15), inset 0 0 15px rgba(255,255,255,0.05);
                     position: relative;
-                    overflow: hidden;
+                    overflow: visible;
                     width: 100%;
                 ">
                     <!-- Neon glow effect -->
-                    <div style="position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 60%); z-index:0; pointer-events:none;"></div>
+                    <div style="position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden; border-radius:16px; z-index:0; pointer-events:none;">
+                        <div style="position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 60%);"></div>
+                    </div>
                     
                     <div style="display: flex; flex-direction: column; gap: 18px; position:relative; z-index:1;">
                         
@@ -1231,7 +1233,17 @@
                             <div class="h-form-group" style="flex: 0 0 35%; display:flex; align-items:center; gap:10px;">
                                 <label class="h-label" style="margin:0; white-space:nowrap;">اسم العميل <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span></span></label>
                                 <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1; width: 100%;">
-                                    <div id="hdr-customer-container" style="flex: 1; min-width: 0;"></div>
+                                    
+                                    <div class="custom-dropdown" style="flex:1;">
+                                        <div class="custom-dropdown-input-wrap" style="position: relative;">
+                                            <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم العميل..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
+                                            <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange()">
+                                            <div class="custom-dropdown-list" id="customer-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none;">
+                                                <!-- Populated via JS -->
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <button onclick="openModal('add-customer-modal')" style="flex-shrink: 0; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid rgba(16,212,143,0.3); width: 38px; height: 38px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2); transition: 0.2s;" title="إضافة عميل">
                                         ➕
                                     </button>
@@ -1469,13 +1481,10 @@
     <script src="js/whatsapp-integration.js"></script>
     <script src="js/app.js?v=1782530467440"></script>
     <script src="js/print-engine.js"></script>
-    <script src="js/smart-select.js"></script>
+    
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-          SmartSelectManager.init('hdr-customer-container', 'hdr-customer', {
-              placeholder: 'ابحث أو اختر العميل...',
-              dataTypes: ['CUST'],
-              onChange: function() { if(typeof onCustomerChange === 'function') onCustomerChange(); }
+           }
           });
       });
     </script>

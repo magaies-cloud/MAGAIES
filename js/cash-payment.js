@@ -48,8 +48,8 @@ function showToast(msg, type = 'success', ms = 3000) {
 // ════════════════════════════════════════
 document.addEventListener('DBReady', () => {
     // Load accounts dynamically here to ensure DB_STORE is populated
-    const localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-    const localSups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+    const localCusts = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+    const localSups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
     const localBanks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
     const localSafes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
     const localExp = JSON.parse(localStorage.getItem('erp_accounts_v1')) || [];
@@ -94,9 +94,11 @@ function addRow() {
     tr.id = `row-${rowId}`;
     tr.innerHTML = `
         <td>
-            <select class="grid-input" id="acc-${rowId}">
-                ${accOptions}
-            </select>
+            <div class="custom-dropdown-input-wrap" style="width: 100%; position: relative;">
+                <input type="hidden" id="acc-${rowId}">
+                <input type="text" class="grid-input" id="acc-${rowId}-search" placeholder="ابحث..." onfocus="showAccountDropdown('acc-${rowId}')" onblur="hideAccountDropdownDelayed('acc-${rowId}')" oninput="filterAccountDropdown('acc-${rowId}')" style="width: 100%; box-sizing: border-box; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                <div class="custom-dropdown-list" id="acc-${rowId}-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.5);"></div>
+            </div>
         </td>
         <td>
             <input type="text" class="grid-input amount" id="amt-${rowId}" value="0" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv(${rowId}, 'local')" onblur="this.value=fmtNum(parseNum(this.value)); calcTotals()">
@@ -358,12 +360,17 @@ function submitVoucher() {
         return;
     }
 
+    
+    const _docDateStr = document.getElementById('hdr-date') ? document.getElementById('hdr-date').value : new Date().toISOString().split('T')[0];
+    if (!window.canCreateRecord(_docDateStr)) return;
+
     if (window.isSubmitting) return;
     window.isSubmitting = true;
     setTimeout(() => { window.isSubmitting = false; }, 2000);
 
     // Save to LocalStorage
     const voucherData = {
+        createdBy: (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown',
         id: voucherNo,
         date: date,
         type: 'bulk_payment',
@@ -381,8 +388,8 @@ function submitVoucher() {
         let multiplier = isRevert ? -1 : 1;
         let totalFromSafe = 0;
         
-        let custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-        let sups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+        let custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+        let sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
         
         detailsArray.forEach(det => {
             let amt = det.amountLocal * multiplier; 
@@ -459,8 +466,8 @@ function confirmDelete() {
         function applyBulkPaymentEffect(fromAccId, detailsArray, isRevert = false) {
             let multiplier = isRevert ? -1 : 1;
             let totalFromSafe = 0;
-            let custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-            let sups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+            let custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+            let sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
             detailsArray.forEach(det => {
                 let amt = det.amountLocal * multiplier; 
                 let amtBeneficiary = -amt; 
@@ -489,4 +496,127 @@ function confirmDelete() {
         showToast("تم حذف السند بنجاح", "success");
         resetVoucherSilent();
     }
+}
+
+
+// ═══════════════════════════════════════════════════════
+// Custom Dropdown Logic for Accounts
+// ═══════════════════════════════════════════════════════
+function renderAccountDropdown(type = 'from', filter = '') {
+    const listEl = document.getElementById(type + '-dropdown-list');
+    if (!listEl) return;
+    
+    listEl.innerHTML = '';
+    const term = filter.toLowerCase().trim();
+    const normalizedTerm = window.normalizeArabic ? window.normalizeArabic(term) : term;
+    
+    try {
+        let filtered = ACCOUNTS.filter(a => {
+            if (!term) return true;
+            const normalizedName = window.normalizeArabic ? window.normalizeArabic(a.name) : a.name.toLowerCase();
+            return normalizedName.includes(normalizedTerm) || String(a.id).includes(term);
+        });
+
+        const totalFound = filtered.length;
+        filtered = filtered.slice(0, 50);
+
+        if (filtered.length === 0) {
+            listEl.innerHTML = `<div style="padding: 15px; color: var(--text-secondary); text-align: center;">لا توجد حسابات مطابقة</div>`;
+            return;
+        }
+
+        filtered.forEach(a => {
+            const div = document.createElement('div');
+            div.className = 'custom-dropdown-item';
+            div.style.cssText = 'padding: 10px 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s;';
+            div.onmouseover = () => div.style.background = 'rgba(255,255,255,0.1)';
+            div.onmouseout = () => div.style.background = 'transparent';
+            
+            let typeTag = '';
+            if (String(a.id).startsWith('cust-')) typeTag = '<span style="font-size:0.75rem; color:#60a5fa; background:rgba(96,165,250,0.1); padding:2px 6px; border-radius:4px;">عميل</span>';
+            else if (String(a.id).startsWith('supp-')) typeTag = '<span style="font-size:0.75rem; color:#f472b6; background:rgba(244,114,182,0.1); padding:2px 6px; border-radius:4px;">مورد</span>';
+            else if (String(a.id).startsWith('bank-')) typeTag = '<span style="font-size:0.75rem; color:#a78bfa; background:rgba(167,139,250,0.1); padding:2px 6px; border-radius:4px;">بنك</span>';
+            else if (String(a.id).startsWith('safe-')) typeTag = '<span style="font-size:0.75rem; color:#34d399; background:rgba(52,211,153,0.1); padding:2px 6px; border-radius:4px;">خزينة</span>';
+            else if (String(a.id).startsWith('exp-')) typeTag = '<span style="font-size:0.75rem; color:#fbbf24; background:rgba(251,191,36,0.1); padding:2px 6px; border-radius:4px;">مصروف</span>';
+
+            div.innerHTML = `
+                <div style="font-weight: bold; color: #fff;">${a.name}</div>
+                <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 3px; display: flex; gap: 8px; align-items: center;">
+                    <span>[${a.id}]</span>
+                    ${typeTag}
+                </div>
+            `;
+            div.onclick = (e) => {
+                e.stopPropagation();
+                selectAccount(type, a.id, a.name);
+            };
+            listEl.appendChild(div);
+        });
+
+        if (totalFound > 50) {
+            const note = document.createElement('div');
+            note.style.cssText = 'padding: 8px; font-size: 0.8rem; color: #fbbf24; text-align: center; background: rgba(251,191,36,0.1);';
+            note.innerText = `عرض أول 50 حساب من أصل ${totalFound}. يرجى تضييق نطاق البحث.`;
+            listEl.appendChild(note);
+        }
+
+    } catch (e) {
+        console.error('Error rendering accounts:', e);
+    }
+}
+
+window.showAccountDropdown = function(type) {
+    const listEl = document.getElementById(type + '-dropdown-list');
+    if (listEl) {
+        renderAccountDropdown(type, document.getElementById(type + '-search').value);
+        listEl.classList.add('show');
+        listEl.style.display = 'block';
+    }
+}
+
+window.hideAccountDropdownDelayed = function(type) {
+    setTimeout(() => {
+        const listEl = document.getElementById(type + '-dropdown-list');
+        if (listEl) {
+            listEl.classList.remove('show');
+            listEl.style.display = 'none';
+        }
+    }, 200);
+}
+
+window.filterAccountDropdown = function(type) {
+    const val = document.getElementById(type + '-search').value;
+    renderAccountDropdown(type, val);
+}
+
+window.selectAccount = function(type, id, name) {
+    document.getElementById(type).value = id;
+    document.getElementById(type + '-search').value = name;
+    
+    const listEl = document.getElementById(type + '-dropdown-list');
+    if(listEl) {
+        listEl.classList.remove('show');
+        listEl.style.display = 'none';
+    }
+    
+    // Jump logic
+    if (type === 'from-account') {
+        const firstAmt = document.getElementById('amt-1');
+        if(firstAmt) firstAmt.focus();
+    } else if (type.startsWith('acc-')) {
+        const rowId = type.split('-')[1];
+        const amt = document.getElementById('amt-' + rowId);
+        if(amt) amt.focus();
+    }
+};
+
+if (!window.normalizeArabic) {
+    window.normalizeArabic = function(text) {
+        if (!text) return '';
+        return text.toString()
+            .replace(/[أإآ]/g, 'ا')
+            .replace(/ة/g, 'ه')
+            .replace(/ى/g, 'ي')
+            .toLowerCase();
+    };
 }

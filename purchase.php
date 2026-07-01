@@ -1320,7 +1320,17 @@
                     <div class="h-form-group" style="flex: 1.5; min-width: 200px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
                           <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">المورد</label>
                           <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1;">
-                            <div id="hdr-customer-container" style="flex: 1;"></div>
+                            
+                                    <div class="custom-dropdown" style="flex:1;">
+                                        <div class="custom-dropdown-input-wrap">
+                                            <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم العميل..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
+                                            <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange()">
+                                            <div class="custom-dropdown-list" id="customer-dropdown-list">
+                                                <!-- Populated via JS -->
+                                            </div>
+                                        </div>
+                                    </div>
+
                             <button onclick="window.location.href='master-data.html?tab=suppliers'" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid rgba(16,212,143,0.3); width: 32px; height: 32px; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2); transition: 0.2s;" title="البيانات الأساسية للموردين">
                                 ➕
                             </button>
@@ -1545,14 +1555,10 @@
     <script src="js/whatsapp-integration.js"></script>
     <script src="js/app.js?v=20260626_4"></script>
     <script src="js/print-engine.js"></script>
-    <script src="js/smart-select.js"></script>
+    
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-          SmartSelectManager.init('hdr-customer-container', 'hdr-customer', {
-              placeholder: 'ابحث أو اختر المورد...',
-              dataTypes: ['SUPP'],
-              onChange: function(id, name) {
-                  onCustomerChange();
+          
               }
           });
       });

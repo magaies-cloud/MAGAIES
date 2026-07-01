@@ -186,7 +186,11 @@
                             <label class="label" style="margin-bottom: 0;">من حساب (الدافع)</label>
                             <button type="button" onclick="openPartnerStatement()" style="background:none; border:none; color:#38bdf8; font-size:0.85rem; cursor:pointer; font-family:inherit; font-weight:700; display:flex; align-items:center; gap:4px;" title="عرض كشف حساب العميل المحدد">📄 كشف حساب</button>
                         </div>
-                        <div id="from-account-container"></div>
+                        <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
+                                    <input type="hidden" id="from-account">
+                                    <input type="text" class="form-input input-glow-focus hover-glow" id="from-account-search" placeholder="ابحث عن حساب الاستلام..." onfocus="showAccountDropdown('from')" onblur="hideAccountDropdownDelayed('from')" oninput="filterAccountDropdown('from')" style="width: 100%; padding: 12px 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; border: 1px solid rgba(16, 185, 129, 0.5); background: rgba(0,0,0,0.3); color: #fff;">
+                                    <div class="custom-dropdown-list" id="from-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px;"></div>
+                                </div>
                     </div>
                 </div>
 
@@ -257,7 +261,11 @@
                 <div class="form-grid">
                     <div>
                         <label class="label">إلى حساب (الخزنة / البنك المستلم)</label>
-                        <div id="to-account-container"></div>
+                        <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
+                                    <input type="hidden" id="to-account">
+                                    <input type="text" class="form-input input-glow-focus hover-glow" id="to-account-search" placeholder="ابحث عن حساب الإيداع..." onfocus="showAccountDropdown('to')" onblur="hideAccountDropdownDelayed('to')" oninput="filterAccountDropdown('to')" style="width: 100%; padding: 12px 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; border: 1px solid rgba(239, 68, 68, 0.5); background: rgba(0,0,0,0.3); color: #fff;">
+                                    <div class="custom-dropdown-list" id="to-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px;"></div>
+                                </div>
                     </div>
                     <div>
                         <label class="label">البيان</label>
@@ -356,24 +364,17 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="js/localforage.min.js"></script>
     <script src="js/app.js?v=20260626_4"></script>
-    <script src="js/smart-select.js"></script>
+    
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-          SmartSelectManager.init('from-account-container', 'from-account', {
-              placeholder: 'ابحث في الحسابات (عملاء، موردين، بنوك...)',
-              filterType: 'ALL',
-              onChange: function(id, name) {
-                  const fromAccEl = document.getElementById('from-account');
+          
                   if (fromAccEl) fromAccEl.dispatchEvent(new Event('change', { bubbles: true }));
               }
           });
           
-          SmartSelectManager.init('to-account-container', 'to-account', {
-              placeholder: 'ابحث في حسابات الخزن والبنوك...',
-              filterType: 'ALL'
-          });
+          
       });
     </script>
     <script src="js/single-cash-receipt.js?v=20260612_7"></script>

@@ -184,7 +184,7 @@ document.addEventListener('DBReady', () => {
 
 function populateDropdowns() {
     // Customers (Init custom dropdown)
-    SmartSelectManager.setValue('hdr-customer', '');
+    document.getElementById('hdr-customer').value = '';
     
     // Warehouses (Header)
     const whSel = document.getElementById('hdr-warehouse');
@@ -537,6 +537,352 @@ function loadInvoiceFromStorage(invNo) {
 // ════════════════════════════════════════
 function renderCustomerDropdown(filter = '') {
     const listEl = document.getElementById('customer-dropdown-list');
+    if (!listEl) return;
+    
+    listEl.innerHTML = '';
+    const term = filter.toLowerCase().trim();
+    const normalizedTerm = window.normalizeArabic ? window.normalizeArabic(term) : term;
+    
+    try {
+        let localMatches = CUSTOMERS;
+        if (normalizedTerm) {
+            const searchWords = normalizedTerm.split(/\s+/).filter(w => w.length > 0);
+            
+            localMatches = CUSTOMERS.filter(c => {
+                const normName = window.normalizeArabic ? window.normalizeArabic(c.name) : c.name.toLowerCase();
+                const normPhone = String(c.phone || '');
+                const normEmail = String(c.email || '').toLowerCase();
+                
+                return searchWords.every(word => 
+                    normName.includes(word) || 
+                    normPhone.includes(word) || 
+                    normEmail.includes(word)
+                );
+            });
+        }
+
+        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values()).slice(0, 50);
+
+        if (finalMatches.length === 0) {
+            listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة للبحث.<br><small style="color:#888;">(إجمالي العملاء: ' + CUSTOMERS.length + ')</small></div>';
+            return;
+        }
+
+        finalMatches.forEach(c => {
+            const item = document.createElement('div');
+            item.className = 'custom-dropdown-item';
+            
+            let displayText = c.name;
+            if (c.phone) displayText += ' <span style="font-size:0.8rem; color:#aaa;">(' + c.phone + ')</span>';
+            if (c.email) displayText += ' <span style="font-size:0.8rem; color:#888;">[' + c.email + ']</span>';
+            
+            item.innerHTML = displayText;
+            item.onmousedown = () => selectCustomer(c.id, c.name); 
+            item.onpointerdown = () => selectCustomer(c.id, c.name);
+            listEl.appendChild(item);
+        });
+    } catch (e) {
+        console.error(e);
+        listEl.innerHTML = '<div class="custom-dropdown-empty">حدث خطأ داخلي</div>';
+    }
+}
+
+function showCustomerDropdown() {
+    renderCustomerDropdown(document.getElementById('hdr-customer-search').value);
+    const listEl = document.getElementById('customer-dropdown-list');
+    if (listEl) {
+        listEl.classList.add('show');
+        listEl.style.display = 'block';
+    }
+}
+
+let hideDropdownTimeout;
+
+function hideCustomerDropdownDelayed() {
+    clearTimeout(hideDropdownTimeout);
+    hideDropdownTimeout = setTimeout(() => {
+        if (document.activeElement && document.activeElement.id === 'hdr-customer-search') {
+            return;
+        }
+
+        const listEl = document.getElementById('customer-dropdown-list');
+        if(listEl) listEl.classList.remove('show'); listEl.style.display = 'none';
+        
+        const idVal = document.getElementById('hdr-customer').value;
+        const searchVal = document.getElementById('hdr-customer-search').value.trim();
+        if (idVal) {
+            const cust = CUSTOMERS.find(c => String(c.id) === String(idVal));
+            if (cust && cust.name !== searchVal) {
+                document.getElementById('hdr-customer-search').value = cust.name;
+            }
+        } else if (searchVal) {
+            const exactMatch = CUSTOMERS.find(c => c.name === searchVal);
+            if (exactMatch) {
+                selectCustomer(exactMatch.id, exactMatch.name);
+            }
+        } else {
+            document.getElementById('hdr-customer-search').value = '';
+        }
+    }, 250);
+}
+
+function filterCustomerDropdown() {
+    document.getElementById('hdr-customer').value = '';
+    onCustomerChange();
+    renderCustomerDropdown(document.getElementById('hdr-customer-search').value);
+    document.getElementById('customer-dropdown-list').classList.add('show');
+}
+
+function selectCustomer(id, name) {
+    document.getElementById('hdr-customer').value = id;
+    document.getElementById('hdr-customer-search').value = name;
+    const listEl = document.getElementById('customer-dropdown-list');
+    if (listEl) {
+        listEl.classList.remove('show');
+        listEl.style.display = 'none';
+    }
+    if(typeof onCustomerChange === 'function') onCustomerChange();
+}
+
+function onCustomerChange() {
+    const id = document.getElementById('hdr-customer').value;
+    const cust = CUSTOMERS.find(c => c.id === id);
+    const cur = document.getElementById('hdr-currency').value;
+    const strip = document.getElementById('fin-strip');
+    const badge = document.getElementById('fin-status-badge');
+
+    if (!cust || id === '') {
+        ['fin-ledger','fin-checks','fin-total-debt','fin-credit-limit','fin-remaining'].forEach(el =>
+            document.getElementById(el).textContent = '—'
+        );
+        if (strip) strip.classList.remove('visible');
+        if (badge) badge.style.display = 'none';
+        return;
+    }
+
+    const totalDebt = cust.ledger + cust.checks;
+    const remaining = cust.creditLimit - totalDebt;
+
+    document.getElementById('fin-ledger').textContent      = fmtNum(cust.ledger)      + ' ' + cur;
+    document.getElementById('fin-checks').textContent      = fmtNum(cust.checks)      + ' ' + cur;
+    document.getElementById('fin-total-debt').textContent  = fmtNum(totalDebt)        + ' ' + cur;
+    document.getElementById('fin-credit-limit').textContent= fmtNum(cust.creditLimit) + ' ' + cur;
+    document.getElementById('fin-remaining').textContent   = fmtNum(remaining)        + ' ' + cur;
+
+    // إظهار الشريط المالي الأفقي بأنيميشن
+    if (strip) {
+        // أعد تشغيل الأنيميشن بإزالة وإعادة الكلاس
+        strip.classList.remove('visible');
+        requestAnimationFrame(() => requestAnimationFrame(() => strip.classList.add('visible')));
+    }
+
+    // badge الحالة بجانب عنوان اللوحة
+    if (badge) {
+        const txtEl = document.getElementById('fin-status-txt');
+        const dot = badge.querySelector('.status-dot');
+        if (cust.status === 'blacklisted') {
+            dot.className = 'status-dot danger';
+            txtEl.textContent = '⛔ قائمة سوداء';
+            showToast('تحذير: هذا العميل في القائمة السوداء!', 'error', 5000);
+        } else if (remaining > 20000) {
+            dot.className = 'status-dot good';
+            txtEl.textContent = '✅ ائتمان جيد';
+        } else if (remaining > 0) {
+            dot.className = 'status-dot warn';
+            txtEl.textContent = '⚠️ ائتمان منخفض';
+        } else {
+            dot.className = 'status-dot danger';
+            txtEl.textContent = '🚫 تجاوز الحد';
+        }
+        badge.style.display = 'inline-flex';
+    }
+}
+
+function toggleFinancialPanel() { /* deprecated - kept for compatibility */ }
+function expandFinancialPanel()  { onCustomerChange(); }
+function collapseFinancialPanel() {
+    const strip = document.getElementById('fin-strip');
+    if (strip) strip.classList.remove('visible');
+}
+
+function addNewCustomer() {
+    const name = document.getElementById('new-cust-name').value.trim();
+    const phone = document.getElementById('new-cust-phone').value.trim();
+    const whatsapp = document.getElementById('new-cust-whatsapp') ? document.getElementById('new-cust-whatsapp').value.trim() : '';
+    const email = document.getElementById('new-cust-email') ? document.getElementById('new-cust-email').value.trim() : '';
+    const address = document.getElementById('new-cust-address') ? document.getElementById('new-cust-address').value.trim() : '';
+    const securityLevel = document.getElementById('new-cust-security') ? document.getElementById('new-cust-security').value : '1';
+    const openingBalance = document.getElementById('new-cust-opening') ? parseNum(document.getElementById('new-cust-opening').value) : 0;
+    const credit = document.getElementById('new-cust-credit') ? parseNum(document.getElementById('new-cust-credit').value) : 0;
+
+    if (!name) { showToast('❌ يرجى إدخال اسم العميل', 'error'); return; }
+
+    const newId = 'C-' + String(Date.now()).slice(-6);
+    const newCust = { 
+        id: newId, 
+        name: name, 
+        phone: phone,
+        whatsapp: whatsapp,
+        email: email,
+        address: address,
+        securityLevel: securityLevel,
+        currentBalance: openingBalance,
+        creditLimit: credit,
+        status: 'active',
+        bankAccounts: [],
+        timestamp: new Date().toISOString()
+    };
+    
+    if (typeof CUSTOMERS !== 'undefined') {
+        CUSTOMERS.push(newCust);
+    }
+
+    let allCustomers = [];
+    try {
+        allCustomers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+    } catch(e) {}
+    allCustomers.push(newCust);
+    localStorage.setItem('erp_customers_v1', JSON.stringify(allCustomers));
+
+    selectCustomer(newId, name);
+    closeModal('add-customer-modal');
+    
+    document.getElementById('new-cust-name').value = '';
+    document.getElementById('new-cust-phone').value = '';
+    if(document.getElementById('new-cust-whatsapp')) document.getElementById('new-cust-whatsapp').value = '';
+    if(document.getElementById('new-cust-email')) document.getElementById('new-cust-email').value = '';
+    if(document.getElementById('new-cust-address')) document.getElementById('new-cust-address').value = '';
+    if(document.getElementById('new-cust-opening')) document.getElementById('new-cust-opening').value = '';
+    if(document.getElementById('new-cust-credit')) document.getElementById('new-cust-credit').value = '';
+    if(document.getElementById('new-cust-security')) document.getElementById('new-cust-security').value = '1';
+
+    showToast('✅ تم إضافة العميل بنجاح');
+}
+
+function loadPreviousInvoice() {
+    const currentNoStr = document.getElementById('hdr-inv-no').value;
+    let parts = currentNoStr.split('-');
+    let numStr = parts.length > 1 ? parts[1] : parts[0];
+    let prefix = parts.length > 1 ? parts[0] + '-' : '';
+    let num = parseInt(numStr, 10);
+    if (isNaN(num)) return;
+    
+    let found = false;
+    while(num > 1 && !found) {
+        num--;
+        const testNo = prefix + String(num).padStart(6, '0');
+        if(loadInvoiceFromStorage(testNo)) {
+            showToast(`✅ تم استرجاع الفاتورة ${testNo}`);
+            found = true;
+        }
+    }
+    if(!found) showToast('ℹ️ لا توجد فواتير سابقة محفوظة', 'warning');
+}
+
+function loadNextInvoice() {
+    const currentNoStr = document.getElementById('hdr-inv-no').value;
+    let parts = currentNoStr.split('-');
+    let numStr = parts.length > 1 ? parts[1] : parts[0];
+    let prefix = parts.length > 1 ? parts[0] + '-' : '';
+    let num = parseInt(numStr, 10);
+    if (isNaN(num)) return;
+    
+    let found = false;
+    // max check next 10 numbers
+    for(let i=1; i<=10; i++) {
+        const testNo = prefix + String(num + i).padStart(6, '0');
+        if(loadInvoiceFromStorage(testNo)) {
+            showToast(`✅ تم استرجاع الفاتورة ${testNo}`);
+            found = true;
+            break;
+        }
+    }
+    
+    if(!found) {
+        // If no next invoice saved, jump to "New" mode
+        onSuccessNewInvoice();
+        showToast('✨ فاتورة جديدة', 'success');
+    }
+}
+
+function loadInvoiceFromStorage(invNo) {
+    let str = localStorage.getItem('erp_inv_' + invNo);
+    if (!str) {
+        str = localStorage.getItem('erp_draft_' + invNo);
+    }
+    let data;
+    if (str) {
+        try { data = JSON.parse(str); } catch(e) {}
+    }
+    
+    if (!data) {
+        let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+        data = allSales.find(inv => inv.invoiceNo === invNo || inv.id === invNo);
+    }
+    
+    if (!data) return false;
+    
+    try {
+        // If loading a confirmed invoice, enter Edit Mode
+        if (data.status === 'confirmed' || localStorage.getItem('erp_inv_' + invNo)) {
+            currentViewedInvoiceNo = data.invoiceNo || data.id;
+            showToast('✏️ أنت الآن في وضع التعديل للفاتورة الأصلية', 'warning', 4000);
+        } else {
+            currentViewedInvoiceNo = null;
+        }
+
+        // Reset form
+        rows = [];
+        rowIdCounter = 0;
+        
+        // Set Header
+        document.getElementById('hdr-inv-no').value = data.invoiceNo;
+        document.getElementById('inv-number').textContent = data.invoiceNo;
+        if(data.date) document.getElementById('hdr-date').value = data.date;
+        if(data.description) document.getElementById('hdr-description').value = data.description;
+        if(data.notes) document.getElementById('inv-notes').value = data.notes;
+        if(data.warehouse) document.getElementById('hdr-warehouse').value = data.warehouse;
+        if(data.currency) document.getElementById('hdr-currency').value = data.currency;
+        
+        // Customer
+        const custId = data.customer || data.customerId;
+        if (custId) {
+            const c = CUSTOMERS.find(x => x.id === custId);
+            if (c) selectCustomer(c.id, c.name);
+        }
+        
+        // Rows
+        if(data.items && data.items.length) {
+            data.items.forEach(i => {
+                addRow();
+                const r = rows[rows.length-1];
+                if (i.itemId) updateRow(r.id, 'itemId', i.itemId);
+                if (i.selectedUnit) updateRow(r.id, 'selectedUnit', i.selectedUnit);
+                if (i.customFactor !== undefined) updateRow(r.id, 'customFactor', i.customFactor);
+                if (i.quantity !== undefined) updateRow(r.id, 'quantity', i.quantity);
+                if (i.customBaseQty !== undefined) updateRow(r.id, 'customBaseQty', i.customBaseQty);
+                if (i.price !== undefined) updateRow(r.id, 'price', i.price);
+                if (i.fcPrice !== undefined) updateRow(r.id, 'fcPrice', i.fcPrice);
+                if (i.warehouseId) updateRow(r.id, 'warehouseId', i.warehouseId);
+                if (i.costCenterId) updateRow(r.id, 'costCenterId', i.costCenterId);
+                if (i.qrCode) updateRow(r.id, 'qrCode', i.qrCode);
+            });
+        }
+        
+        renderGrid();
+        recalcAll();
+        return true;
+    } catch(e) {
+        console.error('Error loading invoice', e);
+        return false;
+    }
+}
+
+// ════════════════════════════════════════
+//  CUSTOMERS DROPDOWN LOGIC
+// ════════════════════════════════════════
+function renderCustomerDropdown(filter = '') {
+    const listEl = document.getElementById('customer-dropdown-list');
     listEl.innerHTML = '';
     const term = filter.toLowerCase().trim();
     
@@ -546,35 +892,45 @@ function renderCustomerDropdown(filter = '') {
     }
 
     if (matches.length === 0) {
-        listEl.innerHTML = '<div class="custom-dropdown-empty">لا يوجد عميل بهذا الاسم</div>';
+        listEl.innerHTML = `<div class="custom-dropdown-empty">لا يوجد عميل بهذا الاسم.<br><small style="color:#888;">(إجمالي العملاء: ${CUSTOMERS.length})</small></div>`;
         return;
     }
 
-    matches.forEach(c => {
+    matches.slice(0, 50).forEach(c => {
         const item = document.createElement('div');
         item.className = 'custom-dropdown-item';
-        item.textContent = c.name;
-        item.onmousedown = () => selectCustomer(c.id, c.name); // mousedown to trigger before blur
+        
+        let displayText = c.name;
+        if (c.phone) displayText += ` <span style="font-size:0.8rem; color:#aaa;">(${c.phone})</span>`;
+        if (c.email) displayText += ` <span style="font-size:0.8rem; color:#888;">[${c.email}]</span>`;
+        
+        item.innerHTML = displayText;
+        item.onmousedown = () => selectCustomer(c.id, c.name); 
+        item.onpointerdown = () => selectCustomer(c.id, c.name);
         listEl.appendChild(item);
     });
 }
 
 function showCustomerDropdown() {
-    renderCustomerDropdown(document.getElementById('hdr-customer-display').value);
-    document.getElementById('customer-dropdown-list').classList.add('show');
+    renderCustomerDropdown(document.getElementById('hdr-customer-search').value);
+    const listEl = document.getElementById('customer-dropdown-list');
+    if (listEl) {
+        listEl.classList.add('show');
+        listEl.style.display = 'block';
+    }
 }
 
 function hideCustomerDropdownDelayed() {
     setTimeout(() => {
         const listEl = document.getElementById('customer-dropdown-list');
-        if(listEl) listEl.classList.remove('show');
+        if(listEl) listEl.classList.remove('show'); listEl.style.display = 'none';
         
         const idVal = document.getElementById('hdr-customer').value;
-        const searchVal = document.getElementById('hdr-customer-display').value.trim();
+        const searchVal = document.getElementById('hdr-customer-search').value.trim();
         if (idVal) {
             const cust = CUSTOMERS.find(c => c.id === idVal);
             if (cust && cust.name !== searchVal) {
-                
+                document.getElementById('hdr-customer-search').value = cust.name;
             }
         } else {
             // Allow walk-in customers or custom names without disappearing
@@ -584,14 +940,15 @@ function hideCustomerDropdownDelayed() {
 }
 
 function filterCustomerDropdown() {
-    SmartSelectManager.setValue('hdr-customer', '');
+    document.getElementById('hdr-customer').value = '';
     onCustomerChange();
-    renderCustomerDropdown(document.getElementById('hdr-customer-display').value);
+    renderCustomerDropdown(document.getElementById('hdr-customer-search').value);
     document.getElementById('customer-dropdown-list').classList.add('show');
 }
 
 function selectCustomer(id, name) {
-    SmartSelectManager.setValue('hdr-customer', id);
+    document.getElementById('hdr-customer').value = id;
+    document.getElementById('hdr-customer-search').value = name;
     
     document.getElementById('customer-dropdown-list').classList.remove('show');
     onCustomerChange();
@@ -680,15 +1037,19 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
         const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
 
         if (finalMatches.length === 0) {
-            listEl.innerHTML = '<div class="custom-dropdown-empty">لا يوجد صنف بهذا الاسم</div>';
+            listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة.<br><small style="color:#888;">(حاول استخدام اسم آخر)</small></div>';
             return;
         }
 
         listEl.innerHTML = '';
-        finalMatches.forEach(existing => {
+        finalMatches.slice(0, 50).forEach(existing => {
             const div = document.createElement('div');
             div.className = 'custom-dropdown-item';
-            div.textContent = isMobile ? `${existing.name} — ${existing.unit}` : existing.name;
+            
+            let displayText = existing.name;
+            if (isMobile && existing.unit) displayText += ' <span style="font-size:0.8rem; color:#aaa;">— ' + existing.unit + '</span>';
+            if (existing.barcode) displayText += ' <span style="font-size:0.8rem; color:#888;">[' + existing.barcode + ']</span>';
+            div.innerHTML = displayText;
             div.onmousedown = () => { updateRow(rowId, 'itemId', existing.id); renderGrid(); };
             div.onpointerdown = () => { updateRow(rowId, 'itemId', existing.id); renderGrid(); };
             listEl.appendChild(div);
@@ -711,7 +1072,7 @@ function hideItemDropdownDelayed(rowId, isMobile = false) {
     setTimeout(() => {
         const prefix = isMobile ? 'm-' : '';
         const listEl = document.getElementById(`${prefix}item-dropdown-list-${rowId}`);
-        if(listEl) listEl.classList.remove('show');
+        if(listEl) listEl.classList.remove('show'); listEl.style.display = 'none';
         
         const row = rows.find(r => r.id === rowId);
         const searchEl = document.getElementById(`${prefix}item-search-${rowId}`);
@@ -833,7 +1194,7 @@ async function renderQuickItemDropdown(filter = '') {
         const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
 
         if (finalMatches.length === 0) {
-            listEl.innerHTML = '<div class="custom-dropdown-empty">لا يوجد صنف بهذا الاسم</div>';
+            listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة.<br><small style="color:#888;">(حاول استخدام اسم آخر)</small></div>';
             return;
         }
 
@@ -861,7 +1222,7 @@ function showQuickItemDropdown() {
 function hideQuickItemDropdownDelayed() {
     setTimeout(() => {
         const listEl = document.getElementById('quick-item-dropdown-list');
-        if(listEl) listEl.classList.remove('show');
+        if(listEl) listEl.classList.remove('show'); listEl.style.display = 'none';
     }, 150);
 }
 
@@ -879,7 +1240,7 @@ function selectQuickItem(itemId) {
     const searchEl = document.getElementById('quick-item-search');
     if(searchEl) searchEl.value = '';
     const listEl = document.getElementById('quick-item-dropdown-list');
-    if(listEl) listEl.classList.remove('show');
+    if(listEl) listEl.classList.remove('show'); listEl.style.display = 'none';
     
     renderGrid();
 }
@@ -1862,7 +2223,7 @@ function onSuccessNewInvoice(closeModalFlag = true) {
     // Reset form for new invoice
     rows = [];
     rowIdCounter = 0;
-    SmartSelectManager.setValue('hdr-customer', '');
+    document.getElementById('hdr-customer').value = '';
     
     document.getElementById('inv-notes').value = '';
     document.getElementById('discount-amt').value = '0';
@@ -1910,7 +2271,7 @@ function showPriceHistory(rowId, type) {
     
     const item = ITEMS.find(i => i.id === row.itemId);
     const itemName = item ? item.name : 'صنف غير معروف';
-    const custName = document.getElementById('hdr-customer-display').value || 'العميل';
+    const custName = document.getElementById('hdr-customer-search').value || 'العميل';
 
     let historyKey = type === 'sales' ? 'erp_sales_invoices_v1' : 'erp_purchase_invoices_v1';
     let invoices = JSON.parse(localStorage.getItem(historyKey)) || [];
@@ -2065,7 +2426,7 @@ function printCurrentInvoice() {
                        currentSaleType === 'proforma'? 'عرض سعر (بروفورما)'  : 'فاتورة مبيعات',
         invoiceNo:     document.getElementById('hdr-inv-no').value,
         date:          document.getElementById('hdr-date').value,
-        customerName:  document.getElementById('hdr-customer-display').value || 'زبون نقدي',
+        customerName:  document.getElementById('hdr-customer-search').value || 'زبون نقدي',
         currency:      getCurrency(),
         exchangeRate:  parseNum(document.getElementById('hdr-exchange-rate')?.value || '1'),
         paymentMethod: document.getElementById('hdr-payment-method').value,
@@ -2111,7 +2472,7 @@ function _legacyBuildPrintArea(type) {
         warehouseGroups[whId].push(row);
     });
 
-    const custName = document.getElementById('hdr-customer-display').value || (type === 'sales' ? 'عميل نقدي' : 'مورد نقدي');
+    const custName = document.getElementById('hdr-customer-search').value || (type === 'sales' ? 'عميل نقدي' : 'مورد نقدي');
     const invNo = document.getElementById('hdr-inv-no').value;
     const invDate = document.getElementById('hdr-date').value;
     const grandTotal = document.getElementById('t-grand').textContent;

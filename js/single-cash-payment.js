@@ -49,9 +49,24 @@ function showDuplicateModal(transferNo) {
 
 document.addEventListener('DBReady', () => {
     // Load accounts dynamically here to ensure DB_STORE is populated
+
+    const fromSelect = document.getElementById('from-account');
+    const toSelect = document.getElementById('to-account');
+    if (fromSelect && toSelect && window.DB_STORE) {
+        let options = '<option value="">-- اختر الحساب --</option>';
+        Object.keys(window.DB_STORE).forEach(key => {
+            const acc = window.DB_STORE[key];
+            if (acc.name && !acc.deleted) {
+                options += `<option value="${acc.id}">${acc.name}</option>`;
+            }
+        });
+        fromSelect.innerHTML = options;
+        toSelect.innerHTML = options;
+    }
+
     let localCusts = [], localSups = [], localBanks = [], localSafes = [], localExp = [], localJobs = [];
-    try { localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || []; } catch(e) {}
-    try { localSups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []; } catch(e) {}
+    try { localCusts = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted); } catch(e) {}
+    try { localSups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted); } catch(e) {}
     try { localBanks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e) {}
     try { localSafes = JSON.parse(localStorage.getItem('erp_safes_v1')) || []; } catch(e) {}
     try { localExp = JSON.parse(localStorage.getItem('erp_accounts_v1')) || []; } catch(e) {}
@@ -120,7 +135,7 @@ document.addEventListener('DBReady', () => {
         if (costCenterEl) costCenterEl.addEventListener('change', (e) => {
             if(e.detail && e.detail.value) document.getElementById('from-statement').focus();
         });
-    }
+
 
     toAccEl.addEventListener('change', updateBalances);
     
@@ -245,7 +260,7 @@ function resetVoucherSilent() {
     currentViewedIndex = -1;
     document.getElementById('hdr-date').valueAsDate = new Date();
     
-    SmartSelectManager.setValue('to-account', '');
+    document.getElementById('to-account').value = '';
     
     
     document.getElementById('amount-local').value = '';
@@ -256,7 +271,7 @@ function resetVoucherSilent() {
     document.getElementById('to-statement').value = '';
     document.getElementById('beneficiary-name').value = '';
     
-    SmartSelectManager.setValue('from-account', '');
+    document.getElementById('from-account').value = '';
     if (window.fromAccChoice) {
         window.fromAccChoice.removeActiveItems();
         window.fromAccChoice.setChoiceByValue('');
@@ -325,7 +340,7 @@ function renderVoucher(v) {
     document.getElementById('voucher-number').innerText = v.id;
     document.getElementById('hdr-date').value = v.date;
     
-    SmartSelectManager.setValue('to-account', v.toAccount || '');
+    document.getElementById('to-account').value = v.toAccount || '';
     
 
     document.getElementById('amount-local').value = fmtNum(v.amountLocal);
@@ -335,7 +350,7 @@ function renderVoucher(v) {
     document.getElementById('to-statement').value = v.toStatement || '';
     document.getElementById('beneficiary-name').value = v.beneficiaryName || '';
     
-    SmartSelectManager.setValue('from-account', v.fromAccount || 'safe-001');
+    document.getElementById('from-account').value = v.fromAccount || 'safe-001';
     if (window.fromAccChoice) window.fromAccChoice.setChoiceByValue(v.fromAccount || 'safe-001');
 
     const costCenterEl = document.getElementById('cost-center');
@@ -387,6 +402,10 @@ function submitVoucher() {
         return;
     }
 
+    
+    const _docDateStr = document.getElementById('hdr-date') ? document.getElementById('hdr-date').value : new Date().toISOString().split('T')[0];
+    if (!window.canCreateRecord(_docDateStr)) return;
+
     if (window.isSubmitting) return;
     window.isSubmitting = true;
     setTimeout(() => { window.isSubmitting = false; }, 2000);
@@ -394,6 +413,7 @@ function submitVoucher() {
     const method = document.querySelector('input[name="payment_method"]:checked').value;
 
     const voucherData = {
+        createdBy: (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown',
         id: document.getElementById('voucher-number').innerText,
         date: document.getElementById('hdr-date').value,
         type: 'single_payment',
@@ -476,7 +496,7 @@ function submitVoucher() {
         // Update Beneficiary (toAccount)
         let custs = [];
             try {
-                custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+                custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
                 if (!Array.isArray(custs)) custs = [];
             } catch(e) {
                 custs = [];
@@ -488,7 +508,7 @@ function submitVoucher() {
         } else {
             let sups = [];
             try {
-                sups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+                sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
                 if (!Array.isArray(sups)) sups = [];
             } catch(e) {
                 sups = [];
@@ -540,7 +560,7 @@ function submitVoucher() {
     setTimeout(() => { resetVoucherSilent(); }, 1500);
     } catch (err) {
         console.error(err);
-        alert("حدث خطأ أثناء الحفظ: " + err.message + "\nفي السطر: " + err.stack);
+        alert("حدث خطأ أثناء الحفظ: " + err.message + "في السطر: " + err.stack);
     }
 }
 
@@ -564,7 +584,7 @@ function confirmDelete() {
 
             let custs = [];
             try {
-                custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+                custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
                 if (!Array.isArray(custs)) custs = [];
             } catch(e) {
                 custs = [];
@@ -576,7 +596,7 @@ function confirmDelete() {
             } else {
                 let sups = [];
             try {
-                sups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+                sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
                 if (!Array.isArray(sups)) sups = [];
             } catch(e) {
                 sups = [];
@@ -645,3 +665,128 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// ═══════════════════════════════════════════════════════
+// Custom Dropdown Logic for Accounts
+// ═══════════════════════════════════════════════════════
+function renderAccountDropdown(type = 'from', filter = '') {
+    const listEl = document.getElementById(type + '-account-dropdown-list');
+    if (!listEl) return;
+    
+    listEl.innerHTML = '';
+    const term = filter.toLowerCase().trim();
+    const normalizedTerm = window.normalizeArabic ? window.normalizeArabic(term) : term;
+    
+    try {
+        let localMatches = type === "from" ? ACCOUNTS.filter(a => a.id.startsWith("safe-") || a.id.startsWith("bank-")) : (ACCOUNTS || []);
+        if (normalizedTerm) {
+            const searchWords = normalizedTerm.split(/\s+/).filter(w => w.length > 0);
+            
+            localMatches = (ACCOUNTS || []).filter(c => {
+                const normName = window.normalizeArabic ? window.normalizeArabic(c.name) : c.name.toLowerCase();
+                const normCode = String(c.code || '').toLowerCase();
+                
+                return searchWords.every(word => 
+                    normName.includes(word) || normCode.includes(word)
+                );
+            });
+        }
+
+        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values()).slice(0, 50);
+
+        if (finalMatches.length === 0) {
+            listEl.innerHTML = `<div class="custom-dropdown-empty">لا توجد حسابات مطابقة.<br><small style="color:#888;">(إجمالي الحسابات: ${(ACCOUNTS||[]).length})</small></div>`;
+            return;
+        }
+
+        finalMatches.forEach(c => {
+            const item = document.createElement('div');
+            item.className = 'custom-dropdown-item';
+            
+            let displayText = c.name;
+            if (c.code) displayText += ` <span style="font-size:0.8rem; color:#888;">[${c.code}]</span>`;
+            
+            item.innerHTML = displayText;
+            item.onmousedown = () => selectAccount(type, c.id, c.name); 
+            item.onpointerdown = () => selectAccount(type, c.id, c.name);
+            listEl.appendChild(item);
+        });
+    } catch (e) {
+        console.error(e);
+        listEl.innerHTML = '<div class="custom-dropdown-empty">حدث خطأ داخلي</div>';
+    }
+}
+
+function showAccountDropdown(type) {
+    renderAccountDropdown(type, document.getElementById(type + '-account-search').value);
+    const listEl = document.getElementById(type + '-account-dropdown-list');
+    if (listEl) {
+        listEl.classList.add('show');
+        listEl.style.display = 'block';
+    }
+}
+
+let hideAccountDropdownTimeout = {};
+
+function hideAccountDropdownDelayed(type) {
+    clearTimeout(hideAccountDropdownTimeout[type]);
+    hideAccountDropdownTimeout[type] = setTimeout(() => {
+        if (document.activeElement && document.activeElement.id === type + '-account-search') {
+            return;
+        }
+
+        const listEl = document.getElementById(type + '-account-dropdown-list');
+        if(listEl) listEl.classList.remove('show'); listEl.style.display = 'none';
+        
+        const idVal = document.getElementById(type + '-account').value;
+        const searchVal = document.getElementById(type + '-account-search').value.trim();
+        if (idVal) {
+            const acc = (ACCOUNTS || []).find(c => String(c.id) === String(idVal));
+            if (acc && acc.name !== searchVal) {
+                document.getElementById(type + '-account-search').value = acc.name;
+            }
+        } else if (searchVal) {
+            const exactMatch = (ACCOUNTS || []).find(c => c.name === searchVal);
+            if (exactMatch) {
+                selectAccount(type, exactMatch.id, exactMatch.name);
+            }
+        } else {
+            document.getElementById(type + '-account-search').value = '';
+        }
+    }, 250);
+}
+
+function filterAccountDropdown(type) {
+    document.getElementById(type + '-account').value = '';
+    renderAccountDropdown(type, document.getElementById(type + '-account-search').value);
+    document.getElementById(type + '-account-dropdown-list').classList.add('show');
+}
+
+function selectAccount(type, id, name) {
+    document.getElementById(type + '-account').value = id;
+    document.getElementById(type + '-account-search').value = name;
+    document.getElementById(type + '-account-dropdown-list').classList.remove('show');
+}
+
+// Override selectAccount to handle focus jumping and balance updating
+window.selectAccount = function(type, id, name) {
+    document.getElementById(type + '-account').value = id;
+    document.getElementById(type + '-account-search').value = name;
+    document.getElementById(type + '-account-dropdown-list').classList.remove('show');
+    
+    if (type === 'to') {
+        if(typeof updateBalances === 'function') updateBalances();
+        const toStmt = document.getElementById('to-statement');
+        if (toStmt) toStmt.focus();
+    } else if (type === 'from') {
+        const cc = document.getElementById('cost-center');
+        if (cc && cc.closest('.choices') && window.ccChoice) {
+            window.ccChoice.showDropdown();
+            let inp = cc.closest('.choices').querySelector('.choices__input');
+            if (inp) inp.focus();
+        } else {
+            const fromStmt = document.getElementById('from-statement');
+            if (fromStmt) fromStmt.focus();
+        }
+    }
+};

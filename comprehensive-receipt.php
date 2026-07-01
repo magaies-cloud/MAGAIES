@@ -299,9 +299,11 @@
             <!-- Row 1: Core Financials -->
             <div class="input-group search-wrapper">
                 <label>👤 القبض من حساب (ذكي)</label>
-                <input type="text" class="form-control" id="account-search" placeholder="بحث اسم العميل أو الحساب..." autocomplete="off">
-                <input type="hidden" id="account-id">
-                <div class="search-results" id="account-results"></div>
+                <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
+                    <input type="hidden" id="from-account">
+                    <input type="text" class="form-control" id="from-account-search" placeholder="بحث اسم العميل أو الحساب..." onfocus="showAccountDropdown('from')" onblur="hideAccountDropdownDelayed('from')" oninput="filterAccountDropdown('from')" style="width: 100%; box-sizing: border-box; background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color);" autocomplete="off">
+                    <div class="custom-dropdown-list" id="from-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
+                </div>
             </div>
             
             <div class="input-group">
@@ -349,9 +351,11 @@
             <!-- Row 3: Depository & Payment Method Toggle -->
             <div class="input-group">
                 <label>🏦 إيداع في (الخزينة/البنك)</label>
-                <select class="form-control" id="deposit-account">
-                    <!-- Populated dynamically -->
-                </select>
+                <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
+                    <input type="hidden" id="deposit-account">
+                    <input type="text" class="form-control" id="deposit-account-search" placeholder="-- اختر الحساب المعني --" onfocus="showAccountDropdown('deposit')" onblur="hideAccountDropdownDelayed('deposit')" oninput="filterAccountDropdown('deposit')" style="width: 100%; box-sizing: border-box; background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color);" autocomplete="off">
+                    <div class="custom-dropdown-list" id="deposit-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
+                </div>
             </div>
             
             <div class="input-group">
@@ -438,7 +442,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="js/localforage.min.js"></script>
     <script src="js/app.js"></script>
     <script src="js/comprehensive-receipt.js"></script>
 </body>

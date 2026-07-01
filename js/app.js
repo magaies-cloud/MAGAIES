@@ -1114,6 +1114,19 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- 4. Global Record Modification Policy ---
+    window.canCreateRecord = function(recordDateStr) {
+        if (recordDateStr) {
+            const periods = JSON.parse(localStorage.getItem('erp_financial_periods_v1')) || [];
+            const docDate = new Date(recordDateStr);
+            const closedPeriod = periods.find(p => p.status === 'closed' && new Date(p.startDate) <= docDate && new Date(p.endDate) >= docDate);
+            if (closedPeriod) {
+                alert(`لا يمكن إنشاء مستند! التاريخ يقع ضمن فترة مالية مغلقة (${closedPeriod.name})`);
+                return false;
+            }
+        }
+        return true;
+    };
+
     window.canEditRecord = function(recordDateStr, moduleId) {
         const userStr = localStorage.getItem('user');
         if (!userStr) return false;
@@ -1158,10 +1171,64 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
+        // 3. Check Financial Period Validation
+        if (recordDateStr) {
+            const periods = JSON.parse(localStorage.getItem('erp_financial_periods_v1')) || [];
+            const docDate = new Date(recordDateStr);
+            const closedPeriod = periods.find(p => p.status === 'closed' && new Date(p.startDate) <= docDate && new Date(p.endDate) >= docDate);
+            if (closedPeriod) {
+                alert(`لا يمكن الحفظ أو التعديل! التاريخ يقع ضمن فترة مالية مغلقة (${closedPeriod.name})`);
+                return false;
+            }
+        }
+        
         return true;
     };
 
-    // --- 6. Populate Header User Info ---
+    
+    window.normalizeArabic = function(text) {
+        if (!text) return '';
+        return String(text).replace(/[أإآا]/g, 'ا')
+                   .replace(/ة/g, 'ه')
+                   .replace(/[يى]/g, 'ى')
+                   .toLowerCase();
+    };
+    
+    // --- 6. Document Immutability UI ---
+    window.applyImmutabilityUI = function(status) {
+        const isImmutable = (status === 'posted' || status === 'closed' || status === 'archived');
+        
+        // Disable inputs
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            if (el.id !== 'global-search' && !el.classList.contains('no-disable')) {
+                el.disabled = isImmutable;
+            }
+        });
+        
+        // Hide specific action buttons
+        document.querySelectorAll('.btn-primary, .btn-danger, .action-btn').forEach(btn => {
+            if (!btn.classList.contains('print-btn') && !btn.classList.contains('no-hide')) {
+                btn.style.display = isImmutable ? 'none' : 'inline-flex';
+            }
+        });
+
+        // Show lock badge
+        let lockBadge = document.getElementById('immutability-badge');
+        if (isImmutable) {
+            if (!lockBadge) {
+                lockBadge = document.createElement('div');
+                lockBadge.id = 'immutability-badge';
+                lockBadge.innerHTML = '🔒 مستند مرحل (غير قابل للتعديل)';
+                lockBadge.style.cssText = 'position:fixed; top:80px; left:50%; transform:translateX(-50%); background:var(--danger); color:white; padding:8px 16px; border-radius:20px; z-index:9999; font-weight:bold; box-shadow:0 4px 6px rgba(0,0,0,0.1);';
+                document.body.appendChild(lockBadge);
+            }
+            lockBadge.style.display = 'block';
+        } else if (lockBadge) {
+            lockBadge.style.display = 'none';
+        }
+    };
+
+    // --- 7. Populate Header User Info ---
     const updateHeaderUserInfo = () => {
         const userStr = localStorage.getItem('user');
         if (!userStr) return;

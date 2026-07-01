@@ -18,7 +18,18 @@
         .t-amount { font-size: 1.5rem; font-weight: 900; color: #34d399; text-align: center; }
         .btn-confirm { background: linear-gradient(135deg, #38bdf8, #0284c7); border: none; color: white; padding: 15px 30px; font-size: 1.1rem; font-weight: 800; border-radius: 12px; cursor: pointer; transition: 0.3s; width: 100%; font-family: inherit; box-shadow: 0 5px 15px rgba(56,189,248,0.4); }
         .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(56,189,248,0.6); }
-    </style>
+    
+        .custom-dropdown-list {
+            display: none; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 200px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 1000;
+        }
+        .custom-dropdown-list.show { display: block; }
+        .custom-dropdown-list .item {
+            padding: 10px 15px; color: #fff; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s;
+        }
+        .custom-dropdown-list .item:hover { background: rgba(56, 189, 248, 0.2); }
+        .custom-dropdown-list .item .bal { font-size: 0.8rem; color: #94a3b8; display: block; margin-top: 3px; font-family: monospace; }
+        </style>
+
 </head>
 <body style="background:var(--bg-color); color:var(--text-main); font-family:'Tajawal', sans-serif;">
 
@@ -48,21 +59,23 @@
 
             <div>
                 <label class="t-label">من الخزنة (المحول منها)</label>
-                <select class="t-select" id="t-from">
-                    <option value="">-- اختر الخزنة --</option>
-                    <option value="s1">الخزينة الرئيسية</option>
-                    <option value="s2">صندوق المصروفات</option>
-                    <option value="s3">خزينة المعرض</option>
-                </select>
+                
+                <input type="hidden" id="t-from">
+                <div style="position:relative; z-index:100;">
+                    <input type="text" class="t-input" id="t-from-search" placeholder="ابحث عن الخزينة المحول منه..." onfocus="showDropdown('from')" onblur="hideDropdownDelayed('from')" oninput="filterDropdown('from')" autocomplete="off">
+                    <div class="custom-dropdown-list" id="from-dropdown-list" style="position:absolute; top:100%; left:0; right:0; margin-top:5px;"></div>
+                </div>
+
             </div>
             <div>
                 <label class="t-label">إلى الخزنة (المحول إليها)</label>
-                <select class="t-select" id="t-to">
-                    <option value="">-- اختر الخزنة --</option>
-                    <option value="s1">الخزينة الرئيسية</option>
-                    <option value="s2">صندوق المصروفات</option>
-                    <option value="s3">خزينة المعرض</option>
-                </select>
+                
+                <input type="hidden" id="t-to">
+                <div style="position:relative; z-index:90;">
+                    <input type="text" class="t-input" id="t-to-search" placeholder="ابحث عن الخزينة المحول إليه..." onfocus="showDropdown('to')" onblur="hideDropdownDelayed('to')" oninput="filterDropdown('to')" autocomplete="off">
+                    <div class="custom-dropdown-list" id="to-dropdown-list" style="position:absolute; top:100%; left:0; right:0; margin-top:5px;"></div>
+                </div>
+
             </div>
 
             <div class="full-width">
@@ -80,6 +93,59 @@
     </div>
 
     <script>
+
+    let ACCOUNTS = [];
+    document.addEventListener('DOMContentLoaded', () => {
+        try {
+            const data = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
+            ACCOUNTS = data.filter(x => !x.deleted).map(x => ({
+                id: x.id,
+                name: x.name || x.safeName || x.bankName,
+                balance: parseFloat(x.currentBalance || 0)
+            }));
+        } catch(e) {}
+    });
+
+    function renderDropdown(type, filter = '') {
+        const list = document.getElementById(type + '-dropdown-list');
+        const term = window.normalizeArabic ? window.normalizeArabic(filter) : filter.toLowerCase();
+        
+        let html = '';
+        ACCOUNTS.forEach(a => {
+            const nName = window.normalizeArabic ? window.normalizeArabic(a.name) : a.name.toLowerCase();
+            if(!term || nName.includes(term)) {
+                html += `<div class="item" onmousedown="selectAccount('${type}', '${a.id}', '${a.name}')">
+                    ${a.name}
+                    <span class="bal">الرصيد: ${a.balance.toLocaleString()}</span>
+                </div>`;
+            }
+        });
+        
+        if(!html) html = '<div style="padding:10px; color:#94a3b8; text-align:center;">لا يوجد تطابق</div>';
+        list.innerHTML = html;
+    }
+
+    function showDropdown(type) {
+        renderDropdown(type, document.getElementById(type + '-search').value);
+        document.getElementById(type + '-dropdown-list').classList.add('show');
+    }
+
+    function hideDropdownDelayed(type) {
+        setTimeout(() => {
+            document.getElementById(type + '-dropdown-list').classList.remove('show');
+        }, 200);
+    }
+
+    function filterDropdown(type) {
+        renderDropdown(type, document.getElementById(type + '-search').value);
+    }
+
+    window.selectAccount = function(type, id, name) {
+        document.getElementById('t-' + type).value = id;
+        document.getElementById('t-' + type + '-search').value = name;
+        document.getElementById(type + '-dropdown-list').classList.remove('show');
+    }
+
         document.getElementById('t-date').valueAsDate = new Date();
         function confirmTransfer() {
             const amt = document.getElementById('t-amount').value;

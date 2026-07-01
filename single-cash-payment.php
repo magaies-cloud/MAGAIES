@@ -840,7 +840,11 @@
                                     </span>
                                     من حساب <span style="color:#ffffff !important;">(صرف)</span>
                                 </label>
-                                <div id="from-account-container" style="flex-grow: 1; width: 100%; min-width: 0;"></div>
+                                <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
+                                    <input type="hidden" id="from-account">
+                                    <input type="text" class="form-input input-glow-focus hover-glow" id="from-account-search" placeholder="ابحث عن حساب الصرف..." onfocus="showAccountDropdown('from')" onblur="hideAccountDropdownDelayed('from')" oninput="filterAccountDropdown('from')" style="width: 100%; padding: 12px 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; border: 1px solid rgba(16, 185, 129, 0.5); background: rgba(0,0,0,0.3); color: #fff;">
+                                    <div class="custom-dropdown-list" id="from-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none; margin-top: 5px;"></div>
+                                </div>
                             </div>
                             <!-- إلى حساب (Red) -->
                             <div style="background: rgba(239, 68, 68, 0.05); padding: 8px 15px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.3); display: flex; align-items: center; gap: 10px;">
@@ -850,7 +854,11 @@
                                     </span>
                                     إلى حساب <span style="color:#ffffff !important;">(استلام)</span>
                                 </label>
-                                <div id="to-account-container" style="flex-grow: 1; width: 100%; min-width: 0;"></div>
+                                <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
+                                    <input type="hidden" id="to-account">
+                                    <input type="text" class="form-input input-glow-focus hover-glow" id="to-account-search" placeholder="ابحث عن حساب الاستلام..." onfocus="showAccountDropdown('to')" onblur="hideAccountDropdownDelayed('to')" oninput="filterAccountDropdown('to')" style="width: 100%; padding: 12px 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; border: 1px solid rgba(239, 68, 68, 0.5); background: rgba(0,0,0,0.3); color: #fff;">
+                                    <div class="custom-dropdown-list" id="to-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none; margin-top: 5px;"></div>
+                                </div>
                             </div>
                         </div>
 
@@ -932,20 +940,14 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="js/localforage.min.js"></script>
     
     <script src="js/app.js?v=20260626_4"></script>
-    <script src="js/smart-select.js"></script>
+    
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-          SmartSelectManager.init('from-account-container', 'from-account', {
-              placeholder: 'ابحث في الحسابات (من حساب)...',
-              filterType: 'ALL'
-          });
-          SmartSelectManager.init('to-account-container', 'to-account', {
-              placeholder: 'ابحث في الحسابات (إلى حساب)...',
-              filterType: 'ALL'
-          });
+          
+          
       });
     </script>
     <script src="js/single-cash-payment.js?v=20260625_3"></script>
@@ -983,11 +985,9 @@
 
                 if (id === 'amount-local') {
                     nextAction = () => { 
-                        if(window.toAccChoice) window.toAccChoice.showDropdown(); 
-                        let cc = document.getElementById('to-account').closest('.choices');
-                        if(cc) { let inp = cc.querySelector('.choices__input.choices__input--cloned') || cc.querySelector('.choices__input'); if(inp) inp.focus(); }
+                        document.getElementById('to-account-search').focus();
                     };
-                } else if (id === 'to-account') {
+                } else if (id === 'to-account-search') {
                     nextAction = () => { let n = document.getElementById('to-statement'); n.focus(); n.select(); };
                 } else if (id === 'to-statement') {
                     nextAction = () => { let n = document.getElementById('currency'); n.focus(); };
@@ -999,11 +999,9 @@
                     nextAction = () => { let n = document.getElementById('beneficiary-name'); n.focus(); n.select(); };
                 } else if (id === 'beneficiary-name') {
                     nextAction = () => { 
-                        if(window.fromAccChoice) window.fromAccChoice.showDropdown(); 
-                        let cc = document.getElementById('from-account').closest('.choices');
-                        if(cc) { let inp = cc.querySelector('.choices__input.choices__input--cloned') || cc.querySelector('.choices__input'); if(inp) inp.focus(); }
+                        document.getElementById('from-account-search').focus();
                     };
-                } else if (id === 'from-account') {
+                } else if (id === 'from-account-search') {
                     nextAction = () => { 
                         if(window.ccChoice) window.ccChoice.showDropdown(); 
                         let cc = document.getElementById('cost-center').closest('.choices');

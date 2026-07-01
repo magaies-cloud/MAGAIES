@@ -126,11 +126,11 @@
                         <div class="ctrl-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                             <div>
                                 <label class="label">من حساب (صندوق / بنك)</label>
-                                <select class="ctrl-input" id="from-account">
-                                    <option value="safe-001">الصندوق الرئيسي</option>
-                                    <option value="safe-002">خزينة المشتريات</option>
-                                    <option value="bank-001">بنك (حساب 1)</option>
-                                </select>
+                                <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
+                                    <input type="hidden" id="from-account">
+                                    <input type="text" class="form-input input-glow-focus hover-glow" id="from-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('from')" onblur="hideAccountDropdownDelayed('from')" oninput="filterAccountDropdown('from')" style="width: 100%; padding: 12px 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; border: 1px solid rgba(16, 185, 129, 0.5); background: rgba(0,0,0,0.3); color: #fff;">
+                                    <div class="custom-dropdown-list" id="from-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
+                                </div>
                             </div>
                             <div>
                                 <label class="label">البيان العام</label>
@@ -202,7 +202,7 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="js/localforage.min.js"></script>
     <script src="js/app.js?v=20260626_4"></script>
     <script src="js/cash-payment.js"></script>
 </body>

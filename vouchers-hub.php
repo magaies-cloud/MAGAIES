@@ -617,6 +617,27 @@
                 </div>
             </div>
         </a>
+        <!-- General Ledger -->
+        <a data-href="general-ledger.php" onclick="window.location.href='general-ledger.php'" class="premium-card" style="--card-color: #ec4899; --card-rgb: 236, 72, 153;">
+            <div class="card-glow"></div>
+            <div class="flow-badge" style="background: rgba(236,72,153,0.1); color: #ec4899; border: 1px solid rgba(236,72,153,0.2);">
+                <span>📖</span> الأستاذ
+            </div>
+            <div class="card-content">
+                <div class="icon-wrapper">
+                    <span style="font-size: 2.2rem; filter: drop-shadow(0 4px 10px rgba(236,72,153,0.4));">📖</span>
+                </div>
+                <div class="text-content">
+                    <h2>دفتر الأستاذ العام</h2>
+                    <p>استعراض الأرصدة التراكمية وحركة الحسابات باحترافية عالية.</p>
+                </div>
+                <div class="card-actions">
+                    <span class="v-btn">عرض الدفتر</span>
+                    <span class="v-arrow" style="background: #ec4899; color: #fff;">←</span>
+                </div>
+            </div>
+        </a>
+
 
         <!-- Account Posting (Auditing) -->
         <a data-href="posting-accounts.php" onclick="window.location.href='posting-accounts.php'" class="premium-card" style="--card-color: #eab308; --card-rgb: 234, 179, 8;">
@@ -657,7 +678,7 @@
         </a>
 
         <!-- 1. Journal Ledger -->
-        <a data-href="journal-ledger.html" onclick="window.location.href='journal-ledger.html'" class="premium-card" style="--card-color: #14b8a6; --card-rgb: 20, 184, 166;">
+        <a data-href="journal.php" onclick="window.location.href='journal.php'" class="premium-card" style="--card-color: #14b8a6; --card-rgb: 20, 184, 166;">
             <div class="card-glow"></div>
             <div class="flow-badge" style="background: rgba(20,184,166,0.1); color: #14b8a6; border: 1px solid rgba(20,184,166,0.2);">
                 <span>📔</span> دفتر
@@ -703,7 +724,7 @@
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+<script src="js/localforage.min.js"></script>
     <script src="js/app.js?v=20260626_4"></script>
     <script>
     document.addEventListener('DBReady', async () => {

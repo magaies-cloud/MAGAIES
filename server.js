@@ -32,9 +32,11 @@ http.createServer((req, res) => {
 
     let reqUrl = req.url.split('?')[0];
 
-    // ---- Proxy: إرسال طلبات API للـ PHP المحلي لتجربة التعديلات ----
-    if (reqUrl.startsWith('/api_index.php') || reqUrl.startsWith('/api/') || reqUrl.startsWith('/api_saas_auth.php')) {
-        console.log(`[PROXY] ${req.method} ${req.url} → ${LIVE_SERVER}:8080`);
+    // ---- Proxy: إرسال طلبات API وواجهات PHP للـ PHP المحلي ----
+    if (reqUrl === '/') reqUrl = '/index.php';
+    
+    if (reqUrl.endsWith('.php') || reqUrl.includes('.php/') || reqUrl.startsWith('/api/') || reqUrl.startsWith('/api_index.php')) {
+        console.log(`[PROXY] ${req.method} ${reqUrl} → ${LIVE_SERVER}:8080`);
 
         const proxyHeaders = {
             ...req.headers,
@@ -44,7 +46,7 @@ http.createServer((req, res) => {
         const options = {
             hostname: LIVE_SERVER,
             port: 8080,
-            path: req.url,
+            path: reqUrl + (req.url.includes('?') ? '?' + req.url.split('?')[1] : ''),
             method: req.method,
             headers: proxyHeaders
         };
@@ -70,12 +72,10 @@ http.createServer((req, res) => {
     }
 
     // ---- Static Files ----
-    if (reqUrl === '/') reqUrl = '/index.html';
-
     let safeUrl = reqUrl.startsWith('/') ? reqUrl.slice(1) : reqUrl;
     let file = path.join(DIR, safeUrl);
 
-    if (!path.extname(file)) file += '.html';
+    if (!path.extname(file)) file += '.php'; // Default to .php for extensions
 
     console.log(`[STATIC] ${req.method} ${reqUrl}`);
 
@@ -96,8 +96,8 @@ http.createServer((req, res) => {
     });
 
 }).listen(PORT, () => {
-    console.log(`✅ السيرفر المحلي يعمل على: http://localhost:${PORT}/index.html`);
-    console.log(`🔗 طلبات API تُعاد توجيهها إلى السيرفر المدمج (PHP) على المنفذ 8080 لتجربة التعديلات محلياً.`);
+    console.log(`✅ السيرفر المحلي يعمل على: http://localhost:${PORT}/index.php`);
+    console.log(`🔗 طلبات PHP تُعاد توجيهها إلى السيرفر المدمج (PHP) على المنفذ 8080 لتجربة التعديلات محلياً.`);
     console.log(`⚠️  تحذير: خادم PHP المدمج (php -S) مصمم للتطوير المحلي فقط. في بيئة الإنتاج (Production) استخدم خوادم قوية مثل Nginx أو Apache.`);
     
     // تشغيل خادم PHP المدمج تلقائياً
@@ -117,5 +117,5 @@ http.createServer((req, res) => {
     // فتح المتصفح تلقائياً على الرابط المحلي بطريقة تدعم جميع أنظمة التشغيل
     const { exec } = require('child_process');
     const startCmd = process.platform === 'win32' ? 'start' : (process.platform === 'darwin' ? 'open' : 'xdg-open');
-    exec(`${startCmd} http://localhost:${PORT}/saas-admin.html`);
+    exec(`${startCmd} http://localhost:${PORT}/saas-admin.php`);
 });

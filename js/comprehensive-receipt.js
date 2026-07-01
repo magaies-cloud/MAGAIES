@@ -1,7 +1,7 @@
 // Comprehensive Voucher Logic (dynamic)
 
 let currentType = 'cash';
-let allAccounts = [];
+buildAccountsArray();
 
 document.addEventListener('DBReady', () => {
     // Initialize date and serial
@@ -15,65 +15,16 @@ document.addEventListener('DBReady', () => {
 
     // Load Banks/Safes for Depository/Withdrawal
     const banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
-    const depSelect = document.getElementById('deposit-account');
-    depSelect.innerHTML = '<option value="">-- اختر الحساب المعني --</option>';
-    banks.filter(b => !b.deleted).forEach(b => {
-        depSelect.innerHTML += `<option value="${b.id}">${b.name} (${b.type === 'safe' ? 'خزينة' : 'بنك'})</option>`;
-    });
+    // Old deposit-account populate logic removed
 
     // Load Customers, GL Accounts, AND Banks/Safes for Smart Filter
-    const customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+    const customers = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
     const glAccounts = JSON.parse(localStorage.getItem('erp_gl_v1')) || [];
 
-    allAccounts = [
-        ...customers.filter(c => !c.deleted).map(c => ({ id: c.id, name: c.name, type: 'عميل' })),
-        ...glAccounts.filter(g => !g.deleted).map(g => ({ id: g.id, name: g.name, type: 'حساب عام' })),
-        ...banks.filter(b => !b.deleted).map(b => ({ id: b.id, name: b.name, type: b.type === 'safe' ? 'خزينة' : 'بنك' }))
-    ];
+    buildAccountsArray();
 
     // Smart Search Logic
-    const searchInput = document.getElementById('account-search');
-    const searchResults = document.getElementById('account-results');
-    const idInput = document.getElementById('account-id');
-
-    searchInput.addEventListener('input', (e) => {
-        const val = e.target.value.toLowerCase().trim();
-        searchResults.innerHTML = '';
-        if (val.length < 1) {
-            searchResults.style.display = 'none';
-            return;
-        }
-
-        const matches = allAccounts.filter(acc => 
-            acc.name.toLowerCase().includes(val) || acc.id.toLowerCase().includes(val)
-        ).slice(0, 10);
-
-        if (matches.length > 0) {
-            searchResults.style.display = 'block';
-            matches.forEach(match => {
-                const div = document.createElement('div');
-                div.className = 'search-item';
-                div.innerHTML = `<span>${match.name}</span> <span class="search-item-type">${match.type}</span>`;
-                div.onclick = () => {
-                    searchInput.value = match.name;
-                    idInput.value = match.id;
-                    searchResults.style.display = 'none';
-                    // Auto-fill description
-                    document.getElementById('main-desc').value = 'دفعة من الحساب: ' + match.name;
-                };
-                searchResults.appendChild(div);
-            });
-        } else {
-            searchResults.style.display = 'block';
-            searchResults.innerHTML = '<div style="padding:10px; color:#94a3b8; text-align:center;">لا توجد نتائج</div>';
-        }
-    });
-
-    document.addEventListener('click', (e) => {
-        if(!e.target.closest('.search-wrapper')) {
-            searchResults.style.display = 'none';
-        }
-    });
+    // Old custom search logic removed
 });
 
 // Toggle Payment Type
@@ -111,7 +62,7 @@ function saveVoucher() {
         id: document.getElementById('serial-number').innerText,
         date: document.getElementById('current-date').innerText,
         accountId: accountId,
-        accountName: document.getElementById('account-search').value,
+        accountName: document.getElementById('from-account-search').value,
         costCenter: document.getElementById('cost-center').value,
         amount: amount,
         description: document.getElementById('main-desc').value,
@@ -145,4 +96,158 @@ function saveVoucher() {
 
     alert('تم حفظ السند الشامل بنجاح!');
     window.location.href = 'vouchers-hub.php';
+}
+
+
+// ═══════════════════════════════════════════════════════
+// Custom Dropdown Logic for Accounts
+// ═══════════════════════════════════════════════════════
+let ACCOUNTS = [];
+function buildAccountsArray() {
+    ACCOUNTS = [];
+    const stores = [
+        { key: 'erp_customers_v1', prefix: 'cust-', label: 'عميل' },
+        { key: 'erp_suppliers_v1', prefix: 'supp-', label: 'مورد' },
+        { key: 'erp_banks_v1', prefix: 'bank-', label: 'بنك' },
+        { key: 'erp_safes_v1', prefix: 'safe-', label: 'خزينة' },
+        { key: 'erp_gl_v1', prefix: 'gl-', label: 'حساب عام' } // Note: Comprehensive uses erp_gl_v1 instead of erp_accounts_v1 for GL!
+    ];
+
+    for (const store of stores) {
+        let data = JSON.parse(localStorage.getItem(store.key) || '[]');
+        if (!Array.isArray(data)) data = Object.values(data);
+        
+        data.forEach(item => {
+            if(item.deleted) return;
+            const name = item.name || item.accountName || item.customerName || item.supplierName || item.bankName || item.safeName;
+            const id = item.id || item.code || '';
+            if (name) {
+                ACCOUNTS.push({ id: store.prefix + id, name: name, rawId: id, storeType: store.prefix.replace('-','') });
+            }
+        });
+    }
+}
+
+function renderAccountDropdown(type, filter = '') {
+    if (ACCOUNTS.length === 0) buildAccountsArray();
+
+    const listEl = document.getElementById(type + '-account-dropdown-list');
+    if (!listEl) return;
+    
+    listEl.innerHTML = '';
+    const term = filter.toLowerCase().trim();
+    const normalizedTerm = window.normalizeArabic ? window.normalizeArabic(term) : term;
+    
+    try {
+        let filtered = ACCOUNTS;
+        
+        // Comprehensive specific filtering: Deposit account should only show banks and safes
+        if (type === 'deposit') {
+            filtered = ACCOUNTS.filter(a => a.id.startsWith('bank-') || a.id.startsWith('safe-'));
+        }
+
+        filtered = filtered.filter(a => {
+            if (!term) return true;
+            const normalizedName = window.normalizeArabic ? window.normalizeArabic(a.name) : a.name.toLowerCase();
+            return normalizedName.includes(normalizedTerm) || String(a.id).includes(term);
+        });
+
+        const totalFound = filtered.length;
+        filtered = filtered.slice(0, 50);
+
+        if (filtered.length === 0) {
+            listEl.innerHTML = `<div style="padding: 15px; color: var(--text-secondary); text-align: center;">لا توجد حسابات مطابقة</div>`;
+            return;
+        }
+
+        filtered.forEach(a => {
+            const div = document.createElement('div');
+            div.className = 'custom-dropdown-item';
+            div.style.cssText = 'padding: 10px 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s;';
+            div.onmouseover = () => div.style.background = 'rgba(255,255,255,0.1)';
+            div.onmouseout = () => div.style.background = 'transparent';
+            
+            let typeTag = '';
+            if (a.storeType === 'cust') typeTag = '<span style="font-size:0.75rem; color:#60a5fa; background:rgba(96,165,250,0.1); padding:2px 6px; border-radius:4px;">عميل</span>';
+            else if (a.storeType === 'supp') typeTag = '<span style="font-size:0.75rem; color:#f472b6; background:rgba(244,114,182,0.1); padding:2px 6px; border-radius:4px;">مورد</span>';
+            else if (a.storeType === 'bank') typeTag = '<span style="font-size:0.75rem; color:#a78bfa; background:rgba(167,139,250,0.1); padding:2px 6px; border-radius:4px;">بنك</span>';
+            else if (a.storeType === 'safe') typeTag = '<span style="font-size:0.75rem; color:#34d399; background:rgba(52,211,153,0.1); padding:2px 6px; border-radius:4px;">خزينة</span>';
+            else if (a.storeType === 'gl') typeTag = '<span style="font-size:0.75rem; color:#fbbf24; background:rgba(251,191,36,0.1); padding:2px 6px; border-radius:4px;">حساب عام</span>';
+
+            div.innerHTML = `
+                <div style="font-weight: bold; color: #fff;">${a.name}</div>
+                <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 3px; display: flex; gap: 8px; align-items: center;">
+                    <span>[${a.rawId}]</span>
+                    ${typeTag}
+                </div>
+            `;
+            div.onclick = (e) => {
+                e.stopPropagation();
+                selectAccount(type, a.id, a.name);
+            };
+            listEl.appendChild(div);
+        });
+
+        if (totalFound > 50) {
+            const note = document.createElement('div');
+            note.style.cssText = 'padding: 8px; font-size: 0.8rem; color: #fbbf24; text-align: center; background: rgba(251,191,36,0.1);';
+            note.innerText = `عرض أول 50 حساب من أصل ${totalFound}. يرجى تضييق نطاق البحث.`;
+            listEl.appendChild(note);
+        }
+
+    } catch (e) {
+        console.error('Error rendering accounts:', e);
+    }
+}
+
+window.showAccountDropdown = function(type) {
+    const listEl = document.getElementById(type + '-account-dropdown-list');
+    if (listEl) {
+        renderAccountDropdown(type, document.getElementById(type + '-account-search').value);
+        listEl.classList.add('show');
+        listEl.style.display = 'block';
+    }
+}
+
+window.hideAccountDropdownDelayed = function(type) {
+    setTimeout(() => {
+        const listEl = document.getElementById(type + '-account-dropdown-list');
+        if (listEl) {
+            listEl.classList.remove('show');
+            listEl.style.display = 'none';
+        }
+    }, 200);
+}
+
+window.filterAccountDropdown = function(type) {
+    const val = document.getElementById(type + '-account-search').value;
+    renderAccountDropdown(type, val);
+}
+
+window.selectAccount = function(type, id, name) {
+    document.getElementById(type + '-account').value = id;
+    document.getElementById(type + '-account-search').value = name;
+    
+    // In comprehensive payment, there is a specific ID used for save logic which was 'account-id'
+    if (type === 'from') {
+        const accIdEl = document.getElementById('account-id');
+        if (accIdEl) accIdEl.value = id;
+    }
+    
+    const listEl = document.getElementById(type + '-account-dropdown-list');
+    if(listEl) {
+        listEl.classList.remove('show');
+        listEl.style.display = 'none';
+    }
+};
+
+if (!window.normalizeArabic) {
+    window.normalizeArabic = function(text) {
+        if (!text) return '';
+        return text.toString()
+            .replace(/[أإآ]/g, 'ا')
+            .replace(/ة/g, 'ه')
+            .replace(/ى/g, 'ي')
+            .toLowerCase();
+    };
 }

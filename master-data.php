@@ -260,7 +260,7 @@
                             <div class="input-group"><label>النوع</label><select id="warehouse-type"><option value="مستودع رئيسي">مستودع رئيسي</option><option value="معرض (نقطة بيع)">معرض (نقطة بيع)</option><option value="مخزن بضاعة تالفة">مخزن بضاعة تالفة</option></select></div>
                             <div class="input-group"><label>درجة السرية</label><select id="warehouse-security"><option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option></select></div>
                         </div>
-                        <button class="btn-add" style="background: var(--success-color);" onclick="saveWarehouse()">💾 حفظ البيانات</button>
+                        <button type="button" class="btn-add" style="background: var(--success-color);" onclick="saveWarehouse()">💾 حفظ البيانات</button>
                     </div>
 
                     <div class="table-responsive" style="overflow-x: auto;">
@@ -311,7 +311,7 @@
                             </div>
                         </div>
                         <div style="margin-top: 20px; text-align: right;">
-                            <button class="btn-add" style="background: var(--success-color); padding: 10px 25px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);" onclick="saveCustomer()">💾 حفظ العميل</button>
+                            <button type="button" class="btn-add" style="background: var(--success-color); padding: 10px 25px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);" onclick="saveCustomer()">💾 حفظ العميل</button>
                         </div>
                     </div>
 
@@ -360,7 +360,7 @@
                             <div class="input-group" style="grid-column: 1 / -1;"><label>ملاحظات إضافية</label><textarea id="sup-notes" placeholder="أي ملاحظات حول المورد..." style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--bg-color); color: var(--text-primary); outline: none; font-family: inherit; resize: none; height: 50px; box-sizing: border-box;"></textarea></div>
                         </div>
                         <div style="margin-top: 20px; text-align: right;">
-                            <button class="btn-add" style="background: var(--success-color); padding: 10px 25px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);" onclick="saveSupplier()">💾 حفظ بيانات المورد</button>
+                            <button type="button" class="btn-add" style="background: var(--success-color); padding: 10px 25px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);" onclick="saveSupplier()">💾 حفظ بيانات المورد</button>
                         </div>
                     </div>
 
@@ -407,7 +407,7 @@
                             <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="bank-inactive"> عدم تفعيل الحساب</label>
                             
                         </div>
-                        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;"><button class="btn-text" style="color:var(--danger-color);" onclick="closeBankForm()">✖ إلغاء</button><button class="btn-add" style="background:var(--success-color); padding:8px 20px;" onclick="saveBank()">💾 حفظ</button></div>
+                        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;"><button class="btn-text" style="color:var(--danger-color);" onclick="closeBankForm()">✖ إلغاء</button><button type="button" class="btn-add" style="background:var(--success-color); padding:8px 20px;" onclick="saveBank()">💾 حفظ</button></div>
                     </div>
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table" id="banks-table">
@@ -453,7 +453,7 @@
                             <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="safe-inactive"> عدم تفعيل الحساب</label>
                             <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="safe-modifier"> المعدل</label>
                         </div>
-                        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;"><button class="btn-text" style="color:var(--danger-color);" onclick="closeSafeForm()">✖ إلغاء</button><button class="btn-add" style="background:var(--success-color); padding:8px 20px;" onclick="saveSafe()">💾 حفظ</button></div>
+                        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;"><button class="btn-text" style="color:var(--danger-color);" onclick="closeSafeForm()">✖ إلغاء</button><button type="button" class="btn-add" style="background:var(--success-color); padding:8px 20px;" onclick="saveSafe()">💾 حفظ</button></div>
                     </div>
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table" id="safes-table">
@@ -727,7 +727,7 @@
                             <div class="input-group"><label>درجة السرية</label><select id="emp-security"><option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option></select></div>
                             <div class="input-group"><label>الحالة</label><select id="emp-status"><option value="active">نشط</option><option value="inactive">موقوف</option></select></div>
                         </div>
-                        <button class="btn-add" style="background:var(--success-color);" onclick="saveEmployee()">💾 حفظ</button>
+                        <button type="button" class="btn-add" style="background:var(--success-color);" onclick="saveEmployee()">💾 حفظ</button>
                     </div>
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table">
@@ -756,7 +756,7 @@
                             <div class="input-group"><label>اسم مركز التكلفة</label><input type="text" id="costcenter-name" placeholder="مثال: مشروع الخرطوم الجديد"></div>
                             <div class="input-group"><label>الوصف / ملاحظات</label><input type="text" id="costcenter-desc" placeholder="..."></div>
                         </div>
-                        <button class="btn-add" style="background: var(--success-color);" onclick="saveCostCenter()">💾 حفظ البيانات</button>
+                        <button type="button" class="btn-add" style="background: var(--success-color);" onclick="saveCostCenter()">💾 حفظ البيانات</button>
                     </div>
 
                     <div class="table-responsive" style="overflow-x: auto;">
@@ -967,7 +967,7 @@
             } catch(e) {
                 customers = [];
             }
-            customers = customers.filter(c => !c.deleted);
+            
             const existingIdx = customers.findIndex(c => c.id === id);
             
             const custData = {
@@ -1170,7 +1170,7 @@
             } catch(e) {
                 suppliers = [];
             }
-            suppliers = suppliers.filter(s => !s.deleted);
+            
             const existingIdx = suppliers.findIndex(s => s.id === id);
             
             const supData = {
@@ -1332,7 +1332,7 @@
             } catch(e) {
                 employees = [];
             }
-            employees = employees.filter(e => !e.deleted);
+            
             const existingIdx = employees.findIndex(e => e.id === id);
             
             const empData = {
@@ -1403,7 +1403,7 @@
             } catch(e) {
                 banks = [];
             }
-            banks = banks.filter(b => !b.deleted);
+            
             const existingIdx = banks.findIndex(b => b.id === id);
 
             const bankData = {

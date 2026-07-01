@@ -60,8 +60,8 @@ let ALL_TXNS = [];
 
 function loadData() {
     ALL_PARTNERS = [];
-    const custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-    const sups  = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+    const custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+    const sups  = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
     const banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
     const safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
     const exp   = JSON.parse(localStorage.getItem('erp_accounts_v1')) || [];

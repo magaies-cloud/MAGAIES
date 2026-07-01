@@ -201,7 +201,7 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="js/localforage.min.js"></script>
     <script src="js/posting-accounts.js"></script>
     <script>
         function injectDummyData() {

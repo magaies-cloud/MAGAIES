@@ -49,10 +49,25 @@ function showDuplicateModal(transferNo) {
 
 document.addEventListener('DBReady', () => {
     // Load accounts dynamically here to ensure DB_STORE is populated
+
+    const fromSelect = document.getElementById('from-account');
+    const toSelect = document.getElementById('to-account');
+    if (fromSelect && toSelect && window.DB_STORE) {
+        let options = '<option value="">-- اختر الحساب --</option>';
+        Object.keys(window.DB_STORE).forEach(key => {
+            const acc = window.DB_STORE[key];
+            if (acc.name && !acc.deleted) {
+                options += `<option value="${acc.id}">${acc.name}</option>`;
+            }
+        });
+        fromSelect.innerHTML = options;
+        toSelect.innerHTML = options;
+    }
+
     let localCusts = [];
-    try { localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || []; } catch(e) { localCusts = []; }
+    try { localCusts = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted); } catch(e) { localCusts = []; }
     let localSups = [];
-    try { localSups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []; } catch(e) { localSups = []; }
+    try { localSups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted); } catch(e) { localSups = []; }
     let localBanks = [];
     try { localBanks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e) { localBanks = []; }
     let localSafes = [];
@@ -192,7 +207,7 @@ function resetVoucher() {
 function resetVoucherSilent() {
     currentViewedIndex = -1;
     document.getElementById('hdr-date').valueAsDate = new Date();
-    SmartSelectManager.setValue('from-account', '');
+    document.getElementById('from-account').value = '';
     document.getElementById('amount-local').value = '0';
     document.getElementById('currency').value = 'SDG';
     document.getElementById('exchange-rate').value = '1.0';
@@ -201,7 +216,7 @@ function resetVoucherSilent() {
     document.getElementById('from-statement').value = '';
     document.getElementById('collector-name').value = '';
     
-    SmartSelectManager.setValue('to-account', 'safe-001');
+    document.getElementById('to-account').value = 'safe-001';
     document.getElementById('to-statement').value = '';
 
     // Reset Radio to Cash
@@ -256,7 +271,7 @@ function renderVoucher(v) {
     document.getElementById('voucher-number').innerText = v.id;
     document.getElementById('hdr-date').value = v.date;
     
-    SmartSelectManager.setValue('from-account', v.fromAccount || '');
+    document.getElementById('from-account').value = v.fromAccount || '';
     document.getElementById('amount-local').value = fmtNum(v.amountLocal);
     document.getElementById('currency').value = v.currency || 'SDG';
     document.getElementById('exchange-rate').value = v.rate || 1.0;
@@ -264,7 +279,7 @@ function renderVoucher(v) {
     document.getElementById('from-statement').value = v.fromStatement || '';
     document.getElementById('collector-name').value = v.collectorName || '';
     
-    SmartSelectManager.setValue('to-account', v.toAccount || 'safe-001');
+    document.getElementById('to-account').value = v.toAccount || 'safe-001';
     document.getElementById('to-statement').value = v.toStatement || '';
 
     // Set Payment Method
@@ -303,6 +318,10 @@ function submitVoucher() {
         return;
     }
 
+    
+    const _docDateStr = document.getElementById('hdr-date') ? document.getElementById('hdr-date').value : new Date().toISOString().split('T')[0];
+    if (!window.canCreateRecord(_docDateStr)) return;
+
     if (window.isSubmitting) return;
     window.isSubmitting = true;
     setTimeout(() => { window.isSubmitting = false; }, 2000);
@@ -310,6 +329,7 @@ function submitVoucher() {
     const method = document.querySelector('input[name="payment_method"]:checked').value;
 
     const voucherData = {
+        createdBy: (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown',
         id: document.getElementById('voucher-number').innerText,
         date: document.getElementById('hdr-date').value,
         type: 'single_receipt',
@@ -390,7 +410,7 @@ function submitVoucher() {
 
         let custs = [];
             try {
-                custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+                custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
                 if (!Array.isArray(custs)) custs = [];
             } catch(e) {
                 custs = [];
@@ -402,7 +422,7 @@ function submitVoucher() {
         } else {
             let sups = [];
             try {
-                sups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+                sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
                 if (!Array.isArray(sups)) sups = [];
             } catch(e) {
                 sups = [];
@@ -477,7 +497,7 @@ function confirmDelete() {
 
             let custs = [];
             try {
-                custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+                custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
                 if (!Array.isArray(custs)) custs = [];
             } catch(e) {
                 custs = [];
@@ -489,7 +509,7 @@ function confirmDelete() {
             } else {
                 let sups = [];
             try {
-                sups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+                sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
                 if (!Array.isArray(sups)) sups = [];
             } catch(e) {
                 sups = [];
@@ -628,3 +648,133 @@ function showSuccessModal(title, subtitle) {
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
 }
+
+
+// ═══════════════════════════════════════════════════════
+// Custom Dropdown Logic for Accounts
+// ═══════════════════════════════════════════════════════
+function renderAccountDropdown(type = 'from', filter = '') {
+    const listEl = document.getElementById(type + '-account-dropdown-list');
+    if (!listEl) return;
+    
+    listEl.innerHTML = '';
+    const term = filter.toLowerCase().trim();
+    const normalizedTerm = window.normalizeArabic ? window.normalizeArabic(term) : term;
+    
+    try {
+        let filtered = ACCOUNTS.filter(a => {
+            if (!term) return true;
+            const normalizedName = window.normalizeArabic ? window.normalizeArabic(a.name) : a.name.toLowerCase();
+            return normalizedName.includes(normalizedTerm) || String(a.id).includes(term);
+        });
+
+        // Limit results to 50 items to prevent lag
+        const totalFound = filtered.length;
+        filtered = filtered.slice(0, 50);
+
+        if (filtered.length === 0) {
+            listEl.innerHTML = `<div style="padding: 15px; color: var(--text-secondary); text-align: center;">لا توجد حسابات مطابقة</div>`;
+            return;
+        }
+
+        filtered.forEach(a => {
+            const div = document.createElement('div');
+            div.className = 'custom-dropdown-item';
+            div.style.cssText = 'padding: 10px 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s;';
+            div.onmouseover = () => div.style.background = 'rgba(255,255,255,0.1)';
+            div.onmouseout = () => div.style.background = 'transparent';
+            
+            // Extract type for tag styling (e.g., cust, supp, bank, safe)
+            let typeTag = '';
+            if (String(a.id).startsWith('cust-')) typeTag = '<span style="font-size:0.75rem; color:#60a5fa; background:rgba(96,165,250,0.1); padding:2px 6px; border-radius:4px;">عميل</span>';
+            else if (String(a.id).startsWith('supp-')) typeTag = '<span style="font-size:0.75rem; color:#f472b6; background:rgba(244,114,182,0.1); padding:2px 6px; border-radius:4px;">مورد</span>';
+            else if (String(a.id).startsWith('bank-')) typeTag = '<span style="font-size:0.75rem; color:#a78bfa; background:rgba(167,139,250,0.1); padding:2px 6px; border-radius:4px;">بنك</span>';
+            else if (String(a.id).startsWith('safe-')) typeTag = '<span style="font-size:0.75rem; color:#34d399; background:rgba(52,211,153,0.1); padding:2px 6px; border-radius:4px;">خزينة</span>';
+            else if (String(a.id).startsWith('exp-')) typeTag = '<span style="font-size:0.75rem; color:#fbbf24; background:rgba(251,191,36,0.1); padding:2px 6px; border-radius:4px;">مصروف</span>';
+
+            div.innerHTML = `
+                <div style="font-weight: bold; color: #fff;">${a.name}</div>
+                <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 3px; display: flex; gap: 8px; align-items: center;">
+                    <span>[${a.id}]</span>
+                    ${typeTag}
+                </div>
+            `;
+            div.onclick = (e) => {
+                e.stopPropagation();
+                selectAccount(type, a.id, a.name);
+            };
+            listEl.appendChild(div);
+        });
+
+        if (totalFound > 50) {
+            const note = document.createElement('div');
+            note.style.cssText = 'padding: 8px; font-size: 0.8rem; color: #fbbf24; text-align: center; background: rgba(251,191,36,0.1);';
+            note.innerText = `عرض أول 50 حساب من أصل ${totalFound}. يرجى تضييق نطاق البحث.`;
+            listEl.appendChild(note);
+        }
+
+    } catch (e) {
+        console.error('Error rendering accounts:', e);
+    }
+}
+
+function showAccountDropdown(type) {
+    const listEl = document.getElementById(type + '-account-dropdown-list');
+    if (listEl) {
+        renderAccountDropdown(type, document.getElementById(type + '-account-search').value);
+        listEl.classList.add('show');
+    }
+}
+
+function hideAccountDropdownDelayed(type) {
+    setTimeout(() => {
+        const listEl = document.getElementById(type + '-account-dropdown-list');
+        if (listEl) listEl.classList.remove('show');
+    }, 200);
+}
+
+function filterAccountDropdown(type) {
+    const val = document.getElementById(type + '-account-search').value;
+    renderAccountDropdown(type, val);
+}
+
+window.selectAccount = function(type, id, name) {
+    document.getElementById(type + '-account').value = id;
+    document.getElementById(type + '-account-search').value = name;
+    document.getElementById(type + '-account-dropdown-list').classList.remove('show');
+    
+    if (type === 'from') {
+        if(typeof updateBalances === 'function') updateBalances();
+        const fromStmt = document.getElementById('from-statement');
+        if (fromStmt) fromStmt.focus();
+    } else if (type === 'to') {
+        const cc = document.getElementById('cost-center');
+        if (cc && cc.closest('.choices') && window.ccChoice) {
+            window.ccChoice.showDropdown();
+            let inp = cc.closest('.choices').querySelector('.choices__input');
+            if (inp) inp.focus();
+        } else {
+            const toStmt = document.getElementById('to-statement');
+            if (toStmt) toStmt.focus();
+        }
+    }
+};
+
+// Also inject missing normalizeArabic globally if not present
+if (!window.normalizeArabic) {
+    window.normalizeArabic = function(text) {
+        if (!text) return '';
+        return text.toString()
+            .replace(/[أإآ]/g, 'ا')
+            .replace(/ة/g, 'ه')
+            .replace(/ى/g, 'ي')
+            .toLowerCase();
+    };
+}
+
+// Intercept Enter key to prevent default form submission inside inputs
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target.tagName.toLowerCase() === 'input') {
+        // e.preventDefault(); // Optional if form submission is an issue
+    }
+});

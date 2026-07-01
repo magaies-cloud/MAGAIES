@@ -257,6 +257,15 @@
         <!-- إعدادات النظام الأساسية -->
         <div class="glass-panel" id="panel-company">
             <div class="setting-title">🏢 بيانات الشركة الأساسية</div>
+            
+            <div class="form-group">
+                <label class="form-label">شعار الشركة (اللوقو)</label>
+                <input type="file" id="cfg-logo" accept="image/*" class="form-input" style="padding: 10px;">
+                <div id="logo-preview-container" style="margin-top:10px; width:150px; height:80px; border:1px dashed rgba(255,255,255,0.3); border-radius:8px; display:flex; align-items:center; justify-content:center; overflow:hidden; background:rgba(0,0,0,0.2);">
+                    <img id="logo-preview" src="" style="display:none; max-height:100%; max-width:100%; object-fit:contain;">
+                </div>
+            </div>
+        
             <div class="form-group">
                 <label class="form-label">اسم الشركة المطبوع على الفواتير</label>
                 <input type="text" class="form-input" id="cfg-company-name" placeholder="مثال: مؤسسة السجانة للتجارة">
@@ -410,7 +419,7 @@
 
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+<script src="js/localforage.min.js"></script>
     <script src="js/app.js?v=20260626_4"></script>
     <script src="js/whatsapp-integration.js"></script>
 <script>
@@ -456,6 +465,27 @@
 
     function loadSettings() {
         const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+
+        
+        if (cfg.logoBase64) {
+            const img = document.getElementById('logo-preview');
+            img.src = cfg.logoBase64;
+            img.style.display = 'block';
+        }
+        
+        document.getElementById('cfg-logo').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    window.pendingLogoBase64 = evt.target.result;
+                    const img = document.getElementById('logo-preview');
+                    img.src = window.pendingLogoBase64;
+                    img.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
         // Company
         if (cfg.companyName)    document.getElementById('cfg-company-name').value = cfg.companyName;

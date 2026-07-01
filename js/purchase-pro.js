@@ -101,7 +101,7 @@ document.addEventListener('DBReady', () => {
 
         let supps = [];
         try {
-            supps = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+            supps = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
         } catch(e) { supps = []; }
         
         // For Purchase Invoices, we only want Suppliers, NOT Customers.
@@ -133,7 +133,7 @@ document.addEventListener('DBReady', () => {
             ];
         }
 
-        const rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+        const rawItems = (JSON.parse(localStorage.getItem('erp_items_v1')) || []).filter(x => !x.deleted);
         const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
         
         if (rawItems.length === 0) {
@@ -557,7 +557,7 @@ function addNewCustomer() {
     // Save to localStorage so it persists
     let supps = [];
     try {
-        supps = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+        supps = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
         if (!Array.isArray(supps)) supps = [];
     } catch(e) { supps = []; }
     
@@ -692,6 +692,7 @@ function loadInvoiceFromStorage(invNo) {
         
         renderGrid();
         recalcAll();
+        if (window.applyImmutabilityUI) window.applyImmutabilityUI(data.status);
         return true;
     } catch(e) {
         console.error('Error loading invoice', e);
@@ -722,7 +723,7 @@ async function renderCustomerDropdown(filter = '') {
         // Sync VENDORS with localStorage live safely
         let supps = [];
         try {
-            supps = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+            supps = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
             if (!Array.isArray(supps)) supps = [];
         } catch (e) {
             supps = [];
@@ -869,7 +870,7 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
         
         const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
         const WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
-        const rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+        const rawItems = (JSON.parse(localStorage.getItem('erp_items_v1')) || []).filter(x => !x.deleted);
         
         // Merge dbMatches and newly added rawItems
         const allNew = [...rawItems, ...dbMatches];
@@ -920,7 +921,7 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
         finalMatches = finalMatches.filter(m => !usedItemIds.has(String(m.id)));
 
         if (finalMatches.length === 0) {
-            listEl.innerHTML = '<div class="custom-dropdown-empty">لا يوجد صنف بهذا الاسم</div>';
+            listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة.<br><small style="color:#888;">(حاول استخدام اسم آخر)</small></div>';
             return;
         }
 
@@ -1022,7 +1023,7 @@ async function renderQuickItemDropdown(filter = '') {
         
         const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
         const WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
-        const rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+        const rawItems = (JSON.parse(localStorage.getItem('erp_items_v1')) || []).filter(x => !x.deleted);
         
         const allNew = [...rawItems, ...dbMatches];
         allNew.forEach(item => {
@@ -1071,7 +1072,7 @@ async function renderQuickItemDropdown(filter = '') {
         finalMatches = finalMatches.filter(m => !usedItemIds.has(String(m.id)));
 
         if (finalMatches.length === 0) {
-            listEl.innerHTML = '<div class="custom-dropdown-empty">لا يوجد صنف بهذا الاسم</div>';
+            listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة.<br><small style="color:#888;">(حاول استخدام اسم آخر)</small></div>';
             return;
         }
 
@@ -1632,6 +1633,7 @@ function recalcAll() {
 function saveDraft() {
     if (rows.length === 0) { showToast('⚠️ لا توجد أصناف لحفظها', 'warning'); return; }
     const data = {
+        createdBy: (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown',
         invoiceNo: document.getElementById('hdr-inv-no').value,
         date: document.getElementById('hdr-date').value,
         customer: document.getElementById('hdr-customer').value,
@@ -1693,6 +1695,10 @@ function submitInvoice(ignoreWarnings = false) {
 
     // Removed stock check and credit check because this is a Purchase (Adding to stock, increasing debt)
 
+    
+    const _docDateStr = document.getElementById('hdr-date') ? document.getElementById('hdr-date').value : new Date().toISOString().split('T')[0];
+    if (!window.canCreateRecord(_docDateStr)) return;
+
     if (window.isSubmitting) return;
     window.isSubmitting = true;
     setTimeout(() => { window.isSubmitting = false; }, 2000);
@@ -1709,6 +1715,7 @@ function submitInvoice(ignoreWarnings = false) {
 
     // Save invoice data
     const data = {
+        createdBy: (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown',
         invoiceNo: committedNo,
         date: document.getElementById('hdr-date').value,
         customer: document.getElementById('hdr-customer').value,
@@ -1768,7 +1775,7 @@ function submitInvoice(ignoreWarnings = false) {
 
     // Update Supplier Balance (Debt)
     if (paymentMethod === 'credit' && custId && custId !== 'walk-in') {
-        let suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+        let suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
         const sIdx = suppliers.findIndex(s => s.id === custId);
         if (sIdx > -1) {
             let currentBalance = parseFloat(suppliers[sIdx].currentBalance);
@@ -1932,7 +1939,7 @@ function executeDeleteTransaction() {
     const grandAmount = parseFloat(oldInv.grandTotal) || 0;
 
     if (oldInv.paymentMethod === 'credit' && oldInv.customer && oldInv.customer !== 'walk-in') {
-        let suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+        let suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
         const sIdx = suppliers.findIndex(s => s.id === oldInv.customer);
         if (sIdx > -1) {
             let currentBalance = parseFloat(suppliers[sIdx].currentBalance) || 0;

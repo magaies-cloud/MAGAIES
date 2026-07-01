@@ -171,15 +171,21 @@ function updateLabels() {
     }
 }
 
+let multiRowIdCounter = 0;
 function addRow() {
+    multiRowIdCounter++;
+    const rowId = multiRowIdCounter;
     const tbody = document.getElementById('entries-body');
     const tr = document.createElement('tr');
     tr.className = 'multi-row';
     tr.innerHTML = `
         <td>
-            <select class="multi-input sub-account form-select" placeholder="اختر الحساب...">
-                <option value="">-- اختر الحساب --</option>
-            </select>
+            
+            <div class="custom-dropdown-input-wrap" style="width: 100%; position: relative;">
+                <input type="hidden" id="acc-${rowId}" class="sub-account">
+                <input type="text" class="multi-input" id="acc-${rowId}-search" placeholder="ابحث عن حساب..." onfocus="showAccountDropdown('acc-${rowId}')" onblur="hideAccountDropdownDelayed('acc-${rowId}')" oninput="filterAccountDropdown('acc-${rowId}')" style="width: 100%; box-sizing: border-box; background: transparent; border: none; color: inherit; padding: 10px;">
+                <div class="custom-dropdown-list" id="acc-${rowId}-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.5);"></div>
+            </div>
         </td>
         <td><input type="text" class="multi-input sub-amount" placeholder="0.00" onblur="formatInput(this)" oninput="restrictToNumbers(this); calcTotal();" style="font-family: monospace; font-weight: bold; font-size: 1.1rem; color: #10b981;"></td>
         <td class="col-desc"><input type="text" class="multi-input sub-desc" placeholder="بيان هذا الحساب..."></td>
@@ -486,4 +492,170 @@ async function saveVoucher() {
         console.error('Save error:', e);
         showToast('حدث خطأ أثناء الحفظ!', 'error');
     }
+}
+
+
+// ═══════════════════════════════════════════════════════
+// Custom Dropdown Logic for Accounts
+// ═══════════════════════════════════════════════════════
+
+// Populate ACCOUNTS based on allAccountsList format, but keeping IDs properly
+let ACCOUNTS = [];
+function buildAccountsArray() {
+    ACCOUNTS = [];
+    const stores = [
+        { key: 'erp_customers_v1', prefix: 'cust-' },
+        { key: 'erp_suppliers_v1', prefix: 'supp-' },
+        { key: 'erp_banks_v1', prefix: 'bank-' },
+        { key: 'erp_safes_v1', prefix: 'safe-' },
+        { key: 'erp_accounts_v1', prefix: 'exp-' }
+    ];
+
+    for (const store of stores) {
+        let data = JSON.parse(localStorage.getItem(store.key) || '[]');
+        if (!Array.isArray(data)) data = Object.values(data);
+        
+        data.forEach(item => {
+            const name = item.name || item.accountName || item.customerName || item.supplierName || item.bankName || item.safeName;
+            const id = item.id || item.code || '';
+            if (name) {
+                ACCOUNTS.push({ id: store.prefix + id, name: name, rawId: id });
+            }
+        });
+    }
+}
+
+// Hook into DBReady to build ACCOUNTS
+document.addEventListener('DBReady', () => {
+    buildAccountsArray();
+});
+
+function renderAccountDropdown(type, filter = '') {
+    if (ACCOUNTS.length === 0) buildAccountsArray();
+
+    const listEl = document.getElementById(type + '-dropdown-list');
+    if (!listEl) return;
+    
+    listEl.innerHTML = '';
+    const term = filter.toLowerCase().trim();
+    const normalizedTerm = window.normalizeArabic ? window.normalizeArabic(term) : term;
+    
+    try {
+        let filtered = ACCOUNTS.filter(a => {
+            if (!term) return true;
+            const normalizedName = window.normalizeArabic ? window.normalizeArabic(a.name) : a.name.toLowerCase();
+            return normalizedName.includes(normalizedTerm) || String(a.id).includes(term);
+        });
+
+        const totalFound = filtered.length;
+        filtered = filtered.slice(0, 50);
+
+        if (filtered.length === 0) {
+            listEl.innerHTML = `<div style="padding: 15px; color: var(--text-secondary); text-align: center;">لا توجد حسابات مطابقة</div>`;
+            return;
+        }
+
+        filtered.forEach(a => {
+            const div = document.createElement('div');
+            div.className = 'custom-dropdown-item';
+            div.style.cssText = 'padding: 10px 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s;';
+            div.onmouseover = () => div.style.background = 'rgba(255,255,255,0.1)';
+            div.onmouseout = () => div.style.background = 'transparent';
+            
+            let typeTag = '';
+            if (String(a.id).startsWith('cust-')) typeTag = '<span style="font-size:0.75rem; color:#60a5fa; background:rgba(96,165,250,0.1); padding:2px 6px; border-radius:4px;">عميل</span>';
+            else if (String(a.id).startsWith('supp-')) typeTag = '<span style="font-size:0.75rem; color:#f472b6; background:rgba(244,114,182,0.1); padding:2px 6px; border-radius:4px;">مورد</span>';
+            else if (String(a.id).startsWith('bank-')) typeTag = '<span style="font-size:0.75rem; color:#a78bfa; background:rgba(167,139,250,0.1); padding:2px 6px; border-radius:4px;">بنك</span>';
+            else if (String(a.id).startsWith('safe-')) typeTag = '<span style="font-size:0.75rem; color:#34d399; background:rgba(52,211,153,0.1); padding:2px 6px; border-radius:4px;">خزينة</span>';
+            else if (String(a.id).startsWith('exp-')) typeTag = '<span style="font-size:0.75rem; color:#fbbf24; background:rgba(251,191,36,0.1); padding:2px 6px; border-radius:4px;">مصروف</span>';
+
+            div.innerHTML = `
+                <div style="font-weight: bold; color: #fff;">${a.name}</div>
+                <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 3px; display: flex; gap: 8px; align-items: center;">
+                    <span>[${a.rawId}]</span>
+                    ${typeTag}
+                </div>
+            `;
+            div.onclick = (e) => {
+                e.stopPropagation();
+                selectAccount(type, a.id, a.name);
+            };
+            listEl.appendChild(div);
+        });
+
+        if (totalFound > 50) {
+            const note = document.createElement('div');
+            note.style.cssText = 'padding: 8px; font-size: 0.8rem; color: #fbbf24; text-align: center; background: rgba(251,191,36,0.1);';
+            note.innerText = `عرض أول 50 حساب من أصل ${totalFound}. يرجى تضييق نطاق البحث.`;
+            listEl.appendChild(note);
+        }
+
+    } catch (e) {
+        console.error('Error rendering accounts:', e);
+    }
+}
+
+window.showAccountDropdown = function(type) {
+    const listEl = document.getElementById(type + '-dropdown-list');
+    if (listEl) {
+        renderAccountDropdown(type, document.getElementById(type + '-search').value);
+        listEl.classList.add('show');
+        listEl.style.display = 'block';
+    }
+}
+
+window.hideAccountDropdownDelayed = function(type) {
+    setTimeout(() => {
+        const listEl = document.getElementById(type + '-dropdown-list');
+        if (listEl) {
+            listEl.classList.remove('show');
+            listEl.style.display = 'none';
+        }
+    }, 200);
+}
+
+window.filterAccountDropdown = function(type) {
+    const val = document.getElementById(type + '-search').value;
+    renderAccountDropdown(type, val);
+}
+
+window.selectAccount = function(type, id, name) {
+    document.getElementById(type).value = id; // Store ID
+    document.getElementById(type + '-search').value = name; // Store Name
+    
+    // In multi-cash-payment, the original logic saved the NAME as the value for accounts!
+    // To preserve backwards compatibility with saveVoucher(), we update the .value of the hidden input
+    // to the name, but we add a data-id attribute for the real ID.
+    const hiddenInp = document.getElementById(type);
+    if(hiddenInp) {
+        hiddenInp.value = name;
+        hiddenInp.setAttribute('data-id', id);
+    }
+
+    const listEl = document.getElementById(type + '-dropdown-list');
+    if(listEl) {
+        listEl.classList.remove('show');
+        listEl.style.display = 'none';
+    }
+    
+    // Jump logic
+    if (type.startsWith('acc-')) {
+        const rowId = type.split('-')[1];
+        const rowTr = document.getElementById(type).closest('tr');
+        if(rowTr) {
+            const amtInp = rowTr.querySelector('.sub-amount');
+            if(amtInp) amtInp.focus();
+        }
+    }
+};
+
+if (!window.normalizeArabic) {
+    window.normalizeArabic = function(text) {
+        if (!text) return '';
+        return text.toString()
+            .replace(/[أإآ]/g, 'ا')
+            .replace(/ة/g, 'ه')
+            .replace(/ى/g, 'ي')
+            .toLowerCase();
+    };
 }

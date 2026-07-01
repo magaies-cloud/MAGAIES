@@ -19,21 +19,23 @@ function showToast(msg, type = 'success') {
     setTimeout(() => t.remove(), 3500);
 }
 
-let ALL_ACCOUNTS = [];
+let ALL_ACCOUNTS = [{ id: 'ALL', name: 'جميع الحسابات', icon: '📊', type: 'عام' }];
 let ALL_TXNS = []; // Cache to extract cost centers and currencies
 
 function buildAccountsList() {
-    ALL_ACCOUNTS = [
-        { id: 'ALL',           name: 'جميع الحسابات',       icon: '📊', type: 'عام' },
-        { id: 'safe-001',      name: 'الخزينة الرئيسية',    icon: '💰', type: 'صندوق' },
-        { id: 'bank-001',      name: 'بنك (مثال 1)',          icon: '🏦', type: 'بنك' },
-        { id: 'exp-rent',      name: 'مصروفات إيجار',        icon: '🏠', type: 'مصروف' },
-        { id: 'exp-salary',    name: 'مصروفات رواتب',        icon: '👷', type: 'مصروف' },
-        { id: 'revenue-sales', name: 'إيرادات المبيعات',     icon: '📈', type: 'إيراد' },
-        { id: 'exp-purchases', name: 'مصروفات المشتريات',    icon: '📦', type: 'مصروف' },
-    ];
-    const custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-    const sups  = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+    ALL_ACCOUNTS = [{ id: 'ALL', name: 'جميع الحسابات', icon: '📊', type: 'عام' }];
+    
+    const accounts = (JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => !x.deleted);
+    accounts.forEach(a => ALL_ACCOUNTS.push({ id: a.id, name: a.name, icon: '📝', type: 'عام' }));
+    
+    const safes = (JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => !x.deleted);
+    safes.forEach(s => ALL_ACCOUNTS.push({ id: s.id, name: s.safeName || s.name, icon: '💰', type: 'صندوق' }));
+    
+    const banks = (JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => !x.deleted);
+    banks.forEach(b => ALL_ACCOUNTS.push({ id: b.id, name: b.bankName || b.name, icon: '🏦', type: 'بنك' }));
+    
+    const custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+    const sups  = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
     custs.forEach(c => ALL_ACCOUNTS.push({ id: c.id, name: c.name, icon: '👤', type: 'عميل' }));
     sups.forEach(s  => ALL_ACCOUNTS.push({ id: s.id, name: s.name, icon: '🏭', type: 'مورد' }));
 }
@@ -356,8 +358,8 @@ function runReport() {
     if (acctFilter !== 'ALL') {
         txns = txns.filter(t => t.account === acctFilter);
         
-        let custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-        let sups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+        let custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+        let sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
         let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
         
         let c = custs.find(x => x.id === acctFilter);

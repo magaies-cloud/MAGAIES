@@ -9,7 +9,7 @@ document.addEventListener('DBReady', () => {
 let ITEMS = [];
 
 function loadItems() {
-    ITEMS = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+    ITEMS = (JSON.parse(localStorage.getItem('erp_items_v1')) || []).filter(x => !x.deleted);
     const select = document.getElementById('item-select');
     
     ITEMS.forEach(item => {

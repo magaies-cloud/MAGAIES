@@ -298,9 +298,11 @@
 
                 <div>
                     <label id="main-account-label" style="color: #ffffff; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: bold;">من حساب (صرف)</label>
-                    <select id="main-account" class="form-select" data-choices>
-                        <option value="">-- اختر الحساب --</option>
-                    </select>
+                    <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
+                        <input type="hidden" id="main-account">
+                        <input type="text" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main')" onblur="hideAccountDropdownDelayed('main')" oninput="filterAccountDropdown('main')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color);">
+                        <div class="custom-dropdown-list" id="main-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
+                    </div>
                 </div>
                 <div>
                     <label style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px; display: block;">تاريخ العملية</label>
@@ -387,7 +389,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="js/localforage.min.js"></script>
     <script src="js/app.js?v=20260626_4"></script>
     <!-- Choices.js -->
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>

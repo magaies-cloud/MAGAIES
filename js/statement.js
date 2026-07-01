@@ -24,8 +24,8 @@ let ALL_PARTNERS = [];
 
 function loadPartners() {
     ALL_PARTNERS = [];
-    const custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-    const sups  = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+    const custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+    const sups  = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
     const banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
     const safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
     const expenses = JSON.parse(localStorage.getItem('erp_expenses_v1')) || [];
@@ -289,8 +289,8 @@ function runReport() {
 
     // Find intrinsic opening balance from master data
     let intrinsicBal = 0;
-    let custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-    let sups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+    let custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+    let sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
     let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
     let safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
     let expenses = JSON.parse(localStorage.getItem('erp_expenses_v1')) || [];

@@ -405,7 +405,7 @@
     <div class="toast-container" id="toast-container" style="position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none;"></div>
 
     <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="js/localforage.min.js"></script>
     <script src="js/app.js?v=20260626_4"></script>
     <script src="js/users-roles.js?v=20260626_4"></script>
     <script>

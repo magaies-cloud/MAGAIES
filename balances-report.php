@@ -269,7 +269,7 @@
 <!-- Include html2pdf library to export PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+<script src="js/localforage.min.js"></script>
 <script src="js/app.js?v=20260626_4"></script>
 <script src="js/balances-report.js"></script>
 </body>
