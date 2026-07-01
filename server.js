@@ -5,15 +5,7 @@ const path = require('path');
 const url = require('url');
 const { spawn, execSync } = require('child_process');
 
-// ---- سحب آخر التحديثات من GitHub تلقائياً عند التشغيل ----
-try {
-    console.log('🔄 جاري التحقق من التحديثات وسحب آخر التعديلات من GitHub لضمان التزامن مع الفريق...');
-    const pullOutput = execSync('git pull origin main', { encoding: 'utf8' });
-    console.log(pullOutput);
-    console.log('✅ اكتمل التزامن بنجاح!');
-} catch (err) {
-    console.error('❌ حدث خطأ أثناء سحب التحديثات من GitHub. تأكد من اتصالك أو حل التعارضات:', err.message);
-}
+// تمت إزالة سحب التحديثات التلقائي (Git Pull) لتجنب حدوث تعارضات (Merge Conflicts) وتوقف النظام فجأة.
 
 
 const PORT = 3000;
@@ -44,49 +36,36 @@ http.createServer((req, res) => {
     if (reqUrl.startsWith('/api_index.php') || reqUrl.startsWith('/api/') || reqUrl.startsWith('/api_saas_auth.php')) {
         console.log(`[PROXY] ${req.method} ${req.url} → ${LIVE_SERVER}:8080`);
 
-        // Buffer the request body first to avoid streaming issues
-        let bodyChunks = [];
-        req.on('data', (chunk) => bodyChunks.push(chunk));
-        req.on('end', () => {
-            const bodyBuffer = Buffer.concat(bodyChunks);
+        const proxyHeaders = {
+            ...req.headers,
+            host: LIVE_SERVER
+        };
 
-            const proxyHeaders = {
-                ...req.headers,
-                host: LIVE_SERVER
-            };
+        const options = {
+            hostname: LIVE_SERVER,
+            port: 8080,
+            path: req.url,
+            method: req.method,
+            headers: proxyHeaders
+        };
 
-            // Set correct Content-Length if there is a body
-            if (bodyBuffer.length > 0) {
-                proxyHeaders['content-length'] = bodyBuffer.length;
-            }
-
-            const options = {
-                hostname: LIVE_SERVER,
-                port: 8080,
-                path: req.url,
-                method: req.method,
-                headers: proxyHeaders
-            };
-
-            const proxy = http.request(options, (proxyRes) => {
-                res.writeHead(proxyRes.statusCode, {
-                    ...proxyRes.headers,
-                    'Access-Control-Allow-Origin': '*'
-                });
-                proxyRes.pipe(res, { end: true });
+        const proxy = http.request(options, (proxyRes) => {
+            res.writeHead(proxyRes.statusCode, {
+                ...proxyRes.headers,
+                'Access-Control-Allow-Origin': '*'
             });
-
-            proxy.on('error', (err) => {
-                console.error('[PROXY ERROR]', err.message);
-                res.writeHead(502, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'لا يمكن الاتصال بالسيرفر الحي', detail: err.message }));
-            });
-
-            if (bodyBuffer.length > 0) {
-                proxy.write(bodyBuffer);
-            }
-            proxy.end();
+            proxyRes.pipe(res, { end: true });
         });
+
+        proxy.on('error', (err) => {
+            console.error('[PROXY ERROR]', err.message);
+            if (!res.headersSent) {
+                res.writeHead(502, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'لا يمكن الاتصال بخادم PHP', detail: err.message }));
+            }
+        });
+
+        req.pipe(proxy, { end: true });
         return;
     }
 
@@ -119,6 +98,7 @@ http.createServer((req, res) => {
 }).listen(PORT, () => {
     console.log(`✅ السيرفر المحلي يعمل على: http://localhost:${PORT}/index.html`);
     console.log(`🔗 طلبات API تُعاد توجيهها إلى السيرفر المدمج (PHP) على المنفذ 8080 لتجربة التعديلات محلياً.`);
+    console.log(`⚠️  تحذير: خادم PHP المدمج (php -S) مصمم للتطوير المحلي فقط. في بيئة الإنتاج (Production) استخدم خوادم قوية مثل Nginx أو Apache.`);
     
     // تشغيل خادم PHP المدمج تلقائياً
     const phpServer = spawn('php', ['-S', '127.0.0.1:8080'], { stdio: 'inherit', shell: true });
@@ -134,7 +114,8 @@ http.createServer((req, res) => {
         console.error('❌ فشل تشغيل خدمة الواتساب:', err.message);
     });
 
-    // فتح المتصفح تلقائياً على الرابط المحلي
+    // فتح المتصفح تلقائياً على الرابط المحلي بطريقة تدعم جميع أنظمة التشغيل
     const { exec } = require('child_process');
-    exec(`start http://localhost:${PORT}/saas-admin.html`);
+    const startCmd = process.platform === 'win32' ? 'start' : (process.platform === 'darwin' ? 'open' : 'xdg-open');
+    exec(`${startCmd} http://localhost:${PORT}/saas-admin.html`);
 });
