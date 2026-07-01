@@ -104,7 +104,153 @@
             .audit-stamp { border-color: #333; color: #333; }
         }
     </style>
-</head>
+
+    <!-- PREMIUM SGL CSS OVERRIDES -->
+    <style>
+        /* Global Glow & Smoothness */
+        body {
+            background: radial-gradient(circle at top right, #1e1b4b, #0f172a 40%, #020617 100%) !important;
+            color: #e2e8f0;
+        }
+
+        /* Animated Gradient Header */
+        .premium-header {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%) !important;
+            border: 1px solid rgba(168, 85, 247, 0.3) !important;
+            box-shadow: 0 10px 40px rgba(168, 85, 247, 0.1) !important;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px !important;
+        }
+        .premium-header::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(168,85,247,0.1) 0%, transparent 60%);
+            animation: rotateGlow 15s linear infinite;
+        }
+        @keyframes rotateGlow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Glassmorphism Summary Cards */
+        .summary-card {
+            background: rgba(30, 41, 59, 0.6) !important;
+            backdrop-filter: blur(12px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            border-radius: 16px !important;
+        }
+        .summary-card:hover {
+            transform: translateY(-8px) scale(1.02) !important;
+            background: rgba(30, 41, 59, 0.8) !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(168, 85, 247, 0.5) !important;
+        }
+        .summary-card .s-val {
+            background: linear-gradient(to right, #c084fc, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(192, 132, 252, 0.3);
+        }
+
+        /* Filter Inputs - Neon Focus */
+        .filter-input {
+            background: rgba(15, 23, 42, 0.7) !important;
+            border: 1px solid rgba(148, 163, 184, 0.2) !important;
+            transition: all 0.3s ease !important;
+            border-radius: 12px !important;
+        }
+        .filter-input:focus {
+            border-color: #a855f7 !important;
+            box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.15), inset 0 0 10px rgba(168, 85, 247, 0.1) !important;
+            background: rgba(15, 23, 42, 0.9) !important;
+            transform: translateY(-1px);
+        }
+
+        /* Themed Buttons */
+        .btn-run {
+            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%) !important;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4) !important;
+            border-radius: 12px !important;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .btn-run::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #9333ea 0%, #6d28d9 100%);
+            z-index: -1;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+        .btn-run:hover::after { opacity: 1; }
+        .btn-run:hover {
+            transform: translateY(-2px) scale(1.02) !important;
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.6) !important;
+        }
+
+        /* Table Enhancements & Entry Animation */
+        .ledger-table-wrap {
+            border-radius: 16px !important;
+            border: 1px solid rgba(255,255,255,0.05) !important;
+            background: rgba(15, 23, 42, 0.4) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3) !important;
+        }
+        .ledger-table th {
+            background: rgba(30, 41, 59, 0.8) !important;
+            color: #cbd5e1 !important;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem !important;
+            border-bottom: 2px solid rgba(168, 85, 247, 0.3) !important;
+        }
+        .ledger-table tbody tr {
+            animation: fadeInRow 0.5s ease backwards;
+        }
+        .ledger-table tbody tr:hover {
+            background: rgba(168, 85, 247, 0.08) !important;
+            transform: scale(1.002);
+            box-shadow: inset 4px 0 0 #a855f7;
+        }
+        @keyframes fadeInRow {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Generate stagger delays for rows */
+        .ledger-table tbody tr:nth-child(1) { animation-delay: 0.05s; }
+        .ledger-table tbody tr:nth-child(2) { animation-delay: 0.10s; }
+        .ledger-table tbody tr:nth-child(3) { animation-delay: 0.15s; }
+        .ledger-table tbody tr:nth-child(4) { animation-delay: 0.20s; }
+        .ledger-table tbody tr:nth-child(5) { animation-delay: 0.25s; }
+        .ledger-table tbody tr:nth-child(6) { animation-delay: 0.30s; }
+        .ledger-table tbody tr:nth-child(7) { animation-delay: 0.35s; }
+        .ledger-table tbody tr:nth-child(8) { animation-delay: 0.40s; }
+        .ledger-table tbody tr:nth-child(9) { animation-delay: 0.45s; }
+        .ledger-table tbody tr:nth-child(10) { animation-delay: 0.50s; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(168, 85, 247, 0.5); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 0.8); }
+
+        /* AI Button Glow */
+        #btn-smart-search {
+            animation: pulse-border 2s infinite;
+        }
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+        }
+    </style>
+    \n</head>
 <body>
 <div class="toast-container" id="toast-container"></div>
 
@@ -140,14 +286,17 @@
     </div>
 
     <!-- FILTER SECTION -->
-    <div class="ledger-header no-print">
+    <div class="ledger-header no-print premium-header">
         <div class="filter-row">
             <div class="filter-group">
                 <label>الحساب الرئيسي (أو الفرعي)</label>
-                <div class="search-wrap">
-                    <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث باسم أو كود الحساب..." autocomplete="off">
-                    <button class="search-clear-btn" id="search-clear-btn">✕</button>
-                    <ul class="autocomplete-list" id="autocomplete-list"></ul>
+                <div class="search-wrap" style="display:flex; gap:5px; align-items: stretch; position: relative;">
+                    <div style="position:relative; flex:1;">
+                        <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث باسم أو كود الحساب..." autocomplete="off" oninput="onAccountSearch()" onkeyup="onAccountSearchKey(event)">
+                        <button class="search-clear-btn" id="search-clear-btn">✕</button>
+                        <ul class="autocomplete-list" id="autocomplete-list"></ul>
+                    </div>
+                    <button type="button" class="btn-action" onclick="runAISmartSearch()" id="btn-smart-search" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); color:white; border:none; padding: 0 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3); font-weight: bold; cursor: pointer; transition: 0.3s;" title="البحث بالمعنى (الذكاء الاصطناعي)">🤖 ذكي</button>
                 </div>
                 <div class="selected-account-chip" id="selected-chip">
                     <span id="chip-icon">🏷️</span>
@@ -266,5 +415,62 @@
 
 <script src="js/app.js?v=20260626_4"></script>
 <script src="js/general-ledger.js"></script>
+<script>
+function runAISmartSearch() {
+    const input = document.getElementById('account-search-input');
+    const q = input.value.trim();
+    const btn = document.getElementById('btn-smart-search');
+    
+    if (!q) {
+        showToast('الرجاء كتابة وصف للحساب أولاً', 'warning');
+        input.focus();
+        return;
+    }
+
+    if (typeof ALL_ACCOUNTS === 'undefined' || ALL_ACCOUNTS.length <= 1) {
+        showToast('قائمة الحسابات غير متوفرة بعد', 'error');
+        return;
+    }
+
+    btn.innerHTML = '⏳...';
+    btn.disabled = true;
+
+    let accountsList = ALL_ACCOUNTS.filter(a => a.id !== 'ALL').map(a => `${a.id} - ${a.name} (${a.type})`).join('\n');
+    
+    let promptMsg = "أنت مساعد بحث ذكي في نظام محاسبي. المستخدم يبحث عن الحساب الأقرب للمعنى التالي: '" + q + "'.\nإليك قائمة الحسابات المتاحة:\n" + accountsList + "\n\nاستخرج فقط وفقط 'ID' (الكود) الخاص بأقرب حساب يطابق نية المستخدم. لا تكتب أي كلمة أخرى، فقط الـ ID.";
+
+    fetch('api/ai-assistant.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: promptMsg, context: '' })
+    })
+    .then(res => res.json())
+    .then(data => {
+        btn.innerHTML = '🤖 ذكي';
+        btn.disabled = false;
+        
+        if (data.reply) {
+            let matchId = data.reply.trim().replace(/[^a-zA-Z0-9-]/g, '');
+            let matchedAccount = ALL_ACCOUNTS.find(a => a.id === matchId);
+            
+            if (matchedAccount) {
+                if (typeof selectAccount === 'function') {
+                    selectAccount(matchedAccount.id, matchedAccount.name, matchedAccount.icon || '🏷️');
+                    showToast('تم إيجاد الحساب الذكي: ' + matchedAccount.name);
+                }
+            } else {
+                showToast('لم يتم العثور على حساب مطابق بدقة.', 'warning');
+            }
+        } else {
+            showToast('حدث خطأ في البحث الذكي.', 'error');
+        }
+    })
+    .catch(err => {
+        btn.innerHTML = '🤖 ذكي';
+        btn.disabled = false;
+        showToast('تعذر الاتصال بالخادم.', 'error');
+    });
+}
+</script>
 </body>
 </html>

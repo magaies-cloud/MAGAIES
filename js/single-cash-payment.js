@@ -73,11 +73,11 @@ document.addEventListener('DBReady', () => {
     try { localJobs = JSON.parse(localStorage.getItem('erp_jobs_v1')) || []; } catch(e) {}
     
     ACCOUNTS = [];
-    localCusts.forEach(c => ACCOUNTS.push({ id: `cust-${c.id}`, name: c.name, balances: { checks: 0, debt: parseFloat(c.currentBalance) || 0, loan: 0 } }));
-    localSups.forEach(s => ACCOUNTS.push({ id: `supp-${s.id}`, name: s.name, balances: { checks: 0, debt: 0, loan: parseFloat(s.currentBalance) || 0 } }));
-    localBanks.forEach(b => ACCOUNTS.push({ id: `bank-${b.id}`, name: b.name, balances: { checks: 0, debt: parseFloat(b.currentBalance) || 0, loan: 0 } }));
-    localSafes.forEach(s => ACCOUNTS.push({ id: `safe-${s.id}`, name: s.name, balances: { checks: 0, debt: parseFloat(s.currentBalance) || 0, loan: 0 } }));
-    localExp.forEach(e => ACCOUNTS.push({ id: `exp-${e.id}`, name: e.name, balances: { checks: 0, debt: parseFloat(e.currentBalance) || 0, loan: 0 } }));
+    localCusts.forEach(c => ACCOUNTS.push({ id: `cust-${c.id}`, name: c.name, type: 'عميل', color: '#10b981', balances: { checks: 0, debt: parseFloat(c.currentBalance) || 0, loan: 0 } }));
+    localSups.forEach(s => ACCOUNTS.push({ id: `supp-${s.id}`, name: s.name, type: 'مورد', color: '#f59e0b', balances: { checks: 0, debt: 0, loan: parseFloat(s.currentBalance) || 0 } }));
+    localBanks.forEach(b => ACCOUNTS.push({ id: `bank-${b.id}`, name: b.name, type: 'بنك', color: '#3b82f6', balances: { checks: 0, debt: parseFloat(b.currentBalance) || 0, loan: 0 } }));
+    localSafes.forEach(s => ACCOUNTS.push({ id: `safe-${s.id}`, name: s.name, type: 'خزنة', color: '#8b5cf6', balances: { checks: 0, debt: parseFloat(s.currentBalance) || 0, loan: 0 } }));
+    localExp.forEach(e => ACCOUNTS.push({ id: `exp-${e.id}`, name: e.name, type: 'عام', color: '#64748b', balances: { checks: 0, debt: parseFloat(e.currentBalance) || 0, loan: 0 } }));
 
     document.getElementById('hdr-date').valueAsDate = new Date();
     setNextVoucherNumber();
@@ -678,11 +678,11 @@ function renderAccountDropdown(type = 'from', filter = '') {
     const normalizedTerm = window.normalizeArabic ? window.normalizeArabic(term) : term;
     
     try {
-        let localMatches = type === "from" ? ACCOUNTS.filter(a => a.id.startsWith("safe-") || a.id.startsWith("bank-")) : (ACCOUNTS || []);
+        let localMatches = (ACCOUNTS || []);
         if (normalizedTerm) {
             const searchWords = normalizedTerm.split(/\s+/).filter(w => w.length > 0);
             
-            localMatches = (ACCOUNTS || []).filter(c => {
+            localMatches = localMatches.filter(c => {
                 const normName = window.normalizeArabic ? window.normalizeArabic(c.name) : c.name.toLowerCase();
                 const normCode = String(c.code || '').toLowerCase();
                 
@@ -704,6 +704,7 @@ function renderAccountDropdown(type = 'from', filter = '') {
             item.className = 'custom-dropdown-item';
             
             let displayText = c.name;
+            if (c.type) displayText += ` <span style="font-size:0.75rem; background: ${c.color}20; color: ${c.color}; padding: 2px 8px; border-radius: 12px; margin-right: 10px; font-weight: bold; vertical-align: middle;">${c.type}</span>`;
             if (c.code) displayText += ` <span style="font-size:0.8rem; color:#888;">[${c.code}]</span>`;
             
             item.innerHTML = displayText;

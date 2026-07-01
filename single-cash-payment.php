@@ -919,7 +919,12 @@
                             <label class="label" style="display:flex; align-items:center; gap:5px; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">
                                 <span style="font-size:1.1rem; opacity:0.8;">📝</span> البيان
                             </label>
-                            <input type="text" class="form-input input-glow-focus hover-glow" id="to-statement" data-next="btn-save" placeholder="اكتب مبرر أو تفاصيل الدفع (البيان)..." style="height: 48px; border-radius: 10px; flex-grow: 1;">
+                            <div style="display: flex; flex-grow: 1; gap: 10px;">
+                                <input type="text" class="form-input input-glow-focus hover-glow" id="to-statement" data-next="btn-save" placeholder="اكتب مبرر أو تفاصيل الدفع (البيان)..." style="height: 48px; border-radius: 10px; flex-grow: 1;">
+                                <button type="button" onclick="autoCategorize()" id="btn-auto-categorize" style="background: linear-gradient(135deg, #c084fc, #9333ea); color: white; border: none; border-radius: 10px; padding: 0 15px; height: 48px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; white-space: nowrap; box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4); transition: transform 0.2s;" title="توجيه محاسبي ذكي">
+                                    <span style="font-size: 1.2rem;">🪄</span> <span class="btn-text">توقع الحساب</span>
+                                </button>
+                            </div>
                             <input type="hidden" id="from-statement"> <!-- Hidden to satisfy JS -->
                         </div>
 
@@ -1059,5 +1064,68 @@
             }, 100);
         });
     </script>
+
+    <script>
+    function autoCategorize() {
+        const desc = document.getElementById('to-statement').value.trim();
+        if (!desc) {
+            alert('الرجاء كتابة البيان أولاً لكي يتوقع الذكاء الاصطناعي الحساب.');
+            return;
+        }
+        
+        const btn = document.getElementById('btn-auto-categorize');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span style="font-size: 1.2rem;">⏳</span> <span class="btn-text">جاري التفكير...</span>';
+        btn.disabled = true;
+
+        // Gather all accounts to give Gemini context of what choices exist
+        let allAccounts = [];
+        try {
+            allAccounts = allAccounts.concat(JSON.parse(localStorage.getItem('erp_accounts_v1') || '[]'));
+            allAccounts = allAccounts.concat(JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]'));
+        } catch(e){}
+
+        // Select only relevant fields to save tokens
+        let accountListStr = allAccounts.filter(a => !a.deleted).map(a => a.name).join(' | ');
+
+        let promptMsg = `أنت موجه محاسبي آلي. لقد كتب المستخدم البيان التالي لسند صرف نقدية: "${desc}". 
+المطلوب: اختار الحساب الأنسب من ضمن القائمة التالية: [${accountListStr}]. 
+يجب أن يكون ردك عبارة عن اسم الحساب فقط بدون أي إضافات أو شرح. إذا لم تجد حساباً مطابقاً بدقة اختر أقرب حساب (مثلاً مصروفات عمومية أو مصروفات ضيافة).`;
+
+        fetch('api/ai-assistant.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: promptMsg, context: '' })
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            
+            if (data.reply) {
+                let suggestedName = data.reply.trim();
+                // Find account ID
+                let match = allAccounts.find(a => a.name === suggestedName);
+                if (match) {
+                    // Update UI
+                    document.getElementById('to-account').value = match.id;
+                    document.getElementById('to-account-search').value = match.name;
+                    // Flash success
+                    document.getElementById('to-account-search').style.boxShadow = '0 0 15px #10b981';
+                    setTimeout(() => document.getElementById('to-account-search').style.boxShadow = '', 2000);
+                } else {
+                    alert('اقترح الذكاء الاصطناعي: ' + suggestedName + ' ولكن لم يتم العثور عليه في القائمة بدقة.');
+                }
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            alert('حدث خطأ في الاتصال بالمساعد الذكي.');
+        });
+    }
+    </script>
+    
 </body>
 </html>

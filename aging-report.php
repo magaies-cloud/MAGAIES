@@ -76,6 +76,8 @@
             <div>
                 <button class="btn-action btn-print" onclick="previewReport()">👁️ معاينة</button>
             <button class="btn-action btn-print" onclick="window.print()">🖨️ طباعة</button>
+            <button class="btn-action" onclick="runAIDebtCollector()" style="background: linear-gradient(135deg, #eab308, #ca8a04); color: white; border: none; box-shadow: 0 4px 15px rgba(234, 179, 8, 0.4);">💰 المحصل الذكي (AI)</button>
+    
             <button class="btn-action btn-print" onclick="window.openExportModal(null, {element: document.getElementById('aging-table-wrap'), filename: 'aging-report.pdf', orientation: 'landscape'})">📥 تصدير PDF</button>
             </div>
         </div>
@@ -313,5 +315,83 @@
             });
         }
     </script>
-</body>
+
+        <!-- AI Debt Collector Modal -->
+        <div id="aiDebt-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center; direction: rtl; backdrop-filter: blur(8px);">
+            <div class="glass-panel" style="width: 95%; max-width: 800px; max-height: 85vh; overflow-y: auto; padding: 30px; position: relative; border: 1px solid rgba(234, 179, 8, 0.4); background: #0f172a; border-radius: 16px;">
+                <button onclick="document.getElementById('aiDebt-modal').style.display='none'" style="position: absolute; top: 15px; left: 15px; background: none; border: none; color: #94a3b8; font-size: 1.8rem; cursor: pointer; transition: 0.3s;" onmouseover="this.style.color='#eab308'" onmouseout="this.style.color='#94a3b8'">&times;</button>
+                <h3 style="color: #eab308; margin-bottom: 25px; font-weight: 900; border-bottom: 1px solid rgba(234, 179, 8, 0.2); padding-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.8rem;">💰</span> المحصل الذكي (AI Credit Controller)
+                </h3>
+                <div id="aiDebt-content" style="color: #f8fafc; line-height: 1.9; font-size: 1.05rem;">
+                    <div style="text-align: center; padding: 40px 0;">
+                        <div style="font-size: 3rem; margin-bottom: 15px; animation: pulse 1.5s infinite;">⏳</div>
+                        <div style="color: #94a3b8;">جاري تحليل أعمار الديون وتحديد العملاء المتعثرين... يرجى الانتظار</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <script>
+    function runAIDebtCollector() {
+        document.getElementById('aiDebt-modal').style.display = 'flex';
+        document.getElementById('aiDebt-content').innerHTML = `
+            <div style="text-align: center; padding: 40px 0;">
+                <div style="font-size: 3rem; margin-bottom: 15px; animation: pulse 1.5s infinite;">⏳</div>
+                <div style="color: #94a3b8;">جاري تحليل أعمار الديون وتصنيف العملاء المماطلين... يرجى الانتظار</div>
+            </div>`;
+        
+        let agingData = [];
+        let rows = document.querySelectorAll('#tableBody tr');
+        let limit = Math.min(rows.length, 50); 
+        
+        for(let i=0; i<limit; i++) {
+            let cols = rows[i].querySelectorAll('td');
+            if(cols.length >= 6) {
+                let name = cols[0].innerText.trim();
+                let current = cols[1].innerText.trim();
+                let d30 = cols[2].innerText.trim();
+                let d60 = cols[3].innerText.trim();
+                let d90 = cols[4].innerText.trim();
+                let total = cols[5].innerText.trim();
+                if(name) {
+                    agingData.push(`العميل: ${name} | الديون الحالية: ${current} | تأخير 1-30 يوم: ${d30} | تأخير 31-60 يوم: ${d60} | تأخير 61-90 يوم: ${d90} | الإجمالي: ${total}`);
+                }
+            }
+        }
+
+        if(agingData.length === 0) {
+            document.getElementById('aiDebt-content').innerHTML = '<span style="color:#ef4444">الجدول فارغ أو لا توجد أرصدة للتحليل.</span>';
+            return;
+        }
+
+        let context = "تقرير أعمار الديون:\n" + agingData.join("\n");
+
+        let promptMsg = "أنت مدير تحصيل ديون محترف ومحامي تجاري (Credit Controller & Collections Manager). راجع تقرير أعمار الديون المرفق واستخرج التالي:\n1. 🔴 العملاء ذوي الخطورة العالية (الذين لديهم أرصدة متأخرة جداً).\n2. 💡 استراتيجية تحصيل مقترحة بناءً على الأرقام.\n3. 📝 مسودة رسالة واتساب قصيرة ومهذبة وحازمة لمطالبة هؤلاء العملاء بالسداد (بصيغة قابلة للنسخ).\nاكتب التقرير بشكل احترافي ومنسق.";
+
+        fetch('api/ai-assistant.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: promptMsg, context: context })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.reply) {
+                let formatted = data.reply
+                    .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#eab308">$1</strong>')
+                    .replace(/🔴/g, '<span style="font-size:1.2em; color:#ef4444;">🔴</span>')
+                    .replace(/💡/g, '<span style="font-size:1.2em; color:#10b981;">💡</span>')
+                    .replace(/📝/g, '<span style="font-size:1.2em; color:#3b82f6;">📝</span>')
+                    .replace(/\n/g, '<br>');
+                document.getElementById('aiDebt-content').innerHTML = formatted;
+            } else {
+                document.getElementById('aiDebt-content').innerHTML = '<span style="color:#ef4444">حدث خطأ أثناء التحليل.</span>';
+            }
+        })
+        .catch(err => {
+            document.getElementById('aiDebt-content').innerHTML = '<span style="color:#ef4444">تعذر الاتصال بالخادم.</span>';
+        });
+    }
+    </script>
+    \n</body>
 </html>

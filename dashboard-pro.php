@@ -950,5 +950,62 @@
             });
         }
     </script>
+
+        <!-- AI CFO Modal -->
+        <div id="aiCFO-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; direction: rtl;">
+            <div class="glass-panel" style="width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; padding: 25px; position: relative;">
+                <button onclick="document.getElementById('aiCFO-modal').style.display='none'" style="position: absolute; top: 15px; left: 15px; background: none; border: none; color: #f43f5e; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                <h3 style="color: #0ea5e9; margin-bottom: 20px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+                    <span style="font-size: 1.5rem;">🤖</span> تقرير المستشار المالي (AI CFO)
+                </h3>
+                <div id="aiCFO-content" style="color: #e2e8f0; line-height: 1.8; font-size: 1.05rem;">
+                    جاري تحليل بيانات الشركة واستخراج التقرير... يرجى الانتظار ⏳
+                </div>
+            </div>
+        </div>
+
+        <script>
+        function runAICFO() {
+            document.getElementById('aiCFO-modal').style.display = 'flex';
+            document.getElementById('aiCFO-content').innerHTML = 'جاري تحليل بيانات الشركة واستخراج التقرير... يرجى الانتظار ⏳';
+            
+            // Gather KPI Data from existing DOM elements
+            let sales = document.getElementById('kpi-sales') ? document.getElementById('kpi-sales').innerText : 'غير متاح';
+            let liquidity = document.getElementById('kpi-liquidity') ? document.getElementById('kpi-liquidity').innerText : 'غير متاح';
+            let inventory = document.getElementById('kpi-inventory') ? document.getElementById('kpi-inventory').innerText : 'غير متاح';
+            let alerts = document.getElementById('kpi-alerts') ? document.getElementById('kpi-alerts').innerText : 'غير متاح';
+            
+            let context = `مبيعات اليوم: ${sales} | السيولة المتوفرة: ${liquidity} | الأصناف في المخزون: ${inventory} | نواقص المخزون: ${alerts}`;
+
+            // Try to extract some customer debt info safely
+            try {
+                let custs = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
+                let debtSum = 0;
+                custs.forEach(c => { if(c.currentBalance > 0) debtSum += c.currentBalance; });
+                context += ` | إجمالي ديون العملاء علينا أو لنا: ${debtSum}`;
+            } catch(e) {}
+
+            let promptMsg = "أنت المدير المالي (CFO) للشركة. بناءً على هذه المؤشرات، اكتب تقريراً إدارياً قصيراً جداً (3 فقرات كحد أقصى) يشرح لصاحب العمل وضع شركته اليوم (الإيجابيات، السلبيات أو المخاطر إن وجدت، توصية سريعة).";
+
+            fetch('api/ai-assistant.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: promptMsg, context: context })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.reply) {
+                    document.getElementById('aiCFO-content').innerHTML = data.reply.replace(/\*\*(.*?)\*\*/g, '<strong style="color:#38bdf8">$1</strong>').replace(/\n/g, '<br>');
+                } else {
+                    document.getElementById('aiCFO-content').innerHTML = '<span style="color:#f43f5e">حدث خطأ أثناء استخراج التقرير.</span>';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('aiCFO-content').innerHTML = '<span style="color:#f43f5e">تعذر الاتصال بخادم الذكاء الاصطناعي.</span>';
+            });
+        }
+        </script>
+    
 </body>
 </html>

@@ -1248,7 +1248,9 @@
                 <div style="display: flex; width: 100%; gap: 15px; margin-bottom: 12px; transition: all 0.4s ease;">
                     
                     <!-- LEFT: Invoice & Date -->
-                    <div id="invoice-info-box" style="flex: 1.3; display: flex; gap: 20px; width: 100%; background: linear-gradient(90deg, rgba(30,58,138,0.2), rgba(15,23,42,0.4)); padding: 6px 15px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); align-items: center; transition: all 0.4s ease;">
+                    <div 
+                    
+                    id="invoice-info-box" style="flex: 1.3; display: flex; gap: 20px; width: 100%; background: linear-gradient(90deg, rgba(30,58,138,0.2), rgba(15,23,42,0.4)); padding: 6px 15px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); align-items: center; transition: all 0.4s ease;">
                         
                         <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:15px; margin:0;; flex-direction: row !important;">
 
@@ -1516,6 +1518,11 @@
         <div class="items-toolbar" style="display: flex; align-items: center; justify-content: center; padding: 15px; border-radius: 12px; background: rgba(18, 15, 25, 0.8); border: 1px solid rgba(255,255,255,0.05); margin-top: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
             
             <div class="toolbar-actions" style="display: flex; gap: 12px; width: 100%; align-items: center;">
+                
+                <!-- AI OCR Button: Teal -->
+                <button type="button" class="btn-action" style="flex: 1; height: 45px; background: #0d9488; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(13, 148, 136, 0.3);" onmouseover="this.style.background='#0f766e'; this.style.boxShadow='0 4px 15px rgba(13, 148, 136, 0.5)';" onmouseout="this.style.background='#0d9488'; this.style.boxShadow='0 2px 10px rgba(13, 148, 136, 0.3)';" onclick="document.getElementById('ocr-upload').click()" id="btn-ocr" title="قراءة الفاتورة بالذكاء الاصطناعي">📸 مسح ضوئي</button>
+                <input type="file" id="ocr-upload" accept="image/*,application/pdf" style="display: none;" onchange="processInvoiceImage(event)">
+                
                 <!-- Add Row: Solid Green -->
                 <button class="btn-action" style="flex: 1; height: 45px; background: #10b981; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);" onmouseover="this.style.background='#059669'; this.style.boxShadow='0 4px 15px rgba(16, 185, 129, 0.5)';" onmouseout="this.style.background='#10b981'; this.style.boxShadow='0 2px 10px rgba(16, 185, 129, 0.3)';" onclick="addRow()" id="add-row-btn">➕ إضافة سطر</button>
                 

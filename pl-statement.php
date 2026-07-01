@@ -91,6 +91,8 @@
                 <button class="btn-action btn-print" onclick="previewReport()">👁️ معاينة</button>
             <button class="btn-action btn-print" onclick="window.print()">🖨️ طباعة</button>
             <button class="btn-action btn-print" onclick="window.openExportModal(null, {element: document.getElementById('report-table-wrap'), filename: 'pl-statement.pdf', orientation: 'landscape'})">📥 تصدير PDF</button>
+            <button class="btn-action" onclick="runAIPL()" style="background: linear-gradient(135deg, #c084fc, #9333ea); color: white; border: none; box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);">🤖 تحليل ذكي</button>
+    
             </div>
         </div>
 
@@ -291,5 +293,63 @@
             });
         }
     </script>
+
+        <!-- AI P&L Modal -->
+        <div id="aiPL-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; direction: rtl;">
+            <div class="glass-panel" style="width: 90%; max-width: 700px; max-height: 80vh; overflow-y: auto; padding: 25px; position: relative; border: 1px solid rgba(147, 51, 234, 0.3);">
+                <button onclick="document.getElementById('aiPL-modal').style.display='none'" style="position: absolute; top: 15px; left: 15px; background: none; border: none; color: #f43f5e; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                <h3 style="color: #c084fc; margin-bottom: 20px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+                    <span style="font-size: 1.5rem;">🤖</span> التحليل المالي للأرباح والخسائر
+                </h3>
+                <div id="aiPL-content" style="color: #e2e8f0; line-height: 1.8; font-size: 1.05rem;">
+                    جاري قراءة تقرير الأرباح وتحليله... يرجى الانتظار ⏳
+                </div>
+            </div>
+        </div>
+
+    <script>
+    function runAIPL() {
+        document.getElementById('aiPL-modal').style.display = 'flex';
+        document.getElementById('aiPL-content').innerHTML = 'جاري قراءة التقرير وتحليله... يرجى الانتظار ⏳';
+        
+        // Extract data from the table
+        let reportData = [];
+        let rows = document.querySelectorAll('#pl-tbody tr');
+        rows.forEach(r => {
+            let cols = r.querySelectorAll('td');
+            if(cols.length >= 2) {
+                let name = cols[0].innerText.trim();
+                let amount = cols[1].innerText.trim();
+                if(name && amount) {
+                    reportData.push(name + ": " + amount);
+                }
+            }
+        });
+
+        let totalProfit = document.getElementById('net-profit-val') ? document.getElementById('net-profit-val').innerText : '';
+
+        let context = "بيانات قائمة الدخل:\n" + reportData.join("\n") + "\nالنتيجة النهائية: " + totalProfit;
+
+        let promptMsg = "أنت محلل مالي خبير. اقرأ بيانات قائمة الدخل (الأرباح والخسائر) التالية. اكتب تقريراً تحليلياً سردياً للإدارة (3-4 فقرات) تقيم فيه كفاءة التشغيل، وتوضح أكبر بنود المصروفات التي تلتهم الإيرادات، وتقدم توصية لزيادة الربحية.";
+
+        fetch('api/ai-assistant.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: promptMsg, context: context })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.reply) {
+                document.getElementById('aiPL-content').innerHTML = data.reply.replace(/\*\*(.*?)\*\*/g, '<strong style="color:#c084fc">$1</strong>').replace(/\n/g, '<br>');
+            } else {
+                document.getElementById('aiPL-content').innerHTML = '<span style="color:#f43f5e">حدث خطأ أثناء الاستخراج.</span>';
+            }
+        })
+        .catch(err => {
+            document.getElementById('aiPL-content').innerHTML = '<span style="color:#f43f5e">تعذر الاتصال بالخادم.</span>';
+        });
+    }
+    </script>
+    
 </body>
 </html>

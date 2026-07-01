@@ -424,13 +424,17 @@
     <div class="visual-switcher no-print" style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 25px; margin-bottom: 30px; display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;">
         <div style="flex-grow: 1; min-width: 250px;">
             <label style="display: block; margin-bottom: 8px; font-weight: bold; color: var(--text-muted);">اسم الحساب:</label>
-            <div class="custom-select-container" id="cs-container">
-                <input type="text" class="custom-select-input" id="cs-input" placeholder="ابحث في الحسابات (عملاء، موردين، بنوك...)" autocomplete="off" onclick="toggleCsDropdown()" onkeyup="filterCs()">
-                <input type="hidden" id="accountSelect" value="all_accounts">
-                <div class="custom-select-dropdown" id="cs-dropdown">
-                    <!-- Populated by JS -->
+            <div class="custom-select-container" id="cs-container" style="display: flex; gap: 5px; align-items: stretch;">
+                <div style="position: relative; flex: 1;">
+                    <input type="text" class="custom-select-input" id="cs-input" placeholder="ابحث في الحسابات (عملاء، موردين، بنوك...)" autocomplete="off" onclick="toggleCsDropdown()" onkeyup="filterCs()" oninput="filterCs()">
+                    <input type="hidden" id="accountSelect" value="all_accounts">
+                    <div class="custom-select-dropdown" id="cs-dropdown">
+                        <!-- Populated by JS -->
+                    </div>
                 </div>
+                <button type="button" class="btn-action" onclick="runAISmartSearch()" id="btn-smart-search" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); color:white; border:none; padding: 0 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3); font-weight: bold; cursor: pointer; transition: 0.3s; white-space: nowrap;" title="البحث بالمعنى (الذكاء الاصطناعي)">🤖 ذكي</button>
             </div>
+        </div>
         </div>
         <div style="width: 280px;">
             <label style="display: block; margin-bottom: 8px; font-weight: bold; color: var(--text-muted);">حالة القيود:</label>
@@ -1914,5 +1918,34 @@ input:checked + .slider:before { transform: translateX(20px); }
     };
 </script>
 
+
+<script>
+function runAISmartSearch() {
+    const input = document.getElementById('cs-input');
+    const q = input.value.trim();
+    const btn = document.getElementById('btn-smart-search');
+    if (!q) { showToast('الرجاء كتابة وصف للحساب أولاً', 'warning'); input.focus(); return; }
+    if (typeof accountsData === 'undefined' || accountsData.length <= 1) { showToast('قائمة الحسابات غير متوفرة بعد', 'error'); return; }
+    btn.innerHTML = '⏳...'; btn.disabled = true;
+    let accountsList = accountsData.filter(a => a.id !== 'all_accounts').map(a => `${a.id} - ${a.name} (${a.group})`).join('\n');
+    let promptMsg = "أنت مساعد بحث ذكي في نظام محاسبي. المستخدم يبحث عن الحساب الأقرب للمعنى التالي: '" + q + "'.\nإليك قائمة الحسابات المتاحة:\n" + accountsList + "\n\nاستخرج فقط وفقط 'ID' (الكود) الخاص بأقرب حساب يطابق نية المستخدم. لا تكتب أي كلمة أخرى، فقط الـ ID.";
+    fetch('api/ai-assistant.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: promptMsg, context: '' }) })
+    .then(res => res.json())
+    .then(data => {
+        btn.innerHTML = '🤖 ذكي'; btn.disabled = false;
+        if (data.reply) {
+            let matchId = data.reply.trim().replace(/[^a-zA-Z0-9_-]/g, '');
+            let matchedAccount = accountsData.find(a => a.id === matchId);
+            if (matchedAccount) {
+                if (typeof selectCsOption === 'function') {
+                    selectCsOption(matchedAccount.id, matchedAccount.name);
+                    showToast('تم إيجاد الحساب الذكي: ' + matchedAccount.name);
+                }
+            } else { showToast('لم يتم العثور على حساب مطابق بدقة.', 'warning'); }
+        } else { showToast('حدث خطأ في البحث الذكي.', 'error'); }
+    })
+    .catch(err => { btn.innerHTML = '🤖 ذكي'; btn.disabled = false; showToast('تعذر الاتصال بالخادم.', 'error'); });
+}
+</script>
 </body>
 </html>

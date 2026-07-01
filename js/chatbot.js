@@ -637,6 +637,7 @@
         msg.innerHTML = text + btnHtml;
         body.appendChild(msg);
         body.scrollTop = body.scrollHeight;
+        return msg;
     }
 
     function processUserMessage(text) {
@@ -677,11 +678,62 @@
                 }
             }
 
-            // 3. Fallback
+            // 3. Fallback -> Use AI
             if(!matched) {
-                const fallbackResponse = 'عذراً، لم أتمكن من إيجاد المطلوب بدقة في بيانات النظام. هل يمكنك إعادة صياغة السؤال؟';
-                const fallbackBtn = `<br><a href="https://wa.me/249113981477" class="chat-action-btn chat-whatsapp-btn" target="_blank">💬 التحدث مع فريق الدعم</a>`;
-                appendMessage(fallbackResponse, 'bot', fallbackBtn);
+                const msgEl = appendMessage('<div class="typing-indicator" style="font-size:12px;opacity:0.7;">جاري التفكير... 🤖</div>', 'bot');
+                
+                let contextStr = "لا توجد بيانات حالية";
+                try {
+                    // 1. Basic Stats
+                    let stats = [
+                        "السيولة النقدية: " + getTotalLiquidity(),
+                        "إجمالي المبيعات: " + getTotalSalesAllTime(),
+                        "قيمة المخزون: " + getTotalInventoryValue(),
+                        "إحصائيات اليوم: " + getDailyStats().replace(/<br>/g, " ")
+                    ];
+                    
+                    // 2. Dynamic Partner Balance Extraction
+                    let custs = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]').filter(x => !x.deleted);
+                    let sups = JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]').filter(x => !x.deleted);
+                    let allPartners = [...custs, ...sups];
+                    let specificBalances = [];
+                    for(let p of allPartners) {
+                        if(p.name && query.includes(p.name)) {
+                            let bal = calculatePartnerBalance(p.name);
+                            if(bal !== null) specificBalances.push(`رصيد ${p.name}: ${bal} ريال`);
+                        }
+                    }
+                    if(specificBalances.length > 0) {
+                        stats.push("أرصدة مطلوبة: " + specificBalances.join("، "));
+                    }
+                    
+                    // 3. Top Debtors
+                    let topDebtors = getTopDebtors().replace(/<[^>]*>?/gm, ' ');
+                    stats.push("أبرز المديونيات: " + topDebtors);
+
+                    contextStr = stats.join(" | ");
+                } catch(e) { console.error("Context Error:", e); }
+
+                fetch('api/ai-assistant.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: query, context: contextStr })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.reply) {
+                        // Format bold text **text** to HTML
+                        let formattedReply = data.reply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+                        msgEl.innerHTML = formattedReply;
+                    } else {
+                        msgEl.innerHTML = 'عذراً، حدث خطأ في الاتصال بالمساعد الذكي.';
+                    }
+                    body.scrollTop = body.scrollHeight;
+                })
+                .catch(err => {
+                    console.error(err);
+                    msgEl.innerHTML = 'عذراً، لم أتمكن من الوصول للخادم.';
+                });
             }
         }, 500);
     }
