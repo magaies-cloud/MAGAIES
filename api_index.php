@@ -336,7 +336,7 @@ $allowed_tables = [
     // Extended tables (now synced to cloud)
     'checks', 'gl_entries', 'single_receipts', 'single_payments',
     'partners', 'employees', 'payroll', 'reserved_sales',
-    'delivery_notes', 'accounts'
+    'delivery_notes', 'accounts', 'audit_logs'
 ];
 
 // ---------------------------------------------------------
@@ -524,6 +524,11 @@ if ($resource === 'sync') {
                                             $record['id'] = $recordId;
                                         }
 
+                                        // Inject user attribution for accountability
+                                        if (!isset($record['createdBy']) && $userId) {
+                                            $record['createdBy'] = $userId;
+                                        }
+
                                         $strRecordId = (string)$recordId;
                                         $jsonData = json_encode($record, JSON_UNESCAPED_UNICODE);
 
@@ -587,6 +592,9 @@ try {
             break;
 
         case 'POST':
+            if (!isset($input['createdBy']) && $userId) {
+                $input['createdBy'] = $userId;
+            }
             $dataJson = json_encode($input, JSON_UNESCAPED_UNICODE);
             $stmt     = $pdo->prepare("INSERT INTO `$resource` (tenant_id, data) VALUES (:tid, :data)");
             $stmt->execute(['tid' => $tenant_id, 'data' => $dataJson]);
@@ -595,6 +603,9 @@ try {
 
         case 'PUT':
             if (!$id) jsonResponse(["error" => "معرّف السجل مطلوب للتعديل"], 400);
+            if (!isset($input['createdBy']) && $userId) {
+                $input['createdBy'] = $userId;
+            }
             $dataJson = json_encode($input, JSON_UNESCAPED_UNICODE);
             $stmt     = $pdo->prepare("UPDATE `$resource` SET data = :data WHERE tenant_id = :tid AND (id = :id OR JSON_EXTRACT(data, '$.id') = :id_json)");
             $stmt->execute(['data' => $dataJson, 'tid' => $tenant_id, 'id' => $id, 'id_json' => $id]);

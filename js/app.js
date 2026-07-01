@@ -37,7 +37,8 @@
         'erp_single_payments_v1', 'erp_partners_v1', 'erp_employees_v1',
         'erp_payroll_v1', 'erp_reserved_sales_v1', 'erp_delivery_notes_v1',
         'erp_accounts_v1',
-        'erp_jobs_v1'
+        'erp_jobs_v1',
+        'erp_audit_logs'
     ];
 
     // --- IndexedDB Memory Proxy Initialization ---
@@ -287,7 +288,8 @@
         let payload = {};
         let hasData = false;
         syncKeys.forEach(k => {
-            const data = window.DB_STORE[prefix + k] || originalGetItem(prefix + k);
+            const pk = getPrefixedKey(k);
+            const data = window.DB_STORE[pk] || originalGetItem(pk);
             if (data) {
                 try {
                     payload[k] = JSON.parse(data);
@@ -361,15 +363,16 @@
                 if (data.success && data.data) {
                     Object.keys(data.data).forEach(key => {
                         if (data.data[key]) {
-                            const localDataStr = window.DB_STORE[prefix + key] || originalGetItem(prefix + key);
+                            const pk = getPrefixedKey(key);
+                            const localDataStr = window.DB_STORE[pk] || originalGetItem(pk);
                             let localData = [];
                             try { localData = JSON.parse(localDataStr || '[]'); } catch(e){}
                             // ONLY overwrite if server has data, or if local is empty. Do not wipe local data with empty server data!
                             if (data.data[key].length > 0 || localData.length === 0) {
                                 const valStr = JSON.stringify(data.data[key]);
-                                window.DB_STORE[prefix + key] = valStr;
-                                localforage.setItem(prefix + key, valStr).catch(e=>{});
-                                try { originalSetItem(prefix + key, valStr); } catch(e){}
+                                window.DB_STORE[pk] = valStr;
+                                localforage.setItem(pk, valStr).catch(e=>{});
+                                try { originalSetItem(pk, valStr); } catch(e){}
                             } else {
                                 console.log(`Skipping overwrite of ${key}: server sent empty array but local has data. You should PUSH to restore server.`);
                             }
