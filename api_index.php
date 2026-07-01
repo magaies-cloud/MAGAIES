@@ -336,7 +336,7 @@ $allowed_tables = [
     // Extended tables (now synced to cloud)
     'checks', 'gl_entries', 'single_receipts', 'single_payments',
     'partners', 'employees', 'payroll', 'reserved_sales',
-    'delivery_notes', 'accounts', 'audit_logs'
+    'delivery_notes', 'accounts', 'audit_logs', 'financial_periods'
 ];
 
 // ---------------------------------------------------------
@@ -498,7 +498,12 @@ if ($resource === 'sync') {
                                         $pdo->exec($sql . implode(', ', $vals));
                                     }
                                 } else {
-                                    $stmtAll = $pdo->prepare("SELECT id, COALESCE(JSON_EXTRACT(data, '$.id'), JSON_EXTRACT(data, '$.invoiceNo'), JSON_EXTRACT(data, '$.receiptNo'), JSON_EXTRACT(data, '$.paymentNo'), JSON_EXTRACT(data, '$.jvNo')) as doc_id FROM `$table` WHERE tenant_id = ?");
+                                    $isFin = in_array($table, ['sales_invoices', 'purchase_invoices', 'gl_entries', 'receipts', 'payments', 'journal_vouchers', 'single_receipts', 'single_payments']);
+                                    if ($isFin) {
+                                        $stmtAll = $pdo->prepare("SELECT id, status_val, updated_at, COALESCE(JSON_EXTRACT(data, '$.id'), JSON_EXTRACT(data, '$.invoiceNo'), JSON_EXTRACT(data, '$.receiptNo'), JSON_EXTRACT(data, '$.paymentNo'), JSON_EXTRACT(data, '$.jvNo')) as doc_id FROM `$table` WHERE tenant_id = ?");
+                                    } else {
+                                        $stmtAll = $pdo->prepare("SELECT id, COALESCE(JSON_EXTRACT(data, '$.id'), JSON_EXTRACT(data, '$.invoiceNo'), JSON_EXTRACT(data, '$.receiptNo'), JSON_EXTRACT(data, '$.paymentNo'), JSON_EXTRACT(data, '$.jvNo')) as doc_id FROM `$table` WHERE tenant_id = ?");
+                                    }
                                     $stmtAll->execute([$tenant_id]);
                                     $allRows = $stmtAll->fetchAll(PDO::FETCH_ASSOC);
                                     
@@ -506,8 +511,15 @@ if ($resource === 'sync') {
                                     foreach ($allRows as $row) {
                                         if ($row['doc_id'] !== null) {
                                             $docId = trim($row['doc_id'], '"');
-                                            $existingMap[$docId] = $row['id'];
+                                            $existingMap[$docId] = $row;
                                         }
+                                    }
+
+                                    $closedPeriods = [];
+                                    if ($isFin) {
+                                        $stmtP = $pdo->prepare("SELECT start_date, end_date FROM financial_periods WHERE tenant_id = ? AND is_closed = 1");
+                                        $stmtP->execute([$tenant_id]);
+                                        $closedPeriods = $stmtP->fetchAll(PDO::FETCH_ASSOC);
                                     }
 
                                     $updateSql = "UPDATE `$table` SET data = CASE id ";
@@ -530,10 +542,33 @@ if ($resource === 'sync') {
                                         }
 
                                         $strRecordId = (string)$recordId;
+                                        
+                                        // Financial rules checks
+                                        if (isset($isFin) && $isFin) {
+                                            // 1. Fiscal Period Check
+                                            $recDateStr = $record['date'] ?? $record['invoiceDate'] ?? $record['receiptDate'] ?? $record['paymentDate'] ?? null;
+                                            if ($recDateStr) {
+                                                $recDate = substr($recDateStr, 0, 10);
+                                                foreach ($closedPeriods as $cp) {
+                                                    if ($recDate >= $cp['start_date'] && $recDate <= $cp['end_date']) {
+                                                        continue 2; // SKIP processing this record entirely
+                                                    }
+                                                }
+                                            }
+                                            
+                                            // 2. Immutability & Optimistic Lock Check for existing
+                                            if (isset($existingMap[$strRecordId])) {
+                                                $dbRow = $existingMap[$strRecordId];
+                                                if ($dbRow['status_val'] && in_array(strtolower($dbRow['status_val']), ['posted', 'paid'])) {
+                                                    continue; // SKIP modifying posted/paid docs
+                                                }
+                                            }
+                                        }
+
                                         $jsonData = json_encode($record, JSON_UNESCAPED_UNICODE);
 
                                         if (isset($existingMap[$strRecordId])) {
-                                            $uId = $existingMap[$strRecordId];
+                                            $uId = $existingMap[$strRecordId]['id'];
                                             $updateSql .= "WHEN $uId THEN " . $pdo->quote($jsonData) . " ";
                                             $idsToUpdate[] = $uId;
                                         } else {
@@ -577,6 +612,34 @@ if (!in_array($resource, $allowed_tables)) {
 }
 
 try {
+    function checkFinancialRules($pdo, $tenant_id, $resource, $input, $existingRow = null) {
+        $isFin = in_array($resource, ['sales_invoices', 'purchase_invoices', 'gl_entries', 'receipts', 'payments', 'journal_vouchers', 'single_receipts', 'single_payments']);
+        if (!$isFin) return;
+
+        // 1. Fiscal Period Check
+        if ($input) {
+            $recDateStr = $input['date'] ?? $input['invoiceDate'] ?? $input['receiptDate'] ?? $input['paymentDate'] ?? null;
+            if ($recDateStr) {
+                $recDate = substr($recDateStr, 0, 10);
+                $stmtP = $pdo->prepare("SELECT start_date, end_date FROM financial_periods WHERE tenant_id = ? AND is_closed = 1");
+                $stmtP->execute([$tenant_id]);
+                $closedPeriods = $stmtP->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($closedPeriods as $cp) {
+                    if ($recDate >= $cp['start_date'] && $recDate <= $cp['end_date']) {
+                        jsonResponse(["error" => "لا يمكن التعديل: التاريخ يقع في فترة مالية مغلقة"], 403);
+                    }
+                }
+            }
+        }
+
+        // 2. Immutability Check
+        if ($existingRow && isset($existingRow['status_val']) && $existingRow['status_val']) {
+            if (in_array(strtolower($existingRow['status_val']), ['posted', 'paid'])) {
+                jsonResponse(["error" => "لا يمكن تعديل أو حذف مستند مرحّل أو مدفوع"], 403);
+            }
+        }
+    }
+
     switch ($method) {
         case 'GET':
             if ($id) {
@@ -592,6 +655,8 @@ try {
             break;
 
         case 'POST':
+            checkFinancialRules($pdo, $tenant_id, $resource, $input);
+            
             if (!isset($input['createdBy']) && $userId) {
                 $input['createdBy'] = $userId;
             }
@@ -603,6 +668,13 @@ try {
 
         case 'PUT':
             if (!$id) jsonResponse(["error" => "معرّف السجل مطلوب للتعديل"], 400);
+
+            // Fetch existing for immutability check
+            $stmtEx = $pdo->prepare("SELECT status_val FROM `$resource` WHERE tenant_id = :tid AND (id = :id OR JSON_EXTRACT(data, '$.id') = :id_json)");
+            $stmtEx->execute(['tid' => $tenant_id, 'id' => $id, 'id_json' => $id]);
+            $existingRow = $stmtEx->fetch(PDO::FETCH_ASSOC) ?: null;
+            checkFinancialRules($pdo, $tenant_id, $resource, $input, $existingRow);
+
             if (!isset($input['createdBy']) && $userId) {
                 $input['createdBy'] = $userId;
             }
@@ -615,10 +687,12 @@ try {
         case 'DELETE':
             if (!$id) jsonResponse(["error" => "معرّف السجل مطلوب للحذف"], 400);
             // Soft Delete: Inject "deleted": true into JSON
-            $stmt = $pdo->prepare("SELECT data FROM `$resource` WHERE tenant_id = :tid AND (id = :id OR JSON_EXTRACT(data, '$.id') = :id_json)");
+            $stmt = $pdo->prepare("SELECT data, status_val FROM `$resource` WHERE tenant_id = :tid AND (id = :id OR JSON_EXTRACT(data, '$.id') = :id_json)");
             $stmt->execute(['tid' => $tenant_id, 'id' => $id, 'id_json' => $id]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            
             if ($row) {
+                checkFinancialRules($pdo, $tenant_id, $resource, json_decode($row['data'], true), $row);
                 $dataArr = json_decode($row['data'], true);
                 $dataArr['deleted'] = true;
                 $newData = json_encode($dataArr, JSON_UNESCAPED_UNICODE);
