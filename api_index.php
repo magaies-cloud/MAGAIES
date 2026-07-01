@@ -603,8 +603,17 @@ try {
 
         case 'DELETE':
             if (!$id) jsonResponse(["error" => "معرّف السجل مطلوب للحذف"], 400);
-            $stmt = $pdo->prepare("DELETE FROM `$resource` WHERE tenant_id = :tid AND (id = :id OR JSON_EXTRACT(data, '$.id') = :id_json)");
+            // Soft Delete: Inject "deleted": true into JSON
+            $stmt = $pdo->prepare("SELECT data FROM `$resource` WHERE tenant_id = :tid AND (id = :id OR JSON_EXTRACT(data, '$.id') = :id_json)");
             $stmt->execute(['tid' => $tenant_id, 'id' => $id, 'id_json' => $id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row) {
+                $dataArr = json_decode($row['data'], true);
+                $dataArr['deleted'] = true;
+                $newData = json_encode($dataArr, JSON_UNESCAPED_UNICODE);
+                $updateStmt = $pdo->prepare("UPDATE `$resource` SET data = :data WHERE tenant_id = :tid AND (id = :id OR JSON_EXTRACT(data, '$.id') = :id_json)");
+                $updateStmt->execute(['data' => $newData, 'tid' => $tenant_id, 'id' => $id, 'id_json' => $id]);
+            }
             jsonResponse(["success" => true, "id" => $id]);
             break;
 
