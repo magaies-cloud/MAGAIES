@@ -28,11 +28,16 @@ function showToast(msg, type = 'success', ms = 3000) {
 document.addEventListener('DBReady', () => {
     // Load real accounts from master-data
     const localBanks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
-    localBanks.forEach(b => ACCOUNTS.push({ id: b.id, name: b.name }));
     const localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
     const localSups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+    const localSafes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
+    const localExp = JSON.parse(localStorage.getItem('erp_accounts_v1')) || [];
+
     localCusts.forEach(c => ACCOUNTS.push({ id: c.id, name: c.name }));
     localSups.forEach(s => ACCOUNTS.push({ id: s.id, name: s.name }));
+    localBanks.forEach(b => ACCOUNTS.push({ id: b.id, name: b.name }));
+    localSafes.forEach(s => ACCOUNTS.push({ id: s.id, name: s.name }));
+    localExp.forEach(e => ACCOUNTS.push({ id: e.id || e.code, name: e.name }));
 
     document.getElementById('hdr-date').valueAsDate = new Date();
     setNextVoucherNumber();

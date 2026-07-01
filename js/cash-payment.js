@@ -50,9 +50,16 @@ document.addEventListener('DBReady', () => {
     // Load accounts dynamically here to ensure DB_STORE is populated
     const localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
     const localSups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+    const localBanks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+    const localSafes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
+    const localExp = JSON.parse(localStorage.getItem('erp_accounts_v1')) || [];
+
     ACCOUNTS = [];
     localCusts.forEach(c => ACCOUNTS.push({ id: c.id, name: c.name }));
     localSups.forEach(s => ACCOUNTS.push({ id: s.id, name: s.name }));
+    localBanks.forEach(b => ACCOUNTS.push({ id: b.id, name: b.name }));
+    localSafes.forEach(s => ACCOUNTS.push({ id: s.id, name: s.name }));
+    localExp.forEach(e => ACCOUNTS.push({ id: e.id || e.code, name: e.name }));
 
     // Set today's date
     document.getElementById('hdr-date').valueAsDate = new Date();

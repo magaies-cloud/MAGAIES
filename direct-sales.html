@@ -1303,13 +1303,7 @@
                             <div class="h-form-group" style="flex: 0 0 35%; display:flex; align-items:center; gap:10px;">
                                 <label class="h-label" style="margin:0; white-space:nowrap;">اسم العميل <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span></span></label>
                                 <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1; width: 100%;">
-                                    <div class="custom-dropdown" style="flex: 1; min-width: 0;">
-                                        <div class="custom-dropdown-input-wrap" style="width: 100%;">
-                                            <input type="text" class="v-input ctrl-input" name="search_customer_dummy" id="hdr-customer-search" placeholder="ابحث أو اختر العميل..." onfocus="showCustomerDropdown()" onclick="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" autocomplete="off" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);">
-                                            <input type="hidden" id="hdr-customer" onchange="onCustomerChange()">
-                                            <div class="custom-dropdown-list" id="customer-dropdown-list"></div>
-                                        </div>
-                                    </div>
+                                    <div id="hdr-customer-container" style="flex: 1; min-width: 0;"></div>
                                     <button onclick="openModal('add-customer-modal')" style="flex-shrink: 0; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid rgba(16,212,143,0.3); width: 38px; height: 38px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2); transition: 0.2s;" title="إضافة عميل">
                                         ➕
                                     </button>
@@ -1547,6 +1541,16 @@
     <script src="js/whatsapp-integration.js"></script>
     <script src="js/app.js?v=1782530467440"></script>
     <script src="js/print-engine.js"></script>
+    <script src="js/smart-select.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+          SmartSelectManager.init('hdr-customer-container', 'hdr-customer', {
+              placeholder: 'ابحث أو اختر العميل...',
+              dataTypes: ['CUST'],
+              onChange: function() { if(typeof onCustomerChange === 'function') onCustomerChange(); }
+          });
+      });
+    </script>
     <script src="js/direct-sales.js?v=1782530467440"></script>
 
     <script>

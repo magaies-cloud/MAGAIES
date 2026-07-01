@@ -185,9 +185,7 @@
                             <label class="label" style="margin-bottom: 0;">من حساب (الدافع)</label>
                             <button type="button" onclick="openPartnerStatement()" style="background:none; border:none; color:#38bdf8; font-size:0.85rem; cursor:pointer; font-family:inherit; font-weight:700; display:flex; align-items:center; gap:4px;" title="عرض كشف حساب العميل المحدد">📄 كشف حساب</button>
                         </div>
-                        <select class="form-input" id="from-account">
-                            <!-- Populated via JS -->
-                        </select>
+                        <div id="from-account-container"></div>
                     </div>
                 </div>
 
@@ -258,11 +256,7 @@
                 <div class="form-grid">
                     <div>
                         <label class="label">إلى حساب (الخزنة / البنك المستلم)</label>
-                        <select class="form-input" id="to-account">
-                            <option value="safe-001">الخزينة الرئيسية</option>
-                            <option value="safe-002">صندوق المصروفات</option>
-                            <option value="bank-001">بنك (مثال 1)</option>
-                        </select>
+                        <div id="to-account-container"></div>
                     </div>
                     <div>
                         <label class="label">البيان</label>
@@ -363,6 +357,24 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
     <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/smart-select.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+          SmartSelectManager.init('from-account-container', 'from-account', {
+              placeholder: 'ابحث في الحسابات (عملاء، موردين، بنوك...)',
+              filterType: 'ALL',
+              onChange: function(id, name) {
+                  const fromAccEl = document.getElementById('from-account');
+                  if (fromAccEl) fromAccEl.dispatchEvent(new Event('change', { bubbles: true }));
+              }
+          });
+          
+          SmartSelectManager.init('to-account-container', 'to-account', {
+              placeholder: 'ابحث في حسابات الخزن والبنوك...',
+              filterType: 'ALL'
+          });
+      });
+    </script>
     <script src="js/single-cash-receipt.js?v=20260612_7"></script>
 </body>
 </html>

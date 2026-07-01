@@ -62,6 +62,9 @@ function loadData() {
     ALL_PARTNERS = [];
     const custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
     const sups  = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+    const banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+    const safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
+    const exp   = JSON.parse(localStorage.getItem('erp_accounts_v1')) || [];
     
     custs.forEach(c => ALL_PARTNERS.push({ 
         id: c.id, code: c.accountNo || c.code || '-', name: c.name, type: 'CUST', 
@@ -75,6 +78,27 @@ function loadData() {
         phone: s.phone || '', taxNumber: s.taxNumber || '', currency: s.currency || 'SDG',
         openingDebit: parseNum(s.openingDebit || 0), openingCredit: parseNum(s.openingCredit || 0),
         notes: s.notes || '',
+        debit: 0, credit: 0, lastDate: null 
+    }));
+    banks.forEach(b => ALL_PARTNERS.push({ 
+        id: b.id, code: b.glAccount || b.code || '-', name: b.name, type: 'BANK', 
+        phone: b.branch || '', taxNumber: b.accountNo || '', currency: b.currency || 'SDG',
+        openingDebit: parseNum(b.openingDebit || 0), openingCredit: parseNum(b.openingCredit || 0),
+        notes: b.notes || '',
+        debit: 0, credit: 0, lastDate: null 
+    }));
+    safes.forEach(s => ALL_PARTNERS.push({ 
+        id: s.id, code: s.glAccount || s.code || '-', name: s.name, type: 'SAFE', 
+        phone: '', taxNumber: '', currency: s.currency || 'SDG',
+        openingDebit: parseNum(s.openingDebit || 0), openingCredit: parseNum(s.openingCredit || 0),
+        notes: s.notes || '',
+        debit: 0, credit: 0, lastDate: null 
+    }));
+    exp.forEach(e => ALL_PARTNERS.push({ 
+        id: e.id || e.code, code: e.code || '-', name: e.name, type: 'EXP', 
+        phone: '', taxNumber: '', currency: 'SDG',
+        openingDebit: parseNum(e.openingDebit || 0), openingCredit: parseNum(e.openingCredit || 0),
+        notes: e.notes || '',
         debit: 0, credit: 0, lastDate: null 
     }));
     

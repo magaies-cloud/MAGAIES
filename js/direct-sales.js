@@ -184,7 +184,7 @@ document.addEventListener('DBReady', () => {
 
 function populateDropdowns() {
     // Customers (Init custom dropdown)
-    document.getElementById('hdr-customer').value = '';
+    SmartSelectManager.setValue('hdr-customer', '');
     
     // Warehouses (Header)
     const whSel = document.getElementById('hdr-warehouse');
@@ -560,7 +560,7 @@ function renderCustomerDropdown(filter = '') {
 }
 
 function showCustomerDropdown() {
-    renderCustomerDropdown(document.getElementById('hdr-customer-search').value);
+    renderCustomerDropdown(document.getElementById('hdr-customer-display').value);
     document.getElementById('customer-dropdown-list').classList.add('show');
 }
 
@@ -570,29 +570,29 @@ function hideCustomerDropdownDelayed() {
         if(listEl) listEl.classList.remove('show');
         
         const idVal = document.getElementById('hdr-customer').value;
-        const searchVal = document.getElementById('hdr-customer-search').value.trim();
+        const searchVal = document.getElementById('hdr-customer-display').value.trim();
         if (idVal) {
             const cust = CUSTOMERS.find(c => c.id === idVal);
             if (cust && cust.name !== searchVal) {
-                document.getElementById('hdr-customer-search').value = cust.name;
+                
             }
         } else {
             // Allow walk-in customers or custom names without disappearing
-            // document.getElementById('hdr-customer-search').value = '';
+            // 
         }
     }, 150);
 }
 
 function filterCustomerDropdown() {
-    document.getElementById('hdr-customer').value = '';
+    SmartSelectManager.setValue('hdr-customer', '');
     onCustomerChange();
-    renderCustomerDropdown(document.getElementById('hdr-customer-search').value);
+    renderCustomerDropdown(document.getElementById('hdr-customer-display').value);
     document.getElementById('customer-dropdown-list').classList.add('show');
 }
 
 function selectCustomer(id, name) {
-    document.getElementById('hdr-customer').value = id;
-    document.getElementById('hdr-customer-search').value = name;
+    SmartSelectManager.setValue('hdr-customer', id);
+    
     document.getElementById('customer-dropdown-list').classList.remove('show');
     onCustomerChange();
 }
@@ -1862,8 +1862,8 @@ function onSuccessNewInvoice(closeModalFlag = true) {
     // Reset form for new invoice
     rows = [];
     rowIdCounter = 0;
-    document.getElementById('hdr-customer').value = '';
-    document.getElementById('hdr-customer-search').value = '';
+    SmartSelectManager.setValue('hdr-customer', '');
+    
     document.getElementById('inv-notes').value = '';
     document.getElementById('discount-amt').value = '0';
     document.getElementById('discount-pct').value = '0';
@@ -1910,7 +1910,7 @@ function showPriceHistory(rowId, type) {
     
     const item = ITEMS.find(i => i.id === row.itemId);
     const itemName = item ? item.name : 'صنف غير معروف';
-    const custName = document.getElementById('hdr-customer-search').value || 'العميل';
+    const custName = document.getElementById('hdr-customer-display').value || 'العميل';
 
     let historyKey = type === 'sales' ? 'erp_sales_invoices_v1' : 'erp_purchase_invoices_v1';
     let invoices = JSON.parse(localStorage.getItem(historyKey)) || [];
@@ -2065,7 +2065,7 @@ function printCurrentInvoice() {
                        currentSaleType === 'proforma'? 'عرض سعر (بروفورما)'  : 'فاتورة مبيعات',
         invoiceNo:     document.getElementById('hdr-inv-no').value,
         date:          document.getElementById('hdr-date').value,
-        customerName:  document.getElementById('hdr-customer-search').value || 'زبون نقدي',
+        customerName:  document.getElementById('hdr-customer-display').value || 'زبون نقدي',
         currency:      getCurrency(),
         exchangeRate:  parseNum(document.getElementById('hdr-exchange-rate')?.value || '1'),
         paymentMethod: document.getElementById('hdr-payment-method').value,
@@ -2111,7 +2111,7 @@ function _legacyBuildPrintArea(type) {
         warehouseGroups[whId].push(row);
     });
 
-    const custName = document.getElementById('hdr-customer-search').value || (type === 'sales' ? 'عميل نقدي' : 'مورد نقدي');
+    const custName = document.getElementById('hdr-customer-display').value || (type === 'sales' ? 'عميل نقدي' : 'مورد نقدي');
     const invNo = document.getElementById('hdr-inv-no').value;
     const invDate = document.getElementById('hdr-date').value;
     const grandTotal = document.getElementById('t-grand').textContent;

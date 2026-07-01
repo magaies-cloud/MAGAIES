@@ -53,10 +53,19 @@ document.addEventListener('DBReady', () => {
     try { localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || []; } catch(e) { localCusts = []; }
     let localSups = [];
     try { localSups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []; } catch(e) { localSups = []; }
+    let localBanks = [];
+    try { localBanks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e) { localBanks = []; }
+    let localSafes = [];
+    try { localSafes = JSON.parse(localStorage.getItem('erp_safes_v1')) || []; } catch(e) { localSafes = []; }
+    let localExp = [];
+    try { localExp = JSON.parse(localStorage.getItem('erp_accounts_v1')) || []; } catch(e) { localExp = []; }
     
     ACCOUNTS = [];
     localCusts.forEach(c => ACCOUNTS.push({ id: c.id, name: c.name, balances: { checks: 0, debt: parseFloat(c.currentBalance) || 0, credit: 0 } }));
     localSups.forEach(s => ACCOUNTS.push({ id: s.id, name: s.name, balances: { checks: 0, debt: 0, credit: parseFloat(s.currentBalance) || 0 } }));
+    localBanks.forEach(b => ACCOUNTS.push({ id: b.id, name: b.name, balances: { checks: 0, debt: parseFloat(b.currentBalance) || 0, loan: 0 } }));
+    localSafes.forEach(s => ACCOUNTS.push({ id: s.id, name: s.name, balances: { checks: 0, debt: parseFloat(s.currentBalance) || 0, loan: 0 } }));
+    localExp.forEach(e => ACCOUNTS.push({ id: e.id || e.code, name: e.name, balances: { checks: 0, debt: parseFloat(e.currentBalance) || 0, loan: 0 } }));
 
     document.getElementById('hdr-date').valueAsDate = new Date();
     setNextVoucherNumber();
@@ -183,7 +192,7 @@ function resetVoucher() {
 function resetVoucherSilent() {
     currentViewedIndex = -1;
     document.getElementById('hdr-date').valueAsDate = new Date();
-    document.getElementById('from-account').value = '';
+    SmartSelectManager.setValue('from-account', '');
     document.getElementById('amount-local').value = '0';
     document.getElementById('currency').value = 'SDG';
     document.getElementById('exchange-rate').value = '1.0';
@@ -192,7 +201,7 @@ function resetVoucherSilent() {
     document.getElementById('from-statement').value = '';
     document.getElementById('collector-name').value = '';
     
-    document.getElementById('to-account').value = 'safe-001';
+    SmartSelectManager.setValue('to-account', 'safe-001');
     document.getElementById('to-statement').value = '';
 
     // Reset Radio to Cash
@@ -247,7 +256,7 @@ function renderVoucher(v) {
     document.getElementById('voucher-number').innerText = v.id;
     document.getElementById('hdr-date').value = v.date;
     
-    document.getElementById('from-account').value = v.fromAccount || '';
+    SmartSelectManager.setValue('from-account', v.fromAccount || '');
     document.getElementById('amount-local').value = fmtNum(v.amountLocal);
     document.getElementById('currency').value = v.currency || 'SDG';
     document.getElementById('exchange-rate').value = v.rate || 1.0;
@@ -255,7 +264,7 @@ function renderVoucher(v) {
     document.getElementById('from-statement').value = v.fromStatement || '';
     document.getElementById('collector-name').value = v.collectorName || '';
     
-    document.getElementById('to-account').value = v.toAccount || 'safe-001';
+    SmartSelectManager.setValue('to-account', v.toAccount || 'safe-001');
     document.getElementById('to-statement').value = v.toStatement || '';
 
     // Set Payment Method

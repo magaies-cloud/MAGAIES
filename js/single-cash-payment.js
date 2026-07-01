@@ -107,13 +107,7 @@ document.addEventListener('DBReady', () => {
         costCenterEl.innerHTML = jobOpts;
     }
 
-    // Initialize Smart Search (Choices.js)
-    if (window.Choices) {
-        window.toAccChoice = new Choices(toAccEl, { searchEnabled: true, searchPlaceholderValue: '🔍 ابحث هنا...', itemSelectText: '', renderChoiceLimit: 15 });
-        window.fromAccChoice = new Choices(fromAccEl, { searchEnabled: true, searchPlaceholderValue: '🔍 ابحث هنا...', itemSelectText: '', renderChoiceLimit: 15 });
-        if (costCenterEl) window.ccChoice = new Choices(costCenterEl, { searchEnabled: true, searchPlaceholderValue: '🔍 ابحث هنا...', itemSelectText: '', renderChoiceLimit: 15 });
-
-        // Auto-jump to next field on selection
+    // Auto-jump to next field on selection
         toAccEl.addEventListener('change', (e) => {
             if(e.detail && e.detail.value) document.getElementById('to-statement').focus();
         });
@@ -251,11 +245,8 @@ function resetVoucherSilent() {
     currentViewedIndex = -1;
     document.getElementById('hdr-date').valueAsDate = new Date();
     
-    document.getElementById('to-account').value = '';
-    if (window.toAccChoice) {
-        window.toAccChoice.removeActiveItems();
-        window.toAccChoice.setChoiceByValue('');
-    }
+    SmartSelectManager.setValue('to-account', '');
+    
     
     document.getElementById('amount-local').value = '';
     document.getElementById('currency').value = 'SDG';
@@ -265,7 +256,7 @@ function resetVoucherSilent() {
     document.getElementById('to-statement').value = '';
     document.getElementById('beneficiary-name').value = '';
     
-    document.getElementById('from-account').value = '';
+    SmartSelectManager.setValue('from-account', '');
     if (window.fromAccChoice) {
         window.fromAccChoice.removeActiveItems();
         window.fromAccChoice.setChoiceByValue('');
@@ -334,8 +325,8 @@ function renderVoucher(v) {
     document.getElementById('voucher-number').innerText = v.id;
     document.getElementById('hdr-date').value = v.date;
     
-    document.getElementById('to-account').value = v.toAccount || '';
-    if (window.toAccChoice) window.toAccChoice.setChoiceByValue(v.toAccount || '');
+    SmartSelectManager.setValue('to-account', v.toAccount || '');
+    
 
     document.getElementById('amount-local').value = fmtNum(v.amountLocal);
     document.getElementById('currency').value = v.currency || 'SDG';
@@ -344,7 +335,7 @@ function renderVoucher(v) {
     document.getElementById('to-statement').value = v.toStatement || '';
     document.getElementById('beneficiary-name').value = v.beneficiaryName || '';
     
-    document.getElementById('from-account').value = v.fromAccount || 'safe-001';
+    SmartSelectManager.setValue('from-account', v.fromAccount || 'safe-001');
     if (window.fromAccChoice) window.fromAccChoice.setChoiceByValue(v.fromAccount || 'safe-001');
 
     const costCenterEl = document.getElementById('cost-center');
