@@ -555,14 +555,19 @@
         };
 
         localStorage.setItem('erp_settings_v1', JSON.stringify(cfg));
+        if (window.saveToDB) {
+            window.saveToDB('erp_settings_v1', cfg);
+        }
 
         // Apply font size immediately
         document.documentElement.style.fontSize = cfg.fontSize + 'px';
 
         // Show success badge
         const badge = document.getElementById('save-badge');
-        badge.classList.add('show');
-        setTimeout(() => badge.classList.remove('show'), 3000);
+        if (badge) {
+            badge.classList.add('show');
+            setTimeout(() => badge.classList.remove('show'), 3000);
+        }
 
         if (window.logSystemAction) {
             window.logSystemAction('Settings Update', 'settings', 'تم تحديث إعدادات النظام');
