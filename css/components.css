@@ -1304,7 +1304,48 @@ a[data-href], a[onclick] { cursor: pointer; }
     .print-only { display: none !important; }
 }
 @media print {
+    /* Reset colors and backgrounds for printers */
+    body, html { 
+        background: #fff !important; 
+        color: #000 !important; 
+        height: auto !important; 
+        min-height: auto !important;
+        overflow: visible !important;
+    }
+    * { 
+        color: #000 !important; 
+        box-shadow: none !important; 
+        text-shadow: none !important; 
+        background-color: transparent !important; 
+        background-image: none !important;
+    }
+    
+    /* Ensure inputs are visible */
+    input, textarea, select { 
+        border: 1px solid #999 !important; 
+        background: transparent !important; 
+        color: #000 !important;
+    }
+
+    /* Print visibility helpers */
     .no-print { display: none !important; }
     .print-only { display: block !important; }
-    #global-print-header { display: flex !important; }
+    #global-print-header { display: flex !important; border-bottom: 2px solid #000 !important; }
+    #global-print-header * { color: #000 !important; }
+
+    /* Fix flex/grid issues in print */
+    .main-panel, .glass-panel, .app-container {
+        display: block !important;
+        width: 100% !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
+        backdrop-filter: none !important;
+    }
+
+    /* Hide known non-printable UI elements globally if not already tagged with no-print */
+    .header-controls, .premium-header, .footer-actions, .side-panel, button, .ambient-bg, .orb {
+        display: none !important;
+    }
 }
