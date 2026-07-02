@@ -9,9 +9,25 @@
     </div>
 
     <!-- Center: Page Title -->
+    <?php
+    $dynamic_icon = '✨'; // default
+    if (isset($page_title)) {
+        if (strpos($page_title, 'لوحة التحكم') !== false || strpos($page_title, 'SaaS') !== false) $dynamic_icon = '🎛️';
+        elseif (strpos($page_title, 'مبيعات') !== false || strpos($page_title, 'المبيعات') !== false) $dynamic_icon = '🛒';
+        elseif (strpos($page_title, 'مشتريات') !== false || strpos($page_title, 'المشتريات') !== false || strpos($page_title, 'استلام') !== false) $dynamic_icon = '🛍️';
+        elseif (strpos($page_title, 'مخزون') !== false || strpos($page_title, 'مخازن') !== false || strpos($page_title, 'جرد') !== false || strpos($page_title, 'صنف') !== false || strpos($page_title, 'أصناف') !== false || strpos($page_title, 'تسليم') !== false || strpos($page_title, 'أذونات') !== false) $dynamic_icon = '📦';
+        elseif (strpos($page_title, 'حساب') !== false || strpos($page_title, 'مالي') !== false || strpos($page_title, 'صرف') !== false || strpos($page_title, 'قبض') !== false || strpos($page_title, 'خزن') !== false || strpos($page_title, 'بنوك') !== false || strpos($page_title, 'أرصدة') !== false || strpos($page_title, 'أرباح') !== false || strpos($page_title, 'ديون') !== false || strpos($page_title, 'قيد') !== false) $dynamic_icon = '💰';
+        elseif (strpos($page_title, 'شيكات') !== false) $dynamic_icon = '🧾';
+        elseif (strpos($page_title, 'شركاء') !== false || strpos($page_title, 'مهام') !== false || strpos($page_title, 'شغل') !== false || strpos($page_title, 'رواتب') !== false) $dynamic_icon = '👥';
+        elseif (strpos($page_title, 'إعدادات') !== false || strpos($page_title, 'تدقيق') !== false || strpos($page_title, 'نشاط') !== false || strpos($page_title, 'نظام') !== false || strpos($page_title, 'أساسية') !== false || strpos($page_title, 'نسخ') !== false || strpos($page_title, 'تصفير') !== false) $dynamic_icon = '⚙️';
+        elseif (strpos($page_title, 'تقارير') !== false || strpos($page_title, 'إحصائيات') !== false || strpos($page_title, 'تحليل') !== false) $dynamic_icon = '📊';
+        elseif (strpos($page_title, 'تنبيهات') !== false) $dynamic_icon = '🔔';
+        elseif (strpos($page_title, 'باركود') !== false) $dynamic_icon = '🖨️';
+    }
+    ?>
     <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
         <h2 class="header-page-title">
-            <span class="header-page-title-icon">✨</span>
+            <span class="header-page-title-icon"><?php echo $dynamic_icon; ?></span>
             <?php echo isset($page_title) ? htmlspecialchars($page_title) : 'السجانة ERP'; ?>
         </h2>
         <div id="dashboard-athkar-container" class="islamic-ticker-container" style="display: none;">
