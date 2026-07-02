@@ -5,10 +5,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>دفتر الأستاذ العام الذكي (SGL) | Al-Sajana ERP</title>
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
     <link rel="stylesheet" href="css/sales-invoice.css">
+    <link rel="stylesheet" href="css/table-themes.css">
     <style>
         .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
         .toast { padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:8px; pointer-events:auto; backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5); animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both; font-family:'Cairo',sans-serif; }
@@ -249,6 +249,56 @@
             70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
             100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
         }
+
+        /* SETTINGS SIDEBAR CSS */
+        .sidebar-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .sidebar-overlay.active { opacity: 1; pointer-events: all; }
+        
+        .settings-sidebar { position: fixed; top: 10%; left: 50%; transform: translateX(-50%); width:450px; height:80%; background: rgba(15,23,42,0.95); border: 1px solid rgba(168,85,247,0.5); box-shadow: 0 15px 50px rgba(0,0,0,0.7); z-index: 10001; display: none; flex-direction: column; backdrop-filter: blur(20px); border-radius: 12px; resize: both; overflow: hidden; min-width: 300px; min-height: 400px; }
+        .settings-sidebar.active { display: flex; animation: windowPop 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes windowPop { from { opacity:0; transform: translate(-50%, -40%) scale(0.95); } to { opacity:1; transform: translate(-50%, 0) scale(1); } }
+        
+        .sidebar-header { padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; cursor: move; background: rgba(0,0,0,0.2); }
+        .sidebar-header h3 { margin: 0; font-size: 1.2rem; background: linear-gradient(to right, #c084fc, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .close-sidebar { background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
+        .close-sidebar:hover { color: #f87171; transform: scale(1.1); }
+        .sidebar-content { padding: 20px; flex: 1; overflow-y: auto; }
+        .sidebar-desc { color: #94a3b8; font-size: 0.85rem; margin-top: 0; margin-bottom: 20px; }
+        .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.2); }
+        
+        .columns-config-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+        .col-config-item { background: rgba(30,41,59,0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; transition: 0.2s; display: flex; flex-direction: column; gap: 10px; }
+        .col-config-item.dragging { opacity: 0.5; background: rgba(168,85,247,0.2); border-color: #a855f7; transform: scale(0.98); }
+        .col-config-header { display: flex; align-items: center; justify-content: space-between; }
+        .col-drag-handle { cursor: grab; font-size: 1.2rem; color: #64748b; padding-left: 10px; }
+        .col-drag-handle:active { cursor: grabbing; }
+        .col-title-wrap { flex: 1; display: flex; align-items: center; gap: 10px; }
+        .col-title { font-weight: bold; color: #e2e8f0; font-size: 0.9rem; }
+        
+        .col-toggle { cursor: pointer; width: 40px; height: 22px; background: #334155; border-radius: 12px; position: relative; transition: 0.3s; }
+        .col-toggle::after { content: ''; position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: 0.3s; }
+        .col-toggle.on { background: #34d399; box-shadow: 0 0 10px rgba(52,211,153,0.3); }
+        .col-toggle.on::after { right: 20px; }
+        
+        .col-settings-btn { background: rgba(56,189,248,0.1); color: #38bdf8; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; transition: 0.2s; }
+        .col-settings-btn:hover { background: #38bdf8; color: #0f172a; }
+        
+        .col-settings-panel { display: none; background: rgba(15,23,42,0.8); padding: 15px; border-radius: 8px; border: 1px dashed rgba(168,85,247,0.4); gap: 10px; flex-direction: column; margin-top: 5px; }
+        .col-settings-panel.open { display: flex; animation: fadeInDown 0.3s; }
+        
+        .cfg-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; color: #cbd5e1; }
+        .cfg-input { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 6px 10px; border-radius: 6px; font-family: inherit; font-size: 0.85rem; outline: none; width: 120px; transition: 0.2s; }
+        .cfg-input:focus { border-color: #c084fc; box-shadow: 0 0 0 2px rgba(192,132,252,0.2); }
+        .cfg-input[type="color"] { width: 45px; padding: 0; height: 28px; border: none; border-radius: 6px; overflow: hidden; cursor: pointer; background: transparent; }
+        
+        .cfg-btns { display: flex; gap: 5px; background: rgba(0,0,0,0.3); padding: 3px; border-radius: 6px; }
+        .cfg-btn { background: transparent; border: none; color: #94a3b8; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: 0.2s; }
+        .cfg-btn:hover { color: #fff; }
+        .cfg-btn.active { background: #c084fc; color: #fff; }
+        
+        /* Smooth columns resize handled by table-themes.css */
+        .ledger-table th { position: relative; user-select: none; }
+        @keyframes fadeInDown { from { opacity:0; transform: translateY(-10px); } to { opacity:1; transform: translateY(0); } }
     </style>
     \n</head>
 <body>
@@ -277,12 +327,18 @@
     </div>
 
     <!-- PAGE TITLE -->
-    <div style="margin-bottom: 25px;" class="no-print">
-        <h1 style="color:#fff; margin:0 0 5px 0; font-size:2rem; font-weight:900;">
-            دفتر الأستاذ العام الذكي 
-            <span class="badge-sgl">SGL PRO</span>
-        </h1>
-        <p style="color:#64748b; margin:0;">Smart General Ledger — تتبع الحركات المحاسبية من وإلى الحسابات الرئيسية</p>
+    <div style="margin-bottom: 25px; display:flex; justify-content:space-between; align-items:center;" class="no-print">
+        <div>
+            <h1 style="color:#fff; margin:0 0 5px 0; font-size:2rem; font-weight:900;">
+                دفتر الأستاذ العام الذكي 
+                <span class="badge-sgl">SGL PRO</span>
+            </h1>
+            <p style="color:#64748b; margin:0;">Smart General Ledger — تتبع الحركات المحاسبية من وإلى الحسابات الرئيسية</p>
+        </div>
+        <button class="btn-run" style="background: linear-gradient(135deg, #ec4899, #8b5cf6); box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);" onclick="toggleSettingsSidebar()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:8px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            تخصيص العرض والجدول
+        </button>
     </div>
 
     <!-- FILTER SECTION -->
@@ -350,6 +406,14 @@
             <button class="btn-action" onclick="previewGL()">عرض للطباعة</button>
             <button class="btn-action" onclick="window.print()">طباعة مباشرة</button>
             <button class="btn-action" onclick="window.openExportModal(exportCSV, {element: document.getElementById('gl-table-wrap'), filename: 'General_Ledger.pdf', orientation: 'landscape'})">تصدير PDF/Excel</button>
+            <button class="btn-action" style="background:rgba(37, 211, 102, 0.15); color:#25D366; border-color:rgba(37, 211, 102, 0.5);" onclick="shareViaWhatsApp()" title="مشاركة كشف الحساب عبر الواتساب">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.487-1.761-1.66-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                مشاركة واتساب
+            </button>
+            <button class="btn-action" style="background:rgba(234, 67, 53, 0.15); color:#ea4335; border-color:rgba(234, 67, 53, 0.5);" onclick="shareViaEmail()" title="إرسال كشف الحساب عبر البريد الإلكتروني">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                مشاركة إيميل
+            </button>
         </div>
     </div>
 
@@ -380,22 +444,12 @@
 
         <div class="ledger-table-wrap">
             <table class="ledger-table">
-                <thead>
-                    <tr>
-                        <th style="width: 50px;">#</th>
-                        <th>التاريخ والوقت</th>
-                        <th>رقم القيد / المرجع</th>
-                        <th>نوع الحركة</th>
-                        <th>البيان (وصف الحركة)</th>
-                        <th>مدين (Debit)</th>
-                        <th>دائن (Credit)</th>
-                        <th>الرصيد (Balance)</th>
-                        <th>المرفقات</th>
-                    </tr>
+                <thead id="ledger-thead">
+                    <!-- dynamically injected on load -->
                 </thead>
                 <tbody id="ledger-tbody">
                     <tr>
-                        <td colspan="9" class="empty-state">
+                        <td colspan="14" class="empty-state">
                             <span style="font-size:3rem; display:block; margin-bottom:15px;">🔍</span>
                             <div>يرجى تحديد الحساب والفترة ثم الضغط على "تشغيل التقرير الذكي"</div>
                         </td>
@@ -413,7 +467,143 @@
 
 </div>
 
+<!-- Settings Sidebar -->
+<div class="sidebar-overlay" id="settings-overlay" onclick="toggleSettingsSidebar()"></div>
+<div class="settings-sidebar" id="settings-sidebar" style="resize: both; overflow: auto;">
+    <div class="sidebar-header">
+        <h3>✨ تخصيص الجدول الديناميكي</h3>
+        <button class="close-sidebar" onclick="toggleSettingsSidebar()">✕</button>
+    </div>
+    <div class="sidebar-content" style="height: calc(100% - 130px); overflow-y: auto;">
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display:block; margin-bottom:10px; font-weight:800; color:#fbbf24; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">✨ أنماط العرض الفاخرة (Crystal Space)</label>
+            <div class="crystal-theme-container">
+                <button class="crystal-btn c-std active" onclick="changeTableTheme('')" id="btn-theme-">
+                    <span style="font-size:1.2rem;">⚪</span>
+                    <span>الأساسي</span>
+                </button>
+                <button class="crystal-btn c-blue" onclick="changeTableTheme('table-theme-blue')" id="btn-theme-table-theme-blue">
+                    <span style="font-size:1.2rem;">🔵</span>
+                    <span>الأزرق العميق</span>
+                </button>
+                <button class="crystal-btn c-black" onclick="changeTableTheme('table-theme-black')" id="btn-theme-table-theme-black">
+                    <span style="font-size:1.2rem;">⚫</span>
+                    <span>الأسود الفاخر</span>
+                </button>
+                <button class="crystal-btn c-emerald" onclick="changeTableTheme('table-theme-emerald')" id="btn-theme-table-theme-emerald">
+                    <span style="font-size:1.2rem;">🟢</span>
+                    <span>الزمردي المالي</span>
+                </button>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+            <label style="display:block; margin-bottom:10px; font-weight:800; color:#38bdf8;">📝 خط الأرقام المحاسبية:</label>
+            <div class="font-chips-container">
+                <button class="font-chip" onclick="changeNumberFont('num-font-roboto')" id="btn-font-num-font-roboto" style="font-family: 'Roboto Mono', monospace;">Roboto Mono</button>
+                <button class="font-chip" onclick="changeNumberFont('num-font-inter')" id="btn-font-num-font-inter" style="font-family: 'Inter', sans-serif;">Inter Font</button>
+                <button class="font-chip" onclick="changeNumberFont('num-font-jetbrains')" id="btn-font-num-font-jetbrains" style="font-family: 'JetBrains Mono', monospace;">JetBrains</button>
+                <button class="font-chip" onclick="changeNumberFont('num-font-poppins')" id="btn-font-num-font-poppins" style="font-family: 'Poppins', sans-serif;">Poppins</button>
+            </div>
+        </div>
+
+        <p class="sidebar-desc">رتب الأعمدة بالسحب والإفلات. اضغط "تخصيص" لتغيير المسمى، الألوان، وحجم الخط.</p>
+        <ul id="columns-config-list" class="columns-config-list">
+            <!-- Populated by JS -->
+        </ul>
+    </div>
+    <div class="sidebar-footer" style="position: sticky; bottom: 0; background: inherit; padding-top: 10px;">
+        <button class="btn-run" style="width:100%; justify-content:center; font-size:1.05rem;" onclick="applyAndSaveConfig()">💾 تطبيق وحفظ التعديلات</button>
+        <button class="btn-action" style="width:100%; justify-content:center; margin-top:10px; color:#f87171;" onclick="resetColumnConfig()">🔄 إعادة للوضع الافتراضي</button>
+    </div>
+</div>
+
+<!-- Custom Context Menu for Drill Down -->
+<div id="drilldown-context-menu" class="custom-context-menu">
+    <div class="context-menu-item" id="ctx-drilldown-btn">
+        <span>📄</span>
+        <span>الذهاب لأصل المستند (Drill-down)</span>
+    </div>
+</div>
+
 <script src="js/app.js?v=20260626_4"></script>
+<script>
+    // Make Sidebar Draggable and Resizable, with Permanent Saving
+    document.addEventListener('DOMContentLoaded', () => {
+        const sidebar = document.getElementById('settings-sidebar');
+        const header = sidebar.querySelector('.sidebar-header');
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
+
+        header.addEventListener('mousedown', (e) => {
+            if(e.target.classList.contains('close-sidebar')) return;
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            
+            // get actual computed style
+            const style = window.getComputedStyle(sidebar);
+            initialLeft = parseInt(style.left, 10);
+            initialTop = parseInt(style.top, 10);
+            
+            // Disable translate centering so top/left work cleanly
+            sidebar.style.transform = 'none';
+            sidebar.style.left = initialLeft + 'px';
+            sidebar.style.top = initialTop + 'px';
+            
+            sidebar.style.transition = 'none'; // disable CSS transition during drag
+            document.body.style.userSelect = 'none';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            sidebar.style.left = (initialLeft + dx) + 'px';
+            sidebar.style.top = (initialTop + dy) + 'px';
+        });
+
+        document.addEventListener('mouseup', () => {
+            if(isDragging) {
+                isDragging = false;
+                document.body.style.userSelect = 'auto';
+                saveSidebarConfig();
+            }
+        });
+        
+        // Listen for resize changes via MutationObserver
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === "style" && sidebar.classList.contains('open') && !isDragging) {
+                   saveSidebarConfig();
+                }
+            });
+        });
+        observer.observe(sidebar, { attributes: true });
+
+        function saveSidebarConfig() {
+            if(typeof getTenantKey === 'function') {
+                const t = getTenantKey('');
+                let settings = {};
+                try {
+                    const raw = localStorage.getItem(t + 'erp_settings_v1');
+                    if (raw) settings = JSON.parse(raw);
+                } catch(e) {}
+                
+                settings.sgl_sidebar_ui = {
+                    left: sidebar.style.left,
+                    top: sidebar.style.top,
+                    width: sidebar.style.width,
+                    height: sidebar.style.height,
+                    transform: sidebar.style.transform
+                };
+                
+                localStorage.setItem(t + 'erp_settings_v1', JSON.stringify(settings));
+            }
+        }
+    });
+</script>
 <script src="js/general-ledger.js"></script>
 <script>
 function runAISmartSearch() {

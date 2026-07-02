@@ -332,6 +332,50 @@ function openDrillDown(type, ref) {
     }
 }
 
+/* ─── Sharing Logic ─── */
+function getReportSummaryText() {
+    let accName = 'حساب عام';
+    const accSelect = document.getElementById('account-search-input');
+    if (accSelect && accSelect.value) {
+        accName = accSelect.value.trim();
+    }
+    
+    const debitEl = document.getElementById('sum-debit');
+    const creditEl = document.getElementById('sum-credit');
+    const balanceEl = document.getElementById('sum-balance');
+    
+    const debit = debitEl ? debitEl.innerText : '0.00';
+    const credit = creditEl ? creditEl.innerText : '0.00';
+    const balance = balanceEl ? balanceEl.innerText : '0.00';
+    
+    let text = `مرحباً،\nهذا ملخص كشف حساب: *${accName}*\n\n`;
+    text += `إجمالي المدين: ${debit}\n`;
+    text += `إجمالي الدائن: ${credit}\n`;
+    text += `الرصيد النهائي: ${balance}\n\n`;
+    text += `يرجى مراجعة التفاصيل والمرفقات إذا وجدت.`;
+    
+    return text;
+}
+
+function shareViaWhatsApp() {
+    const text = encodeURIComponent(getReportSummaryText());
+    // Opens WhatsApp Web/App allowing the user to select the contact to send the pre-filled text
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+}
+
+function shareViaEmail() {
+    let accName = 'حساب عام';
+    const accSelect = document.getElementById('account-search-input');
+    if (accSelect && accSelect.value) {
+        accName = accSelect.value.trim();
+    }
+    
+    const subject = encodeURIComponent(`كشف حساب - ${accName}`);
+    const body = encodeURIComponent(getReportSummaryText());
+    
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+}
+
 function showAttachment(e, ref) {
     e.stopPropagation(); // prevent row click drill-down
     const m = document.getElementById('attach-modal');
@@ -412,51 +456,95 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
     const tbody = document.getElementById('ledger-tbody');
     const summaryCards = document.getElementById('summary-cards');
     const auditStamp = document.getElementById('audit-stamp');
+    const thead = document.querySelector('.ledger-table thead');
+
+    // 1. Build Header Dynamically
+    let ths = '';
+    let activeColsCount = 0;
+    colConfig.forEach(c => {
+        if (!c.visible) return;
+        activeColsCount++;
+        let displayName = c.alias ? c.alias : c.name;
+        ths += `<th style="width:${c.width};">${displayName}<div class="resize-handle"></div></th>`;
+    });
+    thead.innerHTML = `<tr>${ths}</tr>`;
 
     if (txns.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="empty-state"><span style="font-size:3rem;display:block;margin-bottom:15px;">🔍</span><div>لا توجد بيانات تطابق الفلاتر المحددة</div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="${activeColsCount}" class="empty-state"><span style="font-size:3rem;display:block;margin-bottom:15px;">🔍</span><div>لا توجد بيانات تطابق الفلاتر المحددة</div></td></tr>`;
         summaryCards.style.display = 'none';
         auditStamp.style.display = 'none';
         return;
     }
 
     let totalDebit = 0, totalCredit = 0, runningBalance = 0;
+    let runningBalanceForeign = 0;
     let rows = '';
 
     txns.forEach((t, i) => {
+        const exRate = t.exchangeRate || 1;
+        const addNote = t.additionalNote || '-';
+        const debF = t.debitForeign || (t.debit / exRate);
+        const credF = t.creditForeign || (t.credit / exRate);
+
         if (!t.isOpening) {
             totalDebit += t.debit;
             totalCredit += t.credit;
         }
         runningBalance += t.debit - t.credit;
+        runningBalanceForeign += debF - credF;
 
-        const balClass = runningBalance >= 0 ? 'td-balance-dr' : 'td-balance-cr';
-        const typeBadgeColor = {
-            'opening': '#64748b',
-            'receipt': '#34d399', 'payment': '#f87171',
-            'jv': '#c084fc', 'invoice': '#38bdf8', 'purchase': '#fb923c'
-        }[t.type] || '#94a3b8';
+        const counterAccName = getAccountName(t.counterAccount) || '-';
 
-        let refHtml = t.isOpening ? t.ref : `
-            <div style="display:flex; align-items:center; gap:8px;">
-                <span>${t.ref}</span>
-                <button onclick="event.stopPropagation(); openDrillDown('${t.type}', '${t.ref}')" style="background:rgba(56,189,248,0.1); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); border-radius:6px; padding:3px 8px; cursor:pointer; font-size:0.75rem; font-weight:bold; display:flex; align-items:center; gap:4px; transition:all 0.2s;" onmouseover="this.style.background='#38bdf8'; this.style.color='#fff';" onmouseout="this.style.background='rgba(56,189,248,0.1)'; this.style.color='#38bdf8';">
-                    🔗 عرض الأصل
-                </button>
-            </div>
-        `;
+        let rowHtml = `<tr title="${t.isOpening ? '' : 'انقر لعرض المستند (Drill-down)'}" ${t.isOpening ? '' : `onclick="openDrillDown('${t.type}', '${t.ref}')"`} style="${t.isOpening ? 'background:rgba(255,255,255,0.03);' : ''}">`;
 
-        rows += `<tr title="${t.isOpening ? '' : 'انقر لعرض المستند (Drill-down)'}" ${t.isOpening ? '' : `onclick="openDrillDown('${t.type}', '${t.ref}')"`} style="${t.isOpening ? 'background:rgba(255,255,255,0.03);' : ''}">
-            <td style="color:#64748b; font-size:0.8rem;">${i + 1}</td>
-            <td class="td-date">${t.date} <br><span style="font-size:0.7rem;">${t.time||''}</span></td>
-            <td class="td-ref" style="${t.isOpening ? 'cursor:default; text-decoration:none;' : ''}">${refHtml}</td>
-            <td><span style="background:${typeBadgeColor}20; color:${typeBadgeColor}; padding:3px 8px; border-radius:6px; font-size:0.75rem;">${t.typeLabel}</span></td>
-            <td style="color:#e2e8f0; font-size:0.85rem; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; ${t.isOpening ? 'font-weight:bold;' : ''}" title="${t.statement}">${t.statement}</td>
-            <td class="td-debit">${t.debit > 0 ? fmtNum(t.debit) : '<span class="td-empty">—</span>'}</td>
-            <td class="td-credit">${t.credit > 0 ? fmtNum(t.credit) : '<span class="td-empty">—</span>'}</td>
-            <td class="${balClass}">${fmtNum(Math.abs(runningBalance))}</td>
-            <td style="text-align:center;">${t.isOpening ? '' : `<button class="btn-attach" onclick="showAttachment(event, '${t.ref}')">📎 مرفق</button>`}</td>
-        </tr>`;
+        // Map values to IDs
+        const colValues = {
+            'idx': i + 1,
+            'date': t.date,
+            'counterAcc': counterAccName,
+            'statement': t.statement,
+            'note': addNote,
+            'costCenter': t.costCenter || '-',
+            'debit': t.debit > 0 ? t.debit : null,
+            'credit': t.credit > 0 ? t.credit : null,
+            'balance': Math.abs(runningBalance),
+            'currency': t.currency || '-',
+            'exRate': exRate,
+            'debitF': debF > 0 ? debF : null,
+            'creditF': credF > 0 ? credF : null,
+            'balanceF': Math.abs(runningBalanceForeign)
+        };
+
+        colConfig.forEach(c => {
+            if (!c.visible) return;
+            
+            let val = colValues[c.id];
+            
+            if (['debit', 'credit', 'balance', 'exRate', 'debitF', 'creditF', 'balanceF'].includes(c.id)) {
+                if (val === null) {
+                    val = '<span class="td-empty">—</span>';
+                } else {
+                    let formatted = fmtNumDec(val, c.dec);
+                    val = `<div class="num-cell-wrapper ${currentNumFont}" onclick="toggleReviewMode(event)" oncontextmenu="showContextMenu(event, '${t.type}', '${t.ref}')">${formatted}</div>`;
+                }
+            }
+
+            let style = [];
+            if (c.bg) style.push(`background-color:${c.bg} !important`);
+            if (c.color) style.push(`color:${c.color} !important`);
+            if (c.bold || t.isOpening) style.push(`font-weight:bold`);
+            if (c.size) style.push(`font-size:${c.size}`);
+            
+            if (['statement', 'note'].includes(c.id)) {
+                style.push('max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;');
+            }
+            if (['debit', 'debitF', 'credit', 'creditF'].includes(c.id) && (typeof val === 'string' && val.indexOf('<div') === -1)) style.push('font-family:monospace');
+
+            rowHtml += `<td style="${style.join('; ')}" title="${(typeof val === 'string' && val.includes('<')) ? '' : val}">${val}</td>`;
+        });
+
+        rowHtml += `</tr>`;
+        rows += rowHtml;
     });
 
     tbody.innerHTML = rows;
@@ -527,19 +615,15 @@ function exportCSV() {
     if (rows.length === 0) return showToast('لا توجد بيانات للتصدير', 'warning');
 
     let csv = '\uFEFF';
-    csv += 'التاريخ,الوقت,رقم المرجع,النوع,البيان,مدين,دائن,الرصيد\n';
+    let visibleCols = colConfig.filter(c => c.visible);
+    let headers = visibleCols.map(c => `"${c.alias || c.name}"`).join(',');
+    csv += headers + '\n';
+    
     rows.forEach(r => {
         const cells = Array.from(r.querySelectorAll('td'));
-        // Ignore # column and Attachments column
-        const dt = cells[1].innerText.replace(/\n/g, ' ');
-        const ref = cells[2].innerText;
-        const type = cells[3].innerText;
-        const state = cells[4].innerText;
-        const deb = cells[5].innerText.replace(/—/g, '0');
-        const cred = cells[6].innerText.replace(/—/g, '0');
-        const bal = cells[7].innerText;
-        
-        csv += `"${dt}","${dt}","${ref}","${type}","${state}","${deb}","${cred}","${bal}"\n`;
+        if (cells.length < visibleCols.length) return;
+        let rowCsv = cells.map(cell => `"${cell.innerText.replace(/"/g, '""').replace(/\n/g, ' ')}"`).join(',');
+        csv += rowCsv + '\n';
     });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -549,3 +633,401 @@ function exportCSV() {
     a.click();
     showToast('📥 تم التصدير بنجاح', 'success');
 }
+
+/* ─── Dynamic Column Configuration & Sidebar ─── */
+const defaultColConfig = [
+    { id: 'idx', name: '#', alias: '', visible: true, width: '50px', bg: '', color: '#64748b', bold: false, size: '0.8rem', dec: 0 },
+    { id: 'date', name: 'التاريخ', alias: '', visible: true, width: 'auto', bg: '', color: '', bold: false, size: '0.85rem', dec: 0 },
+    { id: 'counterAcc', name: 'الحساب المقابل', alias: '', visible: true, width: 'auto', bg: '', color: '#e2e8f0', bold: false, size: '0.85rem', dec: 0 },
+    { id: 'statement', name: 'البيان', alias: '', visible: true, width: '150px', bg: '', color: '#e2e8f0', bold: false, size: '0.85rem', dec: 0 },
+    { id: 'note', name: 'ملحوظة إضافية', alias: '', visible: true, width: '150px', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 0 },
+    { id: 'costCenter', name: 'مركز التكلفة', alias: '', visible: true, width: 'auto', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 0 },
+    { id: 'debit', name: 'مدين محلي', alias: '', visible: true, width: 'auto', bg: '', color: '#34d399', bold: true, size: '0.9rem', dec: 2 },
+    { id: 'credit', name: 'دائن محلي', alias: '', visible: true, width: 'auto', bg: '', color: '#f87171', bold: true, size: '0.9rem', dec: 2 },
+    { id: 'balance', name: 'الرصيد محلي', alias: '', visible: true, width: 'auto', bg: '', color: '#c084fc', bold: true, size: '0.9rem', dec: 2 },
+    { id: 'currency', name: 'العملة', alias: '', visible: true, width: 'auto', bg: '', color: '#c084fc', bold: false, size: '0.85rem', dec: 0 },
+    { id: 'exRate', name: 'سعر الصرف', alias: '', visible: true, width: 'auto', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 2 },
+    { id: 'debitF', name: 'مدين أجنبي', alias: '', visible: true, width: 'auto', bg: '', color: '#34d399', bold: true, size: '0.9rem', dec: 2 },
+    { id: 'creditF', name: 'دائن أجنبي', alias: '', visible: true, width: 'auto', bg: '', color: '#f87171', bold: true, size: '0.9rem', dec: 2 },
+    { id: 'balanceF', name: 'رصيد أجنبي', alias: '', visible: true, width: 'auto', bg: '', color: '#c084fc', bold: true, size: '0.9rem', dec: 2 }
+];
+
+let colConfig = [];
+function loadColumnConfig() {
+    try {
+        let settingsStr = localStorage.getItem('erp_settings_v1');
+        if (settingsStr) {
+            let settings = JSON.parse(settingsStr);
+            if (settings.sgl_col_config_v2) {
+                colConfig = settings.sgl_col_config_v2;
+                return;
+            }
+        }
+        
+        // Fallback for old local-only data
+        const oldSaved = localStorage.getItem('sgl_col_config_v2');
+        if (oldSaved) {
+            colConfig = JSON.parse(oldSaved);
+            saveColumnConfig(); // migrate to erp_settings_v1
+            return;
+        }
+        
+        colConfig = JSON.parse(JSON.stringify(defaultColConfig));
+    } catch(e) { colConfig = JSON.parse(JSON.stringify(defaultColConfig)); }
+}
+loadColumnConfig();
+
+// Table Theme Management
+let currentTableTheme = '';
+function loadTableTheme() {
+    try {
+        let settingsStr = localStorage.getItem('erp_settings_v1');
+        if (settingsStr) {
+            let settings = JSON.parse(settingsStr);
+            if (settings.sgl_table_theme !== undefined) {
+                currentTableTheme = settings.sgl_table_theme;
+                applyTableTheme(currentTableTheme);
+                updateCrystalButtons(currentTableTheme);
+            }
+        }
+    } catch(e) {}
+}
+
+function updateCrystalButtons(themeClass) {
+    const btns = document.querySelectorAll('.crystal-theme-container .crystal-btn');
+    if (btns.length > 0) {
+        btns.forEach(b => b.classList.remove('active'));
+        let activeBtn = document.getElementById('btn-theme-' + (themeClass || ''));
+        if (activeBtn) activeBtn.classList.add('active');
+    }
+}
+
+function applyTableTheme(themeClass) {
+    const table = document.querySelector('.ledger-table');
+    if (!table) return;
+    // Remove all existing theme classes
+    table.classList.forEach(cls => {
+        if (cls.startsWith('table-theme-')) {
+            table.classList.remove(cls);
+        }
+    });
+    // Add new theme
+    if (themeClass) {
+        table.classList.add(themeClass);
+    }
+}
+
+window.changeTableTheme = function(themeClass) {
+    currentTableTheme = themeClass;
+    applyTableTheme(themeClass);
+    updateCrystalButtons(themeClass);
+    
+    // Save to settings
+    try {
+        let settingsStr = localStorage.getItem('erp_settings_v1');
+        let settings = settingsStr ? JSON.parse(settingsStr) : {};
+        settings.sgl_table_theme = themeClass;
+        localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
+    } catch(e) { console.error("Failed to save theme", e); }
+};
+
+let currentNumFont = 'num-font-roboto';
+
+function loadNumberFont() {
+    try {
+        let settingsStr = localStorage.getItem('erp_settings_v1');
+        if (settingsStr) {
+            let settings = JSON.parse(settingsStr);
+            if (settings.sgl_num_font) {
+                currentNumFont = settings.sgl_num_font;
+            }
+        }
+    } catch(e) {}
+    
+    document.querySelectorAll('.font-chip').forEach(el => el.classList.remove('active'));
+    let btn = document.getElementById('btn-font-' + currentNumFont);
+    if (btn) btn.classList.add('active');
+}
+
+window.changeNumberFont = function(fontClass) {
+    currentNumFont = fontClass;
+    document.querySelectorAll('.num-cell-wrapper').forEach(el => {
+        el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins');
+        el.classList.add(fontClass);
+    });
+    
+    document.querySelectorAll('.font-chip').forEach(el => el.classList.remove('active'));
+    let btn = document.getElementById('btn-font-' + fontClass);
+    if (btn) btn.classList.add('active');
+
+    try {
+        let settingsStr = localStorage.getItem('erp_settings_v1');
+        let settings = settingsStr ? JSON.parse(settingsStr) : {};
+        settings.sgl_num_font = fontClass;
+        localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
+    } catch(e) {}
+};
+
+window.toggleReviewMode = function(e) {
+    e.stopPropagation();
+    e.currentTarget.classList.toggle('reviewed-cell');
+};
+
+window.showContextMenu = function(e, type, ref) {
+    if (type === 'opening') return; // no drill down for opening balances
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const menu = document.getElementById('drilldown-context-menu');
+    if (!menu) return;
+    
+    menu.style.top = e.clientY + 'px';
+    menu.style.left = e.clientX + 'px';
+    menu.classList.add('show');
+    
+    const btn = document.getElementById('ctx-drilldown-btn');
+    btn.onclick = function() {
+        menu.classList.remove('show');
+        openDrillDown(type, ref);
+    };
+    
+    document.addEventListener('click', closeContextMenu);
+};
+
+function closeContextMenu() {
+    const menu = document.getElementById('drilldown-context-menu');
+    if (menu) menu.classList.remove('show');
+    document.removeEventListener('click', closeContextMenu);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        applyConfigToHeaders();
+        loadTableTheme();
+        loadNumberFont();
+    });
+} else {
+    setTimeout(() => {
+        applyConfigToHeaders();
+        loadTableTheme();
+        loadNumberFont();
+    }, 100);
+}
+
+function saveColumnConfig() {
+    try {
+        let settingsStr = localStorage.getItem('erp_settings_v1');
+        let settings = settingsStr ? JSON.parse(settingsStr) : {};
+        settings.sgl_col_config_v2 = colConfig;
+        
+        // By setting it in erp_settings_v1, app.js will automatically push it to the SaaS DB!
+        localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
+    } catch(e) {
+        console.error("Failed to save col config to DB", e);
+    }
+}
+
+function toggleSettingsSidebar() {
+    const sb = document.getElementById('settings-sidebar');
+    const ov = document.getElementById('settings-overlay');
+    if (sb.classList.contains('active')) {
+        sb.classList.remove('active');
+        ov.classList.remove('active');
+    } else {
+        // Load position and size if exists
+        try {
+            let settingsStr = localStorage.getItem('erp_settings_v1');
+            if (settingsStr) {
+                let settings = JSON.parse(settingsStr);
+                if (settings.sgl_sidebar_ui) {
+                    if (settings.sgl_sidebar_ui.left) sb.style.left = settings.sgl_sidebar_ui.left;
+                    if (settings.sgl_sidebar_ui.top) sb.style.top = settings.sgl_sidebar_ui.top;
+                    if (settings.sgl_sidebar_ui.width) sb.style.width = settings.sgl_sidebar_ui.width;
+                    if (settings.sgl_sidebar_ui.height) sb.style.height = settings.sgl_sidebar_ui.height;
+                }
+            }
+        } catch(e) {}
+        
+        renderSidebarConfig();
+        sb.classList.add('active');
+        ov.classList.add('active');
+    }
+}
+
+function renderSidebarConfig() {
+    const list = document.getElementById('columns-config-list');
+    list.innerHTML = '';
+    colConfig.forEach((col, index) => {
+        const li = document.createElement('li');
+        li.className = 'col-config-item';
+        li.draggable = true;
+        li.dataset.index = index;
+        
+        li.innerHTML = `
+            <div class="col-config-header">
+                <div class="col-title-wrap">
+                    <span class="col-drag-handle">☰</span>
+                    <span class="col-title">${col.name}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button class="col-settings-btn" onclick="toggleColSettings(${index})">تخصيص</button>
+                    <div class="col-toggle ${col.visible ? 'on' : ''}" onclick="toggleColVisibility(${index}, this)"></div>
+                </div>
+            </div>
+            <div class="col-settings-panel" id="col-settings-${index}">
+                <div class="cfg-row">
+                    <span>مسمى بديل:</span>
+                    <input type="text" class="cfg-input" value="${col.alias}" onchange="updateColField(${index}, 'alias', this.value)" placeholder="مثلاً: ${col.name}">
+                </div>
+                <div class="cfg-row">
+                    <span>الخط (حجم/سمك):</span>
+                    <div class="cfg-btns">
+                        <button class="cfg-btn" onclick="adjustFontSize(${index}, -1)">A-</button>
+                        <button class="cfg-btn" onclick="adjustFontSize(${index}, 1)">A+</button>
+                        <button class="cfg-btn ${col.bold ? 'active' : ''}" onclick="toggleColBold(${index}, this)">B</button>
+                    </div>
+                </div>
+                <div class="cfg-row">
+                    <span>الألوان (نص/خلفية):</span>
+                    <div style="display:flex; gap:5px;">
+                        <input type="color" class="cfg-input" value="${col.color || '#ffffff'}" onchange="updateColField(${index}, 'color', this.value)" title="لون النص">
+                        <input type="color" class="cfg-input" value="${col.bg || '#000000'}" onchange="updateColField(${index}, 'bg', this.value)" title="لون الخلفية">
+                    </div>
+                </div>
+                ${['debit', 'credit', 'balance', 'exRate', 'debitF', 'creditF', 'balanceF'].includes(col.id) ? `
+                <div class="cfg-row">
+                    <span>الفواصل العشرية:</span>
+                    <input type="number" class="cfg-input" value="${col.dec}" min="0" max="6" style="width:60px;" onchange="updateColField(${index}, 'dec', parseInt(this.value))">
+                </div>
+                ` : ''}
+            </div>
+        `;
+        
+        li.addEventListener('dragstart', handleDragStart);
+        li.addEventListener('dragover', handleDragOver);
+        li.addEventListener('drop', handleDrop);
+        li.addEventListener('dragenter', handleDragEnter);
+        li.addEventListener('dragleave', handleDragLeave);
+        
+        list.appendChild(li);
+    });
+}
+
+function toggleColSettings(index) {
+    const p = document.getElementById('col-settings-' + index);
+    p.classList.toggle('open');
+}
+function toggleColVisibility(index, el) {
+    colConfig[index].visible = !colConfig[index].visible;
+    el.classList.toggle('on');
+}
+function updateColField(index, field, val) {
+    colConfig[index][field] = val;
+}
+function adjustFontSize(index, dir) {
+    let size = parseFloat(colConfig[index].size) || 0.9;
+    size += dir * 0.05;
+    colConfig[index].size = size + 'rem';
+}
+function toggleColBold(index, el) {
+    colConfig[index].bold = !colConfig[index].bold;
+    el.classList.toggle('active');
+}
+
+let dragSrcEl = null;
+function handleDragStart(e) {
+    dragSrcEl = this;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.innerHTML);
+    this.classList.add('dragging');
+}
+function handleDragOver(e) {
+    if (e.preventDefault) e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+}
+function handleDragEnter(e) { this.classList.add('over'); }
+function handleDragLeave(e) { this.classList.remove('over'); }
+function handleDrop(e) {
+    if (e.stopPropagation) e.stopPropagation();
+    if (dragSrcEl !== this) {
+        let fromIdx = parseInt(dragSrcEl.dataset.index);
+        let toIdx = parseInt(this.dataset.index);
+        
+        let moved = colConfig.splice(fromIdx, 1)[0];
+        colConfig.splice(toIdx, 0, moved);
+        
+        renderSidebarConfig();
+    }
+    return false;
+}
+
+function applyAndSaveConfig() {
+    saveColumnConfig();
+    runReport();
+    toggleSettingsSidebar();
+    showToast('💾 تم حفظ التخصيصات وتطبيقها بنجاح', 'success');
+}
+function resetColumnConfig() {
+    colConfig = JSON.parse(JSON.stringify(defaultColConfig));
+    saveColumnConfig();
+    renderSidebarConfig();
+    runReport();
+    showToast('🔄 تم استعادة الوضع الافتراضي', 'success');
+}
+function fmtNumDec(n, decimals) {
+    const val = parseFloat(n) || 0;
+    return val.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+function applyConfigToHeaders() {
+    const thead = document.querySelector('#ledger-thead');
+    if (!thead) return;
+    let ths = '';
+    colConfig.forEach(c => {
+        if (!c.visible) return;
+        let displayName = c.alias ? c.alias : c.name;
+        ths += `<th style="width:${c.width};">${displayName}<div class="resize-handle"></div></th>`;
+    });
+    thead.innerHTML = `<tr>${ths}</tr>`;
+}
+
+/* ─── Column Resizing Logic ─── */
+let isResizing = false;
+let currentTh = null;
+let startX = 0;
+let startWidth = 0;
+let resizeColIndex = -1;
+
+document.addEventListener('mousedown', function(e) {
+    if (e.target.classList.contains('resize-handle')) {
+        isResizing = true;
+        currentTh = e.target.parentElement;
+        startX = e.pageX;
+        startWidth = currentTh.offsetWidth;
+        
+        let thName = currentTh.textContent.trim();
+        resizeColIndex = colConfig.findIndex(c => c.visible && (c.alias || c.name) === thName);
+        e.preventDefault(); 
+    }
+});
+
+document.addEventListener('mousemove', function(e) {
+    if (!isResizing) return;
+    let diff = startX - e.pageX; // RTL: drag left increases width
+    let newWidth = startWidth + diff;
+    if (newWidth > 30) {
+        currentTh.style.width = newWidth + 'px';
+    }
+});
+
+document.addEventListener('mouseup', function(e) {
+    if (isResizing) {
+        isResizing = false;
+        if (resizeColIndex >= 0 && resizeColIndex < colConfig.length) {
+            colConfig[resizeColIndex].width = currentTh.style.width;
+            saveColumnConfig();
+        }
+        currentTh = null;
+    }
+});
