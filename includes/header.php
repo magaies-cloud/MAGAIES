@@ -10,7 +10,10 @@
 
     <!-- Center: Page Title -->
     <div style="flex:1; text-align:center;">
-        <h2 style="margin:0; color:#fff; font-size:1.2rem; font-weight:900; white-space:nowrap; text-shadow: 0 2px 10px rgba(16,185,129,0.5);"><?php echo isset($page_title) ? htmlspecialchars($page_title) : 'السجانة ERP'; ?></h2>
+        <h2 class="header-page-title">
+            <span class="header-page-title-icon">✨</span>
+            <?php echo isset($page_title) ? htmlspecialchars($page_title) : 'السجانة ERP'; ?>
+        </h2>
         <div id="dashboard-athkar-container" class="islamic-ticker-container" style="display: none;">
             <div class="islamic-ticker">
                 سُبْحَانَ اللَّهِ وَبِحَمْدِهِ ، سُبْحَانَ اللَّهِ الْعَظِيمِ 🌸 أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ 🌸 اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ
