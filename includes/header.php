@@ -41,12 +41,9 @@
     <div style="display:flex; align-items:center; gap:12px; flex:1; justify-content:flex-end;">
         <!-- User Info & Online Users -->
         <div style="display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:6px;">
-            <div class="user-info" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); padding: 5px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); cursor: pointer;" onclick="document.getElementById('profile-modal').style.display='flex'">
-                <div style="text-align: right;">
-                    <div id="header-user-name" style="font-size: 0.95rem; font-weight: 800; color: #fff;">جاري التحميل...</div>
-                    <div id="header-user-role" style="font-size: 0.75rem; color: #38bdf8;">مدير النظام</div>
-                </div>
-                <div id="header-user-avatar" style="width: 38px; height: 38px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; color: #fff; box-shadow: 0 4px 10px rgba(59,130,246,0.3);">👤</div>
+            <div class="user-info" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); padding: 5px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; min-width: 90px;" onclick="document.getElementById('profile-modal').style.display='flex'">
+                <div id="header-user-name" style="font-size: 0.95rem; font-weight: 800; color: #fff; text-align: center;">جاري التحميل...</div>
+                <div id="header-user-role" style="font-size: 0.75rem; color: #38bdf8; text-align: center;">مدير النظام</div>
             </div>
             <div id="online-users-badge" style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:3px 12px; min-width:90px; text-align:center; box-shadow:inset 0 0 10px rgba(16,185,129,0.1); cursor:pointer;" onclick="alert('المستخدمين المتصلين حالياً: \n' + (window.onlineUsersList || []).join('\n'))">
                 <span style="color:#6ee7b7; font-size:0.7rem; font-weight:800;">متصل الآن: <span id="online-users-count" style="color:#fff; font-size:0.8rem;">1</span> <span style="font-size:0.6rem;">🟢</span></span>
