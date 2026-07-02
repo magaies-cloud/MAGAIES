@@ -10,7 +10,7 @@ class TenantController {
         // --- DELETE via GET with query param (browser-friendly) - must come BEFORE the GET list route ---
         if ($method === 'GET' && $action === 'tenants' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'delete') {
             $tenantToDelete = intval($_GET['id'] ?? 0);
-            if (!$tenantToDelete) jsonResponse(['error' => 'معرّف الشركة مطلوب في الرابط ?id=X'], 400);
+            if (!$tenantToDelete) jsonResponse(['error' => 'Ù…Ø¹Ø±Ù‘Ù Ø§Ù„Ø´Ø±ÙƒØ© Ù…Ø·Ù„ÙˆØ¨ ÙÙŠ Ø§Ù„Ø±Ø§Ø¨Ø· ?id=X'], 400);
             try {
                 $this->pdo->prepare("DELETE FROM users WHERE tenant_id = ?")->execute([$tenantToDelete]);
                 $this->pdo->prepare("DELETE FROM tenants WHERE id = ?")->execute([$tenantToDelete]);
@@ -25,14 +25,19 @@ class TenantController {
                 } catch (PDOException $e2) {
                     $this->pdo->exec("SET FOREIGN_KEY_CHECKS=1;");
                     error_log('Delete tenant error: ' . $e2->getMessage());
-                    jsonResponse(['error' => 'لا يمكن حذف الشركة: ' . $e2->getMessage()]);
+                    jsonResponse(['error' => 'Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø­Ø°Ù  Ø§Ù„Ø´Ø±ÙƒØ©: ' . $e2->getMessage()]);
                 }
             }
         }
         // GET all tenants (only when no sub-action like /delete)
         if ($method === 'GET' && $action === 'tenants' && !isset($requestUri[$base_index + 3])) {
-            $stmt = $this->pdo->query("SELECT t.id, t.company_name, t.subdomain, t.owner_name, t.owner_phone, t.phone2, t.owner_email, t.status, t.receipt_path, t.valid_until, t.max_users, t.plan_id, t.created_at, (SELECT username FROM users WHERE tenant_id = t.id AND role = 'admin' LIMIT 1) AS admin_username FROM tenants t ORDER BY t.created_at DESC");
-            $tenants = $stmt->fetchAll();
+            try {
+                $stmt = $this->pdo->query("SELECT t.id, t.company_name, t.subdomain, t.owner_name, t.owner_phone, t.phone2, t.owner_email, t.status, t.receipt_path, t.valid_until, t.max_users, t.plan_id, t.created_at, (SELECT username FROM users WHERE tenant_id = t.id AND role = 'admin' LIMIT 1) AS admin_username FROM tenants t ORDER BY t.created_at DESC");
+                $tenants = $stmt->fetchAll();
+            } catch (PDOException $e) {
+                jsonResponse(['error' => 'DB Error in tenants GET: ' . $e->getMessage()], 500);
+                exit;
+            }
             
             // Calculate storage size for each tenant (sum of LENGTH(data) across all tenant-aware tables)
             $tables = ["users", "customers", "suppliers", "items", "inventory", "sales_invoices", "purchase_invoices", "receipts", "payments", "journal_vouchers", "settings", "warehouses", "banks", "categories", "roles", "checks", "gl_entries", "single_receipts", "single_payments", "partners", "employees", "payroll", "reserved_sales", "delivery_notes", "accounts"];
@@ -59,7 +64,7 @@ class TenantController {
             $newStatus = $input['status'] ?? 'active';
             $maxUsers = isset($input['max_users']) && $input['max_users'] !== '' ? intval($input['max_users']) : null;
             $planId = isset($input['plan_id']) && $input['plan_id'] !== '' ? intval($input['plan_id']) : null;
-            if (!$tenantId) jsonResponse(['error' => 'معرّف الشركة مطلوب'], 400);
+            if (!$tenantId) jsonResponse(['error' => 'Ù…Ø¹Ø±Ù‘Ù Ø§Ù„Ø´Ø±ÙƒØ© Ù…Ø·Ù„ÙˆØ¨'], 400);
             
             if (array_key_exists('valid_until', $input)) {
                 $this->pdo->prepare("UPDATE tenants SET status = ?, valid_until = ?, max_users = ?, plan_id = ? WHERE id = ?")->execute([$newStatus, $input['valid_until'], $maxUsers, $planId, $tenantId]);
@@ -70,15 +75,15 @@ class TenantController {
         }
         if ($method === 'POST' && $action === 'tenants' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'activate') {
             $tenantId = intval($input['id'] ?? 0);
-            if (!$tenantId) jsonResponse(['error' => 'معرّف الشركة مطلوب'], 400);
+            if (!$tenantId) jsonResponse(['error' => 'Ù…Ø¹Ø±Ù‘Ù Ø§Ù„Ø´Ø±ÙƒØ© Ù…Ø·Ù„ÙˆØ¨'], 400);
             $this->pdo->prepare("UPDATE tenants SET status = 'active' WHERE id = ?")->execute([$tenantId]);
             jsonResponse(['success' => true]);
         }
         if ($method === 'POST' && $action === 'tenants' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'password') {
             $tenantId = intval($input['id'] ?? 0);
             $newPassword = $input['password'] ?? '';
-            if (!$tenantId || empty($newPassword)) jsonResponse(['error' => 'معرّف الشركة وكلمة المرور مطلوبان'], 400);
-            if (strlen($newPassword) < 6) jsonResponse(['error' => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'], 400);
+            if (!$tenantId || empty($newPassword)) jsonResponse(['error' => 'Ù…Ø¹Ø±Ù‘Ù Ø§Ù„Ø´Ø±ÙƒØ© ÙˆÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ù…Ø·Ù„ÙˆØ¨Ø§Ù†'], 400);
+            if (strlen($newPassword) < 6) jsonResponse(['error' => 'ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± ÙŠØ¬Ø¨ Ø£Ù† ØªÙƒÙˆÙ† 6 Ø£Ø­Ø±Ù Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„'], 400);
             
             $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
             // Change password for the primary admin user of this tenant
@@ -88,7 +93,7 @@ class TenantController {
         
         if ($method === 'GET' && $action === 'users') {
             $tenantId = intval($_GET['tenant_id'] ?? 0);
-            if (!$tenantId) jsonResponse(['error' => 'معرّف الشركة مطلوب'], 400);
+            if (!$tenantId) jsonResponse(['error' => 'Ù…Ø¹Ø±Ù‘Ù Ø§Ù„Ø´Ø±ÙƒØ© Ù…Ø·Ù„ÙˆØ¨'], 400);
             $stmt = $this->pdo->prepare("SELECT id, username, JSON_UNQUOTE(JSON_EXTRACT(data, '$.fullName')) as fullName, role FROM users WHERE tenant_id = ?");
             $stmt->execute([$tenantId]);
             jsonResponse($stmt->fetchAll());
@@ -99,7 +104,7 @@ class TenantController {
             $fullName = trim($input['fullName'] ?? '');
             $password = $input['password'] ?? '';
             $role = $input['role'] ?? 'user';
-            if (!$tenantId || !$username || !$password) jsonResponse(['error' => 'البيانات غير مكتملة'], 400);
+            if (!$tenantId || !$username || !$password) jsonResponse(['error' => 'Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª ØºÙŠØ± Ù…ÙƒØªÙ…Ù„Ø©'], 400);
             
             $hashed = password_hash($password, PASSWORD_DEFAULT);
             $data = json_encode(['fullName' => $fullName]);
@@ -112,8 +117,8 @@ class TenantController {
         if ($method === 'POST' && $action === 'users' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'password') {
             $userId = intval($input['user_id'] ?? 0);
             $newPassword = $input['password'] ?? '';
-            if (!$userId || empty($newPassword)) jsonResponse(['error' => 'المستخدم وكلمة المرور مطلوبان'], 400);
-            if (strlen($newPassword) < 6) jsonResponse(['error' => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'], 400);
+            if (!$userId || empty($newPassword)) jsonResponse(['error' => 'Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… ÙˆÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ù…Ø·Ù„ÙˆØ¨Ø§Ù†'], 400);
+            if (strlen($newPassword) < 6) jsonResponse(['error' => 'ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± ÙŠØ¬Ø¨ Ø£Ù† ØªÙƒÙˆÙ† 6 Ø£Ø­Ø±Ù Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„'], 400);
             $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
             $this->pdo->prepare("UPDATE users SET password = ? WHERE id = ?")->execute([$hashed, $userId]);
             jsonResponse(['success' => true]);
@@ -301,10 +306,10 @@ class TenantController {
             $newMasterToken = trim($input['token'] ?? '');
             
             if (empty($oldMasterToken)) {
-                jsonResponse(['error' => 'الرمز القديم مطلوب'], 400);
+                jsonResponse(['error' => 'Ø§Ù„Ø±Ù…Ø² Ø§Ù„Ù‚Ø¯ÙŠÙ… Ù…Ø·Ù„ÙˆØ¨'], 400);
             }
             if (empty($newMasterToken) || strlen($newMasterToken) < 6) {
-                jsonResponse(['error' => 'الرمز الجديد يجب أن يتكون من 6 أحرف على الأقل'], 400);
+                jsonResponse(['error' => 'Ø§Ù„Ø±Ù…Ø² Ø§Ù„Ø¬Ø¯ÙŠØ¯ ÙŠØ¬Ø¨ Ø£Ù† ÙŠØªÙƒÙˆÙ† Ù…Ù† 6 Ø£Ø­Ø±Ù Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„'], 400);
             }
             
             $envPath = __DIR__ . '/.env';
@@ -318,7 +323,7 @@ class TenantController {
                 }
                 
                 if ($oldMasterToken !== $currentMasterToken) {
-                    jsonResponse(['error' => 'الرمز القديم غير صحيح'], 403);
+                    jsonResponse(['error' => 'Ø§Ù„Ø±Ù…Ø² Ø§Ù„Ù‚Ø¯ÙŠÙ… ØºÙŠØ± ØµØ­ÙŠØ­'], 403);
                 }
                 
                 if (preg_match('/^SAAS_ADMIN_TOKEN=(.*)$/m', $envContent)) {
@@ -329,7 +334,7 @@ class TenantController {
                 file_put_contents($envPath, $envContent);
                 jsonResponse(['success' => true]);
             } else {
-                jsonResponse(['error' => 'ملف الإعدادات غير موجود'], 500);
+                jsonResponse(['error' => 'Ù…Ù„Ù Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯'], 500);
             }
         } // ADDED CLOSING BRACE HERE
 
@@ -351,7 +356,7 @@ class TenantController {
             $newPass = trim($input['password'] ?? '');
             
             if (empty($newUser) || empty($newPass)) {
-                jsonResponse(['error' => 'اسم المستخدم وكلمة المرور مطلوبان'], 400);
+                jsonResponse(['error' => 'Ø§Ø³Ù… Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… ÙˆÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ù…Ø·Ù„ÙˆØ¨Ø§Ù†'], 400);
             }
             
             $envPath = __DIR__ . '/.env';
@@ -373,7 +378,7 @@ class TenantController {
                 file_put_contents($envPath, $envContent);
                 jsonResponse(['success' => true]);
             } else {
-                jsonResponse(['error' => 'ملف الإعدادات غير موجود'], 500);
+                jsonResponse(['error' => 'Ù…Ù„Ù Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯'], 500);
             }
         }
         
@@ -396,13 +401,13 @@ class TenantController {
                         jsonResponse(['success' => true]);
                     } catch (PDOException $e2) {
                         $this->pdo->exec("SET FOREIGN_KEY_CHECKS=1;");
-                        jsonResponse(['error' => 'لا يمكن حذف الشركة حالياً']);
+                        jsonResponse(['error' => 'Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø­Ø°Ù Ø§Ù„Ø´Ø±ÙƒØ© Ø­Ø§Ù„ÙŠØ§Ù‹']);
                     }
                 }
             }
-            jsonResponse(['error' => 'معرّف المستأجر مطلوب'], 400);
+            jsonResponse(['error' => 'Ù…Ø¹Ø±Ù‘Ù Ø§Ù„Ù…Ø³ØªØ£Ø¬Ø± Ù…Ø·Ù„ÙˆØ¨'], 400);
         }
-        jsonResponse(['error' => 'مسار SaaS غير موجود'], 404);
+        jsonResponse(['error' => 'Ù…Ø³Ø§Ø± SaaS ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯'], 404);
 
     }
 }
