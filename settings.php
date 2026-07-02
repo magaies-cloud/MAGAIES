@@ -525,9 +525,11 @@
     // ─── Save Settings ─────────────────────────────────────────
     function saveSettings() {
         const activeCurrencies = Array.from(document.querySelectorAll('#cfg-active-currencies input[type="checkbox"]:checked')).map(cb => cb.value);
+        const oldCfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
 
         const cfg = {
             // Company
+            logoBase64:        window.pendingLogoBase64 || oldCfg.logoBase64,
             companyName:       document.getElementById('cfg-company-name').value.trim(),
             regNumber:         document.getElementById('cfg-reg-number').value.trim(),
             phone:             document.getElementById('cfg-phone').value.trim(),
