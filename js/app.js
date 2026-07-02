@@ -2269,3 +2269,101 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 })();
 
+
+// ==========================================
+// GLOBAL PRINT ENHANCEMENTS (Preview & Header)
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // 1. Inject "Print Preview" button next to any print button
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(btn => {
+        const onClickAttr = btn.getAttribute('onclick') || '';
+        if (onClickAttr.includes('window.print()') || onClickAttr.includes('printVoucher()') || onClickAttr.includes('printInvoice()') || btn.innerText.includes('طباعة')) {
+            // Check if we already injected next to it
+            if (btn.nextElementSibling && btn.nextElementSibling.classList.contains('btn-print-preview')) return;
+            // Also ensure it's not the newly injected preview button itself
+            if (btn.classList.contains('btn-print-preview')) return;
+
+            const previewBtn = document.createElement('button');
+            previewBtn.className = btn.className + ' btn-print-preview no-print';
+            // ensure it looks a bit different
+            previewBtn.style.background = 'linear-gradient(135deg, #0ea5e9, #0284c7)';
+            previewBtn.style.color = '#fff';
+            previewBtn.style.marginLeft = '10px';
+            previewBtn.style.marginRight = '10px';
+            previewBtn.innerHTML = '👁️ معاينة قبل الطباعة';
+            
+            previewBtn.onclick = function() {
+                if (typeof window.prepareForPrint === 'function') window.prepareForPrint();
+                window.print();
+            };
+
+            btn.parentNode.insertBefore(previewBtn, btn.nextSibling);
+        }
+    });
+
+    // 2. Setup Global Print Header before print starts
+    window.addEventListener('beforeprint', () => {
+        let cfg = {};
+        try { cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}'); } catch(e){}
+        
+        const logoData = cfg.logoBase64 || '';
+        const cName = cfg.companyName || 'اسم الشركة غير محدد';
+        const cReg = cfg.regNumber ? `سجل تجاري: ${cfg.regNumber}` : '';
+        const cVat = cfg.vat ? `الرقم الضريبي: ${cfg.vat}` : '';
+        const cAddr = cfg.address || '';
+
+        const printContainer = document.getElementById('print-container') || document.body;
+        const existingHeader = printContainer.querySelector('.report-header');
+        
+        if (existingHeader) {
+            const logoEl = existingHeader.querySelector('img.company-logo') || existingHeader.querySelector('#hdr-c-logo');
+            if (logoEl && logoData) {
+                logoEl.src = logoData;
+            } else if (logoData && !existingHeader.querySelector('img')) {
+                const img = document.createElement('img');
+                img.src = logoData;
+                img.style.maxHeight = '80px';
+                img.style.maxWidth = '150px';
+                img.style.objectFit = 'contain';
+                img.className = 'company-logo';
+                const leftDiv = existingHeader.querySelector('div[style*="text-align: left"]') || existingHeader;
+                leftDiv.appendChild(img);
+            }
+
+            const nameEl = existingHeader.querySelector('#hdr-c-name');
+            if (nameEl) nameEl.innerText = cName;
+            const regEl = existingHeader.querySelector('#hdr-c-reg');
+            if (regEl && cReg) regEl.innerText = cReg;
+            const vatEl = existingHeader.querySelector('#hdr-c-vat');
+            if (vatEl && cVat) vatEl.innerText = cVat;
+            const addrEl = existingHeader.querySelector('#hdr-c-addr');
+            if (addrEl && cAddr) addrEl.innerText = cAddr;
+
+        } else {
+            // Inject Global Print Header if it doesn't exist
+            let globalHeader = document.getElementById('global-print-header');
+            if (!globalHeader) {
+                globalHeader = document.createElement('div');
+                globalHeader.id = 'global-print-header';
+                globalHeader.className = 'print-only';
+                printContainer.insertBefore(globalHeader, printContainer.firstChild);
+            }
+            // Update its content
+            globalHeader.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; direction: rtl;">
+                    <div style="text-align: right; flex: 1;">
+                        <h2 style="margin: 0 0 5px 0; font-size: 1.5rem; color: #000;">${cName}</h2>
+                        ${cReg ? `<p style="margin: 0; font-size: 0.9rem; color: #333;">${cReg}</p>` : ''}
+                        ${cVat ? `<p style="margin: 0; font-size: 0.9rem; color: #333;">${cVat}</p>` : ''}
+                        ${cAddr ? `<p style="margin: 0; font-size: 0.9rem; color: #333;">${cAddr}</p>` : ''}
+                    </div>
+                    <div style="text-align: left; flex: 1;">
+                        ${logoData ? `<img src="${logoData}" style="max-height: 80px; max-width: 150px; object-fit: contain;">` : ''}
+                    </div>
+                </div>
+            `;
+        }
+    });
+});

@@ -1298,3 +1298,13 @@ a[data-href], a[onclick] { cursor: pointer; }
 .header-page-title { margin:0; font-size:1.5rem; font-weight:900; white-space:nowrap; display:flex; align-items:center; justify-content:center; gap:10px; background: linear-gradient(135deg, #10b981, #38bdf8, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.4)); animation: titleGlow 3s ease-in-out infinite alternate; }
 .header-page-title-icon { font-size: 1.6rem; -webkit-text-fill-color: initial; filter: none; }
 @keyframes titleGlow { from { filter: drop-shadow(0 2px 5px rgba(56, 189, 248, 0.3)); } to { filter: drop-shadow(0 5px 15px rgba(139, 92, 246, 0.6)); } }
+
+/* --- GLOBAL PRINT STYLES --- */
+@media screen {
+    .print-only { display: none !important; }
+}
+@media print {
+    .no-print { display: none !important; }
+    .print-only { display: block !important; }
+    #global-print-header { display: flex !important; }
+}
