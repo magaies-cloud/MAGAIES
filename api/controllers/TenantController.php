@@ -12,18 +12,18 @@ class TenantController {
             $tenantToDelete = intval($_GET['id'] ?? 0);
             if (!$tenantToDelete) jsonResponse(['error' => 'معرّف الشركة مطلوب في الرابط ?id=X'], 400);
             try {
-                $pdo->prepare("DELETE FROM users WHERE tenant_id = ?")->execute([$tenantToDelete]);
-                $pdo->prepare("DELETE FROM tenants WHERE id = ?")->execute([$tenantToDelete]);
+                $this->pdo->prepare("DELETE FROM users WHERE tenant_id = ?")->execute([$tenantToDelete]);
+                $this->pdo->prepare("DELETE FROM tenants WHERE id = ?")->execute([$tenantToDelete]);
                 jsonResponse(['success' => true]);
             } catch (PDOException $e) {
                 try {
-                    $pdo->exec("SET FOREIGN_KEY_CHECKS=0;");
-                    $pdo->prepare("DELETE FROM users WHERE tenant_id = ?")->execute([$tenantToDelete]);
-                    $pdo->prepare("DELETE FROM tenants WHERE id = ?")->execute([$tenantToDelete]);
-                    $pdo->exec("SET FOREIGN_KEY_CHECKS=1;");
+                    $this->pdo->exec("SET FOREIGN_KEY_CHECKS=0;");
+                    $this->pdo->prepare("DELETE FROM users WHERE tenant_id = ?")->execute([$tenantToDelete]);
+                    $this->pdo->prepare("DELETE FROM tenants WHERE id = ?")->execute([$tenantToDelete]);
+                    $this->pdo->exec("SET FOREIGN_KEY_CHECKS=1;");
                     jsonResponse(['success' => true]);
                 } catch (PDOException $e2) {
-                    $pdo->exec("SET FOREIGN_KEY_CHECKS=1;");
+                    $this->pdo->exec("SET FOREIGN_KEY_CHECKS=1;");
                     error_log('Delete tenant error: ' . $e2->getMessage());
                     jsonResponse(['error' => 'لا يمكن حذف الشركة: ' . $e2->getMessage()]);
                 }
@@ -31,7 +31,7 @@ class TenantController {
         }
         // GET all tenants (only when no sub-action like /delete)
         if ($method === 'GET' && $action === 'tenants' && !isset($requestUri[$base_index + 3])) {
-            $stmt = $pdo->query("SELECT t.id, t.company_name, t.subdomain, t.owner_name, t.owner_phone, t.phone2, t.owner_email, t.status, t.receipt_path, t.valid_until, t.max_users, t.plan_id, t.created_at, (SELECT username FROM users WHERE tenant_id = t.id AND role = 'admin' LIMIT 1) AS admin_username FROM tenants t ORDER BY t.created_at DESC");
+            $stmt = $this->pdo->query("SELECT t.id, t.company_name, t.subdomain, t.owner_name, t.owner_phone, t.phone2, t.owner_email, t.status, t.receipt_path, t.valid_until, t.max_users, t.plan_id, t.created_at, (SELECT username FROM users WHERE tenant_id = t.id AND role = 'admin' LIMIT 1) AS admin_username FROM tenants t ORDER BY t.created_at DESC");
             $tenants = $stmt->fetchAll();
             
             // Calculate storage size for each tenant (sum of LENGTH(data) across all tenant-aware tables)
@@ -42,7 +42,7 @@ class TenantController {
             }
             try {
                 $sql = "SELECT tenant_id, SUM(sz) as total_size FROM (" . implode(" UNION ALL ", $unionQueries) . ") as all_sizes GROUP BY tenant_id";
-                $sizeStmt = $pdo->query($sql);
+                $sizeStmt = $this->pdo->query($sql);
                 $sizes = $sizeStmt->fetchAll(PDO::FETCH_KEY_PAIR);
             } catch (Exception $e) {
                 $sizes = [];
@@ -62,16 +62,16 @@ class TenantController {
             if (!$tenantId) jsonResponse(['error' => 'معرّف الشركة مطلوب'], 400);
             
             if (array_key_exists('valid_until', $input)) {
-                $pdo->prepare("UPDATE tenants SET status = ?, valid_until = ?, max_users = ?, plan_id = ? WHERE id = ?")->execute([$newStatus, $input['valid_until'], $maxUsers, $planId, $tenantId]);
+                $this->pdo->prepare("UPDATE tenants SET status = ?, valid_until = ?, max_users = ?, plan_id = ? WHERE id = ?")->execute([$newStatus, $input['valid_until'], $maxUsers, $planId, $tenantId]);
             } else {
-                $pdo->prepare("UPDATE tenants SET status = ?, max_users = ?, plan_id = ? WHERE id = ?")->execute([$newStatus, $maxUsers, $planId, $tenantId]);
+                $this->pdo->prepare("UPDATE tenants SET status = ?, max_users = ?, plan_id = ? WHERE id = ?")->execute([$newStatus, $maxUsers, $planId, $tenantId]);
             }
             jsonResponse(['success' => true]);
         }
         if ($method === 'POST' && $action === 'tenants' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'activate') {
             $tenantId = intval($input['id'] ?? 0);
             if (!$tenantId) jsonResponse(['error' => 'معرّف الشركة مطلوب'], 400);
-            $pdo->prepare("UPDATE tenants SET status = 'active' WHERE id = ?")->execute([$tenantId]);
+            $this->pdo->prepare("UPDATE tenants SET status = 'active' WHERE id = ?")->execute([$tenantId]);
             jsonResponse(['success' => true]);
         }
         if ($method === 'POST' && $action === 'tenants' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'password') {
@@ -82,14 +82,14 @@ class TenantController {
             
             $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
             // Change password for the primary admin user of this tenant
-            $pdo->prepare("UPDATE users SET password = ? WHERE tenant_id = ? AND role = 'admin' LIMIT 1")->execute([$hashed, $tenantId]);
+            $this->pdo->prepare("UPDATE users SET password = ? WHERE tenant_id = ? AND role = 'admin' LIMIT 1")->execute([$hashed, $tenantId]);
             jsonResponse(['success' => true]);
         }
         
         if ($method === 'GET' && $action === 'users') {
             $tenantId = intval($_GET['tenant_id'] ?? 0);
             if (!$tenantId) jsonResponse(['error' => 'معرّف الشركة مطلوب'], 400);
-            $stmt = $pdo->prepare("SELECT id, username, JSON_UNQUOTE(JSON_EXTRACT(data, '$.fullName')) as fullName, role FROM users WHERE tenant_id = ?");
+            $stmt = $this->pdo->prepare("SELECT id, username, JSON_UNQUOTE(JSON_EXTRACT(data, '$.fullName')) as fullName, role FROM users WHERE tenant_id = ?");
             $stmt->execute([$tenantId]);
             jsonResponse($stmt->fetchAll());
         }
@@ -105,7 +105,7 @@ class TenantController {
             $data = json_encode(['fullName' => $fullName]);
             $frontend_id = 'u_' . uniqid();
             
-            $stmt = $pdo->prepare("INSERT INTO users (tenant_id, username, password, role, frontend_id, data) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt = $this->pdo->prepare("INSERT INTO users (tenant_id, username, password, role, frontend_id, data) VALUES (?, ?, ?, ?, ?, ?)");
             $stmt->execute([$tenantId, $username, $hashed, $role, $frontend_id, $data]);
             jsonResponse(['success' => true]);
         }
@@ -115,14 +115,14 @@ class TenantController {
             if (!$userId || empty($newPassword)) jsonResponse(['error' => 'المستخدم وكلمة المرور مطلوبان'], 400);
             if (strlen($newPassword) < 6) jsonResponse(['error' => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'], 400);
             $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
-            $pdo->prepare("UPDATE users SET password = ? WHERE id = ?")->execute([$hashed, $userId]);
+            $this->pdo->prepare("UPDATE users SET password = ? WHERE id = ?")->execute([$hashed, $userId]);
             jsonResponse(['success' => true]);
         }
         
         // --- GLOBAL SETTINGS ---
         if ($method === 'GET' && $action === 'settings' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'exchange-rate') {
             try {
-                $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('exchange_rate', 'activation_delay_hours', 'auto_logout_value', 'auto_logout_unit')");
+                $stmt = $this->pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('exchange_rate', 'activation_delay_hours', 'auto_logout_value', 'auto_logout_unit')");
                 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 $res = ['rate' => 1.0, 'visible' => false, 'activation_delay_hours' => 12, 'auto_logout_value' => 30, 'auto_logout_unit' => 'minutes'];
                 foreach ($rows as $row) {
@@ -160,10 +160,10 @@ class TenantController {
             
             $val = json_encode(['rate' => $rate, 'visible' => $visible]);
             try {
-                $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('exchange_rate', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$val, $val]);
-                $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('activation_delay_hours', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([(string)$activation_delay_hours, (string)$activation_delay_hours]);
-                $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('auto_logout_value', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([(string)$auto_logout_value, (string)$auto_logout_value]);
-                $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('auto_logout_unit', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$auto_logout_unit, $auto_logout_unit]);
+                $this->pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('exchange_rate', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$val, $val]);
+                $this->pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('activation_delay_hours', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([(string)$activation_delay_hours, (string)$activation_delay_hours]);
+                $this->pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('auto_logout_value', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([(string)$auto_logout_value, (string)$auto_logout_value]);
+                $this->pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('auto_logout_unit', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$auto_logout_unit, $auto_logout_unit]);
                 jsonResponse(['success' => true]);
             } catch (Exception $e) {
                 jsonResponse(['error' => 'Database error: ' . $e->getMessage()], 500);
@@ -171,19 +171,19 @@ class TenantController {
         }
         if ($method === 'POST' && $action === 'settings' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'plans') {
             $val = json_encode($input['plans'] ?? []);
-            $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('saas_plans', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$val, $val]);
+            $this->pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('saas_plans', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$val, $val]);
             jsonResponse(['success' => true]);
         }
         if ($method === 'POST' && $action === 'settings' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'partners') {
             $val = json_encode($input['partners'] ?? []);
-            $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('saas_partners', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$val, $val]);
+            $this->pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('saas_partners', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$val, $val]);
             jsonResponse(['success' => true]);
         }
         
         // --- ADS ---
         if ($method === 'POST' && $action === 'settings' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'ads') {
             $val = json_encode($input['ads'] ?? []);
-            $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('saas_ads', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$val, $val]);
+            $this->pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('saas_ads', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$val, $val]);
             jsonResponse(['success' => true]);
         }
         
@@ -241,7 +241,7 @@ class TenantController {
         }
         // Get global settings (public)
         if ($method === 'GET' && $action === 'settings') {
-            $stmt = $pdo->query("SELECT ads, partners FROM global_settings LIMIT 1");
+            $stmt = $this->pdo->query("SELECT ads, partners FROM global_settings LIMIT 1");
             $settings = $stmt->fetch(PDO::FETCH_ASSOC);
             jsonResponse(['success' => true, 'settings' => $settings]);
         }
@@ -250,7 +250,7 @@ class TenantController {
         // --- BROADCAST MESSAGES ---
         if ($method === 'GET' && $action === 'messages') {
             try {
-                $stmt = $pdo->query("SELECT * FROM broadcast_messages ORDER BY created_at DESC");
+                $stmt = $this->pdo->query("SELECT * FROM broadcast_messages ORDER BY created_at DESC");
                 jsonResponse($stmt->fetchAll());
             } catch (Exception $e) {
                 jsonResponse(['error' => $e->getMessage()], 500);
@@ -259,8 +259,8 @@ class TenantController {
         if ($method === 'DELETE' && $action === 'messages') {
             $msgId = intval($input['id'] ?? 0);
             try {
-                $pdo->prepare("DELETE FROM broadcast_messages WHERE id = ?")->execute([$msgId]);
-                $pdo->prepare("DELETE FROM user_message_views WHERE message_id = ?")->execute([$msgId]);
+                $this->pdo->prepare("DELETE FROM broadcast_messages WHERE id = ?")->execute([$msgId]);
+                $this->pdo->prepare("DELETE FROM user_message_views WHERE message_id = ?")->execute([$msgId]);
                 jsonResponse(['success' => true]);
             } catch (Exception $e) {
                 jsonResponse(['error' => $e->getMessage()], 500);
@@ -270,7 +270,7 @@ class TenantController {
             if (isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'toggle') {
                 $msgId = intval($input['id'] ?? 0);
                 $isActive = isset($input['is_active']) ? (int)$input['is_active'] : 0;
-                $pdo->prepare("UPDATE broadcast_messages SET is_active = ? WHERE id = ?")->execute([$isActive, $msgId]);
+                $this->pdo->prepare("UPDATE broadcast_messages SET is_active = ? WHERE id = ?")->execute([$isActive, $msgId]);
                 jsonResponse(['success' => true]);
             } else {
                 $msgId = isset($input['id']) ? intval($input['id']) : 0;
@@ -282,10 +282,10 @@ class TenantController {
                 
                 try {
                     if ($msgId > 0) {
-                        $pdo->prepare("UPDATE broadcast_messages SET title=?, message=?, target_tenants=?, show_once=?, theme=? WHERE id=?")
+                        $this->pdo->prepare("UPDATE broadcast_messages SET title=?, message=?, target_tenants=?, show_once=?, theme=? WHERE id=?")
                             ->execute([$title, $message, $targets, $showOnce, $theme, $msgId]);
                     } else {
-                        $pdo->prepare("INSERT INTO broadcast_messages (title, message, target_tenants, show_once, theme, is_active) VALUES (?, ?, ?, ?, ?, 1)")
+                        $this->pdo->prepare("INSERT INTO broadcast_messages (title, message, target_tenants, show_once, theme, is_active) VALUES (?, ?, ?, ?, ?, 1)")
                             ->execute([$title, $message, $targets, $showOnce, $theme]);
                     }
                     jsonResponse(['success' => true]);
@@ -384,18 +384,18 @@ class TenantController {
             }
             if ($tenantToDelete) {
                 try {
-                    $pdo->prepare("DELETE FROM users WHERE tenant_id = ?")->execute([$tenantToDelete]);
-                    $pdo->prepare("DELETE FROM tenants WHERE id = ?")->execute([$tenantToDelete]);
+                    $this->pdo->prepare("DELETE FROM users WHERE tenant_id = ?")->execute([$tenantToDelete]);
+                    $this->pdo->prepare("DELETE FROM tenants WHERE id = ?")->execute([$tenantToDelete]);
                     jsonResponse(['success' => true]);
                 } catch (PDOException $e) {
                     try {
-                        $pdo->exec("SET FOREIGN_KEY_CHECKS=0;");
-                        $pdo->prepare("DELETE FROM users WHERE tenant_id = ?")->execute([$tenantToDelete]);
-                        $pdo->prepare("DELETE FROM tenants WHERE id = ?")->execute([$tenantToDelete]);
-                        $pdo->exec("SET FOREIGN_KEY_CHECKS=1;");
+                        $this->pdo->exec("SET FOREIGN_KEY_CHECKS=0;");
+                        $this->pdo->prepare("DELETE FROM users WHERE tenant_id = ?")->execute([$tenantToDelete]);
+                        $this->pdo->prepare("DELETE FROM tenants WHERE id = ?")->execute([$tenantToDelete]);
+                        $this->pdo->exec("SET FOREIGN_KEY_CHECKS=1;");
                         jsonResponse(['success' => true]);
                     } catch (PDOException $e2) {
-                        $pdo->exec("SET FOREIGN_KEY_CHECKS=1;");
+                        $this->pdo->exec("SET FOREIGN_KEY_CHECKS=1;");
                         jsonResponse(['error' => 'لا يمكن حذف الشركة حالياً']);
                     }
                 }
