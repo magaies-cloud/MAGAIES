@@ -252,7 +252,7 @@
     <?php include 'includes/header.php'; ?>
 
     <!-- Action Bar -->
-    <div style="display:flex; justify-content:flex-start; margin-bottom: 20px;">
+    <div style="display:flex; justify-content:flex-end; margin-bottom: 20px;">
         <button class="save-btn-main" onclick="saveSettings()">💾 حفظ الإعدادات</button>
     </div>
 
