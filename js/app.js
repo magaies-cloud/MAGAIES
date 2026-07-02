@@ -1618,6 +1618,14 @@ document.addEventListener("DOMContentLoaded", function() {
         if (mainBrandEl) mainBrandEl.innerText = finalCompanyName;
     }
     
+    // Load Settings for Athkar
+    try {
+        if (erpSettings.showAthkar !== false) { // Default is true
+            const athkarContainer = document.getElementById('dashboard-athkar-container');
+            if (athkarContainer) athkarContainer.style.display = 'flex';
+        }
+    } catch (e) {}
+
     if (nameEl && userData.username) {
         nameEl.innerText = userData.username;
         if (userData.company_name && !companyTopEl) {
