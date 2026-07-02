@@ -9,7 +9,7 @@
     </div>
 
     <!-- Center: Page Title -->
-    <div style="flex:1; text-align:center;">
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
         <h2 class="header-page-title">
             <span class="header-page-title-icon">✨</span>
             <?php echo isset($page_title) ? htmlspecialchars($page_title) : 'السجانة ERP'; ?>
