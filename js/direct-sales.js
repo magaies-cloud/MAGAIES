@@ -1,54 +1,54 @@
-/* ═══════════════════════════════════════════════════════
-   sales-invoice.js — POS Engine v6.0
-   Real-time Reactive Calculations · Sequential Invoices
-   ═══════════════════════════════════════════════════════ */
+﻿/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   sales-invoice.js â€” POS Engine v6.0
+   Real-time Reactive Calculations Â· Sequential Invoices
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 // Global logout function (used by sidebar)
 // Global logout is handled by app.js
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  MOCK DATA (Replace with API calls)
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 let WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1'));
 if (!WAREHOUSES || WAREHOUSES.length === 0) {
-    WAREHOUSES = [{ id:'w-main', name:'المخزن الرئيسي (السجانة)' }];
+    WAREHOUSES = [{ id:'w-main', name:'Ø§Ù„Ù…Ø®Ø²Ù† Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ (Ø§Ù„Ø³Ø¬Ø§Ù†Ø©)' }];
 }
 
 const COST_CENTERS = [
-    { id:'cc-001', name:'الفرع الرئيسي' },
-    { id:'cc-002', name:'فرع بحري' },
-    { id:'cc-003', name:'فرع أمدرمان' },
+    { id:'cc-001', name:'Ø§Ù„ÙØ±Ø¹ Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ' },
+    { id:'cc-002', name:'ÙØ±Ø¹ Ø¨Ø­Ø±ÙŠ' },
+    { id:'cc-003', name:'ÙØ±Ø¹ Ø£Ù…Ø¯Ø±Ù…Ø§Ù†' },
 ];
 
 let CUSTOMERS = [
-    { id:'walk-in', name:'زبون نقدي (Walk-in)', ledger:0, checks:0, creditLimit:0, status:'active' },
+    { id:'walk-in', name:'Ø²Ø¨ÙˆÙ† Ù†Ù‚Ø¯ÙŠ (Walk-in)', ledger:0, checks:0, creditLimit:0, status:'active' },
 ];
 
 // Load real customer data from master-data
 // (Moved to DBReady event)
 
 let UOMS = JSON.parse(localStorage.getItem('erp_uoms_v1')) || [
-    {code: 'TON', name: 'طن'},
-    {code: 'BAG', name: 'كيس'},
-    {code: 'REBAR', name: 'سيخة / عود'},
-    {code: 'PCS', name: 'حبة / قطعة'},
-    {code: 'GAL', name: 'جالون'}
+    {code: 'TON', name: 'Ø·Ù†'},
+    {code: 'BAG', name: 'ÙƒÙŠØ³'},
+    {code: 'REBAR', name: 'Ø³ÙŠØ®Ø© / Ø¹ÙˆØ¯'},
+    {code: 'PCS', name: 'Ø­Ø¨Ø© / Ù‚Ø·Ø¹Ø©'},
+    {code: 'GAL', name: 'Ø¬Ø§Ù„ÙˆÙ†'}
 ];
 
 let ITEMS = [];
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  STATE
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 let rows = [];
 let rowIdCounter = 0;
 let currentSaleType = 'direct';
 let currentViewedInvoiceNo = null;
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  HELPERS
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function fmtNum(n) {
     if (n === 0 || n === '0' || !n) return '0';
     return Number(n).toLocaleString('en-US');
@@ -67,9 +67,9 @@ function showToast(msg, type = 'success', ms = 3000) {
 function openModal(id) { document.getElementById(id).classList.add('visible'); }
 function closeModal(id) { document.getElementById(id).classList.remove('visible'); }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  SEQUENTIAL INVOICE NUMBER
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 const SALE_PREFIX = { direct:'', split:'', delivery:'', proforma:'', costcenter:'' };
 
 // Peek: show the next number WITHOUT incrementing (safe for refresh)
@@ -102,9 +102,9 @@ function commitInvoiceNumber(type) {
     return peekNextInvoiceNumber(type);
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  INIT
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 document.addEventListener('DBReady', () => {
     // Load real customer data from master-data
     const localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
@@ -117,7 +117,7 @@ document.addEventListener('DBReady', () => {
             creditLimit: c.creditLimit || 0,
             status: c.status || 'active'
         }));
-        CUSTOMERS.unshift({ id:'walk-in', name:'زبون نقدي (Walk-in)', ledger:0, checks:0, creditLimit:0, status:'active' });
+        CUSTOMERS.unshift({ id:'walk-in', name:'Ø²Ø¨ÙˆÙ† Ù†Ù‚Ø¯ÙŠ (Walk-in)', ledger:0, checks:0, creditLimit:0, status:'active' });
     }
 
     // Load Master Data Items
@@ -125,7 +125,7 @@ document.addEventListener('DBReady', () => {
     const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
     
     if (rawItems.length === 0) {
-        alert('تنبيه: لا توجد أصناف في النظام! يرجى إضافة الأصناف من شاشة (البيانات الأساسية) أولاً.');
+        alert('ØªÙ†Ø¨ÙŠÙ‡: Ù„Ø§ ØªÙˆØ¬Ø¯ Ø£ØµÙ†Ø§Ù ÙÙŠ Ø§Ù„Ù†Ø¸Ø§Ù…! ÙŠØ±Ø¬Ù‰ Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø£ØµÙ†Ø§Ù Ù…Ù† Ø´Ø§Ø´Ø© (Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø£Ø³Ø§Ø³ÙŠØ©) Ø£ÙˆÙ„Ø§Ù‹.');
     }
 
     // Map raw items to POS expected format
@@ -139,11 +139,11 @@ document.addEventListener('DBReady', () => {
             reservedStockMap[whId] = (reservedStockMap[whId] || 0) + (parseFloat(inv.reservedQuantity) || 0);
         });
 
-        // Clean price — support new schema (sellingPrice) and old (salePrice/price)
+        // Clean price â€” support new schema (sellingPrice) and old (salePrice/price)
         let sp = item.sellingPrice || item.salePrice || item.price || 0;
         sp = sp.toString().replace(/,/g, '');
         
-        const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
+        const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'Ù‚Ø·Ø¹Ø©';
 
         // Build unitsArray from new schema (item.units[]) or old (item.unitsArray[])
         let unitsArray = [];
@@ -177,7 +177,7 @@ document.addEventListener('DBReady', () => {
 
     populateDropdowns();
     initHeader();
-    // إضافة صف فارغ افتراضي عند التحميل
+    // Ø¥Ø¶Ø§ÙØ© ØµÙ ÙØ§Ø±Øº Ø§ÙØªØ±Ø§Ø¶ÙŠ Ø¹Ù†Ø¯ Ø§Ù„ØªØ­Ù…ÙŠÙ„
     addRow(true);
     recalcAll();
 });
@@ -205,7 +205,7 @@ function togglePaymentAccount() {
     const lbl2 = document.getElementById('pay-detail-2-label');
     const lbl3 = document.getElementById('pay-detail-3-label');
     
-    // إخفاء أو إظهار منطقة التفاصيل
+    // Ø¥Ø®ÙØ§Ø¡ Ø£Ùˆ Ø¥Ø¸Ù‡Ø§Ø± Ù…Ù†Ø·Ù‚Ø© Ø§Ù„ØªÙØ§ØµÙŠÙ„
     if (method === 'cheque' || method === 'bank') {
         if (detailsRow) {
             detailsRow.style.display = 'flex';
@@ -216,30 +216,35 @@ function togglePaymentAccount() {
         }
         
         if (method === 'cheque') {
-            if (lbl1) lbl1.innerText = 'رقم الشيك';
-            if (lbl2) lbl2.innerText = 'اسم البنك';
-            if (lbl3) lbl3.innerText = 'الفرع';
+            if (lbl1) lbl1.innerText = 'Ø±Ù‚Ù… Ø§Ù„Ø´ÙŠÙƒ';
+            if (lbl2) lbl2.innerText = 'Ø§Ø³Ù… Ø§Ù„Ø¨Ù†Ùƒ';
+            if (lbl3) lbl3.innerText = 'Ø§Ù„ÙØ±Ø¹';
         } else if (method === 'bank') {
-            if (lbl1) lbl1.innerText = 'رقم التحويل';
-            if (lbl2) lbl2.innerText = 'البنك المحول إليه';
-            if (lbl3) lbl3.innerText = 'الفرع / المرجع';
+            if (lbl1) lbl1.innerText = 'Ø±Ù‚Ù… Ø§Ù„ØªØ­ÙˆÙŠÙ„';
+            if (lbl2) lbl2.innerText = 'Ø§Ù„Ø¨Ù†Ùƒ Ø§Ù„Ù…Ø­ÙˆÙ„ Ø¥Ù„ÙŠÙ‡';
+            if (lbl3) lbl3.innerText = 'Ø§Ù„ÙØ±Ø¹ / Ø§Ù„Ù…Ø±Ø¬Ø¹';
         }
     } else {
         if (detailsRow) detailsRow.style.display = 'none';
     }
 
+    // ØªØ­Ø¯ÙŠØ« Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„ØµÙ†Ø¯ÙˆÙ‚/Ø§Ù„Ø®Ø²Ù†Ø© Ø¨Ù†Ø§Ø¡Ù‹ Ø¹Ù„Ù‰ Ø·Ø±ÙŠÙ‚Ø© Ø§Ù„Ø¯ÙØ¹
     // تحديث قائمة الصندوق/الخزنة بناءً على طريقة الدفع
     const select = document.getElementById('hdr-payment-account');
     if (select) {
+        if (!window.paymentAccountChoices) {
+            window.paymentAccountChoices = new Choices(select, { searchEnabled: true, itemSelectText: '', shouldSort: false });
+        }
+        
         if (method === 'cash') {
-            select.disabled = false;
+            window.paymentAccountChoices.enable();
             populateAccountSelect(select, 'safe');
         } else if (method === 'bank' || method === 'cheque') {
-            select.disabled = false;
+            window.paymentAccountChoices.enable();
             populateAccountSelect(select, 'bank');
         } else if (method === 'credit') {
-            select.innerHTML = '<option value="">-- آجل (على الحساب) --</option>';
-            select.disabled = true;
+            window.paymentAccountChoices.setChoices([{ value: '', label: '-- آجل (على الحساب) --' }], 'value', 'label', true);
+            window.paymentAccountChoices.disable();
         }
     }
 }
@@ -247,22 +252,20 @@ function togglePaymentAccount() {
 function populateAccountSelect(select, type) {
     let banks = [];
     try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e) {}
-    select.innerHTML = '';
+    let choicesArr = [];
     banks.filter(b => b.type === type).forEach(b => {
-        const o = document.createElement('option');
-        o.value = b.id; o.textContent = b.name;
-        select.appendChild(o);
+        choicesArr.push({ value: b.id, label: b.name });
     });
-    if (select.options.length === 0) {
-        const o = document.createElement('option');
-        o.value = '';
-        o.textContent = type === 'bank' ? '-- لا توجد حسابات بنكية --' : '-- لا توجد خزن --';
-        select.appendChild(o);
+    if (choicesArr.length === 0) {
+        choicesArr.push({ value: '', label: type === 'bank' ? '-- لا توجد حسابات بنكية --' : '-- لا توجد خزائن --' });
+    }
+    if (window.paymentAccountChoices) {
+        window.paymentAccountChoices.setChoices(choicesArr, 'value', 'label', true);
     }
 }
 
 function syncWarehouse(el) {
-    // مزامنة المخزن بين الأزرة المختلفة
+    // Ù…Ø²Ø§Ù…Ù†Ø© Ø§Ù„Ù…Ø®Ø²Ù† Ø¨ÙŠÙ† Ø§Ù„Ø£Ø²Ø±Ø© Ø§Ù„Ù…Ø®ØªÙ„ÙØ©
     const val = el.value;
     ['hdr-warehouse','hdr-warehouse-credit','hdr-warehouse-bank','hdr-warehouse-cheque'].forEach(id => {
         const s = document.getElementById(id);
@@ -273,7 +276,7 @@ function syncWarehouse(el) {
 
 
 function initHeader() {
-    // Invoice number — peek only (no increment)
+    // Invoice number â€” peek only (no increment)
     const invNo = peekNextInvoiceNumber(currentSaleType);
     document.getElementById('inv-number').textContent = invNo;
     document.getElementById('hdr-inv-no').value = invNo;
@@ -283,9 +286,9 @@ function initHeader() {
     document.getElementById('hdr-date').value = today;
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  SALE TYPE TABS
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function setSaleType(btn, type) {
     currentSaleType = type;
     document.querySelectorAll('.action-tab').forEach(t => t.classList.remove('active'));
@@ -295,9 +298,9 @@ function setSaleType(btn, type) {
     document.getElementById('hdr-inv-no').value = invNo;
 }
 
-// ════════════════════════════════════════
-//  CUSTOMER CHANGE → Financial Panel
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  CUSTOMER CHANGE â†’ Financial Panel
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function onCustomerChange() {
     const id = document.getElementById('hdr-customer').value;
     const cust = CUSTOMERS.find(c => c.id === id);
@@ -307,7 +310,7 @@ function onCustomerChange() {
 
     if (!cust || id === '') {
         ['fin-ledger','fin-checks','fin-total-debt','fin-credit-limit','fin-remaining'].forEach(el =>
-            document.getElementById(el).textContent = '—'
+            document.getElementById(el).textContent = 'â€”'
         );
         if (strip) strip.classList.remove('visible');
         if (badge) badge.style.display = 'none';
@@ -323,30 +326,30 @@ function onCustomerChange() {
     document.getElementById('fin-credit-limit').textContent= fmtNum(cust.creditLimit) + ' ' + cur;
     document.getElementById('fin-remaining').textContent   = fmtNum(remaining)        + ' ' + cur;
 
-    // إظهار الشريط المالي الأفقي بأنيميشن
+    // Ø¥Ø¸Ù‡Ø§Ø± Ø§Ù„Ø´Ø±ÙŠØ· Ø§Ù„Ù…Ø§Ù„ÙŠ Ø§Ù„Ø£ÙÙ‚ÙŠ Ø¨Ø£Ù†ÙŠÙ…ÙŠØ´Ù†
     if (strip) {
-        // أعد تشغيل الأنيميشن بإزالة وإعادة الكلاس
+        // Ø£Ø¹Ø¯ ØªØ´ØºÙŠÙ„ Ø§Ù„Ø£Ù†ÙŠÙ…ÙŠØ´Ù† Ø¨Ø¥Ø²Ø§Ù„Ø© ÙˆØ¥Ø¹Ø§Ø¯Ø© Ø§Ù„ÙƒÙ„Ø§Ø³
         strip.classList.remove('visible');
         requestAnimationFrame(() => requestAnimationFrame(() => strip.classList.add('visible')));
     }
 
-    // badge الحالة بجانب عنوان اللوحة
+    // badge Ø§Ù„Ø­Ø§Ù„Ø© Ø¨Ø¬Ø§Ù†Ø¨ Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ù„ÙˆØ­Ø©
     if (badge) {
         const txtEl = document.getElementById('fin-status-txt');
         const dot = badge.querySelector('.status-dot');
         if (cust.status === 'blacklisted') {
             dot.className = 'status-dot danger';
-            txtEl.textContent = '⛔ قائمة سوداء';
-            showToast('تحذير: هذا العميل في القائمة السوداء!', 'error', 5000);
+            txtEl.textContent = 'â›” Ù‚Ø§Ø¦Ù…Ø© Ø³ÙˆØ¯Ø§Ø¡';
+            showToast('ØªØ­Ø°ÙŠØ±: Ù‡Ø°Ø§ Ø§Ù„Ø¹Ù…ÙŠÙ„ ÙÙŠ Ø§Ù„Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø³ÙˆØ¯Ø§Ø¡!', 'error', 5000);
         } else if (remaining > 20000) {
             dot.className = 'status-dot good';
-            txtEl.textContent = '✅ ائتمان جيد';
+            txtEl.textContent = 'âœ… Ø§Ø¦ØªÙ…Ø§Ù† Ø¬ÙŠØ¯';
         } else if (remaining > 0) {
             dot.className = 'status-dot warn';
-            txtEl.textContent = '⚠️ ائتمان منخفض';
+            txtEl.textContent = 'âš ï¸ Ø§Ø¦ØªÙ…Ø§Ù† Ù…Ù†Ø®ÙØ¶';
         } else {
             dot.className = 'status-dot danger';
-            txtEl.textContent = '🚫 تجاوز الحد';
+            txtEl.textContent = 'ðŸš« ØªØ¬Ø§ÙˆØ² Ø§Ù„Ø­Ø¯';
         }
         badge.style.display = 'inline-flex';
     }
@@ -369,7 +372,7 @@ function addNewCustomer() {
     const openingBalance = document.getElementById('new-cust-opening') ? parseNum(document.getElementById('new-cust-opening').value) : 0;
     const credit = document.getElementById('new-cust-credit') ? parseNum(document.getElementById('new-cust-credit').value) : 0;
 
-    if (!name) { showToast('❌ يرجى إدخال اسم العميل', 'error'); return; }
+    if (!name) { showToast('âŒ ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ø³Ù… Ø§Ù„Ø¹Ù…ÙŠÙ„', 'error'); return; }
 
     const newId = 'C-' + String(Date.now()).slice(-6);
     const newCust = { 
@@ -410,7 +413,7 @@ function addNewCustomer() {
     if(document.getElementById('new-cust-credit')) document.getElementById('new-cust-credit').value = '';
     if(document.getElementById('new-cust-security')) document.getElementById('new-cust-security').value = '1';
 
-    showToast('✅ تم إضافة العميل بنجاح');
+    showToast('âœ… ØªÙ… Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø¹Ù…ÙŠÙ„ Ø¨Ù†Ø¬Ø§Ø­');
 }
 
 function loadPreviousInvoice() {
@@ -426,11 +429,11 @@ function loadPreviousInvoice() {
         num--;
         const testNo = prefix + String(num).padStart(6, '0');
         if(loadInvoiceFromStorage(testNo)) {
-            showToast(`✅ تم استرجاع الفاتورة ${testNo}`);
+            showToast(`âœ… ØªÙ… Ø§Ø³ØªØ±Ø¬Ø§Ø¹ Ø§Ù„ÙØ§ØªÙˆØ±Ø© ${testNo}`);
             found = true;
         }
     }
-    if(!found) showToast('ℹ️ لا توجد فواتير سابقة محفوظة', 'warning');
+    if(!found) showToast('â„¹ï¸ Ù„Ø§ ØªÙˆØ¬Ø¯ ÙÙˆØ§ØªÙŠØ± Ø³Ø§Ø¨Ù‚Ø© Ù…Ø­ÙÙˆØ¸Ø©', 'warning');
 }
 
 function loadNextInvoice() {
@@ -446,7 +449,7 @@ function loadNextInvoice() {
     for(let i=1; i<=10; i++) {
         const testNo = prefix + String(num + i).padStart(6, '0');
         if(loadInvoiceFromStorage(testNo)) {
-            showToast(`✅ تم استرجاع الفاتورة ${testNo}`);
+            showToast(`âœ… ØªÙ… Ø§Ø³ØªØ±Ø¬Ø§Ø¹ Ø§Ù„ÙØ§ØªÙˆØ±Ø© ${testNo}`);
             found = true;
             break;
         }
@@ -455,7 +458,7 @@ function loadNextInvoice() {
     if(!found) {
         // If no next invoice saved, jump to "New" mode
         onSuccessNewInvoice();
-        showToast('✨ فاتورة جديدة', 'success');
+        showToast('âœ¨ ÙØ§ØªÙˆØ±Ø© Ø¬Ø¯ÙŠØ¯Ø©', 'success');
     }
 }
 
@@ -480,7 +483,7 @@ function loadInvoiceFromStorage(invNo) {
         // If loading a confirmed invoice, enter Edit Mode
         if (data.status === 'confirmed' || localStorage.getItem('erp_inv_' + invNo)) {
             currentViewedInvoiceNo = data.invoiceNo || data.id;
-            showToast('✏️ أنت الآن في وضع التعديل للفاتورة الأصلية', 'warning', 4000);
+            showToast('âœï¸ Ø£Ù†Øª Ø§Ù„Ø¢Ù† ÙÙŠ ÙˆØ¶Ø¹ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„ Ù„Ù„ÙØ§ØªÙˆØ±Ø© Ø§Ù„Ø£ØµÙ„ÙŠØ©', 'warning', 4000);
         } else {
             currentViewedInvoiceNo = null;
         }
@@ -532,9 +535,9 @@ function loadInvoiceFromStorage(invNo) {
     }
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  CUSTOMERS DROPDOWN LOGIC
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function renderCustomerDropdown(filter = '') {
     const listEl = document.getElementById('customer-dropdown-list');
     if (!listEl) return;
@@ -564,7 +567,7 @@ function renderCustomerDropdown(filter = '') {
         const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values()).slice(0, 50);
 
         if (finalMatches.length === 0) {
-            listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة للبحث.<br><small style="color:#888;">(إجمالي العملاء: ' + CUSTOMERS.length + ')</small></div>';
+            listEl.innerHTML = '<div class="custom-dropdown-empty">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù†ØªØ§Ø¦Ø¬ Ù…Ø·Ø§Ø¨Ù‚Ø© Ù„Ù„Ø¨Ø­Ø«.<br><small style="color:#888;">(Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡: ' + CUSTOMERS.length + ')</small></div>';
             return;
         }
 
@@ -583,7 +586,7 @@ function renderCustomerDropdown(filter = '') {
         });
     } catch (e) {
         console.error(e);
-        listEl.innerHTML = '<div class="custom-dropdown-empty">حدث خطأ داخلي</div>';
+        listEl.innerHTML = '<div class="custom-dropdown-empty">Ø­Ø¯Ø« Ø®Ø·Ø£ Ø¯Ø§Ø®Ù„ÙŠ</div>';
     }
 }
 
@@ -653,7 +656,7 @@ function onCustomerChange() {
 
     if (!cust || id === '') {
         ['fin-ledger','fin-checks','fin-total-debt','fin-credit-limit','fin-remaining'].forEach(el =>
-            document.getElementById(el).textContent = '—'
+            document.getElementById(el).textContent = 'â€”'
         );
         if (strip) strip.classList.remove('visible');
         if (badge) badge.style.display = 'none';
@@ -669,30 +672,30 @@ function onCustomerChange() {
     document.getElementById('fin-credit-limit').textContent= fmtNum(cust.creditLimit) + ' ' + cur;
     document.getElementById('fin-remaining').textContent   = fmtNum(remaining)        + ' ' + cur;
 
-    // إظهار الشريط المالي الأفقي بأنيميشن
+    // Ø¥Ø¸Ù‡Ø§Ø± Ø§Ù„Ø´Ø±ÙŠØ· Ø§Ù„Ù…Ø§Ù„ÙŠ Ø§Ù„Ø£ÙÙ‚ÙŠ Ø¨Ø£Ù†ÙŠÙ…ÙŠØ´Ù†
     if (strip) {
-        // أعد تشغيل الأنيميشن بإزالة وإعادة الكلاس
+        // Ø£Ø¹Ø¯ ØªØ´ØºÙŠÙ„ Ø§Ù„Ø£Ù†ÙŠÙ…ÙŠØ´Ù† Ø¨Ø¥Ø²Ø§Ù„Ø© ÙˆØ¥Ø¹Ø§Ø¯Ø© Ø§Ù„ÙƒÙ„Ø§Ø³
         strip.classList.remove('visible');
         requestAnimationFrame(() => requestAnimationFrame(() => strip.classList.add('visible')));
     }
 
-    // badge الحالة بجانب عنوان اللوحة
+    // badge Ø§Ù„Ø­Ø§Ù„Ø© Ø¨Ø¬Ø§Ù†Ø¨ Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ù„ÙˆØ­Ø©
     if (badge) {
         const txtEl = document.getElementById('fin-status-txt');
         const dot = badge.querySelector('.status-dot');
         if (cust.status === 'blacklisted') {
             dot.className = 'status-dot danger';
-            txtEl.textContent = '⛔ قائمة سوداء';
-            showToast('تحذير: هذا العميل في القائمة السوداء!', 'error', 5000);
+            txtEl.textContent = 'â›” Ù‚Ø§Ø¦Ù…Ø© Ø³ÙˆØ¯Ø§Ø¡';
+            showToast('ØªØ­Ø°ÙŠØ±: Ù‡Ø°Ø§ Ø§Ù„Ø¹Ù…ÙŠÙ„ ÙÙŠ Ø§Ù„Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø³ÙˆØ¯Ø§Ø¡!', 'error', 5000);
         } else if (remaining > 20000) {
             dot.className = 'status-dot good';
-            txtEl.textContent = '✅ ائتمان جيد';
+            txtEl.textContent = 'âœ… Ø§Ø¦ØªÙ…Ø§Ù† Ø¬ÙŠØ¯';
         } else if (remaining > 0) {
             dot.className = 'status-dot warn';
-            txtEl.textContent = '⚠️ ائتمان منخفض';
+            txtEl.textContent = 'âš ï¸ Ø§Ø¦ØªÙ…Ø§Ù† Ù…Ù†Ø®ÙØ¶';
         } else {
             dot.className = 'status-dot danger';
-            txtEl.textContent = '🚫 تجاوز الحد';
+            txtEl.textContent = 'ðŸš« ØªØ¬Ø§ÙˆØ² Ø§Ù„Ø­Ø¯';
         }
         badge.style.display = 'inline-flex';
     }
@@ -715,7 +718,7 @@ function addNewCustomer() {
     const openingBalance = document.getElementById('new-cust-opening') ? parseNum(document.getElementById('new-cust-opening').value) : 0;
     const credit = document.getElementById('new-cust-credit') ? parseNum(document.getElementById('new-cust-credit').value) : 0;
 
-    if (!name) { showToast('❌ يرجى إدخال اسم العميل', 'error'); return; }
+    if (!name) { showToast('âŒ ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ø³Ù… Ø§Ù„Ø¹Ù…ÙŠÙ„', 'error'); return; }
 
     const newId = 'C-' + String(Date.now()).slice(-6);
     const newCust = { 
@@ -756,7 +759,7 @@ function addNewCustomer() {
     if(document.getElementById('new-cust-credit')) document.getElementById('new-cust-credit').value = '';
     if(document.getElementById('new-cust-security')) document.getElementById('new-cust-security').value = '1';
 
-    showToast('✅ تم إضافة العميل بنجاح');
+    showToast('âœ… ØªÙ… Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø¹Ù…ÙŠÙ„ Ø¨Ù†Ø¬Ø§Ø­');
 }
 
 function loadPreviousInvoice() {
@@ -772,11 +775,11 @@ function loadPreviousInvoice() {
         num--;
         const testNo = prefix + String(num).padStart(6, '0');
         if(loadInvoiceFromStorage(testNo)) {
-            showToast(`✅ تم استرجاع الفاتورة ${testNo}`);
+            showToast(`âœ… ØªÙ… Ø§Ø³ØªØ±Ø¬Ø§Ø¹ Ø§Ù„ÙØ§ØªÙˆØ±Ø© ${testNo}`);
             found = true;
         }
     }
-    if(!found) showToast('ℹ️ لا توجد فواتير سابقة محفوظة', 'warning');
+    if(!found) showToast('â„¹ï¸ Ù„Ø§ ØªÙˆØ¬Ø¯ ÙÙˆØ§ØªÙŠØ± Ø³Ø§Ø¨Ù‚Ø© Ù…Ø­ÙÙˆØ¸Ø©', 'warning');
 }
 
 function loadNextInvoice() {
@@ -792,7 +795,7 @@ function loadNextInvoice() {
     for(let i=1; i<=10; i++) {
         const testNo = prefix + String(num + i).padStart(6, '0');
         if(loadInvoiceFromStorage(testNo)) {
-            showToast(`✅ تم استرجاع الفاتورة ${testNo}`);
+            showToast(`âœ… ØªÙ… Ø§Ø³ØªØ±Ø¬Ø§Ø¹ Ø§Ù„ÙØ§ØªÙˆØ±Ø© ${testNo}`);
             found = true;
             break;
         }
@@ -801,7 +804,7 @@ function loadNextInvoice() {
     if(!found) {
         // If no next invoice saved, jump to "New" mode
         onSuccessNewInvoice();
-        showToast('✨ فاتورة جديدة', 'success');
+        showToast('âœ¨ ÙØ§ØªÙˆØ±Ø© Ø¬Ø¯ÙŠØ¯Ø©', 'success');
     }
 }
 
@@ -826,7 +829,7 @@ function loadInvoiceFromStorage(invNo) {
         // If loading a confirmed invoice, enter Edit Mode
         if (data.status === 'confirmed' || localStorage.getItem('erp_inv_' + invNo)) {
             currentViewedInvoiceNo = data.invoiceNo || data.id;
-            showToast('✏️ أنت الآن في وضع التعديل للفاتورة الأصلية', 'warning', 4000);
+            showToast('âœï¸ Ø£Ù†Øª Ø§Ù„Ø¢Ù† ÙÙŠ ÙˆØ¶Ø¹ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„ Ù„Ù„ÙØ§ØªÙˆØ±Ø© Ø§Ù„Ø£ØµÙ„ÙŠØ©', 'warning', 4000);
         } else {
             currentViewedInvoiceNo = null;
         }
@@ -878,9 +881,9 @@ function loadInvoiceFromStorage(invNo) {
     }
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  CUSTOMERS DROPDOWN LOGIC
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function renderCustomerDropdown(filter = '') {
     const listEl = document.getElementById('customer-dropdown-list');
     listEl.innerHTML = '';
@@ -892,7 +895,7 @@ function renderCustomerDropdown(filter = '') {
     }
 
     if (matches.length === 0) {
-        listEl.innerHTML = `<div class="custom-dropdown-empty">لا يوجد عميل بهذا الاسم.<br><small style="color:#888;">(إجمالي العملاء: ${CUSTOMERS.length})</small></div>`;
+        listEl.innerHTML = `<div class="custom-dropdown-empty">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø¹Ù…ÙŠÙ„ Ø¨Ù‡Ø°Ø§ Ø§Ù„Ø§Ø³Ù….<br><small style="color:#888;">(Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡: ${CUSTOMERS.length})</small></div>`;
         return;
     }
 
@@ -954,15 +957,15 @@ function selectCustomer(id, name) {
     onCustomerChange();
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  ITEMS DROPDOWN LOGIC
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 async function renderItemDropdown(rowId, isMobile = false, filter = '') {
     const prefix = isMobile ? 'm-' : '';
     const listEl = document.getElementById(`${prefix}item-dropdown-list-${rowId}`);
     if (!listEl) return;
     
-    listEl.innerHTML = '<div class="custom-dropdown-empty">جاري البحث...</div>';
+    listEl.innerHTML = '<div class="custom-dropdown-empty">Ø¬Ø§Ø±ÙŠ Ø§Ù„Ø¨Ø­Ø«...</div>';
     const term = filter.toLowerCase().trim();
     
     try {
@@ -1005,7 +1008,7 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
 
                 let sp = item.sellingPrice || item.salePrice || item.price || 0;
                 sp = sp.toString().replace(/,/g, '');
-                const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
+                const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'Ù‚Ø·Ø¹Ø©';
 
                 let unitsArray = [];
                 if (item.units && item.units.length > 0) {
@@ -1037,7 +1040,7 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
         const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
 
         if (finalMatches.length === 0) {
-            listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة.<br><small style="color:#888;">(حاول استخدام اسم آخر)</small></div>';
+            listEl.innerHTML = '<div class="custom-dropdown-empty">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù†ØªØ§Ø¦Ø¬ Ù…Ø·Ø§Ø¨Ù‚Ø©.<br><small style="color:#888;">(Ø­Ø§ÙˆÙ„ Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ø³Ù… Ø¢Ø®Ø±)</small></div>';
             return;
         }
 
@@ -1047,7 +1050,7 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
             div.className = 'custom-dropdown-item';
             
             let displayText = existing.name;
-            if (isMobile && existing.unit) displayText += ' <span style="font-size:0.8rem; color:#aaa;">— ' + existing.unit + '</span>';
+            if (isMobile && existing.unit) displayText += ' <span style="font-size:0.8rem; color:#aaa;">â€” ' + existing.unit + '</span>';
             if (existing.barcode) displayText += ' <span style="font-size:0.8rem; color:#888;">[' + existing.barcode + ']</span>';
             div.innerHTML = displayText;
             div.onmousedown = () => { updateRow(rowId, 'itemId', existing.id); renderGrid(); };
@@ -1056,7 +1059,7 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
         });
     } catch (e) {
         console.error(e);
-        listEl.innerHTML = '<div class="custom-dropdown-empty">خطأ في الاتصال</div>';
+        listEl.innerHTML = '<div class="custom-dropdown-empty">Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø§ØªØµØ§Ù„</div>';
     }
 }
 
@@ -1097,7 +1100,7 @@ function hideItemDropdownDelayed(rowId, isMobile = false) {
             if (row && row.itemId) {
                 const item = ITEMS.find(i => i.id === row.itemId);
                 if (item) {
-                    searchEl.value = isMobile ? `${item.name} — ${item.unit}` : item.name;
+                    searchEl.value = isMobile ? `${item.name} â€” ${item.unit}` : item.name;
                 }
             } else {
                 searchEl.value = '';
@@ -1114,14 +1117,14 @@ function filterItemDropdown(rowId, isMobile = false) {
     document.getElementById(`${prefix}item-dropdown-list-${rowId}`).classList.add('show');
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  QUICK ITEM ADD LOGIC
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 async function renderQuickItemDropdown(filter = '') {
     const listEl = document.getElementById('quick-item-dropdown-list');
     if (!listEl) return;
     
-    listEl.innerHTML = '<div class="custom-dropdown-empty">جاري البحث...</div>';
+    listEl.innerHTML = '<div class="custom-dropdown-empty">Ø¬Ø§Ø±ÙŠ Ø§Ù„Ø¨Ø­Ø«...</div>';
     const term = filter.toLowerCase().trim();
     
     try {
@@ -1163,7 +1166,7 @@ async function renderQuickItemDropdown(filter = '') {
 
                 let sp = item.sellingPrice || item.salePrice || item.price || 0;
                 sp = sp.toString().replace(/,/g, '');
-                const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
+                const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'Ù‚Ø·Ø¹Ø©';
 
                 let unitsArray = [];
                 if (item.units && item.units.length > 0) {
@@ -1194,7 +1197,7 @@ async function renderQuickItemDropdown(filter = '') {
         const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
 
         if (finalMatches.length === 0) {
-            listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة.<br><small style="color:#888;">(حاول استخدام اسم آخر)</small></div>';
+            listEl.innerHTML = '<div class="custom-dropdown-empty">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù†ØªØ§Ø¦Ø¬ Ù…Ø·Ø§Ø¨Ù‚Ø©.<br><small style="color:#888;">(Ø­Ø§ÙˆÙ„ Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ø³Ù… Ø¢Ø®Ø±)</small></div>';
             return;
         }
 
@@ -1202,14 +1205,14 @@ async function renderQuickItemDropdown(filter = '') {
         finalMatches.forEach(existing => {
             const div = document.createElement('div');
             div.className = 'custom-dropdown-item';
-            div.textContent = `${existing.name} — ${existing.unit}`;
+            div.textContent = `${existing.name} â€” ${existing.unit}`;
             div.onmousedown = () => { selectQuickItem(existing.id); };
             div.onpointerdown = () => { selectQuickItem(existing.id); };
             listEl.appendChild(div);
         });
     } catch (e) {
         console.error(e);
-        listEl.innerHTML = '<div class="custom-dropdown-empty">خطأ في الاتصال</div>';
+        listEl.innerHTML = '<div class="custom-dropdown-empty">Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø§ØªØµØ§Ù„</div>';
     }
 }
 
@@ -1245,17 +1248,17 @@ function selectQuickItem(itemId) {
     renderGrid();
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  WAREHOUSE CHANGE
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function onMainWarehouseChange() {
     // Recalc available qty for rows using fallback warehouse
     renderGrid();
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  ROW MANAGEMENT
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function addRow(silent = false) {
     let quiet = silent;
     rowIdCounter++;
@@ -1270,14 +1273,14 @@ function addRow(silent = false) {
         selectedUnit: ''
     });
     renderGrid();
-    if (!quiet) showToast('📦 تم إضافة صنف جديد', 'success', 1500);
+    if (!quiet) showToast('ðŸ“¦ ØªÙ… Ø¥Ø¶Ø§ÙØ© ØµÙ†Ù Ø¬Ø¯ÙŠØ¯', 'success', 1500);
 }
 
 function removeRow(id) {
     rows = rows.filter(r => r.id !== id);
     renderGrid();
     recalcAll();
-    showToast('🗑️ تم حذف الصنف', 'warning', 1500);
+    showToast('ðŸ—‘ï¸ ØªÙ… Ø­Ø°Ù Ø§Ù„ØµÙ†Ù', 'warning', 1500);
 }
 
 function updateRow(id, field, value) {
@@ -1352,9 +1355,9 @@ function updateRow(id, field, value) {
     recalcAll();
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  ROW CALCULATIONS (Live, no re-render)
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function getResolvedWarehouse(row) {
     return row.warehouseId || document.getElementById('hdr-warehouse').value;
 }
@@ -1363,7 +1366,7 @@ function getRowCalcs(row) {
     const item = ITEMS.find(i => i.id === row.itemId);
     
     let selectedUnitFactor = row.customFactor !== undefined ? row.customFactor : 1;
-    let selectedUnitName = item ? item.unit : '—';
+    let selectedUnitName = item ? item.unit : 'â€”';
 
     if (row.customFactor === undefined && item && row.selectedUnit && item.unitsArray && item.unitsArray.length > 0) {
         const su = item.unitsArray.find(u => u.name === row.selectedUnit);
@@ -1389,7 +1392,7 @@ function getRowCalcs(row) {
     const shilaRem = baseQty ? (baseQty % shilaFactor) : 0;
 
     const whId = getResolvedWarehouse(row);
-    const availQty = item && item.stock[whId] !== undefined ? item.stock[whId] : '—';
+    const availQty = item && item.stock[whId] !== undefined ? item.stock[whId] : 'â€”';
     return { total, baseQty, bundles, shilaQty, shilaRem, availQty, unit: selectedUnitName, unitFactor: selectedUnitFactor };
 }
 
@@ -1424,8 +1427,8 @@ function updateRowCalcs(id) {
     if (totalFcEl) totalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0));
 
     if (availEl) {
-        availEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty);
-        availEl.className = 'g-readonly ' + (calcs.availQty !== '—' && calcs.availQty < row.quantity ? 'warn-val' : 'avail-val');
+        availEl.textContent = calcs.availQty === 'â€”' ? 'â€”' : fmtNum(calcs.availQty);
+        availEl.className = 'g-readonly ' + (calcs.availQty !== 'â€”' && calcs.availQty < row.quantity ? 'warn-val' : 'avail-val');
     }
 
     // Mobile
@@ -1447,9 +1450,9 @@ function getCurrency() {
     return document.getElementById('hdr-currency').value;
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  RENDER GRID
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function renderGrid() {
     const tbody = document.getElementById('grid-body');
     const mCards = document.getElementById('mobile-cards');
@@ -1472,15 +1475,15 @@ function renderGrid() {
         if (item && item.unitsArray && item.unitsArray.length > 0) {
             itemUnitsHtml = item.unitsArray.map(u => `<option value="${u.name}" ${row.selectedUnit === u.name ? 'selected' : ''}>${u.name}</option>`).join('');
         } else {
-            itemUnitsHtml = `<option value="${item ? item.unit : ''}">${item ? item.unit : '—'}</option>`;
+            itemUnitsHtml = `<option value="${item ? item.unit : ''}">${item ? item.unit : 'â€”'}</option>`;
         }
 
-        // ── Desktop Row ──
+        // â”€â”€ Desktop Row â”€â”€
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><div class="row-num">${idx + 1}</div></td>
             <td style="position:relative;">
-                <input type="text" class="g-input" id="item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
+                <input type="text" class="g-input" id="item-search-${row.id}" placeholder="Ø§Ø¨Ø­Ø« Ø£Ùˆ Ø§Ø®ØªØ± Ø§Ù„ØµÙ†Ù..." 
                     value="${item ? item.name : ''}" autocomplete="new-password"
                     style="font-size: 1.15rem !important; font-weight: 800 !important;"
                     onfocus="this.select(); showItemDropdown(${row.id})" 
@@ -1506,7 +1509,7 @@ function renderGrid() {
                     <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price)}"
                         onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
                         onblur="this.value=fmtNum(parseNum(this.value))" style="flex:1;">
-                    <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'sales')" title="سجل أسعار الصنف للعميل" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:4px; padding:4px; border:1px solid rgba(56,189,248,0.2); cursor:pointer;">
+                    <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'sales')" title="Ø³Ø¬Ù„ Ø£Ø³Ø¹Ø§Ø± Ø§Ù„ØµÙ†Ù Ù„Ù„Ø¹Ù…ÙŠÙ„" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:4px; padding:4px; border:1px solid rgba(56,189,248,0.2); cursor:pointer;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                     </button>
                 </div>
@@ -1531,7 +1534,7 @@ function renderGrid() {
 
             <td>
                 <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1">
-                    <option value="">نفس الفاتورة ↩</option>
+                    <option value="">Ù†ÙØ³ Ø§Ù„ÙØ§ØªÙˆØ±Ø© â†©</option>
                     ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
                 </select>
             </td>
@@ -1539,16 +1542,16 @@ function renderGrid() {
             <td><span class="g-readonly" style="color:#6366f1; font-weight:bold;" data-shila="${row.id}">${fmtNum(calcs.shilaQty)}</span></td>
             <td><span class="g-readonly" style="color:#ef4444; font-weight:bold;" data-shila-rem="${row.id}">${fmtNum(calcs.shilaRem)}</span></td>
 
-            <td><input type="text" class="g-input" placeholder="ملحوظة..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)"></td>
+            <td><input type="text" class="g-input" placeholder="Ù…Ù„Ø­ÙˆØ¸Ø©..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)"></td>
             <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.buyPrice !== undefined ? fmtNum(row.buyPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'buyPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))"></td>
             <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.sellPrice !== undefined ? fmtNum(row.sellPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'sellPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))"></td>
 
             <td>
                 <div style="display: flex; gap: 5px; justify-content: center;">
-                    <button class="edit-btn" onclick="document.getElementById('item-search-${row.id}').focus()" title="تعديل السطر" style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.2); color: #38bdf8; border-radius: 6px; padding: 6px; cursor: pointer;">
+                    <button class="edit-btn" onclick="document.getElementById('item-search-${row.id}').focus()" title="ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø³Ø·Ø±" style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.2); color: #38bdf8; border-radius: 6px; padding: 6px; cursor: pointer;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                     </button>
-                    <button class="del-btn" onclick="removeRow(${row.id})" title="حذف السطر">
+                    <button class="del-btn" onclick="removeRow(${row.id})" title="Ø­Ø°Ù Ø§Ù„Ø³Ø·Ø±">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     </button>
                 </div>
@@ -1557,22 +1560,22 @@ function renderGrid() {
         if (window.reorderTds) window.reorderTds(tr);
         tbody.appendChild(tr);
 
-        // ── Mobile Card ──
+        // â”€â”€ Mobile Card â”€â”€
         const card = document.createElement('div');
         card.className = 'm-card';
         card.innerHTML = `
             <div class="m-card-num">${idx + 1}</div>
             <div style="position: absolute; left: 10px; top: 10px; display: flex; gap: 5px;">
-                <button class="m-card-edit" onclick="document.getElementById('m-item-search-${row.id}').focus()" title="تعديل" style="background: transparent; border: none; color: #38bdf8; cursor: pointer;">
+                <button class="m-card-edit" onclick="document.getElementById('m-item-search-${row.id}').focus()" title="ØªØ¹Ø¯ÙŠÙ„" style="background: transparent; border: none; color: #38bdf8; cursor: pointer;">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                 </button>
-                <button class="m-card-del" onclick="removeRow(${row.id})" title="حذف">
+                <button class="m-card-del" onclick="removeRow(${row.id})" title="Ø­Ø°Ù">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                 </button>
             </div>
             <div class="ctrl-group m-card-full" style="padding-top:4px; position:relative;">
-                <label class="label">الصنف</label>
-                <input type="text" class="ctrl-input" id="m-item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
+                <label class="label">Ø§Ù„ØµÙ†Ù</label>
+                <input type="text" class="ctrl-input" id="m-item-search-${row.id}" placeholder="Ø§Ø¨Ø­Ø« Ø£Ùˆ Ø§Ø®ØªØ± Ø§Ù„ØµÙ†Ù..." 
                     value="${item ? item.name : ''}" autocomplete="new-password"
                     onfocus="this.select(); showItemDropdown(${row.id}, true)" 
                     onblur="hideItemDropdownDelayed(${row.id}, true)" 
@@ -1583,55 +1586,55 @@ function renderGrid() {
             </div>
             <div class="m-card-grid">
                 <div class="ctrl-group">
-                    <label class="label">الوحدة</label>
+                    <label class="label">Ø§Ù„ÙˆØ­Ø¯Ø©</label>
                     <select class="ctrl-input" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();" tabindex="-1">
                         ${itemUnitsHtml}
                     </select>
                 </div>
                 <div class="ctrl-group">
-                    <label class="label">التعادل</label>
+                    <label class="label">Ø§Ù„ØªØ¹Ø§Ø¯Ù„</label>
                     <input type="text" inputmode="decimal" class="ctrl-input" value="${row.customFactor !== undefined ? row.customFactor : calcs.unitFactor}" placeholder="1"
                 onfocus="this.select()" oninput="updateRow(${row.id},'customFactor',this.value)"
                 onblur="this.value=parseNum(this.value)||1" tabindex="-1">
                 </div>
                 <div class="ctrl-group">
-                    <label class="label">الكمية الوحدة</label>
+                    <label class="label">Ø§Ù„ÙƒÙ…ÙŠØ© Ø§Ù„ÙˆØ­Ø¯Ø©</label>
                     <input type="text" inputmode="decimal" class="ctrl-input" data-qty-input="${row.id}" value="${Number.isInteger(row.quantity) ? row.quantity : parseFloat((row.quantity || 0).toFixed(4)) || ''}" placeholder="0"
                         onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)">
                 </div>
                 <div class="ctrl-group">
-                    <label class="label" style="color:#6366f1;">الشيلة</label>
+                    <label class="label" style="color:#6366f1;">Ø§Ù„Ø´ÙŠÙ„Ø©</label>
                     <div class="ctrl-input readonly" data-m-shila="${row.id}" style="color:#6366f1; font-weight:bold; text-align:center;">${fmtNum(calcs.shilaQty)}</div>
                 </div>
                 <div class="ctrl-group">
-                    <label class="label" style="color:#ef4444;">باقي سيخ</label>
+                    <label class="label" style="color:#ef4444;">Ø¨Ø§Ù‚ÙŠ Ø³ÙŠØ®</label>
                     <div class="ctrl-input readonly" data-m-shila-rem="${row.id}" style="color:#ef4444; font-weight:bold; text-align:center;">${fmtNum(calcs.shilaRem)}</div>
                 </div>
                 <div class="ctrl-group">
-                    <label class="label">السعر (محلي / أجنبي) <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'sales')" title="سجل أسعار الصنف للعميل" style="color:#38bdf8; background:none; border:none; cursor:pointer; padding:0; margin-right:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></button></label>
+                    <label class="label">Ø§Ù„Ø³Ø¹Ø± (Ù…Ø­Ù„ÙŠ / Ø£Ø¬Ù†Ø¨ÙŠ) <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'sales')" title="Ø³Ø¬Ù„ Ø£Ø³Ø¹Ø§Ø± Ø§Ù„ØµÙ†Ù Ù„Ù„Ø¹Ù…ÙŠÙ„" style="color:#38bdf8; background:none; border:none; cursor:pointer; padding:0; margin-right:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></button></label>
                     <div style="display:flex; gap:4px;">
                         <input type="text" inputmode="decimal" class="ctrl-input" value="${fmtNum(row.price)}" placeholder="0"
                             onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
                             onblur="this.value=fmtNum(parseNum(this.value))" style="flex:1;">
-                        <input type="text" inputmode="decimal" class="ctrl-input" data-m-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}" placeholder="${document.getElementById('hdr-currency').value === 'SDG' ? 'أجنبي' : 'جنيه'}"
+                        <input type="text" inputmode="decimal" class="ctrl-input" data-m-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}" placeholder="${document.getElementById('hdr-currency').value === 'SDG' ? 'Ø£Ø¬Ù†Ø¨ÙŠ' : 'Ø¬Ù†ÙŠÙ‡'}"
                             onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
                             onblur="this.value=fmtNum(parseNum(this.value))" style="flex:1; color:#10b981;">
                     </div>
                 </div>
                 <div class="ctrl-group">
-                    <label class="label fc-total-label">${document.getElementById('hdr-currency').value === 'SDG' ? 'جملة الوحدة أجنبي' : 'جملة الوحدة جنيه'}</label>
+                    <label class="label fc-total-label">${document.getElementById('hdr-currency').value === 'SDG' ? 'Ø¬Ù…Ù„Ø© Ø§Ù„ÙˆØ­Ø¯Ø© Ø£Ø¬Ù†Ø¨ÙŠ' : 'Ø¬Ù…Ù„Ø© Ø§Ù„ÙˆØ­Ø¯Ø© Ø¬Ù†ÙŠÙ‡'}</label>
                     <div class="ctrl-input readonly" data-m-total-fc="${row.id}" style="text-align:center;color:#10b981;">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0))}</div>
                 </div>
                 <div class="ctrl-group">
-                    <label class="label">عدد ${item ? item.baseUnit : ''}</label>
+                    <label class="label">Ø¹Ø¯Ø¯ ${item ? item.baseUnit : ''}</label>
                     <input type="text" inputmode="decimal" class="ctrl-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
                 onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
                 onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700;" tabindex="-1">
                 </div>
                 <div class="ctrl-group">
-                    <label class="label">المخزن</label>
+                    <label class="label">Ø§Ù„Ù…Ø®Ø²Ù†</label>
                     <select class="ctrl-input" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1">
-                        <option value="">الرئيسي ↩</option>
+                        <option value="">Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ â†©</option>
                         ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
                     </select>
                 </div>
@@ -1639,16 +1642,16 @@ function renderGrid() {
             </div>
             <div style="padding: 10px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 8px;">
                 <div class="ctrl-group">
-                    <label class="label">ملحوظة</label>
-                    <input type="text" class="ctrl-input" placeholder="ملحوظة..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)">
+                    <label class="label">Ù…Ù„Ø­ÙˆØ¸Ø©</label>
+                    <input type="text" class="ctrl-input" placeholder="Ù…Ù„Ø­ÙˆØ¸Ø©..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)">
                 </div>
                 <div style="display:flex; gap:8px;">
                     <div class="ctrl-group" style="flex:1;">
-                        <label class="label">سعر الشراء</label>
+                        <label class="label">Ø³Ø¹Ø± Ø§Ù„Ø´Ø±Ø§Ø¡</label>
                         <input type="text" inputmode="decimal" class="ctrl-input" placeholder="0" value="${row.buyPrice !== undefined ? fmtNum(row.buyPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'buyPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))">
                     </div>
                     <div class="ctrl-group" style="flex:1;">
-                        <label class="label">سعر البيع</label>
+                        <label class="label">Ø³Ø¹Ø± Ø§Ù„Ø¨ÙŠØ¹</label>
                         <input type="text" inputmode="decimal" class="ctrl-input" placeholder="0" value="${row.sellPrice !== undefined ? fmtNum(row.sellPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'sellPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))">
                     </div>
                 </div>
@@ -1659,9 +1662,9 @@ function renderGrid() {
     });
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  ADJUSTMENTS (Discount / Tax / Addition)
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function getInvoiceTotal() {
     return rows.reduce((s, r) => s + (r.quantity * r.price), 0);
 }
@@ -1680,9 +1683,9 @@ function onAdjAmtChange(type) {
     recalcAll();
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  GRAND TOTAL CALCULATION
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function recalcAll() {
     const cur = getCurrency();
     const invTotal = getInvoiceTotal();
@@ -1704,7 +1707,7 @@ function recalcAll() {
     // Footer
     document.getElementById('footer-grand').textContent = fmtNum(grand) + ' ' + cur;
 
-    // Dynamic UI Animation — toggle CSS classes
+    // Dynamic UI Animation â€” toggle CSS classes
     const totalsCard = document.getElementById('totals-calc-card');
     const formCard = document.getElementById('form-fields-card');
     if (totalsCard && formCard) {
@@ -1724,11 +1727,11 @@ function recalcAll() {
     }
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  SAVE / SUBMIT
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function saveDraft() {
-    if (rows.length === 0) { showToast('⚠️ لا توجد أصناف لحفظها', 'warning'); return; }
+    if (rows.length === 0) { showToast('âš ï¸ Ù„Ø§ ØªÙˆØ¬Ø¯ Ø£ØµÙ†Ø§Ù Ù„Ø­ÙØ¸Ù‡Ø§', 'warning'); return; }
     const data = {
         invoiceNo: document.getElementById('hdr-inv-no').value,
         date: document.getElementById('hdr-date').value,
@@ -1744,7 +1747,7 @@ function saveDraft() {
         status: 'draft'
     };
     localStorage.setItem('erp_draft_' + data.invoiceNo, JSON.stringify(data));
-    showToast('📑 تم حفظ المسودة بنجاح', 'success', 2500);
+    showToast('ðŸ“‘ ØªÙ… Ø­ÙØ¸ Ø§Ù„Ù…Ø³ÙˆØ¯Ø© Ø¨Ù†Ø¬Ø§Ø­', 'success', 2500);
 }
 
 function submitInvoice(ignoreWarnings = false) {
@@ -1757,15 +1760,15 @@ function submitInvoice(ignoreWarnings = false) {
     }
 
     const custId = document.getElementById('hdr-customer').value;
-    if (!custId) { showToast('❌ يرجى تحديد العميل لتأكيد الفاتورة', 'error'); return; }
+    if (!custId) { showToast('âŒ ÙŠØ±Ø¬Ù‰ ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ø¹Ù…ÙŠÙ„ Ù„ØªØ£ÙƒÙŠØ¯ Ø§Ù„ÙØ§ØªÙˆØ±Ø©', 'error'); return; }
 
-    if (rows.length === 0) { showToast('❌ لا يمكن تأكيد فاتورة فارغة', 'error'); return; }
+    if (rows.length === 0) { showToast('âŒ Ù„Ø§ ÙŠÙ…ÙƒÙ† ØªØ£ÙƒÙŠØ¯ ÙØ§ØªÙˆØ±Ø© ÙØ§Ø±ØºØ©', 'error'); return; }
 
     const hasEmptyItems = rows.some(r => !r.itemId);
-    if (hasEmptyItems) { showToast('⚠️ يرجى اختيار الصنف لكل سطر', 'warning'); return; }
+    if (hasEmptyItems) { showToast('âš ï¸ ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ØµÙ†Ù Ù„ÙƒÙ„ Ø³Ø·Ø±', 'warning'); return; }
 
     const hasZeroQty = rows.some(r => r.quantity <= 0);
-    if (hasZeroQty) { showToast('⚠️ الكمية يجب أن تكون أكبر من صفر', 'warning'); return; }
+    if (hasZeroQty) { showToast('âš ï¸ Ø§Ù„ÙƒÙ…ÙŠØ© ÙŠØ¬Ø¨ Ø£Ù† ØªÙƒÙˆÙ† Ø£ÙƒØ¨Ø± Ù…Ù† ØµÙØ±', 'warning'); return; }
 
     const paymentMethod = document.getElementById('hdr-payment-method').value;
     const cust = CUSTOMERS.find(c => c.id === custId);
@@ -1796,7 +1799,7 @@ function submitInvoice(ignoreWarnings = false) {
                 const existing = document.getElementById('confirm-warning-overlay');
                 if (existing) existing.remove();
                 
-                alert(`❌ حظر ائتماني صارم!\nالعميل (${cust.name}) لديه ${unpaidCount} فواتير آجلة سابقة لم يقم بسدادها بالكامل.\nيجب سداد الديون القديمة أولاً لإنشاء فاتورة آجلة جديدة.`);
+                alert(`âŒ Ø­Ø¸Ø± Ø§Ø¦ØªÙ…Ø§Ù†ÙŠ ØµØ§Ø±Ù…!\nØ§Ù„Ø¹Ù…ÙŠÙ„ (${cust.name}) Ù„Ø¯ÙŠÙ‡ ${unpaidCount} ÙÙˆØ§ØªÙŠØ± Ø¢Ø¬Ù„Ø© Ø³Ø§Ø¨Ù‚Ø© Ù„Ù… ÙŠÙ‚Ù… Ø¨Ø³Ø¯Ø§Ø¯Ù‡Ø§ Ø¨Ø§Ù„ÙƒØ§Ù…Ù„.\nÙŠØ¬Ø¨ Ø³Ø¯Ø§Ø¯ Ø§Ù„Ø¯ÙŠÙˆÙ† Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø© Ø£ÙˆÙ„Ø§Ù‹ Ù„Ø¥Ù†Ø´Ø§Ø¡ ÙØ§ØªÙˆØ±Ø© Ø¢Ø¬Ù„Ø© Ø¬Ø¯ÙŠØ¯Ø©.`);
                 return;
             }
         }
@@ -1812,9 +1815,9 @@ function submitInvoice(ignoreWarnings = false) {
             const item = ITEMS.find(i => i.id === row.itemId);
             if (!item) continue;
             const calcs = getRowCalcs(row);
-            if (calcs.availQty !== '—' && calcs.availQty !== undefined && calcs.baseQty > calcs.availQty) {
+            if (calcs.availQty !== 'â€”' && calcs.availQty !== undefined && calcs.baseQty > calcs.availQty) {
                 const diff = calcs.baseQty - calcs.availQty;
-                warnings.push(`الصنف "<strong>${item.name}</strong>" تجاوز المخزون المتاح. (سوف يدخل بالسالب بمقدار <strong>${fmtNum(diff)} ${item.baseUnit || 'وحدة أساسية'}</strong>)`);
+                warnings.push(`Ø§Ù„ØµÙ†Ù "<strong>${item.name}</strong>" ØªØ¬Ø§ÙˆØ² Ø§Ù„Ù…Ø®Ø²ÙˆÙ† Ø§Ù„Ù…ØªØ§Ø­. (Ø³ÙˆÙ ÙŠØ¯Ø®Ù„ Ø¨Ø§Ù„Ø³Ø§Ù„Ø¨ Ø¨Ù…Ù‚Ø¯Ø§Ø± <strong>${fmtNum(diff)} ${item.baseUnit || 'ÙˆØ­Ø¯Ø© Ø£Ø³Ø§Ø³ÙŠØ©'}</strong>)`);
             }
         }
 
@@ -1828,7 +1831,7 @@ function submitInvoice(ignoreWarnings = false) {
             if (grand > remaining) {
                 const diff = grand - remaining;
                 const cur = getCurrency();
-                warnings.push(`الفاتورة تتجاوز حد الائتمان. (المبلغ سيتجاوز الحد بمقدار <strong>${fmtNum(diff)} ${cur}</strong>)`);
+                warnings.push(`Ø§Ù„ÙØ§ØªÙˆØ±Ø© ØªØªØ¬Ø§ÙˆØ² Ø­Ø¯ Ø§Ù„Ø§Ø¦ØªÙ…Ø§Ù†. (Ø§Ù„Ù…Ø¨Ù„Øº Ø³ÙŠØªØ¬Ø§ÙˆØ² Ø§Ù„Ø­Ø¯ Ø¨Ù…Ù‚Ø¯Ø§Ø± <strong>${fmtNum(diff)} ${cur}</strong>)`);
             }
         }
 
@@ -1882,7 +1885,7 @@ function submitInvoice(ignoreWarnings = false) {
         grandTotal: parseNum(grandTotal),
         status: currentSaleType === 'preliminary' ? 'preliminary' : 'pending_delivery',
         timestamp: new Date().toISOString(),
-        customerName: cust ? cust.name : 'عميل نقدي'
+        customerName: cust ? cust.name : 'Ø¹Ù…ÙŠÙ„ Ù†Ù‚Ø¯ÙŠ'
     };
 
     // Update Bank/Safe balance ONLY if not preliminary
@@ -1943,9 +1946,9 @@ function submitInvoice(ignoreWarnings = false) {
             const item = ITEMS.find(i => i.id === row.itemId);
             if (!item) continue;
             const calcs = getRowCalcs(row);
-            if (calcs.availQty !== '—' && calcs.availQty !== undefined && calcs.baseQty > calcs.availQty) {
+            if (calcs.availQty !== 'â€”' && calcs.availQty !== undefined && calcs.baseQty > calcs.availQty) {
                 const diff = calcs.baseQty - calcs.availQty;
-                finalWarnings.push(`الصنف "<strong>${item.name}</strong>" تجاوز المخزون بمقدار <strong>${fmtNum(diff)} ${item.baseUnit || 'وحدة أساسية'}</strong>`);
+                finalWarnings.push(`Ø§Ù„ØµÙ†Ù "<strong>${item.name}</strong>" ØªØ¬Ø§ÙˆØ² Ø§Ù„Ù…Ø®Ø²ÙˆÙ† Ø¨Ù…Ù‚Ø¯Ø§Ø± <strong>${fmtNum(diff)} ${item.baseUnit || 'ÙˆØ­Ø¯Ø© Ø£Ø³Ø§Ø³ÙŠØ©'}</strong>`);
             }
         }
         const custId = document.getElementById('hdr-customer').value;
@@ -1957,13 +1960,13 @@ function submitInvoice(ignoreWarnings = false) {
             if (grand > remaining) {
                 const diff = grand - remaining;
                 const cur = getCurrency();
-                finalWarnings.push(`الفاتورة تجاوزت حد الائتمان بمقدار <strong>${fmtNum(diff)} ${cur}</strong>`);
+                finalWarnings.push(`Ø§Ù„ÙØ§ØªÙˆØ±Ø© ØªØ¬Ø§ÙˆØ²Øª Ø­Ø¯ Ø§Ù„Ø§Ø¦ØªÙ…Ø§Ù† Ø¨Ù…Ù‚Ø¯Ø§Ø± <strong>${fmtNum(diff)} ${cur}</strong>`);
             }
         }
     }
 
     if (usedAccountName) {
-        showToast(`تمت إضافة ${fmtNum(grandAmount)} ${cur} إلى رصيد: ${usedAccountName}`, 'success', 5000);
+        showToast(`ØªÙ…Øª Ø¥Ø¶Ø§ÙØ© ${fmtNum(grandAmount)} ${cur} Ø¥Ù„Ù‰ Ø±ØµÙŠØ¯: ${usedAccountName}`, 'success', 5000);
     }
 
     onSuccessNewInvoice(false);
@@ -1973,9 +1976,9 @@ function submitInvoice(ignoreWarnings = false) {
     // fetch('/api/v1/sales/invoices', { method:'POST', body:JSON.stringify(data) })
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  CONFIRM WARNING MODAL
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function showConfirmWarningModal(warnings) {
     const existing = document.getElementById('confirm-warning-overlay');
     if (existing) existing.remove();
@@ -1987,19 +1990,19 @@ function showConfirmWarningModal(warnings) {
         <div class="modal-card" style="max-width: 500px; border-color: rgba(245,158,11,0.4);">
             <div class="modal-header" style="border-bottom-color: rgba(245,158,11,0.2);">
                 <h3 style="color: #fbbf24; display:flex; align-items:center; gap:8px;">
-                    <span>⚠️</span> تنبيه بتجاوز الحدود
+                    <span>âš ï¸</span> ØªÙ†Ø¨ÙŠÙ‡ Ø¨ØªØ¬Ø§ÙˆØ² Ø§Ù„Ø­Ø¯ÙˆØ¯
                 </h3>
-                <button class="modal-close" onclick="closeConfirmWarningModal()">✕</button>
+                <button class="modal-close" onclick="closeConfirmWarningModal()">âœ•</button>
             </div>
             <div class="modal-body" style="color: #f1f5f9; font-size: 0.9rem; line-height: 1.6;">
-                <p style="margin-bottom: 12px; color: #cbd5e1;">لقد تجاوزت هذه الفاتورة بعض الحدود المسموحة. يرجى مراجعة التنبيهات التالية قبل التأكيد:</p>
+                <p style="margin-bottom: 12px; color: #cbd5e1;">Ù„Ù‚Ø¯ ØªØ¬Ø§ÙˆØ²Øª Ù‡Ø°Ù‡ Ø§Ù„ÙØ§ØªÙˆØ±Ø© Ø¨Ø¹Ø¶ Ø§Ù„Ø­Ø¯ÙˆØ¯ Ø§Ù„Ù…Ø³Ù…ÙˆØ­Ø©. ÙŠØ±Ø¬Ù‰ Ù…Ø±Ø§Ø¬Ø¹Ø© Ø§Ù„ØªÙ†Ø¨ÙŠÙ‡Ø§Øª Ø§Ù„ØªØ§Ù„ÙŠØ© Ù‚Ø¨Ù„ Ø§Ù„ØªØ£ÙƒÙŠØ¯:</p>
                 <ul style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 8px; padding: 12px 24px;">
                     ${warnings.map(w => `<li style="margin-bottom: 8px;">${w}</li>`).join('')}
                 </ul>
             </div>
             <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; border-top-color: rgba(245,158,11,0.2);">
-                <button class="btn btn-ghost" onclick="closeConfirmWarningModal()">إلغاء المراجعة</button>
-                <button class="btn btn-primary" style="background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(217,119,6,0.12)); border-color: rgba(245,158,11,0.4); color: #fbbf24;" onclick="executeConfirmWarning()">استمرار وتأكيد الفاتورة</button>
+                <button class="btn btn-ghost" onclick="closeConfirmWarningModal()">Ø¥Ù„ØºØ§Ø¡ Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©</button>
+                <button class="btn btn-primary" style="background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(217,119,6,0.12)); border-color: rgba(245,158,11,0.4); color: #fbbf24;" onclick="executeConfirmWarning()">Ø§Ø³ØªÙ…Ø±Ø§Ø± ÙˆØªØ£ÙƒÙŠØ¯ Ø§Ù„ÙØ§ØªÙˆØ±Ø©</button>
             </div>
         </div>
     `;
@@ -2020,9 +2023,9 @@ function executeConfirmWarning() {
     submitInvoice(true);
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  DELETE TRANSACTION MODAL
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function confirmDeleteTransaction() {
     const existing = document.getElementById('delete-confirm-overlay');
     if (existing) existing.remove();
@@ -2034,17 +2037,17 @@ function confirmDeleteTransaction() {
         <div class="modal-card" style="max-width: 400px; border-color: rgba(239,68,68,0.4);">
             <div class="modal-header" style="border-bottom-color: rgba(239,68,68,0.2);">
                 <h3 style="color: #f87171; display:flex; align-items:center; gap:8px;">
-                    <span>⚠️</span> تأكيد الحذف
+                    <span>âš ï¸</span> ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø­Ø°Ù
                 </h3>
-                <button class="modal-close" onclick="closeDeleteConfirmModal()">✕</button>
+                <button class="modal-close" onclick="closeDeleteConfirmModal()">âœ•</button>
             </div>
             <div class="modal-body" style="color: #f1f5f9; font-size: 0.95rem; line-height: 1.6; text-align: center;">
-                <p>هل أنت متأكد أنك تريد حذف هذه العملية ومسح جميع البيانات؟</p>
-                <p style="color: #cbd5e1; font-size: 0.85rem; margin-top: 8px;">لا يمكن التراجع عن هذا الإجراء.</p>
+                <p>Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ø£Ù†Ùƒ ØªØ±ÙŠØ¯ Ø­Ø°Ù Ù‡Ø°Ù‡ Ø§Ù„Ø¹Ù…Ù„ÙŠØ© ÙˆÙ…Ø³Ø­ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§ØªØŸ</p>
+                <p style="color: #cbd5e1; font-size: 0.85rem; margin-top: 8px;">Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„ØªØ±Ø§Ø¬Ø¹ Ø¹Ù† Ù‡Ø°Ø§ Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡.</p>
             </div>
             <div class="modal-footer" style="display:flex; justify-content:center; gap:15px; border-top-color: rgba(239,68,68,0.2);">
-                <button class="btn btn-ghost" onclick="closeDeleteConfirmModal()">إلغاء</button>
-                <button class="btn btn-primary" style="background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(185,28,28,0.12)); border-color: rgba(239,68,68,0.4); color: #f87171;" onclick="executeDeleteTransaction()">نعم، احذف العملية</button>
+                <button class="btn btn-ghost" onclick="closeDeleteConfirmModal()">Ø¥Ù„ØºØ§Ø¡</button>
+                <button class="btn btn-primary" style="background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(185,28,28,0.12)); border-color: rgba(239,68,68,0.4); color: #f87171;" onclick="executeDeleteTransaction()">Ù†Ø¹Ù…ØŒ Ø§Ø­Ø°Ù Ø§Ù„Ø¹Ù…Ù„ÙŠØ©</button>
             </div>
         </div>
     `;
@@ -2081,7 +2084,7 @@ function executeDeleteTransaction() {
     if (!oldInv) {
         localStorage.removeItem('erp_draft_' + currentInvNo);
         onSuccessNewInvoice(); 
-        showToast('🗑️ تم مسح بيانات الفاتورة', 'success');
+        showToast('ðŸ—‘ï¸ ØªÙ… Ù…Ø³Ø­ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„ÙØ§ØªÙˆØ±Ø©', 'success');
         return;
     }
     const grandAmount = parseFloat(oldInv.grandTotal) || 0;
@@ -2125,7 +2128,7 @@ function executeDeleteTransaction() {
             }
 
             const whId = row.warehouseId || mainWh;
-            const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي (السجانة)';
+            const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'Ø§Ù„Ù…Ø®Ø²Ù† Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ (Ø§Ù„Ø³Ø¬Ø§Ù†Ø©)';
             
             let itemInv = currentInvData.find(inv => inv.itemId === row.itemId && inv.warehouse === whName);
             if (itemInv) {
@@ -2152,12 +2155,12 @@ function executeDeleteTransaction() {
 
     // Reset Form
     onSuccessNewInvoice(); 
-    showToast('🗑️ تم حذف الفاتورة وإلغاء تأثيراتها المالية والمخزنية بنجاح', 'success');
+    showToast('ðŸ—‘ï¸ ØªÙ… Ø­Ø°Ù Ø§Ù„ÙØ§ØªÙˆØ±Ø© ÙˆØ¥Ù„ØºØ§Ø¡ ØªØ£Ø«ÙŠØ±Ø§ØªÙ‡Ø§ Ø§Ù„Ù…Ø§Ù„ÙŠØ© ÙˆØ§Ù„Ù…Ø®Ø²Ù†ÙŠØ© Ø¨Ù†Ø¬Ø§Ø­', 'success');
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  SUCCESS MODAL
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function showSuccessModal(invoiceNo, grandTotal, currency, warnings = []) {
     // Remove any existing success modal
     const existing = document.getElementById('success-modal-overlay');
@@ -2168,7 +2171,7 @@ function showSuccessModal(invoiceNo, grandTotal, currency, warnings = []) {
         warningsHtml = `
             <div style="margin-top: 15px; padding: 12px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; text-align: right;">
                 <strong style="color: #fbbf24; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
-                    <span>⚠️</span> تنبيهات أثناء الحفظ:
+                    <span>âš ï¸</span> ØªÙ†Ø¨ÙŠÙ‡Ø§Øª Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø­ÙØ¸:
                 </strong>
                 <ul style="color: #f1f5f9; font-size: 0.8rem; margin-top: 8px; padding-right: 24px; line-height: 1.5;">
                     ${warnings.map(w => `<li style="margin-bottom: 4px;">${w}</li>`).join('')}
@@ -2190,18 +2193,18 @@ function showSuccessModal(invoiceNo, grandTotal, currency, warnings = []) {
                     </svg>
                 </div>
             </div>
-            <h2 class="success-title">🎉 تم الحفظ بنجاح!</h2>
-            <p class="success-inv-no">رقم الفاتورة: <strong>#${invoiceNo}</strong></p>
+            <h2 class="success-title">ðŸŽ‰ ØªÙ… Ø§Ù„Ø­ÙØ¸ Ø¨Ù†Ø¬Ø§Ø­!</h2>
+            <p class="success-inv-no">Ø±Ù‚Ù… Ø§Ù„ÙØ§ØªÙˆØ±Ø©: <strong>#${invoiceNo}</strong></p>
             <div class="success-amount-box">
-                <div class="success-amount-label">إجمالي المبلغ</div>
+                <div class="success-amount-label">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø¨Ù„Øº</div>
                 <div class="success-amount-value">${grandTotal}</div>
             </div>
             ${warningsHtml}
             <div class="success-actions" style="margin-top: 20px; display:flex; flex-direction:column; gap:10px;">
-                <button class="btn btn-success success-btn" style="background:linear-gradient(135deg,#38bdf8,#0284c7);" onclick="printCurrentInvoice()">🖨️ طباعة الفاتورة</button>
+                <button class="btn btn-success success-btn" style="background:linear-gradient(135deg,#38bdf8,#0284c7);" onclick="printCurrentInvoice()">ðŸ–¨ï¸ Ø·Ø¨Ø§Ø¹Ø© Ø§Ù„ÙØ§ØªÙˆØ±Ø©</button>
                 <div style="display:flex; gap:10px;">
-                    <button class="btn btn-ghost success-btn" style="flex:1;" onclick="onSuccessNewInvoice()">عملية جديدة</button>
-                    <button class="btn btn-success success-btn" style="flex:1;" onclick="onSuccessDone()">قائمة المبيعات</button>
+                    <button class="btn btn-ghost success-btn" style="flex:1;" onclick="onSuccessNewInvoice()">Ø¹Ù…Ù„ÙŠØ© Ø¬Ø¯ÙŠØ¯Ø©</button>
+                    <button class="btn btn-success success-btn" style="flex:1;" onclick="onSuccessDone()">Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª</button>
                 </div>
             </div>
         </div>
@@ -2250,28 +2253,28 @@ function onSuccessDone() {
     if (overlay) { overlay.classList.remove('visible'); setTimeout(() => overlay.remove(), 400); }
     // In production: navigate to sales list
     // window.location.href = 'sales-list.html';
-    showToast('📋 قائمة المبيعات (قيد التطوير)', 'warning');
+    showToast('ðŸ“‹ Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª (Ù‚ÙŠØ¯ Ø§Ù„ØªØ·ÙˆÙŠØ±)', 'warning');
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  PRICE HISTORY MODAL
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function showPriceHistory(rowId, type) {
     const row = rows.find(r => r.id === rowId);
     if (!row || !row.itemId) {
-        showToast('⚠️ يرجى اختيار الصنف أولاً', 'warning');
+        showToast('âš ï¸ ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ØµÙ†Ù Ø£ÙˆÙ„Ø§Ù‹', 'warning');
         return;
     }
     
     const custId = document.getElementById('hdr-customer').value;
     if (!custId) {
-        showToast('⚠️ يرجى تحديد العميل أولاً لعرض سجله', 'warning');
+        showToast('âš ï¸ ÙŠØ±Ø¬Ù‰ ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ø¹Ù…ÙŠÙ„ Ø£ÙˆÙ„Ø§Ù‹ Ù„Ø¹Ø±Ø¶ Ø³Ø¬Ù„Ù‡', 'warning');
         return;
     }
     
     const item = ITEMS.find(i => i.id === row.itemId);
-    const itemName = item ? item.name : 'صنف غير معروف';
-    const custName = document.getElementById('hdr-customer-search').value || 'العميل';
+    const itemName = item ? item.name : 'ØµÙ†Ù ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ';
+    const custName = document.getElementById('hdr-customer-search').value || 'Ø§Ù„Ø¹Ù…ÙŠÙ„';
 
     let historyKey = type === 'sales' ? 'erp_sales_invoices_v1' : 'erp_purchase_invoices_v1';
     let invoices = JSON.parse(localStorage.getItem(historyKey)) || [];
@@ -2314,7 +2317,7 @@ function showPriceHistory(rowId, type) {
 
     let tbodyHtml = '';
     if (historyRows.length === 0) {
-        tbodyHtml = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding: 15px;">لا يوجد سجل أسعار سابق لهذا الصنف مع هذا العميل</td></tr>`;
+        tbodyHtml = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding: 15px;">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø³Ø¬Ù„ Ø£Ø³Ø¹Ø§Ø± Ø³Ø§Ø¨Ù‚ Ù„Ù‡Ø°Ø§ Ø§Ù„ØµÙ†Ù Ù…Ø¹ Ù‡Ø°Ø§ Ø§Ù„Ø¹Ù…ÙŠÙ„</td></tr>`;
     } else {
         tbodyHtml = historyRows.map(h => `
             <tr>
@@ -2338,18 +2341,18 @@ function showPriceHistory(rowId, type) {
             <div class="modal-header">
                 <h3 style="display:flex; align-items:center; gap:8px; color: #38bdf8;">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                    سجل الأسعار السابقة
+                    Ø³Ø¬Ù„ Ø§Ù„Ø£Ø³Ø¹Ø§Ø± Ø§Ù„Ø³Ø§Ø¨Ù‚Ø©
                 </h3>
-                <button class="modal-close" onclick="closePriceHistoryModal()">✕</button>
+                <button class="modal-close" onclick="closePriceHistoryModal()">âœ•</button>
             </div>
             <div class="modal-body">
                 <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; margin-bottom: 15px;">
                     <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                        <span style="color:var(--text-muted); font-size:0.85rem;">الصنف:</span>
+                        <span style="color:var(--text-muted); font-size:0.85rem;">Ø§Ù„ØµÙ†Ù:</span>
                         <strong style="color:var(--text-primary);">${itemName}</strong>
                     </div>
                     <div style="display:flex; justify-content:space-between;">
-                        <span style="color:var(--text-muted); font-size:0.85rem;">العميل:</span>
+                        <span style="color:var(--text-muted); font-size:0.85rem;">Ø§Ù„Ø¹Ù…ÙŠÙ„:</span>
                         <strong style="color:var(--text-primary);">${custName}</strong>
                     </div>
                 </div>
@@ -2357,11 +2360,11 @@ function showPriceHistory(rowId, type) {
                     <table style="width: 100%; border-collapse: collapse; text-align: right; font-size: 0.9rem;">
                         <thead>
                             <tr style="background: rgba(0,0,0,0.2);">
-                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">التاريخ</th>
-                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">رقم الفاتورة</th>
-                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">الكمية</th>
-                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">السعر</th>
-                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">ما يعادل بالدولار</th>
+                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">Ø§Ù„ØªØ§Ø±ÙŠØ®</th>
+                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">Ø±Ù‚Ù… Ø§Ù„ÙØ§ØªÙˆØ±Ø©</th>
+                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">Ø§Ù„ÙƒÙ…ÙŠØ©</th>
+                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">Ø§Ù„Ø³Ø¹Ø±</th>
+                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">Ù…Ø§ ÙŠØ¹Ø§Ø¯Ù„ Ø¨Ø§Ù„Ø¯ÙˆÙ„Ø§Ø±</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2371,7 +2374,7 @@ function showPriceHistory(rowId, type) {
                 </div>
             </div>
             <div class="modal-footer" style="display:flex; justify-content:flex-end;">
-                <button class="btn btn-ghost" onclick="closePriceHistoryModal()">إغلاق</button>
+                <button class="btn btn-ghost" onclick="closePriceHistoryModal()">Ø¥ØºÙ„Ø§Ù‚</button>
             </div>
         </div>
     `;
@@ -2387,9 +2390,9 @@ function closePriceHistoryModal() {
     }
 }
 
-// ════════════════════════════════════════
-//  PRINT LOGIC — uses InvoicePrinter engine
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  PRINT LOGIC â€” uses InvoicePrinter engine
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function printCurrentInvoice() {
     const WAREHOUSES_local = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || WAREHOUSES;
     const whId   = document.getElementById('hdr-warehouse').value;
@@ -2402,8 +2405,8 @@ function printCurrentInvoice() {
             const item   = ITEMS.find(i => i.id === r.itemId);
             const calcs  = getRowCalcs(r);
             return {
-                itemName:     item ? item.name : '—',
-                unit:         r.selectedUnit || (item ? item.unit : '—'),
+                itemName:     item ? item.name : 'â€”',
+                unit:         r.selectedUnit || (item ? item.unit : 'â€”'),
                 quantity:     r.quantity,
                 price:        r.price,
                 total:        calcs.total,
@@ -2421,16 +2424,16 @@ function printCurrentInvoice() {
 
     const data = {
         type:          'sales',
-        typeLabel:     currentSaleType === 'direct' ? 'فاتورة مبيعات مباشرة' :
-                       currentSaleType === 'split'  ? 'فاتورة بيع مقسّمة'    :
-                       currentSaleType === 'proforma'? 'عرض سعر (بروفورما)'  : 'فاتورة مبيعات',
+        typeLabel:     currentSaleType === 'direct' ? 'ÙØ§ØªÙˆØ±Ø© Ù…Ø¨ÙŠØ¹Ø§Øª Ù…Ø¨Ø§Ø´Ø±Ø©' :
+                       currentSaleType === 'split'  ? 'ÙØ§ØªÙˆØ±Ø© Ø¨ÙŠØ¹ Ù…Ù‚Ø³Ù‘Ù…Ø©'    :
+                       currentSaleType === 'proforma'? 'Ø¹Ø±Ø¶ Ø³Ø¹Ø± (Ø¨Ø±ÙˆÙÙˆØ±Ù…Ø§)'  : 'ÙØ§ØªÙˆØ±Ø© Ù…Ø¨ÙŠØ¹Ø§Øª',
         invoiceNo:     document.getElementById('hdr-inv-no').value,
         date:          document.getElementById('hdr-date').value,
-        customerName:  document.getElementById('hdr-customer-search').value || 'زبون نقدي',
+        customerName:  document.getElementById('hdr-customer-search').value || 'Ø²Ø¨ÙˆÙ† Ù†Ù‚Ø¯ÙŠ',
         currency:      getCurrency(),
         exchangeRate:  parseNum(document.getElementById('hdr-exchange-rate')?.value || '1'),
         paymentMethod: document.getElementById('hdr-payment-method').value,
-        warehouseName: whObj ? whObj.name : '—',
+        warehouseName: whObj ? whObj.name : 'â€”',
         notes:         document.getElementById('inv-notes').value,
         items:         printItems,
         subtotal:      subtotalVal,
@@ -2454,9 +2457,9 @@ function generatePrintArea(type) {
     printCurrentInvoice();
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  OLD generatePrintArea body (replaced)
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function _legacyBuildPrintArea(type) {
     let printArea = document.getElementById('print-area');
     if (!printArea) {
@@ -2472,7 +2475,7 @@ function _legacyBuildPrintArea(type) {
         warehouseGroups[whId].push(row);
     });
 
-    const custName = document.getElementById('hdr-customer-search').value || (type === 'sales' ? 'عميل نقدي' : 'مورد نقدي');
+    const custName = document.getElementById('hdr-customer-search').value || (type === 'sales' ? 'Ø¹Ù…ÙŠÙ„ Ù†Ù‚Ø¯ÙŠ' : 'Ù…ÙˆØ±Ø¯ Ù†Ù‚Ø¯ÙŠ');
     const invNo = document.getElementById('hdr-inv-no').value;
     const invDate = document.getElementById('hdr-date').value;
     const grandTotal = document.getElementById('t-grand').textContent;
@@ -2484,23 +2487,23 @@ function _legacyBuildPrintArea(type) {
     html += `
     <div class="print-page" style="padding: 20px; direction: rtl; font-family: 'Cairo', Tahoma, Arial;">
         <div style="text-align:center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
-            <h2>${type === 'sales' ? 'فاتورة مبيعات' : 'فاتورة مشتريات'}</h2>
-            <h3>شركة السجانة</h3>
+            <h2>${type === 'sales' ? 'ÙØ§ØªÙˆØ±Ø© Ù…Ø¨ÙŠØ¹Ø§Øª' : 'ÙØ§ØªÙˆØ±Ø© Ù…Ø´ØªØ±ÙŠØ§Øª'}</h2>
+            <h3>Ø´Ø±ÙƒØ© Ø§Ù„Ø³Ø¬Ø§Ù†Ø©</h3>
         </div>
         <div style="display:flex; justify-content:space-between; margin-bottom: 20px; font-size: 14px;">
-            <div><strong>رقم الفاتورة:</strong> ${invNo}</div>
-            <div><strong>التاريخ:</strong> ${invDate}</div>
-            <div><strong>${type === 'sales' ? 'العميل' : 'المورد'}:</strong> ${custName}</div>
+            <div><strong>Ø±Ù‚Ù… Ø§Ù„ÙØ§ØªÙˆØ±Ø©:</strong> ${invNo}</div>
+            <div><strong>Ø§Ù„ØªØ§Ø±ÙŠØ®:</strong> ${invDate}</div>
+            <div><strong>${type === 'sales' ? 'Ø§Ù„Ø¹Ù…ÙŠÙ„' : 'Ø§Ù„Ù…ÙˆØ±Ø¯'}:</strong> ${custName}</div>
         </div>
         <table style="width: 100%; border-collapse: collapse; margin-top: 10px;" border="1">
             <thead>
                 <tr style="background:#eee; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                    <th style="padding:8px;">م</th>
-                    <th style="padding:8px;">الصنف</th>
-                    <th style="padding:8px;">الوحدة</th>
-                    <th style="padding:8px;">الكمية</th>
-                    <th style="padding:8px;">السعر</th>
-                    <th style="padding:8px;">الإجمالي</th>
+                    <th style="padding:8px;">Ù…</th>
+                    <th style="padding:8px;">Ø§Ù„ØµÙ†Ù</th>
+                    <th style="padding:8px;">Ø§Ù„ÙˆØ­Ø¯Ø©</th>
+                    <th style="padding:8px;">Ø§Ù„ÙƒÙ…ÙŠØ©</th>
+                    <th style="padding:8px;">Ø§Ù„Ø³Ø¹Ø±</th>
+                    <th style="padding:8px;">Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ</th>
                 </tr>
             </thead>
             <tbody>
@@ -2508,7 +2511,7 @@ function _legacyBuildPrintArea(type) {
     
     rows.forEach((r, idx) => {
         const item = ITEMS.find(i => i.id === r.itemId);
-        const itemName = item ? item.name : 'غير معروف';
+        const itemName = item ? item.name : 'ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ';
         const calcs = getRowCalcs(r);
         html += `
             <tr>
@@ -2526,44 +2529,44 @@ function _legacyBuildPrintArea(type) {
             </tbody>
         </table>
         <div style="margin-top: 20px; text-align:left; font-size: 18px;">
-            <strong>الإجمالي النهائي:</strong> ${grandTotal} ${currency}
+            <strong>Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù†Ù‡Ø§Ø¦ÙŠ:</strong> ${grandTotal} ${currency}
         </div>
         <div style="margin-top: 50px; display:flex; justify-content:space-between;">
-            <div><strong>${type === 'sales' ? 'البائع' : 'المستلم'}:</strong> ......................</div>
-            <div><strong>توقيع ${type === 'sales' ? 'العميل' : 'المورد'}:</strong> ......................</div>
+            <div><strong>${type === 'sales' ? 'Ø§Ù„Ø¨Ø§Ø¦Ø¹' : 'Ø§Ù„Ù…Ø³ØªÙ„Ù…'}:</strong> ......................</div>
+            <div><strong>ØªÙˆÙ‚ÙŠØ¹ ${type === 'sales' ? 'Ø§Ù„Ø¹Ù…ÙŠÙ„' : 'Ø§Ù„Ù…ÙˆØ±Ø¯'}:</strong> ......................</div>
         </div>
     </div>
     `;
 
     // 2. The Warehouse Issue/Receipt Notes
     for (let whId in warehouseGroups) {
-        let whName = "المستودع الرئيسي";
+        let whName = "Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹ Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ";
         if (whId) {
             let w = WAREHOUSES.find(x => x.id === whId);
             if (w) whName = w.name;
         }
         
-        let noteTitle = type === 'sales' ? 'إذن صرف مخزني' : 'إذن استلام مخزني';
+        let noteTitle = type === 'sales' ? 'Ø¥Ø°Ù† ØµØ±Ù Ù…Ø®Ø²Ù†ÙŠ' : 'Ø¥Ø°Ù† Ø§Ø³ØªÙ„Ø§Ù… Ù…Ø®Ø²Ù†ÙŠ';
 
         html += `
         <div class="print-page" style="padding: 20px; direction: rtl; font-family: 'Cairo', Tahoma, Arial;">
             <div style="text-align:center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
                 <h2>${noteTitle}</h2>
-                <h3>مستودع: ${whName}</h3>
+                <h3>Ù…Ø³ØªÙˆØ¯Ø¹: ${whName}</h3>
             </div>
             <div style="display:flex; justify-content:space-between; margin-bottom: 20px; font-size: 14px;">
-                <div><strong>رقم الفاتورة المرجعي:</strong> ${invNo}</div>
-                <div><strong>التاريخ:</strong> ${invDate}</div>
-                <div><strong>${type === 'sales' ? 'العميل' : 'المورد'}:</strong> ${custName}</div>
+                <div><strong>Ø±Ù‚Ù… Ø§Ù„ÙØ§ØªÙˆØ±Ø© Ø§Ù„Ù…Ø±Ø¬Ø¹ÙŠ:</strong> ${invNo}</div>
+                <div><strong>Ø§Ù„ØªØ§Ø±ÙŠØ®:</strong> ${invDate}</div>
+                <div><strong>${type === 'sales' ? 'Ø§Ù„Ø¹Ù…ÙŠÙ„' : 'Ø§Ù„Ù…ÙˆØ±Ø¯'}:</strong> ${custName}</div>
             </div>
             <table style="width: 100%; border-collapse: collapse; margin-top: 10px;" border="1">
                 <thead>
                     <tr style="background:#eee; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                        <th style="padding:8px;">م</th>
-                        <th style="padding:8px;">الصنف</th>
-                        <th style="padding:8px;">الوحدة</th>
-                        <th style="padding:8px;">الكمية</th>
-                        <th style="padding:8px;">ملاحظات المستودع</th>
+                        <th style="padding:8px;">Ù…</th>
+                        <th style="padding:8px;">Ø§Ù„ØµÙ†Ù</th>
+                        <th style="padding:8px;">Ø§Ù„ÙˆØ­Ø¯Ø©</th>
+                        <th style="padding:8px;">Ø§Ù„ÙƒÙ…ÙŠØ©</th>
+                        <th style="padding:8px;">Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -2571,7 +2574,7 @@ function _legacyBuildPrintArea(type) {
         
         warehouseGroups[whId].forEach((r, idx) => {
             const item = ITEMS.find(i => i.id === r.itemId);
-            const itemName = item ? item.name : 'غير معروف';
+            const itemName = item ? item.name : 'ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ';
             html += `
                 <tr>
                     <td style="padding:8px; text-align:center;">${idx+1}</td>
@@ -2587,8 +2590,8 @@ function _legacyBuildPrintArea(type) {
                 </tbody>
             </table>
             <div style="margin-top: 50px; display:flex; justify-content:space-between;">
-                <div><strong>أمين المستودع:</strong> ......................</div>
-                <div><strong>المستلم:</strong> ......................</div>
+                <div><strong>Ø£Ù…ÙŠÙ† Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹:</strong> ......................</div>
+                <div><strong>Ø§Ù„Ù…Ø³ØªÙ„Ù…:</strong> ......................</div>
             </div>
         </div>
         `;
@@ -2597,9 +2600,9 @@ function _legacyBuildPrintArea(type) {
     printArea.innerHTML = html;
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  GPS TOGGLE
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function toggleGPS() {
     const btn = document.getElementById('btn-gps');
     const status = document.getElementById('gps-status');
@@ -2612,37 +2615,37 @@ function toggleGPS() {
         lngInp.value = '';
         btn.style.color = 'var(--text-muted)';
         btn.style.background = 'rgba(0,0,0,0.2)';
-        status.textContent = 'GPS إيقاف';
-        showToast('تم إيقاف ختم الموقع الجغرافي', 'warning');
+        status.textContent = 'GPS Ø¥ÙŠÙ‚Ø§Ù';
+        showToast('ØªÙ… Ø¥ÙŠÙ‚Ø§Ù Ø®ØªÙ… Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ø§Ù„Ø¬ØºØ±Ø§ÙÙŠ', 'warning');
     } else {
         // Turn on
         if (navigator.geolocation) {
             btn.style.color = '#fbbf24';
-            status.textContent = 'جاري التحديد...';
+            status.textContent = 'Ø¬Ø§Ø±ÙŠ Ø§Ù„ØªØ­Ø¯ÙŠØ¯...';
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
                     latInp.value = pos.coords.latitude;
                     lngInp.value = pos.coords.longitude;
                     btn.style.color = '#10b981';
                     btn.style.background = 'rgba(16,185,129,0.15)';
-                    status.textContent = 'GPS نشط';
-                    showToast('تم التقاط إحداثيات الموقع بنجاح ✅', 'success');
+                    status.textContent = 'GPS Ù†Ø´Ø·';
+                    showToast('ØªÙ… Ø§Ù„ØªÙ‚Ø§Ø· Ø¥Ø­Ø¯Ø§Ø«ÙŠØ§Øª Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ø¨Ù†Ø¬Ø§Ø­ âœ…', 'success');
                 },
                 (err) => {
                     btn.style.color = '#f87171';
-                    status.textContent = 'مرفوض';
-                    showToast('تم رفض صلاحية الموقع أو فشل التحديد', 'error');
+                    status.textContent = 'Ù…Ø±ÙÙˆØ¶';
+                    showToast('ØªÙ… Ø±ÙØ¶ ØµÙ„Ø§Ø­ÙŠØ© Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ø£Ùˆ ÙØ´Ù„ Ø§Ù„ØªØ­Ø¯ÙŠØ¯', 'error');
                 }
             );
         } else {
-            showToast('متصفحك لا يدعم تحديد الموقع', 'error');
+            showToast('Ù…ØªØµÙØ­Ùƒ Ù„Ø§ ÙŠØ¯Ø¹Ù… ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ù…ÙˆÙ‚Ø¹', 'error');
         }
     }
 }
 
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  DELIVERY HUB & PRELIMINARY LOGIC
-// ════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 function loadDeliveryTransactions() {
     const tbody = document.getElementById('delivery-transactions-body');
@@ -2665,7 +2668,7 @@ function loadDeliveryTransactions() {
     let warehouses = [];
     try { warehouses = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || []; } catch(e) {}
     let whOptions = warehouses.map(w => `<option value='${w.id}' ${w.isPrimary ? 'selected' : ''}>${w.name}</option>`).join('');
-    if (!whOptions) whOptions = `<option value='main'>المخزن الرئيسي (السجانة)</option>`;
+    if (!whOptions) whOptions = `<option value='main'>Ø§Ù„Ù…Ø®Ø²Ù† Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ (Ø§Ù„Ø³Ø¬Ø§Ù†Ø©)</option>`;
 
     pendingInvoices.forEach(inv => {
         const tr = document.createElement('tr');
@@ -2673,14 +2676,14 @@ function loadDeliveryTransactions() {
         tr.innerHTML = `
             <td style='text-align:right; font-weight:800; color:var(--gold-primary);'>${inv.invoiceNo}</td>
             <td style='text-align:right; color:var(--text-dim);'>${new Date(inv.timestamp).toLocaleString('ar-EG')}</td>
-            <td style='text-align:right; font-weight:600;'>${inv.customerName || inv.customer || 'عميل نقدي'}</td>
+            <td style='text-align:right; font-weight:600;'>${inv.customerName || inv.customer || 'Ø¹Ù…ÙŠÙ„ Ù†Ù‚Ø¯ÙŠ'}</td>
             <td style='text-align:center;'>
                 <select id='del-wh-${inv.invoiceNo}' class='v-input' style='padding: 4px; font-size: 0.8rem;'>
                     ${whOptions}
                 </select>
             </td>
             <td style='text-align:center;'>
-                <button onclick="executeDelivery('${inv.invoiceNo}')" style='background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:#10b981; border-radius:6px; padding:4px 8px; cursor:pointer;'>تسليم واعتماد</button>
+                <button onclick="executeDelivery('${inv.invoiceNo}')" style='background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:#10b981; border-radius:6px; padding:4px 8px; cursor:pointer;'>ØªØ³Ù„ÙŠÙ… ÙˆØ§Ø¹ØªÙ…Ø§Ø¯</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -2697,7 +2700,7 @@ function filterDeliveryTransactions() {
 }
 
 function executeDelivery(invNo) {
-    if (!confirm('هل أنت متأكد من تسليم الفاتورة رقم ' + invNo + ' وخصم البضاعة من المخزون؟')) return;
+    if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† ØªØ³Ù„ÙŠÙ… Ø§Ù„ÙØ§ØªÙˆØ±Ø© Ø±Ù‚Ù… ' + invNo + ' ÙˆØ®ØµÙ… Ø§Ù„Ø¨Ø¶Ø§Ø¹Ø© Ù…Ù† Ø§Ù„Ù…Ø®Ø²ÙˆÙ†ØŸ')) return;
 
     let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     let invIndex = allSales.findIndex(i => i.invoiceNo === invNo);
@@ -2707,7 +2710,7 @@ function executeDelivery(invNo) {
     let selectedWhId = document.getElementById('del-wh-' + invNo).value;
     
     let warehouses = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
-    let whName = warehouses.find(w => w.id === selectedWhId)?.name || 'المخزن الرئيسي (السجانة)';
+    let whName = warehouses.find(w => w.id === selectedWhId)?.name || 'Ø§Ù„Ù…Ø®Ø²Ù† Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ (Ø§Ù„Ø³Ø¬Ø§Ù†Ø©)';
 
     // Deduct Inventory
     let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
@@ -2747,12 +2750,12 @@ function executeDelivery(invNo) {
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
     localStorage.setItem('erp_inv_' + invNo, JSON.stringify(inv));
 
-    showToast('تم التسليم وخصم المخزون بنجاح!', 'success');
+    showToast('ØªÙ… Ø§Ù„ØªØ³Ù„ÙŠÙ… ÙˆØ®ØµÙ… Ø§Ù„Ù…Ø®Ø²ÙˆÙ† Ø¨Ù†Ø¬Ø§Ø­!', 'success');
     loadDeliveryTransactions();
 }
 
 function convertToOfficial(invNo) {
-    if (!confirm('تحويل الفاتورة المبدئية رقم ' + invNo + ' إلى فاتورة رسمية (تحديث الحسابات)؟')) return;
+    if (!confirm('ØªØ­ÙˆÙŠÙ„ Ø§Ù„ÙØ§ØªÙˆØ±Ø© Ø§Ù„Ù…Ø¨Ø¯Ø¦ÙŠØ© Ø±Ù‚Ù… ' + invNo + ' Ø¥Ù„Ù‰ ÙØ§ØªÙˆØ±Ø© Ø±Ø³Ù…ÙŠØ© (ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª)ØŸ')) return;
 
     let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     let invIndex = allSales.findIndex(i => i.invoiceNo === invNo);
@@ -2794,7 +2797,7 @@ function convertToOfficial(invNo) {
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
     localStorage.setItem('erp_inv_' + invNo, JSON.stringify(inv));
 
-    showToast('تم تحويل الفاتورة المبدئية بنجاح!', 'success');
+    showToast('ØªÙ… ØªØ­ÙˆÙŠÙ„ Ø§Ù„ÙØ§ØªÙˆØ±Ø© Ø§Ù„Ù…Ø¨Ø¯Ø¦ÙŠØ© Ø¨Ù†Ø¬Ø§Ø­!', 'success');
     if (typeof loadHubTransactions === 'function') loadHubTransactions();
 }
 
@@ -2805,24 +2808,24 @@ async function sendInvoiceWA(invoiceNo) {
         const data = await res.json();
         
         if (data.status !== 'CONNECTED' && data.status !== 'AUTHENTICATED') {
-            const wantsToConnect = typeof showWAConnectPrompt === 'function' ? await showWAConnectPrompt() : confirm('رقم الواتساب غير مربوط. هل تريد الربط الآن؟');
+            const wantsToConnect = typeof showWAConnectPrompt === 'function' ? await showWAConnectPrompt() : confirm('Ø±Ù‚Ù… Ø§Ù„ÙˆØ§ØªØ³Ø§Ø¨ ØºÙŠØ± Ù…Ø±Ø¨ÙˆØ·. Ù‡Ù„ ØªØ±ÙŠØ¯ Ø§Ù„Ø±Ø¨Ø· Ø§Ù„Ø¢Ù†ØŸ');
             if (wantsToConnect) {
                 if (typeof openWAModal === 'function') {
                     openWAModal();
                 } else {
-                    alert('يرجى الذهاب إلى شاشة الإعدادات لربط الواتساب.');
+                    alert('ÙŠØ±Ø¬Ù‰ Ø§Ù„Ø°Ù‡Ø§Ø¨ Ø¥Ù„Ù‰ Ø´Ø§Ø´Ø© Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ù„Ø±Ø¨Ø· Ø§Ù„ÙˆØ§ØªØ³Ø§Ø¨.');
                 }
             }
             return;
         }
     } catch (err) {
-        alert('خدمة الواتساب غير متاحة حالياً. تأكد من تشغيل الخادم.');
+        alert('Ø®Ø¯Ù…Ø© Ø§Ù„ÙˆØ§ØªØ³Ø§Ø¨ ØºÙŠØ± Ù…ØªØ§Ø­Ø© Ø­Ø§Ù„ÙŠØ§Ù‹. ØªØ£ÙƒØ¯ Ù…Ù† ØªØ´ØºÙŠÙ„ Ø§Ù„Ø®Ø§Ø¯Ù….');
         return;
     }
 
     let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     let inv = allSales.find(i => i.invoiceNo === invoiceNo);
-    if (!inv) { alert('لم يتم العثور على الفاتورة'); return; }
+    if (!inv) { alert('Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø§Ù„ÙØ§ØªÙˆØ±Ø©'); return; }
 
     const phone = await new Promise((resolve) => {
         const overlayId = 'wa-phone-prompt-overlay';
@@ -2836,19 +2839,19 @@ async function sendInvoiceWA(invoiceNo) {
                     <svg viewBox="0 0 24 24" width="45" height="45" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                 </div>
                 
-                <h3 style="color:#f8fafc; font-size:1.6rem; font-family:'Tajawal',sans-serif; margin-bottom:10px; margin-top:0; font-weight:800;">إرسال الفاتورة عبر واتساب</h3>
-                <p style="color:#94a3b8; font-size:1rem; margin-bottom:25px; line-height:1.6; font-family:'Tajawal',sans-serif;">يرجى إدخال رقم هاتف العميل مدعوماً بالمفتاح الدولي (مثال: 249912345678)</p>
+                <h3 style="color:#f8fafc; font-size:1.6rem; font-family:'Tajawal',sans-serif; margin-bottom:10px; margin-top:0; font-weight:800;">Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„ÙØ§ØªÙˆØ±Ø© Ø¹Ø¨Ø± ÙˆØ§ØªØ³Ø§Ø¨</h3>
+                <p style="color:#94a3b8; font-size:1rem; margin-bottom:25px; line-height:1.6; font-family:'Tajawal',sans-serif;">ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø±Ù‚Ù… Ù‡Ø§ØªÙ Ø§Ù„Ø¹Ù…ÙŠÙ„ Ù…Ø¯Ø¹ÙˆÙ…Ø§Ù‹ Ø¨Ø§Ù„Ù…ÙØªØ§Ø­ Ø§Ù„Ø¯ÙˆÙ„ÙŠ (Ù…Ø«Ø§Ù„: 249912345678)</p>
                 
                 <div style="margin-bottom:25px; position:relative;">
-                    <input type="tel" id="wa-prompt-input" placeholder="رقم الهاتف..." style="width:100%; background:rgba(0,0,0,0.4); border:2px solid rgba(255,255,255,0.1); color:#fff; padding:15px; border-radius:12px; font-size:1.2rem; text-align:center; transition:all 0.3s; outline:none; font-family:'Inter',sans-serif;" onfocus="this.style.borderColor='#25d366'; this.style.boxShadow='0 0 15px rgba(37,211,102,0.3)';" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.boxShadow='none';">
+                    <input type="tel" id="wa-prompt-input" placeholder="Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ..." style="width:100%; background:rgba(0,0,0,0.4); border:2px solid rgba(255,255,255,0.1); color:#fff; padding:15px; border-radius:12px; font-size:1.2rem; text-align:center; transition:all 0.3s; outline:none; font-family:'Inter',sans-serif;" onfocus="this.style.borderColor='#25d366'; this.style.boxShadow='0 0 15px rgba(37,211,102,0.3)';" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.boxShadow='none';">
                 </div>
 
                 <div style="display:flex; gap:15px; justify-content:center;">
                     <button id="wa-prompt-send" style="background:linear-gradient(135deg, #25d366, #1da851); color:#fff; border:none; padding:12px 30px; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer; font-family:'Tajawal',sans-serif; transition:all 0.3s; box-shadow:0 4px 15px rgba(37,211,102,0.4); display:flex; align-items:center; gap:8px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(37,211,102,0.5)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 15px rgba(37,211,102,0.4)';">
-                        <span>إرسال</span>
+                        <span>Ø¥Ø±Ø³Ø§Ù„</span>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                     </button>
-                    <button id="wa-prompt-cancel" style="background:rgba(255,255,255,0.05); color:#cbd5e1; border:1px solid rgba(255,255,255,0.1); padding:12px 25px; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer; font-family:'Tajawal',sans-serif; transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">إلغاء</button>
+                    <button id="wa-prompt-cancel" style="background:rgba(255,255,255,0.05); color:#cbd5e1; border:1px solid rgba(255,255,255,0.1); padding:12px 25px; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer; font-family:'Tajawal',sans-serif; transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">Ø¥Ù„ØºØ§Ø¡</button>
                 </div>
             </div>
         </div>
@@ -2915,7 +2918,7 @@ async function sendInvoiceWA(invoiceNo) {
     printContainer.innerHTML = styleSheet + htmlContent;
     document.body.appendChild(printContainer);
 
-    const message = 'مرحباً، مرفق فاتورتكم رقم ' + invoiceNo + ' من مؤسسة السجانة للتجارة. شكراً لتعاملكم معنا!';
+    const message = 'Ù…Ø±Ø­Ø¨Ø§Ù‹ØŒ Ù…Ø±ÙÙ‚ ÙØ§ØªÙˆØ±ØªÙƒÙ… Ø±Ù‚Ù… ' + invoiceNo + ' Ù…Ù† Ù…Ø¤Ø³Ø³Ø© Ø§Ù„Ø³Ø¬Ø§Ù†Ø© Ù„Ù„ØªØ¬Ø§Ø±Ø©. Ø´ÙƒØ±Ø§Ù‹ Ù„ØªØ¹Ø§Ù…Ù„ÙƒÙ… Ù…Ø¹Ù†Ø§!';
     
     try {
         await sendPDFViaWhatsApp(printContainer, phone, message);
@@ -2924,4 +2927,4 @@ async function sendInvoiceWA(invoiceNo) {
     } finally {
         printContainer.remove();
     }
-}
+}

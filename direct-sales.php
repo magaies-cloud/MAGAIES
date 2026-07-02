@@ -943,6 +943,14 @@
             localStorage.setItem('erp_theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
         }
     </script>
+<link rel=" stylesheet\ href=\https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css\ />
+ <style>
+ /* Choices custom overrides */
+ .choices__inner { background-color: rgba(30,41,59,0.8) !important; border: 1px solid rgba(255,255,255,0.15) !important; color: #fff !important; border-radius: 8px !important; min-height: 42px !important; }
+ .choices__list--dropdown { background-color: #1e293b !important; color: #fff !important; border: 1px solid #38bdf8 !important; z-index: 1000 !important; }
+ .choices__item--selectable.is-highlighted { background-color: #38bdf8 !important; color: #fff !important; }
+ .choices__input { color: #fff !important; }
+ </style>
 </head>
 <body>
     <!-- Toast Container -->
