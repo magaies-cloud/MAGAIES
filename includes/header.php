@@ -39,10 +39,15 @@
 
     <!-- Right: Controls -->
     <div style="display:flex; align-items:center; gap:12px; flex:1; justify-content:flex-end;">
-        <!-- Clock -->
-        <div style="display:flex; flex-direction:column; align-items:center; background:rgba(15,23,42,0.6); padding:6px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); min-width:110px;">
-            <span id="header-clock" style="color:#34d399; font-size:1.1rem; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:1px; text-shadow: 0 0 10px rgba(16,185,129,0.5);">00:00:00</span>
-            <span id="header-date-mini" style="color:var(--text-secondary); font-size:0.65rem; margin-top:1px;">جاري التحميل...</span>
+        <!-- Clock & Exchange Rate -->
+        <div class="header-time-stack" style="display:flex; flex-direction:column; gap:6px; align-items:center;">
+            <div class="clock-container" style="display:flex; flex-direction:column; align-items:center; background:rgba(15,23,42,0.6); padding:4px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); min-width:110px; width:100%; box-sizing:border-box;">
+                <span id="header-clock" style="color:#34d399; font-size:1.1rem; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:1px; text-shadow: 0 0 10px rgba(16,185,129,0.5);">00:00:00</span>
+                <span id="header-date-mini" style="color:var(--text-secondary); font-size:0.65rem; margin-top:1px;">جاري التحميل...</span>
+            </div>
+            <div id="global-exchange-rate-box" style="display:none; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); border-radius:10px; padding:3px 12px; min-width:110px; text-align:center; box-shadow:inset 0 0 10px rgba(245,158,11,0.1); width:100%; box-sizing:border-box;">
+                <span style="color:#fbd38d; font-size:0.75rem; font-weight:800;">سعر الصرف: <span id="global-exchange-rate-val" style="color:#fff; font-size:0.85rem;">-</span></span>
+            </div>
         </div>
         <!-- Theme -->
         <div style="display:flex; align-items:center; gap:8px;">
