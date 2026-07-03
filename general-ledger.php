@@ -1,4 +1,4 @@
-<?php $page_title = 'دفتر الأستاذ العام الذكي (SGL)'; ?>
+﻿<?php $page_title = 'دفتر الأستاذ العام الذكي (SGL)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -22,8 +22,8 @@
         .badge-sgl { background: #c084fc; color: #fff; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 900; letter-spacing: 1px; display: inline-block; vertical-align: middle; margin-right: 10px; }
         
         .filter-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
-        .filter-group { display: flex; flex-direction: column; gap: 8px; }
-        .filter-group label { color: #94a3b8; font-size: 0.85rem; font-weight: 700; }
+        .filter-group { display: flex; flex-direction: row; align-items: center; gap: 8px; background: rgba(15,23,42,0.4); padding: 5px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+        .filter-group label { color: #94a3b8; font-size: 0.8rem; font-weight: 700; white-space: nowrap; margin: 0; }
         .filter-input { background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); color: #f8fafc; padding: 10px 15px; border-radius: 10px; font-family: inherit; font-size: 0.95rem; outline: none; transition: all 0.2s; width: 100%; box-sizing: border-box; }
         .filter-input:focus { border-color: rgba(192,132,252,0.5); box-shadow: 0 0 0 3px rgba(192,132,252,0.1); }
         
@@ -250,7 +250,56 @@
             100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
         }
     </style>
-    \n</head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <style>
+        /* ─── Choices.js Dark Theme ─── */
+        .choices { margin-bottom: 0 !important; flex: 1; min-width: 150px; }
+        .choices__inner {
+            background-color: rgba(15,23,42,0.6) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            color: #f8fafc !important;
+            border-radius: 10px !important;
+            min-height: 42px !important;
+            display: flex;
+            align-items: center;
+            padding: 4px 8px !important;
+        }
+        .choices__input { background-color: transparent !important; color: #f8fafc !important; }
+        .choices__list--dropdown {
+            background-color: #1e293b !important;
+            border: 1px solid rgba(192,132,252,0.4) !important;
+            color: #e2e8f0 !important;
+            border-radius: 10px !important;
+            z-index: 99999 !important;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5) !important;
+        }
+        .choices__list--dropdown .choices__list {
+            max-height: 180px !important;
+            overflow-y: auto !important;
+        }
+        .choices__list--dropdown .choices__item--selectable {
+            padding: 10px 14px !important;
+            font-size: 0.9rem !important;
+            border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+        }
+        .choices__list--dropdown .choices__item--selectable.is-highlighted {
+            background-color: rgba(192,132,252,0.2) !important;
+            color: #c084fc !important;
+        }
+        .choices[data-type*="select-one"]::after { border-color: #94a3b8 transparent transparent transparent !important; }
+        .choices.is-open[data-type*="select-one"]::after { border-color: transparent transparent #94a3b8 transparent !important; }
+        .choices__item.choices__item--selectable { color: #f8fafc !important; }
+        .filter-group > label { white-space: nowrap; }
+        .filter-group { position: relative; overflow: visible !important; }
+        .ledger-header { overflow: visible !important; }
+        /* Force dropdown to open UPWARD (above) */
+        .choices__list--dropdown { top: auto !important; bottom: 100% !important; margin-bottom: 4px !important; }
+        .choices.is-open[data-type*="select-one"]::after {
+            border-color: transparent transparent #94a3b8 transparent !important;
+        }
+    </style>
+    </head>
 <body>
 <div class="toast-container" id="toast-container"></div>
 
@@ -265,59 +314,41 @@
 </div>
 
 <div style="max-width: 1600px; margin: 0 auto; padding: 20px 30px; padding-bottom: 80px;">
-
-    <!-- BREADCRUMB -->
-    <div class="page-breadcrumb no-print" style="display:inline-flex; align-items:center; background:rgba(0,0,0,0.2); padding:8px 15px; border-radius:8px; margin-bottom:20px;">
-        <button onclick="history.back()" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; padding:4px 8px; border-radius:4px; margin-left:8px; color:#94a3b8; display:flex;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </button>
-        <a data-href="financial-reports.php" onclick="window.location.href='financial-reports.php'" style="color:#c084fc; text-decoration:none; font-weight:700;">التقارير المالية</a>
-        <span style="margin:0 10px; color:#475569;">/</span>
-        <span style="color:#f8fafc;">دفتر الأستاذ العام الذكي (SGL)</span>
-    </div>
-
-    <!-- PAGE TITLE -->
-    <div style="margin-bottom: 25px;" class="no-print">
-        <h1 style="color:#fff; margin:0 0 5px 0; font-size:2rem; font-weight:900;">
-            دفتر الأستاذ العام الذكي 
-            <span class="badge-sgl">SGL PRO</span>
-        </h1>
-        <p style="color:#64748b; margin:0;">Smart General Ledger — تتبع الحركات المحاسبية من وإلى الحسابات الرئيسية</p>
-    </div>
+    <!-- Premium Navigation Header -->
+    <?php include 'includes/header.php'; ?>
 
     <!-- FILTER SECTION -->
-    <div class="ledger-header no-print premium-header">
-        <div class="filter-row">
-            <div class="filter-group">
-                <label>الحساب الرئيسي (أو الفرعي)</label>
-                <div class="search-wrap" style="display:flex; gap:5px; align-items: stretch; position: relative;">
-                    <div style="position:relative; flex:1;">
-                        <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث باسم أو كود الحساب..." autocomplete="off" oninput="onAccountSearch()" onkeyup="onAccountSearchKey(event)">
-                        <button class="search-clear-btn" id="search-clear-btn">✕</button>
-                        <ul class="autocomplete-list" id="autocomplete-list"></ul>
-                    </div>
-                    <button type="button" class="btn-action" onclick="runAISmartSearch()" id="btn-smart-search" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); color:white; border:none; padding: 0 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3); font-weight: bold; cursor: pointer; transition: 0.3s;" title="البحث بالمعنى (الذكاء الاصطناعي)">🤖 ذكي</button>
-                </div>
-                <div class="selected-account-chip" id="selected-chip">
-                    <span id="chip-icon">🏷️</span>
-                    <span id="chip-name"></span>
-                    <button class="chip-remove" onclick="clearAccountSearch()" title="إلغاء">✕</button>
-                </div>
-                <input type="hidden" id="filter-account" value="ALL">
-            </div>
-            <div class="filter-group">
-                <label>من تاريخ</label>
-                <input type="date" class="filter-input" id="filter-from">
-            </div>
-            <div class="filter-group">
-                <label>إلى تاريخ</label>
-                <input type="date" class="filter-input" id="filter-to">
+    <div class="ledger-header no-print premium-header" style="padding: 25px; display: flex; flex-direction: column; gap: 20px;">
+        
+        <!-- TITLE & DATES ROW -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; flex-wrap: wrap; gap: 15px;">
+            <h2 style="margin: 0; color: #fff; font-size: 1.5rem; font-weight: bold;">دفتر أستاذ</h2>
+            
+            <div style="display: flex; flex-direction: row; align-items: center; gap: 10px; background: rgba(15,23,42,0.4); padding: 5px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                <label style="color: #94a3b8; font-size: 0.85rem; font-weight: 700; white-space: nowrap; margin: 0;">من تاريخ</label>
+                <input type="date" class="filter-input" id="filter-from" style="padding: 5px 10px; height: 38px; border-radius: 8px;">
+                <label style="color: #94a3b8; font-size: 0.85rem; font-weight: 700; white-space: nowrap; margin: 0 15px 0 5px;">إلى تاريخ</label>
+                <input type="date" class="filter-input" id="filter-to" style="padding: 5px 10px; height: 38px; border-radius: 8px;">
             </div>
         </div>
-        <div class="filter-row">
-            <div class="filter-group">
-                <label>نوع الحركة</label>
-                <select class="filter-input" id="filter-type">
+
+        <!-- FILTERS -->
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: nowrap; padding: 0;">
+            <div class="filter-group" style="flex: 3; min-width: 0;">
+                <label>الحساب</label>
+                <div style="display:flex; gap:5px; align-items: center; flex:1;">
+                    <div style="flex:1; position:relative;">
+                        <select class="filter-input choices-select" id="filter-account">
+                            <option value="ALL">جميع الحسابات</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn-action" onclick="runAISmartSearch()" id="btn-smart-search" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); color:white; border:none; padding: 0 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; height: 42px; white-space:nowrap;" title="البحث بالمعنى (الذكاء الاصطناعي)">🤖 ذكي</button>
+                </div>
+            </div>
+            
+            <div class="filter-group" style="flex: 1.5; min-width: 0;">
+                <label>الحركة</label>
+                <select class="filter-input choices-select" id="filter-type">
                     <option value="ALL">جميع الحركات</option>
                     <option value="receipt">سند قبض</option>
                     <option value="payment">سند صرف</option>
@@ -326,30 +357,31 @@
                     <option value="purchase">فاتورة مشتريات</option>
                 </select>
             </div>
-            <div class="filter-group">
-                <label>مركز التكلفة (Cost Center)</label>
-                <select class="filter-input" id="filter-costcenter">
-                    <option value="ALL">الكل</option>
-                    <!-- Will be populated dynamically -->
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>العملة (Currency)</label>
-                <select class="filter-input" id="filter-currency">
+
+            <div class="filter-group" style="flex: 1; min-width: 0;">
+                <label>العملة</label>
+                <select class="filter-input choices-select" id="filter-currency">
                     <option value="ALL">جميع العملات</option>
-                    <!-- Will be populated dynamically -->
                 </select>
             </div>
+
+            <div class="filter-group" style="flex: 1; min-width: 0;">
+                <label>المركز</label>
+                <select class="filter-input choices-select" id="filter-costcenter">
+                    <option value="ALL">الكل</option>
+                </select>
+            </div>
+
         </div>
 
-        <div style="display:flex; gap:12px; margin-top:20px; align-items:center; flex-wrap:wrap;">
+        <!-- BUTTONS -->
+        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
             <button class="btn-run" onclick="runReport()">
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 تشغيل التقرير الذكي
             </button>
-            <button class="btn-action" onclick="previewGL()">عرض للطباعة</button>
-            <button class="btn-action" onclick="window.print()">طباعة مباشرة</button>
-            <button class="btn-action" onclick="window.openExportModal(exportCSV, {element: document.getElementById('gl-table-wrap'), filename: 'General_Ledger.pdf', orientation: 'landscape'})">تصدير PDF/Excel</button>
+            <button class="btn-action btn-print-preview" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: #fff;" onclick="previewGL()">👀 معاينة</button>
+            <button class="btn-action" style="background: rgba(168,85,247,0.1); color: #c084fc; border-color: rgba(168,85,247,0.3);" onclick="window.openExportModal(exportCSV, {element: document.querySelector('.ledger-table-wrap'), filename: 'General_Ledger.pdf', orientation: 'landscape'})">⬇️ تصدير</button>
         </div>
     </div>
 
@@ -413,7 +445,7 @@
 
 </div>
 
-<script src="js/app.js?v=20260626_4"></script>
+<script src="js/app.js?v=1783054967.64715"></script>
 <script src="js/general-ledger.js"></script>
 <script>
 function runAISmartSearch() {

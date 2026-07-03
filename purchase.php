@@ -1,4 +1,4 @@
-<?php $page_title = 'استلام بضاعة'; ?>
+﻿<?php $page_title = 'استلام بضاعة'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1560,7 +1560,7 @@
     <script src="js/localforage.min.js"></script>
     <script src="js/html2pdf.bundle.min.js"></script>
     <script src="js/whatsapp-integration.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054969.28779"></script>
     <script src="js/print-engine.js"></script>
     
     <script>

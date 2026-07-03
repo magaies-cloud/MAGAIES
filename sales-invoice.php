@@ -1,4 +1,4 @@
-<?php $page_title = 'مرتجع مبيعات'; ?>
+﻿<?php $page_title = 'مرتجع مبيعات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -388,7 +388,7 @@
     </div>
 
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054969.81822"></script>
     <script src="js/print-engine.js"></script>
     <script src="js/sales-invoice.js?v=2"></script>
 </body>

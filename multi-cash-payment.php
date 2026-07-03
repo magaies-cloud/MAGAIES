@@ -1,4 +1,4 @@
-<?php $page_title = 'حركة مالية مجمعة'; ?>
+﻿<?php $page_title = 'حركة مالية مجمعة'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -390,7 +390,7 @@
 
     <!-- Scripts -->
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054968.65812"></script>
     <!-- Choices.js -->
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="js/multi-cash-payment.js"></script>

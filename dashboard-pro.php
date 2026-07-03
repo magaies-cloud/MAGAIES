@@ -1,4 +1,4 @@
-<?php $page_title = 'السجانة ERP - لوحة التحكم'; ?>
+﻿<?php $page_title = 'السجانة ERP - لوحة التحكم'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -554,7 +554,7 @@
 
     <!-- Scripts -->
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054967.08377"></script>
     <script>
         // Spotlight Effect Mouse Tracker
         document.addEventListener('mousemove', e => {

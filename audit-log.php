@@ -1,4 +1,4 @@
-<?php $page_title = 'السجانة 2026 - سجل التدقيق'; ?>
+﻿<?php $page_title = 'السجانة 2026 - سجل التدقيق'; ?>
 <!-- c:\mynewapp\frontend-pwa\audit-log.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -164,7 +164,7 @@
 
     <!-- Scripts -->
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054966.09151"></script>
     <script>
         document.addEventListener('DBReady', () => {
             const userStr = localStorage.getItem('user');

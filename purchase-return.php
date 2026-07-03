@@ -1,4 +1,4 @@
-<?php $page_title = 'مردودات المشتريات'; ?>
+﻿<?php $page_title = 'مردودات المشتريات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -278,7 +278,7 @@
     <!-- Notification Toast Container -->
     <div class="toast-container" id="toast-container" style="position:fixed; bottom:20px; left:20px; z-index:99999; display:flex; flex-direction:column; gap:10px;"></div>
 
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054969.28525"></script>
     <script>
         let allPurchases = [];
         let itemsDb = [];

@@ -1,4 +1,4 @@
-<?php $page_title = 'السجانة 2026 - سجل النشاطات'; ?>
+﻿<?php $page_title = 'السجانة 2026 - سجل النشاطات'; ?>
 <!-- c:\mynewapp\frontend-pwa\audit-logs.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -80,7 +80,7 @@
     </div>
 
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054966.14682"></script>
     <script src="js/audit-logs.js"></script>
 </body>
 </html>

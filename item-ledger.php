@@ -1,4 +1,4 @@
-<?php $page_title = 'السجانة ERP - كارت الصنف (حركة الأصناف)'; ?>
+﻿<?php $page_title = 'السجانة ERP - كارت الصنف (حركة الأصناف)'; ?>
 <!-- c:\mynewapp\frontend-pwa\item-ledger.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -146,7 +146,7 @@
     </div>
 
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054967.9791"></script>
     <script>
         const ITEMS_STORAGE_KEY = 'erp_items_v1';
         let itemsDb = [];

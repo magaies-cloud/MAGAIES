@@ -1,4 +1,4 @@
-<?php $page_title = 'إدارة المهام (شغل)'; ?>
+﻿<?php $page_title = 'إدارة المهام (شغل)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -185,7 +185,7 @@
 
     <!-- Required for DBReady and IndexedDB -->
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054968.0814"></script>
     <script>
         let jobs = [];
 

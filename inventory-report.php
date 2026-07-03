@@ -1,4 +1,4 @@
-<?php $page_title = 'السجانة ERP - تقارير وجرد المخازن'; ?>
+﻿<?php $page_title = 'السجانة ERP - تقارير وجرد المخازن'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -340,7 +340,7 @@
 
     <!-- Scripts -->
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054967.79042"></script>
     <script>
         const ITEMS_STORAGE_KEY = 'erp_items_v1';
         const INVENTORY_STORAGE_KEY = 'erp_inventory_v1';

@@ -1,4 +1,4 @@
-<?php $page_title = 'السجانة ERP - إدارة المستخدمين والصلاحيات'; ?>
+﻿<?php $page_title = 'السجانة ERP - إدارة المستخدمين والصلاحيات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -406,7 +406,7 @@
 
     <!-- Scripts -->
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054970.44107"></script>
     <script src="js/users-roles.js?v=20260626_4"></script>
     <script>
         // Simple Tab Switcher for this page

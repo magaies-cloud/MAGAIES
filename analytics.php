@@ -1,4 +1,4 @@
-<?php $page_title = 'السجانة 2026 - التقارير والإحصائيات'; ?>
+﻿<?php $page_title = 'السجانة 2026 - التقارير والإحصائيات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -793,7 +793,7 @@
 </div>
 
 <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054966.00607"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         // We might want to wait for DBReady, but let's initialize directly if data is in localStorage

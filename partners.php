@@ -1,4 +1,4 @@
-<?php $page_title = 'إدارة الشركاء 2026 - السجانة ERP'; ?>
+﻿<?php $page_title = 'إدارة الشركاء 2026 - السجانة ERP'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -138,7 +138,7 @@
     </div>
 
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054968.70701"></script>
     <script>
         // Mock data for UI preview
         let localPartners = [

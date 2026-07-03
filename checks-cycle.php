@@ -1,4 +1,4 @@
-<?php $page_title = 'دورة الشيكات'; ?>
+﻿<?php $page_title = 'دورة الشيكات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -332,7 +332,7 @@
     </div>
 
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054966.76188"></script>
     <script src="js/checks-cycle.js"></script>
 </body>
 </html>

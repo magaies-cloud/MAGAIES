@@ -1,4 +1,4 @@
-<?php $page_title = 'السجانة ERP - البيانات الأساسية'; ?>
+﻿<?php $page_title = 'السجانة ERP - البيانات الأساسية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -773,7 +773,7 @@
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054968.4328"></script>
     <script>
         document.addEventListener('DBReady', () => {
             if (!localStorage.getItem('authToken')) window.location.href = 'login.php';

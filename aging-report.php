@@ -1,4 +1,4 @@
-<?php $page_title = 'تقرير أعمار الديون'; ?>
+﻿<?php $page_title = 'تقرير أعمار الديون'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -142,7 +142,7 @@
     </div>
 
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054965.78303"></script>
     <script>
         document.addEventListener('DBReady', () => {
             if (!localStorage.getItem('authToken')) { window.location.href = 'login.php'; return; }

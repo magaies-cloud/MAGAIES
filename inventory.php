@@ -1,4 +1,4 @@
-<?php $page_title = 'إدارة المخزون 2026 - السجانة ERP'; ?>
+﻿<?php $page_title = 'إدارة المخزون 2026 - السجانة ERP'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -143,7 +143,7 @@
     </div>
 
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054967.88578"></script>
     <script>
         document.addEventListener('DBReady', () => {
             const searchBox = document.getElementById('search-box');

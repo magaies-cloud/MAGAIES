@@ -1,4 +1,4 @@
-<?php $page_title = 'كشف حساب'; ?>
+﻿<?php $page_title = 'كشف حساب'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -207,7 +207,7 @@
 
 </div>
 
-<script src="js/app.js?v=20260626_4"></script>
+<script src="js/app.js?v=1783054970.20548"></script>
 <script src="js/statement.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {

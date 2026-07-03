@@ -1,4 +1,4 @@
-// --- CLOUD SYNC ENGINE (Offline-First to SaaS Bridge) ---
+﻿// --- CLOUD SYNC ENGINE (Offline-First to SaaS Bridge) ---
 (function() {
     const SYNC_PULL_URL = "api_index.php/sync/pull";
     const SYNC_PUSH_URL = "api_index.php/sync/push";
@@ -288,7 +288,7 @@
         let payload = {};
         let hasData = false;
         syncKeys.forEach(k => {
-            const pk = getPrefixedKey(k);
+            const pk = window.getTenantKey(k);
             const data = window.DB_STORE[pk] || originalGetItem(pk);
             if (data) {
                 try {
@@ -363,7 +363,7 @@
                 if (data.success && data.data) {
                     Object.keys(data.data).forEach(key => {
                         if (data.data[key]) {
-                            const pk = getPrefixedKey(key);
+                            const pk = window.getTenantKey(key);
                             const localDataStr = window.DB_STORE[pk] || originalGetItem(pk);
                             let localData = [];
                             try { localData = JSON.parse(localDataStr || '[]'); } catch(e){}
@@ -2279,7 +2279,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const buttons = document.querySelectorAll('button');
     buttons.forEach(btn => {
         const onClickAttr = btn.getAttribute('onclick') || '';
-        if (onClickAttr.includes('window.print()') || onClickAttr.includes('printVoucher()') || onClickAttr.includes('printInvoice()') || btn.innerText.includes('طباعة')) {
+        if (onClickAttr.includes('window.print()') || onClickAttr.includes('printVoucher()') || onClickAttr.includes('printInvoice()')) {
             // Check if we already injected next to it
             if (btn.nextElementSibling && btn.nextElementSibling.classList.contains('btn-print-preview')) return;
             // Also ensure it's not the newly injected preview button itself

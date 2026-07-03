@@ -1,4 +1,4 @@
-<?php $page_title = 'السجانة 2026 - تسجيل الدخول'; ?>
+﻿<?php $page_title = 'السجانة 2026 - تسجيل الدخول'; ?>
 <!-- c:\mynewapp\frontend-pwa\login.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -158,7 +158,7 @@
     </div>
 
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054968.28612"></script>
     
     <script>
         // Generate or get Device UUID

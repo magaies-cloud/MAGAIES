@@ -1,4 +1,4 @@
-<?php $page_title = 'الحسابات'; ?>
+﻿<?php $page_title = 'الحسابات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -725,7 +725,7 @@
 </div>
 
 <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054970.44359"></script>
     <script>
     document.addEventListener('DBReady', async () => {
         try {

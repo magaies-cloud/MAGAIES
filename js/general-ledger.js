@@ -38,81 +38,21 @@ function buildAccountsList() {
     const sups  = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
     custs.forEach(c => ALL_ACCOUNTS.push({ id: c.id, name: c.name, icon: '👤', type: 'عميل' }));
     sups.forEach(s  => ALL_ACCOUNTS.push({ id: s.id, name: s.name, icon: '🏭', type: 'مورد' }));
-}
 
-let acActiveIdx = -1;
-
-function onAccountSearch() {
-    const q = document.getElementById('account-search-input').value.trim();
-    const list = document.getElementById('autocomplete-list');
-    const clearBtn = document.getElementById('search-clear-btn');
-    const chip = document.getElementById('selected-chip');
-    acActiveIdx = -1;
-
-    clearBtn.style.display = q ? 'block' : 'none';
-    chip.style.display = 'none';
-    document.getElementById('filter-account').value = 'ALL';
-
-    if (!q) { list.style.display = 'none'; return; }
-
-    const matches = ALL_ACCOUNTS.filter(a =>
-        a.id !== 'ALL' && a.name.includes(q)
-    ).slice(0, 10);
-
-    if (matches.length === 0) {
-        list.innerHTML = `<li style="color:#64748b; cursor:default;">لا توجد نتائج</li>`;
-    } else {
-        list.innerHTML = matches.map((a, i) => `
-            <li onclick="selectAccount('${a.id}','${a.name}','${a.icon}')">
-                <span>${a.icon}</span>
-                <span>${a.name}</span>
-                <span class="ac-badge">${a.type}</span>
-            </li>`).join('');
+    const accountSelect = document.getElementById('filter-account');
+    if (accountSelect) {
+        accountSelect.innerHTML = '<option value="ALL">جميع الحسابات</option>';
+        ALL_ACCOUNTS.forEach(a => {
+            if (a.id !== 'ALL') {
+                accountSelect.innerHTML += `<option value="${a.id}">${a.icon} ${a.name} (${a.type})</option>`;
+            }
+        });
     }
-    list.style.display = 'block';
 }
 
-function onAccountSearchKey(e) {
-    const list = document.getElementById('autocomplete-list');
-    const items = list.querySelectorAll('li:not([style*="cursor:default"])');
-    if (!items.length) return;
-    if (e.key === 'ArrowDown') { acActiveIdx = Math.min(acActiveIdx + 1, items.length - 1); }
-    else if (e.key === 'ArrowUp') { acActiveIdx = Math.max(acActiveIdx - 1, 0); }
-    else if (e.key === 'Enter' && acActiveIdx >= 0) { items[acActiveIdx].click(); return; }
-    else if (e.key === 'Escape') { list.style.display = 'none'; return; }
-    items.forEach((li, i) => li.classList.toggle('active', i === acActiveIdx));
-}
 
-function selectAccount(id, name, icon) {
-    document.getElementById('filter-account').value = id;
-    document.getElementById('account-search-input').value = '';
-    document.getElementById('autocomplete-list').style.display = 'none';
-    document.getElementById('search-clear-btn').style.display = 'none';
 
-    const chip = document.getElementById('selected-chip');
-    document.getElementById('chip-icon').textContent = icon;
-    document.getElementById('chip-name').textContent = name;
-    chip.style.display = 'flex';
-}
 
-function clearAccountSearch() {
-    document.getElementById('filter-account').value = 'ALL';
-    document.getElementById('account-search-input').value = '';
-    document.getElementById('autocomplete-list').style.display = 'none';
-    document.getElementById('search-clear-btn').style.display = 'none';
-    document.getElementById('selected-chip').style.display = 'none';
-}
-
-document.addEventListener('click', e => {
-    if (!e.target.closest('.search-wrap') && e.target.id !== 'search-clear-btn') {
-        const list = document.getElementById('autocomplete-list');
-        if (list) list.style.display = 'none';
-    }
-});
-
-if(document.getElementById('search-clear-btn')) {
-    document.getElementById('search-clear-btn').addEventListener('click', clearAccountSearch);
-}
 
 /* ─── Collect Transactions & Meta (Currency, Cost Center) ─── */
 function collectAllTransactions() {
@@ -302,6 +242,7 @@ function extractFilters() {
 }
 
 /* ─── Initialization ─── */
+let choicesInstances = [];
 document.addEventListener('DBReady', () => {
     buildAccountsList();
     extractFilters(); // Build filters dynamically
@@ -309,6 +250,19 @@ document.addEventListener('DBReady', () => {
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
     document.getElementById('filter-from').value = firstDay.toISOString().slice(0, 10);
     document.getElementById('filter-to').value = now.toISOString().slice(0, 10);
+
+    if (typeof Choices !== 'undefined') {
+        document.querySelectorAll('.choices-select').forEach(el => {
+            choicesInstances.push(new Choices(el, {
+                searchEnabled: true,
+                itemSelectText: '',
+                noResultsText: 'لا توجد نتائج',
+                noChoicesText: 'لا توجد خيارات',
+                searchPlaceholderValue: 'بحث...',
+                shouldSort: false
+            }));
+        });
+    }
 });
 
 function getAccountName(id) {
@@ -481,14 +435,62 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
 /* ─── Export to CSV ─── */
 
 function previewGL() {
-    const tableWrap = document.getElementById('gl-table-wrap');
-    if (!tableWrap || tableWrap.style.display === 'none') {
+    const tableWrap = document.querySelector('.ledger-table-wrap');
+    if (!tableWrap) {
         return showToast('الرجاء تشغيل التقرير أولاً للمعاينة', 'warning');
     }
     
-    const printHeader = document.getElementById('print-header').innerHTML;
-    const tableHtml = document.querySelector('.gl-table').outerHTML;
+    const tbody = document.getElementById('ledger-tbody');
+    if (!tbody || tbody.querySelector('.empty-state')) {
+        return showToast('لا توجد بيانات للمعاينة، شغّل التقرير أولاً', 'warning');
+    }
     
+    const tableHtml = document.querySelector('.ledger-table').outerHTML;
+    
+    // Robust settings retrieval (handles tenant-prefixed keys + DB_STORE proxy)
+    let cfg = {};
+    try {
+        cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+    } catch(e) {}
+    // Fallback: read from DB_STORE proxy if available
+    if ((!cfg || !cfg.companyName) && window.DB_STORE && window.getTenantKey) {
+        try {
+            const tk = window.getTenantKey('erp_settings_v1');
+            if (window.DB_STORE[tk]) cfg = JSON.parse(window.DB_STORE[tk]);
+        } catch(e) {}
+    }
+    const companyName = cfg.companyName || '\u0645\u0624\u0633\u0633\u0629 \u0627\u0644\u0633\u062c\u0627\u0646\u0629 \u0644\u0644\u062a\u062c\u0627\u0631\u0629';
+    const companyPhone = cfg.phone || '';
+    const companyAddress = cfg.address || '';
+    const companyReg = cfg.regNumber || '';
+    const companyVat = cfg.vat || '';
+    
+    // Logo: check logoBase64 in settings, or look for the header logo already on page
+    let logoSrc = cfg.logoBase64 || '';
+    if (!logoSrc) {
+        const headerLogo = document.querySelector('.company-logo, #hdr-c-logo');
+        if (headerLogo && headerLogo.src && !headerLogo.src.includes('placeholder')) {
+            logoSrc = headerLogo.src;
+        }
+    }
+    const logoImg = logoSrc ? `<img src="${logoSrc}" style="max-height:80px; max-width:200px; object-fit:contain;">` : '';
+
+    const companyHeaderHtml = `
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px;">
+            <div style="text-align: right;">
+                <h1 style="margin: 0; font-size: 1.5rem;">${companyName}</h1>
+                <div style="font-size: 0.9rem; color: #555; margin-top: 5px;">
+                    ${companyAddress ? `<div>العنوان: ${companyAddress}</div>` : ''}
+                    ${companyPhone ? `<div>الهاتف: ${companyPhone}</div>` : ''}
+                    ${companyReg ? `<div>السجل التجاري: ${companyReg}</div>` : ''}
+                </div>
+            </div>
+            <div>
+                ${logoImg}
+            </div>
+        </div>
+    `;
+
     const win = window.open('', '_blank', 'width=1000,height=700');
     win.document.write(`
         <html dir="rtl" lang="ar">
@@ -510,7 +512,13 @@ function previewGL() {
             </style>
         </head>
         <body>
-            ${printHeader}
+            ${companyHeaderHtml}
+            <h2 style="text-align:center; margin: 10px 0 5px;">دفتر الأستاذ العام</h2>
+            <div id="print-meta" style="display:flex; justify-content:space-between; border-bottom:2px solid #333; padding-bottom:10px; margin-bottom:15px; font-weight:bold;">
+                <span>الحساب: <strong>${document.getElementById('filter-account').options[document.getElementById('filter-account').selectedIndex]?.text || 'جميع الحسابات'}</strong></span>
+                <span>الفترة: من <strong>${document.getElementById('filter-from').value}</strong> إلى <strong>${document.getElementById('filter-to').value}</strong></span>
+                <span>تاريخ الطباعة: <strong>${new Date().toLocaleDateString('ar-SD')}</strong></span>
+            </div>
             ${tableHtml}
             <div style="margin-top: 30px; text-align: center;" class="no-print">
                 <button onclick="window.print()" style="padding: 10px 20px; background: #38bdf8; border: none; border-radius: 5px; color: #fff; cursor: pointer; font-family: inherit; font-weight: bold; margin: 10px;">🖨️ طباعة</button>

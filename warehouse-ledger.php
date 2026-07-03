@@ -1,4 +1,4 @@
-<?php $page_title = 'السجانة ERP - كشف المخزن التحليلي'; ?>
+﻿<?php $page_title = 'السجانة ERP - كشف المخزن التحليلي'; ?>
 <!-- c:\mynewapp\frontend-pwa\warehouse-ledger.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -103,7 +103,7 @@
     </div>
 
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054970.52149"></script>
     <script>
         document.addEventListener('DBReady', () => {
             // Load Warehouses

@@ -1,4 +1,4 @@
-<?php $page_title = 'المبيعات المباشرة'; ?>
+﻿<?php $page_title = 'المبيعات المباشرة'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1487,7 +1487,7 @@
     <script src="js/localforage.min.js"></script>
     <script src="js/html2pdf.bundle.min.js"></script>
     <script src="js/whatsapp-integration.js"></script>
-    <script src="js/app.js?v=1782530467440"></script>
+    <script src="js/app.js?v=1783054967.56221"></script>
     <script src="js/print-engine.js"></script>
     
     <script>

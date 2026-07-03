@@ -1,4 +1,4 @@
-<?php $page_title = 'حركة مالية'; ?>
+﻿<?php $page_title = 'حركة مالية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -947,7 +947,7 @@
 
     <script src="js/localforage.min.js"></script>
     
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054970.09484"></script>
     
     <script>
       document.addEventListener('DOMContentLoaded', () => {

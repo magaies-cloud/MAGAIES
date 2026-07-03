@@ -1,4 +1,4 @@
-<?php $page_title = 'تقرير الأرصدة الإجمالية'; ?>
+﻿<?php $page_title = 'تقرير الأرصدة الإجمالية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -116,25 +116,8 @@
 </div>
 
 <div style="max-width: 1600px; margin: 0 auto; padding: 20px 30px; padding-bottom: 80px;">
-
-    <!-- BREADCRUMB -->
-    <div class="page-breadcrumb no-print" style="display:inline-flex; align-items:center; background:rgba(0,0,0,0.2); padding:8px 15px; border-radius:8px; margin-bottom:20px;">
-        <button onclick="history.back()" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; padding:4px 8px; border-radius:4px; margin-left:8px; color:#94a3b8; display:flex;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </button>
-        <a data-href="financial-reports.php" onclick="window.location.href='financial-reports.php'" style="color:#38bdf8; text-decoration:none; font-weight:700;">التقارير المالية</a>
-        <span style="margin:0 10px; color:#475569;">/</span>
-        <span style="color:#f8fafc;">تقرير الأرصدة الإجمالية</span>
-    </div>
-
-    <!-- TITLE -->
-    <div style="margin-bottom: 25px;" class="no-print">
-        <h1 style="color:#fff; margin:0 0 5px 0; font-size:2rem; font-weight:900;">
-            عن تقرير الأرصدة الإجمالية 
-            <span class="badge-sgl">Global Balances</span>
-        </h1>
-        <p style="color:#64748b; margin:0;">Global Balances & Aging Report — تقرير تفصيلي لجميع الأرصدة للعملاء والموردين</p>
-    </div>
+    <!-- Premium Navigation Header -->
+    <?php include 'includes/header.php'; ?>
 
     <!-- FILTERS -->
     <div class="report-header no-print" style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 25px; margin-bottom: 30px;">
@@ -270,7 +253,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script src="js/localforage.min.js"></script>
-<script src="js/app.js?v=20260626_4"></script>
+<script src="js/app.js?v=1783054966.35444"></script>
 <script src="js/balances-report.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<?php $page_title = 'تسليم المبيعات - إذن المنصرف'; ?>
+﻿<?php $page_title = 'تسليم المبيعات - إذن المنصرف'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -267,7 +267,7 @@
 
     <!-- Global App JS (for Auth, Themes) -->
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054969.75678"></script>
     <script src="js/print-engine.js"></script>
     <script src="js/sales-delivery.js"></script>
 </body>

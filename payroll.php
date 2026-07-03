@@ -1,4 +1,4 @@
-<?php $page_title = 'الرواتب والأجور'; ?>
+﻿<?php $page_title = 'الرواتب والأجور'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -236,7 +236,7 @@
     </div>
 
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054968.8979"></script>
     <script>
         let currentMonth = '';
         let employees = [];

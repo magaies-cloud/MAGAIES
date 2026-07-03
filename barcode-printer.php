@@ -1,4 +1,4 @@
-<?php $page_title = 'السجانة - طباعة الباركود'; ?>
+﻿<?php $page_title = 'السجانة - طباعة الباركود'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -112,7 +112,7 @@
 
     <!-- Scripts -->
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=20260626_4"></script>
+    <script src="js/app.js?v=1783054966.48162"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="js/barcode-printer.js"></script>
 </body>
