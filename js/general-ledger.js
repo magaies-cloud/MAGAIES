@@ -50,9 +50,104 @@ function buildAccountsList() {
     }
 }
 
+/* ─── Account Search & Autocomplete ─── */
+function onAccountSearch() {
+    const input = document.getElementById('account-search-input');
+    const list = document.getElementById('autocomplete-list');
+    if (!input || !list) return;
+    
+    const q = input.value.trim().toLowerCase();
+    list.innerHTML = '';
+    
+    let results = ALL_ACCOUNTS.filter(a => a.id !== 'ALL' && (a.name.toLowerCase().includes(q) || String(a.id).toLowerCase().includes(q)));
+    
+    if (results.length === 0) {
+        list.innerHTML = '<li class="no-results" style="padding: 10px; color: #f87171; text-align: center;">لا يوجد حساب مطابق</li>';
+        list.style.display = 'block';
+        return;
+    }
 
+    results.slice(0, 50).forEach(a => {
+        let li = document.createElement('li');
+        
+        let badgeColor = '#64748b'; // Default
+        if (a.type === 'عميل') badgeColor = '#3b82f6';
+        if (a.type === 'مورد') badgeColor = '#f59e0b';
+        if (a.type === 'صندوق' || a.type === 'خزنة') badgeColor = '#10b981';
+        if (a.type === 'بنك') badgeColor = '#8b5cf6';
+        
+        li.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                <span style="font-weight: 600;">${a.icon} ${a.name} <small style="color:#94a3b8; font-size:0.8rem; margin-right:5px; font-family: monospace;">(${a.id})</small></span>
+                <span style="background:${badgeColor}; color:white; padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight: bold; min-width: 50px; text-align: center;">${a.type}</span>
+            </div>
+        `;
+        li.onmousedown = () => selectAccount(a.id, a.name, a.icon);
+        list.appendChild(li);
+    });
+    
+    list.style.display = 'block';
+}
 
+function onAccountSearchKey(e) {
+    if (e.key === 'Escape') {
+        const list = document.getElementById('autocomplete-list');
+        if (list) list.style.display = 'none';
+    }
+}
 
+function selectAccount(id, name, icon) {
+    document.getElementById('filter-account').value = id;
+    const input = document.getElementById('account-search-input');
+    const btnSmart = document.getElementById('btn-smart-search');
+    const chip = document.getElementById('selected-chip');
+    
+    if (input) input.style.display = 'none';
+    if (btnSmart) btnSmart.style.display = 'none';
+    
+    if (chip) {
+        chip.style.display = 'flex';
+        document.getElementById('chip-icon').innerText = icon || '🏷️';
+        document.getElementById('chip-name').innerText = name;
+    }
+    
+    const list = document.getElementById('autocomplete-list');
+    if (list) list.style.display = 'none';
+    
+    runReport(); // Auto run report on selection
+}
+
+function clearAccountSearch() {
+    document.getElementById('filter-account').value = 'ALL';
+    
+    const chip = document.getElementById('selected-chip');
+    if (chip) chip.style.display = 'none';
+    
+    const input = document.getElementById('account-search-input');
+    const btnSmart = document.getElementById('btn-smart-search');
+    
+    if (input) {
+        input.style.display = 'block';
+        input.value = '';
+        input.focus();
+    }
+    if (btnSmart) btnSmart.style.display = 'inline-block';
+    
+    onAccountSearch(); // show list again
+}
+
+// Ensure autocomplete closes on outside click
+document.addEventListener('mousedown', function(e) {
+    if (!e.target.closest('.search-wrap')) {
+        const list = document.getElementById('autocomplete-list');
+        if (list) list.style.display = 'none';
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('account-search-input');
+    if (input) input.addEventListener('focus', onAccountSearch);
+});
 
 /* ─── Collect Transactions & Meta (Currency, Cost Center) ─── */
 function collectAllTransactions() {
@@ -287,12 +382,20 @@ function openDrillDown(type, ref) {
 }
 
 /* ─── Sharing Logic ─── */
-function getReportSummaryText() {
-    let accName = 'حساب عام';
+function getAccountNameForShare() {
+    const chipName = document.getElementById('chip-name');
+    if (chipName && chipName.innerText && chipName.innerText.trim()) {
+        return chipName.innerText.trim();
+    }
     const accSelect = document.getElementById('account-search-input');
     if (accSelect && accSelect.value) {
-        accName = accSelect.value.trim();
+        return accSelect.value.trim();
     }
+    return 'حساب عام';
+}
+
+function getReportSummaryText() {
+    const accName = getAccountNameForShare();
     
     const debitEl = document.getElementById('sum-debit');
     const creditEl = document.getElementById('sum-credit');
@@ -311,18 +414,152 @@ function getReportSummaryText() {
     return text;
 }
 
-function shareViaWhatsApp() {
-    const text = encodeURIComponent(getReportSummaryText());
-    // Opens WhatsApp Web/App allowing the user to select the contact to send the pre-filled text
-    window.open(`https://wa.me/?text=${text}`, '_blank');
+window.shareViaWhatsApp = async function() {
+    const phone = await new Promise((resolve) => {
+        const overlayId = 'wa-custom-prompt-overlay';
+        if (document.getElementById(overlayId)) document.getElementById(overlayId).remove();
+        
+        const html = `
+        <div id="${overlayId}" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.8); z-index:999999; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s ease; backdrop-filter:blur(10px);">
+            <div style="background:linear-gradient(145deg, rgba(30,41,59,0.9), rgba(15,23,42,0.95)); border:1px solid rgba(37,211,102,0.4); border-radius:24px; padding:35px; width:90%; max-width:450px; text-align:center; transform:translateY(40px) scale(0.9); transition:all 0.4s; box-shadow:0 25px 50px -12px rgba(37,211,102,0.2);">
+                <div style="width:80px; height:80px; background:linear-gradient(135deg, #25D366, #128C7E); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#fff; box-shadow:0 10px 20px rgba(37,211,102,0.4);">
+                    <svg viewBox="0 0 24 24" width="45" height="45" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                </div>
+                <h3 style="color:#f8fafc; font-size:1.6rem; margin-bottom:10px; font-family:'Tajawal',sans-serif;">إرسال كشف الحساب عبر واتساب</h3>
+                <p style="color:#94a3b8; font-size:1rem; margin-bottom:25px;">يرجى إدخال رقم هاتف العميل مدعوماً بالمفتاح الدولي (مثال: 249912345678)</p>
+                <div style="margin-bottom:25px;">
+                    <input type="tel" id="wa-prompt-input" placeholder="رقم الهاتف..." style="width:100%; background:rgba(0,0,0,0.4); border:2px solid rgba(255,255,255,0.1); color:#fff; padding:15px; border-radius:12px; font-size:1.2rem; text-align:center; outline:none;" onfocus="this.style.borderColor='#25d366';" onblur="this.style.borderColor='rgba(255,255,255,0.1)';">
+                </div>
+                <div style="display:flex; gap:15px; justify-content:center;">
+                    <button id="wa-prompt-send" style="background:linear-gradient(135deg, #25d366, #1da851); color:#fff; border:none; padding:12px 30px; border-radius:12px; font-weight:bold; cursor:pointer;">إرسال</button>
+                    <button id="wa-prompt-cancel" style="background:rgba(255,255,255,0.05); color:#cbd5e1; border:1px solid rgba(255,255,255,0.1); padding:12px 25px; border-radius:12px; cursor:pointer;">إلغاء</button>
+                </div>
+            </div>
+        </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', html);
+        
+        const overlay = document.getElementById(overlayId);
+        const modal = overlay.children[0];
+        const input = document.getElementById('wa-prompt-input');
+        
+        requestAnimationFrame(() => {
+            overlay.style.opacity = '1';
+            modal.style.transform = 'translateY(0) scale(1)';
+            setTimeout(() => input.focus(), 400);
+        });
+
+        const closePrompt = (resultVal) => {
+            overlay.style.opacity = '0';
+            modal.style.transform = 'translateY(40px) scale(0.9)';
+            setTimeout(() => {
+                overlay.remove();
+                resolve(resultVal);
+            }, 400);
+        };
+
+        document.getElementById('wa-prompt-send').onclick = () => closePrompt(input.value.trim());
+        document.getElementById('wa-prompt-cancel').onclick = () => closePrompt(null);
+        input.addEventListener('keyup', (e) => {
+            if(e.key === 'Enter') closePrompt(input.value.trim());
+        });
+    });
+
+    if (!phone) return;
+
+    const tbody = document.getElementById('ledger-tbody');
+    if (!tbody || tbody.querySelector('.empty-state')) {
+        return showToast('لا توجد بيانات للإرسال، شغّل التقرير أولاً', 'warning');
+    }
+    
+    let cfg = {};
+    try { cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}'); } catch(e) {}
+    
+    const companyName = cfg.companyName || 'اسم الشركة غير مسجل';
+    const companyPhone = cfg.phone || '';
+    const companyAddress = cfg.address || '';
+    
+    let logoSrc = cfg.logoBase64 || '';
+    if (!logoSrc) {
+        const headerLogo = document.querySelector('.company-logo, #hdr-c-logo');
+        if (headerLogo && headerLogo.src && !headerLogo.src.includes('placeholder')) {
+            logoSrc = headerLogo.src;
+        }
+    }
+    const logoImg = logoSrc ? `<img src="${logoSrc}" style="max-height:80px; max-width:200px; object-fit:contain;">` : '';
+
+    const companyHeaderHtml = `
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px;">
+            <div style="text-align: right;">
+                <h1 style="margin: 0; font-size: 1.5rem;">${companyName}</h1>
+                <div style="font-size: 0.9rem; color: #555; margin-top: 5px;">
+                    ${companyAddress ? `<div>العنوان: ${companyAddress}</div>` : ''}
+                    ${companyPhone ? `<div>الهاتف: ${companyPhone}</div>` : ''}
+                </div>
+            </div>
+            <div>
+                ${logoImg}
+            </div>
+        </div>
+    `;
+
+    const printContainer = document.createElement('div');
+    printContainer.style.position = 'absolute';
+    printContainer.style.left = '-9999px';
+    printContainer.style.width = '1000px';
+    printContainer.style.background = '#fff';
+    printContainer.style.color = '#000';
+    printContainer.style.padding = '30px';
+    
+    // Copy the original table structure to avoid disrupting the UI
+    const originalTable = document.querySelector('.ledger-table');
+    const tableClone = originalTable.cloneNode(true);
+    
+    const htmlContent = `
+        <html dir="rtl" lang="ar">
+        <head>
+            <style>
+                body { font-family: 'Tajawal', sans-serif; background: #fff; color: #000; direction: rtl; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; }
+                th, td { border: 1px solid #ddd; padding: 10px; text-align: right; }
+                th { background: #f3f4f6; color: #333; font-weight: bold; }
+                .td-debit { color: #059669; font-weight: bold; }
+                .td-credit { color: #dc2626; font-weight: bold; }
+                .td-balance-dr { color: #059669; font-weight: bold; }
+                .td-balance-cr { color: #dc2626; font-weight: bold; }
+                h2 { text-align: center; margin: 10px 0 5px; }
+                #print-meta { display: flex; justify-content: space-between; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 15px; font-weight: bold; }
+            </style>
+        </head>
+        <body>
+            ${companyHeaderHtml}
+            <h2>دفتر الأستاذ العام</h2>
+            <div id="print-meta">
+                <span>الحساب: <strong>${getAccountNameForShare()}</strong></span>
+                <span>الفترة: من <strong>${document.getElementById('filter-from').value || '-'}</strong> إلى <strong>${document.getElementById('filter-to').value || '-'}</strong></span>
+                <span>تاريخ الطباعة: <strong>${new Date().toLocaleDateString('ar-SD')}</strong></span>
+            </div>
+            ${tableClone.outerHTML}
+        </body>
+        </html>
+    `;
+    printContainer.innerHTML = htmlContent;
+    document.body.appendChild(printContainer);
+
+    const message = 'مرحباً، مرفق كشف حسابكم الخاص بـ ' + getAccountNameForShare() + ' للفترة من ' + document.getElementById('filter-from').value + ' إلى ' + document.getElementById('filter-to').value;
+
+    if (typeof sendPDFViaWhatsApp === 'function') {
+        await sendPDFViaWhatsApp(printContainer, phone, message);
+    } else {
+        showToast('برنامج ربط الواتساب غير متوفر في هذه الصفحة', 'error');
+    }
+    
+    // Clean up
+    document.body.removeChild(printContainer);
 }
 
 function shareViaEmail() {
-    let accName = 'حساب عام';
-    const accSelect = document.getElementById('account-search-input');
-    if (accSelect && accSelect.value) {
-        accName = accSelect.value.trim();
-    }
+    const accName = getAccountNameForShare();
     
     const subject = encodeURIComponent(`كشف حساب - ${accName}`);
     const body = encodeURIComponent(getReportSummaryText());
@@ -349,6 +586,26 @@ function runReport() {
         return showToast('يرجى تحديد الفترة الزمنية', 'warning');
     }
 
+    const btnIcon = document.getElementById('btn-run-icon');
+    const btnSpinner = document.getElementById('btn-run-spinner');
+    const btnText = document.getElementById('btn-run-text');
+    if (btnIcon && btnSpinner) {
+        btnIcon.style.display = 'none';
+        btnSpinner.style.display = 'inline-block';
+        btnText.innerText = 'جاري التحليل...';
+    }
+
+    setTimeout(() => {
+        executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, curFilter);
+        if (btnIcon && btnSpinner) {
+            btnIcon.style.display = 'inline-block';
+            btnSpinner.style.display = 'none';
+            btnText.innerText = 'تشغيل التقرير الذكي';
+        }
+    }, 400);
+}
+
+function executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, curFilter) {
     let txns = [...ALL_TXNS];
 
     // Filter Account and Setup Opening Balance
@@ -384,6 +641,15 @@ function runReport() {
     if (typeFilter !== 'ALL') currentTxns = currentTxns.filter(t => t.type === typeFilter);
     if (ccFilter !== 'ALL') currentTxns = currentTxns.filter(t => t.costCenter === ccFilter);
     if (curFilter !== 'ALL') currentTxns = currentTxns.filter(t => t.currency === curFilter);
+    
+    const searchFilter = document.getElementById('filter-search') ? document.getElementById('filter-search').value.trim().toLowerCase() : '';
+    if (searchFilter) {
+        currentTxns = currentTxns.filter(t => {
+            return (t.statement && t.statement.toLowerCase().includes(searchFilter)) ||
+                   (t.ref && String(t.ref).toLowerCase().includes(searchFilter)) ||
+                   (t.additionalNote && t.additionalNote.toLowerCase().includes(searchFilter));
+        });
+    }
 
     currentTxns.sort((a, b) => {
         const da = a.date + ' ' + (a.time || '00:00');
@@ -427,6 +693,13 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
         tbody.innerHTML = `<tr><td colspan="${activeColsCount}" class="empty-state"><span style="font-size:3rem;display:block;margin-bottom:15px;">🔍</span><div>لا توجد بيانات تطابق الفلاتر المحددة</div></td></tr>`;
         summaryCards.style.display = 'none';
         auditStamp.style.display = 'none';
+        
+        const secActions = document.getElementById('secondary-actions');
+        if (secActions) {
+            secActions.style.opacity = '0';
+            secActions.style.transform = 'translateY(10px)';
+            setTimeout(() => secActions.style.display = 'none', 500);
+        }
         return;
     }
 
@@ -518,6 +791,15 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
     `;
 
     showToast(`✅ اكتمل التحليل: ${txns.length} حركة مسجلة`, 'success');
+    
+    const secActions = document.getElementById('secondary-actions');
+    if (secActions) {
+        secActions.style.display = 'flex';
+        // force reflow for animation
+        void secActions.offsetWidth;
+        secActions.style.opacity = '1';
+        secActions.style.transform = 'translateY(0)';
+    }
 }
 
 /* ─── Export to CSV ─── */
@@ -535,23 +817,21 @@ function previewGL() {
     
     const tableHtml = document.querySelector('.ledger-table').outerHTML;
     
-    // Robust settings retrieval (handles tenant-prefixed keys + DB_STORE proxy)
+    // Robust settings retrieval
     let cfg = {};
     try {
         cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
     } catch(e) {}
-    // Fallback: read from DB_STORE proxy if available
-    if ((!cfg || !cfg.companyName) && window.DB_STORE && window.getTenantKey) {
-        try {
-            const tk = window.getTenantKey('erp_settings_v1');
-            if (window.DB_STORE[tk]) cfg = JSON.parse(window.DB_STORE[tk]);
-        } catch(e) {}
+    
+    if (!cfg || Object.keys(cfg).length === 0) {
+        try { cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}'); } catch(e) {}
     }
-    const companyName = cfg.companyName || '\u0645\u0624\u0633\u0633\u0629 \u0627\u0644\u0633\u062c\u0627\u0646\u0629 \u0644\u0644\u062a\u062c\u0627\u0631\u0629';
+
+    const companyName = cfg.companyName || 'اسم الشركة غير مسجل (يرجى حفظ الإعدادات)';
     const companyPhone = cfg.phone || '';
     const companyAddress = cfg.address || '';
     const companyReg = cfg.regNumber || '';
-    const companyVat = cfg.vat || '';
+    const companyVat = cfg.taxNumber || '';
     
     // Logo: check logoBase64 in settings, or look for the header logo already on page
     let logoSrc = cfg.logoBase64 || '';
@@ -571,6 +851,7 @@ function previewGL() {
                     ${companyAddress ? `<div>العنوان: ${companyAddress}</div>` : ''}
                     ${companyPhone ? `<div>الهاتف: ${companyPhone}</div>` : ''}
                     ${companyReg ? `<div>السجل التجاري: ${companyReg}</div>` : ''}
+                    ${companyVat ? `<div>الرقم الضريبي: ${companyVat}</div>` : ''}
                 </div>
             </div>
             <div>
@@ -580,6 +861,11 @@ function previewGL() {
     `;
 
     const win = window.open('', '_blank', 'width=1000,height=700');
+    if (!win) {
+        showToast('يرجى السماح بالنوافذ المنبثقة (Popups) في متصفحك لمعاينة التقرير', 'error');
+        return;
+    }
+    
     win.document.write(`
         <html dir="rtl" lang="ar">
         <head>
@@ -603,7 +889,7 @@ function previewGL() {
             ${companyHeaderHtml}
             <h2 style="text-align:center; margin: 10px 0 5px;">دفتر الأستاذ العام</h2>
             <div id="print-meta" style="display:flex; justify-content:space-between; border-bottom:2px solid #333; padding-bottom:10px; margin-bottom:15px; font-weight:bold;">
-                <span>الحساب: <strong>${document.getElementById('filter-account').options[document.getElementById('filter-account').selectedIndex]?.text || 'جميع الحسابات'}</strong></span>
+                <span>الحساب: <strong>${getAccountNameForShare()}</strong></span>
                 <span>الفترة: من <strong>${document.getElementById('filter-from').value}</strong> إلى <strong>${document.getElementById('filter-to').value}</strong></span>
                 <span>تاريخ الطباعة: <strong>${new Date().toLocaleDateString('ar-SD')}</strong></span>
             </div>
@@ -640,6 +926,10 @@ function exportCSV() {
     a.download = `SGL-Report-${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
     showToast('📥 تم التصدير بنجاح', 'success');
+}
+
+function printDirectly() {
+    window.print();
 }
 
 /* ─── Dynamic Column Configuration & Sidebar ─── */
@@ -732,6 +1022,7 @@ window.changeTableTheme = function(themeClass) {
     
     // Save to settings
     try {
+        if (!window.APP_READY) return;
         let settingsStr = localStorage.getItem('erp_settings_v1');
         let settings = settingsStr ? JSON.parse(settingsStr) : {};
         settings.sgl_table_theme = themeClass;
@@ -769,6 +1060,7 @@ window.changeNumberFont = function(fontClass) {
     if (btn) btn.classList.add('active');
 
     try {
+        if (!window.APP_READY) return;
         let settingsStr = localStorage.getItem('erp_settings_v1');
         let settings = settingsStr ? JSON.parse(settingsStr) : {};
         settings.sgl_num_font = fontClass;
@@ -823,6 +1115,7 @@ if (document.readyState === 'loading') {
 }
 
 function saveColumnConfig() {
+    if (!window.APP_READY) return;
     try {
         let settingsStr = localStorage.getItem('erp_settings_v1');
         let settings = settingsStr ? JSON.parse(settingsStr) : {};

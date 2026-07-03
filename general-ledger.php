@@ -22,11 +22,40 @@
         .badge-sgl { background: #c084fc; color: #fff; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 900; letter-spacing: 1px; display: inline-block; vertical-align: middle; margin-right: 10px; }
         
         .filter-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .filter-row-single { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 15px; align-items: stretch; }
+        @media (max-width: 1200px) { .filter-row-single { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .filter-row-single { grid-template-columns: 1fr; } }
         .filter-group { display: flex; flex-direction: column; gap: 8px; }
-        .filter-group label { color: #94a3b8; font-size: 0.85rem; font-weight: 700; }
-        .filter-input { background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); color: #f8fafc; padding: 10px 15px; border-radius: 10px; font-family: inherit; font-size: 0.95rem; outline: none; transition: all 0.2s; width: 100%; box-sizing: border-box; }
-        .filter-input:focus { border-color: rgba(192,132,252,0.5); box-shadow: 0 0 0 3px rgba(192,132,252,0.1); }
-        
+        .filter-group-inline { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: stretch; 
+            gap: 2px; 
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            padding: 8px 14px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .filter-group-inline:focus-within {
+            border-color: #a855f7;
+            box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.15), inset 0 0 10px rgba(168, 85, 247, 0.1);
+            background: rgba(15, 23, 42, 0.9);
+            transform: translateY(-2px);
+        }
+        .filter-group-inline.col-span-2 { grid-column: span 2; }
+        @media (max-width: 768px) { .filter-group-inline.col-span-2 { grid-column: span 1; } }
+        .filter-group-inline label { 
+            color: #a855f7; 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            margin-bottom: 2px; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            pointer-events: none;
+        }
+        /* Old duplicate filter-input CSS removed */
         .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .summary-card { background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position: relative; overflow: hidden; }
         .summary-card::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, transparent, rgba(255,255,255,0.02), transparent); transform: translateX(-100%); transition: transform 0.5s; }
@@ -77,11 +106,15 @@
         .autocomplete-list li:hover, .autocomplete-list li.active { background: rgba(192,132,252,0.15); color: #c084fc; }
         .autocomplete-list li .ac-badge { font-size: 0.72rem; padding: 2px 6px; border-radius: 6px; background: rgba(255,255,255,0.08); }
         .selected-account-chip {
-            display: none; align-items: center; gap: 8px; background: rgba(192,132,252,0.1);
-            border: 1px solid rgba(192,132,252,0.3); border-radius: 8px;
-            padding: 8px 12px; margin-top: 6px; font-size: 0.88rem; color: #c084fc;
+            display: none; align-items: center; gap: 10px; 
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(109, 40, 217, 0.2));
+            border: 1px solid rgba(139, 92, 246, 0.5); border-radius: 12px;
+            padding: 8px 16px; font-size: 0.95rem; color: #fff; font-weight: bold;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+            transition: all 0.3s ease;
         }
-        .chip-remove { background: none; border: none; cursor: pointer; color: #f87171; font-size: 1rem; padding: 0; }
+        .chip-remove { background: rgba(255,255,255,0.1); border: none; cursor: pointer; color: #f87171; font-size: 1.1rem; padding: 2px 8px; border-radius: 6px; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .chip-remove:hover { background: #f87171; color: white; }
 
         .audit-stamp {
             margin-top: 20px; padding: 15px; background: rgba(52,211,153,0.05);
@@ -103,10 +136,7 @@
             .ledger-table tbody td { color: #000 !important; border-color: #ddd !important; }
             .audit-stamp { border-color: #333; color: #333; }
         }
-    </style>
 
-    <!-- PREMIUM SGL CSS OVERRIDES -->
-    <style>
         /* Global Glow & Smoothness */
         body {
             background: radial-gradient(circle at top right, #1e1b4b, #0f172a 40%, #020617 100%) !important;
@@ -155,18 +185,34 @@
             text-shadow: 0 0 20px rgba(192, 132, 252, 0.3);
         }
 
-        /* Filter Inputs - Neon Focus */
+        /* Filter Inputs - Nested Design */
         .filter-input {
-            background: rgba(15, 23, 42, 0.7) !important;
-            border: 1px solid rgba(148, 163, 184, 0.2) !important;
-            transition: all 0.3s ease !important;
-            border-radius: 12px !important;
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            color: #f8fafc !important;
+            font-size: 0.95rem !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            outline: none !important;
+            width: 100%;
+            font-family: inherit;
         }
         .filter-input:focus {
-            border-color: #a855f7 !important;
-            box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.15), inset 0 0 10px rgba(168, 85, 247, 0.1) !important;
-            background: rgba(15, 23, 42, 0.9) !important;
-            transform: translateY(-1px);
+            box-shadow: none !important;
+            background: transparent !important;
+            transform: none !important;
+            border: none !important;
+        }
+        select.filter-input option {
+            background: #1e293b;
+            color: #fff;
+            padding: 10px;
+        }
+        /* Custom date picker icon color */
+        ::-webkit-calendar-picker-indicator {
+            filter: invert(1) opacity(0.7);
+            cursor: pointer;
         }
 
         /* Themed Buttons */
@@ -300,7 +346,7 @@
         .ledger-table th { position: relative; user-select: none; }
         @keyframes fadeInDown { from { opacity:0; transform: translateY(-10px); } to { opacity:1; transform: translateY(0); } }
     </style>
-    \n</head>
+    </head>
 <body>
 <div class="toast-container" id="toast-container"></div>
 
@@ -319,44 +365,50 @@
     <!-- Premium Navigation Header -->
     <?php include 'includes/header.php'; ?>
 
-    <div style="margin-bottom: 25px; display:flex; justify-content:flex-end; align-items:center;" class="no-print">
-        <button class="btn-run" style="background: linear-gradient(135deg, #ec4899, #8b5cf6); box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);" onclick="toggleSettingsSidebar()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:8px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-            تخصيص العرض والجدول
-        </button>
-    </div>
-
     <!-- FILTER SECTION -->
     <div class="ledger-header no-print premium-header">
-        <div class="filter-row">
-            <div class="filter-group">
-                <label>الحساب الرئيسي (أو الفرعي)</label>
-                <div class="search-wrap" style="display:flex; gap:5px; align-items: stretch; position: relative;">
+        <!-- الصف الأول -->
+        <div class="filter-row-single">
+            <div class="filter-group-inline col-span-2">
+                <label>الحساب الرئيسي</label>
+                <div class="search-wrap" style="display:flex; gap:5px; align-items: center; position: relative; width: 100%;">
                     <div style="position:relative; flex:1;">
-                        <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث باسم أو كود الحساب..." autocomplete="off" oninput="onAccountSearch()" onkeyup="onAccountSearchKey(event)">
+                        <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث..." autocomplete="off" oninput="onAccountSearch()" onkeyup="onAccountSearchKey(event)" style="width:100%;">
                         <button class="search-clear-btn" id="search-clear-btn">✕</button>
                         <ul class="autocomplete-list" id="autocomplete-list"></ul>
                     </div>
-                    <button type="button" class="btn-action" onclick="runAISmartSearch()" id="btn-smart-search" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); color:white; border:none; padding: 0 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3); font-weight: bold; cursor: pointer; transition: 0.3s;" title="البحث بالمعنى (الذكاء الاصطناعي)">🤖 ذكي</button>
+                    <button type="button" class="btn-action" onclick="runAISmartSearch()" id="btn-smart-search" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); color:white; border:none; padding: 0 12px; border-radius: 6px; box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3); font-weight: bold; cursor: pointer; transition: 0.3s; height: 26px; font-size: 0.8rem; white-space:nowrap; margin-right: 5px;" title="البحث بالمعنى (الذكاء الاصطناعي)">🤖 ذكي</button>
                 </div>
                 <div class="selected-account-chip" id="selected-chip">
                     <span id="chip-icon">🏷️</span>
-                    <span id="chip-name"></span>
+                    <span id="chip-name" style="flex:1;"></span>
                     <button class="chip-remove" onclick="clearAccountSearch()" title="إلغاء">✕</button>
                 </div>
                 <input type="hidden" id="filter-account" value="ALL">
             </div>
-            <div class="filter-group">
+
+            <div class="filter-group-inline">
+                <label>العملة</label>
+                <select class="filter-input" id="filter-currency">
+                    <option value="ALL">جميع العملات</option>
+                    <!-- Will be populated dynamically -->
+                </select>
+            </div>
+
+            <div class="filter-group-inline">
                 <label>من تاريخ</label>
                 <input type="date" class="filter-input" id="filter-from">
             </div>
-            <div class="filter-group">
+
+            <div class="filter-group-inline">
                 <label>إلى تاريخ</label>
                 <input type="date" class="filter-input" id="filter-to">
             </div>
         </div>
-        <div class="filter-row">
-            <div class="filter-group">
+
+        <!-- الصف الثاني -->
+        <div class="filter-row-single" style="margin-bottom: 5px;">
+            <div class="filter-group-inline">
                 <label>نوع الحركة</label>
                 <select class="filter-input" id="filter-type">
                     <option value="ALL">جميع الحركات</option>
@@ -367,29 +419,33 @@
                     <option value="purchase">فاتورة مشتريات</option>
                 </select>
             </div>
-            <div class="filter-group">
-                <label>مركز التكلفة (Cost Center)</label>
+
+            <div class="filter-group-inline">
+                <label>مركز التكلفة</label>
                 <select class="filter-input" id="filter-costcenter">
                     <option value="ALL">الكل</option>
                     <!-- Will be populated dynamically -->
                 </select>
             </div>
-            <div class="filter-group">
-                <label>العملة (Currency)</label>
-                <select class="filter-input" id="filter-currency">
-                    <option value="ALL">جميع العملات</option>
-                    <!-- Will be populated dynamically -->
-                </select>
+
+            <div class="filter-group-inline" style="grid-column: span 3;">
+                <label title="بحث سريع برقم المرجع أو كلمة في البيان">بحث نصي (مرجع/بيان)</label>
+                <input type="text" class="filter-input" id="filter-search" placeholder="اكتب للبحث..." autocomplete="off" onkeyup="if(event.key === 'Enter') runReport()">
             </div>
         </div>
+    </div>
 
-        <div style="display:flex; gap:12px; margin-top:20px; align-items:center; flex-wrap:wrap;">
-            <button class="btn-run" onclick="runReport()">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                تشغيل التقرير الذكي
-            </button>
-            <button class="btn-action" onclick="previewGL()">عرض للطباعة</button>
-            <button class="btn-action" onclick="window.print()">طباعة مباشرة</button>
+    <!-- ACTION BUTTONS SECTION -->
+    <div style="display:flex; gap:12px; margin-bottom:20px; align-items:center; flex-wrap:wrap;" class="no-print">
+        <button class="btn-run" onclick="runReport()" id="btn-run-report" style="box-shadow: 0 4px 15px rgba(192, 132, 252, 0.4); position:relative; overflow:hidden;">
+            <svg id="btn-run-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="transition:0.3s;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <svg id="btn-run-spinner" style="display:none; animation: rotate 1s linear infinite;" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"></path></svg>
+            <span id="btn-run-text">تشغيل التقرير الذكي</span>
+        </button>
+        
+        <div id="secondary-actions" style="display:none; gap:12px; align-items:center; flex-wrap:wrap; opacity:0; transition: opacity 0.5s ease, transform 0.5s ease; transform: translateY(10px);">
+            <button class="btn-action" onclick="previewGL()">معاينة</button>
+            <button class="btn-action" onclick="printDirectly()">طباعة مباشرة</button>
             <button class="btn-action" onclick="window.openExportModal(exportCSV, {element: document.getElementById('gl-table-wrap'), filename: 'General_Ledger.pdf', orientation: 'landscape'})">تصدير PDF/Excel</button>
             <button class="btn-action" style="background:rgba(37, 211, 102, 0.15); color:#25D366; border-color:rgba(37, 211, 102, 0.5);" onclick="shareViaWhatsApp()" title="مشاركة كشف الحساب عبر الواتساب">
                 <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.487-1.761-1.66-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
@@ -400,6 +456,11 @@
                 مشاركة إيميل
             </button>
         </div>
+
+        <button class="btn-run" style="background: linear-gradient(135deg, #ec4899, #8b5cf6); box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4); margin-right: auto;" onclick="toggleSettingsSidebar()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:8px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            تخصيص العرض والجدول
+        </button>
     </div>
 
     <!-- SUMMARY CARDS -->
@@ -512,6 +573,7 @@
     </div>
 </div>
 
+<script src="js/localforage.min.js"></script>
 <script src="js/app.js?v=20260626_4"></script>
 <script>
     // Make Sidebar Draggable and Resizable, with Permanent Saving
@@ -568,11 +630,11 @@
         observer.observe(sidebar, { attributes: true });
 
         function saveSidebarConfig() {
+            if (!window.APP_READY) return; // Prevent wiping settings before DB is loaded!
             if(typeof getTenantKey === 'function') {
-                const t = getTenantKey('');
                 let settings = {};
                 try {
-                    const raw = localStorage.getItem(t + 'erp_settings_v1');
+                    const raw = localStorage.getItem('erp_settings_v1');
                     if (raw) settings = JSON.parse(raw);
                 } catch(e) {}
                 
@@ -584,12 +646,34 @@
                     transform: sidebar.style.transform
                 };
                 
-                localStorage.setItem(t + 'erp_settings_v1', JSON.stringify(settings));
+                localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
             }
         }
     });
 </script>
-<script src="js/general-ledger.js"></script>
+<script src="js/html2pdf.bundle.min.js"></script>
+<script src="js/whatsapp-integration.js"></script>
+<script src="js/general-ledger.js?v=<?= time() ?>"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Default Dates: From the 1st of the current month to Today
+    const dFrom = document.getElementById('filter-from');
+    const dTo = document.getElementById('filter-to');
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    
+    const formatDate = (d) => {
+        let month = '' + (d.getMonth() + 1);
+        let day = '' + d.getDate();
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+        return [d.getFullYear(), month, day].join('-');
+    };
+    
+    if (dFrom && !dFrom.value) dFrom.value = formatDate(firstDay);
+    if (dTo && !dTo.value) dTo.value = formatDate(today);
+});
+</script>
 <script>
 function runAISmartSearch() {
     const input = document.getElementById('account-search-input');

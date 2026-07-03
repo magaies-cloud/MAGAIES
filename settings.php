@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'السجانة 2026 - الإعدادات'; ?>
+<?php $page_title = 'السجانة 2026 - الإعدادات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -280,6 +280,10 @@
                 <input type="text" class="form-input" id="cfg-reg-number" placeholder="رقم السجل التجاري">
             </div>
             <div class="form-group">
+                <label class="form-label">الرقم الضريبي (VAT Number)</label>
+                <input type="text" class="form-input" id="cfg-tax-number" placeholder="الرقم الضريبي للشركة">
+            </div>
+            <div class="form-group">
                 <label class="form-label">رقم الهاتف للتواصل</label>
                 <input type="tel" class="form-input" id="cfg-phone" placeholder="+249...">
             </div>
@@ -495,6 +499,7 @@
         // Company
         if (cfg.companyName)    document.getElementById('cfg-company-name').value = cfg.companyName;
         if (cfg.regNumber)      document.getElementById('cfg-reg-number').value   = cfg.regNumber;
+        if (cfg.taxNumber)      document.getElementById('cfg-tax-number').value   = cfg.taxNumber;
         if (cfg.phone)          document.getElementById('cfg-phone').value         = cfg.phone;
         if (cfg.address)        document.getElementById('cfg-address').value       = cfg.address;
 
@@ -532,6 +537,7 @@
             logoBase64:        window.pendingLogoBase64 || oldCfg.logoBase64,
             companyName:       document.getElementById('cfg-company-name').value.trim(),
             regNumber:         document.getElementById('cfg-reg-number').value.trim(),
+            taxNumber:         document.getElementById('cfg-tax-number').value.trim(),
             phone:             document.getElementById('cfg-phone').value.trim(),
             address:           document.getElementById('cfg-address').value.trim(),
 
