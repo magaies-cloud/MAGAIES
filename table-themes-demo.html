@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أنماط الجداول - Al-Sajana</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 40px 20px;
+            margin: 0;
+        }
+        h1 {
+            text-align: center;
+            color: #1e293b;
+            margin-bottom: 50px;
+            font-weight: 800;
+        }
+        .theme-container {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .theme-title {
+            font-size: 1.5rem;
+            color: #334155;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .theme-desc {
+            color: #64748b;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        /* Base Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Inter', 'Tajawal', sans-serif;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: right;
+        }
+
+        /* 1. Classic Corporate (النمط الكلاسيكي الاحترافي) */
+        .table-classic {
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+        }
+        .table-classic th {
+            background: #f8fafc;
+            color: #0f172a;
+            font-weight: 700;
+            border: 1px solid #cbd5e1;
+            border-bottom: 2px solid #94a3b8;
+        }
+        .table-classic td {
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            font-size: 0.95rem;
+        }
+        .table-classic tr:hover {
+            background: #f1f5f9;
+        }
+
+        /* 2. Warm Minimalist (النمط الدافئ - بيج/كريمي) */
+        .table-warm {
+            background: #fdfbf7;
+            border: 1px solid #e7e5e4;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .table-warm th {
+            background: #f5f5f4;
+            color: #57534e;
+            font-weight: 800;
+            border-bottom: 2px solid #d6d3d1;
+        }
+        .table-warm td {
+            color: #78716c;
+            border-bottom: 1px solid #e7e5e4;
+        }
+        .table-warm tr:last-child td {
+            border-bottom: none;
+        }
+        .table-warm tr:hover td {
+            background: #f5f5f4;
+            color: #44403c;
+        }
+
+        /* 3. Zebra Soft (نمط التباين الناعم) */
+        .table-zebra {
+            background: #ffffff;
+            box-shadow: 0 0 0 1px #e2e8f0;
+            border-radius: 8px;
+        }
+        .table-zebra th {
+            background: #ffffff;
+            color: #1e293b;
+            font-weight: 800;
+            border-bottom: 2px solid #3b82f6;
+            text-transform: uppercase;
+        }
+        .table-zebra tr:nth-child(even) {
+            background: #f8fafc;
+        }
+        .table-zebra td {
+            color: #475569;
+            border: none;
+        }
+        .table-zebra tr:hover {
+            background: #eff6ff;
+        }
+
+        /* 4. Airy & Spaced (النمط المفتوح الواسع) */
+        .table-airy {
+            background: transparent;
+        }
+        .table-airy th {
+            background: transparent;
+            color: #64748b;
+            font-weight: 700;
+            border-bottom: 2px solid #cbd5e1;
+            padding: 15px 10px;
+            font-size: 0.9rem;
+        }
+        .table-airy td {
+            border-bottom: 1px dashed #cbd5e1;
+            padding: 18px 10px;
+            color: #1e293b;
+            font-weight: 500;
+        }
+        .table-airy tr:hover td {
+            background: rgba(255,255,255,0.5);
+            transform: scale(1.01);
+            transition: transform 0.2s;
+        }
+
+        /* 5. Fintech Premium (نمط التكنولوجيا المالية) */
+        .table-fintech {
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .table-fintech th {
+            background: linear-gradient(90deg, #f8fafc, #f1f5f9);
+            color: #334155;
+            font-weight: 800;
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .table-fintech td {
+            padding: 16px;
+            color: #0f172a;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .table-fintech td:first-child {
+            font-weight: 700;
+            color: #2563eb;
+        }
+        .table-fintech tr:hover {
+            background: #f8fafc;
+        }
+
+        /* 6. Elegant Grid (الشبكة الأنيقة الدقيقة) */
+        .table-grid {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+        }
+        .table-grid th {
+            background: #f1f5f9;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+            font-weight: 800;
+        }
+        .table-grid td {
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            font-size: 0.95rem;
+        }
+        .table-grid tr:nth-child(even) td {
+            background: #fafaf9;
+        }
+        .table-grid tr:hover td {
+            background: #fef08a; /* Soft yellow highlight */
+            color: #854d0e;
+        }
+
+        /* 7. Soft Pearl (نمط اللؤلؤ الفاتح) */
+        .table-pearl {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: inset 0 2px 10px rgba(255,255,255,0.5), 0 5px 15px rgba(0,0,0,0.02);
+            overflow: hidden;
+        }
+        .table-pearl th {
+            background: rgba(248, 250, 252, 0.8);
+            backdrop-filter: blur(10px);
+            color: #475569;
+            font-weight: 700;
+            padding: 18px 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .table-pearl td {
+            padding: 16px 20px;
+            color: #1e293b;
+            border-bottom: 1px solid #f8fafc;
+            transition: all 0.3s ease;
+        }
+        .table-pearl tr:hover td {
+            background: #f0fdf4;
+            color: #166534;
+            box-shadow: inset 0 0 10px rgba(74, 222, 128, 0.1);
+        }
+
+        /* Table Wrapper for scrolling */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        /* Dummy Data Styling */
+        .amt { font-family: 'Inter', monospace; font-weight: 700; color: #10b981; }
+        .amt-out { color: #ef4444; }
+    </style>
+</head>
+<body>
+
+    <h1>✨ 7 أنماط احترافية بألوان فاتحة للجداول</h1>
+
+    <div class="theme-container">
+        <div class="theme-title">
+            1. النمط الكلاسيكي الاحترافي (Classic Corporate)
+            <span style="font-size:1rem; padding:4px 10px; background:#e2e8f0; border-radius:12px;">معتمد وموثوق</span>
+        </div>
+        <p class="theme-desc">يتميز بخطوط شبكية واضحة جداً، مثالي للبيانات المحاسبية الكثيفة حيث يمنع تشتت العين. يستخدم الأبيض الساطع مع الرمادي الفاتح.</p>
+        <div class="table-responsive">
+            <table class="table-classic">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>رقم القيد</th>
+                        <th>البيان</th>
+                        <th>الحساب</th>
+                        <th>مدين</th>
+                        <th>دائن</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2026-07-01</td>
+                        <td>JV-10023</td>
+                        <td>إيرادات مبيعات نقدية</td>
+                        <td>صندوق المعرض</td>
+                        <td class="amt">1,500.00</td>
+                        <td>0.00</td>
+                    </tr>
+                    <tr>
+                        <td>2026-07-01</td>
+                        <td>JV-10023</td>
+                        <td>إيرادات مبيعات نقدية</td>
+                        <td>المبيعات</td>
+                        <td>0.00</td>
+                        <td class="amt amt-out">1,500.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="theme-container">
+        <div class="theme-title">
+            2. النمط الدافئ المُريح (Warm Minimalist)
+            <span style="font-size:1rem; padding:4px 10px; background:#fde68a; border-radius:12px;">مريح للعين</span>
+        </div>
+        <p class="theme-desc">يعتمد على درجات البيج والكريمي الفاتح جداً، يقلل من إجهاد العين عند الاستخدام الطويل، مع فواصل خطوط أفقية ناعمة.</p>
+        <div class="table-responsive">
+            <table class="table-warm">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>رقم القيد</th>
+                        <th>البيان</th>
+                        <th>الحساب</th>
+                        <th>مدين</th>
+                        <th>دائن</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2026-07-01</td>
+                        <td>JV-10023</td>
+                        <td>إيرادات مبيعات نقدية</td>
+                        <td>صندوق المعرض</td>
+                        <td class="amt">1,500.00</td>
+                        <td>0.00</td>
+                    </tr>
+                    <tr>
+                        <td>2026-07-01</td>
+                        <td>JV-10023</td>
+                        <td>إيرادات مبيعات نقدية</td>
+                        <td>المبيعات</td>
+                        <td>0.00</td>
+                        <td class="amt amt-out">1,500.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="theme-container">
+        <div class="theme-title">
+            3. نمط التباين الناعم (Zebra Soft)
+            <span style="font-size:1rem; padding:4px 10px; background:#bfdbfe; border-radius:12px;">قراءة سريعة</span>
+        </div>
+        <p class="theme-desc">لا يحتوي على خطوط عمودية، بل يعتمد على تمييز السطور بالتناوب (أبيض ثم رمادي فاتح جداً). يسهل تتبع السطر بعرض الشاشة.</p>
+        <div class="table-responsive">
+            <table class="table-zebra">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>رقم القيد</th>
+                        <th>البيان</th>
+                        <th>الحساب</th>
+                        <th>مدين</th>
+                        <th>دائن</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2026-07-01</td>
+                        <td>JV-10023</td>
+                        <td>إيرادات مبيعات نقدية</td>
+                        <td>صندوق المعرض</td>
+                        <td class="amt">1,500.00</td>
+                        <td>0.00</td>
+                    </tr>
+                    <tr>
+                        <td>2026-07-01</td>
+                        <td>JV-10023</td>
+                        <td>إيرادات مبيعات نقدية</td>
+                        <td>المبيعات</td>
+                        <td>0.00</td>
+                        <td class="amt amt-out">1,500.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="theme-container">
+        <div class="theme-title">
+            4. النمط المفتوح الواسع (Airy & Spaced)
+            <span style="font-size:1rem; padding:4px 10px; background:#e0e7ff; border-radius:12px;">عصري جداً</span>
+        </div>
+        <p class="theme-desc">يستخدم مساحات بيضاء واسعة، بلا حواف خارجية، وفواصل أفقية متقطعة (Dashed). يعطي شعوراً بفخامة التصميم وسهولة التنفس.</p>
+        <div class="table-responsive">
+            <table class="table-airy">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>رقم القيد</th>
+                        <th>البيان</th>
+                        <th>الحساب</th>
+                        <th>مدين</th>
+                        <th>دائن</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2026-07-01</td>
+                        <td>JV-10023</td>
+                        <td>إيرادات مبيعات نقدية</td>
+                        <td>صندوق المعرض</td>
+                        <td class="amt">1,500.00</td>
+                        <td>0.00</td>
+                    </tr>
+                    <tr>
+                        <td>2026-07-01</td>
+                        <td>JV-10023</td>
+                        <td>إيرادات مبيعات نقدية</td>
+                        <td>المبيعات</td>
+                        <td>0.00</td>
+                        <td class="amt amt-out">1,500.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="theme-container">
+        <div class="theme-title">
+            5. نمط التكنولوجيا المالية (Fintech Premium)
+            <span style="font-size:1rem; padding:4px 10px; background:#c7d2fe; border-radius:12px;">فخم ومرتب</span>
+        </div>
+        <p class="theme-desc">يستخدم في التطبيقات البنكية، تظليل ناعم للخلفية، تدرج لوني خفيف جداً في الرأس، وإبراز قوي للعمود الأول والأرقام.</p>
+        <div class="table-responsive">
+            <table class="table-fintech">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>رقم القيد</th>
+                        <th>البيان</th>
+                        <th>الحساب</th>
+                        <th>مدين</th>
+                        <th>دائن</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2026-07-01</td>
+                        <td>JV-10023</td>
+                        <td>إيرادات مبيعات نقدية</td>
+                        <td>صندوق المعرض</td>
+                        <td class="amt">1,500.00</td>
+                        <td>0.00</td>
+                    </tr>
+                    <tr>
+                        <td>2026-07-01</td>
+                        <td>JV-10023</td>
+                        <td>إيرادات مبيعات نقدية</td>
+                        <td>المبيعات</td>
+                        <td>0.00</td>
+                        <td class="amt amt-out">1,500.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="theme-container">
+        <div class="theme-title">
+            6. الشبكة الأنيقة الدقيقة (Elegant Grid)
+            <span style="font-size:1rem; padding:4px 10px; background:#fed7aa; border-radius:12px;">مثالي للمحاسبين</span>
+        </div>
+        <p class="theme-desc">شبكة كاملة قوية ولكن بألوان حدود فاتحة جداً وأنيقة، مع تأثير تظليل أصفر خفيف عند تمرير الماوس للمساعدة في المراجعة.</p>
+        <div class="table-responsive">
+            <table class="table-grid">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>رقم القيد</th>
+                        <th>البيان</th>
+                        <th>الحساب</th>
+                        <th>مدين</th>
+                        <th>دائن</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2026-07-01</td>
+                        <td>JV-10023</td>
+                        <td>إيرادات مبيعات نقدية</td>
+                        <td>صندوق المعرض</td>
+                        <td class="amt">1,500.00</td>
+                        <td>0.00</td>
+                    </tr>
+                    <tr>
+                        <td>2026-07-01</td>
+                        <td>JV-10023</td>
+                        <td>إيرادات مبيعات نقدية</td>
+                        <td>المبيعات</td>
+                        <td>0.00</td>
+                        <td class="amt amt-out">1,500.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="theme-container">
+        <div class="theme-title">
+            7. نمط اللؤلؤ الفاتح (Soft Pearl)
+            <span style="font-size:1rem; padding:4px 10px; background:#bbf7d0; border-radius:12px;">نظيف وانسيابي</span>
+        </div>
+        <p class="theme-desc">حواف دائرية قوية، تظليل داخلي يعطي إحساساً بالعمق، لون أبيض ناصع مع تظليل أخضر نعناعي فاتح جداً عند تمرير الماوس.</p>
+        <div class="table-responsive">
+            <table class="table-pearl">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>رقم القيد</th>
+                        <th>البيان</th>
+                        <th>الحساب</th>
+                        <th>مدين</th>
+                        <th>دائن</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2026-07-01</td>
+                        <td>JV-10023</td>
+                        <td>إيرادات مبيعات نقدية</td>
+                        <td>صندوق المعرض</td>
+                        <td class="amt">1,500.00</td>
+                        <td>0.00</td>
+                    </tr>
+                    <tr>
+                        <td>2026-07-01</td>
+                        <td>JV-10023</td>
+                        <td>إيرادات مبيعات نقدية</td>
+                        <td>المبيعات</td>
+                        <td>0.00</td>
+                        <td class="amt amt-out">1,500.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

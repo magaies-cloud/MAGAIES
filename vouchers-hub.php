@@ -599,24 +599,7 @@
             </div>
         </a>
 
-        <!-- Account Statement -->
-        <a data-href="account-statement.php" onclick="window.location.href='account-statement.php'" class="premium-card" style="--card-color: #3b82f6; --card-rgb: 59, 130, 246;">
-            <div class="card-glow"></div>
-            <div class="flow-badge" style="background: rgba(59,130,246,0.1); color: #3b82f6; border: 1px solid rgba(59,130,246,0.2);">
-                <span>📊</span> كشف
-            </div>
-            <div class="card-content">
-                <div class="icon-wrapper">
-                    <span class="v-icon">📄</span>
-                </div>
-                <h3 class="v-title">كشف حساب</h3>
-                <p class="v-subtitle">استعراض تفصيلي لحركات الأرصدة والعملاء.</p>
-                <div class="v-footer">
-                    <span class="v-badge" style="background: rgba(59,130,246,0.15); color: #3b82f6; border-color: rgba(59,130,246,0.3);">Statement</span>
-                    <span class="v-arrow" style="background: #3b82f6; color: #fff;">←</span>
-                </div>
-            </div>
-        </a>
+
         <!-- General Ledger -->
         <a data-href="general-ledger.php" onclick="window.location.href='general-ledger.php'" class="premium-card" style="--card-color: #ec4899; --card-rgb: 236, 72, 153;">
             <div class="card-glow"></div>

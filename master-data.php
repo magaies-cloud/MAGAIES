@@ -960,7 +960,25 @@
 
             if (!name) { alert('الرجاء إدخال اسم العميل'); return; }
 
-            let customers = [];
+            // Check for duplicate names in Customers and Suppliers
+            const currentName = name.trim().toLowerCase();
+            let allCusts = []; let allSups = [];
+            try {
+                allCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+                allSups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+                if(!Array.isArray(allCusts)) allCusts = [];
+                if(!Array.isArray(allSups)) allSups = [];
+            } catch(e) {}
+            
+            const isCustDup = allCusts.some(c => c.name && c.name.trim().toLowerCase() === currentName && c.id !== id);
+            const isSupDup = allSups.some(s => s.name && s.name.trim().toLowerCase() === currentName && s.id !== id);
+            
+            if (isCustDup || isSupDup) {
+                alert('هذا الاسم موجود مسبقاً (كعميل أو مورد). لا يمكن تكرار الأسماء!');
+                return;
+            }
+
+            let customers = allCusts;
             try {
                 customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
                 if (!Array.isArray(customers)) customers = [];
@@ -1130,15 +1148,24 @@
         function deleteCustomer(id) {
             if(confirm('هل أنت متأكد من حذف هذا العميل؟')) {
                 let customers = [];
-            try {
-                customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-                if (!Array.isArray(customers)) customers = [];
-            } catch(e) {
-                customers = [];
-            }
-            customers = customers.filter(c => !c.deleted);
-                const idx = customers.findIndex(c => c.id === id); if(idx > -1) { customers[idx].deleted = true; customers[idx].updatedAt = Date.now(); }
+                try {
+                    customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+                    if (!Array.isArray(customers)) customers = [];
+                } catch(e) {}
+                
+                const idx = customers.findIndex(c => String(c.id) === String(id));
+                if (idx > -1) {
+                    customers.splice(idx, 1);
+                } else {
+                    // Fallback for corrupted data (try by name if id somehow matches name)
+                    const nameIdx = customers.findIndex(c => c.name === id);
+                    if (nameIdx > -1) customers.splice(nameIdx, 1);
+                }
+                
                 localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
+                renderCustomers();
+            }
+        }
                 renderCustomers();
             }
         }
@@ -1163,7 +1190,25 @@
 
             if (!name) { alert('الرجاء إدخال اسم المورد'); return; }
 
-            let suppliers = [];
+            // Check for duplicate names in Customers and Suppliers
+            const currentName = name.trim().toLowerCase();
+            let allCusts = []; let allSups = [];
+            try {
+                allCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+                allSups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+                if(!Array.isArray(allCusts)) allCusts = [];
+                if(!Array.isArray(allSups)) allSups = [];
+            } catch(e) {}
+            
+            const isCustDup = allCusts.some(c => c.name && c.name.trim().toLowerCase() === currentName && c.id !== id);
+            const isSupDup = allSups.some(s => s.name && s.name.trim().toLowerCase() === currentName && s.id !== id);
+            
+            if (isCustDup || isSupDup) {
+                alert('هذا الاسم موجود مسبقاً (كعميل أو مورد). لا يمكن تكرار الأسماء!');
+                return;
+            }
+
+            let suppliers = allSups;
             try {
                 suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
                 if (!Array.isArray(suppliers)) suppliers = [];
@@ -1263,14 +1308,19 @@
         function deleteSupplier(id) {
             if(confirm('هل أنت متأكد من حذف هذا المورد؟')) {
                 let suppliers = [];
-            try {
-                suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
-                if (!Array.isArray(suppliers)) suppliers = [];
-            } catch(e) {
-                suppliers = [];
-            }
-            suppliers = suppliers.filter(s => !s.deleted);
-                const idx = suppliers.findIndex(s => s.id === id); if(idx > -1) { suppliers[idx].deleted = true; suppliers[idx].updatedAt = Date.now(); }
+                try {
+                    suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+                    if (!Array.isArray(suppliers)) suppliers = [];
+                } catch(e) {}
+                
+                const idx = suppliers.findIndex(s => String(s.id) === String(id));
+                if (idx > -1) {
+                    suppliers.splice(idx, 1);
+                } else {
+                    const nameIdx = suppliers.findIndex(s => s.name === id);
+                    if (nameIdx > -1) suppliers.splice(nameIdx, 1);
+                }
+                
                 localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
                 renderSuppliers();
             }
@@ -2326,7 +2376,38 @@ function openSafeForm() {
         }
 </script>
 <script>
+function deduplicateEntities() {
+    try {
+        let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+        let suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+        if(!Array.isArray(customers)) customers = [];
+        if(!Array.isArray(suppliers)) suppliers = [];
+        
+        let uniqueNames = new Set();
+        
+        let newCusts = customers.filter(c => {
+            if(!c || !c.name) return false;
+            let n = c.name.trim().toLowerCase();
+            if(uniqueNames.has(n)) return false;
+            uniqueNames.add(n);
+            return true;
+        });
+        
+        let newSups = suppliers.filter(s => {
+            if(!s || !s.name) return false;
+            let n = s.name.trim().toLowerCase();
+            if(uniqueNames.has(n)) return false;
+            uniqueNames.add(n);
+            return true;
+        });
+        
+        if (newCusts.length !== customers.length) localStorage.setItem('erp_customers_v1', JSON.stringify(newCusts));
+        if (newSups.length !== suppliers.length) localStorage.setItem('erp_suppliers_v1', JSON.stringify(newSups));
+    } catch(e) { console.error(e); }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    deduplicateEntities();
     // Units Init
     importLegacyUnits();
     renderGlobalUnitsList();
