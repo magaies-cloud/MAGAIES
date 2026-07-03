@@ -316,25 +316,10 @@
 
 <div style="max-width: 1600px; margin: 0 auto; padding: 20px 30px; padding-bottom: 80px;">
 
-    <!-- BREADCRUMB -->
-    <div class="page-breadcrumb no-print" style="display:inline-flex; align-items:center; background:rgba(0,0,0,0.2); padding:8px 15px; border-radius:8px; margin-bottom:20px;">
-        <button onclick="history.back()" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; padding:4px 8px; border-radius:4px; margin-left:8px; color:#94a3b8; display:flex;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </button>
-        <a data-href="financial-reports.php" onclick="window.location.href='financial-reports.php'" style="color:#c084fc; text-decoration:none; font-weight:700;">التقارير المالية</a>
-        <span style="margin:0 10px; color:#475569;">/</span>
-        <span style="color:#f8fafc;">دفتر الأستاذ العام الذكي (SGL)</span>
-    </div>
+    <!-- Premium Navigation Header -->
+    <?php include 'includes/header.php'; ?>
 
-    <!-- PAGE TITLE -->
-    <div style="margin-bottom: 25px; display:flex; justify-content:space-between; align-items:center;" class="no-print">
-        <div>
-            <h1 style="color:#fff; margin:0 0 5px 0; font-size:2rem; font-weight:900;">
-                دفتر الأستاذ العام الذكي 
-                <span class="badge-sgl">SGL PRO</span>
-            </h1>
-            <p style="color:#64748b; margin:0;">Smart General Ledger — تتبع الحركات المحاسبية من وإلى الحسابات الرئيسية</p>
-        </div>
+    <div style="margin-bottom: 25px; display:flex; justify-content:flex-end; align-items:center;" class="no-print">
         <button class="btn-run" style="background: linear-gradient(135deg, #ec4899, #8b5cf6); box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);" onclick="toggleSettingsSidebar()">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:8px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             تخصيص العرض والجدول
