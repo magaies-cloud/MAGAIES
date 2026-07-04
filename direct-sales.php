@@ -952,6 +952,52 @@
  .choices__list--dropdown { background-color: #1e293b !important; color: #fff !important; border: 1px solid #38bdf8 !important; z-index: 1000 !important; }
  .choices__item--selectable.is-highlighted { background-color: #38bdf8 !important; color: #fff !important; }
  .choices__input { color: #fff !important; }
+
+        /* Resizable columns */
+        .pos-grid th {
+            position: relative;
+        }
+        .resizer {
+            width: 5px;
+            cursor: col-resize;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            background-color: transparent;
+            z-index: 10;
+        }
+        .resizer:hover, .resizing {
+            background-color: var(--gold-primary);
+        }
+
+        /* Context Menu */
+        #col-context-menu {
+            position: absolute;
+            z-index: 100000;
+            background: var(--velvet-panel-hover);
+            border: 1px solid var(--gold-border);
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            display: none;
+            min-width: 150px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .col-toggle-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 0.8rem;
+            border-radius: 4px;
+        }
+        .col-toggle-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
  </style>
 </head>
 <body>
@@ -1416,18 +1462,25 @@
                     <table class="pos-grid" id="pos-grid">
                         <thead>
                             <tr style="background: rgba(15, 23, 42, 0.8); border-bottom: 2px solid rgba(56, 189, 248, 0.3);">
-                                <th class="th-num" style="width: 3%;">#</th>
-                                <th class="th-item" style="width: 25%;">الصنف</th>
-                                <th class="th-unit" style="width: 8%;">الوحدة</th>
-                                <th class="th-factor" style="width: 7%;">التعادل</th>
-                                <th class="th-qty" style="width: 8%;">الكمية</th>
-                                <th class="th-price" style="width: 10%;">السعر</th>
-                                <th class="th-total" style="width: 10%;">الإجمالي</th>
-                                <th class="th-baseqty" style="width: 8%;">بالعدد</th>
-                                <th class="th-avail" style="width: 7%; color:#10b981;">المتاح</th>
-                                <th class="th-wh" style="width: 7%;">المخزن</th>
-                                <th class="th-shila" style="width: 5%; text-align:center;">الشيلة</th>
-                                <th class="th-del" style="width: 5%;"></th>
+                                <th data-col-id="0" class="th-num" style="width: 3%;">#</th>
+                                <th data-col-id="1" class="th-item" style="width: 15%;">الصنف</th>
+                                <th data-col-id="2" class="th-unit" style="width: 6%;">الوحدة</th>
+                                <th data-col-id="3" class="th-factor" style="width: 5%;">التعادل</th>
+                                <th data-col-id="4" class="th-qty" style="width: 6%;">الكمية</th>
+                                <th data-col-id="5" class="th-price" style="width: 8%;">السعر</th>
+                                <th data-col-id="6" class="th-total" style="width: 8%;">الإجمالي</th>
+                                <th data-col-id="7" class="th-baseqty" style="width: 6%;">بالعدد</th>
+                                <th data-col-id="8" class="th-avail" style="width: 6%; color:#0ea5e9;">المتاح</th>
+                                <th data-col-id="9" class="th-rem" style="width: 6%; color:#f59e0b;">المتبقي</th>
+                                <th data-col-id="10" class="th-fcprice" style="width: 7%; color:#10b981;">سعر عملة</th>
+                                <th data-col-id="11" class="th-fctotal" style="width: 7%; color:#10b981;">إجمالي عملة</th>
+                                <th data-col-id="12" class="th-wh" style="width: 6%;">المخزن</th>
+                                <th data-col-id="13" class="th-shila" style="width: 5%; text-align:center;">شيلة</th>
+                                <th data-col-id="14" class="th-shilarem" style="width: 5%; text-align:center;">متبقي شيلة</th>
+                                <th data-col-id="15" class="th-note" style="width: 8%;">ملحوظة</th>
+                                <th data-col-id="16" class="th-buy" style="width: 6%;">شراء</th>
+                                <th data-col-id="17" class="th-sell" style="width: 6%;">بيع</th>
+                                <th data-col-id="18" class="th-del" style="width: 5%;"></th>
                             </tr>
                         </thead>
                         <tbody id="grid-body"></tbody>
@@ -1671,5 +1724,326 @@
             }, 50);
         });
     </script>
-    </body>
+    
+    <!-- Context Menu for Columns -->
+    <div id="col-context-menu">
+        <div style="font-size: 0.75rem; color: var(--gold-primary); margin-bottom: 8px; font-weight: bold; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">إظهار/إخفاء الأعمدة</div>
+        <div id="col-toggle-list" style="max-height: 300px; overflow-y: auto;"></div>
+    </div>
+
+    <script>
+    function initTableEnhancements() {
+        const table = document.getElementById('pos-grid');
+        if(!table) return;
+
+        // --- Column Resizing ---
+        const ths = table.querySelectorAll('thead th');
+        ths.forEach((th, index) => {
+            if(th.querySelector('.resizer')) return; // already added
+
+            const resizer = document.createElement('div');
+            resizer.classList.add('resizer');
+            th.appendChild(resizer);
+            
+            let x = 0;
+            let w = 0;
+            
+            const mouseDownHandler = function(e) {
+                x = e.clientX;
+                const styles = window.getComputedStyle(th);
+                w = parseInt(styles.width, 10);
+                
+                document.addEventListener('mousemove', mouseMoveHandler);
+                document.addEventListener('mouseup', mouseUpHandler);
+                resizer.classList.add('resizing');
+            };
+            
+            const mouseMoveHandler = function(e) {
+                const dx = e.clientX - x;
+                const isRTL = document.dir === 'rtl' || document.documentElement.dir === 'rtl' || getComputedStyle(document.body).direction === 'rtl';
+                th.style.width = isRTL ? `${w - dx}px` : `${w + dx}px`;
+                th.style.minWidth = th.style.width;
+            };
+            
+            const mouseUpHandler = function() {
+                document.removeEventListener('mousemove', mouseMoveHandler);
+                document.removeEventListener('mouseup', mouseUpHandler);
+                resizer.classList.remove('resizing');
+            };
+            
+            resizer.addEventListener('mousedown', mouseDownHandler);
+        });
+
+        // --- Context Menu ---
+        const menu = document.getElementById('col-context-menu');
+        const toggleList = document.getElementById('col-toggle-list');
+        
+        const updateMenu = () => {
+            toggleList.innerHTML = '';
+            const currentThs = table.querySelectorAll('thead th');
+            currentThs.forEach((th, index) => {
+                let title = th.textContent.trim() || 'إجراء';
+                
+                const item = document.createElement('label');
+                item.className = 'col-toggle-item';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = th.style.display !== 'none';
+                checkbox.dataset.colIndex = index + 1;
+                
+                checkbox.addEventListener('change', (e) => {
+                    const isChecked = e.target.checked;
+                    const colIndex = e.target.dataset.colIndex;
+                    
+                    table.querySelector(`thead th:nth-child(${colIndex})`).style.display = isChecked ? '' : 'none';
+                    
+                    const rows = table.querySelectorAll('tbody tr');
+                    rows.forEach(row => {
+                        const td = row.querySelector(`td:nth-child(${colIndex})`);
+                        if(td) td.style.display = isChecked ? '' : 'none';
+                    });
+                    
+                    if (window.saveColumnVisibility) window.saveColumnVisibility();
+                });
+                
+                item.appendChild(checkbox);
+                item.appendChild(document.createTextNode(title));
+                toggleList.appendChild(item);
+            });
+        };
+
+        table.addEventListener('contextmenu', (e) => {
+            if(e.target.closest('table') === table) {
+                e.preventDefault();
+                updateMenu();
+                menu.style.display = 'block';
+                menu.style.left = `${e.pageX}px`;
+                menu.style.top = `${e.pageY}px`;
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!menu.contains(e.target) && e.button !== 2) {
+                menu.style.display = 'none';
+            }
+        });
+
+        // Observer for dynamically added rows
+        if(!window.tableObserver) {
+            const tbody = document.getElementById('grid-body');
+            if(tbody) {
+                window.tableObserver = new MutationObserver((mutations) => {
+                    mutations.forEach(mutation => {
+                        if (mutation.addedNodes.length > 0) {
+                            const currentThs = table.querySelectorAll('thead th');
+                            currentThs.forEach((th, index) => {
+                                if(th.style.display === 'none') {
+                                    const colIndex = index + 1;
+                                    mutation.addedNodes.forEach(row => {
+                                        if(row.nodeType === 1 && row.tagName === 'TR') {
+                                            const td = row.querySelector(`td:nth-child(${colIndex})`);
+                                            if(td) td.style.display = 'none';
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                });
+                window.tableObserver.observe(tbody, { childList: true });
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', initTableEnhancements);
+    
+    // --- Column Reordering Logic ---
+    let dragSrcCol = null;
+
+    function initDraggableColumns() {
+        const theadTr = document.querySelector('#pos-grid thead tr');
+        if(!theadTr) return;
+        const ths = theadTr.querySelectorAll('th');
+        ths.forEach((th, index) => {
+            if(!th.hasAttribute('data-col-id')) {
+                th.setAttribute('data-col-id', index);
+            }
+            th.setAttribute('draggable', 'true');
+            th.style.cursor = 'grab';
+            
+            th.addEventListener('dragstart', handleColDragStart);
+            th.addEventListener('dragenter', handleColDragEnter);
+            th.addEventListener('dragover', handleColDragOver);
+            th.addEventListener('dragleave', handleColDragLeave);
+            th.addEventListener('drop', handleColDrop);
+            th.addEventListener('dragend', handleColDragEnd);
+        });
+        
+        applySavedColumnOrder();
+    }
+
+    function handleColDragStart(e) {
+        if(e.target.classList.contains('resizer')) {
+            e.preventDefault();
+            return;
+        }
+        dragSrcCol = this;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.innerHTML);
+        this.style.opacity = '0.4';
+    }
+
+    function handleColDragOver(e) {
+        if (e.preventDefault) e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+    }
+
+    function handleColDragEnter(e) {
+        let th = e.target.closest('th');
+        if (th && th !== dragSrcCol) {
+            th.style.border = '2px dashed #38bdf8';
+        }
+    }
+
+    function handleColDragLeave(e) {
+        let th = e.target.closest('th');
+        if (th && th !== dragSrcCol) {
+            th.style.border = '';
+            th.style.borderBottom = '2px solid rgba(255,255,255,0.05)';
+        }
+    }
+
+    function handleColDrop(e) {
+        if (e.stopPropagation) e.stopPropagation();
+        let targetTh = e.target.closest('th');
+        if (dragSrcCol && targetTh && dragSrcCol !== targetTh) {
+            const tr = targetTh.parentElement;
+            const children = Array.from(tr.children);
+            const srcIdx = children.indexOf(dragSrcCol);
+            const targetIdx = children.indexOf(targetTh);
+
+            if (srcIdx < targetIdx) {
+                targetTh.after(dragSrcCol);
+            } else {
+                targetTh.before(dragSrcCol);
+            }
+            
+            saveColumnOrder();
+            applySavedColumnOrder(true);
+        }
+        return false;
+    }
+
+    function handleColDragEnd(e) {
+        this.style.opacity = '1';
+        let ths = document.querySelectorAll('#pos-grid thead th');
+        ths.forEach(th => {
+            th.style.border = '';
+            th.style.borderBottom = '2px solid rgba(255,255,255,0.05)';
+        });
+    }
+
+    function saveColumnOrder() {
+        let ths = document.querySelectorAll('#pos-grid thead tr th');
+        let order = Array.from(ths).map(th => parseInt(th.getAttribute('data-col-id')));
+        localStorage.setItem('erp_sales_col_order', JSON.stringify(order));
+    }
+
+    window.reorderTds = function(tr) {
+        let orderStr = localStorage.getItem('erp_sales_col_order');
+        let hiddenStr = localStorage.getItem('erp_sales_col_vis');
+        let hidden = hiddenStr ? JSON.parse(hiddenStr) : [];
+        
+        if (!orderStr && hidden.length === 0) return;
+        
+        let order = orderStr ? JSON.parse(orderStr) : null;
+        let tds = Array.from(tr.children);
+        
+        if (tds.length > 0 && !tds[0].hasAttribute('data-col-id')) {
+            tds.forEach((td, idx) => td.setAttribute('data-col-id', idx));
+        }
+        
+        if (order) {
+            order.forEach(id => {
+                let td = tds.find(t => parseInt(t.getAttribute('data-col-id')) === id);
+                if (td) tr.appendChild(td);
+            });
+        }
+        
+        if (hidden.length > 0) {
+            Array.from(tr.children).forEach(td => {
+                let id = parseInt(td.getAttribute('data-col-id'));
+                if (hidden.includes(id)) {
+                    td.style.display = 'none';
+                } else {
+                    td.style.display = '';
+                }
+            });
+        }
+    };
+
+    function applySavedColumnOrder(forceTbody = false) {
+        let orderStr = localStorage.getItem('erp_sales_col_order');
+        if (!orderStr) return;
+        let order = JSON.parse(orderStr);
+        
+        let theadTr = document.querySelector('#pos-grid thead tr');
+        if (theadTr) {
+            let ths = Array.from(theadTr.children);
+            order.forEach(id => {
+                let th = ths.find(t => parseInt(t.getAttribute('data-col-id')) === id);
+                if (th) theadTr.appendChild(th);
+            });
+        }
+        
+        if (forceTbody) {
+            let trs = document.querySelectorAll('#pos-grid tbody tr');
+            trs.forEach(tr => window.reorderTds(tr));
+        }
+    }
+
+    window.saveColumnVisibility = function() {
+        let ths = document.querySelectorAll('#pos-grid thead th');
+        let hidden = [];
+        ths.forEach(th => {
+            if(th.style.display === 'none') hidden.push(parseInt(th.getAttribute('data-col-id')));
+        });
+        localStorage.setItem('erp_sales_col_vis', JSON.stringify(hidden));
+    };
+
+    window.applySavedColumnVisibility = function() {
+        let hiddenStr = localStorage.getItem('erp_sales_col_vis');
+        if(!hiddenStr) return;
+        let hidden = JSON.parse(hiddenStr);
+        
+        let ths = document.querySelectorAll('#pos-grid thead th');
+        ths.forEach(th => {
+            let id = parseInt(th.getAttribute('data-col-id'));
+            if(hidden.includes(id)) {
+                th.style.display = 'none';
+            }
+        });
+        
+        let trs = document.querySelectorAll('#pos-grid tbody tr');
+        trs.forEach(tr => {
+            let tds = Array.from(tr.children);
+            tds.forEach(td => {
+                let id = parseInt(td.getAttribute('data-col-id'));
+                if(id !== null && !isNaN(id) && hidden.includes(id)) {
+                    td.style.display = 'none';
+                }
+            });
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            initDraggableColumns();
+            window.applySavedColumnVisibility();
+        }, 600);
+    });
+    </script>
+</body>
 </html>
