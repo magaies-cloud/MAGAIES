@@ -63,6 +63,7 @@ window.InvoicePrinter = (function () {
         const isSales = data.type !== 'purchase';
         const typeLabel = isSales ? (data.typeLabel || 'فاتورة مبيعات') : 'فاتورة مشتريات';
         const partyLabel = isSales ? 'العميل' : 'المورد';
+        const cfg = getSettings();
 
         // Items rows
         const itemsHtml = (data.items || []).map((item, idx) => `
@@ -112,7 +113,13 @@ window.InvoicePrinter = (function () {
         return `
             <div class="inv-header">
                 <div class="inv-logo-section">
-                    <div class="inv-logo-box">🏢</div>
+                    ${cfg.logoBase64 ? `
+                        <div class="inv-logo-img-wrapper" style="max-height: 56px; max-width: 150px; display: flex; align-items: center;">
+                            <img src="${cfg.logoBase64}" alt="Logo" style="max-height: 56px; max-width: 100%; object-fit: contain;">
+                        </div>
+                    ` : `
+                        <div class="inv-logo-box">🏢</div>
+                    `}
                     <div>
                         <div class="inv-company-name">${companyName}</div>
                         <div class="inv-company-sub">${companyAddress || ''} ${companyPhone ? '· ' + companyPhone : ''}</div>
@@ -172,18 +179,29 @@ window.InvoicePrinter = (function () {
             </div>
 
             <div class="inv-signatures">
-                <div class="inv-sig-block">
-                    <div class="inv-sig-line"></div>
-                    <div class="inv-sig-label">${isSales ? 'البائع / المحاسب' : 'المحاسب'}</div>
-                </div>
-                <div class="inv-sig-block">
-                    <div class="inv-sig-line"></div>
-                    <div class="inv-sig-label">أمين المستودع</div>
-                </div>
-                <div class="inv-sig-block">
-                    <div class="inv-sig-line"></div>
-                    <div class="inv-sig-label">توقيع ${partyLabel}</div>
-                </div>
+                ${isSales ? `
+                    <div class="inv-sig-block">
+                        <div class="inv-sig-line"></div>
+                        <div class="inv-sig-label">البائع / المحاسب</div>
+                    </div>
+                    <div class="inv-sig-block">
+                        <div class="inv-sig-line"></div>
+                        <div class="inv-sig-label">أمين المستودع</div>
+                    </div>
+                    <div class="inv-sig-block">
+                        <div class="inv-sig-line"></div>
+                        <div class="inv-sig-label">توقيع العميل</div>
+                    </div>
+                ` : `
+                    <div class="inv-sig-block">
+                        <div class="inv-sig-line"></div>
+                        <div class="inv-sig-label">توقيع المستلم</div>
+                    </div>
+                    <div class="inv-sig-block">
+                        <div class="inv-sig-line"></div>
+                        <div class="inv-sig-label">توقيع المورد</div>
+                    </div>
+                `}
             </div>
         `;
     }

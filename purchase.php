@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'استلام بضاعة'; ?>
+<?php $page_title = 'استلام بضاعة'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -133,21 +133,43 @@
         .custom-dropdown-input-wrap { position: relative; flex: 1; }
         .custom-dropdown-list {
             position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
-            max-height: 250px; overflow-y: auto;
-            background: var(--velvet-panel-hover);
-            border: 1px solid var(--gold-border);
-            border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            max-height: 280px; overflow-y: auto;
+            background: rgba(30, 41, 59, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(251, 191, 36, 0.25);
+            border-radius: 10px; box-shadow: 0 15px 50px rgba(0,0,0,0.6);
             z-index: 99999; display: none; flex-direction: column;
-            min-width: 300px;
+            min-width: 320px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(251, 191, 36, 0.3) transparent;
+        }
+        .custom-dropdown-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-dropdown-list::-webkit-scrollbar-thumb {
+            background: rgba(251, 191, 36, 0.3);
+            border-radius: 4px;
         }
         .custom-dropdown-list.show { display: flex; }
+        td:has(.custom-dropdown-list.show),
+        .m-card-full:has(.custom-dropdown-list.show),
+        .custom-dropdown-input-wrap:has(.custom-dropdown-list.show) { z-index: 99999 !important; }
+
         .custom-dropdown-item {
-            padding: 10px 12px; cursor: pointer; font-size: 0.85rem; font-weight: 600;
-            color: var(--text-main); border-bottom: 1px solid rgba(255,255,255,0.05);
-            transition: 0.2s;
+            padding: 11px 15px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
+            color: rgba(241, 245, 249, 0.9); border-bottom: 1px solid rgba(255,255,255,0.03);
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .custom-dropdown-item:last-child {
+            border-bottom: none;
         }
         .custom-dropdown-item:hover, .custom-dropdown-item.selected {
-            background: rgba(251,191,36,0.1); color: var(--gold-primary);
+            background: rgba(251,191,36,0.12); color: var(--gold-primary);
+            padding-right: 18px; /* subtle sliding micro-animation */
         }
         .custom-dropdown-empty { padding: 10px 12px; font-size: 0.8rem; color: var(--text-dim); text-align: center; }
 
@@ -1325,7 +1347,7 @@
                             
                                     <div class="custom-dropdown" style="flex:1;">
                                         <div class="custom-dropdown-input-wrap">
-                                            <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم العميل..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
+                                            <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم المورد..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);" autocomplete="one-time-code">
                                             <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange()">
                                             <div class="custom-dropdown-list" id="customer-dropdown-list">
                                                 <!-- Populated via JS -->
@@ -1536,6 +1558,9 @@
                 <!-- Cancel Button: Solid Red -->
                 <button class="btn-action btn-delete" style="flex: 1; height: 45px; background: #ef4444; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(239, 68, 68, 0.3);" onmouseover="this.style.background='#dc2626'; this.style.boxShadow='0 4px 15px rgba(239, 68, 68, 0.5)';" onmouseout="this.style.background='#ef4444'; this.style.boxShadow='0 2px 10px rgba(239, 68, 68, 0.3)';" onclick="confirmDeleteTransaction()">❌ إلغاء</button>
                 
+                <!-- Preview Button: Solid Blue -->
+                <button type="button" class="btn-action btn-preview" style="flex: 1; height: 45px; background: #3b82f6; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);" onmouseover="this.style.background='#2563eb'; this.style.boxShadow='0 4px 15px rgba(59, 130, 246, 0.5)';" onmouseout="this.style.background='#3b82f6'; this.style.boxShadow='0 2px 10px rgba(59, 130, 246, 0.3)';" onclick="printCurrentInvoice()">👁️ معاينة</button>
+                
                 <!-- Submit Button: Solid Blue Gradient -->
                 <span style="display:none;" id="footer-grand"></span>
                 <button class="btn-action btn-submit" style="flex: 1.5; height: 45px; box-shadow: 0 2px 10px rgba(56, 189, 248, 0.4); background: linear-gradient(135deg, #0ea5e9, #2563eb); color: #fff; border: none; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.boxShadow='0 6px 20px rgba(56, 189, 248, 0.6)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(56, 189, 248, 0.4)';" onclick="submitInvoice()">✅ تأكيد وحفظ</button>
@@ -1570,7 +1595,7 @@
           });
       });
     </script>
-    <script src="js/purchase-pro.js?v=23"></script>
+    <script src="js/purchase-pro-v4.js?v=24"></script>
 </div>
 
     <script>

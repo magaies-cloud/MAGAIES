@@ -237,28 +237,44 @@
         .custom-dropdown-list {
             position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
             max-height: 300px; overflow-y: auto;
-            background: var(--surface-color);
-            border: 1px solid var(--glass-border);
-            border-radius: 8px;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
-            z-index: 99999;
-            display: none; flex-direction: column;
-            min-width: 350px;
+            background: rgba(30, 41, 59, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(251, 191, 36, 0.25);
+            border-radius: 10px; box-shadow: 0 15px 50px rgba(0,0,0,0.6);
+            z-index: 99999; display: none; flex-direction: column;
+            min-width: 320px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(251, 191, 36, 0.3) transparent;
+        }
+        .custom-dropdown-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-dropdown-list::-webkit-scrollbar-thumb {
+            background: rgba(251, 191, 36, 0.3);
+            border-radius: 4px;
         }
         .custom-dropdown-list.show { display: flex; }
         td:has(.custom-dropdown-list.show),
         .m-card-full:has(.custom-dropdown-list.show),
         .custom-dropdown-input-wrap:has(.custom-dropdown-list.show) { z-index: 99999 !important; }
         .grid-scroll-wrap { min-height: 350px !important; overflow: visible !important; }
+
         .custom-dropdown-item {
-            padding: 10px 12px; cursor: pointer; font-size: 0.85rem; font-weight: 600;
-            color: var(--text-primary); border-bottom: 1px solid var(--glass-border);
-            transition: background 0.2s;
+            padding: 11px 15px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
+            color: rgba(241, 245, 249, 0.9); border-bottom: 1px solid rgba(255,255,255,0.03);
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .custom-dropdown-item:last-child {
+            border-bottom: none;
         }
         .custom-dropdown-item:hover, .custom-dropdown-item.selected {
-            background: rgba(56,189,248,0.15); color: var(--primary-accent);
+            background: rgba(251,191,36,0.12); color: var(--gold-primary);
+            padding-right: 18px; /* subtle sliding micro-animation */
         }
-        .custom-dropdown-item:last-child { border-bottom: none; }
         .custom-dropdown-empty { padding: 10px 12px; font-size: 0.8rem; color: var(--text-muted); text-align: center; }
 
         input[type="date"]::-webkit-datetime-edit-text,
@@ -1292,7 +1308,7 @@
                                     
                                     <div class="custom-dropdown" style="flex:1;">
                                         <div class="custom-dropdown-input-wrap" style="position: relative;">
-                                            <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم العميل..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
+                                            <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم العميل..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);" autocomplete="one-time-code">
                                             <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange()">
                                             <div class="custom-dropdown-list" id="customer-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none;">
                                                 <!-- Populated via JS -->
@@ -1463,24 +1479,18 @@
                         <thead>
                             <tr style="background: rgba(15, 23, 42, 0.8); border-bottom: 2px solid rgba(56, 189, 248, 0.3);">
                                 <th data-col-id="0" class="th-num" style="width: 3%;">#</th>
-                                <th data-col-id="1" class="th-item" style="width: 15%;">الصنف</th>
-                                <th data-col-id="2" class="th-unit" style="width: 6%;">الوحدة</th>
-                                <th data-col-id="3" class="th-factor" style="width: 5%;">التعادل</th>
-                                <th data-col-id="4" class="th-qty" style="width: 6%;">الكمية</th>
-                                <th data-col-id="5" class="th-price" style="width: 8%;">السعر</th>
-                                <th data-col-id="6" class="th-total" style="width: 8%;">الإجمالي</th>
-                                <th data-col-id="7" class="th-baseqty" style="width: 6%;">بالعدد</th>
-                                <th data-col-id="8" class="th-avail" style="width: 6%; color:#0ea5e9;">المتاح</th>
-                                <th data-col-id="9" class="th-rem" style="width: 6%; color:#f59e0b;">المتبقي</th>
-                                <th data-col-id="10" class="th-fcprice" style="width: 7%; color:#10b981;">سعر عملة</th>
-                                <th data-col-id="11" class="th-fctotal" style="width: 7%; color:#10b981;">إجمالي عملة</th>
-                                <th data-col-id="12" class="th-wh" style="width: 6%;">المخزن</th>
-                                <th data-col-id="13" class="th-shila" style="width: 5%; text-align:center;">شيلة</th>
-                                <th data-col-id="14" class="th-shilarem" style="width: 5%; text-align:center;">متبقي شيلة</th>
-                                <th data-col-id="15" class="th-note" style="width: 8%;">ملحوظة</th>
-                                <th data-col-id="16" class="th-buy" style="width: 6%;">شراء</th>
-                                <th data-col-id="17" class="th-sell" style="width: 6%;">بيع</th>
-                                <th data-col-id="18" class="th-del" style="width: 5%;"></th>
+                                <th data-col-id="1" class="th-item" style="width: 18%;">الصنف</th>
+                                <th data-col-id="2" class="th-unit" style="width: 7%;">الوحدة</th>
+                                <th data-col-id="3" class="th-qty" style="width: 7%;">الكمية</th>
+                                <th data-col-id="4" class="th-price" style="width: 8%;">السعر</th>
+                                <th data-col-id="5" class="th-baseqty" style="width: 7%;">العدد</th>
+                                <th data-col-id="6" class="th-avail" style="width: 7%; color:#0ea5e9;">المتاح</th>
+                                <th data-col-id="7" class="th-rem" style="width: 7%; color:#f59e0b;">المتبقي</th>
+                                <th data-col-id="8" class="th-fcprice" style="width: 8%; color:#10b981;">سعر العملة</th>
+                                <th data-col-id="9" class="th-fctotal" style="width: 9%; color:#10b981;">إجمالي العملة</th>
+                                <th data-col-id="10" class="th-wh" style="width: 8%;">المخزن</th>
+                                <th data-col-id="11" class="th-total" style="width: 8%;">الإجمالي</th>
+                                <th data-col-id="12" class="th-del" style="width: 5%;"></th>
                             </tr>
                         </thead>
                         <tbody id="grid-body"></tbody>
@@ -1518,6 +1528,8 @@
                 <button class="btn-action btn-draft" style="flex: 1; height: 45px; background: #f97316; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(249, 115, 22, 0.3);" onmouseover="this.style.background='#ea580c'; this.style.boxShadow='0 4px 15px rgba(249, 115, 22, 0.5)';" onmouseout="this.style.background='#f97316'; this.style.boxShadow='0 2px 10px rgba(249, 115, 22, 0.3)';" onclick="saveDraft()">💾 مسودة</button>
                 
                 <button class="btn-action btn-delete" style="flex: 1; height: 45px; background: #ef4444; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(239, 68, 68, 0.3);" onmouseover="this.style.background='#dc2626'; this.style.boxShadow='0 4px 15px rgba(239, 68, 68, 0.5)';" onmouseout="this.style.background='#ef4444'; this.style.boxShadow='0 2px 10px rgba(239, 68, 68, 0.3)';" onclick="confirmDeleteTransaction()">❌ إلغاء</button>
+                
+                <button type="button" class="btn-action btn-preview" style="flex: 1; height: 45px; background: #3b82f6; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);" onmouseover="this.style.background='#2563eb'; this.style.boxShadow='0 4px 15px rgba(59, 130, 246, 0.5)';" onmouseout="this.style.background='#3b82f6'; this.style.boxShadow='0 2px 10px rgba(59, 130, 246, 0.3)';" onclick="printCurrentInvoice()">👁️ معاينة</button>
                 
                 <span style="display:none;" id="footer-grand"></span>
                 <button class="btn-action btn-submit" style="flex: 1.5; height: 45px; box-shadow: 0 2px 10px rgba(56, 189, 248, 0.4); background: linear-gradient(135deg, #0ea5e9, #2563eb); color: #fff; border: none; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.boxShadow='0 6px 20px rgba(56, 189, 248, 0.6)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(56, 189, 248, 0.4)';" onclick="submitInvoice()">✅ تأكيد وحفظ</button>
@@ -1948,12 +1960,12 @@
     function saveColumnOrder() {
         let ths = document.querySelectorAll('#pos-grid thead tr th');
         let order = Array.from(ths).map(th => parseInt(th.getAttribute('data-col-id')));
-        localStorage.setItem('erp_sales_col_order', JSON.stringify(order));
+        localStorage.setItem('erp_sales_col_order_v4', JSON.stringify(order));
     }
 
     window.reorderTds = function(tr) {
-        let orderStr = localStorage.getItem('erp_sales_col_order');
-        let hiddenStr = localStorage.getItem('erp_sales_col_vis');
+        let orderStr = localStorage.getItem('erp_sales_col_order_v4');
+        let hiddenStr = localStorage.getItem('erp_sales_col_vis_v4');
         let hidden = hiddenStr ? JSON.parse(hiddenStr) : [];
         
         if (!orderStr && hidden.length === 0) return;
@@ -1985,7 +1997,7 @@
     };
 
     function applySavedColumnOrder(forceTbody = false) {
-        let orderStr = localStorage.getItem('erp_sales_col_order');
+        let orderStr = localStorage.getItem('erp_sales_col_order_v4');
         if (!orderStr) return;
         let order = JSON.parse(orderStr);
         
@@ -2010,11 +2022,11 @@
         ths.forEach(th => {
             if(th.style.display === 'none') hidden.push(parseInt(th.getAttribute('data-col-id')));
         });
-        localStorage.setItem('erp_sales_col_vis', JSON.stringify(hidden));
+        localStorage.setItem('erp_sales_col_vis_v4', JSON.stringify(hidden));
     };
 
     window.applySavedColumnVisibility = function() {
-        let hiddenStr = localStorage.getItem('erp_sales_col_vis');
+        let hiddenStr = localStorage.getItem('erp_sales_col_vis_v4');
         if(!hiddenStr) return;
         let hidden = JSON.parse(hiddenStr);
         

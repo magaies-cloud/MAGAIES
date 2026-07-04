@@ -1,4 +1,10 @@
 // --- CLOUD SYNC ENGINE (Offline-First to SaaS Bridge) ---
+const originalJSONParse = JSON.parse;
+JSON.parse = function(val) {
+    if (val === null || val === undefined) return null;
+    if (typeof val === 'object') return val; // Safe bypass if already parsed
+    return originalJSONParse.apply(JSON, arguments);
+};
 (function() {
     const SYNC_PULL_URL = "api_index.php/sync/pull";
     const SYNC_PUSH_URL = "api_index.php/sync/push";

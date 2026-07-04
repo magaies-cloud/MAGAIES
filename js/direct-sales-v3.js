@@ -105,7 +105,7 @@ function commitInvoiceNumber(type) {
 // ════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════
-document.addEventListener('DBReady', () => {
+function initSalesApp() {
     // Load real customer data from master-data
     const localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
     if(localCusts.length > 0) {
@@ -180,7 +180,13 @@ document.addEventListener('DBReady', () => {
     // إضافة صف فارغ افتراضي عند التحميل
     addRow(true);
     recalcAll();
-});
+}
+
+if (window.APP_READY) {
+    initSalesApp();
+} else {
+    document.addEventListener('DBReady', initSalesApp);
+}
 
 function populateDropdowns() {
     // Customers (Init custom dropdown)
@@ -229,36 +235,50 @@ function togglePaymentAccount() {
     }
 
     // تحديث قائمة الصندوق/الخزنة بناءً على طريقة الدفع
-    // تحديث قائمة الصندوق/الخزنة بناءً على طريقة الدفع
     const select = document.getElementById('hdr-payment-account');
     if (select) {
         if (!window.paymentAccountChoices) {
             window.paymentAccountChoices = new Choices(select, { searchEnabled: true, itemSelectText: '', shouldSort: false });
         }
         
-        if (method === 'cash') {
-            window.paymentAccountChoices.enable();
-            populateAccountSelect(select, 'safe');
-        } else if (method === 'bank' || method === 'cheque') {
-            window.paymentAccountChoices.enable();
-            populateAccountSelect(select, 'bank');
-        } else if (method === 'credit') {
+        if (method === 'credit') {
             window.paymentAccountChoices.setChoices([{ value: '', label: '-- آجل (على الحساب) --' }], 'value', 'label', true);
             window.paymentAccountChoices.disable();
+        } else {
+            window.paymentAccountChoices.enable();
+            populateAccountSelect(select);
         }
     }
 }
 
-function populateAccountSelect(select, type) {
+function populateAccountSelect(select) {
+    let safes = [];
     let banks = [];
-    try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e) {}
+    try {
+        safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
+        banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+    } catch(e) {}
+    
+    // Filter out deleted accounts
+    safes = safes.filter(x => !x.deleted);
+    banks = banks.filter(x => !x.deleted);
+    
     let choicesArr = [];
-    banks.filter(b => b.type === type).forEach(b => {
-        choicesArr.push({ value: b.id, label: b.name });
+    
+    // Add safes (💰)
+    safes.forEach(s => {
+        choicesArr.push({ value: s.id, label: '💰 ' + s.name });
     });
+    
+    // Add banks (🏦)
+    banks.forEach(b => {
+        choicesArr.push({ value: b.id, label: '🏦 ' + b.name });
+    });
+    
     if (choicesArr.length === 0) {
-        choicesArr.push({ value: '', label: type === 'bank' ? '-- لا توجد حسابات بنكية --' : '-- لا توجد خزائن --' });
+        choicesArr.push({ value: '', label: '-- لا توجد حسابات مالية --' });
     }
+    
     if (window.paymentAccountChoices) {
         window.paymentAccountChoices.setChoices(choicesArr, 'value', 'label', true);
     }
@@ -971,11 +991,12 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
     try {
         let localMatches = ITEMS;
         if (term) {
-            // Smart filter: match from the beginning of ANY word in the item name
+            // Smart filter: match from the beginning of ANY word in the item name, OR match substring
             localMatches = ITEMS.filter(i => {
-                const nameWords = i.name.toLowerCase().split(' ');
+                const normName = i.name.toLowerCase();
+                const nameWords = normName.split(' ');
                 const bcMatches = i.barcode && i.barcode.toLowerCase().startsWith(term);
-                return nameWords.some(w => w.startsWith(term)) || bcMatches;
+                return nameWords.some(w => w.startsWith(term)) || normName.includes(term) || bcMatches;
             });
         }
 
@@ -1130,11 +1151,12 @@ async function renderQuickItemDropdown(filter = '') {
     try {
         let localMatches = ITEMS;
         if (term) {
-            // Smart filter: match from the beginning of ANY word in the item name
+            // Smart filter: match from the beginning of ANY word in the item name, OR match substring
             localMatches = ITEMS.filter(i => {
-                const nameWords = i.name.toLowerCase().split(' ');
+                const normName = i.name.toLowerCase();
+                const nameWords = normName.split(' ');
                 const bcMatches = i.barcode && i.barcode.toLowerCase().startsWith(term);
-                return nameWords.some(w => w.startsWith(term)) || bcMatches;
+                return nameWords.some(w => w.startsWith(term)) || normName.includes(term) || bcMatches;
             });
         }
 
@@ -1402,7 +1424,16 @@ function getRowCalcs(row) {
     const shilaRem = baseQty ? (baseQty % shilaFactor) : 0;
 
     const whId = getResolvedWarehouse(row);
-    const availQty = item && item.stock[whId] !== undefined ? item.stock[whId] : '—';
+    let availQty = '—';
+    if (item) {
+        if (item.stock && item.stock[whId] !== undefined) {
+            availQty = item.stock[whId];
+        } else if (item.actualStock && item.actualStock[whId] !== undefined) {
+            const act = item.actualStock[whId];
+            const res = (item.reservedStock && item.reservedStock[whId] !== undefined) ? item.reservedStock[whId] : 0;
+            availQty = act - res;
+        }
+    }
     return { total, baseQty, bundles, shilaQty, shilaRem, availQty, unit: selectedUnitName, unitFactor: selectedUnitFactor };
 }
 
@@ -1494,7 +1525,7 @@ function renderGrid() {
             <td><div class="row-num">${idx + 1}</div></td>
             <td style="position:relative;">
                 <input type="text" class="g-input" id="item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
-                    value="${item ? item.name : ''}" autocomplete="new-password"
+                    value="${item ? item.name : ''}" autocomplete="one-time-code"
                     style="font-size: 1.15rem !important; font-weight: 800 !important;"
                     onfocus="this.select(); showItemDropdown(${row.id})" 
                     onblur="hideItemDropdownDelayed(${row.id})" 
@@ -1508,9 +1539,6 @@ function renderGrid() {
                     ${itemUnitsHtml}
                 </select>
             </td>
-            <td><input type="text" inputmode="decimal" class="g-input" value="${row.customFactor !== undefined ? row.customFactor : calcs.unitFactor}" placeholder="1"
-                onfocus="this.select()" oninput="updateRow(${row.id},'customFactor',this.value)"
-                onblur="this.value=parseNum(this.value)||1" tabindex="-1"></td>
             <td><input type="text" inputmode="decimal" class="g-input" value="${row.quantity || ''}" placeholder="0"
                 onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)"
                 onblur="this.value=parseNum(this.value)||''; checkAutoAddRow(${row.id})"></td>
@@ -1524,7 +1552,6 @@ function renderGrid() {
                     </button>
                 </div>
             </td>
-            <td><span class="g-readonly total-val" style="color:var(--gold-primary); font-weight:bold;" data-total="${row.id}">${fmtNum(calcs.total)}</span></td>
             <td>
                 <div style="display:flex; align-items:center; gap:4px; justify-content:center;">
                     <input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
@@ -1549,12 +1576,7 @@ function renderGrid() {
                 </select>
             </td>
 
-            <td><span class="g-readonly" style="color:#6366f1; font-weight:bold;" data-shila="${row.id}">${fmtNum(calcs.shilaQty)}</span></td>
-            <td><span class="g-readonly" style="color:#ef4444; font-weight:bold;" data-shila-rem="${row.id}">${fmtNum(calcs.shilaRem)}</span></td>
-
-            <td><input type="text" class="g-input" placeholder="ملحوظة..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)"></td>
-            <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.buyPrice !== undefined ? fmtNum(row.buyPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'buyPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))"></td>
-            <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.sellPrice !== undefined ? fmtNum(row.sellPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'sellPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))"></td>
+            <td><span class="g-readonly total-val" style="color:var(--gold-primary); font-weight:bold;" data-total="${row.id}">${fmtNum(calcs.total)}</span></td>
 
             <td>
                 <div style="display: flex; gap: 5px; justify-content: center;">
@@ -1586,7 +1608,7 @@ function renderGrid() {
             <div class="ctrl-group m-card-full" style="padding-top:4px; position:relative;">
                 <label class="label">الصنف</label>
                 <input type="text" class="ctrl-input" id="m-item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
-                    value="${item ? item.name : ''}" autocomplete="new-password"
+                    value="${item ? item.name : ''}" autocomplete="one-time-code"
                     onfocus="this.select(); showItemDropdown(${row.id}, true)" 
                     onblur="hideItemDropdownDelayed(${row.id}, true)" 
                     oninput="filterItemDropdown(${row.id}, true)">

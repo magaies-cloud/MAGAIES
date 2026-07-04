@@ -88,7 +88,7 @@ function commitInvoiceNumber(type) {
 // ════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════
-document.addEventListener('DBReady', () => {
+function initPurchaseApp() {
     window.refreshAllMasterData = function() {
         try {
             WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1'));
@@ -324,7 +324,13 @@ document.addEventListener('DBReady', () => {
             }
         }
     });
-});
+}
+
+if (window.APP_READY) {
+    initPurchaseApp();
+} else {
+    document.addEventListener('DBReady', initPurchaseApp);
+}
 
 function populateDropdowns() {
     // Customers (Init custom dropdown)
@@ -854,12 +860,17 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
     try {
         let localMatches = ITEMS;
         if (term) {
-            localMatches = ITEMS.filter(i => i.name.toLowerCase().includes(term));
+            localMatches = ITEMS.filter(i => {
+                const normName = i.name.toLowerCase();
+                const nameWords = normName.split(' ');
+                const bcMatches = i.barcode && i.barcode.toLowerCase().startsWith(term);
+                return nameWords.some(w => w.startsWith(term)) || normName.includes(term) || bcMatches;
+            });
         }
 
         let dbMatches = [];
         try {
-            const res = await fetch('/api/items_search.php?q=' + encodeURIComponent(term));
+            const res = await fetch('api/items_search.php?q=' + encodeURIComponent(term));
             const rawMatches = await res.json();
             if (Array.isArray(rawMatches)) {
                 dbMatches = rawMatches;
@@ -915,10 +926,7 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
         });
 
         // Deduplicate localMatches by id
-        let finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
-        
-        const usedItemIds = new Set(rows.filter(r => r.id !== rowId && r.itemId).map(r => String(r.itemId)));
-        finalMatches = finalMatches.filter(m => !usedItemIds.has(String(m.id)));
+        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
 
         if (finalMatches.length === 0) {
             listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة.<br><small style="color:#888;">(حاول استخدام اسم آخر)</small></div>';
@@ -926,10 +934,15 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
         }
 
         listEl.innerHTML = '';
-        finalMatches.forEach(existing => {
+        finalMatches.slice(0, 50).forEach(existing => {
             const div = document.createElement('div');
             div.className = 'custom-dropdown-item';
-            div.textContent = existing.name;
+            
+            let displayText = existing.name;
+            if (isMobile && existing.unit) displayText += ' <span style="font-size:0.8rem; color:#aaa;">— ' + existing.unit + '</span>';
+            if (existing.barcode) displayText += ' <span style="font-size:0.8rem; color:#888;">[' + existing.barcode + ']</span>';
+            div.innerHTML = displayText;
+            
             div.onmousedown = () => { updateRow(rowId, 'itemId', existing.id); renderGrid(); };
             div.onpointerdown = () => { updateRow(rowId, 'itemId', existing.id); renderGrid(); };
             listEl.appendChild(div);
@@ -1007,12 +1020,17 @@ async function renderQuickItemDropdown(filter = '') {
     try {
         let localMatches = ITEMS;
         if (term) {
-            localMatches = ITEMS.filter(i => i.name.toLowerCase().includes(term));
+            localMatches = ITEMS.filter(i => {
+                const normName = i.name.toLowerCase();
+                const nameWords = normName.split(' ');
+                const bcMatches = i.barcode && i.barcode.toLowerCase().startsWith(term);
+                return nameWords.some(w => w.startsWith(term)) || normName.includes(term) || bcMatches;
+            });
         }
 
         let dbMatches = [];
         try {
-            const res = await fetch('/api/items_search.php?q=' + encodeURIComponent(term));
+            const res = await fetch('api/items_search.php?q=' + encodeURIComponent(term));
             const rawMatches = await res.json();
             if (Array.isArray(rawMatches)) {
                 dbMatches = rawMatches;
@@ -1066,10 +1084,7 @@ async function renderQuickItemDropdown(filter = '') {
             }
         });
 
-        let finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
-        
-        const usedItemIds = new Set(rows.filter(r => r.itemId).map(r => String(r.itemId)));
-        finalMatches = finalMatches.filter(m => !usedItemIds.has(String(m.id)));
+        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
 
         if (finalMatches.length === 0) {
             listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة.<br><small style="color:#888;">(حاول استخدام اسم آخر)</small></div>';
@@ -1077,10 +1092,15 @@ async function renderQuickItemDropdown(filter = '') {
         }
 
         listEl.innerHTML = '';
-        finalMatches.forEach(existing => {
+        finalMatches.slice(0, 50).forEach(existing => {
             const div = document.createElement('div');
             div.className = 'custom-dropdown-item';
-            div.textContent = existing.name;
+            
+            let displayText = existing.name;
+            if (existing.unit) displayText += ' <span style="font-size:0.8rem; color:#aaa;">— ' + existing.unit + '</span>';
+            if (existing.barcode) displayText += ' <span style="font-size:0.8rem; color:#888;">[' + existing.barcode + ']</span>';
+            div.innerHTML = displayText;
+            
             div.onmousedown = () => selectQuickItem(existing.id);
             div.onpointerdown = () => selectQuickItem(existing.id);
             listEl.appendChild(div);
@@ -1358,7 +1378,7 @@ function renderGrid() {
             <td><div class="row-num">${idx + 1}</div></td>
             <td style="position:relative;">
                 <input type="text" class="g-input" id="item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
-                    value="${item ? item.name : ''}" autocomplete="new-password"
+                    value="${item ? item.name : ''}" autocomplete="one-time-code"
                     style="font-size: 1.15rem !important; font-weight: 800 !important;"
                     onfocus="this.select(); showItemDropdown(${row.id})" 
                     onblur="hideItemDropdownDelayed(${row.id})" 
@@ -1450,7 +1470,7 @@ function renderGrid() {
             <div class="ctrl-group m-card-full" style="padding-top:4px; position:relative;">
                 <label class="label">الصنف</label>
                 <input type="text" class="ctrl-input" id="m-item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
-                    value="${item ? item.name : ''}" autocomplete="new-password"
+                    value="${item ? item.name : ''}" autocomplete="one-time-code"
                     onfocus="this.select(); showItemDropdown(${row.id}, true)" 
                     onblur="hideItemDropdownDelayed(${row.id}, true)" 
                     oninput="filterItemDropdown(${row.id}, true)">
@@ -2376,4 +2396,62 @@ function generatePrintArea(type) {
     }
     
     printArea.innerHTML = html;
+}
+
+//  PRINT LOGIC — uses InvoicePrinter engine
+function printCurrentInvoice() {
+    const WAREHOUSES_local = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || WAREHOUSES;
+    const whId   = document.getElementById('hdr-warehouse').value;
+    const whObj  = WAREHOUSES_local.find(w => w.id === whId);
+
+    // Build items array for the print engine
+    const printItems = rows
+        .filter(r => r.itemId)
+        .map(r => {
+            const item   = ITEMS.find(i => i.id === r.itemId);
+            const calcs  = getRowCalcs(r);
+            return {
+                itemName:     item ? item.name : '—',
+                unit:         r.selectedUnit || (item ? item.unit : '—'),
+                quantity:     r.quantity,
+                price:        r.price,
+                total:        calcs.total,
+                baseQty:      calcs.baseQty
+            };
+        });
+
+    const subtotalVal = parseNum(document.getElementById('t-sub')?.textContent || '0');
+    const discAmt     = parseNum(document.getElementById('discount-amt')?.value || '0');
+    const taxAmt      = parseNum(document.getElementById('tax-amt')?.value      || '0');
+    const addAmt      = parseNum(document.getElementById('addition-amt')?.value || '0');
+    const laborVal    = parseNum(document.getElementById('t-labor')?.value      || '0');
+    const transportVal= parseNum(document.getElementById('t-transport')?.value  || '0');
+    const grandVal    = parseNum(document.getElementById('t-grand')?.textContent || '0');
+
+    const data = {
+        type:          'purchase',
+        typeLabel:     'فاتورة مشتريات',
+        invoiceNo:     document.getElementById('hdr-inv-no').value,
+        date:          document.getElementById('hdr-date').value,
+        customerName:  document.getElementById('hdr-customer-search').value || 'مورد نقدي',
+        currency:      getCurrency(),
+        exchangeRate:  parseNum(document.getElementById('hdr-exchange-rate')?.value || '1'),
+        paymentMethod: document.getElementById('hdr-payment-method').value,
+        warehouseName: whObj ? whObj.name : '—',
+        notes:         document.getElementById('inv-notes').value || '',
+        items:         printItems,
+        subtotal:      subtotalVal,
+        discountAmt:   discAmt,
+        taxAmt:        taxAmt,
+        additionAmt:   addAmt,
+        laborCost:     laborVal,
+        transportCost: transportVal,
+        grandTotal:    grandVal
+    };
+
+    if (window.InvoicePrinter) {
+        window.InvoicePrinter.print(data);
+    } else {
+        window.print();
+    }
 }
