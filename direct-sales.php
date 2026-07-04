@@ -1437,7 +1437,7 @@
                 <div class="mobile-cards" id="mobile-cards"></div>
 
                 <!-- Empty State -->
-                
+                <div class="empty-state" id="empty-state">
                     <p>لم يتم إضافة أصناف بعد</p>
                     <span class="empty-hint">اضغط <strong>"+ صنف"</strong> أو <kbd>Ctrl+N</kbd></span>
                 </div>
@@ -1491,7 +1491,7 @@
     <script src="js/print-engine.js"></script>
     
 
-    <script src="js/direct-sales.js?v=1782530467440"></script>
+    <script src="js/direct-sales.js?v=<?php echo time(); ?>"></script>
 
     <script>
         // Sales Hub Logic

@@ -1,6 +1,6 @@
-﻿/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    sales-invoice.js â€” POS Engine v6.0
-   Real-time Reactive Calculations Â· Sequential Invoices
+   Real-time Reactive Calculations · Sequential Invoices
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 // Global logout function (used by sidebar)
@@ -12,28 +12,28 @@
 
 let WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1'));
 if (!WAREHOUSES || WAREHOUSES.length === 0) {
-    WAREHOUSES = [{ id:'w-main', name:'Ø§Ù„Ù…Ø®Ø²Ù† Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ (Ø§Ù„Ø³Ø¬Ø§Ù†Ø©)' }];
+    WAREHOUSES = [{ id:'w-main', name:'المخزن الرئيسي (السجانة)' }];
 }
 
 const COST_CENTERS = [
-    { id:'cc-001', name:'Ø§Ù„ÙØ±Ø¹ Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ' },
-    { id:'cc-002', name:'ÙØ±Ø¹ Ø¨Ø­Ø±ÙŠ' },
-    { id:'cc-003', name:'ÙØ±Ø¹ Ø£Ù…Ø¯Ø±Ù…Ø§Ù†' },
+    { id:'cc-001', name:'الفرع الرئيسي' },
+    { id:'cc-002', name:'فرع بحري' },
+    { id:'cc-003', name:'فرع أمدرمان' },
 ];
 
 let CUSTOMERS = [
-    { id:'walk-in', name:'Ø²Ø¨ÙˆÙ† Ù†Ù‚Ø¯ÙŠ (Walk-in)', ledger:0, checks:0, creditLimit:0, status:'active' },
+    { id:'walk-in', name:'زبون نقدي (Walk-in)', ledger:0, checks:0, creditLimit:0, status:'active' },
 ];
 
 // Load real customer data from master-data
 // (Moved to DBReady event)
 
 let UOMS = JSON.parse(localStorage.getItem('erp_uoms_v1')) || [
-    {code: 'TON', name: 'Ø·Ù†'},
-    {code: 'BAG', name: 'ÙƒÙŠØ³'},
-    {code: 'REBAR', name: 'Ø³ÙŠØ®Ø© / Ø¹ÙˆØ¯'},
-    {code: 'PCS', name: 'Ø­Ø¨Ø© / Ù‚Ø·Ø¹Ø©'},
-    {code: 'GAL', name: 'Ø¬Ø§Ù„ÙˆÙ†'}
+    {code: 'TON', name: 'طن'},
+    {code: 'BAG', name: 'كيس'},
+    {code: 'REBAR', name: 'سيخة / عود'},
+    {code: 'PCS', name: 'حبة / قطعة'},
+    {code: 'GAL', name: 'جالون'}
 ];
 
 let ITEMS = [];
@@ -117,7 +117,7 @@ document.addEventListener('DBReady', () => {
             creditLimit: c.creditLimit || 0,
             status: c.status || 'active'
         }));
-        CUSTOMERS.unshift({ id:'walk-in', name:'Ø²Ø¨ÙˆÙ† Ù†Ù‚Ø¯ÙŠ (Walk-in)', ledger:0, checks:0, creditLimit:0, status:'active' });
+        CUSTOMERS.unshift({ id:'walk-in', name:'زبون نقدي (Walk-in)', ledger:0, checks:0, creditLimit:0, status:'active' });
     }
 
     // Load Master Data Items
@@ -125,7 +125,7 @@ document.addEventListener('DBReady', () => {
     const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
     
     if (rawItems.length === 0) {
-        alert('ØªÙ†Ø¨ÙŠÙ‡: Ù„Ø§ ØªÙˆØ¬Ø¯ Ø£ØµÙ†Ø§Ù ÙÙŠ Ø§Ù„Ù†Ø¸Ø§Ù…! ÙŠØ±Ø¬Ù‰ Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø£ØµÙ†Ø§Ù Ù…Ù† Ø´Ø§Ø´Ø© (Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø£Ø³Ø§Ø³ÙŠØ©) Ø£ÙˆÙ„Ø§Ù‹.');
+        alert('تÙ†بÙŠÙ‡: Ù„ا تÙˆجد أصÙ†اف فÙŠ اÙ„Ù†ظاÙ…! ÙŠرجÙ‰ إضافة اÙ„أصÙ†اف Ù…Ù† شاشة (اÙ„بÙŠاÙ†ات اÙ„أساسÙŠة) أÙˆÙ„اÙ‹.');
     }
 
     // Map raw items to POS expected format
@@ -143,7 +143,7 @@ document.addEventListener('DBReady', () => {
         let sp = item.sellingPrice || item.salePrice || item.price || 0;
         sp = sp.toString().replace(/,/g, '');
         
-        const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'Ù‚Ø·Ø¹Ø©';
+        const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
 
         // Build unitsArray from new schema (item.units[]) or old (item.unitsArray[])
         let unitsArray = [];
@@ -177,7 +177,7 @@ document.addEventListener('DBReady', () => {
 
     populateDropdowns();
     initHeader();
-    // Ø¥Ø¶Ø§ÙØ© ØµÙ ÙØ§Ø±Øº Ø§ÙØªØ±Ø§Ø¶ÙŠ Ø¹Ù†Ø¯ Ø§Ù„ØªØ­Ù…ÙŠÙ„
+    // إضافة صف فارغ افتراضÙŠ عÙ†د اÙ„تحÙ…ÙŠÙ„
     addRow(true);
     recalcAll();
 });
@@ -205,7 +205,7 @@ function togglePaymentAccount() {
     const lbl2 = document.getElementById('pay-detail-2-label');
     const lbl3 = document.getElementById('pay-detail-3-label');
     
-    // Ø¥Ø®ÙØ§Ø¡ Ø£Ùˆ Ø¥Ø¸Ù‡Ø§Ø± Ù…Ù†Ø·Ù‚Ø© Ø§Ù„ØªÙØ§ØµÙŠÙ„
+    // إخفاء أÙˆ إظÙ‡ار Ù…Ù†طÙ‚ة اÙ„تفاصÙŠÙ„
     if (method === 'cheque' || method === 'bank') {
         if (detailsRow) {
             detailsRow.style.display = 'flex';
@@ -216,19 +216,19 @@ function togglePaymentAccount() {
         }
         
         if (method === 'cheque') {
-            if (lbl1) lbl1.innerText = 'Ø±Ù‚Ù… Ø§Ù„Ø´ÙŠÙƒ';
-            if (lbl2) lbl2.innerText = 'Ø§Ø³Ù… Ø§Ù„Ø¨Ù†Ùƒ';
-            if (lbl3) lbl3.innerText = 'Ø§Ù„ÙØ±Ø¹';
+            if (lbl1) lbl1.innerText = 'رÙ‚Ù… اÙ„شÙŠÙƒ';
+            if (lbl2) lbl2.innerText = 'اسÙ… اÙ„بÙ†Ùƒ';
+            if (lbl3) lbl3.innerText = 'اÙ„فرع';
         } else if (method === 'bank') {
-            if (lbl1) lbl1.innerText = 'Ø±Ù‚Ù… Ø§Ù„ØªØ­ÙˆÙŠÙ„';
-            if (lbl2) lbl2.innerText = 'Ø§Ù„Ø¨Ù†Ùƒ Ø§Ù„Ù…Ø­ÙˆÙ„ Ø¥Ù„ÙŠÙ‡';
-            if (lbl3) lbl3.innerText = 'Ø§Ù„ÙØ±Ø¹ / Ø§Ù„Ù…Ø±Ø¬Ø¹';
+            if (lbl1) lbl1.innerText = 'رÙ‚Ù… اÙ„تحÙˆÙŠÙ„';
+            if (lbl2) lbl2.innerText = 'اÙ„بÙ†Ùƒ اÙ„Ù…حÙˆÙ„ إÙ„ÙŠÙ‡';
+            if (lbl3) lbl3.innerText = 'اÙ„فرع / اÙ„Ù…رجع';
         }
     } else {
         if (detailsRow) detailsRow.style.display = 'none';
     }
 
-    // ØªØ­Ø¯ÙŠØ« Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„ØµÙ†Ø¯ÙˆÙ‚/Ø§Ù„Ø®Ø²Ù†Ø© Ø¨Ù†Ø§Ø¡Ù‹ Ø¹Ù„Ù‰ Ø·Ø±ÙŠÙ‚Ø© Ø§Ù„Ø¯ÙØ¹
+    // تحدÙŠث Ù‚ائÙ…ة اÙ„صÙ†دÙˆÙ‚/اÙ„خزÙ†ة بÙ†اءÙ‹ عÙ„Ù‰ طرÙŠÙ‚ة اÙ„دفع
     // تحديث قائمة الصندوق/الخزنة بناءً على طريقة الدفع
     const select = document.getElementById('hdr-payment-account');
     if (select) {
@@ -265,7 +265,7 @@ function populateAccountSelect(select, type) {
 }
 
 function syncWarehouse(el) {
-    // Ù…Ø²Ø§Ù…Ù†Ø© Ø§Ù„Ù…Ø®Ø²Ù† Ø¨ÙŠÙ† Ø§Ù„Ø£Ø²Ø±Ø© Ø§Ù„Ù…Ø®ØªÙ„ÙØ©
+    // Ù…زاÙ…Ù†ة اÙ„Ù…خزÙ† بÙŠÙ† اÙ„أزرة اÙ„Ù…ختÙ„فة
     const val = el.value;
     ['hdr-warehouse','hdr-warehouse-credit','hdr-warehouse-bank','hdr-warehouse-cheque'].forEach(id => {
         const s = document.getElementById(id);
@@ -326,30 +326,30 @@ function onCustomerChange() {
     document.getElementById('fin-credit-limit').textContent= fmtNum(cust.creditLimit) + ' ' + cur;
     document.getElementById('fin-remaining').textContent   = fmtNum(remaining)        + ' ' + cur;
 
-    // Ø¥Ø¸Ù‡Ø§Ø± Ø§Ù„Ø´Ø±ÙŠØ· Ø§Ù„Ù…Ø§Ù„ÙŠ Ø§Ù„Ø£ÙÙ‚ÙŠ Ø¨Ø£Ù†ÙŠÙ…ÙŠØ´Ù†
+    // إظÙ‡ار اÙ„شرÙŠط اÙ„Ù…اÙ„ÙŠ اÙ„أفÙ‚ÙŠ بأÙ†ÙŠÙ…ÙŠشÙ†
     if (strip) {
-        // Ø£Ø¹Ø¯ ØªØ´ØºÙŠÙ„ Ø§Ù„Ø£Ù†ÙŠÙ…ÙŠØ´Ù† Ø¨Ø¥Ø²Ø§Ù„Ø© ÙˆØ¥Ø¹Ø§Ø¯Ø© Ø§Ù„ÙƒÙ„Ø§Ø³
+        // أعد تشغÙŠÙ„ اÙ„أÙ†ÙŠÙ…ÙŠشÙ† بإزاÙ„ة Ùˆإعادة اÙ„ÙƒÙ„اس
         strip.classList.remove('visible');
         requestAnimationFrame(() => requestAnimationFrame(() => strip.classList.add('visible')));
     }
 
-    // badge Ø§Ù„Ø­Ø§Ù„Ø© Ø¨Ø¬Ø§Ù†Ø¨ Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ù„ÙˆØ­Ø©
+    // badge اÙ„حاÙ„ة بجاÙ†ب عÙ†ÙˆاÙ† اÙ„Ù„Ùˆحة
     if (badge) {
         const txtEl = document.getElementById('fin-status-txt');
         const dot = badge.querySelector('.status-dot');
         if (cust.status === 'blacklisted') {
             dot.className = 'status-dot danger';
-            txtEl.textContent = 'â›” Ù‚Ø§Ø¦Ù…Ø© Ø³ÙˆØ¯Ø§Ø¡';
-            showToast('ØªØ­Ø°ÙŠØ±: Ù‡Ø°Ø§ Ø§Ù„Ø¹Ù…ÙŠÙ„ ÙÙŠ Ø§Ù„Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø³ÙˆØ¯Ø§Ø¡!', 'error', 5000);
+            txtEl.textContent = 'â›” Ù‚ائÙ…ة سÙˆداء';
+            showToast('تحذÙŠر: Ù‡ذا اÙ„عÙ…ÙŠÙ„ فÙŠ اÙ„Ù‚ائÙ…ة اÙ„سÙˆداء!', 'error', 5000);
         } else if (remaining > 20000) {
             dot.className = 'status-dot good';
-            txtEl.textContent = 'âœ… Ø§Ø¦ØªÙ…Ø§Ù† Ø¬ÙŠØ¯';
+            txtEl.textContent = 'âœ… ائتÙ…اÙ† جÙŠد';
         } else if (remaining > 0) {
             dot.className = 'status-dot warn';
-            txtEl.textContent = 'âš ï¸ Ø§Ø¦ØªÙ…Ø§Ù† Ù…Ù†Ø®ÙØ¶';
+            txtEl.textContent = 'âš ️ ائتÙ…اÙ† Ù…Ù†خفض';
         } else {
             dot.className = 'status-dot danger';
-            txtEl.textContent = 'ðŸš« ØªØ¬Ø§ÙˆØ² Ø§Ù„Ø­Ø¯';
+            txtEl.textContent = 'ðŸš« تجاÙˆز اÙ„حد';
         }
         badge.style.display = 'inline-flex';
     }
@@ -372,7 +372,7 @@ function addNewCustomer() {
     const openingBalance = document.getElementById('new-cust-opening') ? parseNum(document.getElementById('new-cust-opening').value) : 0;
     const credit = document.getElementById('new-cust-credit') ? parseNum(document.getElementById('new-cust-credit').value) : 0;
 
-    if (!name) { showToast('âŒ ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ø³Ù… Ø§Ù„Ø¹Ù…ÙŠÙ„', 'error'); return; }
+    if (!name) { showToast('âŒ ÙŠرجÙ‰ إدخاÙ„ اسÙ… اÙ„عÙ…ÙŠÙ„', 'error'); return; }
 
     const newId = 'C-' + String(Date.now()).slice(-6);
     const newCust = { 
@@ -413,7 +413,7 @@ function addNewCustomer() {
     if(document.getElementById('new-cust-credit')) document.getElementById('new-cust-credit').value = '';
     if(document.getElementById('new-cust-security')) document.getElementById('new-cust-security').value = '1';
 
-    showToast('âœ… ØªÙ… Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø¹Ù…ÙŠÙ„ Ø¨Ù†Ø¬Ø§Ø­');
+    showToast('âœ… تÙ… إضافة اÙ„عÙ…ÙŠÙ„ بÙ†جاح');
 }
 
 function loadPreviousInvoice() {
@@ -429,11 +429,11 @@ function loadPreviousInvoice() {
         num--;
         const testNo = prefix + String(num).padStart(6, '0');
         if(loadInvoiceFromStorage(testNo)) {
-            showToast(`âœ… ØªÙ… Ø§Ø³ØªØ±Ø¬Ø§Ø¹ Ø§Ù„ÙØ§ØªÙˆØ±Ø© ${testNo}`);
+            showToast(`âœ… تÙ… استرجاع اÙ„فاتÙˆرة ${testNo}`);
             found = true;
         }
     }
-    if(!found) showToast('â„¹ï¸ Ù„Ø§ ØªÙˆØ¬Ø¯ ÙÙˆØ§ØªÙŠØ± Ø³Ø§Ø¨Ù‚Ø© Ù…Ø­ÙÙˆØ¸Ø©', 'warning');
+    if(!found) showToast('â„¹️ Ù„ا تÙˆجد فÙˆاتÙŠر سابÙ‚ة Ù…حفÙˆظة', 'warning');
 }
 
 function loadNextInvoice() {
@@ -449,7 +449,7 @@ function loadNextInvoice() {
     for(let i=1; i<=10; i++) {
         const testNo = prefix + String(num + i).padStart(6, '0');
         if(loadInvoiceFromStorage(testNo)) {
-            showToast(`âœ… ØªÙ… Ø§Ø³ØªØ±Ø¬Ø§Ø¹ Ø§Ù„ÙØ§ØªÙˆØ±Ø© ${testNo}`);
+            showToast(`âœ… تÙ… استرجاع اÙ„فاتÙˆرة ${testNo}`);
             found = true;
             break;
         }
@@ -458,7 +458,7 @@ function loadNextInvoice() {
     if(!found) {
         // If no next invoice saved, jump to "New" mode
         onSuccessNewInvoice();
-        showToast('âœ¨ ÙØ§ØªÙˆØ±Ø© Ø¬Ø¯ÙŠØ¯Ø©', 'success');
+        showToast('âœ¨ فاتÙˆرة جدÙŠدة', 'success');
     }
 }
 
@@ -483,7 +483,7 @@ function loadInvoiceFromStorage(invNo) {
         // If loading a confirmed invoice, enter Edit Mode
         if (data.status === 'confirmed' || localStorage.getItem('erp_inv_' + invNo)) {
             currentViewedInvoiceNo = data.invoiceNo || data.id;
-            showToast('âœï¸ Ø£Ù†Øª Ø§Ù„Ø¢Ù† ÙÙŠ ÙˆØ¶Ø¹ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„ Ù„Ù„ÙØ§ØªÙˆØ±Ø© Ø§Ù„Ø£ØµÙ„ÙŠØ©', 'warning', 4000);
+            showToast('âœ️ أÙ†ت اÙ„آÙ† فÙŠ Ùˆضع اÙ„تعديل Ù„Ù„فاتÙˆرة اÙ„أصÙ„ÙŠة', 'warning', 4000);
         } else {
             currentViewedInvoiceNo = null;
         }
@@ -567,7 +567,7 @@ function renderCustomerDropdown(filter = '') {
         const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values()).slice(0, 50);
 
         if (finalMatches.length === 0) {
-            listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة Ù„Ù„Ø¨Ø­Ø«.<br><small style="color:#888;">(Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡: ' + CUSTOMERS.length + ')</small></div>';
+            listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة Ù„Ù„بحث.<br><small style="color:#888;">(إجÙ…اÙ„ÙŠ اÙ„عÙ…Ù„اء: ' + CUSTOMERS.length + ')</small></div>';
             return;
         }
 
@@ -586,7 +586,7 @@ function renderCustomerDropdown(filter = '') {
         });
     } catch (e) {
         console.error(e);
-        listEl.innerHTML = '<div class="custom-dropdown-empty">Ø­Ø¯Ø« Ø®Ø·Ø£ Ø¯Ø§Ø®Ù„ÙŠ</div>';
+        listEl.innerHTML = '<div class="custom-dropdown-empty">حدث خطأ داخلي</div>';
     }
 }
 
@@ -609,7 +609,7 @@ function hideCustomerDropdownDelayed() {
         }
 
         const listEl = document.getElementById('customer-dropdown-list');
-        if(listEl) listEl.classList.remove('show'); listEl.style.display = 'none';
+        if(listEl) listEl.classList.remove('show');
         
         const idVal = document.getElementById('hdr-customer').value;
         const searchVal = document.getElementById('hdr-customer-search').value.trim();
@@ -672,30 +672,30 @@ function onCustomerChange() {
     document.getElementById('fin-credit-limit').textContent= fmtNum(cust.creditLimit) + ' ' + cur;
     document.getElementById('fin-remaining').textContent   = fmtNum(remaining)        + ' ' + cur;
 
-    // Ø¥Ø¸Ù‡Ø§Ø± Ø§Ù„Ø´Ø±ÙŠØ· Ø§Ù„Ù…Ø§Ù„ÙŠ Ø§Ù„Ø£ÙÙ‚ÙŠ Ø¨Ø£Ù†ÙŠÙ…ÙŠØ´Ù†
+    // إظÙ‡ار اÙ„شرÙŠط اÙ„Ù…اÙ„ÙŠ اÙ„أفÙ‚ÙŠ بأÙ†ÙŠÙ…ÙŠشÙ†
     if (strip) {
-        // Ø£Ø¹Ø¯ ØªØ´ØºÙŠÙ„ Ø§Ù„Ø£Ù†ÙŠÙ…ÙŠØ´Ù† Ø¨Ø¥Ø²Ø§Ù„Ø© ÙˆØ¥Ø¹Ø§Ø¯Ø© Ø§Ù„ÙƒÙ„Ø§Ø³
+        // أعد تشغÙŠÙ„ اÙ„أÙ†ÙŠÙ…ÙŠشÙ† بإزاÙ„ة Ùˆإعادة اÙ„ÙƒÙ„اس
         strip.classList.remove('visible');
         requestAnimationFrame(() => requestAnimationFrame(() => strip.classList.add('visible')));
     }
 
-    // badge Ø§Ù„Ø­Ø§Ù„Ø© Ø¨Ø¬Ø§Ù†Ø¨ Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ù„ÙˆØ­Ø©
+    // badge اÙ„حاÙ„ة بجاÙ†ب عÙ†ÙˆاÙ† اÙ„Ù„Ùˆحة
     if (badge) {
         const txtEl = document.getElementById('fin-status-txt');
         const dot = badge.querySelector('.status-dot');
         if (cust.status === 'blacklisted') {
             dot.className = 'status-dot danger';
-            txtEl.textContent = 'â›” Ù‚Ø§Ø¦Ù…Ø© Ø³ÙˆØ¯Ø§Ø¡';
-            showToast('ØªØ­Ø°ÙŠØ±: Ù‡Ø°Ø§ Ø§Ù„Ø¹Ù…ÙŠÙ„ ÙÙŠ Ø§Ù„Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø³ÙˆØ¯Ø§Ø¡!', 'error', 5000);
+            txtEl.textContent = 'â›” Ù‚ائÙ…ة سÙˆداء';
+            showToast('تحذÙŠر: Ù‡ذا اÙ„عÙ…ÙŠÙ„ فÙŠ اÙ„Ù‚ائÙ…ة اÙ„سÙˆداء!', 'error', 5000);
         } else if (remaining > 20000) {
             dot.className = 'status-dot good';
-            txtEl.textContent = 'âœ… Ø§Ø¦ØªÙ…Ø§Ù† Ø¬ÙŠØ¯';
+            txtEl.textContent = 'âœ… ائتÙ…اÙ† جÙŠد';
         } else if (remaining > 0) {
             dot.className = 'status-dot warn';
-            txtEl.textContent = 'âš ï¸ Ø§Ø¦ØªÙ…Ø§Ù† Ù…Ù†Ø®ÙØ¶';
+            txtEl.textContent = 'âš ️ ائتÙ…اÙ† Ù…Ù†خفض';
         } else {
             dot.className = 'status-dot danger';
-            txtEl.textContent = 'ðŸš« ØªØ¬Ø§ÙˆØ² Ø§Ù„Ø­Ø¯';
+            txtEl.textContent = 'ðŸš« تجاÙˆز اÙ„حد';
         }
         badge.style.display = 'inline-flex';
     }
@@ -718,7 +718,7 @@ function addNewCustomer() {
     const openingBalance = document.getElementById('new-cust-opening') ? parseNum(document.getElementById('new-cust-opening').value) : 0;
     const credit = document.getElementById('new-cust-credit') ? parseNum(document.getElementById('new-cust-credit').value) : 0;
 
-    if (!name) { showToast('âŒ ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ø³Ù… Ø§Ù„Ø¹Ù…ÙŠÙ„', 'error'); return; }
+    if (!name) { showToast('âŒ ÙŠرجÙ‰ إدخاÙ„ اسÙ… اÙ„عÙ…ÙŠÙ„', 'error'); return; }
 
     const newId = 'C-' + String(Date.now()).slice(-6);
     const newCust = { 
@@ -759,7 +759,7 @@ function addNewCustomer() {
     if(document.getElementById('new-cust-credit')) document.getElementById('new-cust-credit').value = '';
     if(document.getElementById('new-cust-security')) document.getElementById('new-cust-security').value = '1';
 
-    showToast('âœ… ØªÙ… Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø¹Ù…ÙŠÙ„ Ø¨Ù†Ø¬Ø§Ø­');
+    showToast('âœ… تÙ… إضافة اÙ„عÙ…ÙŠÙ„ بÙ†جاح');
 }
 
 function loadPreviousInvoice() {
@@ -775,11 +775,11 @@ function loadPreviousInvoice() {
         num--;
         const testNo = prefix + String(num).padStart(6, '0');
         if(loadInvoiceFromStorage(testNo)) {
-            showToast(`âœ… ØªÙ… Ø§Ø³ØªØ±Ø¬Ø§Ø¹ Ø§Ù„ÙØ§ØªÙˆØ±Ø© ${testNo}`);
+            showToast(`âœ… تÙ… استرجاع اÙ„فاتÙˆرة ${testNo}`);
             found = true;
         }
     }
-    if(!found) showToast('â„¹ï¸ Ù„Ø§ ØªÙˆØ¬Ø¯ ÙÙˆØ§ØªÙŠØ± Ø³Ø§Ø¨Ù‚Ø© Ù…Ø­ÙÙˆØ¸Ø©', 'warning');
+    if(!found) showToast('â„¹️ Ù„ا تÙˆجد فÙˆاتÙŠر سابÙ‚ة Ù…حفÙˆظة', 'warning');
 }
 
 function loadNextInvoice() {
@@ -795,7 +795,7 @@ function loadNextInvoice() {
     for(let i=1; i<=10; i++) {
         const testNo = prefix + String(num + i).padStart(6, '0');
         if(loadInvoiceFromStorage(testNo)) {
-            showToast(`âœ… ØªÙ… Ø§Ø³ØªØ±Ø¬Ø§Ø¹ Ø§Ù„ÙØ§ØªÙˆØ±Ø© ${testNo}`);
+            showToast(`âœ… تÙ… استرجاع اÙ„فاتÙˆرة ${testNo}`);
             found = true;
             break;
         }
@@ -804,7 +804,7 @@ function loadNextInvoice() {
     if(!found) {
         // If no next invoice saved, jump to "New" mode
         onSuccessNewInvoice();
-        showToast('âœ¨ ÙØ§ØªÙˆØ±Ø© Ø¬Ø¯ÙŠØ¯Ø©', 'success');
+        showToast('âœ¨ فاتÙˆرة جدÙŠدة', 'success');
     }
 }
 
@@ -829,7 +829,7 @@ function loadInvoiceFromStorage(invNo) {
         // If loading a confirmed invoice, enter Edit Mode
         if (data.status === 'confirmed' || localStorage.getItem('erp_inv_' + invNo)) {
             currentViewedInvoiceNo = data.invoiceNo || data.id;
-            showToast('âœï¸ Ø£Ù†Øª Ø§Ù„Ø¢Ù† ÙÙŠ ÙˆØ¶Ø¹ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„ Ù„Ù„ÙØ§ØªÙˆØ±Ø© Ø§Ù„Ø£ØµÙ„ÙŠØ©', 'warning', 4000);
+            showToast('âœ️ أÙ†ت اÙ„آÙ† فÙŠ Ùˆضع اÙ„تعديل Ù„Ù„فاتÙˆرة اÙ„أصÙ„ÙŠة', 'warning', 4000);
         } else {
             currentViewedInvoiceNo = null;
         }
@@ -895,7 +895,7 @@ function renderCustomerDropdown(filter = '') {
     }
 
     if (matches.length === 0) {
-        listEl.innerHTML = `<div class="custom-dropdown-empty">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø¹Ù…ÙŠÙ„ Ø¨Ù‡Ø°Ø§ Ø§Ù„Ø§Ø³Ù….<br><small style="color:#888;">(Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡: ${CUSTOMERS.length})</small></div>`;
+        listEl.innerHTML = `<div class="custom-dropdown-empty">Ù„ا ÙŠÙˆجد عÙ…ÙŠÙ„ بÙ‡ذا اÙ„اسÙ….<br><small style="color:#888;">(إجÙ…اÙ„ÙŠ اÙ„عÙ…Ù„اء: ${CUSTOMERS.length})</small></div>`;
         return;
     }
 
@@ -1008,7 +1008,7 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
 
                 let sp = item.sellingPrice || item.salePrice || item.price || 0;
                 sp = sp.toString().replace(/,/g, '');
-                const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'Ù‚Ø·Ø¹Ø©';
+                const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
 
                 let unitsArray = [];
                 if (item.units && item.units.length > 0) {
@@ -1059,7 +1059,7 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
         });
     } catch (e) {
         console.error(e);
-        listEl.innerHTML = '<div class="custom-dropdown-empty">Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø§ØªØµØ§Ù„</div>';
+        listEl.innerHTML = '<div class="custom-dropdown-empty">خطأ فÙŠ اÙ„اتصاÙ„</div>';
     }
 }
 
@@ -1075,7 +1075,7 @@ function hideItemDropdownDelayed(rowId, isMobile = false) {
     setTimeout(() => {
         const prefix = isMobile ? 'm-' : '';
         const listEl = document.getElementById(`${prefix}item-dropdown-list-${rowId}`);
-        if(listEl) listEl.classList.remove('show'); listEl.style.display = 'none';
+        if(listEl) { listEl.classList.remove('show'); listEl.style.display = ''; }
         
         const row = rows.find(r => r.id === rowId);
         const searchEl = document.getElementById(`${prefix}item-search-${rowId}`);
@@ -1166,7 +1166,7 @@ async function renderQuickItemDropdown(filter = '') {
 
                 let sp = item.sellingPrice || item.salePrice || item.price || 0;
                 sp = sp.toString().replace(/,/g, '');
-                const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'Ù‚Ø·Ø¹Ø©';
+                const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
 
                 let unitsArray = [];
                 if (item.units && item.units.length > 0) {
@@ -1212,7 +1212,7 @@ async function renderQuickItemDropdown(filter = '') {
         });
     } catch (e) {
         console.error(e);
-        listEl.innerHTML = '<div class="custom-dropdown-empty">Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø§ØªØµØ§Ù„</div>';
+        listEl.innerHTML = '<div class="custom-dropdown-empty">خطأ فÙŠ اÙ„اتصاÙ„</div>';
     }
 }
 
@@ -1276,11 +1276,21 @@ function addRow(silent = false) {
     if (!quiet) showToast('📦 تم إضافة صنف جديد', 'success', 1500);
 }
 
+function checkAutoAddRow(rowId) {
+    if (rows.length === 0) return;
+    const lastRow = rows[rows.length - 1];
+    if (lastRow.id === rowId) {
+        if (lastRow.itemId && (lastRow.quantity > 0 || lastRow.price > 0 || lastRow.fcPrice > 0)) {
+            addRow(true);
+        }
+    }
+}
+
 function removeRow(id) {
     rows = rows.filter(r => r.id !== id);
     renderGrid();
     recalcAll();
-    showToast('ðŸ—‘ï¸ ØªÙ… Ø­Ø°Ù Ø§Ù„ØµÙ†Ù', 'warning', 1500);
+    showToast('ðŸ—‘️ تÙ… حذف اÙ„صÙ†ف', 'warning', 1500);
 }
 
 function updateRow(id, field, value) {
@@ -1483,7 +1493,7 @@ function renderGrid() {
         tr.innerHTML = `
             <td><div class="row-num">${idx + 1}</div></td>
             <td style="position:relative;">
-                <input type="text" class="g-input" id="item-search-${row.id}" placeholder="Ø§Ø¨Ø­Ø« Ø£Ùˆ Ø§Ø®ØªØ± Ø§Ù„ØµÙ†Ù..." 
+                <input type="text" class="g-input" id="item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
                     value="${item ? item.name : ''}" autocomplete="new-password"
                     style="font-size: 1.15rem !important; font-weight: 800 !important;"
                     onfocus="this.select(); showItemDropdown(${row.id})" 
@@ -1503,13 +1513,13 @@ function renderGrid() {
                 onblur="this.value=parseNum(this.value)||1" tabindex="-1"></td>
             <td><input type="text" inputmode="decimal" class="g-input" value="${row.quantity || ''}" placeholder="0"
                 onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)"
-                onblur="this.value=parseNum(this.value)||''"></td>
+                onblur="this.value=parseNum(this.value)||''; checkAutoAddRow(${row.id})"></td>
             <td>
                 <div style="display:flex; align-items:center; gap:4px;">
                     <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price)}"
                         onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
-                        onblur="this.value=fmtNum(parseNum(this.value))" style="flex:1;">
-                    <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'sales')" title="Ø³Ø¬Ù„ Ø£Ø³Ø¹Ø§Ø± Ø§Ù„ØµÙ†Ù Ù„Ù„Ø¹Ù…ÙŠÙ„" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:4px; padding:4px; border:1px solid rgba(56,189,248,0.2); cursor:pointer;">
+                        onblur="this.value=fmtNum(parseNum(this.value)); checkAutoAddRow(${row.id})" style="flex:1;">
+                    <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'sales')" title="سجÙ„ أسعار اÙ„صÙ†ف Ù„Ù„عÙ…ÙŠÙ„" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:4px; padding:4px; border:1px solid rgba(56,189,248,0.2); cursor:pointer;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                     </button>
                 </div>
@@ -1528,13 +1538,13 @@ function renderGrid() {
             <td>
                 <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}"
                     onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
-                    onblur="this.value=fmtNum(parseNum(this.value))" style="color:#10b981; font-weight:700;" tabindex="-1">
+                    onblur="this.value=fmtNum(parseNum(this.value)); checkAutoAddRow(${row.id})" style="color:#10b981; font-weight:700;" tabindex="-1">
             </td>
             <td><span class="g-readonly total-fc-val" style="color:#10b981; font-weight:bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0))}</span></td>
 
             <td>
                 <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1">
-                    <option value="">Ù†ÙØ³ Ø§Ù„ÙØ§ØªÙˆØ±Ø© â†©</option>
+                    <option value="">Ù†فس اÙ„فاتÙˆرة â†©</option>
                     ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
                 </select>
             </td>
@@ -1542,16 +1552,16 @@ function renderGrid() {
             <td><span class="g-readonly" style="color:#6366f1; font-weight:bold;" data-shila="${row.id}">${fmtNum(calcs.shilaQty)}</span></td>
             <td><span class="g-readonly" style="color:#ef4444; font-weight:bold;" data-shila-rem="${row.id}">${fmtNum(calcs.shilaRem)}</span></td>
 
-            <td><input type="text" class="g-input" placeholder="Ù…Ù„Ø­ÙˆØ¸Ø©..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)"></td>
+            <td><input type="text" class="g-input" placeholder="ملحوظة..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)"></td>
             <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.buyPrice !== undefined ? fmtNum(row.buyPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'buyPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))"></td>
             <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.sellPrice !== undefined ? fmtNum(row.sellPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'sellPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))"></td>
 
             <td>
                 <div style="display: flex; gap: 5px; justify-content: center;">
-                    <button class="edit-btn" onclick="document.getElementById('item-search-${row.id}').focus()" title="ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø³Ø·Ø±" style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.2); color: #38bdf8; border-radius: 6px; padding: 6px; cursor: pointer;">
+                    <button class="edit-btn" onclick="document.getElementById('item-search-${row.id}').focus()" title="تعديل السطر" style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.2); color: #38bdf8; border-radius: 6px; padding: 6px; cursor: pointer;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                     </button>
-                    <button class="del-btn" onclick="removeRow(${row.id})" title="Ø­Ø°Ù Ø§Ù„Ø³Ø·Ø±">
+                    <button class="del-btn" onclick="removeRow(${row.id})" title="حذف اÙ„سطر">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     </button>
                 </div>
@@ -1566,16 +1576,16 @@ function renderGrid() {
         card.innerHTML = `
             <div class="m-card-num">${idx + 1}</div>
             <div style="position: absolute; left: 10px; top: 10px; display: flex; gap: 5px;">
-                <button class="m-card-edit" onclick="document.getElementById('m-item-search-${row.id}').focus()" title="ØªØ¹Ø¯ÙŠÙ„" style="background: transparent; border: none; color: #38bdf8; cursor: pointer;">
+                <button class="m-card-edit" onclick="document.getElementById('m-item-search-${row.id}').focus()" title="تعديل" style="background: transparent; border: none; color: #38bdf8; cursor: pointer;">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                 </button>
-                <button class="m-card-del" onclick="removeRow(${row.id})" title="Ø­Ø°Ù">
+                <button class="m-card-del" onclick="removeRow(${row.id})" title="حذف">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                 </button>
             </div>
             <div class="ctrl-group m-card-full" style="padding-top:4px; position:relative;">
-                <label class="label">Ø§Ù„ØµÙ†Ù</label>
-                <input type="text" class="ctrl-input" id="m-item-search-${row.id}" placeholder="Ø§Ø¨Ø­Ø« Ø£Ùˆ Ø§Ø®ØªØ± Ø§Ù„ØµÙ†Ù..." 
+                <label class="label">اÙ„صÙ†ف</label>
+                <input type="text" class="ctrl-input" id="m-item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
                     value="${item ? item.name : ''}" autocomplete="new-password"
                     onfocus="this.select(); showItemDropdown(${row.id}, true)" 
                     onblur="hideItemDropdownDelayed(${row.id}, true)" 
@@ -1586,55 +1596,55 @@ function renderGrid() {
             </div>
             <div class="m-card-grid">
                 <div class="ctrl-group">
-                    <label class="label">Ø§Ù„ÙˆØ­Ø¯Ø©</label>
+                    <label class="label">اÙ„Ùˆحدة</label>
                     <select class="ctrl-input" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();" tabindex="-1">
                         ${itemUnitsHtml}
                     </select>
                 </div>
                 <div class="ctrl-group">
-                    <label class="label">Ø§Ù„ØªØ¹Ø§Ø¯Ù„</label>
+                    <label class="label">اÙ„تعادÙ„</label>
                     <input type="text" inputmode="decimal" class="ctrl-input" value="${row.customFactor !== undefined ? row.customFactor : calcs.unitFactor}" placeholder="1"
                 onfocus="this.select()" oninput="updateRow(${row.id},'customFactor',this.value)"
                 onblur="this.value=parseNum(this.value)||1" tabindex="-1">
                 </div>
                 <div class="ctrl-group">
-                    <label class="label">Ø§Ù„ÙƒÙ…ÙŠØ© Ø§Ù„ÙˆØ­Ø¯Ø©</label>
+                    <label class="label">الكمية الوحدة</label>
                     <input type="text" inputmode="decimal" class="ctrl-input" data-qty-input="${row.id}" value="${Number.isInteger(row.quantity) ? row.quantity : parseFloat((row.quantity || 0).toFixed(4)) || ''}" placeholder="0"
-                        onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)">
+                        onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)" onblur="checkAutoAddRow(${row.id})">
                 </div>
                 <div class="ctrl-group">
-                    <label class="label" style="color:#6366f1;">Ø§Ù„Ø´ÙŠÙ„Ø©</label>
+                    <label class="label" style="color:#6366f1;">الشيلة</label>
                     <div class="ctrl-input readonly" data-m-shila="${row.id}" style="color:#6366f1; font-weight:bold; text-align:center;">${fmtNum(calcs.shilaQty)}</div>
                 </div>
                 <div class="ctrl-group">
-                    <label class="label" style="color:#ef4444;">Ø¨Ø§Ù‚ÙŠ Ø³ÙŠØ®</label>
+                    <label class="label" style="color:#ef4444;">باÙ‚ÙŠ سÙŠخ</label>
                     <div class="ctrl-input readonly" data-m-shila-rem="${row.id}" style="color:#ef4444; font-weight:bold; text-align:center;">${fmtNum(calcs.shilaRem)}</div>
                 </div>
                 <div class="ctrl-group">
-                    <label class="label">Ø§Ù„Ø³Ø¹Ø± (Ù…Ø­Ù„ÙŠ / Ø£Ø¬Ù†Ø¨ÙŠ) <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'sales')" title="Ø³Ø¬Ù„ Ø£Ø³Ø¹Ø§Ø± Ø§Ù„ØµÙ†Ù Ù„Ù„Ø¹Ù…ÙŠÙ„" style="color:#38bdf8; background:none; border:none; cursor:pointer; padding:0; margin-right:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></button></label>
+                    <label class="label">السعر (محلي / أجنبي) <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'sales')" title="سجÙ„ أسعار اÙ„صÙ†ف Ù„Ù„عÙ…ÙŠÙ„" style="color:#38bdf8; background:none; border:none; cursor:pointer; padding:0; margin-right:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></button></label>
                     <div style="display:flex; gap:4px;">
                         <input type="text" inputmode="decimal" class="ctrl-input" value="${fmtNum(row.price)}" placeholder="0"
                             onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
-                            onblur="this.value=fmtNum(parseNum(this.value))" style="flex:1;">
-                        <input type="text" inputmode="decimal" class="ctrl-input" data-m-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}" placeholder="${document.getElementById('hdr-currency').value === 'SDG' ? 'Ø£Ø¬Ù†Ø¨ÙŠ' : 'Ø¬Ù†ÙŠÙ‡'}"
+                            onblur="this.value=fmtNum(parseNum(this.value)); checkAutoAddRow(${row.id})" style="flex:1;">
+                        <input type="text" inputmode="decimal" class="ctrl-input" data-m-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}" placeholder="${document.getElementById('hdr-currency').value === 'SDG' ? 'أجنبي' : 'جنيه'}"
                             onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
-                            onblur="this.value=fmtNum(parseNum(this.value))" style="flex:1; color:#10b981;">
+                            onblur="this.value=fmtNum(parseNum(this.value)); checkAutoAddRow(${row.id})" style="flex:1; color:#10b981;">
                     </div>
                 </div>
                 <div class="ctrl-group">
-                    <label class="label fc-total-label">${document.getElementById('hdr-currency').value === 'SDG' ? 'Ø¬Ù…Ù„Ø© Ø§Ù„ÙˆØ­Ø¯Ø© Ø£Ø¬Ù†Ø¨ÙŠ' : 'Ø¬Ù…Ù„Ø© Ø§Ù„ÙˆØ­Ø¯Ø© Ø¬Ù†ÙŠÙ‡'}</label>
+                    <label class="label fc-total-label">${document.getElementById('hdr-currency').value === 'SDG' ? 'جÙ…Ù„ة اÙ„Ùˆحدة أجنبي' : 'جÙ…Ù„ة اÙ„Ùˆحدة جنيه'}</label>
                     <div class="ctrl-input readonly" data-m-total-fc="${row.id}" style="text-align:center;color:#10b981;">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0))}</div>
                 </div>
                 <div class="ctrl-group">
-                    <label class="label">Ø¹Ø¯Ø¯ ${item ? item.baseUnit : ''}</label>
+                    <label class="label">عدد ${item ? item.baseUnit : ''}</label>
                     <input type="text" inputmode="decimal" class="ctrl-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
                 onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
                 onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700;" tabindex="-1">
                 </div>
                 <div class="ctrl-group">
-                    <label class="label">Ø§Ù„Ù…Ø®Ø²Ù†</label>
+                    <label class="label">اÙ„Ù…خزÙ†</label>
                     <select class="ctrl-input" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1">
-                        <option value="">Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ â†©</option>
+                        <option value="">اÙ„رئÙŠسÙŠ â†©</option>
                         ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
                     </select>
                 </div>
@@ -1642,16 +1652,16 @@ function renderGrid() {
             </div>
             <div style="padding: 10px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 8px;">
                 <div class="ctrl-group">
-                    <label class="label">Ù…Ù„Ø­ÙˆØ¸Ø©</label>
-                    <input type="text" class="ctrl-input" placeholder="Ù…Ù„Ø­ÙˆØ¸Ø©..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)">
+                    <label class="label">Ù…Ù„حÙˆظة</label>
+                    <input type="text" class="ctrl-input" placeholder="ملحوظة..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)">
                 </div>
                 <div style="display:flex; gap:8px;">
                     <div class="ctrl-group" style="flex:1;">
-                        <label class="label">Ø³Ø¹Ø± Ø§Ù„Ø´Ø±Ø§Ø¡</label>
+                        <label class="label">سعر اÙ„شراء</label>
                         <input type="text" inputmode="decimal" class="ctrl-input" placeholder="0" value="${row.buyPrice !== undefined ? fmtNum(row.buyPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'buyPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))">
                     </div>
                     <div class="ctrl-group" style="flex:1;">
-                        <label class="label">Ø³Ø¹Ø± Ø§Ù„Ø¨ÙŠØ¹</label>
+                        <label class="label">سعر اÙ„بÙŠع</label>
                         <input type="text" inputmode="decimal" class="ctrl-input" placeholder="0" value="${row.sellPrice !== undefined ? fmtNum(row.sellPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'sellPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))">
                     </div>
                 </div>
@@ -1731,7 +1741,7 @@ function recalcAll() {
 //  SAVE / SUBMIT
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function saveDraft() {
-    if (rows.length === 0) { showToast('âš ï¸ Ù„Ø§ ØªÙˆØ¬Ø¯ Ø£ØµÙ†Ø§Ù Ù„Ø­ÙØ¸Ù‡Ø§', 'warning'); return; }
+    if (rows.length === 0) { showToast('âš ️ Ù„ا تÙˆجد أصÙ†اف Ù„حفظÙ‡ا', 'warning'); return; }
     const data = {
         invoiceNo: document.getElementById('hdr-inv-no').value,
         date: document.getElementById('hdr-date').value,
@@ -1747,7 +1757,7 @@ function saveDraft() {
         status: 'draft'
     };
     localStorage.setItem('erp_draft_' + data.invoiceNo, JSON.stringify(data));
-    showToast('ðŸ“‘ ØªÙ… Ø­ÙØ¸ Ø§Ù„Ù…Ø³ÙˆØ¯Ø© Ø¨Ù†Ø¬Ø§Ø­', 'success', 2500);
+    showToast('ðŸ“‘ تÙ… حفظ اÙ„Ù…سÙˆدة بÙ†جاح', 'success', 2500);
 }
 
 function submitInvoice(ignoreWarnings = false) {
@@ -1760,15 +1770,15 @@ function submitInvoice(ignoreWarnings = false) {
     }
 
     const custId = document.getElementById('hdr-customer').value;
-    if (!custId) { showToast('âŒ ÙŠØ±Ø¬Ù‰ ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ø¹Ù…ÙŠÙ„ Ù„ØªØ£ÙƒÙŠØ¯ Ø§Ù„ÙØ§ØªÙˆØ±Ø©', 'error'); return; }
+    if (!custId) { showToast('âŒ ÙŠرجÙ‰ تحدÙŠد اÙ„عÙ…ÙŠÙ„ Ù„تأÙƒÙŠد اÙ„فاتÙˆرة', 'error'); return; }
 
-    if (rows.length === 0) { showToast('âŒ Ù„Ø§ ÙŠÙ…ÙƒÙ† ØªØ£ÙƒÙŠØ¯ ÙØ§ØªÙˆØ±Ø© ÙØ§Ø±ØºØ©', 'error'); return; }
+    if (rows.length === 0) { showToast('âŒ Ù„ا ÙŠÙ…ÙƒÙ† تأÙƒÙŠد فاتÙˆرة فارغة', 'error'); return; }
 
     const hasEmptyItems = rows.some(r => !r.itemId);
-    if (hasEmptyItems) { showToast('âš ï¸ ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ØµÙ†Ù Ù„ÙƒÙ„ Ø³Ø·Ø±', 'warning'); return; }
+    if (hasEmptyItems) { showToast('âš ️ ÙŠرجÙ‰ اختÙŠار اÙ„صÙ†ف Ù„ÙƒÙ„ سطر', 'warning'); return; }
 
     const hasZeroQty = rows.some(r => r.quantity <= 0);
-    if (hasZeroQty) { showToast('âš ï¸ Ø§Ù„ÙƒÙ…ÙŠØ© ÙŠØ¬Ø¨ Ø£Ù† ØªÙƒÙˆÙ† Ø£ÙƒØ¨Ø± Ù…Ù† ØµÙØ±', 'warning'); return; }
+    if (hasZeroQty) { showToast('âš ️ اÙ„ÙƒÙ…ÙŠة ÙŠجب أÙ† تÙƒÙˆÙ† أÙƒبر Ù…Ù† صفر', 'warning'); return; }
 
     const paymentMethod = document.getElementById('hdr-payment-method').value;
     const cust = CUSTOMERS.find(c => c.id === custId);
@@ -1799,7 +1809,7 @@ function submitInvoice(ignoreWarnings = false) {
                 const existing = document.getElementById('confirm-warning-overlay');
                 if (existing) existing.remove();
                 
-                alert(`âŒ Ø­Ø¸Ø± Ø§Ø¦ØªÙ…Ø§Ù†ÙŠ ØµØ§Ø±Ù…!\nØ§Ù„Ø¹Ù…ÙŠÙ„ (${cust.name}) Ù„Ø¯ÙŠÙ‡ ${unpaidCount} ÙÙˆØ§ØªÙŠØ± Ø¢Ø¬Ù„Ø© Ø³Ø§Ø¨Ù‚Ø© Ù„Ù… ÙŠÙ‚Ù… Ø¨Ø³Ø¯Ø§Ø¯Ù‡Ø§ Ø¨Ø§Ù„ÙƒØ§Ù…Ù„.\nÙŠØ¬Ø¨ Ø³Ø¯Ø§Ø¯ Ø§Ù„Ø¯ÙŠÙˆÙ† Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø© Ø£ÙˆÙ„Ø§Ù‹ Ù„Ø¥Ù†Ø´Ø§Ø¡ ÙØ§ØªÙˆØ±Ø© Ø¢Ø¬Ù„Ø© Ø¬Ø¯ÙŠØ¯Ø©.`);
+                alert(`âŒ حظر ائتÙ…اÙ†ÙŠ صارÙ…!\nاÙ„عÙ…ÙŠÙ„ (${cust.name}) Ù„دÙŠÙ‡ ${unpaidCount} فÙˆاتÙŠر آجÙ„ة سابÙ‚ة Ù„Ù… ÙŠÙ‚Ù… بسدادÙ‡ا باÙ„ÙƒاÙ…Ù„.\nÙŠجب سداد اÙ„دÙŠÙˆÙ† اÙ„Ù‚دÙŠÙ…ة أÙˆÙ„اÙ‹ Ù„إÙ†شاء فاتÙˆرة آجÙ„ة جدÙŠدة.`);
                 return;
             }
         }
@@ -1817,7 +1827,7 @@ function submitInvoice(ignoreWarnings = false) {
             const calcs = getRowCalcs(row);
             if (calcs.availQty !== 'â€”' && calcs.availQty !== undefined && calcs.baseQty > calcs.availQty) {
                 const diff = calcs.baseQty - calcs.availQty;
-                warnings.push(`Ø§Ù„ØµÙ†Ù "<strong>${item.name}</strong>" ØªØ¬Ø§ÙˆØ² Ø§Ù„Ù…Ø®Ø²ÙˆÙ† Ø§Ù„Ù…ØªØ§Ø­. (Ø³ÙˆÙ ÙŠØ¯Ø®Ù„ Ø¨Ø§Ù„Ø³Ø§Ù„Ø¨ Ø¨Ù…Ù‚Ø¯Ø§Ø± <strong>${fmtNum(diff)} ${item.baseUnit || 'ÙˆØ­Ø¯Ø© Ø£Ø³Ø§Ø³ÙŠØ©'}</strong>)`);
+                warnings.push(`اÙ„صÙ†ف "<strong>${item.name}</strong>" تجاÙˆز اÙ„Ù…خزÙˆÙ† اÙ„Ù…تاح. (سÙˆف ÙŠدخÙ„ باÙ„ساÙ„ب بÙ…Ù‚دار <strong>${fmtNum(diff)} ${item.baseUnit || 'Ùˆحدة أساسÙŠة'}</strong>)`);
             }
         }
 
@@ -1831,7 +1841,7 @@ function submitInvoice(ignoreWarnings = false) {
             if (grand > remaining) {
                 const diff = grand - remaining;
                 const cur = getCurrency();
-                warnings.push(`Ø§Ù„ÙØ§ØªÙˆØ±Ø© ØªØªØ¬Ø§ÙˆØ² Ø­Ø¯ Ø§Ù„Ø§Ø¦ØªÙ…Ø§Ù†. (Ø§Ù„Ù…Ø¨Ù„Øº Ø³ÙŠØªØ¬Ø§ÙˆØ² Ø§Ù„Ø­Ø¯ Ø¨Ù…Ù‚Ø¯Ø§Ø± <strong>${fmtNum(diff)} ${cur}</strong>)`);
+                warnings.push(`اÙ„فاتÙˆرة تتجاÙˆز حد اÙ„ائتÙ…اÙ†. (اÙ„Ù…بÙ„غ سÙŠتجاÙˆز اÙ„حد بÙ…Ù‚دار <strong>${fmtNum(diff)} ${cur}</strong>)`);
             }
         }
 
@@ -1885,7 +1895,7 @@ function submitInvoice(ignoreWarnings = false) {
         grandTotal: parseNum(grandTotal),
         status: currentSaleType === 'preliminary' ? 'preliminary' : 'pending_delivery',
         timestamp: new Date().toISOString(),
-        customerName: cust ? cust.name : 'Ø¹Ù…ÙŠÙ„ Ù†Ù‚Ø¯ÙŠ'
+        customerName: cust ? cust.name : 'عميل نقدي'
     };
 
     // Update Bank/Safe balance ONLY if not preliminary
@@ -1948,7 +1958,7 @@ function submitInvoice(ignoreWarnings = false) {
             const calcs = getRowCalcs(row);
             if (calcs.availQty !== 'â€”' && calcs.availQty !== undefined && calcs.baseQty > calcs.availQty) {
                 const diff = calcs.baseQty - calcs.availQty;
-                finalWarnings.push(`Ø§Ù„ØµÙ†Ù "<strong>${item.name}</strong>" ØªØ¬Ø§ÙˆØ² Ø§Ù„Ù…Ø®Ø²ÙˆÙ† Ø¨Ù…Ù‚Ø¯Ø§Ø± <strong>${fmtNum(diff)} ${item.baseUnit || 'ÙˆØ­Ø¯Ø© Ø£Ø³Ø§Ø³ÙŠØ©'}</strong>`);
+                finalWarnings.push(`اÙ„صÙ†ف "<strong>${item.name}</strong>" تجاÙˆز اÙ„Ù…خزÙˆÙ† بÙ…Ù‚دار <strong>${fmtNum(diff)} ${item.baseUnit || 'Ùˆحدة أساسÙŠة'}</strong>`);
             }
         }
         const custId = document.getElementById('hdr-customer').value;
@@ -1960,13 +1970,13 @@ function submitInvoice(ignoreWarnings = false) {
             if (grand > remaining) {
                 const diff = grand - remaining;
                 const cur = getCurrency();
-                finalWarnings.push(`Ø§Ù„ÙØ§ØªÙˆØ±Ø© ØªØ¬Ø§ÙˆØ²Øª Ø­Ø¯ Ø§Ù„Ø§Ø¦ØªÙ…Ø§Ù† Ø¨Ù…Ù‚Ø¯Ø§Ø± <strong>${fmtNum(diff)} ${cur}</strong>`);
+                finalWarnings.push(`اÙ„فاتÙˆرة تجاÙˆزت حد اÙ„ائتÙ…اÙ† بÙ…Ù‚دار <strong>${fmtNum(diff)} ${cur}</strong>`);
             }
         }
     }
 
     if (usedAccountName) {
-        showToast(`ØªÙ…Øª Ø¥Ø¶Ø§ÙØ© ${fmtNum(grandAmount)} ${cur} Ø¥Ù„Ù‰ Ø±ØµÙŠØ¯: ${usedAccountName}`, 'success', 5000);
+        showToast(`تÙ…ت إضافة ${fmtNum(grandAmount)} ${cur} إÙ„Ù‰ رصÙŠد: ${usedAccountName}`, 'success', 5000);
     }
 
     onSuccessNewInvoice(false);
@@ -1990,19 +2000,19 @@ function showConfirmWarningModal(warnings) {
         <div class="modal-card" style="max-width: 500px; border-color: rgba(245,158,11,0.4);">
             <div class="modal-header" style="border-bottom-color: rgba(245,158,11,0.2);">
                 <h3 style="color: #fbbf24; display:flex; align-items:center; gap:8px;">
-                    <span>âš ï¸</span> ØªÙ†Ø¨ÙŠÙ‡ Ø¨ØªØ¬Ø§ÙˆØ² Ø§Ù„Ø­Ø¯ÙˆØ¯
+                    <span>âš ️</span> تÙ†بÙŠÙ‡ بتجاÙˆز اÙ„حدÙˆد
                 </h3>
                 <button class="modal-close" onclick="closeConfirmWarningModal()">âœ•</button>
             </div>
             <div class="modal-body" style="color: #f1f5f9; font-size: 0.9rem; line-height: 1.6;">
-                <p style="margin-bottom: 12px; color: #cbd5e1;">Ù„Ù‚Ø¯ ØªØ¬Ø§ÙˆØ²Øª Ù‡Ø°Ù‡ Ø§Ù„ÙØ§ØªÙˆØ±Ø© Ø¨Ø¹Ø¶ Ø§Ù„Ø­Ø¯ÙˆØ¯ Ø§Ù„Ù…Ø³Ù…ÙˆØ­Ø©. ÙŠØ±Ø¬Ù‰ Ù…Ø±Ø§Ø¬Ø¹Ø© Ø§Ù„ØªÙ†Ø¨ÙŠÙ‡Ø§Øª Ø§Ù„ØªØ§Ù„ÙŠØ© Ù‚Ø¨Ù„ Ø§Ù„ØªØ£ÙƒÙŠØ¯:</p>
+                <p style="margin-bottom: 12px; color: #cbd5e1;">Ù„Ù‚د تجاÙˆزت Ù‡ذÙ‡ اÙ„فاتÙˆرة بعض اÙ„حدÙˆد اÙ„Ù…سÙ…Ùˆحة. ÙŠرجÙ‰ Ù…راجعة اÙ„تÙ†بÙŠÙ‡ات اÙ„تاÙ„ÙŠة Ù‚بÙ„ اÙ„تأÙƒÙŠد:</p>
                 <ul style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 8px; padding: 12px 24px;">
                     ${warnings.map(w => `<li style="margin-bottom: 8px;">${w}</li>`).join('')}
                 </ul>
             </div>
             <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; border-top-color: rgba(245,158,11,0.2);">
-                <button class="btn btn-ghost" onclick="closeConfirmWarningModal()">Ø¥Ù„ØºØ§Ø¡ Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©</button>
-                <button class="btn btn-primary" style="background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(217,119,6,0.12)); border-color: rgba(245,158,11,0.4); color: #fbbf24;" onclick="executeConfirmWarning()">Ø§Ø³ØªÙ…Ø±Ø§Ø± ÙˆØªØ£ÙƒÙŠØ¯ Ø§Ù„ÙØ§ØªÙˆØ±Ø©</button>
+                <button class="btn btn-ghost" onclick="closeConfirmWarningModal()">إÙ„غاء اÙ„Ù…راجعة</button>
+                <button class="btn btn-primary" style="background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(217,119,6,0.12)); border-color: rgba(245,158,11,0.4); color: #fbbf24;" onclick="executeConfirmWarning()">استÙ…رار ÙˆتأÙƒÙŠد اÙ„فاتÙˆرة</button>
             </div>
         </div>
     `;
@@ -2037,17 +2047,17 @@ function confirmDeleteTransaction() {
         <div class="modal-card" style="max-width: 400px; border-color: rgba(239,68,68,0.4);">
             <div class="modal-header" style="border-bottom-color: rgba(239,68,68,0.2);">
                 <h3 style="color: #f87171; display:flex; align-items:center; gap:8px;">
-                    <span>âš ï¸</span> ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø­Ø°Ù
+                    <span>âš ️</span> تأÙƒÙŠد اÙ„حذف
                 </h3>
                 <button class="modal-close" onclick="closeDeleteConfirmModal()">âœ•</button>
             </div>
             <div class="modal-body" style="color: #f1f5f9; font-size: 0.95rem; line-height: 1.6; text-align: center;">
-                <p>Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ø£Ù†Ùƒ ØªØ±ÙŠØ¯ Ø­Ø°Ù Ù‡Ø°Ù‡ Ø§Ù„Ø¹Ù…Ù„ÙŠØ© ÙˆÙ…Ø³Ø­ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§ØªØŸ</p>
-                <p style="color: #cbd5e1; font-size: 0.85rem; margin-top: 8px;">Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„ØªØ±Ø§Ø¬Ø¹ Ø¹Ù† Ù‡Ø°Ø§ Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡.</p>
+                <p>هل أنت متأكد أنك تريد حذف هذه العملية ومسح جميع البيانات؟</p>
+                <p style="color: #cbd5e1; font-size: 0.85rem; margin-top: 8px;">Ù„ا ÙŠÙ…ÙƒÙ† اÙ„تراجع عÙ† Ù‡ذا اÙ„إجراء.</p>
             </div>
             <div class="modal-footer" style="display:flex; justify-content:center; gap:15px; border-top-color: rgba(239,68,68,0.2);">
-                <button class="btn btn-ghost" onclick="closeDeleteConfirmModal()">Ø¥Ù„ØºØ§Ø¡</button>
-                <button class="btn btn-primary" style="background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(185,28,28,0.12)); border-color: rgba(239,68,68,0.4); color: #f87171;" onclick="executeDeleteTransaction()">Ù†Ø¹Ù…ØŒ Ø§Ø­Ø°Ù Ø§Ù„Ø¹Ù…Ù„ÙŠØ©</button>
+                <button class="btn btn-ghost" onclick="closeDeleteConfirmModal()">إÙ„غاء</button>
+                <button class="btn btn-primary" style="background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(185,28,28,0.12)); border-color: rgba(239,68,68,0.4); color: #f87171;" onclick="executeDeleteTransaction()">نعم، احذف العملية</button>
             </div>
         </div>
     `;
@@ -2084,7 +2094,7 @@ function executeDeleteTransaction() {
     if (!oldInv) {
         localStorage.removeItem('erp_draft_' + currentInvNo);
         onSuccessNewInvoice(); 
-        showToast('ðŸ—‘ï¸ ØªÙ… Ù…Ø³Ø­ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„ÙØ§ØªÙˆØ±Ø©', 'success');
+        showToast('ðŸ—‘️ تÙ… Ù…سح بÙŠاÙ†ات اÙ„فاتÙˆرة', 'success');
         return;
     }
     const grandAmount = parseFloat(oldInv.grandTotal) || 0;
@@ -2128,7 +2138,7 @@ function executeDeleteTransaction() {
             }
 
             const whId = row.warehouseId || mainWh;
-            const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'Ø§Ù„Ù…Ø®Ø²Ù† Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ (Ø§Ù„Ø³Ø¬Ø§Ù†Ø©)';
+            const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي (السجانة)';
             
             let itemInv = currentInvData.find(inv => inv.itemId === row.itemId && inv.warehouse === whName);
             if (itemInv) {
@@ -2155,7 +2165,7 @@ function executeDeleteTransaction() {
 
     // Reset Form
     onSuccessNewInvoice(); 
-    showToast('ðŸ—‘ï¸ ØªÙ… Ø­Ø°Ù Ø§Ù„ÙØ§ØªÙˆØ±Ø© ÙˆØ¥Ù„ØºØ§Ø¡ ØªØ£Ø«ÙŠØ±Ø§ØªÙ‡Ø§ Ø§Ù„Ù…Ø§Ù„ÙŠØ© ÙˆØ§Ù„Ù…Ø®Ø²Ù†ÙŠØ© Ø¨Ù†Ø¬Ø§Ø­', 'success');
+    showToast('ðŸ—‘️ تÙ… حذف اÙ„فاتÙˆرة ÙˆإÙ„غاء تأثÙŠراتÙ‡ا اÙ„Ù…اÙ„ÙŠة ÙˆاÙ„Ù…خزÙ†ÙŠة بÙ†جاح', 'success');
 }
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -2171,7 +2181,7 @@ function showSuccessModal(invoiceNo, grandTotal, currency, warnings = []) {
         warningsHtml = `
             <div style="margin-top: 15px; padding: 12px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; text-align: right;">
                 <strong style="color: #fbbf24; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
-                    <span>âš ï¸</span> ØªÙ†Ø¨ÙŠÙ‡Ø§Øª Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø­ÙØ¸:
+                    <span>âš ️</span> تÙ†بÙŠÙ‡ات أثÙ†اء اÙ„حفظ:
                 </strong>
                 <ul style="color: #f1f5f9; font-size: 0.8rem; margin-top: 8px; padding-right: 24px; line-height: 1.5;">
                     ${warnings.map(w => `<li style="margin-bottom: 4px;">${w}</li>`).join('')}
@@ -2193,18 +2203,18 @@ function showSuccessModal(invoiceNo, grandTotal, currency, warnings = []) {
                     </svg>
                 </div>
             </div>
-            <h2 class="success-title">ðŸŽ‰ ØªÙ… Ø§Ù„Ø­ÙØ¸ Ø¨Ù†Ø¬Ø§Ø­!</h2>
-            <p class="success-inv-no">Ø±Ù‚Ù… Ø§Ù„ÙØ§ØªÙˆØ±Ø©: <strong>#${invoiceNo}</strong></p>
+            <h2 class="success-title">ðŸŽ‰ تÙ… اÙ„حفظ بÙ†جاح!</h2>
+            <p class="success-inv-no">رÙ‚Ù… اÙ„فاتÙˆرة: <strong>#${invoiceNo}</strong></p>
             <div class="success-amount-box">
-                <div class="success-amount-label">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø¨Ù„Øº</div>
+                <div class="success-amount-label">إجÙ…اÙ„ÙŠ اÙ„Ù…بÙ„غ</div>
                 <div class="success-amount-value">${grandTotal}</div>
             </div>
             ${warningsHtml}
             <div class="success-actions" style="margin-top: 20px; display:flex; flex-direction:column; gap:10px;">
-                <button class="btn btn-success success-btn" style="background:linear-gradient(135deg,#38bdf8,#0284c7);" onclick="printCurrentInvoice()">ðŸ–¨ï¸ Ø·Ø¨Ø§Ø¹Ø© Ø§Ù„ÙØ§ØªÙˆØ±Ø©</button>
+                <button class="btn btn-success success-btn" style="background:linear-gradient(135deg,#38bdf8,#0284c7);" onclick="printCurrentInvoice()">ðŸ–¨️ طباعة اÙ„فاتÙˆرة</button>
                 <div style="display:flex; gap:10px;">
-                    <button class="btn btn-ghost success-btn" style="flex:1;" onclick="onSuccessNewInvoice()">Ø¹Ù…Ù„ÙŠØ© Ø¬Ø¯ÙŠØ¯Ø©</button>
-                    <button class="btn btn-success success-btn" style="flex:1;" onclick="onSuccessDone()">Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª</button>
+                    <button class="btn btn-ghost success-btn" style="flex:1;" onclick="onSuccessNewInvoice()">عÙ…Ù„ÙŠة جدÙŠدة</button>
+                    <button class="btn btn-success success-btn" style="flex:1;" onclick="onSuccessDone()">Ù‚ائÙ…ة اÙ„Ù…بÙŠعات</button>
                 </div>
             </div>
         </div>
@@ -2253,7 +2263,7 @@ function onSuccessDone() {
     if (overlay) { overlay.classList.remove('visible'); setTimeout(() => overlay.remove(), 400); }
     // In production: navigate to sales list
     // window.location.href = 'sales-list.html';
-    showToast('ðŸ“‹ Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª (Ù‚ÙŠØ¯ Ø§Ù„ØªØ·ÙˆÙŠØ±)', 'warning');
+    showToast('ðŸ“‹ Ù‚ائÙ…ة اÙ„Ù…بÙŠعات (Ù‚ÙŠد اÙ„تطÙˆÙŠر)', 'warning');
 }
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -2262,19 +2272,19 @@ function onSuccessDone() {
 function showPriceHistory(rowId, type) {
     const row = rows.find(r => r.id === rowId);
     if (!row || !row.itemId) {
-        showToast('âš ï¸ ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ØµÙ†Ù Ø£ÙˆÙ„Ø§Ù‹', 'warning');
+        showToast('âš ️ ÙŠرجÙ‰ اختÙŠار اÙ„صÙ†ف أÙˆÙ„اÙ‹', 'warning');
         return;
     }
     
     const custId = document.getElementById('hdr-customer').value;
     if (!custId) {
-        showToast('âš ï¸ ÙŠØ±Ø¬Ù‰ ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ø¹Ù…ÙŠÙ„ Ø£ÙˆÙ„Ø§Ù‹ Ù„Ø¹Ø±Ø¶ Ø³Ø¬Ù„Ù‡', 'warning');
+        showToast('âš ️ ÙŠرجÙ‰ تحدÙŠد اÙ„عÙ…ÙŠÙ„ أÙˆÙ„اÙ‹ Ù„عرض سجÙ„Ù‡', 'warning');
         return;
     }
     
     const item = ITEMS.find(i => i.id === row.itemId);
-    const itemName = item ? item.name : 'ØµÙ†Ù ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ';
-    const custName = document.getElementById('hdr-customer-search').value || 'Ø§Ù„Ø¹Ù…ÙŠÙ„';
+    const itemName = item ? item.name : 'صÙ†ف غÙŠر Ù…عرÙˆف';
+    const custName = document.getElementById('hdr-customer-search').value || 'اÙ„عÙ…ÙŠÙ„';
 
     let historyKey = type === 'sales' ? 'erp_sales_invoices_v1' : 'erp_purchase_invoices_v1';
     let invoices = JSON.parse(localStorage.getItem(historyKey)) || [];
@@ -2317,7 +2327,7 @@ function showPriceHistory(rowId, type) {
 
     let tbodyHtml = '';
     if (historyRows.length === 0) {
-        tbodyHtml = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding: 15px;">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø³Ø¬Ù„ Ø£Ø³Ø¹Ø§Ø± Ø³Ø§Ø¨Ù‚ Ù„Ù‡Ø°Ø§ Ø§Ù„ØµÙ†Ù Ù…Ø¹ Ù‡Ø°Ø§ Ø§Ù„Ø¹Ù…ÙŠÙ„</td></tr>`;
+        tbodyHtml = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding: 15px;">Ù„ا ÙŠÙˆجد سجÙ„ أسعار سابÙ‚ Ù„Ù‡ذا اÙ„صÙ†ف Ù…ع Ù‡ذا اÙ„عÙ…ÙŠÙ„</td></tr>`;
     } else {
         tbodyHtml = historyRows.map(h => `
             <tr>
@@ -2341,18 +2351,18 @@ function showPriceHistory(rowId, type) {
             <div class="modal-header">
                 <h3 style="display:flex; align-items:center; gap:8px; color: #38bdf8;">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                    Ø³Ø¬Ù„ Ø§Ù„Ø£Ø³Ø¹Ø§Ø± Ø§Ù„Ø³Ø§Ø¨Ù‚Ø©
+                    سجÙ„ اÙ„أسعار اÙ„سابÙ‚ة
                 </h3>
                 <button class="modal-close" onclick="closePriceHistoryModal()">âœ•</button>
             </div>
             <div class="modal-body">
                 <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; margin-bottom: 15px;">
                     <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                        <span style="color:var(--text-muted); font-size:0.85rem;">Ø§Ù„ØµÙ†Ù:</span>
+                        <span style="color:var(--text-muted); font-size:0.85rem;">اÙ„صÙ†ف:</span>
                         <strong style="color:var(--text-primary);">${itemName}</strong>
                     </div>
                     <div style="display:flex; justify-content:space-between;">
-                        <span style="color:var(--text-muted); font-size:0.85rem;">Ø§Ù„Ø¹Ù…ÙŠÙ„:</span>
+                        <span style="color:var(--text-muted); font-size:0.85rem;">اÙ„عÙ…ÙŠÙ„:</span>
                         <strong style="color:var(--text-primary);">${custName}</strong>
                     </div>
                 </div>
@@ -2360,11 +2370,11 @@ function showPriceHistory(rowId, type) {
                     <table style="width: 100%; border-collapse: collapse; text-align: right; font-size: 0.9rem;">
                         <thead>
                             <tr style="background: rgba(0,0,0,0.2);">
-                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">Ø§Ù„ØªØ§Ø±ÙŠØ®</th>
-                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">Ø±Ù‚Ù… Ø§Ù„ÙØ§ØªÙˆØ±Ø©</th>
-                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">Ø§Ù„ÙƒÙ…ÙŠØ©</th>
-                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">Ø§Ù„Ø³Ø¹Ø±</th>
-                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">Ù…Ø§ ÙŠØ¹Ø§Ø¯Ù„ Ø¨Ø§Ù„Ø¯ÙˆÙ„Ø§Ø±</th>
+                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">اÙ„تارÙŠخ</th>
+                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">رÙ‚Ù… اÙ„فاتÙˆرة</th>
+                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">اÙ„ÙƒÙ…ÙŠة</th>
+                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">اÙ„سعر</th>
+                                <th style="padding:10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--text-muted);">Ù…ا ÙŠعادÙ„ باÙ„دÙˆÙ„ار</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2374,7 +2384,7 @@ function showPriceHistory(rowId, type) {
                 </div>
             </div>
             <div class="modal-footer" style="display:flex; justify-content:flex-end;">
-                <button class="btn btn-ghost" onclick="closePriceHistoryModal()">Ø¥ØºÙ„Ø§Ù‚</button>
+                <button class="btn btn-ghost" onclick="closePriceHistoryModal()">إغÙ„اÙ‚</button>
             </div>
         </div>
     `;
@@ -2424,12 +2434,12 @@ function printCurrentInvoice() {
 
     const data = {
         type:          'sales',
-        typeLabel:     currentSaleType === 'direct' ? 'ÙØ§ØªÙˆØ±Ø© Ù…Ø¨ÙŠØ¹Ø§Øª Ù…Ø¨Ø§Ø´Ø±Ø©' :
-                       currentSaleType === 'split'  ? 'ÙØ§ØªÙˆØ±Ø© Ø¨ÙŠØ¹ Ù…Ù‚Ø³Ù‘Ù…Ø©'    :
-                       currentSaleType === 'proforma'? 'Ø¹Ø±Ø¶ Ø³Ø¹Ø± (Ø¨Ø±ÙˆÙÙˆØ±Ù…Ø§)'  : 'ÙØ§ØªÙˆØ±Ø© Ù…Ø¨ÙŠØ¹Ø§Øª',
+        typeLabel:     currentSaleType === 'direct' ? 'فاتÙˆرة Ù…بÙŠعات Ù…باشرة' :
+                       currentSaleType === 'split'  ? 'فاتÙˆرة بÙŠع Ù…Ù‚سÙ‘Ù…ة'    :
+                       currentSaleType === 'proforma'? 'عرض سعر (برÙˆفÙˆرÙ…ا)'  : 'فاتÙˆرة Ù…بÙŠعات',
         invoiceNo:     document.getElementById('hdr-inv-no').value,
         date:          document.getElementById('hdr-date').value,
-        customerName:  document.getElementById('hdr-customer-search').value || 'Ø²Ø¨ÙˆÙ† Ù†Ù‚Ø¯ÙŠ',
+        customerName:  document.getElementById('hdr-customer-search').value || 'زبÙˆÙ† Ù†Ù‚دÙŠ',
         currency:      getCurrency(),
         exchangeRate:  parseNum(document.getElementById('hdr-exchange-rate')?.value || '1'),
         paymentMethod: document.getElementById('hdr-payment-method').value,
@@ -2475,7 +2485,7 @@ function _legacyBuildPrintArea(type) {
         warehouseGroups[whId].push(row);
     });
 
-    const custName = document.getElementById('hdr-customer-search').value || (type === 'sales' ? 'Ø¹Ù…ÙŠÙ„ Ù†Ù‚Ø¯ÙŠ' : 'Ù…ÙˆØ±Ø¯ Ù†Ù‚Ø¯ÙŠ');
+    const custName = document.getElementById('hdr-customer-search').value || (type === 'sales' ? 'عميل نقدي' : 'Ù…Ùˆرد Ù†Ù‚دÙŠ');
     const invNo = document.getElementById('hdr-inv-no').value;
     const invDate = document.getElementById('hdr-date').value;
     const grandTotal = document.getElementById('t-grand').textContent;
@@ -2487,23 +2497,23 @@ function _legacyBuildPrintArea(type) {
     html += `
     <div class="print-page" style="padding: 20px; direction: rtl; font-family: 'Cairo', Tahoma, Arial;">
         <div style="text-align:center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
-            <h2>${type === 'sales' ? 'ÙØ§ØªÙˆØ±Ø© Ù…Ø¨ÙŠØ¹Ø§Øª' : 'ÙØ§ØªÙˆØ±Ø© Ù…Ø´ØªØ±ÙŠØ§Øª'}</h2>
-            <h3>Ø´Ø±ÙƒØ© Ø§Ù„Ø³Ø¬Ø§Ù†Ø©</h3>
+            <h2>${type === 'sales' ? 'فاتÙˆرة Ù…بÙŠعات' : 'فاتÙˆرة Ù…شترÙŠات'}</h2>
+            <h3>شرÙƒة اÙ„سجاÙ†ة</h3>
         </div>
         <div style="display:flex; justify-content:space-between; margin-bottom: 20px; font-size: 14px;">
-            <div><strong>Ø±Ù‚Ù… Ø§Ù„ÙØ§ØªÙˆØ±Ø©:</strong> ${invNo}</div>
-            <div><strong>Ø§Ù„ØªØ§Ø±ÙŠØ®:</strong> ${invDate}</div>
-            <div><strong>${type === 'sales' ? 'Ø§Ù„Ø¹Ù…ÙŠÙ„' : 'Ø§Ù„Ù…ÙˆØ±Ø¯'}:</strong> ${custName}</div>
+            <div><strong>رÙ‚Ù… اÙ„فاتÙˆرة:</strong> ${invNo}</div>
+            <div><strong>اÙ„تارÙŠخ:</strong> ${invDate}</div>
+            <div><strong>${type === 'sales' ? 'اÙ„عÙ…ÙŠÙ„' : 'اÙ„Ù…Ùˆرد'}:</strong> ${custName}</div>
         </div>
         <table style="width: 100%; border-collapse: collapse; margin-top: 10px;" border="1">
             <thead>
                 <tr style="background:#eee; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                     <th style="padding:8px;">Ù…</th>
-                    <th style="padding:8px;">Ø§Ù„ØµÙ†Ù</th>
-                    <th style="padding:8px;">Ø§Ù„ÙˆØ­Ø¯Ø©</th>
-                    <th style="padding:8px;">Ø§Ù„ÙƒÙ…ÙŠØ©</th>
-                    <th style="padding:8px;">Ø§Ù„Ø³Ø¹Ø±</th>
-                    <th style="padding:8px;">Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ</th>
+                    <th style="padding:8px;">اÙ„صÙ†ف</th>
+                    <th style="padding:8px;">اÙ„Ùˆحدة</th>
+                    <th style="padding:8px;">اÙ„ÙƒÙ…ÙŠة</th>
+                    <th style="padding:8px;">اÙ„سعر</th>
+                    <th style="padding:8px;">اÙ„إجÙ…اÙ„ÙŠ</th>
                 </tr>
             </thead>
             <tbody>
@@ -2511,7 +2521,7 @@ function _legacyBuildPrintArea(type) {
     
     rows.forEach((r, idx) => {
         const item = ITEMS.find(i => i.id === r.itemId);
-        const itemName = item ? item.name : 'ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ';
+        const itemName = item ? item.name : 'غÙŠر Ù…عرÙˆف';
         const calcs = getRowCalcs(r);
         html += `
             <tr>
@@ -2529,44 +2539,44 @@ function _legacyBuildPrintArea(type) {
             </tbody>
         </table>
         <div style="margin-top: 20px; text-align:left; font-size: 18px;">
-            <strong>Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù†Ù‡Ø§Ø¦ÙŠ:</strong> ${grandTotal} ${currency}
+            <strong>اÙ„إجÙ…اÙ„ÙŠ اÙ„Ù†Ù‡ائÙŠ:</strong> ${grandTotal} ${currency}
         </div>
         <div style="margin-top: 50px; display:flex; justify-content:space-between;">
-            <div><strong>${type === 'sales' ? 'Ø§Ù„Ø¨Ø§Ø¦Ø¹' : 'Ø§Ù„Ù…Ø³ØªÙ„Ù…'}:</strong> ......................</div>
-            <div><strong>ØªÙˆÙ‚ÙŠØ¹ ${type === 'sales' ? 'Ø§Ù„Ø¹Ù…ÙŠÙ„' : 'Ø§Ù„Ù…ÙˆØ±Ø¯'}:</strong> ......................</div>
+            <div><strong>${type === 'sales' ? 'اÙ„بائع' : 'اÙ„Ù…ستÙ„Ù…'}:</strong> ......................</div>
+            <div><strong>تÙˆÙ‚ÙŠع ${type === 'sales' ? 'اÙ„عÙ…ÙŠÙ„' : 'اÙ„Ù…Ùˆرد'}:</strong> ......................</div>
         </div>
     </div>
     `;
 
     // 2. The Warehouse Issue/Receipt Notes
     for (let whId in warehouseGroups) {
-        let whName = "Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹ Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ";
+        let whName = "اÙ„Ù…ستÙˆدع اÙ„رئÙŠسÙŠ";
         if (whId) {
             let w = WAREHOUSES.find(x => x.id === whId);
             if (w) whName = w.name;
         }
         
-        let noteTitle = type === 'sales' ? 'Ø¥Ø°Ù† ØµØ±Ù Ù…Ø®Ø²Ù†ÙŠ' : 'Ø¥Ø°Ù† Ø§Ø³ØªÙ„Ø§Ù… Ù…Ø®Ø²Ù†ÙŠ';
+        let noteTitle = type === 'sales' ? 'إذÙ† صرف Ù…خزÙ†ÙŠ' : 'إذÙ† استÙ„اÙ… Ù…خزÙ†ÙŠ';
 
         html += `
         <div class="print-page" style="padding: 20px; direction: rtl; font-family: 'Cairo', Tahoma, Arial;">
             <div style="text-align:center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
                 <h2>${noteTitle}</h2>
-                <h3>Ù…Ø³ØªÙˆØ¯Ø¹: ${whName}</h3>
+                <h3>Ù…ستÙˆدع: ${whName}</h3>
             </div>
             <div style="display:flex; justify-content:space-between; margin-bottom: 20px; font-size: 14px;">
-                <div><strong>Ø±Ù‚Ù… Ø§Ù„ÙØ§ØªÙˆØ±Ø© Ø§Ù„Ù…Ø±Ø¬Ø¹ÙŠ:</strong> ${invNo}</div>
-                <div><strong>Ø§Ù„ØªØ§Ø±ÙŠØ®:</strong> ${invDate}</div>
-                <div><strong>${type === 'sales' ? 'Ø§Ù„Ø¹Ù…ÙŠÙ„' : 'Ø§Ù„Ù…ÙˆØ±Ø¯'}:</strong> ${custName}</div>
+                <div><strong>رÙ‚Ù… اÙ„فاتÙˆرة اÙ„Ù…رجعÙŠ:</strong> ${invNo}</div>
+                <div><strong>اÙ„تارÙŠخ:</strong> ${invDate}</div>
+                <div><strong>${type === 'sales' ? 'اÙ„عÙ…ÙŠÙ„' : 'اÙ„Ù…Ùˆرد'}:</strong> ${custName}</div>
             </div>
             <table style="width: 100%; border-collapse: collapse; margin-top: 10px;" border="1">
                 <thead>
                     <tr style="background:#eee; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                         <th style="padding:8px;">Ù…</th>
-                        <th style="padding:8px;">Ø§Ù„ØµÙ†Ù</th>
-                        <th style="padding:8px;">Ø§Ù„ÙˆØ­Ø¯Ø©</th>
-                        <th style="padding:8px;">Ø§Ù„ÙƒÙ…ÙŠØ©</th>
-                        <th style="padding:8px;">Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹</th>
+                        <th style="padding:8px;">اÙ„صÙ†ف</th>
+                        <th style="padding:8px;">اÙ„Ùˆحدة</th>
+                        <th style="padding:8px;">اÙ„ÙƒÙ…ÙŠة</th>
+                        <th style="padding:8px;">Ù…Ù„احظات اÙ„Ù…ستÙˆدع</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -2574,7 +2584,7 @@ function _legacyBuildPrintArea(type) {
         
         warehouseGroups[whId].forEach((r, idx) => {
             const item = ITEMS.find(i => i.id === r.itemId);
-            const itemName = item ? item.name : 'ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ';
+            const itemName = item ? item.name : 'غÙŠر Ù…عرÙˆف';
             html += `
                 <tr>
                     <td style="padding:8px; text-align:center;">${idx+1}</td>
@@ -2590,8 +2600,8 @@ function _legacyBuildPrintArea(type) {
                 </tbody>
             </table>
             <div style="margin-top: 50px; display:flex; justify-content:space-between;">
-                <div><strong>Ø£Ù…ÙŠÙ† Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹:</strong> ......................</div>
-                <div><strong>Ø§Ù„Ù…Ø³ØªÙ„Ù…:</strong> ......................</div>
+                <div><strong>أÙ…ÙŠÙ† اÙ„Ù…ستÙˆدع:</strong> ......................</div>
+                <div><strong>اÙ„Ù…ستÙ„Ù…:</strong> ......................</div>
             </div>
         </div>
         `;
@@ -2615,30 +2625,30 @@ function toggleGPS() {
         lngInp.value = '';
         btn.style.color = 'var(--text-muted)';
         btn.style.background = 'rgba(0,0,0,0.2)';
-        status.textContent = 'GPS Ø¥ÙŠÙ‚Ø§Ù';
-        showToast('ØªÙ… Ø¥ÙŠÙ‚Ø§Ù Ø®ØªÙ… Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ø§Ù„Ø¬ØºØ±Ø§ÙÙŠ', 'warning');
+        status.textContent = 'GPS إÙŠÙ‚اف';
+        showToast('تÙ… إÙŠÙ‚اف ختÙ… اÙ„Ù…ÙˆÙ‚ع اÙ„جغرافÙŠ', 'warning');
     } else {
         // Turn on
         if (navigator.geolocation) {
             btn.style.color = '#fbbf24';
-            status.textContent = 'Ø¬Ø§Ø±ÙŠ Ø§Ù„ØªØ­Ø¯ÙŠØ¯...';
+            status.textContent = 'جارÙŠ اÙ„تحدÙŠد...';
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
                     latInp.value = pos.coords.latitude;
                     lngInp.value = pos.coords.longitude;
                     btn.style.color = '#10b981';
                     btn.style.background = 'rgba(16,185,129,0.15)';
-                    status.textContent = 'GPS Ù†Ø´Ø·';
-                    showToast('ØªÙ… Ø§Ù„ØªÙ‚Ø§Ø· Ø¥Ø­Ø¯Ø§Ø«ÙŠØ§Øª Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ø¨Ù†Ø¬Ø§Ø­ âœ…', 'success');
+                    status.textContent = 'GPS Ù†شط';
+                    showToast('تÙ… اÙ„تÙ‚اط إحداثÙŠات اÙ„Ù…ÙˆÙ‚ع بÙ†جاح âœ…', 'success');
                 },
                 (err) => {
                     btn.style.color = '#f87171';
-                    status.textContent = 'Ù…Ø±ÙÙˆØ¶';
-                    showToast('ØªÙ… Ø±ÙØ¶ ØµÙ„Ø§Ø­ÙŠØ© Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ø£Ùˆ ÙØ´Ù„ Ø§Ù„ØªØ­Ø¯ÙŠØ¯', 'error');
+                    status.textContent = 'Ù…رفÙˆض';
+                    showToast('تÙ… رفض صÙ„احÙŠة اÙ„Ù…ÙˆÙ‚ع أÙˆ فشÙ„ اÙ„تحدÙŠد', 'error');
                 }
             );
         } else {
-            showToast('Ù…ØªØµÙØ­Ùƒ Ù„Ø§ ÙŠØ¯Ø¹Ù… ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ù…ÙˆÙ‚Ø¹', 'error');
+            showToast('Ù…تصفحÙƒ Ù„ا ÙŠدعÙ… تحدÙŠد اÙ„Ù…ÙˆÙ‚ع', 'error');
         }
     }
 }
@@ -2668,7 +2678,7 @@ function loadDeliveryTransactions() {
     let warehouses = [];
     try { warehouses = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || []; } catch(e) {}
     let whOptions = warehouses.map(w => `<option value='${w.id}' ${w.isPrimary ? 'selected' : ''}>${w.name}</option>`).join('');
-    if (!whOptions) whOptions = `<option value='main'>Ø§Ù„Ù…Ø®Ø²Ù† Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ (Ø§Ù„Ø³Ø¬Ø§Ù†Ø©)</option>`;
+    if (!whOptions) whOptions = `<option value='main'>المخزن الرئيسي (السجانة)</option>`;
 
     pendingInvoices.forEach(inv => {
         const tr = document.createElement('tr');
@@ -2676,14 +2686,14 @@ function loadDeliveryTransactions() {
         tr.innerHTML = `
             <td style='text-align:right; font-weight:800; color:var(--gold-primary);'>${inv.invoiceNo}</td>
             <td style='text-align:right; color:var(--text-dim);'>${new Date(inv.timestamp).toLocaleString('ar-EG')}</td>
-            <td style='text-align:right; font-weight:600;'>${inv.customerName || inv.customer || 'Ø¹Ù…ÙŠÙ„ Ù†Ù‚Ø¯ÙŠ'}</td>
+            <td style='text-align:right; font-weight:600;'>${inv.customerName || inv.customer || 'عميل نقدي'}</td>
             <td style='text-align:center;'>
                 <select id='del-wh-${inv.invoiceNo}' class='v-input' style='padding: 4px; font-size: 0.8rem;'>
                     ${whOptions}
                 </select>
             </td>
             <td style='text-align:center;'>
-                <button onclick="executeDelivery('${inv.invoiceNo}')" style='background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:#10b981; border-radius:6px; padding:4px 8px; cursor:pointer;'>ØªØ³Ù„ÙŠÙ… ÙˆØ§Ø¹ØªÙ…Ø§Ø¯</button>
+                <button onclick="executeDelivery('${inv.invoiceNo}')" style='background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:#10b981; border-radius:6px; padding:4px 8px; cursor:pointer;'>تسÙ„ÙŠÙ… ÙˆاعتÙ…اد</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -2700,7 +2710,7 @@ function filterDeliveryTransactions() {
 }
 
 function executeDelivery(invNo) {
-    if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† ØªØ³Ù„ÙŠÙ… Ø§Ù„ÙØ§ØªÙˆØ±Ø© Ø±Ù‚Ù… ' + invNo + ' ÙˆØ®ØµÙ… Ø§Ù„Ø¨Ø¶Ø§Ø¹Ø© Ù…Ù† Ø§Ù„Ù…Ø®Ø²ÙˆÙ†ØŸ')) return;
+    if (!confirm('هل أنت متأكد من تسليم الفاتورة رقم ' + invNo + ' وخصم البضاعة من المخزون؟')) return;
 
     let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     let invIndex = allSales.findIndex(i => i.invoiceNo === invNo);
@@ -2710,7 +2720,7 @@ function executeDelivery(invNo) {
     let selectedWhId = document.getElementById('del-wh-' + invNo).value;
     
     let warehouses = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
-    let whName = warehouses.find(w => w.id === selectedWhId)?.name || 'Ø§Ù„Ù…Ø®Ø²Ù† Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ (Ø§Ù„Ø³Ø¬Ø§Ù†Ø©)';
+    let whName = warehouses.find(w => w.id === selectedWhId)?.name || 'المخزن الرئيسي (السجانة)';
 
     // Deduct Inventory
     let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
@@ -2750,12 +2760,12 @@ function executeDelivery(invNo) {
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
     localStorage.setItem('erp_inv_' + invNo, JSON.stringify(inv));
 
-    showToast('ØªÙ… Ø§Ù„ØªØ³Ù„ÙŠÙ… ÙˆØ®ØµÙ… Ø§Ù„Ù…Ø®Ø²ÙˆÙ† Ø¨Ù†Ø¬Ø§Ø­!', 'success');
+    showToast('تÙ… اÙ„تسÙ„ÙŠÙ… ÙˆخصÙ… اÙ„Ù…خزÙˆÙ† بÙ†جاح!', 'success');
     loadDeliveryTransactions();
 }
 
 function convertToOfficial(invNo) {
-    if (!confirm('ØªØ­ÙˆÙŠÙ„ Ø§Ù„ÙØ§ØªÙˆØ±Ø© Ø§Ù„Ù…Ø¨Ø¯Ø¦ÙŠØ© Ø±Ù‚Ù… ' + invNo + ' Ø¥Ù„Ù‰ ÙØ§ØªÙˆØ±Ø© Ø±Ø³Ù…ÙŠØ© (ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª)ØŸ')) return;
+    if (!confirm('تحويل الفاتورة المبدئية رقم ' + invNo + ' إلى فاتورة رسمية (تحديث الحسابات)؟')) return;
 
     let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     let invIndex = allSales.findIndex(i => i.invoiceNo === invNo);
@@ -2797,7 +2807,7 @@ function convertToOfficial(invNo) {
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
     localStorage.setItem('erp_inv_' + invNo, JSON.stringify(inv));
 
-    showToast('ØªÙ… ØªØ­ÙˆÙŠÙ„ Ø§Ù„ÙØ§ØªÙˆØ±Ø© Ø§Ù„Ù…Ø¨Ø¯Ø¦ÙŠØ© Ø¨Ù†Ø¬Ø§Ø­!', 'success');
+    showToast('تÙ… تحÙˆÙŠÙ„ اÙ„فاتÙˆرة اÙ„Ù…بدئÙŠة بÙ†جاح!', 'success');
     if (typeof loadHubTransactions === 'function') loadHubTransactions();
 }
 
@@ -2808,24 +2818,24 @@ async function sendInvoiceWA(invoiceNo) {
         const data = await res.json();
         
         if (data.status !== 'CONNECTED' && data.status !== 'AUTHENTICATED') {
-            const wantsToConnect = typeof showWAConnectPrompt === 'function' ? await showWAConnectPrompt() : confirm('Ø±Ù‚Ù… Ø§Ù„ÙˆØ§ØªØ³Ø§Ø¨ ØºÙŠØ± Ù…Ø±Ø¨ÙˆØ·. Ù‡Ù„ ØªØ±ÙŠØ¯ Ø§Ù„Ø±Ø¨Ø· Ø§Ù„Ø¢Ù†ØŸ');
+            const wantsToConnect = typeof showWAConnectPrompt === 'function' ? await showWAConnectPrompt() : confirm('رقم الواتساب غير مربوط. هل تريد الربط الآن؟');
             if (wantsToConnect) {
                 if (typeof openWAModal === 'function') {
                     openWAModal();
                 } else {
-                    alert('ÙŠØ±Ø¬Ù‰ Ø§Ù„Ø°Ù‡Ø§Ø¨ Ø¥Ù„Ù‰ Ø´Ø§Ø´Ø© Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ù„Ø±Ø¨Ø· Ø§Ù„ÙˆØ§ØªØ³Ø§Ø¨.');
+                    alert('ÙŠرجÙ‰ اÙ„ذÙ‡اب إÙ„Ù‰ شاشة اÙ„إعدادات Ù„ربط اÙ„Ùˆاتساب.');
                 }
             }
             return;
         }
     } catch (err) {
-        alert('Ø®Ø¯Ù…Ø© Ø§Ù„ÙˆØ§ØªØ³Ø§Ø¨ ØºÙŠØ± Ù…ØªØ§Ø­Ø© Ø­Ø§Ù„ÙŠØ§Ù‹. ØªØ£ÙƒØ¯ Ù…Ù† ØªØ´ØºÙŠÙ„ Ø§Ù„Ø®Ø§Ø¯Ù….');
+        alert('خدÙ…ة اÙ„Ùˆاتساب غÙŠر Ù…تاحة حاÙ„ÙŠاÙ‹. تأÙƒد Ù…Ù† تشغÙŠÙ„ اÙ„خادÙ….');
         return;
     }
 
     let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     let inv = allSales.find(i => i.invoiceNo === invoiceNo);
-    if (!inv) { alert('Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø§Ù„ÙØ§ØªÙˆØ±Ø©'); return; }
+    if (!inv) { alert('Ù„Ù… ÙŠتÙ… اÙ„عثÙˆر عÙ„Ù‰ اÙ„فاتÙˆرة'); return; }
 
     const phone = await new Promise((resolve) => {
         const overlayId = 'wa-phone-prompt-overlay';
@@ -2839,19 +2849,19 @@ async function sendInvoiceWA(invoiceNo) {
                     <svg viewBox="0 0 24 24" width="45" height="45" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                 </div>
                 
-                <h3 style="color:#f8fafc; font-size:1.6rem; font-family:'Tajawal',sans-serif; margin-bottom:10px; margin-top:0; font-weight:800;">Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„ÙØ§ØªÙˆØ±Ø© Ø¹Ø¨Ø± ÙˆØ§ØªØ³Ø§Ø¨</h3>
-                <p style="color:#94a3b8; font-size:1rem; margin-bottom:25px; line-height:1.6; font-family:'Tajawal',sans-serif;">ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø±Ù‚Ù… Ù‡Ø§ØªÙ Ø§Ù„Ø¹Ù…ÙŠÙ„ Ù…Ø¯Ø¹ÙˆÙ…Ø§Ù‹ Ø¨Ø§Ù„Ù…ÙØªØ§Ø­ Ø§Ù„Ø¯ÙˆÙ„ÙŠ (Ù…Ø«Ø§Ù„: 249912345678)</p>
+                <h3 style="color:#f8fafc; font-size:1.6rem; font-family:'Tajawal',sans-serif; margin-bottom:10px; margin-top:0; font-weight:800;">إرساÙ„ اÙ„فاتÙˆرة عبر Ùˆاتساب</h3>
+                <p style="color:#94a3b8; font-size:1rem; margin-bottom:25px; line-height:1.6; font-family:'Tajawal',sans-serif;">ÙŠرجÙ‰ إدخاÙ„ رÙ‚Ù… Ù‡اتف اÙ„عÙ…ÙŠÙ„ Ù…دعÙˆÙ…اÙ‹ باÙ„Ù…فتاح اÙ„دÙˆÙ„ÙŠ (Ù…ثاÙ„: 249912345678)</p>
                 
                 <div style="margin-bottom:25px; position:relative;">
-                    <input type="tel" id="wa-prompt-input" placeholder="Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ..." style="width:100%; background:rgba(0,0,0,0.4); border:2px solid rgba(255,255,255,0.1); color:#fff; padding:15px; border-radius:12px; font-size:1.2rem; text-align:center; transition:all 0.3s; outline:none; font-family:'Inter',sans-serif;" onfocus="this.style.borderColor='#25d366'; this.style.boxShadow='0 0 15px rgba(37,211,102,0.3)';" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.boxShadow='none';">
+                    <input type="tel" id="wa-prompt-input" placeholder="رÙ‚Ù… اÙ„Ù‡اتف..." style="width:100%; background:rgba(0,0,0,0.4); border:2px solid rgba(255,255,255,0.1); color:#fff; padding:15px; border-radius:12px; font-size:1.2rem; text-align:center; transition:all 0.3s; outline:none; font-family:'Inter',sans-serif;" onfocus="this.style.borderColor='#25d366'; this.style.boxShadow='0 0 15px rgba(37,211,102,0.3)';" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.boxShadow='none';">
                 </div>
 
                 <div style="display:flex; gap:15px; justify-content:center;">
                     <button id="wa-prompt-send" style="background:linear-gradient(135deg, #25d366, #1da851); color:#fff; border:none; padding:12px 30px; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer; font-family:'Tajawal',sans-serif; transition:all 0.3s; box-shadow:0 4px 15px rgba(37,211,102,0.4); display:flex; align-items:center; gap:8px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(37,211,102,0.5)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 15px rgba(37,211,102,0.4)';">
-                        <span>Ø¥Ø±Ø³Ø§Ù„</span>
+                        <span>إرساÙ„</span>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                     </button>
-                    <button id="wa-prompt-cancel" style="background:rgba(255,255,255,0.05); color:#cbd5e1; border:1px solid rgba(255,255,255,0.1); padding:12px 25px; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer; font-family:'Tajawal',sans-serif; transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">Ø¥Ù„ØºØ§Ø¡</button>
+                    <button id="wa-prompt-cancel" style="background:rgba(255,255,255,0.05); color:#cbd5e1; border:1px solid rgba(255,255,255,0.1); padding:12px 25px; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer; font-family:'Tajawal',sans-serif; transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">إÙ„غاء</button>
                 </div>
             </div>
         </div>
@@ -2918,7 +2928,7 @@ async function sendInvoiceWA(invoiceNo) {
     printContainer.innerHTML = styleSheet + htmlContent;
     document.body.appendChild(printContainer);
 
-    const message = 'Ù…Ø±Ø­Ø¨Ø§Ù‹ØŒ Ù…Ø±ÙÙ‚ ÙØ§ØªÙˆØ±ØªÙƒÙ… Ø±Ù‚Ù… ' + invoiceNo + ' Ù…Ù† Ù…Ø¤Ø³Ø³Ø© Ø§Ù„Ø³Ø¬Ø§Ù†Ø© Ù„Ù„ØªØ¬Ø§Ø±Ø©. Ø´ÙƒØ±Ø§Ù‹ Ù„ØªØ¹Ø§Ù…Ù„ÙƒÙ… Ù…Ø¹Ù†Ø§!';
+    const message = 'مرحباً، مرفق فاتورتكم رقم ' + invoiceNo + ' من مؤسسة السجانة للتجارة. شكراً لتعاملكم معنا!';
     
     try {
         await sendPDFViaWhatsApp(printContainer, phone, message);
