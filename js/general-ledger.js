@@ -1199,6 +1199,11 @@ function loadNumberFont() {
     document.querySelectorAll('.font-chip').forEach(el => el.classList.remove('active'));
     let btn = document.getElementById('btn-font-' + currentNumFont);
     if (btn) btn.classList.add('active');
+
+    document.querySelectorAll('.num-cell-wrapper').forEach(el => {
+        el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins');
+        el.classList.add(currentNumFont);
+    });
 }
 
 window.changeNumberFont = function(fontClass) {
@@ -1253,18 +1258,17 @@ function closeContextMenu() {
     document.removeEventListener('click', closeContextMenu);
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        applyConfigToHeaders();
-        loadTableTheme();
-        loadNumberFont();
-    });
+function initializeLedgerSettings() {
+    loadColumnConfig();
+    applyConfigToHeaders();
+    loadTableTheme();
+    loadNumberFont();
+}
+
+if (window.APP_READY) {
+    initializeLedgerSettings();
 } else {
-    setTimeout(() => {
-        applyConfigToHeaders();
-        loadTableTheme();
-        loadNumberFont();
-    }, 100);
+    document.addEventListener('DBReady', initializeLedgerSettings);
 }
 
 function saveColumnConfig() {

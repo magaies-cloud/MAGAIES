@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'السجانة 2026 - تسجيل الدخول'; ?>
+<?php $page_title = 'السجانة 2026 - تسجيل الدخول'; ?>
 <!-- c:\mynewapp\frontend-pwa\login.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -319,7 +319,7 @@
                 
                 testImg.onload = () => {
                     if (!checkCompleted) {
-                        targetUrl = `${subdomainUrl}/dashboard-pro.html`;
+                        targetUrl = `${subdomainUrl}/dashboard-pro.php`;
                         checkCompleted = true;
                     }
                 };
