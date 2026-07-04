@@ -249,6 +249,7 @@
         td:has(.custom-dropdown-list.show),
         .m-card-full:has(.custom-dropdown-list.show),
         .custom-dropdown-input-wrap:has(.custom-dropdown-list.show) { z-index: 99999 !important; }
+        .grid-scroll-wrap { min-height: 350px !important; overflow: visible !important; }
         .custom-dropdown-item {
             padding: 10px 12px; cursor: pointer; font-size: 0.85rem; font-weight: 600;
             color: var(--text-primary); border-bottom: 1px solid var(--glass-border);
@@ -1057,7 +1058,7 @@
         </div>
 
         <!-- Recent Transactions Table -->
-        <div class="neo-card" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 15px;">
+        <div class="neo-card" style="flex: 1; display: flex; flex-direction: column; overflow: visible; margin-bottom: 15px;">
             <div class="neo-card-title" style="font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;">
                 <span>📋 العمليات الأخيرة (Recent Transactions)</span>
                 <div style="display: flex; gap: 10px;">
@@ -1094,7 +1095,7 @@
 
     <!-- ═══ DELIVERY HUB VIEW ═══ -->
     <div id="delivery-hub-view" style="display: none; flex-direction: column; height: 100%; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 0 5px;">
-        <div class="neo-card" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 15px;">
+        <div class="neo-card" style="flex: 1; display: flex; flex-direction: column; overflow: visible; margin-bottom: 15px;">
             <div class="neo-card-title" style="font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;">
                 <span style="color: #10b981;">🚚 فواتير قيد التسليم (Pending Delivery)</span>
                 <div style="display: flex; gap: 10px;">
@@ -1491,7 +1492,7 @@
     <script src="js/print-engine.js"></script>
     
 
-    <script src="js/direct-sales.js?v=<?php echo time(); ?>"></script>
+    <script src="js/direct-sales-v2.js?v=<?php echo time(); ?>"></script>
 
     <script>
         // Sales Hub Logic
