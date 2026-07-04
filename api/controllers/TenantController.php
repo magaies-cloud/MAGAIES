@@ -203,7 +203,7 @@ class TenantController {
                 jsonResponse(['error' => 'Invalid file type'], 400);
             }
             
-            $dir = __DIR__ . '/uploads/ads/';
+            $dir = __DIR__ . '/../../uploads/ads/';
             if (!is_dir($dir)) {
                 mkdir($dir, 0777, true);
             }
@@ -230,7 +230,7 @@ class TenantController {
                 jsonResponse(['error' => 'Invalid file type'], 400);
             }
             
-            $dir = __DIR__ . '/uploads/partners/';
+            $dir = __DIR__ . '/../../uploads/partners/';
             if (!is_dir($dir)) {
                 mkdir($dir, 0777, true);
             }

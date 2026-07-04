@@ -218,7 +218,7 @@ function resetVoucherSilent() {
     document.getElementById('collector-name').value = '';
     
     document.getElementById('to-account').value = 'safe-001';
-    const defToAcc = (window.ACCOUNTS || []).find(a => String(a.id) === 'safe-001');
+    const defToAcc = (ACCOUNTS || []).find(a => String(a.id) === 'safe-001');
     document.getElementById('to-account-search').value = defToAcc ? defToAcc.name : 'safe-001';
     document.getElementById('to-statement').value = '';
 
@@ -275,7 +275,7 @@ function renderVoucher(v) {
     document.getElementById('hdr-date').value = v.date;
     
     document.getElementById('from-account').value = v.fromAccount || '';
-    const fromAccObj = (window.ACCOUNTS || []).find(a => String(a.id) === String(v.fromAccount || ''));
+    const fromAccObj = (ACCOUNTS || []).find(a => String(a.id) === String(v.fromAccount || ''));
     document.getElementById('from-account-search').value = fromAccObj ? fromAccObj.name : (v.fromAccount || '');
 
     document.getElementById('amount-local').value = fmtNum(v.amountLocal);
@@ -286,7 +286,7 @@ function renderVoucher(v) {
     document.getElementById('collector-name').value = v.collectorName || '';
     
     document.getElementById('to-account').value = v.toAccount || 'safe-001';
-    const toAccObj = (window.ACCOUNTS || []).find(a => String(a.id) === String(v.toAccount || 'safe-001'));
+    const toAccObj = (ACCOUNTS || []).find(a => String(a.id) === String(v.toAccount || 'safe-001'));
     document.getElementById('to-account-search').value = toAccObj ? toAccObj.name : (v.toAccount || 'safe-001');
     document.getElementById('to-statement').value = v.toStatement || '';
 
@@ -558,7 +558,7 @@ function openPartnerStatement() {
         showToast('يرجى اختيار العميل أولاً لعرض كشف الحساب', 'warning');
         return;
     }
-    window.open('statement.html?partnerId=' + accId, '_blank');
+    window.open('statement.php?partnerId=' + accId, '_blank');
 }
 
 function showSuccessModal(title, subtitle) {

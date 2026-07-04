@@ -395,8 +395,8 @@ if ($resource === 'sync') {
                 // Map table names back to frontend keys
                 $frontendKey = $table;
                 if ($table === 'gl_entries') $frontendKey = 'gl';
-                if ($table === 'sales_invoices') $frontendKey = 'sales';
-                if ($table === 'purchase_invoices') $frontendKey = 'purchases';
+                if ($table === 'sales_invoices') $frontendKey = 'sales_invoices';
+                if ($table === 'purchase_invoices') $frontendKey = 'purchase_invoices';
                 $key = "erp_" . $frontendKey . "_v1";
                 
                 $data_payload[$key] = $parsed_rows;

@@ -1237,7 +1237,7 @@
                             <th style="text-align:right;">المورد</th>
                             <th style="text-align:right;">النوع</th>
                             <th style="text-align:center;">الإجمالي</th>
-                            <th style="text-align:center;">الحالة</th>
+                            <th style="text-align:center;">المخزن</th>
                             <th style="text-align:center;">الإجراءات</th>
                         </tr>
                     </thead>
@@ -1659,6 +1659,33 @@
                 return;
             }
             
+            // Load suppliers to map IDs to names
+            let suppliers = [];
+            try {
+                let rawSupps = localStorage.getItem('erp_suppliers_v1');
+                if (typeof rawSupps === 'string') suppliers = JSON.parse(rawSupps) || [];
+                else if (rawSupps && typeof rawSupps === 'object') suppliers = rawSupps;
+            } catch(e) {}
+
+            function getSupplierName(id) {
+                const s = suppliers.find(x => x.id === id);
+                return s ? s.name : id;
+            }
+
+            // Load warehouses to map IDs to names
+            let warehouses = [];
+            try {
+                let rawWh = localStorage.getItem('erp_warehouses_v1');
+                if (typeof rawWh === 'string') warehouses = JSON.parse(rawWh) || [];
+                else if (rawWh && typeof rawWh === 'object') warehouses = rawWh;
+            } catch(e) {}
+
+            function getWarehouseName(id) {
+                if (id === 'PENDING_RECEIPT' || !id) return '⏳ بضاعة قيد الاستلام';
+                const w = warehouses.find(x => x.id === id);
+                return w ? w.name : id;
+            }
+
             emptyState.style.display = 'none';
             tbody.innerHTML = '';
             
@@ -1666,16 +1693,14 @@
             
             invoices.forEach(inv => {
                 const tr = document.createElement('tr');
-                const statusClass = inv.status === 'draft' ? 'draft' : 'completed';
-                const statusText = inv.status === 'draft' ? 'مسودة' : 'مكتملة';
                 
                 tr.innerHTML = `
                     <td style="text-align:right; font-weight:800; color:var(--gold-primary);">${inv.invoiceNo}</td>
                     <td style="text-align:right; color:var(--text-dim);">${new Date(inv.timestamp || inv.date).toLocaleString('ar-EG')}</td>
-                    <td style="text-align:right; font-weight:600;">${inv.supplierName || inv.customer || 'مورد غير محدد'}</td>
+                    <td style="text-align:right; font-weight:600;">${inv.supplierName || getSupplierName(inv.customer || inv.customerId || inv.supplierId) || 'مورد غير محدد'}</td>
                     <td style="text-align:right; color:var(--text-dim);">${inv.saleType === 'delivery' ? '🚚 استيراد' : inv.saleType === 'split' ? '🏭 مصنع' : '🛒 مباشر'}</td>
                     <td style="text-align:center; font-weight:900; direction:ltr;">${fmtNum(inv.totals?.grandTotal || inv.grandTotal || 0)} SDG</td>
-                    <td style="text-align:center;"><span class="hub-badge ${statusClass}">${statusText}</span></td>
+                    <td style="text-align:center; font-weight:600; color:var(--text-dim);">${getWarehouseName(inv.warehouse)}</td>
                     <td style="text-align:center;">
                         <button onclick="editHubTransaction('${inv.invoiceNo}')" style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; border-radius:6px; padding:4px 8px; cursor:pointer; margin-left:4px;">تعديل / عرض</button>
                         <button onclick="sendInvoiceWA('${inv.invoiceNo}')" style="background:rgba(37,211,102,0.1); border:1px solid rgba(37,211,102,0.3); color:#25d366; border-radius:6px; padding:4px 10px; cursor:pointer; margin-left:4px; display:inline-flex; align-items:center; justify-content:center;" title="إرسال عبر الواتساب">

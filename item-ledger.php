@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'السجانة ERP - كارت الصنف (حركة الأصناف)'; ?>
+<?php $page_title = 'السجانة ERP - كارت الصنف (حركة الأصناف)'; ?>
 <!-- c:\mynewapp\frontend-pwa\item-ledger.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -325,8 +325,8 @@
 
                 const tr = document.createElement('tr');
                 let target = '';
-                if (row.typeCode === 'out') target = `sales-invoice.html?id=${row.docId}`;
-                else if (row.typeCode === 'in') target = `purchase.html?id=${row.docId}`;
+                if (row.typeCode === 'out') target = `sales-invoice.php?id=${row.docId}`;
+                else if (row.typeCode === 'in') target = `purchase.php?id=${row.docId}`;
 
                 let refHtml = row.ref;
                 if (row.docId && target) {

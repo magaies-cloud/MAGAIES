@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'السجانة ERP - كشف المخزن التحليلي'; ?>
+<?php $page_title = 'السجانة ERP - كشف المخزن التحليلي'; ?>
 <!-- c:\mynewapp\frontend-pwa\warehouse-ledger.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -238,8 +238,8 @@
 
                 const tr = document.createElement('tr');
                 let target = '';
-                if (row.typeCode === 'out') target = `sales-invoice.html?id=${row.docId}`;
-                else if (row.typeCode === 'in') target = `purchase.html?id=${row.docId}`;
+                if (row.typeCode === 'out') target = `sales-invoice.php?id=${row.docId}`;
+                else if (row.typeCode === 'in') target = `purchase.php?id=${row.docId}`;
 
                 let refHtml = row.ref;
                 if (row.docId && target) {

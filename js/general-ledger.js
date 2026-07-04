@@ -395,18 +395,21 @@ document.addEventListener('DBReady', () => {
 function getAccountName(id) {
     if(id === 'ALL') return 'جميع الحسابات';
     if(id === '-') return '-';
-    const found = ALL_ACCOUNTS.find(a => a.id === id);
+    let found = ALL_ACCOUNTS.find(a => String(a.id) === String(id));
+    if (found) return found.name;
+    const cleanId = String(id).replace(/^(cust|supp|bank|safe|exp)-/, '');
+    found = ALL_ACCOUNTS.find(a => String(a.id).replace(/^(cust|supp|bank|safe|exp)-/, '') === cleanId);
     return found ? found.name : id;
 }
 
 /* ─── Drill Down & Attachments ─── */
 function openDrillDown(type, ref) {
     let target = '';
-    if (type === 'invoice') target = `sales-invoice.html?id=${ref}`;
-    else if (type === 'purchase') target = `purchase.html?id=${ref}`;
-    else if (type === 'jv') target = `journal-voucher.html?id=${ref}`;
-    else if (type === 'receipt') target = `single-cash-receipt.html?id=${ref}`;
-    else if (type === 'payment') target = `single-cash-payment.html?id=${ref}`;
+    if (type === 'invoice') target = `sales-invoice.php?id=${ref}`;
+    else if (type === 'purchase') target = `purchase.php?id=${ref}`;
+    else if (type === 'jv') target = `journal-voucher.php?id=${ref}`;
+    else if (type === 'receipt') target = `single-cash-receipt.php?id=${ref}`;
+    else if (type === 'payment') target = `single-cash-payment.php?id=${ref}`;
     
     if(target) {
         window.open(target, '_blank');
@@ -643,19 +646,23 @@ function executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, 
     // Filter Account and Setup Opening Balance
     let intrinsicBal = 0;
     if (acctFilter !== 'ALL') {
-        txns = txns.filter(t => t.account === acctFilter);
+        const cleanFilter = String(acctFilter).replace(/^(cust|supp|bank|safe|exp)-/, '');
+        txns = txns.filter(t => {
+            const cleanAcc = String(t.account).replace(/^(cust|supp|bank|safe|exp)-/, '');
+            return cleanAcc === cleanFilter;
+        });
         
         let custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
         let sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
         let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
         
-        let c = custs.find(x => x.id === acctFilter);
+        let c = custs.find(x => String(x.id).replace(/^(cust|supp|bank|safe|exp)-/, '') === cleanFilter);
         if (c) intrinsicBal = parseNum(c.openingBalance || c.initialBalance || 0);
         else {
-            let s = sups.find(x => x.id === acctFilter);
+            let s = sups.find(x => String(x.id).replace(/^(cust|supp|bank|safe|exp)-/, '') === cleanFilter);
             if (s) intrinsicBal = -parseNum(s.openingBalance || s.initialBalance || 0);
             else {
-                let b = banks.find(x => x.id === acctFilter);
+                let b = banks.find(x => String(x.id).replace(/^(cust|supp|bank|safe|exp)-/, '') === cleanFilter);
                 if (b) intrinsicBal = parseNum(b.openingBalance || b.initialBalance || 0);
             }
         }
@@ -760,12 +767,14 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
         const colValues = {
             'idx': i + 1,
             'date': t.date,
+            'account': getAccountName(t.account) || '-',
             'counterAcc': counterAccName,
             'statement': t.statement,
             'note': addNote,
             'costCenter': t.costCenter || '-',
             'debit': t.debit > 0 ? t.debit : null,
             'credit': t.credit > 0 ? t.credit : null,
+            'total': (t.debit > 0 ? t.debit : t.credit) || null,
             'balance': Math.abs(runningBalance),
             'currency': t.currency || '-',
             'exRate': exRate,
@@ -779,7 +788,7 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
             
             let val = colValues[c.id];
             
-            if (['debit', 'credit', 'balance', 'exRate', 'debitF', 'creditF', 'balanceF'].includes(c.id)) {
+            if (['debit', 'credit', 'total', 'balance', 'exRate', 'debitF', 'creditF', 'balanceF'].includes(c.id)) {
                 if (val === null) {
                     val = '<span class="td-empty">—</span>';
                 } else {
@@ -1089,12 +1098,14 @@ function printDirectly() {
 const defaultColConfig = [
     { id: 'idx', name: '#', alias: '', visible: true, width: '50px', bg: '', color: '#64748b', bold: false, size: '0.8rem', dec: 0 },
     { id: 'date', name: 'التاريخ', alias: '', visible: true, width: 'auto', bg: '', color: '', bold: false, size: '0.85rem', dec: 0 },
+    { id: 'account', name: 'الحساب الرئيسي', alias: '', visible: true, width: 'auto', bg: '', color: '#cbd5e1', bold: false, size: '0.85rem', dec: 0 },
     { id: 'counterAcc', name: 'الحساب المقابل', alias: '', visible: true, width: 'auto', bg: '', color: '#e2e8f0', bold: false, size: '0.85rem', dec: 0 },
     { id: 'statement', name: 'البيان', alias: '', visible: true, width: '150px', bg: '', color: '#e2e8f0', bold: false, size: '0.85rem', dec: 0 },
     { id: 'note', name: 'ملحوظة إضافية', alias: '', visible: true, width: '150px', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 0 },
     { id: 'costCenter', name: 'مركز التكلفة', alias: '', visible: true, width: 'auto', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 0 },
     { id: 'debit', name: 'مدين محلي', alias: '', visible: true, width: 'auto', bg: '', color: '#34d399', bold: true, size: '0.9rem', dec: 2 },
     { id: 'credit', name: 'دائن محلي', alias: '', visible: true, width: 'auto', bg: '', color: '#f87171', bold: true, size: '0.9rem', dec: 2 },
+    { id: 'total', name: 'الإجمالي', alias: '', visible: true, width: 'auto', bg: '', color: '#cbd5e1', bold: true, size: '0.9rem', dec: 2 },
     { id: 'balance', name: 'الرصيد محلي', alias: '', visible: true, width: 'auto', bg: '', color: '#c084fc', bold: true, size: '0.9rem', dec: 2 },
     { id: 'currency', name: 'العملة', alias: '', visible: true, width: 'auto', bg: '', color: '#c084fc', bold: false, size: '0.85rem', dec: 0 },
     { id: 'exRate', name: 'سعر الصرف', alias: '', visible: true, width: 'auto', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 2 },
@@ -1107,19 +1118,31 @@ let colConfig = [];
 function loadColumnConfig() {
     try {
         let settingsStr = localStorage.getItem('erp_settings_v1');
+        let loadedConfig = null;
         if (settingsStr) {
             let settings = JSON.parse(settingsStr);
             if (settings.sgl_col_config_v2) {
-                colConfig = settings.sgl_col_config_v2;
-                return;
+                loadedConfig = settings.sgl_col_config_v2;
             }
         }
-        
-        // Fallback for old local-only data
-        const oldSaved = localStorage.getItem('sgl_col_config_v2');
-        if (oldSaved) {
-            colConfig = JSON.parse(oldSaved);
-            saveColumnConfig(); // migrate to erp_settings_v1
+        if (!loadedConfig) {
+            const oldSaved = localStorage.getItem('sgl_col_config_v2');
+            if (oldSaved) {
+                loadedConfig = JSON.parse(oldSaved);
+            }
+        }
+
+        if (loadedConfig) {
+            const merged = [];
+            defaultColConfig.forEach(defCol => {
+                const found = loadedConfig.find(c => c.id === defCol.id);
+                if (found) {
+                    merged.push(found);
+                } else {
+                    merged.push(defCol);
+                }
+            });
+            colConfig = merged;
             return;
         }
         
@@ -1352,7 +1375,7 @@ function renderSidebarConfig() {
                         <input type="color" class="cfg-input" value="${col.bg || '#000000'}" onchange="updateColField(${index}, 'bg', this.value)" title="لون الخلفية">
                     </div>
                 </div>
-                ${['debit', 'credit', 'balance', 'exRate', 'debitF', 'creditF', 'balanceF'].includes(col.id) ? `
+                ${['debit', 'credit', 'total', 'balance', 'exRate', 'debitF', 'creditF', 'balanceF'].includes(col.id) ? `
                 <div class="cfg-row">
                     <span>الفواصل العشرية:</span>
                     <input type="number" class="cfg-input" value="${col.dec}" min="0" max="6" style="width:60px;" onchange="updateColField(${index}, 'dec', parseInt(this.value))">

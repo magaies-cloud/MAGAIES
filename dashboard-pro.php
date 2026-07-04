@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'السجانة ERP - لوحة التحكم'; ?>
+<?php $page_title = 'السجانة ERP - لوحة التحكم'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -382,7 +382,7 @@
             
             <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; flex-wrap: nowrap;">
                 
-                <a data-href="account-statement.html?model=v-classic-ent" onclick="window.location.href='account-statement.html?model=v-classic-ent'" class="quick-action-btn qa-danger" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px; border-bottom: 2px solid #f43f5e; background: rgba(244,63,94,0.15); color: #f43f5e;">
+                <a data-href="account-statement.php?model=v-classic-ent" onclick="window.location.href='account-statement.php?model=v-classic-ent'" class="quick-action-btn qa-danger" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px; border-bottom: 2px solid #f43f5e; background: rgba(244,63,94,0.15); color: #f43f5e;">
                     <span class="qa-icon">🏢</span> كشف مؤسسي
                 </a>
                 

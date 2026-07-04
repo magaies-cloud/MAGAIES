@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'استلام البضاعة (GRN)'; ?>
+<?php $page_title = 'استلام البضاعة (GRN)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -183,6 +183,7 @@
 
         <!-- View 1: Hub (Select Invoice with Pending Goods) -->
         <div class="view-container active" id="view-hub">
+
             <div class="neo-card">
                 <div class="neo-card-title">
                     <span>⏳ فواتير تحتوي على بضاعة قيد الاستلام</span>
@@ -272,6 +273,7 @@
     <!-- Notification Toast Container -->
     <div class="toast-container" id="toast-container" style="position:fixed; bottom:20px; left:20px; z-index:99999; display:flex; flex-direction:column; gap:10px;"></div>
 
+    <script src="js/localforage.min.js"></script>
     <script src="js/app.js?v=1783054969.18727"></script>
     <script>
         let allPurchases = [];
@@ -297,17 +299,43 @@
             setTimeout(() => { t.style.opacity = '0'; setTimeout(()=>t.remove(), 300); }, 3000);
         }
 
-        window.addEventListener('DBReady', () => {
-            allPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-            itemsDb = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
-            suppliersDb = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-            warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+        function initData() {
+            function loadKey(key) {
+                let raw = localStorage.getItem(key);
+                if (typeof raw === 'string') {
+                    try { return JSON.parse(raw) || []; } catch(e) { return []; }
+                } else if (raw && typeof raw === 'object') {
+                    return raw;
+                }
+                return [];
+            }
+            allPurchases = loadKey('erp_purchase_invoices_v1');
+            itemsDb = loadKey('erp_items_v1');
+            suppliersDb = loadKey('erp_suppliers_v1');
+            warehousesDb = loadKey('erp_warehouses_v1');
             if(warehousesDb.length === 0) warehousesDb = [{ id:'w-main', name:'المخزن الرئيسي (السجانة)' }];
 
             populateWarehouseSelect();
             calculatePendingGoods();
             renderPendingInvoices();
-        });
+
+        }
+
+        if (window.APP_READY) {
+            initData();
+            if (typeof window.pullFromCloud === 'function') {
+                window.pullFromCloud(true);
+            }
+        } else {
+            document.addEventListener('DBReady', () => {
+                initData();
+                if (typeof window.pullFromCloud === 'function') {
+                    window.pullFromCloud(true);
+                }
+            });
+        }
+        window.addEventListener('cloudDataRestored', initData);
+        window.addEventListener('strictDataReady', initData);
 
         function populateWarehouseSelect() {
             const select = document.getElementById('actual-warehouse');
@@ -329,14 +357,19 @@
         function calculatePendingGoods() {
             pendingMap = {}; // target: { invId: { supplierId, date, lines: { itemId: { unitId, qty, originalLine } } } }
 
+            console.log("GRN Debug - allPurchases loaded:", allPurchases);
+
             // Base tracking by invoice
             allPurchases.filter(inv => !inv.deleted && inv.status !== 'draft' && inv.status !== 'proforma').forEach(inv => {
-                const rootInvId = inv.isReturn || inv.isGRN ? inv.originalInvoiceId : inv.id;
-                if (!rootInvId) return;
+                const rootInvId = inv.isReturn || inv.isGRN ? inv.originalInvoiceId : (inv.invoiceNo || inv.id);
+                if (!rootInvId) {
+                    console.log("GRN Debug - Skipping invoice because rootInvId is falsy:", inv);
+                    return;
+                }
 
                 if (!pendingMap[rootInvId]) {
                     pendingMap[rootInvId] = {
-                        supplierId: inv.customerId || inv.supplierId,
+                        supplierId: inv.customer || inv.customerId || inv.supplierId,
                         date: inv.date,
                         lines: {}
                     };
@@ -345,17 +378,21 @@
                 const items = inv.items || inv.lines || [];
                 const globalWh = inv.warehouse;
 
+                console.log(`GRN Debug - Processing invoice ${rootInvId}, global warehouse: ${globalWh}`);
+
                 items.forEach(line => {
                     const lineWh = line.warehouseId || globalWh;
                     
-                    // We only care about items associated with PENDING_RECEIPT
-                    if (lineWh === 'PENDING_RECEIPT') {
-                        const lineKey = line.itemId + '|' + line.unitId;
+                    const isPending = (lineWh === 'PENDING_RECEIPT' || !lineWh || lineWh === '⏳ بضاعة قيد الاستلام (لم تحدد بعد)' || lineWh === '⏳ بضاعة قيد الاستلام');
+                    console.log(`GRN Debug - Item: ${line.itemId}, Line warehouse: ${lineWh}, isPending: ${isPending}`);
+
+                    if (isPending) {
+                        const lineKey = line.itemId + '|' + (line.unitId || line.selectedUnit || '');
                         if (!pendingMap[rootInvId].lines[lineKey]) {
                             pendingMap[rootInvId].lines[lineKey] = {
                                 itemId: line.itemId,
-                                unitId: line.unitId,
-                                unitName: line.unitName || 'حبة',
+                                unitId: line.unitId || line.selectedUnit || '',
+                                unitName: line.unitName || line.selectedUnit || 'حبة',
                                 price: parseFloat(line.price) || 0, // needed if we return or value it, though GRN takes 0 value
                                 pendingQty: 0
                             };
@@ -371,6 +408,8 @@
             });
 
             // Cleanup: remove items with <= 0 pending qty, and invoices with no pending items
+            console.log("GRN Debug - pendingMap before cleanup:", JSON.parse(JSON.stringify(pendingMap)));
+
             Object.keys(pendingMap).forEach(invId => {
                 const lines = pendingMap[invId].lines;
                 Object.keys(lines).forEach(lk => {
@@ -384,6 +423,8 @@
                     delete pendingMap[invId];
                 }
             });
+
+            console.log("GRN Debug - Final pendingMap:", pendingMap);
         }
 
         function getSupplierName(id) {

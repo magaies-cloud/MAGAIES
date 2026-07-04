@@ -272,7 +272,7 @@ function resetVoucherSilent() {
     document.getElementById('beneficiary-name').value = '';
     
     document.getElementById('from-account').value = '';
-    const defFromAcc = (window.ACCOUNTS || []).find(a => String(a.id) === 'safe-001');
+    const defFromAcc = (ACCOUNTS || []).find(a => String(a.id) === 'safe-001');
     document.getElementById('from-account-search').value = defFromAcc ? defFromAcc.name : '';
     if (window.fromAccChoice) {
         window.fromAccChoice.removeActiveItems();
@@ -343,7 +343,7 @@ function renderVoucher(v) {
     document.getElementById('hdr-date').value = v.date;
     
     document.getElementById('to-account').value = v.toAccount || '';
-    const toAccObj = (window.ACCOUNTS || []).find(a => String(a.id) === String(v.toAccount || ''));
+    const toAccObj = (ACCOUNTS || []).find(a => String(a.id) === String(v.toAccount || ''));
     document.getElementById('to-account-search').value = toAccObj ? toAccObj.name : (v.toAccount || '');
 
     document.getElementById('amount-local').value = fmtNum(v.amountLocal);
@@ -354,7 +354,7 @@ function renderVoucher(v) {
     document.getElementById('beneficiary-name').value = v.beneficiaryName || '';
     
     document.getElementById('from-account').value = v.fromAccount || 'safe-001';
-    const fromAccObj = (window.ACCOUNTS || []).find(a => String(a.id) === String(v.fromAccount || 'safe-001'));
+    const fromAccObj = (ACCOUNTS || []).find(a => String(a.id) === String(v.fromAccount || 'safe-001'));
     document.getElementById('from-account-search').value = fromAccObj ? fromAccObj.name : (v.fromAccount || 'safe-001');
     if (window.fromAccChoice) window.fromAccChoice.setChoiceByValue(v.fromAccount || 'safe-001');
 

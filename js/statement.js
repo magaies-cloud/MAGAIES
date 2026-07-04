@@ -243,11 +243,11 @@ function collectPartnerTransactions(partnerId) {
 function openDrillDown(type, ref) {
     const cleanRef = String(ref).replace('-PAID', '');
     let target = '';
-    if (type === 'invoice') target = `sales-invoice.html?id=${cleanRef}`;
-    else if (type === 'purchase') target = `purchase.html?id=${cleanRef}`;
-    else if (type === 'jv') target = `journal-voucher.html?id=${cleanRef}`;
-    else if (type === 'receipt') target = `single-cash-receipt.html?id=${cleanRef}`;
-    else if (type === 'payment') target = `single-cash-payment.html?id=${cleanRef}`;
+    if (type === 'invoice') target = `sales-invoice.php?id=${cleanRef}`;
+    else if (type === 'purchase') target = `purchase.php?id=${cleanRef}`;
+    else if (type === 'jv') target = `journal-voucher.php?id=${cleanRef}`;
+    else if (type === 'receipt') target = `single-cash-receipt.php?id=${cleanRef}`;
+    else if (type === 'payment') target = `single-cash-payment.php?id=${cleanRef}`;
     
     if(target) {
         window.open(target, '_blank');

@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'مردودات المشتريات'; ?>
+<?php $page_title = 'مردودات المشتريات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -278,6 +278,7 @@
     <!-- Notification Toast Container -->
     <div class="toast-container" id="toast-container" style="position:fixed; bottom:20px; left:20px; z-index:99999; display:flex; flex-direction:column; gap:10px;"></div>
 
+    <script src="js/localforage.min.js"></script>
     <script src="js/app.js?v=1783054969.28525"></script>
     <script>
         let allPurchases = [];
@@ -301,12 +302,37 @@
             setTimeout(() => { t.style.opacity = '0'; setTimeout(()=>t.remove(), 300); }, 3000);
         }
 
-        window.addEventListener('DBReady', () => {
-            allPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-            itemsDb = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
-            suppliersDb = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+        function initData() {
+            function loadKey(key) {
+                let raw = localStorage.getItem(key);
+                if (typeof raw === 'string') {
+                    try { return JSON.parse(raw) || []; } catch(e) { return []; }
+                } else if (raw && typeof raw === 'object') {
+                    return raw;
+                }
+                return [];
+            }
+            allPurchases = loadKey('erp_purchase_invoices_v1');
+            itemsDb = loadKey('erp_items_v1');
+            suppliersDb = loadKey('erp_suppliers_v1');
             renderInvoices();
-        });
+        }
+
+        if (window.APP_READY) {
+            initData();
+            if (typeof window.pullFromCloud === 'function') {
+                window.pullFromCloud(true);
+            }
+        } else {
+            document.addEventListener('DBReady', () => {
+                initData();
+                if (typeof window.pullFromCloud === 'function') {
+                    window.pullFromCloud(true);
+                }
+            });
+        }
+        window.addEventListener('cloudDataRestored', initData);
+        window.addEventListener('strictDataReady', initData);
 
         function renderInvoices() {
             const tbody = document.getElementById('invoices-tbody');
@@ -316,9 +342,10 @@
             // Only show NON-RETURN and completed purchases.
             const validInvoices = allPurchases.filter(inv => {
                 if (inv.deleted || inv.isReturn || inv.status === 'draft' || inv.status === 'proforma') return false;
+                const invId = inv.invoiceNo || inv.id;
                 if (search) {
-                    const supName = getSupplierName(inv.customerId || inv.supplierId).toLowerCase();
-                    return (inv.id && inv.id.toLowerCase().includes(search)) || supName.includes(search);
+                    const supName = getSupplierName(inv.customer || inv.customerId || inv.supplierId).toLowerCase();
+                    return (invId && invId.toLowerCase().includes(search)) || supName.includes(search);
                 }
                 return true;
             });
@@ -331,10 +358,11 @@
                 validInvoices.sort((a,b) => new Date(b.date) - new Date(a.date));
                 
                 validInvoices.forEach(inv => {
-                    const supName = getSupplierName(inv.customerId || inv.supplierId);
+                    const supName = getSupplierName(inv.customer || inv.customerId || inv.supplierId);
+                    const invId = inv.invoiceNo || inv.id;
                     
                     // Calculate if it has returns
-                    const returnsForThis = allPurchases.filter(r => !r.deleted && r.isReturn && r.originalInvoiceId === inv.id);
+                    const returnsForThis = allPurchases.filter(r => !r.deleted && r.isReturn && r.originalInvoiceId === invId);
                     let returnStatus = '<span style="color:#94a3b8; font-size:0.8rem;">لا توجد مردودات</span>';
                     if (returnsForThis.length > 0) {
                         returnStatus = `<span style="color:var(--return-primary); font-size:0.8rem; font-weight:800; background:rgba(244,63,94,0.1); padding:4px 8px; border-radius:12px;">مسترد جزئياً (${returnsForThis.length})</span>`;
@@ -342,13 +370,13 @@
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td style="text-align:right; font-family:'Outfit'; color:#38bdf8; font-weight:700;">${inv.id}</td>
+                        <td style="text-align:right; font-family:'Outfit'; color:#38bdf8; font-weight:700;">${invId}</td>
                         <td style="text-align:right; font-family:'Outfit';">${new Date(inv.date).toLocaleDateString('en-GB')}</td>
                         <td style="text-align:right; font-weight:700;">${supName}</td>
                         <td style="text-align:center; font-family:'Outfit'; font-weight:800;">${fmtNum(inv.grandTotal)}</td>
                         <td style="text-align:center;">${returnStatus}</td>
                         <td style="text-align:center;">
-                            <button class="btn-action" style="padding:6px 15px; font-size:0.8rem;" onclick="openReturnEditor('${inv.id}')">إرجاع أصناف</button>
+                            <button class="btn-action" style="padding:6px 15px; font-size:0.8rem;" onclick="openReturnEditor('${invId}')">إرجاع أصناف</button>
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -375,16 +403,17 @@
         }
 
         function openReturnEditor(invId) {
-            currentInvoice = allPurchases.find(x => x.id === invId);
+            currentInvoice = allPurchases.find(x => (x.invoiceNo || x.id) === invId);
             if (!currentInvoice) return showToast('الفاتورة غير موجودة', 'error');
 
-            document.getElementById('lbl-inv-no').textContent = currentInvoice.id;
-            document.getElementById('lbl-supplier').textContent = getSupplierName(currentInvoice.customerId || currentInvoice.supplierId);
+            const currentInvId = currentInvoice.invoiceNo || currentInvoice.id;
+            document.getElementById('lbl-inv-no').textContent = currentInvId;
+            document.getElementById('lbl-supplier').textContent = getSupplierName(currentInvoice.customer || currentInvoice.customerId || currentInvoice.supplierId);
             document.getElementById('lbl-date').textContent = new Date(currentInvoice.date).toLocaleDateString('en-GB');
             document.getElementById('lbl-warehouse').textContent = getWarehouseName(currentInvoice.warehouse) || 'المستودع الرئيسي';
 
             // Find previous returns for this invoice to calculate Max Returnable Quantity
-            const previousReturns = allPurchases.filter(r => !r.deleted && r.isReturn && r.originalInvoiceId === currentInvoice.id);
+            const previousReturns = allPurchases.filter(r => !r.deleted && r.isReturn && r.originalInvoiceId === currentInvId);
             
             // Build returnLines
             const itemsList = currentInvoice.items || currentInvoice.lines || [];
@@ -544,12 +573,13 @@
             let discountTotal = subtotal * globalDiscRate;
             let grand = (subtotal - discountTotal) + taxTotal;
 
+            const currentInvId = currentInvoice.invoiceNo || currentInvoice.id;
             const retInv = {
                 id: 'RET-' + Date.now(),
                 isReturn: true,
-                originalInvoiceId: currentInvoice.id,
+                originalInvoiceId: currentInvId,
                 type: 'purchase',
-                customerId: currentInvoice.customerId || currentInvoice.supplierId,
+                customerId: currentInvoice.customer || currentInvoice.customerId || currentInvoice.supplierId,
                 date: new Date().toISOString(),
                 warehouse: currentInvoice.warehouse,
                 subtotal: -subtotal,
@@ -558,7 +588,7 @@
                 grandTotal: -grand,
                 items: newItems,
                 status: 'completed',
-                notes: `مردودات لفاتورة المشتريات رقم ${currentInvoice.id}`
+                notes: `مردودات لفاتورة المشتريات رقم ${currentInvId}`
             };
 
             allPurchases.push(retInv);

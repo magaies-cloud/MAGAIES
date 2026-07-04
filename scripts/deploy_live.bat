@@ -15,12 +15,12 @@ if not exist "ssh_key_nopass.pem" (
 )
 
 echo Step 1: Uploading files to server...
-scp -i "ssh_key_nopass.pem" -o StrictHostKeyChecking=no -r C:\xampp\htdocs\magaees\*.php root@147.182.214.194:/var/www/magaees/
-scp -i "ssh_key_nopass.pem" -o StrictHostKeyChecking=no C:\xampp\htdocs\magaees\sw.js root@147.182.214.194:/var/www/magaees/
-scp -i "ssh_key_nopass.pem" -o StrictHostKeyChecking=no -r C:\xampp\htdocs\magaees\includes root@147.182.214.194:/var/www/magaees/
-scp -i "ssh_key_nopass.pem" -o StrictHostKeyChecking=no -r C:\xampp\htdocs\magaees\css root@147.182.214.194:/var/www/magaees/
-scp -i "ssh_key_nopass.pem" -o StrictHostKeyChecking=no -r C:\xampp\htdocs\magaees\js root@147.182.214.194:/var/www/magaees/
-scp -i "ssh_key_nopass.pem" -o StrictHostKeyChecking=no -r C:\xampp\htdocs\magaees\api root@147.182.214.194:/var/www/magaees/
+scp -i "ssh_key_nopass.pem" -o StrictHostKeyChecking=no -r c:/xampp/htdocs/magaees/*.php root@147.182.214.194:/var/www/magaees/
+scp -i "ssh_key_nopass.pem" -o StrictHostKeyChecking=no c:/xampp/htdocs/magaees/sw.js root@147.182.214.194:/var/www/magaees/
+scp -i "ssh_key_nopass.pem" -o StrictHostKeyChecking=no -r c:/xampp/htdocs/magaees/includes root@147.182.214.194:/var/www/magaees/
+scp -i "ssh_key_nopass.pem" -o StrictHostKeyChecking=no -r c:/xampp/htdocs/magaees/css root@147.182.214.194:/var/www/magaees/
+scp -i "ssh_key_nopass.pem" -o StrictHostKeyChecking=no -r c:/xampp/htdocs/magaees/js root@147.182.214.194:/var/www/magaees/
+scp -i "ssh_key_nopass.pem" -o StrictHostKeyChecking=no -r c:/xampp/htdocs/magaees/api root@147.182.214.194:/var/www/magaees/
 
 echo.
 echo Step 2: Fixing permissions and restarting Nginx...
