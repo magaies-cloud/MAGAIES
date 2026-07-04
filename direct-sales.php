@@ -1492,7 +1492,7 @@
     <script src="js/print-engine.js"></script>
     
 
-    <script src="js/direct-sales-v2.js?v=<?php echo time(); ?>"></script>
+    <script src="js/direct-sales-v3.js?v=<?php echo time(); ?>"></script>
 
     <script>
         // Sales Hub Logic
