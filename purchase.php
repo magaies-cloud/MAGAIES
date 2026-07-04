@@ -1681,7 +1681,9 @@
             } catch(e) {}
 
             function getWarehouseName(id) {
-                if (id === 'PENDING_RECEIPT' || !id) return '⏳ بضاعة قيد الاستلام';
+                if (id === 'PENDING_RECEIPT' || !id) {
+                    return '<span style="color: #f97316; font-weight: 700;">قيد الاستلام</span>';
+                }
                 const w = warehouses.find(x => x.id === id);
                 return w ? w.name : id;
             }
