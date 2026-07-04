@@ -208,6 +208,7 @@ function resetVoucherSilent() {
     currentViewedIndex = -1;
     document.getElementById('hdr-date').valueAsDate = new Date();
     document.getElementById('from-account').value = '';
+    document.getElementById('from-account-search').value = '';
     document.getElementById('amount-local').value = '0';
     document.getElementById('currency').value = 'SDG';
     document.getElementById('exchange-rate').value = '1.0';
@@ -217,6 +218,8 @@ function resetVoucherSilent() {
     document.getElementById('collector-name').value = '';
     
     document.getElementById('to-account').value = 'safe-001';
+    const defToAcc = (window.ACCOUNTS || []).find(a => String(a.id) === 'safe-001');
+    document.getElementById('to-account-search').value = defToAcc ? defToAcc.name : 'safe-001';
     document.getElementById('to-statement').value = '';
 
     // Reset Radio to Cash
@@ -272,6 +275,9 @@ function renderVoucher(v) {
     document.getElementById('hdr-date').value = v.date;
     
     document.getElementById('from-account').value = v.fromAccount || '';
+    const fromAccObj = (window.ACCOUNTS || []).find(a => String(a.id) === String(v.fromAccount || ''));
+    document.getElementById('from-account-search').value = fromAccObj ? fromAccObj.name : (v.fromAccount || '');
+
     document.getElementById('amount-local').value = fmtNum(v.amountLocal);
     document.getElementById('currency').value = v.currency || 'SDG';
     document.getElementById('exchange-rate').value = v.rate || 1.0;
@@ -280,6 +286,8 @@ function renderVoucher(v) {
     document.getElementById('collector-name').value = v.collectorName || '';
     
     document.getElementById('to-account').value = v.toAccount || 'safe-001';
+    const toAccObj = (window.ACCOUNTS || []).find(a => String(a.id) === String(v.toAccount || 'safe-001'));
+    document.getElementById('to-account-search').value = toAccObj ? toAccObj.name : (v.toAccount || 'safe-001');
     document.getElementById('to-statement').value = v.toStatement || '';
 
     // Set Payment Method

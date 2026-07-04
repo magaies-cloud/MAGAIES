@@ -261,7 +261,7 @@ function resetVoucherSilent() {
     document.getElementById('hdr-date').valueAsDate = new Date();
     
     document.getElementById('to-account').value = '';
-    
+    document.getElementById('to-account-search').value = '';
     
     document.getElementById('amount-local').value = '';
     document.getElementById('currency').value = 'SDG';
@@ -272,6 +272,8 @@ function resetVoucherSilent() {
     document.getElementById('beneficiary-name').value = '';
     
     document.getElementById('from-account').value = '';
+    const defFromAcc = (window.ACCOUNTS || []).find(a => String(a.id) === 'safe-001');
+    document.getElementById('from-account-search').value = defFromAcc ? defFromAcc.name : '';
     if (window.fromAccChoice) {
         window.fromAccChoice.removeActiveItems();
         window.fromAccChoice.setChoiceByValue('');
@@ -341,7 +343,8 @@ function renderVoucher(v) {
     document.getElementById('hdr-date').value = v.date;
     
     document.getElementById('to-account').value = v.toAccount || '';
-    
+    const toAccObj = (window.ACCOUNTS || []).find(a => String(a.id) === String(v.toAccount || ''));
+    document.getElementById('to-account-search').value = toAccObj ? toAccObj.name : (v.toAccount || '');
 
     document.getElementById('amount-local').value = fmtNum(v.amountLocal);
     document.getElementById('currency').value = v.currency || 'SDG';
@@ -351,6 +354,8 @@ function renderVoucher(v) {
     document.getElementById('beneficiary-name').value = v.beneficiaryName || '';
     
     document.getElementById('from-account').value = v.fromAccount || 'safe-001';
+    const fromAccObj = (window.ACCOUNTS || []).find(a => String(a.id) === String(v.fromAccount || 'safe-001'));
+    document.getElementById('from-account-search').value = fromAccObj ? fromAccObj.name : (v.fromAccount || 'safe-001');
     if (window.fromAccChoice) window.fromAccChoice.setChoiceByValue(v.fromAccount || 'safe-001');
 
     const costCenterEl = document.getElementById('cost-center');
