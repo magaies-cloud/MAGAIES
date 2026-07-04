@@ -47,21 +47,21 @@
         .filter-group-inline.col-span-2 { grid-column: span 2; }
         @media (max-width: 768px) { .filter-group-inline.col-span-2 { grid-column: span 1; } }
         .filter-group-inline label { 
-            color: #a855f7; 
-            font-size: 0.75rem; 
-            font-weight: 700; 
-            margin-bottom: 2px; 
-            text-transform: uppercase;
+            color: #38bdf8; 
+            font-size: 0.85rem; 
+            font-weight: 900; 
+            margin-bottom: 4px; 
             letter-spacing: 0.5px;
             pointer-events: none;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
         }
         /* Old duplicate filter-input CSS removed */
-        .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .summary-card { background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position: relative; overflow: hidden; }
+        .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .summary-card { padding: 10px 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position: relative; overflow: hidden; display: flex; justify-content: space-between; align-items: center; }
         .summary-card::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, transparent, rgba(255,255,255,0.02), transparent); transform: translateX(-100%); transition: transform 0.5s; }
         .summary-card:hover::after { transform: translateX(100%); }
-        .s-label { color: #64748b; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; }
-        .s-val { font-size: 1.5rem; font-weight: 900; letter-spacing: 0.5px; }
+        .s-label { font-size: 0.9rem; font-weight: 700; margin-bottom: 0; }
+        .s-val { font-size: 1.2rem; font-weight: 900; letter-spacing: 0.5px; }
 
         .ledger-table-wrap { overflow-x: auto; background: rgba(15,23,42,0.5); border-radius: 12px; }
         .ledger-table { width: 100%; border-collapse: collapse; min-width: 800px; }
@@ -131,13 +131,47 @@
 
         @media print {
             .no-print { display: none !important; }
+            .hide-on-screen { display: flex !important; }
             body { background: white !important; color: black !important; }
             .ledger-table thead th { background: #eee !important; color: #333 !important; }
             .ledger-table tbody td { color: #000 !important; border-color: #ddd !important; }
             .audit-stamp { border-color: #333; color: #333; }
         }
+        @media screen {
+            .hide-on-screen { display: none !important; }
+        }
 
         /* Global Glow & Smoothness */
+        header.premium-header {
+            background-image: linear-gradient(135deg, rgba(26,15,10,0.95), rgba(62,39,35,0.95), rgba(111,78,55,0.95), rgba(31,17,8,0.95)) !important;
+            background-size: 300% 300% !important;
+            animation: animateGradient 12s ease infinite !important;
+            border: 1px solid rgba(212, 175, 55, 0.3) !important;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5), inset 0 1px 1px rgba(212,175,55,0.2) !important;
+            position: relative;
+            overflow: hidden;
+        }
+        header.premium-header::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 40%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
+            pointer-events: none;
+        }
+        @keyframes animateGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes shimmer {
+            0% { left: -100%; }
+            25% { left: 200%; }
+            100% { left: 200%; }
+        }
+
         body {
             background: radial-gradient(circle at top right, #1e1b4b, #0f172a 40%, #020617 100%) !important;
             color: #e2e8f0;
@@ -149,21 +183,19 @@
             border: 1px solid rgba(168, 85, 247, 0.3) !important;
             box-shadow: 0 10px 40px rgba(168, 85, 247, 0.1) !important;
             position: relative;
-            overflow: hidden;
+            overflow: visible; /* Changed from hidden so dropdown can overflow */
             border-radius: 20px !important;
+            z-index: 10; /* Make sure it stays above other things if needed */
         }
-        .premium-header::before {
-            content: '';
+        .premium-header-bg {
             position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(168,85,247,0.1) 0%, transparent 60%);
-            animation: rotateGlow 15s linear infinite;
+            inset: 0;
+            border-radius: 20px;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: -1; /* Place behind header content */
         }
-        @keyframes rotateGlow {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+
 
         /* Glassmorphism Summary Cards */
         .summary-card {
@@ -367,13 +399,14 @@
 
     <!-- FILTER SECTION -->
     <div class="ledger-header no-print premium-header">
-        <!-- الصف الأول -->
+        <div class="premium-header-bg"></div>
+        <!-- الصف الأول: الحساب والتواريخ (الأولوية القصوى) -->
         <div class="filter-row-single">
             <div class="filter-group-inline col-span-2">
                 <label>الحساب الرئيسي</label>
                 <div class="search-wrap" style="display:flex; gap:5px; align-items: center; position: relative; width: 100%;">
                     <div style="position:relative; flex:1;">
-                        <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث..." autocomplete="off" oninput="onAccountSearch()" onkeyup="onAccountSearchKey(event)" style="width:100%;">
+                        <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث باسم أو رقم الحساب..." autocomplete="off" oninput="onAccountSearch()" onkeyup="onAccountSearchKey(event)" style="width:100%;">
                         <button class="search-clear-btn" id="search-clear-btn">✕</button>
                         <ul class="autocomplete-list" id="autocomplete-list"></ul>
                     </div>
@@ -388,14 +421,6 @@
             </div>
 
             <div class="filter-group-inline">
-                <label>العملة</label>
-                <select class="filter-input" id="filter-currency">
-                    <option value="ALL">جميع العملات</option>
-                    <!-- Will be populated dynamically -->
-                </select>
-            </div>
-
-            <div class="filter-group-inline">
                 <label>من تاريخ</label>
                 <input type="date" class="filter-input" id="filter-from">
             </div>
@@ -406,8 +431,16 @@
             </div>
         </div>
 
-        <!-- الصف الثاني -->
+        <!-- الصف الثاني: الفلاتر الإضافية والبحث النصي -->
         <div class="filter-row-single" style="margin-bottom: 5px;">
+            <div class="filter-group-inline">
+                <label>العملة</label>
+                <select class="filter-input" id="filter-currency">
+                    <option value="ALL">جميع العملات</option>
+                    <!-- Will be populated dynamically -->
+                </select>
+            </div>
+
             <div class="filter-group-inline">
                 <label>نوع الحركة</label>
                 <select class="filter-input" id="filter-type">
@@ -428,7 +461,7 @@
                 </select>
             </div>
 
-            <div class="filter-group-inline" style="grid-column: span 3;">
+            <div class="filter-group-inline">
                 <label title="بحث سريع برقم المرجع أو كلمة في البيان">بحث نصي (مرجع/بيان)</label>
                 <input type="text" class="filter-input" id="filter-search" placeholder="اكتب للبحث..." autocomplete="off" onkeyup="if(event.key === 'Enter') runReport()">
             </div>
@@ -446,7 +479,7 @@
         <div id="secondary-actions" style="display:none; gap:12px; align-items:center; flex-wrap:wrap; opacity:0; transition: opacity 0.5s ease, transform 0.5s ease; transform: translateY(10px);">
             <button class="btn-action" onclick="previewGL()">معاينة</button>
             <button class="btn-action" onclick="printDirectly()">طباعة مباشرة</button>
-            <button class="btn-action" onclick="window.openExportModal(exportCSV, {element: document.getElementById('gl-table-wrap'), filename: 'General_Ledger.pdf', orientation: 'landscape'})">تصدير PDF/Excel</button>
+            <button class="btn-action" onclick="window.openExportModal(exportCSV, exportGLPDF)">تصدير PDF/Excel</button>
             <button class="btn-action" style="background:rgba(37, 211, 102, 0.15); color:#25D366; border-color:rgba(37, 211, 102, 0.5);" onclick="shareViaWhatsApp()" title="مشاركة كشف الحساب عبر الواتساب">
                 <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.487-1.761-1.66-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
                 مشاركة واتساب
@@ -465,17 +498,17 @@
 
     <!-- SUMMARY CARDS -->
     <div class="summary-cards" id="summary-cards" style="display:none;">
-        <div class="summary-card" style="border-top:3px solid #34d399;">
-            <div class="s-label">إجمالي المدين (Debit)</div>
-            <div class="s-val td-debit" id="sum-debit">0.00</div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #064e3b, #047857); border: 1px solid #10b981;">
+            <div class="s-label" style="color:#a7f3d0;">إجمالي المدين</div>
+            <div class="s-val td-debit" id="sum-debit" style="color:#ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">0.00</div>
         </div>
-        <div class="summary-card" style="border-top:3px solid #f87171;">
-            <div class="s-label">إجمالي الدائن (Credit)</div>
-            <div class="s-val td-credit" id="sum-credit">0.00</div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #7f1d1d, #b91c1c); border: 1px solid #ef4444;">
+            <div class="s-label" style="color:#fecaca;">إجمالي الدائن</div>
+            <div class="s-val td-credit" id="sum-credit" style="color:#ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">0.00</div>
         </div>
-        <div class="summary-card" style="border-top:3px solid #c084fc;">
-            <div class="s-label">الرصيد النهائي (Balance)</div>
-            <div class="s-val" id="sum-balance" style="color:#c084fc;">0.00</div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #312e81, #4f46e5); border: 1px solid #6366f1;">
+            <div class="s-label" style="color:#c7d2fe;">الرصيد النهائي</div>
+            <div class="s-val" id="sum-balance" style="color:#ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">0.00</div>
         </div>
     </div>
 
@@ -483,9 +516,7 @@
     <div class="glass-panel" id="ledger-panel" style="padding:0; overflow:hidden;">
         <!-- Print Header -->
         <div style="padding:20px 20px 0 20px; display:none;" id="print-header">
-            <h2 style="text-align:center; margin:0 0 5px 0;">التقرير العام للحسابات</h2>
-            <h3 style="text-align:center; color:#555; margin:0 0 20px 0;">دفتر الأستاذ العام الذكي (SGL)</h3>
-            <div id="print-meta" style="display:flex; justify-content:space-between; border-bottom:2px solid #333; padding-bottom:10px; margin-bottom:15px; font-size:0.9rem;"></div>
+            <div id="print-meta"></div>
         </div>
 
         <div class="ledger-table-wrap">

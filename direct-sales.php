@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'المبيعات المباشرة'; ?>
+<?php $page_title = 'المبيعات المباشرة'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -943,7 +943,8 @@
             localStorage.setItem('erp_theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
         }
     </script>
-<link rel=" stylesheet\ href=\https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css\ />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
  <style>
  /* Choices custom overrides */
  .choices__inner { background-color: rgba(30,41,59,0.8) !important; border: 1px solid rgba(255,255,255,0.15) !important; color: #fff !important; border-radius: 8px !important; min-height: 42px !important; }
@@ -1413,19 +1414,19 @@
                 <div class="grid-scroll-wrap">
                     <table class="pos-grid" id="pos-grid">
                         <thead>
-                            <tr>
-                                <th class="th-num">#</th>
-                                <th class="th-item">الصنف</th>
-                                <th class="th-unit">الوحدة</th>
-                                <th class="th-factor">التعادل</th>
-                                <th class="th-qty">الكمية</th>
-                                <th class="th-baseqty">بالعدد</th>
-                                <th class="th-avail" style="color:#10b981;">المتاح</th>
-                                <th class="th-wh">المخزن</th>
-                            <th class="th-shila" style="width:7%; min-width:70px; text-align:center;">الشيلة X</th>
-                            
-                                <th class="th-total">الإجمالي</th>
-                                <th class="th-del"></th>
+                            <tr style="background: rgba(15, 23, 42, 0.8); border-bottom: 2px solid rgba(56, 189, 248, 0.3);">
+                                <th class="th-num" style="width: 3%;">#</th>
+                                <th class="th-item" style="width: 25%;">الصنف</th>
+                                <th class="th-unit" style="width: 8%;">الوحدة</th>
+                                <th class="th-factor" style="width: 7%;">التعادل</th>
+                                <th class="th-qty" style="width: 8%;">الكمية</th>
+                                <th class="th-price" style="width: 10%;">السعر</th>
+                                <th class="th-total" style="width: 10%;">الإجمالي</th>
+                                <th class="th-baseqty" style="width: 8%;">بالعدد</th>
+                                <th class="th-avail" style="width: 7%; color:#10b981;">المتاح</th>
+                                <th class="th-wh" style="width: 7%;">المخزن</th>
+                                <th class="th-shila" style="width: 5%; text-align:center;">الشيلة</th>
+                                <th class="th-del" style="width: 5%;"></th>
                             </tr>
                         </thead>
                         <tbody id="grid-body"></tbody>
@@ -1436,8 +1437,7 @@
                 <div class="mobile-cards" id="mobile-cards"></div>
 
                 <!-- Empty State -->
-                <div class="empty-state" id="empty-state">
-                    <div class="empty-icon">📭</div>
+                
                     <p>لم يتم إضافة أصناف بعد</p>
                     <span class="empty-hint">اضغط <strong>"+ صنف"</strong> أو <kbd>Ctrl+N</kbd></span>
                 </div>
@@ -1490,12 +1490,7 @@
     <script src="js/app.js?v=1783054967.56221"></script>
     <script src="js/print-engine.js"></script>
     
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-           }
-          });
-      });
-    </script>
+
     <script src="js/direct-sales.js?v=1782530467440"></script>
 
     <script>

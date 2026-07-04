@@ -567,7 +567,7 @@ function renderCustomerDropdown(filter = '') {
         const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values()).slice(0, 50);
 
         if (finalMatches.length === 0) {
-            listEl.innerHTML = '<div class="custom-dropdown-empty">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù†ØªØ§Ø¦Ø¬ Ù…Ø·Ø§Ø¨Ù‚Ø© Ù„Ù„Ø¨Ø­Ø«.<br><small style="color:#888;">(Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡: ' + CUSTOMERS.length + ')</small></div>';
+            listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة Ù„Ù„Ø¨Ø­Ø«.<br><small style="color:#888;">(Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡: ' + CUSTOMERS.length + ')</small></div>';
             return;
         }
 
@@ -965,7 +965,7 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
     const listEl = document.getElementById(`${prefix}item-dropdown-list-${rowId}`);
     if (!listEl) return;
     
-    listEl.innerHTML = '<div class="custom-dropdown-empty">Ø¬Ø§Ø±ÙŠ Ø§Ù„Ø¨Ø­Ø«...</div>';
+    listEl.innerHTML = '<div class="custom-dropdown-empty">جاري البحث...</div>';
     const term = filter.toLowerCase().trim();
     
     try {
@@ -1040,7 +1040,7 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
         const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
 
         if (finalMatches.length === 0) {
-            listEl.innerHTML = '<div class="custom-dropdown-empty">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù†ØªØ§Ø¦Ø¬ Ù…Ø·Ø§Ø¨Ù‚Ø©.<br><small style="color:#888;">(Ø­Ø§ÙˆÙ„ Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ø³Ù… Ø¢Ø®Ø±)</small></div>';
+            listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة.<br><small style="color:#888;">(حاول استخدام اسم آخر)</small></div>';
             return;
         }
 
@@ -1098,7 +1098,7 @@ function hideItemDropdownDelayed(rowId, isMobile = false) {
             }
 
             if (row && row.itemId) {
-                const item = ITEMS.find(i => i.id === row.itemId);
+                const item = ITEMS.find(i => String(i.id) === String(row.itemId));
                 if (item) {
                     searchEl.value = isMobile ? `${item.name} â€” ${item.unit}` : item.name;
                 }
@@ -1124,7 +1124,7 @@ async function renderQuickItemDropdown(filter = '') {
     const listEl = document.getElementById('quick-item-dropdown-list');
     if (!listEl) return;
     
-    listEl.innerHTML = '<div class="custom-dropdown-empty">Ø¬Ø§Ø±ÙŠ Ø§Ù„Ø¨Ø­Ø«...</div>';
+    listEl.innerHTML = '<div class="custom-dropdown-empty">جاري البحث...</div>';
     const term = filter.toLowerCase().trim();
     
     try {
@@ -1197,7 +1197,7 @@ async function renderQuickItemDropdown(filter = '') {
         const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
 
         if (finalMatches.length === 0) {
-            listEl.innerHTML = '<div class="custom-dropdown-empty">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù†ØªØ§Ø¦Ø¬ Ù…Ø·Ø§Ø¨Ù‚Ø©.<br><small style="color:#888;">(Ø­Ø§ÙˆÙ„ Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ø³Ù… Ø¢Ø®Ø±)</small></div>';
+            listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة.<br><small style="color:#888;">(حاول استخدام اسم آخر)</small></div>';
             return;
         }
 
@@ -1273,7 +1273,7 @@ function addRow(silent = false) {
         selectedUnit: ''
     });
     renderGrid();
-    if (!quiet) showToast('ðŸ“¦ ØªÙ… Ø¥Ø¶Ø§ÙØ© ØµÙ†Ù Ø¬Ø¯ÙŠØ¯', 'success', 1500);
+    if (!quiet) showToast('📦 تم إضافة صنف جديد', 'success', 1500);
 }
 
 function removeRow(id) {
@@ -1311,7 +1311,7 @@ function updateRow(id, field, value) {
             }
         }
         if (field === 'customBaseQty') {
-            const item = ITEMS.find(i => i.id === row.itemId);
+            const item = ITEMS.find(i => String(i.id) === String(row.itemId));
             let factor = row.customFactor !== undefined ? row.customFactor : 1;
             if (row.customFactor === undefined && item && row.selectedUnit && item.unitsArray && item.unitsArray.length > 0) {
                 const su = item.unitsArray.find(u => u.name === row.selectedUnit);
@@ -1327,7 +1327,7 @@ function updateRow(id, field, value) {
         if (field === 'itemId') {
             row.customBaseQty = undefined;
             // Use already-mapped ITEMS (which has proper unitsArray), do NOT reload raw localStorage
-            const item = ITEMS.find(i => i.id === value);
+            const item = ITEMS.find(i => String(i.id) === String(value));
             if (item) {
                 row.price = item.price;
                 // Default to first unit in unitsArray (the base unit)
@@ -1658,7 +1658,7 @@ function renderGrid() {
             </div>
             <div class="m-card-total" data-m-total="${row.id}">${fmtNum(calcs.total)} ${getCurrency()}</div>
         `;
-        mCards.appendChild(card);
+
     });
 }
 

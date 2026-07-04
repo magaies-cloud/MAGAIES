@@ -18,6 +18,9 @@ let filteredData = [];
 let currentStatus = 'unposted';
 let currentType = 'all';
 let selectedRowIndex = -1;
+let searchQuery = '';
+let dateFrom = '';
+let dateTo = '';
 
 const fmtCurrency = (num) => Number(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -27,6 +30,14 @@ const paymentMethodMap = {
     'cheque': 'شيك',
     'bank': 'تحويل بنكي'
 };
+
+function handleFilterChange() {
+    searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
+    dateFrom = document.getElementById('date-from').value;
+    dateTo = document.getElementById('date-to').value;
+    resetSelection();
+    applyFiltersAndRender();
+}
 
 function setStatus(status) {
     currentStatus = status;
@@ -54,12 +65,30 @@ function resetSelection() {
 }
 
 function applyFiltersAndRender() {
+    let fromTime = dateFrom ? new Date(dateFrom).getTime() : 0;
+    let toTime = dateTo ? new Date(dateTo).getTime() : Infinity;
+
     filteredData = allTransactionsData.filter(item => {
+        // Status Filter
         const statusMatch = currentStatus === 'unposted' ? !item.isPosted : item.isPosted;
         if (!statusMatch) return false;
         
-        if (currentType !== 'all' && item._typeEn !== currentType) {
-            return false;
+        // Type Filter
+        if (currentType !== 'all' && item._typeEn !== currentType) return false;
+        
+        // Date Filter
+        const itemTime = item._date.getTime();
+        if (itemTime < fromTime || itemTime > toTime) return false;
+
+        // Search Query Filter
+        if (searchQuery) {
+            const amt = item.totalAmount || item.amountLocal || item.amount || item.netTotal || item.total || item.grandTotal || 0;
+            const ref = (item.id || item.invoiceNo || item.voucherNo || '').toLowerCase();
+            const customer = (item.customerName || item.supplierName || item.customer || item.supplier || item.description || '').toLowerCase();
+            
+            if (!ref.includes(searchQuery) && !customer.includes(searchQuery) && !String(amt).includes(searchQuery)) {
+                return false;
+            }
         }
         
         return true;
@@ -129,7 +158,7 @@ function renderMasterTable() {
 
     if (filteredData.length === 0) {
         table.style.display = 'none';
-        noDataMsg.style.display = 'block';
+        noDataMsg.style.display = 'flex';
         return;
     }
 
@@ -150,7 +179,7 @@ function renderMasterTable() {
 
         const checkHtml = currentStatus === 'unposted' 
             ? `<input type="checkbox" class="row-checkbox" value="${index}" onchange="onRowCheck(event)" onclick="event.stopPropagation()">` 
-            : `<span style="color:#10b981;">✔️</span>`;
+            : `<span style="color:var(--success); font-size:1.2rem;">✔️</span>`;
 
         html += `
             <tr class="main-row" id="row-${index}" onclick="selectRow(${index})">
@@ -160,7 +189,7 @@ function renderMasterTable() {
                 <td class="ref-col">${ref}</td>
                 <td class="customer-col">${customer}</td>
                 <td class="date-col">${dueDate}</td>
-                <td style="font-size: 0.8rem; color:#cbd5e1;">${pMethod}</td>
+                <td style="font-size: 0.85rem; color:#cbd5e1;">${pMethod}</td>
                 <td class="amount-col" style="text-align:left;">${fmtCurrency(amt)}</td>
             </tr>
         `;
@@ -170,7 +199,6 @@ function renderMasterTable() {
 }
 
 function selectRow(index) {
-    // Highlight Row
     document.querySelectorAll('.main-row').forEach(r => r.classList.remove('selected'));
     const row = document.getElementById('row-' + index);
     if(row) row.classList.add('selected');
@@ -190,7 +218,10 @@ function renderDetailPane(index) {
 
     document.getElementById('empty-detail').style.display = 'none';
     const detailContent = document.getElementById('detail-content');
-    detailContent.style.display = 'flex';
+    
+    // Quick re-trigger of animation
+    detailContent.style.display = 'none';
+    setTimeout(() => { detailContent.style.display = 'flex'; }, 10);
 
     const amt = item.totalAmount || item.amountLocal || item.amount || item.netTotal || item.total || item.grandTotal || 0;
     const ref = item.id || item.invoiceNo || item.voucherNo || '-';
@@ -203,8 +234,11 @@ function renderDetailPane(index) {
     let html = `
         <div class="detail-header">
             <div class="detail-title">
-                <span><span class="type-badge ${item._typeClass}">${item._typeLabel}</span> #${ref}</span>
-                <span class="amount-col">${fmtCurrency(amt)}</span>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span class="type-badge ${item._typeClass}" style="font-size:1rem; padding:6px 12px;">${item._typeLabel}</span> 
+                    <span style="font-family:'Inter', monospace; color:#38bdf8;">#${ref}</span>
+                </div>
+                <span class="amount-col" style="font-size:1.4rem;">${fmtCurrency(amt)}</span>
             </div>
             <div class="detail-meta-grid">
                 <div class="meta-item"><span class="meta-label">التاريخ</span><span class="meta-val">${dateStr}</span></div>
@@ -212,7 +246,7 @@ function renderDetailPane(index) {
                 <div class="meta-item"><span class="meta-label">طريقة الدفع</span><span class="meta-val">${pMethod}</span></div>
                 <div class="meta-item"><span class="meta-label">الاستحقاق</span><span class="meta-val">${dueDate}</span></div>
             </div>
-            ${item.description || item.notes || item.statement ? `<div style="margin-top:10px; font-size:0.85rem; color:#cbd5e1;"><span style="color:#94a3b8;">البيان:</span> ${item.description || item.notes || item.statement}</div>` : ''}
+            ${item.description || item.notes || item.statement ? `<div style="margin-top:15px; font-size:0.95rem; color:#e2e8f0; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; border-right:3px solid #38bdf8;"><span style="color:#94a3b8; font-weight:bold; margin-left:5px;">البيان:</span> ${item.description || item.notes || item.statement}</div>` : ''}
         </div>
     `;
 
@@ -220,23 +254,23 @@ function renderDetailPane(index) {
     if (item.items && item.items.length > 0) {
         html += `
             <div class="detail-section">
-                <div class="section-title">📦 تفاصيل الأصناف والفاتورة</div>
+                <div class="section-title"><span>📦</span> تفاصيل الأصناف والفاتورة</div>
                 <table class="detail-table">
                     <thead>
                         <tr>
                             <th style="text-align:right;">الصنف</th>
-                            <th style="width:50px;">الكمية</th>
-                            <th style="width:80px;">السعر</th>
-                            <th style="width:90px;">الإجمالي</th>
+                            <th style="width:60px;">الكمية</th>
+                            <th style="width:100px;">السعر</th>
+                            <th style="width:110px;">الإجمالي</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${item.items.map(i => `
                             <tr>
-                                <td>${i.itemName || i.item || i.account || '-'}</td>
+                                <td style="font-weight:bold;">${i.itemName || i.item || i.account || '-'}</td>
                                 <td>${i.qty || i.quantity || '-'}</td>
                                 <td>${i.price ? fmtCurrency(i.price) : '-'}</td>
-                                <td><span class="dr-text">${fmtCurrency(i.total || i.amount || 0)}</span></td>
+                                <td><span style="color:#fff; font-weight:bold; font-family:'Inter', monospace;">${fmtCurrency(i.total || i.amount || 0)}</span></td>
                             </tr>
                         `).join('')}
                     </tbody>
@@ -255,14 +289,20 @@ function renderDetailPane(index) {
         if (dr && cr) {
             html += `
                 <div class="detail-section">
-                    <div class="section-title">💸 التدفق المالي للعملية</div>
+                    <div class="section-title"><span>💸</span> التدفق المالي للعملية</div>
                     <div class="flow-diagram">
-                        <div class="flow-box" style="border-bottom: 2px solid #f87171;">من حـ/ ${cr.acc}</div>
-                        <div class="flow-arrow">
-                            <span style="font-size:1.1rem;">⬅️</span>
-                            <span style="font-family:'Inter', monospace; color:#10b981;">${fmtCurrency(dr.debit)}</span>
+                        <div class="flow-box cr">
+                            <div style="font-size:0.8rem; color:#f87171; margin-bottom:5px;">دائن (-)</div>
+                            حـ/ ${cr.acc}
                         </div>
-                        <div class="flow-box" style="border-bottom: 2px solid #34d399;">إلى حـ/ ${dr.acc}</div>
+                        <div class="flow-arrow">
+                            <span style="font-size:1.5rem;">⬅️</span>
+                            <span style="font-family:'Inter', monospace; color:var(--primary-accent); font-size:1.1rem;">${fmtCurrency(dr.debit)}</span>
+                        </div>
+                        <div class="flow-box dr">
+                            <div style="font-size:0.8rem; color:#34d399; margin-bottom:5px;">مدين (+)</div>
+                            حـ/ ${dr.acc}
+                        </div>
                     </div>
                 </div>
             `;
@@ -271,21 +311,21 @@ function renderDetailPane(index) {
         // Complex Journal Entry Table
         html += `
             <div class="detail-section">
-                <div class="section-title">📊 التوجيه المحاسبي والتأثير المالي</div>
+                <div class="section-title"><span>📊</span> التوجيه المحاسبي التلقائي</div>
                 <table class="detail-table">
                     <thead>
                         <tr>
-                            <th style="width:80px;">مدين</th>
-                            <th style="width:80px;">دائن</th>
+                            <th style="width:110px;">مدين (+)</th>
+                            <th style="width:110px;">دائن (-)</th>
                             <th>اسم الحساب</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${entries.map(e => `
                             <tr>
-                                <td><span class="dr-text">${e.debit > 0 ? fmtCurrency(e.debit) : '-'}</span></td>
-                                <td><span class="cr-text">${e.credit > 0 ? fmtCurrency(e.credit) : '-'}</span></td>
-                                <td>${e.acc || '-'}</td>
+                                <td><span class="${e.debit > 0 ? 'dr-text' : ''}" style="${e.debit > 0 ? '' : 'color:#64748b;'}">${e.debit > 0 ? fmtCurrency(e.debit) : '-'}</span></td>
+                                <td><span class="${e.credit > 0 ? 'cr-text' : ''}" style="${e.credit > 0 ? '' : 'color:#64748b;'}">${e.credit > 0 ? fmtCurrency(e.credit) : '-'}</span></td>
+                                <td style="font-weight:bold;">${e.acc || '-'}</td>
                             </tr>
                         `).join('')}
                     </tbody>
@@ -297,14 +337,18 @@ function renderDetailPane(index) {
     // Bottom Action Button
     if (currentStatus === 'unposted') {
         html += `
-            <div style="margin-top: auto; padding-top: 15px;">
-                <button class="btn-post-single" onclick="postSingleRow(${index})">اعتماد وترحيل هذه العملية ✔️</button>
+            <div style="margin-top: auto; padding-top: 20px;">
+                <button class="btn-post-single" onclick="postSingleRow(${index})">
+                    <span>✔️</span> اعتماد وترحيل هذه العملية بالكامل
+                </button>
             </div>
         `;
     } else {
         html += `
-            <div style="margin-top: auto; padding-top: 15px; text-align: center; color: #10b981; font-weight: bold; font-size: 1.1rem; background: rgba(16,185,129,0.1); padding: 12px; border-radius: 8px;">
-                ✅ هذه العملية معتمدة ومرحلة مسبقاً
+            <div style="margin-top: auto; padding-top: 20px;">
+                <div style="text-align: center; color: var(--success); font-weight: 900; font-size: 1.2rem; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(16,185,129,0.1);">
+                    <span>✅</span> هذه العملية معتمدة ومرحلة مسبقاً
+                </div>
             </div>
         `;
     }
@@ -430,7 +474,7 @@ async function postAllChecked() {
     const checkboxes = document.querySelectorAll('.row-checkbox:checked');
     if (checkboxes.length === 0) return;
 
-    if (!confirm(`هل أنت متأكد من ترحيل واعتماد ${checkboxes.length} عملية؟`)) return;
+    if (!confirm(`هل أنت متأكد من ترحيل واعتماد ${checkboxes.length} عملية بالكامل؟`)) return;
 
     const indices = Array.from(checkboxes).map(cb => parseInt(cb.value)).sort((a,b) => b - a);
     let successCount = 0;
@@ -450,7 +494,7 @@ async function postAllChecked() {
     applyFiltersAndRender();
     
     if (successCount > 0) {
-        showToast(`تم ترحيل ${successCount} عملية بنجاح!`, 'success');
+        showToast(`تم ترحيل ${successCount} عمليات بنجاح!`, 'success');
     }
 }
 
@@ -462,7 +506,7 @@ function showToast(msg, type='success') {
     toast.innerHTML = `<span>${icons[type] || '🔔'}</span> <span>${msg}</span>`;
     container.appendChild(toast);
     setTimeout(() => {
-        toast.classList.add('hide');
-        setTimeout(() => toast.remove(), 400);
+        toast.style.animation = 'toastIn 0.3s cubic-bezier(0.16,1,0.3,1) reverse both';
+        setTimeout(() => toast.remove(), 300);
     }, 4000);
 }

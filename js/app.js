@@ -1,4 +1,4 @@
-﻿// --- CLOUD SYNC ENGINE (Offline-First to SaaS Bridge) ---
+// --- CLOUD SYNC ENGINE (Offline-First to SaaS Bridge) ---
 (function() {
     const SYNC_PULL_URL = "api_index.php/sync/pull";
     const SYNC_PUSH_URL = "api_index.php/sync/push";
@@ -1718,6 +1718,11 @@ window.openExportModal = function(csvExportCallback, pdfExportConfig) {
         modal.style.display = 'none';
         if (typeof html2pdf === 'undefined') {
             alert('جاري تحميل مكتبة PDF، يرجى المحاولة بعد ثوانٍ قليلة...');
+            return;
+        }
+        
+        if (typeof pdfExportConfig === 'function') {
+            pdfExportConfig();
             return;
         }
         

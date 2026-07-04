@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'السجانة ERP - البيانات الأساسية'; ?>
+<?php $page_title = 'السجانة ERP - البيانات الأساسية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1163,9 +1163,6 @@
                 }
                 
                 localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
-                renderCustomers();
-            }
-        }
                 renderCustomers();
             }
         }

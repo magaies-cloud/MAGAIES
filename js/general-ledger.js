@@ -78,7 +78,7 @@ function onAccountSearch() {
         
         li.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-                <span style="font-weight: 600;">${a.icon} ${a.name} <small style="color:#94a3b8; font-size:0.8rem; margin-right:5px; font-family: monospace;">(${a.id})</small></span>
+                <span style="font-weight: 600;">${a.icon} ${a.name}</span>
                 <span style="background:${badgeColor}; color:white; padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight: bold; min-width: 50px; text-align: center;">${a.type}</span>
             </div>
         `;
@@ -133,6 +133,38 @@ function clearAccountSearch() {
     }
     if (btnSmart) btnSmart.style.display = 'inline-block';
     
+    // Reset Report View
+    const tbody = document.getElementById('ledger-tbody');
+    if (tbody) {
+        tbody.innerHTML = `
+            <tr class="empty-state">
+                <td colspan="14">
+                    <div style="text-align: center; padding: 40px; color: #64748b;">
+                        <div style="font-size: 3rem; margin-bottom: 10px; opacity: 0.5;">📊</div>
+                        <h3>لا توجد بيانات للعرض</h3>
+                        <p style="font-size: 0.9rem; margin-top: 5px;">الرجاء تحديد الحساب وتحديد الفترة ثم الضغط على "تشغيل التقرير"</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+    
+    const summaryCards = document.getElementById('summary-cards');
+    if (summaryCards) summaryCards.style.display = 'none';
+    
+    const printHeader = document.getElementById('print-header');
+    if (printHeader) printHeader.style.display = 'none';
+    
+    const auditStamp = document.getElementById('audit-stamp');
+    if (auditStamp) auditStamp.style.display = 'none';
+    
+    const secActions = document.getElementById('secondary-actions');
+    if (secActions) {
+        secActions.style.display = 'none';
+        secActions.style.opacity = '0';
+        secActions.style.transform = 'translateY(10px)';
+    }
+
     onAccountSearch(); // show list again
 }
 
@@ -784,10 +816,17 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
 
     document.getElementById('print-header').style.display = 'block';
     const accName = acctFilter === 'ALL' ? 'جميع الحسابات المتأثرة' : getAccountName(acctFilter);
+    const printedBy = document.getElementById('header-user-name') ? document.getElementById('header-user-name').innerText : 'مدير النظام';
     document.getElementById('print-meta').innerHTML = `
-        <span>الحساب: <strong>${accName}</strong></span>
-        <span>الفترة: من <strong>${fromDate}</strong> إلى <strong>${toDate}</strong></span>
-        <span>تاريخ الطباعة: <strong>${new Date().toLocaleDateString('ar-SD')}</strong></span>
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #333; padding-bottom:10px; margin-bottom:5px; font-weight:bold; font-size:1.1rem; width:100%;">
+            <div style="flex:1; text-align:right;">الحساب: <strong style="color:var(--text-primary, #000);">${accName}</strong></div>
+            <div style="flex:1; text-align:center; font-size:1.4rem;">التقرير العام للحسابات</div>
+            <div style="flex:1; text-align:left;">الفترة: من <strong>${fromDate}</strong> إلى <strong>${toDate}</strong></div>
+        </div>
+        <div class="hide-on-screen" style="justify-content:space-between; font-size:0.85rem; color:var(--text-secondary, #555); margin-bottom:15px; width:100%;">
+            <span>طبعت بواسطة: <strong>${printedBy}</strong></span>
+            <span>تاريخ الطباعة: <strong>${new Date().toLocaleDateString('ar-SD')}</strong></span>
+        </div>
     `;
 
     showToast(`✅ اكتمل التحليل: ${txns.length} حركة مسجلة`, 'success');
@@ -804,7 +843,7 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
 
 /* ─── Export to CSV ─── */
 
-function previewGL() {
+function previewGL(autoPrint = false) {
     const tableWrap = document.querySelector('.ledger-table-wrap');
     if (!tableWrap) {
         return showToast('الرجاء تشغيل التقرير أولاً للمعاينة', 'warning');
@@ -882,16 +921,25 @@ function previewGL() {
                 .td-balance-cr { color: #dc2626; font-weight: bold; }
                 h2, h3 { text-align: center; margin: 5px 0; }
                 #print-meta { display: flex; justify-content: space-between; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 15px; font-weight: bold; }
-                @media print { .no-print { display: none !important; } }
+                @media print { 
+                    .no-print { display: none !important; }
+                    @page { margin: 0; }
+                    body { padding: 1.5cm; }
+                }
             </style>
         </head>
         <body>
             ${companyHeaderHtml}
-            <h2 style="text-align:center; margin: 10px 0 5px;">دفتر الأستاذ العام</h2>
-            <div id="print-meta" style="display:flex; justify-content:space-between; border-bottom:2px solid #333; padding-bottom:10px; margin-bottom:15px; font-weight:bold;">
-                <span>الحساب: <strong>${getAccountNameForShare()}</strong></span>
-                <span>الفترة: من <strong>${document.getElementById('filter-from').value}</strong> إلى <strong>${document.getElementById('filter-to').value}</strong></span>
-                <span>تاريخ الطباعة: <strong>${new Date().toLocaleDateString('ar-SD')}</strong></span>
+            <div id="print-meta" style="display:flex; flex-direction:column;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #333; padding-bottom:10px; margin-bottom:5px; font-weight:bold; font-size:1.1rem; width:100%;">
+                    <div style="flex:1; text-align:right;">الحساب: <strong>${getAccountNameForShare()}</strong></div>
+                    <div style="flex:1; text-align:center; font-size:1.5rem;">التقرير العام للحسابات</div>
+                    <div style="flex:1; text-align:left;">الفترة: من <strong>${document.getElementById('filter-from').value}</strong> إلى <strong>${document.getElementById('filter-to').value}</strong></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.9rem; color:#555; margin-bottom:15px; width:100%;">
+                    <span>طبعت بواسطة: <strong>${document.getElementById('header-user-name') ? document.getElementById('header-user-name').innerText : 'مدير النظام'}</strong></span>
+                    <span>تاريخ الطباعة: <strong>${new Date().toLocaleDateString('ar-SD')}</strong></span>
+                </div>
             </div>
             ${tableHtml}
             <div style="margin-top: 30px; text-align: center;" class="no-print">
@@ -902,6 +950,15 @@ function previewGL() {
         </html>
     `);
     win.document.close();
+
+    if (autoPrint) {
+        // Wait briefly for styles and fonts to render before printing
+        setTimeout(() => {
+            win.focus();
+            win.print();
+            win.close();
+        }, 800);
+    }
 }
 
 function exportCSV() {
@@ -928,8 +985,104 @@ function exportCSV() {
     showToast('📥 تم التصدير بنجاح', 'success');
 }
 
+function exportGLPDF() {
+    const tableWrap = document.querySelector('.ledger-table-wrap');
+    if (!tableWrap) return showToast('الرجاء تشغيل التقرير أولاً للتصدير', 'warning');
+    
+    showToast('جاري تحضير ملف PDF...', 'info');
+
+    // Re-use logic from previewGL to get the HTML
+    const tableHtml = document.querySelector('.ledger-table').outerHTML;
+    
+    let cfg = {};
+    try { cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}'); } catch(e) {}
+    
+    const companyName = cfg.companyName || 'اسم الشركة غير مسجل (يرجى حفظ الإعدادات)';
+    const companyPhone = cfg.phone || '';
+    const companyAddress = cfg.address || '';
+    const companyReg = cfg.regNumber || '';
+    const companyVat = cfg.taxNumber || '';
+    
+    let logoSrc = cfg.logoBase64 || '';
+    if (!logoSrc) {
+        const headerLogo = document.querySelector('.company-logo, #hdr-c-logo');
+        if (headerLogo && headerLogo.src && !headerLogo.src.includes('placeholder')) logoSrc = headerLogo.src;
+    }
+    const logoImg = logoSrc ? `<img src="${logoSrc}" style="max-height:80px; max-width:200px; object-fit:contain;">` : '';
+
+    const companyHeaderHtml = `
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px;">
+            <div style="text-align: right;">
+                <h1 style="margin: 0; font-size: 1.5rem;">${companyName}</h1>
+                <div style="font-size: 0.9rem; color: #555; margin-top: 5px;">
+                    ${companyAddress ? `<div>العنوان: ${companyAddress}</div>` : ''}
+                    ${companyPhone ? `<div>الهاتف: ${companyPhone}</div>` : ''}
+                    ${companyReg ? `<div>السجل التجاري: ${companyReg}</div>` : ''}
+                    ${companyVat ? `<div>الرقم الضريبي: ${companyVat}</div>` : ''}
+                </div>
+            </div>
+            <div>${logoImg}</div>
+        </div>
+    `;
+
+    const container = document.createElement('div');
+    container.style.padding = '30px';
+    container.style.fontFamily = "'Tajawal', sans-serif";
+    container.style.direction = 'rtl';
+    container.style.background = '#fff';
+    container.style.color = '#000';
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.style.top = '0';
+    container.style.width = '1100px';
+
+    container.innerHTML = `
+        ${companyHeaderHtml}
+        <div id="print-meta" style="display:flex; flex-direction:column;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #333; padding-bottom:10px; margin-bottom:5px; font-weight:bold; font-size:1.1rem; width:100%;">
+                <div style="flex:1; text-align:right;">الحساب: <strong>${getAccountNameForShare()}</strong></div>
+                <div style="flex:1; text-align:center; font-size:1.5rem;">التقرير العام للحسابات</div>
+                <div style="flex:1; text-align:left;">الفترة: من <strong>${document.getElementById('filter-from').value}</strong> إلى <strong>${document.getElementById('filter-to').value}</strong></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.9rem; color:#555; margin-bottom:15px; width:100%;">
+                <span>طبعت بواسطة: <strong>${document.getElementById('header-user-name') ? document.getElementById('header-user-name').innerText : 'مدير النظام'}</strong></span>
+                <span>تاريخ الطباعة: <strong>${new Date().toLocaleDateString('ar-SD')}</strong></span>
+            </div>
+        </div>
+        <style>
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; }
+            th, td { border: 1px solid #ddd; padding: 10px; text-align: right; }
+            th { background: #f3f4f6; color: #333; font-weight: bold; }
+            .td-debit { color: #059669; font-weight: bold; }
+            .td-credit { color: #dc2626; font-weight: bold; }
+            .td-balance-dr { color: #059669; font-weight: bold; }
+            .td-balance-cr { color: #dc2626; font-weight: bold; }
+        </style>
+        ${tableHtml}
+    `;
+
+    document.body.appendChild(container);
+    
+    const opt = {
+        margin:       10,
+        filename:     'General_Ledger.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+    };
+    
+    html2pdf().set(opt).from(container).save().then(() => {
+        document.body.removeChild(container);
+        showToast('✅ تم تحميل ملف PDF بنجاح', 'success');
+    }).catch(err => {
+        document.body.removeChild(container);
+        showToast('❌ حدث خطأ أثناء التصدير', 'error');
+    });
+}
+
 function printDirectly() {
-    window.print();
+    // Use the same robust layout as previewGL but trigger print automatically
+    previewGL(true);
 }
 
 /* ─── Dynamic Column Configuration & Sidebar ─── */
