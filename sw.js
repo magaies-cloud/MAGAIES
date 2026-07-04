@@ -1,4 +1,4 @@
-// Version: 20260704143600 (Use local scripts instead of CDN)
+// Version: 20260704144600 (Use local scripts instead of CDN)
 self.addEventListener('install', (event) => {
     // Force the new service worker to become active immediately
     self.skipWaiting();

@@ -981,7 +981,7 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
 
         let dbMatches = [];
         try {
-            const res = await fetch('/api/items_search.php?q=' + encodeURIComponent(term));
+            const res = await fetch('api/items_search.php?q=' + encodeURIComponent(term));
             const rawMatches = await res.json();
             if (Array.isArray(rawMatches)) {
                 dbMatches = rawMatches;
@@ -1140,7 +1140,7 @@ async function renderQuickItemDropdown(filter = '') {
 
         let dbMatches = [];
         try {
-            const res = await fetch('/api/items_search.php?q=' + encodeURIComponent(term));
+            const res = await fetch('api/items_search.php?q=' + encodeURIComponent(term));
             const rawMatches = await res.json();
             if (Array.isArray(rawMatches)) {
                 dbMatches = rawMatches;
