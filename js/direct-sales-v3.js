@@ -10,6 +10,16 @@
 //  MOCK DATA (Replace with API calls)
 // ════════════════════════════════════════
 
+// Safe localStorage wrapper to prevent crashes when JSON.parse is called on object/array values
+const originalGetItem = localStorage.getItem.bind(localStorage);
+localStorage.getItem = function(key) {
+    let val = originalGetItem(key);
+    if (val !== null && typeof val === 'object') {
+        return JSON.stringify(val);
+    }
+    return val;
+};
+
 let WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1'));
 if (!WAREHOUSES || WAREHOUSES.length === 0) {
     WAREHOUSES = [{ id:'w-main', name:'المخزن الرئيسي (السجانة)' }];
@@ -106,6 +116,9 @@ function commitInvoiceNumber(type) {
 //  INIT
 // ════════════════════════════════════════
 function initSalesApp() {
+    // Reload WAREHOUSES from localStorage
+    WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [{ id:'w-main', name:'المخزن الرئيسي (السجانة)' }];
+
     // Load real customer data from master-data
     const localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
     if(localCusts.length > 0) {
@@ -125,7 +138,7 @@ function initSalesApp() {
     const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
     
     if (rawItems.length === 0) {
-        alert('تنبيه: لا توجد أصناف في النظام! يرجى إضافة الأصناف من شاشة (البيانات الأساسية) أولاً.');
+        console.warn('تنبيه: لا توجد أصناف في النظام!');
     }
 
     // Map raw items to POS expected format
@@ -177,9 +190,12 @@ function initSalesApp() {
 
     populateDropdowns();
     initHeader();
-    // إضافة صف فارغ افتراضي عند التحميل
-    addRow(true);
-    recalcAll();
+    
+    // Only add a row and recalculate if rows is currently empty
+    if (rows.length === 0) {
+        addRow(true);
+        recalcAll();
+    }
 }
 
 if (window.APP_READY) {
@@ -187,13 +203,16 @@ if (window.APP_READY) {
 } else {
     document.addEventListener('DBReady', initSalesApp);
 }
+window.addEventListener('cloudDataRestored', initSalesApp);
+window.addEventListener('strictDataReady', initSalesApp);
 
 function populateDropdowns() {
     // Customers (Init custom dropdown)
     document.getElementById('hdr-customer').value = '';
     
-    // Warehouses (Header)
+    // Warehouses (Header) - Clear old options first to prevent duplication
     const whSel = document.getElementById('hdr-warehouse');
+    whSel.innerHTML = '';
     WAREHOUSES.forEach(w => {
         const o = document.createElement('option');
         o.value = w.id; o.textContent = w.name;
@@ -1446,6 +1465,7 @@ function updateRowCalcs(id) {
     const totalEl = document.querySelector(`[data-total="${id}"]`);
     const baseEl = document.querySelector(`[data-base-input="${id}"]`);
     const availEl = document.querySelector(`[data-avail="${id}"]`);
+    const remEl = document.querySelector(`[data-rem="${id}"]`);
     const bundleEl = document.querySelector(`[data-bundle="${id}"]`);
     const shilaEl = document.querySelector(`[data-shila="${id}"]`);
     const shilaRemEl = document.querySelector(`[data-shila-rem="${id}"]`);
@@ -1470,6 +1490,10 @@ function updateRowCalcs(id) {
     if (availEl) {
         availEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty);
         availEl.className = 'g-readonly ' + (calcs.availQty !== '—' && calcs.availQty < row.quantity ? 'warn-val' : 'avail-val');
+    }
+    if (remEl) {
+        remEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty - calcs.baseQty);
+        remEl.className = 'g-readonly ' + (calcs.availQty !== '—' && (calcs.availQty - calcs.baseQty) < 0 ? 'warn-val' : 'rem-val');
     }
 
     // Mobile
@@ -1560,8 +1584,8 @@ function renderGrid() {
                     <span style="font-size:11px; color:var(--text-muted); white-space:nowrap;">${item ? item.baseUnit : ''}</span>
                 </div>
             </td>
-            <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.availableQty !== undefined ? fmtNum(row.availableQty) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'availableQty',this.value)" onblur="this.value=fmtNum(parseNum(this.value))" style="color:#0ea5e9; font-weight:bold;"></td>
-            <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.remainingQty !== undefined ? fmtNum(row.remainingQty) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'remainingQty',this.value)" onblur="this.value=fmtNum(parseNum(this.value))" style="color:#f59e0b; font-weight:bold;"></td>
+            <td><span class="g-readonly" data-avail="${row.id}" style="color:#0ea5e9; font-weight:bold; display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty) : '—'}</span></td>
+            <td><span class="g-readonly" data-rem="${row.id}" style="color:#f59e0b; font-weight:bold; display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty - calcs.baseQty) : '—'}</span></td>
             <td>
                 <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}"
                     onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
@@ -1900,8 +1924,8 @@ function submitInvoice(ignoreWarnings = false) {
         customer: custId,
         costCenter: document.getElementById('hdr-cost-center').value,
         gpsLocation: {
-            lat: document.getElementById('hdr-gps-lat').value,
-            lng: document.getElementById('hdr-gps-lng').value
+            lat: document.getElementById('hdr-gps-lat')?.value || '',
+            lng: document.getElementById('hdr-gps-lng')?.value || ''
         },
         saleType: currentSaleType,
         currency: cur,
@@ -1911,9 +1935,9 @@ function submitInvoice(ignoreWarnings = false) {
         description: document.getElementById('hdr-description').value,
         items: rows.map(r => ({...r})),
         notes: document.getElementById('inv-notes').value,
-        subTotal: parseNum(document.getElementById('t-subtotal').textContent),
-        discount: parseNum(document.getElementById('t-discount').value || 0),
-        vatAmount: parseNum(document.getElementById('t-vat').textContent),
+        subTotal: parseNum(document.getElementById('t-subtotal')?.textContent || document.getElementById('t-invoice-total')?.textContent || 0),
+        discount: parseNum(document.getElementById('t-discount')?.value || document.getElementById('t-discount')?.textContent || 0),
+        vatAmount: parseNum(document.getElementById('t-vat')?.textContent || document.getElementById('t-tax')?.textContent || 0),
         grandTotal: parseNum(grandTotal),
         status: currentSaleType === 'preliminary' ? 'preliminary' : 'pending_delivery',
         timestamp: new Date().toISOString(),

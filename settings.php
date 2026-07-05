@@ -587,13 +587,42 @@
     }
 
     // ─── Backup Data ───────────────────────────────────────────
-    function backupData() {
+    async function backupData() {
+        // Pre-load all syncKeys from localforage to guarantee a 100% complete snapshot of tenant data
+        if (typeof localforage !== 'undefined' && window.getTenantKey) {
+            const keys = [
+                'erp_users_v1', 'erp_customers_v1', 'erp_suppliers_v1', 'erp_items_v1',
+                'erp_inventory_v1', 'erp_sales_invoices_v1', 'erp_purchase_invoices_v1',
+                'erp_receipts_v1', 'erp_payments_v1', 'erp_journal_vouchers_v1',
+                'erp_settings_v1', 'erp_warehouses_v1', 'erp_banks_v1', 'erp_safes_v1', 'erp_categories_v1',
+                'erp_roles_v1', 'erp_checks_v1', 'erp_gl_v1', 'erp_single_receipts_v1',
+                'erp_single_payments_v1', 'erp_partners_v1', 'erp_employees_v1',
+                'erp_payroll_v1', 'erp_reserved_sales_v1', 'erp_delivery_notes_v1',
+                'erp_accounts_v1', 'erp_jobs_v1', 'erp_audit_logs'
+            ];
+            for (let k of keys) {
+                const tk = window.getTenantKey(k);
+                const val = await localforage.getItem(tk);
+                if (val) {
+                    window.DB_STORE[tk] = val;
+                }
+            }
+        }
+
         if (!window.DB_STORE || Object.keys(window.DB_STORE).length === 0) {
             alert('لا توجد بيانات للنسخ الاحتياطي!');
             return;
         }
 
-        const blob = new Blob([JSON.stringify(window.DB_STORE, null, 2)], { type: 'application/json' });
+        // Filter out empty keys/values to keep file clean
+        const cleanStore = {};
+        for (let [k, v] of Object.entries(window.DB_STORE)) {
+            if (v && v !== '[]' && v !== '{}') {
+                cleanStore[k] = v;
+            }
+        }
+
+        const blob = new Blob([JSON.stringify(cleanStore, null, 2)], { type: 'application/json' });
         const url  = URL.createObjectURL(blob);
         const a    = document.createElement('a');
         a.href     = url;
@@ -616,13 +645,23 @@
                 const backup = JSON.parse(e.target.result);
                 if (typeof backup !== 'object' || Array.isArray(backup)) throw new Error('Invalid format');
                 
-                if (confirm('⚠️ سيتم استبدال جميع البيانات الحالية بالنسخة الاحتياطية. هل أنت متأكد؟')) {
-                    // Update in-memory and IndexedDB
+                if (confirm('⚠️ سيتم استبدال جميع البيانات الحالية بالنسخة الاحتياطية المرفوعة. هل أنت متأكد؟')) {
+                    // Update in-memory DB_STORE and local IndexedDB database
                     for (let [k, v] of Object.entries(backup)) {
                         window.DB_STORE[k] = typeof v === 'string' ? v : JSON.stringify(v);
                         await localforage.setItem(k, window.DB_STORE[k]);
                     }
-                    alert('✅ تمت استعادة البيانات بنجاح! سيتم إعادة تحميل الصفحة.');
+                    
+                    // Force push restored data to the cloud database immediately
+                    try {
+                        if (typeof window.pushToCloud === 'function') {
+                            await window.pushToCloud();
+                        }
+                    } catch(pushErr) {
+                        console.warn("Failed to automatically sync restored data to cloud server", pushErr);
+                    }
+
+                    alert('✅ تمت استعادة البيانات ومزامنتها بنجاح! سيتم إعادة تحميل الصفحة.');
                     window.location.reload();
                 }
             } catch(err) {

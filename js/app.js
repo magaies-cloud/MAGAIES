@@ -282,62 +282,75 @@ JSON.parse = function(val) {
         if (overlay) overlay.remove();
     }
 
-    function pushToCloud() {
-        if (!navigator.onLine) {
-            alert('السيرفر غير متصل! لا يمكن حفظ البيانات في وضع Strict Sync.');
-            return;
-        }
-        const token = localStorage.getItem('authToken');
-        if (!token) return;
-
-        const prefix = getTenantPrefix();
-        let payload = {};
-        let hasData = false;
-        syncKeys.forEach(k => {
-            const pk = window.getTenantKey(k);
-            const data = window.DB_STORE[pk] || originalGetItem(pk);
-            if (data) {
-                try {
-                    payload[k] = JSON.parse(data);
-                    hasData = true;
-                } catch(e) {}
+    const pushToCloud = window.pushToCloud = function() {
+        return new Promise((resolve, reject) => {
+            if (!navigator.onLine) {
+                alert('السيرفر غير متصل! لا يمكن حفظ البيانات في وضع Strict Sync.');
+                reject(new Error("Offline"));
+                return;
             }
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                resolve();
+                return;
+            }
+
+            const prefix = getTenantPrefix();
+            let payload = {};
+            let hasData = false;
+            syncKeys.forEach(k => {
+                const pk = window.getTenantKey(k);
+                const data = window.DB_STORE[pk] || originalGetItem(pk);
+                if (data) {
+                    try {
+                        payload[k] = JSON.parse(data);
+                        hasData = true;
+                    } catch(e) {}
+                }
+            });
+
+            if (!hasData) {
+                resolve();
+                return;
+            }
+
+            isPushing = true;
+            showSyncOverlay('جاري حفظ البيانات بالسيرفر...');
+
+            fetch(SYNC_PUSH_URL, {
+                method: "POST",
+                headers: getAuthHeaders(),
+                body: JSON.stringify(payload)
+            }).then(res => {
+                if (res.status === 401) {
+                    alert('انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
+                    window.logout(true);
+                    reject(new Error("Unauthorized"));
+                    return;
+                }
+                return res.json();
+            }).then(data => {
+                if(!data.success) {
+                    alert('حدث خطأ أثناء الحفظ في قاعدة البيانات!');
+                    reject(new Error("Save failed"));
+                } else {
+                    console.log("Cloud Sync: Strict Backup Successful");
+                    resolve(data);
+                }
+            }).catch(err => {
+                console.error("Cloud Sync Push Failed:", err);
+                alert('فشل الاتصال بقاعدة البيانات! أعد المحاولة.');
+                reject(err);
+            }).finally(() => {
+                isPushing = false;
+                hideSyncOverlay();
+                if (pushQueue) {
+                    pushQueue = false;
+                    pushToCloud();
+                }
+            });
         });
-
-        if (!hasData) return;
-
-        isPushing = true;
-        showSyncOverlay('جاري حفظ البيانات بالسيرفر...');
-
-        fetch(SYNC_PUSH_URL, {
-            method: "POST",
-            headers: getAuthHeaders(),
-            body: JSON.stringify(payload)
-        }).then(res => {
-            if (res.status === 401) {
-                alert('انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
-                window.logout(true);
-                throw new Error("Unauthorized");
-            }
-            return res.json();
-        }).then(data => {
-              if(!data.success) {
-                  alert('حدث خطأ أثناء الحفظ في قاعدة البيانات!');
-              } else {
-                  console.log("Cloud Sync: Strict Backup Successful");
-              }
-          }).catch(err => {
-              console.error("Cloud Sync Push Failed:", err);
-              alert('فشل الاتصال بقاعدة البيانات! أعد المحاولة.');
-          }).finally(() => {
-              isPushing = false;
-              hideSyncOverlay();
-              if (pushQueue) {
-                  pushQueue = false;
-                  pushToCloud();
-              }
-          });
-    }
+    };
 
 
     window.pullFromCloud = function(force = false) {

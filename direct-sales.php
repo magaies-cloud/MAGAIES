@@ -322,7 +322,7 @@
 
         /* ── شريط الحالة المالية الأفقي ── */
         .fin-strip-inline.visible {
-            flex: 0 0 43% !important; min-width: 400px !important;
+            flex: 0 0 58% !important; min-width: 560px !important;
             opacity: 1 !important;
             margin-left: 5px;
         }
@@ -1227,72 +1227,66 @@
     <div style="display: flex; width: 100%; gap: 15px; margin-bottom: 12px; transition: all 0.4s ease;">
         
         <!-- Row 1: Invoice Number & Date -->
-                        <div id="invoice-info-box" style="flex: 1; display: flex; gap: 20px; width: 100%; background: linear-gradient(90deg, rgba(30,58,138,0.2), rgba(15,23,42,0.4)); padding: 6px 15px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); align-items: center;">
-                            <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:15px; margin:0;">
-                                <div style="display:flex; align-items:center; justify-content:center; width: 32px; height: 32px; border-radius: 8px; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3);">
-                                    <span style="font-size: 1.2rem;">🧾</span>
-                                </div>
-                                <label class="h-label" style="margin:0; color:#38bdf8; font-size: 1.1rem; font-weight:bold; white-space:nowrap; text-shadow: 0 0 5px rgba(56,189,248,0.3);">رقم الفاتورة:</label>
-                                <div style="display:flex; align-items:center; justify-content:space-between; flex:1; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-                                    <button class="pro-serial-btn" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❮</button>
-                                    <span id="inv-number" class="pro-serial-number" style="font-size: 1.05rem; font-family: 'Outfit', sans-serif; font-weight: 900; color: #38bdf8; letter-spacing: 2px; text-shadow: 0 0 10px rgba(56,189,248,0.5);">INV-000001</span>
-                                    <input type="hidden" id="hdr-inv-no">
-                                    <button class="pro-serial-btn" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❯</button>
-                                </div>
-                            </div>
+        <div id="invoice-info-box" style="flex: 1; display: flex; gap: 12px; width: 100%; background: linear-gradient(90deg, rgba(30,58,138,0.2), rgba(15,23,42,0.4)); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); align-items: center; justify-content: space-between;">
+            <div class="h-form-group" style="flex: 1.1; display:flex; align-items:center; gap:8px; margin:0; min-width: 0;">
+                <label class="h-label" style="margin:0; color:#38bdf8; font-size: 0.95rem; font-weight:bold; white-space:nowrap; text-shadow: 0 0 5px rgba(56,189,248,0.3);">رقم الفاتورة:</label>
+                <div style="display:flex; align-items:center; justify-content:space-between; flex:1; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); min-width: 0;">
+                    <button class="pro-serial-btn" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #fff; font-size: 1.1rem; cursor: pointer; padding: 0 5px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❮</button>
+                    <span id="inv-number" class="pro-serial-number" style="font-size: 0.95rem; font-family: 'Outfit', sans-serif; font-weight: 900; color: #38bdf8; letter-spacing: 1px; text-shadow: 0 0 10px rgba(56,189,248,0.5); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">INV-000001</span>
+                    <input type="hidden" id="hdr-inv-no">
+                    <button class="pro-serial-btn" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; color: #fff; font-size: 1.1rem; cursor: pointer; padding: 0 5px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❯</button>
+                </div>
+            </div>
 
-                            <div style="width: 2px; height: 40px; background: rgba(255,255,255,0.1); margin: 0 10px;"></div>
+            <div style="width: 1px; height: 28px; background: rgba(255,255,255,0.1); margin: 0 2px;"></div>
 
-                            <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:15px; margin:0;">
-                                <div style="display:flex; align-items:center; justify-content:center; width: 32px; height: 32px; border-radius: 8px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3);">
-                                    <span style="font-size: 1.2rem;">📅</span>
-                                </div>
-                                <label class="h-label" id="hdr-date-label" style="margin:0; color:#ef4444; font-size: 1.1rem; font-weight:bold; white-space:nowrap; text-shadow: 0 0 5px rgba(239,68,68,0.3);">التاريخ:</label>
-                                <input type="date" class="v-input ctrl-input" id="hdr-date" style="flex:1; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; color:#ef4444; padding:4px 8px; font-family:'Outfit',sans-serif; font-weight:bold; font-size:1.2rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
-                            </div>
-                        </div>
+            <div class="h-form-group" style="flex: 0.9; display:flex; align-items:center; gap:8px; margin:0; min-width: 0;">
+                <label class="h-label" id="hdr-date-label" style="margin:0; color:#ef4444; font-size: 0.95rem; font-weight:bold; white-space:nowrap; text-shadow: 0 0 5px rgba(239,68,68,0.3);">التاريخ:</label>
+                <input type="date" class="v-input ctrl-input" id="hdr-date" style="flex:1; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; color:#ef4444; padding:3px 6px; font-family:'Outfit',sans-serif; font-weight:bold; font-size:1.05rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); min-width: 0;">
+            </div>
+        </div>
 
         <!-- RIGHT: Financial Strip -->
         <div id="fin-strip" class="fin-strip-inline" style="flex: 0; width: 0; opacity: 0; overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); display: flex;">
-            <div style="width: 100%; background: linear-gradient(90deg, rgba(15,23,42,0.4), rgba(30,58,138,0.2)); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 4px 10px; display: flex; align-items: center; justify-content: space-around; gap: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); min-width: 500px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 1.2rem;">📊</span>
-                            <div style="display:flex; flex-direction:column;">
-                                <span style="font-weight: 800; color:#fff; font-size:0.75rem;">الحالة المالية للعميل</span>
-                                <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span></span>
-                            </div>
-                        </div>
-                        
-                        <div style="display:flex; gap: 15px; align-items: center;">
-                            <div style="display:flex; flex-direction:column; align-items:center;">
-                                <span style="font-size:0.6rem; color:#94a3b8; font-weight:700;">الرصيد الدفتري</span>
-                                <span id="fin-ledger" style="font-weight:800; color:#fff; font-size:0.75rem;">0</span>
-                            </div>
-                            <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
-                            
-                            <div style="display:flex; flex-direction:column; align-items:center;">
-                                <span style="font-size:0.6rem; color:#f59e0b; font-weight:700;">شيكات معلقة</span>
-                                <span id="fin-checks" style="font-weight:800; color:#f59e0b; font-size:0.75rem;">0</span>
-                            </div>
-                            <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
-                            
-                            <div style="display:flex; flex-direction:column; align-items:center;">
-                                <span style="font-size:0.6rem; color:#ef4444; font-weight:700;">المديونية</span>
-                                <span id="fin-total-debt" style="font-weight:800; color:#ef4444; font-size:0.75rem;">0</span>
-                            </div>
-                            <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
-                            
-                            <div style="display:flex; flex-direction:column; align-items:center;">
-                                <span style="font-size:0.6rem; color:#38bdf8; font-weight:700;">حد الائتمان</span>
-                                <span id="fin-credit-limit" style="font-weight:800; color:#38bdf8; font-size:0.75rem;">0</span>
-                            </div>
-                            <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
-                            
-                            <div style="display:flex; flex-direction:column; align-items:center; background: rgba(16,185,129,0.1); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.2);">
-                                <span style="font-size:0.6rem; color:#34d399; font-weight:800;">✨ المتاح</span>
-                                <span id="fin-remaining" style="font-weight:900; color:#34d399; font-size:0.85rem;">0</span>
-                            </div>
-                        </div>
+            <div style="width: 100%; background: linear-gradient(90deg, rgba(15,23,42,0.4), rgba(30,58,138,0.2)); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 4px 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); min-width: auto;">
+                <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                    <span style="font-size: 1.1rem;">📊</span>
+                    <div style="display:flex; flex-direction:column;">
+                        <span style="font-weight: 800; color:#fff; font-size:0.75rem; white-space: nowrap;">الحالة المالية للعميل</span>
+                        <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span></span>
+                    </div>
+                </div>
+                
+                <div style="display:flex; gap: 12px; align-items: center; flex: 1; justify-content: flex-end; min-width: 0;">
+                    <div style="display:flex; flex-direction:column; align-items:center; min-width: 0;">
+                        <span style="font-size:0.6rem; color:#94a3b8; font-weight:700; white-space: nowrap;">الرصيد الدفتري</span>
+                        <span id="fin-ledger" style="font-weight:800; color:#fff; font-size:0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">0</span>
+                    </div>
+                    <div style="width:1px; height:15px; background:rgba(255,255,255,0.1); flex-shrink: 0;"></div>
+                    
+                    <div style="display:flex; flex-direction:column; align-items:center; min-width: 0;">
+                        <span style="font-size:0.6rem; color:#f59e0b; font-weight:700; white-space: nowrap;">شيكات معلقة</span>
+                        <span id="fin-checks" style="font-weight:800; color:#f59e0b; font-size:0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">0</span>
+                    </div>
+                    <div style="width:1px; height:15px; background:rgba(255,255,255,0.1); flex-shrink: 0;"></div>
+                    
+                    <div style="display:flex; flex-direction:column; align-items:center; min-width: 0;">
+                        <span style="font-size:0.6rem; color:#ef4444; font-weight:700; white-space: nowrap;">المديونية</span>
+                        <span id="fin-total-debt" style="font-weight:800; color:#ef4444; font-size:0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">0</span>
+                    </div>
+                    <div style="width:1px; height:15px; background:rgba(255,255,255,0.1); flex-shrink: 0;"></div>
+                    
+                    <div style="display:flex; flex-direction:column; align-items:center; min-width: 0;">
+                        <span style="font-size:0.6rem; color:#38bdf8; font-weight:700; white-space: nowrap;">حد الائتمان</span>
+                        <span id="fin-credit-limit" style="font-weight:800; color:#38bdf8; font-size:0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">0</span>
+                    </div>
+                    <div style="width:1px; height:15px; background:rgba(255,255,255,0.1); flex-shrink: 0;"></div>
+                    
+                    <div style="display:flex; flex-direction:column; align-items:center; background: rgba(16,185,129,0.15); padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(16,185,129,0.3); flex-shrink: 0; text-align: center;">
+                        <span style="font-size:0.65rem; color:#34d399; font-weight:800; white-space: nowrap;">✨ المتاح</span>
+                        <span id="fin-remaining" style="font-weight:900; color:#34d399; font-size:0.85rem; white-space: nowrap;">0</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1706,12 +1700,9 @@
         }
 
         function editHubTransaction(invNo) {
-            // Load it using the existing loadInvoice function in sales-pro.js
-            // First we need to open the editor
             openInvoiceEditor();
-            // Then load it
-            if(typeof loadInvoice === 'function') {
-                setTimeout(() => loadInvoice(invNo), 100);
+            if(typeof loadInvoiceFromStorage === 'function') {
+                setTimeout(() => loadInvoiceFromStorage(invNo), 100);
             }
         }
         

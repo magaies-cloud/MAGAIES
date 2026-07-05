@@ -1172,14 +1172,7 @@
         
         <!-- Action Cards -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
-            <!-- Purchase Invoice -->
-            <button onclick="openPurchaseEditor('credit')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.02)); border-color: rgba(16,185,129,0.2);">
-                <div class="icon" style="color: #10b981; text-shadow: 0 0 10px rgba(16, 185, 129, 0.4); box-shadow: inset 0 0 10px rgba(16,185,129,0.1);">🧾</div>
-                <div class="text-content">
-                    <div class="title" style="color: #10b981;">فاتورة مشتريات</div>
-                    <div class="subtitle">إنشاء فاتورة شراء جديدة تؤثر على المخزون والحسابات.</div>
-                </div>
-            </button>
+
 
             <!-- Direct Purchase Invoice -->
             <button onclick="openPurchaseEditor('direct')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.02)); border-color: rgba(245,158,11,0.2);">
@@ -1235,7 +1228,9 @@
                             <th style="text-align:right;">رقم الفاتورة</th>
                             <th style="text-align:right;">التاريخ</th>
                             <th style="text-align:right;">المورد</th>
-                            <th style="text-align:right;">النوع</th>
+                            <th style="text-align:right;">الصنف</th>
+                            <th style="text-align:center;">الكمية</th>
+                            <th style="text-align:center;">السعر</th>
                             <th style="text-align:center;">الإجمالي</th>
                             <th style="text-align:center;">المخزن</th>
                             <th style="text-align:center;">الإجراءات</th>
@@ -1688,6 +1683,19 @@
                 return w ? w.name : id;
             }
 
+            // Load items to map IDs to names
+            let items = [];
+            try {
+                let rawItems = localStorage.getItem('erp_items_v1');
+                if (typeof rawItems === 'string') items = JSON.parse(rawItems) || [];
+                else if (rawItems && typeof rawItems === 'object') items = rawItems;
+            } catch(e) {}
+
+            function getItemName(id) {
+                const item = items.find(x => x.id === id);
+                return item ? item.name : id || 'صنف غير معروف';
+            }
+
             emptyState.style.display = 'none';
             tbody.innerHTML = '';
             
@@ -1696,12 +1704,34 @@
             invoices.forEach(inv => {
                 const tr = document.createElement('tr');
                 
+                let itemText = 'بدون أصناف';
+                let qtyText = '0';
+                let priceText = '0';
+                
+                const lines = inv.items || [];
+                if (lines.length === 1) {
+                    const line = lines[0];
+                    itemText = line.itemName || line.name || getItemName(line.itemId);
+                    qtyText = fmtNum(line.quantity || 0);
+                    priceText = fmtNum(line.price || 0) + ' SDG';
+                } else if (lines.length > 1) {
+                    itemText = lines.length + ' أصناف';
+                    let totalQty = 0;
+                    lines.forEach(l => {
+                        totalQty += parseFloat(l.quantity) || 0;
+                    });
+                    qtyText = fmtNum(totalQty);
+                    priceText = '—';
+                }
+
                 tr.innerHTML = `
                     <td style="text-align:right; font-weight:800; color:var(--gold-primary);">${inv.invoiceNo}</td>
                     <td style="text-align:right; color:var(--text-dim);">${new Date(inv.timestamp || inv.date).toLocaleString('ar-EG')}</td>
                     <td style="text-align:right; font-weight:600;">${inv.supplierName || getSupplierName(inv.customer || inv.customerId || inv.supplierId) || 'مورد غير محدد'}</td>
-                    <td style="text-align:right; color:var(--text-dim);">${inv.saleType === 'delivery' ? '🚚 استيراد' : inv.saleType === 'split' ? '🏭 مصنع' : '🛒 مباشر'}</td>
-                    <td style="text-align:center; font-weight:900; direction:ltr;">${fmtNum(inv.totals?.grandTotal || inv.grandTotal || 0)} SDG</td>
+                    <td style="text-align:right; color:var(--text-dim);">${itemText}</td>
+                    <td style="text-align:center; color:var(--text-dim);">${qtyText}</td>
+                    <td style="text-align:center; color:var(--text-dim);">${priceText}</td>
+                    <td style="text-align:center; font-weight:900; direction:ltr; color:#fff;">${fmtNum(inv.totals?.grandTotal || inv.grandTotal || 0)} <span style="color:#a855f7; font-weight:700;">SDG</span></td>
                     <td style="text-align:center; font-weight:600; color:var(--text-dim);">${getWarehouseName(inv.warehouse)}</td>
                     <td style="text-align:center;">
                         <button onclick="editHubTransaction('${inv.invoiceNo}')" style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; border-radius:6px; width:34px; height:34px; cursor:pointer; margin-left:4px; display:inline-flex; align-items:center; justify-content:center;" title="تعديل / عرض">👁️</button>
@@ -1726,8 +1756,8 @@
 
         function editHubTransaction(invNo) {
             openPurchaseEditor();
-            if(typeof loadInvoice === 'function') {
-                setTimeout(() => loadInvoice(invNo), 100);
+            if(typeof loadInvoiceFromStorage === 'function') {
+                setTimeout(() => loadInvoiceFromStorage(invNo), 100);
             }
         }
         

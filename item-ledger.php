@@ -150,6 +150,18 @@
     <script>
         const ITEMS_STORAGE_KEY = 'erp_items_v1';
         let itemsDb = [];
+        let warehousesDb = [];
+
+        function fmtNum(n) {
+            if (n === undefined || n === null || isNaN(n)) return '0';
+            return Number(n).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+        }
+
+        function getWarehouseId(nameOrId) {
+            if (!nameOrId) return '';
+            const wh = warehousesDb.find(w => w.id === nameOrId || w.name === nameOrId);
+            return wh ? wh.id : nameOrId;
+        }
         
         document.addEventListener('DBReady', () => {
             // Load Items to Select
@@ -164,9 +176,9 @@
 
             // Load Warehouses
             const whSelect = document.getElementById('warehouse-select');
-            let warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
-            warehousesDb.unshift({ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' });
-            warehousesDb.forEach(wh => {
+            warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+            const displayWh = [{ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' }, ...warehousesDb];
+            displayWh.forEach(wh => {
                 const opt = document.createElement('option');
                 opt.value = wh.id;
                 opt.text = wh.name;
@@ -194,10 +206,13 @@
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
             purchases = purchases.filter(x => !x.deleted);
             purchases.forEach(inv => {
-                let wh = inv.warehouseId || inv.warehouse;
-                
                 (inv.items || inv.lines || []).forEach(line => {
                     if (line.itemId === itemId || line.productId === itemId) {
+                        let wh = getWarehouseId(line.warehouseId || inv.warehouseId || inv.warehouse);
+                        if (wh === 'PENDING_RECEIPT') {
+                            return; // Skip pending items (not in actual warehouse yet)
+                        }
+
                         let baseQty = 0;
                         if (line.customBaseQty !== undefined) {
                             baseQty = line.customBaseQty;
@@ -213,7 +228,7 @@
                             typeCode: 'in',
                             typeName: 'استلام مشتريات',
                             ref: inv.invoiceNo || inv.poNumber || inv.id,
-                            docId: inv.invoiceNo || inv.id, // Support new schema (invoiceNo) and old (id)
+                            docId: inv.invoiceNo || inv.id,
                             warehouse: wh,
                             in: baseQty,
                             out: 0
@@ -224,13 +239,16 @@
 
             // 2. Get Sales
             let sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-            sales = sales.filter(x => !x.deleted);
+            sales = sales.filter(x => !x.deleted && x.status !== 'draft' && x.status !== 'preliminary' && x.status !== 'pending_delivery');
             sales.forEach(inv => {
                 let hdrWh = inv.warehouse;
                 
                 (inv.items || []).forEach(line => {
                     if (line.itemId === itemId) {
-                        let lineWh = line.warehouseId || hdrWh;
+                        let lineWh = getWarehouseId(inv.deliveryWarehouse || line.warehouseId || hdrWh);
+                        if (lineWh === 'PENDING_RECEIPT') {
+                            return; // Skip pending delivery items
+                        }
                         
                         let baseQty = 0;
                         if (line.customBaseQty !== undefined) {
@@ -247,7 +265,7 @@
                             typeCode: 'out',
                             typeName: 'فاتورة مبيعات',
                             ref: inv.invoiceNo || 'INV',
-                            docId: inv.invoiceNo || inv.id, // Use invoiceNo for the target link
+                            docId: inv.invoiceNo || inv.id,
                             warehouse: lineWh,
                             in: 0,
                             out: baseQty
@@ -276,20 +294,33 @@
 
             const item = itemsDb.find(i => i.id === itemId);
             
-            // Calculate real history from invoices instead of fake caching
+            // 1. Build history
             let history = buildRealHistory(itemId);
 
-            // Apply Date Filters
+            // 2. Filter by warehouse first to calculate the correct running balance for this warehouse
+            const filterWh = document.getElementById('warehouse-select').value;
+            if (filterWh && filterWh !== 'ALL') {
+                history = history.filter(h => getWarehouseId(h.warehouse) === getWarehouseId(filterWh) || h.typeCode === 'open');
+            }
+
+            // 3. Sort chronologically
+            history.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            // 4. Calculate true running balances chronologically (unfiltered by date)
+            let running = 0;
+            history.forEach(row => {
+                running += (row.in - row.out);
+                row.runningBalance = running;
+            });
+
+            // Keep track of the final overall balance (actual current stock)
+            const actualCurrentStock = running;
+
+            // 5. Apply Date Filters for display
             const fromDateStr = document.getElementById('date-from').value;
             const toDateStr = document.getElementById('date-to').value;
-            const filterWh = document.getElementById('warehouse-select').value;
             
             let filteredHistory = history.map(h => ({ ...h, date: new Date(h.date) }));
-
-            if (filterWh && filterWh !== 'ALL') {
-                // Opening balance is tricky if filtered, but we just filter out rows not matching warehouse
-                filteredHistory = filteredHistory.filter(h => h.warehouse === filterWh || h.typeCode === 'open');
-            }
 
             if (fromDateStr) {
                 let d = new Date(fromDateStr); d.setHours(0,0,0,0);
@@ -301,18 +332,23 @@
             }
 
             tbody.innerHTML = '';
-            let runningBal = 0;
             let sumIn = 0;
             let sumOut = 0;
             let sumOpen = 0;
 
             if (filteredHistory.length === 0) {
                  tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-secondary);">لا توجد حركات لهذا الصنف في هذه الفترة</td></tr>`;
+            } else {
+                 // The "opening balance" of the filtered period is the running balance just before the first filtered row
+                 const firstFilteredIndex = history.findIndex(h => h.date >= new Date(fromDateStr || '1970-01-01'));
+                 if (firstFilteredIndex > 0) {
+                     sumOpen = history[firstFilteredIndex - 1].runningBalance;
+                 } else {
+                     sumOpen = 0;
+                 }
             }
 
             filteredHistory.forEach((row, index) => {
-                runningBal += (row.in - row.out);
-                if (row.typeCode === 'open' || index === 0) sumOpen = row.in; // simplified logic for opening bal
                 if (row.typeCode === 'in') sumIn += row.in;
                 if (row.typeCode === 'out') sumOut += row.out;
 
@@ -350,9 +386,9 @@
                     <td>${dStr}</td>
                     <td>${typeBadge}</td>
                     <td style="font-weight:600;">${refHtml}</td>
-                    <td style="color:#34d399; font-weight:700; background:rgba(52,211,153,0.02);">${row.in > 0 ? row.in : '-'}</td>
-                    <td style="color:#f87171; font-weight:700; background:rgba(248,113,113,0.02);">${row.out > 0 ? row.out : '-'}</td>
-                    <td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); font-size:1.1rem;">${runningBal}</td>
+                    <td style="color:#34d399; font-weight:700; background:rgba(52,211,153,0.02);">${row.in > 0 ? fmtNum(row.in) : '-'}</td>
+                    <td style="color:#f87171; font-weight:700; background:rgba(248,113,113,0.02);">${row.out > 0 ? fmtNum(row.out) : '-'}</td>
+                    <td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); font-size:1.1rem;">${fmtNum(row.runningBalance)}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -360,7 +396,7 @@
             document.getElementById('sum-open').innerText = sumOpen.toLocaleString();
             document.getElementById('sum-in').innerText = sumIn.toLocaleString();
             document.getElementById('sum-out').innerText = sumOut.toLocaleString();
-            document.getElementById('sum-balance').innerText = runningBal.toLocaleString();
+            document.getElementById('sum-balance').innerText = actualCurrentStock.toLocaleString();
         }
     </script>
 </body>

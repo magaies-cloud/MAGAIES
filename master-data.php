@@ -179,23 +179,21 @@
             gap: 20px;
         }
         .split-panel {
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
             z-index: 1;
             border-radius: 12px;
         }
         .split-container:hover .split-panel {
-            filter: blur(5px);
-            opacity: 0.6;
-            transform: scale(0.98);
+            filter: none;
+            opacity: 1;
+            transform: none;
         }
         .split-container .split-panel:hover,
         .split-container .split-panel:focus-within {
-            filter: blur(0);
+            filter: none;
             opacity: 1;
-            transform: scale(1.03);
-            z-index: 10;
-            box-shadow: 0 0 40px rgba(56, 189, 248, 0.15), inset 0 0 15px rgba(255, 255, 255, 0.05);
+            transform: none;
+            z-index: 1;
         }
         
         /* تأثيرات حركية وضوئية للأزرار */

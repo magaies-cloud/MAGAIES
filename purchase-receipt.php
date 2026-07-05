@@ -215,23 +215,48 @@
         </div>
 
         <!-- View 2: Editor (Receive Items) -->
-        <div class="view-container" id="view-editor">
-            <div class="editor-layout">
+        <div class="view-container" id="view-editor" style="gap: 20px; animation: fadeIn 0.4s ease-out;">
+            <!-- Header Metadata Bar -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.05); padding: 15px 25px; border-radius: 16px; backdrop-filter: blur(10px);">
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <span style="color: #94a3b8; font-size: 0.8rem; font-weight: 600;">رقم الفاتورة</span>
+                    <span id="lbl-inv-no" style="color: #38bdf8; font-size: 1.2rem; font-weight: 800; font-family: 'Outfit';"></span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px; border-right: 1px solid rgba(255,255,255,0.05); padding-right: 15px;">
+                    <span style="color: #94a3b8; font-size: 0.8rem; font-weight: 600;">المورد</span>
+                    <span id="lbl-supplier" style="color: #fff; font-size: 1.1rem; font-weight: 700;">-</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px; border-right: 1px solid rgba(255,255,255,0.05); padding-right: 15px;">
+                    <span style="color: #94a3b8; font-size: 0.8rem; font-weight: 600;">تاريخ ووقت الفاتورة</span>
+                    <span id="lbl-date" style="color: #fff; font-size: 1.1rem; font-weight: 700; font-family: 'Outfit';">-</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px; border-right: 1px solid rgba(255,255,255,0.05); padding-right: 15px;">
+                    <span style="color: #94a3b8; font-size: 0.8rem; font-weight: 600;">منشئ الفاتورة</span>
+                    <span id="lbl-creator" style="color: #a855f7; font-size: 1.1rem; font-weight: 700;">-</span>
+                </div>
+            </div>
+
+            <div class="editor-layout" style="display: flex; gap: 20px; flex: 1; align-items: stretch;">
                 <!-- Left: Items Table -->
-                <div class="editor-left">
-                    <div class="neo-card-title">
-                        <span>📦 البضاعة المعلقة للفاتورة: <span id="lbl-inv-no" style="color:var(--grn-primary); font-family:'Outfit';"></span></span>
-                        <button class="btn-action btn-cancel" style="padding: 6px 12px; font-size: 0.8rem;" onclick="showHub()">إلغاء التحديد</button>
+                <div class="editor-left" style="flex: 1; display: flex; flex-direction: column;">
+                    <div class="neo-card-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span>📦 قائمة الأصناف المعلقة للفاتورة</span>
+                        <button class="btn-action btn-cancel" style="padding: 6px 12px; font-size: 0.8rem;" onclick="showHub()">إلغاء وتراجع</button>
                     </div>
                     
-                    <div class="grid-scroll-wrap" style="flex:1;">
-                        <table class="pos-grid">
+                    <div class="grid-scroll-wrap" style="flex:1; overflow-y: auto;">
+                        <table class="pos-grid" style="width: 100%;">
                             <thead>
                                 <tr>
-                                    <th style="text-align:right; width:35%;">الصنف</th>
-                                    <th style="text-align:center;">الوحدة</th>
-                                    <th style="text-align:center;">الكمية المعلقة المتبقية</th>
-                                    <th style="text-align:center; color:#38bdf8;">الكمية المستلمة (الآن)</th>
+                                    <th style="text-align:right; width:20%;">الصنف</th>
+                                    <th style="text-align:center; width:8%;">الوحدة</th>
+                                    <th style="text-align:center; width:12%;">سعر الوحدة</th>
+                                    <th style="text-align:center; width:10%;">الكمية المعلقة</th>
+                                    <th style="text-align:center; width:150px; color:#38bdf8;">الكمية المستلمة (الآن)</th>
+                                    <th style="text-align:center; width:10%; color:#f59e0b;">المتبقي بعد الاستلام</th>
+                                    <th style="text-align:center; width:12%;">القيمة المستلمة</th>
+                                    <th style="text-align:center; width:160px;">المستودع المُستلِم</th>
+                                    <th style="text-align:center; width:60px;">تقسيم</th>
                                 </tr>
                             </thead>
                             <tbody id="items-tbody">
@@ -242,31 +267,49 @@
                 </div>
 
                 <!-- Right: Totals & Save -->
-                <div class="editor-right">
-                    <div class="info-card">
-                        <h3>تفاصيل المورد</h3>
-                        <div class="info-row"><span class="info-lbl">المورد:</span> <span class="info-val" id="lbl-supplier" style="direction:rtl;">-</span></div>
-                        <div class="info-row"><span class="info-lbl">تاريخ الفاتورة:</span> <span class="info-val" id="lbl-date">-</span></div>
-                    </div>
+                <div class="editor-right" style="width: 320px; display: flex; flex-direction: column; gap: 20px; flex-shrink: 0;">
+                    <!-- Hidden reference for default warehouse to avoid breaking JS -->
+                    <select id="actual-warehouse" style="display:none;"></select>
 
-                    <div class="info-card" style="flex:1;">
-                        <h3>إجراء الاستلام</h3>
-                        <label style="color:#94a3b8; font-size:0.9rem; margin-bottom:8px; display:block;">تحديد المستودع المُستلِم (الفعلي)</label>
-                        <select class="wh-select" id="actual-warehouse">
-                            <!-- Populated by JS -->
-                        </select>
-                        <p style="color:#cbd5e1; font-size:0.8rem; line-height:1.6;">
-                            سيتم نقل الأصناف والكميات المحددة من حالة (قيد الاستلام) إلى المستودع الفعلي المختار أعلاه. هذا الإجراء سيؤثر فوراً على الجرد العام وتقارير المخزون.
-                        </p>
+                    <!-- Summary Card (Moved to Top) -->
+                    <div class="info-card" style="background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 16px; display: flex; flex-direction: column;">
+                        <h3 style="margin-top: 0; color: #fff; font-size: 0.95rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                            <span>📊</span> ملخص عملية الاستلام
+                        </h3>
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
+                                <span style="color: #94a3b8; font-size: 0.85rem;">أصناف مستلمة:</span>
+                                <span id="lbl-total-received-items" style="color: #10b981; font-weight: 800; font-family: 'Outfit';">0 أصناف</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
+                                <span style="color: #94a3b8; font-size: 0.85rem;">كمية مستلمة:</span>
+                                <span id="lbl-total-received-qty" style="color: #10b981; font-weight: 800; font-family: 'Outfit';">0</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
+                                <span style="color: #94a3b8; font-size: 0.85rem;">القيمة المستلمة:</span>
+                                <span id="lbl-total-received-val" style="color: var(--gold-primary); font-weight: 800; font-family: 'Outfit';">0 SDG</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div style="display:flex; flex-direction:column; gap:10px;">
-                        <button class="btn-action" style="padding: 15px; font-size: 1.1rem; display:flex; align-items:center; justify-content:center; gap:10px;" onclick="saveReceiptNote()">
+                        <button class="btn-action" style="padding: 15px; font-size: 1.1rem; display:flex; align-items:center; justify-content:center; gap:10px; border-radius:12px; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16,185,129,0.25);" onclick="saveReceiptNote()">
                             <span>💾</span> حفظ مذكرة الاستلام (GRN)
                         </button>
                     </div>
                 </div>
             </div>
+
+            <!-- Recent Operations / Receipts History (Full Width!) -->
+            <div class="recent-receipts-card" style="background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.05); padding: 15px 20px; border-radius: 16px; display: flex; flex-direction: column; gap: 10px; width: 100%;">
+                <h3 style="margin-top: 0; color: #fff; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                    <span>🕒</span> سجل عمليات الاستلام الأخيرة لهذه الفاتورة
+                </h3>
+                <div id="recent-grns-container" style="overflow-x: auto; max-height: 250px;">
+                    <!-- Populated dynamically by JS -->
+                </div>
+            </div>
+        </div>
         </div>
     </div>
 
@@ -280,9 +323,11 @@
         let itemsDb = [];
         let suppliersDb = [];
         let warehousesDb = [];
+        let usersDb = [];
         let pendingMap = {}; // originalInvoiceId -> array of pending items
         let currentInvoiceId = null;
         let receiptLines = [];
+        let editingGRNId = null; // Currently edited GRN ID
 
         // Formatting utilities
         function fmtNum(n) { return Number(n).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2}); }
@@ -313,12 +358,18 @@
             itemsDb = loadKey('erp_items_v1');
             suppliersDb = loadKey('erp_suppliers_v1');
             warehousesDb = loadKey('erp_warehouses_v1');
+            usersDb = loadKey('erp_users_v1');
             if(warehousesDb.length === 0) warehousesDb = [{ id:'w-main', name:'المخزن الرئيسي (السجانة)' }];
 
             populateWarehouseSelect();
             calculatePendingGoods();
             renderPendingInvoices();
+        }
 
+        function getUserName(id) {
+            if (!id || id === 'unknown') return 'مدير النظام';
+            const u = usersDb.find(x => x.id === id || String(x.id) === String(id));
+            return u ? u.name : id;
         }
 
         if (window.APP_READY) {
@@ -360,7 +411,7 @@
             console.log("GRN Debug - allPurchases loaded:", allPurchases);
 
             // Base tracking by invoice
-            allPurchases.filter(inv => !inv.deleted && inv.status !== 'draft' && inv.status !== 'proforma').forEach(inv => {
+            allPurchases.filter(inv => !inv.deleted && inv.status !== 'draft' && inv.status !== 'proforma' && inv.id !== editingGRNId).forEach(inv => {
                 const rootInvId = inv.isReturn || inv.isGRN ? inv.originalInvoiceId : (inv.invoiceNo || inv.id);
                 if (!rootInvId) {
                     console.log("GRN Debug - Skipping invoice because rootInvId is falsy:", inv);
@@ -371,8 +422,11 @@
                     pendingMap[rootInvId] = {
                         supplierId: inv.customer || inv.customerId || inv.supplierId,
                         date: inv.date,
+                        createdBy: inv.createdBy || 'unknown',
                         lines: {}
                     };
+                } else if (inv.createdBy && pendingMap[rootInvId].createdBy === 'unknown') {
+                    pendingMap[rootInvId].createdBy = inv.createdBy;
                 }
 
                 const items = inv.items || inv.lines || [];
@@ -487,6 +541,9 @@
             document.getElementById('view-hub').classList.add('active');
             currentInvoiceId = null;
             receiptLines = [];
+            editingGRNId = null; // Clear edit mode
+            calculatePendingGoods();
+            renderPendingInvoices();
         }
 
         function openReceiptEditor(invId) {
@@ -496,7 +553,10 @@
 
             document.getElementById('lbl-inv-no').textContent = invId;
             document.getElementById('lbl-supplier').textContent = getSupplierName(invData.supplierId);
-            document.getElementById('lbl-date').textContent = new Date(invData.date).toLocaleDateString('en-GB');
+            document.getElementById('lbl-date').textContent = new Date(invData.date).toLocaleString('ar-EG');
+            document.getElementById('lbl-creator').textContent = getUserName(invData.createdBy);
+
+            const defaultWh = document.getElementById('actual-warehouse').value || (warehousesDb.find(x => x.id !== 'PENDING_RECEIPT') || {}).id || 'w-main';
 
             receiptLines = Object.values(invData.lines).map((line, index) => {
                 return {
@@ -504,14 +564,19 @@
                     itemId: line.itemId,
                     unitId: line.unitId,
                     unitName: line.unitName,
+                    price: line.price || 0,
                     maxPending: line.pendingQty,
-                    receiveQty: line.pendingQty // Default to fully receiving what's pending
+                    receiveQty: line.pendingQty, // Default to fully receiving what's pending
+                    warehouseId: defaultWh,
+                    lineGroup: line.itemId + '|' + (line.unitId || ''),
+                    isSplit: false
                 };
             });
 
             document.getElementById('view-hub').classList.remove('active');
             document.getElementById('view-editor').classList.add('active');
             renderReceiptLines();
+            renderRecentGRNs(invId);
         }
 
         function renderReceiptLines() {
@@ -520,26 +585,139 @@
 
             receiptLines.forEach(line => {
                 const tr = document.createElement('tr');
+                const lineTotal = (line.price || 0) * (line.receiveQty || 0);
+                
+                // Build warehouse options
+                let whOptions = '';
+                warehousesDb.forEach(wh => {
+                    if (wh.id !== 'PENDING_RECEIPT') {
+                        const selected = wh.id === line.warehouseId ? 'selected' : '';
+                        whOptions += `<option value="${wh.id}" ${selected}>${wh.name}</option>`;
+                    }
+                });
+
+                // Calculate remaining quantity
+                const otherSplits = receiptLines.filter(x => x.lineGroup === line.lineGroup && x.id !== line.id);
+                const totalAssigned = otherSplits.reduce((acc, x) => acc + (x.receiveQty || 0), 0) + (line.receiveQty || 0);
+                const remainingQty = Math.round((line.maxPending - totalAssigned) * 100) / 100;
+                
+                // Styling for remaining
+                let remainingColor = '#10b981'; // Green (Fully Received)
+                if (remainingQty > 0) remainingColor = '#f59e0b'; // Orange (Partially Received)
+                else if (remainingQty < 0) remainingColor = '#ef4444'; // Red (Error)
+
                 tr.innerHTML = `
-                    <td style="text-align:right; font-weight:700;">${getItemName(line.itemId)}</td>
+                    <td style="text-align:right; font-weight:700; ${line.isSplit ? 'padding-right: 25px; color:#94a3b8;' : ''}">
+                        ${line.isSplit ? '↳ ' : ''}${getItemName(line.itemId)}
+                    </td>
                     <td style="text-align:center; color:#94a3b8;">${line.unitName}</td>
-                    <td style="text-align:center; font-family:'Outfit'; font-weight:800;">${line.maxPending}</td>
+                    <td style="text-align:center; font-family:'Outfit';">${fmtNum(line.price)} SDG</td>
+                    <td style="text-align:center; font-family:'Outfit'; font-weight:800;">${line.isSplit ? '—' : line.maxPending}</td>
                     <td style="text-align:center;">
-                        <input type="text" class="qty-input" inputmode="decimal" value="${line.receiveQty || ''}" placeholder="0" 
-                               onfocus="this.select()" onchange="updateReceiveQty('${line.id}', this.value)">
+                        <div style="display: inline-flex; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; padding: 2px;">
+                            <button type="button" onclick="changeQtyStep('${line.id}', -1)" style="background: none; border: none; color: #ef4444; width: 26px; height: 26px; font-weight: 800; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='none'">-</button>
+                            <input type="text" class="qty-input" value="${line.receiveQty || 0}" style="width: 50px; border: none; background: none; text-align: center; color: #fff; font-weight: 800; font-family: 'Outfit'; font-size: 0.95rem; padding: 0; outline: none;" onfocus="this.select()" onchange="updateReceiveQty('${line.id}', this.value)">
+                            <button type="button" onclick="changeQtyStep('${line.id}', 1)" style="background: none; border: none; color: #10b981; width: 26px; height: 26px; font-weight: 800; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='rgba(16,185,129,0.1)'" onmouseout="this.style.background='none'">+</button>
+                        </div>
+                    </td>
+                    <td style="text-align:center; font-family:'Outfit'; font-weight:800; color:${remainingColor};">${line.isSplit ? '—' : remainingQty}</td>
+                    <td style="text-align:center; font-family:'Outfit'; font-weight:700; color:var(--gold-primary);">${fmtNum(lineTotal)} SDG</td>
+                    <td style="text-align:center;">
+                        <select class="wh-select" style="padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; width: 100%;" 
+                                onchange="updateLineWarehouse('${line.id}', this.value)">
+                            ${whOptions}
+                        </select>
+                    </td>
+                    <td style="text-align:center; display: flex; gap: 4px; justify-content: center; align-items: center; border: none; padding-top: 12px;">
+                        <button type="button" class="btn-action" style="padding: 4px 8px; font-size: 0.8rem; background: rgba(56,189,248,0.2); border-color: rgba(56,189,248,0.3); color: #38bdf8;" 
+                                onclick="splitLine('${line.id}')" title="تقسيم استلام هذا الصنف">➕</button>
+                        ${line.isSplit ? `<button type="button" class="btn-action" style="padding: 4px 8px; font-size: 0.8rem; background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.3); color: #ef4444;" onclick="removeSplit('${line.id}')" title="حذف هذا التقسيم">❌</button>` : ''}
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+
+            // Update summary details
+            let totalItems = 0;
+            let totalQty = 0;
+            let totalVal = 0;
+            
+            const distinctItems = new Set();
+            receiptLines.forEach(line => {
+                if (line.receiveQty > 0) {
+                    distinctItems.add(line.itemId);
+                    totalQty += line.receiveQty;
+                    totalVal += line.receiveQty * line.price;
+                }
+            });
+            totalItems = distinctItems.size;
+
+            document.getElementById('lbl-total-received-items').textContent = totalItems + ' أصناف';
+            document.getElementById('lbl-total-received-qty').textContent = fmtNum(totalQty);
+            document.getElementById('lbl-total-received-val').textContent = fmtNum(totalVal) + ' SDG';
+        }
+
+        function updateLineWarehouse(lineId, whId) {
+            const line = receiptLines.find(x => x.id === lineId);
+            if (line) {
+                line.warehouseId = whId;
+            }
+        }
+
+        function changeQtyStep(lineId, step) {
+            const line = receiptLines.find(x => x.id === lineId);
+            if (line) {
+                const newVal = Math.max(0, (line.receiveQty || 0) + step);
+                updateReceiveQty(lineId, String(newVal));
+            }
+        }
+
+        function splitLine(lineId) {
+            const line = receiptLines.find(x => x.id === lineId);
+            if (!line) return;
+            
+            const parentIndex = receiptLines.findIndex(x => x.id === lineId);
+            
+            // Calculate total unassigned qty for this group
+            const groupSplits = receiptLines.filter(x => x.lineGroup === line.lineGroup);
+            const totalAssigned = groupSplits.reduce((acc, x) => acc + (x.receiveQty || 0), 0);
+            const remaining = Math.max(0, line.maxPending - totalAssigned);
+
+            const splitCount = groupSplits.length;
+            const newLine = {
+                id: line.id + '_split' + splitCount,
+                itemId: line.itemId,
+                unitId: line.unitId,
+                unitName: line.unitName,
+                price: line.price || 0,
+                maxPending: line.maxPending,
+                receiveQty: remaining, // default to remaining qty
+                warehouseId: line.warehouseId,
+                lineGroup: line.lineGroup,
+                isSplit: true
+            };
+            
+            receiptLines.splice(parentIndex + 1, 0, newLine);
+            renderReceiptLines();
+        }
+
+        function removeSplit(lineId) {
+            receiptLines = receiptLines.filter(x => x.id !== lineId);
+            renderReceiptLines();
         }
 
         function updateReceiveQty(lineId, valStr) {
             const val = parseNum(valStr);
             const line = receiptLines.find(x => x.id === lineId);
             if (line) {
-                if (val > line.maxPending) {
-                    showToast(`الكمية المستلمة لا يمكن أن تتجاوز الكمية المعلقة (${line.maxPending})`, 'error');
-                    line.receiveQty = line.maxPending;
+                // Sum all splits for this item group EXCEPT the current one
+                const otherSplits = receiptLines.filter(x => x.lineGroup === line.lineGroup && x.id !== lineId);
+                const otherQty = otherSplits.reduce((acc, x) => acc + (x.receiveQty || 0), 0);
+                const maxAllowed = line.maxPending - otherQty;
+
+                if (val > maxAllowed) {
+                    showToast(`الكمية المستلمة لا يمكن أن تتجاوز الكمية المعلقة للملف (${line.maxPending}). المتبقي المتاح: ${maxAllowed}`, 'error');
+                    line.receiveQty = Math.max(0, maxAllowed);
                 } else if (val < 0) {
                     line.receiveQty = 0;
                 } else {
@@ -555,15 +733,10 @@
                 return showToast('يجب تحديد كمية استلام لصنف واحد على الأقل', 'error');
             }
 
-            const targetWh = document.getElementById('actual-warehouse').value;
-            if (!targetWh) return showToast('يرجى تحديد المستودع الفعلي', 'error');
+            const hasEmptyWh = receivingItems.some(x => !x.warehouseId);
+            if (hasEmptyWh) return showToast('يرجى تحديد المستودع لجميع الأصناف المستلمة', 'error');
 
             const invData = pendingMap[currentInvoiceId];
-
-            // Double Entry Inventory Logic for GRN:
-            // 1. Negative quantity for PENDING_RECEIPT (Removes it from the pending virtual warehouse)
-            // 2. Positive quantity for ACTUAL_WAREHOUSE (Adds it to the real warehouse)
-            // Values/Prices are 0 to not affect general accounting totals again.
             
             const newItems = [];
             receivingItems.forEach(line => {
@@ -574,7 +747,9 @@
                     unitName: line.unitName,
                     quantity: -line.receiveQty,
                     warehouseId: 'PENDING_RECEIPT',
-                    price: 0, taxRate: 0, total: 0
+                    price: line.price || 0,
+                    taxRate: 0,
+                    total: -((line.price || 0) * line.receiveQty)
                 });
                 // Positive (Put into ACTUAL)
                 newItems.push({
@@ -582,40 +757,276 @@
                     unitId: line.unitId,
                     unitName: line.unitName,
                     quantity: line.receiveQty,
-                    warehouseId: targetWh,
-                    price: 0, taxRate: 0, total: 0
+                    warehouseId: line.warehouseId,
+                    price: line.price || 0,
+                    taxRate: 0,
+                    total: (line.price || 0) * line.receiveQty
                 });
             });
+
+            const firstWh = receivingItems[0].warehouseId;
 
             const grnInv = {
                 id: 'GRN-' + Date.now(),
                 isGRN: true,
                 originalInvoiceId: currentInvoiceId,
-                type: 'purchase', // ensures it gets picked up by inventory loops parsing purchase invoices
-                customerId: invData.supplierId, // needed for reference, though amount is 0
+                type: 'purchase',
+                customerId: invData.supplierId,
                 date: new Date().toISOString(),
-                warehouse: targetWh,
+                warehouse: firstWh,
                 subtotal: 0,
                 taxValue: 0,
                 discountValue: 0,
                 grandTotal: 0,
                 items: newItems,
                 status: 'completed',
-                notes: `مذكرة استلام بضاعة للفاتورة ${currentInvoiceId}`
+                notes: `مذكرة استلام بضاعة للفاتورة ${currentInvoiceId}`,
+                createdBy: (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown'
             };
 
-            allPurchases.push(grnInv);
-            localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+            // Revert stock of the old GRN first if we are in edit mode
+            let currentInvData = [];
+            try {
+                currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+            } catch(e) {}
 
-            showToast(`تم حفظ مذكرة الاستلام وتحديث المخزون الفعلي بنجاح`, 'success');
+            if (editingGRNId) {
+                const oldGrn = allPurchases.find(p => p.id === editingGRNId);
+                if (oldGrn) {
+                    const oldPositiveItems = oldGrn.items.filter(item => item.quantity > 0);
+                    oldPositiveItems.forEach(pItem => {
+                        const whObj = warehousesDb.find(w => w.id === pItem.warehouseId);
+                        const whName = whObj ? whObj.name : 'المخزن الرئيسي (السجانة)';
+                        let itemInv = currentInvData.find(inv => inv.itemId === pItem.itemId && inv.warehouse === whName);
+                        if (itemInv) {
+                            itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) - parseFloat(pItem.quantity);
+                            if (itemInv.qty < 0) itemInv.qty = 0;
+                        }
+                    });
+                }
+            }
+
+            // Update actual stock in erp_inventory_v1 for new quantities
+            receivingItems.forEach(line => {
+                const whObj = warehousesDb.find(w => w.id === line.warehouseId);
+                const whName = whObj ? whObj.name : 'المخزن الرئيسي (السجانة)';
+                
+                // We add to actual stock level
+                let itemInv = currentInvData.find(inv => inv.itemId === line.itemId && inv.warehouse === whName);
+                if (itemInv) {
+                    itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) + parseFloat(line.receiveQty);
+                } else {
+                    currentInvData.push({
+                        itemId: line.itemId,
+                        warehouse: whName,
+                        qty: parseFloat(line.receiveQty),
+                        minQty: 10
+                    });
+                }
+            });
+            localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
+
+            if (editingGRNId) {
+                // Edit mode: overwrite old GRN in allPurchases
+                const grnIdx = allPurchases.findIndex(p => p.id === editingGRNId);
+                if (grnIdx > -1) {
+                    allPurchases[grnIdx].items = newItems;
+                    allPurchases[grnIdx].date = new Date().toISOString();
+                    allPurchases[grnIdx].warehouse = firstWh;
+                    allPurchases[grnIdx].notes = `تعديل مذكرة استلام بضاعة للفاتورة ${currentInvoiceId}`;
+                    allPurchases[grnIdx].createdBy = (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown';
+                }
+                showToast(`تم تعديل الإذن ${editingGRNId} بنجاح`, 'success');
+                editingGRNId = null; // Clear edit mode
+            } else {
+                // New mode: add new GRN
+                allPurchases.push(grnInv);
+                showToast(`تم حفظ مذكرة الاستلام وتحديث المخزون الفعلي بنجاح`, 'success');
+            }
+
+            localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
             
             setTimeout(() => {
-                // Recalculate pending state globally
                 calculatePendingGoods();
                 renderPendingInvoices();
-                showHub();
+                if (pendingMap[currentInvoiceId]) {
+                    openReceiptEditor(currentInvoiceId);
+                } else {
+                    showHub();
+                }
             }, 1500);
         }
+
+        function renderRecentGRNs(invoiceId) {
+            const container = document.getElementById('recent-grns-container');
+            if (!container) return;
+
+            // Load all GRNs for all invoices
+            const grns = allPurchases.filter(p => p.isGRN);
+            
+            // Sort by date descending (newest first)
+            grns.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if (grns.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; color: #64748b; padding: 20px; font-size: 0.85rem;">
+                        لا توجد عمليات استلام سابقة في النظام.
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <table class="pos-grid" style="width: 100%; font-size: 0.8rem; margin-top: 10px;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:right;">رقم الاستلام</th>
+                            <th style="text-align:center; width:15%;">الفاتورة الأصلية</th>
+                            <th style="text-align:center;">التاريخ والوقت</th>
+                            <th style="text-align:right;">الأصناف المستلمة</th>
+                            <th style="text-align:center;">بواسطة</th>
+                            <th style="text-align:center; width: 120px;">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            grns.forEach(grn => {
+                const isEditingThis = grn.id === editingGRNId;
+                const rowBg = isEditingThis ? 'background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4);' : '';
+                const editBadge = isEditingThis ? '<span style="background: #f59e0b; color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; margin-right: 8px;">قيد التعديل ✏️</span>' : '';
+
+                const positiveItems = grn.items.filter(item => item.quantity > 0);
+                let itemsSummary = positiveItems.map(item => {
+                    const itemObj = itemsDb.find(i => i.id === item.itemId);
+                    const name = itemObj ? itemObj.name : 'صنف غير معروف';
+                    return `${name} (${item.quantity} ${item.unitName || 'وحدة'})`;
+                }).join('<br>');
+
+                let dateStr = '—';
+                try {
+                    dateStr = new Date(grn.date).toLocaleString('ar-EG', {
+                        year: 'numeric', month: 'numeric', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                    });
+                } catch(e) {}
+
+                const creatorUser = usersDb.find(u => u.id === grn.createdBy || u.username === grn.createdBy);
+                const creatorName = creatorUser ? creatorUser.name : grn.createdBy || 'غير معروف';
+
+                html += `
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.03); ${rowBg}">
+                        <td style="color: #38bdf8; font-weight: 800; font-family: 'Outfit';">${grn.id} ${editBadge}</td>
+                        <td style="text-align:center; color: #fbbf24; font-weight: bold; font-family: 'Outfit';">${grn.originalInvoiceId}</td>
+                        <td style="text-align:center; font-family: 'Outfit';">${dateStr}</td>
+                        <td style="color:#e2e8f0; line-height: 1.4;">${itemsSummary}</td>
+                        <td style="text-align:center; color:#a855f7; font-weight: 600;">${creatorName}</td>
+                        <td style="text-align:center;">
+                            <div style="display: flex; gap: 6px; justify-content: center;">
+                                <button class="btn-action" style="padding: 4px 8px; font-size: 0.75rem; background: linear-gradient(135deg, #3b82f6, #2563eb);" onclick="editGRN('${grn.id}')">تعديل</button>
+                                <button class="btn-action" style="padding: 4px 8px; font-size: 0.75rem; background: linear-gradient(135deg, #ef4444, #dc2626);" onclick="deleteGRN('${grn.id}')">حذف</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+            container.innerHTML = html;
+        }
+
+        window.deleteGRN = function(grnId) {
+            if (!confirm('هل أنت متأكد من حذف عملية الاستلام هذه؟ سيؤدي ذلك لإعادة الكميات المستلمة كبضاعة معلقة.')) {
+                return;
+            }
+
+            const grn = allPurchases.find(p => p.id === grnId);
+            if (!grn) return;
+
+            // Revert actual stock in erp_inventory_v1
+            let currentInvData = [];
+            try {
+                currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+            } catch(e) {}
+
+            const positiveItems = grn.items.filter(item => item.quantity > 0);
+            positiveItems.forEach(pItem => {
+                const whObj = warehousesDb.find(w => w.id === pItem.warehouseId);
+                const whName = whObj ? whObj.name : 'المخزن الرئيسي (السجانة)';
+
+                let itemInv = currentInvData.find(inv => inv.itemId === pItem.itemId && inv.warehouse === whName);
+                if (itemInv) {
+                    itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) - parseFloat(pItem.quantity);
+                    if (itemInv.qty < 0) itemInv.qty = 0;
+                }
+            });
+            localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
+
+            const index = allPurchases.findIndex(p => p.id === grnId);
+            if (index > -1) {
+                allPurchases.splice(index, 1);
+                localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+                showToast('تم حذف عملية الاستلام وتحديث البضاعة المعلقة بنجاح', 'success');
+                
+                if (editingGRNId === grnId) {
+                    editingGRNId = null;
+                }
+
+                calculatePendingGoods();
+                renderPendingInvoices();
+                
+                // If we are currently editing an invoice, refresh the editor
+                if (currentInvoiceId) {
+                    openReceiptEditor(currentInvoiceId);
+                } else {
+                    showHub();
+                }
+            }
+        };
+
+        window.editGRN = function(grnId) {
+            const grn = allPurchases.find(p => p.id === grnId);
+            if (!grn) return;
+
+            editingGRNId = grnId; // Enter edit mode
+
+            // Recalculate pending goods ignoring this GRN
+            calculatePendingGoods();
+            renderPendingInvoices();
+            
+            // Open editor for the original invoice of this GRN
+            openReceiptEditor(grn.originalInvoiceId);
+            
+            // Pre-fill target quantities from this GRN
+            const positiveItems = grn.items.filter(item => item.quantity > 0);
+            setTimeout(() => {
+                // Clear any default receiptLines quantities first
+                receiptLines.forEach(l => {
+                    l.receiveQty = 0;
+                });
+
+                positiveItems.forEach(pItem => {
+                    const line = receiptLines.find(l => l.itemId === pItem.itemId);
+                    if (line) {
+                        line.receiveQty = pItem.quantity;
+                        line.warehouseId = pItem.warehouseId;
+                    }
+                });
+                renderReceiptLines();
+                showToast(`تم تحميل إذن الاستلام ${grnId} للتعديل. يرجى مراجعة وتعديل الكميات والحفظ.`, 'warning');
+            }, 150);
+        };
+
+        document.getElementById('actual-warehouse').addEventListener('change', (e) => {
+            const wh = e.target.value;
+            receiptLines.forEach(line => {
+                line.warehouseId = wh;
+            });
+            renderReceiptLines();
+        });
 
     </script>
 </body>
