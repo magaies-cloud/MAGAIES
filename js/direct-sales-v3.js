@@ -3014,3 +3014,385 @@ async function sendInvoiceWA(invoiceNo) {
         printContainer.remove();
     }
 }
+
+// ════════════════════════════════════════════════════════════
+// ✂️ SPLIT INVOICE FEATURE LOGIC
+// ════════════════════════════════════════════════════════════
+
+let activeSplitInvoice = null;
+
+function loadSplitInvoices() {
+    const searchVal = document.getElementById('split-invoice-search')?.value.toLowerCase() || '';
+    const tbody = document.getElementById('split-invoices-body');
+    const emptyState = document.getElementById('split-empty-state');
+    if (!tbody) return;
+    
+    let invoices = [];
+    try {
+        invoices = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    } catch(e) {}
+    
+    const eligible = invoices.filter(inv => 
+        !inv.deleted && 
+        inv.status === 'pending_delivery' && 
+        inv.saleType !== 'preliminary' &&
+        (!inv.wasSplit)
+    );
+    
+    const filtered = eligible.filter(inv => {
+        const no = (inv.invoiceNo || '').toLowerCase();
+        const custName = (inv.customerName || '').toLowerCase();
+        const total = String(inv.grandTotal || '').toLowerCase();
+        return no.includes(searchVal) || custName.includes(searchVal) || total.includes(searchVal);
+    });
+    
+    if (filtered.length === 0) {
+        tbody.innerHTML = '';
+        if (emptyState) emptyState.style.display = 'flex';
+        return;
+    }
+    
+    if (emptyState) emptyState.style.display = 'none';
+    tbody.innerHTML = '';
+    
+    filtered.forEach(inv => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong style="color: #38bdf8;">${inv.invoiceNo}</strong></td>
+            <td>${inv.date}</td>
+            <td>${inv.customerName || 'عميل نقدي'}</td>
+            <td><span class="badge" style="background: rgba(99,102,241,0.1); color: #8b5cf6; padding: 4px 8px; border-radius: 6px;">${inv.paymentMethod === 'credit' ? '✍️ آجل' : '💵 نقدي'}</span></td>
+            <td style="text-align: left; font-family: monospace; font-weight: bold;">${parseFloat(inv.grandTotal).toLocaleString()} SDG</td>
+            <td style="text-align: center;"><span class="badge draft">بانتظار التسليم</span></td>
+            <td style="text-align: center;">
+                <button class="btn-action" style="width: auto; padding: 5px 12px; background: rgba(236,72,153,0.15); color: #ec4899; border: 1px solid rgba(236,72,153,0.3);" onclick="startInvoiceSplit('${inv.invoiceNo}')">تقسيم الفاتورة ✂️</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function filterSplitInvoices() {
+    loadSplitInvoices();
+}
+
+function startInvoiceSplit(invoiceNo) {
+    let invoices = [];
+    try {
+        invoices = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    } catch(e) {}
+    
+    const inv = invoices.find(x => x.invoiceNo === invoiceNo);
+    if (!inv) {
+        alert('حدث خطأ: لم يتم العثور على الفاتورة المحددة!');
+        return;
+    }
+    
+    activeSplitInvoice = JSON.parse(JSON.stringify(inv));
+    
+    document.getElementById('split-select-step').style.display = 'none';
+    document.getElementById('split-board-step').style.display = 'flex';
+    
+    const headerInfo = document.getElementById('split-header-info');
+    if (headerInfo) {
+        headerInfo.innerHTML = `
+            <div style="flex: 1; min-width: 200px;">
+                <div style="font-size: 0.85rem; color: #cbd5e1; font-weight: bold;">الفاتورة الأصلية:</div>
+                <div style="font-size: 1.2rem; font-weight: 800; color: #fff; margin-top: 4px;">${inv.invoiceNo}</div>
+            </div>
+            <div style="flex: 1; min-width: 200px;">
+                <div style="font-size: 0.85rem; color: #cbd5e1; font-weight: bold;">العميل الحالي:</div>
+                <div style="font-size: 1.1rem; font-weight: bold; color: #f8fafc; margin-top: 4px;">${inv.customerName || 'عميل نقدي'}</div>
+            </div>
+            <div style="flex: 1; min-width: 150px;">
+                <div style="font-size: 0.85rem; color: #cbd5e1; font-weight: bold;">طريقة الدفع:</div>
+                <div style="font-size: 1.1rem; font-weight: bold; color: #8b5cf6; margin-top: 4px;">${inv.paymentMethod === 'credit' ? '✍️ آجل' : '💵 نقدي'}</div>
+            </div>
+            <div style="flex: 1; min-width: 150px;">
+                <div style="font-size: 0.85rem; color: #cbd5e1; font-weight: bold;">القيمة الإجمالية:</div>
+                <div style="font-size: 1.2rem; font-weight: 800; color: #10b981; margin-top: 4px; font-family: monospace;">${parseFloat(inv.grandTotal).toLocaleString()} SDG</div>
+            </div>
+        `;
+    }
+    
+    const tbody = document.getElementById('split-items-body');
+    if (tbody) {
+        tbody.innerHTML = '';
+        activeSplitInvoice.items.forEach((item, idx) => {
+            const tr = document.createElement('tr');
+            const originalQty = parseFloat(item.qty) || 0;
+            const price = parseFloat(item.price) || 0;
+            const totalVal = originalQty * price;
+            
+            tr.innerHTML = `
+                <td><strong style="color:#f8fafc;">${item.itemName}</strong></td>
+                <td style="text-align: center; font-weight: bold; color: #94a3b8;">${originalQty}</td>
+                <td style="text-align: left; font-family: monospace;">${price.toLocaleString()} SDG</td>
+                <td style="text-align: center;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <button class="btn-action" style="width:30px; height:30px; padding:0; line-height:30px; background: rgba(56,189,248,0.1); color:#38bdf8; border: none; font-weight: bold; border-radius: 4px;" onclick="adjustSplitQty(${idx}, -1)">-</button>
+                        <input type="number" id="split-qty-a-${idx}" class="v-input" style="width: 80px; text-align: center; font-family: monospace; font-weight: bold; border-color: rgba(56,189,248,0.3); margin: 0; padding: 4px;" value="${originalQty}" min="0" max="${originalQty}" step="any" oninput="handleSplitQtyInput(${idx})">
+                        <button class="btn-action" style="width:30px; height:30px; padding:0; line-height:30px; background: rgba(56,189,248,0.1); color:#38bdf8; border: none; font-weight: bold; border-radius: 4px;" onclick="adjustSplitQty(${idx}, 1)">+</button>
+                    </div>
+                </td>
+                <td style="text-align: center;">
+                    <span id="split-qty-b-${idx}" style="font-family: monospace; font-size: 1.1rem; font-weight: 800; color: #ec4899;">0</span>
+                </td>
+                <td style="text-align: left; font-family: monospace; color:#10b981; font-weight: bold;">${totalVal.toLocaleString()} SDG</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+    
+    updateSplitCalculations();
+}
+
+function adjustSplitQty(idx, delta) {
+    if (!activeSplitInvoice) return;
+    const item = activeSplitInvoice.items[idx];
+    const originalQty = parseFloat(item.qty) || 0;
+    const inputA = document.getElementById(`split-qty-a-${idx}`);
+    if (!inputA) return;
+    let qtyA = parseFloat(inputA.value) || 0;
+    
+    qtyA = Math.max(0, Math.min(originalQty, qtyA + delta));
+    inputA.value = qtyA;
+    
+    handleSplitQtyInput(idx);
+}
+
+function handleSplitQtyInput(idx) {
+    if (!activeSplitInvoice) return;
+    const item = activeSplitInvoice.items[idx];
+    const originalQty = parseFloat(item.qty) || 0;
+    const inputA = document.getElementById(`split-qty-a-${idx}`);
+    if (!inputA) return;
+    let qtyA = parseFloat(inputA.value) || 0;
+    
+    if (qtyA < 0) qtyA = 0;
+    if (qtyA > originalQty) qtyA = originalQty;
+    
+    inputA.value = qtyA;
+    
+    const qtyB = originalQty - qtyA;
+    const labelB = document.getElementById(`split-qty-b-${idx}`);
+    if (labelB) {
+        labelB.innerText = qtyB.toFixed(2).replace(/\.00$/, '');
+    }
+    
+    updateSplitCalculations();
+}
+
+function updateSplitCalculations() {
+    if (!activeSplitInvoice) return;
+    
+    let subtotalA = 0;
+    let subtotalB = 0;
+    
+    activeSplitInvoice.items.forEach((item, idx) => {
+        const price = parseFloat(item.price) || 0;
+        const originalQty = parseFloat(item.qty) || 0;
+        
+        const inputA = document.getElementById(`split-qty-a-${idx}`);
+        const qtyA = inputA ? parseFloat(inputA.value) || 0 : originalQty;
+        const qtyB = originalQty - qtyA;
+        
+        subtotalA += qtyA * price;
+        subtotalB += qtyB * price;
+        
+        const labelB = document.getElementById(`split-qty-b-${idx}`);
+        if (labelB) {
+            labelB.innerText = qtyB.toFixed(2).replace(/\.00$/, '');
+        }
+    });
+    
+    const originalSubtotal = parseFloat(activeSplitInvoice.subTotal) || 0;
+    const originalDiscount = parseFloat(activeSplitInvoice.discount) || 0;
+    const originalTax = parseFloat(activeSplitInvoice.vatAmount) || 0;
+    
+    let discountA = 0;
+    let discountB = 0;
+    let taxA = 0;
+    let taxB = 0;
+    
+    if (originalSubtotal > 0) {
+        const ratioA = subtotalA / originalSubtotal;
+        const ratioB = subtotalB / originalSubtotal;
+        
+        discountA = originalDiscount * ratioA;
+        discountB = originalDiscount * ratioB;
+        
+        taxA = originalTax * ratioA;
+        taxB = originalTax * ratioB;
+    }
+    
+    const grandA = Math.max(0, subtotalA - discountA + taxA);
+    const grandB = Math.max(0, subtotalB - discountB + taxB);
+    
+    const elSubA = document.getElementById('split-subtotal-a');
+    const elDiscA = document.getElementById('split-discount-a');
+    const elTaxA = document.getElementById('split-tax-a');
+    const elGrandA = document.getElementById('split-grand-a');
+    
+    if (elSubA) elSubA.innerText = subtotalA.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+    if (elDiscA) elDiscA.innerText = discountA.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+    if (elTaxA) elTaxA.innerText = taxA.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+    if (elGrandA) elGrandA.innerText = grandA.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+    
+    const elSubB = document.getElementById('split-subtotal-b');
+    const elDiscB = document.getElementById('split-discount-b');
+    const elTaxB = document.getElementById('split-tax-b');
+    const elGrandB = document.getElementById('split-grand-b');
+    
+    if (elSubB) elSubB.innerText = subtotalB.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+    if (elDiscB) elDiscB.innerText = discountB.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+    if (elTaxB) elTaxB.innerText = taxB.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+    if (elGrandB) elGrandB.innerText = grandB.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+}
+
+function cancelCurrentSplit() {
+    activeSplitInvoice = null;
+    document.getElementById('split-board-step').style.display = 'none';
+    document.getElementById('split-select-step').style.display = 'flex';
+    loadSplitInvoices();
+}
+
+function submitInvoiceSplit() {
+    if (!activeSplitInvoice) return;
+    
+    const itemsA = [];
+    const itemsB = [];
+    
+    let hasQtyA = false;
+    let hasQtyB = false;
+    
+    activeSplitInvoice.items.forEach((item, idx) => {
+        const originalQty = parseFloat(item.qty) || 0;
+        const inputA = document.getElementById(`split-qty-a-${idx}`);
+        const qtyA = inputA ? parseFloat(inputA.value) || 0 : originalQty;
+        const qtyB = originalQty - qtyA;
+        
+        if (qtyA > 0) {
+            hasQtyA = true;
+            itemsA.push({
+                ...item,
+                qty: qtyA,
+                total: qtyA * parseFloat(item.price)
+            });
+        }
+        
+        if (qtyB > 0) {
+            hasQtyB = true;
+            itemsB.push({
+                ...item,
+                qty: qtyB,
+                total: qtyB * parseFloat(item.price)
+            });
+        }
+    });
+    
+    if (!hasQtyA || !hasQtyB) {
+        alert('خطأ: لا يمكن إتمام عملية تقسيم الفاتورة إلا إذا تم وضع صنف واحد على الأقل في كل فاتورة فرعية! (لا يمكن أن تكون إحداهما فارغة).');
+        return;
+    }
+    
+    if (!confirm('هل أنت متأكد من رغبتك في تقسيم هذه الفاتورة واعتماد الفاتورتين الجديدتين؟\nسيتم أرشفة الفاتورة القديمة تلقائياً.')) {
+        return;
+    }
+    
+    const invoiceNoA = `${activeSplitInvoice.invoiceNo}-1`;
+    const invoiceNoB = `${activeSplitInvoice.invoiceNo}-2`;
+    
+    const subtotalA = itemsA.reduce((sum, item) => sum + item.total, 0);
+    const originalSubtotal = parseFloat(activeSplitInvoice.subTotal) || 0;
+    const originalDiscount = parseFloat(activeSplitInvoice.discount) || 0;
+    const originalTax = parseFloat(activeSplitInvoice.vatAmount) || 0;
+    
+    const ratioA = subtotalA / originalSubtotal;
+    const discountA = originalDiscount * ratioA;
+    const taxA = originalTax * ratioA;
+    const grandA = Math.max(0, subtotalA - discountA + taxA);
+    
+    const subtotalB = itemsB.reduce((sum, item) => sum + item.total, 0);
+    const ratioB = subtotalB / originalSubtotal;
+    const discountB = originalDiscount * ratioB;
+    const taxB = originalTax * ratioB;
+    const grandB = Math.max(0, subtotalB - discountB + taxB);
+    
+    const invoiceA = {
+        ...activeSplitInvoice,
+        invoiceNo: invoiceNoA,
+        items: itemsA,
+        subTotal: subtotalA,
+        discount: discountA,
+        vatAmount: taxA,
+        grandTotal: grandA,
+        timestamp: new Date().toISOString(),
+        parentInvoice: activeSplitInvoice.invoiceNo
+    };
+    
+    const invoiceB = {
+        ...activeSplitInvoice,
+        invoiceNo: invoiceNoB,
+        items: itemsB,
+        subTotal: subtotalB,
+        discount: discountB,
+        vatAmount: taxB,
+        grandTotal: grandB,
+        timestamp: new Date().toISOString(),
+        parentInvoice: activeSplitInvoice.invoiceNo
+    };
+    
+    let allSales = [];
+    try {
+        allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    } catch(e) {}
+    
+    const origIdx = allSales.findIndex(x => x.invoiceNo === activeSplitInvoice.invoiceNo);
+    if (origIdx !== -1) {
+        allSales[origIdx].deleted = true;
+        allSales[origIdx].wasSplit = true;
+        allSales[origIdx].splitTo = [invoiceNoA, invoiceNoB];
+    }
+    
+    allSales.push(invoiceA);
+    allSales.push(invoiceB);
+    localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+    
+    localStorage.setItem('erp_inv_' + invoiceNoA, JSON.stringify(invoiceA));
+    localStorage.setItem('erp_inv_' + invoiceNoB, JSON.stringify(invoiceB));
+    
+    if (activeSplitInvoice.paymentMethod === 'credit' && activeSplitInvoice.customer && activeSplitInvoice.customer !== 'walk-in') {
+        let customers = [];
+        try { customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || []; } catch(e) {}
+        
+        const cIdx = customers.findIndex(c => c.id === activeSplitInvoice.customer);
+        if (cIdx > -1) {
+            let currentBalance = parseFloat(customers[cIdx].currentBalance) || 0;
+            currentBalance = currentBalance - parseFloat(activeSplitInvoice.grandTotal) + grandA + grandB;
+            customers[cIdx].currentBalance = currentBalance;
+            localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
+        }
+    }
+    
+    if (activeSplitInvoice.paymentMethod !== 'credit' && activeSplitInvoice.paymentAccountId) {
+        let banks = [];
+        try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e) {}
+        
+        const bIdx = banks.findIndex(b => b.id === activeSplitInvoice.paymentAccountId);
+        if (bIdx > -1) {
+            let currentBalance = parseFloat(banks[bIdx].currentBalance) || 0;
+            currentBalance = currentBalance - parseFloat(activeSplitInvoice.grandTotal) + grandA + grandB;
+            banks[bIdx].currentBalance = currentBalance;
+            localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+        }
+    }
+    
+    if (typeof showToast === 'function') {
+        showToast('تم تقسيم الفاتورة واعتماد المستندين الجديدين بنجاح! ✂️', 'success');
+    } else {
+        alert('تم تقسيم الفاتورة واعتماد المستندين الجديدين بنجاح! ✂️');
+    }
+    
+    showSalesHub();
+}

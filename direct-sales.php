@@ -1107,14 +1107,20 @@
         
     <!-- ═══ SALES HUB VIEW ═══ -->
     <div id="sales-hub-view" style="display: flex; flex-direction: column; height: 100%; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 0 5px;">
-        
-        <!-- Action Cards (فاتورة جديدة, تسليم, فاتورة مبدئية) -->
+        <!-- Action Cards (فاتورة جديدة, تقسيم الفاتورة, تسليم, فاتورة مبدئية) -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
             <button onclick="openInvoiceEditor('pending_delivery')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(56,189,248,0.02)); border-color: rgba(56,189,248,0.2);">
                 <div class="icon" style="color: #38bdf8; text-shadow: 0 0 10px rgba(56,189,248,0.4); box-shadow: inset 0 0 10px rgba(56,189,248,0.1);">➕</div>
                 <div class="text-content">
                     <div class="title" style="color: #38bdf8;">فاتورة جديدة</div>
                     <div class="subtitle">إنشاء فاتورة مبيعات (بدون خصم مخزون)</div>
+                </div>
+            </button>
+            <button onclick="openSplitInvoiceView()" class="hub-action-card" style="background: linear-gradient(135deg, rgba(236,72,153,0.1), rgba(236,72,153,0.02)); border-color: rgba(236,72,153,0.2);">
+                <div class="icon" style="color: #ec4899; text-shadow: 0 0 10px rgba(236,72,153,0.4); box-shadow: inset 0 0 10px rgba(236,72,153,0.1);">✂️</div>
+                <div class="text-content">
+                    <div class="title" style="color: #ec4899;">تقسيم الفاتورة</div>
+                    <div class="subtitle">تقسيم فاتورة مبيعات إلى فاتورتين مستقلتين</div>
                 </div>
             </button>
             <button onclick="openDeliveryHub()" class="hub-action-card" style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.02)); border-color: rgba(16,185,129,0.2);">
@@ -1164,6 +1170,116 @@
                     <div class="icon">📭</div>
                     <h3>لا توجد عمليات مسجلة</h3>
                     <p>اضغط على "فاتورة جديدة" للبدء.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ SPLIT INVOICE VIEW ═══ -->
+    <div id="split-invoice-view" style="display: none; flex-direction: column; height: 100%; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 0 5px;">
+        <div class="neo-card" style="flex: 1; display: flex; flex-direction: column; overflow: visible; margin-bottom: 15px;">
+            <div class="neo-card-title" style="font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: #ec4899;">✂️ شاشة تقسيم فواتير المبيعات (Split Sales Invoice)</span>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-action" style="width: auto; padding: 6px 12px; font-size: 0.8rem; background: rgba(239,68,68,0.1); color: #ef4444;" onclick="showSalesHub()">رجوع</button>
+                </div>
+            </div>
+            
+            <!-- Step 1: Select Invoice -->
+            <div id="split-select-step" style="display: flex; flex-direction: column; flex: 1; gap: 15px;">
+                <div style="display: flex; gap: 15px; align-items: center; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 5px; font-weight: bold;">البحث عن فاتورة نشطة للتقسيم:</label>
+                        <input type="text" id="split-invoice-search" class="v-input" placeholder="ابحث برقم الفاتورة، اسم العميل، أو الإجمالي..." oninput="filterSplitInvoices()">
+                    </div>
+                    <button class="btn-action" style="width: auto; height: 42px; margin-top: auto; background: rgba(255,255,255,0.05);" onclick="loadSplitInvoices()">🔄 تحديث القائمة</button>
+                </div>
+                
+                <div class="grid-scroll-wrap" style="flex: 1; max-height: 450px; overflow-y: auto; margin-top: 10px;">
+                    <table class="pos-grid" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th style="text-align:right;">رقم الفاتورة</th>
+                                <th style="text-align:right;">التاريخ</th>
+                                <th style="text-align:right;">العميل</th>
+                                <th style="text-align:center;">طريقة الدفع</th>
+                                <th style="text-align:left;">المبلغ الإجمالي</th>
+                                <th style="text-align:center;">الحالة</th>
+                                <th style="text-align:center;">الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="split-invoices-body">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                    <div class="empty-state" id="split-empty-state" style="display: none;">
+                        <div class="icon">📭</div>
+                        <h3>لا توجد فواتير صالحة للتقسيم</h3>
+                        <p>تأكد من وجود فواتير مبيعات نشطة وغير مسلمة بعد.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Split Board -->
+            <div id="split-board-step" style="display: none; flex-direction: column; flex: 1; gap: 20px;">
+                <div id="split-header-info" style="display: flex; gap: 20px; flex-wrap: wrap; background: linear-gradient(135deg, rgba(236,72,153,0.15), rgba(99,102,241,0.05)); padding: 15px; border-radius: 12px; border: 1px solid rgba(236,72,153,0.2);">
+                    <!-- Filled dynamically -->
+                </div>
+
+                <div class="grid-scroll-wrap" style="flex: 1; max-height: 350px; overflow-y: auto;">
+                    <table class="pos-grid" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th style="text-align:right;">اسم الصنف</th>
+                                <th style="text-align:center; width: 100px;">الكمية الأصلية</th>
+                                <th style="text-align:left; width: 120px;">السعر</th>
+                                <th style="text-align:center; width: 220px; color: #38bdf8;">الكمية للفاتورة A</th>
+                                <th style="text-align:center; width: 220px; color: #ec4899;">الكمية للفاتورة B</th>
+                                <th style="text-align:left; width: 150px;">القيمة الكلية</th>
+                            </tr>
+                        </thead>
+                        <tbody id="split-items-body">
+                            <!-- Filled dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Summaries & Actions -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                    <!-- Invoice A Card -->
+                    <div class="neo-card" style="border: 1px solid rgba(56, 189, 248, 0.3); background: rgba(56, 189, 248, 0.02); padding: 15px; border-radius: 12px; position: relative; overflow: hidden; margin: 0;">
+                        <div style="position: absolute; top:0; right:0; width:4px; height:100%; background:#38bdf8;"></div>
+                        <h4 style="color: #38bdf8; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+                            <span>📄</span> الفاتورة الفرعية الأولى (A)
+                        </h4>
+                        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem;">
+                            <div style="display: flex; justify-content: space-between; color: #cbd5e1;"><span>الإجمالي قبل الخصم:</span><span id="split-subtotal-a" style="font-family: monospace; font-weight: bold;">0.00</span></div>
+                            <div style="display: flex; justify-content: space-between; color: #cbd5e1;"><span>الخصم (النسبي):</span><span id="split-discount-a" style="font-family: monospace; font-weight: bold; color: #f87171;">0.00</span></div>
+                            <div style="display: flex; justify-content: space-between; color: #cbd5e1;"><span>الضريبة (النسبية):</span><span id="split-tax-a" style="font-family: monospace; font-weight: bold;">0.00</span></div>
+                            <hr style="border-color: rgba(255,255,255,0.05); margin: 6px 0;">
+                            <div style="display: flex; justify-content: space-between; font-weight: 800; color: #38bdf8; font-size: 1.15rem;"><span>الصافي النهائي:</span><span id="split-grand-a" style="font-family: monospace;">0.00</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Invoice B Card -->
+                    <div class="neo-card" style="border: 1px solid rgba(236, 72, 153, 0.3); background: rgba(236, 72, 153, 0.02); padding: 15px; border-radius: 12px; position: relative; overflow: hidden; margin: 0;">
+                        <div style="position: absolute; top:0; right:0; width:4px; height:100%; background:#ec4899;"></div>
+                        <h4 style="color: #ec4899; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+                            <span>📄</span> الفاتورة الفرعية الثانية (B)
+                        </h4>
+                        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem;">
+                            <div style="display: flex; justify-content: space-between; color: #cbd5e1;"><span>الإجمالي قبل الخصم:</span><span id="split-subtotal-b" style="font-family: monospace; font-weight: bold;">0.00</span></div>
+                            <div style="display: flex; justify-content: space-between; color: #cbd5e1;"><span>الخصم (النسبي):</span><span id="split-discount-b" style="font-family: monospace; font-weight: bold; color: #f87171;">0.00</span></div>
+                            <div style="display: flex; justify-content: space-between; color: #cbd5e1;"><span>الضريبة (النسبية):</span><span id="split-tax-b" style="font-family: monospace; font-weight: bold;">0.00</span></div>
+                            <hr style="border-color: rgba(255,255,255,0.05); margin: 6px 0;">
+                            <div style="display: flex; justify-content: space-between; font-weight: 800; color: #ec4899; font-size: 1.15rem;"><span>الصافي النهائي:</span><span id="split-grand-b" style="font-family: monospace;">0.00</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 10px;">
+                    <button class="btn-action" style="width: auto; padding: 10px 25px; background: rgba(255,255,255,0.05);" onclick="cancelCurrentSplit()">إلغاء وتراجع</button>
+                    <button class="btn-action" style="width: auto; padding: 10px 35px; background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; font-weight: bold; border: none; box-shadow: 0 4px 15px rgba(236,72,153,0.3);" onclick="submitInvoiceSplit()">تأكيد واعتماد التقسيم ✂️</button>
                 </div>
             </div>
         </div>
@@ -1574,6 +1690,7 @@
         function showSalesHub() {
             document.getElementById('invoice-editor-view').style.display = 'none';
             document.getElementById('delivery-hub-view').style.display = 'none';
+            document.getElementById('split-invoice-view').style.display = 'none';
             document.getElementById('sales-hub-view').style.display = 'flex';
             currentSalesView = 'hub';
             
@@ -1596,6 +1713,7 @@
         function openInvoiceEditor(type = 'pending_delivery', isEdit = false) {
             document.getElementById('sales-hub-view').style.display = 'none';
             document.getElementById('delivery-hub-view').style.display = 'none';
+            document.getElementById('split-invoice-view').style.display = 'none';
             document.getElementById('invoice-editor-view').style.display = 'flex';
             currentSalesView = 'editor';
             currentSaleType = type;
@@ -1642,6 +1760,7 @@
         function openDeliveryHub() {
             document.getElementById('sales-hub-view').style.display = 'none';
             document.getElementById('invoice-editor-view').style.display = 'none';
+            document.getElementById('split-invoice-view').style.display = 'none';
             document.getElementById('delivery-hub-view').style.display = 'flex';
             currentSalesView = 'delivery';
             
@@ -1652,6 +1771,24 @@
             }
             
             loadDeliveryTransactions();
+        }
+
+        function openSplitInvoiceView() {
+            document.getElementById('sales-hub-view').style.display = 'none';
+            document.getElementById('invoice-editor-view').style.display = 'none';
+            document.getElementById('delivery-hub-view').style.display = 'none';
+            document.getElementById('split-invoice-view').style.display = 'flex';
+            currentSalesView = 'split';
+            
+            // Change header title to "تقسيم الفواتير"
+            const headerTitle = document.querySelector('.header-page-title');
+            if (headerTitle) {
+                headerTitle.innerHTML = '<span class="header-page-title-icon">✂️</span> تقسيم الفواتير';
+            }
+            
+            if (typeof loadSplitInvoices === 'function') {
+                loadSplitInvoices();
+            }
         }
 
         function loadHubTransactions() {
