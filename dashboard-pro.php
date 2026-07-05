@@ -698,6 +698,14 @@
             const items = (JSON.parse(localStorage.getItem('erp_items_v1')) || []).filter(x => !x.deleted);
             const gl = (JSON.parse(localStorage.getItem('erp_gl_v1')) || []).filter(x => !x.deleted);
             const customers = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+            const inventory = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+
+            // Helper to get total actual stock of an item across warehouses (ignoring virtual pending states)
+            function getItemActualStock(itemId) {
+                return inventory
+                    .filter(inv => inv.itemId === itemId && inv.warehouse !== 'PENDING_RECEIPT')
+                    .reduce((sum, inv) => sum + (Number(inv.qty) || 0), 0);
+            }
 
             // Get EXACT local date YYYY-MM-DD
             const now = new Date();
@@ -706,8 +714,8 @@
             const day = String(now.getDate()).padStart(2, '0');
             const todayStr = `${year}-${month}-${day}`;
 
-            // 1. Calculate Today's Sales
-            const todaySales = invoices.filter(inv => inv.date && inv.date.startsWith(todayStr)).reduce((sum, inv) => sum + (Number(inv.netTotal) || 0), 0);
+            // 1. Calculate Today's Sales using grandTotal/totalAmount (not netTotal which doesn't exist)
+            const todaySales = invoices.filter(inv => inv.date && inv.date.startsWith(todayStr)).reduce((sum, inv) => sum + (Number(inv.grandTotal) || Number(inv.totalAmount) || 0), 0);
             document.getElementById('kpi-sales').innerText = todaySales.toLocaleString('en-US') + ' SDG';
 
             // 2. Calculate Liquidity
@@ -718,25 +726,27 @@
             const totalItems = items.length;
             document.getElementById('kpi-inventory').innerText = totalItems.toLocaleString() + ' صنف';
 
-            // 4. Low Stock
+            // 4. Low Stock computed from actual inventory levels
             const lowStockItems = items.filter(item => {
-                let available = 0;
-                if(item.units && item.units[0]) available = item.units[0].stock || 0;
-                let safeLimit = item.safeLimit || 10;
+                let available = getItemActualStock(item.id);
+                let safeLimit = Number(item.safeLimit) || Number(item.minQty) || 10;
                 return available <= safeLimit;
             });
             document.getElementById('kpi-alerts').innerText = lowStockItems.length + ' أصناف';
 
-            const lowStockHTML = lowStockItems.slice(0, 5).map(item => `
+            const lowStockHTML = lowStockItems.slice(0, 5).map(item => {
+                const stockVal = getItemActualStock(item.id);
+                return `
                 <div class="list-item" style="background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.2);">
                     <div class="list-icon" style="background:var(--theme-red); color:#fff; box-shadow: 0 3px 10px rgba(248,113,113,0.3);">!</div>
                     <div style="flex:1;">
                         <h4 class="list-title">${item.name}</h4>
-                        <span class="list-sub">الرصيد: <strong style="color:var(--theme-red); font-size: 0.9rem;">${item.units && item.units[0] ? item.units[0].stock : 0}</strong></span>
+                        <span class="list-sub">الرصيد: <strong style="color:var(--theme-red); font-size: 0.9rem;">${stockVal}</strong></span>
                     </div>
                     <a data-href="purchase.php" onclick="window.location.href='purchase.php'" class="list-btn" style="box-shadow: 0 2px 8px rgba(99,102,241,0.3);">طلب</a>
                 </div>
-            `).join('');
+                `;
+            }).join('');
             document.getElementById('low-stock-list').innerHTML = lowStockHTML || '<div style="color:var(--text-secondary); font-size:0.85rem; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 10px; text-align: center;">المخزون آمن حالياً ✅</div>';
 
             // 4.5 Pending Deliveries
@@ -807,6 +817,14 @@
         // Initialize Chart.js Graphs
         function initProCharts() {
             const data = loadDynamicDashboardData();
+            const inventory = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+
+            // Helper to get total actual stock of an item across warehouses (ignoring virtual pending states)
+            function getItemActualStock(itemId) {
+                return inventory
+                    .filter(inv => inv.itemId === itemId && inv.warehouse !== 'PENDING_RECEIPT')
+                    .reduce((sum, inv) => sum + (Number(inv.qty) || 0), 0);
+            }
             
             const textColor = '#94a3b8';
             const gridColor = 'rgba(255, 255, 255, 0.05)';
@@ -815,7 +833,7 @@
             Chart.defaults.font.family = "'Tajawal', sans-serif";
             Chart.defaults.font.size = 11; // Smaller default font
 
-            // 1. Cashflow Chart (Dynamic Weekly)
+            // 1. Cashflow Chart (Dynamic Weekly) using grandTotal/totalAmount
             const sReceipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
             const sPayments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
             
@@ -833,12 +851,11 @@
                 const dStr = d.toISOString().split('T')[0];
                 
                 let dayReceipts = sReceipts.filter(r => (r.date || '').startsWith(dStr) && !r.deleted).reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
-                // Also add sales invoices that are cash for today? For simplicity, we just use single receipts and payments for cashflow, or all invoices if they are cash.
-                let cashSales = data.invoices.filter(inv => (inv.date || '').startsWith(dStr) && inv.paymentMethod !== 'credit' && !inv.deleted).reduce((sum, inv) => sum + (Number(inv.netTotal) || 0), 0);
+                let cashSales = data.invoices.filter(inv => (inv.date || '').startsWith(dStr) && inv.paymentMethod !== 'credit' && !inv.deleted).reduce((sum, inv) => sum + (Number(inv.grandTotal) || Number(inv.totalAmount) || 0), 0);
                 
                 let dayPayments = sPayments.filter(p => (p.date || '').startsWith(dStr) && !p.deleted).reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
                 const purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted);
-                let cashPurchases = purchases.filter(inv => (inv.date || '').startsWith(dStr) && inv.paymentMethod !== 'credit').reduce((sum, inv) => sum + (Number(inv.netTotal) || 0), 0);
+                let cashPurchases = purchases.filter(inv => (inv.date || '').startsWith(dStr) && inv.paymentMethod !== 'credit').reduce((sum, inv) => sum + (Number(inv.grandTotal) || Number(inv.totalAmount) || 0), 0);
 
                 receiptsData[6-i] = dayReceipts + cashSales;
                 paymentsData[6-i] = dayPayments + cashPurchases;
@@ -861,8 +878,11 @@
             data.invoices.forEach(inv => {
                 if(inv.items && Array.isArray(inv.items)) {
                     inv.items.forEach(item => {
-                        let c = item.category || 'أخرى';
-                        let total = (Number(item.qty) || 0) * (Number(item.price) || 0);
+                        const itemDef = data.items.find(i => i.id === item.itemId);
+                        let c = (itemDef ? itemDef.category : '') || 'أخرى';
+                        let quantity = Number(item.quantity) || Number(item.qty) || 0;
+                        let price = Number(item.price) || 0;
+                        let total = quantity * price;
                         catSales[c] = (catSales[c] || 0) + total;
                     });
                 }
@@ -880,14 +900,12 @@
             });
 
             // 3. Inventory Radar (Dynamic - Lowest Stock Items)
-            // Calculate ratio of available to safeLimit
             let radarItemsList = [...data.items].map(i => {
-                let avail = i.units && i.units[0] ? Number(i.units[0].stock) || 0 : 0;
-                let safe = Number(i.safeLimit) || 10;
+                let avail = getItemActualStock(i.id);
+                let safe = Number(i.safeLimit) || Number(i.minQty) || 10;
                 let ratio = safe > 0 ? avail / safe : 1;
                 return { ...i, avail, safe, ratio };
             });
-            // Sort by lowest ratio
             radarItemsList.sort((a, b) => a.ratio - b.ratio);
             const radarItems = radarItemsList.slice(0, 5);
             
@@ -907,32 +925,45 @@
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { usePointStyle: true, padding: 10, font: {family: "'Tajawal'", size: 11} } } }, scales: { r: { grid: { color: gridColor }, angleLines: { color: gridColor }, ticks: { display: false } } } }
             });
 
-            // 4. Warehouses Capacity (Dynamic approximate based on Item Count vs arbitrary capacity)
-            // Assuming 1000 items is 100% capacity for main warehouse
-            let totalItemsCount = data.items.reduce((sum, i) => sum + (i.units && i.units[0] ? Number(i.units[0].stock) || 0 : 0), 0);
-            let warehouseCap = 5000; // arbitrary max
-            let used = totalItemsCount;
-            let free = Math.max(0, warehouseCap - used);
-
-            new Chart(document.getElementById('warehousesChart').getContext('2d'), {
-                type: 'doughnut', // Changed to doughnut for capacity visualization
-                data: {
-                    labels: ['المساحة المستخدمة', 'المساحة الفارغة'],
-                    datasets: [{ data: [used, free], backgroundColor: ['rgba(248,113,113,0.8)', 'rgba(16,185,129,0.3)'], borderColor: 'rgba(255,255,255,0.05)', borderWidth: 1 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 10, font: {family: "'Tajawal'", size: 11} } } } }
+            // 4. Warehouses Capacity (Actual Item Stock Quantities in Each Warehouse)
+            const whTotals = {};
+            const warehouses = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+            warehouses.forEach(w => {
+                whTotals[w.name || w.id] = 0;
+            });
+            inventory.forEach(inv => {
+                if (inv.warehouse !== 'PENDING_RECEIPT') {
+                    const w = warehouses.find(wh => wh.id === inv.warehouse || wh.name === inv.warehouse);
+                    const name = w ? (w.name || w.id) : inv.warehouse;
+                    whTotals[name] = (whTotals[name] || 0) + (Number(inv.qty) || 0);
+                }
             });
 
-            // 5. Customer Credit (Horizontal Bar - Already Correct)
-            const activeCustomers = data.customers.filter(c => c.creditLimit > 0 || c.currentBalance > 0);
-            activeCustomers.sort((a, b) => (b.currentBalance || 0) - (a.currentBalance || 0));
+            const whLabels = Object.keys(whTotals).length > 0 ? Object.keys(whTotals) : ['لا توجد مخازن'];
+            const whData = Object.keys(whTotals).length > 0 ? Object.values(whTotals) : [0];
+
+            new Chart(document.getElementById('warehousesChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: whLabels,
+                    datasets: [{ data: whData, backgroundColor: ['#f87171', '#3b82f6', '#10b981', '#f59e0b', '#c084fc'], borderWidth: 0, hoverOffset: 10 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 10, font: {family: "'Tajawal'", size: 11} } }, tooltip: { callbacks: { label: function(context) { return ' ' + context.label + ': ' + context.raw.toLocaleString() + ' وحدة'; } } } } }
+            });
+
+            // 5. Customer Credit (Horizontal Bar with clean parse)
+            const activeCustomers = data.customers.filter(c => (parseFloat(c.creditLimit) || 0) > 0 || (parseFloat(c.currentBalance) || 0) > 0);
+            activeCustomers.sort((a, b) => (parseFloat(b.currentBalance) || 0) - (parseFloat(a.currentBalance) || 0));
             const topCustomers = activeCustomers.slice(0, 5);
 
             const custLabels = topCustomers.length > 0 ? topCustomers.map(c => c.name) : ['لا توجد بيانات'];
-            const custDebt = topCustomers.length > 0 ? topCustomers.map(c => c.currentBalance > 0 ? c.currentBalance : 0) : [0];
+            const custDebt = topCustomers.length > 0 ? topCustomers.map(c => {
+                let debt = parseFloat(c.currentBalance) || 0;
+                return debt > 0 ? debt : 0;
+            }) : [0];
             const custRemaining = topCustomers.length > 0 ? topCustomers.map(c => {
-                let debt = c.currentBalance > 0 ? c.currentBalance : 0;
-                let limit = c.creditLimit || 0;
+                let debt = parseFloat(c.currentBalance) || 0;
+                let limit = parseFloat(c.creditLimit) || 0;
                 let rem = limit - debt;
                 return rem > 0 ? rem : 0;
             }) : [0];
