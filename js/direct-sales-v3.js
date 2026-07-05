@@ -3096,21 +3096,27 @@ function startInvoiceSplit(invoiceNo) {
     const headerInfo = document.getElementById('split-header-info');
     if (headerInfo) {
         headerInfo.innerHTML = `
-            <div style="flex: 1; min-width: 200px;">
-                <div style="font-size: 0.85rem; color: #cbd5e1; font-weight: bold;">الفاتورة الأصلية:</div>
-                <div style="font-size: 1.2rem; font-weight: 800; color: #fff; margin-top: 4px;">${inv.invoiceNo}</div>
-            </div>
-            <div style="flex: 1; min-width: 200px;">
-                <div style="font-size: 0.85rem; color: #cbd5e1; font-weight: bold;">العميل الحالي:</div>
-                <div style="font-size: 1.1rem; font-weight: bold; color: #f8fafc; margin-top: 4px;">${inv.customerName || 'عميل نقدي'}</div>
-            </div>
-            <div style="flex: 1; min-width: 150px;">
-                <div style="font-size: 0.85rem; color: #cbd5e1; font-weight: bold;">طريقة الدفع:</div>
-                <div style="font-size: 1.1rem; font-weight: bold; color: #8b5cf6; margin-top: 4px;">${inv.paymentMethod === 'credit' ? '✍️ آجل' : '💵 نقدي'}</div>
-            </div>
-            <div style="flex: 1; min-width: 150px;">
-                <div style="font-size: 0.85rem; color: #cbd5e1; font-weight: bold;">القيمة الإجمالية:</div>
-                <div style="font-size: 1.2rem; font-weight: 800; color: #10b981; margin-top: 4px; font-family: monospace;">${parseFloat(inv.grandTotal).toLocaleString()} SDG</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; width: 100%;">
+                <!-- Card 1: Original Invoice No -->
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 18px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-size: 0.9rem; color: #94a3b8; font-weight: bold;">🧾 الفاتورة الأصلية:</span>
+                    <span style="font-size: 1.15rem; font-weight: 800; color: #38bdf8; font-family: monospace;">${inv.invoiceNo}</span>
+                </div>
+                <!-- Card 2: Current Customer -->
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 18px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-size: 0.9rem; color: #94a3b8; font-weight: bold;">👤 العميل الحالي:</span>
+                    <span style="font-size: 1.1rem; font-weight: bold; color: #f8fafc;">${inv.customerName || 'عميل نقدي'}</span>
+                </div>
+                <!-- Card 3: Payment Method -->
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 18px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-size: 0.9rem; color: #94a3b8; font-weight: bold;">💳 طريقة الدفع:</span>
+                    <span style="font-size: 1.1rem; font-weight: bold; color: #a855f7;">${inv.paymentMethod === 'credit' ? '✍️ آجل' : '💵 نقدي'}</span>
+                </div>
+                <!-- Card 4: Grand Total -->
+                <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); padding: 12px 18px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-size: 0.9rem; color: #a7f3d0; font-weight: bold;">💰 القيمة الإجمالية:</span>
+                    <span style="font-size: 1.25rem; font-weight: 800; color: #10b981; font-family: monospace;">${parseFloat(inv.grandTotal).toLocaleString()} SDG</span>
+                </div>
             </div>
         `;
     }
@@ -3120,12 +3126,16 @@ function startInvoiceSplit(invoiceNo) {
         tbody.innerHTML = '';
         activeSplitInvoice.items.forEach((item, idx) => {
             const tr = document.createElement('tr');
-            const originalQty = parseFloat(item.qty) || 0;
-            const price = parseFloat(item.price) || 0;
+            const originalQty = parseFloat(item.quantity || item.qty || 0);
+            const price = parseFloat(item.price || 0);
             const totalVal = originalQty * price;
             
+            // Resolve actual name from global ITEMS array
+            const itemObj = (typeof ITEMS !== 'undefined' ? ITEMS.find(i => i.id === item.itemId) : null);
+            const name = itemObj ? itemObj.name : (item.itemName || item.name || 'صنف غير معروف');
+            
             tr.innerHTML = `
-                <td><strong style="color:#f8fafc;">${item.itemName}</strong></td>
+                <td><strong style="color:#f8fafc;">${name}</strong></td>
                 <td style="text-align: center; font-weight: bold; color: #94a3b8;">${originalQty}</td>
                 <td style="text-align: left; font-family: monospace;">${price.toLocaleString()} SDG</td>
                 <td style="text-align: center;">
@@ -3150,7 +3160,7 @@ function startInvoiceSplit(invoiceNo) {
 function adjustSplitQty(idx, delta) {
     if (!activeSplitInvoice) return;
     const item = activeSplitInvoice.items[idx];
-    const originalQty = parseFloat(item.qty) || 0;
+    const originalQty = parseFloat(item.quantity || item.qty || 0);
     const inputA = document.getElementById(`split-qty-a-${idx}`);
     if (!inputA) return;
     let qtyA = parseFloat(inputA.value) || 0;
@@ -3164,7 +3174,7 @@ function adjustSplitQty(idx, delta) {
 function handleSplitQtyInput(idx) {
     if (!activeSplitInvoice) return;
     const item = activeSplitInvoice.items[idx];
-    const originalQty = parseFloat(item.qty) || 0;
+    const originalQty = parseFloat(item.quantity || item.qty || 0);
     const inputA = document.getElementById(`split-qty-a-${idx}`);
     if (!inputA) return;
     let qtyA = parseFloat(inputA.value) || 0;
@@ -3190,8 +3200,8 @@ function updateSplitCalculations() {
     let subtotalB = 0;
     
     activeSplitInvoice.items.forEach((item, idx) => {
-        const price = parseFloat(item.price) || 0;
-        const originalQty = parseFloat(item.qty) || 0;
+        const price = parseFloat(item.price || 0);
+        const originalQty = parseFloat(item.quantity || item.qty || 0);
         
         const inputA = document.getElementById(`split-qty-a-${idx}`);
         const qtyA = inputA ? parseFloat(inputA.value) || 0 : originalQty;
@@ -3267,7 +3277,7 @@ function submitInvoiceSplit() {
     let hasQtyB = false;
     
     activeSplitInvoice.items.forEach((item, idx) => {
-        const originalQty = parseFloat(item.qty) || 0;
+        const originalQty = parseFloat(item.quantity || item.qty || 0);
         const inputA = document.getElementById(`split-qty-a-${idx}`);
         const qtyA = inputA ? parseFloat(inputA.value) || 0 : originalQty;
         const qtyB = originalQty - qtyA;
@@ -3277,7 +3287,8 @@ function submitInvoiceSplit() {
             itemsA.push({
                 ...item,
                 qty: qtyA,
-                total: qtyA * parseFloat(item.price)
+                quantity: qtyA,
+                total: qtyA * parseFloat(item.price || 0)
             });
         }
         
@@ -3286,7 +3297,8 @@ function submitInvoiceSplit() {
             itemsB.push({
                 ...item,
                 qty: qtyB,
-                total: qtyB * parseFloat(item.price)
+                quantity: qtyB,
+                total: qtyB * parseFloat(item.price || 0)
             });
         }
     });
