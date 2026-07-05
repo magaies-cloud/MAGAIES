@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'كشف حساب'; ?>
+<?php $page_title = 'كشف حساب'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -185,10 +185,10 @@
                         <th>نوع الحركة</th>
                         <th>البيان</th>
                         <th class="col-fc" style="display:none; color:#fbbf24;">سعر الصرف</th>
-                        <th class="col-fc" style="display:none; color:#34d399;">مدين أجنبي</th>
-                        <th style="color:#34d399;">مدين محلي</th>
-                        <th class="col-fc" style="display:none; color:#f87171;">دائن أجنبي</th>
-                        <th style="color:#f87171;">دائن محلي</th>
+                        <th class="col-fc" style="display:none; color:#34d399;">مدين أجنبي (عليه)</th>
+                        <th style="color:#34d399;">مدين محلي (عليه)</th>
+                        <th class="col-fc" style="display:none; color:#f87171;">دائن أجنبي (له)</th>
+                        <th style="color:#f87171;">دائن محلي (له)</th>
                         <th class="col-fc" style="display:none; color:#38bdf8;">الرصيد (أجنبي)</th>
                         <th style="color:#38bdf8;">الرصيد التراكمي</th>
                     </tr>

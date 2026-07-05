@@ -3,23 +3,24 @@
    ═══════════════════════════════════════════════════════ */
 
 window.colConfigs = [
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' },
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' },
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' },
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' },
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' },
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' },
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' },
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }, // 0: Name
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }, // 1: Phone
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }, // 2: Tax Number
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }, // 3: Currency
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }, // 4: Debit Foreign
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }, // 5: Credit Foreign
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }, // 6: Debit Local
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }, // 7: Credit Local
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }  // 8: Note
 ];
-window.colOrder = [0, 1, 2, 3, 4, 5, 6, 7];
+window.colOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
 function loadLayout() {
     try {
         const saved = localStorage.getItem('balancesReportLayout');
         if (saved) {
             const layout = JSON.parse(saved);
-            if (layout.colConfigs && layout.colOrder) {
+            if (layout.colConfigs && layout.colOrder && layout.colOrder.length === 9) {
                 window.colConfigs = layout.colConfigs;
                 window.colOrder = layout.colOrder;
             }
@@ -58,6 +59,26 @@ function showToast(msg, type = 'success') {
 let ALL_PARTNERS = [];
 let ALL_TXNS = [];
 
+function getCurrencyRates() {
+    let rates = {};
+    try {
+        rates = JSON.parse(localStorage.getItem('erp_currency_rates_v1')) || {};
+    } catch(e) {}
+    const defaults = {
+        'SDG': 1,
+        'USD': 600,
+        'SAR': 160,
+        'AED': 163,
+        'EGP': 12
+    };
+    for (let cur in defaults) {
+        if (rates[cur] === undefined) {
+            rates[cur] = defaults[cur];
+        }
+    }
+    return rates;
+}
+
 function loadData() {
     ALL_PARTNERS = [];
     const custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
@@ -66,41 +87,63 @@ function loadData() {
     const safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
     const exp   = JSON.parse(localStorage.getItem('erp_accounts_v1')) || [];
     
-    custs.forEach(c => ALL_PARTNERS.push({ 
-        id: c.id, code: c.accountNo || c.code || '-', name: c.name, type: 'CUST', 
-        phone: c.phone || '', taxNumber: c.taxNumber || '', currency: c.currency || 'SDG',
-        openingDebit: parseNum(c.openingDebit || 0), openingCredit: parseNum(c.openingCredit || 0),
-        notes: c.notes || '',
-        debit: 0, credit: 0, lastDate: null 
-    }));
-    sups.forEach(s  => ALL_PARTNERS.push({ 
-        id: s.id, code: s.accountNo || s.code || '-', name: s.name, type: 'SUPP', 
-        phone: s.phone || '', taxNumber: s.taxNumber || '', currency: s.currency || 'SDG',
-        openingDebit: parseNum(s.openingDebit || 0), openingCredit: parseNum(s.openingCredit || 0),
-        notes: s.notes || '',
-        debit: 0, credit: 0, lastDate: null 
-    }));
-    banks.forEach(b => ALL_PARTNERS.push({ 
-        id: b.id, code: b.glAccount || b.code || '-', name: b.name, type: 'BANK', 
-        phone: b.branch || '', taxNumber: b.accountNo || '', currency: b.currency || 'SDG',
-        openingDebit: parseNum(b.openingDebit || 0), openingCredit: parseNum(b.openingCredit || 0),
-        notes: b.notes || '',
-        debit: 0, credit: 0, lastDate: null 
-    }));
-    safes.forEach(s => ALL_PARTNERS.push({ 
-        id: s.id, code: s.glAccount || s.code || '-', name: s.name, type: 'SAFE', 
-        phone: '', taxNumber: '', currency: s.currency || 'SDG',
-        openingDebit: parseNum(s.openingDebit || 0), openingCredit: parseNum(s.openingCredit || 0),
-        notes: s.notes || '',
-        debit: 0, credit: 0, lastDate: null 
-    }));
-    exp.forEach(e => ALL_PARTNERS.push({ 
-        id: e.id || e.code, code: e.code || '-', name: e.name, type: 'EXP', 
-        phone: '', taxNumber: '', currency: 'SDG',
-        openingDebit: parseNum(e.openingDebit || 0), openingCredit: parseNum(e.openingCredit || 0),
-        notes: e.notes || '',
-        debit: 0, credit: 0, lastDate: null 
-    }));
+    const rates = getCurrencyRates();
+    
+    custs.forEach(c => {
+        const cur = c.currency || 'SDG';
+        const rate = parseNum(c.exRate || rates[cur] || 1);
+        ALL_PARTNERS.push({ 
+            id: c.id, code: c.accountNo || c.code || '-', name: c.name, type: 'CUST', 
+            phone: c.phone || '', taxNumber: c.taxNumber || '', currency: cur, exRate: rate,
+            openingDebit: parseNum(c.openingDebit || 0), openingCredit: parseNum(c.openingCredit || 0),
+            notes: c.notes || '',
+            debit: 0, credit: 0, lastDate: null 
+        });
+    });
+    sups.forEach(s  => {
+        const cur = s.currency || 'SDG';
+        const rate = parseNum(s.exRate || rates[cur] || 1);
+        ALL_PARTNERS.push({ 
+            id: s.id, code: s.accountNo || s.code || '-', name: s.name, type: 'SUPP', 
+            phone: s.phone || '', taxNumber: s.taxNumber || '', currency: cur, exRate: rate,
+            openingDebit: parseNum(s.openingDebit || 0), openingCredit: parseNum(s.openingCredit || 0),
+            notes: s.notes || '',
+            debit: 0, credit: 0, lastDate: null 
+        });
+    });
+    banks.forEach(b => {
+        const cur = b.currency || 'SDG';
+        const rate = parseNum(b.exRate || rates[cur] || 1);
+        ALL_PARTNERS.push({ 
+            id: b.id, code: b.glAccount || b.code || '-', name: b.name, type: 'BANK', 
+            phone: b.branch || '', taxNumber: b.accountNo || '', currency: cur, exRate: rate,
+            openingDebit: parseNum(b.openingDebit || 0), openingCredit: parseNum(b.openingCredit || 0),
+            notes: b.notes || '',
+            debit: 0, credit: 0, lastDate: null 
+        });
+    });
+    safes.forEach(s => {
+        const cur = s.currency || 'SDG';
+        const rate = parseNum(s.exRate || rates[cur] || 1);
+        ALL_PARTNERS.push({ 
+            id: s.id, code: s.glAccount || s.code || '-', name: s.name, type: 'SAFE', 
+            phone: '', taxNumber: '', currency: cur, exRate: rate,
+            openingDebit: parseNum(s.openingDebit || 0), openingCredit: parseNum(s.openingCredit || 0),
+            notes: s.notes || '',
+            debit: 0, credit: 0, lastDate: null 
+        });
+    });
+    exp.forEach(e => {
+        const cur = 'SDG';
+        const rate = 1;
+        ALL_PARTNERS.push({ 
+            id: e.id || e.code, code: e.code || '-', name: e.name, type: 'EXP', 
+            phone: '', taxNumber: '', currency: cur, exRate: rate,
+            openingDebit: parseNum(e.openingDebit || 0), openingCredit: parseNum(e.openingCredit || 0),
+            notes: e.notes || '',
+            debit: 0, credit: 0, lastDate: null 
+        });
+    });
     
     // We reuse the collector logic from SGL, modified to only grab partner transactions
     ALL_TXNS = [];
@@ -110,16 +153,18 @@ function loadData() {
     const receipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
     receipts.forEach(v => {
         const cc = v.costCenter || 'ALL';
-        ALL_TXNS.push({ partner: v.fromAccount, debit: 0, credit: parseNum(v.amountLocal), date: v.date, time: v.time || timeNow, costCenter: cc });
-        ALL_TXNS.push({ partner: v.toAccount, debit: parseNum(v.amountLocal), credit: 0, date: v.date, time: v.time || timeNow, costCenter: cc });
+        const rate = parseNum(v.rate || 1);
+        ALL_TXNS.push({ partner: v.fromAccount, debit: 0, credit: parseNum(v.amountLocal), date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
+        ALL_TXNS.push({ partner: v.toAccount, debit: parseNum(v.amountLocal), credit: 0, date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
     });
 
     // 2. Payments
     const payments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
     payments.forEach(v => {
         const cc = v.costCenter || 'ALL';
-        ALL_TXNS.push({ partner: v.toAccount, debit: parseNum(v.amountLocal), credit: 0, date: v.date, time: v.time || timeNow, costCenter: cc });
-        ALL_TXNS.push({ partner: v.fromAccount, debit: 0, credit: parseNum(v.amountLocal), date: v.date, time: v.time || timeNow, costCenter: cc });
+        const rate = parseNum(v.rate || 1);
+        ALL_TXNS.push({ partner: v.toAccount, debit: parseNum(v.amountLocal), credit: 0, date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
+        ALL_TXNS.push({ partner: v.fromAccount, debit: 0, credit: parseNum(v.amountLocal), date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
     });
 
     // 3. JVs
@@ -129,7 +174,8 @@ function loadData() {
         const time = v.time || timeNow;
         v.lines.forEach(line => {
             const cc = line.costCenter || v.costCenter || 'ALL';
-            ALL_TXNS.push({ partner: line.account, debit: parseNum(line.debit), credit: parseNum(line.credit), date: v.date, time: time, costCenter: cc });
+            const rate = parseNum(line.rate || 1);
+            ALL_TXNS.push({ partner: line.account, debit: parseNum(line.debit), credit: parseNum(line.credit), date: v.date, time: time, costCenter: cc, exchangeRate: rate });
         });
     });
 
@@ -139,6 +185,7 @@ function loadData() {
         const cc = inv.costCenter || 'ALL';
         const time = inv.time || timeNow;
         const partner = inv.customerId || inv.customer;
+        const rate = parseNum(inv.exchangeRate || 1);
         
         let total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
         if (total === 0 && inv.items && inv.items.length > 0) {
@@ -148,11 +195,11 @@ function loadData() {
         
         const paid = parseNum(inv.paidAmount || inv.paid);
         if(partner && partner !== 'walk-in') {
-            ALL_TXNS.push({ partner: partner, debit: total, credit: 0, date: inv.date, time: time, costCenter: cc });
+            ALL_TXNS.push({ partner: partner, debit: total, credit: 0, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
             if(inv.paymentMethod !== 'credit' && paid === 0) {
-                ALL_TXNS.push({ partner: partner, debit: 0, credit: total, date: inv.date, time: time, costCenter: cc });
+                ALL_TXNS.push({ partner: partner, debit: 0, credit: total, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
             } else if(paid > 0) {
-                ALL_TXNS.push({ partner: partner, debit: 0, credit: paid, date: inv.date, time: time, costCenter: cc });
+                ALL_TXNS.push({ partner: partner, debit: 0, credit: paid, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
             }
         }
     });
@@ -163,6 +210,7 @@ function loadData() {
         const cc = inv.costCenter || 'ALL';
         const time = inv.time || timeNow;
         const partner = inv.supplierId || inv.supplier || inv.customer;
+        const rate = parseNum(inv.exchangeRate || 1);
         
         let total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
         if (total === 0 && inv.items && inv.items.length > 0) {
@@ -172,11 +220,11 @@ function loadData() {
         
         const paid = parseNum(inv.paidAmount || inv.paid);
         if(partner && partner !== 'walk-in') {
-            ALL_TXNS.push({ partner: partner, debit: 0, credit: total, date: inv.date, time: time, costCenter: cc });
+            ALL_TXNS.push({ partner: partner, debit: 0, credit: total, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
             if(inv.paymentMethod !== 'credit' && paid === 0) {
-                ALL_TXNS.push({ partner: partner, debit: total, credit: 0, date: inv.date, time: time, costCenter: cc });
+                ALL_TXNS.push({ partner: partner, debit: total, credit: 0, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
             } else if(paid > 0) {
-                ALL_TXNS.push({ partner: partner, debit: paid, credit: 0, date: inv.date, time: time, costCenter: cc });
+                ALL_TXNS.push({ partner: partner, debit: paid, credit: 0, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
             }
         }
     });
@@ -203,37 +251,75 @@ function runReport() {
     const ccFilter = document.getElementById('filter-costcenter').value;
 
     // Reset balances
-    ALL_PARTNERS.forEach(p => { p.debit = 0; p.credit = 0; p.lastDate = null; });
+    ALL_PARTNERS.forEach(p => {
+        p.endingDebitLocal = 0;
+        p.endingCreditLocal = 0;
+        p.endingDebitForeign = 0;
+        p.endingCreditForeign = 0;
+        p.lastDate = null;
+    });
 
-    // Filter transactions
-    const filteredTxns = ccFilter === 'ALL' ? ALL_TXNS : ALL_TXNS.filter(t => t.costCenter === ccFilter);
+    // Calculate for each partner sequentially to match SGL ledger
+    ALL_PARTNERS.forEach(p => {
+        let runningBal = p.openingDebit - p.openingCredit;
+        let runningBalForeign = (p.openingDebit / p.exRate) - (p.openingCredit / p.exRate);
+        
+        // Filter transactions for this partner
+        const cleanPId = String(p.id).replace(/^(cust|supp|bank|safe|exp)-/, '');
+        const partnerTxns = ALL_TXNS.filter(t => {
+            const cleanAcc = String(t.partner).replace(/^(cust|supp|bank|safe|exp)-/, '');
+            const matchesAcc = (cleanAcc === cleanPId);
+            const matchesCC = (ccFilter === 'ALL' || t.costCenter === ccFilter);
+            return matchesAcc && matchesCC;
+        });
 
-    // Aggregate
-    filteredTxns.forEach(t => {
-        const p = ALL_PARTNERS.find(x => x.id === t.partner);
-        if(p) {
-            p.debit += t.debit;
-            p.credit += t.credit;
-            const tDate = t.date + ' ' + t.time;
+        // Sort partner transactions by date & time chronologically
+        partnerTxns.sort((a, b) => {
+            const da = a.date + ' ' + (a.time || '00:00');
+            const db = b.date + ' ' + (b.time || '00:00');
+            return da.localeCompare(db);
+        });
+
+        partnerTxns.forEach(t => {
+            const exRate = t.exchangeRate || 1;
+            const debF = t.debitForeign || (t.debit / exRate);
+            const credF = t.creditForeign || (t.credit / exRate);
+            
+            runningBal += t.debit - t.credit;
+            runningBalForeign += debF - credF;
+            
+            const tDate = t.date + ' ' + (t.time || '00:00');
             if(!p.lastDate || tDate > p.lastDate) {
                 p.lastDate = tDate;
+            }
+        });
+
+        if (runningBal > 0) {
+            p.endingDebitLocal = runningBal;
+            p.endingDebitForeign = runningBalForeign;
+        } else if (runningBal < 0) {
+            p.endingCreditLocal = Math.abs(runningBal);
+            p.endingCreditForeign = Math.abs(runningBalForeign);
+        } else {
+            // runningBal === 0
+            if (runningBalForeign > 0) {
+                p.endingDebitForeign = runningBalForeign;
+            } else if (runningBalForeign < 0) {
+                p.endingCreditForeign = Math.abs(runningBalForeign);
             }
         }
     });
 
     // Filter partners by group
     let results = ALL_PARTNERS.filter(p => {
-        // Exclude completely empty accounts if they have no activity? 
-        // Let's include them if they want to see all balances, but usually we filter out zero activity
-        // Let's keep them if they are selected.
         if(grpFilter === 'ALL') return true;
         return p.type === grpFilter;
     });
 
     // Sort
     results.sort((a, b) => {
-        const balA = Math.abs((a.openingDebit + a.debit) - (a.openingCredit + a.credit));
-        const balB = Math.abs((b.openingDebit + b.debit) - (b.openingCredit + b.credit));
+        const balA = Math.max(a.endingDebitLocal, a.endingCreditLocal);
+        const balB = Math.max(b.endingDebitLocal, b.endingCreditLocal);
         if(sortFilter === 'BALANCE_DESC') return balB - balA;
         if(sortFilter === 'BALANCE_ASC') return balA - balB;
         if(sortFilter === 'NAME') return a.name.localeCompare(b.name);
@@ -506,7 +592,7 @@ function renderTable(results) {
     const tbody = document.getElementById('balances-tbody');
     
     if(results.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="empty-state">لا توجد حسابات مسجلة تطابق الفلتر</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="empty-state">لا توجد حسابات مسجلة تطابق الفلتر</td></tr>`;
         document.getElementById('analytics-dashboard').style.display = 'none';
         document.getElementById('actions-panel').style.display = 'none';
         document.getElementById('print-container').style.display = 'none';
@@ -528,21 +614,24 @@ function renderTable(results) {
     }
 
     results.forEach(p => {
-        const bal = (p.openingDebit + p.debit) - (p.openingCredit + p.credit);
-        let balStr = '';
-        if(bal > 0) { balStr = fmtColNum(bal, 5) + ' (عليه)'; sumCust += bal; }
-        else if(bal < 0) { balStr = fmtColNum(Math.abs(bal), 6) + ' (له)'; sumSupp += Math.abs(bal); }
-        else { balStr = '0.00'; }
+        const endingDebitLocal = p.endingDebitLocal || 0;
+        const endingCreditLocal = p.endingCreditLocal || 0;
+        const endingDebitForeign = p.endingDebitForeign || 0;
+        const endingCreditForeign = p.endingCreditForeign || 0;
+
+        sumCust += endingDebitLocal;
+        sumSupp += endingCreditLocal;
 
         let cells = [];
         cells[0] = `<td style="${getCellStyle(0)}">${p.name} <span style="color:#64748b;font-size:0.7rem;margin-right:5px;">(${p.type === 'CUST' ? 'عميل' : 'مورد'})</span></td>`;
         cells[1] = `<td class="num" dir="ltr" style="${getCellStyle(1)}">${p.phone}</td>`;
         cells[2] = `<td class="num" style="${getCellStyle(2)}">${p.taxNumber}</td>`;
-        cells[3] = `<td class="num" style="${getCellStyle(3)}">${p.openingDebit > 0 ? fmtColNum(p.openingDebit, 3) : '-'}</td>`;
-        cells[4] = `<td class="num" style="${getCellStyle(4)}">${p.openingCredit > 0 ? fmtColNum(p.openingCredit, 4) : '-'}</td>`;
-        cells[5] = `<td class="num" style="${getCellStyle(5)}">${p.debit > 0 ? fmtColNum(p.debit, 5) : '-'}</td>`;
-        cells[6] = `<td class="num" style="${getCellStyle(6)}">${p.credit > 0 ? fmtColNum(p.credit, 6) : '-'}</td>`;
-        cells[7] = `<td style="max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; ${getCellStyle(7)}" title="${p.notes || ''}">${p.notes || '-'}</td>`;
+        cells[3] = `<td style="text-align:center; font-weight:bold; color:#38bdf8; ${getCellStyle(3)}">${p.currency || 'SDG'}</td>`;
+        cells[4] = `<td class="num" style="${getCellStyle(4)}">${endingDebitForeign > 0 ? fmtColNum(endingDebitForeign, 4) : '-'}</td>`;
+        cells[5] = `<td class="num" style="${getCellStyle(5)}">${endingCreditForeign > 0 ? fmtColNum(endingCreditForeign, 5) : '-'}</td>`;
+        cells[6] = `<td class="num" style="${getCellStyle(6)}">${endingDebitLocal > 0 ? fmtColNum(endingDebitLocal, 6) : '-'}</td>`;
+        cells[7] = `<td class="num" style="${getCellStyle(7)}">${endingCreditLocal > 0 ? fmtColNum(endingCreditLocal, 7) : '-'}</td>`;
+        cells[8] = `<td style="max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; ${getCellStyle(8)}" title="${p.notes || ''}">${p.notes || '-'}</td>`;
         
         let orderedCells = window.colOrder.map(idx => cells[idx]).join('');
         rows += `<tr>${orderedCells}</tr>`;
@@ -550,11 +639,11 @@ function renderTable(results) {
 
     tbody.innerHTML = rows;
 
-    document.getElementById('kpi-dr').textContent = fmtColNum(sumCust, 5);
-    document.getElementById('kpi-cr').textContent = fmtColNum(sumSupp, 6);
+    document.getElementById('kpi-dr').textContent = fmtColNum(sumCust, 6);
+    document.getElementById('kpi-cr').textContent = fmtColNum(sumSupp, 7);
     
     const net = sumCust - sumSupp;
-    document.getElementById('kpi-bal').textContent = fmtColNum(Math.abs(net), 5) + (net >= 0 ? ' (لنا)' : ' (علينا)');
+    document.getElementById('kpi-bal').textContent = fmtColNum(Math.abs(net), 6) + (net >= 0 ? ' (لنا)' : ' (علينا)');
 
     document.getElementById('analytics-dashboard').style.display = 'block';
     document.getElementById('actions-panel').style.display = 'flex';

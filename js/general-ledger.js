@@ -4,6 +4,9 @@
 
 function fmtNum(n) {
     const val = parseFloat(n) || 0;
+    if (val < 0) {
+        return `-(${Math.abs(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`;
+    }
     return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 function parseNum(str) {
@@ -21,6 +24,29 @@ function showToast(msg, type = 'success') {
 
 let ALL_ACCOUNTS = [{ id: 'ALL', name: 'جميع الحسابات', icon: '📊', type: 'عام' }];
 let ALL_TXNS = []; // Cache to extract cost centers and currencies
+let currentDateMode = 'all'; // 'all' or 'range'
+
+window.setDateMode = function(mode) {
+    currentDateMode = mode;
+    const allBtn = document.getElementById('date-all-period-btn');
+    const fromCont = document.getElementById('date-from-container');
+    const toCont = document.getElementById('date-to-container');
+    
+    if (mode === 'all') {
+        if (allBtn) allBtn.style.display = 'flex';
+        if (fromCont) fromCont.style.display = 'none';
+        if (toCont) toCont.style.display = 'none';
+    } else {
+        if (allBtn) allBtn.style.display = 'none';
+        if (fromCont) fromCont.style.display = 'flex';
+        if (toCont) toCont.style.display = 'flex';
+    }
+    
+    // Auto run report when mode switches and we have transactions loaded
+    if (typeof ALL_TXNS !== 'undefined' && ALL_TXNS.length > 0) {
+        runReport();
+    }
+}
 
 function buildAccountsList() {
     ALL_ACCOUNTS = [{ id: 'ALL', name: 'جميع الحسابات', icon: '📊', type: 'عام' }];
@@ -193,17 +219,21 @@ function collectAllTransactions() {
         const currency = v.currency || 'SDG';
         const time = v.time || timeNow;
         
+        // Receiving side (Safe/Bank)
         txns.push({
             date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند قبض',
             account: v.toAccount || 'safe-001', counterAccount: v.fromAccount,
             statement: v.fromStatement || 'سند قبض نقدي',
-            debit: parseNum(v.amountLocal), credit: 0, costCenter, currency
+            debit: parseNum(v.amountLocal), credit: 0, costCenter, currency,
+            exchangeRate: parseNum(v.rate || 1)
         });
+        // Disbursing side (Customer/Supplier pays us)
         txns.push({
-            date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند قبض',
+            date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند صرف',
             account: v.fromAccount, counterAccount: v.toAccount || 'safe-001',
-            statement: v.fromStatement || 'سند قبض نقدي',
-            debit: 0, credit: parseNum(v.amountLocal), costCenter, currency
+            statement: v.fromStatement || 'سند صرف نقدي',
+            debit: 0, credit: parseNum(v.amountLocal), costCenter, currency,
+            exchangeRate: parseNum(v.rate || 1)
         });
     });
 
@@ -214,17 +244,21 @@ function collectAllTransactions() {
         const currency = v.currency || 'SDG';
         const time = v.time || timeNow;
 
+        // Disbursing side (Safe/Bank)
         txns.push({
             date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
             account: v.fromAccount || 'safe-001', counterAccount: v.toAccount,
             statement: v.toStatement || 'سند صرف نقدي',
-            debit: 0, credit: parseNum(v.amountLocal), costCenter, currency
+            debit: 0, credit: parseNum(v.amountLocal), costCenter, currency,
+            exchangeRate: parseNum(v.rate || 1)
         });
+        // Receiving side (Supplier/Customer receives from us)
         txns.push({
-            date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
+            date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
             account: v.toAccount, counterAccount: v.fromAccount || 'safe-001',
-            statement: v.toStatement || 'سند صرف نقدي',
-            debit: parseNum(v.amountLocal), credit: 0, costCenter, currency
+            statement: v.toStatement || 'سند استلام نقدي',
+            debit: parseNum(v.amountLocal), credit: 0, costCenter, currency,
+            exchangeRate: parseNum(v.rate || 1)
         });
     });
 
@@ -240,7 +274,8 @@ function collectAllTransactions() {
                 date: v.date, time: time, ref: v.id, type: 'jv', typeLabel: 'قيد يومي',
                 account: line.account, counterAccount: '-',
                 statement: v.statement || line.note || 'قيد يومي',
-                debit: parseNum(line.debit), credit: parseNum(line.credit), costCenter, currency
+                debit: parseNum(line.debit), credit: parseNum(line.credit), costCenter, currency,
+                exchangeRate: parseNum(line.rate || 1)
             });
         });
     });
@@ -264,13 +299,15 @@ function collectAllTransactions() {
             date: inv.date, time: time, ref: refNo, type: 'invoice', typeLabel: 'مبيعات',
             account: customerAcct, counterAccount: 'revenue-sales',
             statement: `مبيعات آجلة — ${inv.customerName || inv.customer || ''}`,
-            debit: total, credit: 0, costCenter, currency
+            debit: total, credit: 0, costCenter, currency,
+            exchangeRate: parseNum(inv.exchangeRate || 1)
         });
         txns.push({
             date: inv.date, time: time, ref: refNo, type: 'invoice', typeLabel: 'مبيعات',
             account: 'revenue-sales', counterAccount: customerAcct,
             statement: `إيرادات — ${inv.customerName || inv.customer || ''}`,
-            debit: 0, credit: total, costCenter, currency
+            debit: 0, credit: total, costCenter, currency,
+            exchangeRate: parseNum(inv.exchangeRate || 1)
         });
 
         if (inv.paymentMethod !== 'credit') {
@@ -279,13 +316,15 @@ function collectAllTransactions() {
                 date: inv.date, time: time, ref: refNo + '-PAID', type: 'receipt', typeLabel: 'سداد فاتورة',
                 account: paymentAcct, counterAccount: customerAcct,
                 statement: 'سداد نقدي مع الفاتورة',
-                debit: total, credit: 0, costCenter, currency
+                debit: total, credit: 0, costCenter, currency,
+                exchangeRate: parseNum(inv.exchangeRate || 1)
             });
             txns.push({
                 date: inv.date, time: time, ref: refNo + '-PAID', type: 'receipt', typeLabel: 'سداد فاتورة',
                 account: customerAcct, counterAccount: paymentAcct,
                 statement: 'سداد نقدي مع الفاتورة',
-                debit: 0, credit: total, costCenter, currency
+                debit: 0, credit: total, costCenter, currency,
+                exchangeRate: parseNum(inv.exchangeRate || 1)
             });
         }
     });
@@ -309,13 +348,15 @@ function collectAllTransactions() {
             date: inv.date, time: time, ref: refNo, type: 'purchase', typeLabel: 'مشتريات',
             account: 'exp-purchases', counterAccount: supplierAcct,
             statement: `مشتريات آجلة — ${inv.supplierName || inv.supplier || ''}`,
-            debit: total, credit: 0, costCenter, currency
+            debit: total, credit: 0, costCenter, currency,
+            exchangeRate: parseNum(inv.exchangeRate || 1)
         });
         txns.push({
             date: inv.date, time: time, ref: refNo, type: 'purchase', typeLabel: 'مشتريات',
             account: supplierAcct, counterAccount: 'exp-purchases',
             statement: `مستحقات مورد — ${inv.supplierName || inv.supplier || ''}`,
-            debit: 0, credit: total, costCenter, currency
+            debit: 0, credit: total, costCenter, currency,
+            exchangeRate: parseNum(inv.exchangeRate || 1)
         });
 
         if (inv.paymentMethod !== 'credit') {
@@ -324,13 +365,15 @@ function collectAllTransactions() {
                 date: inv.date, time: time, ref: refNo + '-PAID', type: 'payment', typeLabel: 'سداد مشتريات',
                 account: paymentAcct, counterAccount: supplierAcct,
                 statement: 'سداد نقدي مع الفاتورة',
-                debit: 0, credit: total, costCenter, currency
+                debit: 0, credit: total, costCenter, currency,
+                exchangeRate: parseNum(inv.exchangeRate || 1)
             });
             txns.push({
                 date: inv.date, time: time, ref: refNo + '-PAID', type: 'payment', typeLabel: 'سداد مشتريات',
                 account: supplierAcct, counterAccount: paymentAcct,
                 statement: 'سداد نقدي مع الفاتورة',
-                debit: total, credit: 0, costCenter, currency
+                debit: total, credit: 0, costCenter, currency,
+                exchangeRate: parseNum(inv.exchangeRate || 1)
             });
         }
     });
@@ -377,6 +420,14 @@ document.addEventListener('DBReady', () => {
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
     document.getElementById('filter-from').value = firstDay.toISOString().slice(0, 10);
     document.getElementById('filter-to').value = now.toISOString().slice(0, 10);
+    
+    // Set default date mode to all period
+    setDateMode('all');
+
+    // Render custom quick presets slots
+    if (typeof renderQuickPresets === 'function') {
+        renderQuickPresets();
+    }
 
     if (typeof Choices !== 'undefined') {
         document.querySelectorAll('.choices-select').forEach(el => {
@@ -571,7 +622,7 @@ window.shareViaWhatsApp = async function() {
             <h2>دفتر الأستاذ العام</h2>
             <div id="print-meta">
                 <span>الحساب: <strong>${getAccountNameForShare()}</strong></span>
-                <span>الفترة: من <strong>${document.getElementById('filter-from').value || '-'}</strong> إلى <strong>${document.getElementById('filter-to').value || '-'}</strong></span>
+                <span>الفترة: <strong>${currentDateMode === 'all' ? 'كل الفترة' : `من ${document.getElementById('filter-from').value || '-'} إلى ${document.getElementById('filter-to').value || '-'}`}</strong></span>
                 <span>تاريخ الطباعة: <strong>${new Date().toLocaleDateString('ar-SD')}</strong></span>
             </div>
             ${tableClone.outerHTML}
@@ -581,7 +632,8 @@ window.shareViaWhatsApp = async function() {
     printContainer.innerHTML = htmlContent;
     document.body.appendChild(printContainer);
 
-    const message = 'مرحباً، مرفق كشف حسابكم الخاص بـ ' + getAccountNameForShare() + ' للفترة من ' + document.getElementById('filter-from').value + ' إلى ' + document.getElementById('filter-to').value;
+    const periodText = currentDateMode === 'all' ? 'لكل الفترة' : 'للفترة من ' + document.getElementById('filter-from').value + ' إلى ' + document.getElementById('filter-to').value;
+    const message = 'مرحباً، مرفق كشف حسابكم الخاص بـ ' + getAccountNameForShare() + ' ' + periodText;
 
     if (typeof sendPDFViaWhatsApp === 'function') {
         await sendPDFViaWhatsApp(printContainer, phone, message);
@@ -617,7 +669,7 @@ function runReport() {
     const ccFilter = document.getElementById('filter-costcenter').value;
     const curFilter = document.getElementById('filter-currency').value;
 
-    if (!fromDate || !toDate) {
+    if (currentDateMode === 'range' && (!fromDate || !toDate)) {
         return showToast('يرجى تحديد الفترة الزمنية', 'warning');
     }
 
@@ -645,6 +697,9 @@ function executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, 
 
     // Filter Account and Setup Opening Balance
     let intrinsicBal = 0;
+    let accountCurrency = 'SDG';
+    let accountExRate = 1;
+
     if (acctFilter !== 'ALL') {
         const cleanFilter = String(acctFilter).replace(/^(cust|supp|bank|safe|exp)-/, '');
         txns = txns.filter(t => {
@@ -654,28 +709,60 @@ function executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, 
         
         let custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
         let sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
-        let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+        let banks = (JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => !x.deleted);
+        let safes = (JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => !x.deleted);
+        let exp = (JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => !x.deleted);
         
         let c = custs.find(x => String(x.id).replace(/^(cust|supp|bank|safe|exp)-/, '') === cleanFilter);
-        if (c) intrinsicBal = parseNum(c.openingBalance || c.initialBalance || 0);
-        else {
+        if (c) {
+            intrinsicBal = parseNum(c.openingDebit || 0) - parseNum(c.openingCredit || 0);
+            accountCurrency = c.currency || 'SDG';
+            accountExRate = parseNum(c.exRate || 1);
+        } else {
             let s = sups.find(x => String(x.id).replace(/^(cust|supp|bank|safe|exp)-/, '') === cleanFilter);
-            if (s) intrinsicBal = -parseNum(s.openingBalance || s.initialBalance || 0);
-            else {
+            if (s) {
+                intrinsicBal = parseNum(s.openingDebit || 0) - parseNum(s.openingCredit || 0);
+                accountCurrency = s.currency || 'SDG';
+                accountExRate = parseNum(s.exRate || 1);
+            } else {
                 let b = banks.find(x => String(x.id).replace(/^(cust|supp|bank|safe|exp)-/, '') === cleanFilter);
-                if (b) intrinsicBal = parseNum(b.openingBalance || b.initialBalance || 0);
+                if (b) {
+                    intrinsicBal = parseNum(b.openingDebit || 0) - parseNum(b.openingCredit || 0);
+                    accountCurrency = b.currency || 'SDG';
+                    accountExRate = parseNum(b.exRate || 1);
+                } else {
+                    let sf = safes.find(x => String(x.id).replace(/^(cust|supp|bank|safe|exp)-/, '') === cleanFilter);
+                    if (sf) {
+                        intrinsicBal = parseNum(sf.openingDebit || 0) - parseNum(sf.openingCredit || 0);
+                        accountCurrency = sf.currency || 'SDG';
+                        accountExRate = parseNum(sf.exRate || 1);
+                    } else {
+                        let e = exp.find(x => String(x.id || x.code).replace(/^(cust|supp|bank|safe|exp)-/, '') === cleanFilter);
+                        if (e) {
+                            intrinsicBal = parseNum(e.openingDebit || 0) - parseNum(e.openingCredit || 0);
+                            accountCurrency = e.currency || 'SDG';
+                            accountExRate = parseNum(e.exRate || 1);
+                        }
+                    }
+                }
             }
         }
     }
 
     let runningBal = intrinsicBal;
-    let priorTxns = txns.filter(t => t.date < fromDate);
-    priorTxns.forEach(t => {
-        runningBal += t.debit;
-        runningBal -= t.credit;
-    });
+    let priorTxns = [];
+    let currentTxns = [];
 
-    let currentTxns = txns.filter(t => t.date >= fromDate && t.date <= toDate);
+    if (currentDateMode === 'all') {
+        currentTxns = [...txns];
+    } else {
+        priorTxns = txns.filter(t => t.date < fromDate);
+        priorTxns.forEach(t => {
+            runningBal += t.debit;
+            runningBal -= t.credit;
+        });
+        currentTxns = txns.filter(t => t.date >= fromDate && t.date <= toDate);
+    }
 
     if (typeFilter !== 'ALL') currentTxns = currentTxns.filter(t => t.type === typeFilter);
     if (ccFilter !== 'ALL') currentTxns = currentTxns.filter(t => t.costCenter === ccFilter);
@@ -699,11 +786,24 @@ function executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, 
     if (acctFilter !== 'ALL' && (runningBal !== 0 || currentTxns.length > 0)) {
         let openingDebit = runningBal > 0 ? runningBal : 0;
         let openingCredit = runningBal < 0 ? Math.abs(runningBal) : 0;
+        
+        let openingDate = fromDate;
+        let openingStatement = 'رصيد ما قبل الفترة';
+        if (currentDateMode === 'all') {
+            openingStatement = 'رصيد افتتاحي';
+            if (txns.length > 0) {
+                openingDate = txns.reduce((min, t) => t.date < min ? t.date : min, txns[0].date);
+            } else {
+                openingDate = '—';
+            }
+        }
+
         currentTxns.unshift({
-            date: fromDate, time: '', ref: 'OPENING', type: 'opening', typeLabel: 'افتتاحي',
+            date: openingDate, time: '', ref: 'OPENING', type: 'opening', typeLabel: 'افتتاحي',
             account: acctFilter, counterAccount: '-',
-            statement: 'رصيد ما قبل الفترة',
-            debit: openingDebit, credit: openingCredit, costCenter: '', currency: '',
+            statement: openingStatement,
+            debit: openingDebit, credit: openingCredit, costCenter: '', 
+            currency: accountCurrency, exchangeRate: accountExRate,
             isOpening: true
         });
     }
@@ -775,12 +875,12 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
             'debit': t.debit > 0 ? t.debit : null,
             'credit': t.credit > 0 ? t.credit : null,
             'total': (t.debit > 0 ? t.debit : t.credit) || null,
-            'balance': Math.abs(runningBalance),
+            'balance': runningBalance,
             'currency': t.currency || '-',
             'exRate': exRate,
             'debitF': debF > 0 ? debF : null,
             'creditF': credF > 0 ? credF : null,
-            'balanceF': Math.abs(runningBalanceForeign)
+            'balanceF': runningBalanceForeign
         };
 
         colConfig.forEach(c => {
@@ -830,7 +930,7 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #333; padding-bottom:10px; margin-bottom:5px; font-weight:bold; font-size:1.1rem; width:100%;">
             <div style="flex:1; text-align:right;">الحساب: <strong style="color:var(--text-primary, #000);">${accName}</strong></div>
             <div style="flex:1; text-align:center; font-size:1.4rem;">التقرير العام للحسابات</div>
-            <div style="flex:1; text-align:left;">الفترة: من <strong>${fromDate}</strong> إلى <strong>${toDate}</strong></div>
+            <div style="flex:1; text-align:left;">الفترة: <strong>${currentDateMode === 'all' ? 'كل الفترة' : `من ${fromDate} إلى ${toDate}`}</strong></div>
         </div>
         <div class="hide-on-screen" style="justify-content:space-between; font-size:0.85rem; color:var(--text-secondary, #555); margin-bottom:15px; width:100%;">
             <span>طبعت بواسطة: <strong>${printedBy}</strong></span>
@@ -943,7 +1043,7 @@ function previewGL(autoPrint = false) {
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #333; padding-bottom:10px; margin-bottom:5px; font-weight:bold; font-size:1.1rem; width:100%;">
                     <div style="flex:1; text-align:right;">الحساب: <strong>${getAccountNameForShare()}</strong></div>
                     <div style="flex:1; text-align:center; font-size:1.5rem;">التقرير العام للحسابات</div>
-                    <div style="flex:1; text-align:left;">الفترة: من <strong>${document.getElementById('filter-from').value}</strong> إلى <strong>${document.getElementById('filter-to').value}</strong></div>
+                    <div style="flex:1; text-align:left;">الفترة: <strong>${currentDateMode === 'all' ? 'كل الفترة' : `من ${document.getElementById('filter-from').value} إلى ${document.getElementById('filter-to').value}`}</strong></div>
                 </div>
                 <div style="display:flex; justify-content:space-between; font-size:0.9rem; color:#555; margin-bottom:15px; width:100%;">
                     <span>طبعت بواسطة: <strong>${document.getElementById('header-user-name') ? document.getElementById('header-user-name').innerText : 'مدير النظام'}</strong></span>
@@ -1051,7 +1151,7 @@ function exportGLPDF() {
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #333; padding-bottom:10px; margin-bottom:5px; font-weight:bold; font-size:1.1rem; width:100%;">
                 <div style="flex:1; text-align:right;">الحساب: <strong>${getAccountNameForShare()}</strong></div>
                 <div style="flex:1; text-align:center; font-size:1.5rem;">التقرير العام للحسابات</div>
-                <div style="flex:1; text-align:left;">الفترة: من <strong>${document.getElementById('filter-from').value}</strong> إلى <strong>${document.getElementById('filter-to').value}</strong></div>
+                <div style="flex:1; text-align:left;">الفترة: <strong>${currentDateMode === 'all' ? 'كل الفترة' : `من ${document.getElementById('filter-from').value} إلى ${document.getElementById('filter-to').value}`}</strong></div>
             </div>
             <div style="display:flex; justify-content:space-between; font-size:0.9rem; color:#555; margin-bottom:15px; width:100%;">
                 <span>طبعت بواسطة: <strong>${document.getElementById('header-user-name') ? document.getElementById('header-user-name').innerText : 'مدير النظام'}</strong></span>
@@ -1103,14 +1203,13 @@ const defaultColConfig = [
     { id: 'statement', name: 'البيان', alias: '', visible: true, width: '150px', bg: '', color: '#e2e8f0', bold: false, size: '0.85rem', dec: 0 },
     { id: 'note', name: 'ملحوظة إضافية', alias: '', visible: true, width: '150px', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 0 },
     { id: 'costCenter', name: 'مركز التكلفة', alias: '', visible: true, width: 'auto', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 0 },
-    { id: 'debit', name: 'مدين محلي', alias: '', visible: true, width: 'auto', bg: '', color: '#34d399', bold: true, size: '0.9rem', dec: 2 },
-    { id: 'credit', name: 'دائن محلي', alias: '', visible: true, width: 'auto', bg: '', color: '#f87171', bold: true, size: '0.9rem', dec: 2 },
-    { id: 'total', name: 'الإجمالي', alias: '', visible: true, width: 'auto', bg: '', color: '#cbd5e1', bold: true, size: '0.9rem', dec: 2 },
+    { id: 'debit', name: 'مدين محلي (عليه)', alias: '', visible: true, width: 'auto', bg: '', color: '#34d399', bold: true, size: '0.9rem', dec: 2 },
+    { id: 'credit', name: 'دائن محلي (له)', alias: '', visible: true, width: 'auto', bg: '', color: '#f87171', bold: true, size: '0.9rem', dec: 2 },
     { id: 'balance', name: 'الرصيد محلي', alias: '', visible: true, width: 'auto', bg: '', color: '#c084fc', bold: true, size: '0.9rem', dec: 2 },
     { id: 'currency', name: 'العملة', alias: '', visible: true, width: 'auto', bg: '', color: '#c084fc', bold: false, size: '0.85rem', dec: 0 },
     { id: 'exRate', name: 'سعر الصرف', alias: '', visible: true, width: 'auto', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 2 },
-    { id: 'debitF', name: 'مدين أجنبي', alias: '', visible: true, width: 'auto', bg: '', color: '#34d399', bold: true, size: '0.9rem', dec: 2 },
-    { id: 'creditF', name: 'دائن أجنبي', alias: '', visible: true, width: 'auto', bg: '', color: '#f87171', bold: true, size: '0.9rem', dec: 2 },
+    { id: 'debitF', name: 'مدين أجنبي (عليه)', alias: '', visible: true, width: 'auto', bg: '', color: '#34d399', bold: true, size: '0.9rem', dec: 2 },
+    { id: 'creditF', name: 'دائن أجنبي (له)', alias: '', visible: true, width: 'auto', bg: '', color: '#f87171', bold: true, size: '0.9rem', dec: 2 },
     { id: 'balanceF', name: 'رصيد أجنبي', alias: '', visible: true, width: 'auto', bg: '', color: '#c084fc', bold: true, size: '0.9rem', dec: 2 }
 ];
 
@@ -1137,6 +1236,7 @@ function loadColumnConfig() {
             defaultColConfig.forEach(defCol => {
                 const found = loadedConfig.find(c => c.id === defCol.id);
                 if (found) {
+                    found.name = defCol.name; // Keep name aligned with the new default name
                     merged.push(found);
                 } else {
                     merged.push(defCol);
@@ -1330,6 +1430,9 @@ function toggleSettingsSidebar() {
         } catch(e) {}
         
         renderSidebarConfig();
+        if (typeof renderPresets === 'function') {
+            renderPresets();
+        }
         sb.classList.add('active');
         ov.classList.add('active');
     }
@@ -1458,6 +1561,9 @@ function resetColumnConfig() {
 }
 function fmtNumDec(n, decimals) {
     const val = parseFloat(n) || 0;
+    if (val < 0) {
+        return `-(${Math.abs(val).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })})`;
+    }
     return val.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
@@ -1512,3 +1618,228 @@ document.addEventListener('mouseup', function(e) {
         currentTh = null;
     }
 });
+
+/* ─── Sleek & Tactile Quick Presets (Hold to Save, Click to Apply) ─── */
+const HOLD_TIME_MS = 1500; // Hold for 1.5s to trigger save
+
+window.getQuickPresets = function() {
+    let list = [];
+    try {
+        list = JSON.parse(localStorage.getItem('sgl_quick_presets_v3'));
+    } catch(e) {}
+    if (!list || list.length !== 4) {
+        list = [
+            { id: 1, name: 'النمط 1', active: false, colConfig: null },
+            { id: 2, name: 'النمط 2', active: false, colConfig: null },
+            { id: 3, name: 'النمط 3', active: false, colConfig: null },
+            { id: 4, name: 'النمط 4', active: false, colConfig: null }
+        ];
+        localStorage.setItem('sgl_quick_presets_v3', JSON.stringify(list));
+    }
+    return list;
+}
+
+window.renderQuickPresets = function() {
+    const wrap = document.getElementById('presets-slots-wrap');
+    if (!wrap) return;
+    
+    const list = window.getQuickPresets();
+    wrap.innerHTML = '';
+    
+    list.forEach((p) => {
+        const btn = document.createElement('div');
+        btn.className = `preset-slot-btn ${p.colConfig ? 'has-data' : ''}`;
+        btn.setAttribute('data-id', p.id);
+        
+        btn.title = p.colConfig ? 'نقرة واحدة للتطبيق. اضغط مطولاً (ثانية ونصف) لحفظ التخطيط الحالي هنا. انقر بالزر الأيمن للحذف.' : 'اضغط مطولاً (ثانية ونصف) لحفظ التخطيط الحالي في هذا الموضع.';
+        
+        btn.innerHTML = `
+            <span>${p.name}</span>
+            <div class="hold-bar" id="hold-bar-${p.id}"></div>
+        `;
+        
+        setupLongPress(btn, p);
+        wrap.appendChild(btn);
+    });
+}
+
+function setupLongPress(element, preset) {
+    let pressTimer = null;
+    let progressTimer = null;
+    let holdStartTime = 0;
+    let isHolding = false;
+    const bar = element.querySelector('.hold-bar');
+
+    function startPress(e) {
+        if (e.type === 'touchstart') e.preventDefault();
+        
+        isHolding = true;
+        holdStartTime = Date.now();
+        bar.style.transition = 'none';
+        bar.style.width = '0%';
+        
+        let progress = 0;
+        progressTimer = setInterval(() => {
+            const elapsed = Date.now() - holdStartTime;
+            const pct = Math.min(100, (elapsed / HOLD_TIME_MS) * 100);
+            bar.style.width = pct + '%';
+            if (pct >= 100) {
+                clearInterval(progressTimer);
+            }
+        }, 30);
+
+        pressTimer = setTimeout(() => {
+            triggerSave(preset);
+            cancelPress();
+        }, HOLD_TIME_MS);
+    }
+
+    function cancelPress() {
+        isHolding = false;
+        clearTimeout(pressTimer);
+        clearInterval(progressTimer);
+        bar.style.transition = 'width 0.2s ease-out';
+        bar.style.width = '0%';
+    }
+
+    function endPress(e) {
+        if (!isHolding) return;
+        const elapsed = Date.now() - holdStartTime;
+        cancelPress();
+        
+        if (elapsed < HOLD_TIME_MS) {
+            triggerApply(preset);
+        }
+    }
+
+    element.addEventListener('mousedown', startPress);
+    element.addEventListener('mouseup', endPress);
+    element.addEventListener('mouseleave', cancelPress);
+
+    element.addEventListener('touchstart', startPress, { passive: false });
+    element.addEventListener('touchend', endPress);
+    element.addEventListener('touchcancel', cancelPress);
+
+    // Right click clears preset
+    element.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        if (!preset.colConfig) return;
+        
+        if (confirm(`هل تريد تصفير وحذف قالب النمط "${preset.name}"؟`)) {
+            clearPresetSlot(preset.id);
+        }
+    });
+}
+
+function triggerSave(preset) {
+    const oldModal = document.getElementById('save-preset-modal-wrap');
+    if (oldModal) oldModal.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'save-preset-modal-wrap';
+    overlay.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(15, 23, 42, 0.85); z-index: 9999999;
+        display: flex; align-items: center; justify-content: center;
+        backdrop-filter: blur(12px);
+        opacity: 0; transition: opacity 0.3s ease;
+    `;
+    
+    overlay.innerHTML = `
+        <div style="background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95)); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 20px; padding: 25px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: all 0.3s ease;">
+            <div style="font-size: 2.5rem; margin-bottom: 15px;">💾</div>
+            <h3 style="color:#fff; font-family:'Tajawal', sans-serif; font-size:1.2rem; font-weight:800; margin-bottom:10px;">حفظ النمط المخصص</h3>
+            <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:20px; font-family:'Tajawal', sans-serif;">يرجى كتابة اسم مناسب لهذا النمط لحفظ التعديلات الحالية عليه:</p>
+            <input type="text" id="preset-custom-name-input" value="${preset.colConfig ? preset.name : 'نمط مخصص'}" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:12px; border-radius:10px; font-size:1rem; outline:none; text-align:center; font-family:inherit; font-weight:bold; margin-bottom:20px;" onfocus="this.style.borderColor='#a855f7'">
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <button id="btn-save-preset-confirm" class="btn-run" style="padding:10px 25px; border-radius:10px; font-weight:bold; background: linear-gradient(135deg, #10b981, #059669); border:none; color:#fff; cursor:pointer;">حفظ وتطبيق</button>
+                <button id="btn-save-preset-cancel" class="btn-action" style="padding:10px 20px; border-radius:10px; cursor:pointer;">إلغاء</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+    
+    requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+        overlay.children[0].style.transform = 'scale(1)';
+    });
+
+    const nameInput = document.getElementById('preset-custom-name-input');
+    nameInput.focus();
+    nameInput.select();
+
+    const closeModal = () => {
+        overlay.style.opacity = '0';
+        overlay.children[0].style.transform = 'scale(0.9)';
+        setTimeout(() => overlay.remove(), 300);
+    };
+
+    document.getElementById('btn-save-preset-cancel').onclick = closeModal;
+    
+    document.getElementById('btn-save-preset-confirm').onclick = () => {
+        const customName = nameInput.value.trim() || `النمط ${preset.id}`;
+        saveCurrentConfigToPreset(preset.id, customName);
+        closeModal();
+    };
+
+    nameInput.onkeyup = (e) => {
+        if (e.key === 'Enter') {
+            const customName = nameInput.value.trim() || `النمط ${preset.id}`;
+            saveCurrentConfigToPreset(preset.id, customName);
+            closeModal();
+        }
+    };
+}
+
+function saveCurrentConfigToPreset(presetId, name) {
+    const list = window.getQuickPresets();
+    const idx = list.findIndex(p => p.id === presetId);
+    if (idx === -1) return;
+    
+    const savedConfig = JSON.parse(JSON.stringify(colConfig));
+    
+    list[idx] = {
+        id: presetId,
+        name: name,
+        active: true,
+        colConfig: savedConfig
+    };
+    
+    localStorage.setItem('sgl_quick_presets_v3', JSON.stringify(list));
+    window.renderQuickPresets();
+    showToast(`💾 تم حفظ التخطيط باسم: ${name}`, 'success');
+}
+
+function triggerApply(preset) {
+    if (!preset.colConfig) {
+        showToast('⚠️ هذا موضع نمط فارغ! اضغط مطولاً لحفظ التنسيق الحالي هنا.', 'warning');
+        return;
+    }
+    
+    colConfig = JSON.parse(JSON.stringify(preset.colConfig));
+    saveColumnConfig();
+    renderSidebarConfig();
+    runReport();
+    
+    showToast(`✨ تم تطبيق نمط العرض: ${preset.name}`, 'success');
+}
+
+function clearPresetSlot(presetId) {
+    const list = window.getQuickPresets();
+    const idx = list.findIndex(p => p.id === presetId);
+    if (idx === -1) return;
+    
+    list[idx] = {
+        id: presetId,
+        name: `النمط ${presetId}`,
+        active: false,
+        colConfig: null
+    };
+    
+    localStorage.setItem('sgl_quick_presets_v3', JSON.stringify(list));
+    window.renderQuickPresets();
+    showToast(`🔄 تم حذف وتصفير موضع النمط ${presetId}`, 'success');
+}
+
+

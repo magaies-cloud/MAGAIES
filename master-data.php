@@ -234,6 +234,7 @@
             <button class="md-tab-btn" onclick="openTab(event, 'tab-items'); setTimeout(openItemForm, 50);"><span class="md-tab-icon">📦</span> الأصناف والوحدات</button>
             <button class="md-tab-btn" onclick="openTab(event, 'tab-employees')"><span class="md-tab-icon">👥</span> الموظفين</button>
             <button class="md-tab-btn" onclick="openTab(event, 'tab-costcenters')"><span class="md-tab-icon">📊</span> مراكز التكلفة</button>
+            <button class="md-tab-btn" onclick="openTab(event, 'tab-currencies')"><span class="md-tab-icon">🎨</span> معامل العملات</button>
             <div style="flex: 1;"></div>
             <button class="md-tab-btn" onclick="goBackOrExit()" style="color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.1); font-weight: 900; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);"><span class="md-tab-icon">🚪</span> خروج / رجوع</button>
         </aside>
@@ -285,11 +286,16 @@
                             <div class="input-group"><label>رقم الواتساب</label><input type="text" id="cust-whatsapp" placeholder="0024912300675"></div>
                             <div class="input-group"><label>الايميل (البريد الإلكتروني)</label><input type="email" id="cust-email" placeholder="example@email.com"></div>
                             <div class="input-group" style="grid-column: span 2;"><label>العنوان</label><input type="text" id="cust-address" placeholder="مثال: الخرطوم، السجانة"></div>
-                            <div class="input-group"><label>العملة</label><select id="cust-currency"><option value="SDG">SDG</option><option value="USD">USD</option><option value="SAR">SAR</option><option value="AED">AED</option></select></div>
+                            <div class="input-group"><label>العملة</label><select id="cust-currency" class="system-currency-select" onchange="updateCustExchangeRate()"></select></div>
+                            <div class="input-group"><label>التعادل (سعر الصرف)</label><input type="number" id="cust-ex-rate" step="any" value="1" placeholder="1.00"></div>
                             <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="cust-tax" placeholder="الرقم الضريبي للعميل"></div>
-                            <div class="input-group"><label>رقم الحساب</label><input type="text" id="cust-account-no" placeholder="رقم حساب العميل"></div>
-                            <div class="input-group"><label>رصيد افتتاحي (عليه)</label><input type="number" id="cust-opening-debit" placeholder="0.00"></div>
-                            <div class="input-group"><label>رصيد افتتاحي (له)</label><input type="number" id="cust-opening-credit" placeholder="0.00"></div>
+                            <input type="hidden" id="cust-account-no" value="">
+                            <div class="input-group">
+                                <label>الرصيد الافتتاحي (موجب = عليه، سالب = له)</label>
+                                <input type="number" id="cust-opening-balance" placeholder="0.00">
+                                <input type="hidden" id="cust-opening-debit" value="0">
+                                <input type="hidden" id="cust-opening-credit" value="0">
+                            </div>
                             <div class="input-group"><label style="color: var(--danger-color);">حد الائتمان (أقصى سقف)</label><input type="number" id="cust-limit" placeholder="المبلغ المسموح للدين"></div>
                             <div class="input-group"><label>درجة السرية</label><select id="cust-security"><option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option></select></div>
                             <div class="input-group"><label>حالة العميل (القائمة السوداء)</label><select id="cust-status" style="font-weight: bold;"><option value="active" style="color: var(--success-color);">🟢 نشط (عادي)</option><option value="vip" style="color: var(--primary-accent);">🌟 VIP (مميز)</option><option value="blacklisted" style="color: var(--danger-color);">🔴 قائمة سوداء (محظور)</option></select></div>
@@ -346,11 +352,16 @@
                             <div class="input-group"><label>رقم الواتساب</label><input type="text" id="sup-whatsapp" placeholder="0024912300675"></div>
                             <div class="input-group"><label>الايميل (البريد الإلكتروني)</label><input type="email" id="sup-email" placeholder="example@email.com"></div>
                             <div class="input-group" style="grid-column: span 2;"><label>العنوان</label><input type="text" id="sup-address" placeholder="موقع المصنع / المعرض"></div>
-                            <div class="input-group"><label>العملة</label><select id="sup-currency"><option value="SDG">SDG</option><option value="USD">USD</option><option value="SAR">SAR</option><option value="AED">AED</option></select></div>
+                            <div class="input-group"><label>العملة</label><select id="sup-currency" class="system-currency-select" onchange="updateSupExchangeRate()"></select></div>
+                            <div class="input-group"><label>التعادل (سعر الصرف)</label><input type="number" id="sup-ex-rate" step="any" value="1" placeholder="1.00"></div>
                             <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="sup-tax" placeholder="الرقم الضريبي للمورد"></div>
-                            <div class="input-group"><label>رقم الحساب</label><input type="text" id="sup-account-no" placeholder="رقم حساب المورد"></div>
-                            <div class="input-group"><label>رصيد افتتاحي (عليه)</label><input type="number" id="sup-opening-debit" placeholder="0.00"></div>
-                            <div class="input-group"><label>رصيد افتتاحي (له)</label><input type="number" id="sup-opening-credit" placeholder="0.00"></div>
+                            <input type="hidden" id="sup-account-no" value="">
+                            <div class="input-group">
+                                <label>الرصيد الافتتاحي (موجب = عليه، سالب = له)</label>
+                                <input type="number" id="sup-opening-balance" placeholder="0.00">
+                                <input type="hidden" id="sup-opening-debit" value="0">
+                                <input type="hidden" id="sup-opening-credit" value="0">
+                            </div>
                             <div class="input-group"><label style="color: var(--danger-color);">حد الائتمان (أقصى سقف)</label><input type="number" id="sup-limit" placeholder="أقصى سقف"></div>
                             <div class="input-group"><label>درجة السرية</label><select id="sup-security"><option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option></select></div>
                             <div class="input-group"><label>حالة المورد</label><select id="sup-status" style="font-weight: bold;"><option value="active" style="color: var(--success-color);">🟢 مورد نشط</option><option value="blacklisted" style="color: var(--danger-color);">🔴 قائمة سوداء</option></select></div>
@@ -765,6 +776,34 @@
                     </div>
                 </div>
             </div>
+            
+            <div id="tab-currencies" class="md-tab-content">
+                <div class="md-card">
+                    <div class="md-card-header">
+                        <h3 class="md-card-title">🎨 معامل العملات (أسعار الصرف)</h3>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 15px;">
+                        حدد كم تساوي كل عملة أجنبية مقابل العملة المحلية الأساسية (مثلاً: كم جنيه سوداني يساوي الدولار الواحد).
+                    </p>
+                    <div class="table-responsive" style="overflow-x: auto; max-width: 600px;">
+                        <table class="pro-table">
+                            <thead>
+                                <tr>
+                                    <th>رمز العملة</th>
+                                    <th>اسم العملة (بالعربية)</th>
+                                    <th>معامل العملة (سعر الصرف)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="currencies-tbody">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 20px; text-align: right;">
+                        <button type="button" class="btn-add" style="background: var(--success-color); padding: 10px 25px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);" onclick="saveCurrencyRates()">💾 حفظ معامل العملات</button>
+                    </div>
+                </div>
+            </div>
 
         </main>
     </div>
@@ -797,6 +836,9 @@
             document.querySelectorAll('.md-tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             evt.currentTarget.classList.add('active');
+            if (tabId === 'tab-currencies') {
+                renderCurrencyRates();
+            }
         }
 
         function openInnerTab(evt, tabId) {
@@ -935,8 +977,10 @@
             const email = document.getElementById('cust-email').value;
             const contactPerson = document.getElementById('cust-contact').value;
             const address = document.getElementById('cust-address').value;
-            const openingDebit = parseFloat(document.getElementById('cust-opening-debit').value) || 0;
-            const openingCredit = parseFloat(document.getElementById('cust-opening-credit').value) || 0;
+            const opBalance = parseFloat(document.getElementById('cust-opening-balance').value) || 0;
+            const openingDebit = opBalance >= 0 ? opBalance : 0;
+            const openingCredit = opBalance < 0 ? Math.abs(opBalance) : 0;
+            const exRate = parseFloat(document.getElementById('cust-ex-rate').value) || 1;
             const currency = document.getElementById('cust-currency').value || 'SDG';
             const taxNumber = document.getElementById('cust-tax').value || '';
             const accountNo = document.getElementById('cust-account-no').value || '';
@@ -989,7 +1033,7 @@
             const custData = {
                 id, name, phone, whatsapp, email, contactPerson, address, 
                 openingDebit, openingCredit, 
-                currency, taxNumber, accountNo,
+                currency, exRate, taxNumber, accountNo,
                 currentBalance: (openingDebit - openingCredit), 
                 creditLimit: limit,
                 securityLevel: security, status: status, notes,
@@ -1084,9 +1128,9 @@
             document.getElementById('cust-email').value = '';
             document.getElementById('cust-contact').value = '';
             document.getElementById('cust-address').value = '';
-            document.getElementById('cust-opening-debit').value = '';
-            document.getElementById('cust-opening-credit').value = '';
+            document.getElementById('cust-opening-balance').value = '';
             document.getElementById('cust-currency').value = 'SDG';
+            document.getElementById('cust-ex-rate').value = '1';
             document.getElementById('cust-tax').value = '';
             document.getElementById('cust-account-no').value = '';
             document.getElementById('cust-limit').value = '';
@@ -1119,9 +1163,10 @@
             document.getElementById('cust-email').value = cust.email || '';
             document.getElementById('cust-contact').value = cust.contactPerson || '';
             document.getElementById('cust-address').value = cust.address || '';
-            document.getElementById('cust-opening-debit').value = cust.openingDebit || '';
-            document.getElementById('cust-opening-credit').value = cust.openingCredit || '';
+            const bal = (cust.openingDebit || 0) - (cust.openingCredit || 0);
+            document.getElementById('cust-opening-balance').value = bal || '';
             document.getElementById('cust-currency').value = cust.currency || 'SDG';
+            document.getElementById('cust-ex-rate').value = cust.exRate || 1;
             document.getElementById('cust-tax').value = cust.taxNumber || '';
             document.getElementById('cust-account-no').value = cust.accountNo || '';
             document.getElementById('cust-limit').value = cust.creditLimit || '';
@@ -1173,8 +1218,10 @@
             const whatsapp = document.getElementById('sup-whatsapp').value;
             const email = document.getElementById('sup-email').value;
             const address = document.getElementById('sup-address').value;
-            const openingDebit = parseFloat(document.getElementById('sup-opening-debit').value) || 0;
-            const openingCredit = parseFloat(document.getElementById('sup-opening-credit').value) || 0;
+            const opBalance = parseFloat(document.getElementById('sup-opening-balance').value) || 0;
+            const openingDebit = opBalance >= 0 ? opBalance : 0;
+            const openingCredit = opBalance < 0 ? Math.abs(opBalance) : 0;
+            const exRate = parseFloat(document.getElementById('sup-ex-rate').value) || 1;
             const currency = document.getElementById('sup-currency').value || 'SDG';
             const taxNumber = document.getElementById('sup-tax').value || '';
             const accountNo = document.getElementById('sup-account-no').value || '';
@@ -1216,7 +1263,7 @@
             const supData = {
                 id, name, phone, whatsapp, email, address, 
                 openingDebit, openingCredit, 
-                currency, taxNumber, accountNo,
+                currency, exRate, taxNumber, accountNo,
                 currentBalance: (openingDebit - openingCredit), 
                 creditLimit: limit,
                 securityLevel: security, status: status, notes
@@ -1259,9 +1306,9 @@
             document.getElementById('sup-whatsapp').value = '';
             document.getElementById('sup-email').value = '';
             document.getElementById('sup-address').value = '';
-            document.getElementById('sup-opening-debit').value = '';
-            document.getElementById('sup-opening-credit').value = '';
+            document.getElementById('sup-opening-balance').value = '';
             document.getElementById('sup-currency').value = 'SDG';
+            document.getElementById('sup-ex-rate').value = '1';
             document.getElementById('sup-tax').value = '';
             document.getElementById('sup-account-no').value = '';
             document.getElementById('sup-limit').value = '';
@@ -1287,9 +1334,10 @@
             document.getElementById('sup-whatsapp').value = sup.whatsapp || '';
             document.getElementById('sup-email').value = sup.email || '';
             document.getElementById('sup-address').value = sup.address || '';
-            document.getElementById('sup-opening-debit').value = sup.openingDebit || '';
-            document.getElementById('sup-opening-credit').value = sup.openingCredit || '';
+            const bal = (sup.openingDebit || 0) - (sup.openingCredit || 0);
+            document.getElementById('sup-opening-balance').value = bal || '';
             document.getElementById('sup-currency').value = sup.currency || 'SDG';
+            document.getElementById('sup-ex-rate').value = sup.exRate || 1;
             document.getElementById('sup-tax').value = sup.taxNumber || '';
             document.getElementById('sup-account-no').value = sup.accountNo || '';
             document.getElementById('sup-limit').value = sup.creditLimit || '';
@@ -2360,6 +2408,87 @@ function openSafeForm() {
                 localStorage.setItem('erp_jobs_v1', JSON.stringify(ccs));
                 renderCostCenters();
             }
+        }
+
+        // ================= CURRENCIES LOGIC =================
+        function getCurrencyRates() {
+            let rates = {};
+            try {
+                rates = JSON.parse(localStorage.getItem('erp_currency_rates_v1')) || {};
+            } catch(e) {}
+            
+            const defaults = {
+                'SDG': 1,
+                'USD': 600,
+                'SAR': 160,
+                'AED': 163,
+                'EGP': 12
+            };
+            
+            for (let cur in defaults) {
+                if (rates[cur] === undefined) {
+                    rates[cur] = defaults[cur];
+                }
+            }
+            return rates;
+        }
+
+        function renderCurrencyRates() {
+            const tbody = document.getElementById('currencies-tbody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            const rates = getCurrencyRates();
+            const currencyLabels = {
+                'SDG': 'جنيه سوداني',
+                'USD': 'دولار',
+                'SAR': 'ريال سعودي',
+                'AED': 'درهم إماراتي',
+                'EGP': 'جنيه مصري'
+            };
+            
+            for (let cur in rates) {
+                const tr = document.createElement('tr');
+                const isBase = cur === 'SDG';
+                const readonlyAttr = isBase ? 'readonly disabled style="background:rgba(0,0,0,0.1); color:#94a3b8; cursor:not-allowed;"' : '';
+                const helperText = isBase ? '<span style="color:#94a3b8; font-size:0.75rem;">(العملة الأساسية للنظام)</span>' : '';
+                
+                tr.innerHTML = `
+                    <td style="font-weight:bold; color:#a855f7;">${cur}</td>
+                    <td>${currencyLabels[cur] || cur} ${helperText}</td>
+                    <td>
+                        <input type="number" step="any" class="cfg-input cur-rate-input" data-cur="${cur}" value="${rates[cur]}" ${readonlyAttr} style="width:120px; font-weight:bold; text-align:center; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: #fff; padding: 6px; border-radius: 6px;">
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        function saveCurrencyRates() {
+            const rates = getCurrencyRates();
+            const inputs = document.querySelectorAll('.cur-rate-input');
+            inputs.forEach(input => {
+                const cur = input.getAttribute('data-cur');
+                const val = parseFloat(input.value) || 1;
+                rates[cur] = val;
+            });
+            
+            localStorage.setItem('erp_currency_rates_v1', JSON.stringify(rates));
+            alert('✅ تم حفظ معاملات العملات بنجاح!');
+        }
+
+        function updateCustExchangeRate() {
+            const cur = document.getElementById('cust-currency').value;
+            const rates = getCurrencyRates();
+            const rate = rates[cur] || 1;
+            document.getElementById('cust-ex-rate').value = rate;
+        }
+
+        function updateSupExchangeRate() {
+            const cur = document.getElementById('sup-currency').value;
+            const rates = getCurrencyRates();
+            const rate = rates[cur] || 1;
+            document.getElementById('sup-ex-rate').value = rate;
         }
 
         function goBackOrExit() {

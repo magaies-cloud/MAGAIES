@@ -93,6 +93,15 @@ JSON.parse = function(val) {
 
     let isPushing = false;
     let pushQueue = false;
+    let pushTimeout = null;
+    let dirtyKeys = new Set();
+
+    window.addEventListener('beforeunload', () => {
+        if (pushTimeout) {
+            clearTimeout(pushTimeout);
+            pushToCloud();
+        }
+    });
 
     localStorage.setItem = function(key, value) {
         const sessionKeys = ['session_active'];
@@ -130,12 +139,16 @@ JSON.parse = function(val) {
         }
 
         if (syncKeys.includes(key)) {
-            // Strict Sync: Push immediately
-            if (!isPushing) {
-                pushToCloud();
-            } else {
-                pushQueue = true; // Queue another push if currently pushing
-            }
+            dirtyKeys.add(key);
+            // Debounce Sync: Wait for 800ms of inactivity before pushing to cloud
+            if (pushTimeout) clearTimeout(pushTimeout);
+            pushTimeout = setTimeout(() => {
+                if (!isPushing) {
+                    pushToCloud();
+                } else {
+                    pushQueue = true;
+                }
+            }, 800);
         }
     };
 
@@ -259,27 +272,77 @@ JSON.parse = function(val) {
         };
     }
 
-    function showSyncOverlay(message) {
-        if (document.getElementById('sync-strict-overlay')) return;
-        const overlay = document.createElement('div');
-        overlay.id = 'sync-strict-overlay';
-        overlay.style.cssText = `
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(15, 23, 42, 0.9); z-index: 999999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            backdrop-filter: blur(8px);
-        `;
-        overlay.innerHTML = `
-            <div style="width: 50px; height: 50px; border: 4px solid rgba(56, 189, 248, 0.2); border-top-color: #38bdf8; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-            <div style="margin-top: 20px; color: #fff; font-family: Tajawal, sans-serif; font-size: 1.2rem; font-weight: 700;" id="sync-strict-msg">${message}</div>
-            <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
-        `;
-        document.body.appendChild(overlay);
+    function showSyncOverlay(message, isPull = false) {
+        if (isPull) {
+            if (document.getElementById('sync-strict-overlay')) return;
+            const overlay = document.createElement('div');
+            overlay.id = 'sync-strict-overlay';
+            overlay.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                background: rgba(15, 23, 42, 0.9); z-index: 999999;
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                backdrop-filter: blur(8px);
+            `;
+            overlay.innerHTML = `
+                <div style="width: 50px; height: 50px; border: 4px solid rgba(56, 189, 248, 0.2); border-top-color: #38bdf8; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <div style="margin-top: 20px; color: #fff; font-family: Tajawal, sans-serif; font-size: 1.2rem; font-weight: 700;" id="sync-strict-msg">${message}</div>
+                <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+            `;
+            document.body.appendChild(overlay);
+        } else {
+            // Show neat non-blocking status pill for pushes (saves)
+            let widget = document.getElementById('sync-status-widget');
+            if (!widget) {
+                widget = document.createElement('div');
+                widget.id = 'sync-status-widget';
+                widget.style.cssText = `
+                    position: fixed; bottom: 20px; right: 20px;
+                    background: rgba(15, 23, 42, 0.85);
+                    border: 1px solid rgba(168, 85, 247, 0.4);
+                    color: #fff; padding: 10px 18px; border-radius: 12px;
+                    font-family: Tajawal, sans-serif; font-size: 0.85rem; font-weight: bold;
+                    display: flex; align-items: center; gap: 8px; z-index: 999999;
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+                    backdrop-filter: blur(10px);
+                    transition: all 0.3s ease;
+                    transform: translateY(0);
+                    opacity: 1;
+                `;
+                document.body.appendChild(widget);
+            }
+            widget.style.display = 'flex';
+            widget.style.opacity = '1';
+            widget.style.transform = 'translateY(0)';
+            widget.innerHTML = `
+                <div style="width: 14px; height: 14px; border: 2px solid rgba(168, 85, 247, 0.2); border-top-color: #c084fc; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <span>${message}</span>
+            `;
+        }
     }
 
-    function hideSyncOverlay() {
+    function hideSyncOverlay(success = true) {
+        // Remove full screen overlay if exists
         const overlay = document.getElementById('sync-strict-overlay');
         if (overlay) overlay.remove();
+        
+        // Hide/update status widget
+        const widget = document.getElementById('sync-status-widget');
+        if (widget) {
+            if (success) {
+                widget.innerHTML = `
+                    <span style="color: #34d399; font-weight: bold; display: flex; align-items: center; gap: 4px;">✓ تم المزامنة مع السيرفر</span>
+                `;
+                setTimeout(() => {
+                    widget.style.opacity = '0';
+                    widget.style.transform = 'translateY(10px)';
+                    setTimeout(() => {
+                        widget.style.display = 'none';
+                    }, 300);
+                }, 2000);
+            } else {
+                widget.style.display = 'none';
+            }
+        }
     }
 
     const pushToCloud = window.pushToCloud = function() {
@@ -298,7 +361,15 @@ JSON.parse = function(val) {
             const prefix = getTenantPrefix();
             let payload = {};
             let hasData = false;
-            syncKeys.forEach(k => {
+            
+            // Sync only modified keys if available, otherwise fallback to all syncKeys (e.g. initial force sync)
+            const keysToSync = dirtyKeys.size > 0 ? Array.from(dirtyKeys) : syncKeys;
+            
+            // Keep a copy of current dirty keys in case we need to restore them if the sync fails
+            const currentDirty = Array.from(dirtyKeys);
+            dirtyKeys.clear();
+
+            keysToSync.forEach(k => {
                 const pk = window.getTenantKey(k);
                 const data = window.DB_STORE[pk] || originalGetItem(pk);
                 if (data) {
@@ -332,6 +403,8 @@ JSON.parse = function(val) {
             }).then(data => {
                 if(!data.success) {
                     alert('حدث خطأ أثناء الحفظ في قاعدة البيانات!');
+                    // Restore dirty keys
+                    currentDirty.forEach(k => dirtyKeys.add(k));
                     reject(new Error("Save failed"));
                 } else {
                     console.log("Cloud Sync: Strict Backup Successful");
@@ -339,6 +412,8 @@ JSON.parse = function(val) {
                 }
             }).catch(err => {
                 console.error("Cloud Sync Push Failed:", err);
+                // Restore dirty keys on failure
+                currentDirty.forEach(k => dirtyKeys.add(k));
                 alert('فشل الاتصال بقاعدة البيانات! أعد المحاولة.');
                 reject(err);
             }).finally(() => {
@@ -367,7 +442,7 @@ JSON.parse = function(val) {
         const hasLocalData = originalGetItem(prefix + "erp_customers_v1") !== null || originalGetItem(prefix + "erp_users_v1") !== null;
         
         if (!hasLocalData) {
-            showSyncOverlay('جاري جلب أحدث البيانات من السيرفر...');
+            showSyncOverlay('جاري جلب أحدث البيانات من السيرفر...', true);
         }
         return fetch(SYNC_PULL_URL, { headers: getAuthHeaders() })
             .then(res => {
@@ -2006,11 +2081,11 @@ window.getCurrencyOptionsHtml = function(selectedValue) {
     const activeCurrencies = settings.activeCurrencies || ['SDG', 'USD', 'SAR', 'AED', 'EGP'];
     const defaultCurrency = settings.currency || 'SDG';
     const currencyLabels = {
-        'SDG': 'جنيه سوداني (SDG)',
-        'USD': 'دولار أمريكي (USD)',
-        'SAR': 'ريال سعودي (SAR)',
-        'AED': 'درهم إماراتي (AED)',
-        'EGP': 'جنيه مصري (EGP)'
+        'SDG': 'جنيه سوداني',
+        'USD': 'دولار',
+        'SAR': 'ريال سعودي',
+        'AED': 'درهم إماراتي',
+        'EGP': 'جنيه مصري'
     };
     
     let html = '';

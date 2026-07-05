@@ -299,30 +299,30 @@ function runReport() {
     
     const cust = custs.find(c => c.id === partnerId);
     if (cust) {
-        intrinsicBal = parseNum(cust.openingBalance || cust.initialBalance || 0); // debit
+        intrinsicBal = parseNum(cust.openingDebit || 0) - parseNum(cust.openingCredit || 0); // debit
     } else {
         const sup = sups.find(s => s.id === partnerId);
         if (sup) {
-            intrinsicBal = -parseNum(sup.openingBalance || sup.initialBalance || 0); // credit
+            intrinsicBal = parseNum(sup.openingDebit || 0) - parseNum(sup.openingCredit || 0); // credit
         } else {
             const bnk = banks.find(b => b.id === partnerId);
             if (bnk) {
-                intrinsicBal = parseNum(bnk.openingBalance || bnk.initialBalance || 0); // debit
+                intrinsicBal = parseNum(bnk.openingDebit || 0) - parseNum(bnk.openingCredit || 0); // debit
             } else {
                 const sfe = safes.find(s => s.id === partnerId);
                 if (sfe) {
-                    intrinsicBal = parseNum(sfe.openingBalance || sfe.initialBalance || 0); // debit
+                    intrinsicBal = parseNum(sfe.openingDebit || 0) - parseNum(sfe.openingCredit || 0); // debit
                 } else {
                     const exp = expenses.find(e => e.id === partnerId);
                     if (exp) {
-                        intrinsicBal = parseNum(exp.openingBalance || exp.initialBalance || 0); // debit
+                        intrinsicBal = parseNum(exp.openingDebit || 0) - parseNum(exp.openingCredit || 0); // debit
                     } else {
                         const emp = employees.find(e => e.id === partnerId);
                         if (emp) {
-                            intrinsicBal = parseNum(emp.openingBalance || emp.initialBalance || 0); // debit
+                            intrinsicBal = parseNum(emp.openingDebit || 0) - parseNum(emp.openingCredit || 0); // debit
                         } else {
                             const wh = warehouses.find(w => w.id === partnerId);
-                            if (wh) intrinsicBal = parseNum(wh.openingBalance || wh.initialBalance || 0);
+                            if (wh) intrinsicBal = parseNum(wh.openingDebit || 0) - parseNum(wh.openingCredit || 0);
                         }
                     }
                 }

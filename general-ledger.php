@@ -17,6 +17,167 @@
         .toast.warning { background:rgba(251,191,36,0.15); border:1px solid rgba(251,191,36,0.4); color:#fbbf24; }
         @keyframes toastIn { from { opacity:0; transform:translateY(-20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
 
+        /* Presets Slots Styles */
+        .no-print .modern-btn {
+            height: 38px !important;
+            font-size: 0.88rem !important;
+            padding: 0 16px !important;
+            border-radius: 10px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-weight: 700 !important;
+            font-family: 'Tajawal', sans-serif !important;
+            box-sizing: border-box !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .no-print .modern-btn:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+        }
+
+        .presets-slots-wrap {
+            flex-grow: 1;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .preset-slot-btn {
+            position: relative;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            height: 38px !important;
+            font-size: 0.85rem !important;
+            padding: 0 14px !important;
+            border-radius: 10px !important;
+            font-weight: 700 !important;
+            font-family: 'Tajawal', sans-serif !important;
+            cursor: pointer;
+            flex: 1 !important;
+            min-width: 80px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            user-select: none;
+            text-align: center;
+            box-sizing: border-box !important;
+        }
+
+        /* Glowing Breathing Keyframes */
+        @keyframes preset-glow-purple {
+            0%, 100% { box-shadow: 0 0 5px rgba(168, 85, 247, 0.15); }
+            50% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.35); }
+        }
+        @keyframes preset-glow-blue {
+            0%, 100% { box-shadow: 0 0 5px rgba(56, 189, 248, 0.15); }
+            50% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.35); }
+        }
+        @keyframes preset-glow-emerald {
+            0%, 100% { box-shadow: 0 0 5px rgba(52, 211, 153, 0.15); }
+            50% { box-shadow: 0 0 15px rgba(52, 211, 153, 0.35); }
+        }
+        @keyframes preset-glow-pink {
+            0%, 100% { box-shadow: 0 0 5px rgba(244, 114, 182, 0.15); }
+            50% { box-shadow: 0 0 15px rgba(244, 114, 182, 0.35); }
+        }
+
+        /* Slot 1: Purple */
+        .preset-slot-btn[data-id="1"] {
+            background: rgba(168, 85, 247, 0.03) !important;
+            border: 1px dashed rgba(168, 85, 247, 0.25) !important;
+            color: rgba(192, 132, 252, 0.75) !important;
+        }
+        .preset-slot-btn[data-id="1"]:hover,
+        .preset-slot-btn[data-id="1"].has-data {
+            background: rgba(168, 85, 247, 0.08) !important;
+            border: 1px solid rgba(168, 85, 247, 0.4) !important;
+            color: #c084fc !important;
+        }
+        .preset-slot-btn[data-id="1"].has-data {
+            animation: preset-glow-purple 3.5s infinite ease-in-out;
+        }
+        .preset-slot-btn[data-id="1"]:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 15px rgba(168, 85, 247, 0.35) !important;
+        }
+
+        /* Slot 2: Blue */
+        .preset-slot-btn[data-id="2"] {
+            background: rgba(56, 189, 248, 0.03) !important;
+            border: 1px dashed rgba(56, 189, 248, 0.25) !important;
+            color: rgba(56, 189, 248, 0.75) !important;
+        }
+        .preset-slot-btn[data-id="2"]:hover,
+        .preset-slot-btn[data-id="2"].has-data {
+            background: rgba(56, 189, 248, 0.08) !important;
+            border: 1px solid rgba(56, 189, 248, 0.4) !important;
+            color: #38bdf8 !important;
+        }
+        .preset-slot-btn[data-id="2"].has-data {
+            animation: preset-glow-blue 3.5s infinite ease-in-out;
+        }
+        .preset-slot-btn[data-id="2"]:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 15px rgba(56, 189, 248, 0.35) !important;
+        }
+
+        /* Slot 3: Emerald */
+        .preset-slot-btn[data-id="3"] {
+            background: rgba(52, 211, 153, 0.03) !important;
+            border: 1px dashed rgba(52, 211, 153, 0.25) !important;
+            color: rgba(52, 211, 153, 0.75) !important;
+        }
+        .preset-slot-btn[data-id="3"]:hover,
+        .preset-slot-btn[data-id="3"].has-data {
+            background: rgba(52, 211, 153, 0.08) !important;
+            border: 1px solid rgba(52, 211, 153, 0.4) !important;
+            color: #34d399 !important;
+        }
+        .preset-slot-btn[data-id="3"].has-data {
+            animation: preset-glow-emerald 3.5s infinite ease-in-out;
+        }
+        .preset-slot-btn[data-id="3"]:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 15px rgba(52, 211, 153, 0.35) !important;
+        }
+
+        /* Slot 4: Pink */
+        .preset-slot-btn[data-id="4"] {
+            background: rgba(244, 114, 182, 0.03) !important;
+            border: 1px dashed rgba(244, 114, 182, 0.25) !important;
+            color: rgba(244, 114, 182, 0.75) !important;
+        }
+        .preset-slot-btn[data-id="4"]:hover,
+        .preset-slot-btn[data-id="4"].has-data {
+            background: rgba(244, 114, 182, 0.08) !important;
+            border: 1px solid rgba(244, 114, 182, 0.4) !important;
+            color: #f472b6 !important;
+        }
+        .preset-slot-btn[data-id="4"].has-data {
+            animation: preset-glow-pink 3.5s infinite ease-in-out;
+        }
+        .preset-slot-btn[data-id="4"]:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 15px rgba(244, 114, 182, 0.35) !important;
+        }
+
+        .preset-slot-btn .hold-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 0%;
+            border-bottom-left-radius: 9px;
+            border-bottom-right-radius: 9px;
+        }
+        .preset-slot-btn[data-id="1"] .hold-bar { background: #a855f7; }
+        .preset-slot-btn[data-id="2"] .hold-bar { background: #38bdf8; }
+        .preset-slot-btn[data-id="3"] .hold-bar { background: #34d399; }
+        .preset-slot-btn[data-id="4"] .hold-bar { background: #f472b6; }
+
+
+
+
         /* SGL Theme */
         .ledger-header { background: linear-gradient(135deg, rgba(192,132,252,0.15), rgba(15,23,42,0.9)); border: 1px solid rgba(192,132,252,0.2); border-radius: 16px; padding: 25px; margin-bottom: 20px; }
         .badge-sgl { background: #c084fc; color: #fff; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 900; letter-spacing: 1px; display: inline-block; vertical-align: middle; margin-right: 10px; }
@@ -377,6 +538,35 @@
         /* Smooth columns resize handled by table-themes.css */
         .ledger-table th { position: relative; user-select: none; }
         @keyframes fadeInDown { from { opacity:0; transform: translateY(-10px); } to { opacity:1; transform: translateY(0); } }
+
+        /* Modernized Buttons and Layout */
+        .modern-btn {
+            border: 1px solid transparent;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 38px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+            outline: none;
+        }
+        .modern-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+            filter: brightness(1.15);
+        }
+        .modern-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
     </style>
     </head>
 <body>
@@ -420,14 +610,24 @@
                 <input type="hidden" id="filter-account" value="ALL">
             </div>
 
-            <div class="filter-group-inline">
-                <label>من تاريخ</label>
-                <input type="date" class="filter-input" id="filter-from">
+            <!-- Date Filter Section -->
+            <div class="filter-group-inline" id="date-all-period-btn" style="cursor: pointer; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 8px; background: rgba(168, 85, 247, 0.1); border: 1px dashed rgba(168, 85, 247, 0.4); grid-column: span 2;" onclick="setDateMode('range')">
+                <span style="font-size: 1.2rem;">📅</span>
+                <span style="color: #c084fc; font-weight: bold;">الفترة: كل الفترة</span>
+                <span style="font-size: 0.75rem; background: rgba(168, 85, 247, 0.2); padding: 2px 6px; border-radius: 6px; color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.3);">تخصيص ⚡</span>
             </div>
 
-            <div class="filter-group-inline">
+            <div class="filter-group-inline" id="date-from-container" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <label>من تاريخ</label>
+                    <span onclick="setDateMode('all'); event.stopPropagation();" style="color: #f87171; font-size: 0.75rem; cursor: pointer; font-weight: bold; padding: 0 4px;" title="إلغاء وتعيين كل الفترة">✕ إلغاء</span>
+                </div>
+                <input type="date" class="filter-input" id="filter-from" onchange="runReport()">
+            </div>
+
+            <div class="filter-group-inline" id="date-to-container" style="display: none;">
                 <label>إلى تاريخ</label>
-                <input type="date" class="filter-input" id="filter-to">
+                <input type="date" class="filter-input" id="filter-to" onchange="runReport()">
             </div>
         </div>
 
@@ -469,29 +669,51 @@
     </div>
 
     <!-- ACTION BUTTONS SECTION -->
-    <div style="display:flex; gap:12px; margin-bottom:20px; align-items:center; flex-wrap:wrap;" class="no-print">
-        <button class="btn-run" onclick="runReport()" id="btn-run-report" style="box-shadow: 0 4px 15px rgba(192, 132, 252, 0.4); position:relative; overflow:hidden;">
-            <svg id="btn-run-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="transition:0.3s;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <svg id="btn-run-spinner" style="display:none; animation: rotate 1s linear infinite;" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"></path></svg>
-            <span id="btn-run-text">تشغيل التقرير الذكي</span>
+    <div style="display:flex; gap:10px; margin-bottom:20px; align-items:center; flex-wrap:wrap; width: 100%;" class="no-print">
+        <!-- 1. تشغيل التقرير -->
+        <button class="btn-run modern-btn" onclick="runReport()" id="btn-run-report" style="background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35); border: none; color: white; margin: 0;">
+            <svg id="btn-run-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="transition:0.3s;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <svg id="btn-run-spinner" style="display:none; animation: rotate 1s linear infinite;" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"></path></svg>
+            <span id="btn-run-text" style="font-weight: bold;">تشغيل التقرير</span>
         </button>
         
-        <div id="secondary-actions" style="display:none; gap:12px; align-items:center; flex-wrap:wrap; opacity:0; transition: opacity 0.5s ease, transform 0.5s ease; transform: translateY(10px);">
-            <button class="btn-action" onclick="previewGL()">معاينة</button>
-            <button class="btn-action" onclick="printDirectly()">طباعة مباشرة</button>
-            <button class="btn-action" onclick="window.openExportModal(exportCSV, exportGLPDF)">تصدير PDF/Excel</button>
-            <button class="btn-action" style="background:rgba(37, 211, 102, 0.15); color:#25D366; border-color:rgba(37, 211, 102, 0.5);" onclick="shareViaWhatsApp()" title="مشاركة كشف الحساب عبر الواتساب">
-                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.487-1.761-1.66-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-                مشاركة واتساب
-            </button>
-            <button class="btn-action" style="background:rgba(234, 67, 53, 0.15); color:#ea4335; border-color:rgba(234, 67, 53, 0.5);" onclick="shareViaEmail()" title="إرسال كشف الحساب عبر البريد الإلكتروني">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                مشاركة إيميل
-            </button>
-        </div>
 
-        <button class="btn-run" style="background: linear-gradient(135deg, #ec4899, #8b5cf6); box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4); margin-right: auto;" onclick="toggleSettingsSidebar()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:8px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <!-- 3. المعاينة -->
+        <button class="modern-btn" onclick="previewGL()" style="background: rgba(56, 189, 248, 0.08); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.25);">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            معاينة
+        </button>
+
+        <!-- 4. طباعة مباشرة -->
+        <button class="modern-btn" onclick="printDirectly()" style="background: rgba(16, 185, 129, 0.08); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.25);">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            طباعة
+        </button>
+
+        <!-- 5. تصدير PDF/Excel -->
+        <button class="modern-btn" onclick="window.openExportModal(exportCSV, exportGLPDF)" style="background: rgba(251, 191, 36, 0.08); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.25);">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            تصدير
+        </button>
+
+        <!-- 6. مشاركة واتساب -->
+        <button class="modern-btn" onclick="shareViaWhatsApp()" style="background: rgba(37, 211, 102, 0.08); color: #25d366; border: 1px solid rgba(37, 211, 102, 0.25);" title="مشاركة كشف الحساب عبر الواتساب">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.487-1.761-1.66-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            واتساب
+        </button>
+
+        <!-- 7. مشاركة إيميل -->
+        <button class="modern-btn" onclick="shareViaEmail()" style="background: rgba(249, 115, 22, 0.08); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.25);" title="إرسال كشف الحساب عبر البريد الإلكتروني">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            إيميل
+        </button>
+
+        <!-- Presets Slots Container -->
+        <div class="presets-slots-wrap" id="presets-slots-wrap"></div>
+
+        <!-- 8. تخصيص العرض والجدول -->
+        <button class="btn-run modern-btn" onclick="toggleSettingsSidebar()" style="background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%); box-shadow: 0 4px 15px rgba(236, 72, 153, 0.35); border: none; color: white; margin-right: auto;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:6px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             تخصيص العرض والجدول
         </button>
     </div>
@@ -507,7 +729,7 @@
             <div class="s-val td-credit" id="sum-credit" style="color:#ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">0.00</div>
         </div>
         <div class="summary-card" style="background: linear-gradient(135deg, #312e81, #4f46e5); border: 1px solid #6366f1;">
-            <div class="s-label" style="color:#c7d2fe;">الرصيد النهائي</div>
+            <div class="s-label" style="color:#c7d2fe;">الرصيد محلي</div>
             <div class="s-val" id="sum-balance" style="color:#ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">0.00</div>
         </div>
     </div>
@@ -584,6 +806,7 @@
                 <button class="font-chip" onclick="changeNumberFont('num-font-poppins')" id="btn-font-num-font-poppins" style="font-family: 'Poppins', sans-serif;">Poppins</button>
             </div>
         </div>
+
 
         <p class="sidebar-desc">رتب الأعمدة بالسحب والإفلات. اضغط "تخصيص" لتغيير المسمى، الألوان، وحجم الخط.</p>
         <ul id="columns-config-list" class="columns-config-list">

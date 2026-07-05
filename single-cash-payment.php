@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'حركة مالية'; ?>
+<?php $page_title = 'حركة مالية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -369,34 +369,191 @@
             .split-layout-wrapper.has-sidebar .side-panel { width: 100%; transform: translateX(0) translateY(-20px); }
         }
 
-        /* Epic Animated Transfer Arrow */
-        @keyframes epicArrowFlow {
-            0% { transform: translateX(12px) scale(0.9); color: #ef4444; filter: drop-shadow(0 0 10px #ef4444) drop-shadow(0 0 20px #ef4444); }
-            33% { transform: translateX(-5px) scale(1.3); color: #f97316; filter: drop-shadow(0 0 15px #f97316) drop-shadow(0 0 30px #f97316); }
-            66% { transform: translateX(-18px) scale(1.5); color: #10b981; filter: drop-shadow(0 0 25px #10b981) drop-shadow(0 0 40px #10b981); }
-            100% { transform: translateX(12px) scale(0.9); color: #ef4444; filter: drop-shadow(0 0 10px #ef4444) drop-shadow(0 0 20px #ef4444); }
-        }
-        
-        @keyframes pulseBg {
-            0% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.4), inset 0 0 10px rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.6); }
-            33% { box-shadow: 0 0 30px rgba(249, 115, 22, 0.5), inset 0 0 15px rgba(249, 115, 22, 0.3); border-color: rgba(249, 115, 22, 0.8); }
-            66% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.6), inset 0 0 20px rgba(16, 185, 129, 0.4); border-color: rgba(16, 185, 129, 0.9); }
-            100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.4), inset 0 0 10px rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.6); }
+        /* Crystalline Glassmorphic Transfer Arrow */
+        @keyframes rotateRing {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
-        .transfer-arrow-anim {
-            animation: epicArrowFlow 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        @keyframes crystalShineSweep {
+            0% { transform: translate(-150%, -150%) rotate(45deg); }
+            100% { transform: translate(150%, 150%) rotate(45deg); }
         }
-        
+
         .epic-arrow-container {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; 
             display: flex; align-items: center; justify-content: center; 
-            width: 60px; height: 60px; 
-            background: rgba(15, 23, 42, 0.95); 
-            border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); 
-            animation: pulseBg 3.6s infinite alternate;
-            backdrop-filter: blur(10px);
+            width: 72px; height: 72px; 
+            /* Premium Crystalline Background: high glassmorphic translucency with colorful light */
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.02) 100%);
+            background-size: 200% 200%;
+            border-radius: 50%; 
+            /* Sharp, highly reflective, thin double border effect */
+            border: 1.5px solid rgba(255, 255, 255, 0.45);
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.6), 
+                inset 0 4px 18px rgba(255, 255, 255, 0.35), 
+                inset 0 -4px 18px rgba(0, 0, 0, 0.2),
+                0 0 20px rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(25px) saturate(220%);
+            -webkit-backdrop-filter: blur(25px) saturate(220%);
+            cursor: pointer;
+            overflow: hidden; /* To clip the shine reflection */
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
         }
+
+        /* Outer Crystalline Orbit Ring with soft green-red gradient path */
+        .epic-arrow-container::before {
+            content: '';
+            position: absolute;
+            top: -8px; left: -8px; right: -8px; bottom: -8px;
+            border-radius: 50%;
+            border: 1.5px dashed rgba(255, 255, 255, 0.25);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(239, 68, 68, 0.15));
+            animation: rotateRing 15s linear infinite;
+            pointer-events: none;
+            z-index: -1;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Moving Diagonal Reflection Gleam */
+        .epic-arrow-container::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0) 40%,
+                rgba(255, 255, 255, 0.45) 50%,
+                rgba(255, 255, 255, 0) 60%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: translate(-150%, -150%) rotate(45deg);
+            transition: all 0.6s ease;
+            pointer-events: none;
+            /* Sweep every 6 seconds automatically */
+            animation: crystalShineSweep 6s infinite ease-in-out;
+        }
+        
+        .epic-arrow-container:hover {
+            transform: translate(-50%, -50%) scale(1.18);
+            border-color: rgba(255, 255, 255, 0.7);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 100%);
+            box-shadow: 
+                0 20px 45px rgba(0, 0, 0, 0.7), 
+                inset 0 6px 24px rgba(255, 255, 255, 0.4), 
+                inset 0 -6px 24px rgba(0, 0, 0, 0.2),
+                0 0 30px rgba(255, 255, 255, 0.3);
+        }
+        
+        .epic-arrow-container:hover::before {
+            top: -12px; left: -12px; right: -12px; bottom: -12px;
+            border-color: rgba(255, 255, 255, 0.65);
+            animation-duration: 6s; /* Spin faster */
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(239, 68, 68, 0.3));
+        }
+
+        .epic-arrow-container:hover::after {
+            /* Trigger a faster shine sweep on hover */
+            animation: crystalShineSweep 1.5s infinite ease-in-out;
+        }
+
+        .epic-arrow-container:active {
+            transform: translate(-50%, -50%) scale(0.9);
+            transition: all 0.1s ease;
+        }
+
+        .transfer-arrow-anim {
+            display: block;
+            overflow: visible;
+        }
+
+        /* Continuous flowing chevrons (Right to Left / Green to Red) */
+        .chev {
+            opacity: 0.15;
+            stroke-width: 3.2px;
+            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .chev-3 { animation: chevFlow3 1.5s infinite; }
+        .chev-2 { animation: chevFlow2 1.5s infinite; }
+        .chev-1 { animation: chevFlow1 1.5s infinite; }
+
+        @keyframes chevFlow3 {
+            0%, 100% { opacity: 0.15; stroke-width: 3.2px; color: rgba(16, 185, 129, 0.25); transform: scale(0.9); }
+            15% { 
+                opacity: 1; 
+                stroke-width: 4.8px;
+                color: #00ff88; 
+                filter: drop-shadow(0 0 6px #00ff88) drop-shadow(0 0 15px #00ff88) drop-shadow(0 0 30px #00ff88); 
+                transform: scale(1.22) translateX(-3px); 
+            }
+            40% { opacity: 0.15; stroke-width: 3.2px; color: rgba(16, 185, 129, 0.25); transform: scale(0.9); }
+        }
+        @keyframes chevFlow2 {
+            0%, 20%, 100% { opacity: 0.15; stroke-width: 3.2px; color: rgba(251, 191, 36, 0.25); transform: scale(0.9); }
+            35% { 
+                opacity: 1; 
+                stroke-width: 4.8px;
+                color: #ffff00; 
+                filter: drop-shadow(0 0 8px #ffff00) drop-shadow(0 0 20px #ffff00) drop-shadow(0 0 35px #ffff00); 
+                transform: scale(1.25) translateX(-3px); 
+            }
+            60% { opacity: 0.15; stroke-width: 3.2px; color: rgba(251, 191, 36, 0.25); transform: scale(0.9); }
+        }
+        @keyframes chevFlow1 {
+            0%, 40%, 100% { opacity: 0.15; stroke-width: 3.2px; color: rgba(239, 68, 68, 0.25); transform: scale(0.9); }
+            55% { 
+                opacity: 1; 
+                stroke-width: 4.8px;
+                color: #ff0055; 
+                filter: drop-shadow(0 0 6px #ff0055) drop-shadow(0 0 15px #ff0055) drop-shadow(0 0 30px #ff0055); 
+                transform: scale(1.22) translateX(-3px); 
+            }
+            80% { opacity: 0.15; stroke-width: 3.2px; color: rgba(239, 68, 68, 0.25); transform: scale(0.9); }
+        }
+
+        /* Money Flow Conduit Styles */
+        .money-flow-svg {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            pointer-events: none;
+            z-index: 10;
+            overflow: visible;
+        }
+
+        .flow-path-bg {
+            stroke-linecap: round;
+            opacity: 0.7;
+        }
+
+        .flow-path-wave-1 {
+            stroke-linecap: round;
+            animation: waveLaser1 2.2s linear infinite;
+            filter: drop-shadow(0 0 4px #00ff88) drop-shadow(0 0 10px #ffff00);
+        }
+
+        .flow-path-wave-2 {
+            stroke-linecap: round;
+            animation: waveLaser2 1.4s linear infinite;
+            animation-delay: 0.5s;
+            filter: drop-shadow(0 0 3px #ffff00) drop-shadow(0 0 8px #ff0055);
+            opacity: 0.85;
+        }
+
+        @keyframes waveLaser1 {
+            0% { stroke-dashoffset: 1000; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        @keyframes waveLaser2 {
+            0% { stroke-dashoffset: 1000; }
+            100% { stroke-dashoffset: 0; }
+        }
+
         .focus-zone {
             background: rgba(0, 0, 0, 0.2); padding: 25px; border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -824,11 +981,28 @@
                         </style>
                         <div class="from-to-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 70px; margin-bottom: 25px; position: relative;">
                             
+                            <!-- Crystalline Wave Flow Connection -->
+                            <svg class="money-flow-svg" width="100%" height="40" viewBox="0 0 1000 40" preserveAspectRatio="none">
+                                <defs>
+                                    <linearGradient id="pathColorGradient" x1="100%" y1="0%" x2="0%" y2="0%">
+                                        <stop offset="0%" stop-color="#00ff88" />
+                                        <stop offset="50%" stop-color="#ffff00" />
+                                        <stop offset="100%" stop-color="#ff0055" />
+                                    </linearGradient>
+                                </defs>
+                                <!-- Static subtle path -->
+                                <path class="flow-path-bg" d="M 720 20 C 630 5, 570 35, 500 20 C 430 5, 370 35, 280 20" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="2.5" />
+                                <!-- Flowing pulses -->
+                                <path class="flow-path-wave-1" d="M 720 20 C 630 5, 570 35, 500 20 C 430 5, 370 35, 280 20" fill="none" stroke="url(#pathColorGradient)" stroke-width="3.5" stroke-dasharray="100 900" stroke-dashoffset="1000" />
+                                <path class="flow-path-wave-2" d="M 720 20 C 630 5, 570 35, 500 20 C 430 5, 370 35, 280 20" fill="none" stroke="url(#pathColorGradient)" stroke-width="2.2" stroke-dasharray="50 950" stroke-dashoffset="1000" />
+                            </svg>
+
                             <!-- Epic Animated Transfer Arrow (Centered Absolute) -->
-                            <div class="epic-arrow-container">
-                                <svg class="transfer-arrow-anim" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                                    <line x1="20" y1="12" x2="4" y2="12"></line>
-                                    <polyline points="10 18 4 12 10 6"></polyline>
+                            <div class="epic-arrow-container" onclick="swapAccounts()" role="button" aria-label="عكس الحسابات" title="عكس حساب الصرف والاستلام">
+                                <svg class="transfer-arrow-anim" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline class="chev chev-3" points="20 18 14 12 20 6"></polyline>
+                                    <polyline class="chev chev-2" points="13 18 7 12 13 6"></polyline>
+                                    <polyline class="chev chev-1" points="6 18 0 12 6 6"></polyline>
                                 </svg>
                             </div>
 

@@ -796,3 +796,46 @@ window.selectAccount = function(type, id, name) {
         }
     }
 };
+
+function swapAccounts() {
+    const fromIdEl = document.getElementById('from-account');
+    const fromSearchEl = document.getElementById('from-account-search');
+    const toIdEl = document.getElementById('to-account');
+    const toSearchEl = document.getElementById('to-account-search');
+
+    if (!fromIdEl || !fromSearchEl || !toIdEl || !toSearchEl) return;
+
+    // Get current values
+    const fromId = fromIdEl.value;
+    const fromSearch = fromSearchEl.value;
+    const toId = toIdEl.value;
+    const toSearch = toSearchEl.value;
+
+    // Set swapped values
+    fromIdEl.value = toId;
+    fromSearchEl.value = toSearch;
+    toIdEl.value = fromId;
+    toSearchEl.value = fromSearch;
+
+    // Add a visual rotation feedback to the arrow
+    const container = document.querySelector('.epic-arrow-container');
+    if (container) {
+        container.style.transform = 'translate(-50%, -50%) scale(1.18) rotate(180deg)';
+        container.style.boxShadow = '0 15px 45px rgba(251, 191, 36, 0.6), 0 0 35px rgba(251, 191, 36, 0.4)';
+        setTimeout(() => {
+            container.style.transform = '';
+            container.style.boxShadow = '';
+        }, 800);
+    }
+
+    // Update balances since "to" account changed
+    if (typeof updateBalances === 'function') {
+        updateBalances();
+    }
+
+    // Play a tiny toast notification
+    if (typeof showToast === 'function') {
+        showToast('🔄 تم عكس حساب الصرف والاستلام بنجاح!', 'success');
+    }
+}
+

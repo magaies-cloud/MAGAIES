@@ -123,21 +123,50 @@ function runReport() {
 
     // Filter Account and Setup Opening Balance
     let intrinsicBal = 0;
+    let accountCurrency = 'SDG';
+    let accountExRate = 1;
+
     if (acctFilter !== 'ALL') {
         txns = txns.filter(t => t.account === acctFilter);
         
         let custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
         let sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
-        let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+        let banks = (JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => !x.deleted);
+        let safes = (JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => !x.deleted);
+        let exp = (JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => !x.deleted);
         
         let c = custs.find(x => x.id === acctFilter);
-        if (c) intrinsicBal = parseNum(c.openingBalance || c.initialBalance || 0);
-        else {
+        if (c) {
+            intrinsicBal = parseNum(c.openingDebit || 0) - parseNum(c.openingCredit || 0);
+            accountCurrency = c.currency || 'SDG';
+            accountExRate = parseNum(c.exRate || 1);
+        } else {
             let s = sups.find(x => x.id === acctFilter);
-            if (s) intrinsicBal = -parseNum(s.openingBalance || s.initialBalance || 0);
-            else {
+            if (s) {
+                intrinsicBal = parseNum(s.openingDebit || 0) - parseNum(s.openingCredit || 0);
+                accountCurrency = s.currency || 'SDG';
+                accountExRate = parseNum(s.exRate || 1);
+            } else {
                 let b = banks.find(x => x.id === acctFilter);
-                if (b) intrinsicBal = parseNum(b.openingBalance || b.initialBalance || 0);
+                if (b) {
+                    intrinsicBal = parseNum(b.openingDebit || 0) - parseNum(b.openingCredit || 0);
+                    accountCurrency = b.currency || 'SDG';
+                    accountExRate = parseNum(b.exRate || 1);
+                } else {
+                    let sf = safes.find(x => x.id === acctFilter);
+                    if (sf) {
+                        intrinsicBal = parseNum(sf.openingDebit || 0) - parseNum(sf.openingCredit || 0);
+                        accountCurrency = sf.currency || 'SDG';
+                        accountExRate = parseNum(sf.exRate || 1);
+                    } else {
+                        let e = exp.find(x => (x.id || x.code) === acctFilter);
+                        if (e) {
+                            intrinsicBal = parseNum(e.openingDebit || 0) - parseNum(e.openingCredit || 0);
+                            accountCurrency = e.currency || 'SDG';
+                            accountExRate = parseNum(e.exRate || 1);
+                        }
+                    }
+                }
             }
         }
     }
@@ -168,7 +197,8 @@ function runReport() {
             date: fromDate, time: '', ref: 'OPENING', type: 'opening', typeLabel: 'افتتاحي',
             account: acctFilter, counterAccount: '-',
             statement: 'رصيد ما قبل الفترة',
-            debit: openingDebit, credit: openingCredit, costCenter: '', currency: '',
+            debit: openingDebit, credit: openingCredit, costCenter: '', 
+            currency: accountCurrency, exchangeRate: accountExRate,
             isOpening: true
         });
     }
