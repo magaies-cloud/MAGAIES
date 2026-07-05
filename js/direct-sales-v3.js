@@ -86,25 +86,45 @@ const SALE_PREFIX = { direct:'', split:'', delivery:'', proforma:'', costcenter:
 function peekNextInvoiceNumber(type) {
     let list = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     let prefix = '';
-    try {
-        const userStr = localStorage.getItem('user');
-        if(userStr) {
-            const userObj = JSON.parse(userStr);
-            if(userObj && userObj.username) {
-                prefix = userObj.username.substring(0, 3).toUpperCase() + '-';
+    
+    if (type === 'preliminary') {
+        prefix = 'PRE-';
+        let max = 0;
+        list.forEach(inv => {
+            if (inv.saleType === 'preliminary' || (inv.invoiceNo && inv.invoiceNo.startsWith('PRE-'))) {
+                let parts = (inv.invoiceNo || '').split('-');
+                let noStr = parts.length > 1 ? parts[1] : parts[0];
+                let no = parseInt(noStr || '0', 10);
+                if (!isNaN(no) && no > max) {
+                    max = no;
+                }
             }
-        }
-    } catch(e) {}
-    let max = 0;
-    list.forEach(inv => {
-        let parts = (inv.invoiceNo || '').split('-');
-        let noStr = parts.length > 1 ? parts[1] : parts[0];
-        let no = parseInt(noStr || '0', 10);
-        if (!isNaN(no) && no > max) {
-            max = no;
-        }
-    });
-    return `${prefix}${String(max + 1).padStart(6, '0')}`;
+        });
+        return `${prefix}${String(max + 1).padStart(6, '0')}`;
+    } else {
+        try {
+            const userStr = localStorage.getItem('user');
+            if(userStr) {
+                const userObj = JSON.parse(userStr);
+                if(userObj && userObj.username) {
+                    prefix = userObj.username.substring(0, 3).toUpperCase() + '-';
+                }
+            }
+        } catch(e) {}
+        
+        let max = 0;
+        list.forEach(inv => {
+            if (inv.saleType !== 'preliminary' && (!inv.invoiceNo || !inv.invoiceNo.startsWith('PRE-'))) {
+                let parts = (inv.invoiceNo || '').split('-');
+                let noStr = parts.length > 1 ? parts[1] : parts[0];
+                let no = parseInt(noStr || '0', 10);
+                if (!isNaN(no) && no > max) {
+                    max = no;
+                }
+            }
+        });
+        return `${prefix}${String(max + 1).padStart(6, '0')}`;
+    }
 }
 
 // Commit: actually increment the counter (only on real save/submit)
@@ -527,6 +547,11 @@ function loadInvoiceFromStorage(invNo) {
             currentViewedInvoiceNo = null;
         }
 
+        if (data.saleType) {
+            currentSaleType = data.saleType;
+            if (typeof openInvoiceEditor === 'function') openInvoiceEditor(currentSaleType);
+        }
+
         // Reset form
         rows = [];
         rowIdCounter = 0;
@@ -871,6 +896,11 @@ function loadInvoiceFromStorage(invNo) {
             showToast('✏️ أنت الآن في وضع التعديل للفاتورة الأصلية', 'warning', 4000);
         } else {
             currentViewedInvoiceNo = null;
+        }
+
+        if (data.saleType) {
+            currentSaleType = data.saleType;
+            if (typeof openInvoiceEditor === 'function') openInvoiceEditor(currentSaleType);
         }
 
         // Reset form
@@ -1593,7 +1623,7 @@ function renderGrid() {
             </td>
             <td><span class="g-readonly total-fc-val" style="color:#10b981; font-weight:bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0))}</span></td>
 
-            <td>
+            <td class="td-wh">
                 <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1">
                     <option value="">نفس الفاتورة ↩</option>
                     ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
@@ -1687,7 +1717,7 @@ function renderGrid() {
                 onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
                 onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700;" tabindex="-1">
                 </div>
-                <div class="ctrl-group">
+                <div class="ctrl-group m-wh-group">
                     <label class="label">المخزن</label>
                     <select class="ctrl-input" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1">
                         <option value="">الرئيسي ↩</option>

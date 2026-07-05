@@ -20,17 +20,27 @@
             --danger: #ef4444;
         }
 
-        body { 
-            background: var(--bg-color); 
-            color: #f8fafc; 
-            overflow: hidden; 
-            font-family: 'Tajawal', sans-serif; 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
+        html, body {
+            height: 100vh;
+            height: 100dvh;
             margin: 0;
-            padding: 10px;
+            padding: 0;
+            overflow: hidden;
             box-sizing: border-box;
+            background: #050308;
+            font-family: 'Tajawal', sans-serif;
+            color: #f8fafc;
+        }
+
+        .page-wrapper {
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            box-sizing: border-box;
+            overflow: hidden;
+            width: 100%;
         }
 
         /* Ambient Background */
@@ -88,10 +98,10 @@
         .type-chip.active { background: linear-gradient(135deg, var(--primary-accent), #2563eb); color: #fff; border-color: transparent; box-shadow: 0 4px 15px rgba(59,130,246,0.4); }
 
         /* Split View Layout */
-        .split-layout { flex: 1; display: flex; gap: 15px; overflow: hidden; }
+        .split-layout { flex: 1; display: flex; gap: 15px; overflow: hidden; min-height: 0; }
         
         /* Master Pane (Right) */
-        .master-pane { flex: 0 0 62%; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; position: relative; backdrop-filter: blur(20px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); overflow: hidden; animation: fadeIn 0.6s ease-out forwards; }
+        .master-pane { flex: 0 0 62%; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; position: relative; backdrop-filter: blur(20px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); overflow: hidden; animation: fadeIn 0.6s ease-out forwards; min-height: 0; }
         @keyframes fadeIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
 
         .table-scroll { flex: 1; overflow-y: auto; overflow-x: auto; padding: 0; }
@@ -121,7 +131,7 @@
         input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary-accent); }
 
         /* Detail Pane (Left) */
-        .detail-pane { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow-y: auto; padding: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; flex-direction: column; backdrop-filter: blur(20px); position: relative; animation: fadeIn 0.8s ease-out forwards;}
+        .detail-pane { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow-y: auto; padding: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; flex-direction: column; backdrop-filter: blur(20px); position: relative; animation: fadeIn 0.8s ease-out forwards; min-height: 0; }
         
         .empty-detail { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #64748b; text-align: center; padding: 20px; }
         .empty-detail-icon { font-size: 5rem; opacity: 0.2; margin-bottom: 20px; filter: grayscale(100%); transition: 0.3s; }
@@ -192,101 +202,104 @@
         <div class="orb orb-2"></div>
     </div>
 
-    <!-- Unified Premium Header -->
-    <?php include 'includes/header.php'; ?>
+    <div class="page-wrapper">
+        <!-- Unified Premium Header -->
+        <?php include 'includes/header.php'; ?>
 
-    <!-- Filters -->
-    <div class="filters-wrapper">
-        <div class="filters-top">
-            <div class="status-toggle">
-                <button class="status-btn active unposted" id="status-unposted" onclick="setStatus('unposted')">⏳ معلقة للترحيل</button>
-                <button class="status-btn posted" id="status-posted" onclick="setStatus('posted')">✅ مكتملة الترحيل</button>
+        <!-- Filters -->
+        <div class="filters-wrapper">
+            <div class="filters-top">
+                <div class="status-toggle">
+                    <button class="status-btn active unposted" id="status-unposted" onclick="setStatus('unposted')">⏳ معلقة للترحيل</button>
+                    <button class="status-btn posted" id="status-posted" onclick="setStatus('posted')">✅ مكتملة الترحيل</button>
+                </div>
+                
+                <div class="search-box">
+                    <span class="icon">🔍</span>
+                    <input type="text" id="search-input" placeholder="ابحث بالمرجع، الاسم، أو المبلغ..." onkeyup="handleFilterChange()">
+                </div>
+                
+                <div class="date-filters">
+                    <label style="color:#94a3b8; font-size:0.85rem; font-weight:bold;">من:</label>
+                    <input type="date" id="date-from" class="date-input" onchange="handleFilterChange()">
+                    <label style="color:#94a3b8; font-size:0.85rem; font-weight:bold;">إلى:</label>
+                    <input type="date" id="date-to" class="date-input" onchange="handleFilterChange()">
+                </div>
             </div>
-            
-            <div class="search-box">
-                <span class="icon">🔍</span>
-                <input type="text" id="search-input" placeholder="ابحث بالمرجع، الاسم، أو المبلغ..." onkeyup="handleFilterChange()">
-            </div>
-            
-            <div class="date-filters">
-                <label style="color:#94a3b8; font-size:0.85rem; font-weight:bold;">من:</label>
-                <input type="date" id="date-from" class="date-input" onchange="handleFilterChange()">
-                <label style="color:#94a3b8; font-size:0.85rem; font-weight:bold;">إلى:</label>
-                <input type="date" id="date-to" class="date-input" onchange="handleFilterChange()">
+            <div class="type-filters" id="type-filters">
+                <button class="type-chip active" id="type-all" onclick="setType('all')">الكل</button>
+                <button class="type-chip" id="type-sales" onclick="setType('sales')">مبيعات</button>
+                <button class="type-chip" id="type-purchases" onclick="setType('purchases')">مشتريات</button>
+                <button class="type-chip" id="type-receipt" onclick="setType('receipt')">سندات قبض</button>
+                <button class="type-chip" id="type-payment" onclick="setType('payment')">سندات صرف</button>
+                <button class="type-chip" id="type-journal" onclick="setType('journal')">قيود يومية</button>
             </div>
         </div>
-        <div class="type-filters" id="type-filters">
-            <button class="type-chip active" id="type-all" onclick="setType('all')">الكل</button>
-            <button class="type-chip" id="type-sales" onclick="setType('sales')">مبيعات</button>
-            <button class="type-chip" id="type-purchases" onclick="setType('purchases')">مشتريات</button>
-            <button class="type-chip" id="type-receipt" onclick="setType('receipt')">سندات قبض</button>
-            <button class="type-chip" id="type-payment" onclick="setType('payment')">سندات صرف</button>
-            <button class="type-chip" id="type-journal" onclick="setType('journal')">قيود يومية</button>
-        </div>
-    </div>
 
-    <!-- Split Layout -->
-    <div class="split-layout">
-        
-        <!-- Master Pane (Right) -->
-        <div class="master-pane">
-            <div class="table-scroll">
-                <table class="erp-table" id="data-table" style="display: none;">
-                    <thead>
-                        <tr>
-                            <th style="width: 40px; text-align: center;">
-                                <input type="checkbox" id="check-all-rows" onchange="toggleAllRows(this)" title="تحديد الكل">
-                            </th>
-                            <th style="width: 100px;">النوع</th>
-                            <th style="width: 100px;">التاريخ</th>
-                            <th style="width: 130px;">رقم المرجع</th>
-                            <th>العميل / المورد / البيان</th>
-                            <th style="width: 110px;">الاستحقاق</th>
-                            <th style="width: 110px;">طريقة الدفع</th>
-                            <th style="width: 140px; text-align: left;">المبلغ الإجمالي</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body">
-                        <!-- Rows injected via JS -->
-                    </tbody>
-                </table>
+        <!-- Split Layout -->
+        <div class="split-layout">
+            
+            <!-- Master Pane (Right) -->
+            <div class="master-pane">
+                <div class="table-scroll">
+                    <table class="erp-table" id="data-table" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px; text-align: center;">
+                                    <input type="checkbox" id="check-all-rows" onchange="toggleAllRows(this)" title="تحديد الكل">
+                                </th>
+                                <th style="width: 100px;">النوع</th>
+                                <th style="width: 100px;">التاريخ</th>
+                                <th style="width: 130px;">رقم المرجع</th>
+                                <th>العميل / المورد / البيان</th>
+                                <th style="width: 110px;">الاستحقاق</th>
+                                <th style="width: 110px;">طريقة الدفع</th>
+                                <th style="width: 140px; text-align: left;">المبلغ الإجمالي</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- Rows injected via JS -->
+                        </tbody>
+                    </table>
 
-                <div id="no-data-msg" style="display: none; text-align: center; padding: 60px 20px; color: #94a3b8; background: rgba(255,255,255,0.02); height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                    <div style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;">📭</div>
-                    <h2 style="color: #fff; font-size: 1.3rem; margin: 0 0 10px 0;">لا توجد عمليات مطابقة!</h2>
-                    <p style="font-size: 0.95rem; margin: 0 0 25px 0;">لم يتم العثور على أي عمليات تتطابق مع فلاتر البحث الحالية.</p>
-                    <button onclick="injectDummyData()" style="background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); padding: 10px 20px; border-radius: 10px; cursor: pointer; font-family: 'Tajawal', sans-serif; font-weight: bold; font-size: 0.95rem; transition: 0.3s;" onmouseover="this.style.background='rgba(59,130,246,0.3)'" onmouseout="this.style.background='rgba(59,130,246,0.15)'">
-                        ➕ إضافة بيانات تجريبية (للاختبار)
+                    <div id="no-data-msg" style="display: none; text-align: center; padding: 60px 20px; color: #94a3b8; background: rgba(255,255,255,0.02); height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <div style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;">📭</div>
+                        <h2 style="color: #fff; font-size: 1.3rem; margin: 0 0 10px 0;">لا توجد عمليات مطابقة!</h2>
+                        <p style="font-size: 0.95rem; margin: 0 0 25px 0;">لم يتم العثور على أي عمليات تتطابق مع فلاتر البحث الحالية.</p>
+                        <button onclick="injectDummyData()" style="background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); padding: 10px 20px; border-radius: 10px; cursor: pointer; font-family: 'Tajawal', sans-serif; font-weight: bold; font-size: 0.95rem; transition: 0.3s;" onmouseover="this.style.background='rgba(59,130,246,0.3)'" onmouseout="this.style.background='rgba(59,130,246,0.15)'">
+                            ➕ إضافة بيانات تجريبية (للاختبار)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sticky Action Bar for Master Pane -->
+                <div class="sticky-action-bar" id="sticky-bar">
+                    <div style="color: #cbd5e1; font-size: 1rem; font-weight: bold; display: flex; align-items: center; gap: 10px;">
+                        تم تحديد <span class="selected-count" id="selected-count">0</span> عمليات
+                    </div>
+                    <button class="btn-post-batch" onclick="postAllChecked()">
+                        <span>✔️</span> ترحيل الدفعة المحددة واعتمادها
                     </button>
                 </div>
             </div>
 
-            <!-- Sticky Action Bar for Master Pane -->
-            <div class="sticky-action-bar" id="sticky-bar">
-                <div style="color: #cbd5e1; font-size: 1rem; font-weight: bold; display: flex; align-items: center; gap: 10px;">
-                    تم تحديد <span class="selected-count" id="selected-count">0</span> عمليات
+            <!-- Detail Pane (Left) -->
+            <div class="detail-pane" id="detail-pane">
+                <div class="empty-detail" id="empty-detail">
+                    <div class="empty-detail-icon">📑</div>
+                    <h3 style="color:#f8fafc; margin-bottom:10px; font-size: 1.4rem;">لم يتم تحديد أي عملية</h3>
+                    <p style="font-size:0.95rem; line-height: 1.6;">اضغط على أي سطر من قائمة العمليات لعرض التفاصيل الكاملة والقيد المحاسبي التلقائي الخاص بها هنا للمراجعة.</p>
                 </div>
-                <button class="btn-post-batch" onclick="postAllChecked()">
-                    <span>✔️</span> ترحيل الدفعة المحددة واعتمادها
-                </button>
-            </div>
-        </div>
-
-        <!-- Detail Pane (Left) -->
-        <div class="detail-pane" id="detail-pane">
-            <div class="empty-detail" id="empty-detail">
-                <div class="empty-detail-icon">📑</div>
-                <h3 style="color:#f8fafc; margin-bottom:10px; font-size: 1.4rem;">لم يتم تحديد أي عملية</h3>
-                <p style="font-size:0.95rem; line-height: 1.6;">اضغط على أي سطر من قائمة العمليات لعرض التفاصيل الكاملة والقيد المحاسبي التلقائي الخاص بها هنا للمراجعة.</p>
-            </div>
-            
-            <div id="detail-content" class="detail-inner" style="display: none;">
-                <!-- Content injected via JS -->
+                
+                <div id="detail-content" class="detail-inner" style="display: none;">
+                    <!-- Content injected via JS -->
+                </div>
             </div>
         </div>
     </div>
 
     <script src="js/localforage.min.js"></script>
+    <script src="js/app.js?v=<?php echo time(); ?>"></script>
     <script src="js/posting-accounts.js?v=2026"></script>
     <script>
         function injectDummyData() {

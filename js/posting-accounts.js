@@ -1,17 +1,21 @@
 // js/posting-accounts.js
 
-document.addEventListener('DBReady', async () => {
+let isLoaded = false;
+async function initApp() {
+    if (isLoaded) return;
+    isLoaded = true;
     await loadAllTransactions();
-});
+}
 
-// Fallback
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        if (allTransactionsData.length === 0) {
-            loadAllTransactions();
-        }
-    }, 1000);
-});
+document.addEventListener('DBReady', initApp);
+document.addEventListener('DOMContentLoaded', initApp);
+
+// Immediate fallback in case events already fired
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    initApp();
+} else {
+    setTimeout(initApp, 400);
+}
 
 let allTransactionsData = [];
 let filteredData = []; 
@@ -126,7 +130,10 @@ async function loadAllTransactions() {
             }
 
             if (Array.isArray(data)) {
-                const validItems = data.filter(item => item && !item.deleted);
+                let validItems = data.filter(item => item && !item.deleted);
+                if (meta.key === 'erp_sales_invoices_v1') {
+                    validItems = validItems.filter(item => item.saleType !== 'preliminary' && item.status !== 'preliminary');
+                }
                 validItems.forEach(item => {
                     allData.push({
                         ...item,

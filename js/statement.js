@@ -133,7 +133,7 @@ function collectPartnerTransactions(partnerId) {
     });
 
     // 4. Sales Invoices
-    const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    const sales = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []).filter(x => x.saleType !== 'preliminary' && x.status !== 'preliminary');
     sales.forEach(inv => {
         const total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
         const refNo = inv.invoiceNo || inv.id;
@@ -181,7 +181,7 @@ function collectPartnerTransactions(partnerId) {
     });
 
     // 5. Purchase Invoices
-    const purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+    const purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted && !x.isGRN);
     purchases.forEach(inv => {
         let total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
         if (total === 0 && inv.items && inv.items.length > 0) {

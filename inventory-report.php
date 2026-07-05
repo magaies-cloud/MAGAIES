@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'السجانة ERP - تقارير وجرد المخازن'; ?>
+<?php $page_title = 'السجانة ERP - تقارير وجرد المخازن'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -424,7 +424,7 @@
 
             // 2. SUBTRACT Sales (Outward)
             let sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-            sales = sales.filter(x => !x.deleted);
+            sales = sales.filter(x => !x.deleted && x.saleType !== 'preliminary' && x.status !== 'preliminary');
             sales.forEach(inv => {
                 let hdrWhName = getWarehouseName(inv.warehouse);
                 (inv.items || []).forEach(line => {

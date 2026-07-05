@@ -894,6 +894,20 @@
         }
         .hub-badge.completed { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
         .hub-badge.draft { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+        .hub-badge.preliminary-badge { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        #invoice-editor-view.preliminary-active .th-wh,
+        #invoice-editor-view.preliminary-active .td-wh,
+        #invoice-editor-view.preliminary-active .m-wh-group {
+            display: none !important;
+        }
+        #invoice-editor-view.preliminary-active .pro-serial-number {
+            color: #c084fc !important;
+            text-shadow: 0 0 10px rgba(192, 132, 252, 0.5) !important;
+        }
+        #invoice-editor-view.preliminary-active #form-fields-card {
+            border-color: rgba(168, 85, 247, 0.5) !important;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.2), inset 0 0 15px rgba(255, 255, 255, 0.05) !important;
+        }
     </style>
         <style>
         :root.light-theme {
@@ -1368,7 +1382,7 @@
                         </div>
 
                         <!-- Row 3: Treasury, Warehouse, Cost Center -->
-                        <div style="display: flex; gap: 20px; width: 100%;">
+                        <div id="warehouse-treasury-row" style="display: flex; gap: 20px; width: 100%;">
                             <div class="h-form-group" id="payment-account-group" style="flex: 1; display:flex; align-items:center; gap:10px;">
                                 <label class="h-label" style="margin:0; white-space:nowrap; min-width:80px;">الصندوق/الخزنة</label>
                                 <div style="flex:1;">
@@ -1562,6 +1576,13 @@
             document.getElementById('delivery-hub-view').style.display = 'none';
             document.getElementById('sales-hub-view').style.display = 'flex';
             currentSalesView = 'hub';
+            
+            // Restore header title to "المبيعات المباشرة"
+            const headerTitle = document.querySelector('.header-page-title');
+            if (headerTitle) {
+                headerTitle.innerHTML = '<span class="header-page-title-icon">🛒</span> المبيعات المباشرة';
+            }
+            
             loadHubTransactions();
             
             // Adjust header Back button behavior
@@ -1572,7 +1593,7 @@
             }
         }
 
-        function openInvoiceEditor(type = 'pending_delivery') {
+        function openInvoiceEditor(type = 'pending_delivery', isEdit = false) {
             document.getElementById('sales-hub-view').style.display = 'none';
             document.getElementById('delivery-hub-view').style.display = 'none';
             document.getElementById('invoice-editor-view').style.display = 'flex';
@@ -1596,10 +1617,23 @@
             if(activeTab) activeTab.classList.add('active');
 
             // Handle Preliminary UI changes
+            const editorView = document.getElementById('invoice-editor-view');
+            const whTreasuryRow = document.getElementById('warehouse-treasury-row');
+            
+            const headerTitle = document.querySelector('.header-page-title');
             if (type === 'preliminary') {
-                document.getElementById('header-title').innerHTML = 'فاتورة مبدئية <span style="font-size:0.7em;color:red;">(غير ملزمة)</span>';
+                if (headerTitle) headerTitle.innerHTML = '<span style="color:#c084fc;">📋 فاتورة مبدئية</span> <span style="font-size:0.7em;color:#f87171;">(غير ملزمة)</span>';
+                if (editorView) editorView.classList.add('preliminary-active');
+                if (whTreasuryRow) whTreasuryRow.style.display = 'none';
             } else {
-                document.getElementById('header-title').innerText = 'فاتورة مبيعات';
+                if (headerTitle) headerTitle.innerHTML = '<span class="header-page-title-icon">🛒</span> فاتورة مبيعات';
+                if (editorView) editorView.classList.remove('preliminary-active');
+                if (whTreasuryRow) whTreasuryRow.style.display = 'flex';
+            }
+            
+            // If creating a new invoice, reset the editor form and load the next invoice number
+            if (!isEdit && typeof onSuccessNewInvoice === 'function') {
+                onSuccessNewInvoice(false);
             }
             
             window.dispatchEvent(new Event('resize'));
@@ -1610,6 +1644,13 @@
             document.getElementById('invoice-editor-view').style.display = 'none';
             document.getElementById('delivery-hub-view').style.display = 'flex';
             currentSalesView = 'delivery';
+            
+            // Change header title to "تسليم مبيعات"
+            const headerTitle = document.querySelector('.header-page-title');
+            if (headerTitle) {
+                headerTitle.innerHTML = '<span class="header-page-title-icon">🚚</span> تسليم مبيعات';
+            }
+            
             loadDeliveryTransactions();
         }
 
@@ -1645,7 +1686,7 @@
                 let statusClass = 'completed';
                 let statusText = 'مكتملة';
                 if (inv.status === 'draft') { statusClass = 'draft'; statusText = 'مسودة'; }
-                else if (inv.status === 'preliminary') { statusClass = 'draft'; statusText = 'مبدئية'; }
+                else if (inv.status === 'preliminary') { statusClass = 'preliminary-badge'; statusText = 'مبدئية'; }
                 else if (inv.status === 'pending_delivery') { statusClass = 'draft'; statusText = 'بانتظار التسليم'; }
                 else if (inv.status === 'delivered') { statusClass = 'completed'; statusText = 'تم التسليم'; }
                 
@@ -1653,6 +1694,11 @@
                 if (inv.saleType === 'delivery') typeText = '🚚 تسليم';
                 else if (inv.saleType === 'preliminary') typeText = '📋 مبدئية';
                 else if (inv.status === 'pending_delivery') typeText = '🛒 جديدة';
+
+                let typeLabel = typeText;
+                if (inv.saleType === 'preliminary') {
+                    typeLabel = '<span style="color:#c084fc; font-weight:800;">📋 مبدئية</span>';
+                }
 
                 // Check if the invoice is from 27/6/2026 to highlight numbers in red
                 let isTargetDate = false;
@@ -1664,7 +1710,7 @@
                 let actionBtns = `
                     <button onclick="editHubTransaction('${inv.invoiceNo}')" style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; border-radius:6px; padding:4px 8px; cursor:pointer; margin-left:4px;">تعديل / عرض</button>
                     <button onclick="sendInvoiceWA('${inv.invoiceNo}')" style="background:rgba(37,211,102,0.1); border:1px solid rgba(37,211,102,0.3); color:#25d366; border-radius:6px; padding:4px 10px; cursor:pointer; margin-left:4px; display:inline-flex; align-items:center; justify-content:center;" title="إرسال عبر الواتساب">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                     </button>
                     <button onclick="deleteHubTransaction('${inv.invoiceNo}')" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:6px; padding:4px 8px; cursor:pointer; margin-left:4px;">حذف</button>
                 `;
@@ -1675,11 +1721,14 @@
                         ` + actionBtns;
                 }
 
+                const isPrelim = inv.saleType === 'preliminary' || inv.status === 'preliminary';
+                const serialColor = isPrelim ? '#c084fc' : 'var(--gold-primary)';
+
                 tr.innerHTML = `
-                    <td style="text-align:right; font-weight:800; color:var(--gold-primary);">${inv.invoiceNo}</td>
+                    <td style="text-align:right; font-weight:800; color:${serialColor};">${inv.invoiceNo}</td>
                     <td style="text-align:right; color:#ef4444; font-weight:bold;" dir="ltr">${inv.date}</td>
                     <td style="text-align:right; font-weight:600;">${inv.customerName || (inv.customer && inv.customer !== 'walk-in' ? inv.customer : 'عميل نقدي')}</td>
-                    <td style="text-align:right; color:var(--text-dim);">${typeText}</td>
+                    <td style="text-align:right; color:var(--text-dim);">${typeLabel}</td>
                     <td style="text-align:center; font-weight:900; direction:ltr; color:${numColor};">${fmtNum(inv.totals?.grandTotal || inv.grandTotal || 0)} SDG</td>
                     <td style="text-align:center;"><span class="hub-badge ${statusClass}">${statusText}</span></td>
                     <td style="text-align:center;">
@@ -1700,7 +1749,7 @@
         }
 
         function editHubTransaction(invNo) {
-            openInvoiceEditor();
+            openInvoiceEditor(undefined, true);
             if(typeof loadInvoiceFromStorage === 'function') {
                 setTimeout(() => loadInvoiceFromStorage(invNo), 100);
             }

@@ -447,7 +447,7 @@
                     <div class="kpi-icon-bg" style="background: rgba(245, 158, 11, 0.1);"><span>📦</span></div>
                 </div>
                 <h3 id="kpi-inventory" class="kpi-val" style="color: var(--theme-orange);">0 صنف</h3>
-                <div class="kpi-desc" style="color:#fbbf24;">موزعة على 3 مخازن</div>
+                <div id="kpi-warehouses-count" class="kpi-desc" style="color:#fbbf24;">موزعة على 3 مخازن</div>
             </div>
             
             <div class="glass-panel spotlight-card neon-border-danger">
@@ -693,7 +693,7 @@
         // Load Dynamic Dashboard Data
         function loadDynamicDashboardData() {
             // Fetch data
-            const invoices = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []).filter(x => !x.deleted);
+            const invoices = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []).filter(x => !x.deleted && x.saleType !== 'preliminary' && x.status !== 'preliminary');
             const banks = (JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => !x.deleted);
             const items = (JSON.parse(localStorage.getItem('erp_items_v1')) || []).filter(x => !x.deleted);
             const gl = (JSON.parse(localStorage.getItem('erp_gl_v1')) || []).filter(x => !x.deleted);
@@ -725,6 +725,16 @@
             // 3. Total Items
             const totalItems = items.length;
             document.getElementById('kpi-inventory').innerText = totalItems.toLocaleString() + ' صنف';
+            
+            let warehousesList = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+            if (warehousesList.length === 0) {
+                warehousesList = [{ id: 'w-main', name: 'المخزن الرئيسي (السجانة)' }];
+            }
+            const activeWhsCount = warehousesList.filter(w => !w.deleted).length;
+            const whsCountEl = document.getElementById('kpi-warehouses-count');
+            if (whsCountEl) {
+                whsCountEl.innerText = `موزعة على ${activeWhsCount} ${activeWhsCount > 2 && activeWhsCount < 11 ? 'مخازن' : 'مخزن'}`;
+            }
 
             // 4. Low Stock computed from actual inventory levels
             const lowStockItems = items.filter(item => {
@@ -781,7 +791,7 @@
             let allTx = [];
             invoices.forEach(i => allTx.push({ id: i.invoiceNo, type: 'مبيعات', desc: 'فاتورة مبيعات', amount: i.grandTotal, date: i.date }));
             
-            const purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted);
+            const purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted && !x.isGRN && !x.isReturn);
             purchases.forEach(i => allTx.push({ id: i.invoiceNo, type: 'مشتريات', desc: 'فاتورة مشتريات', amount: i.grandTotal, date: i.date }));
 
             const sReceipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
@@ -927,15 +937,24 @@
 
             // 4. Warehouses Capacity (Actual Item Stock Quantities in Each Warehouse)
             const whTotals = {};
-            const warehouses = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
-            warehouses.forEach(w => {
+            let warehouses = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+            if (warehouses.length === 0) {
+                warehouses = [{ id: 'w-main', name: 'المخزن الرئيسي (السجانة)' }];
+            }
+            const activeWarehouses = warehouses.filter(w => !w.deleted);
+            activeWarehouses.forEach(w => {
                 whTotals[w.name || w.id] = 0;
             });
             inventory.forEach(inv => {
                 if (inv.warehouse !== 'PENDING_RECEIPT') {
                     const w = warehouses.find(wh => wh.id === inv.warehouse || wh.name === inv.warehouse);
-                    const name = w ? (w.name || w.id) : inv.warehouse;
-                    whTotals[name] = (whTotals[name] || 0) + (Number(inv.qty) || 0);
+                    if (w && !w.deleted) {
+                        const name = w.name || w.id;
+                        whTotals[name] = (whTotals[name] || 0) + (Number(inv.qty) || Number(inv.quantity) || 0);
+                    } else if (!w) {
+                        const name = inv.warehouse;
+                        whTotals[name] = (whTotals[name] || 0) + (Number(inv.qty) || Number(inv.quantity) || 0);
+                    }
                 }
             });
 

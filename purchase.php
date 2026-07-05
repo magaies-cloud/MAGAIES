@@ -1645,7 +1645,12 @@
             const savedData = localStorage.getItem('erp_purchase_invoices_v1');
             let invoices = [];
             if (savedData) {
-                try { invoices = JSON.parse(savedData); } catch(e) {}
+                try { 
+                    invoices = JSON.parse(savedData); 
+                    if (Array.isArray(invoices)) {
+                        invoices = invoices.filter(inv => !inv.deleted && !inv.isGRN && !inv.isReturn);
+                    }
+                } catch(e) {}
             }
             
             if (!invoices || invoices.length === 0) {

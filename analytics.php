@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'السجانة 2026 - التقارير والإحصائيات'; ?>
+<?php $page_title = 'السجانة 2026 - التقارير والإحصائيات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -516,7 +516,7 @@
     <div class="comprehensive-reports-section" style="margin-bottom: 40px; animation: fadeUpIn 0.5s ease-out both;">
     <h3 style="color: #38bdf8; font-size: 1.4rem; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">
         <span style="font-size: 1.8rem;">📂</span> 
-        دليل التقارير التفصيلية الشاملة
+        دليل التقارير
     </h3>
     
     <style>
@@ -599,143 +599,20 @@
             filter: grayscale(0);
         }
         
-        /* Accents */
-        .cat-sales .report-category-icon { background: rgba(59, 130, 246, 0.15); box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
-        .cat-sales .report-category-title { color: #60a5fa; }
-        .cat-sales .report-link-item:hover { border-right: 3px solid #3b82f6; }
-        
-        .cat-purchases .report-category-icon { background: rgba(236, 72, 153, 0.15); box-shadow: 0 0 15px rgba(236, 72, 153, 0.2); }
-        .cat-purchases .report-category-title { color: #f472b6; }
-        .cat-purchases .report-link-item:hover { border-right: 3px solid #ec4899; }
-        
-        .cat-inventory .report-category-icon { background: rgba(16, 185, 129, 0.15); box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
-        .cat-inventory .report-category-title { color: #34d399; }
-        .cat-inventory .report-link-item:hover { border-right: 3px solid #10b981; }
-        
-        .cat-accounting .report-category-icon { background: rgba(245, 158, 11, 0.15); box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
-        .cat-accounting .report-category-title { color: #fbbf24; }
-        .cat-accounting .report-link-item:hover { border-right: 3px solid #f59e0b; }
-        
-        .cat-final .report-category-icon { background: rgba(139, 92, 246, 0.15); box-shadow: 0 0 15px rgba(139, 92, 246, 0.2); }
-        .cat-final .report-category-title { color: #a78bfa; }
-        .cat-final .report-link-item:hover { border-right: 3px solid #8b5cf6; }
-        
-        .special-highlight {
-            background: linear-gradient(90deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05)) !important;
-            border-color: rgba(139, 92, 246, 0.3) !important;
-            color: #c084fc !important;
-        }
-
-        /* أنماط السحب والإفلات */
-        .sortable-ghost {
-            opacity: 0.4;
-            background-color: rgba(255, 255, 255, 0.05) !important;
-            border: 1px dashed rgba(255, 255, 255, 0.4) !important;
-            border-radius: 16px;
-            box-shadow: none !important;
-        }
-        .report-category-header {
-            cursor: grab;
-            transition: background 0.3s;
-        }
-        .report-category-header:hover {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-        }
-        .report-link-item {
-            cursor: grab;
-        }
-        .report-category-header:active, .report-link-item:active {
-            cursor: grabbing;
-        }
+        .cat-reports .report-category-icon { background: rgba(56, 189, 248, 0.15); box-shadow: 0 0 15px rgba(56, 189, 248, 0.2); }
+        .cat-reports .report-category-title { color: #38bdf8; }
+        .cat-reports .report-link-item:hover { border-right: 3px solid #38bdf8; }
     </style>
 
     <div class="reports-directory-grid">
-        <!-- 1. Sales -->
-        <div class="report-category-card cat-sales">
+        <div class="report-category-card cat-reports" style="grid-column: 1 / -1;">
             <div class="report-category-header">
-                <div class="report-category-icon">🛒</div>
-                <h4 class="report-category-title">تقارير المبيعات والعملاء</h4>
+                <div class="report-category-icon">📂</div>
+                <h4 class="report-category-title">التقارير المتاحة</h4>
             </div>
-            <div class="report-links-list">
-                <a href="direct-sales.php" class="report-link-item"><span class="icon">📝</span> شاشة المبيعات (نقاط البيع)</a>
-
-
+            <div class="report-links-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
                 <a href="aging-report.php" class="report-link-item"><span class="icon">⏳</span> أعمار الديون (مراقبة المتأخرات)</a>
-            </div>
-        </div>
-
-        <!-- 2. Purchases -->
-        <div class="report-category-card cat-purchases">
-            <div class="report-category-header">
-                <div class="report-category-icon">📦</div>
-                <h4 class="report-category-title">تقارير المشتريات والموردين</h4>
-            </div>
-            <div class="report-links-list">
-                <a href="purchase.php" class="report-link-item"><span class="icon">📥</span> شاشة فواتير المشتريات</a>
-
-
-                <a href="#" class="report-link-item"><span class="icon">📊</span> تحليل مشتريات الأصناف</a>
-            </div>
-        </div>
-
-        <!-- 3. Inventory -->
-        <div class="report-category-card cat-inventory">
-            <div class="report-category-header">
-                <div class="report-category-icon">🏭</div>
-                <h4 class="report-category-title">تقارير الجرد والمخازن</h4>
-            </div>
-            <div class="report-links-list">
-                <a href="inventory-report.php" class="report-link-item"><span class="icon">📋</span> جرد الأرصدة (المتوفر والمحجوز)</a>
-                <a href="warehouse-ledger.php" class="report-link-item"><span class="icon">🔄</span> تتبع حركة الأذونات</a>
-                <a href="item-ledger.php" class="report-link-item"><span class="icon">🏷️</span> بطاقة الصنف (حركة مادة)</a>
-                <a href="#" class="report-link-item"><span class="icon">💰</span> تقييم المخزون المالي</a>
-            </div>
-        </div>
-
-        <!-- 4. Accounting -->
-        <div class="report-category-card cat-accounting">
-            <div class="report-category-header">
-                <div class="report-category-icon">🏦</div>
-                <h4 class="report-category-title">الحسابات والسندات الأساسية</h4>
-            </div>
-            <div class="report-links-list">
-
-                <a href="vouchers-hub.php" class="report-link-item"><span class="icon">💵</span> إدارة المقبوضات والمدفوعات</a>
-                <a href="posting-accounts.php" class="report-link-item"><span class="icon">✔️</span> ترحيل الحسابات</a>
-                <a href="account-statement.php" class="report-link-item"><span class="icon">📄</span> كشف الحساب</a>
                 <a href="checks-cycle.php" class="report-link-item"><span class="icon">💳</span> دورة الشيكات</a>
-                <a href="journal-ledger.html" class="report-link-item"><span class="icon">📅</span> دفتر اليومية</a>
-                <a href="journal-voucher.php" class="report-link-item"><span class="icon">📝</span> قيد اليومية</a>
-                <a href="analytics.php" class="report-link-item"><span class="icon">📈</span> الإحصاء والتحليل</a>
-                <a href="trial-balance.php" class="report-link-item"><span class="icon">⚖️</span> ميزانية المراجعة</a>
-                <a href="pl-statement.php" class="report-link-item"><span class="icon">📉</span> قائمة الدخل</a>
-                <a href="balance-sheet.html" class="report-link-item"><span class="icon">🏢</span> الميزانية العمومية</a>
-                <a href="aging-report.php" class="report-link-item"><span class="icon">⏳</span> أعمار الأرصدة</a>
-                <a href="#" class="report-link-item"><span class="icon">📜</span> كشف حساب التاريخي</a>
-                <a href="#" class="report-link-item"><span class="icon">📑</span> كشف حساب مختصر</a>
-                <a href="#" class="report-link-item"><span class="icon">🗂️</span> كشف حساب عام</a>
-                <a href="#" class="report-link-item"><span class="icon">🏢</span> تقارير مركز التكلفة</a>
-                <a href="#" class="report-link-item"><span class="icon">📊</span> المصاريف والإيرادات الإحصائية</a>
-                <a href="#" class="report-link-item"><span class="icon">📉</span> قائمة الدخل التشغيلي</a>
-                <a href="#" class="report-link-item"><span class="icon">📓</span> اليومية التوزيعية</a>
-                <a href="#" class="report-link-item"><span class="icon">📔</span> دفتر الأستاذ التوزيعي</a>
-                <a href="#" class="report-link-item"><span class="icon">⚖️</span> ميزانية المراجعة التوزيعية</a>
-                <a href="#" class="report-link-item"><span class="icon">📉</span> قائمة الدخل التوزيعي</a>
-                <a href="#" class="report-link-item"><span class="icon">🏢</span> تقرير الميزانية التوزيعي</a>
-                <a href="#" class="report-link-item"><span class="icon">🎯</span> تقرير مركز التكلفة التوزيعي</a>
-                <a href="#" class="report-link-item"><span class="icon">⚙️</span> مركز مولد التقارير</a>
-            </div>
-        </div>
-
-        <!-- 5. Final Reports -->
-        <div class="report-category-card cat-final">
-            <div class="report-category-header">
-                <div class="report-category-icon">📈</div>
-                <h4 class="report-category-title">التقارير الختامية</h4>
-            </div>
-            <div class="report-links-list">
-                <a href="financial-reports.php" class="report-link-item special-highlight"><span class="icon">📊</span> التقارير المالية والقوائم الختامية</a>
             </div>
         </div>
     </div>
@@ -802,8 +679,8 @@
 
     function initAIAnalytics() {
         // 1. Fetch Data
-        const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-        const purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+        const sales = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []).filter(x => !x.deleted && x.saleType !== 'preliminary' && x.status !== 'preliminary');
+        const purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted && !x.isGRN && !x.isReturn);
         const items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
         const payments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
         const receipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
@@ -863,7 +740,7 @@
     }
 
     function updateCharts(dates, salesData, purchasesData, topProductLabels, topProductData) {
-        const ctxFlow = document.getElementById('cashFlowChart').getContext('2d');
+        const ctxFlow = document.getElementById('salesChart').getContext('2d');
         let gradientSales = ctxFlow.createLinearGradient(0, 0, 0, 400);
         gradientSales.addColorStop(0, 'rgba(16, 185, 129, 0.4)');
         gradientSales.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
@@ -949,7 +826,7 @@
 
     function updateAICards(sales, purchases, items, payments, receipts, customers) {
         // AI Cashflow
-        let totalReceivables = customers.reduce((sum, c) => sum + (parseFloat(c.currentBalance) || 0), 0);
+        let totalReceivables = customers.reduce((sum, c) => sum + Math.max(0, parseFloat(c.currentBalance) || 0), 0);
         let cashflowText = document.getElementById('ai-cashflow-text');
         let cashflowSugg = document.getElementById('ai-cashflow-suggestion');
         if(totalReceivables > 10000) {
@@ -961,11 +838,23 @@
         }
 
         // AI Inventory
-        let lowStockItem = items.find(i => parseFloat(i.qty) <= parseFloat(i.minStock || 0));
+        let inventory = [];
+        try { inventory = JSON.parse(localStorage.getItem('erp_inventory_v1')) || []; } catch(e) {}
+        
+        let lowStockItem = items.find(item => {
+            let actualQty = inventory
+                .filter(inv => inv.itemId === item.id && inv.warehouse !== 'PENDING_RECEIPT')
+                .reduce((sum, inv) => sum + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0), 0);
+            return actualQty <= (parseFloat(item.minStock) || 0) && (parseFloat(item.minStock) || 0) > 0;
+        });
+
         let invText = document.getElementById('ai-inventory-text');
         let invSugg = document.getElementById('ai-inventory-suggestion');
         if(lowStockItem) {
-            invText.innerHTML = `رصد النظام نقصاً في <strong style="color: #38bdf8;">"${lowStockItem.name}"</strong> (الكمية: ${lowStockItem.qty}).`;
+            let actualQty = inventory
+                .filter(inv => inv.itemId === lowStockItem.id && inv.warehouse !== 'PENDING_RECEIPT')
+                .reduce((sum, inv) => sum + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0), 0);
+            invText.innerHTML = `رصد النظام نقصاً في <strong style="color: #38bdf8;">"${lowStockItem.name}"</strong> (الكمية الحالية: ${actualQty.toLocaleString()} مقابل حد آمن: ${lowStockItem.minStock}).`;
             invSugg.innerHTML = 'المخزون الحالي قد لا يكفي، يرجى طلب كمية إضافية.';
         } else {
             invText.innerHTML = `جميع الأصناف بمستويات مخزون آمنة حسب التحليل الحالي.`;
@@ -973,14 +862,14 @@
         }
 
         // AI Anomaly
-        let totalPayments = payments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+        let totalPayments = payments.reduce((sum, p) => sum + (parseFloat(p.amountLocal) || 0), 0);
         let avgPayment = payments.length ? (totalPayments / payments.length) : 0;
-        let anomaly = payments.find(p => parseFloat(p.amount) > avgPayment * 2.5);
+        let anomaly = payments.find(p => parseFloat(p.amountLocal) > avgPayment * 2.5);
         let anomalyText = document.getElementById('ai-anomaly-text');
         let anomalySugg = document.getElementById('ai-anomaly-suggestion');
         if(anomaly && payments.length > 3) {
-            anomalyText.innerHTML = `تم رصد <strong style="color: #f87171;">سند صرف غير معتاد</strong> بقيمة ${parseFloat(anomaly.amount).toLocaleString()} SDG.`;
-            anomalySugg.innerHTML = `سند رقم: #${anomaly.voucherNo || '-'}`;
+            anomalyText.innerHTML = `تم رصد <strong style="color: #f87171;">سند صرف غير معتاد</strong> بقيمة ${parseFloat(anomaly.amountLocal).toLocaleString()} SDG.`;
+            anomalySugg.innerHTML = `سند رقم: #${anomaly.id || '-'}`;
         } else {
             anomalyText.innerHTML = `لا توجد حركات مالية شاذة أو غير معتادة خلال الفترة الأخيرة.`;
             anomalySugg.innerHTML = `مراجعة القيد غير مطلوبة حالياً.`;
