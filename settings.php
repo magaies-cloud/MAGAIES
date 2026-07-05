@@ -646,13 +646,40 @@
                 if (typeof backup !== 'object' || Array.isArray(backup)) throw new Error('Invalid format');
                 
                 if (confirm('⚠️ سيتم استبدال جميع البيانات الحالية بالنسخة الاحتياطية المرفوعة. هل أنت متأكد؟')) {
-                    // Update in-memory DB_STORE and local IndexedDB database
+                    const baseKeys = [
+                        'erp_users_v1', 'erp_customers_v1', 'erp_suppliers_v1', 'erp_items_v1',
+                        'erp_inventory_v1', 'erp_sales_invoices_v1', 'erp_purchase_invoices_v1',
+                        'erp_receipts_v1', 'erp_payments_v1', 'erp_journal_vouchers_v1',
+                        'erp_settings_v1', 'erp_warehouses_v1', 'erp_banks_v1', 'erp_safes_v1', 'erp_categories_v1',
+                        'erp_roles_v1', 'erp_checks_v1', 'erp_gl_v1', 'erp_single_receipts_v1',
+                        'erp_single_payments_v1', 'erp_partners_v1', 'erp_employees_v1',
+                        'erp_payroll_v1', 'erp_reserved_sales_v1', 'erp_delivery_notes_v1',
+                        'erp_accounts_v1', 'erp_jobs_v1', 'erp_audit_logs'
+                    ];
+
+                    // 1. Clear existing tenant data to avoid leftovers or mixing database records
+                    for (let bk of baseKeys) {
+                        if (window.getTenantKey) {
+                            const tk = window.getTenantKey(bk);
+                            delete window.DB_STORE[tk];
+                            await localforage.removeItem(tk);
+                        }
+                    }
+
+                    // 2. Restore backup data adapting keys to the current logged-in tenant prefix
                     for (let [k, v] of Object.entries(backup)) {
-                        window.DB_STORE[k] = typeof v === 'string' ? v : JSON.stringify(v);
-                        await localforage.setItem(k, window.DB_STORE[k]);
+                        const baseKey = baseKeys.find(bk => k.endsWith(bk));
+                        if (baseKey && window.getTenantKey) {
+                            const currentTenantKey = window.getTenantKey(baseKey);
+                            window.DB_STORE[currentTenantKey] = typeof v === 'string' ? v : JSON.stringify(v);
+                            await localforage.setItem(currentTenantKey, window.DB_STORE[currentTenantKey]);
+                        } else {
+                            window.DB_STORE[k] = typeof v === 'string' ? v : JSON.stringify(v);
+                            await localforage.setItem(k, window.DB_STORE[k]);
+                        }
                     }
                     
-                    // Force push restored data to the cloud database immediately
+                    // 3. Force push restored data to the cloud database immediately
                     try {
                         if (typeof window.pushToCloud === 'function') {
                             await window.pushToCloud();
