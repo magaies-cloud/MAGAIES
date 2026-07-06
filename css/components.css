@@ -747,6 +747,50 @@
     color: var(--text-secondary);
     border-bottom: 1px solid var(--glass-border);
     font-weight: 600;
+    position: relative; /* For column resizers */
+}
+
+/* Global Table Column Resizers */
+.resizer {
+    position: absolute;
+    left: -4px;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+    cursor: col-resize;
+    background: transparent;
+    z-index: 10;
+    user-select: none;
+}
+.resizer:hover, .resizer.resizing {
+    background: var(--primary-accent, #3b82f6);
+    opacity: 0.8;
+}
+
+/* Dual-Side Resizer Handles */
+.resize-handle-left, .resize-handle-right {
+    position: absolute;
+    top: 0;
+    width: 8px;
+    height: 100%;
+    cursor: col-resize;
+    z-index: 10;
+    transition: all 0.2s;
+    background: transparent;
+    user-select: none;
+}
+.resize-handle-left {
+    left: 0;
+    border-left: 2px solid rgba(255, 255, 255, 0.15);
+}
+.resize-handle-right {
+    right: 0;
+    border-right: 2px solid rgba(255, 255, 255, 0.15);
+}
+.resize-handle-left:hover, .resize-handle-left:active,
+.resize-handle-right:hover, .resize-handle-right:active {
+    background: var(--primary-accent, #3b82f6);
+    opacity: 0.8;
 }
 
 .pro-table td {
@@ -1298,6 +1342,356 @@ a[data-href], a[onclick] { cursor: pointer; }
 .header-page-title { margin:0; font-size:1.5rem; font-weight:900; white-space:nowrap; display:flex; align-items:center; justify-content:center; gap:10px; background: linear-gradient(135deg, #10b981, #38bdf8, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.4)); animation: titleGlow 3s ease-in-out infinite alternate; }
 .header-page-title-icon { font-size: 1.6rem; -webkit-text-fill-color: initial; filter: none; }
 @keyframes titleGlow { from { filter: drop-shadow(0 2px 5px rgba(56, 189, 248, 0.3)); } to { filter: drop-shadow(0 5px 15px rgba(139, 92, 246, 0.6)); } }
+
+/* ═══════════════════════════════════════════════════════
+   PREMIUM GLASSMORPHISM CONTEXT MENUS (Unified Style)
+   ═══════════════════════════════════════════════════════ */
+.context-menu:not(#contextMenu), 
+.custom-context-menu, 
+#columnContextMenu, 
+#col-context-menu,
+#rowContextMenu {
+    position: absolute;
+    background: var(--surface-color) !important;
+    backdrop-filter: blur(var(--glass-blur)) !important;
+    -webkit-backdrop-filter: blur(var(--glass-blur)) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: var(--border-radius-sm) !important;
+    box-shadow: var(--shadow-lg), var(--shadow-neon) !important;
+    padding: 10px 8px !important;
+    min-width: 220px !important;
+    z-index: 999999 !important;
+    color: var(--text-primary) !important;
+    font-family: var(--font-base) !important;
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* For active/show states - with smooth pop-in animation */
+.context-menu:not(#contextMenu).active, 
+.context-menu:not(#contextMenu).show, 
+.custom-context-menu.show, 
+#columnContextMenu.show,
+#rowContextMenu.show {
+    display: flex !important;
+    animation: premiumMenuIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+}
+
+@keyframes premiumMenuIn {
+    from { 
+        opacity: 0; 
+        transform: scale(0.92) translateY(-8px); 
+        filter: blur(4px);
+    }
+    to { 
+        opacity: 1; 
+        transform: scale(1) translateY(0); 
+        filter: blur(0);
+    }
+}
+
+/* Header style inside context menus */
+.context-menu:not(#contextMenu) .menu-title,
+.context-menu:not(#contextMenu) div[style*="fbbf24"], 
+#columnContextMenu div[style*="font-weight:900"],
+#sys-number-format-menu div[style*="fbbf24"] {
+    color: var(--primary-accent) !important;
+    font-weight: 800 !important;
+    font-size: 0.9rem !important;
+    text-align: center;
+    border-bottom: 1px solid var(--glass-border) !important;
+    padding-bottom: 8px !important;
+    margin-bottom: 6px !important;
+}
+
+/* Target ID label for numeric preference context menu */
+#sys-num-target-id {
+    color: var(--text-muted) !important;
+    font-size: 0.75rem !important;
+    text-align: center;
+    margin-bottom: 8px !important;
+    word-break: break-all;
+}
+
+/* Context Menu Items */
+.context-menu-item, 
+.col-toggle-item, 
+#columnContextMenu .context-menu-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    color: var(--text-primary) !important;
+    padding: 8px 12px !important;
+    border-radius: var(--border-radius-sm) !important;
+    cursor: pointer !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    transition: var(--transition-fast) !important;
+    background: transparent !important;
+    border: none !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.context-menu-item:hover, 
+.col-toggle-item:hover, 
+#columnContextMenu .context-menu-item:hover {
+    background: var(--surface-hover) !important;
+    color: var(--primary-accent) !important;
+    transform: translateX(-4px); /* smooth micro-animation for RTL */
+}
+
+/* Input elements inside context menu */
+.context-menu:not(#contextMenu) input[type="text"],
+.context-menu:not(#contextMenu) input[type="number"],
+.context-menu:not(#contextMenu) select,
+#columnContextMenu select,
+#sys-number-format-menu select {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 8px !important;
+    padding: 6px 10px !important;
+    font-size: 0.85rem !important;
+    outline: none !important;
+    transition: var(--transition-fast) !important;
+}
+
+.context-menu:not(#contextMenu) input[type="text"]:focus,
+.context-menu:not(#contextMenu) input[type="number"]:focus,
+.context-menu:not(#contextMenu) select:focus {
+    border-color: var(--primary-accent) !important;
+    box-shadow: 0 0 10px var(--primary-glow) !important;
+}
+
+/* Buttons inside context menu */
+.context-menu:not(#contextMenu) button,
+#columnContextMenu button,
+#sys-number-format-menu button {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 6px !important;
+    padding: 4px 10px !important;
+    cursor: pointer !important;
+    font-weight: 700 !important;
+    transition: var(--transition-fast) !important;
+}
+
+.context-menu:not(#contextMenu) button:hover,
+#columnContextMenu button:hover,
+#sys-number-format-menu button:hover {
+    background: var(--surface-hover) !important;
+    border-color: var(--primary-accent) !important;
+    color: var(--primary-accent) !important;
+}
+
+/* Active buttons state (like bold/decimals selections in column customization) */
+.context-menu:not(#contextMenu) button.active,
+#columnContextMenu button.active-btn,
+#columnContextMenu button[style*="cbd5e1"] {
+    background: var(--primary-accent) !important;
+    color: var(--bg-secondary) !important;
+    border-color: var(--primary-accent) !important;
+}
+
+/* Checkboxes inside context menus */
+.context-menu:not(#contextMenu) input[type="checkbox"],
+#columnContextMenu input[type="checkbox"],
+#sys-number-format-menu input[type="checkbox"] {
+    accent-color: var(--primary-accent) !important;
+    width: 16px !important;
+    height: 16px !important;
+    cursor: pointer !important;
+}
+
+/* Color inputs */
+.context-menu:not(#contextMenu) input[type="color"],
+#columnContextMenu input[type="color"] {
+    width: 32px !important;
+    height: 28px !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 6px !important;
+    background: transparent !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+}
+
+/* Column Customizer Specific Overrides */
+#columnContextMenu div {
+    background: transparent !important;
+    border-color: var(--glass-border) !important;
+    color: var(--text-primary) !important;
+}
+#columnContextMenu div[id^="config-panel-"] {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 8px !important;
+    margin-top: 5px !important;
+    padding: 12px !important;
+}
+#columnContextMenu label {
+    color: var(--text-primary) !important;
+}
+#columnContextMenu span {
+    color: var(--text-secondary) !important;
+}
+
+/* Rotating multicolored border glow for context menus */
+.context-menu:not(#contextMenu)::before, 
+.custom-context-menu::before, 
+#columnContextMenu::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+    border-radius: inherit !important;
+    padding: 2px !important; /* border thickness */
+    background: linear-gradient(135deg, #3b82f6, #10b981, #f59e0b, #a855f7, #ec4899, #3b82f6) !important;
+    background-size: 300% 300% !important;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0) !important;
+    -webkit-mask-composite: xor !important;
+    mask-composite: exclude !important;
+    pointer-events: none !important;
+    z-index: 100 !important;
+    animation: borderGlow 6s linear infinite !important;
+}
+
+@keyframes borderGlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Sweeping shiny liquid glass reflection */
+.context-menu:not(#contextMenu)::after, 
+.custom-context-menu::after, 
+#columnContextMenu::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important; left: -150% !important;
+    width: 100% !important; height: 100% !important;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05), transparent) !important;
+    transform: skewX(-25deg) !important;
+    pointer-events: none !important;
+    z-index: 99 !important;
+    animation: menuShine 6s infinite ease-in-out !important;
+}
+
+@keyframes menuShine {
+    0% { left: -150%; }
+    25% { left: 150%; }
+    100% { left: 150%; }
+}
+
+/* Column Toggles List Premium Styling */
+.toggle-item-wrapper {
+    background: rgba(15, 23, 42, 0.45) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 10px !important;
+    margin-bottom: 8px !important;
+    overflow: hidden !important;
+    transition: all 0.25s ease !important;
+    position: relative !important;
+}
+
+.toggle-item-wrapper:hover {
+    border-color: var(--primary-accent) !important;
+    box-shadow: 0 0 12px var(--primary-glow) !important;
+    background: rgba(15, 23, 42, 0.6) !important;
+}
+
+.toggle-item-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 10px 14px !important;
+    cursor: pointer !important;
+}
+
+.drag-handle {
+    font-size: 1.1rem !important;
+    color: var(--text-muted) !important;
+    cursor: grab !important;
+    padding: 0 6px !important;
+    transition: color 0.2s !important;
+    user-select: none !important;
+}
+
+.drag-handle:hover {
+    color: var(--primary-accent) !important;
+}
+
+.drag-handle:active {
+    cursor: grabbing !important;
+}
+
+.toggle-item-label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    cursor: pointer !important;
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
+    margin: 0 !important;
+    flex-grow: 1 !important;
+    color: var(--text-primary) !important;
+    user-select: none !important;
+}
+
+.gear-btn {
+    font-size: 0.95rem !important;
+    color: var(--text-muted) !important;
+    cursor: pointer !important;
+    transition: transform 0.3s ease, color 0.2s !important;
+    padding: 4px !important;
+}
+
+.gear-btn:hover {
+    color: var(--primary-accent) !important;
+    transform: rotate(45deg) !important;
+}
+
+.toggle-config-panel {
+    padding: 12px 14px !important;
+    background: rgba(10, 17, 40, 0.5) !important;
+    border-top: 1px solid var(--glass-border) !important;
+    animation: configSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+@keyframes configSlideDown {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.config-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 10px !important;
+}
+
+.config-row:last-child {
+    margin-bottom: 0 !important;
+}
+
+.config-label {
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    color: var(--text-secondary) !important;
+}
+
+.btn-group {
+    display: flex !important;
+    gap: 4px !important;
+}
+
+/* Sortable Ghost drag effect */
+.toggle-item-ghost {
+    opacity: 0.4 !important;
+    background: var(--primary-glow) !important;
+    border: 2px dashed var(--primary-accent) !important;
+}
 
 /* --- GLOBAL PRINT STYLES --- */
 @media screen {

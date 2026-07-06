@@ -3,24 +3,102 @@
    ═══════════════════════════════════════════════════════ */
 
 window.colConfigs = [
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }, // 0: Name
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }, // 1: Phone
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }, // 2: Tax Number
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }, // 3: Currency
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }, // 4: Debit Foreign
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }, // 5: Credit Foreign
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }, // 6: Debit Local
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }, // 7: Credit Local
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '' }  // 8: Note
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }, // 0: Name
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }, // 1: Phone
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }, // 2: Tax Number
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }, // 3: Currency
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }, // 4: Debit Foreign
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }, // 5: Credit Foreign
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }, // 6: Debit Local
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }, // 7: Credit Local
+    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }  // 8: Note
 ];
 window.colOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
+function applyLayoutToDOM() {
+    try {
+        const table = document.getElementById('balances-table');
+        if (!table) return;
+        
+        // 1. Reorder header th elements according to window.colOrder
+        const theadTr = table.querySelector('thead tr');
+        if (theadTr) {
+            const ths = Array.from(theadTr.querySelectorAll('th'));
+            const thMap = {};
+            ths.forEach(th => {
+                const oIdx = parseInt(th.getAttribute('data-orig-idx'));
+                if (!isNaN(oIdx)) thMap[oIdx] = th;
+            });
+
+            theadTr.innerHTML = '';
+            window.colOrder.forEach(oIdx => {
+                if (thMap[oIdx]) {
+                    theadTr.appendChild(thMap[oIdx]);
+                }
+            });
+
+            // Apply styles and visibility to headers
+            const currentThs = theadTr.querySelectorAll('th');
+            currentThs.forEach((th, visualIndex) => {
+                const origIdx = window.colOrder[visualIndex];
+                const conf = window.colConfigs[origIdx] || { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true };
+                
+                // Visibility
+                const isVisible = conf.visible !== false;
+                th.style.display = isVisible ? '' : 'none';
+
+                // Styles
+                th.style.fontWeight = conf.bold ? '900' : 'bold';
+                th.style.fontSize = conf.fs + 'em';
+                th.style.color = conf.color || '';
+                th.style.backgroundColor = (conf.bg && conf.bg !== '#ffffff') ? conf.bg : '';
+            });
+        }
+
+        // 2. Apply styles and visibility to body cells if populated
+        const tbody = table.querySelector('tbody');
+        if (tbody) {
+            const rows = tbody.querySelectorAll('tr:not(.empty-state)');
+            rows.forEach(row => {
+                const cells = Array.from(row.children);
+                cells.forEach((cell, visualIndex) => {
+                    const origIdx = window.colOrder[visualIndex];
+                    if (origIdx !== undefined) {
+                        const conf = window.colConfigs[origIdx] || { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true };
+
+                        // Visibility
+                        const isVisible = conf.visible !== false;
+                        cell.style.display = isVisible ? '' : 'none';
+
+                        // Styles
+                        cell.style.fontWeight = conf.bold ? 'bold' : '';
+                        cell.style.fontSize = conf.fs + 'em';
+                        cell.style.color = conf.color || '';
+                        cell.style.backgroundColor = (conf.bg && conf.bg !== '#ffffff') ? conf.bg : '';
+                    }
+                });
+            });
+        }
+
+        // Re-bind resizers because headers were reordered
+        if (typeof bindResizers === 'function') {
+            bindResizers();
+        }
+    } catch(e) {
+        console.error('Error applying layout to DOM', e);
+    }
+}
+
 function loadLayout() {
     try {
-        const saved = localStorage.getItem('balancesReportLayout');
-        if (saved) {
-            const layout = JSON.parse(saved);
+        const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
+        const settings = JSON.parse(settingsStr);
+        const layout = settings.balancesReportLayout;
+        if (layout) {
             if (layout.colConfigs && layout.colOrder && layout.colOrder.length === 9) {
+                layout.colConfigs.forEach(c => {
+                    if (c.visible === undefined) c.visible = true;
+                });
                 window.colConfigs = layout.colConfigs;
                 window.colOrder = layout.colOrder;
             }
@@ -29,13 +107,26 @@ function loadLayout() {
 }
 loadLayout();
 
+document.addEventListener('DOMContentLoaded', () => {
+    applyLayoutToDOM();
+});
+
 function saveLayout() {
-    const layout = {
-        colConfigs: window.colConfigs,
-        colOrder: window.colOrder
-    };
-    localStorage.setItem('balancesReportLayout', JSON.stringify(layout));
-    showToast('تم حفظ التصميم بنجاح', 'success');
+    try {
+        const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
+        const settings = JSON.parse(settingsStr);
+        
+        settings.balancesReportLayout = {
+            colConfigs: window.colConfigs,
+            colOrder: window.colOrder
+        };
+        
+        localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
+        showToast('تم حفظ التصميم في قاعدة البيانات بنجاح', 'success');
+    } catch(e) {
+        console.error('Error saving layout', e);
+        showToast('فشل في حفظ التصميم', 'error');
+    }
 }
 
 function fmtColNum(n, origIdx) {
@@ -242,6 +333,8 @@ function loadData() {
 }
 
 document.addEventListener('DBReady', () => {
+    loadLayout();
+    applyLayoutToDOM();
     loadData();
 });
 
@@ -485,6 +578,10 @@ function bindContextMenu() {
 }
 
 window.toggleColumn = function(visualIndex, show) {
+    const origIdx = window.colOrder[visualIndex];
+    if (origIdx !== undefined && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].visible = show;
+    }
     const table = document.getElementById('balances-table');
     const display = show ? '' : 'none';
     const ths = table.querySelectorAll('thead th');
@@ -651,7 +748,7 @@ function renderTable(results) {
 
     showToast(`✅ تم تجميع أرصدة ${results.length} حساب بنجاح`, 'success');
     
-    bindResizers();
+    applyLayoutToDOM();
     bindNumberFocus();
     bindContextMenu();
     bindColumnReorder();

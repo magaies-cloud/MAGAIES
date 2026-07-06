@@ -2468,3 +2468,85 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// --- GLOBAL TABLE RESIZER HELPER ---
+window.enableTableResizing = function(tableOrId) {
+    try {
+        const table = typeof tableOrId === 'string' ? document.getElementById(tableOrId) : tableOrId;
+        if (!table) return;
+
+        const ths = table.querySelectorAll('thead th');
+        ths.forEach(th => {
+            if (th.querySelector('.resize-handle-left') || th.querySelector('.resize-handle-right')) return;
+
+            // Create left handle
+            const resizerLeft = document.createElement('div');
+            resizerLeft.className = 'resize-handle-left';
+            resizerLeft.title = 'اسحب لتغيير عرض العمود (Double click للإرجاع)';
+            th.appendChild(resizerLeft);
+
+            // Create right handle
+            const resizerRight = document.createElement('div');
+            resizerRight.className = 'resize-handle-right';
+            resizerRight.title = 'اسحب لتغيير عرض العمود (Double click للإرجاع)';
+            th.appendChild(resizerRight);
+
+            [resizerLeft, resizerRight].forEach(resizer => {
+                resizer.addEventListener('mousedown', function(e) {
+                    e.stopPropagation();
+                    const resizingTh = th;
+                    const startX = e.clientX;
+                    const startWidth = parseInt(window.getComputedStyle(resizingTh).width, 10);
+                    const isLeft = resizer === resizerLeft;
+
+                    ths.forEach(h => {
+                        if (!h.style.width) {
+                            h.style.width = window.getComputedStyle(h).width;
+                        }
+                    });
+
+                    table.style.width = 'max-content';
+                    resizer.classList.add('resizing');
+
+                    function doResize(moveEv) {
+                        let delta = 0;
+                        if (isLeft) {
+                            delta = startX - moveEv.clientX; // drag left increases width
+                        } else {
+                            delta = moveEv.clientX - startX; // drag right increases width
+                        }
+                        const newWidth = startWidth + delta;
+                        if (newWidth > 45) {
+                            resizingTh.style.width = newWidth + 'px';
+                        }
+                    }
+
+                    function stopResize() {
+                        document.removeEventListener('mousemove', doResize);
+                        document.removeEventListener('mouseup', stopResize);
+                        resizer.classList.remove('resizing');
+                    }
+
+                    document.addEventListener('mousemove', doResize);
+                    document.addEventListener('mouseup', stopResize);
+                });
+
+                resizer.addEventListener('dblclick', function(e) {
+                    e.stopPropagation();
+                    th.style.width = 'auto';
+                });
+            });
+        });
+    } catch(e) {
+        console.error('Error enabling table resizing:', e);
+    }
+};
+
+// Auto-enable for all tables on page load
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        document.querySelectorAll('table.pro-table').forEach(table => {
+            window.enableTableResizing(table);
+        });
+    }, 500);
+});

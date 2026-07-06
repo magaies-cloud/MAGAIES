@@ -223,7 +223,8 @@ function collectAllTransactions() {
         txns.push({
             date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند قبض',
             account: v.toAccount || 'safe-001', counterAccount: v.fromAccount,
-            statement: v.fromStatement || 'سند قبض نقدي',
+            statement: 'استلام نقدية',
+            additionalNote: v.fromStatement || 'سند قبض نقدي',
             debit: parseNum(v.amountLocal), credit: 0, costCenter, currency,
             exchangeRate: parseNum(v.rate || 1)
         });
@@ -231,7 +232,8 @@ function collectAllTransactions() {
         txns.push({
             date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند صرف',
             account: v.fromAccount, counterAccount: v.toAccount || 'safe-001',
-            statement: v.fromStatement || 'سند صرف نقدي',
+            statement: 'استلام نقدية',
+            additionalNote: v.fromStatement || 'سند صرف نقدي',
             debit: 0, credit: parseNum(v.amountLocal), costCenter, currency,
             exchangeRate: parseNum(v.rate || 1)
         });
@@ -248,7 +250,8 @@ function collectAllTransactions() {
         txns.push({
             date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
             account: v.fromAccount || 'safe-001', counterAccount: v.toAccount,
-            statement: v.toStatement || 'سند صرف نقدي',
+            statement: 'صرف نقدية',
+            additionalNote: v.toStatement || 'سند صرف نقدي',
             debit: 0, credit: parseNum(v.amountLocal), costCenter, currency,
             exchangeRate: parseNum(v.rate || 1)
         });
@@ -256,7 +259,8 @@ function collectAllTransactions() {
         txns.push({
             date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
             account: v.toAccount, counterAccount: v.fromAccount || 'safe-001',
-            statement: v.toStatement || 'سند استلام نقدي',
+            statement: 'صرف نقدية',
+            additionalNote: v.toStatement || 'سند استلام نقدي',
             debit: parseNum(v.amountLocal), credit: 0, costCenter, currency,
             exchangeRate: parseNum(v.rate || 1)
         });
@@ -273,7 +277,8 @@ function collectAllTransactions() {
             txns.push({
                 date: v.date, time: time, ref: v.id, type: 'jv', typeLabel: 'قيد يومي',
                 account: line.account, counterAccount: '-',
-                statement: v.statement || line.note || 'قيد يومي',
+                statement: 'قيد يومي',
+                additionalNote: v.statement || line.note || 'قيد يومي',
                 debit: parseNum(line.debit), credit: parseNum(line.credit), costCenter, currency,
                 exchangeRate: parseNum(line.rate || 1)
             });
@@ -298,14 +303,16 @@ function collectAllTransactions() {
         txns.push({
             date: inv.date, time: time, ref: refNo, type: 'invoice', typeLabel: 'مبيعات',
             account: customerAcct, counterAccount: 'revenue-sales',
-            statement: `مبيعات آجلة — ${inv.customerName || inv.customer || ''}`,
+            statement: 'فاتورة مبيعات',
+            additionalNote: `مبيعات آجلة — ${inv.customerName || inv.customer || ''}`,
             debit: total, credit: 0, costCenter, currency,
             exchangeRate: parseNum(inv.exchangeRate || 1)
         });
         txns.push({
             date: inv.date, time: time, ref: refNo, type: 'invoice', typeLabel: 'مبيعات',
             account: 'revenue-sales', counterAccount: customerAcct,
-            statement: `إيرادات — ${inv.customerName || inv.customer || ''}`,
+            statement: 'فاتورة مبيعات',
+            additionalNote: `إيرادات — ${inv.customerName || inv.customer || ''}`,
             debit: 0, credit: total, costCenter, currency,
             exchangeRate: parseNum(inv.exchangeRate || 1)
         });
@@ -315,14 +322,16 @@ function collectAllTransactions() {
             txns.push({
                 date: inv.date, time: time, ref: refNo + '-PAID', type: 'receipt', typeLabel: 'سداد فاتورة',
                 account: paymentAcct, counterAccount: customerAcct,
-                statement: 'سداد نقدي مع الفاتورة',
+                statement: 'استلام نقدية',
+                additionalNote: 'سداد نقدي مع الفاتورة',
                 debit: total, credit: 0, costCenter, currency,
                 exchangeRate: parseNum(inv.exchangeRate || 1)
             });
             txns.push({
                 date: inv.date, time: time, ref: refNo + '-PAID', type: 'receipt', typeLabel: 'سداد فاتورة',
                 account: customerAcct, counterAccount: paymentAcct,
-                statement: 'سداد نقدي مع الفاتورة',
+                statement: 'استلام نقدية',
+                additionalNote: 'سداد نقدي مع الفاتورة',
                 debit: 0, credit: total, costCenter, currency,
                 exchangeRate: parseNum(inv.exchangeRate || 1)
             });
@@ -347,14 +356,16 @@ function collectAllTransactions() {
         txns.push({
             date: inv.date, time: time, ref: refNo, type: 'purchase', typeLabel: 'مشتريات',
             account: 'exp-purchases', counterAccount: supplierAcct,
-            statement: `مشتريات آجلة — ${inv.supplierName || inv.supplier || ''}`,
+            statement: 'فاتورة مشتريات',
+            additionalNote: `مشتريات آجلة — ${inv.supplierName || inv.supplier || ''}`,
             debit: total, credit: 0, costCenter, currency,
             exchangeRate: parseNum(inv.exchangeRate || 1)
         });
         txns.push({
             date: inv.date, time: time, ref: refNo, type: 'purchase', typeLabel: 'مشتريات',
             account: supplierAcct, counterAccount: 'exp-purchases',
-            statement: `مستحقات مورد — ${inv.supplierName || inv.supplier || ''}`,
+            statement: 'فاتورة مشتريات',
+            additionalNote: `مستحقات مورد — ${inv.supplierName || inv.supplier || ''}`,
             debit: 0, credit: total, costCenter, currency,
             exchangeRate: parseNum(inv.exchangeRate || 1)
         });
@@ -364,14 +375,16 @@ function collectAllTransactions() {
             txns.push({
                 date: inv.date, time: time, ref: refNo + '-PAID', type: 'payment', typeLabel: 'سداد مشتريات',
                 account: paymentAcct, counterAccount: supplierAcct,
-                statement: 'سداد نقدي مع الفاتورة',
+                statement: 'صرف نقدية',
+                additionalNote: 'سداد نقدي مع الفاتورة',
                 debit: 0, credit: total, costCenter, currency,
                 exchangeRate: parseNum(inv.exchangeRate || 1)
             });
             txns.push({
                 date: inv.date, time: time, ref: refNo + '-PAID', type: 'payment', typeLabel: 'سداد مشتريات',
                 account: supplierAcct, counterAccount: paymentAcct,
-                statement: 'سداد نقدي مع الفاتورة',
+                statement: 'صرف نقدية',
+                additionalNote: 'سداد نقدي مع الفاتورة',
                 debit: total, credit: 0, costCenter, currency,
                 exchangeRate: parseNum(inv.exchangeRate || 1)
             });
@@ -500,56 +513,126 @@ function getReportSummaryText() {
     return text;
 }
 
+function getSelectedAccountDetails() {
+    const acctId = document.getElementById('filter-account').value;
+    if (!acctId || acctId === 'ALL') return null;
+
+    if (acctId.startsWith('cust-')) {
+        const custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+        const customer = custs.find(c => String(c.id) === acctId);
+        if (customer) {
+            return {
+                type: 'customer',
+                phone: customer.phone ? customer.phone.trim() : '',
+                whatsapp: customer.whatsapp ? customer.whatsapp.trim() : '',
+                email: customer.email ? customer.email.trim() : '',
+                name: customer.name
+            };
+        }
+    } else if (acctId.startsWith('supp-')) {
+        const sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
+        const supplier = sups.find(s => String(s.id) === acctId);
+        if (supplier) {
+            return {
+                type: 'supplier',
+                phone: supplier.phone ? supplier.phone.trim() : '',
+                whatsapp: supplier.whatsapp ? supplier.whatsapp.trim() : '',
+                email: supplier.email ? supplier.email.trim() : '',
+                name: supplier.name
+            };
+        }
+    }
+    return null;
+}
+
+function cleanPhoneForWhatsApp(phone) {
+    if (!phone) return '';
+    let cleaned = phone.trim().replace(/\+/g, '');
+    cleaned = cleaned.replace(/\D/g, '');
+    if (cleaned.startsWith('00')) {
+        cleaned = cleaned.slice(2);
+    }
+    let companyCountryCode = '249'; // default fallback (Sudan)
+    try {
+        const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+        const companyPhone = cfg.phone || '';
+        if (companyPhone) {
+            let compClean = companyPhone.trim().replace(/\+/g, '').replace(/\D/g, '');
+            if (compClean.startsWith('00')) compClean = compClean.slice(2);
+            if (compClean.startsWith('966')) companyCountryCode = '966';
+            else if (compClean.startsWith('249')) companyCountryCode = '249';
+            else if (compClean.startsWith('20')) companyCountryCode = '20';
+            else if (compClean.length > 3) {
+                companyCountryCode = compClean.slice(0, 3);
+            }
+        }
+    } catch(e) {}
+
+    if (cleaned.startsWith('0') && !cleaned.startsWith('00')) {
+        cleaned = companyCountryCode + cleaned.slice(1);
+    }
+    return cleaned;
+}
+
 window.shareViaWhatsApp = async function() {
-    const phone = await new Promise((resolve) => {
-        const overlayId = 'wa-custom-prompt-overlay';
-        if (document.getElementById(overlayId)) document.getElementById(overlayId).remove();
-        
-        const html = `
-        <div id="${overlayId}" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.8); z-index:999999; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s ease; backdrop-filter:blur(10px);">
-            <div style="background:linear-gradient(145deg, rgba(30,41,59,0.9), rgba(15,23,42,0.95)); border:1px solid rgba(37,211,102,0.4); border-radius:24px; padding:35px; width:90%; max-width:450px; text-align:center; transform:translateY(40px) scale(0.9); transition:all 0.4s; box-shadow:0 25px 50px -12px rgba(37,211,102,0.2);">
-                <div style="width:80px; height:80px; background:linear-gradient(135deg, #25D366, #128C7E); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#fff; box-shadow:0 10px 20px rgba(37,211,102,0.4);">
-                    <svg viewBox="0 0 24 24" width="45" height="45" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                </div>
-                <h3 style="color:#f8fafc; font-size:1.6rem; margin-bottom:10px; font-family:'Tajawal',sans-serif;">إرسال كشف الحساب عبر واتساب</h3>
-                <p style="color:#94a3b8; font-size:1rem; margin-bottom:25px;">يرجى إدخال رقم هاتف العميل مدعوماً بالمفتاح الدولي (مثال: 249912345678)</p>
-                <div style="margin-bottom:25px;">
-                    <input type="tel" id="wa-prompt-input" placeholder="رقم الهاتف..." style="width:100%; background:rgba(0,0,0,0.4); border:2px solid rgba(255,255,255,0.1); color:#fff; padding:15px; border-radius:12px; font-size:1.2rem; text-align:center; outline:none;" onfocus="this.style.borderColor='#25d366';" onblur="this.style.borderColor='rgba(255,255,255,0.1)';">
-                </div>
-                <div style="display:flex; gap:15px; justify-content:center;">
-                    <button id="wa-prompt-send" style="background:linear-gradient(135deg, #25d366, #1da851); color:#fff; border:none; padding:12px 30px; border-radius:12px; font-weight:bold; cursor:pointer;">إرسال</button>
-                    <button id="wa-prompt-cancel" style="background:rgba(255,255,255,0.05); color:#cbd5e1; border:1px solid rgba(255,255,255,0.1); padding:12px 25px; border-radius:12px; cursor:pointer;">إلغاء</button>
+    let phone = '';
+    const details = getSelectedAccountDetails();
+    if (details) {
+        const rawPhone = details.whatsapp || details.phone || '';
+        phone = cleanPhoneForWhatsApp(rawPhone);
+    }
+
+    if (!phone) {
+        phone = await new Promise((resolve) => {
+            const overlayId = 'wa-custom-prompt-overlay';
+            if (document.getElementById(overlayId)) document.getElementById(overlayId).remove();
+            
+            const html = `
+            <div id="${overlayId}" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.8); z-index:999999; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s ease; backdrop-filter:blur(10px);">
+                <div style="background:linear-gradient(145deg, rgba(30,41,59,0.9), rgba(15,23,42,0.95)); border:1px solid rgba(37,211,102,0.4); border-radius:24px; padding:35px; width:90%; max-width:450px; text-align:center; transform:translateY(40px) scale(0.9); transition:all 0.4s; box-shadow:0 25px 50px -12px rgba(37,211,102,0.2);">
+                    <div style="width:80px; height:80px; background:linear-gradient(135deg, #25D366, #128C7E); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#fff; box-shadow:0 10px 20px rgba(37,211,102,0.4);">
+                        <svg viewBox="0 0 24 24" width="45" height="45" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    </div>
+                    <h3 style="color:#f8fafc; font-size:1.6rem; margin-bottom:10px; font-family:'Tajawal',sans-serif;">إرسال كشف الحساب عبر واتساب</h3>
+                    <p style="color:#94a3b8; font-size:1rem; margin-bottom:25px;">يرجى إدخال رقم هاتف العميل مدعوماً بالمفتاح الدولي (مثال: 249912345678)</p>
+                    <div style="margin-bottom:25px;">
+                        <input type="tel" id="wa-prompt-input" placeholder="رقم الهاتف..." style="width:100%; background:rgba(0,0,0,0.4); border:2px solid rgba(255,255,255,0.1); color:#fff; padding:15px; border-radius:12px; font-size:1.2rem; text-align:center; outline:none;" onfocus="this.style.borderColor='#25d366';" onblur="this.style.borderColor='rgba(255,255,255,0.1)';">
+                    </div>
+                    <div style="display:flex; gap:15px; justify-content:center;">
+                        <button id="wa-prompt-send" style="background:linear-gradient(135deg, #25d366, #1da851); color:#fff; border:none; padding:12px 30px; border-radius:12px; font-weight:bold; cursor:pointer;">إرسال</button>
+                        <button id="wa-prompt-cancel" style="background:rgba(255,255,255,0.05); color:#cbd5e1; border:1px solid rgba(255,255,255,0.1); padding:12px 25px; border-radius:12px; cursor:pointer;">إلغاء</button>
+                    </div>
                 </div>
             </div>
-        </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', html);
-        
-        const overlay = document.getElementById(overlayId);
-        const modal = overlay.children[0];
-        const input = document.getElementById('wa-prompt-input');
-        
-        requestAnimationFrame(() => {
-            overlay.style.opacity = '1';
-            modal.style.transform = 'translateY(0) scale(1)';
-            setTimeout(() => input.focus(), 400);
-        });
+            `;
+            document.body.insertAdjacentHTML('beforeend', html);
+            
+            const overlay = document.getElementById(overlayId);
+            const modal = overlay.children[0];
+            const input = document.getElementById('wa-prompt-input');
+            
+            requestAnimationFrame(() => {
+                overlay.style.opacity = '1';
+                modal.style.transform = 'translateY(0) scale(1)';
+                setTimeout(() => input.focus(), 400);
+            });
 
-        const closePrompt = (resultVal) => {
-            overlay.style.opacity = '0';
-            modal.style.transform = 'translateY(40px) scale(0.9)';
-            setTimeout(() => {
-                overlay.remove();
-                resolve(resultVal);
-            }, 400);
-        };
+            const closePrompt = (resultVal) => {
+                overlay.style.opacity = '0';
+                modal.style.transform = 'translateY(40px) scale(0.9)';
+                setTimeout(() => {
+                    overlay.remove();
+                    resolve(resultVal);
+                }, 400);
+            };
 
-        document.getElementById('wa-prompt-send').onclick = () => closePrompt(input.value.trim());
-        document.getElementById('wa-prompt-cancel').onclick = () => closePrompt(null);
-        input.addEventListener('keyup', (e) => {
-            if(e.key === 'Enter') closePrompt(input.value.trim());
+            document.getElementById('wa-prompt-send').onclick = () => closePrompt(input.value.trim());
+            document.getElementById('wa-prompt-cancel').onclick = () => closePrompt(null);
+            input.addEventListener('keyup', (e) => {
+                if(e.key === 'Enter') closePrompt(input.value.trim());
+            });
         });
-    });
+    }
 
     if (!phone) return;
 
@@ -597,7 +680,6 @@ window.shareViaWhatsApp = async function() {
     printContainer.style.color = '#000';
     printContainer.style.padding = '30px';
     
-    // Copy the original table structure to avoid disrupting the UI
     const originalTable = document.querySelector('.ledger-table');
     const tableClone = originalTable.cloneNode(true);
     
@@ -632,7 +714,7 @@ window.shareViaWhatsApp = async function() {
     printContainer.innerHTML = htmlContent;
     document.body.appendChild(printContainer);
 
-    const periodText = currentDateMode === 'all' ? 'لكل الفترة' : 'للفترة من ' + document.getElementById('filter-from').value + ' إلى ' + document.getElementById('filter-to').value;
+    const periodText = currentDateMode === 'all' ? 'لكل الفترة' : 'لفتـرة من ' + document.getElementById('filter-from').value + ' إلى ' + document.getElementById('filter-to').value;
     const message = 'مرحباً، مرفق كشف حسابكم الخاص بـ ' + getAccountNameForShare() + ' ' + periodText;
 
     if (typeof sendPDFViaWhatsApp === 'function') {
@@ -641,17 +723,18 @@ window.shareViaWhatsApp = async function() {
         showToast('برنامج ربط الواتساب غير متوفر في هذه الصفحة', 'error');
     }
     
-    // Clean up
     document.body.removeChild(printContainer);
 }
 
 function shareViaEmail() {
     const accName = getAccountNameForShare();
+    const details = getSelectedAccountDetails();
+    const recipient = (details && details.email) ? details.email.trim() : '';
     
     const subject = encodeURIComponent(`كشف حساب - ${accName}`);
     const body = encodeURIComponent(getReportSummaryText());
     
-    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
 }
 
 function showAttachment(e, ref) {
@@ -824,7 +907,7 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
         if (!c.visible) return;
         activeColsCount++;
         let displayName = c.alias ? c.alias : c.name;
-        ths += `<th style="width:${c.width};">${displayName}<div class="resize-handle"></div></th>`;
+        ths += `<th style="width:${c.width};">${displayName}<div class="resize-handle-left"></div><div class="resize-handle-right"></div></th>`;
     });
     thead.innerHTML = `<tr>${ths}</tr>`;
 
@@ -1200,7 +1283,7 @@ const defaultColConfig = [
     { id: 'date', name: 'التاريخ', alias: '', visible: true, width: 'auto', bg: '', color: '', bold: false, size: '0.85rem', dec: 0 },
     { id: 'account', name: 'الحساب الرئيسي', alias: '', visible: true, width: 'auto', bg: '', color: '#cbd5e1', bold: false, size: '0.85rem', dec: 0 },
     { id: 'counterAcc', name: 'الحساب المقابل', alias: '', visible: true, width: 'auto', bg: '', color: '#e2e8f0', bold: false, size: '0.85rem', dec: 0 },
-    { id: 'statement', name: 'البيان', alias: '', visible: true, width: '150px', bg: '', color: '#e2e8f0', bold: false, size: '0.85rem', dec: 0 },
+    { id: 'statement', name: 'حالة السند', alias: '', visible: true, width: '150px', bg: '', color: '#e2e8f0', bold: false, size: '0.85rem', dec: 0 },
     { id: 'note', name: 'ملحوظة إضافية', alias: '', visible: true, width: '150px', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 0 },
     { id: 'costCenter', name: 'مركز التكلفة', alias: '', visible: true, width: 'auto', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 0 },
     { id: 'debit', name: 'مدين محلي (عليه)', alias: '', visible: true, width: 'auto', bg: '', color: '#34d399', bold: true, size: '0.9rem', dec: 2 },
@@ -1584,14 +1667,16 @@ let isResizing = false;
 let currentTh = null;
 let startX = 0;
 let startWidth = 0;
+let isLeftHandle = true;
 let resizeColIndex = -1;
 
 document.addEventListener('mousedown', function(e) {
-    if (e.target.classList.contains('resize-handle')) {
+    if (e.target.classList.contains('resize-handle-left') || e.target.classList.contains('resize-handle-right') || e.target.classList.contains('resize-handle')) {
         isResizing = true;
         currentTh = e.target.parentElement;
         startX = e.pageX;
         startWidth = currentTh.offsetWidth;
+        isLeftHandle = e.target.classList.contains('resize-handle-left') || e.target.classList.contains('resize-handle');
         
         let thName = currentTh.textContent.trim();
         resizeColIndex = colConfig.findIndex(c => c.visible && (c.alias || c.name) === thName);
@@ -1601,7 +1686,12 @@ document.addEventListener('mousedown', function(e) {
 
 document.addEventListener('mousemove', function(e) {
     if (!isResizing) return;
-    let diff = startX - e.pageX; // RTL: drag left increases width
+    let diff = 0;
+    if (isLeftHandle) {
+        diff = startX - e.pageX; // Drag left increases width
+    } else {
+        diff = e.pageX - startX; // Drag right increases width
+    }
     let newWidth = startWidth + diff;
     if (newWidth > 30) {
         currentTh.style.width = newWidth + 'px';
