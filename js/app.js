@@ -2632,11 +2632,41 @@ window.enableTableResizing = function(tableOrId) {
     }
 };
 
-// Auto-enable for all tables on page load
+// Auto-enable for all tables on page load and inject mobile layout helpers
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         document.querySelectorAll('table.pro-table').forEach(table => {
             window.enableTableResizing(table);
         });
     }, 500);
+
+    // Inject mobile bottom navigation bar if screen is mobile-sized
+    if (window.innerWidth <= 768) {
+        if (!window.location.pathname.includes('login.php') && !window.location.pathname.includes('register.php')) {
+            const nav = document.createElement('div');
+            nav.className = 'mobile-bottom-nav';
+            
+            const pages = [
+                { name: 'الرئيسية', icon: '📊', url: 'dashboard-pro.php' },
+                { name: 'البيانات', icon: '📁', url: 'master-data.php' },
+                { name: 'المبيعات', icon: '💰', url: 'direct-sales.php' },
+                { name: 'التقارير', icon: '📈', url: 'financial-reports.php' },
+                { name: 'الإعدادات', icon: '⚙️', url: 'settings.php' }
+            ];
+            
+            const currentPath = window.location.pathname;
+            
+            nav.innerHTML = pages.map(p => {
+                const isActive = currentPath.includes(p.url) ? 'active' : '';
+                return `
+                    <a href="${p.url}" class="mobile-nav-item ${isActive}">
+                        <span class="icon">${p.icon}</span>
+                        <span>${p.name}</span>
+                    </a>
+                `;
+            }).join('');
+            
+            document.body.appendChild(nav);
+        }
+    }
 });

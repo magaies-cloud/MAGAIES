@@ -1858,3 +1858,197 @@ a[data-href], a[onclick] { cursor: pointer; }
     }
 }
 
+/* =======================================================
+   PREMIUM MOBILE DESIGN SYSTEM & LAYOUTS (iOS/Android Native Style)
+   ======================================================= */
+@media (max-width: 768px) {
+    /* Hide desktop headers and sidebars on mobile if necessary */
+    .premium-header {
+        padding: 8px 12px !important;
+        border-radius: 12px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .header-brand .brand-icon {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 1rem !important;
+    }
+    
+    .header-brand .brand-text h1 {
+        font-size: 0.95rem !important;
+    }
+
+    .header-controls .clock-container,
+    .header-controls .user-info,
+    .header-controls .header-center,
+    .header-center {
+        display: none !important;
+    }
+
+    /* Fixed Bottom Navigation Bar for Mobile */
+    .mobile-bottom-nav {
+        position: fixed;
+        bottom: 12px;
+        left: 3%;
+        width: 94%;
+        height: 60px;
+        background: rgba(10, 8, 16, 0.88);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        z-index: 999999;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        padding: 0 8px;
+        box-sizing: border-box;
+        direction: rtl;
+    }
+
+    .mobile-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #94a3b8;
+        text-decoration: none !important;
+        font-size: 0.65rem;
+        font-weight: 700;
+        gap: 3px;
+        transition: all 0.25s ease;
+        cursor: pointer;
+        flex: 1;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .mobile-nav-item .icon {
+        font-size: 1.15rem;
+        transition: transform 0.25s ease, filter 0.25s ease;
+    }
+
+    .mobile-nav-item.active {
+        color: #38bdf8 !important;
+    }
+
+    .mobile-nav-item.active .icon {
+        transform: translateY(-3px) scale(1.1);
+        filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.5));
+    }
+
+    /* Padding body so content is not hidden behind the fixed bottom nav */
+    body {
+        padding-bottom: 85px !important;
+    }
+
+    /* Transform Tables into Clean Card Layouts on Mobile */
+    .table-container, .modern-table-container {
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+
+    table.modern-table, table.modern-table tbody, table.modern-table tr, table.modern-table td {
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    table.modern-table thead {
+        display: none !important; /* Hide header columns on mobile */
+    }
+
+    table.modern-table tr {
+        background: rgba(20, 16, 28, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        border-radius: 16px !important;
+        margin-bottom: 12px !important;
+        padding: 12px 15px !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+        transition: all 0.25s ease !important;
+        position: relative !important;
+    }
+
+    table.modern-table tr:hover {
+        background: rgba(28, 24, 38, 0.8) !important;
+        border-color: rgba(56, 189, 248, 0.3) !important;
+        transform: translateY(-2px) !important;
+    }
+
+    table.modern-table td {
+        border: none !important;
+        padding: 6px 0 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* Force labels on right and value on left */
+    table.modern-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: #94a3b8;
+        text-align: right;
+        display: block;
+        margin-left: 10px;
+    }
+
+    /* Custom Mobile Bottom Sheet Dialogs (iOS Style Modals) */
+    .modal-content, .premium-modal, .sweet-alert, .swal2-modal {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 24px 24px 0 0 !important;
+        transform: translateY(100%) !important;
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        margin: 0 !important;
+        max-height: 85vh !important;
+        overflow-y: auto !important;
+        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-bottom: none !important;
+        background: #0d0b13 !important;
+    }
+
+    .modal.show .modal-content, .modal.active .modal-content, .premium-modal.active {
+        transform: translateY(0) !important;
+    }
+
+    /* Drag handle indicator on bottom sheet */
+    .modal-content::before {
+        content: '';
+        display: block;
+        width: 36px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.18);
+        border-radius: 10px;
+        margin: 8px auto 12px auto;
+    }
+
+    /* Inputs optimization for mobile tapping */
+    .select-input, .text-input, input[type='text'], input[type='number'], input[type='password'], input[type='date'], textarea {
+        padding: 13px 15px !important;
+        font-size: 0.95rem !important;
+        border-radius: 12px !important;
+        min-height: 44px !important;
+    }
+
+    /* Larger interactive action buttons */
+    .btn, button, .action-btn {
+        padding: 11px 18px !important;
+        font-size: 0.9rem !important;
+        border-radius: 12px !important;
+        min-height: 44px !important; /* Ensure min touch target height */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
