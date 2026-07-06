@@ -42,9 +42,9 @@ JSON.parse = function(val) {
     function getTenantPrefix() {
         try {
             // Read directly from original storage to avoid infinite loops in proxy
-            const userStr = originalGetItem('user') || '{}';
+            const userStr = localGetItem('user') || '{}';
             const user = JSON.parse(userStr);
-            const tenantId = user.tenant_id || originalGetItem('currentTenantId') || 'default';
+            const tenantId = user.tenant_id || localGetItem('currentTenantId') || 'default';
             return 'tenant_' + tenantId + '_';
         } catch(e) {
             return 'tenant_default_';
@@ -78,10 +78,15 @@ JSON.parse = function(val) {
     window.DB_STORE = {};
     window.APP_READY = false;
 
-    // Save originals bound to localStorage BEFORE any overrides
-    const originalSetItem = Storage.prototype.setItem.bind(localStorage);
-    const originalGetItem = Storage.prototype.getItem.bind(localStorage);
-    const originalRemoveItem = Storage.prototype.removeItem.bind(localStorage);
+    // Save originals BEFORE any overrides
+    const originalSetItem = Storage.prototype.setItem;
+    const originalGetItem = Storage.prototype.getItem;
+    const originalRemoveItem = Storage.prototype.removeItem;
+
+    // Helpers bound to localStorage for direct calls
+    const localSetItem = originalSetItem.bind(localStorage);
+    const localGetItem = originalGetItem.bind(localStorage);
+    const localRemoveItem = originalRemoveItem.bind(localStorage);
 
     // Cross-Tab Synchronization
     const syncChannel = new BroadcastChannel('erp_db_sync');
@@ -334,7 +339,7 @@ JSON.parse = function(val) {
                 keysToRemove.push(k);
             }
         }
-        keysToRemove.forEach(k => originalRemoveItem(k));
+        keysToRemove.forEach(k => localRemoveItem(k));
     };
 
     window.getTenantKeys = function() {
@@ -456,7 +461,7 @@ JSON.parse = function(val) {
 
             keysToSync.forEach(k => {
                 const pk = window.getTenantKey(k);
-                const data = window.DB_STORE[pk] || originalGetItem(pk);
+                const data = window.DB_STORE[pk] || localGetItem(pk);
                 if (data) {
                     try {
                         payload[k] = JSON.parse(data);
@@ -524,7 +529,7 @@ JSON.parse = function(val) {
         const prefix = getTenantPrefix();
         
         // Check if we already have local data to decide if we should block the UI
-        const hasLocalData = originalGetItem(prefix + "erp_customers_v1") !== null || originalGetItem(prefix + "erp_users_v1") !== null;
+        const hasLocalData = localGetItem(prefix + "erp_customers_v1") !== null || localGetItem(prefix + "erp_users_v1") !== null;
         
         if (!hasLocalData) {
             showSyncOverlay('جاري جلب أحدث البيانات من السيرفر...', true);
@@ -543,7 +548,7 @@ JSON.parse = function(val) {
                     Object.keys(data.data).forEach(key => {
                         if (data.data[key]) {
                             const pk = window.getTenantKey(key);
-                            const localDataStr = window.DB_STORE[pk] || originalGetItem(pk);
+                            const localDataStr = window.DB_STORE[pk] || localGetItem(pk);
                             let localData = [];
                             try { localData = JSON.parse(localDataStr || '[]'); } catch(e){}
                             // ONLY overwrite if server has data, or if local is empty. Do not wipe local data with empty server data!
@@ -551,7 +556,7 @@ JSON.parse = function(val) {
                                 const valStr = JSON.stringify(data.data[key]);
                                 window.DB_STORE[pk] = valStr;
                                 localforage.setItem(pk, valStr).catch(e=>{});
-                                try { originalSetItem(pk, valStr); } catch(e){}
+                                try { localSetItem(pk, valStr); } catch(e){}
                             } else {
                                 console.log(`Skipping overwrite of ${key}: server sent empty array but local has data. You should PUSH to restore server.`);
                             }
