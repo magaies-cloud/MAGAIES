@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'مركز التنبيهات - السجانة ERP'; ?>
+<?php $page_title = 'مركز التنبيهات - السجانة ERP'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -257,6 +257,19 @@
     <!-- Header -->
     <?php include 'includes/header.php'; ?>
 
+    <!-- Header Controls Row -->
+    <div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:20px; padding:15px 25px; box-shadow:0 10px 25px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.03); margin-top:-10px; gap: 15px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <span id="total-alarms-badge" class="alarm-badge" style="font-size:0.9rem; padding:6px 16px; border-radius:12px; font-weight:800; font-family:'Tajawal', sans-serif;">🔔 جاري تحميل التنبيهات...</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:15px;">
+            <span id="last-refresh-time" style="font-size:0.85rem; color:#94a3b8; font-weight:600;">آخر تحديث: -</span>
+            <button id="refresh-btn" class="refresh-btn" onclick="loadAlarms()">
+                <span class="spin-icon">🔄</span> تحديث التنبيهات
+            </button>
+        </div>
+    </div>
+
     <!-- KPI Summary -->
     <div class="summary-cards" id="summary-cards">
         <div class="kpi-card card-danger">
@@ -364,6 +377,11 @@ function renderOverdue() {
 
     invoices.forEach(inv => {
         if (inv.paymentMethod === 'credit' && inv.dueDate) {
+            const net = Number(inv.grandTotal) || Number(inv.netTotal) || 0;
+            const paid = Number(inv.paidAmount) || 0;
+            const remaining = net - paid;
+            if (remaining <= 0) return; // Skip if fully paid
+
             const due = new Date(inv.dueDate); due.setHours(0,0,0,0);
             const diff = Math.ceil((due - today) / 86400000);
             const cust = customers.find(c => c.id === inv.customer || c.id === inv.customerId);
@@ -371,9 +389,9 @@ function renderOverdue() {
             const custPhone = cust && cust.phone ? cust.phone : null;
 
             if (diff < 0) {
-                results.push({ severity: 'critical', inv, custName, custPhone, diff, due });
+                results.push({ severity: 'critical', inv, custName, custPhone, diff, due, remaining });
             } else if (diff <= 3) {
-                results.push({ severity: 'warning', inv, custName, custPhone, diff, due });
+                results.push({ severity: 'warning', inv, custName, custPhone, diff, due, remaining });
             }
         }
     });
@@ -391,7 +409,7 @@ function renderOverdue() {
         const dayLabel = isLate
             ? `متأخر ${Math.abs(r.diff)} يوم`
             : (r.diff === 0 ? 'اليوم!' : (r.diff === 1 ? 'غداً' : `بعد ${r.diff} أيام`));
-        const amount = (Number(r.inv.grandTotal) || Number(r.inv.netTotal) || 0).toLocaleString('en-US');
+        const amount = r.remaining.toLocaleString('en-US');
 
         return `
         <div class="alarm-card ${isLate ? 'critical' : 'warning'}">
@@ -434,7 +452,8 @@ function renderLowStock() {
     }
 
     el.innerHTML = results.slice(0, 15).map(item => {
-        const percentage = Math.min(100, Math.round((item.stock / item.safe) * 100)) || 0;
+        const isCritical = item.stock <= 0;
+        const percentage = Math.max(0, Math.min(100, Math.round((item.stock / item.safe) * 100))) || 0;
         const colorHex = isCritical ? '#fb7185' : '#fcd34d';
         const colorBg = isCritical ? 'rgba(244,63,94,0.15)' : 'rgba(245,158,11,0.15)';
         const unitName = item.units && item.units[0] ? item.units[0].name : '';
@@ -582,9 +601,12 @@ function updateSummary() {
     const checks    = JSON.parse(localStorage.getItem('erp_checks_v1') || '[]');
     const today = new Date(); today.setHours(0,0,0,0);
 
-    // Overdue count
+    // Overdue count (only active credit balances that are overdue or due within 3 days)
     const overdueCount = invoices.filter(inv => {
         if (inv.paymentMethod !== 'credit' || !inv.dueDate) return false;
+        const net = Number(inv.grandTotal) || Number(inv.netTotal) || 0;
+        const paid = Number(inv.paidAmount) || 0;
+        if (net - paid <= 0) return false; // Already paid
         const due = new Date(inv.dueDate); due.setHours(0,0,0,0);
         return Math.ceil((due - today) / 86400000) <= 3;
     }).length;
@@ -615,14 +637,16 @@ function updateSummary() {
 
     const total = overdueCount + lowStockCount + checksCount + deliveriesCount;
     const badge = document.getElementById('total-alarms-badge');
-    if (total === 0) {
-        badge.style.background   = 'rgba(16, 185, 129, 0.15)';
-        badge.style.color        = '#34d399';
-        badge.innerText = '✅ لا توجد تنبيهات نشطة';
-    } else {
-        badge.style.background   = 'rgba(244, 63, 94, 0.15)';
-        badge.style.color        = '#fb7185';
-        badge.innerText = `🔔 ${total} تنبيهات حرجة`;
+    if (badge) {
+        if (total === 0) {
+            badge.style.background   = 'rgba(16, 185, 129, 0.15)';
+            badge.style.color        = '#34d399';
+            badge.innerText = '✅ لا توجد تنبيهات نشطة';
+        } else {
+            badge.style.background   = 'rgba(244, 63, 94, 0.15)';
+            badge.style.color        = '#fb7185';
+            badge.innerText = `🔔 ${total} تنبيهات حرجة`;
+        }
     }
 }
 

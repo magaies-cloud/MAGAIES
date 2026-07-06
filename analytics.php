@@ -670,11 +670,17 @@
 </div>
 
 <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054966.00607"></script>
+    <script src="js/app.js?v=<?php echo time(); ?>"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         // We might want to wait for DBReady, but let's initialize directly if data is in localStorage
         setTimeout(initAIAnalytics, 500);
+    });
+
+    // Reload page once background cloud sync completes (essential for iOS Safari onboarding)
+    window.addEventListener('cloudDataRestored', () => {
+        console.log("[Analytics] Cloud sync completed. Reloading...");
+        window.location.reload();
     });
 
     function initAIAnalytics() {

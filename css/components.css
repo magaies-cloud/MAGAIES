@@ -1743,3 +1743,118 @@ a[data-href], a[onclick] { cursor: pointer; }
         display: none !important;
     }
 }
+
+/* ==========================================================================
+   PWA & Responsive Layout Utilities
+   ========================================================================== */
+
+/* Mobile Only (Hidden on Desktop) */
+@media (min-width: 768px) {
+    .mobile-only {
+        display: none !important;
+    }
+}
+
+/* Desktop Only (Hidden on Mobile) */
+@media (max-width: 767px) {
+    .desktop-only {
+        display: none !important;
+    }
+}
+
+/* Base PWA Card styling */
+.pwa-card {
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pwa-card:active {
+    transform: scale(0.98);
+}
+
+/* Color Coding for Mobile Cards */
+/* Emerald Green for Sales (المبيعات) */
+.pwa-sales-card {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.05) 100%);
+    border-left: 5px solid #10b981;
+}
+.pwa-sales-card .pwa-icon {
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.2);
+}
+
+/* Crimson Red for Purchases (المشتريات) */
+.pwa-purchases-card {
+    background: linear-gradient(135deg, rgba(244, 63, 94, 0.15) 0%, rgba(225, 29, 72, 0.05) 100%);
+    border-left: 5px solid #f43f5e;
+}
+.pwa-purchases-card .pwa-icon {
+    color: #fb7185;
+    background: rgba(244, 63, 94, 0.2);
+}
+
+/* Indigo Blue for Reports (التقارير) */
+.pwa-reports-card {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.05) 100%);
+    border-left: 5px solid #3b82f6;
+}
+.pwa-reports-card .pwa-icon {
+    color: #60a5fa;
+    background: rgba(59, 130, 246, 0.2);
+}
+
+/* Amber/Orange for Inventory (المخزون) */
+.pwa-inventory-card {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.05) 100%);
+    border-left: 5px solid #f59e0b;
+}
+.pwa-inventory-card .pwa-icon {
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.2);
+}
+
+.pwa-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.pwa-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.pwa-card-title {
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.pwa-card-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-top: 5px;
+    font-family: 'Inter', sans-serif;
+}
+
+/* PWA Standalone Notch & Padding Adjustments for iOS/Android */
+@media (display-mode: standalone) {
+    body {
+        padding-top: env(safe-area-inset-top, 20px);
+        padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
+}
+

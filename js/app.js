@@ -1,4 +1,25 @@
 // --- CLOUD SYNC ENGINE (Offline-First to SaaS Bridge) ---
+(function() {
+    // Intercept DOMContentLoaded listeners for already-loaded document states (iOS WebKit compatibility)
+    const interceptDOMContentLoaded = (target) => {
+        const originalAdd = target.addEventListener;
+        target.addEventListener = function(type, listener, options) {
+            if (type === 'DOMContentLoaded' && (document.readyState === 'interactive' || document.readyState === 'complete')) {
+                setTimeout(() => {
+                    try {
+                        listener.call(target, new Event('DOMContentLoaded'));
+                    } catch (e) {
+                        console.error("Error in deferred DOMContentLoaded listener:", e);
+                    }
+                }, 0);
+                return;
+            }
+            return originalAdd.apply(this, arguments);
+        };
+    };
+    interceptDOMContentLoaded(document);
+    interceptDOMContentLoaded(window);
+})();
 const originalJSONParse = JSON.parse;
 JSON.parse = function(val) {
     if (val === null || val === undefined) return null;
@@ -6,8 +27,14 @@ JSON.parse = function(val) {
     return originalJSONParse.apply(JSON, arguments);
 };
 (function() {
-    const SYNC_PULL_URL = "api_index.php/sync/pull";
-    const SYNC_PUSH_URL = "api_index.php/sync/push";
+    const getBaseUrl = () => {
+        const origin = window.location.origin;
+        const path = window.location.pathname;
+        const dir = path.substring(0, path.lastIndexOf('/'));
+        return origin + dir + "/";
+    };
+    const SYNC_PULL_URL = getBaseUrl() + "api_index.php/sync/pull";
+    const SYNC_PUSH_URL = getBaseUrl() + "api_index.php/sync/push";
 
     // -------------------------------------------------------
     // TENANT ISOLATION — كل شركة لها بياناتها المنفصلة
@@ -64,29 +91,82 @@ JSON.parse = function(val) {
         }
     };
 
+    const promiseTimeout = (promise, ms) => {
+        let timeout = new Promise((resolve, reject) => {
+            let id = setTimeout(() => {
+                clearTimeout(id);
+                reject(new Error("Timeout after " + ms + "ms"));
+            }, ms);
+        });
+        return Promise.race([promise, timeout]);
+    };
+
+    if (typeof localforage !== 'undefined') {
+        const originalLfGet = localforage.getItem.bind(localforage);
+        const originalLfSet = localforage.setItem.bind(localforage);
+        const originalLfRemove = localforage.removeItem.bind(localforage);
+
+        localforage.getItem = function(key) {
+            return promiseTimeout(originalLfGet(key), 250)
+                .catch(err => {
+                    console.warn(`[localforage override] getItem failed/timeout for ${key}:`, err);
+                    return localStorage.getItem(key);
+                });
+        };
+
+        localforage.setItem = function(key, value) {
+            try {
+                originalSetItem(key, value);
+            } catch(e) {}
+            return promiseTimeout(originalLfSet(key, value), 250)
+                .catch(err => {
+                    console.warn(`[localforage override] setItem failed/timeout for ${key}:`, err);
+                    return value;
+                });
+        };
+
+        localforage.removeItem = function(key) {
+            try { originalRemoveItem(key); } catch(e) {}
+            return promiseTimeout(originalLfRemove(key), 250)
+                .catch(err => {
+                    console.warn(`[localforage override] removeItem failed/timeout for ${key}:`, err);
+                });
+        };
+    }
+
     // Load data from IndexedDB into DB_STORE
     async function initDB() {
         try {
             await Promise.all(syncKeys.map(async (key) => {
                 const tenantKey = window.getTenantKey(key);
-                const val = await localforage.getItem(tenantKey);
+                let val = null;
+                try {
+                    val = await localforage.getItem(tenantKey);
+                } catch(err) {
+                    console.warn(`localforage failed or timed out for ${tenantKey}, using localStorage`, err);
+                }
+                if (val === null) {
+                    val = originalGetItem(tenantKey) || originalGetItem(key);
+                }
                 if (val !== null) {
                     window.DB_STORE[tenantKey] = val;
-                } else {
-                    // Fallback to migrate old localStorage
-                    const oldVal = originalGetItem(key);
-                    if (oldVal !== null) {
-                        window.DB_STORE[tenantKey] = oldVal;
-                        // Fire and forget setItem to avoid blocking initialization
-                        localforage.setItem(tenantKey, oldVal).catch(e => console.error(e));
-                        originalRemoveItem(key);
-                        console.log(`[Migration] Moved ${key} to IndexedDB.`);
-                    }
                 }
             }));
         } catch (e) {
             console.error("IndexedDB Initialization Error:", e);
         }
+
+        // Complete fallback check: Ensure all syncKeys are loaded in DB_STORE from localStorage if still empty
+        syncKeys.forEach(key => {
+            const tenantKey = window.getTenantKey(key);
+            if (!window.DB_STORE[tenantKey]) {
+                const val = originalGetItem(tenantKey) || originalGetItem(key);
+                if (val !== null) {
+                    window.DB_STORE[tenantKey] = val;
+                }
+            }
+        });
+
         window.APP_READY = true;
         document.dispatchEvent(new Event('DBReady'));
     }
@@ -124,18 +204,13 @@ JSON.parse = function(val) {
         syncChannel.postMessage({ type: 'SYNC_KEY', tenantKey: tenantKey, value: value });
 
         // Save asynchronously to IndexedDB
-        localforage.setItem(tenantKey, value).catch(err => {
-            console.error("Failed to save to IndexedDB:", err);
-            alert('خطأ حرج في قاعدة البيانات! تأكد من مساحة تخزين المتصفح.');
-        });
+        localforage.setItem(tenantKey, value);
 
-        // Still try to save small non-sync keys to actual localStorage if needed
-        if (!syncKeys.includes(key)) {
-            try {
-                originalSetItem(tenantKey, value);
-            } catch (e) {
-                console.warn("localStorage quota exceeded for non-sync key", key);
-            }
+        // Always save to original localStorage as a robust synchronous fallback for WebKit/iOS
+        try {
+            originalSetItem(tenantKey, value);
+        } catch (e) {
+            console.warn("localStorage quota exceeded for key", key, e);
         }
 
         if (syncKeys.includes(key)) {

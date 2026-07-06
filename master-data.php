@@ -810,8 +810,19 @@
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054968.4328"></script>
+    <script src="js/app.js?v=<?php echo time(); ?>"></script>
     <script>
+        function renderAllMasterData() {
+            renderCustomers();
+            renderSuppliers();
+            renderEmployees();
+            if(typeof renderBanks === 'function') renderBanks();
+            if(typeof renderSafes === 'function') renderSafes();
+            if(typeof renderItems === 'function') renderItems();
+            renderWarehouses();
+            if(typeof renderCostCenters === 'function') renderCostCenters();
+        }
+
         document.addEventListener('DBReady', () => {
             if (!localStorage.getItem('authToken')) window.location.href = 'login.php';
             if (window.location.hash) {
@@ -821,14 +832,16 @@
             }
             clearCustomerForm();
             clearSupplierForm();
-            renderCustomers();
-            renderSuppliers();
-            renderEmployees();
-            if(typeof renderBanks === 'function') renderBanks();
-            if(typeof renderSafes === 'function') renderSafes();
-            if(typeof renderItems === 'function') renderItems();
-            renderWarehouses();
-            if(typeof renderCostCenters === 'function') renderCostCenters();
+            renderAllMasterData();
+        });
+
+        // Re-render when cloud sync completes (essential for iOS Safari first load/fresh sessions)
+        window.addEventListener('cloudDataRestored', () => {
+            console.log("[Master Data] Cloud sync completed. Re-rendering lists...");
+            renderAllMasterData();
+            if (typeof deduplicateEntities === 'function') deduplicateEntities();
+            if (typeof renderGlobalUnitsList === 'function') renderGlobalUnitsList();
+            if (typeof updateUnitDropdowns === 'function') updateUnitDropdowns();
         });
 
         function openTab(evt, tabId) {

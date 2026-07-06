@@ -554,7 +554,7 @@
 
     <!-- Scripts -->
     <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054967.08377"></script>
+    <script src="js/app.js?v=<?php echo time(); ?>"></script>
     <script>
         // Spotlight Effect Mouse Tracker
         document.addEventListener('mousemove', e => {
@@ -600,6 +600,12 @@
                     document.getElementById('dashboard-athkar-container').style.display = 'flex';
                 }
             } catch (e) {}
+        });
+
+        // Reload page once background cloud sync completes (essential for iOS Safari onboarding)
+        window.addEventListener('cloudDataRestored', () => {
+            console.log("[Dashboard] Cloud sync completed. Reloading...");
+            window.location.reload();
         });
 
         // Toggle Notifications Dropdown (Modal)

@@ -198,7 +198,14 @@
                 const headers = { 'Content-Type': 'application/json' };
                 if (tenantSubdomain) headers['X-Tenant-Subdomain'] = tenantSubdomain;
 
-                const res = await fetch('api_index.php/auth/login', {
+                const getBaseUrl = () => {
+                    const origin = window.location.origin;
+                    const path = window.location.pathname;
+                    const dir = path.substring(0, path.lastIndexOf('/'));
+                    return origin + dir + "/";
+                };
+
+                const res = await fetch(getBaseUrl() + 'api_index.php/auth/login', {
                     method: 'POST',
                     headers: headers,
                     body: JSON.stringify({ username, password }),
