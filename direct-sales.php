@@ -966,6 +966,181 @@
             border: 1px solid rgba(56, 189, 248, 0.3) !important;
         }
 
+        .hub-table { width: 100%; border-collapse: separate !important; border-spacing: 0 8px !important; }
+        .hub-table thead th {
+            background: rgba(15, 23, 42, 0.8) !important; 
+            color: #38bdf8 !important; 
+            font-size: 0.85rem !important; 
+            font-weight: 800 !important;
+            padding: 12px 15px !important; 
+            text-align: center !important; 
+            position: sticky; top: 0; z-index: 5;
+            border-top: 1px solid rgba(56, 189, 248, 0.2) !important;
+            border-bottom: 2px solid rgba(56, 189, 248, 0.3) !important; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+        }
+        .hub-table thead th:first-child { 
+            border-radius: 10px 0 0 10px !important; 
+            border-right: 1px solid rgba(56, 189, 248, 0.2) !important; 
+            text-align: right !important;
+        }
+        .hub-table thead th:nth-child(2) { text-align: right !important; }
+        .hub-table thead th:nth-child(3) { text-align: right !important; }
+        .hub-table thead th:nth-child(4) { text-align: right !important; }
+        .hub-table thead th:last-child { 
+            border-radius: 0 10px 10px 0 !important; 
+            border-left: 1px solid rgba(56, 189, 248, 0.2) !important; 
+        }
+        .hub-table tbody tr {
+            background: rgba(15, 23, 42, 0.45) !important;
+            transition: all 0.3s ease !important;
+        }
+        .hub-table tbody tr:hover {
+            background: rgba(56, 189, 248, 0.08) !important; 
+            transform: translateY(-2px) !important; 
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+        }
+        .hub-table tbody tr:hover td {
+            border-top-color: rgba(56, 189, 248, 0.25) !important;
+            border-bottom-color: rgba(56, 189, 248, 0.25) !important;
+        }
+        .hub-table tbody tr:hover td:first-child {
+            border-right-color: rgba(56, 189, 248, 0.25) !important;
+        }
+        .hub-table tbody tr:hover td:last-child {
+            border-left-color: rgba(56, 189, 248, 0.25) !important;
+        }
+        .hub-table tbody td {
+            padding: 12px 10px !important; 
+            border-bottom: 1px solid rgba(255,255,255,0.03) !important;
+            border-top: 1px solid rgba(255,255,255,0.03) !important;
+            font-size: 0.95rem !important; 
+            font-weight: 700 !important;
+            vertical-align: middle !important;
+            text-align: center;
+        }
+        .hub-table tbody td:first-child { 
+            border-radius: 12px 0 0 12px !important; 
+            border-right: 1px solid rgba(255,255,255,0.03) !important; 
+            text-align: right; 
+        }
+        .hub-table tbody td:nth-child(2) { text-align: right; }
+        .hub-table tbody td:nth-child(3) { text-align: right; }
+        .hub-table tbody td:nth-child(4) { text-align: right; }
+        .hub-table tbody td:last-child { 
+            border-radius: 0 12px 12px 0 !important; 
+            border-left: 1px solid rgba(255,255,255,0.03) !important; 
+        }
+
+        /* Split Board Table Custom Style */
+        #split-board-step table.pos-grid {
+            border-collapse: separate !important;
+            border-spacing: 0 6px !important;
+        }
+        #split-board-step table.pos-grid thead th {
+            background: rgba(15, 23, 42, 0.85) !important;
+            padding: 10px 8px !important;
+            font-size: 0.95rem !important;
+            font-weight: 800 !important;
+            border-top: 1px solid rgba(255,255,255,0.06) !important;
+            border-bottom: 2px solid rgba(255,255,255,0.12) !important;
+        }
+        #split-board-step table.pos-grid thead th:first-child {
+            border-radius: 8px 0 0 8px !important;
+            border-right: 1px solid rgba(255,255,255,0.06) !important;
+        }
+        #split-board-step table.pos-grid thead th:last-child {
+            border-radius: 0 8px 8px 0 !important;
+            border-left: 1px solid rgba(255,255,255,0.06) !important;
+        }
+        #split-board-step table.pos-grid tbody tr {
+            background: rgba(255, 255, 255, 0.02) !important;
+            transition: background 0.2s ease !important;
+        }
+        #split-board-step table.pos-grid tbody tr:hover {
+            background: rgba(255, 255, 255, 0.06) !important;
+        }
+        #split-board-step table.pos-grid tbody td {
+            padding: 10px 8px !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.02) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02) !important;
+            font-size: 0.95rem !important;
+            vertical-align: middle !important;
+        }
+        #split-board-step table.pos-grid tbody td:first-child {
+            border-radius: 8px 0 0 8px !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.02) !important;
+        }
+        #split-board-step table.pos-grid tbody td:last-child {
+            border-radius: 0 8px 8px 0 !important;
+            border-left: 1px solid rgba(255, 255, 255, 0.02) !important;
+        }
+
+        /* Split Select Step Table Custom Style */
+        #split-select-step table.pos-grid {
+            border-collapse: separate !important;
+            border-spacing: 0 8px !important;
+        }
+        #split-select-step table.pos-grid thead th {
+            background: rgba(15, 23, 42, 0.85) !important;
+            padding: 12px 10px !important;
+            font-size: 0.95rem !important;
+            font-weight: 800 !important;
+            color: #38bdf8 !important;
+            border-top: 1px solid rgba(56, 189, 248, 0.2) !important;
+            border-bottom: 2px solid rgba(56, 189, 248, 0.3) !important;
+        }
+        #split-select-step table.pos-grid thead th:first-child {
+            border-radius: 8px 0 0 8px !important;
+            border-right: 1px solid rgba(56, 189, 248, 0.2) !important;
+            text-align: right !important;
+        }
+        #split-select-step table.pos-grid thead th:nth-child(2) { text-align: right !important; }
+        #split-select-step table.pos-grid thead th:nth-child(3) { text-align: right !important; }
+        #split-select-step table.pos-grid thead th:last-child {
+            border-radius: 0 8px 8px 0 !important;
+            border-left: 1px solid rgba(56, 189, 248, 0.2) !important;
+        }
+        #split-select-step table.pos-grid tbody tr {
+            background: rgba(15, 23, 42, 0.45) !important;
+            transition: all 0.3s ease !important;
+        }
+        #split-select-step table.pos-grid tbody tr:hover {
+            background: rgba(56, 189, 248, 0.08) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        #split-select-step table.pos-grid tbody tr:hover td {
+            border-top-color: rgba(56, 189, 248, 0.25) !important;
+            border-bottom-color: rgba(56, 189, 248, 0.25) !important;
+        }
+        #split-select-step table.pos-grid tbody tr:hover td:first-child {
+            border-right-color: rgba(56, 189, 248, 0.25) !important;
+        }
+        #split-select-step table.pos-grid tbody tr:hover td:last-child {
+            border-left-color: rgba(56, 189, 248, 0.25) !important;
+        }
+        #split-select-step table.pos-grid tbody td {
+            padding: 14px 12px !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.03) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+            font-size: 1.05rem !important;
+            font-weight: 700 !important;
+            vertical-align: middle !important;
+        }
+        #split-select-step table.pos-grid tbody td:first-child {
+            border-radius: 8px 0 0 8px !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.03) !important;
+            text-align: right;
+        }
+        #split-select-step table.pos-grid tbody td:nth-child(2) { text-align: right; }
+        #split-select-step table.pos-grid tbody td:nth-child(3) { text-align: right; }
+        #split-select-step table.pos-grid tbody td:last-child {
+            border-radius: 0 8px 8px 0 !important;
+            border-left: 1px solid rgba(255, 255, 255, 0.03) !important;
+        }
+
     </style>
     <script>
         if(localStorage.getItem('erp_theme') === 'light') document.documentElement.classList.add('light-theme');
@@ -1150,15 +1325,17 @@
             </div>
             
             <div class="grid-scroll-wrap" style="flex: 1; margin-top: 10px;">
-                <table class="pos-grid" style="width: 100%;">
+                <table class="pos-grid hub-table" style="width: 100%;">
                     <thead>
                         <tr>
                             <th style="text-align:right;">رقم الفاتورة</th>
                             <th style="text-align:right;">التاريخ</th>
                             <th style="text-align:right;">العميل</th>
-                            <th style="text-align:right;">النوع</th>
+                            <th style="text-align:right;">الصنف</th>
+                            <th style="text-align:center;">الكمية</th>
+                            <th style="text-align:center;">السعر</th>
                             <th style="text-align:center;">الإجمالي</th>
-                            <th style="text-align:center;">الحالة</th>
+                            <th style="text-align:center;">المخزن</th>
                             <th style="text-align:center;">الإجراءات</th>
                         </tr>
                     </thead>
@@ -1178,12 +1355,7 @@
     <!-- ═══ SPLIT INVOICE VIEW ═══ -->
     <div id="split-invoice-view" style="display: none; flex-direction: column; height: 100%; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 0 5px;">
         <div class="neo-card" style="flex: 1; display: flex; flex-direction: column; overflow: visible; margin-bottom: 15px;">
-            <div class="neo-card-title" style="font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;">
-                <span style="color: #ec4899;">✂️ شاشة تقسيم فواتير المبيعات (Split Sales Invoice)</span>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn-action" style="width: auto; padding: 6px 12px; font-size: 0.8rem; background: rgba(239,68,68,0.1); color: #ef4444;" onclick="showSalesHub()">رجوع</button>
-                </div>
-            </div>
+
             
             <!-- Step 1: Select Invoice -->
             <div id="split-select-step" style="display: flex; flex-direction: column; flex: 1; gap: 15px;">
@@ -1193,6 +1365,7 @@
                         <input type="text" id="split-invoice-search" class="v-input" placeholder="ابحث برقم الفاتورة، اسم العميل، أو الإجمالي..." oninput="filterSplitInvoices()">
                     </div>
                     <button class="btn-action" style="width: auto; height: 42px; margin-top: auto; background: rgba(255,255,255,0.05);" onclick="loadSplitInvoices()">🔄 تحديث القائمة</button>
+                    <button class="btn-action" style="width: auto; height: 42px; margin-top: auto; background: rgba(239,68,68,0.15); color: #f87171;" onclick="showSalesHub()">رجوع</button>
                 </div>
                 
                 <div class="grid-scroll-wrap" style="flex: 1; max-height: 450px; overflow-y: auto; margin-top: 10px;">
@@ -1221,21 +1394,21 @@
             </div>
 
             <!-- Step 2: Split Board -->
-            <div id="split-board-step" style="display: none; flex-direction: column; flex: 1; gap: 20px;">
-                <div id="split-header-info" style="display: flex; gap: 20px; flex-wrap: wrap; background: linear-gradient(135deg, rgba(236,72,153,0.15), rgba(99,102,241,0.05)); padding: 15px; border-radius: 12px; border: 1px solid rgba(236,72,153,0.2);">
+            <div id="split-board-step" style="display: none; flex-direction: column; gap: 6px;">
+                <div id="split-header-info" style="display: flex; background: linear-gradient(135deg, rgba(236,72,153,0.15), rgba(99,102,241,0.05)); padding: 8px; border-radius: 12px; border: 1px solid rgba(236,72,153,0.2); width: 100%;">
                     <!-- Filled dynamically -->
                 </div>
 
-                <div class="grid-scroll-wrap" style="flex: 1; max-height: 350px; overflow-y: auto;">
+                <div class="grid-scroll-wrap" style="max-height: 260px; overflow-y: auto; background: rgba(0,0,0,0.15); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
                     <table class="pos-grid" style="width: 100%;">
                         <thead>
                             <tr>
                                 <th style="text-align:right;">اسم الصنف</th>
-                                <th style="text-align:center; width: 100px;">الكمية الأصلية</th>
-                                <th style="text-align:left; width: 120px;">السعر</th>
-                                <th style="text-align:center; width: 220px; color: #38bdf8;">الكمية للفاتورة A</th>
-                                <th style="text-align:center; width: 220px; color: #ec4899;">الكمية للفاتورة B</th>
-                                <th style="text-align:left; width: 150px;">القيمة الكلية</th>
+                                <th style="text-align:center; width: 110px;">الكمية الأصلية</th>
+                                <th style="text-align:left; width: 130px;">السعر</th>
+                                <th style="text-align:center; width: 230px; color: #38bdf8;">كمية الفاتورة (أ)</th>
+                                <th style="text-align:center; width: 230px; color: #ec4899;">كمية الفاتورة (ب)</th>
+                                <th style="text-align:left; width: 160px;">المبلغ</th>
                             </tr>
                         </thead>
                         <tbody id="split-items-body">
@@ -1245,41 +1418,41 @@
                 </div>
 
                 <!-- Summaries & Actions -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 8px;">
                     <!-- Invoice A Card -->
-                    <div class="neo-card" style="border: 1px solid rgba(56, 189, 248, 0.3); background: rgba(56, 189, 248, 0.02); padding: 15px; border-radius: 12px; position: relative; overflow: hidden; margin: 0;">
+                    <div class="neo-card" style="border: 1px solid rgba(56, 189, 248, 0.3); background: rgba(56, 189, 248, 0.02); padding: 8px 12px; border-radius: 12px; position: relative; overflow: hidden; margin: 0;">
                         <div style="position: absolute; top:0; right:0; width:4px; height:100%; background:#38bdf8;"></div>
-                        <h4 style="color: #38bdf8; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
-                            <span>📄</span> الفاتورة الفرعية الأولى (A)
+                        <h4 style="color: #38bdf8; margin: 0 0 8px 0; display: flex; align-items: center; gap: 8px; font-size: 0.95rem;">
+                            <span>📄</span> الفاتورة الفرعية الأولى (أ)
                         </h4>
-                        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem;">
-                            <div style="display: flex; justify-content: space-between; color: #cbd5e1;"><span>الإجمالي قبل الخصم:</span><span id="split-subtotal-a" style="font-family: monospace; font-weight: bold;">0.00</span></div>
-                            <div style="display: flex; justify-content: space-between; color: #cbd5e1;"><span>الخصم (النسبي):</span><span id="split-discount-a" style="font-family: monospace; font-weight: bold; color: #f87171;">0.00</span></div>
-                            <div style="display: flex; justify-content: space-between; color: #cbd5e1;"><span>الضريبة (النسبية):</span><span id="split-tax-a" style="font-family: monospace; font-weight: bold;">0.00</span></div>
-                            <hr style="border-color: rgba(255,255,255,0.05); margin: 6px 0;">
-                            <div style="display: flex; justify-content: space-between; font-weight: 800; color: #38bdf8; font-size: 1.15rem;"><span>الصافي النهائي:</span><span id="split-grand-a" style="font-family: monospace;">0.00</span></div>
+                        <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem;">
+                            <div style="display: flex; justify-content: space-between; color: #cbd5e1; font-weight: bold; font-size: 0.95rem;"><span>الإجمالي قبل الخصم:</span><span id="split-subtotal-a" style="font-family: monospace; font-weight: 800; font-size: 1.05rem;">0.00</span></div>
+                            <div style="display: flex; justify-content: space-between; color: #cbd5e1; font-weight: bold; font-size: 0.95rem;"><span>الخصم (النسبي):</span><span id="split-discount-a" style="font-family: monospace; font-weight: 800; font-size: 1.05rem; color: #f87171;">0.00</span></div>
+                            <div style="display: flex; justify-content: space-between; color: #cbd5e1; font-weight: bold; font-size: 0.95rem;"><span>الضريبة (النسبية):</span><span id="split-tax-a" style="font-family: monospace; font-weight: 800; font-size: 1.05rem;">0.00</span></div>
+                            <hr style="border-color: rgba(255,255,255,0.05); margin: 4px 0;">
+                            <div style="display: flex; justify-content: space-between; font-weight: 900; color: #38bdf8; font-size: 1.25rem;"><span>الصافي النهائي:</span><span id="split-grand-a" style="font-family: monospace;">0.00</span></div>
                         </div>
                     </div>
 
                     <!-- Invoice B Card -->
-                    <div class="neo-card" style="border: 1px solid rgba(236, 72, 153, 0.3); background: rgba(236, 72, 153, 0.02); padding: 15px; border-radius: 12px; position: relative; overflow: hidden; margin: 0;">
+                    <div class="neo-card" style="border: 1px solid rgba(236, 72, 153, 0.3); background: rgba(236, 72, 153, 0.02); padding: 8px 12px; border-radius: 12px; position: relative; overflow: hidden; margin: 0;">
                         <div style="position: absolute; top:0; right:0; width:4px; height:100%; background:#ec4899;"></div>
-                        <h4 style="color: #ec4899; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
-                            <span>📄</span> الفاتورة الفرعية الثانية (B)
+                        <h4 style="color: #ec4899; margin: 0 0 8px 0; display: flex; align-items: center; gap: 8px; font-size: 0.95rem;">
+                            <span>📄</span> الفاتورة الفرعية الثانية (ب)
                         </h4>
-                        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem;">
-                            <div style="display: flex; justify-content: space-between; color: #cbd5e1;"><span>الإجمالي قبل الخصم:</span><span id="split-subtotal-b" style="font-family: monospace; font-weight: bold;">0.00</span></div>
-                            <div style="display: flex; justify-content: space-between; color: #cbd5e1;"><span>الخصم (النسبي):</span><span id="split-discount-b" style="font-family: monospace; font-weight: bold; color: #f87171;">0.00</span></div>
-                            <div style="display: flex; justify-content: space-between; color: #cbd5e1;"><span>الضريبة (النسبية):</span><span id="split-tax-b" style="font-family: monospace; font-weight: bold;">0.00</span></div>
-                            <hr style="border-color: rgba(255,255,255,0.05); margin: 6px 0;">
-                            <div style="display: flex; justify-content: space-between; font-weight: 800; color: #ec4899; font-size: 1.15rem;"><span>الصافي النهائي:</span><span id="split-grand-b" style="font-family: monospace;">0.00</span></div>
+                        <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem;">
+                            <div style="display: flex; justify-content: space-between; color: #cbd5e1; font-weight: bold; font-size: 0.95rem;"><span>الإجمالي قبل الخصم:</span><span id="split-subtotal-b" style="font-family: monospace; font-weight: 800; font-size: 1.05rem;">0.00</span></div>
+                            <div style="display: flex; justify-content: space-between; color: #cbd5e1; font-weight: bold; font-size: 0.95rem;"><span>الخصم (النسبي):</span><span id="split-discount-b" style="font-family: monospace; font-weight: 800; font-size: 1.05rem; color: #f87171;">0.00</span></div>
+                            <div style="display: flex; justify-content: space-between; color: #cbd5e1; font-weight: bold; font-size: 0.95rem;"><span>الضريبة (النسبية):</span><span id="split-tax-b" style="font-family: monospace; font-weight: 800; font-size: 1.05rem;">0.00</span></div>
+                            <hr style="border-color: rgba(255,255,255,0.05); margin: 4px 0;">
+                            <div style="display: flex; justify-content: space-between; font-weight: 900; color: #ec4899; font-size: 1.25rem;"><span>الصافي النهائي:</span><span id="split-grand-b" style="font-family: monospace;">0.00</span></div>
                         </div>
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 10px;">
-                    <button class="btn-action" style="width: auto; padding: 10px 25px; background: rgba(255,255,255,0.05);" onclick="cancelCurrentSplit()">إلغاء وتراجع</button>
-                    <button class="btn-action" style="width: auto; padding: 10px 35px; background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; font-weight: bold; border: none; box-shadow: 0 4px 15px rgba(236,72,153,0.3);" onclick="submitInvoiceSplit()">تأكيد واعتماد التقسيم ✂️</button>
+                <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 5px;">
+                    <button class="btn-action" style="width: auto; padding: 8px 20px; background: rgba(255,255,255,0.05);" onclick="cancelCurrentSplit()">إلغاء وتراجع</button>
+                    <button class="btn-action" style="width: auto; padding: 8px 30px; background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; font-weight: bold; border: none; box-shadow: 0 4px 15px rgba(236,72,153,0.3);" onclick="submitInvoiceSplit()">تأكيد واعتماد التقسيم ✂️</button>
                 </div>
             </div>
         </div>
@@ -1807,7 +1980,48 @@
                 emptyState.style.display = 'flex';
                 return;
             }
-            
+
+            // Load customers to map IDs to names
+            let customers = [];
+            try {
+                let rawCusts = localStorage.getItem('erp_customers_v1');
+                if (typeof rawCusts === 'string') customers = JSON.parse(rawCusts) || [];
+                else if (rawCusts && typeof rawCusts === 'object') customers = rawCusts;
+            } catch(e) {}
+
+            function getCustomerName(id) {
+                if (id === 'walk-in' || !id) return 'عميل نقدي';
+                const c = customers.find(x => x.id === id);
+                return c ? c.name : id;
+            }
+
+            // Load warehouses to map IDs to names
+            let warehouses = [];
+            try {
+                let rawWh = localStorage.getItem('erp_warehouses_v1');
+                if (typeof rawWh === 'string') warehouses = JSON.parse(rawWh) || [];
+                else if (rawWh && typeof rawWh === 'object') warehouses = rawWh;
+            } catch(e) {}
+
+            function getWarehouseName(id) {
+                if (!id) return '—';
+                const w = warehouses.find(x => x.id === id);
+                return w ? w.name : id;
+            }
+
+            // Load items to map IDs to names
+            let items = [];
+            try {
+                let rawItems = localStorage.getItem('erp_items_v1');
+                if (typeof rawItems === 'string') items = JSON.parse(rawItems) || [];
+                else if (rawItems && typeof rawItems === 'object') items = rawItems;
+            } catch(e) {}
+
+            function getItemName(id) {
+                const item = items.find(x => x.id === id);
+                return item ? item.name : id || 'صنف غير معروف';
+            }
+
             emptyState.style.display = 'none';
             tbody.innerHTML = '';
             
@@ -1820,21 +2034,25 @@
             
             invoices.forEach(inv => {
                 const tr = document.createElement('tr');
-                let statusClass = 'completed';
-                let statusText = 'مكتملة';
-                if (inv.status === 'draft') { statusClass = 'draft'; statusText = 'مسودة'; }
-                else if (inv.status === 'preliminary') { statusClass = 'preliminary-badge'; statusText = 'مبدئية'; }
-                else if (inv.status === 'pending_delivery') { statusClass = 'draft'; statusText = 'بانتظار التسليم'; }
-                else if (inv.status === 'delivered') { statusClass = 'completed'; statusText = 'تم التسليم'; }
                 
-                let typeText = '🛒 مباشر';
-                if (inv.saleType === 'delivery') typeText = '🚚 تسليم';
-                else if (inv.saleType === 'preliminary') typeText = '📋 مبدئية';
-                else if (inv.status === 'pending_delivery') typeText = '🛒 جديدة';
-
-                let typeLabel = typeText;
-                if (inv.saleType === 'preliminary') {
-                    typeLabel = '<span style="color:#c084fc; font-weight:800;">📋 مبدئية</span>';
+                let itemText = 'بدون أصناف';
+                let qtyText = '0';
+                let priceText = '0';
+                
+                const lines = inv.items || [];
+                if (lines.length === 1) {
+                    const line = lines[0];
+                    itemText = line.itemName || line.name || getItemName(line.itemId);
+                    qtyText = fmtNum(line.quantity || 0);
+                    priceText = fmtNum(line.price || 0) + ' SDG';
+                } else if (lines.length > 1) {
+                    itemText = lines.length + ' أصناف';
+                    let totalQty = 0;
+                    lines.forEach(l => {
+                        totalQty += parseFloat(l.quantity) || 0;
+                    });
+                    qtyText = fmtNum(totalQty);
+                    priceText = '—';
                 }
 
                 // Check if the invoice is from 27/6/2026 to highlight numbers in red
@@ -1842,32 +2060,34 @@
                 if (inv.date === '2026-06-27' || (inv.timestamp && inv.timestamp.startsWith('2026-06-27'))) {
                     isTargetDate = true;
                 }
-                const numColor = isTargetDate ? '#ef4444' : 'inherit';
-
-                let actionBtns = `
-                    <button onclick="editHubTransaction('${inv.invoiceNo}')" style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; border-radius:6px; padding:4px 8px; cursor:pointer; margin-left:4px;">تعديل / عرض</button>
-                    <button onclick="sendInvoiceWA('${inv.invoiceNo}')" style="background:rgba(37,211,102,0.1); border:1px solid rgba(37,211,102,0.3); color:#25d366; border-radius:6px; padding:4px 10px; cursor:pointer; margin-left:4px; display:inline-flex; align-items:center; justify-content:center;" title="إرسال عبر الواتساب">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                    </button>
-                    <button onclick="deleteHubTransaction('${inv.invoiceNo}')" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:6px; padding:4px 8px; cursor:pointer; margin-left:4px;">حذف</button>
-                `;
-
-                if (inv.status === 'preliminary') {
-                    actionBtns = `
-                        <button onclick="convertToOfficial('${inv.invoiceNo}')" style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:#10b981; border-radius:6px; padding:4px 8px; cursor:pointer; margin-left:4px;">تحويل لرسمية</button>
-                        ` + actionBtns;
-                }
+                const numColor = isTargetDate ? '#ef4444' : '#fff';
 
                 const isPrelim = inv.saleType === 'preliminary' || inv.status === 'preliminary';
                 const serialColor = isPrelim ? '#c084fc' : 'var(--gold-primary)';
 
+                let actionBtns = `
+                    <button onclick="editHubTransaction('${inv.invoiceNo}')" style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; border-radius:6px; width:34px; height:34px; cursor:pointer; margin-left:4px; display:inline-flex; align-items:center; justify-content:center;" title="تعديل / عرض">👁️</button>
+                    <button onclick="sendInvoiceWA('${inv.invoiceNo}')" style="background:rgba(37,211,102,0.1); border:1px solid rgba(37,211,102,0.3); color:#25d366; border-radius:6px; width:34px; height:34px; cursor:pointer; margin-left:4px; display:inline-flex; align-items:center; justify-content:center;" title="إرسال عبر الواتساب">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    </button>
+                    <button onclick="deleteHubTransaction('${inv.invoiceNo}')" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:6px; width:34px; height:34px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;" title="حذف">🗑️</button>
+                `;
+
+                if (inv.status === 'preliminary') {
+                    actionBtns = `
+                        <button onclick="convertToOfficial('${inv.invoiceNo}')" style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:#10b981; border-radius:6px; width:34px; height:34px; cursor:pointer; margin-left:4px; display:inline-flex; align-items:center; justify-content:center;" title="تحويل لرسمية">✅</button>
+                    ` + actionBtns;
+                }
+
                 tr.innerHTML = `
                     <td style="text-align:right; font-weight:800; color:${serialColor};">${inv.invoiceNo}</td>
-                    <td style="text-align:right; color:#ef4444; font-weight:bold;" dir="ltr">${inv.date}</td>
-                    <td style="text-align:right; font-weight:600;">${inv.customerName || (inv.customer && inv.customer !== 'walk-in' ? inv.customer : 'عميل نقدي')}</td>
-                    <td style="text-align:right; color:var(--text-dim);">${typeLabel}</td>
-                    <td style="text-align:center; font-weight:900; direction:ltr; color:${numColor};">${fmtNum(inv.totals?.grandTotal || inv.grandTotal || 0)} SDG</td>
-                    <td style="text-align:center;"><span class="hub-badge ${statusClass}">${statusText}</span></td>
+                    <td style="text-align:right; color:var(--text-dim);">${new Date(inv.timestamp || inv.date).toLocaleString('ar-EG')}</td>
+                    <td style="text-align:right; font-weight:600;">${inv.customerName || getCustomerName(inv.customer || inv.customerId) || 'عميل غير محدد'}</td>
+                    <td style="text-align:right; color:var(--text-dim);">${itemText}</td>
+                    <td style="text-align:center; color:var(--text-dim);">${qtyText}</td>
+                    <td style="text-align:center; color:var(--text-dim);">${priceText}</td>
+                    <td style="text-align:center; font-weight:900; direction:ltr; color:${numColor};">${fmtNum(inv.totals?.grandTotal || inv.grandTotal || 0)} <span style="color:#a855f7; font-weight:700;">SDG</span></td>
+                    <td style="text-align:center; font-weight:600; color:var(--text-dim);">${getWarehouseName(inv.warehouse)}</td>
                     <td style="text-align:center;">
                         ${actionBtns}
                     </td>

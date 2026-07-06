@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'حركة مالية مجمعة'; ?>
+<?php $page_title = 'حركة مالية مجمعة'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -9,8 +9,6 @@
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
-    <!-- Choices.js for select -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <style>
         .top-action-bar { background: rgba(249, 115, 22, 0.1); border-bottom: 1px solid rgba(249, 115, 22, 0.2); }
         .action-tab.active { background: #f97316; color: #fff; border-color: #f97316; }
@@ -184,6 +182,66 @@
             transform: scale(1.3); filter: grayscale(0%); opacity: 1;
             text-shadow: 0 4px 15px rgba(255,255,255,0.3);
         }
+        /* Custom Searchable Dropdown */
+        .custom-dropdown-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            max-height: 280px;
+            overflow-y: auto;
+            text-align: right;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            display: none;
+            margin-top: 6px;
+        }
+        .custom-dropdown-list.show {
+            display: block;
+            animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .custom-dropdown-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .custom-dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+        }
+        .custom-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Voucher Type Toggle Buttons (صرف/استلام مجمع) */
+        .voucher-type-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #94a3b8;
+        }
+        .voucher-type-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .voucher-type-btn.active-payment {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+        .voucher-type-btn.active-receipt {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #6ee7b7;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -193,20 +251,10 @@
     </div>
     <div class="toast-container" id="toast-container"></div>
 
-    <div class="pos-wrapper" style="max-width: 1600px; margin: 0 auto; padding: 20px 30px; padding-bottom: 100px;">
+    <div class="pos-wrapper" style="max-width: 98%; margin: 0 auto; padding: 15px 10px; padding-bottom: 100px;">
         <?php include 'includes/header.php'; ?>
 
-        <div class="top-action-bar" style="background: transparent; border: none; padding: 0; margin-bottom: 25px;">
-            <div style="display: flex; gap: 25px; width: 100%;">
-                <button id="btn-payment" class="crystal-btn active-payment" onclick="setVoucherType('payment')">
-                    <span style="font-size: 1.5rem;">🔴</span> سند صرف مجمع
-                </button>
-                <button id="btn-receipt" class="crystal-btn" onclick="setVoucherType('receipt')">
-                    <span style="font-size: 1.5rem;">🟢</span> سند استلام مجمع
-                </button>
-            </div>
-            <input type="hidden" id="voucher-type" value="payment">
-        </div>
+        <input type="hidden" id="voucher-type" value="payment">
 
         <div class="split-layout-wrapper" id="main-layout-wrapper">
             <!-- Left Side Panel (Hidden by default, slides in when Check/Transfer is active) -->
@@ -256,10 +304,20 @@
             <!-- Right Side (Main Content area) -->
             <div class="main-panel glass-panel" id="main-form-panel" style="padding: 25px; position: relative;">
                 
-                <div class="form-section-title"><span>👤</span> بيانات الطرف الرئيسي</div>
+                <div class="form-section-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 8px;"><span>👤</span> بيانات الطرف الرئيسي</div>
+                    <div style="display: flex; gap: 8px; margin-left: 5px;">
+                        <button id="btn-payment" class="voucher-type-btn active-payment" onclick="setVoucherType('payment')" style="padding: 12px 36px; font-size: 1.2rem; border-radius: 12px; font-weight: 800; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 12px; font-family: 'Tajawal', sans-serif; min-width: 240px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                            <span style="width: 16px; height: 16px; border-radius: 50%; background: #ef4444; display: inline-block; box-shadow: 0 0 12px #ef4444, 0 0 25px #ef4444;"></span> صرف مجمع
+                        </button>
+                        <button id="btn-receipt" class="voucher-type-btn" onclick="setVoucherType('receipt')" style="padding: 12px 36px; font-size: 1.2rem; border-radius: 12px; font-weight: 800; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 12px; font-family: 'Tajawal', sans-serif; min-width: 240px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                            <span style="width: 16px; height: 16px; border-radius: 50%; background: #10b981; display: inline-block; box-shadow: 0 0 12px #10b981, 0 0 25px #10b981;"></span> استلام مجمع
+                        </button>
+                    </div>
+                </div>
                 
                 <!-- Payment Methods Row -->
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 25px; background: rgba(255,255,255,0.02); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); flex-wrap: wrap;">
+                <div id="payment-methods-row" style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 25px; background: rgba(239, 68, 68, 0.08); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2); flex-wrap: wrap; transition: all 0.4s ease;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <label class="label" style="color:#cbd5e1; display:flex; align-items:center; gap:5px; margin-bottom:0; font-size:1.1rem; font-weight:bold;">
                             <span style="font-size:1.1rem; opacity:0.8;">💳</span> طريقة الدفع
@@ -297,10 +355,10 @@
                 <div class="form-grid">
 
                 <div>
-                    <label id="main-account-label" style="color: #ffffff; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: bold;">من حساب (صرف)</label>
+                    <label id="main-account-label" style="color: #f87171 !important; font-size: 1.1rem; margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s;">من حساب (صرف)</label>
                     <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
                         <input type="hidden" id="main-account">
-                        <input type="text" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main')" onblur="hideAccountDropdownDelayed('main')" oninput="filterAccountDropdown('main')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color);">
+                        <input type="text" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color);">
                         <div class="custom-dropdown-list" id="main-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                     </div>
                 </div>
@@ -391,8 +449,6 @@
     <!-- Scripts -->
     <script src="js/localforage.min.js"></script>
     <script src="js/app.js?v=1783054968.65812"></script>
-    <!-- Choices.js -->
-    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="js/multi-cash-payment.js"></script>
 </body>
 </html>

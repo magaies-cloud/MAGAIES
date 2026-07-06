@@ -3058,14 +3058,14 @@ function loadSplitInvoices() {
     filtered.forEach(inv => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><strong style="color: #38bdf8;">${inv.invoiceNo}</strong></td>
-            <td>${inv.date}</td>
-            <td>${inv.customerName || 'عميل نقدي'}</td>
-            <td><span class="badge" style="background: rgba(99,102,241,0.1); color: #8b5cf6; padding: 4px 8px; border-radius: 6px;">${inv.paymentMethod === 'credit' ? '✍️ آجل' : '💵 نقدي'}</span></td>
-            <td style="text-align: left; font-family: monospace; font-weight: bold;">${parseFloat(inv.grandTotal).toLocaleString()} SDG</td>
-            <td style="text-align: center;"><span class="badge draft">بانتظار التسليم</span></td>
+            <td><strong style="color: #38bdf8; font-size: 1.15rem;">${inv.invoiceNo}</strong></td>
+            <td><span style="font-weight: 800; font-size: 1.05rem; color:#cbd5e1;">${inv.date}</span></td>
+            <td><span style="font-weight: bold; font-size: 1.1rem; color:#fff;">${inv.customerName || 'عميل نقدي'}</span></td>
+            <td><span class="badge" style="background: rgba(99,102,241,0.2); color: #a5b4fc; padding: 6px 12px; border-radius: 8px; font-size: 0.95rem; font-weight: 900; display: inline-flex; align-items: center; gap: 4px;">${inv.paymentMethod === 'credit' ? '✍️ آجل' : '💵 نقدي'}</span></td>
+            <td style="text-align: left; font-family: monospace; font-weight: 900; font-size: 1.3rem; color: #fff;">${parseFloat(inv.grandTotal).toLocaleString()} <span style="font-size:0.8rem; color:#94a3b8; font-family:'Tajawal', sans-serif;">SDG</span></td>
+            <td style="text-align: center;"><span class="badge draft" style="padding: 6px 12px; border-radius: 8px; font-size: 0.95rem; font-weight: 900;">بانتظار التسليم</span></td>
             <td style="text-align: center;">
-                <button class="btn-action" style="width: auto; padding: 5px 12px; background: rgba(236,72,153,0.15); color: #ec4899; border: 1px solid rgba(236,72,153,0.3);" onclick="startInvoiceSplit('${inv.invoiceNo}')">تقسيم الفاتورة ✂️</button>
+                <button class="btn-action" style="width: auto; padding: 6px 16px; font-size: 0.95rem; font-weight: 800; background: rgba(236,72,153,0.2); color: #f472b6; border: 1px solid rgba(236,72,153,0.45); border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(236,72,153,0.35)'" onmouseout="this.style.background='rgba(236,72,153,0.2)'" onclick="startInvoiceSplit('${inv.invoiceNo}')">تقسيم الفاتورة ✂️</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -3096,26 +3096,26 @@ function startInvoiceSplit(invoiceNo) {
     const headerInfo = document.getElementById('split-header-info');
     if (headerInfo) {
         headerInfo.innerHTML = `
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; width: 100%;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; width: 100%;">
                 <!-- Card 1: Original Invoice No -->
-                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 18px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between;">
-                    <span style="font-size: 0.9rem; color: #94a3b8; font-weight: bold;">🧾 الفاتورة الأصلية:</span>
-                    <span style="font-size: 1.15rem; font-weight: 800; color: #38bdf8; font-family: monospace;">${inv.invoiceNo}</span>
+                <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 12px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+                    <span style="font-size: 0.95rem; color: #cbd5e1; font-weight: bold;">🧾 الفاتورة الأصلية:</span>
+                    <span style="font-size: 1.25rem; font-weight: 900; color: #38bdf8; font-family: monospace; text-shadow: 0 0 10px rgba(56,189,248,0.2);">${inv.invoiceNo}</span>
                 </div>
                 <!-- Card 2: Current Customer -->
-                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 18px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between;">
-                    <span style="font-size: 0.9rem; color: #94a3b8; font-weight: bold;">👤 العميل الحالي:</span>
-                    <span style="font-size: 1.1rem; font-weight: bold; color: #f8fafc;">${inv.customerName || 'عميل نقدي'}</span>
+                <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 12px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+                    <span style="font-size: 0.95rem; color: #cbd5e1; font-weight: bold;">👤 العميل الحالي:</span>
+                    <span style="font-size: 1.15rem; font-weight: 800; color: #f8fafc;">${inv.customerName || 'عميل نقدي'}</span>
                 </div>
                 <!-- Card 3: Payment Method -->
-                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 18px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between;">
-                    <span style="font-size: 0.9rem; color: #94a3b8; font-weight: bold;">💳 طريقة الدفع:</span>
-                    <span style="font-size: 1.1rem; font-weight: bold; color: #a855f7;">${inv.paymentMethod === 'credit' ? '✍️ آجل' : '💵 نقدي'}</span>
+                <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 12px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+                    <span style="font-size: 0.95rem; color: #cbd5e1; font-weight: bold;">💳 طريقة الدفع:</span>
+                    <span style="font-size: 1.15rem; font-weight: 800; color: #c084fc; text-shadow: 0 0 10px rgba(168,85,247,0.2);">${inv.paymentMethod === 'credit' ? '✍️ آجل' : '💵 نقدي'}</span>
                 </div>
                 <!-- Card 4: Grand Total -->
-                <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); padding: 12px 18px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between;">
-                    <span style="font-size: 0.9rem; color: #a7f3d0; font-weight: bold;">💰 القيمة الإجمالية:</span>
-                    <span style="font-size: 1.25rem; font-weight: 800; color: #10b981; font-family: monospace;">${parseFloat(inv.grandTotal).toLocaleString()} SDG</span>
+                <div style="background: rgba(16, 185, 129, 0.07); border: 1px solid rgba(16, 185, 129, 0.3); padding: 8px 12px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(16,185,129,0.1);">
+                    <span style="font-size: 0.95rem; color: #a7f3d0; font-weight: bold;">💰 القيمة الإجمالية:</span>
+                    <span style="font-size: 1.25rem; font-weight: 900; color: #10b981; font-family: monospace; text-shadow: 0 0 10px rgba(16,185,129,0.2);">${parseFloat(inv.grandTotal).toLocaleString()} SDG</span>
                 </div>
             </div>
         `;
@@ -3135,20 +3135,20 @@ function startInvoiceSplit(invoiceNo) {
             const name = itemObj ? itemObj.name : (item.itemName || item.name || 'صنف غير معروف');
             
             tr.innerHTML = `
-                <td><strong style="color:#f8fafc;">${name}</strong></td>
-                <td style="text-align: center; font-weight: bold; color: #94a3b8;">${originalQty}</td>
-                <td style="text-align: left; font-family: monospace;">${price.toLocaleString()} SDG</td>
+                <td style="font-weight: 800; font-size: 1.05rem; color: #fff;">${name}</td>
+                <td style="text-align: center; font-weight: 900; font-size: 1.2rem; color: #cbd5e1;">${originalQty}</td>
+                <td style="text-align: left; font-weight: 800; font-size: 1.15rem; color: #f8fafc; font-family: monospace;">${price.toLocaleString()} <span style="font-size:0.8rem; color:#cbd5e1; font-family: 'Tajawal', sans-serif;">SDG</span></td>
                 <td style="text-align: center;">
                     <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                        <button class="btn-action" style="width:30px; height:30px; padding:0; line-height:30px; background: rgba(56,189,248,0.1); color:#38bdf8; border: none; font-weight: bold; border-radius: 4px;" onclick="adjustSplitQty(${idx}, -1)">-</button>
-                        <input type="number" id="split-qty-a-${idx}" class="v-input" style="width: 80px; text-align: center; font-family: monospace; font-weight: bold; border-color: rgba(56,189,248,0.3); margin: 0; padding: 4px;" value="${originalQty}" min="0" max="${originalQty}" step="any" oninput="handleSplitQtyInput(${idx})">
-                        <button class="btn-action" style="width:30px; height:30px; padding:0; line-height:30px; background: rgba(56,189,248,0.1); color:#38bdf8; border: none; font-weight: bold; border-radius: 4px;" onclick="adjustSplitQty(${idx}, 1)">+</button>
+                        <button class="btn-action" style="width:34px; height:34px; padding:0; line-height:34px; background: rgba(56,189,248,0.15); color:#38bdf8; border: 1px solid rgba(56,189,248,0.25); font-weight: bold; font-size: 1.2rem; border-radius: 6px; cursor: pointer;" onclick="adjustSplitQty(${idx}, -1)">-</button>
+                        <input type="number" id="split-qty-a-${idx}" class="v-input" style="width: 90px; text-align: center; font-family: monospace; font-size: 1.2rem; font-weight: 900; border-color: rgba(56,189,248,0.4); margin: 0; padding: 6px; color: #38bdf8; background: rgba(0,0,0,0.2);" value="${originalQty}" min="0" max="${originalQty}" step="any" oninput="handleSplitQtyInput(${idx})">
+                        <button class="btn-action" style="width:34px; height:34px; padding:0; line-height:34px; background: rgba(56,189,248,0.15); color:#38bdf8; border: 1px solid rgba(56,189,248,0.25); font-weight: bold; font-size: 1.2rem; border-radius: 6px; cursor: pointer;" onclick="adjustSplitQty(${idx}, 1)">+</button>
                     </div>
                 </td>
                 <td style="text-align: center;">
-                    <span id="split-qty-b-${idx}" style="font-family: monospace; font-size: 1.1rem; font-weight: 800; color: #ec4899;">0</span>
+                    <span id="split-qty-b-${idx}" style="font-family: monospace; font-size: 1.35rem; font-weight: 900; color: #ec4899; text-shadow: 0 0 8px rgba(236,72,153,0.3);">0</span>
                 </td>
-                <td style="text-align: left; font-family: monospace; color:#10b981; font-weight: bold;">${totalVal.toLocaleString()} SDG</td>
+                <td style="text-align: left; font-weight: 900; font-size: 1.45rem; color: #10b981; font-family: monospace;">${totalVal.toLocaleString()} <span style="font-size:0.8rem; color:#34d399; font-family: 'Tajawal', sans-serif;">SDG</span></td>
             `;
             tbody.appendChild(tr);
         });

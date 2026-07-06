@@ -582,7 +582,7 @@
     </div>
 </div>
 
-<div style="max-width: 1600px; margin: 0 auto; padding: 20px 30px; padding-bottom: 80px;">
+<div style="max-width: 98%; margin: 0 auto; padding: 15px 10px; padding-bottom: 80px;">
 
     <!-- Premium Navigation Header -->
     <?php include 'includes/header.php'; ?>

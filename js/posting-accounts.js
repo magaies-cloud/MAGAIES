@@ -35,6 +35,104 @@ const paymentMethodMap = {
     'bank': 'تحويل بنكي'
 };
 
+let accountsList = [];
+let safesList = [];
+let banksList = [];
+let suppliersList = [];
+let customersList = [];
+let itemsList = [];
+
+function loadEntities() {
+    try {
+        accountsList = JSON.parse(localStorage.getItem('erp_accounts_v1') || '[]').filter(x => !x.deleted);
+    } catch(e) { accountsList = []; }
+    try {
+        safesList = JSON.parse(localStorage.getItem('erp_safes_v1') || '[]').filter(x => !x.deleted);
+    } catch(e) { safesList = []; }
+    try {
+        banksList = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]').filter(x => !x.deleted);
+    } catch(e) { banksList = []; }
+    try {
+        suppliersList = JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]').filter(x => !x.deleted);
+    } catch(e) { suppliersList = []; }
+    try {
+        customersList = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]').filter(x => !x.deleted);
+    } catch(e) { customersList = []; }
+    try {
+        itemsList = JSON.parse(localStorage.getItem('erp_items_v1') || '[]').filter(x => !x.deleted);
+    } catch(e) { itemsList = []; }
+}
+
+function getAccName(accCode) {
+    if (!accCode) return 'غير محدد';
+    const code = String(accCode).trim();
+    
+    // 1. Check Accounts List
+    const acc = accountsList.find(a => a.id === code || a.accountNo === code || a.name === code);
+    if (acc) return acc.name;
+    
+    // 2. Check Safes List
+    const safe = safesList.find(s => s.id === code || s.name === code);
+    if (safe) return safe.name;
+    
+    // 3. Check Banks List
+    const bank = banksList.find(b => b.id === code || b.name === code);
+    if (bank) return bank.name;
+    
+    // 4. Check Suppliers List
+    const sup = suppliersList.find(s => s.id === code || s.name === code || s.id === code.replace('supp-', 'SUP-').replace('sup-', 'SUP-'));
+    if (sup) return sup.name;
+    
+    // 5. Check Customers List
+    const cust = customersList.find(c => c.id === code || c.name === code || c.id === code.replace('cust-', 'CUST-'));
+    if (cust) return cust.name;
+    
+    const staticMap = {
+        'safe-001': 'الخزينة الرئيسية (نقداً)',
+        'safe-002': 'خزينة مبيعات التجزئة',
+        'bank-001': 'بنك الخرطوم',
+        'bank-002': 'بنك أم درمان الوطني',
+        'exp-rent': 'مصروف الإيجار',
+        'exp-salaries': 'مصروف الرواتب والأجور',
+        'exp-electricity': 'مصروف الكهرباء والمياه',
+        'revenue-sales': 'إيرادات المبيعات',
+        'purchases': 'المشتريات'
+    };
+    if (staticMap[code]) return staticMap[code];
+
+    return code;
+}
+
+function getItemName(itemCode) {
+    if (!itemCode) return 'صنف غير معروف';
+    const code = String(itemCode).trim();
+    const foundItem = itemsList.find(i => i.id === code || i.itemCode === code || i.name === code);
+    if (foundItem) return foundItem.name;
+    return code;
+}
+
+function checkPostPermission() {
+    try {
+        const userStr = localStorage.getItem('user');
+        if (!userStr) return false;
+        const user = JSON.parse(userStr);
+
+        // Super Admin or admin fallback has bypass
+        if (user.username === 'admin' || user.role === 'admin' || user.roleId === 'admin_fallback' || user.securityLevel >= 9) {
+            return true;
+        }
+
+        // Check if posting_accounts has 'approve' permission
+        const perms = window.resolveUserPermissions ? window.resolveUserPermissions(user) : (user.permissions || {});
+        if (perms.posting_accounts && perms.posting_accounts.approve) {
+            return true;
+        }
+    } catch(e) {
+        console.error('Permission check error', e);
+    }
+    return false;
+}
+
 function handleFilterChange() {
     searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
     dateFrom = document.getElementById('date-from').value;
@@ -62,13 +160,81 @@ function setType(type) {
 }
 
 function resetSelection() {
-    document.getElementById('check-all-rows').checked = false;
+    const checkAll = document.getElementById('check-all-rows');
+    if (checkAll) checkAll.checked = false;
+    
+    // Explicitly uncheck all checkboxes
+    document.querySelectorAll('.row-checkbox').forEach(cb => {
+        cb.checked = false;
+    });
+
     selectedRowIndex = -1;
     updateStickyBar();
     hideDetailPane();
 }
 
+function updateFilterChipsCounts() {
+    // Filter transactions matching the current status (unposted vs posted)
+    const statusData = allTransactionsData.filter(item => {
+        const isPosted = item.isPosted || false;
+        return currentStatus === 'posted' ? isPosted : !isPosted;
+    });
+
+    const counts = {
+        all: statusData.length,
+        sales: statusData.filter(item => item._typeEn === 'sales').length,
+        purchases: statusData.filter(item => item._typeEn === 'purchases').length,
+        receipt: statusData.filter(item => item._typeEn === 'receipt').length,
+        payment: statusData.filter(item => item._typeEn === 'payment').length,
+        journal: statusData.filter(item => item._typeEn === 'journal').length
+    };
+
+    const labels = {
+        all: 'الكل',
+        sales: 'مبيعات',
+        purchases: 'مشتريات',
+        receipt: 'سندات قبض',
+        payment: 'سندات صرف',
+        journal: 'قيود يومية'
+    };
+
+    const icons = {
+        all: '📂',
+        sales: '🛍️',
+        purchases: '📥',
+        receipt: '💰',
+        payment: '💸',
+        journal: '📊'
+    };
+
+    // If the currently active type filter count becomes 0, reset currentType to 'all'
+    if (currentType !== 'all' && counts[currentType] === 0) {
+        currentType = 'all';
+        document.querySelectorAll('.type-chip').forEach(chip => chip.classList.remove('active'));
+        const allBtn = document.getElementById('type-all');
+        if (allBtn) allBtn.classList.add('active');
+    }
+
+    for (const type in counts) {
+        const btn = document.getElementById(`type-${type}`);
+        if (btn) {
+            if (counts[type] === 0) {
+                btn.style.display = 'none';
+            } else {
+                btn.style.display = 'flex';
+                btn.innerHTML = `
+                    <span class="chip-icon">${icons[type]}</span>
+                    <span class="chip-text">${labels[type]}</span>
+                    <span class="chip-count">${counts[type]}</span>
+                `;
+            }
+        }
+    }
+}
+
 function applyFiltersAndRender() {
+    updateFilterChipsCounts();
+
     let fromTime = dateFrom ? new Date(dateFrom).getTime() : 0;
     let toTime = dateTo ? new Date(dateTo).getTime() : Infinity;
 
@@ -103,6 +269,7 @@ function applyFiltersAndRender() {
 
 async function loadAllTransactions() {
     try {
+        loadEntities();
         const getTenantKey = window.getTenantKey || ((k) => k);
         const keys = [
             { key: 'erp_sales_invoices_v1', type: 'مبيعات', typeEn: 'sales', class: 'type-sales' },
@@ -123,7 +290,14 @@ async function loadAllTransactions() {
                 data = await localforage.getItem(tKey);
             }
             if (!data) {
-                data = JSON.parse(localStorage.getItem(tKey) || localStorage.getItem(meta.key) || '[]');
+                data = localStorage.getItem(tKey) || localStorage.getItem(meta.key) || '[]';
+            }
+            if (typeof data === 'string') {
+                try {
+                    data = JSON.parse(data);
+                } catch(e) {
+                    data = [];
+                }
             }
             if (data && typeof data === 'object' && !Array.isArray(data)) {
                 data = Object.values(data);
@@ -180,13 +354,40 @@ function renderMasterTable() {
         const amt = item.totalAmount || item.amountLocal || item.amount || item.netTotal || item.total || item.grandTotal || 0;
         const ref = item.id || item.invoiceNo || item.voucherNo || '-';
         const dateStr = !isNaN(item._date.getTime()) ? item._date.toLocaleDateString('en-GB') : '-';
-        const customer = item.customerName || item.supplierName || item.customer || item.supplier || item.description || 'بدون اسم';
+        const customerId = item.customerId || item.supplierId || item.customer || item.supplier || '';
+        let customer = item.customerName || item.supplierName || '';
+        if (!customer && customerId) {
+            customer = getAccName(customerId);
+        }
+        if (!customer) customer = item.description || 'بدون اسم';
         const dueDate = item.dueDate ? new Date(item.dueDate).toLocaleDateString('en-GB') : '-';
         const pMethod = paymentMethodMap[item.paymentMethod] || item.paymentMethod || 'نقدي';
 
         const checkHtml = currentStatus === 'unposted' 
             ? `<input type="checkbox" class="row-checkbox" value="${index}" onchange="onRowCheck(event)" onclick="event.stopPropagation()">` 
             : `<span style="color:var(--success); font-size:1.2rem;">✔️</span>`;
+
+        // Determine item data for expanded view
+        let itemName = '-';
+        let itemQty = '-';
+        let itemPrice = '-';
+
+        if (item.items && item.items.length > 0) {
+            const first = item.items[0];
+            const name = first.itemName || first.name || first.item || '-';
+            itemName = name;
+            itemQty = first.qty || first.quantity || 0;
+            itemPrice = fmtCurrency(first.price || first.rate || first.unitPrice || 0);
+            if (item.items.length > 1) {
+                itemName += ` <span style="font-size:0.75rem; color:#38bdf8; font-weight:normal;">(+${item.items.length - 1} أصناف)</span>`;
+            }
+        } else {
+            // For simple vouchers, display the direct account and total amount
+            if (item.toAccount || item.fromAccount) {
+                itemName = getAccName(item.toAccount || item.fromAccount);
+                itemPrice = fmtCurrency(amt);
+            }
+        }
 
         html += `
             <tr class="main-row" id="row-${index}" onclick="selectRow(${index})">
@@ -195,6 +396,9 @@ function renderMasterTable() {
                 <td class="date-col">${dateStr}</td>
                 <td class="ref-col">${ref}</td>
                 <td class="customer-col">${customer}</td>
+                <td class="extra-column" style="font-weight: bold; color: #fff;">${itemName}</td>
+                <td class="extra-column" style="text-align: center; font-family: monospace; font-weight: bold; color: #cbd5e1;">${itemQty}</td>
+                <td class="extra-column" style="text-align: left; font-family: monospace; color: #94a3b8;">${itemPrice}</td>
                 <td class="date-col">${dueDate}</td>
                 <td style="font-size: 0.85rem; color:#cbd5e1;">${pMethod}</td>
                 <td class="amount-col" style="text-align:left;">${fmtCurrency(amt)}</td>
@@ -215,6 +419,11 @@ function selectRow(index) {
 }
 
 function hideDetailPane() {
+    const master = document.querySelector('.master-pane');
+    const detail = document.querySelector('.detail-pane');
+    if (master) master.classList.remove('shrunk');
+    if (detail) detail.classList.remove('expanded');
+    
     document.getElementById('empty-detail').style.display = 'flex';
     document.getElementById('detail-content').style.display = 'none';
 }
@@ -222,6 +431,12 @@ function hideDetailPane() {
 function renderDetailPane(index) {
     const item = filteredData[index];
     if (!item) return;
+
+    // Expand/Shrink Panels with transition animation
+    const master = document.querySelector('.master-pane');
+    const detail = document.querySelector('.detail-pane');
+    if (master) master.classList.add('shrunk');
+    if (detail) detail.classList.add('expanded');
 
     document.getElementById('empty-detail').style.display = 'none';
     const detailContent = document.getElementById('detail-content');
@@ -235,90 +450,136 @@ function renderDetailPane(index) {
     const dateStr = !isNaN(item._date.getTime()) ? item._date.toLocaleDateString('en-GB') : '-';
     const dueDate = item.dueDate ? new Date(item.dueDate).toLocaleDateString('en-GB') : '-';
     const pMethod = paymentMethodMap[item.paymentMethod] || item.paymentMethod || 'نقدي';
-    const customer = item.customerName || item.supplierName || item.customer || item.supplier || '-';
+    const customerId = item.customerId || item.supplierId || item.customer || item.supplier || '';
+    let customer = item.customerName || item.supplierName || '';
+    if (!customer && customerId) {
+        customer = getAccName(customerId);
+    }
+    if (!customer) customer = '-';
 
-    // Build Header
+    const labelEntity = item._typeEn === 'sales' ? 'العميل' : (item._typeEn === 'purchases' ? 'المورد' : 'الجهة');
+
+    // Build Header & Metadata Info Card inside a single unified card container
     let html = `
-        <div class="detail-header">
-            <div class="detail-title">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <span class="type-badge ${item._typeClass}" style="font-size:1rem; padding:6px 12px;">${item._typeLabel}</span> 
-                    <span style="font-family:'Inter', monospace; color:#38bdf8;">#${ref}</span>
+        <div class="unified-details-card" style="background: rgba(15,23,42,0.45); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);">
+            <div class="detail-header" style="padding-bottom: 0px; margin-bottom: 0px; display: flex; flex-direction: column; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <span class="type-badge ${item._typeClass}" style="font-size:1.05rem; padding:6px 14px; font-weight:900;">${item._typeLabel}</span>
+                    <button class="btn-action" style="width: auto; padding: 6px 12px; font-size: 0.85rem; font-weight: 800; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; transition: 0.2s; font-family:'Tajawal', sans-serif;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'" onclick="resetSelection()">✖️ إغلاق التفاصيل</button>
                 </div>
-                <span class="amount-col" style="font-size:1.4rem;">${fmtCurrency(amt)}</span>
+                
+                <!-- Unified Horizontal Metadata Bar (Reference, Date, Entity, Payment Method) -->
+                <div style="display: flex; align-items: center; gap: 15px; font-size: 0.88rem; color: #cbd5e1; flex-wrap: wrap; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); line-height: 1.4;">
+                    <div><span style="color: #94a3b8; margin-left: 2px;">المرجع:</span><strong style="color: #38bdf8; font-family: monospace;">#${ref}</strong></div>
+                    <div><span style="color: #94a3b8; margin-left: 2px;">التاريخ:</span><strong style="color: #fff;">${dateStr}</strong></div>
+                    <div><span style="color: #94a3b8; margin-left: 2px;">${labelEntity}:</span><strong style="color: #fff; font-weight: 800;">${customer}</strong></div>
+                    <div><span style="color: #94a3b8; margin-left: 2px;">الدفع:</span><strong style="color: #c084fc;">${pMethod}</strong></div>
+                </div>
+
+                <!-- Description / Statement line -->
+                ${item.description || item.notes || item.statement ? `
+                    <div style="margin-top: 5px; font-size: 0.92rem; color: #fff; background: rgba(56,189,248,0.08); border-right: 4px solid #38bdf8; padding: 10px 14px; border-radius: 8px; font-weight: 700; line-height: 1.5;">
+                        <span style="color: #38bdf8; font-weight: 900; margin-left: 5px;">البيان/الوصف:</span>
+                        ${item.description || item.notes || item.statement}
+                    </div>
+                ` : ''}
             </div>
-            <div class="detail-meta-grid">
-                <div class="meta-item"><span class="meta-label">التاريخ</span><span class="meta-val">${dateStr}</span></div>
-                <div class="meta-item"><span class="meta-label">العميل / المورد</span><span class="meta-val">${customer}</span></div>
-                <div class="meta-item"><span class="meta-label">طريقة الدفع</span><span class="meta-val">${pMethod}</span></div>
-                <div class="meta-item"><span class="meta-label">الاستحقاق</span><span class="meta-val">${dueDate}</span></div>
-            </div>
-            ${item.description || item.notes || item.statement ? `<div style="margin-top:15px; font-size:0.95rem; color:#e2e8f0; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; border-right:3px solid #38bdf8;"><span style="color:#94a3b8; font-weight:bold; margin-left:5px;">البيان:</span> ${item.description || item.notes || item.statement}</div>` : ''}
-        </div>
     `;
 
-    // 1. Items List (If applicable)
+    // 1. Items List (For Invoices/Sales/Purchases)
     if (item.items && item.items.length > 0) {
         html += `
-            <div class="detail-section">
-                <div class="section-title"><span>📦</span> تفاصيل الأصناف والفاتورة</div>
+            <div style="border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 15px;">
+                <div class="section-title" style="margin-bottom: 12px;"><span>📦</span> تفاصيل الأصناف والفاتورة</div>
                 <table class="detail-table">
                     <thead>
                         <tr>
                             <th style="text-align:right;">الصنف</th>
-                            <th style="width:60px;">الكمية</th>
-                            <th style="width:100px;">السعر</th>
-                            <th style="width:110px;">الإجمالي</th>
+                            <th style="width:60px; text-align:center;">الكمية</th>
+                            <th style="width:90px; text-align:left;">سعر الوحدة</th>
+                            <th style="width:110px; text-align:left;">الإجمالي</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${item.items.map(i => `
-                            <tr>
-                                <td style="font-weight:bold;">${i.itemName || i.item || i.account || '-'}</td>
-                                <td>${i.qty || i.quantity || '-'}</td>
-                                <td>${i.price ? fmtCurrency(i.price) : '-'}</td>
-                                <td><span style="color:#fff; font-weight:bold; font-family:'Inter', monospace;">${fmtCurrency(i.total || i.amount || 0)}</span></td>
-                            </tr>
-                        `).join('')}
+                        ${item.items.map(i => {
+                            const name = i.itemName || i.name || getItemName(i.itemId || i.itemCode || i.item || i.account);
+                            const qty = parseFloat(i.qty || i.quantity || 0);
+                            const price = parseFloat(i.price || i.rate || i.unitPrice || 0);
+                            const total = parseFloat(i.total || i.amount || i.subtotal || (qty * price));
+                            return `
+                                <tr>
+                                    <td style="font-weight:bold; color:#fff;">${name}</td>
+                                    <td style="text-align:center; font-family: monospace; font-weight: 800; color:#cbd5e1;">${qty}</td>
+                                    <td style="text-align:left; font-family: monospace; color:#cbd5e1;">${fmtCurrency(price)}</td>
+                                    <td style="text-align:left;"><span style="color:#10b981; font-weight:900; font-family: monospace;">${fmtCurrency(total)}</span></td>
+                                </tr>
+                            `;
+                        }).join('')}
                     </tbody>
                 </table>
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.15); padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.02);">
+                    <span style="font-weight: bold; color: #94a3b8; font-size: 0.9rem;">إجمالي قيمة الفاتورة:</span>
+                    <span style="font-weight: 900; color: #10b981; font-size: 1.25rem; font-family: monospace;">${fmtCurrency(amt)} <span style="font-size:0.8rem; font-family:'Tajawal', sans-serif;">SDG</span></span>
+                </div>
             </div>
         `;
     }
 
-    // 2. Journal Entries & Financial Flow
-    const entries = getExpectedEntries(item, amt);
-    
-    if (entries.length === 2 && !item.items && !item.entries) {
-        // Simple Flow for Receipts/Payments
-        const dr = entries.find(e => e.debit > 0);
-        const cr = entries.find(e => e.credit > 0);
-        if (dr && cr) {
-            html += `
-                <div class="detail-section">
-                    <div class="section-title"><span>💸</span> التدفق المالي للعملية</div>
-                    <div class="flow-diagram">
-                        <div class="flow-box cr">
-                            <div style="font-size:0.8rem; color:#f87171; margin-bottom:5px;">دائن (-)</div>
-                            حـ/ ${cr.acc}
-                        </div>
-                        <div class="flow-arrow">
-                            <span style="font-size:1.5rem;">⬅️</span>
-                            <span style="font-family:'Inter', monospace; color:var(--primary-accent); font-size:1.1rem;">${fmtCurrency(dr.debit)}</span>
-                        </div>
-                        <div class="flow-box dr">
-                            <div style="font-size:0.8rem; color:#34d399; margin-bottom:5px;">مدين (+)</div>
-                            حـ/ ${dr.acc}
-                        </div>
+    // 2. Receipt or Payment Voucher Details (اسم الدائن واسم المدين والمبلغ)
+    let drAccount = '';
+    let crAccount = '';
+    let isVoucher = false;
+
+    if (item._metaKey === 'erp_single_payments_v1' || item._metaKey === 'erp_payments_v1') {
+        isVoucher = true;
+        drAccount = item.toAccount;
+        crAccount = item.fromAccount || 'safe-001';
+    } else if (item._metaKey === 'erp_single_receipts_v1' || item._metaKey === 'erp_receipts_v1') {
+        isVoucher = true;
+        drAccount = item.toAccount || 'safe-001';
+        crAccount = item.fromAccount;
+    }
+
+    if (isVoucher) {
+        html += `
+            <div style="border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 15px;">
+                <div class="section-title" style="margin-bottom: 12px;"><span>💸</span> أطراف المعاملة المالية</div>
+                
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Debtor (المدين - الآخذ) -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.12); padding: 10px 14px; border-radius: 10px;">
+                        <span style="font-weight: 800; color: #10b981; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+                            <span style="background: #10b981; color: #fff; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.75rem; font-family: monospace;">+</span>
+                            المدين (الآخذ):
+                        </span>
+                        <span style="font-weight: 900; color: #fff; font-size: 1.05rem;">${getAccName(drAccount)}</span>
+                    </div>
+
+                    <!-- Creditor (الدائن - المعطي) -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.12); padding: 10px 14px; border-radius: 10px;">
+                        <span style="font-weight: 800; color: #f87171; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+                            <span style="background: #ef4444; color: #fff; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.75rem; font-family: monospace;">-</span>
+                            الدائن (المعطي):
+                        </span>
+                        <span style="font-weight: 900; color: #fff; font-size: 1.05rem;">${getAccName(crAccount)}</span>
+                    </div>
+                    
+                    <!-- Amount (المبلغ) -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(56,189,248,0.03); border: 1px solid rgba(56,189,248,0.12); padding: 10px 14px; border-radius: 10px; margin-top: 5px;">
+                        <span style="font-weight: 800; color: #cbd5e1; font-size: 0.95rem;">المبلغ الصافي:</span>
+                        <span style="font-weight: 900; color: #38bdf8; font-size: 1.35rem; font-family: monospace;">${fmtCurrency(amt)} <span style="font-size:0.85rem; color:#94a3b8; font-family:'Tajawal', sans-serif;">SDG</span></span>
                     </div>
                 </div>
-            `;
-        }
-    } else if (entries && entries.length > 0) {
-        // Complex Journal Entry Table
+            </div>
+        `;
+    }
+
+    // 3. Expected Journal Entries (التوجيه المحاسبي التلقائي)
+    const entries = getExpectedEntries(item, amt);
+    if (entries && entries.length > 0) {
         html += `
-            <div class="detail-section">
-                <div class="section-title"><span>📊</span> التوجيه المحاسبي التلقائي</div>
+            <div style="border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 15px;">
+                <div class="section-title" style="margin-bottom: 12px;"><span>📊</span> التوجيه المحاسبي التلقائي (قيد الاستحقاق/السداد)</div>
                 <table class="detail-table">
                     <thead>
                         <tr>
@@ -332,7 +593,7 @@ function renderDetailPane(index) {
                             <tr>
                                 <td><span class="${e.debit > 0 ? 'dr-text' : ''}" style="${e.debit > 0 ? '' : 'color:#64748b;'}">${e.debit > 0 ? fmtCurrency(e.debit) : '-'}</span></td>
                                 <td><span class="${e.credit > 0 ? 'cr-text' : ''}" style="${e.credit > 0 ? '' : 'color:#64748b;'}">${e.credit > 0 ? fmtCurrency(e.credit) : '-'}</span></td>
-                                <td style="font-weight:bold;">${e.acc || '-'}</td>
+                                <td style="font-weight:bold; color: #fff;">${getAccName(e.acc)}</td>
                             </tr>
                         `).join('')}
                     </tbody>
@@ -340,6 +601,9 @@ function renderDetailPane(index) {
             </div>
         `;
     }
+
+    // Close the unified details card wrapper
+    html += `</div>`;
 
     // Bottom Action Button
     if (currentStatus === 'unposted') {
@@ -352,10 +616,13 @@ function renderDetailPane(index) {
         `;
     } else {
         html += `
-            <div style="margin-top: auto; padding-top: 20px;">
-                <div style="text-align: center; color: var(--success); font-weight: 900; font-size: 1.2rem; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(16,185,129,0.1);">
+            <div style="margin-top: auto; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+                <div style="text-align: center; color: var(--success); font-weight: 900; font-size: 1.1rem; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(16,185,129,0.1);">
                     <span>✅</span> هذه العملية معتمدة ومرحلة مسبقاً
                 </div>
+                <button class="btn-action" onclick="unpostSingleRow(${index})" style="width: 100%; padding: 12px; font-size: 1rem; font-weight: 900; border-radius: 12px; background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(239,68,68,0.25); transition: 0.2s; font-family:'Tajawal', sans-serif;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <span>🔄</span> إلغاء اعتماد وترحيل العملية (إرجاع لمعلقة)
+                </button>
             </div>
         `;
     }
@@ -380,10 +647,26 @@ function getExpectedEntries(item, amt) {
         return expectedEntries;
     }
 
-    if (item._metaKey === 'erp_single_payments_v1' || item._metaKey === 'erp_payments_v1') {
+    if (item._metaKey === 'erp_payments_v1') {
+        expectedEntries.push({ acc: item.mainAccount || item.fromAccount || 'safe-001', debit: 0, credit: parsedAmt, stmt: item.description || 'سند صرف مجمع' });
+        if (item.items && Array.isArray(item.items)) {
+            item.items.forEach(sub => {
+                expectedEntries.push({ acc: sub.account, debit: parseFloat(sub.amount) || 0, credit: 0, stmt: sub.statement || 'صرف فرعي' });
+            });
+        }
+        return expectedEntries;
+    } else if (item._metaKey === 'erp_receipts_v1') {
+        expectedEntries.push({ acc: item.mainAccount || item.toAccount || 'safe-001', debit: parsedAmt, credit: 0, stmt: item.description || 'سند قبض مجمع' });
+        if (item.items && Array.isArray(item.items)) {
+            item.items.forEach(sub => {
+                expectedEntries.push({ acc: sub.account, debit: 0, credit: parseFloat(sub.amount) || 0, stmt: sub.statement || 'قبض فرعي' });
+            });
+        }
+        return expectedEntries;
+    } else if (item._metaKey === 'erp_single_payments_v1') {
         expectedEntries.push({ acc: item.toAccount, debit: parsedAmt, credit: 0, stmt: 'سند صرف' });
         expectedEntries.push({ acc: item.fromAccount || 'safe-001', debit: 0, credit: parsedAmt, stmt: 'سند صرف' });
-    } else if (item._metaKey === 'erp_single_receipts_v1' || item._metaKey === 'erp_receipts_v1') {
+    } else if (item._metaKey === 'erp_single_receipts_v1') {
         expectedEntries.push({ acc: item.toAccount || 'safe-001', debit: parsedAmt, credit: 0, stmt: 'سند قبض' });
         expectedEntries.push({ acc: item.fromAccount, debit: 0, credit: parsedAmt, stmt: 'سند قبض' });
     } else if (item._metaKey === 'erp_sales_invoices_v1') {
@@ -433,7 +716,15 @@ async function saveItemPosted(item) {
             data = await localforage.getItem(tKey);
         }
         if (!data) {
-            data = JSON.parse(localStorage.getItem(tKey) || '[]');
+            data = localStorage.getItem(tKey) || localStorage.getItem(item._metaKey) || '[]';
+        }
+
+        if (typeof data === 'string') {
+            try {
+                data = JSON.parse(data);
+            } catch(e) {
+                data = [];
+            }
         }
 
         const isObj = data && typeof data === 'object' && !Array.isArray(data);
@@ -446,11 +737,8 @@ async function saveItemPosted(item) {
             if (idx > -1) data[idx].isPosted = true;
         }
 
-        if (typeof localforage !== 'undefined') {
-            await localforage.setItem(tKey, data);
-        } else {
-            localStorage.setItem(tKey, JSON.stringify(data));
-        }
+        // Save using standard overridden localStorage.setItem
+        localStorage.setItem(item._metaKey, JSON.stringify(data));
         return true;
     } catch(e) {
         console.error('Save error', e);
@@ -458,17 +746,142 @@ async function saveItemPosted(item) {
     }
 }
 
+let confirmModalResolve = null;
+
+function showConfirmModal(title, msg, detailsHtml, confirmBtnText = 'تأكيد واعتماد الترحيل ⚡', isUnposting = false) {
+    return new Promise((resolve) => {
+        confirmModalResolve = resolve;
+        
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-body').innerHTML = `
+            <p style="margin: 0 0 10px 0; font-size: 1.05rem; font-weight: bold; color: #fff;">${msg}</p>
+            ${detailsHtml ? `<div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); padding: 12px; border-radius: 10px; font-size: 0.95rem; margin-top: 10px; border-right: 3px solid ${isUnposting ? '#ef4444' : 'var(--primary-accent)'};">${detailsHtml}</div>` : ''}
+        `;
+        
+        const confirmBtn = document.getElementById('modal-btn-confirm');
+        confirmBtn.innerText = confirmBtnText;
+        confirmBtn.style.display = 'block';
+        
+        if (isUnposting) {
+            confirmBtn.style.background = 'linear-gradient(135deg, #ef4444, #b91c1c)';
+            confirmBtn.style.boxShadow = '0 4px 15px rgba(239,68,68,0.4)';
+        } else {
+            confirmBtn.style.background = 'linear-gradient(135deg, var(--primary-accent), #2563eb)';
+            confirmBtn.style.boxShadow = '0 4px 15px rgba(59,130,246,0.4)';
+        }
+        
+        // Show modal actions & close button
+        document.getElementById('modal-actions').style.display = 'flex';
+        document.querySelector('.modal-close').style.display = 'block';
+        
+        document.getElementById('custom-confirm-modal').classList.add('show');
+        
+        confirmBtn.onclick = function() {
+            startPostingAnimation(isUnposting);
+        };
+    });
+}
+
+function closeConfirmModal() {
+    document.getElementById('custom-confirm-modal').classList.remove('show');
+    if (confirmModalResolve) {
+        confirmModalResolve(false);
+        confirmModalResolve = null;
+    }
+}
+
+function startPostingAnimation(isUnposting = false) {
+    // Hide actions & close button to make it non-interruptible
+    document.getElementById('modal-actions').style.display = 'none';
+    document.querySelector('.modal-close').style.display = 'none';
+    
+    // Set posting layout
+    document.getElementById('modal-body').innerHTML = `
+        <div class="posting-anim-container">
+            <div class="posting-scene ${isUnposting ? 'unposting' : ''}">
+                <div class="scene-doc">📄</div>
+                <div class="scene-doc-2">📊</div>
+                <div class="scene-ledger">🗄️</div>
+            </div>
+            <div class="posting-step-txt" id="posting-step-txt">${isUnposting ? 'جاري إلغاء ترحيل القيود...' : 'جاري تجميع البيانات والتحقق منها...'}</div>
+            <div class="posting-progress-bar">
+                <div class="posting-progress-fill" id="posting-progress-fill"></div>
+            </div>
+        </div>
+    `;
+    
+    const steps = isUnposting ? [
+        { progress: 30, txt: 'جاري مراجعة وإلغاء قيود الأستاذ العام...' },
+        { progress: 65, txt: 'جاري إبطال السندات والترحيلات التلقائية...' },
+        { progress: 100, txt: 'اكتمل إلغاء الترحيل وإعادة المعاملة كمعلقة! 🔄' }
+    ] : [
+        { progress: 25, txt: 'جاري تجميع البيانات والتحقق منها...' },
+        { progress: 55, txt: 'جاري توليد القيود المحاسبية التلقائية...' },
+        { progress: 80, txt: 'جاري ترحيل وتحديث أرصدة الأستاذ العام...' },
+        { progress: 100, txt: 'اكتمل ترحيل واعتماد العملية بنجاح! 🎉' }
+    ];
+    
+    let currentStep = 0;
+    
+    function runNextStep() {
+        if (currentStep >= steps.length) {
+            setTimeout(() => {
+                const resolveRef = confirmModalResolve;
+                confirmModalResolve = null; // Clear first to prevent cancelling
+                document.getElementById('custom-confirm-modal').classList.remove('show');
+                if (resolveRef) {
+                    resolveRef(true);
+                }
+            }, 600);
+            return;
+        }
+        
+        const step = steps[currentStep];
+        document.getElementById('posting-progress-fill').style.width = `${step.progress}%`;
+        document.getElementById('posting-step-txt').innerText = step.txt;
+        
+        currentStep++;
+        setTimeout(runNextStep, 600);
+    }
+    
+    runNextStep();
+}
+
 async function postSingleRow(index) {
+    if (!checkPostPermission()) {
+        showToast('عفواً، ليس لديك صلاحية اعتماد أو ترحيل المعاملات.', 'error');
+        return;
+    }
     const item = filteredData[index];
     if (!item || item.isPosted) return;
 
-    if (!confirm(`تأكيد ترحيل واعتماد العملية رقم: ${item.id || item.invoiceNo || item.voucherNo}؟`)) {
-        return;
-    }
+    const amt = item.totalAmount || item.amountLocal || item.amount || item.netTotal || item.total || item.grandTotal || 0;
+    const ref = item.id || item.invoiceNo || item.voucherNo || '-';
+    
+    const details = `
+        <div style="display: flex; flex-direction: column; gap: 6px; color: #cbd5e1;">
+            <div><strong>نوع العملية:</strong> <span class="type-badge ${item._typeClass}" style="padding:2px 8px; font-size:0.8rem;">${item._typeLabel}</span></div>
+            <div><strong>رقم المرجع:</strong> <span style="font-family: monospace; color:#38bdf8;">#${ref}</span></div>
+            <div><strong>المبلغ الإجمالي:</strong> <span style="font-family: monospace; color:#10b981; font-weight:bold;">${fmtCurrency(amt)} SDG</span></div>
+        </div>
+    `;
+    
+    const confirmed = await showConfirmModal(
+        'تأكيد ترحيل واعتماد المعاملة',
+        'هل أنت متأكد من رغبتك في ترحيل هذه العملية واعتماد قيودها الدفترية؟',
+        details
+    );
+    
+    if (!confirmed) return;
 
     const ok = await saveItemPosted(item);
     if (ok) {
         item.isPosted = true;
+        // Sync with master list to ensure it's filtered out
+        const refId = item.id || item.invoiceNo || item.voucherNo;
+        const matched = allTransactionsData.find(x => (x.id || x.invoiceNo || x.voucherNo) === refId && x._metaKey === item._metaKey);
+        if (matched) matched.isPosted = true;
+
         showToast('تم اعتماد العملية وترحيلها بنجاح!', 'success');
         resetSelection();
         applyFiltersAndRender();
@@ -478,10 +891,26 @@ async function postSingleRow(index) {
 }
 
 async function postAllChecked() {
+    if (!checkPostPermission()) {
+        showToast('عفواً، ليس لديك صلاحية اعتماد أو ترحيل المعاملات.', 'error');
+        return;
+    }
     const checkboxes = document.querySelectorAll('.row-checkbox:checked');
     if (checkboxes.length === 0) return;
 
-    if (!confirm(`هل أنت متأكد من ترحيل واعتماد ${checkboxes.length} عملية بالكامل؟`)) return;
+    const details = `
+        <div style="font-weight: bold; color: var(--warning); display: flex; align-items: center; gap: 8px;">
+            <span>⚠️</span> سيتم تحديث حالة جميع العمليات المحددة وترحيل أرصدتها فورياً إلى الحسابات المعنية.
+        </div>
+    `;
+
+    const confirmed = await showConfirmModal(
+        'ترحيل واعتماد دفعة معاملات',
+        `هل أنت متأكد من ترحيل واعتماد ${checkboxes.length} عمليات بالكامل دفعة واحدة؟`,
+        details
+    );
+    
+    if (!confirmed) return;
 
     const indices = Array.from(checkboxes).map(cb => parseInt(cb.value)).sort((a,b) => b - a);
     let successCount = 0;
@@ -492,6 +921,10 @@ async function postAllChecked() {
             const ok = await saveItemPosted(item);
             if (ok) {
                 item.isPosted = true;
+                // Sync with master list to ensure it's filtered out
+                const refId = item.id || item.invoiceNo || item.voucherNo;
+                const matched = allTransactionsData.find(x => (x.id || x.invoiceNo || x.voucherNo) === refId && x._metaKey === item._metaKey);
+                if (matched) matched.isPosted = true;
                 successCount++;
             }
         }
@@ -502,6 +935,89 @@ async function postAllChecked() {
     
     if (successCount > 0) {
         showToast(`تم ترحيل ${successCount} عمليات بنجاح!`, 'success');
+    }
+}
+
+async function saveItemUnposted(item) {
+    try {
+        const tKey = item._sourceKey;
+        let data = [];
+        if (typeof localforage !== 'undefined') {
+            data = await localforage.getItem(tKey);
+        }
+        if (!data) {
+            data = localStorage.getItem(tKey) || localStorage.getItem(item._metaKey) || '[]';
+        }
+
+        if (typeof data === 'string') {
+            try {
+                data = JSON.parse(data);
+            } catch(e) {
+                data = [];
+            }
+        }
+
+        const isObj = data && typeof data === 'object' && !Array.isArray(data);
+        const refId = item.id || item.invoiceNo || item.voucherNo;
+
+        if (isObj) {
+            if (data[refId]) data[refId].isPosted = false;
+        } else if (Array.isArray(data)) {
+            const idx = data.findIndex(x => (x.id || x.invoiceNo || x.voucherNo) === refId);
+            if (idx > -1) data[idx].isPosted = false;
+        }
+
+        // Save using standard overridden localStorage.setItem
+        localStorage.setItem(item._metaKey, JSON.stringify(data));
+        return true;
+    } catch(e) {
+        console.error('Unposting save error', e);
+        return false;
+    }
+}
+
+async function unpostSingleRow(index) {
+    if (!checkPostPermission()) {
+        showToast('عفواً، ليس لديك صلاحية إلغاء ترحيل أو اعتماد المعاملات.', 'error');
+        return;
+    }
+    const item = filteredData[index];
+    if (!item || !item.isPosted) return;
+
+    const amt = item.totalAmount || item.amountLocal || item.amount || item.netTotal || item.total || item.grandTotal || 0;
+    const ref = item.id || item.invoiceNo || item.voucherNo || '-';
+    
+    const details = `
+        <div style="display: flex; flex-direction: column; gap: 6px; color: #cbd5e1;">
+            <div><strong>نوع العملية:</strong> <span class="type-badge ${item._typeClass}" style="padding:2px 8px; font-size:0.8rem;">${item._typeLabel}</span></div>
+            <div><strong>رقم المرجع:</strong> <span style="font-family: monospace; color:#38bdf8;">#${ref}</span></div>
+            <div><strong>المبلغ الإجمالي:</strong> <span style="font-family: monospace; color:#10b981; font-weight:bold;">${fmtCurrency(amt)} SDG</span></div>
+        </div>
+    `;
+    
+    const confirmed = await showConfirmModal(
+        'إلغاء ترحيل واعتماد المعاملة',
+        'هل أنت متأكد من رغبتك في إلغاء ترحيل هذه العملية وإعادتها كعملية معلقة؟ سيتم عكس قيودها الدفترية محاسبياً.',
+        details,
+        'تأكيد إلغاء الترحيل وإرجاعها معلقة ⚡',
+        true
+    );
+    
+    if (!confirmed) return;
+
+    const ok = await saveItemUnposted(item);
+    if (ok) {
+        item.isPosted = false;
+        // Sync with master list to ensure it's filtered out
+        const refId = item.id || item.invoiceNo || item.voucherNo;
+        const matched = allTransactionsData.find(x => (x.id || x.invoiceNo || x.voucherNo) === refId && x._metaKey === item._metaKey);
+        if (matched) matched.isPosted = false;
+
+        showToast('تم إلغاء الترحيل وإعادة المعاملة كمعلقة بنجاح!', 'warning');
+        resetSelection();
+        applyFiltersAndRender();
+    } else {
+        showToast('خطأ أثناء إلغاء الترحيل.', 'error');
     }
 }
 

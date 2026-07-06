@@ -101,7 +101,7 @@
 
         .user-info { display: flex; align-items: center; gap: 8px; background: rgba(15,23,42,0.6); padding: 6px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); }
         
-        .dash-main { width: 100%; max-width: 1600px; margin: 0 auto; padding: 20px 30px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; flex: 1; animation: fadeIn 0.8s ease-out forwards; }
+        .dash-main { width: 100%; max-width: 100%; margin: 0; padding: 20px 15px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; flex: 1; animation: fadeIn 0.8s ease-out forwards; }
 
         body {
             background-color: var(--bg-color);
@@ -1168,7 +1168,7 @@
     <?php include 'includes/header.php'; ?>
 
     <!-- ═══ PURCHASE HUB VIEW ═══ -->
-    <div id="purchase-hub-view" style="display: flex; flex-direction: column; height: 100%; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 20px 30px; max-width: 1600px; margin: 0 auto; overflow-y: auto;">
+    <div id="purchase-hub-view" style="display: flex; flex-direction: column; height: 100%; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 10px 0; max-width: 100%; margin: 0; overflow-y: auto;">
         
         <!-- Action Cards -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">

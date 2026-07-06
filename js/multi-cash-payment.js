@@ -3,17 +3,21 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Set today's date
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('voucher-date').value = today;
+    const dateEl = document.getElementById('voucher-date');
+    if (dateEl) dateEl.value = today;
     
     // Add first empty row
     addRow();
     addRow(); // Start with 2 rows for convenience
 
     // Live date display in header
-    setInterval(() => {
-        const now = new Date();
-        document.getElementById('header-date-mini').innerText = now.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    }, 1000);
+    const dateMini = document.getElementById('header-date-mini');
+    if (dateMini) {
+        setInterval(() => {
+            const now = new Date();
+            dateMini.innerText = now.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }, 1000);
+    }
 
     // If app is already ready
     if (window.APP_READY) {
@@ -30,63 +34,7 @@ let allAccountsList = [];
 
 async function loadAllAccounts() {
     try {
-        const getTenantKey = window.getTenantKey || ((k) => k);
-        const stores = [
-            { key: 'erp_customers_v1', label: 'عميل' },
-            { key: 'erp_suppliers_v1', label: 'مورد' },
-            { key: 'erp_banks_v1', label: 'بنك' },
-            { key: 'erp_safes_v1', label: 'خزينة' },
-            { key: 'erp_accounts_v1', label: 'حساب عام/مصروف' }
-        ];
-
-        let combined = [];
-
-        for (const store of stores) {
-            let data = JSON.parse(localStorage.getItem(store.key) || '[]');
-            if (!Array.isArray(data)) data = Object.values(data);
-            
-            data.forEach(item => {
-                const name = item.name || item.accountName || item.customerName || item.supplierName || item.bankName || item.safeName;
-                if (name) {
-                    combined.push({
-                        value: name,
-                        label: `${name} (${store.label})`
-                    });
-                }
-            });
-        }
-
-        allAccountsList = combined;
-
-        // Initialize Choices for Main Account
-        const selectEl = document.getElementById('main-account');
-        if (selectEl) {
-            mainAccountChoices = new Choices(selectEl, {
-                searchEnabled: true,
-                itemSelectText: '',
-                noResultsText: 'لا توجد نتائج',
-                shouldSort: false
-            });
-            mainAccountChoices.setChoices(combined, 'value', 'label', true);
-        }
-
-        // Update existing dynamic rows if they were already created
-        const subSelects = document.querySelectorAll('.sub-account');
-        subSelects.forEach(selectEl => {
-            if (selectEl.choicesInstance) {
-                selectEl.choicesInstance.setChoices(combined, 'value', 'label', true);
-            } else {
-                const choiceInstance = new Choices(selectEl, {
-                    searchEnabled: true,
-                    itemSelectText: '',
-                    noResultsText: 'لا توجد نتائج',
-                    shouldSort: false
-                });
-                choiceInstance.setChoices(combined, 'value', 'label', true);
-                selectEl.choicesInstance = choiceInstance; // cache it
-            }
-        });
-
+        buildAccountsArray();
     } catch (e) {
         console.error('Error loading accounts:', e);
     }
@@ -94,14 +42,13 @@ async function loadAllAccounts() {
 
 // Helper: Format number with commas
 const fmtNum = (num) => Number(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
 // Helper: Clean commas for calculation
 const cleanNum = (str) => Number(String(str).replace(/,/g, '')) || 0;
 
 // Helper: Restrict input to numbers and decimal point only
 function restrictToNumbers(el) {
-    // Only allow numbers, dots, and commas
     let val = el.value.replace(/[^0-9.,]/g, '');
-    // Prevent multiple dots
     const parts = val.split('.');
     if (parts.length > 2) {
         val = parts[0] + '.' + parts.slice(1).join('').replace(/\./g, '');
@@ -112,16 +59,27 @@ function restrictToNumbers(el) {
 }
 
 function setVoucherType(type) {
-    document.getElementById('voucher-type').value = type;
     const btnPayment = document.getElementById('btn-payment');
     const btnReceipt = document.getElementById('btn-receipt');
+    const typeInput = document.getElementById('voucher-type');
+    if (typeInput) typeInput.value = type;
+    
+    const pmRow = document.getElementById('payment-methods-row');
     
     if (type === 'payment') {
-        btnPayment.classList.add('active-payment');
-        btnReceipt.classList.remove('active-receipt');
+        if (btnPayment) btnPayment.className = 'voucher-type-btn active-payment';
+        if (btnReceipt) btnReceipt.className = 'voucher-type-btn';
+        if (pmRow) {
+            pmRow.style.background = 'rgba(239, 68, 68, 0.08)';
+            pmRow.style.borderColor = 'rgba(239, 68, 68, 0.2)';
+        }
     } else {
-        btnReceipt.classList.add('active-receipt');
-        btnPayment.classList.remove('active-payment');
+        if (btnReceipt) btnReceipt.className = 'voucher-type-btn active-receipt';
+        if (btnPayment) btnPayment.className = 'voucher-type-btn';
+        if (pmRow) {
+            pmRow.style.background = 'rgba(16, 185, 129, 0.08)';
+            pmRow.style.borderColor = 'rgba(16, 185, 129, 0.2)';
+        }
     }
     
     updateLabels();
@@ -136,20 +94,20 @@ function togglePaymentMethod() {
     const panelTitle = document.getElementById('panel-title-type');
 
     if (pm === 'check') {
-        layoutWrapper.classList.add('has-sidebar');
-        secCheck.style.display = 'block';
-        secMobile.style.display = 'none';
-        panelTitle.innerText = 'الشيك';
+        if (layoutWrapper) layoutWrapper.classList.add('has-sidebar');
+        if (secCheck) secCheck.style.display = 'block';
+        if (secMobile) secMobile.style.display = 'none';
+        if (panelTitle) panelTitle.innerText = 'الشيك';
     } else if (pm === 'mobile') {
-        layoutWrapper.classList.add('has-sidebar');
-        secCheck.style.display = 'none';
-        secMobile.style.display = 'block';
-        panelTitle.innerText = 'التحويل';
+        if (layoutWrapper) layoutWrapper.classList.add('has-sidebar');
+        if (secCheck) secCheck.style.display = 'none';
+        if (secMobile) secMobile.style.display = 'block';
+        if (panelTitle) panelTitle.innerText = 'التحويل';
     } else {
-        layoutWrapper.classList.remove('has-sidebar');
+        if (layoutWrapper) layoutWrapper.classList.remove('has-sidebar');
         setTimeout(() => {
-            secCheck.style.display = 'none';
-            secMobile.style.display = 'none';
+            if (secCheck) secCheck.style.display = 'none';
+            if (secMobile) secMobile.style.display = 'none';
         }, 500); // Wait for transition
     }
 }
@@ -161,13 +119,21 @@ function updateLabels() {
     const subTitle = document.getElementById('sub-accounts-title');
     
     if (type === 'payment') {
-        label.innerText = 'من حساب (صرف)';
-        if(subHeader) subHeader.innerText = 'إلى حساب (استلام)';
-        if(subTitle) subTitle.innerHTML = '<span>👥</span> إلى حساب (استلام)';
+        if (label) {
+            label.innerText = 'من حساب (صرف)';
+            label.style.setProperty('color', '#f87171', 'important');
+            label.style.fontSize = '1.1rem';
+        }
+        if (subHeader) subHeader.innerText = 'إلى حساب (استلام)';
+        if (subTitle) subTitle.innerHTML = '<span>👥</span> إلى حساب (استلام)';
     } else {
-        label.innerText = 'إلى حساب (استلام)';
-        if(subHeader) subHeader.innerText = 'من حساب (دفع)';
-        if(subTitle) subTitle.innerHTML = '<span>👥</span> من حساب (دفع)';
+        if (label) {
+            label.innerText = 'إلى حساب (استلام)';
+            label.style.setProperty('color', '#34d399', 'important');
+            label.style.fontSize = '1.1rem';
+        }
+        if (subHeader) subHeader.innerText = 'من حساب (دفع)';
+        if (subTitle) subTitle.innerHTML = '<span>👥</span> من حساب (دفع)';
     }
 }
 
@@ -180,11 +146,10 @@ function addRow() {
     tr.className = 'multi-row';
     tr.innerHTML = `
         <td>
-            
             <div class="custom-dropdown-input-wrap" style="width: 100%; position: relative;">
                 <input type="hidden" id="acc-${rowId}" class="sub-account">
                 <input type="text" class="multi-input" id="acc-${rowId}-search" placeholder="ابحث عن حساب..." onfocus="showAccountDropdown('acc-${rowId}')" onblur="hideAccountDropdownDelayed('acc-${rowId}')" oninput="filterAccountDropdown('acc-${rowId}')" style="width: 100%; box-sizing: border-box; background: transparent; border: none; color: inherit; padding: 10px;">
-                <div class="custom-dropdown-list" id="acc-${rowId}-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.5);"></div>
+                <div class="custom-dropdown-list" id="acc-${rowId}-dropdown-list"></div>
             </div>
         </td>
         <td><input type="text" class="multi-input sub-amount" placeholder="0.00" onblur="formatInput(this)" oninput="restrictToNumbers(this); calcTotal();" style="font-family: monospace; font-weight: bold; font-size: 1.1rem; color: #10b981;"></td>
@@ -196,30 +161,14 @@ function addRow() {
         <td class="col-check-due"><input type="date" class="multi-input sub-check-due"></td>
         <td style="text-align: center;"><button class="btn-del" onclick="removeRow(this)" title="حذف السطر">✖</button></td>
     `;
-    tbody.appendChild(tr);
-    
-    // Initialize Choices for the newly added select
-    const selectEl = tr.querySelector('.sub-account');
-    const choiceInstance = new Choices(selectEl, {
-        searchEnabled: true,
-        itemSelectText: '',
-        noResultsText: 'لا توجد نتائج',
-        shouldSort: false
-    });
-    selectEl.choicesInstance = choiceInstance; // cache it
-
-    // Populate with loaded accounts if available
-    if (allAccountsList && allAccountsList.length > 0) {
-        choiceInstance.setChoices(allAccountsList, 'value', 'label', true);
-    }
-
+    if (tbody) tbody.appendChild(tr);
     calcTotal();
     if (typeof window.applySystemNumberFormatting === 'function') window.applySystemNumberFormatting();
 }
 
 function removeRow(btn) {
     const tr = btn.closest('tr');
-    tr.remove();
+    if (tr) tr.remove();
     calcTotal();
 }
 
@@ -236,8 +185,11 @@ function calcTotal() {
         total += cleanNum(input.value);
     });
 
-    document.getElementById('total-amount').innerText = fmtNum(total);
-    document.getElementById('total-rows').innerText = amounts.length;
+    const totalAmtEl = document.getElementById('total-amount');
+    if (totalAmtEl) totalAmtEl.innerText = fmtNum(total);
+
+    const totalRowsEl = document.getElementById('total-rows');
+    if (totalRowsEl) totalRowsEl.innerText = amounts.length;
     
     // Update Foreign Amount (القيمة المعادل)
     const rateEl = document.getElementById('exchange-rate');
@@ -255,9 +207,10 @@ function calcTotal() {
 
 function showToast(msg, type='success') {
     const container = document.getElementById('toast-container');
+    if (!container) return;
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    const icons = { success:'✔️', error:'✖️' };
+    const icons = { success:'✔️', error:'✖️', info:'ℹ️' };
     toast.innerHTML = `<span>${icons[type] || '🔔'}</span> <span>${msg}</span>`;
     container.appendChild(toast);
     setTimeout(() => {
@@ -269,6 +222,7 @@ function showToast(msg, type='success') {
 /* --- Context Menu and Dynamic Columns Logic --- */
 function toggleColumn(colClass, isVisible) {
     const table = document.getElementById('voucher-table');
+    if (!table) return;
     if (isVisible) {
         table.classList.add('show-col-' + colClass);
     } else {
@@ -283,13 +237,15 @@ function toggleColumn(colClass, isVisible) {
 function loadColumnPrefs() {
     const prefs = JSON.parse(localStorage.getItem('multiVoucherColPrefs') || '{}');
     const menu = document.getElementById('column-context-menu');
-    const checkboxes = menu.querySelectorAll('input[type="checkbox"]');
-    checkboxes.forEach(cb => {
-        if (prefs[cb.value] === true) {
-            cb.checked = true;
-            toggleColumn(cb.value, true);
-        }
-    });
+    if (menu) {
+        const checkboxes = menu.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            if (prefs[cb.value] === true) {
+                cb.checked = true;
+                toggleColumn(cb.value, true);
+            }
+        });
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -299,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tableHeader = document.getElementById('table-header');
     const contextMenu = document.getElementById('column-context-menu');
     
-    if (tableHeader) {
+    if (tableHeader && contextMenu) {
         tableHeader.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             contextMenu.style.top = e.pageY + 'px';
@@ -310,35 +266,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Click anywhere else to hide context menu
     document.addEventListener('click', (e) => {
-        if (!contextMenu.contains(e.target) && e.target !== tableHeader && !tableHeader.contains(e.target)) {
+        if (contextMenu && !contextMenu.contains(e.target) && e.target !== tableHeader && (!tableHeader || !tableHeader.contains(e.target))) {
             contextMenu.classList.remove('active');
         }
     });
 });
-/* --------------------------------------------- */
 
 /* --- Footer Actions --- */
 function resetVoucher() {
-    document.getElementById('main-account').value = '';
-    document.getElementById('voucher-ref').value = '';
-    document.getElementById('voucher-desc').value = '';
+    const mainAcc = document.getElementById('main-account');
+    if (mainAcc) mainAcc.value = '';
+    const mainSearch = document.getElementById('main-account-search');
+    if (mainSearch) mainSearch.value = '';
+    const refEl = document.getElementById('voucher-ref');
+    if (refEl) refEl.value = '';
+    const descEl = document.getElementById('voucher-desc');
+    if (descEl) descEl.value = '';
     
     // Clear dynamic rows
     const tbody = document.getElementById('entries-body');
-    tbody.innerHTML = '';
+    if (tbody) tbody.innerHTML = '';
     
-    // Re-initialize choices for main account to empty state if needed
-    if (mainAccountChoices) {
-        mainAccountChoices.setChoiceByValue('');
-    }
-
     addRow(); 
     addRow();
     calcTotal();
 }
 
 function printVoucher() {
-    // Basic print, could be expanded to print a specific receipt template
     window.print();
 }
 
@@ -373,17 +327,16 @@ async function saveVoucher() {
     // Strict validations for bank references
     if (paymentMethod === 'check') {
         if (!checkNo || checkNo.length < 6) return showToast('رقم الشيك يجب أن يكون أكثر من 5 أرقام.', 'error');
-        if (!window.isBankReferenceUnique(checkNo, 'check')) return showToast('رقم الشيك هذا مسجل مسبقاً في النظام ولا يمكن تكراره.', 'error');
+        if (window.isBankReferenceUnique && !window.isBankReferenceUnique(checkNo, 'check')) return showToast('رقم الشيك هذا مسجل مسبقاً في النظام ولا يمكن تكراره.', 'error');
         if (!checkBranch) return showToast('يرجى إدخال اسم البنك', 'error');
     } else if (paymentMethod === 'mobile') {
         if (!mobileTransferNo || mobileTransferNo.length < 6) return showToast('رقم التحويل يجب أن يكون أكثر من 5 أرقام.', 'error');
-        if (!window.isBankReferenceUnique(mobileTransferNo, 'mobile')) return showToast('رقم التحويل هذا مسجل مسبقاً في النظام ولا يمكن تكراره.', 'error');
+        if (window.isBankReferenceUnique && !window.isBankReferenceUnique(mobileTransferNo, 'mobile')) return showToast('رقم التحويل هذا مسجل مسبقاً في النظام ولا يمكن تكراره.', 'error');
     }
     
     const rows = document.querySelectorAll('.multi-row');
     const items = [];
     let hasError = false;
-    let totalAmount = 0;
 
     rows.forEach((row, index) => {
         const acc = row.querySelector('.sub-account').value.trim();
@@ -445,8 +398,7 @@ async function saveVoucher() {
         createdAt: new Date().toISOString()
     };
 
-    // To make it compatible with the auditing screen (ترحيل الحسابات),
-    // we set fromAccount and toAccount properly.
+    // Set fromAccount and toAccount properly for compatibility
     if (type === 'payment') {
         voucher.fromAccount = mainAccount; // Source of funds
         voucher.toAccount = 'حسابات فرعية متعددة';
@@ -499,10 +451,10 @@ async function saveVoucher() {
 // Custom Dropdown Logic for Accounts
 // ═══════════════════════════════════════════════════════
 
-// Populate ACCOUNTS based on allAccountsList format, but keeping IDs properly
 let ACCOUNTS = [];
 function buildAccountsArray() {
     ACCOUNTS = [];
+    const getTenantKey = window.getTenantKey || ((k) => k);
     const stores = [
         { key: 'erp_customers_v1', prefix: 'cust-' },
         { key: 'erp_suppliers_v1', prefix: 'supp-' },
@@ -512,10 +464,12 @@ function buildAccountsArray() {
     ];
 
     for (const store of stores) {
-        let data = JSON.parse(localStorage.getItem(store.key) || '[]');
+        const tKey = getTenantKey(store.key);
+        let data = JSON.parse(localStorage.getItem(tKey) || localStorage.getItem(store.key) || '[]');
         if (!Array.isArray(data)) data = Object.values(data);
         
         data.forEach(item => {
+            if (item.deleted) return;
             const name = item.name || item.accountName || item.customerName || item.supplierName || item.bankName || item.safeName;
             const id = item.id || item.code || '';
             if (name) {
@@ -598,7 +552,9 @@ function renderAccountDropdown(type, filter = '') {
 window.showAccountDropdown = function(type) {
     const listEl = document.getElementById(type + '-dropdown-list');
     if (listEl) {
-        renderAccountDropdown(type, document.getElementById(type + '-search').value);
+        const searchEl = document.getElementById(type + '-search');
+        const filterVal = searchEl ? searchEl.value : '';
+        renderAccountDropdown(type, filterVal);
         listEl.classList.add('show');
         listEl.style.display = 'block';
     }
@@ -615,22 +571,19 @@ window.hideAccountDropdownDelayed = function(type) {
 }
 
 window.filterAccountDropdown = function(type) {
-    const val = document.getElementById(type + '-search').value;
+    const searchEl = document.getElementById(type + '-search');
+    const val = searchEl ? searchEl.value : '';
     renderAccountDropdown(type, val);
 }
 
 window.selectAccount = function(type, id, name) {
-    document.getElementById(type).value = id; // Store ID
-    document.getElementById(type + '-search').value = name; // Store Name
-    
-    // In multi-cash-payment, the original logic saved the NAME as the value for accounts!
-    // To preserve backwards compatibility with saveVoucher(), we update the .value of the hidden input
-    // to the name, but we add a data-id attribute for the real ID.
     const hiddenInp = document.getElementById(type);
     if(hiddenInp) {
         hiddenInp.value = name;
         hiddenInp.setAttribute('data-id', id);
     }
+    const searchEl = document.getElementById(type + '-search');
+    if (searchEl) searchEl.value = name;
 
     const listEl = document.getElementById(type + '-dropdown-list');
     if(listEl) {
@@ -640,7 +593,6 @@ window.selectAccount = function(type, id, name) {
     
     // Jump logic
     if (type.startsWith('acc-')) {
-        const rowId = type.split('-')[1];
         const rowTr = document.getElementById(type).closest('tr');
         if(rowTr) {
             const amtInp = rowTr.querySelector('.sub-amount');

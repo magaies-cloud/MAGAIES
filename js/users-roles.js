@@ -12,7 +12,8 @@ const MODULES = [
     { id: 'master_data', name: 'البيانات الأساسية' },
     { id: 'reports', name: 'التقارير التحليلية' },
     { id: 'settings', name: 'الإعدادات والصلاحيات' },
-    { id: 'inventory_rules', name: 'قواعد المخزون والعمليات' }
+    { id: 'inventory_rules', name: 'قواعد المخزون والعمليات' },
+    { id: 'posting_accounts', name: 'ترحيل واعتماد الحسابات' }
 ];
 
 function safeGetJSON(key, defaultVal) {

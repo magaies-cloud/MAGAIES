@@ -108,6 +108,67 @@ function collectPartnerTransactions(partnerId) {
                 currency: curr, rate: rate, origDebit: 0, origCredit: parseNum(v.amountForeign) || parseNum(v.amountLocal)
             });
         }
+    // 2.2. Multi-Cash Payments (erp_payments_v1)
+    const multiPayments = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
+    multiPayments.forEach(v => {
+        if (!v.isPosted) return;
+        let curr = v.currency || 'SDG';
+        let rate = parseNum(v.exchangeRate) || 1;
+        
+        // Check main account
+        if (v.mainAccount === partnerId) {
+            txns.push({
+                date: v.date, ref: v.id || v.voucherNo, type: 'payment', typeLabel: 'سند صرف مجمع',
+                statement: v.description || 'سند صرف مجمع',
+                debit: 0, credit: parseNum(v.totalAmount),
+                currency: curr, rate: rate, origDebit: 0, origCredit: parseNum(v.foreignAmount) || parseNum(v.totalAmount)
+            });
+        }
+        // Check sub accounts
+        if (v.items && Array.isArray(v.items)) {
+            v.items.forEach(item => {
+                if (item.account === partnerId) {
+                    txns.push({
+                        date: v.date, ref: v.id || v.voucherNo, type: 'payment', typeLabel: 'سند صرف مجمع',
+                        statement: item.statement || v.description || 'صرف مجمع',
+                        debit: parseNum(item.amount), credit: 0,
+                        currency: curr, rate: rate, origDebit: parseNum(item.amount) / rate, origCredit: 0
+                    });
+                }
+            });
+        }
+    });
+
+    // 2.3. Multi-Cash Receipts (erp_receipts_v1)
+    const multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
+    multiReceipts.forEach(v => {
+        if (!v.isPosted) return;
+        let curr = v.currency || 'SDG';
+        let rate = parseNum(v.exchangeRate) || 1;
+        
+        // Check main account
+        if (v.mainAccount === partnerId) {
+            txns.push({
+                date: v.date, ref: v.id || v.voucherNo, type: 'receipt', typeLabel: 'سند قبض مجمع',
+                statement: v.description || 'سند قبض مجمع',
+                debit: parseNum(v.totalAmount), credit: 0,
+                currency: curr, rate: rate, origDebit: parseNum(v.foreignAmount) || parseNum(v.totalAmount), origCredit: 0
+            });
+        }
+        // Check sub accounts
+        if (v.items && Array.isArray(v.items)) {
+            v.items.forEach(item => {
+                if (item.account === partnerId) {
+                    txns.push({
+                        date: v.date, ref: v.id || v.voucherNo, type: 'receipt', typeLabel: 'سند قبض مجمع',
+                        statement: item.statement || v.description || 'قبض مجمع',
+                        debit: 0, credit: parseNum(item.amount),
+                        currency: curr, rate: rate, origDebit: 0, origCredit: parseNum(item.amount) / rate
+                    });
+                }
+            });
+        }
+    });
     });
 
     // 3. Journal Vouchers

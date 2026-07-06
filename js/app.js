@@ -712,7 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (matchedRole && matchedRole.permissions) {
                             const rolePerms = matchedRole.permissions;
                             // Additive merge: Role Perms + User Overrides
-                            const modulesList = ['dashboard','sales','purchase','inventory','finance','master_data','reports','settings'];
+                            const modulesList = ['dashboard','sales','purchase','inventory','finance','master_data','reports','settings','inventory_rules','posting_accounts'];
                             for (let mod of modulesList) {
                                 if (!finalPerms[mod]) finalPerms[mod] = {};
                                 if (!rolePerms[mod]) rolePerms[mod] = {};
@@ -745,6 +745,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 master_data:{view:true,add:true,edit:true,delete:true,print:true,approve:true}, 
                 reports:{view:true,add:true,edit:true,delete:true,print:true,approve:true}, 
                 settings:{view:true,add:true,edit:true,delete:true,print:true,approve:true},
+                posting_accounts:{view:true,add:true,edit:true,delete:true,print:true,approve:true},
                 dashboard:{view:true}
             };
         }
@@ -783,7 +784,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'settings.php': 'settings',
             'users-roles.php': 'settings',
             'audit-log.php': 'settings',
-            'audit-logs.php': 'settings'
+            'audit-logs.php': 'settings',
+            'posting-accounts.php': 'posting_accounts'
         };
 
         const currentModule = pageModuleMap[currentPage];
