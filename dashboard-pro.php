@@ -686,13 +686,20 @@
             const badge = document.getElementById('notif-badge');
             const list = document.getElementById('notif-list');
 
-            if (unreadCount > 0) {
-                badge.innerText = unreadCount;
-                badge.style.display = 'block';
-                list.innerHTML = notifications.join('');
-            } else {
-                badge.style.display = 'none';
-                list.innerHTML = '<div style="color:var(--text-secondary); text-align:center; font-size:0.85rem; padding:15px; background: rgba(255,255,255,0.02); border-radius: 10px;">لا توجد تنبيهات لفترات السماح حالياً 🎉</div>';
+            if (badge) {
+                if (unreadCount > 0) {
+                    badge.innerText = unreadCount;
+                    badge.style.display = 'block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+            if (list) {
+                if (unreadCount > 0) {
+                    list.innerHTML = notifications.join('');
+                } else {
+                    list.innerHTML = '<div style="color:var(--text-secondary); text-align:center; font-size:0.85rem; padding:15px; background: rgba(255,255,255,0.02); border-radius: 10px;">لا توجد تنبيهات لفترات السماح حالياً 🎉</div>';
+                }
             }
         }
 

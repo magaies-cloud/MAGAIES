@@ -78,10 +78,10 @@ JSON.parse = function(val) {
     window.DB_STORE = {};
     window.APP_READY = false;
 
-    // Save originals BEFORE any overrides
-    const originalSetItem = localStorage.setItem.bind(localStorage);
-    const originalGetItem = localStorage.getItem.bind(localStorage);
-    const originalRemoveItem = localStorage.removeItem.bind(localStorage);
+    // Save originals bound to localStorage BEFORE any overrides
+    const originalSetItem = Storage.prototype.setItem.bind(localStorage);
+    const originalGetItem = Storage.prototype.getItem.bind(localStorage);
+    const originalRemoveItem = Storage.prototype.removeItem.bind(localStorage);
 
     // Cross-Tab Synchronization
     const syncChannel = new BroadcastChannel('erp_db_sync');
@@ -116,7 +116,7 @@ JSON.parse = function(val) {
 
         localforage.setItem = function(key, value) {
             try {
-                originalSetItem(key, value);
+                originalSetItem.call(localStorage, key, value);
             } catch(e) {}
             return promiseTimeout(originalLfSet(key, value), 250)
                 .catch(err => {
@@ -126,7 +126,7 @@ JSON.parse = function(val) {
         };
 
         localforage.removeItem = function(key) {
-            try { originalRemoveItem(key); } catch(e) {}
+            try { originalRemoveItem.call(localStorage, key); } catch(e) {}
             return promiseTimeout(originalLfRemove(key), 250)
                 .catch(err => {
                     console.warn(`[localforage override] removeItem failed/timeout for ${key}:`, err);
@@ -146,7 +146,7 @@ JSON.parse = function(val) {
                     console.warn(`localforage failed or timed out for ${tenantKey}, using localStorage`, err);
                 }
                 if (val === null) {
-                    val = originalGetItem(tenantKey) || originalGetItem(key);
+                    val = originalGetItem.call(localStorage, tenantKey) || originalGetItem.call(localStorage, key);
                 }
                 if (val !== null) {
                     window.DB_STORE[tenantKey] = val;
@@ -160,7 +160,7 @@ JSON.parse = function(val) {
         syncKeys.forEach(key => {
             const tenantKey = window.getTenantKey(key);
             if (!window.DB_STORE[tenantKey]) {
-                const val = originalGetItem(tenantKey) || originalGetItem(key);
+                const val = originalGetItem.call(localStorage, tenantKey) || originalGetItem.call(localStorage, key);
                 if (val !== null) {
                     window.DB_STORE[tenantKey] = val;
                 }
@@ -183,65 +183,71 @@ JSON.parse = function(val) {
         }
     });
 
-    localStorage.setItem = function(key, value) {
+    Storage.prototype.setItem = function(key, value) {
         const sessionKeys = ['session_active'];
         if (sessionKeys.includes(key)) {
-            sessionStorage.setItem(key, value);
-            return;
+            return originalSetItem.call(sessionStorage, key, value);
         }
 
-        if (syncKeys.includes(key) && !navigator.onLine) {
-            alert('السيرفر غير متصل! لا يمكن إجراء العملية. النظام يعمل الآن بوضع Online-Only.');
-            throw new Error('Offline mode disabled. Cannot save data.');
-        }
+        if (this === localStorage) {
+            if (syncKeys.includes(key) && !navigator.onLine) {
+                alert('السيرفر غير متصل! لا يمكن إجراء العملية. النظام يعمل الآن بوضع Online-Only.');
+                throw new Error('Offline mode disabled. Cannot save data.');
+            }
 
-        const tenantKey = window.getTenantKey(key);
-        
-        // Save to In-Memory Proxy
-        window.DB_STORE[tenantKey] = value;
+            const tenantKey = window.getTenantKey(key);
+            
+            // Save to In-Memory Proxy
+            window.DB_STORE[tenantKey] = value;
 
-        // Broadcast to other tabs
-        syncChannel.postMessage({ type: 'SYNC_KEY', tenantKey: tenantKey, value: value });
+            // Broadcast to other tabs
+            syncChannel.postMessage({ type: 'SYNC_KEY', tenantKey: tenantKey, value: value });
 
-        // Save asynchronously to IndexedDB
-        localforage.setItem(tenantKey, value);
+            // Save asynchronously to IndexedDB
+            localforage.setItem(tenantKey, value);
 
-        // Always save to original localStorage as a robust synchronous fallback for WebKit/iOS
-        try {
-            originalSetItem(tenantKey, value);
-        } catch (e) {
-            console.warn("localStorage quota exceeded for key", key, e);
-        }
+            // Always save to original localStorage as a robust synchronous fallback for WebKit/iOS
+            try {
+                originalSetItem.call(localStorage, tenantKey, value);
+            } catch (e) {
+                console.warn("localStorage quota exceeded for key", key, e);
+            }
 
-        if (syncKeys.includes(key)) {
-            dirtyKeys.add(key);
-            // Debounce Sync: Wait for 800ms of inactivity before pushing to cloud
-            if (pushTimeout) clearTimeout(pushTimeout);
-            pushTimeout = setTimeout(() => {
-                if (!isPushing) {
-                    pushToCloud();
-                } else {
-                    pushQueue = true;
-                }
-            }, 800);
+            if (syncKeys.includes(key)) {
+                dirtyKeys.add(key);
+                // Debounce Sync: Wait for 800ms of inactivity before pushing to cloud
+                if (pushTimeout) clearTimeout(pushTimeout);
+                pushTimeout = setTimeout(() => {
+                    if (!isPushing) {
+                        pushToCloud();
+                    } else {
+                        pushQueue = true;
+                    }
+                }, 800);
+            }
+        } else {
+            return originalSetItem.call(this, key, value);
         }
     };
 
-    localStorage.getItem = function(key) {
+    Storage.prototype.getItem = function(key) {
         const sessionKeys = ['session_active'];
         if (sessionKeys.includes(key)) {
-            return sessionStorage.getItem(key);
+            return originalGetItem.call(sessionStorage, key);
         }
 
-        const tenantKey = window.getTenantKey(key);
-        
-        // Read from In-Memory Proxy first (this makes it synchronous for the app)
-        if (window.DB_STORE.hasOwnProperty(tenantKey)) {
-            return window.DB_STORE[tenantKey];
+        if (this === localStorage) {
+            const tenantKey = window.getTenantKey(key);
+            
+            // Read from In-Memory Proxy first (this makes it synchronous for the app)
+            if (window.DB_STORE.hasOwnProperty(tenantKey)) {
+                return window.DB_STORE[tenantKey];
+            }
+            
+            // Fallback for non-sync keys or missing keys
+            return originalGetItem.call(localStorage, tenantKey) || originalGetItem.call(localStorage, key);
         }
-        
-        // Fallback for non-sync keys or missing keys
-        return originalGetItem(tenantKey) || originalGetItem(key);
+        return originalGetItem.call(this, key);
     };
 
     // Global helper for checking uniqueness of Check/Transfer Numbers across all vouchers
@@ -287,19 +293,23 @@ JSON.parse = function(val) {
         return true;
     };
 
-    localStorage.removeItem = function(key) {
+    Storage.prototype.removeItem = function(key) {
         const sessionKeys = ['session_active'];
         if (sessionKeys.includes(key)) {
-            sessionStorage.removeItem(key);
-            return;
+            return originalRemoveItem.call(sessionStorage, key);
         }
-        const tenantKey = window.getTenantKey(key);
-        
-        // Remove from proxy, IndexedDB, and localStorage
-        delete window.DB_STORE[tenantKey];
-        localforage.removeItem(tenantKey);
-        originalRemoveItem(tenantKey);
-        originalRemoveItem(key); // Also clear non-prefixed if exists
+
+        if (this === localStorage) {
+            const tenantKey = window.getTenantKey(key);
+            
+            // Remove from proxy, IndexedDB, and localStorage
+            delete window.DB_STORE[tenantKey];
+            localforage.removeItem(tenantKey);
+            originalRemoveItem.call(localStorage, tenantKey);
+            originalRemoveItem.call(localStorage, key); // Also clear non-prefixed if exists
+        } else {
+            return originalRemoveItem.call(this, key);
+        }
     };
     
     // Call initDB when DOM is ready
@@ -1077,7 +1087,7 @@ document.addEventListener('DOMContentLoaded', () => {
             bell.innerHTML = '<span style="font-size:24px;">🖨️</span><span id="print-badge" style="display:none; position:absolute; top:-5px; right:-5px; background:black; color:white; font-size:12px; font-weight:bold; padding:2px 8px; border-radius:10px; border:2px solid #ef4444;">0</span>';
             document.body.appendChild(bell);
 
-            const badge = document.getElementById('print-badge');
+            const badge = bell.querySelector('#print-badge');
             
             setInterval(() => {
                 const reqs = JSON.parse(localStorage.getItem('erp_print_requests') || '[]');
