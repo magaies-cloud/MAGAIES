@@ -3,34 +3,6 @@ const cors = require('cors');
 const multer = require('multer');
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode');
-const fs = require('fs');
-const path = require('path');
-
-// Local log file writer
-const logFile = path.join(__dirname, 'wa_service.log');
-function writeLog(type, args) {
-    const time = new Date().toISOString();
-    const msg = args.map(arg => {
-        if (arg instanceof Error) return arg.stack;
-        return typeof arg === 'object' ? JSON.stringify(arg) : arg;
-    }).join(' ');
-    try {
-        fs.appendFileSync(logFile, `[${time}] [${type}] ${msg}\n`);
-    } catch(e) {}
-}
-
-const originalLog = console.log;
-const originalError = console.error;
-
-console.log = (...args) => {
-    originalLog(...args);
-    writeLog('INFO', args);
-};
-
-console.error = (...args) => {
-    originalError(...args);
-    writeLog('ERROR', args);
-};
 
 const app = express();
 app.use(cors());
@@ -170,8 +142,30 @@ app.post('/wa/send', upload.single('pdf'), async (req, res) => {
         return res.status(400).json({ error: 'Phone number is required.' });
     }
 
-    // Format phone number to standard WhatsApp format (add country code if missing, e.g. default to +249 for Sudan if needed, but let's assume UI handles it or clean it)
+    // Format phone number to standard WhatsApp format (add country code if missing)
     phone = phone.replace(/[^0-9]/g, '');
+    
+    if (phone.startsWith('0')) {
+        if (phone.startsWith('09') && phone.length === 10) {
+            // Sudan (e.g. 0912300105 -> 249912300105)
+            phone = '249' + phone.substring(1);
+        } else if (phone.startsWith('05') && phone.length === 10) {
+            // Saudi Arabia (e.g. 0501234567 -> 966501234567)
+            phone = '966' + phone.substring(1);
+        } else if (phone.startsWith('01') && phone.length === 11) {
+            // Egypt (e.g. 01012345678 -> 201012345678)
+            phone = '20' + phone.substring(1);
+        }
+    } else {
+        if (phone.startsWith('9') && phone.length === 9) {
+            // Sudan without leading 0 (e.g. 912300105 -> 249912300105)
+            phone = '249' + phone;
+        } else if (phone.startsWith('5') && phone.length === 9) {
+            // Saudi Arabia without leading 0 (e.g. 501234567 -> 966501234567)
+            phone = '966' + phone;
+        }
+    }
+
     if (!phone.endsWith('@c.us')) {
         phone = `${phone}@c.us`;
     }
