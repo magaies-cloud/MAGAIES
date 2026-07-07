@@ -21,6 +21,90 @@ $systemPrompt = "أنت مساعد محاسبي ومحلل مالي خبير ض�
 إذا سألك المستخدم عن معلومات متعلقة بالشركة (مثل السيولة، المبيعات، المخزون، أو رصيد عميل معين)، فاستخدم المعلومات الحقيقية المرفقة لك في الأسفل للإجابة بدقة. لا تقم باختراع أرقام من عندك إطلاقاً.
 إذا كان السؤال عاماً في المحاسبة فأجب بشرح علمي دقيق ومرتب.
 
+[مهم جداً - تنسيق الإجابة]:
+يجب أن تكون إجابتك دائماً بصيغة JSON نظيف بالكامل ولا تحتوى على أي نصوص خارج الـ JSON. الهيكل المطلوب للإجابة هو:
+{
+  \"reply\": \"كتابة الرد للمستخدم باللغة العربية هنا، استخدم التنسيق اللطيف والرموز التعبيرية إذا لزم الأمر.\",
+  \"action\": null
+}
+
+إذا طلب منك المستخدم إجراء عملية أو حركة مالية (مثل سند قبض، سند صرف، تحويل بين الخزائن، فاتورة مبيعات، أو فاتورة مشتريات)، يجب تعبئة حقل \"action\" بالبيانات المناسبة المستخرجة من كلام المستخدم كالتالي:
+
+1. لسند القبض (مثال: قبضت 5000 من أحمد لخزينة النقدية):
+{
+  \"reply\": \"لقد قمت بتجهيز سند القبض بقيمة 5,000 ريال من العميل أحمد...\",
+  \"action\": {
+    \"type\": \"draft_receipt\",
+    \"params\": {
+      \"from_name\": \"أحمد\",
+      \"to_name\": \"خزينة النقدية\",
+      \"amount\": 5000,
+      \"notes\": \"بيان السند\"
+    }
+  }
+}
+
+2. لسند الصرف (مثال: صرفت 2000 للمورد خالد من بنك الخرطوم):
+{
+  \"reply\": \"لقد قمت بتجهيز سند الصرف بقيمة 2,000 ريال للمورد خالد...\",
+  \"action\": {
+    \"type\": \"draft_payment\",
+    \"params\": {
+      \"from_name\": \"بنك الخرطوم\",
+      \"to_name\": \"خالد\",
+      \"amount\": 2000,
+      \"notes\": \"بيان السند\"
+    }
+  }
+}
+
+3. للتحويل المالي بين الخزن (مثال: حول 3000 من الخزينة الرئيسية إلى بنك الخرطوم):
+{
+  \"reply\": \"لقد قمت بتجهيز تحويل مالي بقيمة 3,000 ريال...\",
+  \"action\": {
+    \"type\": \"draft_transfer\",
+    \"params\": {
+      \"from_name\": \"الخزينة الرئيسية\",
+      \"to_name\": \"بنك الخرطوم\",
+      \"amount\": 3000,
+      \"notes\": \"تحويل مالي\"
+    }
+  }
+}
+
+4. لفاتورة المبيعات (مثال: اعمل فاتورة مبيعات للعميل أحمد بها صنف شاي الكمية 5 بسعر 120 وصنف سكر الكمية 2 بسعر 80):
+{
+  \"reply\": \"لقد قمت بتجهيز مسودة فاتورة المبيعات للعميل أحمد...\",
+  \"action\": {
+    \"type\": \"draft_sales_invoice\",
+    \"params\": {
+      \"customer_name\": \"أحمد\",
+      \"notes\": \"شرح الفاتورة إن وجد\",
+      \"items\": [
+        { \"name\": \"شاي\", \"qty\": 5, \"price\": 120 },
+        { \"name\": \"سكر\", \"qty\": 2, \"price\": 80 }
+      ]
+    }
+  }
+}
+
+5. لفاتورة المشتريات (مثال: جهز فاتورة مشتريات من المورد شركة النيل بها صنف زيت الكمية 10 بسعر 400):
+{
+  \"reply\": \"لقد قمت بتجهيز مسودة فاتورة المشتريات من المورد شركة النيل...\",
+  \"action\": {
+    \"type\": \"draft_purchase_invoice\",
+    \"params\": {
+      \"supplier_name\": \"شركة النيل\",
+      \"notes\": \"شرح الفاتورة إن وجد\",
+      \"items\": [
+        { \"name\": \"زيت\", \"qty\": 10, \"price\": 400 }
+      ]
+    }
+  }
+}
+
+تنبيه: يجب إخراج كود JSON صالح تماماً.
+
 [البيانات الحالية للشركة]:
 " . $systemContext;
 
@@ -50,6 +134,9 @@ $payload = [
         [
             "parts" => $parts
         ]
+    ],
+    "generationConfig" => [
+        "responseMimeType" => "application/json"
     ]
 ];
 
@@ -64,7 +151,7 @@ curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable SSL verification for
 $response = curl_exec($ch);
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $curlError = curl_error($ch);
-curl_close($ch);
+$curlClose = curl_close($ch);
 
 if ($response === false) {
     echo json_encode(['error' => 'cURL Error: ' . $curlError]);
@@ -82,8 +169,19 @@ if ($httpCode >= 400) {
 }
 
 if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
-    $aiReply = $responseData['candidates'][0]['content']['parts'][0]['text'];
-    echo json_encode(['reply' => $aiReply]);
+    $aiReply = trim($responseData['candidates'][0]['content']['parts'][0]['text']);
+    
+    // Clean potential markdown code blocks
+    if (preg_match('/^```(?:json)?\s*(.*)\s*```$/s', $aiReply, $m)) {
+        $aiReply = trim($m[1]);
+    }
+    
+    $decoded = json_decode($aiReply, true);
+    if (json_last_error() === JSON_ERROR_NONE) {
+        echo json_encode($decoded, JSON_UNESCAPED_UNICODE);
+    } else {
+        echo json_encode(['reply' => $aiReply, 'action' => null], JSON_UNESCAPED_UNICODE);
+    }
 } else {
     echo json_encode(['error' => 'استجابة غير متوقعة من الموديل', 'raw' => $responseData]);
 }

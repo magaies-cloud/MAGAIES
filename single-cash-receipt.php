@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'سند قبض نقدية وشيك'; ?>
+<?php $page_title = 'سند قبض نقدية وشيك'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -369,12 +369,10 @@
     
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-          
-                  if (fromAccEl) fromAccEl.dispatchEvent(new Event('change', { bubbles: true }));
-              }
-          });
-          
-          
+          const fromAccEl = document.getElementById('from-account');
+          if (fromAccEl) {
+              fromAccEl.dispatchEvent(new Event('change', { bubbles: true }));
+          }
       });
     </script>
     <script src="js/single-cash-receipt.js?v=20260612_7"></script>

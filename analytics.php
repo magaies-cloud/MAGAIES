@@ -428,6 +428,83 @@
             .kpi-value { font-size: 2rem; }
         }
         
+        /* Compact Bento Grid Layout */
+        .quick-reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* Compact Bento Card */
+        .quick-report-card {
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform-style: preserve-3d;
+        }
+
+        .quick-report-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 100%;
+            background: radial-gradient(circle at top, var(--glow-color), transparent 70%);
+            opacity: 0.15; transition: opacity 0.4s ease;
+        }
+        
+        .quick-report-card::after {
+            content: ''; position: absolute; inset: 0;
+            border-radius: 16px; padding: 2px;
+            background: linear-gradient(to bottom, var(--glow-color), transparent 60%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            opacity: 0.6; transition: opacity 0.4s ease;
+        }
+
+        .quick-report-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 20px var(--glow-color);
+            background: var(--glow-bg);
+            border-color: var(--glow-color);
+        }
+
+        .quick-report-card:hover::before { opacity: 0.25; }
+        .quick-report-card:hover::after { opacity: 1; }
+
+        .quick-report-card .icon-wrap {
+            width: 48px; height: 48px; border-radius: 12px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative; z-index: 2;
+            flex-shrink: 0;
+        }
+
+        .quick-report-card:hover .icon-wrap {
+            transform: scale(1.15) rotate(5deg);
+            background: var(--glow-color);
+            border-color: transparent;
+            box-shadow: 0 10px 25px var(--glow-color);
+            color: #000;
+        }
+
+        .quick-report-card .card-info { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 4px; text-align: right; }
+        .quick-report-card .card-info h4 { margin: 0; font-size: 1.05rem; font-weight: 800; color: #f8fafc; }
+        .quick-report-card .card-info p { margin: 0; font-size: 0.8rem; color: #94a3b8; line-height: 1.4; font-weight: 500; }
+
         /* Fix double sidebar spacing issue */
         body.has-sidebar { padding-right: 0 !important; }
     </style>
@@ -446,108 +523,47 @@
     <!-- Unified Premium Header -->
     <?php include 'includes/header.php'; ?>
 
-    <!-- Desktop/Mobile Premium Reports Quick Links (Rearranged under header) -->
-    <div class="quick-reports-section glass-panel" style="padding: 25px; margin-top: 20px; margin-bottom: 25px; border-top: 3px solid #38bdf8; animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);">
-        <h3 style="color: #38bdf8; font-size: 1.4rem; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 1.8rem;">📈</span> 
-            التقارير المحاسبية والمالية الرئيسية
-        </h3>
-        
-        <style>
-            .quick-report-card {
-                background: rgba(15, 23, 42, 0.65);
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 16px;
-                padding: 20px;
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                color: #fff;
-                text-decoration: none;
-                transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-                cursor: pointer;
-            }
-            .quick-report-card:hover {
-                transform: translateY(-5px);
-                border-color: #38bdf8;
-                box-shadow: 0 10px 25px rgba(56, 189, 248, 0.25);
-                background: rgba(15, 23, 42, 0.85);
-            }
-            .quick-report-card .icon-wrap {
-                width: 48px;
-                height: 48px;
-                border-radius: 12px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.5rem;
-                background: rgba(56, 189, 248, 0.15);
-                color: #38bdf8;
-                box-shadow: 0 0 10px rgba(56, 189, 248, 0.1);
-                transition: all 0.3s;
-            }
-            .quick-report-card:hover .icon-wrap {
-                background: #38bdf8;
-                color: #000;
-                box-shadow: 0 0 15px #38bdf8;
-            }
-            .quick-report-card .card-info {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-            }
-            .quick-report-card .card-info h4 {
-                margin: 0;
-                font-size: 1.1rem;
-                font-weight: 800;
-                color: #fff;
-            }
-            .quick-report-card .card-info p {
-                margin: 0;
-                font-size: 0.8rem;
-                color: #94a3b8;
-                font-weight: 500;
-                line-height: 1.4;
-            }
-        </style>
+    <!-- Desktop/Mobile Premium Reports Bento Grid (Rearranged under header) -->
+    <h2 class="section-heading" style="color: #38bdf8; font-size: 1.4rem; margin: 30px 0 20px 0; display: flex; align-items: center; gap: 12px; animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);">
+        <span class="heading-icon" style="color:#38bdf8; box-shadow:0 0 15px rgba(56,189,248,0.2);">📊</span>
+        التقارير المحاسبية والمالية الرئيسية
+    </h2>
+    <div class="quick-reports-grid" style="animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);">
+        <!-- 1. General Ledger -->
+        <a href="general-ledger.php" class="quick-report-card" style="--glow-color: rgba(251, 191, 36, 0.65); --glow-bg: rgba(251, 191, 36, 0.12);">
+            <div class="icon-wrap">📓</div>
+            <div class="card-info">
+                <h4>دفتر الأستاذ العام</h4>
+                <p>تفاصيل العمليات المالية المقيدة وحسابات الأستاذ التفصيلية.</p>
+            </div>
+        </a>
 
-        <div class="quick-reports-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
-            <!-- 1. General Ledger -->
-            <a href="general-ledger.php" class="quick-report-card">
-                <div class="icon-wrap">📓</div>
-                <div class="card-info">
-                    <h4>دفتر الأستاذ العام</h4>
-                    <p>تفاصيل العمليات المالية المقيدة وحسابات الأستاذ التفصيلية.</p>
-                </div>
-            </a>
+        <!-- 2. Posting Accounts -->
+        <a href="posting-accounts.php" class="quick-report-card" style="--glow-color: rgba(192, 132, 252, 0.65); --glow-bg: rgba(192, 132, 252, 0.12);">
+            <div class="icon-wrap">🔄</div>
+            <div class="card-info">
+                <h4>ترحيل الحسابات</h4>
+                <p>مراجعة وترحيل العمليات المالية وتدقيق الحسابات المفتوحة.</p>
+            </div>
+        </a>
 
-            <!-- 2. Posting Accounts -->
-            <a href="posting-accounts.php" class="quick-report-card">
-                <div class="icon-wrap">🔄</div>
-                <div class="card-info">
-                    <h4>ترحيل الحسابات</h4>
-                    <p>مراجعة وترحيل العمليات المالية وتدقيق الحسابات المفتوحة.</p>
-                </div>
-            </a>
+        <!-- 3. Disclosures -->
+        <a href="financial-reports.php" class="quick-report-card" style="--glow-color: rgba(52, 211, 153, 0.65); --glow-bg: rgba(52, 211, 153, 0.12);">
+            <div class="icon-wrap">📊</div>
+            <div class="card-info">
+                <h4>الإفصاحات والقوائم</h4>
+                <p>الحسابات الختامية، الأرباح والخسائر وميزان المراجعة الشامل.</p>
+            </div>
+        </a>
 
-            <!-- 3. Disclosures -->
-            <a href="financial-reports.php" class="quick-report-card">
-                <div class="icon-wrap">📊</div>
-                <div class="card-info">
-                    <h4>الإفصاحات والقوائم</h4>
-                    <p>الحسابات الختامية، الأرباح والخسائر وميزان المراجعة الشامل.</p>
-                </div>
-            </a>
-
-            <!-- 4. Analysis -->
-            <a onclick="document.querySelector('.kpi-grid').scrollIntoView({ behavior: 'smooth' })" class="quick-report-card">
-                <div class="icon-wrap">📈</div>
-                <div class="card-info">
-                    <h4>التحليلات والمؤشرات</h4>
-                    <p>مؤشرات الأداء الرئيسية والرسوم البيانية للمبيعات والمشتريات.</p>
-                </div>
-            </a>
-        </div>
+        <!-- 4. Analysis -->
+        <a onclick="document.querySelector('.kpi-grid').scrollIntoView({ behavior: 'smooth' })" class="quick-report-card" style="--glow-color: rgba(56, 189, 248, 0.65); --glow-bg: rgba(56, 189, 248, 0.12);">
+            <div class="icon-wrap">📈</div>
+            <div class="card-info">
+                <h4>التحليلات والمؤشرات</h4>
+                <p>مؤشرات الأداء الرئيسية والرسوم البيانية للمبيعات والمشتريات.</p>
+            </div>
+        </a>
     </div>
 
     <!-- AI Insights Section -->
@@ -1006,6 +1022,28 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // High Performance 3D Parallax effect on Quick Report Cards
+        document.querySelectorAll('.quick-report-card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left; 
+                const y = e.clientY - rect.top;  
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = ((y - centerY) / centerY) * -4;
+                const rotateY = ((x - centerX) / centerX) * 4;
+                
+                card.style.transform = `translateY(-5px) scale(1.02) perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+            
+            card.style.transition = 'transform 0.1s ease-out';
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `translateY(0) scale(1) perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+            });
+        });
+
         if (typeof Sortable !== 'undefined') {
             // تفعيل السحب والإفلات للأقسام الرئيسية (البطاقات الكبيرة)
             const grid = document.querySelector('.reports-directory-grid');

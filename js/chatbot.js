@@ -24,18 +24,26 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .chat-msg.bot { align-self: flex-start; background: rgba(15, 23, 42, 0.6); color: #f1f5f9; border: 1px solid rgba(255,255,255,0.05); border-bottom-right-radius: 4px; }
         .chat-msg.user { align-self: flex-end; background: #0ea5e9; color: white; border-bottom-left-radius: 4px; }
-        .chat-action-btn { display: inline-block; margin-top: 8px; padding: 6px 12px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; text-decoration: none; border-radius: 6px; font-size: 0.85rem; font-weight: 600; transition: 0.2s; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .chat-action-btn { display: inline-block; margin-top: 8px; padding: 6px 12px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; text-decoration: none; border-radius: 6px; font-size: 0.85rem; font-weight: 600; transition: 0.2s; border: 1px solid rgba(56, 189, 248, 0.3); border: none; cursor: pointer; text-align: center; }
         .chat-action-btn:hover { background: #38bdf8; color: #0f172a; }
         .chat-whatsapp-btn { background: rgba(37, 211, 102, 0.15); color: #25d366; border: 1px solid rgba(37, 211, 102, 0.3); }
         .chat-whatsapp-btn:hover { background: #25d366; color: #fff; }
-        #chatbot-input-area { display: flex; padding: 12px; background: rgba(15, 23, 42, 0.8); border-top: 1px solid rgba(255,255,255,0.05); gap: 8px; }
+        #chatbot-input-area { display: flex; padding: 12px; background: rgba(15, 23, 42, 0.8); border-top: 1px solid rgba(255,255,255,0.05); gap: 8px; align-items: center; }
         #chatbot-input { flex: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 20px; padding: 10px 15px; font-size: 0.95rem; outline: none; transition: 0.3s; font-family: inherit; }
         #chatbot-input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56,189,248,0.2); }
-        #chatbot-send { width: 42px; height: 42px; border-radius: 50%; background: #0ea5e9; color: white; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; font-size: 1.2rem; }
+        #chatbot-mic { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.05); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; font-size: 1.1rem; outline: none; }
+        #chatbot-mic:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        #chatbot-mic.recording { background: #ef4444 !important; color: white !important; animation: micPulse 1.2s infinite; border-color: #ef4444; }
+        #chatbot-send { width: 38px; height: 38px; border-radius: 50%; background: #0ea5e9; color: white; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; font-size: 1.1rem; outline: none; }
         #chatbot-send:hover { background: #0284c7; transform: scale(1.05); }
         .chat-options { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .chat-pill { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; padding: 6px 12px; border-radius: 15px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
         .chat-pill:hover { background: rgba(56,189,248,0.2); color: #38bdf8; border-color: #38bdf8; }
+        @keyframes micPulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
         @media (max-width: 480px) { #chatbot-window { width: calc(100vw - 40px); bottom: 85px; height: 450px; } }
     `;
     document.head.appendChild(style);
@@ -70,6 +78,7 @@
             </div>
             <div id="chatbot-input-area">
                 <input type="text" id="chatbot-input" placeholder="اسأل عن أي مديونية أو فاتورة..." autocomplete="off">
+                <button id="chatbot-mic" title="تحدث بالصوت">🎤</button>
                 <button id="chatbot-send">➤</button>
             </div>
         </div>
@@ -722,9 +731,60 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.reply) {
-                        // Format bold text **text** to HTML
                         let formattedReply = data.reply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-                        msgEl.innerHTML = formattedReply;
+                        
+                        // Parse AI Actions if present
+                        let actionBtnHtml = '';
+                        if (data.action && data.action.type && data.action.params) {
+                            const action = data.action;
+                            const type = action.type;
+                            const params = action.params;
+                            
+                            const queryParams = new URLSearchParams();
+                            queryParams.set('chatbot_draft', 'true');
+                            queryParams.set('action_type', type);
+                            for (let key in params) {
+                                if (typeof params[key] === 'object') {
+                                    queryParams.set(key, JSON.stringify(params[key]));
+                                } else {
+                                    queryParams.set(key, params[key]);
+                                }
+                            }
+                            
+                            let targetPage = '';
+                            let btnText = '';
+                            
+                            if (type === 'draft_receipt') {
+                                targetPage = 'single-cash-receipt.php';
+                                btnText = '💵 فتح شاشة السند وتعبئته';
+                            } else if (type === 'draft_payment') {
+                                targetPage = 'single-cash-payment.php';
+                                btnText = '💸 فتح شاشة الصرف وتعبئته';
+                            } else if (type === 'draft_transfer') {
+                                targetPage = 'safe-transfer.php';
+                                btnText = '🏦 فتح شاشة التحويل وتعبئته';
+                            } else if (type === 'draft_sales_invoice') {
+                                targetPage = 'sales-invoice.php';
+                                btnText = '📄 فتح شاشة الفاتورة وتعبئتها';
+                            } else if (type === 'draft_purchase_invoice') {
+                                targetPage = 'purchase.php';
+                                btnText = '🛒 فتح شاشة المشتريات وتعبئتها';
+                            }
+                            
+                            if (targetPage) {
+                                const fullUrl = `${targetPage}?${queryParams.toString()}`;
+                                const currentPath = window.location.pathname;
+                                
+                                if (currentPath.includes(targetPage)) {
+                                    const actionJsonEscaped = JSON.stringify(action).replace(/"/g, '&quot;');
+                                    actionBtnHtml = `<br><button class="chat-action-btn" onclick="executeLocalDraft(${actionJsonEscaped})">⚡ تعبئة الحقول هنا فوراً</button>`;
+                                } else {
+                                    actionBtnHtml = `<br><a href="${fullUrl}" class="chat-action-btn">${btnText}</a>`;
+                                }
+                            }
+                        }
+                        
+                        msgEl.innerHTML = formattedReply + actionBtnHtml;
                     } else {
                         msgEl.innerHTML = 'عذراً، حدث خطأ في الاتصال بالمساعد الذكي.';
                     }
@@ -740,5 +800,536 @@
 
     sendBtn.addEventListener('click', () => { processUserMessage(input.value); });
     input.addEventListener('keypress', (e) => { if(e.key === 'Enter') processUserMessage(input.value); });
+
+    // --- Speech Recognition ---
+    const micBtn = document.getElementById('chatbot-mic');
+    if (micBtn) {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'ar-SA';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            
+            let isRecording = false;
+            
+            recognition.onstart = () => {
+                isRecording = true;
+                micBtn.innerHTML = '🛑';
+                micBtn.classList.add('recording');
+                input.placeholder = 'جاري الاستماع لصوتك... 🎙️';
+            };
+            
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                input.value = transcript;
+            };
+            
+            recognition.onerror = (e) => {
+                console.error('Speech Recognition Error:', e.error);
+                input.placeholder = 'اسأل عن أي مديونية أو فاتورة...';
+                stopRec();
+            };
+            
+            recognition.onend = () => {
+                stopRec();
+                if (input.value.trim() !== '') {
+                    processUserMessage(input.value);
+                }
+            };
+            
+            function stopRec() {
+                isRecording = false;
+                micBtn.innerHTML = '🎤';
+                micBtn.classList.remove('recording');
+                input.placeholder = 'اسأل عن أي مديونية أو فاتورة...';
+            }
+            
+            micBtn.addEventListener('click', () => {
+                if (isRecording) {
+                    recognition.stop();
+                } else {
+                    recognition.start();
+                }
+            });
+        } else {
+            micBtn.style.display = 'none';
+        }
+    }
+
+    // --- Database Helper Finders ---
+    function findBestAccountMatch(name) {
+        console.log('Chatbot: findBestAccountMatch query =', name);
+        if (!name) return null;
+        
+        const normalize = (str) => {
+            if (!str) return '';
+            return str.toString()
+                .replace(/[أإآ]/g, 'ا')
+                .replace(/ة/g, 'ه')
+                .replace(/ى/g, 'ي')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .toLowerCase();
+        };
+        
+        const cleanWord = (word) => {
+            if (word.startsWith('ال') && word.length > 3) {
+                word = word.substring(2);
+            }
+            return word;
+        };
+        
+        const nameNorm = normalize(name);
+        const nameWords = nameNorm.split(' ').map(cleanWord).filter(w => w.length > 0);
+        
+        const keys = ['erp_customers_v1', 'erp_suppliers_v1', 'erp_banks_v1', 'erp_safes_v1', 'erp_accounts_v1'];
+        let bestMatch = null;
+        let highestScore = 0;
+        
+        for (let k of keys) {
+            try {
+                const raw = localStorage.getItem(k);
+                if (!raw) continue;
+                
+                const list = typeof raw === 'string' ? JSON.parse(raw || '[]') : (raw || []);
+                console.log(`Chatbot: searching key ${k}, elements count = ${list.length}`);
+                
+                for (let item of list) {
+                    if (!item.name || item.deleted) continue;
+                    const itemNorm = normalize(item.name);
+                    
+                    if (itemNorm === nameNorm) {
+                        console.log('Chatbot: exact account match found:', item.name);
+                        return { id: item.id || item.code, name: item.name };
+                    }
+                    if (itemNorm.includes(nameNorm) || nameNorm.includes(itemNorm)) {
+                        const score = Math.min(itemNorm.length, nameNorm.length) / Math.max(itemNorm.length, nameNorm.length);
+                        if (score + 0.5 > highestScore) {
+                            highestScore = score + 0.5;
+                            bestMatch = { id: item.id || item.code, name: item.name };
+                        }
+                    }
+                    
+                    const itemWords = itemNorm.split(' ').map(cleanWord).filter(w => w.length > 0);
+                    let matchCount = 0;
+                    nameWords.forEach(w1 => {
+                        itemWords.forEach(w2 => {
+                            if (w1 === w2 || w1.includes(w2) || w2.includes(w1)) {
+                                matchCount++;
+                            }
+                        });
+                    });
+                    
+                    const score = matchCount / Math.max(nameWords.length, itemWords.length);
+                    if (score > highestScore) {
+                        highestScore = score;
+                        bestMatch = { id: item.id || item.code, name: item.name };
+                    }
+                }
+            } catch(e) {
+                console.warn(`Chatbot: Error parsing account list for key ${k}`, e);
+            }
+        }
+        
+        console.log('Chatbot: findBestAccountMatch best match result =', bestMatch, 'with score =', highestScore);
+        return highestScore > 0.3 ? bestMatch : null;
+    }
+
+    function findBestItemMatch(name) {
+        console.log('Chatbot: findBestItemMatch query =', name);
+        if (!name) return null;
+        
+        const normalize = (str) => {
+            if (!str) return '';
+            return str.toString()
+                .replace(/[أإآ]/g, 'ا')
+                .replace(/ة/g, 'ه')
+                .replace(/ى/g, 'ي')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .toLowerCase();
+        };
+        
+        const cleanWord = (word) => {
+            if (word.startsWith('ال') && word.length > 3) {
+                word = word.substring(2);
+            }
+            return word;
+        };
+        
+        const nameNorm = normalize(name);
+        const nameWords = nameNorm.split(' ').map(cleanWord).filter(w => w.length > 0);
+        
+        let bestMatch = null;
+        let highestScore = 0;
+        
+        try {
+            const raw = localStorage.getItem('erp_items_v1');
+            if (raw) {
+                const list = typeof raw === 'string' ? JSON.parse(raw || '[]') : (raw || []);
+                console.log(`Chatbot: searching items, elements count = ${list.length}`);
+                
+                for (let item of list) {
+                    if (!item.name || item.deleted) continue;
+                    const itemNorm = normalize(item.name);
+                    
+                    if (itemNorm === nameNorm) {
+                        console.log('Chatbot: exact item match found:', item.name);
+                        return { id: item.id, name: item.name, price: parseFloat(item.price || item.openingValue || 0) };
+                    }
+                    if (itemNorm.includes(nameNorm) || nameNorm.includes(itemNorm)) {
+                        const score = Math.min(itemNorm.length, nameNorm.length) / Math.max(itemNorm.length, nameNorm.length);
+                        if (score + 0.5 > highestScore) {
+                            highestScore = score + 0.5;
+                            bestMatch = { id: item.id, name: item.name, price: parseFloat(item.price || item.openingValue || 0) };
+                        }
+                    }
+                    
+                    const itemWords = itemNorm.split(' ').map(cleanWord).filter(w => w.length > 0);
+                    let matchCount = 0;
+                    nameWords.forEach(w1 => {
+                        itemWords.forEach(w2 => {
+                            if (w1 === w2 || w1.includes(w2) || w2.includes(w1)) {
+                                matchCount++;
+                            }
+                        });
+                    });
+                    
+                    const score = matchCount / Math.max(nameWords.length, itemWords.length);
+                    if (score > highestScore) {
+                        highestScore = score;
+                        bestMatch = { id: item.id, name: item.name, price: parseFloat(item.price || item.openingValue || 0) };
+                    }
+                }
+            }
+        } catch(e) {
+            console.warn('Chatbot: Error parsing items list', e);
+        }
+        
+        console.log('Chatbot: findBestItemMatch best match result =', bestMatch, 'with score =', highestScore);
+        return highestScore > 0.3 ? bestMatch : null;
+    }
+
+    // --- Local Execution ---
+    window.executeLocalDraft = function(action) {
+        console.log('Chatbot: executeLocalDraft action =', action);
+        if (!action || !action.type || !action.params) return;
+        const type = action.type;
+        const params = action.params;
+        
+        try {
+            if (type === 'draft_receipt') {
+                autoFillReceipt(params.from_name, params.to_name, params.amount, params.notes);
+            } else if (type === 'draft_payment') {
+                autoFillPayment(params.from_name, params.to_name, params.amount, params.notes);
+            } else if (type === 'draft_transfer') {
+                autoFillTransfer(params.from_name, params.to_name, params.amount, params.notes);
+            } else if (type === 'draft_sales_invoice') {
+                autoFillSalesInvoice(params.customer_name, params.items, params.notes);
+            } else if (type === 'draft_purchase_invoice') {
+                autoFillPurchaseInvoice(params.supplier_name, params.items, params.notes);
+            }
+        } catch(e) {
+            console.error('Chatbot: Error executing local draft:', e);
+        }
+    };
+
+    // --- Page Auto-fill Handlers ---
+    function autoFillReceipt(fromName, toName, amount, notes) {
+        console.log('Chatbot: autoFillReceipt executing with inputs:', { fromName, toName, amount, notes });
+        const amtEl = document.getElementById('amount-local');
+        if (amtEl) {
+            amtEl.value = amount;
+            amtEl.dispatchEvent(new Event('input', { bubbles: true }));
+            amtEl.dispatchEvent(new Event('blur', { bubbles: true }));
+            console.log('Chatbot: amount-local populated with:', amount);
+        } else {
+            console.warn('Chatbot: amount-local element not found in DOM!');
+        }
+        
+        const fromStmt = document.getElementById('from-statement');
+        if (fromStmt) fromStmt.value = notes || 'سند قبض مجهز بالمساعد الذكي';
+        const toStmt = document.getElementById('to-statement');
+        if (toStmt) toStmt.value = notes || 'سند قبض مجهز بالمساعد الذكي';
+        
+        if (fromName) {
+            const acc = findBestAccountMatch(fromName);
+            console.log('Chatbot: fromName match =', acc);
+            if (acc && typeof window.selectAccount === 'function') {
+                window.selectAccount('from', acc.id, acc.name);
+                console.log('Chatbot: from account selected:', acc.name);
+            } else {
+                console.warn('Chatbot: could not select from-account!', { acc, selectAccount: typeof window.selectAccount });
+            }
+        }
+        if (toName) {
+            const acc = findBestAccountMatch(toName);
+            console.log('Chatbot: toName match =', acc);
+            if (acc && typeof window.selectAccount === 'function') {
+                window.selectAccount('to', acc.id, acc.name);
+                console.log('Chatbot: to account selected:', acc.name);
+            } else {
+                console.warn('Chatbot: could not select to-account!', { acc, selectAccount: typeof window.selectAccount });
+            }
+        }
+        
+        if (typeof showToast === 'function') {
+            showToast('✨ تم تجهيز وتعبئة بيانات سند القبض تلقائياً!', 'success', 5000);
+        }
+    }
+
+    function autoFillPayment(fromName, toName, amount, notes) {
+        console.log('Chatbot: autoFillPayment executing with inputs:', { fromName, toName, amount, notes });
+        const amtEl = document.getElementById('amount-local');
+        if (amtEl) {
+            amtEl.value = amount;
+            amtEl.dispatchEvent(new Event('input', { bubbles: true }));
+            amtEl.dispatchEvent(new Event('blur', { bubbles: true }));
+            console.log('Chatbot: amount-local populated with:', amount);
+        }
+        
+        const toStmt = document.getElementById('to-statement');
+        if (toStmt) toStmt.value = notes || 'سند صرف مجهز بالمساعد الذكي';
+        
+        if (fromName) {
+            const acc = findBestAccountMatch(fromName);
+            console.log('Chatbot: fromName match =', acc);
+            if (acc && typeof window.selectAccount === 'function') {
+                window.selectAccount('from', acc.id, acc.name);
+                console.log('Chatbot: from account selected:', acc.name);
+            }
+        }
+        if (toName) {
+            const acc = findBestAccountMatch(toName);
+            console.log('Chatbot: toName match =', acc);
+            if (acc && typeof window.selectAccount === 'function') {
+                window.selectAccount('to', acc.id, acc.name);
+                console.log('Chatbot: to account selected:', acc.name);
+            }
+        }
+        
+        if (typeof showToast === 'function') {
+            showToast('✨ تم تجهيز وتعبئة بيانات سند الصرف تلقائياً!', 'success', 5000);
+        }
+    }
+
+    function autoFillTransfer(fromName, toName, amount, notes) {
+        console.log('Chatbot: autoFillTransfer executing with inputs:', { fromName, toName, amount, notes });
+        const amtEl = document.getElementById('t-amount');
+        if (amtEl) {
+            amtEl.value = amount;
+            amtEl.dispatchEvent(new Event('input', { bubbles: true }));
+            console.log('Chatbot: t-amount populated with:', amount);
+        }
+        
+        const noteEl = document.getElementById('t-notes');
+        if (noteEl) noteEl.value = notes || 'تحويل مالي مجهز بالمساعد الذكي';
+        
+        if (fromName) {
+            const acc = findBestAccountMatch(fromName);
+            console.log('Chatbot: fromName match =', acc);
+            if (acc && typeof window.selectAccount === 'function') {
+                window.selectAccount('from', acc.id, acc.name);
+                console.log('Chatbot: from account selected:', acc.name);
+            }
+        }
+        if (toName) {
+            const acc = findBestAccountMatch(toName);
+            console.log('Chatbot: toName match =', acc);
+            if (acc && typeof window.selectAccount === 'function') {
+                window.selectAccount('to', acc.id, acc.name);
+                console.log('Chatbot: to account selected:', acc.name);
+            }
+        }
+        
+        if (typeof showToast === 'function') {
+            showToast('✨ تم تجهيز وتعبئة بيانات التحويل المالي تلقائياً!', 'success', 5000);
+        } else {
+            alert('✨ تم تجهيز وتعبئة بيانات التحويل المالي تلقائياً!');
+        }
+    }
+
+    function autoFillSalesInvoice(customerName, items, notes) {
+        console.log('Chatbot: autoFillSalesInvoice executing with inputs:', { customerName, items, notes });
+        if (customerName) {
+            const cust = findBestAccountMatch(customerName);
+            console.log('Chatbot: customerName match =', cust);
+            if (cust && typeof window.selectCustomer === 'function') {
+                window.selectCustomer(cust.id, cust.name);
+                console.log('Chatbot: customer selected:', cust.name);
+            }
+        }
+        
+        const descEl = document.getElementById('hdr-description');
+        if (descEl) descEl.value = notes || 'فاتورة مبيعات مجهزة بالمساعد الذكي';
+        
+        if (items) {
+            try {
+                const parsedItems = typeof items === 'string' ? JSON.parse(items) : items;
+                if (Array.isArray(parsedItems) && parsedItems.length > 0) {
+                    if (typeof window.rows !== 'undefined') {
+                        window.rows = []; // Clear
+                    }
+                    
+                    parsedItems.forEach(item => {
+                        const matchedItem = findBestItemMatch(item.name);
+                        console.log(`Chatbot: matching item ${item.name} result =`, matchedItem);
+                        if (matchedItem) {
+                            if (typeof window.addRow === 'function') {
+                                window.addRow();
+                                const newRow = window.rows[window.rows.length - 1];
+                                if (newRow && typeof window.updateRow === 'function') {
+                                    window.updateRow(newRow.id, 'itemId', matchedItem.id);
+                                    window.updateRow(newRow.id, 'quantity', item.qty || 1);
+                                    window.updateRow(newRow.id, 'price', item.price || matchedItem.price || 0);
+                                    console.log(`Chatbot: added row for item ${matchedItem.name}`);
+                                }
+                            }
+                        }
+                    });
+                    
+                    if (typeof window.recalcAll === 'function') window.recalcAll();
+                    if (typeof window.renderGrid === 'function') window.renderGrid();
+                }
+            } catch(e) {
+                console.error('Chatbot: Sales invoice auto-fill items error:', e);
+            }
+        }
+        
+        if (typeof showToast === 'function') {
+            showToast('✨ تم تجهيز وتعبئة فاتورة المبيعات تلقائياً!', 'success', 5000);
+        }
+    }
+
+    function autoFillPurchaseInvoice(supplierName, items, notes) {
+        if (supplierName) {
+            const supp = findBestAccountMatch(supplierName);
+            if (supp && typeof window.selectCustomer === 'function') {
+                window.selectCustomer(supp.id, supp.name);
+            }
+        }
+        
+        const descEl = document.getElementById('hdr-description');
+        if (descEl) descEl.value = notes || 'فاتورة مشتريات مجهزة بالمساعد الذكي';
+        
+        if (items) {
+            try {
+                const parsedItems = typeof items === 'string' ? JSON.parse(items) : items;
+                if (Array.isArray(parsedItems) && parsedItems.length > 0) {
+                    if (typeof window.rows !== 'undefined') {
+                        window.rows = []; // Clear
+                    }
+                    
+                    parsedItems.forEach(item => {
+                        const matchedItem = findBestItemMatch(item.name);
+                        if (matchedItem) {
+                            if (typeof window.addRow === 'function') {
+                                window.addRow(true); // quiet mode
+                                const newRow = window.rows[window.rows.length - 1];
+                                if (newRow && typeof window.updateRow === 'function') {
+                                    window.updateRow(newRow.id, 'itemId', matchedItem.id);
+                                    window.updateRow(newRow.id, 'quantity', item.qty || 1);
+                                    window.updateRow(newRow.id, 'price', item.price || matchedItem.price || 0);
+                                }
+                            }
+                        }
+                    });
+                    
+                    if (typeof window.recalcAll === 'function') window.recalcAll();
+                    if (typeof window.renderGrid === 'function') window.renderGrid();
+                }
+            } catch(e) {
+                console.error('Purchase invoice auto-fill items error:', e);
+            }
+        }
+        
+        if (typeof showToast === 'function') {
+            showToast('✨ تم تجهيز وتعبئة فاتورة المشتريات تلقائياً!', 'success', 5000);
+        }
+    }
+
+    // --- On-load URL parameter checker ---
+    (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('chatbot_draft') === 'true') {
+            const actionType = urlParams.get('action_type');
+            console.log('Chatbot: URL checker detected chatbot_draft parameter with actionType =', actionType);
+            
+            const runAutoFill = () => {
+                let attempts = 0;
+                const interval = setInterval(() => {
+                    attempts++;
+                    if (attempts > 100) { // Stop polling after 10 seconds
+                        console.warn('Chatbot: Polling timeout reached. DOM elements or controllers not ready.');
+                        clearInterval(interval);
+                        return;
+                    }
+                    
+                    // Verify if core elements of target pages are ready in DOM
+                    let elementsReady = false;
+                    if (actionType === 'draft_receipt' || actionType === 'draft_payment') {
+                        elementsReady = document.getElementById('amount-local') && 
+                                        document.getElementById('from-account') && 
+                                        typeof window.selectAccount === 'function';
+                    } else if (actionType === 'draft_transfer') {
+                        elementsReady = document.getElementById('t-amount') && 
+                                        typeof window.selectAccount === 'function';
+                    } else if (actionType === 'draft_sales_invoice' || actionType === 'draft_purchase_invoice') {
+                        elementsReady = document.getElementById('hdr-description') && 
+                                        typeof window.selectCustomer === 'function' && 
+                                        typeof window.addRow === 'function';
+                    }
+                    
+                    console.log(`Chatbot: Polling attempt #${attempts}, elementsReady = ${elementsReady}`);
+                    
+                    if (elementsReady) {
+                        clearInterval(interval);
+                        console.log('Chatbot: Target elements found! Clearing interval and launching autoFill.');
+                        try {
+                            if (actionType === 'draft_receipt') {
+                                autoFillReceipt(
+                                    urlParams.get('from_name'),
+                                    urlParams.get('to_name'),
+                                    urlParams.get('amount'),
+                                    urlParams.get('notes')
+                                );
+                            } else if (actionType === 'draft_payment') {
+                                autoFillPayment(
+                                    urlParams.get('from_name'),
+                                    urlParams.get('to_name'),
+                                    urlParams.get('amount'),
+                                    urlParams.get('notes')
+                                );
+                            } else if (actionType === 'draft_transfer') {
+                                autoFillTransfer(
+                                    urlParams.get('from_name'),
+                                    urlParams.get('to_name'),
+                                    urlParams.get('amount'),
+                                    urlParams.get('notes')
+                                );
+                            } else if (actionType === 'draft_sales_invoice') {
+                                autoFillSalesInvoice(
+                                    urlParams.get('customer_name'),
+                                    urlParams.get('items'),
+                                    urlParams.get('notes')
+                                );
+                            } else if (actionType === 'draft_purchase_invoice') {
+                                autoFillPurchaseInvoice(
+                                    urlParams.get('supplier_name'),
+                                    urlParams.get('items'),
+                                    urlParams.get('notes')
+                                );
+                            }
+                        } catch(e) {
+                            console.error('Chatbot: On-load auto-fill execution failed:', e);
+                        }
+                    }
+                }, 100);
+            };
+            
+            runAutoFill();
+        }
+    })();
 
 })();

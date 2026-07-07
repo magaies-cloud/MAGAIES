@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'الحسابات'; ?>
+<?php $page_title = 'الحسابات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -599,85 +599,6 @@
             </div>
         </a>
 
-
-        <!-- General Ledger -->
-        <a data-href="general-ledger.php" onclick="window.location.href='general-ledger.php'" class="premium-card" style="--card-color: #ec4899; --card-rgb: 236, 72, 153;">
-            <div class="card-glow"></div>
-            <div class="flow-badge" style="background: rgba(236,72,153,0.1); color: #ec4899; border: 1px solid rgba(236,72,153,0.2);">
-                <span>📖</span> الأستاذ
-            </div>
-            <div class="card-content">
-                <div class="icon-wrapper">
-                    <span style="font-size: 2.2rem; filter: drop-shadow(0 4px 10px rgba(236,72,153,0.4));">📖</span>
-                </div>
-                <div class="text-content">
-                    <h2>دفتر الأستاذ العام</h2>
-                    <p>استعراض الأرصدة التراكمية وحركة الحسابات باحترافية عالية.</p>
-                </div>
-                <div class="card-actions">
-                    <span class="v-btn">عرض الدفتر</span>
-                    <span class="v-arrow" style="background: #ec4899; color: #fff;">←</span>
-                </div>
-            </div>
-        </a>
-
-
-        <!-- Account Posting (Auditing) -->
-        <a data-href="posting-accounts.php" onclick="window.location.href='posting-accounts.php'" class="premium-card" style="--card-color: #eab308; --card-rgb: 234, 179, 8;">
-            <div class="card-glow"></div>
-            <div class="flow-badge" style="background: rgba(234,179,8,0.1); color: #eab308; border: 1px solid rgba(234,179,8,0.2);">
-                <span>✔️</span> ترحيل
-            </div>
-            <div class="card-content">
-                <div class="icon-wrapper">
-                    <span class="v-icon">✅</span>
-                </div>
-                <h3 class="v-title">ترحيل الحسابات</h3>
-                <p class="v-subtitle">مراجعة واعتماد الحركات غير المرحّلة (قيود، فواتير).</p>
-                <div class="v-footer">
-                    <span class="v-badge" style="background: rgba(234,179,8,0.15); color: #eab308; border-color: rgba(234,179,8,0.3);">Posting</span>
-                    <span class="v-arrow" style="background: #eab308; color: #fff;">←</span>
-                </div>
-            </div>
-        </a>
-
-        <!-- Analytics -->
-        <a data-href="analytics.php" onclick="window.location.href='analytics.php'" class="premium-card" style="--card-color: #6366f1; --card-rgb: 99, 102, 241;">
-            <div class="card-glow"></div>
-            <div class="flow-badge" style="background: rgba(99,102,241,0.1); color: #6366f1; border: 1px solid rgba(99,102,241,0.2);">
-                <span>📊</span> إحصائيات
-            </div>
-            <div class="card-content">
-                <div class="icon-wrapper">
-                    <span class="v-icon">📈</span>
-                </div>
-                <h3 class="v-title">إحصائيات وتحليلات</h3>
-                <p class="v-subtitle">مؤشرات الأداء والتحليلات المالية والرسوم البيانية.</p>
-                <div class="v-footer">
-                    <span class="v-badge" style="background: rgba(99,102,241,0.15); color: #6366f1; border-color: rgba(99,102,241,0.3);">Analytics</span>
-                    <span class="v-arrow" style="background: #6366f1; color: #fff;">←</span>
-                </div>
-            </div>
-        </a>
-
-        <!-- 1. Journal Ledger -->
-        <a data-href="journal.php" onclick="window.location.href='journal.php'" class="premium-card" style="--card-color: #14b8a6; --card-rgb: 20, 184, 166;">
-            <div class="card-glow"></div>
-            <div class="flow-badge" style="background: rgba(20,184,166,0.1); color: #14b8a6; border: 1px solid rgba(20,184,166,0.2);">
-                <span>📔</span> دفتر
-            </div>
-            <div class="card-content">
-                <div class="icon-wrapper">
-                    <span class="v-icon">📅</span>
-                </div>
-                <h3 class="v-title">دفتر يومية</h3>
-                <p class="v-subtitle">سجل بجميع القيود والحركات المحاسبية اليومية.</p>
-                <div class="v-footer">
-                    <span class="v-badge" style="background: rgba(20,184,166,0.15); color: #14b8a6; border-color: rgba(20,184,166,0.3);">Ledger</span>
-                    <span class="v-arrow" style="background: #14b8a6; color: #fff;">←</span>
-                </div>
-            </div>
-        </a>
 
 
 
