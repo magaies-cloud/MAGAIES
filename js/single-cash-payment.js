@@ -309,6 +309,7 @@ function resetVoucherSilent() {
 
     updateBalances();
     setNextVoucherNumber();
+    updateLedgerButtons();
 }
 
 function loadPreviousVoucher() {
@@ -386,6 +387,7 @@ function renderVoucher(v) {
     
     updateCurrency();
     updateBalances();
+    updateLedgerButtons();
 }
 
 function submitVoucher() {
@@ -669,6 +671,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 50);
         }
     });
+
+    updateLedgerButtons();
 });
 
 // ═══════════════════════════════════════════════════════
@@ -764,6 +768,7 @@ function hideAccountDropdownDelayed(type) {
 
 function filterAccountDropdown(type) {
     document.getElementById(type + '-account').value = '';
+    updateLedgerButtons();
     renderAccountDropdown(type, document.getElementById(type + '-account-search').value);
     document.getElementById(type + '-account-dropdown-list').classList.add('show');
 }
@@ -772,6 +777,7 @@ function selectAccount(type, id, name) {
     document.getElementById(type + '-account').value = id;
     document.getElementById(type + '-account-search').value = name;
     document.getElementById(type + '-account-dropdown-list').classList.remove('show');
+    updateLedgerButtons();
 }
 
 // Override selectAccount to handle focus jumping and balance updating
@@ -779,6 +785,7 @@ window.selectAccount = function(type, id, name) {
     document.getElementById(type + '-account').value = id;
     document.getElementById(type + '-account-search').value = name;
     document.getElementById(type + '-account-dropdown-list').classList.remove('show');
+    updateLedgerButtons();
     
     if (type === 'to') {
         if(typeof updateBalances === 'function') updateBalances();
@@ -796,6 +803,17 @@ window.selectAccount = function(type, id, name) {
         }
     }
 };
+
+function updateLedgerButtons() {
+    const fromVal = document.getElementById('from-account') ? document.getElementById('from-account').value : '';
+    const toVal = document.getElementById('to-account') ? document.getElementById('to-account').value : '';
+    
+    const fromBtn = document.getElementById('from-account-ledger-btn');
+    const toBtn = document.getElementById('to-account-ledger-btn');
+    
+    if (fromBtn) fromBtn.style.display = fromVal ? 'inline-flex' : 'none';
+    if (toBtn) toBtn.style.display = toVal ? 'inline-flex' : 'none';
+}
 
 function swapAccounts() {
     const fromIdEl = document.getElementById('from-account');
@@ -837,5 +855,6 @@ function swapAccounts() {
     if (typeof showToast === 'function') {
         showToast('🔄 تم عكس حساب الصرف والاستلام بنجاح!', 'success');
     }
+    updateLedgerButtons();
 }
 

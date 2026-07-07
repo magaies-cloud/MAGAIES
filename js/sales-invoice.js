@@ -563,6 +563,7 @@ function hideCustomerDropdownDelayed() {
 
 function filterCustomerDropdown() {
     document.getElementById('hdr-customer').value = '';
+    updateLedgerButton();
     onCustomerChange();
     renderCustomerDropdown(document.getElementById('hdr-customer-search').value);
     document.getElementById('customer-dropdown-list').classList.add('show');
@@ -572,10 +573,20 @@ function selectCustomer(id, name) {
     document.getElementById('hdr-customer').value = id;
     document.getElementById('hdr-customer-search').value = name;
     document.getElementById('customer-dropdown-list').classList.remove('show');
+    updateLedgerButton();
     onCustomerChange();
 }
 
+function updateLedgerButton() {
+    const custVal = document.getElementById('hdr-customer') ? document.getElementById('hdr-customer').value : '';
+    const btn = document.getElementById('hdr-customer-ledger-btn');
+    if (btn) {
+        btn.style.display = (custVal && custVal !== 'walk-in') ? 'inline-flex' : 'none';
+    }
+}
+
 function onCustomerChange() {
+    updateLedgerButton();
     const id = document.getElementById('hdr-customer').value;
     const cust = CUSTOMERS.find(c => c.id === id);
     const cur = document.getElementById('hdr-currency').value;

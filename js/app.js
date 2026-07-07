@@ -2676,3 +2676,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+// Helper to open general ledger for a specific account in a new tab
+window.openGeneralLedgerForAccount = function(accountId) {
+    if (!accountId) {
+        alert('الرجاء اختيار الحساب أولاً.');
+        return;
+    }
+    window.open(`general-ledger.php?accountId=${accountId}`, '_blank');
+};

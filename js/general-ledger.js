@@ -454,6 +454,26 @@ document.addEventListener('DBReady', () => {
             }));
         });
     }
+
+    // Auto load account from URL parameter if present
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const accountIdParam = urlParams.get('accountId') || urlParams.get('id');
+        if (accountIdParam) {
+            const found = ALL_ACCOUNTS.find(a => String(a.id) === String(accountIdParam));
+            if (found) {
+                selectAccount(found.id, found.name, found.icon);
+            } else {
+                const cleanParam = String(accountIdParam).replace(/^(cust|supp|bank|safe|exp)-/, '');
+                const foundClean = ALL_ACCOUNTS.find(a => String(a.id).replace(/^(cust|supp|bank|safe|exp)-/, '') === cleanParam);
+                if (foundClean) {
+                    selectAccount(foundClean.id, foundClean.name, foundClean.icon);
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Error parsing URL accountId:", e);
+    }
 });
 
 function getAccountName(id) {

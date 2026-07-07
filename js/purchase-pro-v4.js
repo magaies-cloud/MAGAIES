@@ -469,6 +469,7 @@ function setSaleType(type) {
 //  CUSTOMER CHANGE → Financial Panel
 // ════════════════════════════════════════
 function onCustomerChange() {
+    updateLedgerButton();
     const id = document.getElementById('hdr-customer').value;
     const cust = VENDORS.find(c => String(c.id) === String(id));
     const cur = document.getElementById('hdr-currency').value;
@@ -834,6 +835,7 @@ function hideCustomerDropdownDelayed() {
 
 function filterCustomerDropdown() {
     document.getElementById('hdr-customer').value = '';
+    updateLedgerButton();
     onCustomerChange();
     renderCustomerDropdown(document.getElementById('hdr-customer-search').value);
     document.getElementById('customer-dropdown-list').classList.add('show');
@@ -843,7 +845,16 @@ function selectCustomer(id, name) {
     document.getElementById('hdr-customer').value = id;
     document.getElementById('hdr-customer-search').value = name;
     document.getElementById('customer-dropdown-list').classList.remove('show');
+    updateLedgerButton();
     onCustomerChange();
+}
+
+function updateLedgerButton() {
+    const custVal = document.getElementById('hdr-customer') ? document.getElementById('hdr-customer').value : '';
+    const btn = document.getElementById('hdr-customer-ledger-btn');
+    if (btn) {
+        btn.style.display = custVal ? 'inline-flex' : 'none';
+    }
 }
 
 // ════════════════════════════════════════

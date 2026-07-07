@@ -695,6 +695,7 @@ function hideCustomerDropdownDelayed() {
 
 function filterCustomerDropdown() {
     document.getElementById('hdr-customer').value = '';
+    updateLedgerButton();
     onCustomerChange();
     renderCustomerDropdown(document.getElementById('hdr-customer-search').value);
     document.getElementById('customer-dropdown-list').classList.add('show');
@@ -708,10 +709,20 @@ function selectCustomer(id, name) {
         listEl.classList.remove('show');
         listEl.style.display = 'none';
     }
+    updateLedgerButton();
     if(typeof onCustomerChange === 'function') onCustomerChange();
 }
 
+function updateLedgerButton() {
+    const custVal = document.getElementById('hdr-customer') ? document.getElementById('hdr-customer').value : '';
+    const btn = document.getElementById('hdr-customer-ledger-btn');
+    if (btn) {
+        btn.style.display = (custVal && custVal !== 'walk-in') ? 'inline-flex' : 'none';
+    }
+}
+
 function onCustomerChange() {
+    updateLedgerButton();
     const id = document.getElementById('hdr-customer').value;
     const cust = CUSTOMERS.find(c => c.id === id);
     const cur = document.getElementById('hdr-currency').value;

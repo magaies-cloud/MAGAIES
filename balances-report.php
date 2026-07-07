@@ -115,6 +115,16 @@
     <button onclick="saveLayout()" style="width: 100%; margin-top: 15px; padding: 10px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 6px; font-weight: bold; font-family:'Tajawal', sans-serif; cursor: pointer; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);">💾 حفظ التصميم</button>
 </div>
 
+<!-- Custom Context Menu for Partner Rows -->
+<div id="partnerContextMenu" style="display:none; position:absolute; z-index:10000; background:rgba(15, 23, 42, 0.95); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.1); border-radius:12px; box-shadow:0 20px 40px rgba(0,0,0,0.5); padding:8px; width:220px; color:#f8fafc; font-family:'Tajawal', sans-serif;">
+    <div id="partnerMenuHeader" style="font-weight:bold; font-size:0.85rem; color:#94a3b8; padding:8px 12px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">اسم الحساب</div>
+    <div id="gotoLedgerItem" style="display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:0.9rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.15)'; this.style.color='#38bdf8';" onmouseout="this.style.background='transparent'; this.style.color='#f8fafc';">
+        <span style="font-size:1.1rem;">📖</span>
+        <span>الذهاب إلى دفتر الأستاذ</span>
+    </div>
+</div>
+
+
 <div style="max-width: 1600px; margin: 0 auto; padding: 20px 30px; padding-bottom: 80px;">
     <!-- Premium Navigation Header -->
     <?php include 'includes/header.php'; ?>

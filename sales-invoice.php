@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'مرتجع مبيعات'; ?>
+<?php $page_title = 'مرتجع مبيعات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -171,7 +171,8 @@
                         <label class="label">اسم العميل</label>
                         <div class="custom-dropdown">
                             <div class="custom-dropdown-input-wrap">
-                                <input type="text" class="ctrl-input" id="hdr-customer-search" placeholder="ابحث عن اسم العميل..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()">
+                                <input type="text" class="ctrl-input" id="hdr-customer-search" placeholder="ابحث عن اسم العميل..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="padding-left: 95px !important;">
+                                <button type="button" id="hdr-customer-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('hdr-customer').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.8rem; padding: 4px 8px; height: 32px; display: none;" title="دفتر الأستاذ العام">📖 دفتر الأستاذ</button>
                                 <input type="hidden" id="hdr-customer" onchange="onCustomerChange()">
                                 <div class="custom-dropdown-list" id="customer-dropdown-list">
                                     <!-- Populated via JS -->

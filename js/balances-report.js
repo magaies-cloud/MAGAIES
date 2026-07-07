@@ -109,6 +109,7 @@ loadLayout();
 
 document.addEventListener('DOMContentLoaded', () => {
     applyLayoutToDOM();
+    bindRowContextMenu();
 });
 
 function saveLayout() {
@@ -504,8 +505,10 @@ function bindContextMenu() {
     const thead = table.querySelector('thead');
     const ctxMenu = document.getElementById('columnContextMenu');
     const togglesContainer = document.getElementById('columnToggles');
+    const partnerCtxMenu = document.getElementById('partnerContextMenu');
 
     thead.addEventListener('contextmenu', function(e) {
+        if (partnerCtxMenu) partnerCtxMenu.style.display = 'none';
         const th = e.target.closest('th');
         if (!th) return;
         
@@ -574,7 +577,49 @@ function bindContextMenu() {
         if (!ctxMenu.contains(e.target)) {
             ctxMenu.style.display = 'none';
         }
+        if (partnerCtxMenu && !partnerCtxMenu.contains(e.target)) {
+            partnerCtxMenu.style.display = 'none';
+        }
     });
+}
+
+function bindRowContextMenu() {
+    const table = document.getElementById('balances-table');
+    const tbody = table.querySelector('tbody');
+    const partnerCtxMenu = document.getElementById('partnerContextMenu');
+    const partnerHeader = document.getElementById('partnerMenuHeader');
+    const gotoLedgerBtn = document.getElementById('gotoLedgerItem');
+    const columnCtxMenu = document.getElementById('columnContextMenu');
+
+    if (!tbody || !partnerCtxMenu) return;
+
+    tbody.addEventListener('contextmenu', function(e) {
+        const row = e.target.closest('tr');
+        if (!row || !row.classList.contains('partner-row')) return;
+
+        e.preventDefault();
+        
+        if (columnCtxMenu) columnCtxMenu.style.display = 'none';
+
+        const partnerId = row.getAttribute('data-partner-id');
+        const partnerName = row.getAttribute('data-partner-name');
+        const partnerType = row.getAttribute('data-partner-type');
+
+        partnerHeader.textContent = `${partnerName} (${partnerType === 'CUST' ? 'عميل' : 'مورد'})`;
+
+        gotoLedgerBtn.onclick = function() {
+            window.location.href = `general-ledger.php?accountId=${partnerId}`;
+        };
+
+        partnerCtxMenu.style.display = 'block';
+        partnerCtxMenu.style.left = e.pageX + 'px';
+        partnerCtxMenu.style.top = e.pageY + 'px';
+    });
+
+    // Close menu on scroll
+    document.addEventListener('scroll', function() {
+        partnerCtxMenu.style.display = 'none';
+    }, true);
 }
 
 window.toggleColumn = function(visualIndex, show) {
@@ -731,7 +776,7 @@ function renderTable(results) {
         cells[8] = `<td style="max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; ${getCellStyle(8)}" title="${p.notes || ''}">${p.notes || '-'}</td>`;
         
         let orderedCells = window.colOrder.map(idx => cells[idx]).join('');
-        rows += `<tr>${orderedCells}</tr>`;
+        rows += `<tr class="partner-row" data-partner-id="${p.id}" data-partner-name="${p.name}" data-partner-type="${p.type}" style="cursor: context-menu;">${orderedCells}</tr>`;
     });
 
     tbody.innerHTML = rows;
