@@ -1350,7 +1350,7 @@
                 // Keep the header widget state in sync
                 checkWhatsAppStatus();
             } catch(e) {
-                statusText.innerText = '❌ خادم الواتساب متوقف أو تعذر الاتصال به.';
+                statusText.innerText = '❌ خادم الواتساب متوقف أو تعذر الاتصال به: ' + e.message;
                 statusText.style.color = '#ef4444';
                 spinner.style.display = 'none';
                 checkWhatsAppStatus();
@@ -1392,7 +1392,7 @@
                     }, 3000);
                 }
             } catch(e) {
-                statusText.innerText = '❌ فشل جلب رمز الـ QR أو الخدمة غير متوفرة.';
+                statusText.innerText = '❌ فشل جلب رمز الـ QR أو الخدمة غير متوفرة: ' + e.message;
                 statusText.style.color = '#ef4444';
                 spinner.style.display = 'none';
             }
