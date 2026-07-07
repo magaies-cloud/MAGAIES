@@ -1222,9 +1222,12 @@
                     for (let t of allTenants) {
                         if (!t.owner_phone) continue;
                         try {
-                            const res = await fetch(`http://${host}:3001/wa/send`, {
+                            const res = await fetch(apiUrl('saas', 'wa-proxy', 'send'), {
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                    'Authorization': 'Bearer ' + SAAS_TOKEN 
+                                },
                                 body: JSON.stringify({
                                     userId: 'default-saas-admin',
                                     phone: t.owner_phone,
@@ -1251,9 +1254,12 @@
                         return;
                     }
                     
-                    const res = await fetch(`http://${host}:3001/wa/send`, {
+                    const res = await fetch(apiUrl('saas', 'wa-proxy', 'send'), {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + SAAS_TOKEN 
+                        },
                         body: JSON.stringify({
                             userId: 'default-saas-admin',
                             phone: phone,
@@ -1282,7 +1288,9 @@
             if(!indicator || !text) return;
             try {
                 const host = window.location.hostname;
-                const res = await fetch(`http://${host}:3001/wa/status?userId=default-saas-admin`, { method: 'GET' });
+                const res = await fetch(apiUrl('saas', 'wa-proxy', 'status'), {
+                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
+                });
                 const data = await res.json();
                 
                 if (data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') {
@@ -1320,7 +1328,9 @@
             
             try {
                 const host = window.location.hostname;
-                const res = await fetch(`http://${host}:3001/wa/status?userId=default-saas-admin`);
+                const res = await fetch(apiUrl('saas', 'wa-proxy', 'status'), {
+                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
+                });
                 const data = await res.json();
                 
                 if (data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') {
@@ -1339,7 +1349,7 @@
                 // Keep the header widget state in sync
                 checkWhatsAppStatus();
             } catch(e) {
-                statusText.innerText = '❌ خادم الواتساب متوقف أو المنفذ 3001 مغلق.';
+                statusText.innerText = '❌ خادم الواتساب متوقف أو تعذر الاتصال به.';
                 statusText.style.color = '#ef4444';
                 spinner.style.display = 'none';
                 checkWhatsAppStatus();
@@ -1351,7 +1361,9 @@
             const spinner = document.getElementById('admin-wa-loading');
             try {
                 const host = window.location.hostname;
-                const res = await fetch(`http://${host}:3001/wa/qr?userId=default-saas-admin`);
+                const res = await fetch(apiUrl('saas', 'wa-proxy', 'qr'), {
+                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
+                });
                 const data = await res.json();
                 if (data.qrCode) {
                     qrImg.src = data.qrCode;
@@ -1375,7 +1387,10 @@
             if (!confirm('هل ترغب بإلغاء ربط حساب الواتساب الحالي؟')) return;
             try {
                 const host = window.location.hostname;
-                await fetch(`http://${host}:3001/wa/logout?userId=default-saas-admin`, { method: 'POST' });
+                await fetch(apiUrl('saas', 'wa-proxy', 'logout'), { 
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
+                });
                 checkAdminWhatsAppConnection();
             } catch(e) {
                 alert('فشل تسجيل الخروج');

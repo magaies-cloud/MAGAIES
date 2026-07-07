@@ -312,6 +312,34 @@ $saasSecret = defined('SAAS_ADMIN_TOKEN') ? SAAS_ADMIN_TOKEN : getenv('SAAS_ADMI
 
 if ($token === $saasSecret) {
     if ($resource === 'saas') {
+        if ($action === 'wa-proxy') {
+            $endpoint = $_GET['a2'] ?? 'status';
+            $url = 'http://localhost:3001/wa/' . $endpoint . '?userId=default-saas-admin';
+            
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            if ($method === 'POST') {
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($input));
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            }
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $err = curl_error($ch);
+            curl_close($ch);
+            
+            if ($err) {
+                jsonResponse(['success' => false, 'error' => 'فشل الاتصال بخادم الواتساب المحلي: ' . $err], 500);
+            }
+            
+            header('Content-Type: application/json');
+            http_response_code($httpCode);
+            echo $response;
+            exit;
+        }
+
         require_once __DIR__ . '/api/controllers/TenantController.php';
         $tenantController = new TenantController($pdo);
         $tenantController->handleRequest($action, $method, $input, $requestUri, $base_index);
