@@ -551,7 +551,10 @@
                 const res = await fetch('api_index.php?r=public&a=send-otp', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ email: document.getElementById('owner_email').value })
+                    body: JSON.stringify({ 
+                        email: document.getElementById('owner_email').value,
+                        phone: document.getElementById('owner_phone').value
+                    })
                 });
                 const data = await res.json();
                 if(data.success) {

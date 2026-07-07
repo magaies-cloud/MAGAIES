@@ -187,9 +187,48 @@ if ($resource === 'public' && $action === 'check-unique' && $method === 'GET') {
     jsonResponse(['success' => true, 'exists' => $exists]);
 }
 
+function sendWhatsAppOTP($phone, $otp) {
+    $message = "رمز التحقق (OTP) الخاص بك للتسجيل في السجّانة ERP هو: *" . $otp . "*\n\nينتهي صلاحية الرمز خلال 10 دقائق. يرجى عدم مشاركته مع أي شخص. 🌸";
+    
+    // Clean phone number
+    $phone = preg_replace('/[^0-9]/', '', $phone);
+    
+    $payload = json_encode([
+        'userId' => 'default-saas-admin',
+        'phone' => $phone,
+        'message' => $message
+    ]);
+    
+    $ch = curl_init('http://localhost:3001/wa/send');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Content-Length: ' . strlen($payload)
+    ]);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 6);
+    
+    $response = curl_exec($ch);
+    $err = curl_error($ch);
+    curl_close($ch);
+    
+    if ($err) {
+        return ['success' => false, 'error' => $err];
+    }
+    
+    $data = json_decode($response, true);
+    if (!empty($data['success'])) {
+        return ['success' => true];
+    }
+    return ['success' => false, 'error' => $data['error'] ?? 'فشل إرسال رسالة الواتساب'];
+}
+
 // Public: Send OTP
 if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
     $email = trim($input['email'] ?? '');
+    $phone = trim($input['phone'] ?? '');
+    
     if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         jsonResponse(['success' => false, 'error' => 'البريد الإلكتروني غير صالح'], 400);
     }
@@ -202,11 +241,34 @@ if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
     $stmt = $pdo->prepare("INSERT INTO otp_verifications (email, otp, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))");
     $stmt->execute([$email, $otp]);
     
-    $result = EmailService::sendOTP($email, $otp);
-    if ($result['success']) {
-        jsonResponse(['success' => true, 'message' => $result['message'], 'dev_otp' => $result['dev_otp'] ?? null]);
+    $waSuccess = false;
+    $waError = '';
+    if (!empty($phone)) {
+        $waResult = sendWhatsAppOTP($phone, $otp);
+        if ($waResult['success']) {
+            $waSuccess = true;
+        } else {
+            $waError = $waResult['error'];
+        }
+    }
+    
+    if ($waSuccess) {
+        jsonResponse([
+            'success' => true, 
+            'message' => 'تم إرسال رمز التحقق (OTP) إلى حساب الواتساب الخاص بك بنجاح!', 
+            'dev_otp' => $otp
+        ]);
     } else {
-        jsonResponse(['success' => false, 'error' => $result['error']], 500);
+        $result = EmailService::sendOTP($email, $otp);
+        if ($result['success']) {
+            $msg = 'تم إرسال رمز التحقق إلى بريدك الإلكتروني بنجاح!';
+            if (!empty($waError)) {
+                $msg .= ' (فشل الإرسال عبر الواتساب: ' . $waError . ')';
+            }
+            jsonResponse(['success' => true, 'message' => $msg, 'dev_otp' => $result['dev_otp'] ?? null]);
+        } else {
+            jsonResponse(['success' => false, 'error' => $result['error']], 500);
+        }
     }
 }
 
