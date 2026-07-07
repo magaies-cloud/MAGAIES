@@ -187,6 +187,24 @@ if ($resource === 'public' && $action === 'check-unique' && $method === 'GET') {
     jsonResponse(['success' => true, 'exists' => $exists]);
 }
 
+function getWhatsAppNodeCommand() {
+    $nodeCheck = shell_exec('which node 2>&1');
+    if (!empty($nodeCheck) && strpos($nodeCheck, 'not found') === false && strpos($nodeCheck, 'no node') === false) {
+        return 'node';
+    }
+    
+    $nodejsCheck = shell_exec('which nodejs 2>&1');
+    if (!empty($nodejsCheck) && strpos($nodejsCheck, 'not found') === false && strpos($nodejsCheck, 'no nodejs') === false) {
+        return 'nodejs';
+    }
+    
+    if (file_exists('/usr/bin/node')) return '/usr/bin/node';
+    if (file_exists('/usr/bin/nodejs')) return '/usr/bin/nodejs';
+    if (file_exists('/usr/local/bin/node')) return '/usr/local/bin/node';
+    
+    return 'node';
+}
+
 function startWhatsAppServiceIfNeeded() {
     $connection = @fsockopen('localhost', 3001, $errno, $errstr, 1);
     if (is_resource($connection)) {
@@ -194,10 +212,11 @@ function startWhatsAppServiceIfNeeded() {
         return true;
     }
     
+    $cmd = getWhatsAppNodeCommand();
     if (stristr(PHP_OS, 'WIN')) {
         pclose(popen("start /B node \"" . __DIR__ . "\\whatsapp-service.js\"", "r"));
     } else {
-        shell_exec("node \"" . __DIR__ . "/whatsapp-service.js\" > /dev/null 2>&1 &");
+        shell_exec("$cmd \"" . __DIR__ . "/whatsapp-service.js\" > /dev/null 2>&1 &");
     }
     
     usleep(1500000);
