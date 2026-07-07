@@ -3,6 +3,34 @@ const cors = require('cors');
 const multer = require('multer');
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode');
+const fs = require('fs');
+const path = require('path');
+
+// Local log file writer
+const logFile = path.join(__dirname, 'wa_service.log');
+function writeLog(type, args) {
+    const time = new Date().toISOString();
+    const msg = args.map(arg => {
+        if (arg instanceof Error) return arg.stack;
+        return typeof arg === 'object' ? JSON.stringify(arg) : arg;
+    }).join(' ');
+    try {
+        fs.appendFileSync(logFile, `[${time}] [${type}] ${msg}\n`);
+    } catch(e) {}
+}
+
+const originalLog = console.log;
+const originalError = console.error;
+
+console.log = (...args) => {
+    originalLog(...args);
+    writeLog('INFO', args);
+};
+
+console.error = (...args) => {
+    originalError(...args);
+    writeLog('ERROR', args);
+};
 
 const app = express();
 app.use(cors());

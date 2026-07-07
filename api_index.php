@@ -350,8 +350,19 @@ $saasSecret = defined('SAAS_ADMIN_TOKEN') ? SAAS_ADMIN_TOKEN : getenv('SAAS_ADMI
 if ($token === $saasSecret) {
     if ($resource === 'saas') {
         if ($action === 'wa-proxy') {
-            startWhatsAppServiceIfNeeded();
             $endpoint = $_GET['a2'] ?? 'status';
+            
+            if ($endpoint === 'logs') {
+                $logFile = __DIR__ . '/wa_service.log';
+                if (!file_exists($logFile)) {
+                    jsonResponse(['success' => true, 'logs' => 'No logs yet.']);
+                }
+                $lines = file($logFile);
+                $lastLines = array_slice($lines, -150);
+                jsonResponse(['success' => true, 'logs' => implode('', $lastLines)]);
+            }
+            
+            startWhatsAppServiceIfNeeded();
             $url = 'http://localhost:3001/wa/' . $endpoint . '?userId=default-saas-admin';
             
             $ch = curl_init($url);
