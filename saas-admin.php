@@ -1330,9 +1330,18 @@
                 const res = await fetch(apiUrl('saas', 'wa-proxy', 'status'), {
                     headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
                 });
-                if (!res.ok) throw new Error('HTTP error ' + res.status);
-                const data = await res.json();
-                if (data.success === false) throw new Error(data.error || 'Server error');
+                let data;
+                try {
+                    data = await res.json();
+                } catch(pe) {
+                    throw new Error('HTTP error ' + res.status);
+                }
+                if (data && data.success === false) {
+                    throw new Error(data.error || 'Server error');
+                }
+                if (!res.ok) {
+                    throw new Error('HTTP error ' + res.status);
+                }
                 
                 if (data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') {
                     statusText.innerText = '✅ متصل بالواتساب بنجاح!';
@@ -1365,9 +1374,18 @@
                 const res = await fetch(apiUrl('saas', 'wa-proxy', 'qr'), {
                     headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
                 });
-                if (!res.ok) throw new Error('HTTP error ' + res.status);
-                const data = await res.json();
-                if (data.success === false) throw new Error(data.error || 'Server error');
+                let data;
+                try {
+                    data = await res.json();
+                } catch(pe) {
+                    throw new Error('HTTP error ' + res.status);
+                }
+                if (data && data.success === false) {
+                    throw new Error(data.error || 'Server error');
+                }
+                if (!res.ok) {
+                    throw new Error('HTTP error ' + res.status);
+                }
                 
                 if (data.qrCode) {
                     qrImg.src = data.qrCode;
