@@ -2052,3 +2052,67 @@ a[data-href], a[onclick] { cursor: pointer; }
     }
 }
 
+/* =======================================================
+   LANDSCAPE ORIENTATION OPTIMIZATION (Fills entire screen)
+   ======================================================= */
+@media (orientation: landscape) and (max-device-width: 950px) {
+    /* Hide mobile bottom navigation bar in landscape to maximize vertical space */
+    .mobile-bottom-nav {
+        display: none !important;
+    }
+    
+    body {
+        padding-bottom: 0 !important;
+    }
+
+    /* Expand main containers to cover the entire viewport width (no margins on right/left) */
+    .dash-main, .container, .main-content, .app-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 8px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Revert table cards back to standard desktop tabular layout for wide screen usage */
+    table.modern-table {
+        display: table !important;
+    }
+    table.modern-table thead {
+        display: table-header-group !important;
+    }
+    table.modern-table tbody {
+        display: table-row-group !important;
+    }
+    table.modern-table tr {
+        display: table-row !important;
+        background: rgba(20, 16, 28, 0.4) !important;
+        border: none !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 0 !important;
+        margin-bottom: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+    table.modern-table td {
+        display: table-cell !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        padding: 10px 12px !important;
+        text-align: right !important;
+    }
+    table.modern-table td::before {
+        display: none !important; /* Hide mobile cards label prefix */
+    }
+
+    /* Form rows should display side-by-side to save vertical scrolling */
+    .form-row, .row {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 10px !important;
+    }
+    .form-group, .col-md-6, .col-md-4, .col-xs-12 {
+        flex: 1 !important;
+        margin-bottom: 8px !important;
+    }
+}
+
