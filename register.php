@@ -409,10 +409,20 @@
             <div class="custom-modal-title" id="modal-title">نجاح</div>
             <div class="custom-modal-message" id="modal-message">تمت العملية بنجاح.</div>
             
-            <a href="https://wa.me/249113981477" target="_blank" class="whatsapp-btn" id="modal-whatsapp" style="display:none;">
+            <a href="javascript:void(0)" onclick="showInquiryForm()" class="whatsapp-btn" id="modal-whatsapp" style="display:none;">
                 <span class="whatsapp-icon">💬</span>
                 للاستفسار: 0113981477
             </a>
+            
+            <!-- Inline Inquiry Form Container -->
+            <div id="modal-inquiry-container" style="display:none; margin-top: 15px; text-align: right; width: 100%;">
+                <label style="color: #fff; font-size: 0.95rem; font-weight: bold; display: block; margin-bottom: 8px; font-family: Tajawal;">اكتب استفسارك هنا للدعم الفني:</label>
+                <textarea id="inquiry-message" style="width: 100%; height: 90px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff; padding: 12px; font-family: Tajawal; font-size: 0.9rem; resize: none; box-sizing: border-box; outline: none; transition: border 0.3s ease; line-height: 1.5;" placeholder="اكتب استفسارك بالتفصيل..."></textarea>
+                <div style="display: flex; gap: 8px; margin-top: 12px; direction: rtl;">
+                    <button class="modal-action-btn" style="background:#334155; margin:0; flex: 1;" onclick="hideInquiryForm()">تراجع</button>
+                    <button class="modal-action-btn" style="background: linear-gradient(135deg, #10b981, #059669); margin:0; flex: 2; box-shadow: 0 4px 12px rgba(16,185,129,0.25);" onclick="submitInquiryForm()">إرسال الاستفسار 💬</button>
+                </div>
+            </div>
             
             <button class="modal-action-btn" id="modal-action-btn" onclick="closeModal()">حسناً</button>
         </div>
@@ -941,8 +951,94 @@
         function closeModal() {
             const modal = document.getElementById('custom-modal');
             modal.classList.remove('active');
+            // Restore default modal state when closed
+            hideInquiryForm();
             if (window.modalActionCallback) {
                 window.modalActionCallback();
+            }
+        }
+
+        function showInquiryForm() {
+            document.getElementById('modal-whatsapp').style.display = 'none';
+            document.getElementById('modal-action-btn').style.display = 'none';
+            document.getElementById('modal-message').style.display = 'none';
+            document.getElementById('modal-inquiry-container').style.display = 'block';
+            document.getElementById('inquiry-message').focus();
+        }
+
+        function hideInquiryForm() {
+            const container = document.getElementById('modal-inquiry-container');
+            if (container) {
+                container.style.display = 'none';
+                // Reset content inside in case it was a success message
+                container.innerHTML = `
+                    <label style="color: #fff; font-size: 0.95rem; font-weight: bold; display: block; margin-bottom: 8px; font-family: Tajawal;">اكتب استفسارك هنا للدعم الفني:</label>
+                    <textarea id="inquiry-message" style="width: 100%; height: 90px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff; padding: 12px; font-family: Tajawal; font-size: 0.9rem; resize: none; box-sizing: border-box; outline: none; transition: border 0.3s ease; line-height: 1.5;" placeholder="اكتب استفسارك بالتفصيل..."></textarea>
+                    <div style="display: flex; gap: 8px; margin-top: 12px; direction: rtl;">
+                        <button class="modal-action-btn" style="background:#334155; margin:0; flex: 1;" onclick="hideInquiryForm()">تراجع</button>
+                        <button class="modal-action-btn" style="background: linear-gradient(135deg, #10b981, #059669); margin:0; flex: 2; box-shadow: 0 4px 12px rgba(16,185,129,0.25);" onclick="submitInquiryForm()">إرسال الاستفسار 💬</button>
+                    </div>
+                `;
+            }
+            const waBtn = document.getElementById('modal-whatsapp');
+            const actionBtn = document.getElementById('modal-action-btn');
+            const msgEl = document.getElementById('modal-message');
+            
+            if (waBtn) waBtn.style.display = 'inline-flex';
+            if (actionBtn) actionBtn.style.display = 'inline-block';
+            if (msgEl) msgEl.style.display = 'block';
+        }
+
+        async function submitInquiryForm() {
+            const msg = document.getElementById('inquiry-message').value.trim();
+            if (!msg) {
+                alert('يرجى كتابة نص الاستفسار أولاً');
+                return;
+            }
+
+            const sendBtn = document.querySelector('#modal-inquiry-container button[onclick="submitInquiryForm()"]');
+            const originalText = sendBtn ? sendBtn.innerText : 'إرسال الاستفسار 💬';
+            if (sendBtn) {
+                sendBtn.innerText = 'جاري الإرسال...';
+                sendBtn.disabled = true;
+            }
+
+            const company_name = document.getElementById('company_name').value;
+            const owner_name = document.getElementById('owner_name').value;
+            const owner_phone = document.getElementById('owner_phone').value;
+
+            try {
+                const res = await fetch('api_index.php?r=public&a=send-inquiry', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        message: msg,
+                        company_name: company_name,
+                        owner_name: owner_name,
+                        owner_phone: owner_phone
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('modal-inquiry-container').innerHTML = `
+                        <div style="text-align:center; color:#10b981; font-weight:bold; margin-top:15px; font-size:1rem; font-family: Tajawal;">
+                            ✅ تم إرسال استفسارك بنجاح! وسيتواصل معك الدعم الفني قريباً.
+                        </div>
+                        <button class="modal-action-btn" style="margin-top:15px; width:100%;" onclick="closeModal()">حسناً</button>
+                    `;
+                } else {
+                    alert(data.error || 'فشل إرسال الاستفسار');
+                    if (sendBtn) {
+                        sendBtn.innerText = originalText;
+                        sendBtn.disabled = false;
+                    }
+                }
+            } catch(e) {
+                alert('حدث خطأ في الاتصال بالخادم');
+                if (sendBtn) {
+                    sendBtn.innerText = originalText;
+                    sendBtn.disabled = false;
+                }
             }
         }
     </script>

@@ -187,6 +187,58 @@ if ($resource === 'public' && $action === 'check-unique' && $method === 'GET') {
     jsonResponse(['success' => true, 'exists' => $exists]);
 }
 
+// Public: Send WhatsApp Inquiry to Support Number
+if ($resource === 'public' && $action === 'send-inquiry' && $method === 'POST') {
+    $msgText = $input['message'] ?? '';
+    $companyName = $input['company_name'] ?? '';
+    $ownerName = $input['owner_name'] ?? '';
+    $ownerPhone = $input['owner_phone'] ?? '';
+    
+    if (empty($msgText)) {
+        jsonResponse(['success' => false, 'error' => 'Message is required'], 400);
+    }
+    
+    $supportNumber = '249113981477';
+    
+    $fullMessage = "🔔 *استفسار جديد من صفحة التسجيل* 🔔\n\n";
+    $fullMessage .= "📝 *الرسالة:*\n" . $msgText . "\n\n";
+    $fullMessage .= "🏢 *الشركة:* " . ($companyName ?: 'غير محدد') . "\n";
+    $fullMessage .= "👤 *المالك:* " . ($ownerName ?: 'غير محدد') . "\n";
+    $fullMessage .= "📞 *هاتف المالك:* " . ($ownerPhone ?: 'غير محدد') . "\n";
+    
+    $payload = json_encode([
+        'userId' => 'default-saas-admin',
+        'phone' => $supportNumber,
+        'message' => $fullMessage
+    ]);
+    
+    startWhatsAppServiceIfNeeded();
+    
+    $ch = curl_init('http://localhost:3001/wa/send');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Content-Length: ' . strlen($payload)
+    ]);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    
+    $response = curl_exec($ch);
+    $err = curl_error($ch);
+    curl_close($ch);
+    
+    if ($err) {
+        jsonResponse(['success' => false, 'error' => 'فشل إرسال الرسالة: ' . $err], 500);
+    }
+    
+    $data = json_decode($response, true);
+    if (!empty($data['success'])) {
+        jsonResponse(['success' => true]);
+    }
+    jsonResponse(['success' => false, 'error' => $data['error'] ?? 'فشل إرسال الاستفسار'], 500);
+}
+
 function getWhatsAppNodeCommand() {
     $nodeCheck = shell_exec('which node 2>&1');
     if (!empty($nodeCheck) && strpos($nodeCheck, 'not found') === false && strpos($nodeCheck, 'no node') === false) {
@@ -350,19 +402,8 @@ $saasSecret = defined('SAAS_ADMIN_TOKEN') ? SAAS_ADMIN_TOKEN : getenv('SAAS_ADMI
 if ($token === $saasSecret) {
     if ($resource === 'saas') {
         if ($action === 'wa-proxy') {
-            $endpoint = $_GET['a2'] ?? 'status';
-            
-            if ($endpoint === 'logs') {
-                $logFile = __DIR__ . '/wa_service.log';
-                if (!file_exists($logFile)) {
-                    jsonResponse(['success' => true, 'logs' => 'No logs yet.']);
-                }
-                $lines = file($logFile);
-                $lastLines = array_slice($lines, -150);
-                jsonResponse(['success' => true, 'logs' => implode('', $lastLines)]);
-            }
-            
             startWhatsAppServiceIfNeeded();
+            $endpoint = $_GET['a2'] ?? 'status';
             $url = 'http://localhost:3001/wa/' . $endpoint . '?userId=default-saas-admin';
             
             $ch = curl_init($url);
