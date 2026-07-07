@@ -1327,11 +1327,12 @@
             logoutBtn.style.display = 'none';
             
             try {
-                const host = window.location.hostname;
                 const res = await fetch(apiUrl('saas', 'wa-proxy', 'status'), {
                     headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
                 });
+                if (!res.ok) throw new Error('HTTP error ' + res.status);
                 const data = await res.json();
+                if (data.success === false) throw new Error(data.error || 'Server error');
                 
                 if (data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') {
                     statusText.innerText = '✅ متصل بالواتساب بنجاح!';
@@ -1359,12 +1360,15 @@
         async function fetchAdminWhatsAppQR() {
             const qrImg = document.getElementById('admin-wa-qr-image');
             const spinner = document.getElementById('admin-wa-loading');
+            const statusText = document.getElementById('admin-wa-status-text');
             try {
-                const host = window.location.hostname;
                 const res = await fetch(apiUrl('saas', 'wa-proxy', 'qr'), {
                     headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
                 });
+                if (!res.ok) throw new Error('HTTP error ' + res.status);
                 const data = await res.json();
+                if (data.success === false) throw new Error(data.error || 'Server error');
+                
                 if (data.qrCode) {
                     qrImg.src = data.qrCode;
                     qrImg.style.display = 'block';
@@ -1377,8 +1381,19 @@
                             checkAdminWhatsAppConnection();
                         }
                     }, 5000);
+                } else {
+                    // Node.js is initializing the client, wait and try again
+                    statusText.innerText = 'جاري تحضير خادم الواتساب... ⏳';
+                    setTimeout(() => {
+                        const modal = document.getElementById('admin-wa-modal');
+                        if (modal && modal.style.display === 'flex') {
+                            fetchAdminWhatsAppQR();
+                        }
+                    }, 3000);
                 }
             } catch(e) {
+                statusText.innerText = '❌ فشل جلب رمز الـ QR أو الخدمة غير متوفرة.';
+                statusText.style.color = '#ef4444';
                 spinner.style.display = 'none';
             }
         }

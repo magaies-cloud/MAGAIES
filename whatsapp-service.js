@@ -24,18 +24,35 @@ function initClient(userId) {
     statuses[userId] = 'INITIALIZING';
 
     const fs = require('fs');
-    let execPath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-    if (!fs.existsSync(execPath)) {
-        execPath = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
+    let puppeteerConfig = {
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        headless: true
+    };
+    
+    if (process.platform === 'win32') {
+        let winChrome = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+        let winEdge = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
+        if (fs.existsSync(winChrome)) {
+            puppeteerConfig.executablePath = winChrome;
+        } else if (fs.existsSync(winEdge)) {
+            puppeteerConfig.executablePath = winEdge;
+        }
+    } else {
+        let linuxChrome = '/usr/bin/google-chrome';
+        let linuxChromium = '/usr/bin/chromium-browser';
+        let linuxChromiumAlt = '/usr/bin/chromium';
+        if (fs.existsSync(linuxChrome)) {
+            puppeteerConfig.executablePath = linuxChrome;
+        } else if (fs.existsSync(linuxChromium)) {
+            puppeteerConfig.executablePath = linuxChromium;
+        } else if (fs.existsSync(linuxChromiumAlt)) {
+            puppeteerConfig.executablePath = linuxChromiumAlt;
+        }
     }
 
     const client = new Client({
         authStrategy: new LocalAuth({ clientId: userId }),
-        puppeteer: { 
-            executablePath: execPath,
-            args: ['--no-sandbox', '--disable-setuid-sandbox'],
-            headless: true
-        }
+        puppeteer: puppeteerConfig
     });
 
     client.on('qr', async (qr) => {
