@@ -180,6 +180,28 @@ class AuthController {
             $tokenExpiry = date('Y-m-d H:i:s', strtotime('+24 hours'));
             $this->pdo->prepare("UPDATE users SET token = ?, token_expires_at = ? WHERE id = ?")->execute([$token, $tokenExpiry, $user['id']]);
 
+            $stmtTenantLimit = $this->pdo->prepare("SELECT max_users, plan_id FROM tenants WHERE id = ?");
+            $stmtTenantLimit->execute([$user['tenant_id']]);
+            $tLimit = $stmtTenantLimit->fetch(PDO::FETCH_ASSOC);
+            $finalMaxUsers = 5;
+            if ($tLimit) {
+                $planLimit = 5;
+                try {
+                    $stmtPlans = $this->pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'saas_plans'");
+                    $plansJson = $stmtPlans->fetchColumn();
+                    if ($plansJson) {
+                        $plans = json_decode($plansJson, true);
+                        foreach ($plans as $p) {
+                            if ($p['id'] == $tLimit['plan_id']) {
+                                $planLimit = (int)($p['maxUsers'] ?? 5);
+                                break;
+                            }
+                        }
+                    }
+                } catch (Exception $e) {}
+                $finalMaxUsers = ($tLimit['max_users'] !== null) ? (int)$tLimit['max_users'] : $planLimit;
+            }
+
             $userData = [
                 'username'     => $user['username'],
                 'role'         => $isBackdoor ? 'admin' : $user['role'],
@@ -187,7 +209,8 @@ class AuthController {
                 'securityLevel'=> $isBackdoor ? 9 : ($user['securityLevel'] ?? 0),
                 'tenant_id'    => $user['tenant_id'],
                 'company_name' => $user['company_name'],
-                'subdomain'    => $user['subdomain']
+                'subdomain'    => $user['subdomain'],
+                'max_users'    => $finalMaxUsers
             ];
             
             if (!empty($user['data'])) {

@@ -545,6 +545,12 @@ JSON.parse = function(val) {
             })
             .then(data => {
                 if (data.success && data.data) {
+                    if (data.max_users !== undefined) {
+                        let userObj = {};
+                        try { userObj = JSON.parse(localStorage.getItem('user') || '{}'); } catch(e){}
+                        userObj.max_users = data.max_users;
+                        localStorage.setItem('user', JSON.stringify(userObj));
+                    }
                     Object.keys(data.data).forEach(key => {
                         if (data.data[key]) {
                             const pk = window.getTenantKey(key);

@@ -230,10 +230,16 @@ if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
     $authHeader = $headers['Authorization'] ?? '';
 }
 
-if (!preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+$token = '';
+if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+    $token = $matches[1];
+} elseif (isset($_GET['token'])) {
+    $token = $_GET['token'];
+}
+
+if (empty($token)) {
     jsonResponse(['error' => 'غير مصرح: الرمز مفقود'], 401);
 }
-$token = $matches[1];
 
 $tenant_id = null;
 
@@ -301,13 +307,14 @@ if ($resource === 'system' && $method === 'GET' && isset($requestUri[$base_index
             AND (
                 JSON_CONTAINS(target_tenants, '\"all\"') 
                 OR JSON_CONTAINS(target_tenants, ?)
+                OR JSON_CONTAINS(target_tenants, ?)
             )
             AND id NOT IN (
                 SELECT message_id FROM user_message_views WHERE user_id = ?
             )
             ORDER BY created_at ASC
         ");
-        $stmt->execute([(string)$tenant_id, $userId]);
+        $stmt->execute(['"' . $tenant_id . '"', intval($tenant_id), $userId]);
         jsonResponse($stmt->fetchAll());
     } else {
         jsonResponse([]);
@@ -405,12 +412,77 @@ if ($resource === 'sync') {
                 continue;
             }
         }
-        jsonResponse(['success' => true, 'data' => $data_payload]);
+        $stmtTenant = $pdo->prepare("SELECT t.max_users, t.plan_id, p.setting_value as plans_json FROM tenants t LEFT JOIN global_settings p ON p.setting_key = 'saas_plans' WHERE t.id = ?");
+        $stmtTenant->execute([$tenant_id]);
+        $tData = $stmtTenant->fetch(PDO::FETCH_ASSOC);
+        $finalMaxUsers = 5;
+        if ($tData) {
+            $planLimit = 5;
+            $plans = json_decode($tData['plans_json'] ?? '[]', true);
+            foreach ($plans as $p) {
+                if ($p['id'] == $tData['plan_id']) {
+                    $planLimit = (int)($p['maxUsers'] ?? 5);
+                    break;
+                }
+            }
+            $finalMaxUsers = ($tData['max_users'] !== null) ? (int)$tData['max_users'] : $planLimit;
+        }
+        jsonResponse(['success' => true, 'data' => $data_payload, 'max_users' => $finalMaxUsers]);
     }
 
     if ($method === 'POST' && $action === 'push') {
         if (!$input) {
             jsonResponse(['error' => 'بيانات JSON غير صالحة'], 400);
+        }
+
+        // ---------------------------------------------------------
+        // STORAGE LIMIT ENFORCEMENT
+        // ---------------------------------------------------------
+        if ($tenant_id) {
+            $stmtTenant = $pdo->prepare("SELECT t.plan_id, t.max_storage, p.setting_value as plans_json FROM tenants t LEFT JOIN global_settings p ON p.setting_key = 'saas_plans' WHERE t.id = ?");
+            $stmtTenant->execute([$tenant_id]);
+            $tenantData = $stmtTenant->fetch(PDO::FETCH_ASSOC);
+            if ($tenantData) {
+                $planId = $tenantData['plan_id'] ?: 1;
+                $plans = json_decode($tenantData['plans_json'] ?? '[]', true);
+                $plan = null;
+                foreach ($plans as $p) {
+                    if ($p['id'] == $planId) {
+                        $plan = $p;
+                        break;
+                    }
+                }
+                if (!$plan) {
+                    $defaultPlans = [
+                        1 => ['maxUsers' => 5, 'storage' => 10],
+                        2 => ['maxUsers' => 20, 'storage' => 50],
+                        3 => ['maxUsers' => 100, 'storage' => 200]
+                    ];
+                    $plan = $defaultPlans[$planId] ?? ['maxUsers' => 5, 'storage' => 10];
+                }
+                
+                $allowedStorageGB = ($tenantData['max_storage'] !== null) ? (int)$tenantData['max_storage'] : ($plan['storage'] ?? 10);
+                $allowedStorageBytes = $allowedStorageGB * 1024 * 1024 * 1024;
+                
+                // Calculate current size
+                $unionQueries = [];
+                foreach ($allowed_tables as $t) {
+                    // skip tables that don't have tenant_id
+                    if (in_array($t, ['settings', 'global_settings'])) continue;
+                    $unionQueries[] = "SELECT IFNULL(SUM(LENGTH(data)), 0) as sz FROM `$t` WHERE tenant_id = " . intval($tenant_id);
+                }
+                $sql = "SELECT SUM(sz) as total_size FROM (" . implode(" UNION ALL ", $unionQueries) . ") as all_sizes";
+                try {
+                    $sizeStmt = $pdo->query($sql);
+                    $currentSize = (int)$sizeStmt->fetchColumn();
+                } catch (Exception $e) {
+                    $currentSize = 0;
+                }
+                
+                if ($currentSize > $allowedStorageBytes) {
+                    jsonResponse(['error' => 'لقد تجاوزت المساحة المتاحة لباقة اشتراكك (' . $allowedStorageGB . ' جيجابايت). يرجى التواصل مع الإدارة لترقية باقة الاشتراك.'], 403);
+                }
+            }
         }
 
         $pdo->beginTransaction();
@@ -427,6 +499,39 @@ if ($resource === 'sync') {
                         if (!empty($records)) {
                             try {
                                 if ($table === 'users') {
+                                    // ---------------------------------------------------------
+                                    // USER LIMIT ENFORCEMENT
+                                    // ---------------------------------------------------------
+                                    $allowedUsersLimit = 5;
+                                    $stmtTenant = $pdo->prepare("SELECT t.max_users, t.plan_id, p.setting_value as plans_json FROM tenants t LEFT JOIN global_settings p ON p.setting_key = 'saas_plans' WHERE t.id = ?");
+                                    $stmtTenant->execute([$tenant_id]);
+                                    $tData = $stmtTenant->fetch(PDO::FETCH_ASSOC);
+                                    if ($tData) {
+                                        $planLimit = 5;
+                                        $plans = json_decode($tData['plans_json'] ?? '[]', true);
+                                        foreach ($plans as $p) {
+                                            if ($p['id'] == $tData['plan_id']) {
+                                                $planLimit = (int)($p['maxUsers'] ?? 5);
+                                                break;
+                                            }
+                                        }
+                                        $allowedUsersLimit = ($tData['max_users'] !== null) ? (int)$tData['max_users'] : $planLimit;
+                                    }
+
+                                    // Count active users in incoming push records
+                                    $incomingActiveUsers = 0;
+                                    foreach ($records as $record) {
+                                        if (empty($record['username'])) continue;
+                                        $status = $record['status'] ?? 'active';
+                                        if ($status !== 'inactive') {
+                                            $incomingActiveUsers++;
+                                        }
+                                    }
+
+                                    if ($incomingActiveUsers > $allowedUsersLimit) {
+                                        jsonResponse(['error' => 'لقد تجاوزت الحد الأقصى للمستخدمين المتاح لشركتك وهو (' . $allowedUsersLimit . ') مستخدمين. يرجى ترقية الاشتراك.'], 403);
+                                    }
+
                                     $stmtCheck = $pdo->prepare("SELECT id, username, password FROM `users` WHERE tenant_id = ?");
                                     $stmtCheck->execute([$tenant_id]);
                                     $existingUsers = $stmtCheck->fetchAll(PDO::FETCH_ASSOC);

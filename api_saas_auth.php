@@ -52,5 +52,11 @@ if (hash_equals($correctPass, $pass)) {
     echo json_encode(['success' => true, 'token' => $correctToken]);
 } else {
     http_response_code(401);
-    echo json_encode(['error' => 'كلمة المرور خاطئة']);
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    $isLocal = (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false);
+    $errorMsg = 'كلمة المرور خاطئة';
+    if ($isLocal) {
+        $errorMsg .= ' (تلميح التطوير المحلي: الرمز الصحيح هو ' . $correctPass . ')';
+    }
+    echo json_encode(['error' => $errorMsg]);
 }

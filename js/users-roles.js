@@ -314,6 +314,32 @@ async function saveUser() {
         return;
     }
 
+    // ---------------------------------------------------------
+    // USER LIMIT CHECK (CLIENT SIDE)
+    // ---------------------------------------------------------
+    let userObj = {};
+    try { userObj = JSON.parse(localStorage.getItem('user') || '{}'); } catch(e){}
+    const maxUsers = parseInt(userObj.max_users || 5);
+
+    if (!id) {
+        // Adding a new user
+        const currentActiveUsers = USERS.filter(u => u.status !== 'inactive').length;
+        if (currentActiveUsers >= maxUsers) {
+            showToast(`لقد تجاوزت الحد الأقصى للمستخدمين المتاح لشركتك وهو (${maxUsers}) مستخدمين. يرجى ترقية باقة الاشتراك أو التواصل مع الإدارة.`, 'error');
+            return;
+        }
+    } else {
+        // Editing existing user - check if switching from inactive to active
+        const existing = USERS.find(u => u.id === id);
+        if (existing && existing.status === 'inactive' && status !== 'inactive') {
+            const currentActiveUsers = USERS.filter(u => u.status !== 'inactive').length;
+            if (currentActiveUsers >= maxUsers) {
+                showToast(`لا يمكن تنشيط هذا المستخدم. لقد تجاوزت الحد الأقصى للمستخدمين المتاح وهو (${maxUsers}) مستخدمين.`, 'error');
+                return;
+            }
+        }
+    }
+
     // Check for duplicate username locally
     const duplicate = USERS.find(u => u.username === username && u.id !== id);
     if (duplicate) {
