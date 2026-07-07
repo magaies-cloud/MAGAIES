@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <style>
+        .otp-digit:focus {
+            border-color: #10b981 !important;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+            background: rgba(0, 0, 0, 0.4) !important;
+        }
         body {
             display: flex;
             align-items: center;
@@ -307,15 +312,18 @@
                     <label>الاسم الكامل لمالك الحساب</label>
                 </div>
                 <div class="input-group">
-                    <input type="email" class="input-field step-2-input" id="owner_email" placeholder=" " onblur="checkUnique('owner_email', 'email', 'البريد الإلكتروني هذا مستخدم مسبقاً')">
+                    <input type="email" class="input-field step-2-input" id="owner_email" placeholder=" " oninput="debounceCheckUnique('owner_email', 'email', 'البريد الإلكتروني هذا مستخدم مسبقاً')" onblur="checkUnique('owner_email', 'email', 'البريد الإلكتروني هذا مستخدم مسبقاً')">
                     <label>البريد الإلكتروني للإدارة</label>
                 </div>
-                <div class="input-group">
-                    <input type="tel" class="input-field step-2-input" id="owner_phone" placeholder=" " onblur="checkUnique('owner_phone', 'phone', 'رقم الهاتف هذا مسجل لدينا مسبقاً')">
-                    <label>رقم الهاتف الأساسي (مثال: 05xxxxxxx)</label>
+                <div class="input-group" style="position: relative;">
+                    <input type="tel" class="input-field step-2-input" id="owner_phone" placeholder=" " oninput="debounceCheckUnique('owner_phone', 'phone', 'رقم الهاتف هذا مسجل لدينا مسبقاً')" onblur="checkUnique('owner_phone', 'phone', 'رقم الهاتف هذا مسجل لدينا مسبقاً')" style="padding-left: 45px;">
+                    <label>رقم الواتساب لاستلام الـ OTP (مثال: 05xxxxxxx)</label>
+                    <span style="position: absolute; left: 15px; top: 12px; font-size: 1.4rem; z-index: 15; pointer-events: none; display: flex; align-items: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#25D366"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.451 5.436 0 9.86-4.418 9.863-9.848.002-2.63-1.019-5.101-2.874-6.958C16.405 1.982 13.926.96 11.3.96 5.86.96 1.436 5.38 1.433 10.81c-.001 1.564.417 3.09 1.21 4.453l-.994 3.63 3.733-.979zm11.433-5.234c-.22-.11-1.306-.644-1.506-.719-.2-.075-.346-.112-.492.11-.146.22-.566.719-.694.869-.128.15-.256.169-.476.059-.22-.11-.93-.343-1.77-1.093-.655-.584-1.096-1.305-1.225-1.525-.128-.22-.014-.339.096-.449.1-.1.22-.256.33-.385.11-.128.146-.22.22-.366.075-.147.037-.275-.018-.385-.056-.11-.492-1.186-.674-1.62-.177-.428-.355-.37-.492-.377-.127-.007-.273-.008-.42-.008-.146 0-.384.055-.585.275-.2.22-.766.75-.766 1.83 0 1.078.783 2.119.892 2.269.11.15 1.542 2.355 3.736 3.3.522.226.93.36 1.246.46.524.167 1.002.143 1.379.087.42-.063 1.306-.534 1.489-1.05.183-.515.183-.956.128-1.05-.055-.094-.2-.15-.42-.26z"/></svg>
+                    </span>
                 </div>
                 <div class="input-group" style="margin-bottom: 30px;">
-                    <input type="tel" class="input-field step-2-input" id="owner_phone2" placeholder=" " onblur="checkUnique('owner_phone2', 'phone', 'رقم الهاتف هذا مسجل لدينا مسبقاً')">
+                    <input type="tel" class="input-field step-2-input" id="owner_phone2" placeholder=" " oninput="debounceCheckUnique('owner_phone2', 'phone', 'رقم الهاتف هذا مسجل لدينا مسبقاً')" onblur="checkUnique('owner_phone2', 'phone', 'رقم الهاتف هذا مسجل لدينا مسبقاً')">
                     <label>رقم هاتف إضافي (اختياري)</label>
                 </div>
 
@@ -331,7 +339,7 @@
                 <p style="color:#94a3b8; text-align:right; font-size:0.9rem; margin-bottom:20px;">يرجى حفظ هذه البيانات جيداً لتتمكن من الدخول لنظامك</p>
 
                 <div class="input-group">
-                    <input type="text" class="input-field step-3-input" id="username" placeholder=" " onblur="checkUnique('username', 'username', 'اسم المستخدم هذا غير متاح، يرجى اختيار اسم آخر')" autocomplete="new-password">
+                    <input type="text" class="input-field step-3-input" id="username" placeholder=" " oninput="debounceCheckUnique('username', 'username', 'اسم المستخدم هذا غير متاح، يرجى اختيار اسم آخر')" onblur="checkUnique('username', 'username', 'اسم المستخدم هذا غير متاح، يرجى اختيار اسم آخر')" autocomplete="new-password">
                     <label>اسم المستخدم (للدخول كمدير)</label>
                 </div>
 
@@ -364,11 +372,26 @@
             </div>
 
             <div class="step" id="step-4">
-                <h3 style="margin-top:0; color:#10b981;">تأكيد البريد الإلكتروني</h3>
-                <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:15px;">أرسلنا رمز تحقق (OTP) مكون من 6 أرقام إلى بريدك الإلكتروني.</p>
-                <div class="input-group">
-                    <input type="text" class="input-field" id="otp_code" placeholder=" " style="text-align:center; font-size:1.5rem; letter-spacing:5px;" maxlength="6" autocomplete="one-time-code">
-                    <label>أدخل رمز التحقق هنا</label>
+                <h3 style="margin-top:0; color:#10b981; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1.4rem;" id="otp-header">
+                    <span id="otp-header-icon" style="display: flex; align-items: center;"></span>
+                    <span id="otp-header-text">تأكيد البريد الإلكتروني</span>
+                </h3>
+                <p id="otp-description" style="font-size: 1.05rem; font-weight: bold; margin-bottom: 20px; line-height: 1.6; font-family: Tajawal, sans-serif; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                    أرسلنا رمز تحقق (OTP) مكون من 6 أرقام إلى بريدك الإلكتروني.
+                </p>
+                
+                <!-- Count-down Timer -->
+                <div id="otp-timer-container" style="margin-top: 5px; margin-bottom: 20px; font-size: 0.95rem; color: #f43f5e; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: Tajawal, sans-serif;">
+                    <span>⏳ تنتهي صلاحية الرمز خلال:</span>
+                    <span id="otp-timer" style="background: rgba(244,63,94,0.15); padding: 4px 8px; border-radius: 6px; font-size: 1.1rem; letter-spacing: 1px; border: 1px solid rgba(244,63,94,0.2);">10:00</span>
+                </div>
+                <div style="direction: ltr; display: flex; justify-content: center; gap: 10px; margin-bottom: 25px;">
+                    <input type="text" class="otp-digit" id="otp-1" maxlength="1" pattern="[0-9]" inputmode="numeric" required style="width: 48px; height: 52px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; text-align: center; font-size: 1.5rem; font-weight: bold; transition: all 0.2s ease; outline: none; font-family: Tajawal;">
+                    <input type="text" class="otp-digit" id="otp-2" maxlength="1" pattern="[0-9]" inputmode="numeric" required style="width: 48px; height: 52px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; text-align: center; font-size: 1.5rem; font-weight: bold; transition: all 0.2s ease; outline: none; font-family: Tajawal;">
+                    <input type="text" class="otp-digit" id="otp-3" maxlength="1" pattern="[0-9]" inputmode="numeric" required style="width: 48px; height: 52px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; text-align: center; font-size: 1.5rem; font-weight: bold; transition: all 0.2s ease; outline: none; font-family: Tajawal;">
+                    <input type="text" class="otp-digit" id="otp-4" maxlength="1" pattern="[0-9]" inputmode="numeric" required style="width: 48px; height: 52px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; text-align: center; font-size: 1.5rem; font-weight: bold; transition: all 0.2s ease; outline: none; font-family: Tajawal;">
+                    <input type="text" class="otp-digit" id="otp-5" maxlength="1" pattern="[0-9]" inputmode="numeric" required style="width: 48px; height: 52px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; text-align: center; font-size: 1.5rem; font-weight: bold; transition: all 0.2s ease; outline: none; font-family: Tajawal;">
+                    <input type="text" class="otp-digit" id="otp-6" maxlength="1" pattern="[0-9]" inputmode="numeric" required style="width: 48px; height: 52px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #fff; text-align: center; font-size: 1.5rem; font-weight: bold; transition: all 0.2s ease; outline: none; font-family: Tajawal;">
                 </div>
                 <div style="display:flex; gap:10px;">
                     <button type="button" class="btn-submit" style="background:#334155; color:white;" onclick="prevStep(3)">➡️ تعديل البيانات</button>
@@ -392,6 +415,28 @@
             </a>
             
             <button class="modal-action-btn" id="modal-action-btn" onclick="closeModal()">حسناً</button>
+        </div>
+    </div>
+
+    <!-- Verification Channel Selection Modal -->
+    <div class="custom-modal-overlay" id="otp-channel-modal">
+        <div class="custom-modal" style="max-width: 400px; text-align: center; padding: 25px;">
+            <h3 style="color: #fff; margin-top: 0; margin-bottom: 10px; font-size: 1.3rem;">طريقة استلام الرمز (OTP)</h3>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 25px; line-height: 1.5; text-align: center;">
+                اختر طريقة استلام رمز التحقق لتأكيد حسابك:
+            </p>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px;">
+                <button type="button" onclick="requestOtpViaChannel('whatsapp')" class="modal-action-btn" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: 0 4px 12px rgba(16,185,129,0.3); display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; font-weight: bold; color: #fff; border-radius: 8px; cursor: pointer; font-family: Tajawal;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.451 5.436 0 9.86-4.418 9.863-9.848.002-2.63-1.019-5.101-2.874-6.958C16.405 1.982 13.926.96 11.3.96 5.86.96 1.436 5.38 1.433 10.81c-.001 1.564.417 3.09 1.21 4.453l-.994 3.63 3.733-.979zm11.433-5.234c-.22-.11-1.306-.644-1.506-.719-.2-.075-.346-.112-.492.11-.146.22-.566.719-.694.869-.128.15-.256.169-.476.059-.22-.11-.93-.343-1.77-1.093-.655-.584-1.096-1.305-1.225-1.525-.128-.22-.014-.339.096-.449.1-.1.22-.256.33-.385.11-.128.146-.22.22-.366.075-.147.037-.275-.018-.385-.056-.11-.492-1.186-.674-1.62-.177-.428-.355-.37-.492-.377-.127-.007-.273-.008-.42-.008-.146 0-.384.055-.585.275-.2.22-.766.75-.766 1.83 0 1.078.783 2.119.892 2.269.11.15 1.542 2.355 3.736 3.3.522.226.93.36 1.246.46.524.167 1.002.143 1.379.087.42-.063 1.306-.534 1.489-1.05.183-.515.183-.956.128-1.05-.055-.094-.2-.15-.42-.26z"/></svg>
+                    <span>عبر الواتساب</span>
+                </button>
+                <button type="button" onclick="requestOtpViaChannel('email')" class="modal-action-btn" style="background: linear-gradient(135deg, #3b82f6, #2563eb); border: none; box-shadow: 0 4px 12px rgba(37,99,235,0.3); display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; font-weight: bold; color: #fff; border-radius: 8px; cursor: pointer; font-family: Tajawal;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-envelope-fill" viewBox="0 0 16 16"><path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM0 4.697v7.104l5.803-3.558zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586zm5.436-.56L16 11.801V4.697z"/></svg>
+                    <span>عبر البريد الإلكتروني</span>
+                </button>
+            </div>
+            <button type="button" onclick="closeOtpChannelModal()" class="modal-action-btn" style="background: #334155; margin-top: 10px; width: 100%; padding: 10px; border-radius: 8px; cursor: pointer; font-family: Tajawal;">إلغاء</button>
         </div>
     </div>
 
@@ -476,6 +521,14 @@
                     showModal('error', 'نقص البيانات', 'يرجى إدخال اسم الشركة والرابط المخصص');
                     return;
                 }
+                
+                const subdomain = document.getElementById('subdomain').value.trim();
+                const subReg = /^[a-z0-9][a-z0-9\-]{1,18}[a-z0-9]$/;
+                if (!subReg.test(subdomain)) {
+                    showModal('error', 'خطأ في الرابط المخصص', 'الرابط المخصص يجب أن يكون بين 3 و 20 حرفاً، يحتوي على أحرف صغيرة وأرقام فقط، ولا يبدأ أو ينتهي بشرطة');
+                    return;
+                }
+                
                 document.querySelector('#step-1 .btn-submit').innerText = 'جاري التحقق...';
                 const isSubUnique = await checkUnique('subdomain', 'subdomain', 'هذا الرابط مستخدم مسبقاً، يرجى اختيار رابط آخر');
                 document.querySelector('#step-1 .btn-submit').innerText = 'التالي ⬅️';
@@ -509,9 +562,23 @@
             for(let i=1; i<=step; i++) {
                 if(document.getElementById('dot-' + i)) document.getElementById('dot-' + i).classList.add('active');
             }
+            
+            if (step === 4) {
+                for (let i = 1; i <= 6; i++) {
+                    const el = document.getElementById(`otp-${i}`);
+                    if (el) el.value = '';
+                }
+                setTimeout(() => {
+                    const firstInput = document.getElementById('otp-1');
+                    if (firstInput) firstInput.focus();
+                }, 100);
+            }
         }
 
         function prevStep(step) {
+            if (step === 3) {
+                clearInterval(otpInterval);
+            }
             document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.step-dot').forEach(d => d.classList.remove('active'));
             
@@ -543,7 +610,19 @@
                 return;
             }
             
+            // Show the channel selection modal
+            document.getElementById('otp-channel-modal').classList.add('active');
+        }
+
+        function closeOtpChannelModal() {
+            document.getElementById('otp-channel-modal').classList.remove('active');
+        }
+
+        async function requestOtpViaChannel(channel) {
+            closeOtpChannelModal();
+            
             const btn = document.querySelector('#step-3 .btn-submit:nth-child(2)');
+            const originalText = btn.innerText;
             btn.innerText = 'جاري الإرسال...';
             btn.disabled = true;
             
@@ -553,33 +632,108 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ 
                         email: document.getElementById('owner_email').value,
-                        phone: document.getElementById('owner_phone').value
+                        phone: document.getElementById('owner_phone').value,
+                        channel: channel
                     })
                 });
                 const data = await res.json();
                 if(data.success) {
+                    const headerIcon = document.getElementById('otp-header-icon');
+                    const headerText = document.getElementById('otp-header-text');
+                    const otpDesc = document.getElementById('otp-description');
+                    
+                    if (channel === 'whatsapp') {
+                        if (headerIcon) {
+                            headerIcon.innerHTML = `
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="#10b981" style="display: block;">
+                                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.451 5.436 0 9.86-4.418 9.863-9.848.002-2.63-1.019-5.101-2.874-6.958C16.405 1.982 13.926.96 11.3.96 5.86.96 1.436 5.38 1.433 10.81c-.001 1.564.417 3.09 1.21 4.453l-.994 3.63 3.733-.979zm11.433-5.234c-.22-.11-1.306-.644-1.506-.719-.2-.075-.346-.112-.492.11-.146.22-.566.719-.694.869-.128.15-.256.169-.476.059-.22-.11-.93-.343-1.77-1.093-.655-.584-1.096-1.305-1.225-1.525-.128-.22-.014-.339.096-.449.1-.1.22-.256.33-.385.11-.128.146-.22.22-.366.075-.147.037-.275-.018-.385-.056-.11-.492-1.186-.674-1.62-.177-.428-.355-.37-.492-.377-.127-.007-.273-.008-.42-.008-.146 0-.384.055-.585.275-.2.22-.766.75-.766 1.83 0 1.078.783 2.119.892 2.269.11.15 1.542 2.355 3.736 3.3.522.226.93.36 1.246.46.524.167 1.002.143 1.379.087.42-.063 1.306-.534 1.489-1.05.183-.515.183-.956.128-1.05-.055-.094-.2-.15-.42-.26z"/>
+                                </svg>`;
+                        }
+                        if (headerText) {
+                            headerText.innerText = 'تأكيد حساب الواتساب';
+                            headerText.parentElement.style.color = '#10b981';
+                        }
+                        if (otpDesc) {
+                            otpDesc.innerText = `أرسلنا رمز تحقق (OTP) مكون من 6 أرقام إلى حساب الواتساب الخاص بك: ${document.getElementById('owner_phone').value}`;
+                            otpDesc.style.color = '#10b981';
+                        }
+                    } else {
+                        if (headerIcon) {
+                            headerIcon.innerHTML = `
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#3b82f6" class="bi bi-envelope-fill" viewBox="0 0 16 16" style="display: block;">
+                                    <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM0 4.697v7.104l5.803-3.558zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586zm5.436-.56L16 11.801V4.697z"/>
+                                </svg>`;
+                        }
+                        if (headerText) {
+                            headerText.innerText = 'تأكيد البريد الإلكتروني';
+                            headerText.parentElement.style.color = '#38bdf8';
+                        }
+                        if (otpDesc) {
+                            otpDesc.innerText = `أرسلنا رمز تحقق (OTP) مكون من 6 أرقام إلى بريدك الإلكتروني: ${document.getElementById('owner_email').value}`;
+                            otpDesc.style.color = '#38bdf8';
+                        }
+                    }
+                    
                     nextStep(4);
+                    startOtpCountdown();
                     if(data.dev_otp) {
                         console.log("DEV OTP:", data.dev_otp);
-                        // Auto-fill in dev mode
-                        document.getElementById('otp_code').value = data.dev_otp;
                     }
                 } else {
                     showModal('error', 'فشل الإرسال', data.error || 'حدث خطأ أثناء إرسال الرمز');
                 }
             } catch (e) {
                 showModal('error', 'خطأ في الاتصال', 'يرجى المحاولة مرة أخرى');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
             }
-            btn.innerText = 'التحقق وإرسال الكود ✉️';
-            btn.disabled = false;
         }
 
-        let checkTimeout;
+        // Setup OTP auto-tabbing and paste events
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputs = document.querySelectorAll('.otp-digit');
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    if (e.target.value && !/^[0-9]$/.test(e.target.value)) {
+                        e.target.value = '';
+                        return;
+                    }
+                    if (e.target.value.length === 1 && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                });
+                
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace') {
+                        if (e.target.value === '' && index > 0) {
+                            inputs[index - 1].focus();
+                            inputs[index - 1].value = '';
+                        } else {
+                            e.target.value = '';
+                        }
+                    }
+                });
+                
+                input.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const pasteData = e.clipboardData.getData('text').trim();
+                    if (/^\d{6}$/.test(pasteData)) {
+                        inputs.forEach((inp, i) => {
+                            inp.value = pasteData[i];
+                        });
+                        inputs[5].focus();
+                    }
+                });
+            });
+        });
+
+        const checkTimeouts = {};
         function debounceCheckUnique(fieldId, fieldType, errorMsg) {
-            clearTimeout(checkTimeout);
-            checkTimeout = setTimeout(() => {
+            clearTimeout(checkTimeouts[fieldId]);
+            checkTimeouts[fieldId] = setTimeout(() => {
                 checkUnique(fieldId, fieldType, errorMsg);
-            }, 400); // 400ms delay after typing stops
+            }, 450); // 450ms delay
         }
 
         async function checkUnique(fieldId, fieldType, errorMsg) {
@@ -597,6 +751,27 @@
                     el.style.backgroundColor = '';
                 }
                 return true;
+            }
+            
+            // Local format checks for subdomain
+            if (fieldId === 'subdomain') {
+                const subVal = el.value.trim();
+                const subReg = /^[a-z0-9][a-z0-9\-]{1,18}[a-z0-9]$/;
+                if (!subReg.test(subVal)) {
+                    el.style.borderColor = '#ef4444';
+                    el.style.backgroundColor = 'rgba(239, 68, 68, 0.15)';
+                    const err = document.createElement('div');
+                    err.id = 'error-' + fieldId;
+                    err.style.color = '#ef4444';
+                    err.style.fontWeight = 'bold';
+                    err.style.fontSize = '0.85rem';
+                    err.style.marginTop = '5px';
+                    err.style.textAlign = 'right';
+                    err.innerText = 'الرابط المخصص يجب أن يكون بين 3 و 20 حرفاً، يحتوي على أحرف صغيرة وأرقام فقط، ولا يبدأ أو ينتهي بشرطة';
+                    
+                    el.parentElement.parentElement.appendChild(err);
+                    return false;
+                }
             }
             
             try {
@@ -639,6 +814,46 @@
             }
         }
 
+        function getOtpValue() {
+            let code = '';
+            for (let i = 1; i <= 6; i++) {
+                const el = document.getElementById(`otp-${i}`);
+                if (el) code += el.value.trim();
+            }
+            return code;
+        }
+
+        let otpInterval;
+        function startOtpCountdown() {
+            clearInterval(otpInterval);
+            let duration = 600; // 10 minutes in seconds
+            const timerDisplay = document.getElementById('otp-timer');
+            
+            function updateTimer() {
+                let minutes = Math.floor(duration / 60);
+                let seconds = duration % 60;
+                
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                seconds = seconds < 10 ? '0' + seconds : seconds;
+                
+                if (timerDisplay) {
+                    timerDisplay.innerText = `${minutes}:${seconds}`;
+                }
+                
+                if (duration <= 0) {
+                    clearInterval(otpInterval);
+                    if (timerDisplay) {
+                        timerDisplay.innerText = 'منتهي الصلاحية ❌';
+                    }
+                    showModal('error', 'انتهت صلاحية الرمز', 'انتهت صلاحية رمز التحقق. يرجى العودة للخلف وإعادة إرسال رمز جديد.');
+                }
+                duration--;
+            }
+            
+            updateTimer();
+            otpInterval = setInterval(updateTimer, 1000);
+        }
+
         async function handleRegister() {
             const company_name = document.getElementById('company_name').value;
             const subdomain = document.getElementById('subdomain').value;
@@ -649,10 +864,10 @@
             const owner_email = document.getElementById('owner_email').value;
             const owner_phone2 = document.getElementById('owner_phone2') ? document.getElementById('owner_phone2').value : '';
             const hp_field = document.getElementById('hp_field') ? document.getElementById('hp_field').value : '';
-            const otp = document.getElementById('otp_code').value;
+            const otp = getOtpValue();
 
-            if(!otp) {
-                showModal('error', 'نقص البيانات', 'يرجى إدخال رمز التحقق');
+            if(otp.length < 6) {
+                showModal('error', 'نقص البيانات', 'يرجى إدخال رمز التحقق كاملاً (6 أرقام)');
                 return;
             }
 

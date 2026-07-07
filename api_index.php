@@ -241,9 +241,11 @@ if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
     $stmt = $pdo->prepare("INSERT INTO otp_verifications (email, otp, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))");
     $stmt->execute([$email, $otp]);
     
+    $channel = trim($input['channel'] ?? 'whatsapp');
+
     $waSuccess = false;
     $waError = '';
-    if (!empty($phone)) {
+    if ($channel === 'whatsapp' && !empty($phone)) {
         $waResult = sendWhatsAppOTP($phone, $otp);
         if ($waResult['success']) {
             $waSuccess = true;
@@ -262,7 +264,7 @@ if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
         $result = EmailService::sendOTP($email, $otp);
         if ($result['success']) {
             $msg = 'تم إرسال رمز التحقق إلى بريدك الإلكتروني بنجاح!';
-            if (!empty($waError)) {
+            if ($channel === 'whatsapp' && !empty($waError)) {
                 $msg .= ' (فشل الإرسال عبر الواتساب: ' . $waError . ')';
             }
             jsonResponse(['success' => true, 'message' => $msg, 'dev_otp' => $result['dev_otp'] ?? null]);

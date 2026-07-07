@@ -260,7 +260,7 @@
                 </div>
             </div>
             <div class="header-controls" style="display:flex; align-items:center; gap:15px;">
-                <div id="wa-status-widget" style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; color:#d1d5db;">
+                <div id="wa-status-widget" onclick="openAdminWhatsAppModal()" style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; color:#d1d5db; cursor:pointer;">
                     <span id="wa-status-indicator" style="width:10px; height:10px; border-radius:50%; background:#ef4444; display:inline-block; box-shadow:0 0 8px #ef4444;"></span>
                     <span id="wa-status-text" style="font-weight:bold;">خادم الواتساب: فحص...</span>
                 </div>
@@ -840,6 +840,30 @@
         </div>
     </div>
     
+    <!-- Admin WhatsApp Modal -->
+    <div id="admin-wa-modal" class="modal-overlay">
+        <div class="glass-panel modal-content" style="max-width: 400px; text-align: center;">
+            <div class="modal-header">
+                <h3 style="color:#25d366; margin: 0;">📱 ربط واتساب الإدارة العامة</h3>
+                <button class="close-btn" onclick="closeModal('admin-wa-modal')">&times;</button>
+            </div>
+            <div class="form-group" style="margin-top: 15px;">
+                <p id="admin-wa-status-text" style="font-weight: bold; color: #fff; margin-bottom: 10px;">جاري فحص الاتصال...</p>
+                <div id="admin-wa-qr-container" style="background: #fff; padding: 15px; border-radius: 12px; display: inline-block; min-width: 200px; min-height: 200px; margin-top: 10px;">
+                    <img id="admin-wa-qr-image" src="" alt="QR Code" style="width: 100%; display: none;" />
+                    <div id="admin-wa-loading" style="color: #000; margin-top: 80px;">⏳ جاري التوليد...</div>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 15px; line-height: 1.5;">
+                    امسح هذا الرمز باستخدام تطبيق واتساب في هاتفك لربط حساب الإدارة العامة بالنظام لإرسال الـ OTP والتنبيهات.
+                </p>
+            </div>
+            <div class="modal-actions" style="margin-top: 20px; justify-content: center; gap: 10px;">
+                <button class="btn-danger" id="admin-wa-logout-btn" style="display: none; padding: 10px 20px; background: #ef4444; border: none; font-weight: bold;" onclick="logoutAdminWhatsApp()">إلغاء الربط</button>
+                <button class="btn-outline" style="padding: 10px 20px;" onclick="checkAdminWhatsAppConnection()">تحديث الحالة</button>
+            </div>
+        </div>
+    </div>
+    
     <script>
         // Register PWA service worker
         if ('serviceWorker' in navigator) {
@@ -1261,13 +1285,100 @@
                 const res = await fetch(`http://${host}:3001/wa/status?userId=default-saas-admin`, { method: 'GET' });
                 const data = await res.json();
                 
-                indicator.style.background = '#10b981'; // Green
-                indicator.style.boxShadow = '0 0 8px #10b981';
-                text.innerText = 'خادم الواتساب: نشط';
+                if (data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') {
+                    indicator.style.background = '#10b981'; // Green
+                    indicator.style.boxShadow = '0 0 8px #10b981';
+                    text.innerText = 'خادم الواتساب: نشط (متصل)';
+                } else {
+                    indicator.style.background = '#eab308'; // Orange/Yellow
+                    indicator.style.boxShadow = '0 0 8px #eab308';
+                    text.innerText = 'خادم الواتساب: نشط (غير مرتبط)';
+                }
             } catch(e) {
                 indicator.style.background = '#ef4444'; // Red
                 indicator.style.boxShadow = '0 0 8px #ef4444';
                 text.innerText = 'خادم الواتساب: متوقف';
+            }
+        }
+
+        async function openAdminWhatsAppModal() {
+            document.getElementById('admin-wa-modal').style.display = 'flex';
+            checkAdminWhatsAppConnection();
+        }
+
+        async function checkAdminWhatsAppConnection() {
+            const statusText = document.getElementById('admin-wa-status-text');
+            const qrImg = document.getElementById('admin-wa-qr-image');
+            const spinner = document.getElementById('admin-wa-loading');
+            const logoutBtn = document.getElementById('admin-wa-logout-btn');
+            
+            statusText.innerText = 'جاري الفحص...';
+            statusText.style.color = '#fff';
+            spinner.style.display = 'block';
+            qrImg.style.display = 'none';
+            logoutBtn.style.display = 'none';
+            
+            try {
+                const host = window.location.hostname;
+                const res = await fetch(`http://${host}:3001/wa/status?userId=default-saas-admin`);
+                const data = await res.json();
+                
+                if (data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') {
+                    statusText.innerText = '✅ متصل بالواتساب بنجاح!';
+                    statusText.style.color = '#10b981';
+                    spinner.style.display = 'none';
+                    qrImg.style.display = 'none';
+                    logoutBtn.style.display = 'inline-block';
+                } else {
+                    statusText.innerText = 'يرجى مسح الرمز أدناه للربط:';
+                    statusText.style.color = '#fbbf24';
+                    logoutBtn.style.display = 'none';
+                    fetchAdminWhatsAppQR();
+                }
+                
+                // Keep the header widget state in sync
+                checkWhatsAppStatus();
+            } catch(e) {
+                statusText.innerText = '❌ خادم الواتساب متوقف أو المنفذ 3001 مغلق.';
+                statusText.style.color = '#ef4444';
+                spinner.style.display = 'none';
+                checkWhatsAppStatus();
+            }
+        }
+
+        async function fetchAdminWhatsAppQR() {
+            const qrImg = document.getElementById('admin-wa-qr-image');
+            const spinner = document.getElementById('admin-wa-loading');
+            try {
+                const host = window.location.hostname;
+                const res = await fetch(`http://${host}:3001/wa/qr?userId=default-saas-admin`);
+                const data = await res.json();
+                if (data.qrCode) {
+                    qrImg.src = data.qrCode;
+                    qrImg.style.display = 'block';
+                    spinner.style.display = 'none';
+                    
+                    // Poll status every 5 seconds while modal is open
+                    setTimeout(() => {
+                        const modal = document.getElementById('admin-wa-modal');
+                        if (modal && modal.style.display === 'flex') {
+                            checkAdminWhatsAppConnection();
+                        }
+                    }, 5000);
+                }
+            } catch(e) {
+                spinner.style.display = 'none';
+            }
+        }
+
+        async function logoutAdminWhatsApp() {
+            if (!confirm('هل ترغب بإلغاء ربط حساب الواتساب الحالي؟')) return;
+            try {
+                const host = window.location.hostname;
+                await fetch(`http://${host}:3001/wa/logout?userId=default-saas-admin`, { method: 'POST' });
+                checkAdminWhatsAppConnection();
+            } catch(e) {
+                alert('فشل تسجيل الخروج');
             }
         }
 

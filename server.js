@@ -32,6 +32,15 @@ http.createServer((req, res) => {
 
     let reqUrl = req.url.split('?')[0];
 
+    // Rewrite .html to .php if the .php file exists (e.g. /register.html?plan=4 -> /register.php?plan=4)
+    if (reqUrl.endsWith('.html')) {
+        const phpFile = path.join(DIR, reqUrl.replace(/\.html$/, '.php'));
+        if (fs.existsSync(phpFile)) {
+            req.url = req.url.replace(/\.html(\?|$)/, '.php$1');
+            reqUrl = reqUrl.replace(/\.html$/, '.php');
+        }
+    }
+
     // ---- Proxy: إرسال طلبات API وواجهات PHP للـ PHP المحلي ----
     if (reqUrl === '/') reqUrl = '/index.php';
     
