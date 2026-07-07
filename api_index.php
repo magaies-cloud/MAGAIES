@@ -187,7 +187,25 @@ if ($resource === 'public' && $action === 'check-unique' && $method === 'GET') {
     jsonResponse(['success' => true, 'exists' => $exists]);
 }
 
+function startWhatsAppServiceIfNeeded() {
+    $connection = @fsockopen('localhost', 3001, $errno, $errstr, 1);
+    if (is_resource($connection)) {
+        fclose($connection);
+        return true;
+    }
+    
+    if (stristr(PHP_OS, 'WIN')) {
+        pclose(popen("start /B node \"" . __DIR__ . "\\whatsapp-service.js\"", "r"));
+    } else {
+        shell_exec("node \"" . __DIR__ . "/whatsapp-service.js\" > /dev/null 2>&1 &");
+    }
+    
+    usleep(1500000);
+    return false;
+}
+
 function sendWhatsAppOTP($phone, $otp) {
+    startWhatsAppServiceIfNeeded();
     $message = "رمز التحقق (OTP) الخاص بك للتسجيل في السجّانة ERP هو: *" . $otp . "*\n\nينتهي صلاحية الرمز خلال 10 دقائق. يرجى عدم مشاركته مع أي شخص. 🌸";
     
     // Clean phone number
@@ -313,6 +331,7 @@ $saasSecret = defined('SAAS_ADMIN_TOKEN') ? SAAS_ADMIN_TOKEN : getenv('SAAS_ADMI
 if ($token === $saasSecret) {
     if ($resource === 'saas') {
         if ($action === 'wa-proxy') {
+            startWhatsAppServiceIfNeeded();
             $endpoint = $_GET['a2'] ?? 'status';
             $url = 'http://localhost:3001/wa/' . $endpoint . '?userId=default-saas-admin';
             
