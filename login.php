@@ -172,6 +172,7 @@
             const params = new URLSearchParams(window.location.search);
             if (params.has('tenant')) return params.get('tenant');
             const host = window.location.hostname;
+            if (/^[0-9.]+$/.test(host)) return null;
             const parts = host.split('.');
             if (host.endsWith('.localhost') && parts.length >= 2) return parts[0];
             if (parts.length > 2) return parts[0];

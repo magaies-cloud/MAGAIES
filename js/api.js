@@ -63,6 +63,9 @@ function getSubdomain() {
     
     // 2. Check hostname for live environment
     const host = window.location.hostname;
+    if (/^[0-9.]+$/.test(host)) {
+        return null;
+    }
     const parts = host.split('.');
     
     // For localhost testing with modified hosts file (e.g. alofoq.localhost)
