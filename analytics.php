@@ -446,6 +446,110 @@
     <!-- Unified Premium Header -->
     <?php include 'includes/header.php'; ?>
 
+    <!-- Desktop/Mobile Premium Reports Quick Links (Rearranged under header) -->
+    <div class="quick-reports-section glass-panel" style="padding: 25px; margin-top: 20px; margin-bottom: 25px; border-top: 3px solid #38bdf8; animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);">
+        <h3 style="color: #38bdf8; font-size: 1.4rem; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.8rem;">📈</span> 
+            التقارير المحاسبية والمالية الرئيسية
+        </h3>
+        
+        <style>
+            .quick-report-card {
+                background: rgba(15, 23, 42, 0.65);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 16px;
+                padding: 20px;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                color: #fff;
+                text-decoration: none;
+                transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+                cursor: pointer;
+            }
+            .quick-report-card:hover {
+                transform: translateY(-5px);
+                border-color: #38bdf8;
+                box-shadow: 0 10px 25px rgba(56, 189, 248, 0.25);
+                background: rgba(15, 23, 42, 0.85);
+            }
+            .quick-report-card .icon-wrap {
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+                background: rgba(56, 189, 248, 0.15);
+                color: #38bdf8;
+                box-shadow: 0 0 10px rgba(56, 189, 248, 0.1);
+                transition: all 0.3s;
+            }
+            .quick-report-card:hover .icon-wrap {
+                background: #38bdf8;
+                color: #000;
+                box-shadow: 0 0 15px #38bdf8;
+            }
+            .quick-report-card .card-info {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            .quick-report-card .card-info h4 {
+                margin: 0;
+                font-size: 1.1rem;
+                font-weight: 800;
+                color: #fff;
+            }
+            .quick-report-card .card-info p {
+                margin: 0;
+                font-size: 0.8rem;
+                color: #94a3b8;
+                font-weight: 500;
+                line-height: 1.4;
+            }
+        </style>
+
+        <div class="quick-reports-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+            <!-- 1. General Ledger -->
+            <a href="general-ledger.php" class="quick-report-card">
+                <div class="icon-wrap">📓</div>
+                <div class="card-info">
+                    <h4>دفتر الأستاذ العام</h4>
+                    <p>تفاصيل العمليات المالية المقيدة وحسابات الأستاذ التفصيلية.</p>
+                </div>
+            </a>
+
+            <!-- 2. Posting Accounts -->
+            <a href="posting-accounts.php" class="quick-report-card">
+                <div class="icon-wrap">🔄</div>
+                <div class="card-info">
+                    <h4>ترحيل الحسابات</h4>
+                    <p>مراجعة وترحيل العمليات المالية وتدقيق الحسابات المفتوحة.</p>
+                </div>
+            </a>
+
+            <!-- 3. Disclosures -->
+            <a href="financial-reports.php" class="quick-report-card">
+                <div class="icon-wrap">📊</div>
+                <div class="card-info">
+                    <h4>الإفصاحات والقوائم</h4>
+                    <p>الحسابات الختامية، الأرباح والخسائر وميزان المراجعة الشامل.</p>
+                </div>
+            </a>
+
+            <!-- 4. Analysis -->
+            <a onclick="document.querySelector('.kpi-grid').scrollIntoView({ behavior: 'smooth' })" class="quick-report-card">
+                <div class="icon-wrap">📈</div>
+                <div class="card-info">
+                    <h4>التحليلات والمؤشرات</h4>
+                    <p>مؤشرات الأداء الرئيسية والرسوم البيانية للمبيعات والمشتريات.</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
     <!-- AI Insights Section -->
     <div class="ai-insights-section glass-panel" style="border-top: 3px solid #8b5cf6; padding: 25px; margin-top: 30px; margin-bottom: 30px;">
         <h3 style="color: #c084fc; font-size: 1.4rem; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">

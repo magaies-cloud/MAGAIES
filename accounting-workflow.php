@@ -226,65 +226,7 @@
             </div>
         </div>
 
-        <!-- Left Panel: Reports -->
-        <div class="side-panel" style="border-left:none; width: 280px; background: #ffffff;">
-            <div class="reports-header">
-                <span class="nav-arrow">◀</span>
-                <span>التقارير المحاسبية</span>
-                <span class="nav-arrow">▶</span>
-            </div>
-            <div class="panel-content" style="padding: 10px 5px;">
-                <button class="report-btn" onclick="window.location.href='cash-bank-statement.php'">
-                    <span class="label">كشف حساب</span>
-                    <div class="icon-container">
-                        <span>📑</span>
-                        <span class="flow-arrow">➔</span>
-                    </div>
-                </button>
-                <button class="report-btn" onclick="window.location.href='general-ledger.php'">
-                    <span class="label">دفتر الأستاذ العام</span>
-                    <div class="icon-container">
-                        <span>📒</span>
-                        <span class="flow-arrow">➔</span>
-                    </div>
-                </button>
-                <button class="report-btn" style="opacity: 0.5; cursor: default;">
-                    <span class="label"></span>
-                    <div class="icon-container">
-                        <span>---</span>
-                        <span class="flow-arrow">➔</span>
-                    </div>
-                </button>
-                <button class="report-btn" onclick="window.location.href='balances-report.php'">
-                    <span class="label">أرصدة الحسابات</span>
-                    <div class="icon-container">
-                        <span>💰</span>
-                        <span class="flow-arrow">➔</span>
-                    </div>
-                </button>
-                <button class="report-btn" onclick="window.location.href='aging-report.php'">
-                    <span class="label">أعمار الديون</span>
-                    <div class="icon-container">
-                        <span>⏳</span>
-                        <span class="flow-arrow">➔</span>
-                    </div>
-                </button>
-                <button class="report-btn">
-                    <span class="label">ميزان المراجعة</span>
-                    <div class="icon-container">
-                        <span>⚖️</span>
-                        <span class="flow-arrow">➔</span>
-                    </div>
-                </button>
-                <button class="report-btn">
-                    <span class="label">الإقرارات الضريبية</span>
-                    <div class="icon-container">
-                        <span>🧾</span>
-                        <span class="flow-arrow">➔</span>
-                    </div>
-                </button>
-            </div>
-        </div>
+
 
     </div>
 
