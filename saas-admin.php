@@ -1314,17 +1314,19 @@
             checkAdminWhatsAppConnection();
         }
 
-        async function checkAdminWhatsAppConnection() {
+        async function checkAdminWhatsAppConnection(isSilent = false) {
             const statusText = document.getElementById('admin-wa-status-text');
             const qrImg = document.getElementById('admin-wa-qr-image');
             const spinner = document.getElementById('admin-wa-loading');
             const logoutBtn = document.getElementById('admin-wa-logout-btn');
             
-            statusText.innerText = 'جاري الفحص...';
-            statusText.style.color = '#fff';
-            spinner.style.display = 'block';
-            qrImg.style.display = 'none';
-            logoutBtn.style.display = 'none';
+            if (!isSilent) {
+                statusText.innerText = 'جاري الفحص...';
+                statusText.style.color = '#fff';
+                spinner.style.display = 'block';
+                qrImg.style.display = 'none';
+                logoutBtn.style.display = 'none';
+            }
             
             try {
                 const res = await fetch(apiUrl('saas', 'wa-proxy', 'status'), {
@@ -1350,19 +1352,31 @@
                     qrImg.style.display = 'none';
                     logoutBtn.style.display = 'inline-block';
                 } else {
-                    statusText.innerText = 'يرجى مسح الرمز أدناه للربط:';
-                    statusText.style.color = '#fbbf24';
-                    logoutBtn.style.display = 'none';
-                    fetchAdminWhatsAppQR();
+                    if (!isSilent) {
+                        statusText.innerText = 'يرجى مسح الرمز أدناه للربط:';
+                        statusText.style.color = '#fbbf24';
+                        logoutBtn.style.display = 'none';
+                        fetchAdminWhatsAppQR();
+                    } else {
+                        // Silent polling: retry checking status silently in 5s
+                        setTimeout(() => {
+                            const modal = document.getElementById('admin-wa-modal');
+                            if (modal && modal.style.display === 'flex') {
+                                checkAdminWhatsAppConnection(true);
+                            }
+                        }, 5000);
+                    }
                 }
                 
                 // Keep the header widget state in sync
                 checkWhatsAppStatus();
             } catch(e) {
-                statusText.innerText = '❌ خادم الواتساب متوقف أو تعذر الاتصال به: ' + e.message;
-                statusText.style.color = '#ef4444';
-                spinner.style.display = 'none';
-                checkWhatsAppStatus();
+                if (!isSilent) {
+                    statusText.innerText = '❌ خادم الواتساب متوقف أو تعذر الاتصال به: ' + e.message;
+                    statusText.style.color = '#ef4444';
+                    spinner.style.display = 'none';
+                    checkWhatsAppStatus();
+                }
             }
         }
 
@@ -1391,12 +1405,14 @@
                     qrImg.src = data.qrCode;
                     qrImg.style.display = 'block';
                     spinner.style.display = 'none';
+                    statusText.innerText = 'يرجى مسح الرمز أدناه للربط:';
+                    statusText.style.color = '#fbbf24';
                     
-                    // Poll status every 5 seconds while modal is open
+                    // Poll status silently every 5 seconds
                     setTimeout(() => {
                         const modal = document.getElementById('admin-wa-modal');
                         if (modal && modal.style.display === 'flex') {
-                            checkAdminWhatsAppConnection();
+                            checkAdminWhatsAppConnection(true);
                         }
                     }, 5000);
                 } else {
