@@ -568,7 +568,7 @@
 
     <script src="js/localforage.min.js"></script>
     <script src="js/app.js?v=<?php echo time(); ?>"></script>
-    <script src="js/posting-accounts.js?v=2026"></script>
+    <script src="js/posting-accounts.js?v=<?php echo time(); ?>"></script>
     <script>
         function injectDummyData() {
             const dummySales = [{

@@ -1,9 +1,24 @@
 // js/posting-accounts.js
 
 let isLoaded = false;
+let defaultUsdRate = 600;
+
+async function fetchExchangeRate() {
+    try {
+        const res = await fetch('api_index.php/exchange-rate');
+        const data = await res.json();
+        if (data && data.rate) {
+            defaultUsdRate = parseFloat(data.rate) || 600;
+        }
+    } catch(e) {
+        console.error('Failed to fetch default usd rate:', e);
+    }
+}
+
 async function initApp() {
     if (isLoaded) return;
     isLoaded = true;
+    await fetchExchangeRate();
     await loadAllTransactions();
 }
 
@@ -87,78 +102,36 @@ async function loadEntities() {
     suppliersList = await getList('erp_suppliers_v1');
     customersList = await getList('erp_customers_v1');
     itemsList = await getList('erp_items_v1');
+    buildAccountNamesMap();
 }
 
-function getAccName(accCode, returnNullIfNotFound = false) {
-    if (!accCode) return returnNullIfNotFound ? null : '-';
-    const code = String(accCode).trim();
-    const codeLower = code.toLowerCase();
-    
-    // Globally strip all standard prefixes (e.g. SUB-cust-123 becomes 123)
+const accountNamesMap = new Map();
+
+function buildAccountNamesMap() {
+    accountNamesMap.clear();
     const prefixRegex = /(customer|supplier|cust|cus|supp|sup|bank|safe|exp|sub|sust)[-\s_:]*/gi;
-    const cleanCode = code.replace(prefixRegex, '').trim().toLowerCase();
     
-    // Helper function to clean a target database ID
-    const cleanTargetId = (id) => String(id || '').replace(prefixRegex, '').trim().toLowerCase();
-    
-    // 1. Check Customers List (id, name, glAccount, code)
-    let matched = customersList.find(c => 
-        String(c.id).toLowerCase() === codeLower || 
-        String(c.name).toLowerCase() === codeLower || 
-        String(c.glAccount || '').toLowerCase() === codeLower || 
-        String(c.code || '').toLowerCase() === codeLower ||
-        cleanTargetId(c.id) === cleanCode ||
-        cleanTargetId(c.glAccount) === cleanCode ||
-        cleanTargetId(c.code) === cleanCode
-    );
-    if (matched) return matched.name;
-    
-    // 2. Check Suppliers List (id, name, glAccount, code)
-    matched = suppliersList.find(s => 
-        String(s.id).toLowerCase() === codeLower || 
-        String(s.name).toLowerCase() === codeLower || 
-        String(s.glAccount || '').toLowerCase() === codeLower || 
-        String(s.code || '').toLowerCase() === codeLower ||
-        cleanTargetId(s.id) === cleanCode ||
-        cleanTargetId(s.glAccount) === cleanCode ||
-        cleanTargetId(s.code) === cleanCode
-    );
-    if (matched) return matched.name;
+    const cleanStr = (str) => {
+        if (!str) return '';
+        return String(str).replace(/(customer|supplier|cust|cus|supp|sup|bank|safe|exp|sub|sust)[-\s_:]*/gi, '').trim().toLowerCase();
+    };
 
-    // 3. Check Safes List (id, name, glAccount, code)
-    matched = safesList.find(s => 
-        String(s.id).toLowerCase() === codeLower || 
-        String(s.name).toLowerCase() === codeLower || 
-        String(s.glAccount || '').toLowerCase() === codeLower || 
-        String(s.code || '').toLowerCase() === codeLower ||
-        cleanTargetId(s.id) === cleanCode ||
-        cleanTargetId(s.glAccount) === cleanCode ||
-        cleanTargetId(s.code) === cleanCode
-    );
-    if (matched) return matched.name;
-    
-    // 4. Check Banks List (id, name, glAccount, code)
-    matched = banksList.find(b => 
-        String(b.id).toLowerCase() === codeLower || 
-        String(b.name).toLowerCase() === codeLower || 
-        String(b.glAccount || '').toLowerCase() === codeLower || 
-        String(b.code || '').toLowerCase() === codeLower ||
-        cleanTargetId(b.id) === cleanCode ||
-        cleanTargetId(b.glAccount) === cleanCode ||
-        cleanTargetId(b.code) === cleanCode
-    );
-    if (matched) return matched.name;
+    const addMapping = (key, name) => {
+        if (!key || !name) return;
+        const skey = String(key).trim();
+        const skeyLower = skey.toLowerCase();
+        
+        if (!accountNamesMap.has(skeyLower)) {
+            accountNamesMap.set(skeyLower, name);
+        }
+        
+        const cleaned = cleanStr(skey);
+        if (cleaned && !accountNamesMap.has(cleaned)) {
+            accountNamesMap.set(cleaned, name);
+        }
+    };
 
-    // 5. Check Accounts List
-    matched = accountsList.find(a => 
-        String(a.id).toLowerCase() === codeLower || 
-        String(a.accountNo || '').toLowerCase() === codeLower || 
-        String(a.name).toLowerCase() === codeLower || 
-        cleanTargetId(a.id) === cleanCode ||
-        cleanTargetId(a.accountNo) === cleanCode
-    );
-    if (matched) return matched.name;
-    
+    // 1. Add static map keys
     const staticMap = {
         'safe-001': 'الخزينة الرئيسية (نقداً)',
         'safe-002': 'خزينة مبيعات التجزئة',
@@ -170,10 +143,148 @@ function getAccName(accCode, returnNullIfNotFound = false) {
         'revenue-sales': 'إيرادات المبيعات',
         'purchases': 'المشتريات'
     };
-    if (staticMap[code]) return staticMap[code];
-    if (staticMap[code.toLowerCase()]) return staticMap[code.toLowerCase()];
+    for (const [k, v] of Object.entries(staticMap)) {
+        addMapping(k, v);
+    }
+
+    // 2. Add customers
+    if (Array.isArray(customersList)) {
+        customersList.forEach(c => {
+            addMapping(c.id, c.name);
+            addMapping(c.name, c.name);
+            addMapping(c.glAccount, c.name);
+            addMapping(c.code, c.name);
+        });
+    }
+
+    // 3. Add suppliers
+    if (Array.isArray(suppliersList)) {
+        suppliersList.forEach(s => {
+            addMapping(s.id, s.name);
+            addMapping(s.name, s.name);
+            addMapping(s.glAccount, s.name);
+            addMapping(s.code, s.name);
+        });
+    }
+
+    // 4. Add safes
+    if (Array.isArray(safesList)) {
+        safesList.forEach(s => {
+            addMapping(s.id, s.name);
+            addMapping(s.name, s.name);
+            addMapping(s.glAccount, s.name);
+            addMapping(s.code, s.name);
+        });
+    }
+
+    // 5. Add banks
+    if (Array.isArray(banksList)) {
+        banksList.forEach(b => {
+            addMapping(b.id, b.name);
+            addMapping(b.name, b.name);
+            addMapping(b.glAccount, b.name);
+            addMapping(b.code, b.name);
+        });
+    }
+
+    // 6. Add accounts
+    if (Array.isArray(accountsList)) {
+        accountsList.forEach(a => {
+            addMapping(a.id, a.name);
+            addMapping(a.accountNo, a.name);
+            addMapping(a.name, a.name);
+        });
+    }
+}
+
+function getAccName(accCode, returnNullIfNotFound = false) {
+    if (!accCode) return returnNullIfNotFound ? null : '-';
+    const code = String(accCode).trim();
+    const codeLower = code.toLowerCase();
+    
+    // Check direct map
+    if (accountNamesMap.has(codeLower)) {
+        return accountNamesMap.get(codeLower);
+    }
+    
+    // Clean and check
+    const cleanCode = code.replace(/(customer|supplier|cust|cus|supp|sup|bank|safe|exp|sub|sust)[-\s_:]*/gi, '').trim().toLowerCase();
+    if (accountNamesMap.has(cleanCode)) {
+        return accountNamesMap.get(cleanCode);
+    }
     
     return returnNullIfNotFound ? null : cleanCode;
+}
+
+function getTransactionAmounts(item) {
+    let localAmt = 0;
+    let foreignAmt = 0;
+    let currency = 'USD';
+
+    const cur = item.currency || 'SDG';
+    const rate = parseFloat(item.exchangeRate || item.rate) || 1;
+
+    if (item._metaKey === 'erp_single_receipts_v1' || item._metaKey === 'erp_single_payments_v1') {
+        localAmt = parseFloat(item.amountLocal) || 0;
+        if (cur !== 'SDG') {
+            foreignAmt = parseFloat(item.amountForeign) || 0;
+            currency = cur;
+        } else {
+            foreignAmt = defaultUsdRate > 0 ? (localAmt / defaultUsdRate) : 0;
+            currency = 'USD';
+        }
+    } else if (item._metaKey === 'erp_receipts_v1' || item._metaKey === 'erp_payments_v1') {
+        localAmt = parseFloat(item.totalAmount || item.amountLocal) || 0;
+        let hasForeign = false;
+        if (item.details && Array.isArray(item.details)) {
+            let fAmt = 0;
+            let fCur = '';
+            item.details.forEach(d => {
+                if (d.currency && d.currency !== 'SDG') {
+                    fAmt += parseFloat(d.amountForeign) || 0;
+                    fCur = d.currency;
+                    hasForeign = true;
+                }
+            });
+            if (fAmt > 0) {
+                foreignAmt = fAmt;
+                currency = fCur;
+            }
+        }
+        if (!hasForeign) {
+            foreignAmt = defaultUsdRate > 0 ? (localAmt / defaultUsdRate) : 0;
+            currency = 'USD';
+        }
+    } else if (item._metaKey === 'erp_sales_invoices_v1' || item._metaKey === 'erp_purchase_invoices_v1') {
+        const rawAmt = parseFloat(item.grandTotal || item.totalAmount || item.netTotal || item.total || 0);
+        if (cur === 'SDG') {
+            localAmt = rawAmt;
+            foreignAmt = defaultUsdRate > 0 ? (localAmt / defaultUsdRate) : 0;
+            currency = 'USD';
+        } else {
+            foreignAmt = rawAmt;
+            localAmt = rawAmt * rate;
+            currency = cur;
+        }
+    } else {
+        localAmt = parseFloat(item.totalAmount || item.amountLocal || item.amount || item.netTotal || item.total || item.grandTotal || 0);
+        if (cur !== 'SDG') {
+            foreignAmt = parseFloat(item.amountForeign) || 0;
+            if (!foreignAmt && rate > 1) {
+                foreignAmt = localAmt / rate;
+            }
+            currency = cur;
+        } else {
+            foreignAmt = defaultUsdRate > 0 ? (localAmt / defaultUsdRate) : 0;
+            currency = 'USD';
+        }
+    }
+
+    // Rounding to 2 decimal places to look nice
+    foreignAmt = Math.round(foreignAmt * 100) / 100;
+    localAmt = Math.round(localAmt * 100) / 100;
+
+    return { localAmt, foreignAmt, currency };
 }
 
 function getItemName(itemCode) {
@@ -382,6 +493,13 @@ async function loadAllTransactions() {
                     validItems = validItems.filter(item => item.saleType !== 'preliminary' && item.status !== 'preliminary');
                 }
                 validItems.forEach(item => {
+                    const dateVal = item.date || item.createdAt;
+                    if (!dateVal) return; // Skip records with missing dates
+                    const parsedDate = new Date(dateVal);
+                    if (isNaN(parsedDate.getTime()) || parsedDate.getFullYear() <= 1970) {
+                        return; // Skip invalid or epoch 1970 dates
+                    }
+
                     allData.push({
                         ...item,
                         _sourceKey: tKey,
@@ -389,7 +507,7 @@ async function loadAllTransactions() {
                         _typeLabel: meta.type,
                         _typeClass: meta.class,
                         _typeEn: meta.typeEn,
-                        _date: new Date(item.date || item.createdAt || 0)
+                        _date: parsedDate
                     });
                 });
             }
@@ -456,18 +574,41 @@ function renderMasterTable() {
 
         if (item.items && item.items.length > 0) {
             const first = item.items[0];
-            const name = first.itemName || first.name || first.item || '-';
+            let name = first.itemName || first.name || first.item || '';
+            if (!name && (first.account || first.accountId)) {
+                name = getAccName(first.account || first.accountId);
+            }
+            if (!name) name = '-';
+            
             itemName = name;
             itemQty = first.qty || first.quantity || 0;
+            
+            if (item._metaKey === 'erp_payments_v1') {
+                itemName = getAccName(item.fromAccount || 'safe-001'); // مكان الصنف يظهر الحساب الذي دفع منه
+                itemQty = `<span style="font-family:'Tajawal', sans-serif; font-size:0.82rem; white-space:nowrap; background:rgba(255,255,255,0.07); padding:4px 8px; border-radius:6px; color:#cbd5e1;">${getAccName(item.fromAccount || 'safe-001')}</span>`; // مكان الكمية الخزنة
+            } else if (item._metaKey === 'erp_receipts_v1') {
+                // For multi receipt
+                itemQty = `<span style="font-family:'Tajawal', sans-serif; font-size:0.82rem; white-space:nowrap; background:rgba(255,255,255,0.07); padding:4px 8px; border-radius:6px; color:#cbd5e1;">${getAccName(item.toAccount || 'safe-001')}</span>`;
+            }
+            
             itemPrice = fmtCurrency(first.price || first.rate || first.unitPrice || 0);
             if (item.items.length > 1) {
-                itemName += ` <span style="font-size:0.75rem; color:#38bdf8; font-weight:normal;">(+${item.items.length - 1} أصناف)</span>`;
+                itemName += ` <span style="font-size:0.75rem; color:#38bdf8; font-weight:normal;">(+${item.items.length - 1} حسابات/أصناف)</span>`;
             }
         } else {
             // For simple vouchers, display the direct account and total amount
-            if (item.toAccount || item.fromAccount) {
+            if (item._metaKey === 'erp_single_payments_v1') {
+                itemName = getAccName(item.fromAccount || 'safe-001'); // مكان الصنف يظهر الحساب الذي دفع منه
+                itemQty = `<span style="font-family:'Tajawal', sans-serif; font-size:0.82rem; white-space:nowrap; background:rgba(255,255,255,0.07); padding:4px 8px; border-radius:6px; color:#cbd5e1;">${getAccName(item.fromAccount || 'safe-001')}</span>`; // مكان الكمية الخزنة
+                itemPrice = fmtCurrency(amt);
+            } else if (item._metaKey === 'erp_single_receipts_v1') {
+                itemName = getAccName(item.fromAccount); // الحساب المدفوع منه يكون في الصنف
+                itemQty = `<span style="font-family:'Tajawal', sans-serif; font-size:0.82rem; white-space:nowrap; background:rgba(255,255,255,0.07); padding:4px 8px; border-radius:6px; color:#cbd5e1;">${getAccName(item.toAccount || 'safe-001')}</span>`; // ومكان الكمية يظهر الخزنة
+                itemPrice = fmtCurrency(amt);
+            } else if (item.toAccount || item.fromAccount) {
                 itemName = getAccName(item.toAccount || item.fromAccount);
                 itemPrice = fmtCurrency(amt);
+                itemQty = '-';
             }
         }
 
@@ -527,7 +668,8 @@ function renderDetailPane(index) {
     detailContent.style.display = 'none';
     setTimeout(() => { detailContent.style.display = 'flex'; }, 10);
 
-    const amt = item.totalAmount || item.amountLocal || item.amount || item.netTotal || item.total || item.grandTotal || 0;
+    const { localAmt, foreignAmt, currency } = getTransactionAmounts(item);
+    const amt = localAmt;
     const ref = item.id || item.invoiceNo || item.voucherNo || '-';
     const dateStr = !isNaN(item._date.getTime()) ? item._date.toLocaleDateString('en-GB') : '-';
     const dueDate = item.dueDate ? new Date(item.dueDate).toLocaleDateString('en-GB') : '-';
@@ -609,7 +751,10 @@ function renderDetailPane(index) {
                 </table>
                 <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.15); padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.02);">
                     <span style="font-weight: bold; color: #94a3b8; font-size: 0.9rem;">إجمالي قيمة الفاتورة:</span>
-                    <span style="font-weight: 900; color: #10b981; font-size: 1.25rem; font-family: monospace;">${fmtCurrency(amt)} <span style="font-size:0.8rem; font-family:'Tajawal', sans-serif;">SDG</span></span>
+                    <div style="display:flex; align-items:center;">
+                        ${foreignAmt > 0 ? `<span style="font-weight: 900; color: #fbbf24; font-size: 1.25rem; font-family: monospace; margin-left: 15px; padding-left: 15px; border-left: 1px solid rgba(255,255,255,0.1);">${fmtCurrency(foreignAmt)} <span style="font-size:0.8rem; font-family:'Tajawal', sans-serif;">${currency}</span></span>` : ''}
+                        <span style="font-weight: 900; color: #10b981; font-size: 1.25rem; font-family: monospace;">${fmtCurrency(amt)} <span style="font-size:0.8rem; font-family:'Tajawal', sans-serif;">SDG</span></span>
+                    </div>
                 </div>
             </div>
         `;
@@ -657,7 +802,10 @@ function renderDetailPane(index) {
                     <!-- Amount (المبلغ) -->
                     <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(56,189,248,0.03); border: 1px solid rgba(56,189,248,0.12); padding: 10px 14px; border-radius: 10px; margin-top: 5px;">
                         <span style="font-weight: 800; color: #cbd5e1; font-size: 0.95rem;">المبلغ الصافي:</span>
-                        <span style="font-weight: 900; color: #38bdf8; font-size: 1.35rem; font-family: monospace;">${fmtCurrency(amt)} <span style="font-size:0.85rem; color:#94a3b8; font-family:'Tajawal', sans-serif;">SDG</span></span>
+                        <div style="display:flex; align-items:center;">
+                            ${foreignAmt > 0 ? `<span style="font-weight: 900; color: #fbbf24; font-size: 1.35rem; font-family: monospace; margin-left: 15px; padding-left: 15px; border-left: 1px solid rgba(255,255,255,0.1);">${fmtCurrency(foreignAmt)} <span style="font-size:0.85rem; color:#94a3b8; font-family:'Tajawal', sans-serif;">${currency}</span></span>` : ''}
+                            <span style="font-weight: 900; color: #38bdf8; font-size: 1.35rem; font-family: monospace;">${fmtCurrency(amt)} <span style="font-size:0.85rem; color:#94a3b8; font-family:'Tajawal', sans-serif;">SDG</span></span>
+                        </div>
                     </div>
                 </div>
             </div>
