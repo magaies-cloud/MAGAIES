@@ -2,214 +2,125 @@ process.env.HOME = '/tmp';
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
-const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
+const { makeWASocket, useMultiFileAuthState, DisconnectReason, Browsers } = require('@whiskeysockets/baileys');
+const pino = require('pino');
 const qrcode = require('qrcode');
+const fs = require('fs');
 
-// Prevent process crashes due to EBUSY file locks during LocalAuth logouts on Windows
-process.on('uncaughtException', (err) => {
-    console.error('⚠️ Uncaught Exception:', err);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('⚠️ Unhandled Rejection at:', promise, 'reason:', reason);
-});
+process.on('uncaughtException', (err) => console.error('⚠️ Uncaught Exception:', err));
+process.on('unhandledRejection', (reason, promise) => console.error('⚠️ Unhandled Rejection:', reason));
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 const upload = multer({ dest: 'uploads/' });
 
-// Store active clients by userId
 const clients = {};
-// Store QR codes temporarily for frontend to fetch
 const qrCodes = {};
-// Store connection status
 const statuses = {};
+const phoneNumbers = {};
 const destroyingClients = new Set();
 
 function normalizePhoneNumber(phone) {
     if (!phone) return '';
-    // Strip all non-numeric characters
     phone = phone.replace(/[^0-9]/g, '');
+    if (phone.startsWith('00')) phone = phone.substring(2);
     
-    // Strip leading 00
-    if (phone.startsWith('00')) {
-        phone = phone.substring(2);
-    }
-    
-    // If it starts with 0, check prefixes
     if (phone.startsWith('0')) {
-        if (phone.startsWith('09')) {
-            // Sudan (e.g. 0912300105 -> 249912300105)
-            phone = '249' + phone.substring(1);
-        } else if (phone.startsWith('05')) {
-            // Saudi Arabia (e.g. 0501234567 -> 966501234567)
-            phone = '966' + phone.substring(1);
-        } else if (phone.startsWith('01')) {
-            // Egypt (e.g. 01012345678 -> 201012345678)
-            phone = '20' + phone.substring(1);
-        }
+        if (phone.startsWith('09')) phone = '249' + phone.substring(1);
+        else if (phone.startsWith('05')) phone = '966' + phone.substring(1);
+        else if (phone.startsWith('01')) phone = '20' + phone.substring(1);
     } else {
-        // No leading 0. Check if they omitted country code
-        if (phone.startsWith('9') && phone.length === 9) {
-            phone = '249' + phone;
-        } else if (phone.startsWith('5') && phone.length === 9) {
-            phone = '966' + phone;
-        }
+        if (phone.startsWith('9') && phone.length === 9) phone = '249' + phone;
+        else if (phone.startsWith('5') && phone.length === 9) phone = '966' + phone;
     }
     
-    // Strip redundant leading 0 after country code if any
-    if (phone.startsWith('2490')) {
-        phone = '249' + phone.substring(4);
-    } else if (phone.startsWith('9660')) {
-        phone = '966' + phone.substring(4);
-    } else if (phone.startsWith('200')) {
-        phone = '20' + phone.substring(3);
-    }
+    if (phone.startsWith('2490')) phone = '249' + phone.substring(4);
+    else if (phone.startsWith('9660')) phone = '966' + phone.substring(4);
+    else if (phone.startsWith('200')) phone = '20' + phone.substring(3);
     
     return phone;
 }
 
-// Helper to initialize a client for a user
-function initClient(userId) {
+async function initClient(userId) {
     if (clients[userId]) return clients[userId];
-    if (destroyingClients.has(userId)) {
-        console.log(`Client for ${userId} is currently destroying. Skipping initialization.`);
-        return null;
-    }
+    if (destroyingClients.has(userId)) return null;
 
-    console.log(`Initializing WhatsApp Client for User: ${userId}`);
+    console.log(`Initializing Baileys Client for User: ${userId}`);
     statuses[userId] = 'INITIALIZING';
 
-    const fs = require('fs');
-    let puppeteerConfig = {
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-gpu',
-            '--no-first-run',
-            '--no-zygote',
-            '--disable-features=IsolateOrigins,site-per-process',
-            '--disable-site-isolation-trials'
-        ],
-        headless: true
-    };
+    const { state, saveCreds } = await useMultiFileAuthState(`baileys_auth_${userId}`);
     
-    if (process.platform === 'win32') {
-        let winChrome = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-        let winEdge = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
-        if (fs.existsSync(winChrome)) {
-            puppeteerConfig.executablePath = winChrome;
-        } else if (fs.existsSync(winEdge)) {
-            puppeteerConfig.executablePath = winEdge;
+    const sock = makeWASocket({
+        auth: state,
+        printQRInTerminal: false,
+        logger: pino({ level: 'info' }), // Show logs to debug disconnects
+        browser: Browsers.macOS('Desktop'), // Disguise as Mac OS to bypass WhatsApp Web ban
+        syncFullHistory: false // Speed up login
+    });
+
+    clients[userId] = sock;
+
+    sock.ev.on('creds.update', saveCreds);
+
+    sock.ev.on('connection.update', async (update) => {
+        const { connection, lastDisconnect, qr } = update;
+        
+        if (qr) {
+            console.log(`QR Code generated for user ${userId}`);
+            // Completely bypass native qrcode module to prevent Node.js Segmentation Fault on Linux
+            qrCodes[userId] = 'https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=' + encodeURIComponent(qr);
+            statuses[userId] = 'QR_READY';
         }
-    } else {
-        let linuxChrome = '/usr/bin/google-chrome';
-        let linuxChromium = '/usr/bin/chromium-browser';
-        let linuxChromiumAlt = '/usr/bin/chromium';
-        if (fs.existsSync(linuxChrome)) {
-            puppeteerConfig.executablePath = linuxChrome;
-        } else if (fs.existsSync(linuxChromium)) {
-            puppeteerConfig.executablePath = linuxChromium;
-        } else if (fs.existsSync(linuxChromiumAlt)) {
-            puppeteerConfig.executablePath = linuxChromiumAlt;
-        }
-    }
 
-    const client = new Client({
-        authStrategy: new LocalAuth({ clientId: userId }),
-        puppeteer: puppeteerConfig,
-        webVersionCache: {
-            type: 'none'
-        }
-    });
-
-    client.on('qr', async (qr) => {
-        console.log(`QR Code generated for user ${userId}`);
-        statuses[userId] = 'QR_READY';
-        try {
-            const dataUrl = await qrcode.toDataURL(qr);
-            qrCodes[userId] = dataUrl;
-        } catch (err) {
-            console.error('Failed to generate QR data URL', err);
-        }
-    });
-
-    client.on('loading_screen', (percent, message) => {
-        console.log(`WhatsApp Client for User ${userId} is LOADING SCREEN:`, percent, message);
-        statuses[userId] = 'AUTHENTICATING';
-        qrCodes[userId] = null;
-    });
-
-    client.on('ready', () => {
-        console.log(`WhatsApp Client for User ${userId} is READY!`);
-        statuses[userId] = 'CONNECTED';
-        qrCodes[userId] = null; // clear qr code
-    });
-
-    client.on('authenticated', () => {
-        console.log(`WhatsApp Client for User ${userId} is AUTHENTICATED!`);
-        statuses[userId] = 'AUTHENTICATING';
-    });
-
-    client.on('auth_failure', msg => {
-        console.error(`WhatsApp Auth Failure for User ${userId}:`, msg);
-        statuses[userId] = 'AUTH_FAILED';
-    });
-
-    client.on('disconnected', async (reason) => {
-        console.log(`WhatsApp Client for User ${userId} was DISCONNECTED:`, reason);
-        statuses[userId] = 'DISCONNECTED';
-        const cl = clients[userId];
-        delete clients[userId];
-        if (cl) {
-            destroyingClients.add(userId);
-            try {
-                await cl.destroy();
-            } catch (e) {
-                console.error('Error destroying client on disconnect:', e.message);
+        if (connection === 'close') {
+            const shouldReconnect = (lastDisconnect?.error)?.output?.statusCode !== DisconnectReason.loggedOut;
+            console.log(`Connection closed for ${userId}. Reconnecting: ${shouldReconnect}`, lastDisconnect?.error);
+            statuses[userId] = 'DISCONNECTED';
+            qrCodes[userId] = null;
+            delete clients[userId];
+            
+            if (shouldReconnect && !destroyingClients.has(userId)) {
+                setTimeout(() => initClient(userId), 3000);
             }
-            setTimeout(() => {
-                destroyingClients.delete(userId);
-            }, 3000);
+        } else if (connection === 'connecting') {
+            statuses[userId] = 'AUTHENTICATING';
+        } else if (connection === 'open') {
+            console.log(`WhatsApp Client for User ${userId} is READY!`);
+            statuses[userId] = 'CONNECTED';
+            qrCodes[userId] = null;
+            // Get user phone number from session
+            if (sock.user && sock.user.id) {
+                phoneNumbers[userId] = sock.user.id.split(':')[0]; // format is number:device@s.whatsapp.net
+            }
         }
     });
 
-    client.initialize();
-    clients[userId] = client;
-    return client;
+    return sock;
 }
 
-// 1. Get Status / Initialize
 app.get('/wa/status', (req, res) => {
     const userId = req.query.userId || 'default';
-    if (!clients[userId]) {
+    if (!clients[userId] && statuses[userId] !== 'INITIALIZING' && statuses[userId] !== 'QR_READY' && statuses[userId] !== 'AUTHENTICATING' && !destroyingClients.has(userId)) {
         initClient(userId);
     }
-    const client = clients[userId];
-    const phoneNumber = client && client.info && client.info.wid ? client.info.wid.user : null;
     res.json({
         userId,
         status: statuses[userId] || 'STARTING',
-        phoneNumber
+        phoneNumber: phoneNumbers[userId] || null
     });
 });
 
-// 2. Get QR Code
 app.get('/wa/qr', (req, res) => {
     const userId = req.query.userId || 'default';
-    const client = clients[userId];
-    const phoneNumber = client && client.info && client.info.wid ? client.info.wid.user : null;
     res.json({
         userId,
         status: statuses[userId],
         qrCode: qrCodes[userId] || null,
-        phoneNumber
+        phoneNumber: phoneNumbers[userId] || null
     });
 });
 
-// 3. Send Message / PDF
 app.post('/wa/send', upload.single('pdf'), async (req, res) => {
     const userId = req.body.userId || 'default';
     let phone = req.body.phone;
@@ -218,36 +129,29 @@ app.post('/wa/send', upload.single('pdf'), async (req, res) => {
     if (!clients[userId] || statuses[userId] !== 'CONNECTED') {
         return res.status(400).json({ error: 'WhatsApp not connected for this user.' });
     }
-
     if (!phone) {
         return res.status(400).json({ error: 'Phone number is required.' });
     }
 
-    // Format phone number to standard WhatsApp format (add country code if missing)
     phone = normalizePhoneNumber(phone);
-
-    if (!phone.endsWith('@c.us')) {
-        phone = `${phone}@c.us`;
+    if (!phone.endsWith('@s.whatsapp.net')) {
+        phone = `${phone}@s.whatsapp.net`;
     }
 
     try {
-        const client = clients[userId];
+        const sock = clients[userId];
         console.log(`Attempting to send message to ${phone}`);
 
-        // If there's a file attached
         if (req.file) {
-            const numberId = await client.getNumberId(phone);
-            const finalPhone = numberId ? numberId._serialized : phone;
-            
-            const media = MessageMedia.fromFilePath(req.file.path);
-            await client.sendMessage(finalPhone, media, { caption: message });
-            
-            // Clean up the temp file asynchronously
-            const fs = require('fs');
+            await sock.sendMessage(phone, {
+                document: { url: req.file.path },
+                mimetype: 'application/pdf',
+                fileName: req.file.originalname || 'document.pdf',
+                caption: message
+            });
             fs.unlink(req.file.path, () => {});
         } else {
-            // Just text (OTP/Notification) - send directly for maximum speed and instant delivery
-            await client.sendMessage(phone, message);
+            await sock.sendMessage(phone, { text: message });
         }
 
         res.json({ success: true, message: 'Sent successfully!' });
@@ -257,36 +161,30 @@ app.post('/wa/send', upload.single('pdf'), async (req, res) => {
     }
 });
 
-// 4. Logout
 app.post('/wa/logout', async (req, res) => {
     const userId = req.body.userId || req.query.userId || 'default';
-    const client = clients[userId];
-    if (client) {
+    const sock = clients[userId];
+    if (sock || statuses[userId]) {
         destroyingClients.add(userId);
         statuses[userId] = 'DISCONNECTING';
-        delete clients[userId];
-        try {
-            try {
-                await client.logout();
-            } catch (e) {
-                console.error('Error logging out client:', e.message);
-            }
-            try {
-                await client.destroy();
-            } catch (e) {
-                console.error('Error destroying client on logout:', e.message);
-            }
-            statuses[userId] = 'LOGGED_OUT';
-            qrCodes[userId] = null;
-            res.json({ success: true, message: 'Logged out successfully.' });
-        } catch (err) {
-            console.error('Logout main error:', err);
-            res.status(500).json({ error: 'Logout failed.' });
-        } finally {
-            setTimeout(() => {
-                destroyingClients.delete(userId);
-            }, 3000);
+        
+        if (sock) {
+            try { await sock.logout(); } catch (e) {}
+            delete clients[userId];
         }
+        
+        statuses[userId] = 'LOGGED_OUT';
+        qrCodes[userId] = null;
+        phoneNumbers[userId] = null;
+        
+        // Remove auth folder completely to ensure clean state next time
+        const authFolder = `baileys_auth_${userId}`;
+        if (fs.existsSync(authFolder)) {
+            fs.rmSync(authFolder, { recursive: true, force: true });
+        }
+
+        setTimeout(() => { destroyingClients.delete(userId); }, 3000);
+        res.json({ success: true, message: 'Logged out successfully.' });
     } else {
         res.json({ success: true, message: 'Not connected.' });
     }
@@ -294,7 +192,6 @@ app.post('/wa/logout', async (req, res) => {
 
 const PORT = 3001;
 app.listen(PORT, () => {
-    console.log(`🚀 WhatsApp Microservice is running on port ${PORT}`);
-    // Auto-initialize the default SaaS admin client so it's ready to send OTPs immediately on start
+    console.log(`🚀 WhatsApp Baileys Microservice running on port ${PORT}`);
     initClient('default-saas-admin');
 });
