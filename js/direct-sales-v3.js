@@ -362,15 +362,16 @@ function setSaleType(btn, type) {
 // ════════════════════════════════════════
 function onCustomerChange() {
     const id = document.getElementById('hdr-customer').value;
-    const cust = CUSTOMERS.find(c => c.id === id);
+    const cust = CUSTOMERS.find(c => String(c.id) === String(id));
     const cur = document.getElementById('hdr-currency').value;
     const strip = document.getElementById('fin-strip');
     const badge = document.getElementById('fin-status-badge');
 
     if (!cust || id === '') {
-        ['fin-ledger','fin-checks','fin-total-debt','fin-credit-limit','fin-remaining'].forEach(el =>
-            document.getElementById(el).textContent = '—'
-        );
+        ['fin-ledger','fin-checks','fin-total-debt','fin-credit-limit','fin-remaining'].forEach(el => {
+            const dom = document.getElementById(el);
+            if (dom) dom.textContent = '—';
+        });
         if (strip) strip.classList.remove('visible');
         if (badge) badge.style.display = 'none';
         return;
@@ -397,18 +398,18 @@ function onCustomerChange() {
         const txtEl = document.getElementById('fin-status-txt');
         const dot = badge.querySelector('.status-dot');
         if (cust.status === 'blacklisted') {
-            dot.className = 'status-dot danger';
-            txtEl.textContent = '⛔ قائمة سوداء';
+            if (dot) dot.className = 'status-dot danger';
+            if (txtEl) txtEl.textContent = '⛔ قائمة سوداء';
             showToast('تحذير: هذا العميل في القائمة السوداء!', 'error', 5000);
         } else if (remaining > 20000) {
-            dot.className = 'status-dot good';
-            txtEl.textContent = '✅ ائتمان جيد';
+            if (dot) dot.className = 'status-dot good';
+            if (txtEl) txtEl.textContent = '✅ ائتمان جيد';
         } else if (remaining > 0) {
-            dot.className = 'status-dot warn';
-            txtEl.textContent = '⚠️ ائتمان منخفض';
+            if (dot) dot.className = 'status-dot warn';
+            if (txtEl) txtEl.textContent = '⚠️ ائتمان منخفض';
         } else {
-            dot.className = 'status-dot danger';
-            txtEl.textContent = '🚫 تجاوز الحد';
+            if (dot) dot.className = 'status-dot danger';
+            if (txtEl) txtEl.textContent = '🚫 تجاوز الحد';
         }
         badge.style.display = 'inline-flex';
     }
@@ -549,7 +550,7 @@ function loadInvoiceFromStorage(invNo) {
 
         if (data.saleType) {
             currentSaleType = data.saleType;
-            if (typeof openInvoiceEditor === 'function') openInvoiceEditor(currentSaleType);
+            if (typeof openInvoiceEditor === 'function') openInvoiceEditor(currentSaleType, true);
         }
 
         // Reset form
@@ -568,33 +569,46 @@ function loadInvoiceFromStorage(invNo) {
         // Customer
         const custId = data.customer || data.customerId;
         if (custId) {
-            const c = CUSTOMERS.find(x => x.id === custId);
+            const c = CUSTOMERS.find(x => String(x.id) === String(custId));
             if (c) selectCustomer(c.id, c.name);
         }
         
         // Rows
-        if(data.items && data.items.length) {
-            data.items.forEach(i => {
-                addRow();
+        const itemsList = data.items || data.products || [];
+        if(itemsList && itemsList.length) {
+            itemsList.forEach(i => {
+                addRow(true); // silent
                 const r = rows[rows.length-1];
-                if (i.itemId) updateRow(r.id, 'itemId', i.itemId);
-                if (i.selectedUnit) updateRow(r.id, 'selectedUnit', i.selectedUnit);
-                if (i.customFactor !== undefined) updateRow(r.id, 'customFactor', i.customFactor);
-                if (i.quantity !== undefined) updateRow(r.id, 'quantity', i.quantity);
-                if (i.customBaseQty !== undefined) updateRow(r.id, 'customBaseQty', i.customBaseQty);
-                if (i.price !== undefined) updateRow(r.id, 'price', i.price);
-                if (i.fcPrice !== undefined) updateRow(r.id, 'fcPrice', i.fcPrice);
-                if (i.warehouseId) updateRow(r.id, 'warehouseId', i.warehouseId);
-                if (i.costCenterId) updateRow(r.id, 'costCenterId', i.costCenterId);
+                const itemId = i.itemId || i.id || i.item_id;
+                const selectedUnit = i.selectedUnit || i.unit || i.unitName;
+                const customFactor = i.customFactor !== undefined ? i.customFactor : i.factor;
+                const quantity = i.quantity !== undefined ? i.quantity : (i.qty !== undefined ? i.qty : 0);
+                const customBaseQty = i.customBaseQty;
+                const price = i.price !== undefined ? i.price : (i.rate !== undefined ? i.rate : 0);
+                const fcPrice = i.fcPrice;
+                const warehouseId = i.warehouseId || i.warehouse;
+                const costCenterId = i.costCenterId || i.costCenter;
+
+                if (itemId) updateRow(r.id, 'itemId', itemId);
+                if (selectedUnit) updateRow(r.id, 'selectedUnit', selectedUnit);
+                if (customFactor !== undefined) updateRow(r.id, 'customFactor', customFactor);
+                if (quantity !== undefined) updateRow(r.id, 'quantity', quantity);
+                if (customBaseQty !== undefined) updateRow(r.id, 'customBaseQty', customBaseQty);
+                if (price !== undefined) updateRow(r.id, 'price', price);
+                if (fcPrice !== undefined) updateRow(r.id, 'fcPrice', fcPrice);
+                if (warehouseId) updateRow(r.id, 'warehouseId', warehouseId);
+                if (costCenterId) updateRow(r.id, 'costCenterId', costCenterId);
                 if (i.qrCode) updateRow(r.id, 'qrCode', i.qrCode);
             });
         }
         
         renderGrid();
         recalcAll();
+        if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
         return true;
     } catch(e) {
         console.error('Error loading invoice', e);
+        alert('حدث خطأ أثناء تحميل الفاتورة:\n' + e.message + '\n' + e.stack);
         return false;
     }
 }
@@ -724,15 +738,16 @@ function updateLedgerButton() {
 function onCustomerChange() {
     updateLedgerButton();
     const id = document.getElementById('hdr-customer').value;
-    const cust = CUSTOMERS.find(c => c.id === id);
+    const cust = CUSTOMERS.find(c => String(c.id) === String(id));
     const cur = document.getElementById('hdr-currency').value;
     const strip = document.getElementById('fin-strip');
     const badge = document.getElementById('fin-status-badge');
 
     if (!cust || id === '') {
-        ['fin-ledger','fin-checks','fin-total-debt','fin-credit-limit','fin-remaining'].forEach(el =>
-            document.getElementById(el).textContent = '—'
-        );
+        ['fin-ledger','fin-checks','fin-total-debt','fin-credit-limit','fin-remaining'].forEach(el => {
+            const dom = document.getElementById(el);
+            if (dom) dom.textContent = '—';
+        });
         if (strip) strip.classList.remove('visible');
         if (badge) badge.style.display = 'none';
         return;
@@ -759,18 +774,18 @@ function onCustomerChange() {
         const txtEl = document.getElementById('fin-status-txt');
         const dot = badge.querySelector('.status-dot');
         if (cust.status === 'blacklisted') {
-            dot.className = 'status-dot danger';
-            txtEl.textContent = '⛔ قائمة سوداء';
+            if (dot) dot.className = 'status-dot danger';
+            if (txtEl) txtEl.textContent = '⛔ قائمة سوداء';
             showToast('تحذير: هذا العميل في القائمة السوداء!', 'error', 5000);
         } else if (remaining > 20000) {
-            dot.className = 'status-dot good';
-            txtEl.textContent = '✅ ائتمان جيد';
+            if (dot) dot.className = 'status-dot good';
+            if (txtEl) txtEl.textContent = '✅ ائتمان جيد';
         } else if (remaining > 0) {
-            dot.className = 'status-dot warn';
-            txtEl.textContent = '⚠️ ائتمان منخفض';
+            if (dot) dot.className = 'status-dot warn';
+            if (txtEl) txtEl.textContent = '⚠️ ائتمان منخفض';
         } else {
-            dot.className = 'status-dot danger';
-            txtEl.textContent = '🚫 تجاوز الحد';
+            if (dot) dot.className = 'status-dot danger';
+            if (txtEl) txtEl.textContent = '🚫 تجاوز الحد';
         }
         badge.style.display = 'inline-flex';
     }
@@ -911,7 +926,7 @@ function loadInvoiceFromStorage(invNo) {
 
         if (data.saleType) {
             currentSaleType = data.saleType;
-            if (typeof openInvoiceEditor === 'function') openInvoiceEditor(currentSaleType);
+            if (typeof openInvoiceEditor === 'function') openInvoiceEditor(currentSaleType, true);
         }
 
         // Reset form
@@ -930,33 +945,46 @@ function loadInvoiceFromStorage(invNo) {
         // Customer
         const custId = data.customer || data.customerId;
         if (custId) {
-            const c = CUSTOMERS.find(x => x.id === custId);
+            const c = CUSTOMERS.find(x => String(x.id) === String(custId));
             if (c) selectCustomer(c.id, c.name);
         }
         
         // Rows
-        if(data.items && data.items.length) {
-            data.items.forEach(i => {
-                addRow();
+        const itemsList = data.items || data.products || [];
+        if(itemsList && itemsList.length) {
+            itemsList.forEach(i => {
+                addRow(true); // silent
                 const r = rows[rows.length-1];
-                if (i.itemId) updateRow(r.id, 'itemId', i.itemId);
-                if (i.selectedUnit) updateRow(r.id, 'selectedUnit', i.selectedUnit);
-                if (i.customFactor !== undefined) updateRow(r.id, 'customFactor', i.customFactor);
-                if (i.quantity !== undefined) updateRow(r.id, 'quantity', i.quantity);
-                if (i.customBaseQty !== undefined) updateRow(r.id, 'customBaseQty', i.customBaseQty);
-                if (i.price !== undefined) updateRow(r.id, 'price', i.price);
-                if (i.fcPrice !== undefined) updateRow(r.id, 'fcPrice', i.fcPrice);
-                if (i.warehouseId) updateRow(r.id, 'warehouseId', i.warehouseId);
-                if (i.costCenterId) updateRow(r.id, 'costCenterId', i.costCenterId);
+                const itemId = i.itemId || i.id || i.item_id;
+                const selectedUnit = i.selectedUnit || i.unit || i.unitName;
+                const customFactor = i.customFactor !== undefined ? i.customFactor : i.factor;
+                const quantity = i.quantity !== undefined ? i.quantity : (i.qty !== undefined ? i.qty : 0);
+                const customBaseQty = i.customBaseQty;
+                const price = i.price !== undefined ? i.price : (i.rate !== undefined ? i.rate : 0);
+                const fcPrice = i.fcPrice;
+                const warehouseId = i.warehouseId || i.warehouse;
+                const costCenterId = i.costCenterId || i.costCenter;
+
+                if (itemId) updateRow(r.id, 'itemId', itemId);
+                if (selectedUnit) updateRow(r.id, 'selectedUnit', selectedUnit);
+                if (customFactor !== undefined) updateRow(r.id, 'customFactor', customFactor);
+                if (quantity !== undefined) updateRow(r.id, 'quantity', quantity);
+                if (customBaseQty !== undefined) updateRow(r.id, 'customBaseQty', customBaseQty);
+                if (price !== undefined) updateRow(r.id, 'price', price);
+                if (fcPrice !== undefined) updateRow(r.id, 'fcPrice', fcPrice);
+                if (warehouseId) updateRow(r.id, 'warehouseId', warehouseId);
+                if (costCenterId) updateRow(r.id, 'costCenterId', costCenterId);
                 if (i.qrCode) updateRow(r.id, 'qrCode', i.qrCode);
             });
         }
         
         renderGrid();
         recalcAll();
+        if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
         return true;
     } catch(e) {
         console.error('Error loading invoice', e);
+        alert('حدث خطأ أثناء تحميل الفاتورة:\n' + e.message + '\n' + e.stack);
         return false;
     }
 }
@@ -1011,7 +1039,7 @@ function hideCustomerDropdownDelayed() {
         const idVal = document.getElementById('hdr-customer').value;
         const searchVal = document.getElementById('hdr-customer-search').value.trim();
         if (idVal) {
-            const cust = CUSTOMERS.find(c => c.id === idVal);
+            const cust = CUSTOMERS.find(c => String(c.id) === String(idVal));
             if (cust && cust.name !== searchVal) {
                 document.getElementById('hdr-customer-search').value = cust.name;
             }
@@ -1359,13 +1387,8 @@ function addRow(silent = false) {
 }
 
 function checkAutoAddRow(rowId) {
-    if (rows.length === 0) return;
-    const lastRow = rows[rows.length - 1];
-    if (lastRow.id === rowId) {
-        if (lastRow.itemId && (lastRow.quantity > 0 || lastRow.price > 0 || lastRow.fcPrice > 0)) {
-            addRow(true);
-        }
-    }
+    // Disabled auto-adding row: new rows should only be added explicitly by clicking the plus (+) button
+    return;
 }
 
 function removeRow(id) {
@@ -1433,7 +1456,7 @@ function updateRow(id, field, value) {
             }
         } else if (field === 'selectedUnit') {
             row.customBaseQty = undefined;
-            const item = ITEMS.find(i => i.id === row.itemId);
+            const item = ITEMS.find(i => String(i.id) === String(row.itemId));
             if (item && item.unitsArray) {
                 const su = item.unitsArray.find(u => u.name === value);
                 if (su) {
@@ -1455,7 +1478,7 @@ function getResolvedWarehouse(row) {
 }
 
 function getRowCalcs(row) {
-    const item = ITEMS.find(i => i.id === row.itemId);
+    const item = ITEMS.find(i => String(i.id) === String(row.itemId));
     
     let selectedUnitFactor = row.customFactor !== undefined ? row.customFactor : 1;
     let selectedUnitName = item ? item.unit : '—';
@@ -1574,7 +1597,7 @@ function renderGrid() {
     empty.style.display = 'none';
 
     rows.forEach((row, idx) => {
-        const item = ITEMS.find(i => i.id === row.itemId);
+        const item = ITEMS.find(i => String(i.id) === String(row.itemId));
         const calcs = getRowCalcs(row);
 
         let itemUnitsHtml = '';
@@ -1868,7 +1891,7 @@ function submitInvoice(ignoreWarnings = false) {
     if (hasZeroQty) { showToast('⚠️ الكمية يجب أن تكون أكبر من صفر', 'warning'); return; }
 
     const paymentMethod = document.getElementById('hdr-payment-method').value;
-    const cust = CUSTOMERS.find(c => c.id === custId);
+    const cust = CUSTOMERS.find(c => String(c.id) === String(custId));
 
     // --- Hard Block: 2 Unpaid Credit Invoices ---
     if (paymentMethod === 'credit' && cust && cust.id !== 'walk-in') {
@@ -1909,7 +1932,7 @@ function submitInvoice(ignoreWarnings = false) {
         // Stock availability check
         const mainWh = document.getElementById('hdr-warehouse').value;
         for (const row of rows) {
-            const item = ITEMS.find(i => i.id === row.itemId);
+            const item = ITEMS.find(i => String(i.id) === String(row.itemId));
             if (!item) continue;
             const calcs = getRowCalcs(row);
             if (calcs.availQty !== '—' && calcs.availQty !== undefined && calcs.baseQty > calcs.availQty) {
@@ -1920,7 +1943,7 @@ function submitInvoice(ignoreWarnings = false) {
 
         // Credit check for non-cash customers
         const custId = document.getElementById('hdr-customer').value;
-        const cust = CUSTOMERS.find(c => c.id === custId);
+        const cust = CUSTOMERS.find(c => String(c.id) === String(custId));
         if (cust && cust.id !== 'walk-in' && cust.creditLimit > 0) {
             const totalDebt = cust.ledger + cust.checks;
             const remaining = cust.creditLimit - totalDebt;
@@ -2040,7 +2063,7 @@ function submitInvoice(ignoreWarnings = false) {
     if (ignoreWarnings) {
         const mainWh = document.getElementById('hdr-warehouse').value;
         for (const row of rows) {
-            const item = ITEMS.find(i => i.id === row.itemId);
+            const item = ITEMS.find(i => String(i.id) === String(row.itemId));
             if (!item) continue;
             const calcs = getRowCalcs(row);
             if (calcs.availQty !== '—' && calcs.availQty !== undefined && calcs.baseQty > calcs.availQty) {
@@ -2049,7 +2072,7 @@ function submitInvoice(ignoreWarnings = false) {
             }
         }
         const custId = document.getElementById('hdr-customer').value;
-        const cust = CUSTOMERS.find(c => c.id === custId);
+        const cust = CUSTOMERS.find(c => String(c.id) === String(custId));
         if (cust && cust.id !== 'walk-in' && cust.creditLimit > 0) {
             const totalDebt = cust.ledger + cust.checks;
             const remaining = cust.creditLimit - totalDebt;
@@ -2066,7 +2089,12 @@ function submitInvoice(ignoreWarnings = false) {
         showToast(`تمت إضافة ${fmtNum(grandAmount)} ${cur} إلى رصيد: ${usedAccountName}`, 'success', 5000);
     }
 
-    onSuccessNewInvoice(false);
+    // Instead of resetting the form, keep the invoice loaded so they can print/WhatsApp it.
+    currentViewedInvoiceNo = committedNo;
+    document.getElementById('hdr-inv-no').value = committedNo;
+    document.getElementById('inv-number').textContent = committedNo;
+    if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
+
     showSuccessModal(committedNo, grandTotal, cur, finalWarnings);
 
     // In production: POST to API
@@ -2213,7 +2241,7 @@ function executeDeleteTransaction() {
     const mainWh = oldInv.warehouse || 'wh-001';
     if (oldInv.items && Array.isArray(oldInv.items)) {
         for (const row of oldInv.items) {
-            const item = ITEMS.find(i => i.id === row.itemId);
+            const item = ITEMS.find(i => String(i.id) === String(row.itemId));
             if (!item) continue;
             
             let selectedUnitFactor = row.customFactor !== undefined ? row.customFactor : 1;
@@ -2343,6 +2371,7 @@ function onSuccessNewInvoice(closeModalFlag = true) {
 
     renderGrid();
     recalcAll();
+    if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
 }
 
 function onSuccessDone() {
@@ -2369,7 +2398,7 @@ function showPriceHistory(rowId, type) {
         return;
     }
     
-    const item = ITEMS.find(i => i.id === row.itemId);
+    const item = ITEMS.find(i => String(i.id) === String(row.itemId));
     const itemName = item ? item.name : 'صنف غير معروف';
     const custName = document.getElementById('hdr-customer-search').value || 'العميل';
 
@@ -2499,7 +2528,7 @@ function printCurrentInvoice() {
     const printItems = rows
         .filter(r => r.itemId)
         .map(r => {
-            const item   = ITEMS.find(i => i.id === r.itemId);
+            const item   = ITEMS.find(i => String(i.id) === String(r.itemId));
             const calcs  = getRowCalcs(r);
             return {
                 itemName:     item ? item.name : '—',
@@ -2607,7 +2636,7 @@ function _legacyBuildPrintArea(type) {
     `;
     
     rows.forEach((r, idx) => {
-        const item = ITEMS.find(i => i.id === r.itemId);
+        const item = ITEMS.find(i => String(i.id) === String(r.itemId));
         const itemName = item ? item.name : 'غير معروف';
         const calcs = getRowCalcs(r);
         html += `
@@ -2670,7 +2699,7 @@ function _legacyBuildPrintArea(type) {
         `;
         
         warehouseGroups[whId].forEach((r, idx) => {
-            const item = ITEMS.find(i => i.id === r.itemId);
+            const item = ITEMS.find(i => String(i.id) === String(r.itemId));
             const itemName = item ? item.name : 'غير معروف';
             html += `
                 <tr>
@@ -2824,7 +2853,7 @@ function executeDelivery(invNo) {
             }
             
             if (typeof ITEMS !== 'undefined') {
-                const item = ITEMS.find(i => i.id === row.itemId);
+                const item = ITEMS.find(i => String(i.id) === String(row.itemId));
                 if (item) {
                     if (item.actualStock && item.actualStock[selectedWhId] !== undefined) {
                         item.actualStock[selectedWhId] -= qtyToDeduct;
@@ -2924,9 +2953,39 @@ async function sendInvoiceWA(invoiceNo) {
     let inv = allSales.find(i => i.invoiceNo === invoiceNo);
     if (!inv) { alert('لم يتم العثور على الفاتورة'); return; }
 
+    let defaultPhone = '';
+    let customerName = inv.customerName || 'عميل نقدي (Walk-in)';
+    if (inv.customer && inv.customer !== 'walk-in') {
+        let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+        let cust = customers.find(c => String(c.id) === String(inv.customer));
+        if(cust) {
+            defaultPhone = cust.whatsapp || cust.phone || '';
+            customerName = cust.name || inv.customerName || 'عميل مسجل';
+        }
+    }
+
     const phone = await new Promise((resolve) => {
         const overlayId = 'wa-phone-prompt-overlay';
         if (document.getElementById(overlayId)) document.getElementById(overlayId).remove();
+
+        window.toggleEditPhone = function() {
+            const displayWrap = document.getElementById('wa-phone-display-wrap');
+            const inputWrap = document.getElementById('wa-phone-input-wrap');
+            if (displayWrap && inputWrap) {
+                if (displayWrap.style.display !== 'none') {
+                    displayWrap.style.display = 'none';
+                    inputWrap.style.display = 'block';
+                    const inp = document.getElementById('wa-prompt-input');
+                    if (inp) {
+                        inp.focus();
+                        inp.select();
+                    }
+                } else {
+                    displayWrap.style.display = 'flex';
+                    inputWrap.style.display = 'none';
+                }
+            }
+        };
         
         const html = `
         <div id="${overlayId}" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.8); z-index:999999; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s ease; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);">
@@ -2937,10 +2996,34 @@ async function sendInvoiceWA(invoiceNo) {
                 </div>
                 
                 <h3 style="color:#f8fafc; font-size:1.6rem; font-family:'Tajawal',sans-serif; margin-bottom:10px; margin-top:0; font-weight:800;">إرسال الفاتورة عبر واتساب</h3>
-                <p style="color:#94a3b8; font-size:1rem; margin-bottom:25px; line-height:1.6; font-family:'Tajawal',sans-serif;">يرجى إدخال رقم هاتف العميل مدعوماً بالمفتاح الدولي (مثال: 249912345678)</p>
+                <p style="color:#94a3b8; font-size:0.95rem; margin-bottom:20px; line-height:1.6; font-family:'Tajawal',sans-serif;">يرجى تأكيد إرسال الفاتورة إلى العميل:</p>
                 
-                <div style="margin-bottom:25px; position:relative;">
-                    <input type="tel" id="wa-prompt-input" placeholder="رقم الهاتف..." style="width:100%; background:rgba(0,0,0,0.4); border:2px solid rgba(255,255,255,0.1); color:#fff; padding:15px; border-radius:12px; font-size:1.2rem; text-align:center; transition:all 0.3s; outline:none; font-family:'Inter',sans-serif;" onfocus="this.style.borderColor='#25d366'; this.style.boxShadow='0 0 15px rgba(37,211,102,0.3)';" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.boxShadow='none';">
+                <!-- Display card -->
+                <div id="wa-phone-display-wrap" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 15px 20px; margin-bottom: 25px; text-align: right;">
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <span style="font-size: 0.85rem; color: #94a3b8; font-weight: 500;">👤 عميل الفاتورة:</span>
+                        <span style="font-size: 1.15rem; color: #25d366; font-weight: 800;">${customerName}</span>
+                        <span style="font-size: 0.95rem; color: #38bdf8; font-weight: 700; direction: ltr; margin-top: 4px; display: inline-flex; align-items: center; gap: 5px;">
+                            <span>📞</span> <span id="wa-display-phone-text">${defaultPhone || 'لا يوجد رقم مسجل'}</span>
+                        </span>
+                    </div>
+                    <button type="button" onclick="toggleEditPhone()" style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); color: #38bdf8; border-radius: 12px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(56, 189, 248, 0.2)'; this.style.transform='scale(1.05)';" onmouseout="this.style.background='rgba(56, 189, 248, 0.1)'; this.style.transform='scale(1)';" title="إرسال لرقم آخر">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Input container (Hidden by default) -->
+                <div id="wa-phone-input-wrap" style="display: none; margin-bottom: 25px; animation: wa-scale-up 0.3s ease-out; text-align: right;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 0.85rem; color: #94a3b8; font-weight: 500;">✏️ إرسال إلى رقم هاتف آخر:</span>
+                        <button type="button" onclick="toggleEditPhone()" style="background: transparent; border: none; color: #cbd5e1; font-size: 0.75rem; cursor: pointer; text-decoration: underline; outline: none;">رجوع</button>
+                    </div>
+                    <div style="position: relative;">
+                        <input type="tel" id="wa-prompt-input" placeholder="رقم الهاتف الجديد..." value="${defaultPhone}" oninput="document.getElementById('wa-display-phone-text').textContent = this.value;" style="width:100%; background:rgba(0,0,0,0.4); border:2px solid rgba(255,255,255,0.1); color:#fff; padding:12px 15px; border-radius:12px; font-size:1.15rem; text-align:center; transition:all 0.3s; outline:none; font-family:'Inter',sans-serif;" onfocus="this.style.borderColor='#25d366'; this.style.boxShadow='0 0 12px rgba(37,211,102,0.2)';" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.boxShadow='none';">
+                    </div>
                 </div>
 
                 <div style="display:flex; gap:15px; justify-content:center;">
@@ -2958,14 +3041,6 @@ async function sendInvoiceWA(invoiceNo) {
         const overlay = document.getElementById(overlayId);
         const modal = overlay.children[0];
         const input = document.getElementById('wa-prompt-input');
-        
-        // Setup existing customer phone if available
-        let defaultPhone = '';
-        if (inv.customer && inv.customer !== 'walk-in') {
-            let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-            let cust = customers.find(c => c.id === inv.customer);
-            if(cust) defaultPhone = cust.whatsapp || cust.phone || '';
-        }
         input.value = defaultPhone;
 
         // Animate in
@@ -2993,26 +3068,21 @@ async function sendInvoiceWA(invoiceNo) {
 
     if (!phone) return;
 
-    const htmlContent = window.InvoicePrinter.buildHTML(inv);
+    const htmlContent = window.InvoicePrinter.buildHTML(inv, 'نسخة العميل');
     
     const printContainer = document.createElement('div');
-    printContainer.style.position = 'absolute';
-    printContainer.style.left = '-9999px';
+    printContainer.className = 'print-preview-wrapper';
+    printContainer.style.position = 'fixed';
+    printContainer.style.top = '0';
+    printContainer.style.left = '0';
     printContainer.style.width = '800px';
-    printContainer.style.background = '#fff';
-    printContainer.style.color = '#000';
-    printContainer.style.padding = '20px';
+    printContainer.style.zIndex = '-99999';
+    printContainer.style.opacity = '0.01';
+    printContainer.style.pointerEvents = 'none';
+    printContainer.style.padding = '24px';
+    printContainer.style.background = '#f0f4f8';
     
-    const styleSheet = `
-        <style>
-            .inv-doc { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; direction: rtl; }
-            table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: right; }
-            th { background-color: #f8fafc; color: #1e293b; }
-            .inv-total-row { display: flex; justify-content: space-between; padding: 5px 0; font-weight: bold; }
-        </style>
-    `;
-    printContainer.innerHTML = styleSheet + htmlContent;
+    printContainer.innerHTML = htmlContent;
     document.body.appendChild(printContainer);
 
     const message = 'مرحباً، مرفق فاتورتكم رقم ' + invoiceNo + ' من مؤسسة السجانة للتجارة. شكراً لتعاملكم معنا!';
@@ -3023,6 +3093,26 @@ async function sendInvoiceWA(invoiceNo) {
         console.error(e);
     } finally {
         printContainer.remove();
+    }
+}
+
+function updateActionButtonsVisibility() {
+    const previewBtn = document.getElementById('btn-preview-invoice');
+    const waBtn = document.getElementById('btn-whatsapp-invoice');
+    if (currentViewedInvoiceNo) {
+        if (previewBtn) previewBtn.style.display = 'flex';
+        if (waBtn) waBtn.style.display = 'flex';
+    } else {
+        if (previewBtn) previewBtn.style.display = 'none';
+        if (waBtn) waBtn.style.display = 'none';
+    }
+}
+
+async function sendCurrentInvoiceWA() {
+    if (currentViewedInvoiceNo) {
+        await sendInvoiceWA(currentViewedInvoiceNo);
+    } else {
+        showToast('⚠️ يرجى حفظ وتأكيد الفاتورة أولاً', 'warning');
     }
 }
 
@@ -3142,7 +3232,7 @@ function startInvoiceSplit(invoiceNo) {
             const totalVal = originalQty * price;
             
             // Resolve actual name from global ITEMS array
-            const itemObj = (typeof ITEMS !== 'undefined' ? ITEMS.find(i => i.id === item.itemId) : null);
+            const itemObj = (typeof ITEMS !== 'undefined' ? ITEMS.find(i => String(i.id) === String(item.itemId)) : null);
             const name = itemObj ? itemObj.name : (item.itemName || item.name || 'صنف غير معروف');
             
             tr.innerHTML = `

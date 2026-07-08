@@ -545,17 +545,97 @@
 
         /* ── Items panel ── */
         #items-panel { flex: 1; }
+        #items-panel .grid-scroll-wrap {
+            min-height: unset !important;
+            overflow: visible !important;
+        }
         .panel-header-row { margin-bottom: 10px; }
         .quick-add-box { max-width: 280px !important; }
 
-        /* ── Table compact ── */
-        .pos-grid thead th { padding: 6px 5px; font-size: 0.65rem; }
-        .pos-grid tbody td { padding: 3px; }
-        .g-input { padding: 4px 6px; font-size: 0.78rem; }
-        .del-btn { width: 24px; height: 24px; font-size: 0.8rem; }
-        .row-num { width: 20px; height: 20px; font-size: 0.65rem; }
+        /* ── Table Compact & High Readability ── */
+        .pos-grid thead th {
+            font-size: 0.85rem !important;
+            font-weight: 700 !important;
+            padding: 10px 8px !important;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .pos-grid tbody td {
+            padding: 6px 4px !important;
+            vertical-align: middle;
+        }
+        .g-input {
+            padding: 6px 8px !important;
+            font-size: 0.95rem !important;
+            font-weight: bold !important;
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            color: #f8fafc !important;
+            transition: all 0.2s ease;
+        }
+        .g-input:focus {
+            border-color: #38bdf8 !important;
+            background: rgba(15, 23, 42, 0.8) !important;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
+        }
+        .del-btn { width: 26px; height: 26px; font-size: 0.85rem; }
+        .row-num {
+            font-size: 0.82rem !important;
+            font-weight: 700 !important;
+            color: #94a3b8 !important;
+            width: 25px;
+            height: 25px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
         .empty-state { padding: 20px 16px; }
         .empty-icon { font-size: 2rem; }
+
+        /* Column Specific Colors */
+        #pos-grid input[id^="item-search-"] {
+            color: #e2e8f0 !important;
+        }
+        #pos-grid td:nth-child(4) .g-input,
+        #pos-grid input[oninput*="'quantity'"] {
+            color: #38bdf8 !important;
+            text-align: center;
+        }
+        #pos-grid td:nth-child(5) .g-input,
+        #pos-grid input[oninput*="'price'"] {
+            color: #fbbf24 !important;
+            text-align: center;
+        }
+        #pos-grid input[data-base-input] {
+            color: #c084fc !important;
+            text-align: center;
+        }
+        #pos-grid span[data-avail] {
+            font-size: 0.95rem !important;
+            color: #0ea5e9 !important;
+            font-weight: 800 !important;
+        }
+        #pos-grid span[data-rem] {
+            font-size: 0.95rem !important;
+            color: #f59e0b !important;
+            font-weight: 800 !important;
+        }
+        #pos-grid input[data-fcprice-input] {
+            color: #34d399 !important;
+            text-align: center;
+        }
+        #pos-grid span[data-total-fc] {
+            font-size: 0.95rem !important;
+            color: #34d399 !important;
+            font-weight: 800 !important;
+        }
+        #pos-grid span[data-total] {
+            font-size: 1.05rem !important;
+            color: #10b981 !important;
+            font-weight: 900 !important;
+        }
 
         /* ── RIGHT SIDEBAR PANEL ── */
         .ds-right {
@@ -1759,13 +1839,13 @@
             <div class="panel" id="items-panel" style="z-index: 50;">
                 <div class="panel-header-row" style="display: flex; align-items: center;">
                     <div class="panel-title">📦 أصناف الفاتورة</div>
-                    <div class="quick-add-box" style="flex: 1; max-width: 320px; margin-right: 12px; position: relative; z-index: 99999;">
+                    <div class="quick-add-box" style="flex: 1; max-width: 340px; margin-right: 12px; position: relative; z-index: 99999; display: flex; gap: 6px; align-items: center;">
                         <input type="text" class="g-input" id="quick-item-search" placeholder="بحث صنف أو باركود..."
-                            style="background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.35); border-radius: 8px; color: var(--text-primary); padding: 5px 10px;"
+                            style="background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.35); border-radius: 8px; color: var(--text-primary); padding: 5px 10px; flex: 1;"
                             onfocus="this.select(); showQuickItemDropdown()"
                             onblur="hideQuickItemDropdownDelayed()"
                             oninput="filterQuickItemDropdown()" autocomplete="new-password">
-                        <div class="custom-dropdown-list" id="quick-item-dropdown-list" style="text-align:right;"></div>
+                        <div class="custom-dropdown-list" id="quick-item-dropdown-list" style="text-align:right; top: 100%; left: 0; right: 0; position: absolute;"></div>
                     </div>
                     
 
@@ -1795,6 +1875,27 @@
                     </table>
                 </div>
 
+                <!-- Centered Add Row Button -->
+                <div id="add-row-container" style="display: flex; justify-content: center; margin-top: 15px; margin-bottom: 10px;">
+                    <button type="button" onclick="addRow()" id="add-row-btn" style="
+                        width: 40px;
+                        height: 40px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: linear-gradient(135deg, #10b981, #059669);
+                        color: white;
+                        border: none;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+                        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                        outline: none;
+                    " onmouseover="this.style.transform='scale(1.15) rotate(90deg)'; this.style.boxShadow='0 6px 20px rgba(16, 185, 129, 0.4)';" onmouseout="this.style.transform='scale(1) rotate(0deg)'; this.style.boxShadow='0 4px 15px rgba(16, 185, 129, 0.25)';" title="إضافة سطر">
+                        <span style="font-size: 1.2rem; font-weight: bold; line-height: 1;">➕</span>
+                    </button>
+                </div>
+
                 <!-- Mobile Cards -->
                 <div class="mobile-cards" id="mobile-cards"></div>
 
@@ -1818,8 +1919,6 @@
         
         <div class="items-toolbar" style="display: flex; align-items: center; justify-content: center; padding: 15px; border-radius: 12px; background: rgba(18, 15, 25, 0.8); border: 1px solid rgba(255,255,255,0.05); margin-top: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
             <div class="toolbar-actions" style="display: flex; gap: 12px; width: 100%; align-items: center;">
-                <button class="btn-action" style="flex: 1; height: 45px; background: #10b981; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);" onmouseover="this.style.background='#059669'; this.style.boxShadow='0 4px 15px rgba(16, 185, 129, 0.5)';" onmouseout="this.style.background='#10b981'; this.style.boxShadow='0 2px 10px rgba(16, 185, 129, 0.3)';" onclick="addRow()" id="add-row-btn">➕ إضافة سطر</button>
-                
                 <button class="btn-action" id="attach-btn" style="flex: 1; height: 45px; background: #8b5cf6; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);" onmouseover="this.style.background='#7c3aed'; this.style.boxShadow='0 4px 15px rgba(139, 92, 246, 0.5)';" onmouseout="this.style.background='#8b5cf6'; this.style.boxShadow='0 2px 10px rgba(139, 92, 246, 0.3)';" onclick="document.getElementById('hdr-attachment').click()">📎 إرفاق مستند</button>
                 <input type="file" id="hdr-attachment" accept="image/*,application/pdf" style="display:none;" onchange="document.getElementById('attach-btn').innerText = this.files.length > 0 ? '📎 تم الإرفاق' : '📎 إرفاق مستند'; document.getElementById('attach-btn').style.background = this.files.length > 0 ? '#10b981' : '#8b5cf6';">
                 
@@ -1827,7 +1926,12 @@
                 
                 <button class="btn-action btn-delete" style="flex: 1; height: 45px; background: #ef4444; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(239, 68, 68, 0.3);" onmouseover="this.style.background='#dc2626'; this.style.boxShadow='0 4px 15px rgba(239, 68, 68, 0.5)';" onmouseout="this.style.background='#ef4444'; this.style.boxShadow='0 2px 10px rgba(239, 68, 68, 0.3)';" onclick="confirmDeleteTransaction()">❌ إلغاء</button>
                 
-                <button type="button" class="btn-action btn-preview" style="flex: 1; height: 45px; background: #3b82f6; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);" onmouseover="this.style.background='#2563eb'; this.style.boxShadow='0 4px 15px rgba(59, 130, 246, 0.5)';" onmouseout="this.style.background='#3b82f6'; this.style.boxShadow='0 2px 10px rgba(59, 130, 246, 0.3)';" onclick="printCurrentInvoice()">👁️ معاينة</button>
+                <button type="button" class="btn-action btn-preview" id="btn-preview-invoice" style="flex: 1; height: 45px; background: #3b82f6; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3); display: none; align-items: center; justify-content: center;" onmouseover="this.style.background='#2563eb'; this.style.boxShadow='0 4px 15px rgba(59, 130, 246, 0.5)';" onmouseout="this.style.background='#3b82f6'; this.style.boxShadow='0 2px 10px rgba(59, 130, 246, 0.3)';" onclick="printCurrentInvoice()">👁️ معاينة</button>
+                
+                <button type="button" class="btn-action btn-whatsapp" id="btn-whatsapp-invoice" style="flex: 1.2; height: 45px; background: #25d366; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(37, 211, 102, 0.3); display: none; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.background='#1da851'; this.style.boxShadow='0 4px 15px rgba(37, 211, 102, 0.5)';" onmouseout="this.style.background='#25d366'; this.style.boxShadow='0 2px 10px rgba(37, 211, 102, 0.3)';" onclick="sendCurrentInvoiceWA()">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    <span>إرسال للواتساب</span>
+                </button>
                 
                 <span style="display:none;" id="footer-grand"></span>
                 <button class="btn-action btn-submit" style="flex: 1.5; height: 45px; box-shadow: 0 2px 10px rgba(56, 189, 248, 0.4); background: linear-gradient(135deg, #0ea5e9, #2563eb); color: #fff; border: none; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.boxShadow='0 6px 20px rgba(56, 189, 248, 0.6)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(56, 189, 248, 0.4)';" onclick="submitInvoice()">✅ تأكيد وحفظ</button>
@@ -2068,9 +2172,6 @@
 
                 let actionBtns = `
                     <button onclick="editHubTransaction('${inv.invoiceNo}')" style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; border-radius:6px; width:34px; height:34px; cursor:pointer; margin-left:4px; display:inline-flex; align-items:center; justify-content:center;" title="تعديل / عرض">👁️</button>
-                    <button onclick="sendInvoiceWA('${inv.invoiceNo}')" style="background:rgba(37,211,102,0.1); border:1px solid rgba(37,211,102,0.3); color:#25d366; border-radius:6px; width:34px; height:34px; cursor:pointer; margin-left:4px; display:inline-flex; align-items:center; justify-content:center;" title="إرسال عبر الواتساب">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                    </button>
                     <button onclick="deleteHubTransaction('${inv.invoiceNo}')" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:6px; width:34px; height:34px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;" title="حذف">🗑️</button>
                 `;
 
@@ -2107,9 +2208,26 @@
         }
 
         function editHubTransaction(invNo) {
-            openInvoiceEditor(undefined, true);
-            if(typeof loadInvoiceFromStorage === 'function') {
-                setTimeout(() => loadInvoiceFromStorage(invNo), 100);
+            try {
+                openInvoiceEditor(undefined, true);
+                if(typeof loadInvoiceFromStorage === 'function') {
+                    setTimeout(() => {
+                        try {
+                            const success = loadInvoiceFromStorage(invNo);
+                            if (!success) {
+                                showToast('❌ فشل تحميل بيانات الفاتورة من التخزين', 'error');
+                            }
+                        } catch (innerErr) {
+                            console.error(innerErr);
+                            alert('خطأ أثناء تحميل تفاصيل الفاتورة: ' + innerErr.message + '\n' + innerErr.stack);
+                        }
+                    }, 100);
+                } else {
+                    alert('خطأ: لم يتم العثور على دالة تحميل الفاتورة!');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('خطأ في محرر الفواتير: ' + err.message);
             }
         }
         
@@ -2119,7 +2237,7 @@
                 if (savedData) {
                     let invoices = JSON.parse(savedData);
                     invoices = invoices.filter(i => i.invoiceNo !== invNo);
-                    localStorage.setItem('erp_sales_invoices', JSON.stringify(invoices));
+                    localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(invoices));
                     showToast('تم حذف الفاتورة بنجاح', 'success');
                     loadHubTransactions();
                 }

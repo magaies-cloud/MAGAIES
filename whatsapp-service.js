@@ -4,6 +4,15 @@ const multer = require('multer');
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode');
 
+// Prevent process crashes due to EBUSY file locks during LocalAuth logouts on Windows
+process.on('uncaughtException', (err) => {
+    console.error('⚠️ Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('⚠️ Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
@@ -15,10 +24,15 @@ const clients = {};
 const qrCodes = {};
 // Store connection status
 const statuses = {};
+const destroyingClients = new Set();
 
 // Helper to initialize a client for a user
 function initClient(userId) {
     if (clients[userId]) return clients[userId];
+    if (destroyingClients.has(userId)) {
+        console.log(`Client for ${userId} is currently destroying. Skipping initialization.`);
+        return null;
+    }
 
     console.log(`Initializing WhatsApp Client for User: ${userId}`);
     statuses[userId] = 'INITIALIZING';
@@ -32,7 +46,8 @@ function initClient(userId) {
             '--disable-gpu',
             '--no-first-run',
             '--no-zygote',
-            '--single-process'
+            '--disable-features=IsolateOrigins,site-per-process',
+            '--disable-site-isolation-trials'
         ],
         headless: true
     };
@@ -79,6 +94,12 @@ function initClient(userId) {
         }
     });
 
+    client.on('loading_screen', (percent, message) => {
+        console.log(`WhatsApp Client for User ${userId} is LOADING SCREEN:`, percent, message);
+        statuses[userId] = 'AUTHENTICATING';
+        qrCodes[userId] = null;
+    });
+
     client.on('ready', () => {
         console.log(`WhatsApp Client for User ${userId} is READY!`);
         statuses[userId] = 'CONNECTED';
@@ -87,7 +108,7 @@ function initClient(userId) {
 
     client.on('authenticated', () => {
         console.log(`WhatsApp Client for User ${userId} is AUTHENTICATED!`);
-        statuses[userId] = 'AUTHENTICATED';
+        statuses[userId] = 'AUTHENTICATING';
     });
 
     client.on('auth_failure', msg => {
@@ -95,10 +116,22 @@ function initClient(userId) {
         statuses[userId] = 'AUTH_FAILED';
     });
 
-    client.on('disconnected', (reason) => {
+    client.on('disconnected', async (reason) => {
         console.log(`WhatsApp Client for User ${userId} was DISCONNECTED:`, reason);
         statuses[userId] = 'DISCONNECTED';
+        const cl = clients[userId];
         delete clients[userId];
+        if (cl) {
+            destroyingClients.add(userId);
+            try {
+                await cl.destroy();
+            } catch (e) {
+                console.error('Error destroying client on disconnect:', e.message);
+            }
+            setTimeout(() => {
+                destroyingClients.delete(userId);
+            }, 3000);
+        }
     });
 
     client.initialize();
@@ -145,6 +178,10 @@ app.post('/wa/send', upload.single('pdf'), async (req, res) => {
     // Format phone number to standard WhatsApp format (add country code if missing)
     phone = phone.replace(/[^0-9]/g, '');
     
+    if (phone.startsWith('00')) {
+        phone = phone.substring(2);
+    }
+    
     if (phone.startsWith('0')) {
         if (phone.startsWith('09') && phone.length === 10) {
             // Sudan (e.g. 0912300105 -> 249912300105)
@@ -174,17 +211,11 @@ app.post('/wa/send', upload.single('pdf'), async (req, res) => {
         const client = clients[userId];
         console.log(`Attempting to send message to ${phone}`);
 
-        const numberId = await client.getNumberId(phone);
-        if (!numberId) {
-            console.error('Number not registered on WhatsApp:', phone);
-            return res.status(400).json({ error: 'الرقم غير مسجل في واتساب.' });
-        }
-        
-        console.log(`Validated number ID: ${numberId._serialized}`);
-        const finalPhone = numberId._serialized;
-
         // If there's a file attached
         if (req.file) {
+            const numberId = await client.getNumberId(phone);
+            const finalPhone = numberId ? numberId._serialized : phone;
+            
             const media = MessageMedia.fromFilePath(req.file.path);
             await client.sendMessage(finalPhone, media, { caption: message });
             
@@ -192,8 +223,8 @@ app.post('/wa/send', upload.single('pdf'), async (req, res) => {
             const fs = require('fs');
             fs.unlink(req.file.path, () => {});
         } else {
-            // Just text
-            await client.sendMessage(finalPhone, message);
+            // Just text (OTP/Notification) - send directly for maximum speed and instant delivery
+            await client.sendMessage(phone, message);
         }
 
         res.json({ success: true, message: 'Sent successfully!' });
@@ -206,15 +237,32 @@ app.post('/wa/send', upload.single('pdf'), async (req, res) => {
 // 4. Logout
 app.post('/wa/logout', async (req, res) => {
     const userId = req.body.userId || 'default';
-    if (clients[userId]) {
+    const client = clients[userId];
+    if (client) {
+        destroyingClients.add(userId);
+        statuses[userId] = 'DISCONNECTING';
+        delete clients[userId];
         try {
-            await clients[userId].logout();
-            delete clients[userId];
+            try {
+                await client.logout();
+            } catch (e) {
+                console.error('Error logging out client:', e.message);
+            }
+            try {
+                await client.destroy();
+            } catch (e) {
+                console.error('Error destroying client on logout:', e.message);
+            }
             statuses[userId] = 'LOGGED_OUT';
             qrCodes[userId] = null;
             res.json({ success: true, message: 'Logged out successfully.' });
         } catch (err) {
+            console.error('Logout main error:', err);
             res.status(500).json({ error: 'Logout failed.' });
+        } finally {
+            setTimeout(() => {
+                destroyingClients.delete(userId);
+            }, 3000);
         }
     } else {
         res.json({ success: true, message: 'Not connected.' });
@@ -224,4 +272,6 @@ app.post('/wa/logout', async (req, res) => {
 const PORT = 3001;
 app.listen(PORT, () => {
     console.log(`🚀 WhatsApp Microservice is running on port ${PORT}`);
+    // Auto-initialize the default SaaS admin client so it's ready to send OTPs immediately on start
+    initClient('default-saas-admin');
 });

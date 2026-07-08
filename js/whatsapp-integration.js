@@ -20,21 +20,96 @@ function initWhatsAppModal() {
                 </div>
                 <div class="modal-body" style="color: #f1f5f9;">
                     <p id="wa-status-text" style="margin-bottom: 15px; font-weight: bold;">جاري التحقق من حالة الاتصال...</p>
-                    <div id="wa-qr-container" style="background: white; padding: 15px; border-radius: 12px; display: inline-block; min-width: 250px; min-height: 250px; margin-bottom: 15px;">
-                        <img id="wa-qr-image" src="" alt="QR Code" style="width: 100%; display: none;" />
-                        <div id="wa-loading-spinner" style="color: #000; margin-top: 100px;">⏳ جاري التوليد...</div>
+                    <div id="wa-qr-container" style="background: white; padding: 15px; border-radius: 12px; display: inline-block; min-width: 250px; min-height: 250px; margin-bottom: 15px; box-sizing: border-box; vertical-align: middle;">
                     </div>
-                    <p style="font-size: 0.85rem; color: #94a3b8;">امسح هذا الرمز باستخدام تطبيق واتساب في هاتفك لربط حسابك بالنظام المحاسبي.</p>
+                    <p id="wa-instruction-text" style="font-size: 0.85rem; color: #94a3b8;">امسح هذا الرمز باستخدام تطبيق واتساب في هاتفك لربط حسابك بالنظام المحاسبي.</p>
+                    
+                    <div class="wa-help-section" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; text-align: center;">
+                        <button onclick="toggleWAInstructions()" style="background: transparent; border: none; color: #25d366; font-size: 0.85rem; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; outline: none;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                                <path d="M17 17h.01"></path>
+                            </svg>
+                            📖 تعليمات ربط الأجهزة (أندرويد وآيفون)
+                        </button>
+                        <div id="wa-instructions-panel" style="display: none; text-align: right; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px; margin-top: 10px; font-size: 0.8rem; line-height: 1.6; animation: wa-scale-up 0.3s ease-out; max-height: 140px; overflow-y: auto;">
+                            <div style="font-weight: bold; color: #25d366; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+                                📱 خطوات ربط رقم الواتساب بالشركة:
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <strong>🍏 لمستخدمي آيفون (iPhone):</strong><br>
+                                افتح واتساب ← <b>الإعدادات</b> ← <b>الأجهزة المرتبطة</b> ← اضغط على <b>ربط جهاز</b>.
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <strong>🤖 لمستخدمي أندرويد (Android):</strong><br>
+                                افتح واتساب ← اضغط على <b>النقاط الثلاث (⋮)</b> بأعلى اليسار ← <b>الأجهزة المرتبطة</b> ← اضغط على <b>ربط جهاز</b>.
+                            </div>
+                            <div style="color: #fbbf24; font-weight: 500; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; margin-top: 8px;">
+                                ⚠️ <strong>ملاحظة هامة جداً:</strong><br>
+                                يجب إبقاء شاشة الهاتف وشاشة الكمبيوتر مفتوحتين دون إغلاق ومتابعة عملية المزامنة حتى اكتمال الربط بالكامل وظهور علامة النجاح.
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer" style="display:flex; justify-content:center; gap:10px; border-top-color: rgba(37, 211, 102, 0.2);">
                     <button class="btn btn-primary" id="wa-logout-btn" style="background: #ef4444; border-color: #ef4444; display: none;" onclick="logoutWhatsApp()">إلغاء الربط (تسجيل خروج)</button>
-                    <button class="btn btn-ghost" onclick="checkWAStatus()">تحديث الحالة</button>
+                    <button class="btn btn-ghost" id="wa-refresh-btn" onclick="checkWAStatus()">تحديث الحالة</button>
                 </div>
             </div>
         </div>
     `;
     document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Inject custom CSS styles for the animations
+    if (!document.getElementById('wa-custom-styles')) {
+        const styleHTML = `
+            <style id="wa-custom-styles">
+                @keyframes rotate-sync {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+                @keyframes wa-pulse {
+                    0% { transform: scale(0.9); opacity: 0.8; }
+                    50% { transform: scale(1.15); opacity: 0; }
+                    100% { transform: scale(0.9); opacity: 0; }
+                }
+                @keyframes wa-scale-up {
+                    0% { transform: scale(0.6); opacity: 0; }
+                    100% { transform: scale(1); opacity: 1; }
+                }
+                #wa-instructions-panel::-webkit-scrollbar {
+                    width: 5px;
+                }
+                #wa-instructions-panel::-webkit-scrollbar-track {
+                    background: rgba(255, 255, 255, 0.02);
+                    border-radius: 4px;
+                }
+                #wa-instructions-panel::-webkit-scrollbar-thumb {
+                    background: rgba(255, 255, 255, 0.15);
+                    border-radius: 4px;
+                }
+                #wa-instructions-panel::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255, 255, 255, 0.3);
+                }
+            </style>
+        `;
+        document.head.insertAdjacentHTML('beforeend', styleHTML);
+    }
+
+    setWAContainerState('LOADING');
 }
+
+window.toggleWAInstructions = function() {
+    const panel = document.getElementById('wa-instructions-panel');
+    if (!panel) return;
+    if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+    } else {
+        panel.style.display = 'none';
+    }
+};
 
 function openWAModal() {
     initWhatsAppModal();
@@ -47,16 +122,122 @@ function closeWAModal() {
     if (modal) modal.classList.remove('visible');
 }
 
+function setWAContainerState(state, data = '') {
+    const container = document.getElementById('wa-qr-container');
+    if (!container) return;
+
+    let html = '';
+    switch (state) {
+        case 'LOADING':
+            html = `
+                <div class="wa-state-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 220px; color: #1e293b;">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="animation: rotate-sync 1.5s infinite linear; margin-bottom: 15px;">
+                        <line x1="12" y1="2" x2="12" y2="6"></line>
+                        <line x1="12" y1="18" x2="12" y2="22"></line>
+                        <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                        <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                        <line x1="2" y1="12" x2="6" y2="12"></line>
+                        <line x1="18" y1="12" x2="22" y2="12"></line>
+                        <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                        <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+                    </svg>
+                    <div style="font-weight: bold; font-size: 0.95rem;">جاري توليد الرمز...</div>
+                </div>
+            `;
+            break;
+        case 'QR_CODE':
+            html = `
+                <img id="wa-qr-image" src="${data}" alt="QR Code" style="width: 220px; height: 220px; display: block; margin: 0 auto; animation: wa-scale-up 0.4s ease-out;" />
+            `;
+            break;
+        case 'AUTHENTICATING':
+            html = `
+                <div class="wa-state-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 220px; color: #1e293b;">
+                    <div class="wa-pulse-wrapper" style="position: relative; display: flex; align-items: center; justify-content: center; width: 80px; height: 80px; margin-bottom: 20px;">
+                        <div style="position: absolute; width: 100px; height: 100px; border: 4px solid #25d366; border-radius: 50%; opacity: 0.4; animation: wa-pulse 1.8s infinite ease-in-out;"></div>
+                        <div style="position: absolute; width: 75px; height: 75px; border: 4px solid #25d366; border-radius: 50%; opacity: 0.7; animation: wa-pulse 1.8s infinite ease-in-out; animation-delay: 0.4s;"></div>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="z-index: 2; animation: rotate-sync 2.5s infinite linear;">
+                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                        </svg>
+                    </div>
+                    <div style="font-weight: bold; font-size: 1.05rem; color: #075e54; margin-bottom: 5px;">جاري ربط جهازك...</div>
+                    <div style="font-size: 0.78rem; color: #64748b; font-weight: 500;">حافظ على اتصال هاتفك ليبقى متصلاً بالخدمة</div>
+                </div>
+            `;
+            break;
+        case 'CONNECTED':
+            html = `
+                <div class="wa-state-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 220px; color: #1e293b;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 80px; height: 80px; border-radius: 50%; background: rgba(37, 211, 102, 0.1); border: 3px solid #25d366; margin-bottom: 20px; animation: wa-scale-up 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <div style="font-weight: bold; font-size: 1.1rem; color: #0f766e; margin-bottom: 5px;">تم ربط الواتساب بنجاح!</div>
+                    <div style="font-size: 0.78rem; color: #64748b; font-weight: 500;">النظام متصل الآن وجاهز لإرسال الفواتير</div>
+                </div>
+            `;
+            break;
+        case 'CONFIRM_LOGOUT':
+            html = `
+                <div class="wa-state-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 220px; color: #1e293b; text-align: center;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 70px; height: 70px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); border: 3px solid #ef4444; margin-bottom: 15px; animation: wa-scale-up 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+                        <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </div>
+                    <div style="font-weight: bold; font-size: 0.95rem; color: #1e293b; margin-bottom: 15px;">هل أنت متأكد من إلغاء ربط الرقم؟</div>
+                    <div style="display: flex; gap: 10px; width: 100%; justify-content: center;">
+                        <button onclick="confirmAndExecuteLogout()" class="btn" style="background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: background 0.2s;">نعم، إلغاء</button>
+                        <button onclick="checkWAStatus()" class="btn" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: background 0.2s;">تراجع</button>
+                    </div>
+                </div>
+            `;
+            break;
+        case 'LOGGED_OUT_SUCCESS':
+            html = `
+                <div class="wa-state-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 220px; color: #1e293b; text-align: center;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 75px; height: 75px; border-radius: 50%; background: rgba(34, 197, 94, 0.1); border: 3px solid #22c55e; margin-bottom: 20px; animation: wa-scale-up 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <div style="font-weight: bold; font-size: 1.1rem; color: #15803d; margin-bottom: 5px;">تم إلغاء الرقم بنجاح</div>
+                    <div style="font-size: 0.78rem; color: #64748b; font-weight: 500;">جاري إغلاق النافذة...</div>
+                </div>
+            `;
+            break;
+        case 'ERROR':
+            html = `
+                <div class="wa-state-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 220px; color: #1e293b;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 75px; height: 75px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); border: 3px solid #ef4444; margin-bottom: 20px;">
+                        <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </div>
+                    <div style="font-weight: bold; font-size: 0.95rem; color: #b91c1c; margin-bottom: 5px;">تعذر الاتصال بخادم الواتساب</div>
+                    <div style="font-size: 0.75rem; color: #64748b; font-weight: 500;">تأكد من تشغيل الخدمة والمحاولة مجدداً</div>
+                </div>
+            `;
+            break;
+    }
+    container.innerHTML = html;
+}
+
 async function checkWAStatus() {
     const userId = getWAUserId();
     const statusText = document.getElementById('wa-status-text');
-    const qrImg = document.getElementById('wa-qr-image');
-    const spinner = document.getElementById('wa-loading-spinner');
+    const instructionText = document.getElementById('wa-instruction-text');
     const logoutBtn = document.getElementById('wa-logout-btn');
+    const refreshBtn = document.getElementById('wa-refresh-btn');
 
     statusText.textContent = 'جاري التحقق...';
-    spinner.style.display = 'block';
-    qrImg.style.display = 'none';
+    statusText.style.color = '#fff';
+    if (logoutBtn) logoutBtn.style.display = 'none';
+    if (refreshBtn) refreshBtn.style.display = 'inline-block';
 
     try {
         const res = await fetch(`${WA_SERVER_URL}/status?userId=${userId}`);
@@ -65,43 +246,62 @@ async function checkWAStatus() {
         if (data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') {
             statusText.textContent = '✅ أنت متصل بحساب واتساب بنجاح.';
             statusText.style.color = '#34d399';
-            spinner.style.display = 'none';
-            qrImg.style.display = 'none';
-            logoutBtn.style.display = 'inline-block';
+            setWAContainerState('CONNECTED');
+            if (logoutBtn) logoutBtn.style.display = 'inline-block';
+            if (instructionText) instructionText.style.display = 'none';
+        } else if (data.status === 'AUTHENTICATING') {
+            statusText.textContent = '🔄 جاري الاتصال بالخادم...';
+            statusText.style.color = '#fbbf24';
+            setWAContainerState('AUTHENTICATING');
+            if (instructionText) instructionText.style.display = 'block';
+
+            // Poll again in 2 seconds during authentication for fast updates
+            setTimeout(() => {
+                if (document.getElementById('wa-modal-overlay') && document.getElementById('wa-modal-overlay').classList.contains('visible')) {
+                    checkWAStatus();
+                }
+            }, 2000);
         } else {
             statusText.textContent = 'يرجى مسح الرمز أدناه للربط:';
             statusText.style.color = '#fbbf24';
-            logoutBtn.style.display = 'none';
+            if (instructionText) instructionText.style.display = 'block';
             fetchWAQRCode();
         }
     } catch (err) {
         statusText.textContent = '❌ الخادم غير متصل. يرجى التأكد من تشغيل خدمة الواتساب.';
         statusText.style.color = '#ef4444';
-        spinner.style.display = 'none';
+        setWAContainerState('ERROR');
     }
 }
 
 async function fetchWAQRCode() {
     const userId = getWAUserId();
-    const qrImg = document.getElementById('wa-qr-image');
-    const spinner = document.getElementById('wa-loading-spinner');
+    const instructionText = document.getElementById('wa-instruction-text');
 
     try {
         const res = await fetch(`${WA_SERVER_URL}/qr?userId=${userId}`);
         const data = await res.json();
 
         if (data.qrCode) {
-            qrImg.src = data.qrCode;
-            qrImg.style.display = 'block';
-            spinner.style.display = 'none';
-            
+            setWAContainerState('QR_CODE', data.qrCode);
+            if (instructionText) instructionText.style.display = 'block';
+
             // Poll for status every 5 seconds until connected
             setTimeout(() => {
                 if(document.getElementById('wa-modal-overlay') && document.getElementById('wa-modal-overlay').classList.contains('visible')) {
                     checkWAStatus();
                 }
             }, 5000);
-        } else if (data.status !== 'CONNECTED' && data.status !== 'AUTHENTICATED') {
+        } else if (data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') {
+            setWAContainerState('CONNECTED');
+        } else if (data.status === 'AUTHENTICATING') {
+            setWAContainerState('AUTHENTICATING');
+            setTimeout(() => {
+                if (document.getElementById('wa-modal-overlay') && document.getElementById('wa-modal-overlay').classList.contains('visible')) {
+                    checkWAStatus();
+                }
+            }, 2000);
+        } else {
             // Still loading or waiting, try again in 3s
             setTimeout(fetchWAQRCode, 3000);
         }
@@ -111,28 +311,58 @@ async function fetchWAQRCode() {
 }
 
 async function logoutWhatsApp() {
+    // Show custom confirmation state inside the container
+    setWAContainerState('CONFIRM_LOGOUT');
+    const logoutBtn = document.getElementById('wa-logout-btn');
+    const refreshBtn = document.getElementById('wa-refresh-btn');
+    if (logoutBtn) logoutBtn.style.display = 'none';
+    if (refreshBtn) refreshBtn.style.display = 'none';
+}
+
+async function confirmAndExecuteLogout() {
     const userId = getWAUserId();
-    if (!confirm('هل أنت متأكد من رغبتك في إلغاء ربط رقمك؟')) return;
+    const statusText = document.getElementById('wa-status-text');
+    
+    setWAContainerState('LOADING');
+    if (statusText) {
+        statusText.textContent = 'جاري إلغاء ربط الرقم...';
+        statusText.style.color = '#fff';
+    }
+
     try {
         await fetch(`${WA_SERVER_URL}/logout`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId })
         });
-        checkWAStatus();
+        
+        // Show success state
+        if (statusText) {
+            statusText.textContent = 'تم إلغاء الرقم';
+            statusText.style.color = '#ef4444';
+        }
+        setWAContainerState('LOGGED_OUT_SUCCESS');
+        
+        // Auto close the modal after 2.5 seconds so it doesn't query status and hang on generating QR code
+        setTimeout(() => {
+            closeWAModal();
+        }, 2500);
+        
     } catch (err) {
         alert('حدث خطأ أثناء تسجيل الخروج');
+        checkWAStatus();
     }
 }
 
 function getWAUserId() {
-    // In a real app, this should be the logged-in user's ID.
-    let currentUser = localStorage.getItem('erp_currentUser');
-    if (!currentUser) {
-        currentUser = 'default_user_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('erp_currentUser', currentUser);
+    try {
+        const userStr = localStorage.getItem('user') || '{}';
+        const user = JSON.parse(userStr);
+        const tenantId = user.tenant_id || localStorage.getItem('currentTenantId') || 'default';
+        return 'wa_tenant_' + tenantId;
+    } catch (e) {
+        return 'wa_tenant_default';
     }
-    return 'wa_user_' + currentUser;
 }
 
 /**

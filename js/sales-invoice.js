@@ -439,24 +439,35 @@ function loadInvoiceFromStorage(invNo) {
         // Customer
         const custId = data.customer || data.customerId;
         if (custId) {
-            const c = CUSTOMERS.find(x => x.id === custId);
+            const c = CUSTOMERS.find(x => String(x.id) === String(custId));
             if (c) selectCustomer(c.id, c.name);
         }
         
         // Rows
-        if(data.items && data.items.length) {
-            data.items.forEach(i => {
+        const itemsList = data.items || data.products || [];
+        if(itemsList && itemsList.length) {
+            itemsList.forEach(i => {
                 addRow();
                 const r = rows[rows.length-1];
-                if (i.itemId) updateRow(r.id, 'itemId', i.itemId);
-                if (i.selectedUnit) updateRow(r.id, 'selectedUnit', i.selectedUnit);
-                if (i.customFactor !== undefined) updateRow(r.id, 'customFactor', i.customFactor);
-                if (i.quantity !== undefined) updateRow(r.id, 'quantity', i.quantity);
-                if (i.customBaseQty !== undefined) updateRow(r.id, 'customBaseQty', i.customBaseQty);
-                if (i.price !== undefined) updateRow(r.id, 'price', i.price);
-                if (i.fcPrice !== undefined) updateRow(r.id, 'fcPrice', i.fcPrice);
-                if (i.warehouseId) updateRow(r.id, 'warehouseId', i.warehouseId);
-                if (i.costCenterId) updateRow(r.id, 'costCenterId', i.costCenterId);
+                const itemId = i.itemId || i.id || i.item_id;
+                const selectedUnit = i.selectedUnit || i.unit || i.unitName;
+                const customFactor = i.customFactor !== undefined ? i.customFactor : i.factor;
+                const quantity = i.quantity !== undefined ? i.quantity : (i.qty !== undefined ? i.qty : 0);
+                const customBaseQty = i.customBaseQty;
+                const price = i.price !== undefined ? i.price : (i.rate !== undefined ? i.rate : 0);
+                const fcPrice = i.fcPrice;
+                const warehouseId = i.warehouseId || i.warehouse;
+                const costCenterId = i.costCenterId || i.costCenter;
+
+                if (itemId) updateRow(r.id, 'itemId', itemId);
+                if (selectedUnit) updateRow(r.id, 'selectedUnit', selectedUnit);
+                if (customFactor !== undefined) updateRow(r.id, 'customFactor', customFactor);
+                if (quantity !== undefined) updateRow(r.id, 'quantity', quantity);
+                if (customBaseQty !== undefined) updateRow(r.id, 'customBaseQty', customBaseQty);
+                if (price !== undefined) updateRow(r.id, 'price', price);
+                if (fcPrice !== undefined) updateRow(r.id, 'fcPrice', fcPrice);
+                if (warehouseId) updateRow(r.id, 'warehouseId', warehouseId);
+                if (costCenterId) updateRow(r.id, 'costCenterId', costCenterId);
                 if (i.qrCode) updateRow(r.id, 'qrCode', i.qrCode);
             });
         }
@@ -732,24 +743,35 @@ function loadInvoiceFromStorage(invNo) {
         // Customer
         const custId = data.customer || data.customerId;
         if (custId) {
-            const c = CUSTOMERS.find(x => x.id === custId);
+            const c = CUSTOMERS.find(x => String(x.id) === String(custId));
             if (c) selectCustomer(c.id, c.name);
         }
         
         // Rows
-        if(data.items && data.items.length) {
-            data.items.forEach(i => {
+        const itemsList = data.items || data.products || [];
+        if(itemsList && itemsList.length) {
+            itemsList.forEach(i => {
                 addRow();
                 const r = rows[rows.length-1];
-                if (i.itemId) updateRow(r.id, 'itemId', i.itemId);
-                if (i.selectedUnit) updateRow(r.id, 'selectedUnit', i.selectedUnit);
-                if (i.customFactor !== undefined) updateRow(r.id, 'customFactor', i.customFactor);
-                if (i.quantity !== undefined) updateRow(r.id, 'quantity', i.quantity);
-                if (i.customBaseQty !== undefined) updateRow(r.id, 'customBaseQty', i.customBaseQty);
-                if (i.price !== undefined) updateRow(r.id, 'price', i.price);
-                if (i.fcPrice !== undefined) updateRow(r.id, 'fcPrice', i.fcPrice);
-                if (i.warehouseId) updateRow(r.id, 'warehouseId', i.warehouseId);
-                if (i.costCenterId) updateRow(r.id, 'costCenterId', i.costCenterId);
+                const itemId = i.itemId || i.id || i.item_id;
+                const selectedUnit = i.selectedUnit || i.unit || i.unitName;
+                const customFactor = i.customFactor !== undefined ? i.customFactor : i.factor;
+                const quantity = i.quantity !== undefined ? i.quantity : (i.qty !== undefined ? i.qty : 0);
+                const customBaseQty = i.customBaseQty;
+                const price = i.price !== undefined ? i.price : (i.rate !== undefined ? i.rate : 0);
+                const fcPrice = i.fcPrice;
+                const warehouseId = i.warehouseId || i.warehouse;
+                const costCenterId = i.costCenterId || i.costCenter;
+
+                if (itemId) updateRow(r.id, 'itemId', itemId);
+                if (selectedUnit) updateRow(r.id, 'selectedUnit', selectedUnit);
+                if (customFactor !== undefined) updateRow(r.id, 'customFactor', customFactor);
+                if (quantity !== undefined) updateRow(r.id, 'quantity', quantity);
+                if (customBaseQty !== undefined) updateRow(r.id, 'customBaseQty', customBaseQty);
+                if (price !== undefined) updateRow(r.id, 'price', price);
+                if (fcPrice !== undefined) updateRow(r.id, 'fcPrice', fcPrice);
+                if (warehouseId) updateRow(r.id, 'warehouseId', warehouseId);
+                if (costCenterId) updateRow(r.id, 'costCenterId', costCenterId);
                 if (i.qrCode) updateRow(r.id, 'qrCode', i.qrCode);
             });
         }
@@ -905,7 +927,7 @@ function hideItemDropdownDelayed(rowId, isMobile = false) {
             }
 
             if (row && row.itemId) {
-                const item = ITEMS.find(i => i.id === row.itemId);
+                const item = ITEMS.find(i => String(i.id) === String(row.itemId));
                 if (item) {
                     searchEl.value = item.name;
                 }
@@ -1043,7 +1065,7 @@ function updateRow(id, field, value) {
             row.fcPrice = row.price / exRate;
         }
         if (field === 'customBaseQty') {
-            const item = ITEMS.find(i => i.id === row.itemId);
+            const item = ITEMS.find(i => String(i.id) === String(row.itemId));
             let factor = row.customFactor !== undefined ? row.customFactor : 1;
             if (row.customFactor === undefined && item && row.selectedUnit && item.unitsArray && item.unitsArray.length > 0) {
                 const su = item.unitsArray.find(u => u.name === row.selectedUnit);
@@ -1059,7 +1081,7 @@ function updateRow(id, field, value) {
         if (field === 'itemId') {
             row.customBaseQty = undefined;
             // Use already-mapped ITEMS (which has proper unitsArray), do NOT reload raw localStorage
-            const item = ITEMS.find(i => i.id === value);
+            const item = ITEMS.find(i => String(i.id) === String(value));
             if (item) {
                 row.price = item.price;
                 // Default to first unit in unitsArray (the base unit)
@@ -1073,7 +1095,7 @@ function updateRow(id, field, value) {
             }
         } else if (field === 'selectedUnit') {
             row.customBaseQty = undefined;
-            const item = ITEMS.find(i => i.id === row.itemId);
+            const item = ITEMS.find(i => String(i.id) === String(row.itemId));
             if (item && item.unitsArray) {
                 const su = item.unitsArray.find(u => u.name === value);
                 if (su) {
@@ -1104,7 +1126,7 @@ function getResolvedWarehouse(row) {
 }
 
 function getRowCalcs(row) {
-    const item = ITEMS.find(i => i.id === row.itemId);
+    const item = ITEMS.find(i => String(i.id) === String(row.itemId));
     
     let selectedUnitFactor = row.customFactor !== undefined ? row.customFactor : 1;
     let selectedUnitName = item ? item.unit : '—';
@@ -1190,7 +1212,7 @@ function renderGrid() {
     empty.style.display = 'none';
 
     rows.forEach((row, idx) => {
-        const item = ITEMS.find(i => i.id === row.itemId);
+        const item = ITEMS.find(i => String(i.id) === String(row.itemId));
         const calcs = getRowCalcs(row);
 
         let itemUnitsHtml = '';
@@ -1469,7 +1491,7 @@ function submitInvoice(ignoreWarnings = false) {
         // Stock availability check
         const mainWh = document.getElementById('hdr-warehouse').value;
         for (const row of rows) {
-            const item = ITEMS.find(i => i.id === row.itemId);
+            const item = ITEMS.find(i => String(i.id) === String(row.itemId));
             if (!item) continue;
             const calcs = getRowCalcs(row);
             if (calcs.availQty !== '—' && calcs.availQty !== undefined && calcs.baseQty > calcs.availQty) {
@@ -1599,13 +1621,13 @@ function submitInvoice(ignoreWarnings = false) {
     let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
     const mainWh = document.getElementById('hdr-warehouse').value;
     for (const row of rows) {
-        const item = ITEMS.find(i => i.id === row.itemId);
+        const item = ITEMS.find(i => String(i.id) === String(row.itemId));
         if (!item) continue;
         const calcs = getRowCalcs(row);
         const whId = row.warehouseId || mainWh;
         const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي (السجانة)';
         
-        let itemInv = currentInvData.find(inv => inv.itemId === row.itemId && inv.warehouse === whName);
+        let itemInv = currentInvData.find(inv => String(inv.itemId) === String(row.itemId) && inv.warehouse === whName);
         if (itemInv) {
             itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) - calcs.baseQty;
         } else {
@@ -1627,7 +1649,7 @@ function submitInvoice(ignoreWarnings = false) {
     if (ignoreWarnings) {
         const mainWh = document.getElementById('hdr-warehouse').value;
         for (const row of rows) {
-            const item = ITEMS.find(i => i.id === row.itemId);
+            const item = ITEMS.find(i => String(i.id) === String(row.itemId));
             if (!item) continue;
             const calcs = getRowCalcs(row);
             if (calcs.availQty !== '—' && calcs.availQty !== undefined && calcs.baseQty > calcs.availQty) {
@@ -1800,7 +1822,7 @@ function executeDeleteTransaction() {
     const mainWh = oldInv.warehouse || 'wh-001';
     if (oldInv.items && Array.isArray(oldInv.items)) {
         for (const row of oldInv.items) {
-            const item = ITEMS.find(i => i.id === row.itemId);
+            const item = ITEMS.find(i => String(i.id) === String(row.itemId));
             if (!item) continue;
             
             let selectedUnitFactor = row.customFactor !== undefined ? row.customFactor : 1;
@@ -1954,7 +1976,7 @@ function showPriceHistory(rowId, type) {
         return;
     }
     
-    const item = ITEMS.find(i => i.id === row.itemId);
+    const item = ITEMS.find(i => String(i.id) === String(row.itemId));
     const itemName = item ? item.name : 'صنف غير معروف';
     const custName = document.getElementById('hdr-customer-search').value || 'العميل';
 
@@ -2128,7 +2150,7 @@ function generatePrintArea(type) {
     `;
     
     rows.forEach((r, idx) => {
-        const item = ITEMS.find(i => i.id === r.itemId);
+        const item = ITEMS.find(i => String(i.id) === String(r.itemId));
         const itemName = item ? item.name : 'غير معروف';
         const calcs = getRowCalcs(r);
         html += `
@@ -2191,7 +2213,7 @@ function generatePrintArea(type) {
         `;
         
         warehouseGroups[whId].forEach((r, idx) => {
-            const item = ITEMS.find(i => i.id === r.itemId);
+            const item = ITEMS.find(i => String(i.id) === String(r.itemId));
             const itemName = item ? item.name : 'غير معروف';
             html += `
                 <tr>

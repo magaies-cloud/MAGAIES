@@ -547,6 +547,15 @@
             </div>
         </a>
 
+        <!-- Balances Report -->
+        <a href="balances-report.php" class="quick-report-card" style="--glow-color: rgba(244, 63, 94, 0.65); --glow-bg: rgba(244, 63, 94, 0.12);">
+            <div class="icon-wrap">💰</div>
+            <div class="card-info">
+                <h4>حسابات الأرصدة</h4>
+                <p>مراجعة سريعة للأرصدة المجمعة والمديونيات للعملاء والموردين.</p>
+            </div>
+        </a>
+
         <!-- 3. Disclosures -->
         <a href="financial-reports.php" class="quick-report-card" style="--glow-color: rgba(52, 211, 153, 0.65); --glow-bg: rgba(52, 211, 153, 0.12);">
             <div class="icon-wrap">📊</div>

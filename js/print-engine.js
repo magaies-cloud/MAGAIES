@@ -16,7 +16,7 @@ window.InvoicePrinter = (function () {
     }
 
     // ── Build the full HTML document ─────────────────────────
-    function buildInvoiceHTML(data) {
+    function buildInvoiceHTML(data, singleCopyLabel = null) {
         const cfg = getSettings();
         const companyName = cfg.companyName || 'مؤسسة السجانة للتجارة';
         const companyPhone = cfg.phone || '';
@@ -39,8 +39,15 @@ window.InvoicePrinter = (function () {
             copies.push({ label: 'إذن المستودع', html: whHtml, color: '#4c1d95', isWarehouse: true });
         }
 
+        // Filter copies if a single copy is requested
+        let filteredCopies = copies;
+        if (singleCopyLabel) {
+            filteredCopies = copies.filter(c => c.label === singleCopyLabel);
+            if (filteredCopies.length === 0) filteredCopies = [copies[0]];
+        }
+
         // ── Assemble all copies ───────────────────────────────
-        const allHtml = copies.map((copy, idx) => `
+        const allHtml = filteredCopies.map((copy, idx) => `
             <div class="inv-doc">
                 <div class="inv-copy-header">
                     <span class="inv-copy-label" style="color:${copy.color};">📄 ${copy.label}</span>

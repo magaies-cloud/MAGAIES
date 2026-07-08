@@ -404,7 +404,7 @@
         <!-- ربط واتساب -->
         <div class="glass-panel" id="panel-whatsapp">
             <div class="setting-title">📱 إعدادات ربط الواتساب</div>
-            <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0; line-height: 1.6;">ربط رقمك الشخصي لإرسال الفواتير للعملاء والموردين مباشرة من النظام. هذا الربط خاص بحسابك الحالي فقط.</p>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0; line-height: 1.6;">ربط رقم الواتساب الخاص بالشركة لإرسال الفواتير للعملاء والموردين مباشرة من النظام لجميع مستخدمي الشركة المصرح لهم.</p>
             <button class="action-btn" style="background: rgba(37,211,102,0.1); color: #25d366; border: 1px solid rgba(37,211,102,0.3);" onclick="openWAModal()">📱 إدارة ربط الواتساب</button>
         </div>
 

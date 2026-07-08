@@ -636,6 +636,46 @@
             btn.innerText = 'جاري الإرسال...';
             btn.disabled = true;
             
+            // transition to step 4 immediately
+            const headerIcon = document.getElementById('otp-header-icon');
+            const headerText = document.getElementById('otp-header-text');
+            const otpDesc = document.getElementById('otp-description');
+            
+            if (channel === 'whatsapp') {
+                if (headerIcon) {
+                    headerIcon.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="#10b981" style="display: block;">
+                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.451 5.436 0 9.86-4.418 9.863-9.848.002-2.63-1.019-5.101-2.874-6.958C16.405 1.982 13.926.96 11.3.96 5.86.96 1.436 5.38 1.433 10.81c-.001 1.564.417 3.09 1.21 4.453l-.994 3.63 3.733-.979zm11.433-5.234c-.22-.11-1.306-.644-1.506-.719-.2-.075-.346-.112-.492.11-.146.22-.566.719-.694.869-.128.15-.256.169-.476.059-.22-.11-.93-.343-1.77-1.093-.655-.584-1.096-1.305-1.225-1.525-.128-.22-.014-.339.096-.449.1-.1.22-.256.33-.385.11-.128.146-.22.22-.366.075-.147.037-.275-.018-.385-.056-.11-.492-1.186-.674-1.62-.177-.428-.355-.37-.492-.377-.127-.007-.273-.008-.42-.008-.146 0-.384.055-.585.275-.2.22-.766.75-.766 1.83 0 1.078.783 2.119.892 2.269.11.15 1.542 2.355 3.736 3.3.522.226.93.36 1.246.46.524.167 1.002.143 1.379.087.42-.063 1.306-.534 1.489-1.05.183-.515.183-.956.128-1.05-.055-.094-.2-.15-.42-.26z"/>
+                        </svg>`;
+                }
+                if (headerText) {
+                    headerText.innerText = 'تأكيد حساب الواتساب';
+                    headerText.parentElement.style.color = '#10b981';
+                }
+                if (otpDesc) {
+                    otpDesc.innerText = `أرسلنا رمز تحقق (OTP) مكون من 6 أرقام إلى حساب الواتساب الخاص بك: ${document.getElementById('owner_phone').value}`;
+                    otpDesc.style.color = '#10b981';
+                }
+            } else {
+                if (headerIcon) {
+                    headerIcon.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#3b82f6" class="bi bi-envelope-fill" viewBox="0 0 16 16" style="display: block;">
+                            <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM0 4.697v7.104l5.803-3.558zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586zm5.436-.56L16 11.801V4.697z"/>
+                        </svg>`;
+                }
+                if (headerText) {
+                    headerText.innerText = 'تأكيد البريد الإلكتروني';
+                    headerText.parentElement.style.color = '#38bdf8';
+                }
+                if (otpDesc) {
+                    otpDesc.innerText = `أرسلنا رمز تحقق (OTP) مكون من 6 أرقام إلى بريدك الإلكتروني: ${document.getElementById('owner_email').value}`;
+                    otpDesc.style.color = '#38bdf8';
+                }
+            }
+            
+            nextStep(4);
+            startOtpCountdown();
+            
             try {
                 const res = await fetch('api_index.php?r=public&a=send-otp', {
                     method: 'POST',
@@ -648,26 +688,8 @@
                 });
                 const data = await res.json();
                 if(data.success) {
-                    const headerIcon = document.getElementById('otp-header-icon');
-                    const headerText = document.getElementById('otp-header-text');
-                    const otpDesc = document.getElementById('otp-description');
-                    
-                    if (channel === 'whatsapp') {
-                        if (headerIcon) {
-                            headerIcon.innerHTML = `
-                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="#10b981" style="display: block;">
-                                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.451 5.436 0 9.86-4.418 9.863-9.848.002-2.63-1.019-5.101-2.874-6.958C16.405 1.982 13.926.96 11.3.96 5.86.96 1.436 5.38 1.433 10.81c-.001 1.564.417 3.09 1.21 4.453l-.994 3.63 3.733-.979zm11.433-5.234c-.22-.11-1.306-.644-1.506-.719-.2-.075-.346-.112-.492.11-.146.22-.566.719-.694.869-.128.15-.256.169-.476.059-.22-.11-.93-.343-1.77-1.093-.655-.584-1.096-1.305-1.225-1.525-.128-.22-.014-.339.096-.449.1-.1.22-.256.33-.385.11-.128.146-.22.22-.366.075-.147.037-.275-.018-.385-.056-.11-.492-1.186-.674-1.62-.177-.428-.355-.37-.492-.377-.127-.007-.273-.008-.42-.008-.146 0-.384.055-.585.275-.2.22-.766.75-.766 1.83 0 1.078.783 2.119.892 2.269.11.15 1.542 2.355 3.736 3.3.522.226.93.36 1.246.46.524.167 1.002.143 1.379.087.42-.063 1.306-.534 1.489-1.05.183-.515.183-.956.128-1.05-.055-.094-.2-.15-.42-.26z"/>
-                                </svg>`;
-                        }
-                        if (headerText) {
-                            headerText.innerText = 'تأكيد حساب الواتساب';
-                            headerText.parentElement.style.color = '#10b981';
-                        }
-                        if (otpDesc) {
-                            otpDesc.innerText = `أرسلنا رمز تحقق (OTP) مكون من 6 أرقام إلى حساب الواتساب الخاص بك: ${document.getElementById('owner_phone').value}`;
-                            otpDesc.style.color = '#10b981';
-                        }
-                    } else {
+                    // Check if fallback to email occurred
+                    if (channel === 'whatsapp' && data.message && data.message.includes('البريد الإلكتروني')) {
                         if (headerIcon) {
                             headerIcon.innerHTML = `
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#3b82f6" class="bi bi-envelope-fill" viewBox="0 0 16 16" style="display: block;">
@@ -675,25 +697,24 @@
                                 </svg>`;
                         }
                         if (headerText) {
-                            headerText.innerText = 'تأكيد البريد الإلكتروني';
+                            headerText.innerText = 'تأكيد البريد الإلكتروني (بديل للواتساب)';
                             headerText.parentElement.style.color = '#38bdf8';
                         }
                         if (otpDesc) {
-                            otpDesc.innerText = `أرسلنا رمز تحقق (OTP) مكون من 6 أرقام إلى بريدك الإلكتروني: ${document.getElementById('owner_email').value}`;
+                            otpDesc.innerText = `فشل الإرسال عبر الواتساب. أرسلنا الرمز إلى بريدك الإلكتروني: ${document.getElementById('owner_email').value}`;
                             otpDesc.style.color = '#38bdf8';
                         }
                     }
-                    
-                    nextStep(4);
-                    startOtpCountdown();
                     if(data.dev_otp) {
                         console.log("DEV OTP:", data.dev_otp);
                     }
                 } else {
                     showModal('error', 'فشل الإرسال', data.error || 'حدث خطأ أثناء إرسال الرمز');
+                    prevStep(3);
                 }
             } catch (e) {
                 showModal('error', 'خطأ في الاتصال', 'يرجى المحاولة مرة أخرى');
+                prevStep(3);
             } finally {
                 btn.innerText = originalText;
                 btn.disabled = false;

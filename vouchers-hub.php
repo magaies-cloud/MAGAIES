@@ -504,24 +504,7 @@
     <div class="vouchers-grid">
 
 
-        <!-- Account Balances Shortcut -->
-        <a data-href="balances-report.php" onclick="window.location.href='balances-report.php'" class="premium-card" style="--card-color: #f43f5e; --card-rgb: 244, 63, 94;">
-            <div class="card-glow"></div>
-            <div class="flow-badge" style="background: rgba(244,63,94,0.1); color: #f43f5e; border: 1px solid rgba(244,63,94,0.2);">
-                <span>🏢</span> أرصدة
-            </div>
-            <div class="card-content">
-                <div class="icon-wrapper">
-                    <span class="v-icon">💰</span>
-                </div>
-                <h3 class="v-title">حسابات الأرصدة</h3>
-                <p class="v-subtitle">مراجعة سريعة للأرصدة المجمعة والمديونيات.</p>
-                <div class="v-footer">
-                    <span class="v-badge" style="background: rgba(244,63,94,0.15); color: #f43f5e; border-color: rgba(244,63,94,0.3);">Balances</span>
-                    <span class="v-arrow" style="background: #f43f5e; color: #fff;">←</span>
-                </div>
-            </div>
-        </a>
+
 
         <!-- 3. Single Payment -->
         <a data-href="single-cash-payment.php" onclick="window.location.href='single-cash-payment.php'" class="premium-card" style="width: 90%; height: 70%; margin: 0 auto;">
