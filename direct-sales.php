@@ -1983,7 +1983,13 @@
             // Adjust header Back button behavior
             const backBtn = document.querySelector('button[title="رجوع"]');
             if (backBtn) {
-                backBtn.onclick = function() { window.location.href = 'dashboard-pro.php'; };
+                backBtn.onclick = function() { 
+                    if (document.referrer && document.referrer.indexOf('general-ledger.php') !== -1) { 
+                        history.back(); 
+                    } else { 
+                        window.location.href = 'dashboard-pro.php'; 
+                    } 
+                };
                 backBtn.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><polyline points="12 19 5 12 12 5"></polyline></svg>';
             }
         }

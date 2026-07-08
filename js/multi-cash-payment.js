@@ -1,5 +1,8 @@
 // js/multi-cash-payment.js
 
+let currentVoucherIndex = -1;
+let currentVoucherList = [];
+
 document.addEventListener('DOMContentLoaded', () => {
     // Set today's date
     const today = new Date().toISOString().split('T')[0];
@@ -23,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.APP_READY) {
         loadAllAccounts();
     }
+    loadNextMultiVoucherNumber();
 });
 
 document.addEventListener('DBReady', async () => {
@@ -83,6 +87,8 @@ function setVoucherType(type) {
     }
     
     updateLabels();
+    currentVoucherIndex = -1;
+    loadNextMultiVoucherNumber();
 }
 
 function togglePaymentMethod() {
@@ -194,6 +200,10 @@ function calcTotal() {
     // Update Foreign Amount (القيمة المعادل)
     const rateEl = document.getElementById('exchange-rate');
     const eqEl = document.getElementById('amount-foreign');
+    const localHdrEl = document.getElementById('amount-local-hdr');
+    if (localHdrEl) {
+        localHdrEl.value = fmtNum(total);
+    }
     if (rateEl && eqEl) {
         let rate = cleanNum(rateEl.value) || 1;
         let eq = rate === 0 ? 0 : total / rate;
@@ -290,6 +300,7 @@ function resetVoucher() {
     addRow(); 
     addRow();
     calcTotal();
+    loadNextMultiVoucherNumber();
 }
 
 function printVoucher() {
@@ -376,7 +387,7 @@ async function saveVoucher() {
     // Build the voucher object
     const voucher = {
         id: 'MV-' + Date.now(), // Generate a unique ID
-        voucherNo: ref || ('MV-' + Math.floor(Math.random() * 10000)),
+        voucherNo: (document.getElementById('voucher-no-display') ? document.getElementById('voucher-no-display').value : '') || ref || ('MV-' + Math.floor(Math.random() * 10000)),
         type: type, // 'payment' or 'receipt'
         isGrouped: true,
         mainAccount: mainAccount,
@@ -610,4 +621,201 @@ if (!window.normalizeArabic) {
             .replace(/ى/g, 'ي')
             .toLowerCase();
     };
+}
+
+async function loadNextMultiVoucherNumber() {
+    const type = document.getElementById('voucher-type') ? document.getElementById('voucher-type').value : 'payment';
+    const storageKey = type === 'payment' ? 'erp_payments_v1' : 'erp_receipts_v1';
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    const tKey = getTenantKey(storageKey);
+    
+    let existingData = [];
+    try {
+        if (typeof localforage !== 'undefined') {
+            existingData = await localforage.getItem(tKey) || [];
+        } else {
+            existingData = JSON.parse(localStorage.getItem(tKey) || '[]');
+        }
+    } catch(e) {}
+    if (!Array.isArray(existingData)) existingData = Object.values(existingData);
+    
+    const groupedVouchers = existingData.filter(v => v.isGrouped);
+    const nextNum = groupedVouchers.length + 1;
+    const prefix = type === 'payment' ? 'MVP' : 'MVR';
+    const padNum = String(nextNum).padStart(4, '0');
+    
+    const displayEl = document.getElementById('voucher-no-display');
+    if (displayEl) {
+        displayEl.value = `${prefix}-${padNum}`;
+    }
+}
+
+async function refreshVoucherNavigationList() {
+    const type = document.getElementById('voucher-type') ? document.getElementById('voucher-type').value : 'payment';
+    const storageKey = type === 'payment' ? 'erp_payments_v1' : 'erp_receipts_v1';
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    const tKey = getTenantKey(storageKey);
+    
+    let existingData = [];
+    try {
+        if (typeof localforage !== 'undefined') {
+            existingData = await localforage.getItem(tKey) || [];
+        } else {
+            existingData = JSON.parse(localStorage.getItem(tKey) || '[]');
+        }
+    } catch(e) {}
+    if (!Array.isArray(existingData)) existingData = Object.values(existingData);
+    
+    currentVoucherList = existingData.filter(v => v.isGrouped);
+    currentVoucherList.sort((a, b) => {
+        const da = a.date + ' ' + (a.createdAt || '');
+        const db = b.date + ' ' + (b.createdAt || '');
+        return da.localeCompare(db);
+    });
+}
+
+async function navigateVoucher(direction) {
+    await refreshVoucherNavigationList();
+    if (currentVoucherList.length === 0) {
+        showToast('لا توجد سندات محفوظة للملاحة.', 'info');
+        return;
+    }
+    
+    if (currentVoucherIndex === -1) {
+        if (direction === -1) {
+            currentVoucherIndex = currentVoucherList.length - 1;
+        } else {
+            showToast('لا توجد سندات تالية، أنت على مسودة جديدة.', 'info');
+            return;
+        }
+    } else {
+        currentVoucherIndex += direction;
+        if (currentVoucherIndex < 0) {
+            currentVoucherIndex = 0;
+            showToast('هذا هو أول سند محفوظ.', 'info');
+            return;
+        }
+        if (currentVoucherIndex >= currentVoucherList.length) {
+            currentVoucherIndex = -1;
+            resetVoucher();
+            return;
+        }
+    }
+    
+    const v = currentVoucherList[currentVoucherIndex];
+    if (v) {
+        loadVoucherIntoForm(v);
+    }
+}
+
+function loadVoucherIntoForm(v) {
+    // 1. Set type (but avoid infinite loop/index resets)
+    const btnPayment = document.getElementById('btn-payment');
+    const btnReceipt = document.getElementById('btn-receipt');
+    const typeInput = document.getElementById('voucher-type');
+    if (typeInput) typeInput.value = v.type;
+    
+    const pmRow = document.getElementById('payment-methods-row');
+    if (v.type === 'payment') {
+        if (btnPayment) btnPayment.className = 'voucher-type-btn active-payment';
+        if (btnReceipt) btnReceipt.className = 'voucher-type-btn';
+        if (pmRow) {
+            pmRow.style.background = 'rgba(239, 68, 68, 0.08)';
+            pmRow.style.borderColor = 'rgba(239, 68, 68, 0.2)';
+        }
+    } else {
+        if (btnReceipt) btnReceipt.className = 'voucher-type-btn active-receipt';
+        if (btnPayment) btnPayment.className = 'voucher-type-btn';
+        if (pmRow) {
+            pmRow.style.background = 'rgba(16, 185, 129, 0.08)';
+            pmRow.style.borderColor = 'rgba(16, 185, 129, 0.2)';
+        }
+    }
+    updateLabels();
+
+    // 2. Set fields
+    document.getElementById('voucher-no-display').value = v.voucherNo || '';
+    document.getElementById('voucher-date').value = v.date || '';
+    document.getElementById('voucher-ref').value = v.voucherNo || v.ref || '';
+    document.getElementById('voucher-desc').value = v.description || '';
+    
+    const currencyEl = document.getElementById('currency');
+    if (currencyEl) currencyEl.value = v.currency || 'SDG';
+    
+    const rateEl = document.getElementById('exchange-rate');
+    if (rateEl) rateEl.value = v.exchangeRate || '1.0';
+    
+    // 3. Set main account
+    const mainAccHidden = document.getElementById('main-account');
+    if (mainAccHidden) {
+        mainAccHidden.value = v.mainAccount || '';
+    }
+    const mainAccSearch = document.getElementById('main-account-search');
+    if (mainAccSearch) {
+        mainAccSearch.value = v.mainAccount || '';
+    }
+    
+    // 4. Set payment method radio
+    const radio = document.querySelector(`input[name="payment_method"][value="${v.paymentMethod || 'cash'}"]`);
+    if (radio) {
+        radio.checked = true;
+        togglePaymentMethod();
+    }
+    
+    if (document.getElementById('check-no')) document.getElementById('check-no').value = v.checkNo || '';
+    if (document.getElementById('check-branch')) document.getElementById('check-branch').value = v.checkBranch || '';
+    if (document.getElementById('check-date')) document.getElementById('check-date').value = v.checkDate || '';
+    if (document.getElementById('check-due-date')) document.getElementById('check-due-date').value = v.checkDueDate || '';
+    
+    if (document.getElementById('mobile-transfer-no')) document.getElementById('mobile-transfer-no').value = v.mobileTransferNo || '';
+    if (document.getElementById('mobile-note')) document.getElementById('mobile-note').value = v.mobileNote || '';
+    
+    // 5. Populate items table
+    const tbody = document.getElementById('entries-body');
+    if (tbody) tbody.innerHTML = '';
+    
+    if (v.items && Array.isArray(v.items)) {
+        v.items.forEach(item => {
+            addRowWithData(item);
+        });
+    }
+    
+    calcTotal();
+    showToast(`تم عرض السند ${v.voucherNo} بنجاح`, 'success');
+}
+
+function getAccountName(id) {
+    if (!id) return '';
+    const cleanId = String(id).replace(/^(cust|supp|bank|safe|exp)-/, '');
+    const matched = ACCOUNTS.find(a => String(a.id) === String(id) || String(a.rawId) === String(cleanId) || String(a.name) === String(id));
+    return matched ? matched.name : id;
+}
+
+function addRowWithData(item) {
+    multiRowIdCounter++;
+    const rowId = multiRowIdCounter;
+    const tbody = document.getElementById('entries-body');
+    const tr = document.createElement('tr');
+    tr.className = 'multi-row';
+    
+    const accName = getAccountName(item.account);
+
+    tr.innerHTML = `
+        <td>
+            <div class="custom-dropdown-input-wrap" style="width: 100%; position: relative;">
+                <input type="hidden" id="acc-${rowId}" class="sub-account" value="${accName}">
+                <input type="text" class="multi-input" id="acc-${rowId}-search" placeholder="ابحث عن حساب..." onfocus="showAccountDropdown('acc-${rowId}')" onblur="hideAccountDropdownDelayed('acc-${rowId}')" oninput="filterAccountDropdown('acc-${rowId}')" style="width: 100%; box-sizing: border-box; background: transparent; border: none; color: inherit; padding: 10px;" value="${accName}">
+                <div class="custom-dropdown-list" id="acc-${rowId}-dropdown-list"></div>
+            </div>
+        </td>
+        <td><input type="text" class="multi-input sub-amount" placeholder="0.00" onblur="formatInput(this)" oninput="restrictToNumbers(this); calcTotal();" style="font-family: monospace; font-weight: bold; font-size: 1.1rem; color: #10b981;" value="${item.amount > 0 ? fmtNum(item.amount) : ''}"></td>
+        <td class="col-desc"><input type="text" class="multi-input sub-desc" placeholder="بيان هذا الحساب..." value="${item.statement || ''}"></td>
+        <td class="col-cost-center"><input type="text" class="multi-input sub-cost-center" placeholder="مركز التكلفة..." value="${item.costCenter || ''}"></td>
+        <td class="col-note"><input type="text" class="multi-input sub-note" placeholder="ملحوظة..." value="${item.note || ''}"></td>
+        <td class="col-check-no"><input type="text" class="multi-input sub-check-no" placeholder="رقم الشيك..." value="${item.checkNo || ''}"></td>
+        <td class="col-check-date"><input type="date" class="multi-input sub-check-date" value="${item.checkDate || ''}"></td>
+        <td class="col-check-due"><input type="date" class="multi-input sub-check-due" value="${item.checkDueDate || ''}"></td>
+        <td style="text-align: center;"><button class="btn-del" onclick="removeRow(this)" title="حذف السطر">✖</button></td>
+    `;
+    if (tbody) tbody.appendChild(tr);
 }

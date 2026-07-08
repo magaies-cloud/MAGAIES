@@ -176,17 +176,20 @@
         </div>
         
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
-            <div style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(0,0,0,0.3)); border-radius: 12px; padding: 15px; border: 1px solid rgba(16,185,129,0.2); text-align: center;">
+            <div style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(0,0,0,0.3)); border-radius: 12px; padding: 15px; border: 1px solid rgba(16,185,129,0.2); text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                 <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">إجمالي رصيد العملاء (عليه)</div>
-                <div id="kpi-dr" class="num" style="color: #10b981; font-size: 1.5rem; font-weight: 900;">0.00</div>
+                <div id="kpi-dr" class="num" style="color: #10b981; font-size: 1.4rem; font-weight: 900;">0.00</div>
+                <div id="kpi-dr-foreign" class="num" style="color: #34d399; font-size: 0.95rem; font-weight: bold; margin-top: 3px;">(0.00 USD)</div>
             </div>
-            <div style="background: linear-gradient(135deg, rgba(244,63,94,0.1), rgba(0,0,0,0.3)); border-radius: 12px; padding: 15px; border: 1px solid rgba(244,63,94,0.2); text-align: center;">
+            <div style="background: linear-gradient(135deg, rgba(244,63,94,0.1), rgba(0,0,0,0.3)); border-radius: 12px; padding: 15px; border: 1px solid rgba(244,63,94,0.2); text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                 <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">إجمالي رصيد الموردين (له)</div>
-                <div id="kpi-cr" class="num" style="color: #f43f5e; font-size: 1.5rem; font-weight: 900;">0.00</div>
+                <div id="kpi-cr" class="num" style="color: #f43f5e; font-size: 1.4rem; font-weight: 900;">0.00</div>
+                <div id="kpi-cr-foreign" class="num" style="color: #fb7185; font-size: 0.95rem; font-weight: bold; margin-top: 3px;">(0.00 USD)</div>
             </div>
-            <div style="background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(0,0,0,0.3)); border-radius: 12px; padding: 15px; border: 1px solid rgba(56,189,248,0.2); text-align: center;">
+            <div style="background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(0,0,0,0.3)); border-radius: 12px; padding: 15px; border: 1px solid rgba(56,189,248,0.2); text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                 <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">إجمالي الحصيلة الصافية</div>
-                <div id="kpi-bal" class="num" style="color: #38bdf8; font-size: 1.5rem; font-weight: 900;">0.00</div>
+                <div id="kpi-bal" class="num" style="color: #38bdf8; font-size: 1.4rem; font-weight: 900;">0.00</div>
+                <div id="kpi-bal-foreign" class="num" style="color: #7dd3fc; font-size: 0.95rem; font-weight: bold; margin-top: 3px;">(0.00 USD)</div>
             </div>
         </div>
     </div>

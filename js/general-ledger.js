@@ -26,6 +26,33 @@ let ALL_ACCOUNTS = [{ id: 'ALL', name: 'جميع الحسابات', icon: '📊'
 let ALL_TXNS = []; // Cache to extract cost centers and currencies
 let currentDateMode = 'all'; // 'all' or 'range'
 
+let ledgerExchangeRate = 1.0;
+let ledgerForeignCurrency = 'USD';
+
+function initLedgerCurrencySettings() {
+    try {
+        const erpSettings = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+        const systemBaseCurrency = erpSettings.currency || 'SDG';
+        const activeCurrencies = erpSettings.activeCurrencies || [];
+        const configuredForeignCurrency = activeCurrencies.find(c => c !== systemBaseCurrency);
+        if (configuredForeignCurrency) {
+            ledgerForeignCurrency = configuredForeignCurrency;
+        }
+    } catch(e) {
+        console.error("Error loading foreign currency from settings:", e);
+    }
+
+    fetch('api_index.php/exchange-rate')
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.rate) {
+                ledgerExchangeRate = parseFloat(data.rate) || 1.0;
+            }
+        })
+        .catch(() => {});
+}
+initLedgerCurrencySettings();
+
 window.setDateMode = function(mode) {
     currentDateMode = mode;
     const allBtn = document.getElementById('date-all-period-btn');
@@ -266,6 +293,76 @@ function collectAllTransactions() {
         });
     });
 
+    // 2.2 Multiple Receipts (erp_receipts_v1)
+    const multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
+    multiReceipts.forEach(v => {
+        const costCenter = v.costCenter || 'بدون مركز';
+        const currency = v.currency || 'SDG';
+        const time = v.time || timeNow;
+        const mainAcc = v.mainAccount || v.toAccount || 'safe-001';
+        
+        // Receiving side (Safe/Bank) -> Debited for totalAmount
+        txns.push({
+            date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
+            account: mainAcc, counterAccount: 'حسابات فرعية متعددة',
+            statement: v.description || 'قبض مجمع',
+            additionalNote: v.description || 'سند قبض مجمع',
+            debit: parseNum(v.totalAmount), credit: 0, costCenter, currency,
+            exchangeRate: parseNum(v.exchangeRate || 1)
+        });
+
+        // Disbursing side (Each sub-account) -> Credited for item.amount
+        if (v.items && Array.isArray(v.items)) {
+            v.items.forEach(item => {
+                txns.push({
+                    date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
+                    account: item.account, counterAccount: mainAcc,
+                    statement: item.statement || 'قبض مجمع فرعي',
+                    additionalNote: item.note || v.description || 'سند قبض مجمع',
+                    debit: 0, credit: parseNum(item.amount), 
+                    costCenter: item.costCenter || costCenter, 
+                    currency,
+                    exchangeRate: parseNum(v.exchangeRate || 1)
+                });
+            });
+        }
+    });
+
+    // 2.3 Multiple Payments (erp_payments_v1)
+    const multiPayments = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
+    multiPayments.forEach(v => {
+        const costCenter = v.costCenter || 'بدون مركز';
+        const currency = v.currency || 'SDG';
+        const time = v.time || timeNow;
+        const mainAcc = v.mainAccount || v.fromAccount || 'safe-001';
+
+        // Disbursing side (Safe/Bank) -> Credited for totalAmount
+        txns.push({
+            date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
+            account: mainAcc, counterAccount: 'حسابات فرعية متعددة',
+            statement: v.description || 'صرف مجمع',
+            additionalNote: v.description || 'سند صرف مجمع',
+            debit: 0, credit: parseNum(v.totalAmount), costCenter, currency,
+            exchangeRate: parseNum(v.exchangeRate || 1)
+        });
+
+        // Receiving side (Each sub-account) -> Debited for item.amount
+        if (v.items && Array.isArray(v.items)) {
+            v.items.forEach(item => {
+                txns.push({
+                    date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
+                    account: item.account, counterAccount: mainAcc,
+                    statement: item.statement || 'صرف مجمع فرعي',
+                    additionalNote: item.note || v.description || 'سند صرف مجمع',
+                    debit: parseNum(item.amount), credit: 0, 
+                    costCenter: item.costCenter || costCenter, 
+                    currency,
+                    exchangeRate: parseNum(v.exchangeRate || 1)
+                });
+            });
+        }
+    });
+
     // 3. Journal Vouchers
     const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
     jvs.forEach(v => {
@@ -464,8 +561,8 @@ document.addEventListener('DBReady', () => {
             if (found) {
                 selectAccount(found.id, found.name, found.icon);
             } else {
-                const cleanParam = String(accountIdParam).replace(/^(cust|supp|bank|safe|exp)-/, '');
-                const foundClean = ALL_ACCOUNTS.find(a => String(a.id).replace(/^(cust|supp|bank|safe|exp)-/, '') === cleanParam);
+                const cleanParam = String(accountIdParam).replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '');
+                const foundClean = ALL_ACCOUNTS.find(a => String(a.id).replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '') === cleanParam);
                 if (foundClean) {
                     selectAccount(foundClean.id, foundClean.name, foundClean.icon);
                 }
@@ -479,11 +576,44 @@ document.addEventListener('DBReady', () => {
 function getAccountName(id) {
     if(id === 'ALL') return 'جميع الحسابات';
     if(id === '-') return '-';
-    let found = ALL_ACCOUNTS.find(a => String(a.id) === String(id));
+    
+    let idStr = String(id).trim();
+    
+    // 1. Direct ID match (case-insensitive)
+    let found = ALL_ACCOUNTS.find(a => String(a.id).toLowerCase() === idStr.toLowerCase());
     if (found) return found.name;
-    const cleanId = String(id).replace(/^(cust|supp|bank|safe|exp)-/, '');
-    found = ALL_ACCOUNTS.find(a => String(a.id).replace(/^(cust|supp|bank|safe|exp)-/, '') === cleanId);
-    return found ? found.name : id;
+    
+    // 2. Clean prefix (any English letters followed by separator like -, _, :, /, or space)
+    let cleanId = idStr.replace(/^[a-zA-Z]+\s*[-_:/]\s*/, '').trim();
+    
+    // 3. Search by clean ID or clean Name match
+    found = ALL_ACCOUNTS.find(a => {
+        const aId = String(a.id).toLowerCase();
+        const aName = String(a.name).toLowerCase();
+        const cleanAId = aId.replace(/^[a-zA-Z]+\s*[-_:/]\s*/, '').trim();
+        
+        return aId === cleanId.toLowerCase() || 
+               cleanAId === cleanId.toLowerCase() ||
+               aName === cleanId.toLowerCase();
+    });
+    
+    if (found) return found.name;
+    
+    // 4. Try matching if the cleanId is contained in the account name or ID (or vice versa)
+    if (cleanId.length > 1) {
+        found = ALL_ACCOUNTS.find(a => {
+            const aName = String(a.name).toLowerCase();
+            const aId = String(a.id).toLowerCase();
+            return aName.includes(cleanId.toLowerCase()) || 
+                   cleanId.toLowerCase().includes(aName) ||
+                   aId.includes(cleanId.toLowerCase()) ||
+                   cleanId.toLowerCase().includes(aId);
+        });
+        if (found) return found.name;
+    }
+    
+    // 5. If everything fails, return the cleaned ID instead of the raw ID if it contains non-English chars
+    return cleanId || idStr;
 }
 
 /* ─── Drill Down & Attachments ─── */
@@ -496,7 +626,7 @@ function openDrillDown(type, ref) {
     else if (type === 'payment') target = `single-cash-payment.php?id=${ref}`;
     
     if(target) {
-        window.open(target, '_blank');
+        window.location.href = target;
     }
 }
 
@@ -517,17 +647,23 @@ function getReportSummaryText() {
     const accName = getAccountNameForShare();
     
     const debitEl = document.getElementById('sum-debit');
+    const debitFEl = document.getElementById('sum-debit-foreign');
     const creditEl = document.getElementById('sum-credit');
+    const creditFEl = document.getElementById('sum-credit-foreign');
     const balanceEl = document.getElementById('sum-balance');
+    const balanceFEl = document.getElementById('sum-balance-foreign');
     
     const debit = debitEl ? debitEl.innerText : '0.00';
+    const debitF = debitFEl ? debitFEl.innerText : '';
     const credit = creditEl ? creditEl.innerText : '0.00';
+    const creditF = creditFEl ? creditFEl.innerText : '';
     const balance = balanceEl ? balanceEl.innerText : '0.00';
+    const balanceF = balanceFEl ? balanceFEl.innerText : '';
     
     let text = `مرحباً،\nهذا ملخص كشف حساب: *${accName}*\n\n`;
-    text += `إجمالي المدين: ${debit}\n`;
-    text += `إجمالي الدائن: ${credit}\n`;
-    text += `الرصيد النهائي: ${balance}\n\n`;
+    text += `إجمالي المدين: ${debit} ${debitF ? ` ${debitF}` : ''}\n`;
+    text += `إجمالي الدائن: ${credit} ${creditF ? ` ${creditF}` : ''}\n`;
+    text += `الرصيد النهائي: ${balance} ${balanceF ? ` ${balanceF}` : ''}\n\n`;
     text += `يرجى مراجعة التفاصيل والمرفقات إذا وجدت.`;
     
     return text;
@@ -1004,18 +1140,29 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
     }
 
     let totalDebit = 0, totalCredit = 0, runningBalance = 0;
-    let runningBalanceForeign = 0;
+    let totalDebitForeign = 0, totalCreditForeign = 0, runningBalanceForeign = 0;
     let rows = '';
 
     txns.forEach((t, i) => {
         const exRate = t.exchangeRate || 1;
         const addNote = t.additionalNote || '-';
-        const debF = t.debitForeign || (t.debit / exRate);
-        const credF = t.creditForeign || (t.credit / exRate);
+        
+        let debF = 0;
+        let credF = 0;
+        if (t.currency && t.currency !== 'SDG' && t.currency !== '-') {
+            debF = t.debitForeign || (t.debit / exRate);
+            credF = t.creditForeign || (t.credit / exRate);
+        } else {
+            const rate = ledgerExchangeRate > 0 ? ledgerExchangeRate : (exRate > 1 ? exRate : 1.0);
+            debF = t.debit / rate;
+            credF = t.credit / rate;
+        }
 
         if (!t.isOpening) {
             totalDebit += t.debit;
             totalCredit += t.credit;
+            totalDebitForeign += debF;
+            totalCreditForeign += credF;
         }
         runningBalance += t.debit - t.credit;
         runningBalanceForeign += debF - credF;
@@ -1078,9 +1225,18 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
 
     tbody.innerHTML = rows;
 
-    document.getElementById('sum-debit').textContent = fmtNum(totalDebit);
-    document.getElementById('sum-credit').textContent = fmtNum(totalCredit);
-    document.getElementById('sum-balance').textContent = fmtNum(Math.abs(runningBalance)) + (runningBalance >= 0 ? ' (مدين)' : ' (دائن)');
+    let activeCurrency = ledgerForeignCurrency;
+
+    document.getElementById('sum-debit').textContent = fmtNum(totalDebit) + ' SDG';
+    document.getElementById('sum-debit-foreign').textContent = `(${fmtNum(totalDebitForeign)} ${activeCurrency})`;
+
+    document.getElementById('sum-credit').textContent = fmtNum(totalCredit) + ' SDG';
+    document.getElementById('sum-credit-foreign').textContent = `(${fmtNum(totalCreditForeign)} ${activeCurrency})`;
+
+    const balanceSign = runningBalance >= 0 ? ' (مدين)' : ' (دائن)';
+    const balanceFSign = runningBalanceForeign >= 0 ? ' (مدين)' : ' (دائن)';
+    document.getElementById('sum-balance').textContent = fmtNum(Math.abs(runningBalance)) + ' SDG' + balanceSign;
+    document.getElementById('sum-balance-foreign').textContent = `(${fmtNum(Math.abs(runningBalanceForeign))} ${activeCurrency}) ${balanceFSign}`;
     summaryCards.style.display = 'grid';
     auditStamp.style.display = 'flex';
 

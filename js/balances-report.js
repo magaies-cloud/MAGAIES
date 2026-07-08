@@ -15,6 +15,33 @@ window.colConfigs = [
 ];
 window.colOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
+let ledgerExchangeRate = 1.0;
+let ledgerForeignCurrency = 'USD';
+
+function initBalancesCurrencySettings() {
+    try {
+        const erpSettings = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+        const systemBaseCurrency = erpSettings.currency || 'SDG';
+        const activeCurrencies = erpSettings.activeCurrencies || [];
+        const configuredForeignCurrency = activeCurrencies.find(c => c !== systemBaseCurrency);
+        if (configuredForeignCurrency) {
+            ledgerForeignCurrency = configuredForeignCurrency;
+        }
+    } catch(e) {
+        console.error("Error loading foreign currency from settings:", e);
+    }
+
+    fetch('api_index.php/exchange-rate')
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.rate) {
+                ledgerExchangeRate = parseFloat(data.rate) || 1.0;
+            }
+        })
+        .catch(() => {});
+}
+initBalancesCurrencySettings();
+
 function applyLayoutToDOM() {
     try {
         const table = document.getElementById('balances-table');
@@ -257,6 +284,36 @@ function loadData() {
         const rate = parseNum(v.rate || 1);
         ALL_TXNS.push({ partner: v.toAccount, debit: parseNum(v.amountLocal), credit: 0, date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
         ALL_TXNS.push({ partner: v.fromAccount, debit: 0, credit: parseNum(v.amountLocal), date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
+    });
+
+    // 2.2 Multiple Receipts (erp_receipts_v1)
+    const multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
+    multiReceipts.forEach(v => {
+        const cc = v.costCenter || 'ALL';
+        const rate = parseNum(v.exchangeRate || 1);
+        const mainAcc = v.mainAccount || v.toAccount || 'safe-001';
+        ALL_TXNS.push({ partner: mainAcc, debit: parseNum(v.totalAmount), credit: 0, date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
+        if (v.items && Array.isArray(v.items)) {
+            v.items.forEach(item => {
+                const itemCC = item.costCenter || cc;
+                ALL_TXNS.push({ partner: item.account, debit: 0, credit: parseNum(item.amount), date: v.date, time: v.time || timeNow, costCenter: itemCC, exchangeRate: rate });
+            });
+        }
+    });
+
+    // 2.3 Multiple Payments (erp_payments_v1)
+    const multiPayments = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
+    multiPayments.forEach(v => {
+        const cc = v.costCenter || 'ALL';
+        const rate = parseNum(v.exchangeRate || 1);
+        const mainAcc = v.mainAccount || v.fromAccount || 'safe-001';
+        ALL_TXNS.push({ partner: mainAcc, debit: 0, credit: parseNum(v.totalAmount), date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
+        if (v.items && Array.isArray(v.items)) {
+            v.items.forEach(item => {
+                const itemCC = item.costCenter || cc;
+                ALL_TXNS.push({ partner: item.account, debit: parseNum(item.amount), credit: 0, date: v.date, time: v.time || timeNow, costCenter: itemCC, exchangeRate: rate });
+            });
+        }
     });
 
     // 3. JVs
@@ -781,11 +838,19 @@ function renderTable(results) {
 
     tbody.innerHTML = rows;
 
-    document.getElementById('kpi-dr').textContent = fmtColNum(sumCust, 6);
-    document.getElementById('kpi-cr').textContent = fmtColNum(sumSupp, 7);
+    document.getElementById('kpi-dr').textContent = fmtColNum(sumCust, 6) + ' SDG';
+    const drForeign = ledgerExchangeRate > 0 ? (sumCust / ledgerExchangeRate) : 0;
+    document.getElementById('kpi-dr-foreign').textContent = `(${fmtColNum(drForeign, 4)} ${ledgerForeignCurrency})`;
+
+    document.getElementById('kpi-cr').textContent = fmtColNum(sumSupp, 7) + ' SDG';
+    const crForeign = ledgerExchangeRate > 0 ? (sumSupp / ledgerExchangeRate) : 0;
+    document.getElementById('kpi-cr-foreign').textContent = `(${fmtColNum(crForeign, 5)} ${ledgerForeignCurrency})`;
     
     const net = sumCust - sumSupp;
-    document.getElementById('kpi-bal').textContent = fmtColNum(Math.abs(net), 6) + (net >= 0 ? ' (لنا)' : ' (علينا)');
+    const netSign = net >= 0 ? ' (لنا)' : ' (علينا)';
+    document.getElementById('kpi-bal').textContent = fmtColNum(Math.abs(net), 6) + ' SDG' + netSign;
+    const netForeign = ledgerExchangeRate > 0 ? (Math.abs(net) / ledgerExchangeRate) : 0;
+    document.getElementById('kpi-bal-foreign').textContent = `(${fmtColNum(netForeign, 4)} ${ledgerForeignCurrency})` + netSign;
 
     document.getElementById('analytics-dashboard').style.display = 'block';
     document.getElementById('actions-panel').style.display = 'flex';

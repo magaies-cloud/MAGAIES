@@ -278,8 +278,7 @@ function renderVoucher(v) {
     document.getElementById('hdr-date').value = v.date;
     
     document.getElementById('from-account').value = v.fromAccount || '';
-    const fromAccObj = (ACCOUNTS || []).find(a => String(a.id) === String(v.fromAccount || ''));
-    document.getElementById('from-account-search').value = fromAccObj ? fromAccObj.name : (v.fromAccount || '');
+    document.getElementById('from-account-search').value = getAccountName(v.fromAccount || '');
 
     document.getElementById('amount-local').value = fmtNum(v.amountLocal);
     document.getElementById('currency').value = v.currency || 'SDG';
@@ -289,8 +288,7 @@ function renderVoucher(v) {
     document.getElementById('collector-name').value = v.collectorName || '';
     
     document.getElementById('to-account').value = v.toAccount || 'safe-001';
-    const toAccObj = (ACCOUNTS || []).find(a => String(a.id) === String(v.toAccount || 'safe-001'));
-    document.getElementById('to-account-search').value = toAccObj ? toAccObj.name : (v.toAccount || 'safe-001');
+    document.getElementById('to-account-search').value = getAccountName(v.toAccount || 'safe-001');
     document.getElementById('to-statement').value = v.toStatement || '';
 
     // Set Payment Method
@@ -1012,11 +1010,8 @@ async function sendVoucherWA(voucherId) {
     printContainer.style.color = '#000';
     printContainer.style.padding = '30px';
 
-    const fromAccObj = (ACCOUNTS || []).find(a => String(a.id) === String(voucher.fromAccount || ''));
-    const fromAccName = fromAccObj ? fromAccObj.name : (voucher.fromAccount || '');
-    
-    const toAccObj = (ACCOUNTS || []).find(a => String(a.id) === String(voucher.toAccount || 'safe-001'));
-    const toAccName = toAccObj ? toAccObj.name : (voucher.toAccount || 'safe-001');
+    const fromAccName = getAccountName(voucher.fromAccount || '');
+    const toAccName = getAccountName(voucher.toAccount || 'safe-001');
 
     const htmlContent = `
         <html dir="rtl" lang="ar">
@@ -1121,4 +1116,30 @@ function updateActionButtonsVisibility() {
         if (previewBtn) previewBtn.style.display = 'none';
         if (waBtn) waBtn.style.display = 'none';
     }
+}
+
+function getAccountName(id) {
+    if(!id) return '';
+    let idStr = String(id).trim();
+    let found = (ACCOUNTS || []).find(a => String(a.id).toLowerCase() === idStr.toLowerCase());
+    if (found) return found.name;
+    
+    let cleanId = idStr.replace(/^[a-zA-Z]+\s*[-_:/]\s*/, '').trim();
+    found = (ACCOUNTS || []).find(a => {
+        const aId = String(a.id).toLowerCase();
+        const aName = String(a.name).toLowerCase();
+        const cleanAId = aId.replace(/^[a-zA-Z]+\s*[-_:/]\s*/, '').trim();
+        return aId === cleanId.toLowerCase() || cleanAId === cleanId.toLowerCase() || aName === cleanId.toLowerCase();
+    });
+    if (found) return found.name;
+    
+    if (cleanId.length > 1) {
+        found = (ACCOUNTS || []).find(a => {
+            const aName = String(a.name).toLowerCase();
+            const aId = String(a.id).toLowerCase();
+            return aName.includes(cleanId.toLowerCase()) || cleanId.toLowerCase().includes(aName) || aId.includes(cleanId.toLowerCase()) || cleanId.toLowerCase().includes(aId);
+        });
+        if (found) return found.name;
+    }
+    return cleanId || idStr;
 }

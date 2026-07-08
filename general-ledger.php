@@ -720,17 +720,26 @@
 
     <!-- SUMMARY CARDS -->
     <div class="summary-cards" id="summary-cards" style="display:none;">
-        <div class="summary-card" style="background: linear-gradient(135deg, #064e3b, #047857); border: 1px solid #10b981;">
+        <div class="summary-card" style="background: linear-gradient(135deg, #064e3b, #047857); border: 1px solid #10b981; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px; padding: 15px 20px;">
             <div class="s-label" style="color:#a7f3d0;">إجمالي المدين</div>
-            <div class="s-val td-debit" id="sum-debit" style="color:#ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">0.00</div>
+            <div style="display: flex; flex-direction: column; gap: 2px; width: 100%;">
+                <div class="s-val td-debit" id="sum-debit" style="color:#ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-weight: 800;">0.00</div>
+                <div class="s-val-foreign" id="sum-debit-foreign" style="font-size: 0.95rem; font-weight: 600; color: #a7f3d0; opacity: 0.9;">(0.00 USD)</div>
+            </div>
         </div>
-        <div class="summary-card" style="background: linear-gradient(135deg, #7f1d1d, #b91c1c); border: 1px solid #ef4444;">
+        <div class="summary-card" style="background: linear-gradient(135deg, #7f1d1d, #b91c1c); border: 1px solid #ef4444; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px; padding: 15px 20px;">
             <div class="s-label" style="color:#fecaca;">إجمالي الدائن</div>
-            <div class="s-val td-credit" id="sum-credit" style="color:#ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">0.00</div>
+            <div style="display: flex; flex-direction: column; gap: 2px; width: 100%;">
+                <div class="s-val td-credit" id="sum-credit" style="color:#ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-weight: 800;">0.00</div>
+                <div class="s-val-foreign" id="sum-credit-foreign" style="font-size: 0.95rem; font-weight: 600; color: #fecaca; opacity: 0.9;">(0.00 USD)</div>
+            </div>
         </div>
-        <div class="summary-card" style="background: linear-gradient(135deg, #312e81, #4f46e5); border: 1px solid #6366f1;">
+        <div class="summary-card" style="background: linear-gradient(135deg, #312e81, #4f46e5); border: 1px solid #6366f1; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px; padding: 15px 20px;">
             <div class="s-label" style="color:#c7d2fe;">الرصيد محلي</div>
-            <div class="s-val" id="sum-balance" style="color:#ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">0.00</div>
+            <div style="display: flex; flex-direction: column; gap: 2px; width: 100%;">
+                <div class="s-val" id="sum-balance" style="color:#ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-weight: 800;">0.00</div>
+                <div class="s-val-foreign" id="sum-balance-foreign" style="font-size: 0.95rem; font-weight: 600; color: #c7d2fe; opacity: 0.9;">(0.00 USD)</div>
+            </div>
         </div>
     </div>
 

@@ -42,50 +42,122 @@ let suppliersList = [];
 let customersList = [];
 let itemsList = [];
 
-function loadEntities() {
-    try {
-        accountsList = JSON.parse(localStorage.getItem('erp_accounts_v1') || '[]').filter(x => !x.deleted);
-    } catch(e) { accountsList = []; }
-    try {
-        safesList = JSON.parse(localStorage.getItem('erp_safes_v1') || '[]').filter(x => !x.deleted);
-    } catch(e) { safesList = []; }
-    try {
-        banksList = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]').filter(x => !x.deleted);
-    } catch(e) { banksList = []; }
-    try {
-        suppliersList = JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]').filter(x => !x.deleted);
-    } catch(e) { suppliersList = []; }
-    try {
-        customersList = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]').filter(x => !x.deleted);
-    } catch(e) { customersList = []; }
-    try {
-        itemsList = JSON.parse(localStorage.getItem('erp_items_v1') || '[]').filter(x => !x.deleted);
-    } catch(e) { itemsList = []; }
+async function loadEntities() {
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    
+    async function getList(key) {
+        let data = [];
+        try {
+            let val = null;
+            if (typeof localforage !== 'undefined') {
+                val = await localforage.getItem(getTenantKey(key)) || await localforage.getItem(key);
+            }
+            if (val === null) {
+                val = localStorage.getItem(getTenantKey(key)) || localStorage.getItem(key);
+            }
+            
+            if (val) {
+                if (typeof val === 'string') {
+                    try {
+                        data = JSON.parse(val);
+                    } catch(e) {
+                        data = [];
+                    }
+                } else {
+                    data = val;
+                }
+            }
+        } catch(e) {
+            data = [];
+        }
+        
+        if (!Array.isArray(data)) {
+            if (data && typeof data === 'object') {
+                data = Object.values(data);
+            } else {
+                data = [];
+            }
+        }
+        return data.filter(x => !x.deleted);
+    }
+
+    accountsList = await getList('erp_accounts_v1');
+    safesList = await getList('erp_safes_v1');
+    banksList = await getList('erp_banks_v1');
+    suppliersList = await getList('erp_suppliers_v1');
+    customersList = await getList('erp_customers_v1');
+    itemsList = await getList('erp_items_v1');
 }
 
-function getAccName(accCode) {
-    if (!accCode) return 'غير محدد';
+function getAccName(accCode, returnNullIfNotFound = false) {
+    if (!accCode) return returnNullIfNotFound ? null : '-';
     const code = String(accCode).trim();
+    const codeLower = code.toLowerCase();
     
-    // 1. Check Accounts List
-    const acc = accountsList.find(a => a.id === code || a.accountNo === code || a.name === code);
-    if (acc) return acc.name;
+    // Globally strip all standard prefixes (e.g. SUB-cust-123 becomes 123)
+    const prefixRegex = /(customer|supplier|cust|cus|supp|sup|bank|safe|exp|sub|sust)[-\s_:]*/gi;
+    const cleanCode = code.replace(prefixRegex, '').trim().toLowerCase();
     
-    // 2. Check Safes List
-    const safe = safesList.find(s => s.id === code || s.name === code);
-    if (safe) return safe.name;
+    // Helper function to clean a target database ID
+    const cleanTargetId = (id) => String(id || '').replace(prefixRegex, '').trim().toLowerCase();
     
-    // 3. Check Banks List
-    const bank = banksList.find(b => b.id === code || b.name === code);
-    if (bank) return bank.name;
+    // 1. Check Customers List (id, name, glAccount, code)
+    let matched = customersList.find(c => 
+        String(c.id).toLowerCase() === codeLower || 
+        String(c.name).toLowerCase() === codeLower || 
+        String(c.glAccount || '').toLowerCase() === codeLower || 
+        String(c.code || '').toLowerCase() === codeLower ||
+        cleanTargetId(c.id) === cleanCode ||
+        cleanTargetId(c.glAccount) === cleanCode ||
+        cleanTargetId(c.code) === cleanCode
+    );
+    if (matched) return matched.name;
     
-    // 4. Check Suppliers List
-    const sup = suppliersList.find(s => s.id === code || s.name === code || s.id === code.replace('supp-', 'SUP-').replace('sup-', 'SUP-'));
-    if (sup) return sup.name;
+    // 2. Check Suppliers List (id, name, glAccount, code)
+    matched = suppliersList.find(s => 
+        String(s.id).toLowerCase() === codeLower || 
+        String(s.name).toLowerCase() === codeLower || 
+        String(s.glAccount || '').toLowerCase() === codeLower || 
+        String(s.code || '').toLowerCase() === codeLower ||
+        cleanTargetId(s.id) === cleanCode ||
+        cleanTargetId(s.glAccount) === cleanCode ||
+        cleanTargetId(s.code) === cleanCode
+    );
+    if (matched) return matched.name;
+
+    // 3. Check Safes List (id, name, glAccount, code)
+    matched = safesList.find(s => 
+        String(s.id).toLowerCase() === codeLower || 
+        String(s.name).toLowerCase() === codeLower || 
+        String(s.glAccount || '').toLowerCase() === codeLower || 
+        String(s.code || '').toLowerCase() === codeLower ||
+        cleanTargetId(s.id) === cleanCode ||
+        cleanTargetId(s.glAccount) === cleanCode ||
+        cleanTargetId(s.code) === cleanCode
+    );
+    if (matched) return matched.name;
     
-    // 5. Check Customers List
-    const cust = customersList.find(c => c.id === code || c.name === code || c.id === code.replace('cust-', 'CUST-'));
-    if (cust) return cust.name;
+    // 4. Check Banks List (id, name, glAccount, code)
+    matched = banksList.find(b => 
+        String(b.id).toLowerCase() === codeLower || 
+        String(b.name).toLowerCase() === codeLower || 
+        String(b.glAccount || '').toLowerCase() === codeLower || 
+        String(b.code || '').toLowerCase() === codeLower ||
+        cleanTargetId(b.id) === cleanCode ||
+        cleanTargetId(b.glAccount) === cleanCode ||
+        cleanTargetId(b.code) === cleanCode
+    );
+    if (matched) return matched.name;
+
+    // 5. Check Accounts List
+    matched = accountsList.find(a => 
+        String(a.id).toLowerCase() === codeLower || 
+        String(a.accountNo || '').toLowerCase() === codeLower || 
+        String(a.name).toLowerCase() === codeLower || 
+        cleanTargetId(a.id) === cleanCode ||
+        cleanTargetId(a.accountNo) === cleanCode
+    );
+    if (matched) return matched.name;
     
     const staticMap = {
         'safe-001': 'الخزينة الرئيسية (نقداً)',
@@ -99,8 +171,9 @@ function getAccName(accCode) {
         'purchases': 'المشتريات'
     };
     if (staticMap[code]) return staticMap[code];
-
-    return code;
+    if (staticMap[code.toLowerCase()]) return staticMap[code.toLowerCase()];
+    
+    return returnNullIfNotFound ? null : cleanCode;
 }
 
 function getItemName(itemCode) {
@@ -269,7 +342,7 @@ function applyFiltersAndRender() {
 
 async function loadAllTransactions() {
     try {
-        loadEntities();
+        await loadEntities();
         const getTenantKey = window.getTenantKey || ((k) => k);
         const keys = [
             { key: 'erp_sales_invoices_v1', type: 'مبيعات', typeEn: 'sales', class: 'type-sales' },
@@ -354,12 +427,21 @@ function renderMasterTable() {
         const amt = item.totalAmount || item.amountLocal || item.amount || item.netTotal || item.total || item.grandTotal || 0;
         const ref = item.id || item.invoiceNo || item.voucherNo || '-';
         const dateStr = !isNaN(item._date.getTime()) ? item._date.toLocaleDateString('en-GB') : '-';
-        const customerId = item.customerId || item.supplierId || item.customer || item.supplier || '';
-        let customer = item.customerName || item.supplierName || '';
-        if (!customer && customerId) {
-            customer = getAccName(customerId);
+        let customerId = item.customerId || item.supplierId || item.customer || item.supplier || '';
+        if (!customerId) {
+            if (item._metaKey === 'erp_single_receipts_v1') {
+                customerId = item.fromAccount || '';
+            } else if (item._metaKey === 'erp_single_payments_v1') {
+                customerId = item.toAccount || '';
+            } else if (item.items && item.items.length > 0) {
+                customerId = item.items[0].account || item.items[0].accountId || '';
+            }
         }
-        if (!customer) customer = item.description || 'بدون اسم';
+        
+        let customer = getAccName(customerId, true);
+        if (!customer) customer = getAccName(item.customerName || item.supplierName, true);
+        if (!customer) customer = item.customerName || item.supplierName || item.description || 'بدون اسم';
+        
         const dueDate = item.dueDate ? new Date(item.dueDate).toLocaleDateString('en-GB') : '-';
         const pMethod = paymentMethodMap[item.paymentMethod] || item.paymentMethod || 'نقدي';
 
@@ -450,12 +532,20 @@ function renderDetailPane(index) {
     const dateStr = !isNaN(item._date.getTime()) ? item._date.toLocaleDateString('en-GB') : '-';
     const dueDate = item.dueDate ? new Date(item.dueDate).toLocaleDateString('en-GB') : '-';
     const pMethod = paymentMethodMap[item.paymentMethod] || item.paymentMethod || 'نقدي';
-    const customerId = item.customerId || item.supplierId || item.customer || item.supplier || '';
-    let customer = item.customerName || item.supplierName || '';
-    if (!customer && customerId) {
-        customer = getAccName(customerId);
+    let customerId = item.customerId || item.supplierId || item.customer || item.supplier || '';
+    if (!customerId) {
+        if (item._metaKey === 'erp_single_receipts_v1') {
+            customerId = item.fromAccount || '';
+        } else if (item._metaKey === 'erp_single_payments_v1') {
+            customerId = item.toAccount || '';
+        } else if (item.items && item.items.length > 0) {
+            customerId = item.items[0].account || item.items[0].accountId || '';
+        }
     }
-    if (!customer) customer = '-';
+    
+    let customer = getAccName(customerId, true);
+    if (!customer) customer = getAccName(item.customerName || item.supplierName, true);
+    if (!customer) customer = item.customerName || item.supplierName || item.description || 'بدون اسم';
 
     const labelEntity = item._typeEn === 'sales' ? 'العميل' : (item._typeEn === 'purchases' ? 'المورد' : 'الجهة');
 

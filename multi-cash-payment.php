@@ -317,36 +317,54 @@
                 </div>
                 
                 <!-- Payment Methods Row -->
-                <div id="payment-methods-row" style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 25px; background: rgba(239, 68, 68, 0.08); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2); flex-wrap: wrap; transition: all 0.4s ease;">
+                <div id="payment-methods-row" style="display: flex; align-items: center; justify-content: flex-start; gap: 20px; margin-bottom: 25px; background: rgba(239, 68, 68, 0.08); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2); flex-wrap: wrap; transition: all 0.4s ease;">
+                    <!-- 1. رقم السند والملاحة -->
+                    <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; height: 44px; padding: 0 8px;">
+                        <button type="button" onclick="navigateVoucher(-1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.2rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند السابق">◀</button>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <span style="color: #94a3b8; font-size: 0.9rem; font-weight: bold; white-space: nowrap;">📄 السند:</span>
+                            <input type="text" id="voucher-no-display" readonly style="background: transparent; border: none; color: #fff; font-weight: bold; width: 95px; text-align: center; outline: none; font-size:1rem;" value="">
+                        </div>
+                        <button type="button" onclick="navigateVoucher(1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.2rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند التالي">▶</button>
+                    </div>
+
+                    <!-- 2. التاريخ -->
+                    <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; height: 44px; padding: 0 12px;">
+                        <span style="color: #94a3b8; font-size: 0.9rem; font-weight: bold; white-space: nowrap;">📅 التاريخ:</span>
+                        <input type="date" id="voucher-date" class="form-input" style="background: transparent; border: none; color: #fff; font-weight: bold; padding: 0; margin: 0; height: 100%; width: 135px; outline: none; box-shadow: none;">
+                    </div>
+
+                    <!-- 3. طريقة الدفع -->
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <label class="label" style="color:#cbd5e1; display:flex; align-items:center; gap:5px; margin-bottom:0; font-size:1.1rem; font-weight:bold;">
+                        <label class="label" style="color:#cbd5e1; display:flex; align-items:center; gap:5px; margin-bottom:0; font-size:1.1rem; font-weight:bold; white-space:nowrap;">
                             <span style="font-size:1.1rem; opacity:0.8;">💳</span> طريقة الدفع
                         </label>
+                        <div class="payment-methods-tabs" style="margin:0; box-shadow:none; background: transparent; padding: 0; display: flex; gap: 8px;">
+                            <label class="pm-tab" style="flex: 0 0 auto; margin: 0;">
+                                <input type="radio" name="payment_method" value="cash" checked onchange="togglePaymentMethod()">
+                                <div class="pm-tab-content" style="padding: 6px 15px; gap: 6px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); flex-direction: row; height: 44px;">
+                                    <span class="pm-icon" style="font-size: 1.2rem;">💵</span>
+                                    <span class="pm-label" style="font-size: 0.9rem; margin-top: 0;">نقدي</span>
+                                </div>
+                            </label>
+                            <label class="pm-tab" style="flex: 0 0 auto; margin: 0;">
+                                <input type="radio" name="payment_method" value="check" onchange="togglePaymentMethod()">
+                                <div class="pm-tab-content" style="padding: 6px 15px; gap: 6px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); flex-direction: row; height: 44px;">
+                                    <span class="pm-icon" style="font-size: 1.2rem;">🧾</span>
+                                    <span class="pm-label" style="font-size: 0.9rem; margin-top: 0;">شيك</span>
+                                </div>
+                            </label>
+                            <label class="pm-tab" style="flex: 0 0 auto; margin: 0;">
+                                <input type="radio" name="payment_method" value="mobile" onchange="togglePaymentMethod()">
+                                <div class="pm-tab-content" style="padding: 6px 15px; gap: 6px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); flex-direction: row; height: 44px;">
+                                    <span class="pm-icon" style="font-size: 1.2rem;">📱</span>
+                                    <span class="pm-label" style="font-size: 0.9rem; margin-top: 0;">تحويل</span>
+                                </div>
+                            </label>
+                        </div>
                     </div>
-                    <div class="payment-methods-tabs" style="margin:0; box-shadow:none; background: transparent; padding: 0; display: flex; gap: 8px;">
-                        <label class="pm-tab" style="flex: 0 0 auto; margin: 0;">
-                            <input type="radio" name="payment_method" value="cash" checked onchange="togglePaymentMethod()">
-                            <div class="pm-tab-content" style="padding: 6px 15px; gap: 6px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); flex-direction: row; height: 44px;">
-                                <span class="pm-icon" style="font-size: 1.2rem;">💵</span>
-                                <span class="pm-label" style="font-size: 0.9rem; margin-top: 0;">نقدي</span>
-                            </div>
-                        </label>
-                        <label class="pm-tab" style="flex: 0 0 auto; margin: 0;">
-                            <input type="radio" name="payment_method" value="check" onchange="togglePaymentMethod()">
-                            <div class="pm-tab-content" style="padding: 6px 15px; gap: 6px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); flex-direction: row; height: 44px;">
-                                <span class="pm-icon" style="font-size: 1.2rem;">🧾</span>
-                                <span class="pm-label" style="font-size: 0.9rem; margin-top: 0;">شيك</span>
-                            </div>
-                        </label>
-                        <label class="pm-tab" style="flex: 0 0 auto; margin: 0;">
-                            <input type="radio" name="payment_method" value="mobile" onchange="togglePaymentMethod()">
-                            <div class="pm-tab-content" style="padding: 6px 15px; gap: 6px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); flex-direction: row; height: 44px;">
-                                <span class="pm-icon" style="font-size: 1.2rem;">📱</span>
-                                <span class="pm-label" style="font-size: 0.9rem; margin-top: 0;">تحويل</span>
-                            </div>
-                        </label>
-                    </div>
-                    
+
+                    <!-- 4. الرقم المرجعي الاختياري -->
                     <div style="flex-grow: 1; display: flex; justify-content: flex-end; align-items: center;">
                         <input type="text" id="voucher-ref" class="form-input" placeholder="رقم المرجع (اختياري)" style="height: 44px; max-width: 200px; background: rgba(0,0,0,0.3);">
                     </div>
@@ -362,10 +380,7 @@
                         <div class="custom-dropdown-list" id="main-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                     </div>
                 </div>
-                <div>
-                    <label style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px; display: block;">تاريخ العملية</label>
-                    <input type="date" id="voucher-date" class="form-input">
-                </div>
+
                 <div>
                     <label style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; display: block;">العملة</label>
                     <select id="currency" class="form-select" onchange="document.getElementById('exchange-rate').focus()">
@@ -379,7 +394,11 @@
                     <input type="text" id="exchange-rate" class="form-input" value="1.0" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); typeof calcTotal === 'function' ? calcTotal() : null;" style="font-weight: bold; font-family: monospace;">
                 </div>
                 <div>
-                    <label style="color: #ef4444; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: bold;">💵 القيمة (المعادل)</label>
+                    <label style="color: #10b981; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: bold;">💵 الإجمالي بالمحلي</label>
+                    <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-weight: 900; font-family: monospace; color: #10b981; background: rgba(255,255,255,0.05);">
+                </div>
+                <div>
+                    <label style="color: #ef4444; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: bold;">💵 الإجمالي بالأجنبي</label>
                     <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-weight: 900; font-family: monospace; color: #ef4444; background: rgba(255,255,255,0.05);">
                 </div>
                 <div style="grid-column: 1 / -1;">

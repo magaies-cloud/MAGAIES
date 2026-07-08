@@ -77,8 +77,7 @@ function addGridRow(data = {}) {
     
     let accName = '';
     if (data.account) {
-        const accObj = ACCOUNTS.find(a => a.id === data.account);
-        if (accObj) accName = accObj.name;
+        accName = getAccountName(data.account);
     }
     tr.innerHTML = `
         <td>
@@ -473,4 +472,30 @@ if (!window.normalizeArabic) {
             .replace(/ى/g, 'ي')
             .toLowerCase();
     };
+}
+
+function getAccountName(id) {
+    if(!id) return '';
+    let idStr = String(id).trim();
+    let found = (ACCOUNTS || []).find(a => String(a.id).toLowerCase() === idStr.toLowerCase());
+    if (found) return found.name;
+    
+    let cleanId = idStr.replace(/^[a-zA-Z]+\s*[-_:/]\s*/, '').trim();
+    found = (ACCOUNTS || []).find(a => {
+        const aId = String(a.id).toLowerCase();
+        const aName = String(a.name).toLowerCase();
+        const cleanAId = aId.replace(/^[a-zA-Z]+\s*[-_:/]\s*/, '').trim();
+        return aId === cleanId.toLowerCase() || cleanAId === cleanId.toLowerCase() || aName === cleanId.toLowerCase();
+    });
+    if (found) return found.name;
+    
+    if (cleanId.length > 1) {
+        found = (ACCOUNTS || []).find(a => {
+            const aName = String(a.name).toLowerCase();
+            const aId = String(a.id).toLowerCase();
+            return aName.includes(cleanId.toLowerCase()) || cleanId.toLowerCase().includes(aName) || aId.includes(cleanId.toLowerCase()) || cleanId.toLowerCase().includes(aId);
+        });
+        if (found) return found.name;
+    }
+    return cleanId || idStr;
 }

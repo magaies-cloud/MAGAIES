@@ -134,10 +134,10 @@
     <div class="pos-wrapper" style="max-width: 1400px; width: 95%; margin: 0 auto; padding-bottom: 60px;">
         <!-- BREADCRUMB -->
         <div class="page-breadcrumb">
-            <button onclick="window.location.href='dashboard-pro.php'" class="bc-link" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; margin-left:8px;" title="الرجوع للرئيسية">
+            <button onclick="if(document.referrer){history.back();}else{window.location.href='dashboard-pro.php';}" class="bc-link" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; margin-left:8px;" title="الرجوع للشاشة السابقة">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </button>
-            <a data-href="dashboard-pro.php" onclick="window.location.href='dashboard-pro.php'" class="bc-link" title="لوحة التحكم">الرئيسية</a>
+            <a data-href="dashboard-pro.php" onclick="if(document.referrer){history.back();}else{window.location.href='dashboard-pro.php';}" class="bc-link" title="الرجوع للشاشة السابقة">الرئيسية</a>
             <span class="bc-sep">‹</span>
             <span class="bc-current">سند قبض مفرد</span>
         </div>
@@ -358,6 +358,7 @@
         <!-- STICKY FOOTER -->
         <div class="sticky-footer" style="background: rgba(15,23,42,0.95); border-top: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px 12px 0 0; padding: 20px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;">
             <div class="footer-actions" style="width: 100%; justify-content: center; max-width: 1400px; margin: 0 auto; gap: 15px;">
+                <button class="btn btn-ghost" style="color:#f87171; border-color:rgba(239,68,68,0.3);" onclick="if(document.referrer) { window.history.back(); } else { window.location.href='dashboard-pro.php'; }" title="الرجوع للشاشة السابقة">🚪 خروج</button>
                 <button class="btn btn-ghost" onclick="resetVoucher()">📄 جديد</button>
                 <button class="btn btn-ghost" style="color: #f87171; border-color: rgba(239,68,68,0.3);" onclick="confirmDelete()">🗑️ حذف</button>
                 <button class="btn btn-ghost" id="btn-preview-invoice" style="display: none;" onclick="printVoucher()">🖨️ طباعة المعاينة</button>

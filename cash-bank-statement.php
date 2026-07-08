@@ -433,6 +433,36 @@
                     }
                 });
 
+                // Multiple Receipts (Cash In)
+                const multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
+                multiReceipts.forEach(mr => {
+                    const mainAcc = mr.mainAccount || mr.toAccount || '';
+                    if (parseInt(mainAcc) === accountId) {
+                        txns.push({
+                            date: mr.date,
+                            ref: 'س.ق.م-' + mr.id,
+                            note: mr.description || 'مقبوضات مجمعة',
+                            in: parseNum(mr.totalAmount),
+                            out: 0
+                        });
+                    }
+                });
+
+                // Multiple Payments (Cash Out)
+                const multiPayments = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
+                multiPayments.forEach(mp => {
+                    const mainAcc = mp.mainAccount || mp.fromAccount || '';
+                    if (parseInt(mainAcc) === accountId) {
+                        txns.push({
+                            date: mp.date,
+                            ref: 'س.ص.م-' + mp.id,
+                            note: mp.description || 'مدفوعات مجمعة',
+                            in: 0,
+                            out: parseNum(mp.totalAmount)
+                        });
+                    }
+                });
+
                 // Journal Vouchers (can be both)
                 const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
                 jvs.forEach(v => {

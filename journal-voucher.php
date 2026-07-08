@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'قيد يومية'; ?>
+<?php $page_title = 'قيد يومية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -222,7 +222,8 @@
 
         <!-- STICKY FOOTER -->
         <div class="sticky-footer" style="background: rgba(15,23,42,0.95); border-top: 1px solid rgba(192,132,252,0.3); border-radius: 12px 12px 0 0; padding: 15px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;">
-            <div class="footer-actions" style="width: 100%; justify-content: center; max-width: 1100px; margin: 0 auto;">
+            <div class="footer-actions" style="width: 100%; justify-content: center; max-width: 1100px; margin: 0 auto; gap: 10px; display: flex;">
+                <button class="btn btn-ghost" style="color:#f87171; border-color:rgba(239,68,68,0.3);" onclick="if(document.referrer) { window.history.back(); } else { window.location.href='dashboard-pro.php'; }" title="الرجوع للشاشة السابقة">🚪 خروج</button>
                 <button class="btn btn-ghost" onclick="resetVoucher()">إفراغ الحقول</button>
                 <button class="btn btn-ghost" style="color: #f87171; border-color: rgba(239,68,68,0.3);" onclick="confirmDelete()">حذف القيد</button>
                 <button class="btn btn-ghost" onclick="printVoucher()">طباعة القيد</button>
