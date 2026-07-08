@@ -331,34 +331,18 @@
             btn.innerHTML = '<div class="loader"></div>';
             btn.style.pointerEvents = 'none';
 
-            // --- START PARALLEL SSL CHECK ---
+            // --- START SSO REDIRECT ---
             let targetUrl = 'dashboard-pro.php';
-            let checkCompleted = false;
 
             if (userSubdomain && window.location.hostname !== userSubdomain + '.elsajana.com' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
                 const subdomainUrl = `https://${userSubdomain}.elsajana.com`;
-                const testImg = new Image();
-                
-                testImg.onload = () => {
-                    if (!checkCompleted) {
-                        if (token) {
-                            targetUrl = `${subdomainUrl}/login.php?sso_token=${encodeURIComponent(token)}&sso_user=${encodeURIComponent(userStr || '')}&redirect=dashboard-pro.php`;
-                        } else {
-                            targetUrl = `${subdomainUrl}/dashboard-pro.php`;
-                        }
-                        checkCompleted = true;
-                    }
-                };
-                testImg.onerror = () => {
-                    if (!checkCompleted) checkCompleted = true;
-                };
-                
-                setTimeout(() => { checkCompleted = true; }, 2500); // 2.5s max wait
-                testImg.src = `${subdomainUrl}/assets/logo.png?_t=` + Date.now();
-            } else {
-                checkCompleted = true;
+                if (token) {
+                    targetUrl = `${subdomainUrl}/login.php?sso_token=${encodeURIComponent(token)}&sso_user=${encodeURIComponent(userStr || '')}&redirect=dashboard-pro.php`;
+                } else {
+                    targetUrl = `${subdomainUrl}/dashboard-pro.php`;
+                }
             }
-            // --- END PARALLEL SSL CHECK ---
+            // --- END SSO REDIRECT ---
 
             setTimeout(() => {
                 const loginCard = document.querySelector('.login-card');
