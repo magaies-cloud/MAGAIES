@@ -26,6 +26,49 @@ const qrCodes = {};
 const statuses = {};
 const destroyingClients = new Set();
 
+function normalizePhoneNumber(phone) {
+    if (!phone) return '';
+    // Strip all non-numeric characters
+    phone = phone.replace(/[^0-9]/g, '');
+    
+    // Strip leading 00
+    if (phone.startsWith('00')) {
+        phone = phone.substring(2);
+    }
+    
+    // If it starts with 0, check prefixes
+    if (phone.startsWith('0')) {
+        if (phone.startsWith('09')) {
+            // Sudan (e.g. 0912300105 -> 249912300105)
+            phone = '249' + phone.substring(1);
+        } else if (phone.startsWith('05')) {
+            // Saudi Arabia (e.g. 0501234567 -> 966501234567)
+            phone = '966' + phone.substring(1);
+        } else if (phone.startsWith('01')) {
+            // Egypt (e.g. 01012345678 -> 201012345678)
+            phone = '20' + phone.substring(1);
+        }
+    } else {
+        // No leading 0. Check if they omitted country code
+        if (phone.startsWith('9') && phone.length === 9) {
+            phone = '249' + phone;
+        } else if (phone.startsWith('5') && phone.length === 9) {
+            phone = '966' + phone;
+        }
+    }
+    
+    // Strip redundant leading 0 after country code if any
+    if (phone.startsWith('2490')) {
+        phone = '249' + phone.substring(4);
+    } else if (phone.startsWith('9660')) {
+        phone = '966' + phone.substring(4);
+    } else if (phone.startsWith('200')) {
+        phone = '20' + phone.substring(3);
+    }
+    
+    return phone;
+}
+
 // Helper to initialize a client for a user
 function initClient(userId) {
     if (clients[userId]) return clients[userId];
@@ -78,8 +121,7 @@ function initClient(userId) {
         puppeteer: puppeteerConfig,
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
         webVersionCache: {
-            type: 'remote',
-            remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html'
+            type: 'local'
         }
     });
 
@@ -145,19 +187,25 @@ app.get('/wa/status', (req, res) => {
     if (!clients[userId]) {
         initClient(userId);
     }
+    const client = clients[userId];
+    const phoneNumber = client && client.info && client.info.wid ? client.info.wid.user : null;
     res.json({
         userId,
-        status: statuses[userId] || 'STARTING'
+        status: statuses[userId] || 'STARTING',
+        phoneNumber
     });
 });
 
 // 2. Get QR Code
 app.get('/wa/qr', (req, res) => {
     const userId = req.query.userId || 'default';
+    const client = clients[userId];
+    const phoneNumber = client && client.info && client.info.wid ? client.info.wid.user : null;
     res.json({
         userId,
         status: statuses[userId],
-        qrCode: qrCodes[userId] || null
+        qrCode: qrCodes[userId] || null,
+        phoneNumber
     });
 });
 
@@ -176,32 +224,7 @@ app.post('/wa/send', upload.single('pdf'), async (req, res) => {
     }
 
     // Format phone number to standard WhatsApp format (add country code if missing)
-    phone = phone.replace(/[^0-9]/g, '');
-    
-    if (phone.startsWith('00')) {
-        phone = phone.substring(2);
-    }
-    
-    if (phone.startsWith('0')) {
-        if (phone.startsWith('09') && phone.length === 10) {
-            // Sudan (e.g. 0912300105 -> 249912300105)
-            phone = '249' + phone.substring(1);
-        } else if (phone.startsWith('05') && phone.length === 10) {
-            // Saudi Arabia (e.g. 0501234567 -> 966501234567)
-            phone = '966' + phone.substring(1);
-        } else if (phone.startsWith('01') && phone.length === 11) {
-            // Egypt (e.g. 01012345678 -> 201012345678)
-            phone = '20' + phone.substring(1);
-        }
-    } else {
-        if (phone.startsWith('9') && phone.length === 9) {
-            // Sudan without leading 0 (e.g. 912300105 -> 249912300105)
-            phone = '249' + phone;
-        } else if (phone.startsWith('5') && phone.length === 9) {
-            // Saudi Arabia without leading 0 (e.g. 501234567 -> 966501234567)
-            phone = '966' + phone;
-        }
-    }
+    phone = normalizePhoneNumber(phone);
 
     if (!phone.endsWith('@c.us')) {
         phone = `${phone}@c.us`;
@@ -236,7 +259,7 @@ app.post('/wa/send', upload.single('pdf'), async (req, res) => {
 
 // 4. Logout
 app.post('/wa/logout', async (req, res) => {
-    const userId = req.body.userId || 'default';
+    const userId = req.body.userId || req.query.userId || 'default';
     const client = clients[userId];
     if (client) {
         destroyingClients.add(userId);

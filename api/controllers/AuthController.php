@@ -22,9 +22,9 @@ class AuthController {
         $username     = trim($input['username'] ?? '');
         $password     = $input['password'] ?? '';
         $owner_name   = trim($input['owner_name'] ?? '');
-        $owner_phone  = trim($input['owner_phone'] ?? '');
+        $owner_phone  = normalizePhoneNumber(trim($input['owner_phone'] ?? ''));
         $owner_email  = trim($input['owner_email'] ?? '');
-        $owner_phone2 = trim($input['owner_phone2'] ?? '');
+        $owner_phone2 = !empty($input['owner_phone2']) ? normalizePhoneNumber(trim($input['owner_phone2'])) : '';
         $plan_id      = $input['plan_id'] ?? null;
         $receipt_base64 = $input['receipt_base64'] ?? null;
         $honeypot     = $input['hp_field'] ?? '';

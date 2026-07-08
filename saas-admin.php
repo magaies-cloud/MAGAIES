@@ -858,8 +858,8 @@
                 </p>
             </div>
             <div class="modal-actions" style="margin-top: 20px; justify-content: center; gap: 10px;">
-                <button class="btn-danger" id="admin-wa-logout-btn" style="display: none; padding: 10px 20px; background: #ef4444; border: none; font-weight: bold;" onclick="logoutAdminWhatsApp()">إلغاء الربط</button>
-                <button class="btn-outline" style="padding: 10px 20px;" onclick="checkAdminWhatsAppConnection()">تحديث الحالة</button>
+                <button class="btn-danger" id="admin-wa-logout-btn" style="display: none; padding: 10px 20px; background: #ef4444; border: none; font-weight: bold; color: #ffffff; border-radius: 8px; cursor: pointer;" onclick="logoutAdminWhatsApp()">إلغاء الربط</button>
+                <button class="btn-outline" style="padding: 10px 20px; border-radius: 8px; cursor: pointer;" onclick="checkAdminWhatsAppConnection()">تحديث الحالة</button>
             </div>
         </div>
     </div>
@@ -1346,7 +1346,11 @@
                 }
                 
                 if (data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') {
-                    statusText.innerText = '✅ متصل بالواتساب بنجاح!';
+                    let msg = '✅ متصل بالواتساب بنجاح!';
+                    if (data.phoneNumber) {
+                        msg += `<br><span style="font-size: 0.95rem; font-weight: normal; color: #94a3b8; display: block; margin-top: 5px;">📞 متصل برقم الواتساب <strong style="color: #38bdf8; font-family: sans-serif;">[${data.phoneNumber}]</strong> بنجاح</span>`;
+                    }
+                    statusText.innerHTML = msg;
                     statusText.style.color = '#10b981';
                     spinner.style.display = 'none';
                     qrImg.style.display = 'none';

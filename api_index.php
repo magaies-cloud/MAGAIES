@@ -32,6 +32,50 @@ function is_disposable_email($email) {
     return in_array(strtolower($domain), $blacklisted);
 }
 
+function normalizePhoneNumber($phone) {
+    // Strip all non-numeric characters
+    $phone = preg_replace('/[^0-9]/', '', $phone);
+    
+    // Strip leading 00
+    if (strpos($phone, '00') === 0) {
+        $phone = substr($phone, 2);
+    }
+    
+    // Check if it starts with 0
+    if (strpos($phone, '0') === 0) {
+        if (strpos($phone, '09') === 0) {
+            // Sudan (e.g. 0912300105 -> 249912300105)
+            $phone = '249' . substr($phone, 1);
+        } elseif (strpos($phone, '05') === 0) {
+            // Saudi Arabia (e.g. 0501234567 -> 966501234567)
+            $phone = '966' . substr($phone, 1);
+        } elseif (strpos($phone, '01') === 0) {
+            // Egypt (e.g. 01012345678 -> 201012345678)
+            $phone = '20' . substr($phone, 1);
+        }
+    } else {
+        // No leading 0. Check if they omitted country code
+        if (strpos($phone, '9') === 0 && strlen($phone) === 9) {
+            // Sudan without leading 0 (e.g. 912300105 -> 249912300105)
+            $phone = '249' . $phone;
+        } elseif (strpos($phone, '5') === 0 && strlen($phone) === 9) {
+            // Saudi Arabia without leading 0 (e.g. 501234567 -> 966501234567)
+            $phone = '966' . $phone;
+        }
+    }
+    
+    // Strip redundant leading 0 after country code if any
+    if (strpos($phone, '2490') === 0) {
+        $phone = '249' . substr($phone, 4);
+    } elseif (strpos($phone, '9660') === 0) {
+        $phone = '966' . substr($phone, 4);
+    } elseif (strpos($phone, '200') === 0) {
+        $phone = '20' . substr($phone, 3);
+    }
+    
+    return $phone;
+}
+
 // -------------------------------------------------------
 // Parse URL segments
 // -------------------------------------------------------
@@ -177,8 +221,9 @@ if ($resource === 'public' && $action === 'check-unique' && $method === 'GET') {
         $stmt->execute([$value]);
         $exists = ($stmt->fetchColumn() > 0);
     } elseif ($field === 'phone') {
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM tenants WHERE owner_phone = ? OR phone2 = ?");
-        $stmt->execute([$value, $value]);
+        $normalized = normalizePhoneNumber($value);
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM tenants WHERE owner_phone = ? OR phone2 = ? OR owner_phone = ? OR phone2 = ?");
+        $stmt->execute([$normalized, $normalized, $value, $value]);
         $exists = ($stmt->fetchColumn() > 0);
     } else {
         jsonResponse(['success' => false, 'error' => 'Invalid field'], 400);
@@ -214,7 +259,7 @@ if ($resource === 'public' && $action === 'send-inquiry' && $method === 'POST') 
     
     startWhatsAppServiceIfNeeded();
     
-    $ch = curl_init('http://localhost:3001/wa/send');
+    $ch = curl_init('http://127.0.0.1:3001/wa/send');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
@@ -258,7 +303,7 @@ function getWhatsAppNodeCommand() {
 }
 
 function startWhatsAppServiceIfNeeded() {
-    $connection = @fsockopen('localhost', 3001, $errno, $errstr, 1);
+    $connection = @fsockopen('127.0.0.1', 3001, $errno, $errstr, 1);
     if (is_resource($connection)) {
         fclose($connection);
         return true;
@@ -266,9 +311,9 @@ function startWhatsAppServiceIfNeeded() {
     
     $cmd = getWhatsAppNodeCommand();
     if (stristr(PHP_OS, 'WIN')) {
-        pclose(popen("start /B node \"" . __DIR__ . "\\whatsapp-service.js\"", "r"));
+        pclose(popen("start /B node \"" . __DIR__ . "\\whatsapp-service.js\" >> \"" . __DIR__ . "\\whatsapp-service.log\" 2>&1", "r"));
     } else {
-        shell_exec("$cmd \"" . __DIR__ . "/whatsapp-service.js\" > /dev/null 2>&1 &");
+        shell_exec("$cmd \"" . __DIR__ . "/whatsapp-service.js\" >> \"" . __DIR__ . "/whatsapp-service.log\" 2>&1 &");
     }
     
     usleep(1500000);
@@ -279,8 +324,8 @@ function sendWhatsAppOTP($phone, $otp) {
     startWhatsAppServiceIfNeeded();
     $message = "رمز التحقق (OTP) الخاص بك للتسجيل في السجّانة ERP هو: *" . $otp . "*\n\nينتهي صلاحية الرمز خلال 10 دقائق. يرجى عدم مشاركته مع أي شخص. 🌸";
     
-    // Clean phone number
-    $phone = preg_replace('/[^0-9]/', '', $phone);
+    // Clean and normalize phone number
+    $phone = normalizePhoneNumber($phone);
     
     $payload = json_encode([
         'userId' => 'default-saas-admin',
@@ -288,7 +333,7 @@ function sendWhatsAppOTP($phone, $otp) {
         'message' => $message
     ]);
     
-    $ch = curl_init('http://localhost:3001/wa/send');
+    $ch = curl_init('http://127.0.0.1:3001/wa/send');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
@@ -316,7 +361,7 @@ function sendWhatsAppOTP($phone, $otp) {
 // Public: Send OTP
 if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
     $email = trim($input['email'] ?? '');
-    $phone = trim($input['phone'] ?? '');
+    $phone = normalizePhoneNumber(trim($input['phone'] ?? ''));
     
     if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         jsonResponse(['success' => false, 'error' => 'البريد الإلكتروني غير صالح'], 400);
@@ -404,7 +449,7 @@ if ($token === $saasSecret) {
         if ($action === 'wa-proxy') {
             startWhatsAppServiceIfNeeded();
             $endpoint = $_GET['a2'] ?? 'status';
-            $url = 'http://localhost:3001/wa/' . $endpoint . '?userId=default-saas-admin';
+            $url = 'http://127.0.0.1:3001/wa/' . $endpoint . '?userId=default-saas-admin';
             
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
