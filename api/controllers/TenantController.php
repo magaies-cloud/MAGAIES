@@ -77,7 +77,7 @@ class TenantController {
             }
             
             // Calculate storage size for each tenant (sum of LENGTH(data) across all tenant-aware tables)
-            $tables = ["users", "customers", "suppliers", "items", "inventory", "sales_invoices", "purchase_invoices", "receipts", "payments", "journal_vouchers", "settings", "warehouses", "banks", "categories", "roles", "checks", "gl_entries", "single_receipts", "single_payments", "partners", "employees", "payroll", "reserved_sales", "delivery_notes", "accounts", "safes", "audit_logs", "financial_periods"];
+            $tables = ["users", "customers", "suppliers", "items", "inventory", "sales_invoices", "purchase_invoices", "receipts", "payments", "journal_vouchers", "warehouses", "banks", "categories", "roles", "checks", "gl_entries", "single_receipts", "single_payments", "partners", "employees", "payroll", "reserved_sales", "delivery_notes", "accounts", "safes", "audit_logs", "financial_periods"];
             $unionQueries = [];
             foreach ($tables as $t) {
                 $unionQueries[] = "SELECT tenant_id, IFNULL(SUM(LENGTH(data)), 0) as sz FROM `$t` GROUP BY tenant_id";
