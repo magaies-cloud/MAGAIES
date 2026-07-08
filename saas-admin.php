@@ -1891,16 +1891,24 @@
             const tbody = document.getElementById('plans-body');
             tbody.innerHTML = '';
             allPlans.forEach(p => {
-                let badge = p.isTrial ? '<span style="background:var(--primary-accent);color:#000;padding:2px 6px;border-radius:4px;font-size:0.7rem;">تجريبية</span>' : '';
+                let badge = p.isTrial ? '<span style="background:var(--primary-accent);color:#000;padding:2px 6px;border-radius:4px;font-size:0.7rem; margin-right:5px;">تجريبية</span>' : '';
+                let statusBadge = p.status === 'suspended' ? '<span style="background:#ef4444;color:#fff;padding:2px 6px;border-radius:4px;font-size:0.7rem;">موقوفة</span>' : '<span style="background:#10b981;color:#fff;padding:2px 6px;border-radius:4px;font-size:0.7rem;">نشطة</span>';
                 let durationTxt = p.duration ? `${p.duration} يوم` : 'غير محدد';
+                let actionBtnText = p.status === 'suspended' ? '✅ تفعيل' : '⏸️ إيقاف';
+                let actionBtnColor = p.status === 'suspended' ? '#10b981' : '#f59e0b';
+                
                 tbody.innerHTML += `
                     <tr>
-                        <td><strong style="color:var(--primary-accent)">${p.name}</strong> ${badge}</td>
+                        <td><strong style="color:var(--primary-accent)">${p.name}</strong><br>${badge} ${statusBadge}</td>
                         <td>$${p.price}</td>
                         <td>${durationTxt}</td>
                         <td>${p.maxUsers} مستخدم</td>
                         <td>${p.storage} GB</td>
-                        <td><button class="btn-primary" style="padding:5px 10px; font-size:0.8rem;" onclick="editPlan(${p.id})">تعديل</button></td>
+                        <td>
+                            <button class="btn-primary" style="padding:5px 10px; font-size:0.8rem; margin-bottom:5px;" onclick="editPlan(${p.id})">⚙️ تعديل</button>
+                            <button class="btn-outline" style="padding:5px 10px; font-size:0.8rem; color:${actionBtnColor}; border-color:${actionBtnColor}; margin-bottom:5px;" onclick="togglePlanStatus(${p.id})">${actionBtnText}</button>
+                            <button class="btn-danger" style="padding:5px 10px; font-size:0.8rem; margin-bottom:5px;" onclick="deletePlan(${p.id})">🗑️ حذف</button>
+                        </td>
                     </tr>
                 `;
             });
@@ -1935,6 +1943,7 @@
         }
         async function savePlan() {
             let id = document.getElementById('plan-id').value;
+            let existingPlan = id ? allPlans.find(x => x.id == id) : {};
             let p = {
                 id: id ? parseInt(id) : Date.now(),
                 name: document.getElementById('plan-name').value,
@@ -1942,7 +1951,8 @@
                 duration: document.getElementById('plan-duration').value,
                 maxUsers: document.getElementById('plan-users').value,
                 storage: document.getElementById('plan-storage').value,
-                isTrial: document.getElementById('plan-is-trial').checked
+                isTrial: document.getElementById('plan-is-trial').checked,
+                status: existingPlan.status || 'active'
             };
             if(id) {
                 let idx = allPlans.findIndex(x => x.id == id);
@@ -1952,6 +1962,23 @@
             closeModal('plan-modal');
             renderPlans();
             updateKPIs();
+        }
+
+        async function deletePlan(id) {
+            if(!confirm('هل أنت متأكد من حذف هذه الباقة نهائياً؟')) return;
+            allPlans = allPlans.filter(x => x.id !== id);
+            try { await fetch(apiUrl('saas', 'settings', 'plans'), { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN }, body: JSON.stringify({ plans: allPlans }) }); } catch(e){}
+            renderPlans();
+            updateKPIs();
+        }
+
+        async function togglePlanStatus(id) {
+            let idx = allPlans.findIndex(x => x.id === id);
+            if(idx > -1) {
+                allPlans[idx].status = (allPlans[idx].status === 'suspended') ? 'active' : 'suspended';
+                try { await fetch(apiUrl('saas', 'settings', 'plans'), { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN }, body: JSON.stringify({ plans: allPlans }) }); } catch(e){}
+                renderPlans();
+            }
         }
 
         function updateMaxUsersFromPlan() {

@@ -539,9 +539,12 @@
                 const grid = document.getElementById('pricing-grid');
                 if(data && data.plans && data.plans.length > 0) {
                     grid.innerHTML = '';
+                    // Filter out suspended plans
+                    const activePlans = data.plans.filter(p => p.status !== 'suspended');
+                    
                     // وضع الباقة التجريبية في الأول
-                    const normalPlans = data.plans.filter(p => !(p.isTrial || p.name.includes('تجريب')));
-                    const trialPlans = data.plans.filter(p => p.isTrial || p.name.includes('تجريب'));
+                    const normalPlans = activePlans.filter(p => !(p.isTrial || p.name.includes('تجريب')));
+                    const trialPlans = activePlans.filter(p => p.isTrial || p.name.includes('تجريب'));
                     const sortedPlans = [...trialPlans, ...normalPlans];
 
                     sortedPlans.forEach((plan, index) => {

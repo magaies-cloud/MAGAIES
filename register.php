@@ -460,9 +460,10 @@
                 const r = await fetch('api_index.php?r=public&_=' + Date.now());
                 const data = await r.json();
                 if(data.plans) {
-                    window.allPlans = data.plans;
+                    const activePlans = data.plans.filter(p => p.status !== 'suspended');
+                    window.allPlans = activePlans;
                     if (selectedPlanId) {
-                        const p = data.plans.find(x => x.id == selectedPlanId);
+                        const p = activePlans.find(x => x.id == selectedPlanId);
                         if(p) {
                             document.getElementById('plan-name-display').innerText = p.name;
                             const isTrial = p.isTrial || p.name.includes('تجريب');
@@ -473,7 +474,7 @@
                         // Create a dropdown if no plan was selected
                         let selectHTML = '<select id="manual-plan-select" class="input-field" onchange="changeManualPlan(this.value)" style="margin-top:10px; padding:5px;">';
                         selectHTML += '<option value="">-- يرجى اختيار الباقة --</option>';
-                        data.plans.forEach(plan => {
+                        activePlans.forEach(plan => {
                             selectHTML += `<option value="${plan.id}">${plan.name} - ${plan.price}$</option>`;
                         });
                         selectHTML += '</select>';
