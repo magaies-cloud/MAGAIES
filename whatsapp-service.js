@@ -121,7 +121,8 @@ function initClient(userId) {
         authStrategy: new LocalAuth({ clientId: userId }),
         puppeteer: puppeteerConfig,
         webVersionCache: {
-            type: 'local'
+            type: 'remote',
+            remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
         }
     });
 
