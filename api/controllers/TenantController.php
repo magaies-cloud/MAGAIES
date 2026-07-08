@@ -395,8 +395,18 @@ class TenantController {
         
         // Get global settings (public)
         if ($method === 'GET' && $action === 'settings') {
-            $stmt = $this->pdo->query("SELECT ads, partners FROM global_settings LIMIT 1");
-            $settings = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt = $this->pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('saas_ads', 'saas_partners')");
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $settings = ['ads' => [], 'partners' => []];
+            foreach ($rows as $row) {
+                if ($row['setting_key'] === 'saas_ads') {
+                    $settings['ads'] = json_decode($row['setting_value'], true) ?: [];
+                }
+                if ($row['setting_key'] === 'saas_partners') {
+                    $settings['partners'] = json_decode($row['setting_value'], true) ?: [];
+                }
+            }
             jsonResponse(['success' => true, 'settings' => $settings]);
         }
         
