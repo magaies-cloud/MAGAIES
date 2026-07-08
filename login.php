@@ -161,6 +161,20 @@
     <script src="js/app.js?v=1783054968.28612"></script>
     
     <script>
+        // --- SSO Interceptor ---
+        (function() {
+            const ssoParams = new URLSearchParams(window.location.search);
+            if (ssoParams.has('sso_token')) {
+                localStorage.setItem('authToken', ssoParams.get('sso_token'));
+                if (ssoParams.has('sso_user')) {
+                    localStorage.setItem('user', ssoParams.get('sso_user'));
+                }
+                document.cookie = "session_active=true; path=/";
+                sessionStorage.setItem('session_active', 'true');
+                window.location.replace(ssoParams.get('redirect') || 'dashboard-pro.php');
+            }
+        })();
+
         // Generate or get Device UUID
         let deviceUuid = localStorage.getItem('deviceUuid');
         if (!deviceUuid) {
@@ -221,7 +235,7 @@
                     localStorage.setItem('authToken', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
                     const userNameToDisplay = data.user.fullName || data.user.name || data.user.username || 'المستخدم';
-                    showLoginSuccessAnimation(userNameToDisplay, data.user.subdomain);
+                    showLoginSuccessAnimation(userNameToDisplay, data.user.subdomain, data.token, JSON.stringify(data.user));
                     return;
                 } else {
                     const err = await res.json();
@@ -312,7 +326,7 @@
             alert('بيانات الدخول غير صحيحة أو السيرفر غير متاح');
         }
 
-        function showLoginSuccessAnimation(name, userSubdomain) {
+        function showLoginSuccessAnimation(name, userSubdomain, token = null, userStr = null) {
             const btn = document.querySelector('.btn-login');
             btn.innerHTML = '<div class="loader"></div>';
             btn.style.pointerEvents = 'none';
@@ -327,7 +341,11 @@
                 
                 testImg.onload = () => {
                     if (!checkCompleted) {
-                        targetUrl = `${subdomainUrl}/dashboard-pro.php`;
+                        if (token) {
+                            targetUrl = `${subdomainUrl}/login.php?sso_token=${encodeURIComponent(token)}&sso_user=${encodeURIComponent(userStr || '')}&redirect=dashboard-pro.php`;
+                        } else {
+                            targetUrl = `${subdomainUrl}/dashboard-pro.php`;
+                        }
                         checkCompleted = true;
                     }
                 };
