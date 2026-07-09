@@ -1,11 +1,11 @@
-<?php $page_title = 'مركز التنبيهات - السجانة ERP'; ?>
+﻿<?php $page_title = 'مركز التنبيهات - مقاييس (MAGAIEES)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مركز التنبيهات - السجانة ERP</title>
+    <title>مركز التنبيهات - مقاييس (MAGAIEES)</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
@@ -659,3 +659,4 @@ function emptyState(icon, msg) {
 </script>
 </body>
 </html>
+

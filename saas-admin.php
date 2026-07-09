@@ -1,4 +1,4 @@
-<?php $page_title = 'SaaS Super Admin - السجانة ERP'; ?>
+﻿<?php $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -14,7 +14,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>SaaS Super Admin - السجانة ERP</title>
+    <title>SaaS Super Admin - مقاييس (MAGAIEES)</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260619_3">
     <link rel="stylesheet" href="css/theme.css?v=20260619_3">
     <link rel="stylesheet" href="css/components.css?v=20260619_3">
@@ -2671,3 +2671,4 @@
     </script>
 </body>
 </html>
+

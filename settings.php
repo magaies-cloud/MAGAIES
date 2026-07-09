@@ -1,11 +1,11 @@
-<?php $page_title = 'السجانة 2026 - الإعدادات'; ?>
+﻿<?php $page_title = 'مقاييس 2026 - الإعدادات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>السجانة 2026 - الإعدادات</title>
+    <title>مقاييس 2026 - الإعدادات</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
@@ -273,7 +273,7 @@
         
             <div class="form-group">
                 <label class="form-label">اسم الشركة المطبوع على الفواتير</label>
-                <input type="text" class="form-input" id="cfg-company-name" placeholder="مثال: مؤسسة السجانة للتجارة">
+                <input type="text" class="form-input" id="cfg-company-name" placeholder="مثال: مؤسسة مقاييس للتجارة">
             </div>
             <div class="form-group">
                 <label class="form-label">رقم التسجيل التجاري</label>
@@ -702,3 +702,4 @@
 </script>
 </body>
 </html>
+

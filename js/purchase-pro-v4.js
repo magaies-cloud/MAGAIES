@@ -1,4 +1,4 @@
-/* ═══════════════════════════════════════════════════════
+﻿/* ═══════════════════════════════════════════════════════
    sales-invoice.js — POS Engine v6.0
    Real-time Reactive Calculations · Sequential Invoices
    ═══════════════════════════════════════════════════════ */
@@ -95,7 +95,7 @@ function initPurchaseApp() {
         } catch(e) { WAREHOUSES = null; }
         
         if (!WAREHOUSES || WAREHOUSES.length === 0) {
-            WAREHOUSES = [{ id:'w-main', name:'المخزن الرئيسي (السجانة)' }];
+            WAREHOUSES = [{ id:'w-main', name:'المخزن الرئيسي' }];
         }
         WAREHOUSES.unshift({ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام (لم تحدد بعد)' });
 
@@ -1836,7 +1836,7 @@ function submitInvoice(ignoreWarnings = false) {
         if (!item) continue;
         const calcs = getRowCalcs(row);
         const whId = row.warehouseId || mainWh;
-        const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي (السجانة)';
+        const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي';
         
         let itemInv = currentInvData.find(inv => String(inv.itemId) === String(row.itemId) && inv.warehouse === whName);
         if (itemInv) {
@@ -2017,7 +2017,7 @@ function executeDeleteTransaction() {
             }
 
             const whId = row.warehouseId || mainWh;
-            const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي (السجانة)';
+            const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي';
             
             let itemInv = currentInvData.find(inv => String(inv.itemId) === String(row.itemId) && inv.warehouse === whName);
             if (itemInv) {
@@ -2310,7 +2310,7 @@ function generatePrintArea(type) {
     <div class="print-page" style="padding: 20px; direction: rtl; font-family: 'Cairo', Tahoma, Arial;">
         <div style="text-align:center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
             <h2>${type === 'sales' ? 'فاتورة مبيعات' : 'فاتورة مشتريات'}</h2>
-            <h3>شركة السجانة</h3>
+            <h3>${JSON.parse(localStorage.getItem('user'))?.company_name || 'الشركة'}</h3>
         </div>
         <div style="display:flex; justify-content:space-between; margin-bottom: 20px; font-size: 14px;">
             <div><strong>رقم الفاتورة:</strong> ${invNo}</div>
@@ -2479,3 +2479,4 @@ function printCurrentInvoice() {
         window.print();
     }
 }
+

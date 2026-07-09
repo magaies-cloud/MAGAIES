@@ -1,4 +1,4 @@
-<?php $page_title = 'السجانة 2026 - تسجيل الدخول'; ?>
+﻿<?php $page_title = 'مقاييس 2026 - تسجيل الدخول'; ?>
 <!-- c:\mynewapp\frontend-pwa\login.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -6,7 +6,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>السجانة 2026 - تسجيل الدخول</title>
+    <title>مقاييس 2026 - تسجيل الدخول</title>
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
         <style>
@@ -139,7 +139,7 @@
         <div class="logo-container" style="animation: pulse 4s infinite; mix-blend-mode: screen; filter: invert(1) hue-rotate(180deg) brightness(1.2) drop-shadow(0 0 20px rgba(56, 189, 248, 0.6));">
             <img src="assets/logo.png" alt="Logo" style="width: 140px; height: auto;">
         </div>
-        <div class="title" style="background: linear-gradient(to right, #38bdf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px;">السجانة ERP 2026</div>
+        <div class="title" style="background: linear-gradient(to right, #38bdf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px;">مقاييس (MAGAIEES) 2026</div>
         <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: -15px; font-weight: 700;">نظام إدارة موارد المؤسسات المتكامل الذكي</p>
         
         <div class="input-group">
@@ -526,3 +526,4 @@
     </script>
 </body>
 </html>
+

@@ -1,9 +1,9 @@
-<header class="premium-header" style="display:flex; justify-content:space-between; align-items:center; padding:15px; margin-bottom:15px; gap:15px; border-radius: 16px;">
+﻿<header class="premium-header" style="display:flex; justify-content:space-between; align-items:center; padding:15px; margin-bottom:15px; gap:15px; border-radius: 16px;">
     <!-- Left: Logo / Brand -->
     <div style="display:flex; align-items:center; gap:12px; flex:1;">
         <div style="background:linear-gradient(135deg,#10b981,#34d399); width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">📦</div>
         <div>
-            <div style="color:#fff; font-weight:800; font-size:1rem; letter-spacing:0.5px;" id="header-company-name-top">السجانة ERP</div>
+            <div style="color:#fff; font-weight:800; font-size:1rem; letter-spacing:0.5px;" id="header-company-name-top">مقاييس (MAGAIEES)</div>
             <div style="color:var(--text-secondary); font-size:0.7rem;">نظام إدارة الأعمال</div>
         </div>
     </div>
@@ -28,7 +28,7 @@
     <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
         <h2 class="header-page-title">
             <span class="header-page-title-icon"><?php echo $dynamic_icon; ?></span>
-            <?php echo isset($page_title) ? htmlspecialchars($page_title) : 'السجانة ERP'; ?>
+            <?php echo isset($page_title) ? htmlspecialchars($page_title) : 'مقاييس (MAGAIEES)'; ?>
         </h2>
         <div id="dashboard-athkar-container" class="islamic-ticker-container" style="display: none;">
             <div class="islamic-ticker">

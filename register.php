@@ -1,11 +1,11 @@
-<?php $page_title = 'تسجيل شركة جديدة - السجانة ERP SaaS'; ?>
+﻿<?php $page_title = 'تسجيل شركة جديدة - مقاييس (MAGAIEES) SaaS'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل شركة جديدة - السجانة ERP SaaS</title>
+    <title>تسجيل شركة جديدة - مقاييس (MAGAIEES) SaaS</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <style>
@@ -264,7 +264,7 @@
 
     <div class="register-card">
         <h2 style="margin-top:0;">🚀 إنشاء حساب جديد</h2>
-        <p style="color: #94a3b8; font-size:0.9rem;">أنشئ حساب شركتك في ثوانٍ لاستخدام السجانة ERP</p>
+        <p style="color: #94a3b8; font-size:0.9rem;">أنشئ حساب شركتك في ثوانٍ لاستخدام مقاييس (MAGAIEES)</p>
         
         <div id="plan-info" style="display:none; background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); padding:10px; border-radius:10px; margin-bottom:15px; color:#38bdf8; font-weight:bold;">
             الباقة المختارة: <span id="plan-name-display">جاري التحميل...</span>
@@ -1066,3 +1066,4 @@
     </script>
 </body>
 </html>
+

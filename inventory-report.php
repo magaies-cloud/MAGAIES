@@ -1,11 +1,11 @@
-<?php $page_title = 'السجانة ERP - تقارير وجرد المخازن'; ?>
+﻿<?php $page_title = 'مقاييس (MAGAIEES) - تقارير وجرد المخازن'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>السجانة ERP - تقارير وجرد المخازن</title>
+    <title>مقاييس (MAGAIEES) - تقارير وجرد المخازن</title>
     <!-- We skip standard themes to allow our custom Dashboard design to shine -->
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
     <style>
@@ -359,7 +359,7 @@
             const select = document.getElementById('filter-warehouse');
             let warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
             if (warehousesDb.length === 0) {
-                warehousesDb = [{ id:'w-main', name:'المخزن الرئيسي (السجانة)' }];
+                warehousesDb = [{ id:'w-main', name:'المخزن الرئيسي' }];
             }
             warehousesDb.unshift({ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' });
             warehousesDb.forEach(wh => {
@@ -380,7 +380,7 @@
                 if (!hasStock) {
                     storedInv.push({
                         itemId: item.id,
-                        warehouse: 'المخزن الرئيسي (السجانة)',
+                        warehouse: 'المخزن الرئيسي',
                         qty: 0,
                         reservedQuantity: 0,
                         minQty: item.reorderLevel || 10
@@ -399,10 +399,10 @@
             warehousesDb.unshift({ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' });
             let getWarehouseName = (id) => {
                 let w = warehousesDb.find(w => w.id === id || w.name === id);
-                return w ? w.name : 'المخزن الرئيسي (السجانة)';
+                return w ? w.name : 'المخزن الرئيسي';
             };
 
-            let defaultWhName = warehousesDb.length > 0 ? warehousesDb[0].name : 'المخزن الرئيسي (السجانة)';
+            let defaultWhName = warehousesDb.length > 0 ? warehousesDb[0].name : 'المخزن الرئيسي';
             items.forEach(item => {
                 let key = item.id + '|' + defaultWhName;
                 actualStockMap[key] = 0;
@@ -632,3 +632,4 @@
     </script>
     \n</body>
 </html>
+

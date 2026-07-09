@@ -1,11 +1,11 @@
-<?php $page_title = 'السجانة ERP - لوحة التحكم'; ?>
+﻿<?php $page_title = 'مقاييس (MAGAIEES) - لوحة التحكم'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>السجانة ERP - لوحة التحكم</title>
+    <title>مقاييس (MAGAIEES) - لوحة التحكم</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
@@ -529,7 +529,7 @@
         <!-- Sajana Protocol (Social & Security) -->
         <div class="glass-panel" style="text-align:center; border: 1px solid rgba(56,189,248,0.2); background: linear-gradient(to right, rgba(15,23,42,0.6), rgba(30,41,59,0.4)); padding: 20px;">
             <h3 style="margin:0 0 15px; font-size:1.1rem; color:var(--theme-blue); font-weight:900; justify-content: center;">
-                🛡️ بروتوكول السجانة الدولي - نظام الحماية
+                🛡️ بروتوكول مقاييس الدولي - نظام الحماية
             </h3>
             
             <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
@@ -741,7 +741,7 @@
             
             let warehousesList = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
             if (warehousesList.length === 0) {
-                warehousesList = [{ id: 'w-main', name: 'المخزن الرئيسي (السجانة)' }];
+                warehousesList = [{ id: 'w-main', name: 'المخزن الرئيسي' }];
             }
             const activeWhsCount = warehousesList.filter(w => !w.deleted).length;
             const whsCountEl = document.getElementById('kpi-warehouses-count');
@@ -952,7 +952,7 @@
             const whTotals = {};
             let warehouses = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
             if (warehouses.length === 0) {
-                warehouses = [{ id: 'w-main', name: 'المخزن الرئيسي (السجانة)' }];
+                warehouses = [{ id: 'w-main', name: 'المخزن الرئيسي' }];
             }
             const activeWarehouses = warehouses.filter(w => !w.deleted);
             activeWarehouses.forEach(w => {
@@ -1072,3 +1072,4 @@
     
 </body>
 </html>
+

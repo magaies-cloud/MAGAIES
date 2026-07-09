@@ -1,4 +1,4 @@
-<?php $page_title = 'استلام البضاعة (GRN)'; ?>
+﻿<?php $page_title = 'استلام البضاعة (GRN)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -359,7 +359,7 @@
             suppliersDb = loadKey('erp_suppliers_v1');
             warehousesDb = loadKey('erp_warehouses_v1');
             usersDb = loadKey('erp_users_v1');
-            if(warehousesDb.length === 0) warehousesDb = [{ id:'w-main', name:'المخزن الرئيسي (السجانة)' }];
+            if(warehousesDb.length === 0) warehousesDb = [{ id:'w-main', name:'المخزن الرئيسي' }];
 
             populateWarehouseSelect();
             calculatePendingGoods();
@@ -796,7 +796,7 @@
                     const oldPositiveItems = oldGrn.items.filter(item => item.quantity > 0);
                     oldPositiveItems.forEach(pItem => {
                         const whObj = warehousesDb.find(w => w.id === pItem.warehouseId);
-                        const whName = whObj ? whObj.name : 'المخزن الرئيسي (السجانة)';
+                        const whName = whObj ? whObj.name : 'المخزن الرئيسي';
                         let itemInv = currentInvData.find(inv => inv.itemId === pItem.itemId && inv.warehouse === whName);
                         if (itemInv) {
                             itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) - parseFloat(pItem.quantity);
@@ -809,7 +809,7 @@
             // Update actual stock in erp_inventory_v1 for new quantities
             receivingItems.forEach(line => {
                 const whObj = warehousesDb.find(w => w.id === line.warehouseId);
-                const whName = whObj ? whObj.name : 'المخزن الرئيسي (السجانة)';
+                const whName = whObj ? whObj.name : 'المخزن الرئيسي';
                 
                 // We add to actual stock level
                 let itemInv = currentInvData.find(inv => inv.itemId === line.itemId && inv.warehouse === whName);
@@ -955,7 +955,7 @@
             const positiveItems = grn.items.filter(item => item.quantity > 0);
             positiveItems.forEach(pItem => {
                 const whObj = warehousesDb.find(w => w.id === pItem.warehouseId);
-                const whName = whObj ? whObj.name : 'المخزن الرئيسي (السجانة)';
+                const whName = whObj ? whObj.name : 'المخزن الرئيسي';
 
                 let itemInv = currentInvData.find(inv => inv.itemId === pItem.itemId && inv.warehouse === whName);
                 if (itemInv) {
@@ -1031,3 +1031,4 @@
     </script>
 </body>
 </html>
+

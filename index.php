@@ -1,4 +1,4 @@
-<?php $page_title = 'السجانة - أذكى نظام سحابي لإدارة الموارد (ERP)'; ?>
+﻿<?php $page_title = 'مقاييس - أذكى نظام سحابي لإدارة الموارد (ERP)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -14,7 +14,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>السجانة - أذكى نظام سحابي لإدارة الموارد (ERP)</title>
+    <title>مقاييس - أذكى نظام سحابي لإدارة الموارد (ERP)</title>
     <style>
         :root {
             --bg-color: #030712;
@@ -329,7 +329,7 @@
     <nav class="glass-panel" id="navbar">
         <a href="#" class="logo">
             <div class="logo-icon">⚡</div>
-            السجانة
+            مقاييس
         </a>
         <div style="display: flex; gap: 15px;">
             <a href="login.php" class="btn-nav">تسجيل الدخول</a>
@@ -348,7 +348,7 @@
         <div class="hero-content">
             <div class="hero-badge">مُدعم بالذكاء الاصطناعي ✨</div>
             <h1>مستقبل إدارة الأعمال بين يديك.</h1>
-            <p>السجانة ERP هو الحل السحابي الأذكى والأسرع للتحكم بمبيعاتك، مخازنك، وحساباتك بدقة متناهية. صُمم للمؤسسات التي تبحث عن التفوق والتحكم المطلق.</p>
+            <p>مقاييس (MAGAIEES) هو الحل السحابي الأذكى والأسرع للتحكم بمبيعاتك، مخازنك، وحساباتك بدقة متناهية. صُمم للمؤسسات التي تبحث عن التفوق والتحكم المطلق.</p>
             <div style="display: flex; gap: 20px; justify-content: flex-start;">
                 <a href="#pricing" class="btn-primary">
                     إنشاء حساب جديد
@@ -460,7 +460,7 @@
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 2026 مؤسسة السجانة التجارية. جميع الحقوق محفوظة. مُصمم بعناية ليقود التكنولوجيا.</p>
+        <p>&copy; 2026 مؤسسة مقاييس التجارية. جميع الحقوق محفوظة. مُصمم بعناية ليقود التكنولوجيا.</p>
     </footer>
 
     <script>
@@ -622,3 +622,4 @@
     </script>
 </body>
 </html>
+

@@ -1,4 +1,4 @@
-<?php $page_title = 'استلام بضاعة'; ?>
+﻿<?php $page_title = 'استلام بضاعة'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1994,7 +1994,7 @@ async function sendInvoiceWA(invoiceNo) {
     printContainer.innerHTML = htmlContent;
     document.body.appendChild(printContainer);
 
-    const message = 'مرحباً، مرفق فاتورتكم المرجعية رقم ' + invoiceNo + ' من مؤسسة السجانة للتجارة.';
+    const message = 'مرحباً، مرفق فاتورتكم المرجعية رقم ' + invoiceNo + ' من ${JSON.parse(localStorage.getItem('user'))?.company_name || 'مؤسستنا'}.';
     
     try {
         await sendPDFViaWhatsApp(printContainer, phone, message);
@@ -2350,3 +2350,4 @@ async function sendCurrentInvoiceWA() {
 
 </body>
 </html>
+

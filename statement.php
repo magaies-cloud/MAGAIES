@@ -1,4 +1,4 @@
-<?php $page_title = 'كشف حساب'; ?>
+﻿<?php $page_title = 'كشف حساب'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -171,7 +171,7 @@
         
         <!-- Print Header -->
         <div style="padding:20px 20px 0 20px; display:none;" id="print-header">
-            <h2 style="text-align:center; margin:0 0 5px 0;">شركة السجانة للمقاولات</h2>
+            <h2 style="text-align:center; margin:0 0 5px 0;">شركة مقاييس للمقاولات</h2>
             <h3 style="text-align:center; color:#555; margin:0 0 20px 0;">كشف حساب — Statement of Account</h3>
             <div id="print-meta" style="display:flex; justify-content:space-between; border-bottom:2px solid #333; padding-bottom:10px; margin-bottom:15px;"></div>
         </div>
@@ -228,3 +228,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+

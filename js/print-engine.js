@@ -1,4 +1,4 @@
-/* ═══════════════════════════════════════════════════════════
+﻿/* ═══════════════════════════════════════════════════════════
    print-engine.js — Universal Invoice Print Engine v2.0
    Shared by: direct-sales, sales-invoice, purchase, reserved-sales
    ═══════════════════════════════════════════════════════════ */
@@ -18,7 +18,7 @@ window.InvoicePrinter = (function () {
     // ── Build the full HTML document ─────────────────────────
     function buildInvoiceHTML(data, singleCopyLabel = null) {
         const cfg = getSettings();
-        const companyName = cfg.companyName || 'مؤسسة السجانة للتجارة';
+        const companyName = cfg.companyName || JSON.parse(localStorage.getItem('user'))?.company_name || 'الشركة';
         const companyPhone = cfg.phone || '';
         const companyAddress = cfg.address || '';
         const companyReg = cfg.regNumber || '';
@@ -349,3 +349,4 @@ window.InvoicePrinter = (function () {
     };
 
 })();
+

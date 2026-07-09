@@ -1,4 +1,4 @@
-/* ═══════════════════════════════════════════════════════
+﻿/* ═══════════════════════════════════════════════════════
    sales-invoice.js — POS Engine v6.0
    Real-time Reactive Calculations � Sequential Invoices
    ═══════════════════════════════════════════════════════ */
@@ -22,7 +22,7 @@ localStorage.getItem = function(key) {
 
 let WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1'));
 if (!WAREHOUSES || WAREHOUSES.length === 0) {
-    WAREHOUSES = [{ id:'w-main', name:'المخزن الرئيسي (السجانة)' }];
+    WAREHOUSES = [{ id:'w-main', name:'المخزن الرئيسي' }];
 }
 
 const COST_CENTERS = [
@@ -137,7 +137,7 @@ function commitInvoiceNumber(type) {
 // ════════════════════════════════════════
 function initSalesApp() {
     // Reload WAREHOUSES from localStorage
-    WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [{ id:'w-main', name:'المخزن الرئيسي (السجانة)' }];
+    WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [{ id:'w-main', name:'المخزن الرئيسي' }];
 
     // Load real customer data from master-data
     const localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
@@ -2253,7 +2253,7 @@ function executeDeleteTransaction() {
             }
 
             const whId = row.warehouseId || mainWh;
-            const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي (السجانة)';
+            const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي';
             
             let itemInv = currentInvData.find(inv => inv.itemId === row.itemId && inv.warehouse === whName);
             if (itemInv) {
@@ -2614,7 +2614,7 @@ function _legacyBuildPrintArea(type) {
     <div class="print-page" style="padding: 20px; direction: rtl; font-family: 'Cairo', Tahoma, Arial;">
         <div style="text-align:center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
             <h2>${type === 'sales' ? 'فاتورة مبيعات' : 'فاتورة مشتريات'}</h2>
-            <h3>شركة السجانة</h3>
+            <h3>${JSON.parse(localStorage.getItem('user'))?.company_name || 'الشركة'}</h3>
         </div>
         <div style="display:flex; justify-content:space-between; margin-bottom: 20px; font-size: 14px;">
             <div><strong>رقم الفاتورة:</strong> ${invNo}</div>
@@ -2794,7 +2794,7 @@ function loadDeliveryTransactions() {
     let warehouses = [];
     try { warehouses = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || []; } catch(e) {}
     let whOptions = warehouses.map(w => `<option value='${w.id}' ${w.isPrimary ? 'selected' : ''}>${w.name}</option>`).join('');
-    if (!whOptions) whOptions = `<option value='main'>المخزن الرئيسي (السجانة)</option>`;
+    if (!whOptions) whOptions = `<option value='main'>المخزن الرئيسي</option>`;
 
     pendingInvoices.forEach(inv => {
         const tr = document.createElement('tr');
@@ -2836,7 +2836,7 @@ function executeDelivery(invNo) {
     let selectedWhId = document.getElementById('del-wh-' + invNo).value;
     
     let warehouses = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
-    let whName = warehouses.find(w => w.id === selectedWhId)?.name || 'المخزن الرئيسي (السجانة)';
+    let whName = warehouses.find(w => w.id === selectedWhId)?.name || 'المخزن الرئيسي';
 
     // Deduct Inventory
     let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
@@ -3085,7 +3085,7 @@ async function sendInvoiceWA(invoiceNo) {
     printContainer.innerHTML = htmlContent;
     document.body.appendChild(printContainer);
 
-    const message = 'مرحباً، مرفق فاتورتكم رقم ' + invoiceNo + ' من مؤسسة السجانة للتجارة. شكراً لتعاملكم معنا!';
+    const message = 'مرحباً، مرفق فاتورتكم رقم ' + invoiceNo + ' من ${JSON.parse(localStorage.getItem('user'))?.company_name || 'مؤسستنا'}. شكراً لتعاملكم معنا!';
     
     try {
         await sendPDFViaWhatsApp(printContainer, phone, message);
@@ -3509,3 +3509,4 @@ function submitInvoiceSplit() {
     
     showSalesHub();
 }
+

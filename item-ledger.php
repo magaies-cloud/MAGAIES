@@ -1,4 +1,4 @@
-<?php $page_title = 'السجانة ERP - كارت الصنف (حركة الأصناف)'; ?>
+﻿<?php $page_title = 'مقاييس (MAGAIEES) - كارت الصنف (حركة الأصناف)'; ?>
 <!-- c:\mynewapp\frontend-pwa\item-ledger.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -6,7 +6,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>السجانة ERP - كارت الصنف (حركة الأصناف)</title>
+    <title>مقاييس (MAGAIEES) - كارت الصنف (حركة الأصناف)</title>
     <link rel="stylesheet" href="css/theme.css?v=neon2">
     <link rel="stylesheet" href="css/components.css?v=neon2">
         <style>
@@ -401,3 +401,4 @@
     </script>
 </body>
 </html>
+

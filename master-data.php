@@ -1,11 +1,11 @@
-<?php $page_title = 'السجانة ERP - البيانات الأساسية'; ?>
+﻿<?php $page_title = 'مقاييس (MAGAIEES) - البيانات الأساسية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
         <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>السجانة ERP - البيانات الأساسية</title>
+    <title>مقاييس (MAGAIEES) - البيانات الأساسية</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
@@ -255,7 +255,7 @@
                         </div>
                         <div class="form-grid">
                             <input type="hidden" id="warehouse-id">
-                            <div class="input-group"><label>اسم المخزن</label><input type="text" id="warehouse-name" placeholder="مثال: مخزن السجانة الرئيسي"></div>
+                            <div class="input-group"><label>اسم المخزن</label><input type="text" id="warehouse-name" placeholder="مثال: مخزن مقاييس الرئيسي"></div>
                             <div class="input-group"><label>النوع</label><select id="warehouse-type"><option value="مستودع رئيسي">مستودع رئيسي</option><option value="معرض (نقطة بيع)">معرض (نقطة بيع)</option><option value="مخزن بضاعة تالفة">مخزن بضاعة تالفة</option></select></div>
                             <div class="input-group"><label>درجة السرية</label><select id="warehouse-security"><option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option></select></div>
                         </div>
@@ -285,7 +285,7 @@
                             <div class="input-group"><label>رقم الهاتف</label><input type="text" id="cust-phone" placeholder="0024912300675"></div>
                             <div class="input-group"><label>رقم الواتساب</label><input type="text" id="cust-whatsapp" placeholder="0024912300675"></div>
                             <div class="input-group"><label>الايميل (البريد الإلكتروني)</label><input type="email" id="cust-email" placeholder="example@email.com"></div>
-                            <div class="input-group" style="grid-column: span 2;"><label>العنوان</label><input type="text" id="cust-address" placeholder="مثال: الخرطوم، السجانة"></div>
+                            <div class="input-group" style="grid-column: span 2;"><label>العنوان</label><input type="text" id="cust-address" placeholder="مثال: الخرطوم، مقاييس"></div>
                             <div class="input-group"><label>العملة</label><select id="cust-currency" class="system-currency-select" onchange="updateCustExchangeRate()"></select></div>
                             <div class="input-group"><label>التعادل (سعر الصرف)</label><input type="number" id="cust-ex-rate" step="any" value="1" placeholder="1.00"></div>
                             <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="cust-tax" placeholder="الرقم الضريبي للعميل"></div>
@@ -392,7 +392,7 @@
                         <div class="form-grid">
                             <div class="input-group"><label>الرقم</label><input type="text" id="bank-code" placeholder="رقم الحساب أو الخزينة"></div>
                             <div class="input-group"><label>الاسم</label><input type="text" id="bank-name" placeholder="مثال: الخزينة الرئيسية"></div>
-                            <div class="input-group" id="bank-branch-group"><label>الفرع</label><input type="text" id="bank-branch" placeholder="مثال: فرع السجانة"></div>
+                            <div class="input-group" id="bank-branch-group"><label>الفرع</label><input type="text" id="bank-branch" placeholder="مثال: فرع مقاييس"></div>
                             <div class="input-group"><label>الرصيد الافتتاحي</label><input type="number" id="bank-opening-balance" placeholder="0.00"></div>
                             <div class="input-group"><label>تاريخ الرصيد الافتتاحي</label><input type="date" id="bank-opening-date"></div>
                             <div class="input-group"><label>رقم حساب الأستاذ (GL)</label><input type="text" id="bank-gl-account" placeholder="مثال: 110101"></div>
@@ -2565,3 +2565,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
