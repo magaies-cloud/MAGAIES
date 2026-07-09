@@ -148,6 +148,8 @@ body {
     radial-gradient(ellipse at 80% 80%, var(--bg-grad-2) 0%, transparent 50%),
     radial-gradient(ellipse at 50% 0%, var(--bg-grad-3) 0%, transparent 40%);
   background-attachment: fixed;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 /* Prevent pull-to-refresh while keeping scroll */
@@ -418,3 +420,11 @@ select option {
 }
 .brand-text h1 { margin: 0; font-size: 1.1rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; text-shadow: 0 2px 5px rgba(255,255,255,0.1); }
 .brand-text p { margin: 0; font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
+
+/* --- Global Reset for Header Alignment --- */
+.pos-wrapper, .dash-main, .hub-container, .settings-container, .audit-container, .alarm-main {
+    padding-top: 0px !important;
+}
+.premium-header {
+    margin-top: 4px !important;
+}

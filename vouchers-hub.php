@@ -73,7 +73,7 @@
         /* Layout Container taking full width with small equal padding */
         .hub-container {
             width: 100%; max-width: 1600px; margin: 0 auto; margin: 0 auto;
-            padding: 20px 30px; box-sizing: border-box;
+            padding: 0px 30px 20px 30px; box-sizing: border-box;
             display: flex; flex-direction: column; gap: 15px; flex: 1;
         }
 

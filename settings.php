@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'مقاييس 2026 - الإعدادات'; ?>
+<?php $page_title = 'مقاييس 2026 - الإعدادات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -61,7 +61,7 @@
             width: 100%;
             max-width: 100%;
             margin: 0 auto;
-            padding: 25px 25px;
+            padding: 0px 25px 25px 25px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;

@@ -1,4 +1,4 @@
-﻿/* ═══════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════
    sales-invoice.js — POS Engine v6.0
    Real-time Reactive Calculations � Sequential Invoices
    ═══════════════════════════════════════════════════════ */
@@ -136,85 +136,109 @@ function commitInvoiceNumber(type) {
 //  INIT
 // ════════════════════════════════════════
 function initSalesApp() {
-    // Reload WAREHOUSES from localStorage
-    WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [{ id:'w-main', name:'المخزن الرئيسي' }];
+    try {
+        // Reload WAREHOUSES from localStorage
+        let localWH = [];
+        try {
+            localWH = JSON.parse(localStorage.getItem('erp_warehouses_v1'));
+        } catch(e) { console.error(e); }
+        WAREHOUSES = (Array.isArray(localWH) && localWH.length > 0) ? localWH : [{ id:'w-main', name:'المخزن الرئيسي' }];
 
-    // Load real customer data from master-data
-    const localCusts = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-    if(localCusts.length > 0) {
-        CUSTOMERS = localCusts.map(c => ({
-            id: c.id,
-            name: c.name,
-            ledger: Math.abs(c.currentBalance < 0 ? c.currentBalance : 0),
-            checks: 0,
-            creditLimit: c.creditLimit || 0,
-            status: c.status || 'active'
-        }));
-        CUSTOMERS.unshift({ id:'walk-in', name:'زبون نقدي (Walk-in)', ledger:0, checks:0, creditLimit:0, status:'active' });
-    }
-
-    // Load Master Data Items
-    const rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
-    const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
-    
-    if (rawItems.length === 0) {
-        console.warn('تنبيه: لا توجد أصناف في النظام!');
-    }
-
-    // Map raw items to POS expected format
-    ITEMS = rawItems.map(item => {
-        let actualStockMap = {};
-        let reservedStockMap = {};
-        let itemInv = invData.filter(inv => inv.itemId === item.id);
-        itemInv.forEach(inv => {
-            let whId = WAREHOUSES.find(w => w.name === inv.warehouse)?.id || 'w-001';
-            actualStockMap[whId] = (actualStockMap[whId] || 0) + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0);
-            reservedStockMap[whId] = (reservedStockMap[whId] || 0) + (parseFloat(inv.reservedQuantity) || 0);
-        });
-
-        // Clean price — support new schema (sellingPrice) and old (salePrice/price)
-        let sp = item.sellingPrice || item.salePrice || item.price || 0;
-        sp = sp.toString().replace(/,/g, '');
+        // Load real customer data from master-data
+        CUSTOMERS = [{ id:'walk-in', name:'زبون نقدي (Walk-in)', ledger:0, checks:0, creditLimit:0, status:'active' }];
+        let localCusts = [];
+        try {
+            localCusts = JSON.parse(localStorage.getItem('erp_customers_v1'));
+        } catch(e) { console.error(e); }
         
-        const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
-
-        // Build unitsArray from new schema (item.units[]) or old (item.unitsArray[])
-        let unitsArray = [];
-        if (item.units && item.units.length > 0) {
-            // New Item Master schema: units[{unitName, factor, cashPrice, ...}]
-            unitsArray = item.units.map(u => ({ name: u.unitName, factor: u.factor || 1 }));
-        } else if (item.unitsArray && item.unitsArray.length > 0) {
-            // Old schema: unitsArray[{name, factor}]
-            unitsArray = item.unitsArray;
+        if(Array.isArray(localCusts) && localCusts.length > 0) {
+            localCusts.forEach(c => {
+                if (c && c.id) {
+                    CUSTOMERS.push({
+                        id: c.id,
+                        name: c.name || 'عميل بدون اسم',
+                        phone: c.phone || '',
+                        email: c.email || '',
+                        ledger: Math.abs(c.currentBalance < 0 ? c.currentBalance : 0) || 0,
+                        checks: 0,
+                        creditLimit: c.creditLimit || 0,
+                        status: c.status || 'active'
+                    });
+                }
+            });
         }
-        // Ensure base unit is always first
-        if (unitsArray.length === 0 || !unitsArray.find(u => u.name === baseUnit)) {
-            unitsArray = [{ name: baseUnit, factor: 1 }, ...unitsArray];
+
+        // Load Master Data Items
+        let rawItems = [];
+        let invData = [];
+        try {
+            rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+            invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+        } catch(e) { console.error(e); }
+        
+        ITEMS = [];
+        if (Array.isArray(rawItems)) {
+            rawItems.forEach(item => {
+                if (!item || !item.id) return;
+                
+                let actualStockMap = {};
+                let reservedStockMap = {};
+                
+                if (Array.isArray(invData)) {
+                    let itemInv = invData.filter(inv => inv && inv.itemId === item.id);
+                    itemInv.forEach(inv => {
+                        if (!inv) return;
+                        let wh = WAREHOUSES.find(w => w && w.name === inv.warehouse);
+                        let whId = wh ? wh.id : 'w-main';
+                        actualStockMap[whId] = (actualStockMap[whId] || 0) + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0);
+                        reservedStockMap[whId] = (reservedStockMap[whId] || 0) + (parseFloat(inv.reservedQuantity) || 0);
+                    });
+                }
+
+                // Clean price
+                let sp = item.sellingPrice || item.salePrice || item.price || 0;
+                sp = sp.toString().replace(/,/g, '');
+                
+                const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
+
+                let unitsArray = [];
+                if (item.units && item.units.length > 0) {
+                    unitsArray = item.units.map(u => ({ name: u.unitName || 'وحدة', factor: u.factor || 1 }));
+                } else if (item.unitsArray && item.unitsArray.length > 0) {
+                    unitsArray = item.unitsArray;
+                }
+                
+                if (unitsArray.length === 0 || !unitsArray.find(u => u && u.name === baseUnit)) {
+                    unitsArray = [{ name: baseUnit, factor: 1 }, ...unitsArray];
+                }
+
+                ITEMS.push({
+                    id: item.id,
+                    name: item.name || 'صنف بدون اسم',
+                    unit: baseUnit,
+                    baseUnit: baseUnit,
+                    conversionFactor: 1, 
+                    bundleFactor: 1,
+                    price: parseFloat(sp) || 0,
+                    actualStock: actualStockMap,
+                    reservedStock: reservedStockMap,
+                    unitsArray: unitsArray,
+                    maxDiscount: item.maxDiscount || 0,
+                    status: item.status || 'active'
+                });
+            });
         }
+        ITEMS = ITEMS.filter(item => item && item.status !== 'inactive');
 
-        return {
-            id: item.id,
-            name: item.name,
-            unit: baseUnit,
-            baseUnit: baseUnit,
-            conversionFactor: 1, 
-            bundleFactor: 1,
-            price: parseFloat(sp) || 0,
-            actualStock: actualStockMap,
-            reservedStock: reservedStockMap,
-            unitsArray: unitsArray,
-            maxDiscount: item.maxDiscount || 0,
-            status: item.status || 'active'
-        };
-    }).filter(item => item.status !== 'inactive');
-
-    populateDropdowns();
-    initHeader();
-    
-    // Only add a row and recalculate if rows is currently empty
-    if (rows.length === 0) {
-        addRow(true);
-        recalcAll();
+        populateDropdowns();
+        initHeader();
+        
+        if (rows.length === 0) {
+            addRow(true);
+            recalcAll();
+        }
+    } catch(globalErr) {
+        console.error("Critical error during initSalesApp:", globalErr);
     }
 }
 
@@ -227,99 +251,148 @@ window.addEventListener('cloudDataRestored', initSalesApp);
 window.addEventListener('strictDataReady', initSalesApp);
 
 function populateDropdowns() {
-    // Customers (Init custom dropdown)
-    document.getElementById('hdr-customer').value = '';
-    
-    // Warehouses (Header) - Clear old options first to prevent duplication
-    const whSel = document.getElementById('hdr-warehouse');
-    whSel.innerHTML = '';
-    WAREHOUSES.forEach(w => {
-        const o = document.createElement('option');
-        o.value = w.id; o.textContent = w.name;
-        whSel.appendChild(o);
-    });
-    
-    // Init Payment Account
-    togglePaymentAccount();
-}
-
-function togglePaymentAccount() {
-    const method = document.getElementById('hdr-payment-method').value;
-    const detailsRow = document.getElementById('payment-details-row');
-    const lbl1 = document.getElementById('pay-detail-1-label');
-    const lbl2 = document.getElementById('pay-detail-2-label');
-    const lbl3 = document.getElementById('pay-detail-3-label');
-    
-    // إخفاء أو إظهار منطقة التفاصيل
-    if (method === 'cheque' || method === 'bank') {
-        if (detailsRow) {
-            detailsRow.style.display = 'flex';
-            detailsRow.style.animation = 'none';
-            requestAnimationFrame(() => {
-                detailsRow.style.animation = 'fadeSlideIn 0.35s cubic-bezier(0.16,1,0.3,1) both';
+    try {
+        const custInput = document.getElementById('hdr-customer');
+        if (custInput) custInput.value = '';
+        
+        const whSel = document.getElementById('hdr-warehouse');
+        if (whSel) {
+            whSel.innerHTML = '';
+            WAREHOUSES.forEach(w => {
+                if (w) {
+                    const o = document.createElement('option');
+                    o.value = w.id; o.textContent = w.name;
+                    whSel.appendChild(o);
+                }
             });
         }
         
-        if (method === 'cheque') {
-            if (lbl1) lbl1.innerText = 'رقم الشيك';
-            if (lbl2) lbl2.innerText = 'اسم البنك';
-            if (lbl3) lbl3.innerText = 'الفرع';
-        } else if (method === 'bank') {
-            if (lbl1) lbl1.innerText = 'رقم التحويل';
-            if (lbl2) lbl2.innerText = 'البنك المحول إليه';
-            if (lbl3) lbl3.innerText = 'الفرع / المرجع';
-        }
-    } else {
-        if (detailsRow) detailsRow.style.display = 'none';
+        togglePaymentAccount();
+    } catch (e) {
+        console.error("Error in populateDropdowns:", e);
     }
+}
 
-    // تحديث قائمة الصندوق/الخزنة بناءً على طريقة الدفع
-    const select = document.getElementById('hdr-payment-account');
-    if (select) {
-        if (!window.paymentAccountChoices) {
-            window.paymentAccountChoices = new Choices(select, { searchEnabled: true, itemSelectText: '', shouldSort: false });
-        }
+function togglePaymentAccount() {
+    try {
+        const methodEl = document.getElementById('hdr-payment-method');
+        if (!methodEl) return;
+        const method = methodEl.value;
+        const detailsRow = document.getElementById('payment-details-row');
+        const lbl1 = document.getElementById('pay-detail-1-label');
+        const lbl2 = document.getElementById('pay-detail-2-label');
+        const lbl3 = document.getElementById('pay-detail-3-label');
         
-        if (method === 'credit') {
-            window.paymentAccountChoices.setChoices([{ value: '', label: '-- آجل (على الحساب) --' }], 'value', 'label', true);
-            window.paymentAccountChoices.disable();
+        if (method === 'cheque' || method === 'bank') {
+            if (detailsRow) {
+                detailsRow.style.display = 'flex';
+                detailsRow.style.animation = 'none';
+                requestAnimationFrame(() => {
+                    detailsRow.style.animation = 'fadeSlideIn 0.35s cubic-bezier(0.16,1,0.3,1) both';
+                });
+            }
+            
+            if (method === 'cheque') {
+                if (lbl1) lbl1.innerText = 'رقم الشيك';
+                if (lbl2) lbl2.innerText = 'اسم البنك';
+                if (lbl3) lbl3.innerText = 'الفرع';
+            } else if (method === 'bank') {
+                if (lbl1) lbl1.innerText = 'رقم التحويل';
+                if (lbl2) lbl2.innerText = 'البنك المحول إليه';
+                if (lbl3) lbl3.innerText = 'الفرع / المرجع';
+            }
         } else {
-            window.paymentAccountChoices.enable();
-            populateAccountSelect(select);
+            if (detailsRow) detailsRow.style.display = 'none';
         }
+
+        const select = document.getElementById('hdr-payment-account');
+        if (select) {
+            if (typeof Choices !== 'undefined') {
+                if (!window.paymentAccountChoices) {
+                    window.paymentAccountChoices = new Choices(select, { searchEnabled: true, itemSelectText: '', shouldSort: false });
+                }
+                
+                if (method === 'credit') {
+                    window.paymentAccountChoices.setChoices([{ value: '', label: '-- آجل (على الحساب) --' }], 'value', 'label', true);
+                    window.paymentAccountChoices.disable();
+                } else {
+                    window.paymentAccountChoices.enable();
+                    populateAccountSelect(select);
+                }
+            } else {
+                // Fallback to normal select when Choices.js is not loaded
+                if (method === 'credit') {
+                    select.innerHTML = '<option value="">-- آجل (على الحساب) --</option>';
+                    select.disabled = true;
+                } else {
+                    select.disabled = false;
+                    populateAccountSelectFallback(select);
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Error in togglePaymentAccount:", e);
     }
 }
 
 function populateAccountSelect(select) {
-    let safes = [];
-    let banks = [];
     try {
-        safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
-        banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
-    } catch(e) {}
-    
-    // Filter out deleted accounts
-    safes = safes.filter(x => !x.deleted);
-    banks = banks.filter(x => !x.deleted);
-    
-    let choicesArr = [];
-    
-    // Add safes (💰)
-    safes.forEach(s => {
-        choicesArr.push({ value: s.id, label: '💰 ' + s.name });
-    });
-    
-    // Add banks (🏦)
-    banks.forEach(b => {
-        choicesArr.push({ value: b.id, label: '🏦 ' + b.name });
-    });
-    
-    if (choicesArr.length === 0) {
-        choicesArr.push({ value: '', label: '-- لا توجد حسابات مالية --' });
+        let safes = [];
+        let banks = [];
+        try {
+            safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
+            banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+        } catch(e) {}
+        
+        safes = safes.filter(x => x && !x.deleted);
+        banks = banks.filter(x => x && !x.deleted);
+        
+        let choicesArr = [];
+        safes.forEach(s => {
+            choicesArr.push({ value: s.id, label: '💰 ' + s.name });
+        });
+        banks.forEach(b => {
+            choicesArr.push({ value: b.id, label: '🏦 ' + b.name });
+        });
+        
+        if (choicesArr.length === 0) {
+            choicesArr.push({ value: '', label: '-- لا توجد حسابات مالية --' });
+        }
+        
+        if (window.paymentAccountChoices) {
+            window.paymentAccountChoices.setChoices(choicesArr, 'value', 'label', true);
+        }
+    } catch (e) {
+        console.error("Error in populateAccountSelect:", e);
     }
-    
-    if (window.paymentAccountChoices) {
-        window.paymentAccountChoices.setChoices(choicesArr, 'value', 'label', true);
+}
+
+function populateAccountSelectFallback(select) {
+    try {
+        let safes = [];
+        let banks = [];
+        try {
+            safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
+            banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+        } catch(e) {}
+        
+        safes = safes.filter(x => x && !x.deleted);
+        banks = banks.filter(x => x && !x.deleted);
+        
+        let html = '';
+        safes.forEach(s => {
+            html += `<option value="${s.id}">💰 ${s.name}</option>`;
+        });
+        banks.forEach(b => {
+            html += `<option value="${b.id}">🏦 ${b.name}</option>`;
+        });
+        
+        if (!html) {
+            html = '<option value="">-- لا توجد حسابات مالية --</option>';
+        }
+        select.innerHTML = html;
+    } catch (e) {
+        console.error("Error in populateAccountSelectFallback:", e);
     }
 }
 
@@ -3085,7 +3158,7 @@ async function sendInvoiceWA(invoiceNo) {
     printContainer.innerHTML = htmlContent;
     document.body.appendChild(printContainer);
 
-    const message = 'مرحباً، مرفق فاتورتكم رقم ' + invoiceNo + ' من ${JSON.parse(localStorage.getItem('user'))?.company_name || 'مؤسستنا'}. شكراً لتعاملكم معنا!';
+    const message = `مرحباً، مرفق فاتورتكم رقم ${invoiceNo} من ${JSON.parse(localStorage.getItem('user'))?.company_name || 'مؤسستنا'}. شكراً لتعاملكم معنا!`;
     
     try {
         await sendPDFViaWhatsApp(printContainer, phone, message);

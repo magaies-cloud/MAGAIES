@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>لوحة التحكم</title>
-    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/design-system.css?v=20260709_5">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -71,7 +71,7 @@
             width: 100%;
             max-width: 1600px; margin: 0 auto;
             margin: 0 auto;
-            padding: 20px 30px;
+            padding: 0px 30px 20px 30px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;

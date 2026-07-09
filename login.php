@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'مقاييس 2026 - تسجيل الدخول'; ?>
+<?php $page_title = 'مقاييس 2026 - تسجيل الدخول'; ?>
 <!-- c:\mynewapp\frontend-pwa\login.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>مقاييس 2026 - تسجيل الدخول</title>
-    <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/design-system.css?v=20260709_5"><link rel="stylesheet" href="css/theme.css?v=20260709_5">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
         <style>
         body {

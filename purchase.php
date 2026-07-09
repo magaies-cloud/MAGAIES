@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'استلام بضاعة'; ?>
+<?php $page_title = 'استلام بضاعة'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -101,7 +101,7 @@
 
         .user-info { display: flex; align-items: center; gap: 8px; background: rgba(15,23,42,0.6); padding: 6px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); }
         
-        .dash-main { width: 100%; max-width: 100%; margin: 0; padding: 20px 15px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; flex: 1; animation: fadeIn 0.8s ease-out forwards; }
+        .dash-main { width: 100%; max-width: 100%; margin: 0; padding: 0px 15px 20px 15px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; flex: 1; animation: fadeIn 0.8s ease-out forwards; }
 
         body {
             background-color: var(--bg-color);

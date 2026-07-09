@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)'; ?>
+<?php $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -44,7 +44,7 @@
         .orb-3 { width: 600px; height: 600px; background: #ea580c; top: 30%; left: 30%; }
         @keyframes floatOrb { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(30px, -30px) scale(1.05); } 100% { transform: translate(0, 0) scale(1); } }
 
-        .dash-main { width: 100%; max-width: 1600px; margin: 0 auto; padding: 20px 30px; box-sizing: border-box; flex-direction: column; }
+        .dash-main { width: 100%; max-width: 1600px; margin: 0 auto; padding: 0px 30px 20px 30px; box-sizing: border-box; flex-direction: column; }
         .premium-header {
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(168, 85, 247, 0.15));
             backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 15px 25px;

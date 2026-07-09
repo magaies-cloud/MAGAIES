@@ -89,7 +89,9 @@ function getAccountName(id) {
 }
 
 /* ─── Drill Down & Attachments ─── */
-`;
+function openDrillDown(type, ref) {
+    let target = '';
+    if (type === 'sales') target = `direct-sales.php?id=${ref}`;
     else if (type === 'purchase') target = `purchase.php?id=${ref}`;
     else if (type === 'jv') target = `journal-voucher.php?id=${ref}`;
     else if (type === 'receipt') target = `single-cash-receipt.php?id=${ref}`;

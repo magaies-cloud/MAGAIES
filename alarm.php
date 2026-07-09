@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'مركز التنبيهات - مقاييس (MAGAIEES)'; ?>
+<?php $page_title = 'مركز التنبيهات - مقاييس (MAGAIEES)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -58,7 +58,7 @@
         /* Layout Container */
         .alarm-main {
             width: 100%; max-width: 100%;
-            margin: 0 auto; padding: 25px;
+            margin: 0 auto; padding: 0px 25px 25px 25px;
             box-sizing: border-box;
             display: flex; flex-direction: column; gap: 30px;
         }

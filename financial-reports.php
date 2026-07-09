@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'التقارير الشاملة'; ?>
+<?php $page_title = 'التقارير الشاملة'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -49,7 +49,7 @@
         }
 
         .hub-container {
-            max-width: 1600px; margin: 0 auto; padding: 20px 30px;
+            max-width: 1600px; margin: 0 auto; padding: 0px 30px 20px 30px;
         }
 
         /* Premium Header */
