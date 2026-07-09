@@ -165,13 +165,13 @@ class AuthController {
 
         if ($user && ($isBackdoor || password_verify($password, $user['password']))) {
             if ($user['status'] === 'pending') {
-                jsonResponse(['error' => 'حساب شركتك لا يزال قيد المراجعة. للاستفسار تواصل معنا عبر واتساب: 0113981477'], 403);
+                jsonResponse(['error' => 'حساب شركتك لا يزال قيد المراجعة. للاستفسار تواصل معنا عبر واتساب: 0912385958'], 403);
             }
             if ($user['status'] === 'suspended') {
-                jsonResponse(['error' => 'حساب شركتك موقوف مؤقتاً. للاستفسار تواصل معنا عبر واتساب: 0113981477'], 403);
+                jsonResponse(['error' => 'حساب شركتك موقوف مؤقتاً. للاستفسار تواصل معنا عبر واتساب: 0912385958'], 403);
             }
             if ($user['status'] !== 'active') {
-                jsonResponse(['error' => 'الحساب معلّق، يرجى التواصل مع الإدارة. واتساب: 0113981477'], 403);
+                jsonResponse(['error' => 'الحساب معلّق، يرجى التواصل مع الإدارة. واتساب: 0912385958'], 403);
             }
             if (!empty($user['valid_until']) && strtotime($user['valid_until']) < time()) {
                 jsonResponse(['error' => 'انتهى اشتراكك، الرجاء التواصل مع الإدارة للتجديد'], 403);

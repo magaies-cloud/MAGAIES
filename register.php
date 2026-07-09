@@ -411,7 +411,7 @@
             
             <a href="javascript:void(0)" onclick="showInquiryForm()" class="whatsapp-btn" id="modal-whatsapp" style="display:none;">
                 <span class="whatsapp-icon">💬</span>
-                للاستفسار: 0113981477
+                للاستفسار: 0912385958
             </a>
             
             <!-- Inline Inquiry Form Container -->
