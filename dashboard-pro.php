@@ -321,6 +321,70 @@
         .list-sub { color:var(--text-secondary); font-size:0.75rem; }
         .list-btn { padding:6px 12px; background:var(--primary-accent); color:#fff; border-radius:8px; text-decoration:none; font-size:0.8rem; font-weight:800; }
 
+        /* Admin action buttons styling */
+        .admin-action-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: 800; font-size: 0.8rem;
+            color: #fff; background: rgba(15, 23, 42, 0.4); border: 1.5px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.01), 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .admin-action-btn:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.25);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+        .admin-action-settings {
+            border-bottom: 2.5px solid #64748b !important;
+        }
+        .admin-action-settings:hover {
+            color: #fff;
+            box-shadow: 0 0 15px rgba(100,116,139,0.5), inset 0 0 10px rgba(100,116,139,0.15) !important;
+            border-color: #94a3b8 !important;
+        }
+        .admin-action-jobs {
+            border-bottom: 2.5px solid #10b981 !important;
+        }
+        .admin-action-jobs:hover {
+            color: #fff;
+            box-shadow: 0 0 15px rgba(16,185,129,0.5), inset 0 0 10px rgba(16,185,129,0.15) !important;
+            border-color: #34d399 !important;
+        }
+        .admin-action-notifications {
+            border-bottom: 2.5px solid var(--theme-red) !important;
+        }
+        .admin-action-notifications:hover {
+            color: #fff;
+            box-shadow: 0 0 15px rgba(248,113,113,0.5), inset 0 0 10px rgba(248,113,113,0.15) !important;
+            border-color: #f87171 !important;
+        }
+        .admin-action-btn:hover .qa-icon {
+            transform: scale(1.2) rotate(5deg) translateY(-2px);
+        }
+
+        /* Two levels rows styling */
+        .admin-actions-row {
+            display: flex; gap: 15px; margin-bottom: 20px; align-items: center; 
+            border: 1px solid rgba(255,255,255,0.05); background: rgba(15, 23, 42, 0.25); 
+            padding: 12px 18px; border-radius: 14px; flex-wrap: wrap; 
+            box-shadow: inset 0 0 15px rgba(255,255,255,0.01);
+        }
+        .operations-actions-row {
+            display: flex; gap: 15px; align-items: center; 
+            border: 1px solid rgba(255,255,255,0.03); background: rgba(15, 23, 42, 0.15); 
+            padding: 12px 18px; border-radius: 14px; flex-wrap: wrap; 
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.01);
+        }
+        .actions-row-title {
+            font-size: 0.82rem; font-weight: 800; color: #94a3b8; 
+            display: flex; align-items: center; gap: 8px; min-width: 140px; 
+            border-left: 2px solid rgba(255,255,255,0.15); padding-left: 10px; 
+            margin-left: 5px;
+        }
+
         @media (max-width: 768px) {
             .premium-header { flex-direction: column; gap: 12px; }
             .header-controls { justify-content: center; width: 100%; flex-wrap: wrap; }
@@ -351,6 +415,11 @@
         :root.light-theme .icon-btn:hover { background: #f8fafc; color: #000; box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
         :root.light-theme #header-user-name { color: #0f172a !important; }
         :root.light-theme .online-users { background: rgba(16,185,129,0.1) !important; border-color: rgba(16,185,129,0.2) !important; }
+        :root.light-theme .admin-action-btn { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1); color: #0f172a; }
+        :root.light-theme .admin-action-btn:hover { background: rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.18); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+        :root.light-theme .admin-actions-row { background: rgba(0, 0, 0, 0.03); border-color: rgba(0, 0, 0, 0.06); box-shadow: none; }
+        :root.light-theme .operations-actions-row { background: rgba(0, 0, 0, 0.015); border-color: rgba(0, 0, 0, 0.04); box-shadow: none; }
+        :root.light-theme .actions-row-title { color: #475569; border-left-color: rgba(0,0,0,0.12); }
     </style>
     <script>
         if(localStorage.getItem('erp_theme') === 'light') document.documentElement.classList.add('light-theme');
@@ -375,49 +444,59 @@
         <?php include 'includes/header.php'; ?>
 
         <!-- Ultra Premium Quick Actions Grid -->
-        <div class="glass-panel">
-            <h3>
-                <span style="font-size: 1.3rem;">⚡</span> إجراءات سريعة
-            </h3>
+        <div class="glass-panel" style="padding: 22px;">
             
-            <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; flex-wrap: nowrap;">
-                
-                <a data-href="account-statement.php?model=v-classic-ent" onclick="window.location.href='account-statement.php?model=v-classic-ent'" class="quick-action-btn qa-danger" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px; border-bottom: 2px solid #f43f5e; background: rgba(244,63,94,0.15); color: #f43f5e;">
-                    <span class="qa-icon">🏢</span> كشف مؤسسي
-                </a>
-                
-                <a data-href="direct-sales.php" onclick="window.location.href='direct-sales.php'" class="quick-action-btn qa-primary" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px;">
-                    <span class="qa-icon">⚡</span> مبيعات
-                </a>
-                
-                <a data-href="purchase.php" onclick="window.location.href='purchase.php'" class="quick-action-btn qa-warning" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px;">
-                    <span class="qa-icon">📦</span> مشتريات
-                </a>
-                
-
-                
-                <a data-href="vouchers-hub.php" onclick="window.location.href='vouchers-hub.php'" class="quick-action-btn qa-danger" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px;">
-                    <span class="qa-icon">💸</span> الحسابات
-                </a>
-                
-
-                
-                <a data-href="checks-cycle.php" onclick="window.location.href='checks-cycle.php'" class="quick-action-btn qa-warning" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px;">
-                    <span class="qa-icon">🧾</span> شيكات
-                </a>
-                
-                <a data-href="settings.php" onclick="window.location.href='settings.php'" class="quick-action-btn" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px; border-bottom: 2px solid #64748b;">
-                    <span class="qa-icon">⚙️</span> نظام
-                </a>
-                
-                <a data-href="jobs.php" onclick="window.location.href='jobs.php'" class="quick-action-btn" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px; border-bottom: 2px solid #10b981;">
-                    <span class="qa-icon">💼</span> إدارة
-                </a>
-                
-                <a data-href="analytics.php" onclick="window.location.href='analytics.php'" class="quick-action-btn qa-purple" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px;">
-                    <span class="qa-icon">📊</span> إحصائيات
-                </a>
-
+            <!-- Row 1: لوحة الإدارة والتحكم (الإعدادات والمهام) -->
+            <div class="admin-actions-row">
+                <div class="actions-row-title" style="min-width: auto; padding-left: 15px;">
+                    <span>🛠️</span>
+                </div>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; flex: 1;">
+                    <a data-href="settings.php" onclick="window.location.href='settings.php'" class="admin-action-btn admin-action-settings" style="flex: 1 1 auto; justify-content: center; white-space: nowrap;">
+                        <span class="qa-icon">⚙️</span> الإعدادات
+                    </a>
+                    
+                    <a data-href="jobs.php" onclick="window.location.href='jobs.php'" class="admin-action-btn admin-action-jobs" style="flex: 1 1 auto; justify-content: center; white-space: nowrap;">
+                        <span class="qa-icon">💼</span> المهام
+                    </a>
+                    
+                    <a onclick="toggleNotifications()" class="admin-action-btn admin-action-notifications" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; cursor: pointer; position: relative;">
+                        <span class="qa-icon">🔔</span> التنبيهات
+                        <span id="notif-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: var(--theme-red); color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.65rem; font-weight: bold; border: 1px solid #fff;">0</span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Row 2: العمليات الحالية والمبيعات والمشتريات -->
+            <div class="operations-actions-row">
+                <div class="actions-row-title" style="min-width: auto; padding-left: 15px;">
+                    <span>📊</span>
+                </div>
+                <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; flex-wrap: nowrap; flex: 1;">
+                    <a data-href="direct-sales.php" onclick="window.location.href='direct-sales.php'" class="quick-action-btn qa-primary" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px;">
+                        <span class="qa-icon">⚡</span> مبيعات
+                    </a>
+                    
+                    <a data-href="purchase.php" onclick="window.location.href='purchase.php'" class="quick-action-btn qa-warning" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px;">
+                        <span class="qa-icon">📦</span> مشتريات
+                    </a>
+                    
+                    <a data-href="vouchers-hub.php" onclick="window.location.href='vouchers-hub.php'" class="quick-action-btn qa-danger" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px;">
+                        <span class="qa-icon">💸</span> المعاملات المالية
+                    </a>
+                    
+                    <a data-href="checks-cycle.php" onclick="window.location.href='checks-cycle.php'" class="quick-action-btn qa-warning" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px;">
+                        <span class="qa-icon">🧾</span> شيكات
+                    </a>
+                    
+                    <a data-href="analytics.php" onclick="window.location.href='analytics.php'" class="quick-action-btn qa-purple" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px;">
+                        <span class="qa-icon">📊</span> تقارير مالية
+                    </a>
+                    
+                    <a data-href="inventory-report.php" onclick="window.location.href='inventory-report.php'" class="quick-action-btn" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px; border-bottom: 2px solid #a78bfa;">
+                        <span class="qa-icon">📦</span> تقارير المخزون والجرد
+                    </a>
+                </div>
             </div>
         </div>
 

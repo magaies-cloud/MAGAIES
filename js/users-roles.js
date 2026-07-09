@@ -7,7 +7,7 @@ const MODULES = [
     { id: 'dashboard', name: 'لوحة التحكم' },
     { id: 'sales', name: 'المبيعات' },
     { id: 'purchase', name: 'المشتريات' },
-    { id: 'inventory', name: 'المخزون والجرد' },
+    { id: 'inventory', name: 'تقارير المخزون والجرد' },
     { id: 'finance', name: 'المعاملات المالية' },
     { id: 'master_data', name: 'البيانات الأساسية' },
     { id: 'reports', name: 'التقارير التحليلية' },
