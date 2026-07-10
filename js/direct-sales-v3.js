@@ -61,7 +61,18 @@ let currentViewedInvoiceNo = null;
 // ════════════════════════════════════════
 function fmtNum(n) {
     if (n === 0 || n === '0' || !n) return '0';
-    return Number(n).toLocaleString('en-US');
+    let decimals = 2;
+    try {
+        const stored = localStorage.getItem('erp_grid_customizer_v1');
+        if (stored) {
+            const settings = JSON.parse(stored);
+            if (settings.decimalPlaces !== undefined) decimals = parseInt(settings.decimalPlaces);
+        }
+    } catch(e) {}
+    return Number(n).toLocaleString('en-US', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+    });
 }
 function parseNum(str) {
     return parseFloat(String(str).replace(/,/g, '')) || 0;
@@ -232,7 +243,6 @@ function initSalesApp() {
 
         populateDropdowns();
         initHeader();
-        initResizableTable(); // Initialize resizable columns and renaming on the POS table
         
         if (rows.length === 0) {
             addRow(true);
@@ -3582,234 +3592,5 @@ function submitInvoiceSplit() {
     }
     
     showSalesHub();
-}
-
-// ═══════════════════════════════════════════════════════════════
-//  SMOOTH DRAG-TO-RESIZE & DOUBLE-CLICK AUTO-FIT & RENAME COLUMNS
-// ═══════════════════════════════════════════════════════════════
-function initResizableTable() {
-    const table = document.getElementById('pos-grid');
-    if (!table) return;
-    
-    // 1. Inject styling for column handles and rename inputs if not already present
-    if (!document.getElementById('resizable-table-styles')) {
-        const style = document.createElement('style');
-        style.id = 'resizable-table-styles';
-        style.innerHTML = `
-            #pos-grid {
-                table-layout: fixed !important;
-                width: 100% !important;
-            }
-            #pos-grid th {
-                position: relative;
-                user-select: none;
-            }
-            .col-resize-handle {
-                position: absolute;
-                right: 0;
-                top: 0;
-                width: 6px;
-                height: 100%;
-                cursor: col-resize;
-                user-select: none;
-                z-index: 10;
-                transition: background-color 0.2s;
-            }
-            .col-resize-handle:hover, .col-resize-handle.resizing {
-                background-color: rgba(56, 189, 248, 0.6) !important;
-            }
-            .th-rename-input {
-                position: absolute;
-                top: 2px;
-                left: 2px;
-                width: calc(100% - 4px);
-                height: calc(100% - 4px);
-                box-sizing: border-box;
-                background: #0f172a;
-                color: #ffffff;
-                border: 2px solid #38bdf8;
-                border-radius: 4px;
-                text-align: center;
-                font-family: 'Tajawal', sans-serif;
-                font-weight: bold;
-                z-index: 100;
-            }
-            :root.light-theme .th-rename-input {
-                background: #ffffff;
-                color: #000000;
-                border: 2px solid #000000;
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
-    const headers = table.querySelectorAll('thead th');
-    
-    // Load custom header labels from localStorage
-    let customLabels = {};
-    try {
-        customLabels = JSON.parse(localStorage.getItem('pos_grid_header_labels')) || {};
-    } catch(e) { console.error(e); }
-
-    // Load custom column widths from localStorage
-    let customWidths = {};
-    try {
-        customWidths = JSON.parse(localStorage.getItem('pos_grid_column_widths')) || {};
-    } catch(e) { console.error(e); }
-
-    headers.forEach((th, index) => {
-        // Skip last delete column handle
-        const isDeleteCol = th.classList.contains('th-del') || index === headers.length - 1;
-        
-        // Restore custom label if exists
-        const colId = th.getAttribute('data-col-id') || String(index);
-        if (customLabels[colId]) {
-            th.textContent = customLabels[colId];
-        }
-
-        // Restore custom width if exists
-        if (customWidths[colId]) {
-            th.style.width = customWidths[colId];
-        }
-
-        // Double click to rename column header (only on the text part, not delete column)
-        if (!isDeleteCol) {
-            th.title = "اسحب الطرف لتغيير العرض، أو انقر مزدوجاً على الاسم لتعديله";
-            
-            // Clean up old double click to prevent duplicates
-            th.ondblclick = null;
-            th.addEventListener('dblclick', function(e) {
-                if (e.target.classList.contains('col-resize-handle')) return;
-                
-                const currentText = th.textContent.replace('📖', '').trim();
-                const newName = prompt('أدخل التسمية الجديدة لهذا العمود:', currentText);
-                if (newName !== null && newName.trim() !== '') {
-                    th.textContent = newName.trim();
-                    customLabels[colId] = newName.trim();
-                    localStorage.setItem('pos_grid_header_labels', JSON.stringify(customLabels));
-                    // Re-append the resize handle
-                    createResizeHandle(th, index);
-                }
-            });
-        }
-
-        // Create resize handle
-        createResizeHandle(th, index);
-    });
-
-    function createResizeHandle(th, index) {
-        // Remove existing handle if any
-        const oldHandle = th.querySelector('.col-resize-handle');
-        if (oldHandle) oldHandle.remove();
-
-        const isLastCol = index === headers.length - 1;
-        if (isLastCol) return; // No resize handle on the very last column
-
-        const handle = document.createElement('div');
-        handle.className = 'col-resize-handle';
-        th.appendChild(handle);
-
-        let startX, startWidth;
-
-        handle.addEventListener('mousedown', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            startX = e.pageX;
-            startWidth = th.offsetWidth;
-            handle.classList.add('resizing');
-
-            function onMouseMove(moveEvent) {
-                const delta = moveEvent.pageX - startX;
-                const newWidth = Math.max(40, startWidth + delta);
-                th.style.width = newWidth + 'px';
-            }
-
-            function onMouseUp() {
-                handle.classList.remove('resizing');
-                document.removeEventListener('mousemove', onMouseMove);
-                document.removeEventListener('mouseup', onMouseUp);
-
-                // Save new widths to localStorage
-                const currentWidths = {};
-                headers.forEach((h, idx) => {
-                    const cId = h.getAttribute('data-col-id') || String(idx);
-                    currentWidths[cId] = h.style.width || (h.offsetWidth + 'px');
-                });
-                localStorage.setItem('pos_grid_column_widths', JSON.stringify(currentWidths));
-            }
-
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
-        });
-
-        // Double click on resize handle -> Auto-fit column to content!
-        handle.addEventListener('dblclick', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            autoFitColumn(th, index);
-        });
-    }
-
-    function autoFitColumn(th, colIndex) {
-        let maxWidth = 45; // Minimum size safety
-        
-        // Create a temporary span to measure text width
-        const tempSpan = document.createElement('span');
-        tempSpan.style.visibility = 'hidden';
-        tempSpan.style.position = 'absolute';
-        tempSpan.style.whiteSpace = 'nowrap';
-        tempSpan.style.fontFamily = getComputedStyle(th).fontFamily;
-        tempSpan.style.fontSize = getComputedStyle(th).fontSize;
-        tempSpan.style.fontWeight = getComputedStyle(th).fontWeight;
-        document.body.appendChild(tempSpan);
-
-        // Measure header text
-        tempSpan.textContent = th.textContent.replace('📖', '').trim();
-        maxWidth = Math.max(maxWidth, tempSpan.offsetWidth + 25);
-
-        // Measure body cells
-        const rows = table.querySelectorAll('tbody tr');
-        rows.forEach(tr => {
-            const cells = tr.querySelectorAll('td');
-            if (cells[colIndex]) {
-                const cell = cells[colIndex];
-                const inputs = cell.querySelectorAll('input, select');
-                if (inputs.length > 0) {
-                    inputs.forEach(input => {
-                        tempSpan.style.fontSize = getComputedStyle(input).fontSize;
-                        tempSpan.style.fontWeight = getComputedStyle(input).fontWeight;
-                        
-                        if (input.tagName === 'SELECT') {
-                            const selectedOption = input.options[input.selectedIndex];
-                            tempSpan.textContent = selectedOption ? selectedOption.textContent : '';
-                        } else {
-                            tempSpan.textContent = input.value || input.placeholder || '';
-                        }
-                        maxWidth = Math.max(maxWidth, tempSpan.offsetWidth + 30);
-                    });
-                } else {
-                    tempSpan.style.fontSize = getComputedStyle(cell).fontSize;
-                    tempSpan.style.fontWeight = getComputedStyle(cell).fontWeight;
-                    tempSpan.textContent = cell.textContent.trim();
-                    maxWidth = Math.max(maxWidth, tempSpan.offsetWidth + 20);
-                }
-            }
-        });
-
-        document.body.removeChild(tempSpan);
-
-        const finalWidth = Math.min(500, Math.max(50, maxWidth));
-        th.style.width = finalWidth + 'px';
-
-        // Save new widths to localStorage
-        const currentWidths = {};
-        headers.forEach((h, idx) => {
-            const cId = h.getAttribute('data-col-id') || String(idx);
-            currentWidths[cId] = h.style.width || (h.offsetWidth + 'px');
-        });
-        localStorage.setItem('pos_grid_column_widths', JSON.stringify(currentWidths));
-    }
 }
 

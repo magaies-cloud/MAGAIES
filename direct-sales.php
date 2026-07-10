@@ -2108,7 +2108,7 @@
 
                 <!-- Desktop Table -->
                 <div class="grid-scroll-wrap">
-                    <table class="pos-grid" id="pos-grid" style="table-layout: fixed; width: 100%;">
+                    <table class="pos-grid" id="pos-grid">
                         <thead>
                             <tr style="background: rgba(15, 23, 42, 0.8); border-bottom: 2px solid rgba(56, 189, 248, 0.3);">
                                 <th data-col-id="0" class="th-num" style="width: 3%;">#</th>
@@ -2515,139 +2515,454 @@
     </script>
     
     <!-- Context Menu for Columns -->
-    <div id="col-context-menu">
-        <div style="font-size: 0.75rem; color: var(--gold-primary); margin-bottom: 8px; font-weight: bold; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">إظهار/إخفاء الأعمدة</div>
-        <div id="col-toggle-list" style="max-height: 300px; overflow-y: auto;"></div>
+    <div id="col-context-menu" style="display:none; position:absolute; z-index:100000; min-width:200px; background: rgba(15, 23, 42, 0.92); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
+        <div style="font-size: 0.8rem; color: var(--gold-primary); margin-bottom: 8px; font-weight: bold; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px; font-family:'Tajawal', sans-serif;">🛠️ خيارات الجدول</div>
+        <div class="context-item-custom" onclick="openGridSettingsModal()" style="padding: 8px 12px; cursor: pointer; color: #fff; display: flex; align-items: center; gap: 8px; transition: 0.2s; border-radius: 6px; font-family:'Tajawal', sans-serif; font-size:0.9rem;" onmouseover="this.style.background='rgba(56,189,248,0.15)', this.style.color='#38bdf8'" onmouseout="this.style.background='transparent', this.style.color='#fff'">⚙️ تخصيص الأعمدة والخطوط...</div>
+        <hr style="border:0; border-top:1px solid rgba(255,255,255,0.08); margin:4px 0;">
+        <div class="context-item-custom" onclick="quickAlignGrid('right')" style="padding: 8px 12px; cursor: pointer; color: #fff; display: flex; align-items: center; gap: 8px; transition: 0.2s; border-radius: 6px; font-family:'Tajawal', sans-serif; font-size:0.9rem;" onmouseover="this.style.background='rgba(56,189,248,0.15)', this.style.color='#38bdf8'" onmouseout="this.style.background='transparent', this.style.color='#fff'">➡️ محاذاة النص لليمين</div>
+        <div class="context-item-custom" onclick="quickAlignGrid('center')" style="padding: 8px 12px; cursor: pointer; color: #fff; display: flex; align-items: center; gap: 8px; transition: 0.2s; border-radius: 6px; font-family:'Tajawal', sans-serif; font-size:0.9rem;" onmouseover="this.style.background='rgba(56,189,248,0.15)', this.style.color='#38bdf8'" onmouseout="this.style.background='transparent', this.style.color='#fff'">↕️ محاذاة النص للوسط</div>
+        <div class="context-item-custom" onclick="quickAlignGrid('left')" style="padding: 8px 12px; cursor: pointer; color: #fff; display: flex; align-items: center; gap: 8px; transition: 0.2s; border-radius: 6px; font-family:'Tajawal', sans-serif; font-size:0.9rem;" onmouseover="this.style.background='rgba(56,189,248,0.15)', this.style.color='#38bdf8'" onmouseout="this.style.background='transparent', this.style.color='#fff'">⬅️ محاذاة النص لليسار</div>
+        <hr style="border:0; border-top:1px solid rgba(255,255,255,0.08); margin:4px 0;">
+        <div class="context-item-custom" onclick="quickResetGrid()" style="padding: 8px 12px; cursor: pointer; color: #fff; display: flex; align-items: center; gap: 8px; transition: 0.2s; border-radius: 6px; font-family:'Tajawal', sans-serif; font-size:0.9rem;" onmouseover="this.style.background='rgba(56,189,248,0.15)', this.style.color='#38bdf8'" onmouseout="this.style.background='transparent', this.style.color='#fff'">🔄 استعادة الضبط الافتراضي</div>
+    </div>
+
+    <!-- Slick Modal for POS Grid Customization -->
+    <div id="grid-settings-modal" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); z-index:999999; justify-content:center; align-items:center; direction:rtl; font-family:'Tajawal', sans-serif;">
+        <div class="glass-panel" style="width:95%; max-width:650px; max-height:90vh; overflow-y:auto; padding:25px; border-radius:20px; border:1px solid rgba(56, 189, 248, 0.35); background:rgba(15,23,42,0.95); color:#fff; box-shadow:0 20px 50px rgba(0,0,0,0.8);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:12px; margin-bottom:20px;">
+                <h3 style="margin:0; font-size:1.3rem; font-weight:900; color:#38bdf8; display:flex; align-items:center; gap:8px;">⚙️ تخصيص جدول الأصناف</h3>
+                <button type="button" onclick="closeGridSettingsModal()" style="background:transparent; border:none; color:#fff; font-size:1.5rem; cursor:pointer; font-weight:bold;">✕</button>
+            </div>
+            
+            <div style="display:grid; grid-template-columns:1fr 1.2fr; gap:20px;">
+                <!-- Column order & visibility -->
+                <div>
+                    <h4 style="margin-top:0; color:#38bdf8; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px; font-size: 1rem;">ترتيب وإظهار الأعمدة</h4>
+                    <div id="col-settings-list" style="display:flex; flex-direction:column; gap:8px; max-height:350px; overflow-y:auto; padding-left:5px;">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+                
+                <!-- Formatting & Styling -->
+                <div style="display:flex; flex-direction:column; gap:15px; border-right:1px solid rgba(255,255,255,0.08); padding-right:15px;">
+                    <h4 style="margin-top:0; color:#38bdf8; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px; font-size: 1rem;">تنسيق الخط والأرقام</h4>
+                    
+                    <!-- Font size -->
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <label style="color:#e2e8f0; font-weight:bold; font-size:0.9rem;">حجم الخط (بكسل):</label>
+                        <input type="number" id="grid-setting-font-size" min="10" max="32" value="16" style="width:70px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; padding:4px 8px; text-align:center;">
+                    </div>
+                    
+                    <!-- Font weight -->
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <label style="color:#e2e8f0; font-weight:bold; font-size:0.9rem;">نمط الخط:</label>
+                        <select id="grid-setting-font-weight" style="width:120px; background:#1e293b; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; padding:4px 8px;">
+                            <option value="normal">عادي (Normal)</option>
+                            <option value="bold">عريض (Bold)</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Font color -->
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <label style="color:#e2e8f0; font-weight:bold; font-size:0.9rem;">لون الخط:</label>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <input type="color" id="grid-setting-font-color" value="#ffffff" style="border:none; width:40px; height:28px; cursor:pointer; background:transparent;">
+                            <button type="button" onclick="document.getElementById('grid-setting-font-color').value='#ffffff'" style="background:rgba(255,255,255,0.1); border:none; border-radius:4px; padding:3px 8px; font-size:0.75rem; color:#fff; cursor:pointer;">افتراضي</button>
+                        </div>
+                    </div>
+
+                    <!-- Text alignment -->
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <label style="color:#e2e8f0; font-weight:bold; font-size:0.9rem;">محاذاة النص:</label>
+                        <select id="grid-setting-align" style="width:120px; background:#1e293b; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; padding:4px 8px;">
+                            <option value="center">وسط (Center)</option>
+                            <option value="right">يمين (Right)</option>
+                            <option value="left">يسار (Left)</option>
+                        </select>
+                    </div>
+
+                    <!-- Decimal places -->
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <label style="color:#e2e8f0; font-weight:bold; font-size:0.9rem;">الخانات العشرية للأرقام:</label>
+                        <input type="number" id="grid-setting-decimals" min="0" max="6" value="2" style="width:70px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; padding:4px 8px; text-align:center;">
+                    </div>
+                    
+                    <!-- Width controls slider/inputs -->
+                    <div style="margin-top:10px;">
+                        <label style="font-weight:bold; color:#38bdf8; display:block; margin-bottom:8px; font-size:0.9rem;">أحجام الأعمدة (بكسل):</label>
+                        <div id="col-widths-list" style="display:flex; flex-direction:column; gap:8px; max-height:150px; overflow-y:auto; border:1px solid rgba(255,255,255,0.1); padding:8px; border-radius:8px; background:rgba(0,0,0,0.2);">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">
+                <button type="button" onclick="closeGridSettingsModal()" style="background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:8px 20px; cursor:pointer;">إلغاء</button>
+                <button type="button" onclick="saveAndApplyGridSettings()" style="background:linear-gradient(135deg,#38bdf8,#0284c7); color:#fff; border:none; border-radius:8px; padding:8px 25px; font-weight:bold; cursor:pointer;">حفظ وتطبيق</button>
+            </div>
+        </div>
     </div>
 
     <script>
-    function initTableEnhancements() {
-        const table = document.getElementById('pos-grid');
-        if(!table) return;
+    // --- SLEEK POS GRID CUSTOMIZATION SYSTEM ---
+    const DEFAULT_GRID_COLUMNS = [
+        { id: 0, name: "#", visible: true, width: "50px", align: "center" },
+        { id: 1, name: "الصنف", visible: true, width: "350px", align: "right" },
+        { id: 2, name: "الوحدة", visible: true, width: "100px", align: "center" },
+        { id: 3, name: "الكمية", visible: true, width: "100px", align: "center" },
+        { id: 4, name: "السعر", visible: true, width: "120px", align: "center" },
+        { id: 5, name: "العدد", visible: true, width: "100px", align: "center" },
+        { id: 6, name: "المتاح", visible: true, width: "100px", align: "center" },
+        { id: 7, name: "المتبقي", visible: true, width: "100px", align: "center" },
+        { id: 8, name: "سعر العملة", visible: true, width: "120px", align: "center" },
+        { id: 9, name: "إجمالي العملة", visible: true, width: "140px", align: "center" },
+        { id: 10, name: "المخزن", visible: true, width: "140px", align: "center" },
+        { id: 11, name: "الإجمالي", visible: true, width: "120px", align: "center" },
+        { id: 12, name: "حذف", visible: true, width: "80px", align: "center" }
+    ];
 
-        // --- Column Resizing ---
-        const ths = table.querySelectorAll('thead th');
-        ths.forEach((th, index) => {
-            if(th.querySelector('.resizer')) return; // already added
-
-            const resizer = document.createElement('div');
-            resizer.classList.add('resizer');
-            th.appendChild(resizer);
-            
-            let x = 0;
-            let w = 0;
-            
-            const mouseDownHandler = function(e) {
-                x = e.clientX;
-                const styles = window.getComputedStyle(th);
-                w = parseInt(styles.width, 10);
-                
-                document.addEventListener('mousemove', mouseMoveHandler);
-                document.addEventListener('mouseup', mouseUpHandler);
-                resizer.classList.add('resizing');
-            };
-            
-            const mouseMoveHandler = function(e) {
-                const dx = e.clientX - x;
-                const isRTL = document.dir === 'rtl' || document.documentElement.dir === 'rtl' || getComputedStyle(document.body).direction === 'rtl';
-                th.style.width = isRTL ? `${w - dx}px` : `${w + dx}px`;
-                th.style.minWidth = th.style.width;
-            };
-            
-            const mouseUpHandler = function() {
-                document.removeEventListener('mousemove', mouseMoveHandler);
-                document.removeEventListener('mouseup', mouseUpHandler);
-                resizer.classList.remove('resizing');
-            };
-            
-            resizer.addEventListener('mousedown', mouseDownHandler);
-        });
-
-        // --- Context Menu ---
-        const menu = document.getElementById('col-context-menu');
-        const toggleList = document.getElementById('col-toggle-list');
+    function getGridSettings() {
+        let settings = null;
+        try {
+            const stored = localStorage.getItem('erp_grid_customizer_v1');
+            if (stored) settings = JSON.parse(stored);
+        } catch(e) {
+            console.error("Error reading grid settings", e);
+        }
         
-        const updateMenu = () => {
-            toggleList.innerHTML = '';
-            const currentThs = table.querySelectorAll('thead th');
-            currentThs.forEach((th, index) => {
-                let title = th.textContent.trim() || 'إجراء';
-                
-                const item = document.createElement('label');
-                item.className = 'col-toggle-item';
-                
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.checked = th.style.display !== 'none';
-                checkbox.dataset.colIndex = index + 1;
-                
-                checkbox.addEventListener('change', (e) => {
-                    const isChecked = e.target.checked;
-                    const colIndex = e.target.dataset.colIndex;
-                    
-                    table.querySelector(`thead th:nth-child(${colIndex})`).style.display = isChecked ? '' : 'none';
-                    
-                    const rows = table.querySelectorAll('tbody tr');
-                    rows.forEach(row => {
-                        const td = row.querySelector(`td:nth-child(${colIndex})`);
-                        if(td) td.style.display = isChecked ? '' : 'none';
-                    });
-                    
-                    if (window.saveColumnVisibility) window.saveColumnVisibility();
+        if (!settings) {
+            settings = {
+                columns: JSON.parse(JSON.stringify(DEFAULT_GRID_COLUMNS)),
+                fontSize: 16,
+                fontWeight: 'normal',
+                fontColor: '#ffffff',
+                decimalPlaces: 2,
+                align: 'center'
+            };
+        } else {
+            if (!settings.columns || settings.columns.length === 0) {
+                settings.columns = JSON.parse(JSON.stringify(DEFAULT_GRID_COLUMNS));
+            } else {
+                settings.columns.forEach(col => {
+                    const def = DEFAULT_GRID_COLUMNS.find(d => d.id === col.id);
+                    if (def) {
+                        if (col.visible === undefined) col.visible = def.visible;
+                        if (col.width === undefined) col.width = def.width;
+                        if (col.align === undefined) col.align = def.align;
+                    }
                 });
-                
-                item.appendChild(checkbox);
-                item.appendChild(document.createTextNode(title));
-                toggleList.appendChild(item);
+            }
+        }
+        return settings;
+    }
+
+    function saveGridSettings(settings) {
+        localStorage.setItem('erp_grid_customizer_v1', JSON.stringify(settings));
+    }
+
+    // Apply layout, sizes, visibility, fonts, and alignment
+    function applyGridSettings() {
+        const settings = getGridSettings();
+        const table = document.getElementById('pos-grid');
+        if (!table) return;
+
+        // 1. Format Headers
+        const theadRow = table.querySelector('thead tr');
+        if (theadRow) {
+            const ths = Array.from(theadRow.querySelectorAll('th'));
+            
+            if (ths.length > 0 && !ths[0].hasAttribute('data-col-id')) {
+                ths.forEach((th, idx) => th.setAttribute('data-col-id', idx));
+            }
+            
+            settings.columns.forEach(colSetting => {
+                const th = ths.find(t => String(t.getAttribute('data-col-id')) === String(colSetting.id));
+                if (th) {
+                    th.style.display = colSetting.visible ? '' : 'none';
+                    if (colSetting.width) {
+                        th.style.width = colSetting.width;
+                        th.style.minWidth = colSetting.width;
+                        th.style.maxWidth = colSetting.width;
+                    }
+                    th.style.textAlign = colSetting.align || 'center';
+                    theadRow.appendChild(th);
+                }
             });
-        };
+        }
 
-        table.addEventListener('contextmenu', (e) => {
-            if(e.target.closest('table') === table) {
-                e.preventDefault();
-                updateMenu();
-                menu.style.display = 'block';
-                menu.style.left = `${e.pageX}px`;
-                menu.style.top = `${e.pageY}px`;
-            }
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!menu.contains(e.target) && e.button !== 2) {
-                menu.style.display = 'none';
-            }
-        });
-
-        // Observer for dynamically added rows
-        if(!window.tableObserver) {
-            const tbody = document.getElementById('grid-body');
-            if(tbody) {
-                window.tableObserver = new MutationObserver((mutations) => {
-                    mutations.forEach(mutation => {
-                        if (mutation.addedNodes.length > 0) {
-                            const currentThs = table.querySelectorAll('thead th');
-                            currentThs.forEach((th, index) => {
-                                if(th.style.display === 'none') {
-                                    const colIndex = index + 1;
-                                    mutation.addedNodes.forEach(row => {
-                                        if(row.nodeType === 1 && row.tagName === 'TR') {
-                                            const td = row.querySelector(`td:nth-child(${colIndex})`);
-                                            if(td) td.style.display = 'none';
-                                        }
-                                    });
-                                }
-                            });
+        // 2. Format Body Rows
+        const tbody = document.getElementById('grid-body');
+        if (tbody) {
+            const trs = Array.from(tbody.querySelectorAll('tr'));
+            trs.forEach(tr => {
+                const tds = Array.from(tr.querySelectorAll('td'));
+                
+                if (tds.length > 0 && !tds[0].hasAttribute('data-col-id')) {
+                    tds.forEach((td, idx) => td.setAttribute('data-col-id', idx));
+                }
+                
+                settings.columns.forEach(colSetting => {
+                    const td = tds.find(t => String(t.getAttribute('data-col-id')) === String(colSetting.id));
+                    if (td) {
+                        td.style.display = colSetting.visible ? '' : 'none';
+                        if (colSetting.width) {
+                            td.style.width = colSetting.width;
+                            td.style.minWidth = colSetting.width;
+                            td.style.maxWidth = colSetting.width;
                         }
-                    });
+                        td.style.textAlign = colSetting.align || 'center';
+                        
+                        const inputs = td.querySelectorAll('input, select, span, div');
+                        inputs.forEach(el => {
+                            if (settings.fontSize) el.style.fontSize = settings.fontSize + 'px';
+                            if (settings.fontWeight) el.style.fontWeight = settings.fontWeight;
+                            if (settings.fontColor && el.tagName !== 'BUTTON' && !el.classList.contains('btn-icon')) {
+                                el.style.color = settings.fontColor;
+                            }
+                            if (el.tagName === 'INPUT' || el.tagName === 'SELECT') {
+                                el.style.textAlign = colSetting.align || 'center';
+                            }
+                        });
+                        tr.appendChild(td);
+                    }
                 });
-                window.tableObserver.observe(tbody, { childList: true });
-            }
+            });
         }
     }
 
-    document.addEventListener('DOMContentLoaded', initTableEnhancements);
-    
-    // --- Column Reordering Logic ---
+    // Single row reorder hook (called from renderGrid in direct-sales-v3.js)
+    window.reorderTds = function(tr) {
+        const settings = getGridSettings();
+        const tds = Array.from(tr.children);
+        
+        if (tds.length > 0 && !tds[0].hasAttribute('data-col-id')) {
+            tds.forEach((td, idx) => td.setAttribute('data-col-id', idx));
+        }
+        
+        settings.columns.forEach(colSetting => {
+            const td = tds.find(t => String(t.getAttribute('data-col-id')) === String(colSetting.id));
+            if (td) {
+                td.style.display = colSetting.visible ? '' : 'none';
+                if (colSetting.width) {
+                    td.style.width = colSetting.width;
+                    td.style.minWidth = colSetting.width;
+                    td.style.maxWidth = colSetting.width;
+                }
+                td.style.textAlign = colSetting.align || 'center';
+                
+                const inputs = td.querySelectorAll('input, select, span, div');
+                inputs.forEach(el => {
+                    if (settings.fontSize) el.style.fontSize = settings.fontSize + 'px';
+                    if (settings.fontWeight) el.style.fontWeight = settings.fontWeight;
+                    if (settings.fontColor && el.tagName !== 'BUTTON' && !el.classList.contains('btn-icon')) {
+                        el.style.color = settings.fontColor;
+                    }
+                    if (el.tagName === 'INPUT' || el.tagName === 'SELECT') {
+                        el.style.textAlign = colSetting.align || 'center';
+                    }
+                });
+                tr.appendChild(td);
+            }
+        });
+    };
+
+    // Table Column Resizer Handle Creator (Smooth mouse dragging)
+    function makeTableResizable() {
+        const table = document.getElementById('pos-grid');
+        if (!table) return;
+        const row = table.querySelector('thead tr');
+        const cols = row ? row.children : [];
+        if (!cols) return;
+
+        // Remove existing resizers to prevent duplicates
+        table.querySelectorAll('.col-resizer').forEach(r => r.remove());
+
+        for (let i = 0; i < cols.length; i++) {
+            const th = cols[i];
+            const colId = th.getAttribute('data-col-id');
+            if (colId === "12") continue; // Skip delete button
+
+            const resizer = document.createElement('div');
+            resizer.className = 'col-resizer';
+            resizer.style.cssText = 'position:absolute; left:0; top:0; width:6px; height:100%; cursor:col-resize; user-select:none; z-index:10; transition: background-color 0.2s;';
+            resizer.addEventListener('mouseenter', () => resizer.style.backgroundColor = 'rgba(56, 189, 248, 0.4)');
+            resizer.addEventListener('mouseleave', () => resizer.style.backgroundColor = 'transparent');
+            th.appendChild(resizer);
+
+            let startX, startWidth;
+
+            resizer.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                startX = e.clientX;
+                startWidth = th.offsetWidth;
+
+                function doDrag(ev) {
+                    // RTL support: dragging left increases width of the column
+                    const dx = ev.clientX - startX;
+                    const newWidth = Math.max(40, startWidth - dx);
+                    
+                    th.style.width = newWidth + 'px';
+                    th.style.minWidth = newWidth + 'px';
+                    th.style.maxWidth = newWidth + 'px';
+
+                    const tds = table.querySelectorAll(`tbody td[data-col-id="${colId}"]`);
+                    tds.forEach(td => {
+                        td.style.width = newWidth + 'px';
+                        td.style.minWidth = newWidth + 'px';
+                        td.style.maxWidth = newWidth + 'px';
+                    });
+                }
+
+                function stopDrag() {
+                    document.removeEventListener('mousemove', doDrag);
+                    document.removeEventListener('mouseup', stopDrag);
+
+                    const settings = getGridSettings();
+                    const colSetting = settings.columns.find(c => String(c.id) === String(colId));
+                    if (colSetting) {
+                        colSetting.width = th.style.width;
+                        saveGridSettings(settings);
+                    }
+                }
+
+                document.addEventListener('mousemove', doDrag);
+                document.addEventListener('mouseup', stopDrag);
+            });
+        }
+    }
+
+    // Modal Control logic
+    let tempGridSettings = null;
+
+    window.openGridSettingsModal = function() {
+        tempGridSettings = getGridSettings();
+        
+        document.getElementById('grid-setting-font-size').value = tempGridSettings.fontSize || 16;
+        document.getElementById('grid-setting-font-weight').value = tempGridSettings.fontWeight || 'normal';
+        document.getElementById('grid-setting-font-color').value = tempGridSettings.fontColor || '#ffffff';
+        document.getElementById('grid-setting-align').value = tempGridSettings.align || 'center';
+        document.getElementById('grid-setting-decimals').value = tempGridSettings.decimalPlaces !== undefined ? tempGridSettings.decimalPlaces : 2;
+
+        renderColSettingsList();
+        renderColWidthsList();
+        
+        document.getElementById('grid-settings-modal').style.display = 'flex';
+        document.getElementById('col-context-menu').style.display = 'none';
+    };
+
+    function renderColSettingsList() {
+        const listEl = document.getElementById('col-settings-list');
+        listEl.innerHTML = '';
+        
+        tempGridSettings.columns.forEach((col, index) => {
+            const item = document.createElement('div');
+            item.style.cssText = 'display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:8px; margin-bottom:4px;';
+            item.innerHTML = `
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <input type="checkbox" id="chk-col-${col.id}" ${col.visible ? 'checked' : ''} onchange="toggleColVisibility(${index}, this.checked)" style="cursor:pointer; width:16px; height:16px;">
+                    <label for="chk-col-${col.id}" style="cursor:pointer; font-weight:bold; font-size:0.95rem; color:#fff; margin:0;">${col.name}</label>
+                </div>
+                <div style="display:flex; gap:6px;">
+                    <button type="button" onclick="moveColumn(${index}, 'up')" style="background:rgba(255,255,255,0.08); border:none; border-radius:4px; width:28px; height:28px; cursor:pointer; color:#fff;" ${index === 0 ? 'disabled style="opacity:0.3;"' : ''}>▲</button>
+                    <button type="button" onclick="moveColumn(${index}, 'down')" style="background:rgba(255,255,255,0.08); border:none; border-radius:4px; width:28px; height:28px; cursor:pointer; color:#fff;" ${index === tempGridSettings.columns.length - 1 ? 'disabled style="opacity:0.3;"' : ''}>▼</button>
+                </div>
+            `;
+            listEl.appendChild(item);
+        });
+    }
+
+    function renderColWidthsList() {
+        const listEl = document.getElementById('col-widths-list');
+        listEl.innerHTML = '';
+        
+        tempGridSettings.columns.forEach((col, index) => {
+            const item = document.createElement('div');
+            item.style.cssText = 'display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 4px;';
+            const widthVal = parseInt(col.width) || 100;
+            item.innerHTML = `
+                <span style="font-size:0.9rem; font-weight:bold; color:#fff; min-width:80px; text-align:right;">${col.name}:</span>
+                <input type="range" min="40" max="600" value="${widthVal}" oninput="updateColWidth(${index}, this.value)" style="flex:1; cursor:pointer; accent-color:#38bdf8;">
+                <input type="number" min="40" max="600" value="${widthVal}" oninput="updateColWidth(${index}, this.value)" style="width:65px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; padding:2px 4px; text-align:center; font-size:0.85rem;">
+            `;
+            listEl.appendChild(item);
+        });
+    }
+
+    window.toggleColVisibility = function(index, checked) {
+        tempGridSettings.columns[index].visible = checked;
+    };
+
+    window.updateColWidth = function(index, val) {
+        tempGridSettings.columns[index].width = val + 'px';
+        renderColWidthsList();
+    };
+
+    window.moveColumn = function(index, direction) {
+        const list = tempGridSettings.columns;
+        if (direction === 'up' && index > 0) {
+            const temp = list[index];
+            list[index] = list[index - 1];
+            list[index - 1] = temp;
+        } else if (direction === 'down' && index < list.length - 1) {
+            const temp = list[index];
+            list[index] = list[index + 1];
+            list[index + 1] = temp;
+        }
+        renderColSettingsList();
+        renderColWidthsList();
+    };
+
+    window.closeGridSettingsModal = function() {
+        document.getElementById('grid-settings-modal').style.display = 'none';
+    };
+
+    window.saveAndApplyGridSettings = function() {
+        tempGridSettings.fontSize = parseInt(document.getElementById('grid-setting-font-size').value) || 16;
+        tempGridSettings.fontWeight = document.getElementById('grid-setting-font-weight').value;
+        tempGridSettings.fontColor = document.getElementById('grid-setting-font-color').value;
+        tempGridSettings.align = document.getElementById('grid-setting-align').value;
+        tempGridSettings.decimalPlaces = parseInt(document.getElementById('grid-setting-decimals').value);
+
+        tempGridSettings.columns.forEach(col => {
+            col.align = tempGridSettings.align;
+        });
+
+        saveGridSettings(tempGridSettings);
+        applyGridSettings();
+        
+        if (typeof renderGrid === 'function') renderGrid();
+        
+        closeGridSettingsModal();
+        showToast("تم تطبيق وحفظ إعدادات الجدول بنجاح!", "success");
+    };
+
+    window.quickAlignGrid = function(alignMode) {
+        const settings = getGridSettings();
+        settings.align = alignMode;
+        settings.columns.forEach(col => {
+            col.align = alignMode;
+        });
+        saveGridSettings(settings);
+        applyGridSettings();
+        if (typeof renderGrid === 'function') renderGrid();
+        document.getElementById('col-context-menu').style.display = 'none';
+        showToast(`تم تغيير محاذاة النص إلى ${alignMode === 'right' ? 'اليمين' : alignMode === 'center' ? 'الوسط' : 'اليسار'}`, "success");
+    };
+
+    window.quickResetGrid = function() {
+        document.getElementById('col-context-menu').style.display = 'none';
+        if (confirm("هل أنت متأكد من استعادة التنسيق والترتيب الافتراضي لجدول الأصناف؟")) {
+            localStorage.removeItem('erp_grid_customizer_v1');
+            applyGridSettings();
+            if (typeof renderGrid === 'function') renderGrid();
+            makeTableResizable();
+            showToast("تم استعادة الضبط الافتراضي بنجاح", "success");
+        }
+    };
+
+    // --- Drag drop column reordering ---
     let dragSrcCol = null;
 
     function initDraggableColumns() {
@@ -2668,12 +2983,10 @@
             th.addEventListener('drop', handleColDrop);
             th.addEventListener('dragend', handleColDragEnd);
         });
-        
-        applySavedColumnOrder();
     }
 
     function handleColDragStart(e) {
-        if(e.target.classList.contains('resizer')) {
+        if(e.target.classList.contains('col-resizer')) {
             e.preventDefault();
             return;
         }
@@ -2719,8 +3032,18 @@
                 targetTh.before(dragSrcCol);
             }
             
-            saveColumnOrder();
-            applySavedColumnOrder(true);
+            let ths = document.querySelectorAll('#pos-grid thead tr th');
+            let orderIds = Array.from(ths).map(th => parseInt(th.getAttribute('data-col-id')));
+            
+            const settings = getGridSettings();
+            const newCols = [];
+            orderIds.forEach(id => {
+                const col = settings.columns.find(c => c.id === id);
+                if (col) newCols.push(col);
+            });
+            settings.columns = newCols;
+            saveGridSettings(settings);
+            applyGridSettings();
         }
         return false;
     }
@@ -2734,104 +3057,34 @@
         });
     }
 
-    function saveColumnOrder() {
-        let ths = document.querySelectorAll('#pos-grid thead tr th');
-        let order = Array.from(ths).map(th => parseInt(th.getAttribute('data-col-id')));
-        localStorage.setItem('erp_sales_col_order_v4', JSON.stringify(order));
-    }
+    // Context menu triggering
+    function initContextMenuTrigger() {
+        const gridTable = document.getElementById('pos-grid');
+        const menu = document.getElementById('col-context-menu');
+        if (!gridTable || !menu) return;
 
-    window.reorderTds = function(tr) {
-        let orderStr = localStorage.getItem('erp_sales_col_order_v4');
-        let hiddenStr = localStorage.getItem('erp_sales_col_vis_v4');
-        let hidden = hiddenStr ? JSON.parse(hiddenStr) : [];
-        
-        if (!orderStr && hidden.length === 0) return;
-        
-        let order = orderStr ? JSON.parse(orderStr) : null;
-        let tds = Array.from(tr.children);
-        
-        if (tds.length > 0 && !tds[0].hasAttribute('data-col-id')) {
-            tds.forEach((td, idx) => td.setAttribute('data-col-id', idx));
-        }
-        
-        if (order) {
-            order.forEach(id => {
-                let td = tds.find(t => parseInt(t.getAttribute('data-col-id')) === id);
-                if (td) tr.appendChild(td);
-            });
-        }
-        
-        if (hidden.length > 0) {
-            Array.from(tr.children).forEach(td => {
-                let id = parseInt(td.getAttribute('data-col-id'));
-                if (hidden.includes(id)) {
-                    td.style.display = 'none';
-                } else {
-                    td.style.display = '';
-                }
-            });
-        }
-    };
-
-    function applySavedColumnOrder(forceTbody = false) {
-        let orderStr = localStorage.getItem('erp_sales_col_order_v4');
-        if (!orderStr) return;
-        let order = JSON.parse(orderStr);
-        
-        let theadTr = document.querySelector('#pos-grid thead tr');
-        if (theadTr) {
-            let ths = Array.from(theadTr.children);
-            order.forEach(id => {
-                let th = ths.find(t => parseInt(t.getAttribute('data-col-id')) === id);
-                if (th) theadTr.appendChild(th);
-            });
-        }
-        
-        if (forceTbody) {
-            let trs = document.querySelectorAll('#pos-grid tbody tr');
-            trs.forEach(tr => window.reorderTds(tr));
-        }
-    }
-
-    window.saveColumnVisibility = function() {
-        let ths = document.querySelectorAll('#pos-grid thead th');
-        let hidden = [];
-        ths.forEach(th => {
-            if(th.style.display === 'none') hidden.push(parseInt(th.getAttribute('data-col-id')));
+        gridTable.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            menu.style.display = 'block';
+            menu.style.left = `${e.clientX}px`;
+            menu.style.top = `${e.clientY}px`;
         });
-        localStorage.setItem('erp_sales_col_vis_v4', JSON.stringify(hidden));
-    };
 
-    window.applySavedColumnVisibility = function() {
-        let hiddenStr = localStorage.getItem('erp_sales_col_vis_v4');
-        if(!hiddenStr) return;
-        let hidden = JSON.parse(hiddenStr);
-        
-        let ths = document.querySelectorAll('#pos-grid thead th');
-        ths.forEach(th => {
-            let id = parseInt(th.getAttribute('data-col-id'));
-            if(hidden.includes(id)) {
-                th.style.display = 'none';
+        document.addEventListener('click', (e) => {
+            if (!menu.contains(e.target)) {
+                menu.style.display = 'none';
             }
         });
-        
-        let trs = document.querySelectorAll('#pos-grid tbody tr');
-        trs.forEach(tr => {
-            let tds = Array.from(tr.children);
-            tds.forEach(td => {
-                let id = parseInt(td.getAttribute('data-col-id'));
-                if(id !== null && !isNaN(id) && hidden.includes(id)) {
-                    td.style.display = 'none';
-                }
-            });
-        });
-    };
+    }
 
+    // Document ready initialization
     document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             initDraggableColumns();
-            window.applySavedColumnVisibility();
-        }, 600);
+            applyGridSettings();
+            makeTableResizable();
+            initContextMenuTrigger();
+        }, 800);
     });
     </script>
 
