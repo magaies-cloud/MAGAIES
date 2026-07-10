@@ -917,7 +917,8 @@ app.get('/wa/diagnose', async (_req, res) => {
 
 // ── GET /wa/healer ─────────────────────────────────────────────
 app.get('/wa/healer', (_req, res) => {
-    res.json(healer.toJSON());
+    healer.forceCheck();
+    res.json({ success: true, message: 'Healer triggered manually' });
 });
 
 // ── POST /wa/healer/toggle ─────────────────────────────────────
@@ -926,6 +927,20 @@ app.post('/wa/healer/toggle', (req, res) => {
     if (healer.enabled && !healer.timer) healer.start();
     log('🤖 HEALER', `Toggled: ${healer.enabled ? 'ENABLED' : 'DISABLED'}`);
     res.json({ success: true, enabled: healer.enabled });
+});
+
+// ── 404 AND GLOBAL ERROR HANDLERS ──────────────────────────────
+app.use((req, res) => {
+    res.status(404).json({ success: false, error: 'Endpoint not found in Node.js service: ' + req.path });
+});
+
+app.use((err, req, res, next) => {
+    console.error('Express Error:', err);
+    res.status(500).json({
+        success: false,
+        error: 'Internal Node.js Error: ' + err.message,
+        stack: err.stack
+    });
 });
 
 

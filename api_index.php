@@ -569,6 +569,16 @@ if ($token === $saasSecret) {
                 jsonResponse(['success' => false, 'error' => 'فشل الاتصال بخادم الواتساب المحلي: ' . $err], 500);
             }
             
+            // Ensure response is JSON
+            $decoded = json_decode($response, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                jsonResponse([
+                    'success' => false, 
+                    'error' => 'استجابة غير متوقعة من خادم الواتساب (ربما تعطلت الخدمة)',
+                    'raw_error' => trim(substr(strip_tags($response), 0, 300))
+                ], 500);
+            }
+            
             header('Content-Type: application/json');
             http_response_code(200); // Always 200 to prevent Nginx HTML error pages
             echo $response;
