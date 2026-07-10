@@ -2714,11 +2714,12 @@
                         td.style.textAlign = colSetting.align || 'center';
                         
                         const inputs = td.querySelectorAll('input, select, span, div');
+                        const targetColor = colSetting.color || settings.fontColor || '#ffffff';
                         inputs.forEach(el => {
                             if (settings.fontSize) el.style.fontSize = settings.fontSize + 'px';
                             if (settings.fontWeight) el.style.fontWeight = settings.fontWeight;
-                            if (settings.fontColor && el.tagName !== 'BUTTON' && !el.classList.contains('btn-icon')) {
-                                el.style.color = settings.fontColor;
+                            if (targetColor && el.tagName !== 'BUTTON' && !el.classList.contains('btn-icon')) {
+                                el.style.color = targetColor;
                             }
                             if (el.tagName === 'INPUT' || el.tagName === 'SELECT') {
                                 el.style.textAlign = colSetting.align || 'center';
@@ -2752,11 +2753,12 @@
                 td.style.textAlign = colSetting.align || 'center';
                 
                 const inputs = td.querySelectorAll('input, select, span, div');
+                const targetColor = colSetting.color || settings.fontColor || '#ffffff';
                 inputs.forEach(el => {
                     if (settings.fontSize) el.style.fontSize = settings.fontSize + 'px';
                     if (settings.fontWeight) el.style.fontWeight = settings.fontWeight;
-                    if (settings.fontColor && el.tagName !== 'BUTTON' && !el.classList.contains('btn-icon')) {
-                        el.style.color = settings.fontColor;
+                    if (targetColor && el.tagName !== 'BUTTON' && !el.classList.contains('btn-icon')) {
+                        el.style.color = targetColor;
                     }
                     if (el.tagName === 'INPUT' || el.tagName === 'SELECT') {
                         el.style.textAlign = colSetting.align || 'center';
@@ -2864,7 +2866,8 @@
                     <input type="checkbox" id="chk-col-${col.id}" ${col.visible ? 'checked' : ''} onchange="toggleColVisibility(${index}, this.checked)" style="cursor:pointer; width:16px; height:16px;">
                     <label for="chk-col-${col.id}" style="cursor:pointer; font-weight:bold; font-size:0.95rem; color:#fff; margin:0;">${col.name}</label>
                 </div>
-                <div style="display:flex; gap:6px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <input type="color" value="${col.color || tempGridSettings.fontColor || '#ffffff'}" oninput="updateColColor(${index}, this.value)" style="border:none; width:30px; height:24px; cursor:pointer; background:transparent;" title="لون خط العمود">
                     <button type="button" onclick="moveColumn(${index}, 'up')" style="background:rgba(255,255,255,0.08); border:none; border-radius:4px; width:28px; height:28px; cursor:pointer; color:#fff;" ${index === 0 ? 'disabled style="opacity:0.3;"' : ''}>▲</button>
                     <button type="button" onclick="moveColumn(${index}, 'down')" style="background:rgba(255,255,255,0.08); border:none; border-radius:4px; width:28px; height:28px; cursor:pointer; color:#fff;" ${index === tempGridSettings.columns.length - 1 ? 'disabled style="opacity:0.3;"' : ''}>▼</button>
                 </div>
@@ -2872,6 +2875,10 @@
             listEl.appendChild(item);
         });
     }
+
+    window.updateColColor = function(index, val) {
+        tempGridSettings.columns[index].color = val;
+    };
 
     function renderColWidthsList() {
         const listEl = document.getElementById('col-widths-list');
