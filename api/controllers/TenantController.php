@@ -373,6 +373,8 @@ class TenantController {
             $filepath = $dir . $filename;
             
             if (move_uploaded_file($file['tmp_name'], $filepath)) {
+                chmod($filepath, 0644); // Ensure file is readable by the web server
+                chmod($dir, 0755); // Ensure directory is readable
                 jsonResponse(['success' => true, 'url' => 'uploads/ads/' . $filename]);
             } else {
                 jsonResponse(['error' => 'Failed to save file'], 500);
