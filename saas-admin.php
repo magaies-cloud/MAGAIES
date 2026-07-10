@@ -2640,11 +2640,24 @@
                     });
                 }
 
-                await fetch(apiUrl('saas', 'settings', 'ads'), {
+                const saveRes = await fetch(apiUrl('saas', 'settings', 'ads'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
                     body: JSON.stringify({ ads: allAds })
                 });
+                const saveData = await saveRes.json();
+                if (!saveRes.ok || !saveData.success) {
+                    throw new Error(saveData.error || 'فشل حفظ الإعلان في قاعدة البيانات');
+                }
+
+                // Reload ads from server to ensure consistency
+                try {
+                    const resPub = await fetch('api_index.php?r=public');
+                    const dataPub = await resPub.json();
+                    allAds = dataPub.ads || [];
+                } catch(reloadErr) {
+                    console.warn('Failed to reload ads after save:', reloadErr);
+                }
 
                 closeModal('ad-modal');
                 renderAds();
