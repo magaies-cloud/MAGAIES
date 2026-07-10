@@ -462,9 +462,26 @@ if ($token === $saasSecret) {
             $output = [];
             $retCode = 0;
             
+            // Try to set safe git directory ownership for the web server user
+            @exec("git config --global --add safe.directory " . escapeshellarg(__DIR__) . " 2>&1");
+            
             if ($isLock) {
                 @exec("git update-index --skip-worktree " . escapeshellarg($file) . " 2>&1", $output, $retCode);
-                @chmod($file, 0444);
+                $chmodResult = @chmod($file, 0444);
+                
+                // Verify if it actually became read-only
+                clearstatcache(true, $file);
+                $isWritable = is_writable($file);
+                
+                if ($isWritable) {
+                    jsonResponse([
+                        'success' => false, 
+                        'error' => 'فشل قفل الملف: صلاحيات السيرفر الحالية تمنع خادم الويب من تعديل تصاريح الملف (Permission Denied). يرجى قفل الملف يدوياً من SSH عبر تشغيل: ./lock_whatsapp_service.sh',
+                        'git_output' => implode("\n", $output),
+                        'chmod_result' => $chmodResult ? 'نجح' : 'فشل'
+                    ], 500);
+                }
+                
                 jsonResponse([
                     'success' => true, 
                     'message' => 'تم قفل التحديثات بنجاح (محمي ضد أي تعديل أو رفع جديد).',
@@ -472,7 +489,21 @@ if ($token === $saasSecret) {
                 ]);
             } else {
                 @exec("git update-index --no-skip-worktree " . escapeshellarg($file) . " 2>&1", $output, $retCode);
-                @chmod($file, 0644);
+                $chmodResult = @chmod($file, 0644);
+                
+                // Verify if it actually became writable
+                clearstatcache(true, $file);
+                $isWritable = is_writable($file);
+                
+                if (!$isWritable) {
+                    jsonResponse([
+                        'success' => false, 
+                        'error' => 'فشل فك قفل الملف: صلاحيات السيرفر تمنع خادم الويب من تغيير تصاريح الملف. يرجى تشغيل الأمر التالي في SSH لفك القفل: chmod 644 whatsapp-service.mjs',
+                        'git_output' => implode("\n", $output),
+                        'chmod_result' => $chmodResult ? 'نجح' : 'فشل'
+                    ], 500);
+                }
+                
                 jsonResponse([
                     'success' => true, 
                     'message' => 'تم فك القفل بنجاح (الملف جاهز لتلقي التحديثات البرمجية الجديدة).',
