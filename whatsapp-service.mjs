@@ -28,7 +28,7 @@ const PORT                   = 3001;
 const AUTH_BASE_DIR          = __dirname;
 const UPLOADS_DIR            = path.join(__dirname, 'uploads');
 const MAX_RECONNECT_ATTEMPTS = 20;
-const KEEPALIVE_INTERVAL_MS  = 25_000;   // 25s presence ping
+const KEEPALIVE_INTERVAL_MS  = 300_000;  // 5m presence ping (avoid rate limiting)
 const WATCHDOG_INTERVAL_MS   = 60_000;   // 60s health check
 const INIT_COOLDOWN_MS       = 3_000;    // min gap between init attempts
 const QR_TIMEOUT_MS          = 120_000;  // 2min — give up if QR not scanned
@@ -169,14 +169,15 @@ class WhatsAppClient {
     _scheduleReconnect(overrideDelayMs) {
         if (this._isDestroying) return;
         if (this.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
-            logErr(this.userId, `Max reconnect attempts (${MAX_RECONNECT_ATTEMPTS}) reached. Giving up.`);
+            logErr(this.userId, `Max reconnect attempts (${MAX_RECONNECT_ATTEMPTS}) reached. Retrying again in 10s.`);
             this._setState('FAILED');
             this.reconnectAttempts = 0;
+            if (this._reconnectTimer) clearTimeout(this._reconnectTimer);
+            this._reconnectTimer = setTimeout(() => this.init(), 10_000);
             return;
         }
 
-        const delay = overrideDelayMs ??
-            Math.min(BACKOFF_BASE_MS * Math.pow(2, this.reconnectAttempts), BACKOFF_MAX_MS);
+        const delay = overrideDelayMs ?? 3000; // Flat 3s delay for near-instant reconnection
         this.reconnectAttempts++;
         this._setState('RECONNECTING');
 
@@ -287,15 +288,20 @@ class WhatsAppClient {
             const createSocket = makeWASocket.default || makeWASocket;
             const sock = createSocket({
                 auth: state,
-                browser: Browsers.ubuntu('Chrome'),
+                browser: ['Windows', 'Chrome', '120.0.0.0'], // Stabilizes connection and avoids 428 precondition loops
                 printQRInTerminal: false,
                 logger: pino({ level: 'error' }),
                 syncFullHistory: false,
-                markOnlineOnConnect: false,
-                connectTimeoutMs: 180_000,
-                defaultQueryTimeoutMs: 180_000,
-                keepAliveIntervalMs: 15_000,
-                retryRequestDelayMs: 250,
+                markOnlineOnConnect: true,
+                fireInitQueries: true,                       // Stabilize connection by sending init query handshake
+                connectTimeoutMs: 60_000,
+                defaultQueryTimeoutMs: 60_000,
+                keepAliveIntervalMs: 30_000,                 // 30s standard ping
+                retryRequestDelayMs: 5000,
+                getMessage: async (key) => {
+                    // Provide a default empty/dummy message callback to prevent crashes on message retries
+                    return { conversation: 'keep-alive' };
+                }
             });
 
             this.socket = sock;
@@ -408,9 +414,14 @@ class WhatsAppClient {
                     this._scheduleReconnect(10_000);
                     break;
 
+                case DisconnectReason.connectionReplaced:
+                    log(this.userId, 'Connection replaced by another session. Going DISCONNECTED to prevent reconnection war.');
+                    this._setState('DISCONNECTED');
+                    this.reconnectAttempts = 0;
+                    break;
+
                 case DisconnectReason.connectionClosed:
                 case DisconnectReason.connectionLost:
-                case DisconnectReason.connectionReplaced:
                 case DisconnectReason.timedOut:
                 default:
                     this._scheduleReconnect();
@@ -453,7 +464,14 @@ class WhatsAppClient {
 
     async sendMessage(phone, content) {
         if (!this.isConnected) throw new Error('WhatsApp not connected');
-        return this.socket.sendMessage(phone, content);
+        
+        // Wrap the message sending in a 15-second timeout to prevent blocking or hanging requests
+        const sendPromise = this.socket.sendMessage(phone, content);
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Send request timed out on WhatsApp server')), 15_000)
+        );
+        
+        return Promise.race([sendPromise, timeoutPromise]);
     }
 
     async logout() {

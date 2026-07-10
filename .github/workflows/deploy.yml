@@ -24,9 +24,13 @@ jobs:
         script: |
           cd /var/www/magaees
           git remote set-url origin https://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@github.com/magaies-cloud/MAGAIES.git
+          git update-index --no-skip-worktree whatsapp-service.mjs || true
+          chmod 644 whatsapp-service.mjs || true
           git fetch origin
           git reset --hard origin/main
           git clean -fd
+          git update-index --skip-worktree whatsapp-service.mjs || true
+          chmod 444 whatsapp-service.mjs || true
           chown -R www-data:www-data /var/www/magaees
           chmod -R 755 /var/www/magaees
           systemctl reload nginx
