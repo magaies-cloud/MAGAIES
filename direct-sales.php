@@ -2528,17 +2528,17 @@
 
     <!-- Slick Modal for POS Grid Customization -->
     <div id="grid-settings-modal" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); z-index:999999; justify-content:center; align-items:center; direction:rtl; font-family:'Tajawal', sans-serif;">
-        <div class="glass-panel" style="width:95%; max-width:650px; max-height:90vh; overflow-y:auto; padding:25px; border-radius:20px; border:1px solid rgba(56, 189, 248, 0.35); background:rgba(15,23,42,0.95); color:#fff; box-shadow:0 20px 50px rgba(0,0,0,0.8);">
+        <div class="glass-panel" style="width:95%; max-width:950px; padding:25px; border-radius:20px; border:1px solid rgba(56, 189, 248, 0.35); background:rgba(15,23,42,0.98); color:#fff; box-shadow:0 20px 50px rgba(0,0,0,0.8);">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:12px; margin-bottom:20px;">
                 <h3 style="margin:0; font-size:1.3rem; font-weight:900; color:#38bdf8; display:flex; align-items:center; gap:8px;">⚙️ تخصيص جدول الأصناف</h3>
                 <button type="button" onclick="closeGridSettingsModal()" style="background:transparent; border:none; color:#fff; font-size:1.5rem; cursor:pointer; font-weight:bold;">✕</button>
             </div>
             
-            <div style="display:grid; grid-template-columns:1fr 1.2fr; gap:20px;">
+            <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:30px;">
                 <!-- Column order & visibility -->
                 <div>
                     <h4 style="margin-top:0; color:#38bdf8; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px; font-size: 1rem;">ترتيب وإظهار الأعمدة</h4>
-                    <div id="col-settings-list" style="display:flex; flex-direction:column; gap:8px; max-height:350px; overflow-y:auto; padding-left:5px;">
+                    <div id="col-settings-list" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; padding-left:5px;">
                         <!-- Dynamically populated -->
                     </div>
                 </div>
@@ -2547,50 +2547,52 @@
                 <div style="display:flex; flex-direction:column; gap:15px; border-right:1px solid rgba(255,255,255,0.08); padding-right:15px;">
                     <h4 style="margin-top:0; color:#38bdf8; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px; font-size: 1rem;">تنسيق الخط والأرقام</h4>
                     
-                    <!-- Font size -->
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <label style="color:#e2e8f0; font-weight:bold; font-size:0.9rem;">حجم الخط (بكسل):</label>
-                        <input type="number" id="grid-setting-font-size" min="10" max="32" value="16" style="width:70px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; padding:4px 8px; text-align:center;">
-                    </div>
-                    
-                    <!-- Font weight -->
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <label style="color:#e2e8f0; font-weight:bold; font-size:0.9rem;">نمط الخط:</label>
-                        <select id="grid-setting-font-weight" style="width:120px; background:#1e293b; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; padding:4px 8px;">
-                            <option value="normal">عادي (Normal)</option>
-                            <option value="bold">عريض (Bold)</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Font color -->
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <label style="color:#e2e8f0; font-weight:bold; font-size:0.9rem;">لون الخط:</label>
-                        <div style="display:flex; gap:8px; align-items:center;">
-                            <input type="color" id="grid-setting-font-color" value="#ffffff" style="border:none; width:40px; height:28px; cursor:pointer; background:transparent;">
-                            <button type="button" onclick="document.getElementById('grid-setting-font-color').value='#ffffff'" style="background:rgba(255,255,255,0.1); border:none; border-radius:4px; padding:3px 8px; font-size:0.75rem; color:#fff; cursor:pointer;">افتراضي</button>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:10px;">
+                        <!-- Font size -->
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                            <label style="color:#e2e8f0; font-weight:bold; font-size:0.9rem; white-space:nowrap;">حجم الخط (بكسل):</label>
+                            <input type="number" id="grid-setting-font-size" min="10" max="32" value="16" style="width:70px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; padding:4px 8px; text-align:center;">
                         </div>
-                    </div>
+                        
+                        <!-- Font weight -->
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                            <label style="color:#e2e8f0; font-weight:bold; font-size:0.9rem; white-space:nowrap;">نمط الخط:</label>
+                            <select id="grid-setting-font-weight" style="width:120px; background:#1e293b; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; padding:4px 8px;">
+                                <option value="normal">عادي (Normal)</option>
+                                <option value="bold">عريض (Bold)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Font color -->
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                            <label style="color:#e2e8f0; font-weight:bold; font-size:0.9rem; white-space:nowrap;">لون الخط:</label>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <input type="color" id="grid-setting-font-color" value="#ffffff" style="border:none; width:40px; height:28px; cursor:pointer; background:transparent;">
+                                <button type="button" onclick="document.getElementById('grid-setting-font-color').value='#ffffff'" style="background:rgba(255,255,255,0.1); border:none; border-radius:4px; padding:3px 8px; font-size:0.75rem; color:#fff; cursor:pointer;">افتراضي</button>
+                            </div>
+                        </div>
 
-                    <!-- Text alignment -->
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <label style="color:#e2e8f0; font-weight:bold; font-size:0.9rem;">محاذاة النص:</label>
-                        <select id="grid-setting-align" style="width:120px; background:#1e293b; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; padding:4px 8px;">
-                            <option value="center">وسط (Center)</option>
-                            <option value="right">يمين (Right)</option>
-                            <option value="left">يسار (Left)</option>
-                        </select>
-                    </div>
+                        <!-- Text alignment -->
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                            <label style="color:#e2e8f0; font-weight:bold; font-size:0.9rem; white-space:nowrap;">محاذاة النص:</label>
+                            <select id="grid-setting-align" style="width:120px; background:#1e293b; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; padding:4px 8px;">
+                                <option value="center">وسط (Center)</option>
+                                <option value="right">يمين (Right)</option>
+                                <option value="left">يسار (Left)</option>
+                            </select>
+                        </div>
 
-                    <!-- Decimal places -->
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <label style="color:#e2e8f0; font-weight:bold; font-size:0.9rem;">الخانات العشرية للأرقام:</label>
-                        <input type="number" id="grid-setting-decimals" min="0" max="6" value="2" style="width:70px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; padding:4px 8px; text-align:center;">
+                        <!-- Decimal places -->
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; grid-column: 1 / -1;">
+                            <label style="color:#e2e8f0; font-weight:bold; font-size:0.9rem; white-space:nowrap;">الخانات العشرية للأرقام:</label>
+                            <input type="number" id="grid-setting-decimals" min="0" max="6" value="2" style="width:70px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; padding:4px 8px; text-align:center;">
+                        </div>
                     </div>
                     
                     <!-- Width controls slider/inputs -->
-                    <div style="margin-top:10px;">
+                    <div style="margin-top:5px;">
                         <label style="font-weight:bold; color:#38bdf8; display:block; margin-bottom:8px; font-size:0.9rem;">أحجام الأعمدة (بكسل):</label>
-                        <div id="col-widths-list" style="display:flex; flex-direction:column; gap:8px; max-height:150px; overflow-y:auto; border:1px solid rgba(255,255,255,0.1); padding:8px; border-radius:8px; background:rgba(0,0,0,0.2);">
+                        <div id="col-widths-list" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; border:1px solid rgba(255,255,255,0.1); padding:10px; border-radius:8px; background:rgba(0,0,0,0.2);">
                             <!-- Dynamically populated -->
                         </div>
                     </div>
@@ -2890,12 +2892,12 @@
         
         tempGridSettings.columns.forEach((col, index) => {
             const item = document.createElement('div');
-            item.style.cssText = 'display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 4px;';
+            item.style.cssText = 'display:flex; align-items:center; justify-content:space-between; gap:6px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); padding:6px 10px; border-radius:8px;';
             const widthVal = parseInt(col.width) || 100;
             item.innerHTML = `
-                <span style="font-size:0.9rem; font-weight:bold; color:#fff; min-width:80px; text-align:right;">${col.name}:</span>
-                <input type="range" min="40" max="600" value="${widthVal}" oninput="updateColWidth(${index}, this.value)" style="flex:1; cursor:pointer; accent-color:#38bdf8;">
-                <input type="number" min="40" max="600" value="${widthVal}" oninput="updateColWidth(${index}, this.value)" style="width:65px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; padding:2px 4px; text-align:center; font-size:0.85rem;">
+                <span style="font-size:0.85rem; font-weight:bold; color:#fff; min-width:65px; text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${col.name}:</span>
+                <input type="range" min="40" max="600" value="${widthVal}" oninput="updateColWidth(${index}, this.value)" style="flex:1; cursor:pointer; accent-color:#38bdf8; min-width:50px;">
+                <input type="number" min="40" max="600" value="${widthVal}" oninput="updateColWidth(${index}, this.value)" style="width:55px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; padding:2px 4px; text-align:center; font-size:0.8rem;">
             `;
             listEl.appendChild(item);
         });
