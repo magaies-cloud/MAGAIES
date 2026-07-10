@@ -598,6 +598,20 @@ if ($token === $saasSecret) {
             exit;
         }
 
+        if ($action === 'wa-logs') {
+            $logFile = __DIR__ . '/whatsapp-service.log';
+            if (file_exists($logFile)) {
+                $lines = array_slice(file($logFile), -150);
+                jsonResponse([
+                    'success' => true,
+                    'logs' => implode("", $lines)
+                ]);
+            } else {
+                jsonResponse(['success' => false, 'error' => 'Log file not found at: ' . $logFile]);
+            }
+            exit;
+        }
+
         if ($action === 'wa-proxy') {
             startWhatsAppServiceIfNeeded();
             $endpoint = $_GET['a2'] ?? 'status';
