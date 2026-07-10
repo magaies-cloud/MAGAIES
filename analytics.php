@@ -71,7 +71,7 @@
             width: 100%;
             max-width: 100%;
             margin: 0 auto;
-            padding: 25px 25px; /* Small equal padding on all sides */
+            padding: 0px 30px 20px 30px; /* Match dashboard padding */
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
