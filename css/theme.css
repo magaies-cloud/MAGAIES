@@ -427,38 +427,47 @@ select option {
 /* Dashboard: Blue / Indigo / Pink / Green */
 .premium-header.header-theme-dashboard {
     background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(99,102,241,0.15), rgba(236,72,153,0.15), rgba(16,185,129,0.15));
+    background-size: 300% 300%;
 }
 /* Sales: Lime / Yellow / Orange / Blue */
 .premium-header.header-theme-sales {
     background: linear-gradient(135deg, rgba(163,230,53,0.15), rgba(250,204,21,0.15), rgba(249,115,22,0.15), rgba(56,189,248,0.15));
+    background-size: 300% 300%;
 }
 /* Purchase: Blue / Indigo / Pink / Green */
 .premium-header.header-theme-purchase {
     background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(99,102,241,0.15), rgba(236,72,153,0.15), rgba(16,185,129,0.15));
+    background-size: 300% 300%;
 }
 /* Inventory: Amber / Gold */
 .premium-header.header-theme-inventory {
     background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(251,191,36,0.15), rgba(217,119,6,0.15), rgba(252,211,77,0.15));
+    background-size: 300% 300%;
 }
 /* Master Data: Purple / Violet */
 .premium-header.header-theme-masterdata {
     background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(217,70,239,0.15), rgba(168,85,247,0.15), rgba(192,132,252,0.15));
+    background-size: 300% 300%;
 }
 /* Financial Reports: Red / Orange / Amber / Rose */
 .premium-header.header-theme-reports {
     background: linear-gradient(135deg, rgba(244,63,94,0.15), rgba(249,115,22,0.15), rgba(245,158,11,0.15), rgba(251,113,133,0.15));
+    background-size: 300% 300%;
 }
 /* Alarm: Red / Orange / Crimson / Rose */
 .premium-header.header-theme-alarm {
     background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(249,115,22,0.15), rgba(220,38,38,0.15), rgba(244,63,94,0.15));
+    background-size: 300% 300%;
 }
 /* Settings: Slate / Sky / Indigo */
 .premium-header.header-theme-settings {
     background: linear-gradient(135deg, rgba(71,85,105,0.15), rgba(14,165,233,0.15), rgba(99,102,241,0.15), rgba(100,116,139,0.15));
+    background-size: 300% 300%;
 }
 /* Audit Log: Pink / Purple / Indigo / Blue */
 .premium-header.header-theme-audit {
     background: linear-gradient(135deg, rgba(244,114,182,0.15), rgba(168,85,247,0.15), rgba(99,102,241,0.15), rgba(56,189,248,0.15));
+    background-size: 300% 300%;
 }
 
 /* Responsive Header */
