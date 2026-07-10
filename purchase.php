@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="css/sales-invoice.css">
     <link rel="stylesheet" href="css/print-invoice.css">
     <style>
+        table.pos-grid th, table.pos-grid td { padding: 4px 4px !important; }
+        table.pos-grid .g-input, table.pos-grid .g-select { padding: 4px !important; margin: 0 !important; }
+
         :root {
             --bg-color: #050308;
             --velvet-bg: #050308;
@@ -1696,28 +1699,7 @@
         <div class="table-container">
             <div class="grid-scroll-wrap">
                 <table class="pos-grid" id="pos-grid">
-                    <thead>
-                        <tr>
-                            <th class="th-num" style="width:40px; text-align:center;">#</th>
-                            <th class="th-item" style="width:25%; min-width:180px; text-align:right;">الصنف المورد</th>
-                            <th class="th-unit" style="width:8%; min-width:80px; text-align:center;">الوحدة</th>
-                            <th class="th-factor" style="width:7%; min-width:70px; text-align:center;">معادل</th>
-                            <th class="th-qty" style="width:8%; min-width:80px; text-align:center;">الكمية الوحدة</th>
-                            <th class="th-price" style="width:10%; min-width:100px; text-align:center;">سعر الوحدة</th>
-                            <th class="th-total" style="width:9%; min-width:100px; text-align:center;">الجملة</th>
-                            <th class="th-baseqty" style="width:7%; min-width:70px; text-align:center;">العدد</th>
-                            <th class="th-available" style="width:7%; min-width:70px; text-align:center;">الكمية المتاحة</th>
-                            <th class="th-remaining" style="width:7%; min-width:70px; text-align:center;">الكمية المتبقية</th>
-                            <th class="th-fcprice" style="width:10%; min-width:100px; text-align:center;">سعر الوحدة أجنبي</th>
-                            <th class="th-fctotal" style="width:10%; min-width:100px; text-align:center;">جملة الوحدة أجنبي</th>
-                            <th class="th-wh" style="width:9%; min-width:100px; text-align:center;">المخزن</th>
-                            <th class="th-shila" style="width:7%; min-width:70px; text-align:center;">الشيلة</th>
-                            <th class="th-shila-rem" style="width:7%; min-width:70px; text-align:center;">باقي سيخ</th>
-                            <th class="th-note" style="width:10%; min-width:100px; text-align:center;">ملحوظة</th>
-                            <th class="th-buy-price" style="width:8%; min-width:80px; text-align:center;">سعر الشراء</th>
-                            <th class="th-sell-price" style="width:8%; min-width:80px; text-align:center;">سعر البيع</th>
-                            <th class="th-del" style="width:80px; text-align:center;">إجراء</th>
-                        </tr>
+                    <thead id="grid-head">
                     </thead>
                     <tbody id="grid-body"></tbody>
                 </table>
@@ -1771,10 +1753,16 @@
                 <!-- Preview Button: Solid Blue -->
                 <button type="button" class="btn-action btn-preview" id="btn-preview-invoice" style="flex: 1; height: 45px; background: #3b82f6; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3); display: none; align-items: center; justify-content: center;" onmouseover="this.style.background='#2563eb'; this.style.boxShadow='0 4px 15px rgba(59, 130, 246, 0.5)';" onmouseout="this.style.background='#3b82f6'; this.style.boxShadow='0 2px 10px rgba(59, 130, 246, 0.3)';" onclick="printCurrentInvoice()">👁️ معاينة</button>
                 
+                <!-- Email Button: Solid Orange -->
+                <button type="button" class="btn-action btn-email" id="btn-email-invoice" style="flex: 1.2; height: 45px; background: #f59e0b; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.background='#d97706'; this.style.boxShadow='0 4px 15px rgba(245, 158, 11, 0.5)';" onmouseout="this.style.background='#f59e0b'; this.style.boxShadow='0 2px 10px rgba(245, 158, 11, 0.3)';" onclick="sendCurrentInvoiceEmail()">
+                    <span style="font-size: 1.2rem;">📧</span>
+                    <span>إيميل</span>
+                </button>
+                
                 <!-- WhatsApp Button: Solid Green -->
-                <button type="button" class="btn-action btn-whatsapp" id="btn-whatsapp-invoice" style="flex: 1.2; height: 45px; background: #25d366; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(37, 211, 102, 0.3); display: none; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.background='#1da851'; this.style.boxShadow='0 4px 15px rgba(37, 211, 102, 0.5)';" onmouseout="this.style.background='#25d366'; this.style.boxShadow='0 2px 10px rgba(37, 211, 102, 0.3)';" onclick="sendCurrentInvoiceWA()">
+                <button type="button" class="btn-action btn-whatsapp" id="btn-whatsapp-invoice" style="flex: 1.2; height: 45px; background: #25d366; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(37, 211, 102, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.background='#1da851'; this.style.boxShadow='0 4px 15px rgba(37, 211, 102, 0.5)';" onmouseout="this.style.background='#25d366'; this.style.boxShadow='0 2px 10px rgba(37, 211, 102, 0.3)';" onclick="sendCurrentInvoiceWA()">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                    <span>إرسال للواتساب</span>
+                    <span>واتساب</span>
                 </button>
                 
                 <!-- Submit Button: Solid Blue Gradient -->
@@ -1811,7 +1799,7 @@
           });
       });
     </script>
-    <script defer src="js/purchase-pro-v4.js?v=24"></script>
+    <script defer src="js/purchase-pro-v4.js?v=31"></script>
 </div>
 
     <script>
@@ -2191,13 +2179,13 @@ async function sendInvoiceWA(invoiceNo) {
 function updateActionButtonsVisibility() {
     const previewBtn = document.getElementById('btn-preview-invoice');
     const waBtn = document.getElementById('btn-whatsapp-invoice');
+    const emailBtn = document.getElementById('btn-email-invoice');
     if (currentViewedInvoiceNo) {
         if (previewBtn) previewBtn.style.display = 'flex';
-        if (waBtn) waBtn.style.display = 'flex';
     } else {
         if (previewBtn) previewBtn.style.display = 'none';
-        if (waBtn) waBtn.style.display = 'none';
     }
+    // WhatsApp and Email are now permanently visible as per user request
 }
 
 async function sendCurrentInvoiceWA() {
@@ -2207,330 +2195,18 @@ async function sendCurrentInvoiceWA() {
         showToast('⚠️ يرجى حفظ وتأكيد الفاتورة أولاً', 'warning');
     }
 }
+
+async function sendCurrentInvoiceEmail() {
+    if (currentViewedInvoiceNo) {
+        showToast('جاري تجهيز الفاتورة للإرسال عبر البريد الإلكتروني...', 'success');
+        // Fallback for Email if no backend email API exists
+        const mailtoLink = `mailto:?subject=فاتورة مشتريات رقم ${currentViewedInvoiceNo}&body=مرحباً، مرفق تفاصيل الفاتورة.`;
+        window.location.href = mailtoLink;
+    } else {
+        showToast('⚠️ يرجى حفظ وتأكيد الفاتورة أولاً', 'warning');
+    }
+}
 </script>
-        <!-- Context Menu for Columns -->
-    <div id="col-context-menu">
-        <div style="font-size: 0.75rem; color: var(--gold-primary); margin-bottom: 8px; font-weight: bold; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">إظهار/إخفاء الأعمدة</div>
-        <div id="col-toggle-list" style="max-height: 300px; overflow-y: auto;"></div>
-    </div>
-
-    <script>
-    function initTableEnhancements() {
-        const table = document.getElementById('pos-grid');
-        if(!table) return;
-
-        // --- Column Resizing ---
-        const ths = table.querySelectorAll('thead th');
-        ths.forEach((th, index) => {
-            if(th.querySelector('.resizer')) return; // already added
-
-            const resizer = document.createElement('div');
-            resizer.classList.add('resizer');
-            th.appendChild(resizer);
-            
-            let x = 0;
-            let w = 0;
-            
-            const mouseDownHandler = function(e) {
-                x = e.clientX;
-                const styles = window.getComputedStyle(th);
-                w = parseInt(styles.width, 10);
-                
-                document.addEventListener('mousemove', mouseMoveHandler);
-                document.addEventListener('mouseup', mouseUpHandler);
-                resizer.classList.add('resizing');
-            };
-            
-            const mouseMoveHandler = function(e) {
-                const dx = e.clientX - x;
-                // RTL layout: moving left decreases X, increasing dx negatively.
-                // Left resizer drag to left (dx < 0) means width increases.
-                const isRTL = document.dir === 'rtl' || document.documentElement.dir === 'rtl' || getComputedStyle(document.body).direction === 'rtl';
-                th.style.width = isRTL ? `${w - dx}px` : `${w + dx}px`;
-                th.style.minWidth = th.style.width;
-            };
-            
-            const mouseUpHandler = function() {
-                document.removeEventListener('mousemove', mouseMoveHandler);
-                document.removeEventListener('mouseup', mouseUpHandler);
-                resizer.classList.remove('resizing');
-            };
-            
-            resizer.addEventListener('mousedown', mouseDownHandler);
-        });
-
-        // --- Context Menu ---
-        const menu = document.getElementById('col-context-menu');
-        const toggleList = document.getElementById('col-toggle-list');
-        
-        const updateMenu = () => {
-            toggleList.innerHTML = '';
-            const currentThs = table.querySelectorAll('thead th');
-            currentThs.forEach((th, index) => {
-                let title = th.textContent.trim() || 'إجراء';
-                
-                const item = document.createElement('label');
-                item.className = 'col-toggle-item';
-                
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.checked = th.style.display !== 'none';
-                checkbox.dataset.colIndex = index + 1;
-                
-                checkbox.addEventListener('change', (e) => {
-                    const isChecked = e.target.checked;
-                    const colIndex = e.target.dataset.colIndex;
-                    
-                    table.querySelector(`thead th:nth-child(${colIndex})`).style.display = isChecked ? '' : 'none';
-                    
-                    const rows = table.querySelectorAll('tbody tr');
-                    rows.forEach(row => {
-                        const td = row.querySelector(`td:nth-child(${colIndex})`);
-                        if(td) td.style.display = isChecked ? '' : 'none';
-                    });
-                    
-                    if (window.saveColumnVisibility) window.saveColumnVisibility();
-                });
-                
-                item.appendChild(checkbox);
-                item.appendChild(document.createTextNode(title));
-                toggleList.appendChild(item);
-            });
-        };
-
-        table.addEventListener('contextmenu', (e) => {
-            // Check if context menu is within table body or header
-            if(e.target.closest('table') === table) {
-                e.preventDefault();
-                updateMenu();
-                menu.style.display = 'block';
-                menu.style.left = `${e.pageX}px`;
-                menu.style.top = `${e.pageY}px`;
-            }
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!menu.contains(e.target) && e.button !== 2) {
-                menu.style.display = 'none';
-            }
-        });
-
-        // Observer for dynamically added rows
-        if(!window.tableObserver) {
-            const tbody = document.getElementById('grid-body');
-            if(tbody) {
-                window.tableObserver = new MutationObserver((mutations) => {
-                    mutations.forEach(mutation => {
-                        if (mutation.addedNodes.length > 0) {
-                            const currentThs = table.querySelectorAll('thead th');
-                            currentThs.forEach((th, index) => {
-                                if(th.style.display === 'none') {
-                                    const colIndex = index + 1;
-                                    mutation.addedNodes.forEach(row => {
-                                        if(row.nodeType === 1 && row.tagName === 'TR') {
-                                            const td = row.querySelector(`td:nth-child(${colIndex})`);
-                                            if(td) td.style.display = 'none';
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    });
-                });
-                window.tableObserver.observe(tbody, { childList: true });
-            }
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', initTableEnhancements);
-    // --- Column Reordering Logic ---
-    let dragSrcCol = null;
-
-    function initDraggableColumns() {
-        const theadTr = document.querySelector('#pos-grid thead tr');
-        if(!theadTr) return;
-        const ths = theadTr.querySelectorAll('th');
-        ths.forEach((th, index) => {
-            if(!th.hasAttribute('data-col-id')) {
-                th.setAttribute('data-col-id', index);
-            }
-            th.setAttribute('draggable', 'true');
-            th.style.cursor = 'grab';
-            
-            th.addEventListener('dragstart', handleColDragStart);
-            th.addEventListener('dragenter', handleColDragEnter);
-            th.addEventListener('dragover', handleColDragOver);
-            th.addEventListener('dragleave', handleColDragLeave);
-            th.addEventListener('drop', handleColDrop);
-            th.addEventListener('dragend', handleColDragEnd);
-        });
-        
-        applySavedColumnOrder();
-    }
-
-    function handleColDragStart(e) {
-        // Prevent drag if clicking on resizer
-        if(e.target.classList.contains('resizer')) {
-            e.preventDefault();
-            return;
-        }
-        dragSrcCol = this;
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/html', this.innerHTML);
-        this.style.opacity = '0.4';
-    }
-
-    function handleColDragOver(e) {
-        if (e.preventDefault) e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        return false;
-    }
-
-    function handleColDragEnter(e) {
-        let th = e.target.closest('th');
-        if (th && th !== dragSrcCol) {
-            th.style.border = '2px dashed #38bdf8';
-        }
-    }
-
-    function handleColDragLeave(e) {
-        let th = e.target.closest('th');
-        if (th && th !== dragSrcCol) {
-            th.style.border = '';
-            th.style.borderBottom = '2px solid rgba(255,255,255,0.05)';
-        }
-    }
-
-    function handleColDrop(e) {
-        if (e.stopPropagation) e.stopPropagation();
-        let targetTh = e.target.closest('th');
-        if (dragSrcCol && targetTh && dragSrcCol !== targetTh) {
-            const tr = targetTh.parentElement;
-            const children = Array.from(tr.children);
-            const srcIdx = children.indexOf(dragSrcCol);
-            const targetIdx = children.indexOf(targetTh);
-
-            if (srcIdx < targetIdx) {
-                targetTh.after(dragSrcCol);
-            } else {
-                targetTh.before(dragSrcCol);
-            }
-            
-            saveColumnOrder();
-            applySavedColumnOrder(true);
-        }
-        return false;
-    }
-
-    function handleColDragEnd(e) {
-        this.style.opacity = '1';
-        let ths = document.querySelectorAll('#pos-grid thead th');
-        ths.forEach(th => {
-            th.style.border = '';
-            th.style.borderBottom = '2px solid rgba(255,255,255,0.05)';
-        });
-    }
-
-    function saveColumnOrder() {
-        let ths = document.querySelectorAll('#pos-grid thead tr th');
-        let order = Array.from(ths).map(th => parseInt(th.getAttribute('data-col-id')));
-        localStorage.setItem('erp_purchase_col_order', JSON.stringify(order));
-    }
-
-    window.reorderTds = function(tr) {
-        let orderStr = localStorage.getItem('erp_purchase_col_order');
-        let hiddenStr = localStorage.getItem('erp_purchase_col_vis');
-        let hidden = hiddenStr ? JSON.parse(hiddenStr) : [];
-        
-        if (!orderStr && hidden.length === 0) return;
-        
-        let order = orderStr ? JSON.parse(orderStr) : null;
-        let tds = Array.from(tr.children);
-        
-        if (tds.length > 0 && !tds[0].hasAttribute('data-col-id')) {
-            tds.forEach((td, idx) => td.setAttribute('data-col-id', idx));
-        }
-        
-        if (order) {
-            order.forEach(id => {
-                let td = tds.find(t => parseInt(t.getAttribute('data-col-id')) === id);
-                if (td) tr.appendChild(td);
-            });
-        }
-        
-        if (hidden.length > 0) {
-            Array.from(tr.children).forEach(td => {
-                let id = parseInt(td.getAttribute('data-col-id'));
-                if (hidden.includes(id)) {
-                    td.style.display = 'none';
-                } else {
-                    td.style.display = '';
-                }
-            });
-        }
-    };
-
-    function applySavedColumnOrder(forceTbody = false) {
-        let orderStr = localStorage.getItem('erp_purchase_col_order');
-        if (!orderStr) return;
-        let order = JSON.parse(orderStr);
-        
-        let theadTr = document.querySelector('#pos-grid thead tr');
-        if (theadTr) {
-            let ths = Array.from(theadTr.children);
-            order.forEach(id => {
-                let th = ths.find(t => parseInt(t.getAttribute('data-col-id')) === id);
-                if (th) theadTr.appendChild(th);
-            });
-        }
-        
-        if (forceTbody) {
-            let trs = document.querySelectorAll('#pos-grid tbody tr');
-            trs.forEach(tr => window.reorderTds(tr));
-        }
-    }
-
-    window.saveColumnVisibility = function() {
-        let ths = document.querySelectorAll('#pos-grid thead th');
-        let hidden = [];
-        ths.forEach(th => {
-            if(th.style.display === 'none') hidden.push(parseInt(th.getAttribute('data-col-id')));
-        });
-        localStorage.setItem('erp_purchase_col_vis', JSON.stringify(hidden));
-    };
-
-    window.applySavedColumnVisibility = function() {
-        let hiddenStr = localStorage.getItem('erp_purchase_col_vis');
-        if(!hiddenStr) return;
-        let hidden = JSON.parse(hiddenStr);
-        
-        let ths = document.querySelectorAll('#pos-grid thead th');
-        ths.forEach(th => {
-            let id = parseInt(th.getAttribute('data-col-id'));
-            if(hidden.includes(id)) {
-                th.style.display = 'none';
-            }
-        });
-        
-        let trs = document.querySelectorAll('#pos-grid tbody tr');
-        trs.forEach(tr => {
-            let tds = Array.from(tr.children);
-            tds.forEach(td => {
-                let id = parseInt(td.getAttribute('data-col-id'));
-                if(id !== null && !isNaN(id) && hidden.includes(id)) {
-                    td.style.display = 'none';
-                }
-            });
-        });
-    };
-
-    document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => {
-            initDraggableColumns();
-            window.applySavedColumnVisibility();
-        }, 600);
-    });
-    </script>
 
 <!-- Barcode Scanner Modal -->
 <div id="barcode-scanner-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 999999; justify-content: center; align-items: center; direction: rtl;">
@@ -2648,6 +2324,140 @@ function playScanBeep() {
     }
 }
 </script>
+<!-- ═══ ADVANCED COLUMN SETTINGS MODAL ═══ -->
+<div class="modal-overlay" id="advanced-col-settings-modal">
+    <div class="modal-card" style="max-width: 450px;">
+        <div class="modal-header">
+            <h3>⚙️ إعدادات العمود المتقدمة</h3>
+            <button class="modal-close" onclick="closeModal('advanced-col-settings-modal')" style="color:#fff;">✕</button>
+        </div>
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px; max-height: 60vh; overflow-y: auto;">
+            <input type="hidden" id="edit-col-id">
+            
+            <div class="v-form-group">
+                <label class="v-label">الاسم المخصص (الظاهر للعميل / المستخدم)</label>
+                <input type="text" class="v-input" id="edit-col-alias" placeholder="الاسم..." oninput="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <div class="v-form-group" style="flex: 1;">
+                    <label class="v-label">لون النص</label>
+                    <input type="color" class="v-input" id="edit-col-color" style="height: 40px; padding: 2px;" oninput="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
+                </div>
+                <div class="v-form-group" style="flex: 1;">
+                    <label class="v-label">لون الخلفية</label>
+                    <input type="color" class="v-input" id="edit-col-bgcolor" style="height: 40px; padding: 2px;" oninput="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
+                </div>
+                <div class="v-form-group" style="flex: 1;">
+                    <label class="v-label">حجم الخط</label>
+                    <input type="text" class="v-input" id="edit-col-fontsize" placeholder="مثال: 0.95rem" oninput="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <div class="v-form-group" style="flex: 1;">
+                    <label class="v-label">سماكة الخط</label>
+                    <select class="v-input" id="edit-col-fontweight" onchange="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
+                        <option value="400">عادي (Normal)</option>
+                        <option value="700">عريض (Bold)</option>
+                        <option value="900">عريض جداً (Extra Bold)</option>
+                    </select>
+                </div>
+                <div class="v-form-group" style="flex: 1;">
+                    <label class="v-label">المحاذاة</label>
+                    <select class="v-input" id="edit-col-align" onchange="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
+                        <option value="right">يمين</option>
+                        <option value="center">وسط</option>
+                        <option value="left">يسار</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <div class="v-form-group" style="flex: 1;">
+                    <label class="v-label">الخانات العشرية (للأرقام)</label>
+                    <input type="number" min="0" max="4" class="v-input" id="edit-col-decimals" placeholder="0" oninput="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
+                </div>
+                <div class="v-form-group" style="flex: 1;">
+                    <label class="v-label">الفاصلة الألفية</label>
+                    <select class="v-input" id="edit-col-thousands" onchange="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
+                        <option value=",">فاصلة ( , )</option>
+                        <option value=".">نقطة ( . )</option>
+                        <option value="">بدون فاصلة</option>
+                    </select>
+                </div>
+                <div class="v-form-group" style="flex: 1;">
+                    <label class="v-label">عرض العمود (المساحة)</label>
+                    <input type="text" class="v-input" id="edit-col-width" placeholder="مثال: 120px" oninput="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
+                </div>
+            </div>
+            
+            <div style="margin-top: 5px; margin-bottom: 5px; padding: 10px; background: rgba(251, 191, 36, 0.1); border-radius: 8px; border: 1px dashed rgba(251, 191, 36, 0.5);">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: #fbbf24; cursor: pointer; font-weight: bold;">
+                    <input type="checkbox" id="edit-col-apply-all" style="width: 18px; height: 18px;" onchange="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
+                    <span>تطبيق هذه التنسيقات (اللون، الخط، المساحة) على جميع الأعمدة حفظاً دائماً</span>
+                </label>
+            </div>
+            
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 10px 0;">
+            <h4 style="color: #38bdf8; margin-bottom: 5px;">👁️ إظهار / إخفاء جميع الأعمدة</h4>
+            <div id="global-col-visibility-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-action btn-draft" style="width:auto; padding:8px 16px;" onclick="if(typeof cancelAdvancedColSettings === 'function') cancelAdvancedColSettings(); else closeModal('advanced-col-settings-modal');">إلغاء</button>
+            <button class="btn-action btn-submit" style="width:auto; padding:8px 16px;" onclick="saveAdvancedColSettings()">💾 حفظ جميع الإعدادات</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Make the advanced settings modal draggable
+const advancedModal = document.getElementById('advanced-col-settings-modal');
+const advancedModalCard = advancedModal.querySelector('.modal-card');
+const advancedModalHeader = advancedModal.querySelector('.modal-header');
+
+let isDraggingModal = false;
+let dragStartX, dragStartY, initialLeft, initialTop;
+
+advancedModalHeader.style.cursor = 'move';
+
+advancedModalHeader.addEventListener('mousedown', (e) => {
+    isDraggingModal = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    
+    const rect = advancedModalCard.getBoundingClientRect();
+    initialLeft = rect.left;
+    initialTop = rect.top;
+    
+    advancedModalCard.style.position = 'absolute';
+    advancedModalCard.style.margin = '0';
+    advancedModalCard.style.left = initialLeft + 'px';
+    advancedModalCard.style.top = initialTop + 'px';
+    advancedModalCard.style.transform = 'none';
+    advancedModalCard.style.transition = 'none';
+});
+
+document.addEventListener('mousemove', (e) => {
+    if (!isDraggingModal) return;
+    
+    const dx = e.clientX - dragStartX;
+    const dy = e.clientY - dragStartY;
+    
+    advancedModalCard.style.left = (initialLeft + dx) + 'px';
+    advancedModalCard.style.top = (initialTop + dy) + 'px';
+});
+
+document.addEventListener('mouseup', () => {
+    if (isDraggingModal) {
+        isDraggingModal = false;
+        advancedModalCard.style.transition = ''; // restore transition
+    }
+});
+</script>
+
 </body>
 </html>
 

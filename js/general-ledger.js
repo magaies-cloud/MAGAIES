@@ -1608,15 +1608,6 @@ window.changeTableTheme = function(themeClass) {
     currentTableTheme = themeClass;
     applyTableTheme(themeClass);
     updateCrystalButtons(themeClass);
-    
-    // Save to settings
-    try {
-        if (!window.APP_READY) return;
-        let settingsStr = localStorage.getItem('erp_settings_v1');
-        let settings = settingsStr ? JSON.parse(settingsStr) : {};
-        settings.sgl_table_theme = themeClass;
-        localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
-    } catch(e) { console.error("Failed to save theme", e); }
 };
 
 let currentNumFont = 'num-font-roboto';
@@ -1652,14 +1643,6 @@ window.changeNumberFont = function(fontClass) {
     document.querySelectorAll('.font-chip').forEach(el => el.classList.remove('active'));
     let btn = document.getElementById('btn-font-' + fontClass);
     if (btn) btn.classList.add('active');
-
-    try {
-        if (!window.APP_READY) return;
-        let settingsStr = localStorage.getItem('erp_settings_v1');
-        let settings = settingsStr ? JSON.parse(settingsStr) : {};
-        settings.sgl_num_font = fontClass;
-        localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
-    } catch(e) {}
 };
 
 window.toggleReviewMode = function(e) {
@@ -1672,20 +1655,8 @@ window.showContextMenu = function(e, type, ref) {
     e.preventDefault();
     e.stopPropagation();
     
-    const menu = document.getElementById('drilldown-context-menu');
-    if (!menu) return;
-    
-    menu.style.top = e.clientY + 'px';
-    menu.style.left = e.clientX + 'px';
-    menu.classList.add('show');
-    
-    const btn = document.getElementById('ctx-drilldown-btn');
-    btn.onclick = function() {
-        menu.classList.remove('show');
-        openDrillDown(type, ref);
-    };
-    
-    document.addEventListener('click', closeContextMenu);
+    // Go directly to the document as requested by user
+    openDrillDown(type, ref);
 };
 
 function closeContextMenu() {
@@ -1725,9 +1696,33 @@ function toggleSettingsSidebar() {
     const sb = document.getElementById('settings-sidebar');
     const ov = document.getElementById('settings-overlay');
     if (sb.classList.contains('active')) {
+        if (window.previewBackupConfigGL) {
+            colConfig = JSON.parse(JSON.stringify(window.previewBackupConfigGL));
+            applyConfigToHeaders();
+            runReport();
+            renderSidebarConfig();
+        }
+        if (window.previewBackupThemeGL !== undefined) {
+            currentTableTheme = window.previewBackupThemeGL;
+            applyTableTheme(currentTableTheme);
+            updateCrystalButtons(currentTableTheme);
+        }
+        if (window.previewBackupFontGL !== undefined) {
+            currentNumFont = window.previewBackupFontGL;
+            document.querySelectorAll('.num-cell-wrapper').forEach(el => {
+                el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins');
+                el.classList.add(currentNumFont);
+            });
+            document.querySelectorAll('.font-chip').forEach(el => el.classList.remove('active'));
+            let btn = document.getElementById('btn-font-' + currentNumFont);
+            if (btn) btn.classList.add('active');
+        }
         sb.classList.remove('active');
         ov.classList.remove('active');
     } else {
+        window.previewBackupConfigGL = JSON.parse(JSON.stringify(colConfig));
+        window.previewBackupThemeGL = currentTableTheme;
+        window.previewBackupFontGL = currentNumFont;
         // Load position and size if exists
         try {
             let settingsStr = localStorage.getItem('erp_settings_v1');
@@ -1810,6 +1805,11 @@ function renderSidebarConfig() {
     });
 }
 
+function previewColSettingsGL() {
+    applyConfigToHeaders();
+    runReport();
+}
+
 function toggleColSettings(index) {
     const p = document.getElementById('col-settings-' + index);
     p.classList.toggle('open');
@@ -1817,18 +1817,22 @@ function toggleColSettings(index) {
 function toggleColVisibility(index, el) {
     colConfig[index].visible = !colConfig[index].visible;
     el.classList.toggle('on');
+    previewColSettingsGL();
 }
 function updateColField(index, field, val) {
     colConfig[index][field] = val;
+    previewColSettingsGL();
 }
 function adjustFontSize(index, dir) {
     let size = parseFloat(colConfig[index].size) || 0.9;
     size += dir * 0.05;
     colConfig[index].size = size + 'rem';
+    previewColSettingsGL();
 }
 function toggleColBold(index, el) {
     colConfig[index].bold = !colConfig[index].bold;
     el.classList.toggle('active');
+    previewColSettingsGL();
 }
 
 let dragSrcEl = null;
@@ -1855,12 +1859,25 @@ function handleDrop(e) {
         colConfig.splice(toIdx, 0, moved);
         
         renderSidebarConfig();
+        previewColSettingsGL();
     }
     return false;
 }
 
 function applyAndSaveConfig() {
     saveColumnConfig();
+    try {
+        if (window.APP_READY) {
+            let settingsStr = localStorage.getItem('erp_settings_v1');
+            let settings = settingsStr ? JSON.parse(settingsStr) : {};
+            settings.sgl_table_theme = currentTableTheme;
+            settings.sgl_num_font = currentNumFont;
+            localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
+        }
+    } catch(e) {}
+    window.previewBackupConfigGL = JSON.parse(JSON.stringify(colConfig));
+    window.previewBackupThemeGL = currentTableTheme;
+    window.previewBackupFontGL = currentNumFont;
     runReport();
     toggleSettingsSidebar();
     showToast('💾 تم حفظ التخصيصات وتطبيقها بنجاح', 'success');
@@ -1868,6 +1885,7 @@ function applyAndSaveConfig() {
 function resetColumnConfig() {
     colConfig = JSON.parse(JSON.stringify(defaultColConfig));
     saveColumnConfig();
+    window.previewBackupConfigGL = JSON.parse(JSON.stringify(colConfig));
     renderSidebarConfig();
     runReport();
     showToast('🔄 تم استعادة الوضع الافتراضي', 'success');

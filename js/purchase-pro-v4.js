@@ -1,4 +1,4 @@
-﻿/* ═══════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════
    sales-invoice.js — POS Engine v6.0
    Real-time Reactive Calculations · Sequential Invoices
    ═══════════════════════════════════════════════════════ */
@@ -22,6 +22,43 @@ let UOMS = [];
 let ITEMS = [];
 
 // ════════════════════════════════════════
+//  GRID COLUMN CONFIGURATION (STATE)
+// ════════════════════════════════════════
+const DEFAULT_COLUMNS_CONFIG = {
+    'num': { order: 0, visible: true, alias: '#', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 0, thousandsSeparator: '' },
+    'item': { order: 1, visible: true, alias: 'الصنف المورد', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'right', decimals: 0, thousandsSeparator: '' },
+    'unit': { order: 2, visible: true, alias: 'الوحدة', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 0, thousandsSeparator: '' },
+    'factor': { order: 3, visible: true, alias: 'معادل', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 0, thousandsSeparator: '' },
+    'qty': { order: 4, visible: true, alias: 'الكمية الوحدة', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
+    'price': { order: 5, visible: true, alias: 'سعر الوحدة أجنبي', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
+    'total': { order: 6, visible: true, alias: 'جملة أجنبي', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
+    'baseqty': { order: 7, visible: true, alias: 'العدد', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
+    'available': { order: 8, visible: true, alias: 'الكمية المتاحة', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
+    'remaining': { order: 9, visible: true, alias: 'الكمية المتبقية', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
+    'fcprice': { order: 10, visible: true, alias: 'سعر الوحدة', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
+    'fctotal': { order: 11, visible: true, alias: 'الجملة', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
+    'warehouse': { order: 12, visible: true, alias: 'المخزن', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 0, thousandsSeparator: '' },
+    'shila': { order: 13, visible: true, alias: 'الشيلة', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 0, thousandsSeparator: ',' },
+    'shila-rem': { order: 14, visible: true, alias: 'باقي سيخ', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 0, thousandsSeparator: ',' },
+    'note': { order: 15, visible: true, alias: 'ملحوظة', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 0, thousandsSeparator: '' },
+    'buy-price': { order: 16, visible: true, alias: 'سعر الشراء', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
+    'sell-price': { order: 17, visible: true, alias: 'سعر البيع', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
+    'actions': { order: 18, visible: true, alias: 'إجراء', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 0, thousandsSeparator: '' }
+};
+
+let gridColumnsConfig = JSON.parse(localStorage.getItem('erp_purchase_grid_config')) || JSON.parse(JSON.stringify(DEFAULT_COLUMNS_CONFIG));
+
+// Migration for existing saved configs
+if (gridColumnsConfig['price'] && gridColumnsConfig['price'].alias === 'سعر الوحدة') gridColumnsConfig['price'].alias = 'سعر الوحدة أجنبي';
+if (gridColumnsConfig['total'] && gridColumnsConfig['total'].alias === 'الجملة') gridColumnsConfig['total'].alias = 'جملة أجنبي';
+if (gridColumnsConfig['fcprice'] && gridColumnsConfig['fcprice'].alias === 'سعر الوحدة أجنبي') gridColumnsConfig['fcprice'].alias = 'سعر الوحدة';
+if (gridColumnsConfig['fctotal'] && gridColumnsConfig['fctotal'].alias === 'جملة الوحدة أجنبي') gridColumnsConfig['fctotal'].alias = 'الجملة';
+
+for (let key in DEFAULT_COLUMNS_CONFIG) {
+    if (!gridColumnsConfig[key]) gridColumnsConfig[key] = JSON.parse(JSON.stringify(DEFAULT_COLUMNS_CONFIG[key]));
+}
+
+// ════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════
 let rows = [];
@@ -32,9 +69,38 @@ let currentViewedInvoiceNo = null;
 // ════════════════════════════════════════
 //  HELPERS
 // ════════════════════════════════════════
-function fmtNum(n) {
+function fmtNum(n, colId = null) {
     if (n === 0 || n === '0' || !n) return '0';
-    return Number(n).toLocaleString('en-US');
+    let decimals = 2; // Default
+    let separator = ','; // Default
+    if (colId && gridColumnsConfig[colId]) {
+        decimals = parseInt(gridColumnsConfig[colId].decimals);
+        if (isNaN(decimals)) decimals = 2;
+        separator = gridColumnsConfig[colId].thousandsSeparator;
+    }
+    
+    // If no decimals needed and it's a whole number, format without decimals
+    if (decimals === 0) {
+        let numStr = Math.round(Number(n)).toString();
+        if (separator === ',') {
+            return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        } else if (separator === '.') {
+            return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+        return numStr;
+    }
+    
+    let numStr = Number(n).toFixed(decimals);
+    if (separator === ',') {
+        let parts = numStr.split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return parts.join('.');
+    } else if (separator === '.') {
+        let parts = numStr.split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        return parts.length > 1 ? parts.join(',') : parts[0];
+    }
+    return numStr;
 }
 function parseNum(str) {
     return parseFloat(String(str).replace(/,/g, '')) || 0;
@@ -1329,22 +1395,22 @@ function updateRowCalcs(id) {
     const fcPriceEl = document.querySelector(`[data-fcprice-input="${id}"]`);
     const totalFcEl = document.querySelector(`[data-total-fc="${id}"]`);
 
-    if (totalEl) totalEl.textContent = fmtNum(calcs.total);
-    if (baseEl && document.activeElement !== baseEl) baseEl.value = fmtNum(calcs.baseQty);
-    if (bundleEl) bundleEl.textContent = fmtNum(calcs.bundles);
-    if (shilaEl) shilaEl.textContent = fmtNum(calcs.shilaQty);
-    if (shilaRemEl) shilaRemEl.textContent = fmtNum(calcs.shilaRem);
-    if (priceEl && document.activeElement !== priceEl) priceEl.value = fmtNum(row.price);
+    if (totalEl) totalEl.textContent = fmtNum(calcs.total, 'total');
+    if (baseEl && document.activeElement !== baseEl) baseEl.value = fmtNum(calcs.baseQty, 'baseqty');
+    if (bundleEl) bundleEl.textContent = fmtNum(calcs.bundles, 'shila');
+    if (shilaEl) shilaEl.textContent = fmtNum(calcs.shilaQty, 'shila');
+    if (shilaRemEl) shilaRemEl.textContent = fmtNum(calcs.shilaRem, 'shila-rem');
+    if (priceEl && document.activeElement !== priceEl) priceEl.value = fmtNum(row.price, 'price');
 
     const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
     const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
     let computedFcPrice = row.fcPrice !== undefined ? row.fcPrice : (isBaseSDG ? row.price / exRate : row.price * exRate);
     
-    if (fcPriceEl && document.activeElement !== fcPriceEl) fcPriceEl.value = fmtNum(computedFcPrice);
-    if (totalFcEl) totalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0));
+    if (fcPriceEl && document.activeElement !== fcPriceEl) fcPriceEl.value = fmtNum(computedFcPrice, 'fcprice');
+    if (totalFcEl) totalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0), 'fctotal');
 
     if (availEl) {
-        availEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty);
+        availEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty, 'available');
         availEl.className = 'g-readonly ' + (calcs.availQty !== '—' && calcs.availQty < row.quantity ? 'warn-val' : 'avail-val');
     }
 
@@ -1368,15 +1434,339 @@ function getCurrency() {
 }
 
 // ════════════════════════════════════════
+//  ADVANCED COLUMN SETTINGS & DRAG-DROP
+// ════════════════════════════════════════
+let draggedColId = null;
+
+let isColResizing = false;
+let currentResizingTh = null;
+let colResizeStartX = 0;
+let colResizeStartWidth = 0;
+
+document.addEventListener('mousemove', (e) => {
+    if (!isColResizing || !currentResizingTh) return;
+    // RTL direction: moving mouse left (decreasing X) increases width
+    const dx = colResizeStartX - e.clientX; 
+    let newWidth = colResizeStartWidth + dx;
+    if (newWidth < 40) newWidth = 40;
+    
+    currentResizingTh.style.width = newWidth + 'px';
+    currentResizingTh.style.minWidth = newWidth + 'px';
+});
+
+document.addEventListener('mouseup', (e) => {
+    if (isColResizing && currentResizingTh) {
+        isColResizing = false;
+        const colId = currentResizingTh.getAttribute('data-col-id');
+        if (colId && gridColumnsConfig[colId]) {
+            gridColumnsConfig[colId].width = currentResizingTh.style.width;
+            localStorage.setItem('erp_purchase_grid_config', JSON.stringify(gridColumnsConfig));
+        }
+        currentResizingTh.setAttribute('draggable', 'true');
+        currentResizingTh = null;
+    }
+});
+
+function renderGridHead() {
+    const thead = document.getElementById('grid-head');
+    if (!thead) return;
+    thead.innerHTML = '';
+    
+    const tr = document.createElement('tr');
+    
+    const cols = Object.keys(gridColumnsConfig)
+        .filter(k => gridColumnsConfig[k].visible !== false)
+        .sort((a, b) => gridColumnsConfig[a].order - gridColumnsConfig[b].order);
+        
+    cols.forEach(colId => {
+        const conf = gridColumnsConfig[colId];
+        const th = document.createElement('th');
+        const currentAlias = conf.alias || DEFAULT_COLUMNS_CONFIG[colId].alias;
+        
+        let headerHtml = `<div style="line-height: 1.2;">${currentAlias}</div>`;
+        th.innerHTML = headerHtml;
+        th.title = `الاسم الأصلي: ${DEFAULT_COLUMNS_CONFIG[colId].alias}`;
+        
+        th.style.color = conf.color;
+        if(conf.backgroundColor) th.style.backgroundColor = conf.backgroundColor;
+        th.style.fontSize = conf.fontSize;
+        th.style.fontWeight = conf.fontWeight;
+        th.style.textAlign = conf.align || 'center';
+        th.style.position = 'relative';
+        
+        // Enforce width
+        if (conf.width) {
+            th.style.width = conf.width;
+            th.style.minWidth = conf.width;
+        } else {
+            if (colId === 'item') th.style.minWidth = '180px';
+            else if (['price', 'total', 'fcprice', 'fctotal', 'note'].includes(colId)) th.style.minWidth = '100px';
+            else th.style.minWidth = '70px';
+        }
+        
+        th.draggable = true;
+        th.setAttribute('data-col-id', colId);
+        
+        // Resizer Handle
+        const resizer = document.createElement('div');
+        resizer.style.width = '8px';
+        resizer.style.height = '100%';
+        resizer.style.position = 'absolute';
+        resizer.style.left = '0'; // For RTL
+        resizer.style.top = '0';
+        resizer.style.cursor = 'col-resize';
+        resizer.style.userSelect = 'none';
+        resizer.style.zIndex = '10';
+        resizer.addEventListener('mouseenter', () => { resizer.style.backgroundColor = 'rgba(56, 189, 248, 0.3)'; });
+        resizer.addEventListener('mouseleave', () => { resizer.style.backgroundColor = 'transparent'; });
+        
+        resizer.addEventListener('mousedown', (e) => {
+            isColResizing = true;
+            currentResizingTh = th;
+            colResizeStartX = e.clientX;
+            colResizeStartWidth = th.offsetWidth;
+            th.removeAttribute('draggable'); // Prevent drag and drop
+            e.stopPropagation();
+            e.preventDefault();
+        });
+        
+        resizer.addEventListener('click', (e) => e.stopPropagation());
+        resizer.addEventListener('contextmenu', (e) => e.stopPropagation());
+        
+        th.appendChild(resizer);
+        
+        th.addEventListener('dragstart', (e) => {
+            if (isColResizing) { e.preventDefault(); return; }
+            draggedColId = colId;
+            e.dataTransfer.effectAllowed = 'move';
+            th.style.opacity = '0.5';
+        });
+        
+        th.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            th.style.backgroundColor = 'rgba(255, 215, 0, 0.2)'; 
+        });
+        
+        th.addEventListener('dragleave', (e) => {
+            th.style.backgroundColor = '';
+        });
+        
+        th.addEventListener('drop', (e) => {
+            e.preventDefault();
+            th.style.backgroundColor = '';
+            if (draggedColId && draggedColId !== colId) {
+                const oldOrder = gridColumnsConfig[draggedColId].order;
+                const newOrder = gridColumnsConfig[colId].order;
+                
+                gridColumnsConfig[draggedColId].order = newOrder;
+                gridColumnsConfig[colId].order = oldOrder;
+                
+                localStorage.setItem('erp_purchase_grid_config', JSON.stringify(gridColumnsConfig));
+                renderGrid();
+            }
+        });
+        
+        th.addEventListener('dragend', (e) => {
+            th.style.opacity = '1';
+        });
+        
+        th.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            openAdvancedColSettings(colId);
+        });
+        
+        tr.appendChild(th);
+    });
+    
+    thead.appendChild(tr);
+}
+
+function openAdvancedColSettings(colId) {
+    // Save backup for live preview cancellation
+    window.previewBackupConfig = JSON.parse(JSON.stringify(gridColumnsConfig));
+    
+    const conf = gridColumnsConfig[colId];
+    document.getElementById('edit-col-id').value = colId;
+    document.getElementById('edit-col-alias').value = conf.alias || '';
+    document.getElementById('edit-col-alias').placeholder = `الاسم المخصص... (الأصلي: ${DEFAULT_COLUMNS_CONFIG[colId].alias})`;
+    document.getElementById('edit-col-color').value = conf.color || '#cbd5e1';
+    document.getElementById('edit-col-bgcolor').value = conf.backgroundColor || '#1e293b';
+    document.getElementById('edit-col-fontsize').value = conf.fontSize || '0.95rem';
+    document.getElementById('edit-col-fontweight').value = conf.fontWeight || '900';
+    document.getElementById('edit-col-align').value = conf.align || 'center';
+    document.getElementById('edit-col-decimals').value = conf.decimals !== undefined ? conf.decimals : 2;
+    document.getElementById('edit-col-thousands').value = conf.thousandsSeparator !== undefined ? conf.thousandsSeparator : ',';
+    document.getElementById('edit-col-width').value = conf.width || '';
+    if(document.getElementById('edit-col-apply-all')) document.getElementById('edit-col-apply-all').checked = false;
+    
+    // Populate the global visibility list
+    const visibilityList = document.getElementById('global-col-visibility-list');
+    if (visibilityList) {
+        visibilityList.innerHTML = '';
+        Object.keys(gridColumnsConfig)
+            .sort((a, b) => gridColumnsConfig[a].order - gridColumnsConfig[b].order)
+            .forEach(k => {
+                const cConf = gridColumnsConfig[k];
+                const cAlias = cConf.alias || DEFAULT_COLUMNS_CONFIG[k].alias;
+                const isVisible = cConf.visible !== false;
+                
+                const div = document.createElement('div');
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.gap = '8px';
+                
+                const chk = document.createElement('input');
+                chk.type = 'checkbox';
+                chk.id = `global-vis-${k}`;
+                chk.checked = isVisible;
+                chk.style.width = '18px';
+                chk.style.height = '18px';
+                chk.style.cursor = 'pointer';
+                
+                const lbl = document.createElement('label');
+                lbl.htmlFor = `global-vis-${k}`;
+                lbl.textContent = cAlias;
+                lbl.style.color = '#fff';
+                lbl.style.cursor = 'pointer';
+                lbl.style.fontSize = '0.9rem';
+                lbl.style.whiteSpace = 'nowrap';
+                lbl.style.overflow = 'hidden';
+                lbl.style.textOverflow = 'ellipsis';
+                
+                div.appendChild(chk);
+                div.appendChild(lbl);
+                visibilityList.appendChild(div);
+            });
+    }
+    
+    document.getElementById('advanced-col-settings-modal').classList.add('visible');
+}
+
+function saveAdvancedColSettings() {
+    const colId = document.getElementById('edit-col-id').value;
+    const applyToAll = document.getElementById('edit-col-apply-all') ? document.getElementById('edit-col-apply-all').checked : false;
+    
+    if (colId) {
+        const newAlias = document.getElementById('edit-col-alias').value;
+        const newColor = document.getElementById('edit-col-color').value;
+        const newBgColor = document.getElementById('edit-col-bgcolor').value;
+        const newFontSize = document.getElementById('edit-col-fontsize').value;
+        const newFontWeight = document.getElementById('edit-col-fontweight').value;
+        const newAlign = document.getElementById('edit-col-align').value;
+        const newDecimals = parseInt(document.getElementById('edit-col-decimals').value) || 0;
+        const newThousands = document.getElementById('edit-col-thousands').value;
+        const newWidth = document.getElementById('edit-col-width').value;
+        
+        gridColumnsConfig[colId].alias = newAlias;
+        gridColumnsConfig[colId].color = newColor;
+        gridColumnsConfig[colId].backgroundColor = newBgColor;
+        gridColumnsConfig[colId].fontSize = newFontSize;
+        gridColumnsConfig[colId].fontWeight = newFontWeight;
+        gridColumnsConfig[colId].align = newAlign;
+        gridColumnsConfig[colId].decimals = newDecimals;
+        gridColumnsConfig[colId].thousandsSeparator = newThousands;
+        if (newWidth) gridColumnsConfig[colId].width = newWidth;
+        
+        if (applyToAll) {
+            Object.keys(gridColumnsConfig).forEach(k => {
+                gridColumnsConfig[k].color = newColor;
+                gridColumnsConfig[k].backgroundColor = newBgColor;
+                gridColumnsConfig[k].fontSize = newFontSize;
+                gridColumnsConfig[k].fontWeight = newFontWeight;
+                gridColumnsConfig[k].align = newAlign;
+                gridColumnsConfig[k].decimals = newDecimals;
+                gridColumnsConfig[k].thousandsSeparator = newThousands;
+                if (newWidth) gridColumnsConfig[k].width = newWidth;
+            });
+        }
+    }
+    
+    // Save global visibility
+    Object.keys(gridColumnsConfig).forEach(k => {
+        const chk = document.getElementById(`global-vis-${k}`);
+        if (chk) {
+            gridColumnsConfig[k].visible = chk.checked;
+        }
+    });
+    
+    
+    window.previewBackupConfig = null; // Clear backup on save
+    
+    localStorage.setItem('erp_purchase_grid_config', JSON.stringify(gridColumnsConfig));
+    closeModal('advanced-col-settings-modal');
+    renderGrid();
+    recalcAll(); 
+}
+
+function previewAdvancedColSettings() {
+    const colId = document.getElementById('edit-col-id').value;
+    const applyToAll = document.getElementById('edit-col-apply-all') ? document.getElementById('edit-col-apply-all').checked : false;
+    
+    if (!colId) return;
+    
+    // Deep copy from backup to reset other columns if applyToAll is toggled off
+    if (window.previewBackupConfig) {
+        gridColumnsConfig = JSON.parse(JSON.stringify(window.previewBackupConfig));
+    }
+
+    const newAlias = document.getElementById('edit-col-alias').value;
+    const newColor = document.getElementById('edit-col-color').value;
+    const newBgColor = document.getElementById('edit-col-bgcolor').value;
+    const newFontSize = document.getElementById('edit-col-fontsize').value;
+    const newFontWeight = document.getElementById('edit-col-fontweight').value;
+    const newAlign = document.getElementById('edit-col-align').value;
+    const newDecimals = parseInt(document.getElementById('edit-col-decimals').value) || 0;
+    const newThousands = document.getElementById('edit-col-thousands').value;
+    const newWidth = document.getElementById('edit-col-width').value;
+    
+    gridColumnsConfig[colId].alias = newAlias;
+    gridColumnsConfig[colId].color = newColor;
+    gridColumnsConfig[colId].backgroundColor = newBgColor;
+    gridColumnsConfig[colId].fontSize = newFontSize;
+    gridColumnsConfig[colId].fontWeight = newFontWeight;
+    gridColumnsConfig[colId].align = newAlign;
+    gridColumnsConfig[colId].decimals = newDecimals;
+    gridColumnsConfig[colId].thousandsSeparator = newThousands;
+    if (newWidth) gridColumnsConfig[colId].width = newWidth;
+    
+    if (applyToAll) {
+        Object.keys(gridColumnsConfig).forEach(k => {
+            gridColumnsConfig[k].color = newColor;
+            gridColumnsConfig[k].backgroundColor = newBgColor;
+            gridColumnsConfig[k].fontSize = newFontSize;
+            gridColumnsConfig[k].fontWeight = newFontWeight;
+            gridColumnsConfig[k].align = newAlign;
+            gridColumnsConfig[k].decimals = newDecimals;
+            gridColumnsConfig[k].thousandsSeparator = newThousands;
+            if (newWidth) gridColumnsConfig[k].width = newWidth;
+        });
+    }
+    
+    renderGrid(); // Live preview render
+}
+
+function cancelAdvancedColSettings() {
+    if (window.previewBackupConfig) {
+        gridColumnsConfig = JSON.parse(JSON.stringify(window.previewBackupConfig));
+        window.previewBackupConfig = null;
+        renderGrid(); // Revert preview
+    }
+    closeModal('advanced-col-settings-modal');
+}
+
+// ════════════════════════════════════════
 //  RENDER GRID
 // ════════════════════════════════════════
 function renderGrid() {
+    renderGridHead();
+
     const tbody = document.getElementById('grid-body');
     const mCards = document.getElementById('mobile-cards');
     const empty = document.getElementById('empty-state');
 
-    tbody.innerHTML = '';
-    mCards.innerHTML = '';
+    if (tbody) tbody.innerHTML = '';
+    if (mCards) mCards.innerHTML = '';
 
     if (rows.length === 0) {
         addRow(true);
@@ -1395,76 +1785,90 @@ function renderGrid() {
             itemUnitsHtml = `<option value="${item ? item.unit : ''}">${item ? item.unit : '—'}</option>`;
         }
 
-        // ── Desktop Row ──
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td><div class="row-num">${idx + 1}</div></td>
-            <td style="position:relative;">
+        // Get sorted visible columns
+        const cols = Object.keys(gridColumnsConfig)
+            .filter(k => gridColumnsConfig[k].visible !== false)
+            .sort((a, b) => gridColumnsConfig[a].order - gridColumnsConfig[b].order);
+
+        const cellsMap = {
+            'num': `<td style="text-align:${gridColumnsConfig['num'].align};"><div class="row-num" style="color:${gridColumnsConfig['num'].color}; font-size:${gridColumnsConfig['num'].fontSize}; font-weight:${gridColumnsConfig['num'].fontWeight};">${idx + 1}</div></td>`,
+            
+            'item': `<td style="position:relative; text-align:${gridColumnsConfig['item'].align};">
                 <input type="text" class="g-input" id="item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
                     value="${item ? item.name : ''}" autocomplete="one-time-code"
-                    style="font-size: 1.15rem !important; font-weight: 800 !important;"
+                    style="font-size: ${gridColumnsConfig['item'].fontSize} !important; font-weight: ${gridColumnsConfig['item'].fontWeight} !important; color: ${gridColumnsConfig['item'].color} !important; text-align:${gridColumnsConfig['item'].align};"
                     onfocus="this.select(); showItemDropdown(${row.id})" 
                     onblur="hideItemDropdownDelayed(${row.id})" 
                     oninput="filterItemDropdown(${row.id})">
                 <div class="custom-dropdown-list" id="item-dropdown-list-${row.id}" style="text-align:right; min-width: 220px; white-space: normal;">
-                    <!-- populated by JS -->
                 </div>
-            </td>
-            <td>
-                <select class="g-select" style="min-width: 80px;" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();" tabindex="-1">
+            </td>`,
+            
+            'unit': `<td style="text-align:${gridColumnsConfig['unit'].align};">
+                <select class="g-select" style="min-width: 80px; font-size: ${gridColumnsConfig['unit'].fontSize}; font-weight: ${gridColumnsConfig['unit'].fontWeight}; color: ${gridColumnsConfig['unit'].color}; text-align:${gridColumnsConfig['unit'].align};" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();" tabindex="-1">
                     ${itemUnitsHtml}
                 </select>
-            </td>
-            <td><input type="text" inputmode="decimal" class="g-input" value="${row.customFactor !== undefined ? row.customFactor : calcs.unitFactor}" placeholder="1"
+            </td>`,
+            
+            'factor': `<td style="text-align:${gridColumnsConfig['factor'].align};"><input type="text" inputmode="decimal" class="g-input" value="${row.customFactor !== undefined ? row.customFactor : calcs.unitFactor}" placeholder="1"
                 onfocus="this.select()" oninput="updateRow(${row.id},'customFactor',this.value)"
-                onblur="this.value=parseNum(this.value)||1" tabindex="-1"></td>
-            <td><input type="text" inputmode="decimal" class="g-input" value="${row.quantity || ''}" placeholder="0"
+                onblur="this.value=parseNum(this.value)||1" tabindex="-1" style="font-size: ${gridColumnsConfig['factor'].fontSize}; font-weight: ${gridColumnsConfig['factor'].fontWeight}; color: ${gridColumnsConfig['factor'].color}; text-align:${gridColumnsConfig['factor'].align};"></td>`,
+                
+            'qty': `<td style="text-align:${gridColumnsConfig['qty'].align};"><input type="text" inputmode="decimal" class="g-input" data-qty-input="${row.id}" value="${Number.isInteger(row.quantity) ? row.quantity : parseFloat((row.quantity || 0).toFixed(4)) || ''}" placeholder="0"
                 onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)"
-                onblur="this.value=parseNum(this.value)||''" style="color: #22d3ee !important; font-weight: bold !important; font-size: 1.1rem !important;"></td>
-            <td>
-                <div style="display:flex; align-items:center; gap:4px;">
-                    <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price)}"
-                        onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
-                        onblur="this.value=fmtNum(parseNum(this.value))" style="flex:1; color: #fbbf24 !important; font-weight: bold !important; font-size: 1.1rem !important;">
-                    <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'purchase')" title="سجل أسعار الصنف للمورد" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:4px; padding:4px; border:1px solid rgba(56,189,248,0.2); cursor:pointer;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                    </button>
-                </div>
-            </td>
-            <td><span class="g-readonly total-val" style="color: #10b981 !important; font-weight: 900 !important; font-size: 1.15rem !important;" data-total="${row.id}">${fmtNum(calcs.total)}</span></td>
-            <td>
-                <div style="display:flex; align-items:center; gap:4px; justify-content:center;">
-                    <input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
+                onblur="this.value=parseNum(this.value)||''" style="font-size: ${gridColumnsConfig['qty'].fontSize} !important; font-weight: ${gridColumnsConfig['qty'].fontWeight} !important; color: ${gridColumnsConfig['qty'].color} !important; text-align:${gridColumnsConfig['qty'].align};"></td>`,
+                
+            'price': `<td style="text-align:${gridColumnsConfig['price'].align};">
+                <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price, 'price')}"
+                    onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
+                    onblur="this.value=fmtNum(parseNum(this.value), 'price')" 
+                    onmousedown="startPriceHold(${row.id})" onmouseup="clearPriceHold()" onmouseleave="clearPriceHold()"
+                    ontouchstart="startPriceHold(${row.id})" ontouchend="clearPriceHold()"
+                    style="width:100%; font-size: ${gridColumnsConfig['price'].fontSize} !important; font-weight: ${gridColumnsConfig['price'].fontWeight} !important; color: ${gridColumnsConfig['price'].color} !important; text-align:${gridColumnsConfig['price'].align};">
+            </td>`,
+            
+            'total': `<td style="text-align:${gridColumnsConfig['total'].align};"><span class="g-readonly total-val" style="font-size: ${gridColumnsConfig['total'].fontSize} !important; font-weight: ${gridColumnsConfig['total'].fontWeight} !important; color: ${gridColumnsConfig['total'].color} !important;" data-total="${row.id}">${fmtNum(calcs.total, 'total')}</span></td>`,
+            
+            'baseqty': `<td style="text-align:${gridColumnsConfig['baseqty'].align};">
+                <div style="display:flex; flex-direction:column; align-items:${gridColumnsConfig['baseqty'].align === 'right' ? 'flex-start' : (gridColumnsConfig['baseqty'].align === 'left' ? 'flex-end' : 'center')}; justify-content:center;">
+                    <input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty, 'baseqty')}" placeholder="0"
                         onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
-                        onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700; width:100%;" tabindex="-1">
-                    <span style="font-size:11px; color:var(--text-muted); white-space:nowrap;">${item ? item.baseUnit : ''}</span>
+                        onblur="this.value=fmtNum(parseNum(this.value), 'baseqty')" style="font-size: ${gridColumnsConfig['baseqty'].fontSize}; font-weight: ${gridColumnsConfig['baseqty'].fontWeight}; color: ${gridColumnsConfig['baseqty'].color}; text-align:${gridColumnsConfig['baseqty'].align}; width:100%;" tabindex="-1">
+                    <span style="display:block; font-size:10px; line-height:1; color:var(--text-muted); margin-top:2px;">${item ? item.baseUnit : ''}</span>
                 </div>
-            </td>
-            <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.availableQty !== undefined ? fmtNum(row.availableQty) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'availableQty',this.value)" onblur="this.value=fmtNum(parseNum(this.value))" style="color:#0ea5e9; font-weight:bold;"></td>
-            <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.remainingQty !== undefined ? fmtNum(row.remainingQty) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'remainingQty',this.value)" onblur="this.value=fmtNum(parseNum(this.value))" style="color:#f59e0b; font-weight:bold;"></td>
-            <td>
-                <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}"
+            </td>`,
+            
+            'available': `<td style="text-align:${gridColumnsConfig['available'].align};"><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.availableQty !== undefined ? fmtNum(row.availableQty, 'available') : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'availableQty',this.value)" onblur="this.value=fmtNum(parseNum(this.value), 'available')" style="font-size: ${gridColumnsConfig['available'].fontSize}; font-weight: ${gridColumnsConfig['available'].fontWeight}; color: ${gridColumnsConfig['available'].color}; text-align:${gridColumnsConfig['available'].align};"></td>`,
+            
+            'remaining': `<td style="text-align:${gridColumnsConfig['remaining'].align};"><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.remainingQty !== undefined ? fmtNum(row.remainingQty, 'remaining') : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'remainingQty',this.value)" onblur="this.value=fmtNum(parseNum(this.value), 'remaining')" style="font-size: ${gridColumnsConfig['remaining'].fontSize}; font-weight: ${gridColumnsConfig['remaining'].fontWeight}; color: ${gridColumnsConfig['remaining'].color}; text-align:${gridColumnsConfig['remaining'].align};"></td>`,
+            
+            'fcprice': `<td style="text-align:${gridColumnsConfig['fcprice'].align};">
+                <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)), 'fcprice')}"
                     onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
-                    onblur="this.value=fmtNum(parseNum(this.value))" style="color:#10b981; font-weight:700;" tabindex="-1">
-            </td>
-            <td><span class="g-readonly total-fc-val" style="color:#10b981; font-weight:bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0))}</span></td>
-
-            <td>
-                <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1">
+                    onblur="this.value=fmtNum(parseNum(this.value), 'fcprice')" style="font-size: ${gridColumnsConfig['fcprice'].fontSize}; font-weight: ${gridColumnsConfig['fcprice'].fontWeight}; color: ${gridColumnsConfig['fcprice'].color}; text-align:${gridColumnsConfig['fcprice'].align};" tabindex="-1">
+            </td>`,
+            
+            'fctotal': `<td style="text-align:${gridColumnsConfig['fctotal'].align};"><span class="g-readonly total-fc-val" style="font-size: ${gridColumnsConfig['fctotal'].fontSize}; font-weight: ${gridColumnsConfig['fctotal'].fontWeight}; color: ${gridColumnsConfig['fctotal'].color};" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0), 'fctotal')}</span></td>`,
+            
+            'warehouse': `<td style="text-align:${gridColumnsConfig['warehouse'].align};">
+                <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1" style="font-size: ${gridColumnsConfig['warehouse'].fontSize}; font-weight: ${gridColumnsConfig['warehouse'].fontWeight}; color: ${gridColumnsConfig['warehouse'].color}; text-align:${gridColumnsConfig['warehouse'].align};">
                     <option value="">نفس الفاتورة ↩</option>
                     ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
                 </select>
-            </td>
-
-            <td><span class="g-readonly" style="color:#6366f1; font-weight:bold;" data-shila="${row.id}">${fmtNum(calcs.shilaQty)}</span></td>
-            <td><span class="g-readonly" style="color:#ef4444; font-weight:bold;" data-shila-rem="${row.id}">${fmtNum(calcs.shilaRem)}</span></td>
-
-            <td><input type="text" class="g-input" placeholder="ملحوظة..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)"></td>
-            <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.buyPrice !== undefined ? fmtNum(row.buyPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'buyPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))"></td>
-            <td><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.sellPrice !== undefined ? fmtNum(row.sellPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'sellPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))"></td>
-
-            <td>
-                <div style="display: flex; gap: 5px; justify-content: center;">
+            </td>`,
+            
+            'shila': `<td style="text-align:${gridColumnsConfig['shila'].align};"><span class="g-readonly" style="font-size: ${gridColumnsConfig['shila'].fontSize}; font-weight: ${gridColumnsConfig['shila'].fontWeight}; color: ${gridColumnsConfig['shila'].color};" data-shila="${row.id}">${fmtNum(calcs.shilaQty, 'shila')}</span></td>`,
+            
+            'shila-rem': `<td style="text-align:${gridColumnsConfig['shila-rem'].align};"><span class="g-readonly" style="font-size: ${gridColumnsConfig['shila-rem'].fontSize}; font-weight: ${gridColumnsConfig['shila-rem'].fontWeight}; color: ${gridColumnsConfig['shila-rem'].color};" data-shila-rem="${row.id}">${fmtNum(calcs.shilaRem, 'shila-rem')}</span></td>`,
+            
+            'note': `<td style="text-align:${gridColumnsConfig['note'].align};"><input type="text" class="g-input" placeholder="ملحوظة..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)" style="font-size: ${gridColumnsConfig['note'].fontSize}; font-weight: ${gridColumnsConfig['note'].fontWeight}; color: ${gridColumnsConfig['note'].color}; text-align:${gridColumnsConfig['note'].align};"></td>`,
+            
+            'buy-price': `<td style="text-align:${gridColumnsConfig['buy-price'].align};"><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.buyPrice !== undefined ? fmtNum(row.buyPrice, 'buy-price') : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'buyPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value), 'buy-price')" style="font-size: ${gridColumnsConfig['buy-price'].fontSize}; font-weight: ${gridColumnsConfig['buy-price'].fontWeight}; color: ${gridColumnsConfig['buy-price'].color}; text-align:${gridColumnsConfig['buy-price'].align};"></td>`,
+            
+            'sell-price': `<td style="text-align:${gridColumnsConfig['sell-price'].align};"><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.sellPrice !== undefined ? fmtNum(row.sellPrice, 'sell-price') : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'sellPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value), 'sell-price')" style="font-size: ${gridColumnsConfig['sell-price'].fontSize}; font-weight: ${gridColumnsConfig['sell-price'].fontWeight}; color: ${gridColumnsConfig['sell-price'].color}; text-align:${gridColumnsConfig['sell-price'].align};"></td>`,
+            
+            'actions': `<td style="text-align:${gridColumnsConfig['actions'].align};">
+                <div style="display: flex; gap: 5px; justify-content: ${gridColumnsConfig['actions'].align === 'right' ? 'flex-start' : (gridColumnsConfig['actions'].align === 'left' ? 'flex-end' : 'center')};">
                     <button class="edit-btn" onclick="document.getElementById('item-search-${row.id}').focus()" title="تعديل السطر" style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.2); color: #38bdf8; border-radius: 6px; padding: 6px; cursor: pointer;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                     </button>
@@ -1472,9 +1876,32 @@ function renderGrid() {
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     </button>
                 </div>
-            </td>
-        `;
-        if (window.reorderTds) window.reorderTds(tr);
+            </td>`
+        };
+
+        // ── Desktop Row ──
+        const tr = document.createElement('tr');
+        
+        let rowHtml = '';
+        cols.forEach(colId => {
+            rowHtml += cellsMap[colId];
+        });
+        
+        tr.innerHTML = rowHtml;
+        
+        // Apply background colors dynamically
+        Array.from(tr.children).forEach((td, index) => {
+            const colId = cols[index];
+            const conf = gridColumnsConfig[colId];
+            if (conf && conf.backgroundColor) {
+                td.style.backgroundColor = conf.backgroundColor;
+                const inputs = td.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    input.style.backgroundColor = conf.backgroundColor;
+                });
+            }
+        });
+        
         tbody.appendChild(tr);
 
         // ── Mobile Card ──
@@ -2480,3 +2907,16 @@ function printCurrentInvoice() {
     }
 }
 
+let priceHoldTimer = null;
+window.startPriceHold = function(rowId) {
+    priceHoldTimer = setTimeout(() => {
+        showPriceHistory(rowId, 'purchase');
+        priceHoldTimer = null;
+    }, 1500); 
+};
+window.clearPriceHold = function() {
+    if (priceHoldTimer) {
+        clearTimeout(priceHoldTimer);
+        priceHoldTimer = null;
+    }
+};
