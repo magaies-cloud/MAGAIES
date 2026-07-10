@@ -382,10 +382,18 @@
             </a>
             <a data-href="aging-report.php" onclick="window.location.href='aging-report.php'" class="bento-card" style="--glow-color: rgba(192, 132, 252, 0.6);">
                 <span class="badge badge-new">جديد احترافي</span>
-                <div class="card-icon-wrapper">⏳</div>
+                <div class="card-icon-wrapper">⌛</div>
                 <div class="card-content">
                     <h3 class="card-title">أعمار الديون (Aging)</h3>
                     <p class="card-desc">تحليل المتأخرات وفترات الاستحقاق لمعرفة الديون المعدومة وقيد التحصيل.</p>
+                </div>
+            </a>
+            <a data-href="customer-portfolio.php" onclick="window.location.href='customer-portfolio.php'" class="bento-card" style="--glow-color: rgba(245, 158, 11, 0.6);">
+                <span class="badge badge-new" style="background:rgba(245,158,11,0.15); color:#f59e0b; border-color:rgba(245,158,11,0.3);">⭐ متقدم</span>
+                <div class="card-icon-wrapper">💼</div>
+                <div class="card-content">
+                    <h3 class="card-title">بطاقة الموقف المالي للعملاء</h3>
+                    <p class="card-desc">لوحة تحليل شاملة لرصد مواقف العملاء وأداء التحصيل والمديونيات مع مؤشرات الأداء الرئيسية (KPI).</p>
                 </div>
             </a>
         </div>
