@@ -916,8 +916,7 @@
     <style>
         .hub-action-card {
             background: rgba(15, 23, 42, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(0, 0, 0, 0.45) !important;
             border-radius: 12px;
             padding: 12px 15px;
             display: flex;
@@ -977,11 +976,12 @@
             font-weight: 800;
             margin-bottom: 3px;
             letter-spacing: 0.5px;
+            color: #0f172a;
         }
         .hub-action-card .subtitle {
             font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.6);
-            font-weight: 500;
+            color: rgba(15, 23, 42, 0.75);
+            font-weight: 600;
             text-align: right;
             margin: 0;
         }
@@ -1616,32 +1616,32 @@
     <div id="sales-hub-view" style="display: flex; flex-direction: column; height: 100%; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 0 5px;">
         <!-- Action Cards (فاتورة جديدة, تقسيم الفاتورة, تسليم, فاتورة مبدئية) -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-            <button onclick="openInvoiceEditor('pending_delivery')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(56,189,248,0.02)); border-color: rgba(56,189,248,0.2);">
-                <div class="icon" style="color: #38bdf8; text-shadow: 0 0 10px rgba(56,189,248,0.4); box-shadow: inset 0 0 10px rgba(56,189,248,0.1);">➕</div>
+            <button onclick="openInvoiceEditor('pending_delivery')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(186, 230, 253, 0.85), rgba(125, 211, 252, 0.65));">
+                <div class="icon" style="color: #0284c7; text-shadow: 0 0 10px rgba(56,189,248,0.2); box-shadow: inset 0 0 10px rgba(56,189,248,0.1); background: rgba(0,0,0,0.05);">➕</div>
                 <div class="text-content">
-                    <div class="title" style="color: #38bdf8;">فاتورة جديدة</div>
-                    <div class="subtitle">إنشاء فاتورة مبيعات (بدون خصم مخزون)</div>
+                    <div class="title" style="color: #0f172a;">فاتورة جديدة</div>
+                    <div class="subtitle" style="color: rgba(15, 23, 42, 0.75);">إنشاء فاتورة مبيعات (بدون خصم مخزون)</div>
                 </div>
             </button>
-            <button onclick="openSplitInvoiceView()" class="hub-action-card" style="background: linear-gradient(135deg, rgba(236,72,153,0.1), rgba(236,72,153,0.02)); border-color: rgba(236,72,153,0.2);">
-                <div class="icon" style="color: #ec4899; text-shadow: 0 0 10px rgba(236,72,153,0.4); box-shadow: inset 0 0 10px rgba(236,72,153,0.1);">✂️</div>
+            <button onclick="openSplitInvoiceView()" class="hub-action-card" style="background: linear-gradient(135deg, rgba(251, 207, 232, 0.85), rgba(244, 143, 177, 0.65));">
+                <div class="icon" style="color: #db2777; text-shadow: 0 0 10px rgba(236,72,153,0.2); box-shadow: inset 0 0 10px rgba(236,72,153,0.1); background: rgba(0,0,0,0.05);">✂️</div>
                 <div class="text-content">
-                    <div class="title" style="color: #ec4899;">تقسيم الفاتورة</div>
-                    <div class="subtitle">تقسيم فاتورة مبيعات إلى فاتورتين مستقلتين</div>
+                    <div class="title" style="color: #0f172a;">تقسيم الفاتورة</div>
+                    <div class="subtitle" style="color: rgba(15, 23, 42, 0.75);">تقسيم فاتورة مبيعات إلى فاتورتين مستقلتين</div>
                 </div>
             </button>
-            <button onclick="openDeliveryHub()" class="hub-action-card" style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.02)); border-color: rgba(16,185,129,0.2);">
-                <div class="icon" style="color: #10b981; text-shadow: 0 0 10px rgba(16,185,129,0.4); box-shadow: inset 0 0 10px rgba(16,185,129,0.1);">🚚</div>
+            <button onclick="openDeliveryHub()" class="hub-action-card" style="background: linear-gradient(135deg, rgba(167, 243, 208, 0.85), rgba(110, 231, 183, 0.65));">
+                <div class="icon" style="color: #059669; text-shadow: 0 0 10px rgba(16,185,129,0.2); box-shadow: inset 0 0 10px rgba(16,185,129,0.1); background: rgba(0,0,0,0.05);">🚚</div>
                 <div class="text-content">
-                    <div class="title" style="color: #10b981;">تسليم</div>
-                    <div class="subtitle">تسليم فواتير المبيعات (خصم من المخزون)</div>
+                    <div class="title" style="color: #0f172a;">تسليم</div>
+                    <div class="subtitle" style="color: rgba(15, 23, 42, 0.75);">تسليم فواتير المبيعات (خصم من المخزون)</div>
                 </div>
             </button>
-            <button onclick="openInvoiceEditor('preliminary')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(168,85,247,0.02)); border-color: rgba(168,85,247,0.2);">
-                <div class="icon" style="color: #a855f7; text-shadow: 0 0 10px rgba(168,85,247,0.4); box-shadow: inset 0 0 10px rgba(168,85,247,0.1);">📋</div>
+            <button onclick="openInvoiceEditor('preliminary')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(233, 213, 255, 0.85), rgba(216, 180, 254, 0.65));">
+                <div class="icon" style="color: #7c3aed; text-shadow: 0 0 10px rgba(168,85,247,0.2); box-shadow: inset 0 0 10px rgba(168,85,247,0.1); background: rgba(0,0,0,0.05);">📋</div>
                 <div class="text-content">
-                    <div class="title" style="color: #a855f7;">فاتورة مبدئية</div>
-                    <div class="subtitle">عرض أسعار / غير ملزمة</div>
+                    <div class="title" style="color: #0f172a;">فاتورة مبدئية</div>
+                    <div class="subtitle" style="color: rgba(15, 23, 42, 0.75);">عرض أسعار / غير ملزمة</div>
                 </div>
             </button>
         </div>

@@ -397,8 +397,7 @@
     <style>
         .hub-action-card {
             background: rgba(15, 23, 42, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(0, 0, 0, 0.45) !important;
             border-radius: 12px;
             padding: 12px 15px;
             display: flex;
@@ -458,11 +457,12 @@
             font-weight: 800;
             margin-bottom: 3px;
             letter-spacing: 0.5px;
+            color: #0f172a;
         }
         .hub-action-card .subtitle {
             font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.6);
-            font-weight: 500;
+            color: rgba(15, 23, 42, 0.75);
+            font-weight: 600;
             text-align: right;
             margin: 0;
         }
@@ -834,8 +834,7 @@
     <style>
         .hub-action-card {
             background: rgba(15, 23, 42, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(0, 0, 0, 0.45) !important;
             border-radius: 12px;
             padding: 12px 15px;
             display: flex;
@@ -895,11 +894,12 @@
             font-weight: 800;
             margin-bottom: 3px;
             letter-spacing: 0.5px;
+            color: #0f172a;
         }
         .hub-action-card .subtitle {
             font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.6);
-            font-weight: 500;
+            color: rgba(15, 23, 42, 0.75);
+            font-weight: 600;
             text-align: right;
             margin: 0;
         }
@@ -1250,38 +1250,38 @@
 
 
             <!-- Direct Purchase Invoice -->
-            <button onclick="openPurchaseEditor('direct')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.02)); border-color: rgba(245,158,11,0.2);">
-                <div class="icon" style="color: #f59e0b; text-shadow: 0 0 10px rgba(245, 158, 11, 0.4); box-shadow: inset 0 0 10px rgba(245,158,11,0.1);">💵</div>
+            <button onclick="openPurchaseEditor('direct')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(253, 230, 138, 0.85), rgba(245, 158, 11, 0.65));">
+                <div class="icon" style="color: #d97706; text-shadow: 0 0 10px rgba(245, 158, 11, 0.2); box-shadow: inset 0 0 10px rgba(245,158,11,0.1); background: rgba(0,0,0,0.05);">💵</div>
                 <div class="text-content">
-                    <div class="title" style="color: #f59e0b;">فاتورة مشتريات مباشرة</div>
-                    <div class="subtitle">إنشاء فاتورة شراء نقدية مباشرة مع استلام فوري.</div>
+                    <div class="title" style="color: #0f172a;">فاتورة مشتريات مباشرة</div>
+                    <div class="subtitle" style="color: rgba(15, 23, 42, 0.75);">إنشاء فاتورة شراء نقدية مباشرة مع استلام فوري.</div>
                 </div>
             </button>
 
             <!-- Goods Receipt Note -->
-            <button onclick="window.location.href='purchase-receipt.php'" class="hub-action-card" style="background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(56,189,248,0.02)); border-color: rgba(56,189,248,0.2);">
-                <div class="icon" style="color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); box-shadow: inset 0 0 10px rgba(56,189,248,0.1);">🚛</div>
+            <button onclick="window.location.href='purchase-receipt.php'" class="hub-action-card" style="background: linear-gradient(135deg, rgba(186, 230, 253, 0.85), rgba(125, 211, 252, 0.65));">
+                <div class="icon" style="color: #0284c7; text-shadow: 0 0 10px rgba(56, 189, 248, 0.2); box-shadow: inset 0 0 10px rgba(56,189,248,0.1); background: rgba(0,0,0,0.05);">🚛</div>
                 <div class="text-content">
-                    <div class="title" style="color: #38bdf8;">استلام بضاعة (GRN)</div>
-                    <div class="subtitle">استلام البضاعة المعلقة وإدخالها للمستودعات.</div>
+                    <div class="title" style="color: #0f172a;">استلام بضاعة (GRN)</div>
+                    <div class="subtitle" style="color: rgba(15, 23, 42, 0.75);">استلام البضاعة المعلقة وإدخالها للمستودعات.</div>
                 </div>
             </button>
 
             <!-- Purchase Return -->
-            <button onclick="window.location.href='purchase-return.php'" class="hub-action-card" style="background: linear-gradient(135deg, rgba(244,63,94,0.1), rgba(244,63,94,0.02)); border-color: rgba(244,63,94,0.2);">
-                <div class="icon" style="color: #f43f5e; text-shadow: 0 0 10px rgba(244, 63, 94, 0.4); box-shadow: inset 0 0 10px rgba(244,63,94,0.1);">↩️</div>
+            <button onclick="window.location.href='purchase-return.php'" class="hub-action-card" style="background: linear-gradient(135deg, rgba(254, 205, 211, 0.85), rgba(244, 63, 94, 0.65));">
+                <div class="icon" style="color: #e11d48; text-shadow: 0 0 10px rgba(244, 63, 94, 0.2); box-shadow: inset 0 0 10px rgba(244,63,94,0.1); background: rgba(0,0,0,0.05);">↩️</div>
                 <div class="text-content">
-                    <div class="title" style="color: #f43f5e;">استرداد بضاعة</div>
-                    <div class="subtitle">مردودات مشتريات مع تأثير عكسي على الحسابات.</div>
+                    <div class="title" style="color: #0f172a;">استرداد بضاعة</div>
+                    <div class="subtitle" style="color: rgba(15, 23, 42, 0.75);">مردودات مشتريات مع تأثير عكسي على الحسابات.</div>
                 </div>
             </button>
 
             <!-- Proforma Invoice -->
-            <button onclick="openPurchaseEditor('proforma')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(168,85,247,0.02)); border-color: rgba(168,85,247,0.2);">
-                <div class="icon" style="color: #a855f7; text-shadow: 0 0 10px rgba(168, 85, 247, 0.4); box-shadow: inset 0 0 10px rgba(168,85,247,0.1);">📋</div>
+            <button onclick="openPurchaseEditor('proforma')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(233, 213, 255, 0.85), rgba(216, 180, 254, 0.65));">
+                <div class="icon" style="color: #7c3aed; text-shadow: 0 0 10px rgba(168, 85, 247, 0.2); box-shadow: inset 0 0 10px rgba(168,85,247,0.1); background: rgba(0,0,0,0.05);">📋</div>
                 <div class="text-content">
-                    <div class="title" style="color: #a855f7;">فاتورة مبدئية</div>
-                    <div class="subtitle">عرض سعر / طلب شراء (لا تؤثر محاسبياً ولا مخزنياً).</div>
+                    <div class="title" style="color: #0f172a;">فاتورة مبدئية</div>
+                    <div class="subtitle" style="color: rgba(15, 23, 42, 0.75);">عرض سعر / طلب شراء (لا تؤثر محاسبياً ولا مخزنياً).</div>
                 </div>
             </button>
         </div>
