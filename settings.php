@@ -337,8 +337,8 @@
         }
         
         :root.light-theme .tabs-nav {
-            background: rgba(255, 255, 255, 0.8) !important;
-            border-color: rgba(0, 0, 0, 0.1) !important;
+            background: #e2e8f0 !important; /* Silver background in Light Mode */
+            border-color: rgba(0, 0, 0, 0.12) !important;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
         .tab-btn {
