@@ -1146,7 +1146,7 @@
     <?php include 'includes/header.php'; ?>
 
     <!-- ═══ PURCHASE HUB VIEW ═══ -->
-    <div id="purchase-hub-view" style="display: flex; flex-direction: column; height: 100%; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 10px 0; max-width: 100%; margin: 0; overflow-y: auto;">
+    <div id="purchase-hub-view" style="display: flex; flex-direction: column; flex: 1; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 10px 0; max-width: 100%; margin: 0; overflow-y: auto;">
         
         <!-- Action Cards -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
@@ -1228,7 +1228,7 @@
     </div>
 
     <!-- ═══ PURCHASE EDITOR VIEW ═══ -->
-    <div id="purchase-editor-view" style="display: none; flex-direction: column; height: 100%; flex: 1; overflow-y: auto; padding-bottom: 30px;">
+    <div id="purchase-editor-view" style="display: none; flex-direction: column; flex: 1; overflow-y: auto; padding-bottom: 30px;">
     
 
     <!-- Form Fields (Now first in DOM, rendering on the Right in RTL) -->

@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'إدارة المخزون 2026 - مقاييس (MAGAIEES)'; ?>
+<?php $page_title = 'إدارة المخزون 2026 - مقاييس (MAGAIEES)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -132,6 +132,7 @@
 
 
             <!-- Unified Header -->
+        <?php $header_theme_class = 'header-theme-inventory'; ?>
         <?php include 'includes/header.php'; ?>
 
     <div class="search-container">
