@@ -1629,7 +1629,7 @@
                 if (data.success) {
                     alert(data.message);
                 } else {
-                    alert('❌ فشلت العملية: ' + (data.error || 'خطأ غير معروف'));
+                    alert('❌ ' + (data.message || data.error || 'خطأ غير معروف'));
                 }
             } catch (e) {
                 alert('❌ تعذر الاتصال بالسيرفر: ' + e.message);
