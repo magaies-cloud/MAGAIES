@@ -26,7 +26,11 @@ require_once __DIR__ . "/api/controllers/AuthController.php";
 // Utility: Send JSON response and exit
 // -------------------------------------------------------
 function jsonResponse($data, $statusCode = 200) {
-    http_response_code($statusCode);
+    // Return 200 OK to prevent Nginx/Apache from intercepting and serving HTML error pages
+    http_response_code(200);
+    if (is_array($data)) {
+        $data['http_status'] = $statusCode;
+    }
     echo json_encode($data, JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -566,7 +570,7 @@ if ($token === $saasSecret) {
             }
             
             header('Content-Type: application/json');
-            http_response_code($httpCode);
+            http_response_code(200); // Always 200 to prevent Nginx HTML error pages
             echo $response;
             exit;
         }
