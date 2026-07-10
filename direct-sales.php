@@ -915,8 +915,6 @@
 
     <style>
         .hub-action-card {
-            background: rgba(15, 23, 42, 0.15);
-            border: 2px solid rgba(0, 0, 0, 0.45) !important;
             border-radius: 12px;
             padding: 12px 15px;
             display: flex;
@@ -953,7 +951,6 @@
             font-size: 1.8rem;
             margin-bottom: 0;
             padding: 8px;
-            background: rgba(255, 255, 255, 0.05);
             border-radius: 10px;
             transition: transform 0.3s ease;
             display: flex;
@@ -976,15 +973,79 @@
             font-weight: 800;
             margin-bottom: 3px;
             letter-spacing: 0.5px;
-            color: #0f172a;
         }
         .hub-action-card .subtitle {
             font-size: 0.7rem;
-            color: rgba(15, 23, 42, 0.75);
             font-weight: 600;
             text-align: right;
             margin: 0;
         }
+
+        /* ── Theme-aware Card Styling (Dark Mode Defaults) ── */
+        .card-blue {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(56, 189, 248, 0.03));
+            border: 1px solid rgba(56, 189, 248, 0.25) !important;
+        }
+        .card-blue .icon { color: #38bdf8; background: rgba(56, 189, 248, 0.08); }
+        .card-blue .title { color: #38bdf8 !important; }
+        .card-blue .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+
+        .card-pink {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(236, 72, 153, 0.03));
+            border: 1px solid rgba(236, 72, 153, 0.25) !important;
+        }
+        .card-pink .icon { color: #ec4899; background: rgba(236, 72, 153, 0.08); }
+        .card-pink .title { color: #ec4899 !important; }
+        .card-pink .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+
+        .card-green {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.03));
+            border: 1px solid rgba(16, 185, 129, 0.25) !important;
+        }
+        .card-green .icon { color: #10b981; background: rgba(16, 185, 129, 0.08); }
+        .card-green .title { color: #10b981 !important; }
+        .card-green .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+
+        .card-purple {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(168, 85, 247, 0.03));
+            border: 1px solid rgba(168, 85, 247, 0.25) !important;
+        }
+        .card-purple .icon { color: #a855f7; background: rgba(168, 85, 247, 0.08); }
+        .card-purple .title { color: #a855f7 !important; }
+        .card-purple .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+
+        /* ── Light Mode overrides for Hub Cards ── */
+        :root.light-theme .card-blue {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(56, 189, 248, 0.08)) !important;
+            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+        }
+        :root.light-theme .card-blue .icon { color: #0284c7 !important; background: rgba(0, 0, 0, 0.05) !important; }
+        :root.light-theme .card-blue .title { color: #0f172a !important; }
+        :root.light-theme .card-blue .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+
+        :root.light-theme .card-pink {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.25), rgba(236, 72, 153, 0.08)) !important;
+            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+        }
+        :root.light-theme .card-pink .icon { color: #db2777 !important; background: rgba(0, 0, 0, 0.05) !important; }
+        :root.light-theme .card-pink .title { color: #0f172a !important; }
+        :root.light-theme .card-pink .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+
+        :root.light-theme .card-green {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(16, 185, 129, 0.08)) !important;
+            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+        }
+        :root.light-theme .card-green .icon { color: #059669 !important; background: rgba(0, 0, 0, 0.05) !important; }
+        :root.light-theme .card-green .title { color: #0f172a !important; }
+        :root.light-theme .card-green .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+
+        :root.light-theme .card-purple {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(168, 85, 247, 0.08)) !important;
+            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+        }
+        :root.light-theme .card-purple .icon { color: #7c3aed !important; background: rgba(0, 0, 0, 0.05) !important; }
+        :root.light-theme .card-purple .title { color: #0f172a !important; }
+        :root.light-theme .card-purple .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
         .hub-badge {
             padding: 4px 10px;
             border-radius: 20px;
@@ -1616,32 +1677,32 @@
     <div id="sales-hub-view" style="display: flex; flex-direction: column; height: 100%; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 0 5px;">
         <!-- Action Cards (فاتورة جديدة, تقسيم الفاتورة, تسليم, فاتورة مبدئية) -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-            <button onclick="openInvoiceEditor('pending_delivery')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(186, 230, 253, 0.85), rgba(125, 211, 252, 0.65));">
-                <div class="icon" style="color: #0284c7; text-shadow: 0 0 10px rgba(56,189,248,0.2); box-shadow: inset 0 0 10px rgba(56,189,248,0.1); background: rgba(0,0,0,0.05);">➕</div>
+            <button onclick="openInvoiceEditor('pending_delivery')" class="hub-action-card card-blue">
+                <div class="icon">➕</div>
                 <div class="text-content">
-                    <div class="title" style="color: #0f172a;">فاتورة جديدة</div>
-                    <div class="subtitle" style="color: rgba(15, 23, 42, 0.75);">إنشاء فاتورة مبيعات (بدون خصم مخزون)</div>
+                    <div class="title">فاتورة جديدة</div>
+                    <div class="subtitle">إنشاء فاتورة مبيعات (بدون خصم مخزون)</div>
                 </div>
             </button>
-            <button onclick="openSplitInvoiceView()" class="hub-action-card" style="background: linear-gradient(135deg, rgba(251, 207, 232, 0.85), rgba(244, 143, 177, 0.65));">
-                <div class="icon" style="color: #db2777; text-shadow: 0 0 10px rgba(236,72,153,0.2); box-shadow: inset 0 0 10px rgba(236,72,153,0.1); background: rgba(0,0,0,0.05);">✂️</div>
+            <button onclick="openSplitInvoiceView()" class="hub-action-card card-pink">
+                <div class="icon">✂️</div>
                 <div class="text-content">
-                    <div class="title" style="color: #0f172a;">تقسيم الفاتورة</div>
-                    <div class="subtitle" style="color: rgba(15, 23, 42, 0.75);">تقسيم فاتورة مبيعات إلى فاتورتين مستقلتين</div>
+                    <div class="title">تقسيم الفاتورة</div>
+                    <div class="subtitle">تقسيم فاتورة مبيعات إلى فاتورتين مستقلتين</div>
                 </div>
             </button>
-            <button onclick="openDeliveryHub()" class="hub-action-card" style="background: linear-gradient(135deg, rgba(167, 243, 208, 0.85), rgba(110, 231, 183, 0.65));">
-                <div class="icon" style="color: #059669; text-shadow: 0 0 10px rgba(16,185,129,0.2); box-shadow: inset 0 0 10px rgba(16,185,129,0.1); background: rgba(0,0,0,0.05);">🚚</div>
+            <button onclick="openDeliveryHub()" class="hub-action-card card-green">
+                <div class="icon">🚚</div>
                 <div class="text-content">
-                    <div class="title" style="color: #0f172a;">تسليم</div>
-                    <div class="subtitle" style="color: rgba(15, 23, 42, 0.75);">تسليم فواتير المبيعات (خصم من المخزون)</div>
+                    <div class="title">تسليم</div>
+                    <div class="subtitle">تسليم فواتير المبيعات (خصم من المخزون)</div>
                 </div>
             </button>
-            <button onclick="openInvoiceEditor('preliminary')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(233, 213, 255, 0.85), rgba(216, 180, 254, 0.65));">
-                <div class="icon" style="color: #7c3aed; text-shadow: 0 0 10px rgba(168,85,247,0.2); box-shadow: inset 0 0 10px rgba(168,85,247,0.1); background: rgba(0,0,0,0.05);">📋</div>
+            <button onclick="openInvoiceEditor('preliminary')" class="hub-action-card card-purple">
+                <div class="icon">📋</div>
                 <div class="text-content">
-                    <div class="title" style="color: #0f172a;">فاتورة مبدئية</div>
-                    <div class="subtitle" style="color: rgba(15, 23, 42, 0.75);">عرض أسعار / غير ملزمة</div>
+                    <div class="title">فاتورة مبدئية</div>
+                    <div class="subtitle">عرض أسعار / غير ملزمة</div>
                 </div>
             </button>
         </div>

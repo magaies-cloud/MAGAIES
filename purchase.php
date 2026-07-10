@@ -396,8 +396,6 @@
 
     <style>
         .hub-action-card {
-            background: rgba(15, 23, 42, 0.4);
-            border: 2px solid rgba(0, 0, 0, 0.45) !important;
             border-radius: 12px;
             padding: 12px 15px;
             display: flex;
@@ -434,7 +432,6 @@
             font-size: 1.8rem;
             margin-bottom: 0;
             padding: 8px;
-            background: rgba(255, 255, 255, 0.05);
             border-radius: 10px;
             transition: transform 0.3s ease;
             display: flex;
@@ -457,15 +454,79 @@
             font-weight: 800;
             margin-bottom: 3px;
             letter-spacing: 0.5px;
-            color: #0f172a;
         }
         .hub-action-card .subtitle {
             font-size: 0.7rem;
-            color: rgba(15, 23, 42, 0.75);
             font-weight: 600;
             text-align: right;
             margin: 0;
         }
+
+        /* ── Theme-aware Card Styling (Dark Mode Defaults) ── */
+        .card-orange {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.03));
+            border: 1px solid rgba(245, 158, 11, 0.25) !important;
+        }
+        .card-orange .icon { color: #f59e0b; background: rgba(245, 158, 11, 0.08); }
+        .card-orange .title { color: #f59e0b !important; }
+        .card-orange .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+
+        .card-blue {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(56, 189, 248, 0.03));
+            border: 1px solid rgba(56, 189, 248, 0.25) !important;
+        }
+        .card-blue .icon { color: #38bdf8; background: rgba(56, 189, 248, 0.08); }
+        .card-blue .title { color: #38bdf8 !important; }
+        .card-blue .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+
+        .card-pink {
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.15), rgba(244, 63, 94, 0.03));
+            border: 1px solid rgba(244, 63, 94, 0.25) !important;
+        }
+        .card-pink .icon { color: #f43f5e; background: rgba(244, 63, 94, 0.08); }
+        .card-pink .title { color: #f43f5e !important; }
+        .card-pink .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+
+        .card-purple {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(168, 85, 247, 0.03));
+            border: 1px solid rgba(168, 85, 247, 0.25) !important;
+        }
+        .card-purple .icon { color: #a855f7; background: rgba(168, 85, 247, 0.08); }
+        .card-purple .title { color: #a855f7 !important; }
+        .card-purple .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+
+        /* ── Light Mode overrides for Hub Cards ── */
+        :root.light-theme .card-orange {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(245, 158, 11, 0.08)) !important;
+            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+        }
+        :root.light-theme .card-orange .icon { color: #d97706 !important; background: rgba(0, 0, 0, 0.05) !important; }
+        :root.light-theme .card-orange .title { color: #0f172a !important; }
+        :root.light-theme .card-orange .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+
+        :root.light-theme .card-blue {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(56, 189, 248, 0.08)) !important;
+            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+        }
+        :root.light-theme .card-blue .icon { color: #0284c7 !important; background: rgba(0, 0, 0, 0.05) !important; }
+        :root.light-theme .card-blue .title { color: #0f172a !important; }
+        :root.light-theme .card-blue .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+
+        :root.light-theme .card-pink {
+            background: linear-gradient(135deg, rgba(254, 205, 211, 0.25), rgba(254, 205, 211, 0.08)) !important;
+            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+        }
+        :root.light-theme .card-pink .icon { color: #e11d48 !important; background: rgba(0, 0, 0, 0.05) !important; }
+        :root.light-theme .card-pink .title { color: #0f172a !important; }
+        :root.light-theme .card-pink .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+
+        :root.light-theme .card-purple {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(168, 85, 247, 0.08)) !important;
+            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+        }
+        :root.light-theme .card-purple .icon { color: #7c3aed !important; background: rgba(0, 0, 0, 0.05) !important; }
+        :root.light-theme .card-purple .title { color: #0f172a !important; }
+        :root.light-theme .card-purple .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
         .hub-badge {
             padding: 4px 10px;
             border-radius: 20px;
@@ -833,8 +894,6 @@
 
     <style>
         .hub-action-card {
-            background: rgba(15, 23, 42, 0.4);
-            border: 2px solid rgba(0, 0, 0, 0.45) !important;
             border-radius: 12px;
             padding: 12px 15px;
             display: flex;
@@ -871,7 +930,6 @@
             font-size: 1.8rem;
             margin-bottom: 0;
             padding: 8px;
-            background: rgba(255, 255, 255, 0.05);
             border-radius: 10px;
             transition: transform 0.3s ease;
             display: flex;
@@ -894,15 +952,79 @@
             font-weight: 800;
             margin-bottom: 3px;
             letter-spacing: 0.5px;
-            color: #0f172a;
         }
         .hub-action-card .subtitle {
             font-size: 0.7rem;
-            color: rgba(15, 23, 42, 0.75);
             font-weight: 600;
             text-align: right;
             margin: 0;
         }
+
+        /* ── Theme-aware Card Styling (Dark Mode Defaults) ── */
+        .card-orange {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.03));
+            border: 1px solid rgba(245, 158, 11, 0.25) !important;
+        }
+        .card-orange .icon { color: #f59e0b; background: rgba(245, 158, 11, 0.08); }
+        .card-orange .title { color: #f59e0b !important; }
+        .card-orange .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+
+        .card-blue {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(56, 189, 248, 0.03));
+            border: 1px solid rgba(56, 189, 248, 0.25) !important;
+        }
+        .card-blue .icon { color: #38bdf8; background: rgba(56, 189, 248, 0.08); }
+        .card-blue .title { color: #38bdf8 !important; }
+        .card-blue .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+
+        .card-pink {
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.15), rgba(244, 63, 94, 0.03));
+            border: 1px solid rgba(244, 63, 94, 0.25) !important;
+        }
+        .card-pink .icon { color: #f43f5e; background: rgba(244, 63, 94, 0.08); }
+        .card-pink .title { color: #f43f5e !important; }
+        .card-pink .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+
+        .card-purple {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(168, 85, 247, 0.03));
+            border: 1px solid rgba(168, 85, 247, 0.25) !important;
+        }
+        .card-purple .icon { color: #a855f7; background: rgba(168, 85, 247, 0.08); }
+        .card-purple .title { color: #a855f7 !important; }
+        .card-purple .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+
+        /* ── Light Mode overrides for Hub Cards ── */
+        :root.light-theme .card-orange {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(245, 158, 11, 0.08)) !important;
+            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+        }
+        :root.light-theme .card-orange .icon { color: #d97706 !important; background: rgba(0, 0, 0, 0.05) !important; }
+        :root.light-theme .card-orange .title { color: #0f172a !important; }
+        :root.light-theme .card-orange .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+
+        :root.light-theme .card-blue {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(56, 189, 248, 0.08)) !important;
+            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+        }
+        :root.light-theme .card-blue .icon { color: #0284c7 !important; background: rgba(0, 0, 0, 0.05) !important; }
+        :root.light-theme .card-blue .title { color: #0f172a !important; }
+        :root.light-theme .card-blue .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+
+        :root.light-theme .card-pink {
+            background: linear-gradient(135deg, rgba(254, 205, 211, 0.25), rgba(254, 205, 211, 0.08)) !important;
+            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+        }
+        :root.light-theme .card-pink .icon { color: #e11d48 !important; background: rgba(0, 0, 0, 0.05) !important; }
+        :root.light-theme .card-pink .title { color: #0f172a !important; }
+        :root.light-theme .card-pink .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+
+        :root.light-theme .card-purple {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(168, 85, 247, 0.08)) !important;
+            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+        }
+        :root.light-theme .card-purple .icon { color: #7c3aed !important; background: rgba(0, 0, 0, 0.05) !important; }
+        :root.light-theme .card-purple .title { color: #0f172a !important; }
+        :root.light-theme .card-purple .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
         .hub-badge {
             padding: 4px 10px;
             border-radius: 20px;
@@ -1250,38 +1372,38 @@
 
 
             <!-- Direct Purchase Invoice -->
-            <button onclick="openPurchaseEditor('direct')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(253, 230, 138, 0.85), rgba(245, 158, 11, 0.65));">
-                <div class="icon" style="color: #d97706; text-shadow: 0 0 10px rgba(245, 158, 11, 0.2); box-shadow: inset 0 0 10px rgba(245,158,11,0.1); background: rgba(0,0,0,0.05);">💵</div>
+            <button onclick="openPurchaseEditor('direct')" class="hub-action-card card-orange">
+                <div class="icon">💵</div>
                 <div class="text-content">
-                    <div class="title" style="color: #0f172a;">فاتورة مشتريات مباشرة</div>
-                    <div class="subtitle" style="color: rgba(15, 23, 42, 0.75);">إنشاء فاتورة شراء نقدية مباشرة مع استلام فوري.</div>
+                    <div class="title">فاتورة مشتريات مباشرة</div>
+                    <div class="subtitle">إنشاء فاتورة شراء نقدية مباشرة مع استلام فوري.</div>
                 </div>
             </button>
 
             <!-- Goods Receipt Note -->
-            <button onclick="window.location.href='purchase-receipt.php'" class="hub-action-card" style="background: linear-gradient(135deg, rgba(186, 230, 253, 0.85), rgba(125, 211, 252, 0.65));">
-                <div class="icon" style="color: #0284c7; text-shadow: 0 0 10px rgba(56, 189, 248, 0.2); box-shadow: inset 0 0 10px rgba(56,189,248,0.1); background: rgba(0,0,0,0.05);">🚛</div>
+            <button onclick="window.location.href='purchase-receipt.php'" class="hub-action-card card-blue">
+                <div class="icon">🚛</div>
                 <div class="text-content">
-                    <div class="title" style="color: #0f172a;">استلام بضاعة (GRN)</div>
-                    <div class="subtitle" style="color: rgba(15, 23, 42, 0.75);">استلام البضاعة المعلقة وإدخالها للمستودعات.</div>
+                    <div class="title">استلام بضاعة (GRN)</div>
+                    <div class="subtitle">استلام البضاعة المعلقة وإدخالها للمستودعات.</div>
                 </div>
             </button>
 
             <!-- Purchase Return -->
-            <button onclick="window.location.href='purchase-return.php'" class="hub-action-card" style="background: linear-gradient(135deg, rgba(254, 205, 211, 0.85), rgba(244, 63, 94, 0.65));">
-                <div class="icon" style="color: #e11d48; text-shadow: 0 0 10px rgba(244, 63, 94, 0.2); box-shadow: inset 0 0 10px rgba(244,63,94,0.1); background: rgba(0,0,0,0.05);">↩️</div>
+            <button onclick="window.location.href='purchase-return.php'" class="hub-action-card card-pink">
+                <div class="icon">↩️</div>
                 <div class="text-content">
-                    <div class="title" style="color: #0f172a;">استرداد بضاعة</div>
-                    <div class="subtitle" style="color: rgba(15, 23, 42, 0.75);">مردودات مشتريات مع تأثير عكسي على الحسابات.</div>
+                    <div class="title">استرداد بضاعة</div>
+                    <div class="subtitle">مردودات مشتريات مع تأثير عكسي على الحسابات.</div>
                 </div>
             </button>
 
             <!-- Proforma Invoice -->
-            <button onclick="openPurchaseEditor('proforma')" class="hub-action-card" style="background: linear-gradient(135deg, rgba(233, 213, 255, 0.85), rgba(216, 180, 254, 0.65));">
-                <div class="icon" style="color: #7c3aed; text-shadow: 0 0 10px rgba(168, 85, 247, 0.2); box-shadow: inset 0 0 10px rgba(168,85,247,0.1); background: rgba(0,0,0,0.05);">📋</div>
+            <button onclick="openPurchaseEditor('proforma')" class="hub-action-card card-purple">
+                <div class="icon">📋</div>
                 <div class="text-content">
-                    <div class="title" style="color: #0f172a;">فاتورة مبدئية</div>
-                    <div class="subtitle" style="color: rgba(15, 23, 42, 0.75);">عرض سعر / طلب شراء (لا تؤثر محاسبياً ولا مخزنياً).</div>
+                    <div class="title">فاتورة مبدئية</div>
+                    <div class="subtitle">عرض سعر / طلب شراء (لا تؤثر محاسبياً ولا مخزنياً).</div>
                 </div>
             </button>
         </div>
