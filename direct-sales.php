@@ -135,6 +135,26 @@
             to { box-shadow: 0 0 20px rgba(56, 189, 248, 0.45), inset 0 1px 3px rgba(255,255,255,0.25); }
         }
         
+        /* Column Resizer styling */
+        th {
+            position: relative;
+        }
+        .resizer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            cursor: col-resize;
+            user-select: none;
+            z-index: 10;
+        }
+        .resizer:hover,
+        .resizer.resizing {
+            border-left: 2px dashed #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+        }
+        
         @media (max-width: 768px) {
             .header-controls { justify-content: center; width: 100%; flex-wrap: wrap; }
         }

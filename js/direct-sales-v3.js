@@ -237,6 +237,7 @@ function initSalesApp() {
             addRow(true);
             recalcAll();
         }
+        initTableResizer();
     } catch(globalErr) {
         console.error("Critical error during initSalesApp:", globalErr);
     }
@@ -3581,5 +3582,133 @@ function submitInvoiceSplit() {
     }
     
     showSalesHub();
+}
+
+function initTableResizer() {
+    const table = document.getElementById('pos-grid');
+    if (!table) return;
+
+    const cols = table.querySelectorAll('thead th');
+    
+    cols.forEach((col, index) => {
+        if (index === cols.length - 1) return; // Skip delete column
+
+        if (col.querySelector('.resizer')) return;
+
+        const resizer = document.createElement('div');
+        resizer.className = 'resizer';
+        resizer.style.position = 'absolute';
+        resizer.style.top = '0';
+        resizer.style.left = '0'; // RTL left boundary
+        resizer.style.width = '6px';
+        resizer.style.height = '100%';
+        resizer.style.cursor = 'col-resize';
+        resizer.style.userSelect = 'none';
+        resizer.style.zIndex = '10';
+        resizer.style.transition = 'background 0.2s';
+        
+        resizer.addEventListener('mouseover', () => {
+            resizer.style.background = 'rgba(56, 189, 248, 0.5)';
+        });
+        resizer.addEventListener('mouseout', () => {
+            if (!resizer.classList.contains('resizing')) {
+                resizer.style.background = '';
+            }
+        });
+
+        resizer.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
+            autoFitColumn(table, index);
+        });
+
+        col.style.position = 'relative';
+        col.appendChild(resizer);
+
+        let startX, startWidth;
+
+        resizer.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            resizer.classList.add('resizing');
+            resizer.style.background = '#38bdf8';
+
+            startX = e.clientX;
+            
+            cols.forEach(c => {
+                c.style.width = c.getBoundingClientRect().width + 'px';
+            });
+
+            startWidth = col.getBoundingClientRect().width;
+
+            const onMouseMove = (moveEvent) => {
+                const deltaX = startX - moveEvent.clientX; // RTL calculation
+                const newWidth = Math.max(40, startWidth + deltaX);
+                col.style.width = newWidth + 'px';
+            };
+
+            const onMouseUp = () => {
+                resizer.classList.remove('resizing');
+                resizer.style.background = '';
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            };
+
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+    });
+}
+
+function autoFitColumn(table, colIndex) {
+    const th = table.querySelectorAll('thead th')[colIndex];
+    if (!th) return;
+
+    const dummy = document.createElement('span');
+    dummy.style.visibility = 'hidden';
+    dummy.style.position = 'absolute';
+    dummy.style.whiteSpace = 'nowrap';
+    dummy.style.font = window.getComputedStyle(th).font;
+    document.body.appendChild(dummy);
+
+    dummy.textContent = th.textContent.trim();
+    let maxWidth = dummy.offsetWidth + 30;
+
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells && cells[colIndex]) {
+            const cell = cells[colIndex];
+            
+            const input = cell.querySelector('input');
+            const select = cell.querySelector('select');
+            
+            let text = '';
+            if (input) {
+                text = input.value || input.placeholder || '';
+            } else if (select) {
+                const opt = select.options[select.selectedIndex];
+                text = opt ? opt.textContent : '';
+            } else {
+                text = cell.textContent || '';
+            }
+            
+            dummy.style.font = window.getComputedStyle(cell).font;
+            dummy.textContent = text.trim();
+            const cellWidth = dummy.offsetWidth + 35;
+            if (cellWidth > maxWidth) {
+                maxWidth = cellWidth;
+            }
+        }
+    });
+
+    document.body.removeChild(dummy);
+
+    const cols = table.querySelectorAll('thead th');
+    cols.forEach(c => {
+        c.style.width = c.getBoundingClientRect().width + 'px';
+    });
+
+    th.style.width = Math.max(50, maxWidth) + 'px';
 }
 
