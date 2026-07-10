@@ -328,6 +328,10 @@ class TenantController {
         if ($method === 'POST' && $action === 'settings' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'partners') {
             $val = json_encode($input['partners'] ?? []);
             $this->pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('saas_partners', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$val, $val]);
+            if (isset($input['partners_enabled'])) {
+                $enabled = $input['partners_enabled'] ? '1' : '0';
+                $this->pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('saas_partners_enabled', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$enabled, $enabled]);
+            }
             $this->logSaaSAction('تحديث الشركاء', 'تحديث قائمة الشركاء المعروضة في الشاشة الرئيسية');
             jsonResponse(['success' => true]);
         }
@@ -413,16 +417,19 @@ class TenantController {
         
         // Get global settings (public)
         if ($method === 'GET' && $action === 'settings') {
-            $stmt = $this->pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('saas_ads', 'saas_partners')");
+            $stmt = $this->pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('saas_ads', 'saas_partners', 'saas_partners_enabled')");
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            $settings = ['ads' => [], 'partners' => []];
+            $settings = ['ads' => [], 'partners' => [], 'partners_enabled' => true];
             foreach ($rows as $row) {
                 if ($row['setting_key'] === 'saas_ads') {
                     $settings['ads'] = json_decode($row['setting_value'], true) ?: [];
                 }
                 if ($row['setting_key'] === 'saas_partners') {
                     $settings['partners'] = json_decode($row['setting_value'], true) ?: [];
+                }
+                if ($row['setting_key'] === 'saas_partners_enabled') {
+                    $settings['partners_enabled'] = ($row['setting_value'] === '1');
                 }
             }
             jsonResponse(['success' => true, 'settings' => $settings]);

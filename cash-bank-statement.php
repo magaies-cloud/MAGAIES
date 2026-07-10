@@ -210,7 +210,83 @@
             .print-only { display: block; text-align: center; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 20px; }
             .page-wrapper { padding: 0; }
         }
-    </style>
+    
+        
+        /* Universal Light Theme Overrides for Internal Screens */
+        :root.light-theme body,
+        :root.light-theme .ambient-bg {
+            background: #f8fafc !important;
+        }
+        :root.light-theme .glass-panel,
+        :root.light-theme .neo-card,
+        :root.light-theme .summary-card,
+        :root.light-theme .filter-panel,
+        :root.light-theme .chart-card,
+        :root.light-theme .kpi-card,
+        :root.light-theme .premium-header,
+        :root.light-theme .top-header,
+        :root.light-theme .header-area {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+            color: #0f172a !important;
+        }
+        :root.light-theme .glass-panel *,
+        :root.light-theme .neo-card *,
+        :root.light-theme .summary-card * {
+            text-shadow: none !important;
+        }
+        :root.light-theme table.pro-table th,
+        :root.light-theme .pos-grid thead th,
+        :root.light-theme .ledger-table th,
+        :root.light-theme .report-table th {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+            border-bottom: 2px solid #cbd5e1 !important;
+        }
+        :root.light-theme table.pro-table td,
+        :root.light-theme .pos-grid tbody td,
+        :root.light-theme .ledger-table td,
+        :root.light-theme .report-table td {
+            color: #1e293b !important;
+            border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+        }
+        :root.light-theme table.pro-table tbody tr:hover td,
+        :root.light-theme .pos-grid tbody tr:hover td,
+        :root.light-theme .ledger-table tbody tr:hover td,
+        :root.light-theme .report-table tbody tr:hover td {
+            background: rgba(0,0,0,0.02) !important;
+        }
+        :root.light-theme .h-label,
+        :root.light-theme .form-label,
+        :root.light-theme .tot-lbl,
+        :root.light-theme .lbl,
+        :root.light-theme label,
+        :root.light-theme .table-header {
+            color: #334155 !important;
+        }
+        :root.light-theme .tot-val,
+        :root.light-theme .val {
+            color: #0f172a !important;
+        }
+        :root.light-theme .h-form-group,
+        :root.light-theme .control-panel {
+            background: transparent !important;
+            border-color: rgba(0,0,0,0.08) !important;
+        }
+        :root.light-theme .modern-btn {
+            color: #1e293b !important;
+        }
+        :root.light-theme .modern-btn:hover {
+            color: #0f172a !important;
+        }
+        /* Neon text colors correction for light theme */
+        :root.light-theme .text-emerald-400, :root.light-theme span[style*="color: #34d399"], :root.light-theme span[style*="color:#34d399"] { color: #059669 !important; }
+        :root.light-theme .text-rose-400, :root.light-theme span[style*="color: #f87171"], :root.light-theme span[style*="color:#f87171"] { color: #e11d48 !important; }
+        :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
+        :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
+        :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
+\n</style>
 </head>
 <body>
 

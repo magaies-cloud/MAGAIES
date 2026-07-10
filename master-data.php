@@ -66,20 +66,32 @@
             color: #000000 !important;
             border: 1px solid rgba(0, 0, 0, 0.18) !important;
         }
+        :root.light-theme .md-tabs-sidebar {
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
         :root.light-theme .md-tab-btn {
-            background: rgba(0,0,0,0.04) !important;
-            border-color: rgba(0,0,0,0.08) !important;
-            color: #475569 !important;
+            background: #ffffff !important;
+            border-color: rgba(0,0,0,0.06) !important;
+            color: #64748b !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         :root.light-theme .md-tab-btn:hover {
-            background: rgba(0,0,0,0.08) !important;
-            color: #000000 !important;
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9) !important;
+            color: #0f172a !important;
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            border-color: rgba(0,0,0,0.12) !important;
         }
         :root.light-theme .md-tab-btn.active {
-            background: rgba(37, 99, 235, 0.08) !important;
-            border-color: #2563eb !important;
-            color: #2563eb !important;
-            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.1) !important;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa) !important;
+            border-color: transparent !important;
+            color: #ffffff !important;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4) !important;
+            transform: scale(1.05) translateY(-2px);
         }
         :root.light-theme .md-sidebar-panel {
             background: #ffffff !important;
@@ -88,6 +100,21 @@
         :root.light-theme .md-content-panel {
             background: #ffffff !important;
             border-color: rgba(0,0,0,0.08) !important;
+        }
+        :root.light-theme table.pro-table th {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+            border-bottom: 2px solid #cbd5e1 !important;
+        }
+        :root.light-theme table.pro-table td {
+            color: #000000 !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+        }
+        :root.light-theme table.pro-table tbody tr:hover td {
+            background: rgba(0, 0, 0, 0.02) !important;
+        }
+        :root.light-theme label, :root.light-theme .h-label, :root.light-theme .tot-lbl {
+            color: #334155 !important;
         }
         body {
             background-color: var(--bg-color);
@@ -234,7 +261,83 @@
             100% { box-shadow: 0 0 15px rgba(168,85,247,0.4); }
         }
         /* ------------------------------------------- */
-    </style>
+    
+        
+        /* Universal Light Theme Overrides for Internal Screens */
+        :root.light-theme body,
+        :root.light-theme .ambient-bg {
+            background: #f8fafc !important;
+        }
+        :root.light-theme .glass-panel,
+        :root.light-theme .neo-card,
+        :root.light-theme .summary-card,
+        :root.light-theme .filter-panel,
+        :root.light-theme .chart-card,
+        :root.light-theme .kpi-card,
+        :root.light-theme .premium-header,
+        :root.light-theme .top-header,
+        :root.light-theme .header-area {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+            color: #0f172a !important;
+        }
+        :root.light-theme .glass-panel *,
+        :root.light-theme .neo-card *,
+        :root.light-theme .summary-card * {
+            text-shadow: none !important;
+        }
+        :root.light-theme table.pro-table th,
+        :root.light-theme .pos-grid thead th,
+        :root.light-theme .ledger-table th,
+        :root.light-theme .report-table th {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+            border-bottom: 2px solid #cbd5e1 !important;
+        }
+        :root.light-theme table.pro-table td,
+        :root.light-theme .pos-grid tbody td,
+        :root.light-theme .ledger-table td,
+        :root.light-theme .report-table td {
+            color: #1e293b !important;
+            border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+        }
+        :root.light-theme table.pro-table tbody tr:hover td,
+        :root.light-theme .pos-grid tbody tr:hover td,
+        :root.light-theme .ledger-table tbody tr:hover td,
+        :root.light-theme .report-table tbody tr:hover td {
+            background: rgba(0,0,0,0.02) !important;
+        }
+        :root.light-theme .h-label,
+        :root.light-theme .form-label,
+        :root.light-theme .tot-lbl,
+        :root.light-theme .lbl,
+        :root.light-theme label,
+        :root.light-theme .table-header {
+            color: #334155 !important;
+        }
+        :root.light-theme .tot-val,
+        :root.light-theme .val {
+            color: #0f172a !important;
+        }
+        :root.light-theme .h-form-group,
+        :root.light-theme .control-panel {
+            background: transparent !important;
+            border-color: rgba(0,0,0,0.08) !important;
+        }
+        :root.light-theme .modern-btn {
+            color: #1e293b !important;
+        }
+        :root.light-theme .modern-btn:hover {
+            color: #0f172a !important;
+        }
+        /* Neon text colors correction for light theme */
+        :root.light-theme .text-emerald-400, :root.light-theme span[style*="color: #34d399"], :root.light-theme span[style*="color:#34d399"] { color: #059669 !important; }
+        :root.light-theme .text-rose-400, :root.light-theme span[style*="color: #f87171"], :root.light-theme span[style*="color:#f87171"] { color: #e11d48 !important; }
+        :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
+        :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
+        :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
+\n</style>
 
 </head>
 <body>

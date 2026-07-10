@@ -507,8 +507,14 @@
         <!-- TAB: PARTNERS -->
         <div id="tab-partners" class="tab-content">
             <div class="glass-panel">
-                <div class="flex-between" style="margin-bottom: 20px;">
-                    <h3>الشركاء والعملاء</h3>
+                <div class="flex-between" style="margin-bottom: 20px; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <h3 style="margin: 0;">الشركاء والعملاء</h3>
+                        <label class="switch-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; background: rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--glass-border);">
+                            <input type="checkbox" id="saas-partners-enabled" onchange="togglePartnersFeature(this.checked)" style="cursor: pointer;">
+                            <span style="font-size: 0.9rem; color: #fff; font-weight: bold;">تفعيل الشريط في الصفحة الرئيسية</span>
+                        </label>
+                    </div>
                     <button class="btn-primary" onclick="openPartnerModal()">+ شريك جديد</button>
                 </div>
                 <div class="table-responsive">
@@ -911,6 +917,7 @@
         let allMessagesData = [];
         let allPlans = [];
         let allPartners = [];
+        let partnersEnabled = true;
         let editValidUntilPicker;
         
         document.addEventListener("DOMContentLoaded", function() {
@@ -1614,6 +1621,10 @@
                 allPlans = dataPub.plans || [];
                 allPartners = dataPub.partners || [];
                 allAds = dataPub.ads || [];
+                partnersEnabled = dataPub.partners_enabled !== false;
+                
+                const chk = document.getElementById('saas-partners-enabled');
+                if (chk) chk.checked = partnersEnabled;
             } catch(e) {}
 
             await loadTenants();
@@ -2087,7 +2098,10 @@
                 await fetch(apiUrl('saas', 'settings', 'partners'), { 
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN }, 
-                    body: JSON.stringify({ partners: allPartners }) 
+                    body: JSON.stringify({ 
+                        partners: allPartners,
+                        partners_enabled: document.getElementById('saas-partners-enabled').checked
+                    }) 
                 });
                 
                 closeModal('partner-modal');
@@ -2103,8 +2117,31 @@
         async function deletePartner(id) {
             if(!confirm('هل أنت متأكد من الحذف؟')) return;
             allPartners = allPartners.filter(x => x.id !== id);
-            try { await fetch(apiUrl('saas', 'settings', 'partners'), { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN }, body: JSON.stringify({ partners: allPartners }) }); } catch(e){}
+            try { 
+                await fetch(apiUrl('saas', 'settings', 'partners'), { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN }, 
+                    body: JSON.stringify({ 
+                        partners: allPartners,
+                        partners_enabled: document.getElementById('saas-partners-enabled').checked
+                    }) 
+                }); 
+            } catch(e){}
             renderPartners();
+        }
+
+        async function togglePartnersFeature(checked) {
+            partnersEnabled = checked;
+            try {
+                await fetch(apiUrl('saas', 'settings', 'partners'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
+                    body: JSON.stringify({ partners: allPartners, partners_enabled: checked })
+                });
+            } catch(e) {
+                console.error(e);
+                alert('حدث خطأ أثناء تعديل حالة التفعيل');
+            }
         }
 
         // Original API calls ported

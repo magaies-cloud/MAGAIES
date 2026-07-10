@@ -126,14 +126,15 @@ function generateToken() {
 // ---------------------------------------------------------
 
 if ($resource === 'public' && empty($action) && $method === 'GET') {
-    $data = ['plans' => [], 'partners' => [], 'ads' => []];
+    $data = ['plans' => [], 'partners' => [], 'ads' => [], 'partners_enabled' => true];
     try {
-        $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('saas_plans', 'saas_partners', 'saas_ads')");
+        $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('saas_plans', 'saas_partners', 'saas_ads', 'saas_partners_enabled')");
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as $row) {
             if ($row['setting_key'] === 'saas_plans') $data['plans'] = json_decode($row['setting_value'], true);
             if ($row['setting_key'] === 'saas_partners') $data['partners'] = json_decode($row['setting_value'], true);
             if ($row['setting_key'] === 'saas_ads') $data['ads'] = json_decode($row['setting_value'], true);
+            if ($row['setting_key'] === 'saas_partners_enabled') $data['partners_enabled'] = ($row['setting_value'] === '1');
         }
     } catch (Exception $e) {}
     
