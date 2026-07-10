@@ -79,18 +79,18 @@ function buildAccountsList() {
     ALL_ACCOUNTS = [{ id: 'ALL', name: 'جميع الحسابات', icon: '📊', type: 'عام' }];
     
     const accounts = (JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => !x.deleted);
-    accounts.forEach(a => ALL_ACCOUNTS.push({ id: a.id, name: a.name, icon: '📝', type: 'عام' }));
+    accounts.forEach(a => ALL_ACCOUNTS.push({ id: `exp-${a.id}`, name: a.name, icon: '📝', type: 'عام' }));
     
     const safes = (JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => !x.deleted);
-    safes.forEach(s => ALL_ACCOUNTS.push({ id: s.id, name: s.safeName || s.name, icon: '💰', type: 'صندوق' }));
+    safes.forEach(s => ALL_ACCOUNTS.push({ id: `safe-${s.id}`, name: s.safeName || s.name, icon: '💰', type: 'صندوق' }));
     
     const banks = (JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => !x.deleted);
-    banks.forEach(b => ALL_ACCOUNTS.push({ id: b.id, name: b.bankName || b.name, icon: '🏦', type: 'بنك' }));
+    banks.forEach(b => ALL_ACCOUNTS.push({ id: `bank-${b.id}`, name: b.bankName || b.name, icon: '🏦', type: 'بنك' }));
     
     const custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
     const sups  = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
-    custs.forEach(c => ALL_ACCOUNTS.push({ id: c.id, name: c.name, icon: '👤', type: 'عميل' }));
-    sups.forEach(s  => ALL_ACCOUNTS.push({ id: s.id, name: s.name, icon: '🏭', type: 'مورد' }));
+    custs.forEach(c => ALL_ACCOUNTS.push({ id: `cust-${c.id}`, name: c.name, icon: '👤', type: 'عميل' }));
+    sups.forEach(s  => ALL_ACCOUNTS.push({ id: `supp-${s.id}`, name: s.name, icon: '🏭', type: 'مورد' }));
 
     const accountSelect = document.getElementById('filter-account');
     if (accountSelect) {
@@ -1000,6 +1000,7 @@ function executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, 
     if (acctFilter !== 'ALL') {
         const cleanFilter = String(acctFilter).replace(/^(cust|supp|bank|safe|exp)-/, '');
         txns = txns.filter(t => {
+            if (String(t.account) === String(acctFilter)) return true;
             const cleanAcc = String(t.account).replace(/^(cust|supp|bank|safe|exp)-/, '');
             return cleanAcc === cleanFilter;
         });
@@ -1010,39 +1011,31 @@ function executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, 
         let safes = (JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => !x.deleted);
         let exp = (JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => !x.deleted);
         
-        let c = custs.find(x => String(x.id).replace(/^(cust|supp|bank|safe|exp)-/, '') === cleanFilter);
-        if (c) {
-            intrinsicBal = parseNum(c.openingDebit || 0) - parseNum(c.openingCredit || 0);
-            accountCurrency = c.currency || 'SDG';
-            accountExRate = parseNum(c.exRate || 1);
-        } else {
-            let s = sups.find(x => String(x.id).replace(/^(cust|supp|bank|safe|exp)-/, '') === cleanFilter);
-            if (s) {
-                intrinsicBal = parseNum(s.openingDebit || 0) - parseNum(s.openingCredit || 0);
-                accountCurrency = s.currency || 'SDG';
-                accountExRate = parseNum(s.exRate || 1);
-            } else {
-                let b = banks.find(x => String(x.id).replace(/^(cust|supp|bank|safe|exp)-/, '') === cleanFilter);
-                if (b) {
-                    intrinsicBal = parseNum(b.openingDebit || 0) - parseNum(b.openingCredit || 0);
-                    accountCurrency = b.currency || 'SDG';
-                    accountExRate = parseNum(b.exRate || 1);
-                } else {
-                    let sf = safes.find(x => String(x.id).replace(/^(cust|supp|bank|safe|exp)-/, '') === cleanFilter);
-                    if (sf) {
-                        intrinsicBal = parseNum(sf.openingDebit || 0) - parseNum(sf.openingCredit || 0);
-                        accountCurrency = sf.currency || 'SDG';
-                        accountExRate = parseNum(sf.exRate || 1);
-                    } else {
-                        let e = exp.find(x => String(x.id || x.code).replace(/^(cust|supp|bank|safe|exp)-/, '') === cleanFilter);
-                        if (e) {
-                            intrinsicBal = parseNum(e.openingDebit || 0) - parseNum(e.openingCredit || 0);
-                            accountCurrency = e.currency || 'SDG';
-                            accountExRate = parseNum(e.exRate || 1);
-                        }
-                    }
-                }
-            }
+        let foundAccount = null;
+        if (acctFilter.startsWith('cust-')) {
+            foundAccount = custs.find(x => String(x.id) === cleanFilter);
+        } else if (acctFilter.startsWith('supp-')) {
+            foundAccount = sups.find(x => String(x.id) === cleanFilter);
+        } else if (acctFilter.startsWith('bank-')) {
+            foundAccount = banks.find(x => String(x.id) === cleanFilter);
+        } else if (acctFilter.startsWith('safe-')) {
+            foundAccount = safes.find(x => String(x.id) === cleanFilter);
+        } else if (acctFilter.startsWith('exp-')) {
+            foundAccount = exp.find(x => String(x.id || x.code) === cleanFilter);
+        }
+        
+        if (!foundAccount) {
+            foundAccount = custs.find(x => String(x.id) === cleanFilter) ||
+                           sups.find(x => String(x.id) === cleanFilter) ||
+                           banks.find(x => String(x.id) === cleanFilter) ||
+                           safes.find(x => String(x.id) === cleanFilter) ||
+                           exp.find(x => String(x.id || x.code) === cleanFilter);
+        }
+        
+        if (foundAccount) {
+            intrinsicBal = parseNum(foundAccount.openingDebit || 0) - parseNum(foundAccount.openingCredit || 0);
+            accountCurrency = foundAccount.currency || 'SDG';
+            accountExRate = parseNum(foundAccount.exRate || 1);
         }
     }
 

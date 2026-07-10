@@ -11,6 +11,10 @@
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        html {
+            font-size: 20px !important;
+        }
+
         :root {
             --bg-color: #050308;
             --surface: rgba(18, 15, 25, 0.65);
@@ -35,6 +39,10 @@
             overflow-x: hidden;
             font-family: 'Tajawal', sans-serif;
             color: #fff;
+            font-weight: 500;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         /* Custom Scrollbar */
@@ -261,8 +269,8 @@
 
         .quick-action-btn:not([class*="qa-"]):hover { box-shadow: 0 0 15px rgba(255,255,255,0.4), 0 0 30px rgba(255,255,255,0.2), inset 0 0 15px rgba(255,255,255,0.1) !important; }
 
-        .qa-icon { font-size: 1.1rem; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: inline-block; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
-        .quick-action-btn:hover .qa-icon { transform: scale(1.2) rotate(5deg) translateY(-2px); }
+        .qa-icon { font-size: 1.1rem; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: inline-block; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
+        .quick-action-btn:hover .qa-icon { transform: scale(1.4) rotate(5deg) translateY(-2px); filter: brightness(1.25) drop-shadow(0 2px 6px rgba(255,255,255,0.4)); }
 
         /* Compact Tables */
         .premium-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.85rem; }
@@ -284,7 +292,7 @@
         /* Admin action buttons styling */
         .admin-action-btn {
             display: inline-flex; align-items: center; gap: 8px;
-            padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: 800; font-size: 0.8rem;
+            padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: 800; font-size: 0.85rem;
             color: #fff; background: rgba(15, 23, 42, 0.4); border: 1.5px solid rgba(255,255,255,0.08);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); cursor: pointer;
@@ -305,6 +313,14 @@
             box-shadow: 0 0 15px rgba(100,116,139,0.5), inset 0 0 10px rgba(100,116,139,0.15) !important;
             border-color: #94a3b8 !important;
         }
+        .admin-action-master {
+            border-bottom: 2.5px solid var(--theme-blue) !important;
+        }
+        .admin-action-master:hover {
+            color: #fff;
+            box-shadow: 0 0 15px rgba(59,130,246,0.5), inset 0 0 10px rgba(59,130,246,0.15) !important;
+            border-color: #60a5fa !important;
+        }
         .admin-action-jobs {
             border-bottom: 2.5px solid #10b981 !important;
         }
@@ -322,20 +338,21 @@
             border-color: #f87171 !important;
         }
         .admin-action-btn:hover .qa-icon {
-            transform: scale(1.2) rotate(5deg) translateY(-2px);
+            transform: scale(1.4) rotate(5deg) translateY(-2px);
+            filter: brightness(1.25) drop-shadow(0 2px 6px rgba(255,255,255,0.4));
         }
 
         /* Two levels rows styling */
         .admin-actions-row {
-            display: flex; gap: 15px; margin-bottom: 20px; align-items: center; 
+            display: flex; gap: 15px; margin-bottom: 8px; align-items: center; 
             border: 1px solid rgba(255,255,255,0.05); background: rgba(15, 23, 42, 0.25); 
-            padding: 12px 18px; border-radius: 14px; flex-wrap: wrap; 
+            padding: 6px 14px; border-radius: 14px; flex-wrap: wrap; 
             box-shadow: inset 0 0 15px rgba(255,255,255,0.01);
         }
         .operations-actions-row {
             display: flex; gap: 15px; align-items: center; 
             border: 1px solid rgba(255,255,255,0.03); background: rgba(15, 23, 42, 0.15); 
-            padding: 12px 18px; border-radius: 14px; flex-wrap: wrap; 
+            padding: 6px 14px; border-radius: 14px; flex-wrap: wrap; 
             box-shadow: inset 0 0 10px rgba(255,255,255,0.01);
         }
         .actions-row-title {
@@ -558,7 +575,7 @@
         </div>
 
         <!-- Ultra Premium Quick Actions Grid -->
-        <div class="glass-panel" style="padding: 22px;">
+        <div class="glass-panel" style="padding: 14px 18px;">
             
             <!-- Row 1: لوحة الإدارة والتحكم (الإعدادات والمهام) -->
             <div class="admin-actions-row">
@@ -566,15 +583,19 @@
                     <span>🛠️</span>
                 </div>
                 <div style="display: flex; gap: 12px; flex-wrap: wrap; flex: 1;">
-                    <a data-href="settings.php" onclick="window.location.href='settings.php'" class="admin-action-btn admin-action-settings" style="flex: 1 1 auto; justify-content: center; white-space: nowrap;">
+                    <a data-href="settings.php" onclick="window.location.href='settings.php'" class="admin-action-btn admin-action-settings" style="flex: 1; justify-content: center; white-space: nowrap;">
                         <span class="qa-icon">⚙️</span> الإعدادات
                     </a>
                     
-                    <a data-href="jobs.php" onclick="window.location.href='jobs.php'" class="admin-action-btn admin-action-jobs" style="flex: 1 1 auto; justify-content: center; white-space: nowrap;">
+                    <a data-href="master-data.php" onclick="window.location.href='master-data.php'" class="admin-action-btn admin-action-master" style="flex: 1; justify-content: center; white-space: nowrap;">
+                        <span class="qa-icon">🗂️</span> البيانات الأساسية
+                    </a>
+                    
+                    <a data-href="jobs.php" onclick="window.location.href='jobs.php'" class="admin-action-btn admin-action-jobs" style="flex: 1; justify-content: center; white-space: nowrap;">
                         <span class="qa-icon">💼</span> المهام
                     </a>
                     
-                    <a onclick="toggleNotifications()" class="admin-action-btn admin-action-notifications" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; cursor: pointer; position: relative;">
+                    <a onclick="toggleNotifications()" class="admin-action-btn admin-action-notifications" style="flex: 1; justify-content: center; white-space: nowrap; cursor: pointer; position: relative;">
                         <span class="qa-icon">🔔</span> التنبيهات
                         <span id="notif-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: var(--theme-red); color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.65rem; font-weight: bold; border: 1px solid #fff;">0</span>
                     </a>

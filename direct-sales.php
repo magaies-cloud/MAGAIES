@@ -72,6 +72,68 @@
 
         /* Disable old background on pos-wrapper */
         .pos-wrapper { background: transparent !important; }
+
+        /* Crystal Ledger Button Custom Styling */
+        #hdr-customer-ledger-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(59, 130, 246, 0.25)) !important;
+            border: 1px solid rgba(56, 189, 248, 0.45) !important;
+            color: #ffffff !important;
+            font-weight: 800;
+            border-radius: 8px !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.15), inset 0 1px 3px rgba(255, 255, 255, 0.2) !important;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            cursor: pointer;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 5;
+            font-size: 0.8rem;
+            padding: 5px 12px;
+            height: 32px;
+            overflow: hidden;
+            animation: pulseBlueGlow 3s infinite alternate ease-in-out;
+        }
+
+        #hdr-customer-ledger-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: all 0.6s ease;
+        }
+
+        #hdr-customer-ledger-btn:hover {
+            transform: translateY(-50%) scale(1.08) !important;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(59, 130, 246, 0.45)) !important;
+            border-color: #38bdf8 !important;
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.5), 0 0 15px rgba(16, 185, 129, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.35) !important;
+            color: #fff !important;
+        }
+
+        #hdr-customer-ledger-btn:hover::before {
+            left: 100%;
+        }
+
+        #hdr-customer-ledger-btn:active {
+            transform: translateY(-50%) scale(0.96) !important;
+            box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3), inset 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        @keyframes pulseBlueGlow {
+            from { box-shadow: 0 0 10px rgba(56, 189, 248, 0.15), inset 0 1px 2px rgba(255,255,255,0.1); }
+            to { box-shadow: 0 0 20px rgba(56, 189, 248, 0.45), inset 0 1px 3px rgba(255,255,255,0.25); }
+        }
         
         @media (max-width: 768px) {
             .header-controls { justify-content: center; width: 100%; flex-wrap: wrap; }
@@ -1332,6 +1394,146 @@
         :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
         :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
         :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
+
+        /* High Contrast & 1.66x Font Size for Light Theme (Excludes POS Grid) */
+        :root.light-theme label,
+        :root.light-theme .h-label,
+        :root.light-theme .form-label,
+        :root.light-theme .lbl,
+        :root.light-theme .tot-lbl,
+        :root.light-theme .table-header,
+        :root.light-theme .modal-header h3,
+        :root.light-theme .pos-lemon-title h2,
+        :root.light-theme .brand-text h1,
+        :root.light-theme .brand-text p,
+        :root.light-theme .clock-time,
+        :root.light-theme .clock-date,
+        :root.light-theme .user-info span,
+        :root.light-theme #invoice-info-box label,
+        :root.light-theme #invoice-info-box span,
+        :root.light-theme #fin-strip span,
+        :root.light-theme #fin-strip strong,
+        :root.light-theme .tot-val,
+        :root.light-theme .val {
+            color: #000000 !important;
+            font-weight: 800 !important;
+        }
+
+        /* 66% font size increase (1.66x) */
+        :root.light-theme label,
+        :root.light-theme .h-label,
+        :root.light-theme .form-label,
+        :root.light-theme .lbl,
+        :root.light-theme .tot-lbl {
+            font-size: 1.45rem !important; /* ~23px, scaled up by 66% from ~14px */
+        }
+        
+        :root.light-theme .pos-lemon-title h2,
+        :root.light-theme .brand-text h1 {
+            font-size: 1.8rem !important;
+        }
+
+        :root.light-theme .brand-text p {
+            font-size: 1.25rem !important;
+        }
+
+        :root.light-theme .clock-time {
+            font-size: 1.65rem !important;
+        }
+
+        :root.light-theme .clock-date {
+            font-size: 1.15rem !important;
+        }
+
+        :root.light-theme #invoice-info-box span,
+        :root.light-theme #inv-number {
+            font-size: 1.55rem !important;
+        }
+
+        :root.light-theme #fin-strip span {
+            font-size: 1.15rem !important;
+        }
+
+        :root.light-theme #fin-strip strong,
+        :root.light-theme #fin-ledger,
+        :root.light-theme #fin-checks,
+        :root.light-theme #fin-total-debt,
+        :root.light-theme #fin-credit-limit,
+        :root.light-theme #fin-remaining {
+            font-size: 1.25rem !important;
+            color: #000000 !important;
+        }
+
+        /* Inputs, selects, and textareas (outside table) */
+        :root.light-theme input:not(table *):not(.choices__input),
+        :root.light-theme select:not(table *),
+        :root.light-theme textarea:not(table *),
+        :root.light-theme .ctrl-input:not(table *),
+        :root.light-theme .v-input:not(table *) {
+            font-size: 1.45rem !important;
+            color: #000000 !important;
+            font-weight: 800 !important;
+            border: 2px solid #000000 !important;
+            background: #ffffff !important;
+            box-shadow: none !important;
+            padding: 8px 12px !important;
+            height: auto !important;
+        }
+
+        /* Keep customer search padding left correct to accommodate the ledger button if absolute */
+        :root.light-theme #hdr-customer-search {
+            padding-left: 120px !important;
+        }
+
+        /* Financial totals and summary values at the bottom */
+        :root.light-theme .tot-val,
+        :root.light-theme .val {
+            font-size: 1.8rem !important;
+            color: #000000 !important;
+            font-weight: 900 !important;
+        }
+
+        /* Modal card elements */
+        :root.light-theme .modal-card label {
+            font-size: 1.3rem !important;
+            color: #000000 !important;
+        }
+
+        :root.light-theme .modal-card input {
+            font-size: 1.3rem !important;
+            color: #000000 !important;
+        }
+
+        /* Action Buttons outside the table */
+        :root.light-theme button:not(table *):not(.pro-serial-btn):not(.modal-close) {
+            font-size: 1.3rem !important;
+            color: #000000 !important;
+            font-weight: 800 !important;
+            border: 2px solid #000000 !important;
+            background: #ffffff !important;
+            padding: 8px 16px !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        :root.light-theme button:not(table *):not(.pro-serial-btn):not(.modal-close):hover {
+            background: #e2e8f0 !important;
+            color: #000000 !important;
+        }
+        
+        /* Make sure plus button next to customer stays formatted well but larger */
+        :root.light-theme button[onclick="openModal('add-customer-modal')"] {
+            width: auto !important;
+            height: auto !important;
+            padding: 6px 14px !important;
+        }
+
+        /* Ensure header buttons are formatted well */
+        :root.light-theme .icon-btn {
+            width: auto !important;
+            height: auto !important;
+            padding: 6px 12px !important;
+            font-size: 1.3rem !important;
+        }
 \n</style>
 </head>
 <body>
@@ -1728,15 +1930,15 @@
     <!-- Row 2: Customer, Currency, Payment -->
                         <div style="display: flex; gap: 20px; width: 100%;">
                             
-                            <!-- Customer Field (35% width) -->
-                            <div class="h-form-group" style="flex: 0 0 35%; display:flex; align-items:center; gap:10px;">
+                            <!-- Customer Field (55% width) -->
+                            <div class="h-form-group" style="flex: 55; min-width: 0; display:flex; align-items:center; gap:10px;">
                                 <label class="h-label" style="margin:0; white-space:nowrap;">اسم العميل <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span></span></label>
                                 <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1; width: 100%;">
                                     
-                                    <div class="custom-dropdown" style="flex:1;">
+                                    <div class="custom-dropdown" style="flex:1; min-width: 0;">
                                         <div class="custom-dropdown-input-wrap" style="position: relative;">
                                             <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم العميل..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15); padding-left: 95px !important;" autocomplete="one-time-code">
-                                            <button type="button" id="hdr-customer-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('hdr-customer').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.8rem; padding: 4px 8px; height: 32px; display: none;" title="دفتر الأستاذ العام">📖 دفتر الأستاذ</button>
+                                            <button type="button" id="hdr-customer-ledger-btn" onclick="openGeneralLedgerForAccount('cust-' + document.getElementById('hdr-customer').value)" style="display: none;" title="دفتر الأستاذ العام">📖 دفتر الأستاذ</button>
                                             <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange()">
                                             <div class="custom-dropdown-list" id="customer-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none;">
                                                 <!-- Populated via JS -->
@@ -1750,23 +1952,23 @@
                                 </div>
                             </div>
 
-                            <!-- Exchange Rate Field (40% width) -->
-                            <div class="h-form-group" style="flex: 0 0 40%; display:flex; align-items:center; gap:10px;">
+                            <!-- Exchange Rate Field (25% width) -->
+                            <div class="h-form-group" style="flex: 25; min-width: 0; display:flex; align-items:center; gap:10px;">
                                 <label class="h-label" style="margin:0; white-space:nowrap;">سعر الصرف</label>
                                 <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1; width: 100%;">
-                                    <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="document.getElementById('hdr-exchange-rate').disabled = (this.value === 'SDG'); document.getElementById('hdr-exchange-rate').value = (this.value === 'SDG') ? '1' : ''; recalcAll();" style="flex: 1; min-width:0; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
+                                    <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="document.getElementById('hdr-exchange-rate').disabled = (this.value === 'SDG'); document.getElementById('hdr-exchange-rate').value = (this.value === 'SDG') ? '1' : ''; recalcAll();" style="flex: 1.2; min-width:0; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
                                         <option value="SDG">🇸🇩 جنيه</option>
                                         <option value="USD">🇺🇸 دولار</option>
                                         <option value="SAR">🇸🇦 ريال</option>
                                         <option value="AED">🇦🇪 درهم</option>
                                         <option value="EGP">🇪🇬 مصري</option>
                                     </select>
-                                    <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" disabled oninput="recalcAll()" style="flex: 1; min-width:0; text-align: center; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);" placeholder="الصرف">
+                                    <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" disabled oninput="recalcAll()" style="flex: 0.8; min-width:0; text-align: center; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);" placeholder="الصرف">
                                 </div>
                             </div>
 
-                            <!-- Payment Method Field (25% width) -->
-                            <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:10px;">
+                            <!-- Payment Method Field (20% width) -->
+                            <div class="h-form-group" style="flex: 20; min-width: 0; display:flex; align-items:center; gap:10px;">
                                 <label class="h-label" style="margin:0; white-space:nowrap;">طريقة الدفع</label>
                                 <div style="flex: 1; width: 100%;">
                                     <select class="v-input ctrl-input" id="hdr-payment-method" onchange="togglePaymentAccount()" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
