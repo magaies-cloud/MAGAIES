@@ -906,6 +906,7 @@ app.get('/wa/diagnose', async (_req, res) => {
 
     const ok = tests.dns?.success && tests.https?.success && tests.websocket?.success && tests.authFolder?.success;
     res.json({
+        success: !!ok,
         nodeVersion: process.version, platform: process.platform, arch: process.arch,
         tests,
         summary: ok
