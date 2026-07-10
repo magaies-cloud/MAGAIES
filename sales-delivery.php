@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'تسليم المبيعات - إذن المنصرف'; ?>
+<?php $page_title = 'تسليم المبيعات - إذن المنصرف'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -57,7 +57,7 @@
     <div class="toast-container" id="toast-container"></div>
 
     <!-- QR Scanner Library -->
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script defer src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <div class="pos-wrapper" style="padding: 20px; max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; height: 100vh;">
 
@@ -175,7 +175,7 @@
                         </button>
                         
                         <div id="attachment-preview" style="margin-top: 12px; display: none; text-align: center;">
-                            <img id="attachment-thumb" src="" style="max-height: 80px; border-radius: 4px; border: 1px solid var(--border-color); margin-bottom: 8px; width: 100%; object-fit: cover;">
+                            <img id="attachment-thumb" src="" alt="صورة المرفق" style="max-height: 80px; border-radius: 4px; border: 1px solid var(--border-color); margin-bottom: 8px; width: 100%; object-fit: cover;">
                             <div style="color: #34d399; font-size: 0.75rem; font-weight: 700;">تم تسليم الفاتورة بالكامل</div>
                         </div>
                     </div>
@@ -266,9 +266,9 @@
     </div>
 
     <!-- Global App JS (for Auth, Themes) -->
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054969.75678"></script>
-    <script src="js/print-engine.js"></script>
-    <script src="js/sales-delivery.js"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054969.75678"></script>
+    <script defer src="js/print-engine.js"></script>
+    <script defer src="js/sales-delivery.js"></script>
 </body>
 </html>

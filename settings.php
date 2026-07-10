@@ -225,7 +225,7 @@
                 <label class="form-label">شعار الشركة (اللوقو)</label>
                 <input type="file" id="cfg-logo" accept="image/*" class="form-input" style="padding: 10px;">
                 <div id="logo-preview-container" style="margin-top:10px; width:150px; height:80px; border:1px dashed rgba(255,255,255,0.3); border-radius:8px; display:flex; align-items:center; justify-content:center; overflow:hidden; background:rgba(0,0,0,0.2);">
-                    <img id="logo-preview" src="" style="display:none; max-height:100%; max-width:100%; object-fit:contain;">
+                    <img id="logo-preview" src="" alt="شعار الشركة" style="display:none; max-height:100%; max-width:100%; object-fit:contain;">
                 </div>
             </div>
         
@@ -386,9 +386,9 @@
 
 </div>
 
-<script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054970.00941"></script>
-    <script src="js/whatsapp-integration.js"></script>
+<script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054970.00941"></script>
+    <script defer src="js/whatsapp-integration.js"></script>
 <script>
     // ─── Load Settings on Page Open ───────────────────────────
     document.addEventListener('DBReady', () => {

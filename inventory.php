@@ -143,8 +143,8 @@
         <!-- Will be populated by JS -->
     </div>
 
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054967.88578"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054967.88578"></script>
     <script>
         document.addEventListener('DBReady', () => {
             const searchBox = document.getElementById('search-box');

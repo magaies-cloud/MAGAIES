@@ -320,8 +320,8 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054967.79042"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054967.79042"></script>
     <script>
         const ITEMS_STORAGE_KEY = 'erp_items_v1';
         const INVENTORY_STORAGE_KEY = 'erp_inventory_v1';
@@ -509,7 +509,7 @@
                     <td>${row.price.toLocaleString()}</td>
                     <td class="val-td">${rowValue.toLocaleString()}</td>
                     <td><span class="status-badge ${statusInfo.cssClass}">${statusInfo.icon} ${statusInfo.text}</span></td>
-                    <td><a data-href="item-ledger.html?item=${row.itemId}" onclick="window.location.href='item-ledger.html?item=${row.itemId}'" class="btn-link">حركة الصنف</a></td>
+                    <td><a data-href="item-ledger.php?item=${row.itemId}" onclick="window.location.href='item-ledger.php?item=${row.itemId}'" class="btn-link">حركة الصنف</a></td>
                 `;
                 tbody.appendChild(tr);
             });

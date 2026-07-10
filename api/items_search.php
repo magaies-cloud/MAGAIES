@@ -1,11 +1,22 @@
 <?php
 header('Content-Type: application/json');
-require 'db.php';
+
+// Verify auth token
+$authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+$token = str_replace('Bearer ', '', $authHeader);
+if (empty($token)) { http_response_code(401); echo json_encode(['error' => 'Unauthorized']); exit; }
+require_once __DIR__ . '/db.php';
+$stmtAuth = $pdo->prepare('SELECT tenant_id FROM users WHERE token = ?');
+$stmtAuth->execute([$token]);
+$authUser = $stmtAuth->fetch(PDO::FETCH_ASSOC);
+if (!$authUser) { http_response_code(401); echo json_encode(['error' => 'Invalid token']); exit; }
+$tenant_id = $authUser['tenant_id'];
 
 $q = isset($_GET['q']) ? trim($_GET['q']) : '';
 
 try {
-    $stmt = $pdo->query('SELECT data FROM items');
+    $stmt = $pdo->prepare('SELECT data FROM items WHERE tenant_id = ?');
+    $stmt->execute([$tenant_id]);
     $items = [];
     
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {

@@ -823,6 +823,7 @@
 
 
         <!-- NEW ADVANCED HEADER -->
+        <?php $header_theme_class = 'header-theme-sales'; ?>
         <?php include 'includes/header.php'; ?>
 
         <!-- (Moved SUB HEADER BAR inside main form) -->
@@ -1125,11 +1126,11 @@
         </div>
     </div>
 
-    <script src="js/localforage.min.js"></script>
+    <script defer src="js/localforage.min.js"></script>
     
-    <script src="js/app.js?v=1783054970.09484"></script>
-    <script src="js/html2pdf.bundle.min.js"></script>
-    <script src="js/whatsapp-integration.js"></script>
+    <script defer src="js/app.js?v=1783054970.09484"></script>
+    <script defer src="js/html2pdf.bundle.min.js"></script>
+    <script defer src="js/whatsapp-integration.js"></script>
     
     <script>
       document.addEventListener('DOMContentLoaded', () => {
@@ -1137,7 +1138,7 @@
           
       });
     </script>
-    <script src="js/single-cash-payment.js?v=20260625_3"></script>
+    <script defer src="js/single-cash-payment.js?v=20260625_3"></script>
     <script>
         let lastEnterTime = 0;
         // Perfected Exact Path Enter Navigation

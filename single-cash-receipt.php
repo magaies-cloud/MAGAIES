@@ -371,10 +371,10 @@
         </div>
     </div>
 
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054970.13975"></script>
-    <script src="js/html2pdf.bundle.min.js"></script>
-    <script src="js/whatsapp-integration.js"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054970.13975"></script>
+    <script defer src="js/html2pdf.bundle.min.js"></script>
+    <script defer src="js/whatsapp-integration.js"></script>
     
     <script>
       document.addEventListener('DOMContentLoaded', () => {
@@ -384,7 +384,7 @@
           }
       });
     </script>
-    <script src="js/single-cash-receipt.js?v=20260612_7"></script>
+    <script defer src="js/single-cash-receipt.js?v=20260612_7"></script>
 </body>
 </html>
 

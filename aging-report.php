@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { background: #0f172a; color: #f8fafc; font-family: 'Tajawal', sans-serif; }
         
@@ -141,8 +141,8 @@
 
     </div>
 
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054965.78303"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054965.78303"></script>
     <script>
         document.addEventListener('DBReady', () => {
             if (!localStorage.getItem('authToken')) { window.location.href = 'login.php'; return; }

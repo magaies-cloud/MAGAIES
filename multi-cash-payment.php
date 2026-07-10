@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'حركة مالية مجمعة'; ?>
+<?php $page_title = 'حركة مالية مجمعة'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -252,6 +252,7 @@
     <div class="toast-container" id="toast-container"></div>
 
     <div class="pos-wrapper" style="max-width: 98%; margin: 0 auto; padding: 15px 10px; padding-bottom: 100px;">
+        <?php $header_theme_class = 'header-theme-sales'; ?>
         <?php include 'includes/header.php'; ?>
 
         <input type="hidden" id="voucher-type" value="payment">
@@ -466,9 +467,9 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054968.65812"></script>
-    <script src="js/multi-cash-payment.js"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054968.65812"></script>
+    <script defer src="js/multi-cash-payment.js"></script>
 </body>
 </html>
 

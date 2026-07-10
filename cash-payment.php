@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'سند صرف نقدية'; ?>
+<?php $page_title = 'سند صرف نقدية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -92,6 +92,7 @@
     <div class="pos-wrapper">
         <!-- BREADCRUMB -->
         <!-- Unified Header -->
+        <?php $header_theme_class = 'header-theme-sales'; ?>
         <?php include 'includes/header.php'; ?>
 
         <!-- HEADER -->
@@ -202,8 +203,8 @@
         </div>
     </div>
 
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054966.7143"></script>
-    <script src="js/cash-payment.js"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054966.7143"></script>
+    <script defer src="js/cash-payment.js"></script>
 </body>
 </html>

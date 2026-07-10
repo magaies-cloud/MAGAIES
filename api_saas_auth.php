@@ -3,7 +3,12 @@
 // SaaS Admin Authentication — server-side only
 // -------------------------------------------------------
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Origin: *");
+$allowed_origins = ['https://elsajana.com', 'https://c.elsajana.com', 'http://localhost:8080'];
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowed_origins)) {
+    header("Access-Control-Allow-Origin: $origin");
+    header("Access-Control-Allow-Credentials: true");
+}
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
@@ -44,7 +49,7 @@ $correctPass  = !empty($_ENV['SAAS_ADMIN_PASSWORD']) ? $_ENV['SAAS_ADMIN_PASSWOR
 
 if (empty($pass)) {
     http_response_code(400);
-    echo json_encode(['error' => 'كلمة المرور مطلوبة', 'debug_raw' => substr($rawInput, 0, 50)]);
+    echo json_encode(['error' => 'كلمة المرور مطلوبة']);
     exit;
 }
 

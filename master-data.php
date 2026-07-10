@@ -769,8 +769,8 @@
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-    <script src="js/app.js?v=<?php echo time(); ?>"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script defer src="js/app.js?v=<?php echo time(); ?>"></script>
     <script>
         function renderAllMasterData() {
             renderCustomers();

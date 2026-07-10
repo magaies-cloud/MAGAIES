@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'دورة الشيكات'; ?>
+<?php $page_title = 'دورة الشيكات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -251,6 +251,7 @@
     <div class="checks-wrapper">
         <!-- Top Bar -->
                 <!-- Unified Header -->
+        <?php $header_theme_class = 'header-theme-sales'; ?>
         <?php include 'includes/header.php'; ?>
         <!-- Tabs -->
         <div class="tabs-container">
@@ -331,8 +332,8 @@
 
     </div>
 
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054966.76188"></script>
-    <script src="js/checks-cycle.js"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054966.76188"></script>
+    <script defer src="js/checks-cycle.js"></script>
 </body>
 </html>

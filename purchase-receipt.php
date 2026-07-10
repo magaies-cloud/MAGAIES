@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'استلام البضاعة (GRN)'; ?>
+<?php $page_title = 'استلام البضاعة (GRN)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -179,6 +179,7 @@
     </div>
 
     <div class="dash-main">
+        <?php $header_theme_class = 'header-theme-purchase'; ?>
         <?php include 'includes/header.php'; ?>
 
         <!-- View 1: Hub (Select Invoice with Pending Goods) -->
@@ -316,8 +317,8 @@
     <!-- Notification Toast Container -->
     <div class="toast-container" id="toast-container" style="position:fixed; bottom:20px; left:20px; z-index:99999; display:flex; flex-direction:column; gap:10px;"></div>
 
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054969.18727"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054969.18727"></script>
     <script>
         let allPurchases = [];
         let itemsDb = [];

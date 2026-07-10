@@ -585,6 +585,7 @@
 <div style="max-width: 98%; margin: 0 auto; padding: 15px 10px; padding-bottom: 80px;">
 
     <!-- Premium Navigation Header -->
+    <?php $header_theme_class = 'header-theme-reports'; ?>
     <?php include 'includes/header.php'; ?>
 
     <!-- FILTER SECTION -->
@@ -836,8 +837,8 @@
     </div>
 </div>
 
-<script src="js/localforage.min.js"></script>
-<script src="js/app.js?v=20260626_4"></script>
+<script defer src="js/localforage.min.js"></script>
+<script defer src="js/app.js?v=20260626_4"></script>
 <script>
     // Make Sidebar Draggable and Resizable, with Permanent Saving
     document.addEventListener('DOMContentLoaded', () => {
@@ -914,9 +915,9 @@
         }
     });
 </script>
-<script src="js/html2pdf.bundle.min.js"></script>
-<script src="js/whatsapp-integration.js"></script>
-<script src="js/general-ledger.js?v=<?= time() ?>"></script>
+<script defer src="js/html2pdf.bundle.min.js"></script>
+<script defer src="js/whatsapp-integration.js"></script>
+<script defer src="js/general-ledger.js?v=<?= time() ?>"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     // Default Dates: From the 1st of the current month to Today

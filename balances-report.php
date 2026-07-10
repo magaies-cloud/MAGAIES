@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
     <link rel="stylesheet" href="css/sales-invoice.css">
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
         .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
         .toast { padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:8px; pointer-events:auto; backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5); animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both; font-family:'Cairo',sans-serif; }
@@ -127,6 +127,7 @@
 
 <div style="max-width: 1600px; margin: 0 auto; padding: 20px 30px; padding-bottom: 80px;">
     <!-- Premium Navigation Header -->
+    <?php $header_theme_class = 'header-theme-reports'; ?>
     <?php include 'includes/header.php'; ?>
 
     <!-- FILTERS -->
@@ -264,10 +265,10 @@
 </div>
 
 <!-- Include html2pdf library to export PDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-<script src="js/localforage.min.js"></script>
-<script src="js/app.js?v=1783054966.35444"></script>
-<script src="js/balances-report.js"></script>
+<script defer src="js/localforage.min.js"></script>
+<script defer src="js/app.js?v=1783054966.35444"></script>
+<script defer src="js/balances-report.js"></script>
 </body>
 </html>

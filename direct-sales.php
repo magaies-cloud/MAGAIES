@@ -1188,7 +1188,7 @@
         }
     </script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
-<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
  <style>
  /* Choices custom overrides */
  .choices__inner { background-color: rgba(30,41,59,0.8) !important; border: 1px solid rgba(255,255,255,0.15) !important; color: #fff !important; border-radius: 8px !important; min-height: 42px !important; }
@@ -1911,14 +1911,14 @@
 </div>
 </div>
 
-    <script src="js/localforage.min.js"></script>
-    <script src="js/html2pdf.bundle.min.js"></script>
-    <script src="js/whatsapp-integration.js"></script>
-    <script src="js/app.js?v=1783054967.56221"></script>
-    <script src="js/print-engine.js"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/html2pdf.bundle.min.js"></script>
+    <script defer src="js/whatsapp-integration.js"></script>
+    <script defer src="js/app.js?v=1783054967.56221"></script>
+    <script defer src="js/print-engine.js"></script>
     
 
-    <script src="js/direct-sales-v3.js?v=<?php echo time(); ?>"></script>
+    <script defer src="js/direct-sales-v3.js?v=<?php echo time(); ?>"></script>
 
     <script>
         // Sales Hub Logic

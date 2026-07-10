@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'إدارة المهام (شغل)'; ?>
+<?php $page_title = 'إدارة المهام (شغل)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -184,8 +184,8 @@
     </div>
 
     <!-- Required for DBReady and IndexedDB -->
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054968.0814"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054968.0814"></script>
     <script>
         let jobs = [];
 

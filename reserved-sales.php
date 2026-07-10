@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'المبيعات - المبيعات المحجوزة'; ?>
+<?php $page_title = 'المبيعات - المبيعات المحجوزة'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -417,9 +417,9 @@
         </div>
     </div>
 
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054969.46011"></script>
-    <script src="js/print-engine.js"></script>
-    <script src="js/reserved-sales.js?v=3"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054969.46011"></script>
+    <script defer src="js/print-engine.js"></script>
+    <script defer src="js/reserved-sales.js?v=3"></script>
 </body>
 </html>

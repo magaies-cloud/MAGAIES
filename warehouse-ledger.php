@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'مقاييس (MAGAIEES) - كشف المخزن التحليلي'; ?>
+<?php $page_title = 'مقاييس (MAGAIEES) - كشف المخزن التحليلي'; ?>
 <!-- c:\mynewapp\frontend-pwa\warehouse-ledger.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -59,6 +59,7 @@
         </div>
 
         <!-- Header -->
+        <?php $header_theme_class = 'header-theme-inventory'; ?>
         <?php include 'includes/header.php'; ?>
 
         <!-- Filters -->
@@ -102,8 +103,8 @@
 
     </div>
 
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054970.52149"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054970.52149"></script>
     <script>
         document.addEventListener('DBReady', () => {
             // Load Warehouses

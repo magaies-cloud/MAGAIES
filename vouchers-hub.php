@@ -498,6 +498,7 @@
 <div class="hub-container">
 
     <!-- Unified Premium Header -->
+    <?php $header_theme_class = 'header-theme-sales'; ?>
     <?php include 'includes/header.php'; ?>
 
     <!-- Vouchers Grid - Full Width -->
@@ -611,8 +612,8 @@
     </div>
 </div>
 
-<script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054970.44359"></script>
+<script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054970.44359"></script>
     <script>
     document.addEventListener('DBReady', async () => {
         try {
@@ -696,7 +697,7 @@
         }
     </style>
     <!-- SortableJS for Drag and Drop -->
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script>
         let isEditMode = false;
         let sortableInstance = null;

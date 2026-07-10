@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'ترحيل الحسابات'; ?>
+<?php $page_title = 'ترحيل الحسابات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -444,6 +444,7 @@
 
     <div class="page-wrapper">
         <!-- Unified Premium Header -->
+        <?php $header_theme_class = 'header-theme-reports'; ?>
         <?php include 'includes/header.php'; ?>
 
         <!-- Filters -->
@@ -566,9 +567,9 @@
         </div>
     </div>
 
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=<?php echo time(); ?>"></script>
-    <script src="js/posting-accounts.js?v=<?php echo time(); ?>"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=<?php echo time(); ?>"></script>
+    <script defer src="js/posting-accounts.js?v=<?php echo time(); ?>"></script>
     <script>
         function injectDummyData() {
             const dummySales = [{

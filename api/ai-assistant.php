@@ -13,7 +13,7 @@ if (empty($userMessage)) {
 }
 
 // 2. Setup API Key and Endpoint
-$apiKey = "AQ.Ab8RN6IMdWH31t8-IbFYJZgytQxgFYW1GnTMee5UwEZ2Tlpqzw"; // Use exactly what the user provided
+$apiKey = getenv('GEMINI_API_KEY') ?: '';
 $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $apiKey;
 
 // 3. Construct System Prompt

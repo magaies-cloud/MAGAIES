@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'مقاييس (MAGAIEES) - إدارة المستخدمين والصلاحيات'; ?>
+<?php $page_title = 'مقاييس (MAGAIEES) - إدارة المستخدمين والصلاحيات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -117,6 +117,7 @@
         <div class="orb orb-3"></div>
     </div>
 
+    <?php $header_theme_class = 'header-theme-settings'; ?>
     <?php include 'includes/header.php'; ?>
 
     <div class="md-container">
@@ -405,9 +406,9 @@
     <div class="toast-container" id="toast-container" style="position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none;"></div>
 
     <!-- Scripts -->
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054970.44107"></script>
-    <script src="js/users-roles.js?v=20260626_4"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054970.44107"></script>
+    <script defer src="js/users-roles.js?v=20260626_4"></script>
     <script>
         // Simple Tab Switcher for this page
         function openTab(evt, tabId) {

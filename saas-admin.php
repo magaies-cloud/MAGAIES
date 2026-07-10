@@ -20,9 +20,9 @@
     <link rel="stylesheet" href="css/components.css?v=20260619_3">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ar.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ar.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-color: #050505;
@@ -731,7 +731,7 @@
                 <label>صورة الشعار (اختيار ملف)</label>
                 <input type="file" id="partner-logo-upload" accept="image/*">
                 <div id="partner-logo-preview" style="display:none; margin-top:10px; text-align:center;">
-                    <img src="" style="max-height:60px; border-radius:8px;">
+                    <img src="" alt="شعار الشريك" loading="lazy" style="max-height:60px; border-radius:8px;">
                 </div>
             </div>
             <div class="form-group" style="margin-top:15px; display:flex; align-items:center; gap:10px;">
@@ -822,7 +822,7 @@
                 <label>صورة الإعلان</label>
                 <input type="file" id="ad-image-upload" accept="image/*" style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; width: 100%; color: #fff;">
                 <div id="ad-image-preview" style="margin-top:10px; max-height:100px; overflow:hidden; display:none; border-radius:8px;">
-                    <img src="" style="width:100%; object-fit:cover;">
+                    <img src="" alt="معاينة الإعلان" loading="lazy" style="width:100%; object-fit:cover;">
                 </div>
             </div>
             <div class="form-group" style="display:flex; align-items:center; gap:10px; cursor:pointer;">
@@ -2554,7 +2554,7 @@
                 const statusHtml = ad.active ? '<span style="color:#10b981;">نشط</span>' : '<span style="color:#ef4444;">غير نشط</span>';
                 tbody.innerHTML += `
                     <tr>
-                        <td><img src="${ad.image}" style="max-height: 40px; border-radius: 4px;"></td>
+                        <td><img src="${ad.image}" alt="${ad.companyName}" loading="lazy" style="max-height: 40px; border-radius: 4px;"></td>
                         <td><strong>${ad.companyName || 'بدون اسم'}</strong></td>
                         <td>${statusHtml}</td>
                         <td>

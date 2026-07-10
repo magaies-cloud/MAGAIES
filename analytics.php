@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-color: #050308;
@@ -521,6 +521,7 @@
 <div class="analytics-container">
 
     <!-- Unified Premium Header -->
+    <?php $header_theme_class = 'header-theme-reports'; ?>
     <?php include 'includes/header.php'; ?>
 
     <!-- Desktop/Mobile Premium Reports Bento Grid (Rearranged under header) -->
@@ -798,8 +799,8 @@
 
 </div>
 
-<script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=<?php echo time(); ?>"></script>
+<script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=<?php echo time(); ?>"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         // We might want to wait for DBReady, but let's initialize directly if data is in localStorage
@@ -1028,7 +1029,7 @@
 </script>
 
 <!-- مكتبة السحب والإفلات -->
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // High Performance 3D Parallax effect on Quick Report Cards

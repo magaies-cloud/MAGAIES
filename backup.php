@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'النسخ الاحتياطي'; ?>
+<?php $page_title = 'النسخ الاحتياطي'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -113,8 +113,8 @@
     </div>
 
     <!-- Required for DBReady and IndexedDB -->
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054966.27798"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054966.27798"></script>
     <script>
         document.addEventListener('DBReady', () => {
             if (!localStorage.getItem('authToken')) { window.location.href = 'login.php'; return; }

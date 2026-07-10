@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'سند قبض نقدية'; ?>
+<?php $page_title = 'سند قبض نقدية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -81,6 +81,7 @@
     <div class="pos-wrapper">
         <!-- BREADCRUMB -->
         <!-- Unified Header -->
+        <?php $header_theme_class = 'header-theme-sales'; ?>
         <?php include 'includes/header.php'; ?>
 
         <!-- HEADER -->
@@ -191,8 +192,8 @@
         </div>
     </div>
 
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054966.73732"></script>
-    <script src="js/cash-receipt.js"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054966.73732"></script>
+    <script defer src="js/cash-receipt.js"></script>
 </body>
 </html>

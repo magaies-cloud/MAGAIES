@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'سند صرف'; ?>
+<?php $page_title = 'سند صرف'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -375,8 +375,8 @@
         <button class="btn-save" onclick="submitPayment()">✓ حفظ</button>
     </div>
 
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054968.79721"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054968.79721"></script>
     <script>
         document.addEventListener('DBReady', () => {
             if (!localStorage.getItem('authToken')) {

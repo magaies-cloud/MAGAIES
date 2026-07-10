@@ -2,7 +2,12 @@
 ini_set('display_errors', '0');
 error_reporting(E_ALL);
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Origin: *");
+$allowed_origins = ['https://elsajana.com', 'https://c.elsajana.com', 'http://localhost:8080'];
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowed_origins)) {
+    header("Access-Control-Allow-Origin: $origin");
+    header("Access-Control-Allow-Credentials: true");
+}
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -370,7 +375,7 @@ if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
         jsonResponse(['success' => false, 'error' => 'لا يُسمح باستخدام البريد المؤقت للتسجيل'], 400);
     }
     
-    $otp = sprintf("%06d", mt_rand(1, 999999));
+    $otp = sprintf("%06d", random_int(1, 999999));
     
     $stmt = $pdo->prepare("INSERT INTO otp_verifications (email, otp, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))");
     $stmt->execute([$email, $otp]);
@@ -391,8 +396,7 @@ if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
     if ($waSuccess) {
         jsonResponse([
             'success' => true, 
-            'message' => 'تم إرسال رمز التحقق (OTP) إلى حساب الواتساب الخاص بك بنجاح!', 
-            'dev_otp' => $otp
+            'message' => 'تم إرسال رمز التحقق (OTP) إلى حساب الواتساب الخاص بك بنجاح!'
         ]);
     } else {
         $result = EmailService::sendOTP($email, $otp);
@@ -401,7 +405,7 @@ if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
             if ($channel === 'whatsapp' && !empty($waError)) {
                 $msg .= ' (فشل الإرسال عبر الواتساب: ' . $waError . ')';
             }
-            jsonResponse(['success' => true, 'message' => $msg, 'dev_otp' => $result['dev_otp'] ?? null]);
+            jsonResponse(['success' => true, 'message' => $msg]);
         } else {
             jsonResponse(['success' => false, 'error' => $result['error']], 500);
         }

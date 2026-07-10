@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'مقاييس - أذكى نظام سحابي لإدارة الموارد (ERP)'; ?>
+<?php $page_title = 'مقاييس - أذكى نظام سحابي لإدارة الموارد (ERP)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -323,7 +323,7 @@
 </head>
 <body>
 
-    <img src="assets/ai_bg.png" alt="AI Background" class="hero-bg-img" onerror="this.style.display='none'">
+    <img src="assets/ai_bg.png" alt="AI Background" class="hero-bg-img" loading="lazy" onerror="this.style.display='none'">
 
     <!-- Navbar -->
     <nav class="glass-panel" id="navbar">
@@ -357,7 +357,7 @@
             </div>
         </div>
         <div class="hero-visual">
-            <img src="assets/dashboard_mockup.png" alt="SaaS Dashboard Interface" onerror="this.style.display='none'">
+            <img src="assets/dashboard_mockup.png" alt="SaaS Dashboard Interface" loading="lazy" onerror="this.style.display='none'">
         </div>
     </section>
 
@@ -365,16 +365,16 @@
     <section class="partners">
         <p>يثق بنا قادة الصناعة والأعمال</p>
         <div class="marquee-wrapper" id="partners-marquee">
-            <a href="#" class="partner-logo"><img src="assets/logo_maqayis.png" alt="مقاييس"> مقاييس</a>
-            <a href="#" class="partner-logo"><img src="assets/logo_alasaad.png" alt="مصنع الأسعد"> مصنع الأسعد</a>
-            <a href="#" class="partner-logo"><img src="assets/logo_omega.png" alt="أوميغا"> أوميغا</a>
-            <a href="#" class="partner-logo"><img src="assets/logo_bok.png" alt="بنك الخرطوم"> بنك الخرطوم</a>
-            <a href="#" class="partner-logo"><img src="assets/logo_fcb.png" alt="بنك المزارع"> بنك المزارع</a>
-            <a href="#" class="partner-logo"><img src="assets/logo_maqayis.png" alt="مقاييس"> مقاييس</a>
-            <a href="#" class="partner-logo"><img src="assets/logo_alasaad.png" alt="مصنع الأسعد"> مصنع الأسعد</a>
-            <a href="#" class="partner-logo"><img src="assets/logo_omega.png" alt="أوميغا"> أوميغا</a>
-            <a href="#" class="partner-logo"><img src="assets/logo_bok.png" alt="بنك الخرطوم"> بنك الخرطوم</a>
-            <a href="#" class="partner-logo"><img src="assets/logo_fcb.png" alt="بنك المزارع"> بنك المزارع</a>
+            <a href="#" class="partner-logo"><img src="assets/logo_maqayis.png" alt="مقاييس" loading="lazy"> مقاييس</a>
+            <a href="#" class="partner-logo"><img src="assets/logo_alasaad.png" alt="مصنع الأسعد" loading="lazy"> مصنع الأسعد</a>
+            <a href="#" class="partner-logo"><img src="assets/logo_omega.png" alt="أوميغا" loading="lazy"> أوميغا</a>
+            <a href="#" class="partner-logo"><img src="assets/logo_bok.png" alt="بنك الخرطوم" loading="lazy"> بنك الخرطوم</a>
+            <a href="#" class="partner-logo"><img src="assets/logo_fcb.png" alt="بنك المزارع" loading="lazy"> بنك المزارع</a>
+            <a href="#" class="partner-logo"><img src="assets/logo_maqayis.png" alt="مقاييس" loading="lazy"> مقاييس</a>
+            <a href="#" class="partner-logo"><img src="assets/logo_alasaad.png" alt="مصنع الأسعد" loading="lazy"> مصنع الأسعد</a>
+            <a href="#" class="partner-logo"><img src="assets/logo_omega.png" alt="أوميغا" loading="lazy"> أوميغا</a>
+            <a href="#" class="partner-logo"><img src="assets/logo_bok.png" alt="بنك الخرطوم" loading="lazy"> بنك الخرطوم</a>
+            <a href="#" class="partner-logo"><img src="assets/logo_fcb.png" alt="بنك المزارع" loading="lazy"> بنك المزارع</a>
         </div>
     </section>
 
@@ -430,7 +430,7 @@
                     <li>دعم فني وتحديثات مستمرة</li>
                     <li>نسخ احتياطي يومي تلقائي</li>
                 </ul>
-                <a href="register.html?plan=1" class="btn-nav" style="width:100%; text-align:center; background:rgba(255,255,255,0.05);">اختيار الباقة</a>
+                <a href="register.php?plan=1" class="btn-nav" style="width:100%; text-align:center; background:rgba(255,255,255,0.05);">اختيار الباقة</a>
             </div>
             <div class="plan-card recommended">
                 <div class="plan-badge">الأكثر شيوعاً</div>
@@ -442,7 +442,7 @@
                     <li>دعم فني وتحديثات مستمرة</li>
                     <li>نسخ احتياطي يومي تلقائي</li>
                 </ul>
-                <a href="register.html?plan=2" class="btn-primary" style="width:100%; border-radius:12px;">اختيار الباقة</a>
+                <a href="register.php?plan=2" class="btn-primary" style="width:100%; border-radius:12px;">اختيار الباقة</a>
             </div>
             <div class="plan-card">
                 <h3 class="plan-name">باقة الشركات (VIP)</h3>
@@ -453,7 +453,7 @@
                     <li>دعم فني وتحديثات مستمرة</li>
                     <li>نسخ احتياطي يومي تلقائي</li>
                 </ul>
-                <a href="register.html?plan=3" class="btn-nav" style="width:100%; text-align:center; background:rgba(255,255,255,0.05);">اختيار الباقة</a>
+                <a href="register.php?plan=3" class="btn-nav" style="width:100%; text-align:center; background:rgba(255,255,255,0.05);">اختيار الباقة</a>
             </div>
         </div>
     </section>
@@ -565,7 +565,7 @@
                                     <li>دعم فني وتحديثات مستمرة</li>
                                     <li>نسخ احتياطي يومي تلقائي</li>
                                 </ul>
-                                <a href="register.html?plan=${plan.id}" class="${btnClass}" style="${btnStyle}">اختيار الباقة</a>
+                                <a href="register.php?plan=${plan.id}" class="${btnClass}" style="${btnStyle}">اختيار الباقة</a>
                             </div>
                         `;
                     });

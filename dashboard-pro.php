@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="css/design-system.css?v=20260709_5">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-color: #050308;
@@ -592,8 +592,8 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=<?php echo time(); ?>"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=<?php echo time(); ?>"></script>
     <script>
         // Spotlight Effect Mouse Tracker
         document.addEventListener('mousemove', e => {

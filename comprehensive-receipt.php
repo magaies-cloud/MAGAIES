@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'سند قبض شامل'; ?>
+<?php $page_title = 'سند قبض شامل'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -442,8 +442,8 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js"></script>
-    <script src="js/comprehensive-receipt.js"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js"></script>
+    <script defer src="js/comprehensive-receipt.js"></script>
 </body>
 </html>

@@ -1330,7 +1330,7 @@
                                         </div>
                                     </div>
 
-                            <button onclick="window.location.href='master-data.html?tab=suppliers'" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid rgba(16,212,143,0.3); width: 32px; height: 32px; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2); transition: 0.2s;" title="البيانات الأساسية للموردين">
+                            <button onclick="window.location.href='master-data.php?tab=suppliers'" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid rgba(16,212,143,0.3); width: 32px; height: 32px; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2); transition: 0.2s;" title="البيانات الأساسية للموردين">
                                 ➕
                             </button>
                         </div>
@@ -1577,11 +1577,11 @@
 
     </div>
 </div>
-    <script src="js/localforage.min.js"></script>
-    <script src="js/html2pdf.bundle.min.js"></script>
-    <script src="js/whatsapp-integration.js"></script>
-    <script src="js/app.js?v=1783054969.28779"></script>
-    <script src="js/print-engine.js"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/html2pdf.bundle.min.js"></script>
+    <script defer src="js/whatsapp-integration.js"></script>
+    <script defer src="js/app.js?v=1783054969.28779"></script>
+    <script defer src="js/print-engine.js"></script>
     
     <script>
       document.addEventListener('DOMContentLoaded', () => {
@@ -1590,7 +1590,7 @@
           });
       });
     </script>
-    <script src="js/purchase-pro-v4.js?v=24"></script>
+    <script defer src="js/purchase-pro-v4.js?v=24"></script>
 </div>
 
     <script>

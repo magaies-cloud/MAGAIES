@@ -350,10 +350,19 @@ class TenantController {
             if (!in_array(strtolower($ext), $allowed)) {
                 jsonResponse(['error' => 'Invalid file type'], 400);
             }
+            $finfo = new finfo(FILEINFO_MIME_TYPE);
+            $mimeType = $finfo->file($file['tmp_name']);
+            $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!in_array($mimeType, $allowedMimes)) {
+                jsonResponse(['error' => 'Invalid file type'], 400);
+            }
+            if ($file['size'] > 5 * 1024 * 1024) {
+                jsonResponse(['error' => 'File too large (max 5MB)'], 400);
+            }
             
             $dir = __DIR__ . '/../../uploads/ads/';
             if (!is_dir($dir)) {
-                mkdir($dir, 0777, true);
+                mkdir($dir, 0755, true);
             }
             
             $filename = 'ad_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
@@ -373,14 +382,23 @@ class TenantController {
             }
             $file = $_FILES['image'];
             $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+            $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
             if (!in_array(strtolower($ext), $allowed)) {
                 jsonResponse(['error' => 'Invalid file type'], 400);
+            }
+            $finfo = new finfo(FILEINFO_MIME_TYPE);
+            $mimeType = $finfo->file($file['tmp_name']);
+            $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!in_array($mimeType, $allowedMimes)) {
+                jsonResponse(['error' => 'Invalid file type'], 400);
+            }
+            if ($file['size'] > 5 * 1024 * 1024) {
+                jsonResponse(['error' => 'File too large (max 5MB)'], 400);
             }
             
             $dir = __DIR__ . '/../../uploads/partners/';
             if (!is_dir($dir)) {
-                mkdir($dir, 0777, true);
+                mkdir($dir, 0755, true);
             }
             
             $filename = 'partner_' . time() . '_' . rand(1000, 9999) . '.' . $ext;

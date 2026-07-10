@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'تسجيل شركة جديدة - مقاييس (MAGAIEES) SaaS'; ?>
+<?php $page_title = 'تسجيل شركة جديدة - مقاييس (MAGAIEES) SaaS'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -450,7 +450,7 @@
         </div>
     </div>
 
-    <script src="js/api.js"></script>
+    <script defer src="js/api.js"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         let selectedPlanId = urlParams.get('plan');

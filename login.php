@@ -137,7 +137,7 @@
 
     <div class="login-card">
         <div class="logo-container" style="animation: pulse 4s infinite; mix-blend-mode: screen; filter: invert(1) hue-rotate(180deg) brightness(1.2) drop-shadow(0 0 20px rgba(56, 189, 248, 0.6));">
-            <img src="assets/logo.png" alt="Logo" style="width: 140px; height: auto;">
+            <img src="assets/logo.png" alt="Logo" loading="lazy" style="width: 140px; height: auto;">
         </div>
         <div class="title" style="background: linear-gradient(to right, #38bdf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px;">مقاييس (MAGAIEES) 2026</div>
         <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: -15px; font-weight: 700;">نظام إدارة موارد المؤسسات المتكامل الذكي</p>
@@ -157,8 +157,8 @@
         <div class="device-info" id="device-id-display">جاري التحقق من الجهاز...</div>
     </div>
 
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054968.28612"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054968.28612"></script>
     
     <script>
         // --- SSO Interceptor ---

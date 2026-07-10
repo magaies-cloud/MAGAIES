@@ -105,6 +105,7 @@
 
         <!-- --- BREADCRUMB NAV --- -->
                 <!-- Unified Header -->
+        <?php $header_theme_class = 'header-theme-sales'; ?>
         <?php include 'includes/header.php'; ?>
 
         <!-- --- 1. TOP ACTION BAR --- -->
@@ -388,9 +389,9 @@
         </div>
     </div>
 
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054969.81822"></script>
-    <script src="js/print-engine.js"></script>
-    <script src="js/sales-invoice.js?v=2"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054969.81822"></script>
+    <script defer src="js/print-engine.js"></script>
+    <script defer src="js/sales-invoice.js?v=2"></script>
 </body>
 </html>

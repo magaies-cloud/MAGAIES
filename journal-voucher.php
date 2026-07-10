@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'قيد يومية'; ?>
+<?php $page_title = 'قيد يومية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -133,6 +133,7 @@
     <div class="pos-wrapper" style="max-width: 1600px; margin: 0 auto; padding: 20px 30px; padding-bottom: 100px;">
         <!-- BREADCRUMB -->
                 <!-- Unified Header -->
+        <?php $header_theme_class = 'header-theme-sales'; ?>
         <?php include 'includes/header.php'; ?>
 
         <!-- HEADER -->
@@ -232,9 +233,9 @@
         </div>
     </div>
 
-    <script src="js/localforage.min.js"></script>
-    <script src="js/app.js?v=1783054968.10515"></script>
-    <script src="js/journal-voucher.js"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js?v=1783054968.10515"></script>
+    <script defer src="js/journal-voucher.js"></script>
 </body>
 </html>
 
