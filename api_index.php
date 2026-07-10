@@ -28,9 +28,8 @@ require_once __DIR__ . "/api/controllers/AuthController.php";
 function jsonResponse($data, $statusCode = 200) {
     // Return 200 OK to prevent Nginx/Apache from intercepting and serving HTML error pages
     http_response_code(200);
-    if (is_array($data)) {
-        $data['http_status'] = $statusCode;
-    }
+    // If it's an object/assoc array and it's an error, we ensure success is false.
+    // We do NOT inject http_status as it converts sequential arrays into objects.
     echo json_encode($data, JSON_UNESCAPED_UNICODE);
     exit;
 }
