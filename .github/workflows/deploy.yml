@@ -33,4 +33,5 @@ jobs:
           chmod 444 whatsapp-service.mjs || true
           chown -R www-data:www-data /var/www/magaees
           chmod -R 755 /var/www/magaees
+          pkill -f "whatsapp-service\.(mjs|js)" || true
           systemctl reload nginx
