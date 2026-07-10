@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'مقاييس (MAGAIEES) - تقارير وجرد المخازن'; ?>
+<?php $page_title = 'مقاييس (MAGAIEES) - تقارير وجرد المخازن'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -163,28 +163,7 @@
         @media (max-width: 1200px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 768px) { .kpi-grid { grid-template-columns: 1fr; } .filters-bar { grid-template-columns: 1fr; } .dash-header { flex-direction: column; gap: 15px; text-align: center; } .dash-controls { flex-wrap: wrap; justify-content: center; } }
 
-        /* Premium Header for Inventory */
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes animateGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        @keyframes shimmer { 0% { left: -100%; } 25% { left: 200%; } 100% { left: 200%; } }
 
-        .premium-header {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(251, 191, 36, 0.15), rgba(217, 119, 6, 0.15), rgba(252, 211, 77, 0.15));
-            background-size: 300% 300%;
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 12px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            height: 110px; box-sizing: border-box;
-            margin-bottom: 20px; width: 100%;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 1px rgba(0,0,0,0.3);
-            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1), animateGradient 12s ease infinite;
-            position: relative; overflow: hidden; margin-bottom: 15px; flex-shrink: 0;
-        }
-        .premium-header::after {
-            content: ''; position: absolute; top: 0; left: -100%; width: 40%; height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg); animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite; pointer-events: none;
-        }
         .header-brand { display: flex; align-items: center; gap: 12px; }
         .brand-icon { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #fbbf24, #d97706); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 6px 15px rgba(245, 158, 11, 0.4), inset 0 2px 5px rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2); }
         .brand-text h1 { margin: 0; font-size: 1.1rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; text-shadow: 0 2px 5px rgba(255,255,255,0.1); }
@@ -240,6 +219,7 @@
     <div class="dashboard-container">
 
         <!-- Premium Header for Inventory -->
+        <?php $header_theme_class = 'header-theme-inventory'; ?>
         <?php include 'includes/header.php'; ?>
 
         <!-- Navigation and Actions Row -->

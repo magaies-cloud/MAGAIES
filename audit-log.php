@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'مقاييس 2026 - سجل التدقيق'; ?>
+<?php $page_title = 'مقاييس 2026 - سجل التدقيق'; ?>
 <!-- c:\mynewapp\frontend-pwa\audit-log.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -63,26 +63,6 @@
         
         .empty-state { text-align: center; padding: 40px; color: var(--text-secondary); font-weight: 600; }
     
-        .premium-header {
-            background: linear-gradient(135deg, rgba(244, 114, 182, 0.15), rgba(168, 85, 247, 0.15), rgba(99, 102, 241, 0.15), rgba(56, 189, 248, 0.15));
-            background-size: 300% 300%;
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 12px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            height: 110px; box-sizing: border-box;
-            margin-bottom: 20px; width: 100%;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 1px rgba(0,0,0,0.3);
-            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1), animateGradient 12s ease infinite;
-            position: relative; overflow: hidden; margin: 0;
-        }
-        .premium-header::after {
-            content: ''; position: absolute; top: 0; left: -100%; width: 40%; height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg); animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite; pointer-events: none;
-        }
-        @keyframes animateGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        @keyframes shimmer { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         .header-brand { display: flex; align-items: center; gap: 12px; }
         .brand-icon { width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, #f472b6, #ec4899); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 6px 15px rgba(236, 72, 153, 0.4), inset 0 2px 5px rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2); }
         .brand-text h1 { margin: 0; font-size: 1.1rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; text-shadow: 0 2px 5px rgba(255,255,255,0.1); }
@@ -112,6 +92,7 @@
     
     
     <!-- Unified Premium Header -->
+    <?php $header_theme_class = 'header-theme-audit'; ?>
     <?php include 'includes/header.php'; ?>
 
 

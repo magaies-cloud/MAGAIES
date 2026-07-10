@@ -69,48 +69,6 @@
             flex: 1;
         }
 
-        /* Ultra Premium Header */
-        
-
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
-
-        
-        .premium-header {
-            background: linear-gradient(135deg, rgba(71, 85, 105, 0.15), rgba(14, 165, 233, 0.15), rgba(99, 102, 241, 0.15), rgba(100, 116, 139, 0.15));
-            background-size: 300% 300%;
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 12px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 1px rgba(0,0,0,0.3);
-            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1), animateGradient 12s ease infinite;
-            position: relative;
-            overflow: hidden;
-            margin: 0;
-        }
-
-        .premium-header::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 40%; height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg);
-            animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
-            pointer-events: none;
-        }
-
-        @keyframes animateGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        @keyframes shimmer {
-            0% { left: -100%; }
-            25% { left: 200%; }
-            100% { left: 200%; }
-        }
-        
 
         .header-brand { display: flex; align-items: center; gap: 15px; }
         .brand-icon {
@@ -228,7 +186,6 @@
 
         @media (max-width: 768px) {
             .settings-grid { grid-template-columns: 1fr; }
-            .premium-header { flex-direction: column; gap: 15px; }
         }
         
         /* Fix double sidebar spacing issue */
@@ -249,6 +206,7 @@
     <div id="save-badge" class="save-badge">✅ تم حفظ الإعدادات بنجاح</div>
 
     <!-- Unified Premium Header -->
+    <?php $header_theme_class = 'header-theme-settings'; ?>
     <?php include 'includes/header.php'; ?>
 
     <!-- Action Bar -->

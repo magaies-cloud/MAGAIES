@@ -85,32 +85,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Compact Ultra Premium Header */
-        .premium-header {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(99, 102, 241, 0.15), rgba(236, 72, 153, 0.15), rgba(16, 185, 129, 0.15));
-            background-size: 300% 300%;
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 12px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            height: 110px; box-sizing: border-box;
-            margin-bottom: 20px; width: 100%;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 1px rgba(0,0,0,0.3);
-            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1), animateGradient 12s ease infinite;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .premium-header::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 40%; height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg);
-            animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
-            pointer-events: none;
-        }
-
         /* Athkar Ticker */
         .islamic-ticker-container { overflow: hidden; white-space: nowrap; max-width: 400px; margin: 10px auto 0; position: relative; display: flex; align-items: center; border-radius: 8px; background: rgba(0,0,0,0.2); padding: 5px 10px; border: 1px solid rgba(255,255,255,0.05); }
         .islamic-ticker {
@@ -121,20 +95,6 @@
             text-shadow: 0 0 10px rgba(245, 158, 11, 0.2); white-space: nowrap; padding-left: 100%;
         }
         @keyframes scrollTicker { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-
-        @keyframes animateGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        @keyframes shimmer {
-            0% { left: -100%; }
-            25% { left: 200%; }
-            100% { left: 200%; }
-        }
-
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
         .header-brand { display: flex; align-items: center; gap: 12px; }
         .brand-icon {
@@ -386,7 +346,6 @@
         }
 
         @media (max-width: 768px) {
-            .premium-header { flex-direction: column; gap: 12px; }
             .header-controls { justify-content: center; width: 100%; flex-wrap: wrap; }
             .charts-grid, .bottom-section { grid-template-columns: 1fr; }
         }
@@ -441,6 +400,7 @@
     <div class="dash-main">
 
         <!-- Unified Premium Header -->
+        <?php $header_theme_class = 'header-theme-dashboard'; ?>
         <?php include 'includes/header.php'; ?>
 
         <!-- Ultra Premium Quick Actions Grid -->

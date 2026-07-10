@@ -1,4 +1,4 @@
-﻿<header class="premium-header" style="display:flex; justify-content:space-between; align-items:center; padding:15px; margin-bottom:15px; gap:15px; border-radius: 16px;">
+<header class="premium-header <?php echo isset($header_theme_class) ? $header_theme_class : ''; ?>" style="display:flex; justify-content:space-between; align-items:center; gap:15px;">
     <!-- Left: Logo / Brand -->
     <div style="display:flex; align-items:center; gap:12px; flex:1;">
         <div style="background:linear-gradient(135deg,#10b981,#34d399); width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">📦</div>

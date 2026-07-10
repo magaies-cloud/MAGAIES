@@ -43,46 +43,7 @@
         .orb-3 { width: 600px; height: 600px; background: var(--theme-blue); top: 30%; left: 30%; animation-duration: 25s; opacity: 0.1; }
         @keyframes floatOrb { 0% { transform: translate(0, 0) scale(1); } 33% { transform: translate(30px, -50px) scale(1.1); } 66% { transform: translate(-30px, 30px) scale(0.9); } 100% { transform: translate(0, 0) scale(1); } }
 
-        
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
-        
-        .premium-header {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(99, 102, 241, 0.15), rgba(236, 72, 153, 0.15), rgba(16, 185, 129, 0.15));
-            background-size: 300% 300%;
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 12px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            height: 110px; box-sizing: border-box;
-            margin-bottom: 20px; width: 100%;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 1px rgba(0,0,0,0.3);
-            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1), animateGradient 12s ease infinite;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .premium-header::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 40%; height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg);
-            animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
-            pointer-events: none;
-        }
-
-        @keyframes animateGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        @keyframes shimmer {
-            0% { left: -100%; }
-            25% { left: 200%; }
-            100% { left: 200%; }
-        }
 
         .header-brand { display: flex; align-items: center; gap: 12px; }
         .brand-icon { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #38bdf8, #818cf8); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 6px 15px rgba(56, 189, 248, 0.4), inset 0 2px 5px rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2); }
@@ -1181,6 +1142,7 @@
         <div class="orb orb-3"></div>
     </div>
     
+    <?php $header_theme_class = 'header-theme-purchase'; ?>
     <?php include 'includes/header.php'; ?>
 
     <!-- ═══ PURCHASE HUB VIEW ═══ -->

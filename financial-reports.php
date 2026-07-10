@@ -52,28 +52,6 @@
             max-width: 1600px; margin: 0 auto; padding: 0px 30px 20px 30px;
         }
 
-        /* Premium Header */
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .premium-header {
-            background: linear-gradient(135deg, rgba(244, 63, 94, 0.15), rgba(249, 115, 22, 0.15), rgba(245, 158, 11, 0.15), rgba(251, 113, 133, 0.15));
-            background-size: 300% 300%;
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 12px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 1px rgba(0,0,0,0.3);
-            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1), animateGradient 12s ease infinite;
-            position: relative; overflow: hidden; margin-bottom: 40px;
-        }
-
-        .premium-header::after {
-            content: ''; position: absolute; top: 0; left: -100%; width: 40%; height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg); animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite; pointer-events: none;
-        }
-
-        @keyframes animateGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        @keyframes shimmer { 0% { left: -100%; } 25% { left: 200%; } 100% { left: 200%; } }
 
         .header-brand { display: flex; align-items: center; gap: 15px; }
         .brand-icon {
@@ -231,7 +209,7 @@
 
     <div class="hub-container">
         
-        <?php include 'includes/header.php'; ?>
+        <?php $header_theme_class = 'header-theme-reports'; include 'includes/header.php'; ?>
 
         <!-- 1. Treasury & Banks -->
         <h2 class="section-heading section-1"><span class="heading-icon" style="color:#38bdf8; box-shadow:0 0 15px rgba(56,189,248,0.2);">🏦</span> تقارير الخزينة والبنوك</h2>

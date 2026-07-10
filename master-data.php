@@ -49,46 +49,7 @@
         .dash-main { width: 96%; max-width: 1600px; margin: 0 auto; padding: 0px 0 20px 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; flex: 1; animation: fadeIn 0.8s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
-        
-        .premium-header {
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(217, 70, 239, 0.15), rgba(168, 85, 247, 0.15), rgba(192, 132, 252, 0.15));
-            background-size: 300% 300%;
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 12px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 1px rgba(0,0,0,0.3);
-            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1), animateGradient 12s ease infinite;
-            position: relative;
-            overflow: hidden;
-            margin: 0;
-        }
-
-        .premium-header::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 40%; height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg);
-            animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
-            pointer-events: none;
-        }
-
-        @keyframes animateGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        @keyframes shimmer {
-            0% { left: -100%; }
-            25% { left: 200%; }
-            100% { left: 200%; }
-        }
-        
 
         .header-brand { display: flex; align-items: center; gap: 12px; }
         .brand-icon { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #38bdf8, #818cf8); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 6px 15px rgba(56, 189, 248, 0.4), inset 0 2px 5px rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2); }
@@ -162,7 +123,6 @@
         table.pro-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
         
         @media (max-width: 768px) {
-            .premium-header { flex-direction: column; gap: 12px; }
             .header-controls { justify-content: center; width: 100%; flex-wrap: wrap; }
             .md-tabs-sidebar { padding: 8px; }
         }
@@ -223,7 +183,7 @@
     <div class="dash-main">
 
         <!-- Unified Premium Header -->
-        <?php include 'includes/header.php'; ?>
+        <?php $header_theme_class = 'header-theme-masterdata'; include 'includes/header.php'; ?>
 
         <aside class="md-tabs-sidebar">
             <button class="md-tab-btn active" onclick="openTab(event, 'tab-warehouses')"><span class="md-tab-icon">🏢</span> المخازن</button>
