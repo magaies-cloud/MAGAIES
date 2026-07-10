@@ -727,8 +727,8 @@ function renderCustomerDropdown(filter = '') {
             item.className = 'custom-dropdown-item';
             
             let displayText = c.name;
-            if (c.phone) displayText += ' <span style="font-size:0.8rem; color:#aaa;">(' + c.phone + ')</span>';
-            if (c.email) displayText += ' <span style="font-size:0.8rem; color:#888;">[' + c.email + ']</span>';
+            if (c.phone) displayText += ' <span style="font-size:0.9rem; color:#aaa;">(' + c.phone + ')</span>';
+            if (c.email) displayText += ' <span style="font-size:0.9rem; color:#888;">[' + c.email + ']</span>';
             
             item.innerHTML = displayText;
             item.onmousedown = () => selectCustomer(c.id, c.name); 

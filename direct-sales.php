@@ -281,7 +281,7 @@
         .grid-scroll-wrap { min-height: 350px !important; overflow: visible !important; }
 
         .custom-dropdown-item {
-            padding: 11px 15px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
+            padding: 11px 15px; cursor: pointer; font-size: 1.05rem; font-weight: 600;
             color: rgba(241, 245, 249, 0.9); border-bottom: 1px solid rgba(255,255,255,0.03);
             transition: all 0.2s ease;
             display: flex;
