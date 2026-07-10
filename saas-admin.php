@@ -1579,7 +1579,7 @@
                 const data = await res.json();
                 
                 if (!data.success) {
-                    alert('❌ خطأ في التشخيص: ' + (data.error || 'غير معروف') + (data.raw_error ? '\n\nتفاصيل إضافية:\n' + data.raw_error : ''));
+                    alert('❌ خطأ في التشخيص. الاستجابة الكاملة:\n\n' + JSON.stringify(data, null, 2));
                     if (statusText) {
                         statusText.innerText = '⚠️ مشكلة في الاتصال بالخدمة';
                         statusText.style.color = '#ef4444';
