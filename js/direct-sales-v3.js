@@ -59,21 +59,9 @@ let currentViewedInvoiceNo = null;
 // ════════════════════════════════════════
 //  HELPERS
 // ════════════════════════════════════════
-function fmtNum(n, colId = null) {
+function fmtNum(n) {
     if (n === 0 || n === '0' || !n) return '0';
-    
-    let decimals = 2; // default decimals
-    if (colId !== null) {
-        let decimalsObj = JSON.parse(localStorage.getItem('erp_sales_col_decimals_v4') || '{}');
-        if (decimalsObj[colId] !== undefined) {
-            decimals = parseInt(decimalsObj[colId]);
-        }
-    }
-    
-    return Number(n).toLocaleString('en-US', {
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals
-    });
+    return Number(n).toLocaleString('en-US');
 }
 function parseNum(str) {
     return parseFloat(String(str).replace(/,/g, '')) || 0;
@@ -244,12 +232,12 @@ function initSalesApp() {
 
         populateDropdowns();
         initHeader();
+        initResizableTable(); // Initialize resizable columns and renaming on the POS table
         
         if (rows.length === 0) {
             addRow(true);
             recalcAll();
         }
-        initTableResizer();
     } catch(globalErr) {
         console.error("Critical error during initSalesApp:", globalErr);
     }
@@ -1628,21 +1616,21 @@ function updateRowCalcs(id) {
     if (bundleEl) bundleEl.textContent = fmtNum(calcs.bundles);
     if (shilaEl) shilaEl.textContent = fmtNum(calcs.shilaQty);
     if (shilaRemEl) shilaRemEl.textContent = fmtNum(calcs.shilaRem);
-    if (priceEl && document.activeElement !== priceEl) priceEl.value = fmtNum(row.price, 4);
+    if (priceEl && document.activeElement !== priceEl) priceEl.value = fmtNum(row.price);
 
     const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
     const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
     let computedFcPrice = row.fcPrice !== undefined ? row.fcPrice : (isBaseSDG ? row.price / exRate : row.price * exRate);
     
-    if (fcPriceEl && document.activeElement !== fcPriceEl) fcPriceEl.value = fmtNum(computedFcPrice, 8);
-    if (totalFcEl) totalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0), 9);
+    if (fcPriceEl && document.activeElement !== fcPriceEl) fcPriceEl.value = fmtNum(computedFcPrice);
+    if (totalFcEl) totalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0));
 
     if (availEl) {
-        availEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty, 6);
+        availEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty);
         availEl.className = 'g-readonly ' + (calcs.availQty !== '—' && calcs.availQty < row.quantity ? 'warn-val' : 'avail-val');
     }
     if (remEl) {
-        remEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty - calcs.baseQty, 7);
+        remEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty - calcs.baseQty);
         remEl.className = 'g-readonly ' + (calcs.availQty !== '—' && (calcs.availQty - calcs.baseQty) < 0 ? 'warn-val' : 'rem-val');
     }
 
@@ -1713,12 +1701,12 @@ function renderGrid() {
                     ${itemUnitsHtml}
                 </select>
             </td>
-            <td><input type="text" inputmode="decimal" class="g-input" value="${row.quantity !== undefined ? fmtNum(row.quantity, 3) : ''}" placeholder="0"
+            <td><input type="text" inputmode="decimal" class="g-input" value="${row.quantity || ''}" placeholder="0"
                 onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)"
                 onblur="this.value=parseNum(this.value)||''; checkAutoAddRow(${row.id})"></td>
             <td>
                 <div style="display:flex; align-items:center; gap:4px;">
-                    <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price, 4)}"
+                    <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price)}"
                         onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
                         onblur="this.value=fmtNum(parseNum(this.value)); checkAutoAddRow(${row.id})" style="flex:1;">
                     <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'sales')" title="سجل أسعار الصنف للعميل" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:4px; padding:4px; border:1px solid rgba(56,189,248,0.2); cursor:pointer;">
@@ -1728,20 +1716,20 @@ function renderGrid() {
             </td>
             <td>
                 <div style="display:flex; align-items:center; gap:4px; justify-content:center;">
-                    <input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty, 5)}" placeholder="0"
+                    <input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
                         onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
                         onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700; width:100%;" tabindex="-1">
                     <span style="font-size:11px; color:var(--text-muted); white-space:nowrap;">${item ? item.baseUnit : ''}</span>
                 </div>
             </td>
-            <td><span class="g-readonly" data-avail="${row.id}" style="color:#0ea5e9; font-weight:bold; display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty, 6) : '—'}</span></td>
-            <td><span class="g-readonly" data-rem="${row.id}" style="color:#f59e0b; font-weight:bold; display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty - calcs.baseQty, 7) : '—'}</span></td>
+            <td><span class="g-readonly" data-avail="${row.id}" style="color:#0ea5e9; font-weight:bold; display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty) : '—'}</span></td>
+            <td><span class="g-readonly" data-rem="${row.id}" style="color:#f59e0b; font-weight:bold; display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty - calcs.baseQty) : '—'}</span></td>
             <td>
-                <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)), 8)}"
+                <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}"
                     onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
                     onblur="this.value=fmtNum(parseNum(this.value)); checkAutoAddRow(${row.id})" style="color:#10b981; font-weight:700;" tabindex="-1">
             </td>
-            <td><span class="g-readonly total-fc-val" style="color:#10b981; font-weight:bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0), 9)}</span></td>
+            <td><span class="g-readonly total-fc-val" style="color:#10b981; font-weight:bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0))}</span></td>
 
             <td class="td-wh">
                 <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1">
@@ -1750,7 +1738,7 @@ function renderGrid() {
                 </select>
             </td>
 
-            <td><span class="g-readonly total-val" style="color:var(--gold-primary); font-weight:bold;" data-total="${row.id}">${fmtNum(calcs.total, 11)}</span></td>
+            <td><span class="g-readonly total-val" style="color:var(--gold-primary); font-weight:bold;" data-total="${row.id}">${fmtNum(calcs.total)}</span></td>
 
             <td>
                 <div style="display: flex; gap: 5px; justify-content: center;">
@@ -1765,7 +1753,6 @@ function renderGrid() {
         `;
         if (window.reorderTds) window.reorderTds(tr);
         tbody.appendChild(tr);
-        if (window.applyColumnStyles) window.applyColumnStyles();
 
         // ── Mobile Card ──
         const card = document.createElement('div');
@@ -3597,131 +3584,232 @@ function submitInvoiceSplit() {
     showSalesHub();
 }
 
-function initTableResizer() {
+// ═══════════════════════════════════════════════════════════════
+//  SMOOTH DRAG-TO-RESIZE & DOUBLE-CLICK AUTO-FIT & RENAME COLUMNS
+// ═══════════════════════════════════════════════════════════════
+function initResizableTable() {
     const table = document.getElementById('pos-grid');
     if (!table) return;
-
-    const cols = table.querySelectorAll('thead th');
     
-    cols.forEach((col, index) => {
-        if (index === cols.length - 1) return; // Skip delete column
-
-        if (col.querySelector('.resizer')) return;
-
-        const resizer = document.createElement('div');
-        resizer.className = 'resizer';
-        resizer.style.position = 'absolute';
-        resizer.style.top = '0';
-        resizer.style.left = '0'; // RTL left boundary
-        resizer.style.width = '6px';
-        resizer.style.height = '100%';
-        resizer.style.cursor = 'col-resize';
-        resizer.style.userSelect = 'none';
-        resizer.style.zIndex = '10';
-        resizer.style.transition = 'background 0.2s';
-        
-        resizer.addEventListener('mouseover', () => {
-            resizer.style.background = 'rgba(56, 189, 248, 0.5)';
-        });
-        resizer.addEventListener('mouseout', () => {
-            if (!resizer.classList.contains('resizing')) {
-                resizer.style.background = '';
+    // 1. Inject styling for column handles and rename inputs if not already present
+    if (!document.getElementById('resizable-table-styles')) {
+        const style = document.createElement('style');
+        style.id = 'resizable-table-styles';
+        style.innerHTML = `
+            #pos-grid {
+                table-layout: fixed !important;
+                width: 100% !important;
             }
-        });
+            #pos-grid th {
+                position: relative;
+                user-select: none;
+            }
+            .col-resize-handle {
+                position: absolute;
+                right: 0;
+                top: 0;
+                width: 6px;
+                height: 100%;
+                cursor: col-resize;
+                user-select: none;
+                z-index: 10;
+                transition: background-color 0.2s;
+            }
+            .col-resize-handle:hover, .col-resize-handle.resizing {
+                background-color: rgba(56, 189, 248, 0.6) !important;
+            }
+            .th-rename-input {
+                position: absolute;
+                top: 2px;
+                left: 2px;
+                width: calc(100% - 4px);
+                height: calc(100% - 4px);
+                box-sizing: border-box;
+                background: #0f172a;
+                color: #ffffff;
+                border: 2px solid #38bdf8;
+                border-radius: 4px;
+                text-align: center;
+                font-family: 'Tajawal', sans-serif;
+                font-weight: bold;
+                z-index: 100;
+            }
+            :root.light-theme .th-rename-input {
+                background: #ffffff;
+                color: #000000;
+                border: 2px solid #000000;
+            }
+        `;
+        document.head.appendChild(style);
+    }
 
-        resizer.addEventListener('dblclick', (e) => {
-            e.stopPropagation();
-            autoFitColumn(table, index);
-        });
+    const headers = table.querySelectorAll('thead th');
+    
+    // Load custom header labels from localStorage
+    let customLabels = {};
+    try {
+        customLabels = JSON.parse(localStorage.getItem('pos_grid_header_labels')) || {};
+    } catch(e) { console.error(e); }
 
-        col.style.position = 'relative';
-        col.appendChild(resizer);
+    // Load custom column widths from localStorage
+    let customWidths = {};
+    try {
+        customWidths = JSON.parse(localStorage.getItem('pos_grid_column_widths')) || {};
+    } catch(e) { console.error(e); }
+
+    headers.forEach((th, index) => {
+        // Skip last delete column handle
+        const isDeleteCol = th.classList.contains('th-del') || index === headers.length - 1;
+        
+        // Restore custom label if exists
+        const colId = th.getAttribute('data-col-id') || String(index);
+        if (customLabels[colId]) {
+            th.textContent = customLabels[colId];
+        }
+
+        // Restore custom width if exists
+        if (customWidths[colId]) {
+            th.style.width = customWidths[colId];
+        }
+
+        // Double click to rename column header (only on the text part, not delete column)
+        if (!isDeleteCol) {
+            th.title = "اسحب الطرف لتغيير العرض، أو انقر مزدوجاً على الاسم لتعديله";
+            
+            // Clean up old double click to prevent duplicates
+            th.ondblclick = null;
+            th.addEventListener('dblclick', function(e) {
+                if (e.target.classList.contains('col-resize-handle')) return;
+                
+                const currentText = th.textContent.replace('📖', '').trim();
+                const newName = prompt('أدخل التسمية الجديدة لهذا العمود:', currentText);
+                if (newName !== null && newName.trim() !== '') {
+                    th.textContent = newName.trim();
+                    customLabels[colId] = newName.trim();
+                    localStorage.setItem('pos_grid_header_labels', JSON.stringify(customLabels));
+                    // Re-append the resize handle
+                    createResizeHandle(th, index);
+                }
+            });
+        }
+
+        // Create resize handle
+        createResizeHandle(th, index);
+    });
+
+    function createResizeHandle(th, index) {
+        // Remove existing handle if any
+        const oldHandle = th.querySelector('.col-resize-handle');
+        if (oldHandle) oldHandle.remove();
+
+        const isLastCol = index === headers.length - 1;
+        if (isLastCol) return; // No resize handle on the very last column
+
+        const handle = document.createElement('div');
+        handle.className = 'col-resize-handle';
+        th.appendChild(handle);
 
         let startX, startWidth;
 
-        resizer.addEventListener('mousedown', (e) => {
+        handle.addEventListener('mousedown', function(e) {
             e.preventDefault();
             e.stopPropagation();
             
-            resizer.classList.add('resizing');
-            resizer.style.background = '#38bdf8';
+            startX = e.pageX;
+            startWidth = th.offsetWidth;
+            handle.classList.add('resizing');
 
-            startX = e.clientX;
-            
-            cols.forEach(c => {
-                c.style.width = c.getBoundingClientRect().width + 'px';
-            });
+            function onMouseMove(moveEvent) {
+                const delta = moveEvent.pageX - startX;
+                const newWidth = Math.max(40, startWidth + delta);
+                th.style.width = newWidth + 'px';
+            }
 
-            startWidth = col.getBoundingClientRect().width;
-
-            const onMouseMove = (moveEvent) => {
-                const deltaX = startX - moveEvent.clientX; // RTL calculation
-                const newWidth = Math.max(40, startWidth + deltaX);
-                col.style.width = newWidth + 'px';
-            };
-
-            const onMouseUp = () => {
-                resizer.classList.remove('resizing');
-                resizer.style.background = '';
+            function onMouseUp() {
+                handle.classList.remove('resizing');
                 document.removeEventListener('mousemove', onMouseMove);
                 document.removeEventListener('mouseup', onMouseUp);
-            };
+
+                // Save new widths to localStorage
+                const currentWidths = {};
+                headers.forEach((h, idx) => {
+                    const cId = h.getAttribute('data-col-id') || String(idx);
+                    currentWidths[cId] = h.style.width || (h.offsetWidth + 'px');
+                });
+                localStorage.setItem('pos_grid_column_widths', JSON.stringify(currentWidths));
+            }
 
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp);
         });
-    });
-}
 
-function autoFitColumn(table, colIndex) {
-    const th = table.querySelectorAll('thead th')[colIndex];
-    if (!th) return;
-
-    const dummy = document.createElement('span');
-    dummy.style.visibility = 'hidden';
-    dummy.style.position = 'absolute';
-    dummy.style.whiteSpace = 'nowrap';
-    dummy.style.font = window.getComputedStyle(th).font;
-    document.body.appendChild(dummy);
-
-    dummy.textContent = th.textContent.trim();
-    let maxWidth = dummy.offsetWidth + 30;
-
-    const rows = table.querySelectorAll('tbody tr');
-    rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        if (cells && cells[colIndex]) {
-            const cell = cells[colIndex];
+        // Double click on resize handle -> Auto-fit column to content!
+        handle.addEventListener('dblclick', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             
-            const input = cell.querySelector('input');
-            const select = cell.querySelector('select');
-            
-            let text = '';
-            if (input) {
-                text = input.value || input.placeholder || '';
-            } else if (select) {
-                const opt = select.options[select.selectedIndex];
-                text = opt ? opt.textContent : '';
-            } else {
-                text = cell.textContent || '';
+            autoFitColumn(th, index);
+        });
+    }
+
+    function autoFitColumn(th, colIndex) {
+        let maxWidth = 45; // Minimum size safety
+        
+        // Create a temporary span to measure text width
+        const tempSpan = document.createElement('span');
+        tempSpan.style.visibility = 'hidden';
+        tempSpan.style.position = 'absolute';
+        tempSpan.style.whiteSpace = 'nowrap';
+        tempSpan.style.fontFamily = getComputedStyle(th).fontFamily;
+        tempSpan.style.fontSize = getComputedStyle(th).fontSize;
+        tempSpan.style.fontWeight = getComputedStyle(th).fontWeight;
+        document.body.appendChild(tempSpan);
+
+        // Measure header text
+        tempSpan.textContent = th.textContent.replace('📖', '').trim();
+        maxWidth = Math.max(maxWidth, tempSpan.offsetWidth + 25);
+
+        // Measure body cells
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(tr => {
+            const cells = tr.querySelectorAll('td');
+            if (cells[colIndex]) {
+                const cell = cells[colIndex];
+                const inputs = cell.querySelectorAll('input, select');
+                if (inputs.length > 0) {
+                    inputs.forEach(input => {
+                        tempSpan.style.fontSize = getComputedStyle(input).fontSize;
+                        tempSpan.style.fontWeight = getComputedStyle(input).fontWeight;
+                        
+                        if (input.tagName === 'SELECT') {
+                            const selectedOption = input.options[input.selectedIndex];
+                            tempSpan.textContent = selectedOption ? selectedOption.textContent : '';
+                        } else {
+                            tempSpan.textContent = input.value || input.placeholder || '';
+                        }
+                        maxWidth = Math.max(maxWidth, tempSpan.offsetWidth + 30);
+                    });
+                } else {
+                    tempSpan.style.fontSize = getComputedStyle(cell).fontSize;
+                    tempSpan.style.fontWeight = getComputedStyle(cell).fontWeight;
+                    tempSpan.textContent = cell.textContent.trim();
+                    maxWidth = Math.max(maxWidth, tempSpan.offsetWidth + 20);
+                }
             }
-            
-            dummy.style.font = window.getComputedStyle(cell).font;
-            dummy.textContent = text.trim();
-            const cellWidth = dummy.offsetWidth + 35;
-            if (cellWidth > maxWidth) {
-                maxWidth = cellWidth;
-            }
-        }
-    });
+        });
 
-    document.body.removeChild(dummy);
+        document.body.removeChild(tempSpan);
 
-    const cols = table.querySelectorAll('thead th');
-    cols.forEach(c => {
-        c.style.width = c.getBoundingClientRect().width + 'px';
-    });
+        const finalWidth = Math.min(500, Math.max(50, maxWidth));
+        th.style.width = finalWidth + 'px';
 
-    th.style.width = Math.max(50, maxWidth) + 'px';
+        // Save new widths to localStorage
+        const currentWidths = {};
+        headers.forEach((h, idx) => {
+            const cId = h.getAttribute('data-col-id') || String(idx);
+            currentWidths[cId] = h.style.width || (h.offsetWidth + 'px');
+        });
+        localStorage.setItem('pos_grid_column_widths', JSON.stringify(currentWidths));
+    }
 }
 
