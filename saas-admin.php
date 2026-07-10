@@ -880,8 +880,7 @@
                 <button class="btn-danger" id="admin-wa-logout-btn" style="display: none; padding: 10px 20px; background: #ef4444; border: none; font-weight: bold; color: #ffffff; border-radius: 8px; cursor: pointer; flex: 1; min-width: 120px;" onclick="logoutAdminWhatsApp()">إلغاء الربط</button>
                 <button class="btn-outline" id="admin-wa-refresh-btn" style="padding: 10px 20px; border-radius: 8px; cursor: pointer; flex: 1; min-width: 120px;" onclick="checkAdminWhatsAppConnection()">تحديث الحالة</button>
                 <button class="btn-outline" id="admin-wa-restart-btn" style="display: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; flex: 1; min-width: 120px; border-color: #f59e0b; color: #f59e0b;" onclick="restartAdminWhatsApp()">🔄 إعادة تشغيل الخدمة</button>
-                <button class="btn-outline" id="admin-wa-diagnose-btn" style="padding: 8px 15px; border-radius: 8px; cursor: pointer; min-width: 100px; border-color: #38bdf8; color: #38bdf8; font-size: 0.85rem;" onclick="diagnoseWhatsApp()">🔍 تشخيص</button>
-                <button class="btn-outline" id="admin-wa-lock-toggle-btn" style="padding: 8px 15px; border-radius: 8px; cursor: pointer; min-width: 130px; font-weight: bold; font-size: 0.85rem;" onclick="toggleWhatsAppLock()">⏳ فحص القفل...</button>
+
                 <button class="btn-primary" id="admin-wa-close-btn" style="display: none; padding: 10px 20px; background: #25d366; border: none; font-weight: bold; color: #ffffff; border-radius: 8px; cursor: pointer; flex: 1; min-width: 120px;" onclick="closeModal('admin-wa-modal')">إغلاق النافذة</button>
             </div>
         </div>
@@ -1354,7 +1353,6 @@
         async function openAdminWhatsAppModal() {
             document.getElementById('admin-wa-modal').style.display = 'flex';
             checkAdminWhatsAppConnection();
-            checkWhatsAppLockStatus();
         }
 
         async function checkAdminWhatsAppConnection(isSilent = false) {
@@ -1566,123 +1564,9 @@
             }
         }
 
-        async function diagnoseWhatsApp() {
-            const statusText = document.getElementById('admin-wa-status-text');
-            if (statusText) {
-                statusText.innerText = '🔍 جاري تشخيص اتصال السيرفر بسيرفرات واتساب...';
-                statusText.style.color = '#38bdf8';
-            }
-            try {
-                const res = await fetch(apiUrl('saas', 'wa-proxy', 'diagnose'), {
-                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
-                });
-                const data = await res.json();
-                
-                if (!data.success) {
-                    alert('❌ خطأ في التشخيص. الاستجابة الكاملة:\n\n' + JSON.stringify(data, null, 2));
-                    if (statusText) {
-                        statusText.innerText = '⚠️ مشكلة في الاتصال بالخدمة';
-                        statusText.style.color = '#ef4444';
-                    }
-                    return;
-                }
-                
-                let report = '📊 نتائج التشخيص:\n\n';
-                report += `🖥️ Node.js: ${data.nodeVersion} | ${data.platform}/${data.arch}\n`;
-                
-                if (data.tests) {
-                    report += `\n🌐 DNS (web.whatsapp.com): ${data.tests.dns?.success ? '✅ نجح' : '❌ فشل - ' + (data.tests.dns?.error || '')}\n`;
-                    report += `🔒 HTTPS: ${data.tests.https?.success ? '✅ نجح (HTTP ' + data.tests.https.statusCode + ')' : '❌ فشل - ' + (data.tests.https?.error || '')}\n`;
-                    report += `🔌 WebSocket: ${data.tests.websocket?.success ? '✅ نجح' : '❌ فشل - ' + (data.tests.websocket?.error || '')}\n`;
-                    report += `📁 مجلد المصادقة: ${data.tests.authFolder?.success ? '✅ يعمل (' + data.tests.authFolder.files + ' ملفات)' : '❌ فشل - ' + (data.tests.authFolder?.error || '')}\n`;
-                }
-                
-                if (data.summary) {
-                    report += '\n' + data.summary;
-                }
-                
-                alert(report);
-                
-                if (statusText) {
-                    if (data.tests?.websocket?.success) {
-                        statusText.innerText = '✅ اتصال السيرفر بواتساب يعمل - أعد المحاولة';
-                        statusText.style.color = '#10b981';
-                    } else {
-                        statusText.innerText = '⚠️ مشكلة في اتصال السيرفر بسيرفرات واتساب';
-                        statusText.style.color = '#ef4444';
-                    }
-                }
-            } catch(e) {
-                if (statusText) {
-                    statusText.innerText = '❌ فشل التشخيص: ' + e.message;
-                    statusText.style.color = '#ef4444';
-                }
-            }
-        }
-
-        let currentWaLockStatus = false;
-
-        async function checkWhatsAppLockStatus() {
-            const btn = document.getElementById('admin-wa-lock-toggle-btn');
-            try {
-                const res = await fetch(apiUrl('saas', 'wa-lock-status'), {
-                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
-                });
-                const data = await res.json();
-                if (data.success) {
-                    currentWaLockStatus = data.isLocked;
-                    updateLockBtnUI();
-                }
-            } catch(e) {
-                console.error('Failed to get lock status', e);
-            }
-        }
-
-        function updateLockBtnUI() {
-            const btn = document.getElementById('admin-wa-lock-toggle-btn');
-            if (currentWaLockStatus) {
-                btn.innerHTML = '🔒 الملف مقفول ومحمي';
-                btn.style.borderColor = '#10b981'; // Green for safe
-                btn.style.color = '#10b981';
-                btn.style.background = 'rgba(16, 185, 129, 0.1)';
-            } else {
-                btn.innerHTML = '🔓 الملف مفتوح للتحديثات';
-                btn.style.borderColor = '#ef4444'; // Red for exposed
-                btn.style.color = '#ef4444';
-                btn.style.background = 'rgba(239, 68, 68, 0.1)';
-            }
-        }
-
-        async function toggleWhatsAppLock() {
-            const shouldLock = !currentWaLockStatus;
-            const action = shouldLock ? 'wa-lock' : 'wa-unlock';
-            const btn = document.getElementById('admin-wa-lock-toggle-btn');
-            
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = '⌛ جاري التنفيذ...';
-            btn.disabled = true;
-            
-            try {
-                const res = await fetch(apiUrl('saas', action), {
-                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
-                });
-                const data = await res.json();
-                
-                if (data.success) {
-                    currentWaLockStatus = shouldLock;
-                    updateLockBtnUI();
-                    alert(data.message || (shouldLock ? 'تم قفل الملف بنجاح' : 'تم فك قفل الملف بنجاح'));
-                } else {
-                    alert('❌ ' + (data.message || data.error || 'خطأ غير معروف'));
-                    updateLockBtnUI();
-                }
-            } catch (e) {
-                alert('❌ تعذر الاتصال بالسيرفر: ' + e.message);
-                updateLockBtnUI();
-            } finally {
-                btn.disabled = false;
-            }
-        }
+        // diagnoseWhatsApp and lock toggle functions removed — no longer needed
+        // Connection is now stable with single-process enforcement
+        // Deployment handles file locking automatically via deploy.yml
 
 
         let chartRegistrations = null;

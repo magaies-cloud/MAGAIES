@@ -32,10 +32,10 @@ const KEEPALIVE_INTERVAL_MS  = 300_000;  // 5m presence ping (avoid rate limitin
 const WATCHDOG_INTERVAL_MS   = 60_000;   // 60s health check
 const INIT_COOLDOWN_MS       = 3_000;    // min gap between init attempts
 const QR_TIMEOUT_MS          = 120_000;  // 2min — give up if QR not scanned
-const BACKOFF_BASE_MS        = 2_000;
+const BACKOFF_BASE_MS        = 2_000;    // (unused — flat delay used instead)
 const HEALER_INTERVAL_MS     = 180_000;  // 3min — auto-healer cycle
 const HEALER_MAX_LOG         = 50;       // keep last 50 healer actions
-const BACKOFF_MAX_MS         = 60_000;
+const BACKOFF_MAX_MS         = 60_000;   // (unused — flat delay used instead)
 
 // ─── Logging ───────────────────────────────────────────────────
 function log(tag, ...args) {
@@ -165,15 +165,14 @@ class WhatsAppClient {
         }
     }
 
-    // ─── Reconnect with exponential backoff ────────────────────
+    // ─── Reconnect with flat delay for fast recovery ────────────
     _scheduleReconnect(overrideDelayMs) {
         if (this._isDestroying) return;
         if (this.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
-            logErr(this.userId, `Max reconnect attempts (${MAX_RECONNECT_ATTEMPTS}) reached. Retrying again in 10s.`);
+            logErr(this.userId, `Max reconnect attempts (${MAX_RECONNECT_ATTEMPTS}) reached. Going to FAILED state.`);
             this._setState('FAILED');
-            this.reconnectAttempts = 0;
-            if (this._reconnectTimer) clearTimeout(this._reconnectTimer);
-            this._reconnectTimer = setTimeout(() => this.init(), 10_000);
+            // Do NOT reset attempts or schedule another retry here.
+            // The AutoHealer will handle FAILED clients after a cooling period.
             return;
         }
 
@@ -395,11 +394,12 @@ class WhatsAppClient {
 
             switch (code) {
                 case DisconnectReason.loggedOut:
-                    log(this.userId, 'Disconnected with code 401 (Logged Out) — Keeping auth for manual recovery or retry.');
+                    log(this.userId, 'Disconnected with code 401 (Logged Out) — session invalidated. Requires manual re-link.');
                     this._setState('LOGGED_OUT');
                     this.phoneNumber = null;
                     this.reconnectAttempts = 0;
-                    this._scheduleReconnect(10_000); // Try to reconnect after 10s (prevents accidental logout on glitch)
+                    // Do NOT auto-reconnect on 401 — the session is permanently invalidated.
+                    // The user must re-scan the QR code to re-link.
                     break;
 
                 case DisconnectReason.restartRequired:
@@ -408,10 +408,10 @@ class WhatsAppClient {
                     break;
 
                 case DisconnectReason.multideviceMismatch:
-                    log(this.userId, 'Multi-device mismatch — Keeping auth for manual recovery.');
+                    log(this.userId, 'Multi-device mismatch — requires manual re-link.');
                     this._setState('DISCONNECTED');
                     this.reconnectAttempts = 0;
-                    this._scheduleReconnect(10_000);
+                    // Do NOT auto-reconnect — multi-device mismatch requires user action.
                     break;
 
                 case DisconnectReason.connectionReplaced:
@@ -435,13 +435,7 @@ class WhatsAppClient {
         try {
             if (fs.existsSync(this.authFolder)) {
                 fs.rmSync(this.authFolder, { recursive: true, force: true });
-                log(this.userId, 'Auth folder deleted');
-            }
-            // Also delete backup if it exists
-            const bakPath = path.join(this.authFolder, 'creds.json.bak');
-            if (fs.existsSync(bakPath)) {
-                fs.unlinkSync(bakPath);
-                log(this.userId, 'Backup credentials deleted');
+                log(this.userId, 'Auth folder deleted (including all backups)');
             }
         } catch (e) {
             logErr(this.userId, 'Failed to delete auth folder:', e.message);
@@ -594,11 +588,15 @@ class AutoHealer {
         if (this.timer) return;
         log('🤖 HEALER', '🟢 Auto-healer started (cycle: every 3 min)');
         // Run first check after 30s, then every HEALER_INTERVAL_MS
-        setTimeout(() => this._runCycle(), 30_000);
+        this._initialTimer = setTimeout(() => this._runCycle(), 30_000);
         this.timer = setInterval(() => this._runCycle(), HEALER_INTERVAL_MS);
     }
 
     stop() {
+        if (this._initialTimer) {
+            clearTimeout(this._initialTimer);
+            this._initialTimer = null;
+        }
         if (this.timer) {
             clearInterval(this.timer);
             this.timer = null;
@@ -623,8 +621,13 @@ class AutoHealer {
     async _healClient(client) {
         const { userId, status, socket } = client;
 
-        // ── Case 1: FAILED — restart the client ──
+        // Guard: never touch a client that is being destroyed
+        if (client._isDestroying) return;
+
+        // ── Case 1: FAILED — restart the client (only if no pending reconnect timer) ──
         if (status === 'FAILED') {
+            // Only act if there's no reconnect timer already pending
+            if (client._reconnectTimer) return;
             this._log(userId, 'AUTO_RESTART', 'Status was FAILED → restarting');
             this.stats.fixes++;
             client._clearAllTimers();
@@ -638,9 +641,11 @@ class AutoHealer {
             return;
         }
 
-        // ── Case 2: IDLE but should be running — init it ──
+        // ── Case 2: IDLE — only auto-init if auth folder exists (user previously linked) ──
         if (status === 'IDLE') {
-            this._log(userId, 'AUTO_INIT', 'Status was IDLE → initializing');
+            const credsPath = path.join(client.authFolder, 'creds.json');
+            if (!fs.existsSync(credsPath)) return; // User never linked — don't force init
+            this._log(userId, 'AUTO_INIT', 'Status was IDLE with existing auth → initializing');
             this.stats.fixes++;
             await client.init();
             return;
@@ -749,11 +754,7 @@ app.use(express.json({ limit: '50mb' }));
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 const upload = multer({ dest: UPLOADS_DIR });
 
-// ─── Global error handler for Express ──────────────────────────
-app.use((err, _req, res, _next) => {
-    logErr('EXPRESS', 'Unhandled route error:', err.message);
-    res.status(500).json({ success: false, error: 'Internal server error' });
-});
+// (Error handler moved after routes — see bottom of file)
 
 
 // ── GET /wa/status ─────────────────────────────────────────────
@@ -935,9 +936,13 @@ app.get('/wa/diagnose', async (_req, res) => {
 
 
 // ── GET /wa/healer ─────────────────────────────────────────────
-app.get('/wa/healer', (_req, res) => {
-    healer.forceCheck();
-    res.json({ success: true, message: 'Healer triggered manually' });
+app.get('/wa/healer', async (_req, res) => {
+    try {
+        await healer._runCycle();
+        res.json({ success: true, message: 'Healer cycle triggered manually' });
+    } catch (e) {
+        res.json({ success: false, error: e.message });
+    }
 });
 
 // ── POST /wa/healer/toggle ─────────────────────────────────────
