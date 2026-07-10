@@ -596,10 +596,6 @@
     <?php include 'includes/header.php'; ?>
 
     <!-- Desktop/Mobile Premium Reports Bento Grid (Rearranged under header) -->
-    <h2 class="section-heading" style="color: #38bdf8; font-size: 1.4rem; margin: 30px 0 20px 0; display: flex; align-items: center; gap: 12px; animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);">
-        <span class="heading-icon" style="color:#38bdf8; box-shadow:0 0 15px rgba(56,189,248,0.2);">📊</span>
-        التقارير المحاسبية والمالية الرئيسية
-    </h2>
     <div class="quick-reports-grid" style="animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);">
         <!-- 1. General Ledger -->
         <a href="general-ledger.php" class="quick-report-card" style="--glow-color: rgba(251, 191, 36, 0.65); --glow-bg: rgba(251, 191, 36, 0.12);">
