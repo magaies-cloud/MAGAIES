@@ -598,6 +598,31 @@ if ($token === $saasSecret) {
             exit;
         }
 
+        if ($action === 'wa-kill') {
+            $output = [];
+            $retCode = 0;
+            if (stristr(PHP_OS, 'WIN')) {
+                @exec('wmic process where "name=\'node.exe\' and commandline like \'%whatsapp-service%\'" call terminate 2>&1', $output, $retCode);
+            } else {
+                @exec('pkill -f "whatsapp-service\.(mjs|js)" 2>&1', $output, $retCode);
+                $pids = @shell_exec('pgrep -f "whatsapp-service\.(mjs|js)" 2>/dev/null');
+                if (!empty(trim($pids))) {
+                    $pidArr = explode("\n", trim($pids));
+                    foreach ($pidArr as $pid) {
+                        if (is_numeric($pid)) {
+                            @exec("kill -9 $pid 2>&1");
+                        }
+                    }
+                }
+            }
+            jsonResponse([
+                'success' => true,
+                'message' => 'تم إنهاء جميع العمليات المتكررة بنجاح وتنظيف السيرفر.',
+                'output' => implode("\n", $output)
+            ]);
+            exit;
+        }
+
         if ($action === 'wa-logs') {
             $logFile = __DIR__ . '/whatsapp-service.log';
             if (file_exists($logFile)) {
