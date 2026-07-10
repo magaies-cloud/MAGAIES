@@ -1578,6 +1578,15 @@
                 });
                 const data = await res.json();
                 
+                if (!data.success) {
+                    alert('❌ خطأ في التشخيص: ' + (data.error || 'غير معروف') + (data.raw_error ? '\n\nتفاصيل إضافية:\n' + data.raw_error : ''));
+                    if (statusText) {
+                        statusText.innerText = '⚠️ مشكلة في الاتصال بالخدمة';
+                        statusText.style.color = '#ef4444';
+                    }
+                    return;
+                }
+                
                 let report = '📊 نتائج التشخيص:\n\n';
                 report += `🖥️ Node.js: ${data.nodeVersion} | ${data.platform}/${data.arch}\n`;
                 
