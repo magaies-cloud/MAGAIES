@@ -485,7 +485,45 @@
             gap: 24px;
             animation: detailSlide 0.35s cubic-bezier(0.16,1,0.3,1);
         }
+        .detail-full-width { grid-column: span 2; }
         @keyframes detailSlide { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Checks Mini Table */
+        .checks-mini-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 8px; }
+        .checks-mini-table thead th {
+            background: rgba(245, 158, 11, 0.08);
+            color: var(--accent-gold-light);
+            padding: 8px 10px;
+            font-weight: 700;
+            text-align: right;
+            border-bottom: 1px solid rgba(245,158,11,0.2);
+            font-size: 0.78rem;
+        }
+        .checks-mini-table tbody td {
+            padding: 7px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            color: #cbd5e1;
+        }
+        .checks-mini-table tbody tr:hover { background: rgba(245,158,11,0.05); }
+        .check-status-badge {
+            display: inline-block; padding: 2px 8px; border-radius: 6px;
+            font-size: 0.72rem; font-weight: 700;
+        }
+        .check-status-safe { background: rgba(56,189,248,0.12); color: #38bdf8; }
+        .check-status-collecting { background: rgba(245,158,11,0.12); color: #fbbf24; }
+        .check-status-cleared { background: rgba(52,211,153,0.12); color: #34d399; }
+        .check-status-bounced { background: rgba(239,68,68,0.12); color: #f87171; }
+
+        /* Credit Account Summary */
+        .credit-summary-cards {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 10px;
+        }
+        .credit-mini-card {
+            background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px; padding: 12px; text-align: center;
+        }
+        .credit-mini-card .cmc-label { font-size: 0.75rem; color: #64748b; margin-bottom: 4px; }
+        .credit-mini-card .cmc-val { font-size: 1.1rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
 
         .detail-section h4 {
             font-size: 0.9rem;
@@ -994,6 +1032,23 @@ function loadData() {
         .filter(x => !x.deleted);
     allSingleReceipts = (JSON.parse(localStorage.getItem('erp_single_receipts_v1') || '[]'))
         .filter(x => !x.deleted);
+
+    // Load checks database for customer check details
+    const checksRaw = JSON.parse(localStorage.getItem('erp_checks_v1') || '[]');
+    // Also support the mock checksDB format from checks-cycle.js
+    if (checksRaw.length > 0) {
+        window._checksDB = checksRaw;
+    } else {
+        // Fallback: load from the global checksDB if checks-cycle.js was loaded on another page
+        window._checksDB = [
+            { id: 'CHQ-9902', type: 'incoming', partner: 'شريهان أحمد', bank: 'بنك الخرطوم', amount: 45000.00, dueDate: '2026-05-15', status: 'في الخزنة' },
+            { id: 'CHQ-9903', type: 'incoming', partner: 'محمد الفاتح', bank: 'بنك أمدرمان الوطني', amount: 12000.50, dueDate: '2026-05-10', status: 'برسم التحصيل' },
+            { id: 'CHQ-9904', type: 'incoming', partner: 'شركة الرواد', bank: 'بنك فيصل الإسلامي', amount: 85000.00, dueDate: '2026-05-20', status: 'محصل' },
+            { id: 'CHQ-9905', type: 'incoming', partner: 'أحمد كمال', bank: 'بنك الخرطوم', amount: 3000.00, dueDate: '2026-05-01', status: 'مرتجع' },
+            { id: 'OUT-1001', type: 'outgoing', partner: 'مورد التقنية', bank: 'بنك النيلين', amount: 50000.00, dueDate: '2026-06-01', status: 'غير مسحوب' },
+            { id: 'OUT-1002', type: 'outgoing', partner: 'الشركة العالمية', bank: 'بنك فيصل الإسلامي', amount: 120000.00, dueDate: '2026-05-25', status: 'مسحوب' }
+        ];
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1412,6 +1467,86 @@ function renderDetail(idx) {
         timelineHtml = '<div style="color:#64748b; text-align:center; padding:20px;">لا توجد حركات مسجلة</div>';
     }
 
+    // Checks for this customer
+    const customerChecks = getCustomerChecks(d.name);
+    let checksHtml = '';
+    if (customerChecks.length > 0) {
+        const totalChecks = customerChecks.reduce((s, c) => s + (c.amount || 0), 0);
+        checksHtml = `
+            <div class="detail-section detail-full-width">
+                <h4>🧾 الشيكات الواردة من العميل (${customerChecks.length} شيك — إجمالي: <span class="num">${fmtNum(totalChecks)}</span>)</h4>
+                <table class="checks-mini-table">
+                    <thead>
+                        <tr>
+                            <th>رقم الشيك</th>
+                            <th>البنك</th>
+                            <th>المبلغ</th>
+                            <th>تاريخ الاستحقاق</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${customerChecks.map(c => `
+                            <tr>
+                                <td style="font-weight:700; font-family:'JetBrains Mono',monospace;">${c.id}</td>
+                                <td>${c.bank || '-'}</td>
+                                <td class="num" style="font-weight:700; color:#fbbf24;">${fmtNum(c.amount)}</td>
+                                <td class="num" style="color:#94a3b8;">${c.dueDate || '-'}</td>
+                                <td><span class="check-status-badge ${getCheckStatusClass(c.status)}">${c.status}</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    } else {
+        checksHtml = `
+            <div class="detail-section detail-full-width">
+                <h4>🧾 الشيكات الواردة من العميل</h4>
+                <div style="color:#64748b; text-align:center; padding:15px; font-size:0.85rem;">لا توجد شيكات مسجلة لهذا العميل</div>
+            </div>
+        `;
+    }
+
+    // Credit account summary
+    const creditSales = d.recentTxns.filter(t => t.type === 'sale');
+    const creditReceipts = d.recentTxns.filter(t => t.type === 'receipt');
+    const checksCleared = customerChecks.filter(c => c.status === 'محصل').reduce((s, c) => s + (c.amount || 0), 0);
+    const checksPending = customerChecks.filter(c => c.status !== 'محصل' && c.status !== 'مرتجع').reduce((s, c) => s + (c.amount || 0), 0);
+    const checksBounced = customerChecks.filter(c => c.status === 'مرتجع').reduce((s, c) => s + (c.amount || 0), 0);
+
+    let creditHtml = `
+        <div class="detail-section detail-full-width">
+            <h4>💳 ملخص الحساب الآجل والتحصيل</h4>
+            <div class="credit-summary-cards">
+                <div class="credit-mini-card">
+                    <div class="cmc-label">إجمالي المبيعات الآجلة</div>
+                    <div class="cmc-val" style="color:#f87171;">${fmtNum(d.totalSales)}</div>
+                </div>
+                <div class="credit-mini-card">
+                    <div class="cmc-label">المسدد نقداً + تحويلات</div>
+                    <div class="cmc-val" style="color:#34d399;">${fmtNum(d.totalPaid)}</div>
+                </div>
+                <div class="credit-mini-card">
+                    <div class="cmc-label">المسدد بشيكات (محصلة)</div>
+                    <div class="cmc-val" style="color:#38bdf8;">${fmtNum(checksCleared)}</div>
+                </div>
+                <div class="credit-mini-card">
+                    <div class="cmc-label">شيكات قيد التحصيل</div>
+                    <div class="cmc-val" style="color:#fbbf24;">${fmtNum(checksPending)}</div>
+                </div>
+                <div class="credit-mini-card">
+                    <div class="cmc-label">شيكات مرتجعة</div>
+                    <div class="cmc-val" style="color:#ef4444;">${fmtNum(checksBounced)}</div>
+                </div>
+                <div class="credit-mini-card">
+                    <div class="cmc-label">صافي الرصيد المستحق</div>
+                    <div class="cmc-val" style="color:#f59e0b;">${fmtNum(d.balance)}</div>
+                </div>
+            </div>
+        </div>
+    `;
+
     // Donut chart canvas
     const canvasId = `donut-${idx}`;
     container.innerHTML = `
@@ -1432,10 +1567,28 @@ function renderDetail(idx) {
                 </div>
             </div>
         </div>
+        ${checksHtml}
+        ${creditHtml}
     `;
 
     // Draw donut chart
     setTimeout(() => drawDonut(canvasId, d.totalPaid, d.balance), 50);
+}
+
+function getCustomerChecks(customerName) {
+    // checksDB is loaded from checks-cycle mock data or localStorage
+    const allChecks = window._checksDB || [];
+    return allChecks.filter(c => c.type === 'incoming' && c.partner && c.partner.trim() === customerName.trim());
+}
+
+function getCheckStatusClass(status) {
+    switch (status) {
+        case 'في الخزنة': return 'check-status-safe';
+        case 'برسم التحصيل': return 'check-status-collecting';
+        case 'محصل': case 'مسحوب': return 'check-status-cleared';
+        case 'مرتجع': return 'check-status-bounced';
+        default: return 'check-status-safe';
+    }
 }
 
 function drawDonut(canvasId, paid, remaining) {
