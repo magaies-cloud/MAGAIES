@@ -316,13 +316,18 @@ function startWhatsAppServiceIfNeeded() {
     }
     
     $cmd = getWhatsAppNodeCommand();
+    // Use .mjs (ESM) file — required for Baileys v7 compatibility
+    $serviceFile = file_exists(__DIR__ . '/whatsapp-service.mjs') 
+        ? 'whatsapp-service.mjs' 
+        : 'whatsapp-service.js';
+    
     if (stristr(PHP_OS, 'WIN')) {
-        pclose(popen("start /B node \"" . __DIR__ . "\\whatsapp-service.js\" >> \"" . __DIR__ . "\\whatsapp-service.log\" 2>&1", "r"));
+        pclose(popen("start /B node \"" . __DIR__ . "\\" . $serviceFile . "\" >> \"" . __DIR__ . "\\whatsapp-service.log\" 2>&1", "r"));
     } else {
-        shell_exec("$cmd \"" . __DIR__ . "/whatsapp-service.js\" >> \"" . __DIR__ . "/whatsapp-service.log\" 2>&1 &");
+        shell_exec("$cmd \"" . __DIR__ . "/" . $serviceFile . "\" >> \"" . __DIR__ . "/whatsapp-service.log\" 2>&1 &");
     }
     
-    usleep(1500000);
+    usleep(2500000);
     return false;
 }
 
@@ -463,7 +468,7 @@ if ($token === $saasSecret) {
                 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($input));
                 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
             }
-            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 20);
             
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

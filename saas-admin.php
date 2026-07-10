@@ -879,6 +879,8 @@
             <div class="modal-actions" style="margin-top: 20px; justify-content: center; gap: 10px; flex-wrap: wrap;">
                 <button class="btn-danger" id="admin-wa-logout-btn" style="display: none; padding: 10px 20px; background: #ef4444; border: none; font-weight: bold; color: #ffffff; border-radius: 8px; cursor: pointer; flex: 1; min-width: 120px;" onclick="logoutAdminWhatsApp()">إلغاء الربط</button>
                 <button class="btn-outline" id="admin-wa-refresh-btn" style="padding: 10px 20px; border-radius: 8px; cursor: pointer; flex: 1; min-width: 120px;" onclick="checkAdminWhatsAppConnection()">تحديث الحالة</button>
+                <button class="btn-outline" id="admin-wa-restart-btn" style="display: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; flex: 1; min-width: 120px; border-color: #f59e0b; color: #f59e0b;" onclick="restartAdminWhatsApp()">🔄 إعادة تشغيل الخدمة</button>
+                <button class="btn-outline" id="admin-wa-diagnose-btn" style="padding: 8px 15px; border-radius: 8px; cursor: pointer; min-width: 100px; border-color: #38bdf8; color: #38bdf8; font-size: 0.85rem;" onclick="diagnoseWhatsApp()">🔍 تشخيص</button>
                 <button class="btn-primary" id="admin-wa-close-btn" style="display: none; padding: 10px 20px; background: #25d366; border: none; font-weight: bold; color: #ffffff; border-radius: 8px; cursor: pointer; flex: 1; min-width: 120px;" onclick="closeModal('admin-wa-modal')">إغلاق النافذة</button>
             </div>
         </div>
@@ -1303,30 +1305,48 @@
             }
         }
 
-        async function checkWhatsAppStatus() {
+        async function checkWhatsAppStatus(isRetry = false) {
             const indicator = document.getElementById('wa-status-indicator');
             const text = document.getElementById('wa-status-text');
             if(!indicator || !text) return;
             try {
-                const host = window.location.hostname;
                 const res = await fetch(apiUrl('saas', 'wa-proxy', 'status'), {
                     headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
                 });
                 const data = await res.json();
                 
                 if (data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') {
-                    indicator.style.background = '#10b981'; // Green
+                    indicator.style.background = '#10b981';
                     indicator.style.boxShadow = '0 0 8px #10b981';
-                    text.innerText = 'خادم الواتساب: نشط (متصل)';
+                    text.innerText = 'خادم الواتساب: نشط (متصل ✅)';
+                } else if (data.status === 'RECONNECTING') {
+                    indicator.style.background = '#f59e0b';
+                    indicator.style.boxShadow = '0 0 8px #f59e0b';
+                    text.innerText = 'خادم الواتساب: إعادة اتصال... 🔄';
+                } else if (data.status === 'QR_READY' || data.status === 'INITIALIZING' || data.status === 'AUTHENTICATING') {
+                    indicator.style.background = '#eab308';
+                    indicator.style.boxShadow = '0 0 8px #eab308';
+                    text.innerText = 'خادم الواتساب: نشط (غير مرتبط)';
                 } else {
-                    indicator.style.background = '#eab308'; // Orange/Yellow
+                    indicator.style.background = '#eab308';
                     indicator.style.boxShadow = '0 0 8px #eab308';
                     text.innerText = 'خادم الواتساب: نشط (غير مرتبط)';
                 }
             } catch(e) {
-                indicator.style.background = '#ef4444'; // Red
-                indicator.style.boxShadow = '0 0 8px #ef4444';
-                text.innerText = 'خادم الواتساب: متوقف';
+                if (!isRetry) {
+                    // Try to wake up the server (the API request automatically calls startWhatsAppServiceIfNeeded)
+                    indicator.style.background = '#f59e0b';
+                    indicator.style.boxShadow = '0 0 8px #f59e0b';
+                    text.innerText = 'خادم الواتساب: جاري بدء الخدمة تلقائياً... ⏳';
+                    
+                    setTimeout(() => {
+                        checkWhatsAppStatus(true);
+                    }, 4000);
+                } else {
+                    indicator.style.background = '#ef4444';
+                    indicator.style.boxShadow = '0 0 8px #ef4444';
+                    text.innerText = 'خادم الواتساب: متوقف ❌';
+                }
             }
         }
 
@@ -1340,6 +1360,7 @@
             const qrImg = document.getElementById('admin-wa-qr-image');
             const spinner = document.getElementById('admin-wa-loading');
             const logoutBtn = document.getElementById('admin-wa-logout-btn');
+            const restartBtn = document.getElementById('admin-wa-restart-btn');
             
             if (!isSilent) {
                 statusText.innerText = 'جاري الفحص...';
@@ -1347,6 +1368,7 @@
                 spinner.style.display = 'block';
                 qrImg.style.display = 'none';
                 logoutBtn.style.display = 'none';
+                if (restartBtn) restartBtn.style.display = 'none';
             }
             
             try {
@@ -1374,48 +1396,59 @@
                     statusText.innerHTML = msg;
                     statusText.style.color = '#10b981';
                     
-                    // Hide QR container and show success animation
                     document.getElementById('admin-wa-qr-container').style.display = 'none';
                     document.getElementById('admin-wa-success-animation').style.display = 'flex';
                     document.getElementById('admin-wa-instruction-text').style.display = 'none';
                     
-                    // Update buttons
                     logoutBtn.style.display = 'inline-block';
                     document.getElementById('admin-wa-refresh-btn').style.display = 'none';
+                    if (restartBtn) restartBtn.style.display = 'none';
                     document.getElementById('admin-wa-close-btn').style.display = 'inline-block';
+                } else if (data.status === 'RECONNECTING') {
+                    statusText.innerText = '🔄 جاري إعادة الاتصال... (محاولة ' + (data.reconnectAttempts || 1) + ')';
+                    statusText.style.color = '#f59e0b';
+                    spinner.style.display = 'block';
+                    qrImg.style.display = 'none';
+                    if (restartBtn) restartBtn.style.display = 'inline-block';
+                    
+                    setTimeout(() => {
+                        const modal = document.getElementById('admin-wa-modal');
+                        if (modal && modal.style.display === 'flex') {
+                            checkAdminWhatsAppConnection(true);
+                        }
+                    }, 3000);
                 } else {
                     if (!isSilent) {
                         statusText.innerText = 'يرجى مسح الرمز أدناه للربط:';
                         statusText.style.color = '#fbbf24';
                         
-                        // Show QR container and hide success animation
                         document.getElementById('admin-wa-qr-container').style.display = 'inline-block';
                         document.getElementById('admin-wa-success-animation').style.display = 'none';
                         document.getElementById('admin-wa-instruction-text').style.display = 'block';
                         
                         logoutBtn.style.display = 'none';
                         document.getElementById('admin-wa-refresh-btn').style.display = 'inline-block';
+                        if (restartBtn) restartBtn.style.display = 'inline-block';
                         document.getElementById('admin-wa-close-btn').style.display = 'none';
                         
                         fetchAdminWhatsAppQR();
                     } else {
-                        // Silent polling: retry checking status silently in 5s
                         setTimeout(() => {
                             const modal = document.getElementById('admin-wa-modal');
                             if (modal && modal.style.display === 'flex') {
                                 checkAdminWhatsAppConnection(true);
                             }
-                        }, 5000);
+                        }, 4000);
                     }
                 }
                 
-                // Keep the header widget state in sync
                 checkWhatsAppStatus();
             } catch(e) {
                 if (!isSilent) {
                     statusText.innerText = '❌ خادم الواتساب متوقف أو تعذر الاتصال به: ' + e.message;
                     statusText.style.color = '#ef4444';
                     spinner.style.display = 'none';
+                    if (restartBtn) restartBtn.style.display = 'inline-block';
                     checkWhatsAppStatus();
                 }
             }
@@ -1442,6 +1475,12 @@
                     throw new Error('HTTP error ' + res.status);
                 }
                 
+                if (data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') {
+                    // Already connected while fetching QR — switch to connected view
+                    checkAdminWhatsAppConnection();
+                    return;
+                }
+                
                 if (data.qrCode) {
                     qrImg.src = data.qrCode;
                     qrImg.style.display = 'block';
@@ -1449,15 +1488,31 @@
                     statusText.innerText = 'يرجى مسح الرمز أدناه للربط:';
                     statusText.style.color = '#fbbf24';
                     
-                    // Poll status silently every 5 seconds
+                    // Check status every 3 seconds for fast response after scanning
                     setTimeout(() => {
                         const modal = document.getElementById('admin-wa-modal');
                         if (modal && modal.style.display === 'flex') {
                             checkAdminWhatsAppConnection(true);
                         }
-                    }, 5000);
+                    }, 3000);
+                    
+                    // Auto-refresh QR every 15 seconds to prevent expiry
+                    setTimeout(() => {
+                        const modal = document.getElementById('admin-wa-modal');
+                        if (modal && modal.style.display === 'flex') {
+                            fetchAdminWhatsAppQR();
+                        }
+                    }, 15000);
+                } else if (data.status === 'RECONNECTING') {
+                    statusText.innerText = '🔄 جاري إعادة الاتصال تلقائياً...';
+                    statusText.style.color = '#f59e0b';
+                    setTimeout(() => {
+                        const modal = document.getElementById('admin-wa-modal');
+                        if (modal && modal.style.display === 'flex') {
+                            checkAdminWhatsAppConnection(true);
+                        }
+                    }, 3000);
                 } else {
-                    // Node.js is initializing the client, wait and try again
                     statusText.innerText = 'جاري تحضير خادم الواتساب... ⏳';
                     setTimeout(() => {
                         const modal = document.getElementById('admin-wa-modal');
@@ -1470,13 +1525,14 @@
                 statusText.innerText = '❌ فشل جلب رمز الـ QR أو الخدمة غير متوفرة: ' + e.message;
                 statusText.style.color = '#ef4444';
                 spinner.style.display = 'none';
+                const restartBtn = document.getElementById('admin-wa-restart-btn');
+                if (restartBtn) restartBtn.style.display = 'inline-block';
             }
         }
 
         async function logoutAdminWhatsApp() {
             if (!confirm('هل ترغب بإلغاء ربط حساب الواتساب الحالي؟')) return;
             try {
-                const host = window.location.hostname;
                 await fetch(apiUrl('saas', 'wa-proxy', 'logout'), { 
                     method: 'POST',
                     headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
@@ -1486,6 +1542,73 @@
                 alert('فشل تسجيل الخروج');
             }
         }
+
+        async function restartAdminWhatsApp() {
+            const statusText = document.getElementById('admin-wa-status-text');
+            if (statusText) {
+                statusText.innerText = '🔄 جاري إعادة تشغيل خدمة الواتساب...';
+                statusText.style.color = '#f59e0b';
+            }
+            try {
+                await fetch(apiUrl('saas', 'wa-proxy', 'restart'), {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
+                });
+                // Wait 3 seconds then check connection
+                setTimeout(() => checkAdminWhatsAppConnection(), 3000);
+            } catch(e) {
+                if (statusText) {
+                    statusText.innerText = '❌ فشل إعادة تشغيل الخدمة: ' + e.message;
+                    statusText.style.color = '#ef4444';
+                }
+            }
+        }
+
+        async function diagnoseWhatsApp() {
+            const statusText = document.getElementById('admin-wa-status-text');
+            if (statusText) {
+                statusText.innerText = '🔍 جاري تشخيص اتصال السيرفر بسيرفرات واتساب...';
+                statusText.style.color = '#38bdf8';
+            }
+            try {
+                const res = await fetch(apiUrl('saas', 'wa-proxy', 'diagnose'), {
+                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
+                });
+                const data = await res.json();
+                
+                let report = '📊 نتائج التشخيص:\n\n';
+                report += `🖥️ Node.js: ${data.nodeVersion} | ${data.platform}/${data.arch}\n`;
+                
+                if (data.tests) {
+                    report += `\n🌐 DNS (web.whatsapp.com): ${data.tests.dns?.success ? '✅ نجح' : '❌ فشل - ' + (data.tests.dns?.error || '')}\n`;
+                    report += `🔒 HTTPS: ${data.tests.https?.success ? '✅ نجح (HTTP ' + data.tests.https.statusCode + ')' : '❌ فشل - ' + (data.tests.https?.error || '')}\n`;
+                    report += `🔌 WebSocket: ${data.tests.websocket?.success ? '✅ نجح' : '❌ فشل - ' + (data.tests.websocket?.error || '')}\n`;
+                    report += `📁 مجلد المصادقة: ${data.tests.authFolder?.success ? '✅ يعمل (' + data.tests.authFolder.files + ' ملفات)' : '❌ فشل - ' + (data.tests.authFolder?.error || '')}\n`;
+                }
+                
+                if (data.summary) {
+                    report += '\n' + data.summary;
+                }
+                
+                alert(report);
+                
+                if (statusText) {
+                    if (data.tests?.websocket?.success) {
+                        statusText.innerText = '✅ اتصال السيرفر بواتساب يعمل - أعد المحاولة';
+                        statusText.style.color = '#10b981';
+                    } else {
+                        statusText.innerText = '⚠️ مشكلة في اتصال السيرفر بسيرفرات واتساب';
+                        statusText.style.color = '#ef4444';
+                    }
+                }
+            } catch(e) {
+                if (statusText) {
+                    statusText.innerText = '❌ فشل التشخيص: ' + e.message;
+                    statusText.style.color = '#ef4444';
+                }
+            }
+        }
+
 
         let chartRegistrations = null;
         let chartStorage = null;
@@ -1636,9 +1759,9 @@
             renderPartners();
             renderAds();
             
-            // Check WhatsApp service status on startup and every 30 seconds
+            // Check WhatsApp service status on startup and every 20 seconds
             checkWhatsAppStatus();
-            setInterval(checkWhatsAppStatus, 30000);
+            setInterval(checkWhatsAppStatus, 20000);
         }
 
         // Helper: build API URL using query params (Nginx doesn't support PHP PATH_INFO)
