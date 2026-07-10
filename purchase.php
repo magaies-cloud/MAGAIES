@@ -1,4 +1,4 @@
-<?php $page_title = 'استلام بضاعة'; ?>
+<?php $page_title = 'المشتريات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -476,35 +476,49 @@
         .hub-badge.completed { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
         .hub-badge.draft { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
     </style>
-        <style>
+    <style>
         :root.light-theme {
             --bg-color: #f1f5f9;
             --surface: #ffffff;
-            --text-main: #0f172a;
-            --text-secondary: #475569;
-            --border-color: #e2e8f0;
+            --surface-hover: rgba(241, 245, 249, 0.98);
+            --border: rgba(0, 0, 0, 0.08);
+            --border-highlight: rgba(0, 0, 0, 0.15);
         }
-        :root.light-theme body { background-color: var(--bg-color); color: var(--text-main); }
-        :root.light-theme .premium-header {
-            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(241,245,249,0.9));
-            border: 1px solid rgba(0,0,0,0.1);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        :root.light-theme body {
+            background-color: var(--bg-color);
+            color: #000000;
         }
-        :root.light-theme .header-center h2 { background: linear-gradient(to right, #0f172a, #334155); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        :root.light-theme .brand-text h1 { color: #0f172a; text-shadow: none; }
-        :root.light-theme .brand-text p { color: #475569; text-shadow: none; }
-        :root.light-theme .icon-btn, :root.light-theme .user-info, :root.light-theme .clock-container { background: rgba(255,255,255,0.8); color: #0f172a; border-color: rgba(0,0,0,0.1); }
-        :root.light-theme .icon-btn:hover { background: #f8fafc; color: #000; box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
-        :root.light-theme #header-user-name { color: #0f172a !important; }
-        :root.light-theme .online-users { background: rgba(16,185,129,0.1) !important; border-color: rgba(16,185,129,0.2) !important; }
-    </style>
-    <script>
-        if(localStorage.getItem('erp_theme') === 'light') document.documentElement.classList.add('light-theme');
-        function toggleTheme() {
-            document.documentElement.classList.toggle('light-theme');
-            localStorage.setItem('erp_theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
+        :root.light-theme .ambient-bg {
+            background: radial-gradient(circle at 50% 50%, #f8fafc 0%, #cbd5e1 100%) !important;
         }
-    </script>
+        :root.light-theme .panel,
+        :root.light-theme .neo-card,
+        :root.light-theme .glass-panel {
+            background: var(--surface) !important;
+            border-color: var(--border) !important;
+            color: #000000 !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06) !important;
+        }
+        :root.light-theme td, :root.light-theme th, :root.light-theme tr {
+            color: #000000 !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        :root.light-theme .pos-grid thead th {
+            background: rgba(0, 0, 0, 0.04) !important;
+            color: #000000 !important;
+        }
+        :root.light-theme .pos-grid tbody tr {
+            background: rgba(255, 255, 255, 0.95) !important;
+        }
+        :root.light-theme .pos-grid tbody tr:hover {
+            background: rgba(0, 0, 0, 0.04) !important;
+        }
+        :root.light-theme input, :root.light-theme select, :root.light-theme textarea {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid rgba(0, 0, 0, 0.18) !important;
+        }
+    
     <style>
         /* CSS for table enhancements */
         .pos-grid th, .pos-grid td {
@@ -899,35 +913,8 @@
         .hub-badge.completed { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
         .hub-badge.draft { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
     </style>
-        <style>
-        :root.light-theme {
-            --bg-color: #f1f5f9;
-            --surface: #ffffff;
-            --text-main: #0f172a;
-            --text-secondary: #475569;
-            --border-color: #e2e8f0;
-        }
-        :root.light-theme body { background-color: var(--bg-color); color: var(--text-main); }
-        :root.light-theme .premium-header {
-            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(241,245,249,0.9));
-            border: 1px solid rgba(0,0,0,0.1);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        }
-        :root.light-theme .header-center h2 { background: linear-gradient(to right, #0f172a, #334155); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        :root.light-theme .brand-text h1 { color: #0f172a; text-shadow: none; }
-        :root.light-theme .brand-text p { color: #475569; text-shadow: none; }
-        :root.light-theme .icon-btn, :root.light-theme .user-info, :root.light-theme .clock-container { background: rgba(255,255,255,0.8); color: #0f172a; border-color: rgba(0,0,0,0.1); }
-        :root.light-theme .icon-btn:hover { background: #f8fafc; color: #000; box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
-        :root.light-theme #header-user-name { color: #0f172a !important; }
-        :root.light-theme .online-users { background: rgba(16,185,129,0.1) !important; border-color: rgba(16,185,129,0.2) !important; }
-    </style>
-    <script>
-        if(localStorage.getItem('erp_theme') === 'light') document.documentElement.classList.add('light-theme');
-        function toggleTheme() {
-            document.documentElement.classList.toggle('light-theme');
-            localStorage.setItem('erp_theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
-        }
-    </script>
+    
+    
     <style>
         /* CSS for table enhancements */
         .pos-grid th, .pos-grid td {
@@ -1539,6 +1526,9 @@
                 <!-- AI OCR Button: Teal -->
                 <button type="button" class="btn-action" style="flex: 1; height: 45px; background: #0d9488; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(13, 148, 136, 0.3);" onmouseover="this.style.background='#0f766e'; this.style.boxShadow='0 4px 15px rgba(13, 148, 136, 0.5)';" onmouseout="this.style.background='#0d9488'; this.style.boxShadow='0 2px 10px rgba(13, 148, 136, 0.3)';" onclick="document.getElementById('ocr-upload').click()" id="btn-ocr" title="قراءة الفاتورة بالذكاء الاصطناعي">📸 مسح ضوئي</button>
                 <input type="file" id="ocr-upload" accept="image/*,application/pdf" style="display: none;" onchange="processInvoiceImage(event)">
+
+                <!-- Barcode Camera Button -->
+                <button type="button" class="btn-action" style="flex: 1; height: 45px; background: #10b981; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);" onmouseover="this.style.background='#059669'; this.style.boxShadow='0 4px 15px rgba(16, 185, 129, 0.5)';" onmouseout="this.style.background='#10b981'; this.style.boxShadow='0 2px 10px rgba(16, 185, 129, 0.3)';" onclick="startCameraScanner('quick-purchase-scan')" id="btn-barcode-scan" title="مسح باركود الصنف بالكاميرا">📷 مسح باركود</button>
                 
                 <!-- Attachment Button: Solid Purple -->
                 <button class="btn-action" id="attach-btn" style="flex: 1; height: 45px; background: #8b5cf6; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);" onmouseover="this.style.background='#7c3aed'; this.style.boxShadow='0 4px 15px rgba(139, 92, 246, 0.5)';" onmouseout="this.style.background='#8b5cf6'; this.style.boxShadow='0 2px 10px rgba(139, 92, 246, 0.3)';" onclick="document.getElementById('hdr-attachment').click()">📎 إرفاق مستند</button>
@@ -1743,7 +1733,7 @@
 
                 tr.innerHTML = `
                     <td style="text-align:right; font-weight:800; color:var(--gold-primary);">${inv.invoiceNo}</td>
-                    <td style="text-align:right; color:var(--text-dim);">${new Date(inv.timestamp || inv.date).toLocaleString('ar-EG')}</td>
+                    <td style="text-align:right; color:var(--text-dim);">${new Date(inv.timestamp || inv.date).toLocaleString('ar-EG-u-nu-latn')}</td>
                     <td style="text-align:right; font-weight:600;">${inv.supplierName || getSupplierName(inv.customer || inv.customerId || inv.supplierId) || 'مورد غير محدد'}</td>
                     <td style="text-align:right; color:var(--text-dim);">${itemText}</td>
                     <td style="text-align:center; color:var(--text-dim);">${qtyText}</td>
@@ -2311,6 +2301,122 @@ async function sendCurrentInvoiceWA() {
     });
     </script>
 
+<!-- Barcode Scanner Modal -->
+<div id="barcode-scanner-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 999999; justify-content: center; align-items: center; direction: rtl;">
+    <div class="glass-panel" style="width: 90%; max-width: 480px; padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); position: relative; text-align: center; background: rgba(30,41,59,0.9);">
+        <button onclick="stopCameraScanner()" style="position: absolute; top: 15px; left: 15px; background: none; border: none; color: #f43f5e; font-size: 1.8rem; cursor: pointer;">&times;</button>
+        <h3 style="color: #38bdf8; margin-bottom: 15px; font-weight: 800;">📷 قارئ الباركود عبر الكاميرا</h3>
+        <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 20px;">وجه مربع الكاميرا نحو الرمز الشريطي (Barcode) للمنتج لقراءته تلقائياً.</p>
+        <div id="scanner-viewport" style="width: 100%; aspect-ratio: 4/3; background: #000; border-radius: 12px; overflow: hidden; border: 2px solid rgba(56,189,248,0.4); position: relative;"></div>
+        <div id="scanner-status" style="margin-top: 15px; color: #fbbf24; font-weight: bold; font-size: 0.9rem;">جاري تهيئة الكاميرا...</div>
+    </div>
+</div>
+
+<script>
+let html5QrcodeScanner = null;
+
+function startCameraScanner(targetInputId) {
+    document.getElementById('barcode-scanner-modal').style.display = 'flex';
+    document.getElementById('scanner-status').innerText = 'جاري تشغيل الكاميرا...';
+    document.getElementById('scanner-status').style.color = '#fbbf24';
+
+    loadScannerLibrary(() => {
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.clear().catch(() => {});
+        }
+        
+        html5QrcodeScanner = new Html5Qrcode("scanner-viewport");
+        const config = { fps: 15, qrbox: { width: 280, height: 180 } };
+        
+        html5QrcodeScanner.start(
+            { facingMode: "environment" },
+            config,
+            (decodedText, decodedResult) => {
+                const items = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+                const matchedItem = items.find(item => {
+                    if (item.barcode === decodedText) return true;
+                    if (item.units && Array.isArray(item.units)) {
+                        return item.units.some(u => u.barcode === decodedText);
+                    }
+                    return false;
+                });
+                
+                if (matchedItem) {
+                    playScanBeep();
+                    if (typeof selectQuickItem === 'function') {
+                        selectQuickItem(matchedItem.id);
+                    } else {
+                        const input = document.getElementById(targetInputId);
+                        if (input) {
+                            input.value = decodedText;
+                            input.dispatchEvent(new Event('input'));
+                        }
+                    }
+                    stopCameraScanner();
+                } else {
+                    playScanBeep();
+                    const input = document.getElementById(targetInputId);
+                    if (input) {
+                        input.value = decodedText;
+                        input.dispatchEvent(new Event('input'));
+                    }
+                    alert(`⚠️ لم يتم العثور على صنف بالباركود: ${decodedText}`);
+                    stopCameraScanner();
+                }
+            },
+            (errorMessage) => {}
+        ).then(() => {
+            document.getElementById('scanner-status').innerText = '🟢 الكاميرا متصلة وتعمل حالياً';
+            document.getElementById('scanner-status').style.color = '#34d399';
+        }).catch(err => {
+            document.getElementById('scanner-status').innerText = '❌ تعذر الوصول للكاميرا: يرجى إعطاء الصلاحية';
+            document.getElementById('scanner-status').style.color = '#f43f5e';
+            console.error("Camera access failed", err);
+        });
+    });
+}
+
+function stopCameraScanner() {
+    document.getElementById('barcode-scanner-modal').style.display = 'none';
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.stop().then(() => {
+            return html5QrcodeScanner.clear();
+        }).catch(err => {
+            console.error("Failed to stop scanner", err);
+        }).finally(() => {
+            html5QrcodeScanner = null;
+        });
+    }
+}
+
+function loadScannerLibrary(callback) {
+    if (window.Html5Qrcode) {
+        callback();
+        return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/html5-qrcode';
+    script.onload = callback;
+    document.head.appendChild(script);
+}
+
+function playScanBeep() {
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
+    } catch(e) {
+        console.error("Failed to play audio", e);
+    }
+}
+</script>
 </body>
 </html>
 

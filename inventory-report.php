@@ -1,4 +1,4 @@
-<?php $page_title = 'مقاييس (MAGAIEES) - تقارير وجرد المخازن'; ?>
+<?php $page_title = 'المخازن'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -21,6 +21,52 @@
             --glass-border: rgba(255, 255, 255, 0.08);
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
+        }
+
+        :root.light-theme {
+            --bg-dark: #f1f5f9;
+            --panel-bg: rgba(255, 255, 255, 0.95);
+            --text-primary: #000000;
+            --text-secondary: #1e293b;
+            --glass-border: rgba(0, 0, 0, 0.08);
+        }
+        :root.light-theme body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            background-image: none !important;
+        }
+        :root.light-theme .glass-panel,
+        :root.light-theme .premium-card {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            color: #000000 !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06) !important;
+        }
+        :root.light-theme td, :root.light-theme th, :root.light-theme tr {
+            color: #000000 !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        :root.light-theme .pos-grid thead th,
+        :root.light-theme .dash-table th {
+            background: rgba(0, 0, 0, 0.04) !important;
+            color: #000000 !important;
+        }
+        :root.light-theme .pos-grid tbody tr,
+        :root.light-theme .dash-table tbody tr {
+            background: rgba(255, 255, 255, 0.95) !important;
+        }
+        :root.light-theme .pos-grid tbody tr:hover,
+        :root.light-theme .dash-table tbody tr:hover td {
+            background: rgba(0, 0, 0, 0.04) !important;
+        }
+        :root.light-theme .dash-table td {
+            color: #000000 !important;
+            border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        :root.light-theme input, :root.light-theme select {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid rgba(0, 0, 0, 0.18) !important;
         }
 
         body {
@@ -199,13 +245,7 @@
         :root.light-theme #header-user-name { color: #0f172a !important; }
         :root.light-theme .online-users { background: rgba(16,185,129,0.1) !important; border-color: rgba(16,185,129,0.2) !important; }
     </style>
-    <script>
-        if(localStorage.getItem('erp_theme') === 'light') document.documentElement.classList.add('light-theme');
-        function toggleTheme() {
-            document.documentElement.classList.toggle('light-theme');
-            localStorage.setItem('erp_theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
-        }
-    </script>
+    
 </head>
 <body>
 

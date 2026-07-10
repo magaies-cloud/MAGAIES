@@ -478,13 +478,7 @@
         :root.light-theme #header-user-name { color: #0f172a !important; }
         :root.light-theme .online-users { background: rgba(16,185,129,0.1) !important; border-color: rgba(16,185,129,0.2) !important; }
     </style>
-    <script>
-        if(localStorage.getItem('erp_theme') === 'light') document.documentElement.classList.add('light-theme');
-        function toggleTheme() {
-            document.documentElement.classList.toggle('light-theme');
-            localStorage.setItem('erp_theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
-        }
-    </script>
+    
 </head>
 <body>
 

@@ -1,4 +1,4 @@
-<?php $page_title = 'مقاييس (MAGAIEES) - البيانات الأساسية'; ?>
+<?php $page_title = 'البيانات الأساسية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -23,6 +23,71 @@
             --theme-orange: #f59e0b;
             --theme-red: #f87171;
             --theme-purple: #c084fc;
+        }
+
+        :root.light-theme {
+            --bg-color: #f1f5f9;
+            --surface: #ffffff;
+            --surface-hover: rgba(241, 245, 249, 0.98);
+            --border: rgba(0, 0, 0, 0.08);
+            --border-highlight: rgba(0, 0, 0, 0.15);
+        }
+        :root.light-theme body {
+            background-color: var(--bg-color);
+            color: #000000;
+        }
+        :root.light-theme .ambient-bg {
+            background: radial-gradient(circle at 50% 50%, #f8fafc 0%, #cbd5e1 100%) !important;
+        }
+        :root.light-theme .panel,
+        :root.light-theme .neo-card,
+        :root.light-theme .glass-panel {
+            background: var(--surface) !important;
+            border-color: var(--border) !important;
+            color: #000000 !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06) !important;
+        }
+        :root.light-theme td, :root.light-theme th, :root.light-theme tr {
+            color: #000000 !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        :root.light-theme .pos-grid thead th {
+            background: rgba(0, 0, 0, 0.04) !important;
+            color: #000000 !important;
+        }
+        :root.light-theme .pos-grid tbody tr {
+            background: rgba(255, 255, 255, 0.95) !important;
+        }
+        :root.light-theme .pos-grid tbody tr:hover {
+            background: rgba(0, 0, 0, 0.04) !important;
+        }
+        :root.light-theme input, :root.light-theme select, :root.light-theme textarea {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid rgba(0, 0, 0, 0.18) !important;
+        }
+        :root.light-theme .md-tab-btn {
+            background: rgba(0,0,0,0.04) !important;
+            border-color: rgba(0,0,0,0.08) !important;
+            color: #475569 !important;
+        }
+        :root.light-theme .md-tab-btn:hover {
+            background: rgba(0,0,0,0.08) !important;
+            color: #000000 !important;
+        }
+        :root.light-theme .md-tab-btn.active {
+            background: rgba(37, 99, 235, 0.08) !important;
+            border-color: #2563eb !important;
+            color: #2563eb !important;
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.1) !important;
+        }
+        :root.light-theme .md-sidebar-panel {
+            background: #ffffff !important;
+            border-color: rgba(0,0,0,0.08) !important;
+        }
+        :root.light-theme .md-content-panel {
+            background: #ffffff !important;
+            border-color: rgba(0,0,0,0.08) !important;
         }
         body {
             background-color: var(--bg-color);

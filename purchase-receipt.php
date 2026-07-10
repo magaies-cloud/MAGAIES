@@ -20,6 +20,105 @@
             --glass-border: rgba(255, 255, 255, 0.08);
         }
 
+        :root.light-theme {
+            --bg-color: #f1f5f9;
+            --glass-border: rgba(0, 0, 0, 0.08);
+        }
+        :root.light-theme body {
+            background-color: var(--bg-color);
+            color: #000000;
+        }
+        :root.light-theme .neo-card,
+        :root.light-theme .editor-left,
+        :root.light-theme .info-card,
+        :root.light-theme .recent-receipts-card,
+        :root.light-theme div[style*="background: rgba(30, 41, 59, 0.4)"] {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            color: #000000 !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06) !important;
+        }
+        :root.light-theme .grn-meta-bar {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(99, 102, 241, 0.12)) !important;
+            border: 1px solid rgba(56, 189, 248, 0.2) !important;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.05) !important;
+        }
+        :root.light-theme .grn-meta-bar div {
+            border-right-color: rgba(56, 189, 248, 0.2) !important;
+        }
+        :root.light-theme .grn-meta-bar span {
+            color: #0f172a !important;
+        }
+        :root.light-theme .grn-meta-bar span[style*="color: #94a3b8"] {
+            color: #0284c7 !important;
+        }
+        :root.light-theme #lbl-inv-no {
+            color: #0369a1 !important;
+        }
+        :root.light-theme #lbl-creator {
+            color: #6d28d9 !important;
+        }
+        :root.light-theme #recent-grns-container table.pos-grid tbody tr {
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+        :root.light-theme #recent-grns-container table.pos-grid tbody td {
+            color: #000000 !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+        }
+        :root.light-theme #recent-grns-container table.pos-grid tbody td[style*="color: #38bdf8"] {
+            color: #1d4ed8 !important;
+        }
+        :root.light-theme #recent-grns-container table.pos-grid tbody td[style*="color: #fbbf24"] {
+            color: #b45309 !important;
+        }
+        :root.light-theme #recent-grns-container table.pos-grid tbody td[style*="color:#e2e8f0"] {
+            color: #1e293b !important;
+        }
+        :root.light-theme #recent-grns-container table.pos-grid tbody td[style*="color:#a855f7"] {
+            color: #6d28d9 !important;
+        }
+        :root.light-theme .neo-card-title,
+        :root.light-theme .neo-card-title span,
+        :root.light-theme h3,
+        :root.light-theme .info-card h3,
+        :root.light-theme .info-row,
+        :root.light-theme .info-val,
+        :root.light-theme span[style*="color: #fff"],
+        :root.light-theme span[style*="color: #bae6fd"] {
+            color: #000000 !important;
+        }
+        :root.light-theme .info-lbl {
+            color: #475569 !important;
+        }
+        :root.light-theme .v-input,
+        :root.light-theme .wh-select,
+        :root.light-theme .qty-input {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid rgba(0, 0, 0, 0.15) !important;
+        }
+        :root.light-theme .wh-select option {
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+        :root.light-theme .pos-grid thead th {
+            background: rgba(0, 0, 0, 0.04) !important;
+            color: #000000 !important;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.08) !important;
+        }
+        :root.light-theme .pos-grid tbody tr {
+            background: rgba(255, 255, 255, 0.95) !important;
+            color: #000000 !important;
+        }
+        :root.light-theme .pos-grid tbody tr:hover {
+            background: rgba(0, 0, 0, 0.04) !important;
+        }
+        :root.light-theme .pos-grid tbody td {
+            color: #000000 !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+        }
+
         body {
             background-color: var(--bg-color);
             color: #f1f5f9;
@@ -218,7 +317,7 @@
         <!-- View 2: Editor (Receive Items) -->
         <div class="view-container" id="view-editor" style="gap: 20px; animation: fadeIn 0.4s ease-out;">
             <!-- Header Metadata Bar -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.05); padding: 15px 25px; border-radius: 16px; backdrop-filter: blur(10px);">
+            <div class="grn-meta-bar" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.05); padding: 15px 25px; border-radius: 16px; backdrop-filter: blur(10px);">
                 <div style="display: flex; flex-direction: column; gap: 4px;">
                     <span style="color: #94a3b8; font-size: 0.8rem; font-weight: 600;">رقم الفاتورة</span>
                     <span id="lbl-inv-no" style="color: #38bdf8; font-size: 1.2rem; font-weight: 800; font-family: 'Outfit';"></span>
@@ -554,7 +653,7 @@
 
             document.getElementById('lbl-inv-no').textContent = invId;
             document.getElementById('lbl-supplier').textContent = getSupplierName(invData.supplierId);
-            document.getElementById('lbl-date').textContent = new Date(invData.date).toLocaleString('ar-EG');
+            document.getElementById('lbl-date').textContent = new Date(invData.date).toLocaleString('ar-EG-u-nu-latn');
             document.getElementById('lbl-creator').textContent = getUserName(invData.createdBy);
 
             const defaultWh = document.getElementById('actual-warehouse').value || (warehousesDb.find(x => x.id !== 'PENDING_RECEIPT') || {}).id || 'w-main';
@@ -906,7 +1005,7 @@
 
                 let dateStr = '—';
                 try {
-                    dateStr = new Date(grn.date).toLocaleString('ar-EG', {
+                    dateStr = new Date(grn.date).toLocaleString('ar-EG-u-nu-latn', {
                         year: 'numeric', month: 'numeric', day: 'numeric',
                         hour: '2-digit', minute: '2-digit'
                     });

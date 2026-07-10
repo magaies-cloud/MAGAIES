@@ -64,7 +64,7 @@
         <div style="display:flex; align-items:center; gap:8px;">
             <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
                 <button class="fullscreen-toggle-btn" onclick="toggleFullScreen()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.15rem; color:var(--text-primary); transition:0.2s;" title="توسيع الشاشة">⛶</button>
-                <button class="theme-toggle-btn" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; color:var(--text-primary); transition:0.2s;" title="تبديل المظهر">🌓</button>
+                <button class="theme-toggle-btn" onclick="toggleTheme()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; color:var(--text-primary); transition:0.2s;" title="تبديل المظهر">🌓</button>
             </div>
             <button class="back-arrow-btn" onclick="history.back()" style="background:rgba(255,255,255,0.1); border:none; border-radius:12px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; color:var(--text-primary); transition:0.2s;" title="رجوع">🔙</button>
         </div>
@@ -79,6 +79,16 @@
                     document.exitFullscreen();
                 }
             }
+        }
+        
+        // Theme initialization and toggle logic
+        if (localStorage.getItem('erp_theme') === 'light') {
+            document.documentElement.classList.add('light-theme');
+        }
+        function toggleTheme() {
+            document.documentElement.classList.toggle('light-theme');
+            localStorage.setItem('erp_theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
+            window.dispatchEvent(new Event('themeChanged'));
         }
         </script>
     </div>

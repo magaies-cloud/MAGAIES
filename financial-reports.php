@@ -17,6 +17,51 @@
             --glass-border: rgba(255, 255, 255, 0.08);
         }
 
+        :root.light-theme {
+            --bg-color: #f1f5f9;
+            --glass-border: rgba(0, 0, 0, 0.08);
+        }
+        :root.light-theme body {
+            background-color: var(--bg-color);
+            color: #000000;
+        }
+        :root.light-theme .ambient-bg {
+            background: radial-gradient(circle at 50% 50%, #f8fafc 0%, #cbd5e1 100%) !important;
+        }
+        :root.light-theme .section-heading {
+            color: #000000 !important;
+        }
+        :root.light-theme .section-heading .heading-icon {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04) !important;
+        }
+        :root.light-theme .bento-card {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            color: #000000 !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05) !important;
+        }
+        :root.light-theme .bento-card:hover {
+            background: #f8fafc !important;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08) !important;
+        }
+        :root.light-theme .bento-card .card-title {
+            color: #000000 !important;
+        }
+        :root.light-theme .bento-card .card-desc {
+            color: #475569 !important;
+        }
+        :root.light-theme .bento-card .card-icon-wrapper {
+            background: rgba(0, 0, 0, 0.04) !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        :root.light-theme .bento-card .badge {
+            background: rgba(37, 99, 235, 0.1) !important;
+            color: #2563eb !important;
+            border-color: rgba(37, 99, 235, 0.2) !important;
+        }
+
         body {
             background-color: var(--bg-color);
             color: #f1f5f9;

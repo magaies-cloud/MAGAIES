@@ -25,7 +25,7 @@
         .header-title { font-size: 2rem; font-weight: 900; color: #fff; margin: 0; }
         .header-subtitle { color: #e0f2fe; margin-top: 10px; font-size: 1.1rem; }
 
-        .cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
         
         .action-card {
             background: rgba(30,41,59,0.6); border-radius: 20px; padding: 40px; 
@@ -85,20 +85,36 @@
         <div class="cards-grid">
             
             <!-- Export Card -->
-            <div class="action-card export-card" style="border-top: 4px solid #10b981;">
+            <div class="action-card export-card" style="border-top: 4px solid #10b981; padding: 25px;">
                 <div class="icon-circle">⬇️</div>
-                <h3 style="margin:0; color:#fff; font-size:1.5rem;">إنشاء نسخة احتياطية</h3>
-                <p style="color:#94a3b8; font-size:0.95rem; margin:15px 0 0 0; line-height:1.6;">يقوم بسحب كافة البيانات (عملاء، فواتير، مستودعات، قيود) وتجميعها في ملف واحد محمي للتحميل.</p>
+                <h3 style="margin:0; color:#fff; font-size:1.3rem;">إنشاء نسخة احتياطية</h3>
+                <p style="color:#94a3b8; font-size:0.88rem; margin:15px 0 0 0; line-height:1.6; min-height: 80px;">يقوم بسحب كافة البيانات (عملاء، فواتير، مستودعات، قيود) وتجميعها في ملف واحد محمي للتحميل.</p>
                 <button class="btn-massive btn-export" onclick="exportDatabase()">تنزيل النسخة الآن</button>
             </div>
 
             <!-- Import Card -->
-            <div class="action-card import-card" style="border-top: 4px solid #f59e0b;">
+            <div class="action-card import-card" style="border-top: 4px solid #f59e0b; padding: 25px;">
                 <div class="icon-circle">⬆️</div>
-                <h3 style="margin:0; color:#fff; font-size:1.5rem;">استعادة نسخة محفوظة</h3>
-                <p style="color:#94a3b8; font-size:0.95rem; margin:15px 0 0 0; line-height:1.6;">يقوم بمسح البيانات الحالية واستبدالها بالبيانات الموجودة في ملف النسخة الاحتياطية الذي ستختاره.</p>
+                <h3 style="margin:0; color:#fff; font-size:1.3rem;">استعادة نسخة محفوظة</h3>
+                <p style="color:#94a3b8; font-size:0.88rem; margin:15px 0 0 0; line-height:1.6; min-height: 80px;">يقوم بمسح البيانات الحالية واستبدالها بالبيانات الموجودة في ملف النسخة الاحتياطية الذي ستختاره.</p>
                 <button class="btn-massive btn-import" onclick="document.getElementById('importFile').click()">رفع ملف النسخة الاحتياطية</button>
                 <input type="file" id="importFile" class="file-input" accept=".json,.bak" onchange="importDatabase(event)">
+            </div>
+
+            <!-- Cloud Export Card -->
+            <div class="action-card cloud-export-card" style="border-top: 4px solid #38bdf8; padding: 25px;">
+                <div class="icon-circle">☁️</div>
+                <h3 style="margin:0; color:#fff; font-size:1.3rem;">حفظ نسخة سحابية</h3>
+                <p style="color:#94a3b8; font-size:0.88rem; margin:15px 0 0 0; line-height:1.6; min-height: 80px;">يقوم برفع وحفظ نسخة كاملة من بياناتك الحالية بشكل آمن على خوادمنا السحابية المشفرة للوصول لها بأي وقت.</p>
+                <button id="btn-cloud-export" class="btn-massive" style="background: #38bdf8; color:#0f172a;" onclick="exportCloud()">رفع النسخة للسحاب</button>
+            </div>
+
+            <!-- Cloud Import Card -->
+            <div class="action-card cloud-import-card" style="border-top: 4px solid #a855f7; padding: 25px;">
+                <div class="icon-circle">🔄</div>
+                <h3 style="margin:0; color:#fff; font-size:1.3rem;">استعادة نسخة سحابية</h3>
+                <p style="color:#94a3b8; font-size:0.88rem; margin:15px 0 0 0; line-height:1.6; min-height: 80px;">يقوم بجلب أحدث نسخة احتياطية قمت برفعها للسحاب واستعادة جميع بياناتك منها فوراً.</p>
+                <button id="btn-cloud-import" class="btn-massive" style="background: #a855f7;" onclick="importCloud()">تحميل واستعادة من السحاب</button>
             </div>
 
         </div>
@@ -207,6 +223,98 @@
                 }
             };
             reader.readAsText(file);
+        }
+
+        async function exportCloud() {
+            if (Object.keys(window.DB_STORE).length === 0) {
+                alert("لا توجد بيانات للنسخ!");
+                return;
+            }
+            if(!confirm("سيتم رفع قاعدة بياناتك وتخزينها على السحابة بشكل آمن. هل ترغب بالاستمرار؟")) return;
+
+            const btn = document.getElementById('btn-cloud-export');
+            btn.disabled = true;
+            btn.innerText = 'جاري الرفع... ☁️';
+
+            try {
+                const token = localStorage.getItem('authToken');
+                const res = await fetch('api_index.php?r=cloud-backup', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ backup: window.DB_STORE })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    window.logSystemAction('Cloud Database Export', 'system', 'تصدير نسخة احتياطية سحابية لقاعدة البيانات');
+                    alert("✅ تم رفع النسخة الاحتياطية للسحاب بنجاح وحمايتها!");
+                } else {
+                    throw new Error(data.error || 'فشل الرفع للسيرفر');
+                }
+            } catch (err) {
+                alert("❌ خطأ: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'رفع النسخة للسحاب';
+            }
+        }
+
+        async function importCloud() {
+            if(!confirm("⚠️ تحذير خطير: استعادة النسخة الاحتياطية السحابية ستمسح كافة البيانات الحالية وتستبدلها. هل أنت متأكد 100% أنك تريد الاستمرار؟")) {
+                return;
+            }
+
+            const btn = document.getElementById('btn-cloud-import');
+            btn.disabled = true;
+            btn.innerText = 'جاري التحميل... 🔄';
+
+            try {
+                const token = localStorage.getItem('authToken');
+                const res = await fetch('api_index.php?r=cloud-backup', {
+                    method: 'GET',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                
+                if (!res.ok || !data.success) {
+                    throw new Error(data.error || 'فشل تحميل النسخة من السحاب');
+                }
+                
+                if (!data.backup || Object.keys(data.backup).length === 0) {
+                    throw new Error('لا توجد نسخة احتياطية سحابية محفوظة لهذه الشركة حتى الآن.');
+                }
+
+                // Show loader
+                document.body.innerHTML += `<div id="loader" style="position:fixed; top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:99999;display:flex;align-items:center;justify-content:center;color:white;font-family:Tajawal;font-size:2rem;font-weight:bold;">جاري مسح القديم واستعادة البيانات من السحاب... الرجاء الانتظار</div>`;
+
+                // 1. Clear Current localforage completely for this tenant
+                const prefix = typeof getTenantPrefix === 'function' ? getTenantPrefix() : '';
+                const keys = await localforage.keys();
+                for (let k of keys) {
+                    if (k.startsWith(prefix) || prefix === '') {
+                        await localforage.removeItem(k);
+                    }
+                }
+
+                // 2. Populate new data
+                for (let [key, val] of Object.entries(data.backup)) {
+                    await localforage.setItem(key, val);
+                }
+
+                window.logSystemAction('Cloud Database Import', 'system', 'استعادة نسخة احتياطية من السحاب');
+
+                alert("🎉 تم استعادة البيانات من السحاب بنجاح! سيتم إعادة تحميل النظام الآن.");
+                window.location.href = 'dashboard-pro.php';
+            } catch (err) {
+                console.error(err);
+                alert("❌ خطأ: " + err.message);
+                btn.disabled = false;
+                btn.innerText = 'تحميل واستعادة من السحاب';
+                const loader = document.getElementById('loader');
+                if(loader) loader.remove();
+            }
         }
     </script>
 </body>

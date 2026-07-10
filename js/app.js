@@ -1232,7 +1232,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add Audit Log dynamically for admins only
         if (user.securityLevel >= 8 || user.role === 'admin' || user.username === 'admin') {
             allNavItems.push({
-                href: 'audit-log.php', label: 'الصندوق الأسود (السجلات)', color: '#111827', module: 'dashboard', // set to dashboard so it ignores normal perms
+                href: 'audit-log.php', label: 'الصندوق الأسود', color: '#111827', module: 'dashboard', // set to dashboard so it ignores normal perms
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>'
             });
         }
@@ -1781,10 +1781,10 @@ document.addEventListener("DOMContentLoaded", function() {
         const timeEl = document.getElementById('header-clock');
         const dateEl = document.getElementById('header-date-mini');
         if (timeEl) {
-            timeEl.innerText = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            timeEl.innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
         }
         if (dateEl) {
-            dateEl.innerText = now.toLocaleDateString('ar-EG', { weekday: 'short', day: 'numeric', month: 'short' });
+            dateEl.innerText = now.toLocaleDateString('ar-EG-u-nu-latn', { weekday: 'short', day: 'numeric', month: 'short' });
         }
     }
     
@@ -1957,7 +1957,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(res => res.json())
         .then(data => {
             if (data && data.visible) {
-                exVal.innerText = parseFloat(data.rate).toLocaleString('ar-SA');
+                exVal.innerText = parseFloat(data.rate).toLocaleString('en-US');
                 exBox.style.display = 'block';
             }
         })
@@ -2012,7 +2012,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (exBox && exVal) {
                         if (data.exchange_rate.visible) {
                             exBox.style.display = 'block';
-                            exVal.innerText = parseFloat(data.exchange_rate.rate).toLocaleString('ar-SA');
+                            exVal.innerText = parseFloat(data.exchange_rate.rate).toLocaleString('en-US');
                         } else {
                             exBox.style.display = 'none';
                         }

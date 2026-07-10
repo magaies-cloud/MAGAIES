@@ -4,6 +4,236 @@
 /* ═══════════════════════════════════════════════════════
    CSS CUSTOM PROPERTIES — Design Tokens
    ═══════════════════════════════════════════════════════ */
+:root.light-theme {
+  /* Core Colors */
+  --bg-color:         #f1f5f9 !important;
+  --bg-secondary:     #ffffff !important;
+  --surface:          #ffffff !important;
+  --surface-color:    #ffffff !important;
+  --surface-hover:    rgba(241, 245, 249, 0.98) !important;
+  --border:           rgba(0, 0, 0, 0.08) !important;
+  --border-color:     rgba(0, 0, 0, 0.08) !important;
+  --border-highlight: rgba(0, 0, 0, 0.15) !important;
+  --glass-bg:         rgba(255, 255, 255, 0.9) !important;
+  --glass-border:     rgba(0, 0, 0, 0.08) !important;
+  --glass-border-hover: rgba(0, 0, 0, 0.15) !important;
+
+  /* Page specific variable overrides */
+  --bg-dark:          #f1f5f9 !important;
+  --panel-bg:         #ffffff !important;
+  --grn-primary:      #2563eb !important;
+  --grn-hover:        #1d4ed8 !important;
+
+  /* Text */
+  --text-primary:     #000000 !important;
+  --text-secondary:   #1e293b !important;
+  --text-muted:       #475569 !important;
+  --text-main:        #000000 !important;
+
+  /* Brand Accents — Sleek Light Palette */
+  --primary-accent:   #2563eb;   /* Deep Blue */
+  --primary-glow:     rgba(37, 99, 235, 0.15);
+  --success-color:    #059669;   /* Emerald Deep */
+  --success-glow:     rgba(5, 150, 105, 0.15);
+  --warning-color:    #d97706;   /* Amber Deep */
+  --warning-glow:     rgba(217, 119, 6, 0.15);
+  --danger-color:     #dc2626;   /* Red Deep */
+  --danger-glow:      rgba(220, 38, 38, 0.15);
+  --purple-color:     #7c3aed;   /* Purple Deep */
+  --purple-glow:      rgba(124, 58, 237, 0.15);
+  --pink-color:       #db2777;   /* Pink Deep */
+  --pink-glow:        rgba(219, 39, 119, 0.15);
+
+  /* Shadows */
+  --shadow-sm:        0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md:        0 8px 32px rgba(0, 0, 0, 0.08), 0 1px 0 rgba(255,255,255,0.8) inset;
+  --shadow-lg:        0 20px 60px rgba(0, 0, 0, 0.12);
+}
+
+/* Light Theme Elements Helper Styling rules */
+:root.light-theme body,
+:root.light-theme p,
+:root.light-theme td,
+:root.light-theme th,
+:root.light-theme tr,
+:root.light-theme label,
+:root.light-theme .panel-title,
+:root.light-theme .kpi-title,
+:root.light-theme .tot-lbl,
+:root.light-theme .list-title,
+:root.light-theme .list-sub,
+:root.light-theme .sidebar-text,
+:root.light-theme .header-company-name-top,
+:root.light-theme .header-page-title,
+:root.light-theme #header-user-name,
+:root.light-theme #header-clock,
+:root.light-theme #header-user-role,
+:root.light-theme .brand-text h1,
+:root.light-theme .brand-text p,
+:root.light-theme h1,
+:root.light-theme h2,
+:root.light-theme h3,
+:root.light-theme h4,
+:root.light-theme h5,
+:root.light-theme h6 {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+/* Header widgets override in Light Mode */
+:root.light-theme .user-info {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+:root.light-theme #header-user-name {
+  color: #000000 !important;
+}
+:root.light-theme #header-user-role {
+  color: #1e3a8a !important; /* Dark Blue */
+}
+:root.light-theme .clock-container {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+:root.light-theme #header-clock {
+  color: #059669 !important; /* High contrast green */
+  text-shadow: none !important;
+}
+:root.light-theme #header-date-mini {
+  color: #475569 !important;
+}
+:root.light-theme #online-users-badge {
+  background: rgba(5, 150, 105, 0.1) !important;
+  border-color: rgba(5, 150, 105, 0.2) !important;
+}
+:root.light-theme #online-users-badge span {
+  color: #047857 !important;
+}
+:root.light-theme #online-users-count {
+  color: #000000 !important;
+}
+:root.light-theme #global-exchange-rate-box {
+  background: rgba(217, 119, 6, 0.1) !important;
+  border-color: rgba(217, 119, 6, 0.2) !important;
+}
+:root.light-theme #global-exchange-rate-box span {
+  color: #b45309 !important;
+}
+:root.light-theme #global-exchange-rate-val {
+  color: #000000 !important;
+}
+:root.light-theme .islamic-ticker-container {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+:root.light-theme .ambient-bg {
+  background: radial-gradient(circle at 50% 50%, #f8fafc 0%, #cbd5e1 100%) !important;
+}
+:root.light-theme .glass-panel,
+:root.light-theme .panel,
+:root.light-theme .neo-card,
+:root.light-theme .editor-left,
+:root.light-theme .info-card,
+:root.light-theme .recent-receipts-card,
+:root.light-theme .premium-card,
+:root.light-theme .action-card,
+:root.light-theme .action-row,
+:root.light-theme .admin-actions-row,
+:root.light-theme .operations-actions-row,
+:root.light-theme div[style*="background: rgba(30, 41, 59, 0.4)"],
+:root.light-theme div[style*="background: rgba(15, 23, 42, 0.65)"] {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #000000 !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05) !important;
+}
+:root.light-theme td, :root.light-theme th, :root.light-theme tr {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+:root.light-theme input, :root.light-theme select, :root.light-theme textarea,
+:root.light-theme .v-input,
+:root.light-theme .wh-select,
+:root.light-theme .qty-input,
+:root.light-theme .ctrl-input {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid rgba(0, 0, 0, 0.18) !important;
+}
+:root.light-theme input::placeholder {
+  color: #64748b !important;
+}
+:root.light-theme .quick-action-btn,
+:root.light-theme .quick-action-btn.qa-purple {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  color: #000000 !important;
+}
+:root.light-theme .quick-action-btn:hover {
+  background: #e2e8f0 !important;
+  color: #000000 !important;
+}
+:root.light-theme .list-item {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  color: #000000 !important;
+}
+
+/* Vibrant Light Mode Header Gradients */
+:root.light-theme .premium-header.header-theme-dashboard {
+    background: linear-gradient(135deg, rgba(56,189,248,0.35), rgba(99,102,241,0.35), rgba(236,72,153,0.35), rgba(16,185,129,0.35)) !important;
+}
+:root.light-theme .premium-header.header-theme-sales {
+    background: linear-gradient(135deg, rgba(163,230,53,0.45), rgba(250,204,21,0.45), rgba(249,115,22,0.45), rgba(56,189,248,0.45)) !important;
+}
+:root.light-theme .premium-header.header-theme-purchase {
+    background: linear-gradient(135deg, rgba(56,189,248,0.35), rgba(99,102,241,0.35), rgba(236,72,153,0.35), rgba(16,185,129,0.35)) !important;
+}
+:root.light-theme .premium-header.header-theme-inventory {
+    background: linear-gradient(135deg, rgba(245,158,11,0.45), rgba(251,191,36,0.45), rgba(217,119,6,0.45), rgba(252,211,77,0.45)) !important;
+}
+:root.light-theme .premium-header.header-theme-masterdata {
+    background: linear-gradient(135deg, rgba(139,92,246,0.35), rgba(217,70,239,0.35), rgba(168,85,247,0.35), rgba(192,132,252,0.35)) !important;
+}
+:root.light-theme .premium-header.header-theme-reports {
+    background: linear-gradient(135deg, rgba(244,63,94,0.45), rgba(249,115,22,0.45), rgba(245,158,11,0.45), rgba(251,113,133,0.45)) !important;
+}
+:root.light-theme .premium-header.header-theme-alarm {
+    background: linear-gradient(135deg, rgba(239,68,68,0.45), rgba(249,115,22,0.45), rgba(220,38,38,0.45), rgba(244,63,94,0.45)) !important;
+}
+:root.light-theme .premium-header.header-theme-settings {
+    background: linear-gradient(135deg, rgba(71,85,105,0.35), rgba(14,165,233,0.35), rgba(99,102,241,0.35), rgba(100,116,139,0.35)) !important;
+}
+:root.light-theme .premium-header.header-theme-audit {
+    background: linear-gradient(135deg, rgba(244,114,182,0.35), rgba(168,85,247,0.35), rgba(99,102,241,0.35), rgba(56,189,248,0.35)) !important;
+}
+
+:root.light-theme .global-sidebar {
+  background: #ffffff !important;
+  border-left: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: -4px 0 25px rgba(0,0,0,0.05) !important;
+}
+:root.light-theme .sidebar-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+:root.light-theme .sidebar-logo-text {
+  color: #0f172a !important;
+}
+:root.light-theme .sidebar-item {
+  color: #475569 !important;
+}
+:root.light-theme .sidebar-item:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+  color: #000000 !important;
+}
+:root.light-theme .sidebar-item.active {
+  background: rgba(37, 99, 235, 0.08) !important;
+  color: #2563eb !important;
+}
+:root.light-theme .sidebar-text {
+  color: inherit !important;
+}
+
 :root {
   /* Core Colors */
   --bg-color:         #1E293B;
@@ -72,7 +302,7 @@
 }
 
 /* ── Light Mode Override ── */
-[data-theme="light"] {
+:root.light-theme, [data-theme="light"] {
   --bg-color:       #f8fafc;
   --bg-secondary:   #f1f5f9;
   --surface-color:  rgba(255, 255, 255, 0.95);

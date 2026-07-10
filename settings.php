@@ -1,4 +1,4 @@
-<?php $page_title = 'مقاييس 2026 - الإعدادات'; ?>
+<?php $page_title = 'الإعدادات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>

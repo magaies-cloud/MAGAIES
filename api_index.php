@@ -503,6 +503,24 @@ if ($token === $saasSecret) {
 }
 
 // ---------------------------------------------------------
+// CLOUD BACKUP & RESTORE
+// ---------------------------------------------------------
+if ($resource === 'cloud-backup') {
+    if ($method === 'POST') {
+        $val = json_encode($input['backup'] ?? []);
+        $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?")
+            ->execute(['tenant_backup_' . $tenant_id, $val, $val]);
+        jsonResponse(['success' => true]);
+    }
+    if ($method === 'GET') {
+        $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
+        $stmt->execute(['tenant_backup_' . $tenant_id]);
+        $val = $stmt->fetchColumn();
+        jsonResponse(['success' => true, 'backup' => $val ? json_decode($val, true) : null]);
+    }
+}
+
+// ---------------------------------------------------------
 // PING (ONLINE USERS)
 // ---------------------------------------------------------
 if ($resource === 'ping' && $method === 'POST') {

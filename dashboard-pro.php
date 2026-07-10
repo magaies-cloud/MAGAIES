@@ -352,41 +352,93 @@
         
         /* Fix double sidebar spacing issue */
         body.has-sidebar { padding-right: 0 !important; }
+
+        @keyframes toastIn { from { opacity:0; transform:translateY(-20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
+        @keyframes toastOut { from { opacity:1; transform:translateY(0) scale(1); } to { opacity:0; transform:translateY(-20px) scale(0.95); } }
     </style>
     <style>
         :root.light-theme {
             --bg-color: #f1f5f9;
             --surface: #ffffff;
-            --text-main: #0f172a;
-            --text-secondary: #475569;
-            --border-color: #e2e8f0;
+            --surface-hover: rgba(241, 245, 249, 0.98);
+            --border: rgba(0, 0, 0, 0.08);
+            --border-highlight: rgba(0, 0, 0, 0.15);
+            --primary-accent: #2563eb;
+            --theme-pink: #db2777;
+            --theme-blue: #1d4ed8;
+            --theme-green: #059669;
+            --theme-orange: #d97706;
+            --theme-red: #dc2626;
+            --theme-purple: #7c3aed;
         }
-        :root.light-theme body { background-color: var(--bg-color); color: var(--text-main); }
-        :root.light-theme .premium-header {
-            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(241,245,249,0.9));
-            border: 1px solid rgba(0,0,0,0.1);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        :root.light-theme body {
+            background-color: var(--bg-color);
+            color: #000000;
         }
-        :root.light-theme .header-center h2 { background: linear-gradient(to right, #0f172a, #334155); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        :root.light-theme .brand-text h1 { color: #0f172a; text-shadow: none; }
-        :root.light-theme .brand-text p { color: #475569; text-shadow: none; }
-        :root.light-theme .icon-btn, :root.light-theme .user-info, :root.light-theme .clock-container { background: rgba(255,255,255,0.8); color: #0f172a; border-color: rgba(0,0,0,0.1); }
-        :root.light-theme .icon-btn:hover { background: #f8fafc; color: #000; box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
-        :root.light-theme #header-user-name { color: #0f172a !important; }
-        :root.light-theme .online-users { background: rgba(16,185,129,0.1) !important; border-color: rgba(16,185,129,0.2) !important; }
-        :root.light-theme .admin-action-btn { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1); color: #0f172a; }
-        :root.light-theme .admin-action-btn:hover { background: rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.18); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
-        :root.light-theme .admin-actions-row { background: rgba(0, 0, 0, 0.03); border-color: rgba(0, 0, 0, 0.06); box-shadow: none; }
-        :root.light-theme .operations-actions-row { background: rgba(0, 0, 0, 0.015); border-color: rgba(0, 0, 0, 0.04); box-shadow: none; }
-        :root.light-theme .actions-row-title { color: #475569; border-left-color: rgba(0,0,0,0.12); }
+        :root.light-theme .ambient-bg {
+            background: radial-gradient(circle at 50% 50%, #f8fafc 0%, #cbd5e1 100%) !important;
+        }
+        :root.light-theme .panel,
+        :root.light-theme .neo-card,
+        :root.light-theme .glass-panel {
+            background: var(--surface) !important;
+            border-color: var(--border) !important;
+            color: #000000 !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06) !important;
+        }
+        :root.light-theme td, :root.light-theme th, :root.light-theme tr {
+            color: #000000 !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        :root.light-theme .pos-grid thead th {
+            background: rgba(0, 0, 0, 0.04) !important;
+            color: #000000 !important;
+        }
+        :root.light-theme .pos-grid tbody tr {
+            background: rgba(255, 255, 255, 0.95) !important;
+        }
+        :root.light-theme .pos-grid tbody tr:hover {
+            background: rgba(0, 0, 0, 0.04) !important;
+        }
+        :root.light-theme input, :root.light-theme select, :root.light-theme textarea {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid rgba(0, 0, 0, 0.18) !important;
+        }
+        :root.light-theme .admin-action-btn {
+            background: rgba(0,0,0,0.03);
+            border-color: rgba(0,0,0,0.1);
+            color: #000000;
+        }
+        :root.light-theme .admin-action-btn:hover {
+            background: rgba(0,0,0,0.06);
+            border-color: rgba(0,0,0,0.18);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+        :root.light-theme .admin-actions-row {
+            background: rgba(0, 0, 0, 0.03);
+            border-color: rgba(0, 0, 0, 0.06);
+            box-shadow: none;
+        }
+        :root.light-theme .operations-actions-row {
+            background: rgba(0, 0, 0, 0.015);
+            border-color: rgba(0, 0, 0, 0.04);
+            box-shadow: none;
+        }
+        :root.light-theme .actions-row-title {
+            color: #1e293b;
+            border-left-color: rgba(0,0,0,0.12);
+        }
+        :root.light-theme .islamic-ticker-container {
+            background: rgba(0, 0, 0, 0.04) !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        :root.light-theme #ticker-profit,
+        :root.light-theme #ticker-monthly-profit {
+            color: #059669 !important; /* High contrast green */
+        }
     </style>
-    <script>
-        if(localStorage.getItem('erp_theme') === 'light') document.documentElement.classList.add('light-theme');
-        function toggleTheme() {
-            document.documentElement.classList.toggle('light-theme');
-            localStorage.setItem('erp_theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
-        }
-    </script>
+    
 </head>
 <body>
 
@@ -402,6 +454,32 @@
         <!-- Unified Premium Header -->
         <?php $header_theme_class = 'header-theme-dashboard'; ?>
         <?php include 'includes/header.php'; ?>
+
+        <!-- Ultra Premium Instant Financial Ticker -->
+        <div class="glass-panel no-print" style="padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; border-left: 4px solid var(--theme-green); overflow: hidden; border-radius: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 1.2rem; animation: pulse 2s infinite;">📈</span>
+                <span style="font-weight: 800; font-size: 0.9rem; color: var(--text-secondary);">ملخص الأرباح والخسائر الفوري (اليوم/الشهر):</span>
+            </div>
+            <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                <div style="font-size: 0.9rem; font-weight: 700;">
+                    <span style="color: var(--text-secondary);">مبيعات اليوم: </span>
+                    <strong id="ticker-sales" style="color: var(--theme-blue);">0 SDG</strong>
+                </div>
+                <div style="font-size: 0.9rem; font-weight: 700;">
+                    <span style="color: var(--text-secondary);">أرباح اليوم التقريبية: </span>
+                    <strong id="ticker-profit" style="color: #34d399;">0 SDG</strong>
+                </div>
+                <div style="font-size: 0.9rem; font-weight: 700;">
+                    <span style="color: var(--text-secondary);">أرباح الشهر الجاري: </span>
+                    <strong id="ticker-monthly-profit" style="color: #34d399; font-weight: 900;">0 SDG</strong>
+                </div>
+                <div style="font-size: 0.9rem; font-weight: 700;">
+                    <span style="color: var(--text-secondary);">إجمالي السيولة: </span>
+                    <strong id="ticker-liquidity" style="color: var(--theme-green);">0 SDG</strong>
+                </div>
+            </div>
+        </div>
 
         <!-- Ultra Premium Quick Actions Grid -->
         <div class="glass-panel" style="padding: 22px;">
@@ -811,6 +889,73 @@
             }).join('');
             document.getElementById('low-stock-list').innerHTML = lowStockHTML || '<div style="color:var(--text-secondary); font-size:0.85rem; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 10px; text-align: center;">المخزون آمن حالياً ✅</div>';
 
+            // Dynamic cost calculation
+            function getItemCost(itemId) {
+                const item = items.find(i => i.id === itemId);
+                if (item && item.openingQty > 0 && item.openingValue > 0) {
+                    return Number(item.openingValue) / Number(item.openingQty);
+                }
+                const purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]');
+                let lastPrice = null;
+                for (let inv of purchases) {
+                    if (inv.deleted) continue;
+                    const line = (inv.items || inv.lines || []).find(l => l.itemId === itemId || l.productId === itemId);
+                    if (line && line.price) {
+                        lastPrice = Number(line.price);
+                        break;
+                    }
+                }
+                if (lastPrice !== null) return lastPrice;
+                if (item) {
+                    let sp = item.sellingPrice || (item.units && item.units[0] ? item.units[0].cashPrice : 0) || 0;
+                    return sp * 0.7; // default 30% margin fallback
+                }
+                return 0;
+            }
+
+            // Calculate Today's Profit & Monthly Profit
+            const todayInvoices = invoices.filter(inv => inv.date && inv.date.startsWith(todayStr));
+            let todayProfit = 0;
+            todayInvoices.forEach(inv => {
+                let invProfit = 0;
+                (inv.items || []).forEach(line => {
+                    const cost = getItemCost(line.itemId);
+                    const sellPrice = Number(line.price) || 0;
+                    const qty = Number(line.quantity) || 0;
+                    invProfit += (sellPrice - cost) * qty;
+                });
+                const disc = Number(inv.discount) || 0;
+                todayProfit += (invProfit - disc);
+            });
+
+            const currentMonthStr = `${year}-${month}`;
+            const monthlyInvoices = invoices.filter(inv => inv.date && inv.date.startsWith(currentMonthStr));
+            let monthlyProfit = 0;
+            monthlyInvoices.forEach(inv => {
+                let invProfit = 0;
+                (inv.items || []).forEach(line => {
+                    const cost = getItemCost(line.itemId);
+                    const sellPrice = Number(line.price) || 0;
+                    const qty = Number(line.quantity) || 0;
+                    invProfit += (sellPrice - cost) * qty;
+                });
+                const disc = Number(inv.discount) || 0;
+                monthlyProfit += (invProfit - disc);
+            });
+
+            // Update Ticker
+            if (document.getElementById('ticker-sales')) document.getElementById('ticker-sales').innerText = todaySales.toLocaleString('en-US') + ' SDG';
+            if (document.getElementById('ticker-profit')) document.getElementById('ticker-profit').innerText = todayProfit.toLocaleString('en-US') + ' SDG';
+            if (document.getElementById('ticker-monthly-profit')) document.getElementById('ticker-monthly-profit').innerText = monthlyProfit.toLocaleString('en-US') + ' SDG';
+            if (document.getElementById('ticker-liquidity')) document.getElementById('ticker-liquidity').innerText = totalLiquidity.toLocaleString('en-US') + ' SDG';
+
+            // Trigger Stock Alerts Toast if any critical items
+            const criticalItems = lowStockItems.filter(item => getItemActualStock(item.id) <= 0);
+            if (criticalItems.length > 0 && !sessionStorage.getItem('stock_alert_shown')) {
+                showToast(`⚠️ تنبيه مخزون: هناك ${criticalItems.length} أصناف نفذت تماماً من المخزن! يرجى مراجعة التنبيهات.`, 'error');
+                sessionStorage.setItem('stock_alert_shown', 'true');
+            }
+
             // 4.5 Pending Deliveries
             const pendingDeliveries = invoices.filter(inv => {
                 const s = inv.deliveryStatus;
@@ -1067,6 +1212,38 @@
         </div>
 
         <script>
+        function showToast(message, type = 'success') {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'toast-container';
+                container.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none;';
+                document.body.appendChild(container);
+            }
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            let bg = 'rgba(52,211,153,0.15)';
+            let border = '1px solid rgba(52,211,153,0.4)';
+            let color = '#34d399';
+            if (type === 'error') {
+                bg = 'rgba(239,68,68,0.15)';
+                border = '1px solid rgba(239,68,68,0.4)';
+                color = '#f87171';
+            } else if (type === 'warning') {
+                bg = 'rgba(251,191,36,0.15)';
+                border = '1px solid rgba(251,191,36,0.4)';
+                color = '#fbbf24';
+            }
+            toast.style.cssText = `padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:8px; pointer-events:auto; backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5); color:${color}; background:${bg}; border:${border}; font-family:'Tajawal',sans-serif; animation: toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both;`;
+            toast.innerHTML = `<span>${type === 'error' ? '🔴' : (type === 'warning' ? '🟡' : '🟢')}</span> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'toastOut 0.4s cubic-bezier(0.16,1,0.3,1) both';
+                setTimeout(() => toast.remove(), 400);
+            }, 5000);
+        }
+
         function runAICFO() {
             document.getElementById('aiCFO-modal').style.display = 'flex';
             document.getElementById('aiCFO-content').innerHTML = 'جاري تحليل بيانات الشركة واستخراج التقرير... يرجى الانتظار ⏳';
@@ -1107,6 +1284,9 @@
                 document.getElementById('aiCFO-content').innerHTML = '<span style="color:#f43f5e">تعذر الاتصال بخادم الذكاء الاصطناعي.</span>';
             });
         }
+        window.addEventListener('themeChanged', () => {
+            location.reload();
+        });
         </script>
     
 </body>

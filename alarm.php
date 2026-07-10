@@ -1,4 +1,4 @@
-<?php $page_title = 'مركز التنبيهات - مقاييس (MAGAIEES)'; ?>
+<?php $page_title = 'مركز التنبيهات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>

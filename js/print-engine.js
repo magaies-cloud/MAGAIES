@@ -1,4 +1,4 @@
-﻿/* ═══════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    print-engine.js — Universal Invoice Print Engine v2.0
    Shared by: direct-sales, sales-invoice, purchase, reserved-sales
    ═══════════════════════════════════════════════════════════ */
@@ -23,7 +23,7 @@ window.InvoicePrinter = (function () {
         const companyAddress = cfg.address || '';
         const companyReg = cfg.regNumber || '';
         const currency = data.currency || cfg.currency || 'SDG';
-        const printedAt = new Date().toLocaleString('ar-SD');
+        const printedAt = new Date().toLocaleString('ar-SD-u-nu-latn');
 
         // Build copies array: [customer, company, warehouse]
         const copies = [];

@@ -1,4 +1,4 @@
-<?php $page_title = 'مقاييس 2026 - التقارير'; ?>
+<?php $page_title = 'التقارير'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -11,11 +11,82 @@
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+    
+
+        :root.light-theme {
+            --bg-color: #f1f5f9;
+            --glass-border: rgba(0, 0, 0, 0.08);
+        }
+        :root.light-theme body {
+            background-color: var(--bg-color);
+            color: #000000;
+        }
+        :root.light-theme .ambient-bg {
+            background: radial-gradient(circle at 50% 50%, #f8fafc 0%, #cbd5e1 100%) !important;
+        }
+        :root.light-theme .glass-panel,
+        :root.light-theme .chart-card,
+        :root.light-theme .ai-insights-section {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            color: #000000 !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05) !important;
+        }
+        :root.light-theme .chart-title {
+            color: #000000 !important;
+        }
+        :root.light-theme h3,
+        :root.light-theme h4,
+        :root.light-theme .kpi-label {
+            color: #000000 !important;
+        }
+        :root.light-theme .kpi-value {
+            color: #0f172a !important;
+        }
+        :root.light-theme .ai-card {
+            background: #ffffff !important;
+            border-color: rgba(139, 92, 246, 0.2) !important;
+            color: #000000 !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03) !important;
+        }
+        :root.light-theme .ai-card h4 {
+            color: #1e293b !important;
+        }
+        :root.light-theme .ai-card p {
+            color: #475569 !important;
+        }
+        :root.light-theme .ai-card div[style*="background: rgba(0,0,0,0.3)"] {
+            background: rgba(0, 0, 0, 0.03) !important;
+            border-color: rgba(0, 0, 0, 0.1) !important;
+            color: #1e293b !important;
+        }
+        :root.light-theme .ai-card div[style*="background: rgba(0,0,0,0.3)"] strong {
+            color: #000000 !important;
+        }
+        :root.light-theme .report-category-card {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            color: #000000 !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05) !important;
+        }
+        :root.light-theme .report-category-title {
+            color: #0ea5e9 !important;
+        }
+        :root.light-theme .report-link-item {
+            background: rgba(0, 0, 0, 0.03) !important;
+            color: #334155 !important;
+            border-color: rgba(0, 0, 0, 0.05) !important;
+        }
+        :root.light-theme .report-link-item:hover {
+            background: rgba(0, 0, 0, 0.06) !important;
+            color: #000000 !important;
+        }
         :root {
             --bg-color: #050308;
             --surface: rgba(18, 15, 25, 0.65);
             --surface-hover: rgba(28, 24, 38, 0.85);
             --border: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.08);
             --border-highlight: rgba(255, 255, 255, 0.2);
             
             --theme-pink: #ec4899;

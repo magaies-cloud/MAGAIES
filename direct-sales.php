@@ -1,11 +1,11 @@
-<?php $page_title = 'المبيعات المباشرة'; ?>
+<?php $page_title = 'المبيعات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المبيعات المباشرة | Al-Sajana Protocol</title>
+    <title>المبيعات | Al-Sajana Protocol</title>
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
     <link rel="stylesheet" href="css/sales-invoice.css">
@@ -947,27 +947,48 @@
             box-shadow: 0 0 20px rgba(168, 85, 247, 0.2), inset 0 0 15px rgba(255, 255, 255, 0.05) !important;
         }
     </style>
-        <style>
+    <style>
         :root.light-theme {
             --bg-color: #f1f5f9;
             --surface: #ffffff;
-            --text-main: #0f172a;
-            --text-secondary: #475569;
-            --border-color: #e2e8f0;
+            --surface-hover: rgba(241, 245, 249, 0.98);
+            --border: rgba(0, 0, 0, 0.08);
+            --border-highlight: rgba(0, 0, 0, 0.15);
         }
-        :root.light-theme body { background-color: var(--bg-color); color: var(--text-main); }
-        :root.light-theme .premium-header {
-            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(241,245,249,0.9));
-            border: 1px solid rgba(0,0,0,0.1);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        :root.light-theme body {
+            background-color: var(--bg-color);
+            color: #000000;
         }
-        :root.light-theme .header-center h2 { background: linear-gradient(to right, #0f172a, #334155); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        :root.light-theme .brand-text h1 { color: #0f172a; text-shadow: none; }
-        :root.light-theme .brand-text p { color: #475569; text-shadow: none; }
-        :root.light-theme .icon-btn, :root.light-theme .user-info, :root.light-theme .clock-container { background: rgba(255,255,255,0.8); color: #0f172a; border-color: rgba(0,0,0,0.1); }
-        :root.light-theme .icon-btn:hover { background: #f8fafc; color: #000; box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
-        :root.light-theme #header-user-name { color: #0f172a !important; }
-        :root.light-theme .online-users { background: rgba(16,185,129,0.1) !important; border-color: rgba(16,185,129,0.2) !important; }
+        :root.light-theme .ambient-bg {
+            background: radial-gradient(circle at 50% 50%, #f8fafc 0%, #cbd5e1 100%) !important;
+        }
+        :root.light-theme .panel,
+        :root.light-theme .neo-card,
+        :root.light-theme .glass-panel {
+            background: var(--surface) !important;
+            border-color: var(--border) !important;
+            color: #000000 !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06) !important;
+        }
+        :root.light-theme td, :root.light-theme th, :root.light-theme tr {
+            color: #000000 !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        :root.light-theme .pos-grid thead th {
+            background: rgba(0, 0, 0, 0.04) !important;
+            color: #000000 !important;
+        }
+        :root.light-theme .pos-grid tbody tr {
+            background: rgba(255, 255, 255, 0.95) !important;
+        }
+        :root.light-theme .pos-grid tbody tr:hover {
+            background: rgba(0, 0, 0, 0.04) !important;
+        }
+        :root.light-theme input, :root.light-theme select, :root.light-theme textarea {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid rgba(0, 0, 0, 0.18) !important;
+        }
     
         /* User request: Sky Blue outer border for invoice header inputs */
         .ds-top-row .ctrl-input, 
@@ -1180,13 +1201,7 @@
         }
 
     </style>
-    <script>
-        if(localStorage.getItem('erp_theme') === 'light') document.documentElement.classList.add('light-theme');
-        function toggleTheme() {
-            document.documentElement.classList.toggle('light-theme');
-            localStorage.setItem('erp_theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
-        }
-    </script>
+    
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 <script defer src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
  <style>
@@ -1804,6 +1819,9 @@
                             onfocus="this.select(); showQuickItemDropdown()"
                             onblur="hideQuickItemDropdownDelayed()"
                             oninput="filterQuickItemDropdown()" autocomplete="new-password">
+                        <button type="button" onclick="startCameraScanner('quick-item-search')" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.35); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #38bdf8; font-size: 1.1rem; border-color: rgba(56,189,248,0.35);" title="مسح باركود بالكاميرا">
+                            📷
+                        </button>
                         <div class="custom-dropdown-list" id="quick-item-dropdown-list" style="text-align:right; top: 100%; left: 0; right: 0; position: absolute;"></div>
                     </div>
                     
@@ -1934,7 +1952,7 @@
             // Restore header title to "المبيعات المباشرة"
             const headerTitle = document.querySelector('.header-page-title');
             if (headerTitle) {
-                headerTitle.innerHTML = '<span class="header-page-title-icon">🛒</span> المبيعات المباشرة';
+                headerTitle.innerHTML = '<span class="header-page-title-icon">🛒</span> المبيعات';
             }
             
             loadHubTransactions();
@@ -2148,7 +2166,7 @@
 
                 tr.innerHTML = `
                     <td style="text-align:right; font-weight:800; color:${serialColor};">${inv.invoiceNo}</td>
-                    <td style="text-align:right; color:var(--text-dim);">${new Date(inv.timestamp || inv.date).toLocaleString('ar-EG')}</td>
+                    <td style="text-align:right; color:var(--text-dim);">${new Date(inv.timestamp || inv.date).toLocaleString('ar-EG-u-nu-latn')}</td>
                     <td style="text-align:right; font-weight:600;">${inv.customerName || getCustomerName(inv.customer || inv.customerId) || 'عميل غير محدد'}</td>
                     <td style="text-align:right; color:var(--text-dim);">${itemText}</td>
                     <td style="text-align:center; color:var(--text-dim);">${qtyText}</td>
@@ -2538,5 +2556,122 @@
         }, 600);
     });
     </script>
+
+<!-- Barcode Scanner Modal -->
+<div id="barcode-scanner-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 999999; justify-content: center; align-items: center; direction: rtl;">
+    <div class="glass-panel" style="width: 90%; max-width: 480px; padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); position: relative; text-align: center; background: rgba(30,41,59,0.9);">
+        <button onclick="stopCameraScanner()" style="position: absolute; top: 15px; left: 15px; background: none; border: none; color: #f43f5e; font-size: 1.8rem; cursor: pointer;">&times;</button>
+        <h3 style="color: #38bdf8; margin-bottom: 15px; font-weight: 800;">📷 قارئ الباركود عبر الكاميرا</h3>
+        <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 20px;">وجه مربع الكاميرا نحو الرمز الشريطي (Barcode) للمنتج لقراءته تلقائياً.</p>
+        <div id="scanner-viewport" style="width: 100%; aspect-ratio: 4/3; background: #000; border-radius: 12px; overflow: hidden; border: 2px solid rgba(56,189,248,0.4); position: relative;"></div>
+        <div id="scanner-status" style="margin-top: 15px; color: #fbbf24; font-weight: bold; font-size: 0.9rem;">جاري تهيئة الكاميرا...</div>
+    </div>
+</div>
+
+<script>
+let html5QrcodeScanner = null;
+
+function startCameraScanner(targetInputId) {
+    document.getElementById('barcode-scanner-modal').style.display = 'flex';
+    document.getElementById('scanner-status').innerText = 'جاري تشغيل الكاميرا...';
+    document.getElementById('scanner-status').style.color = '#fbbf24';
+
+    loadScannerLibrary(() => {
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.clear().catch(() => {});
+        }
+        
+        html5QrcodeScanner = new Html5Qrcode("scanner-viewport");
+        const config = { fps: 15, qrbox: { width: 280, height: 180 } };
+        
+        html5QrcodeScanner.start(
+            { facingMode: "environment" },
+            config,
+            (decodedText, decodedResult) => {
+                const items = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+                const matchedItem = items.find(item => {
+                    if (item.barcode === decodedText) return true;
+                    if (item.units && Array.isArray(item.units)) {
+                        return item.units.some(u => u.barcode === decodedText);
+                    }
+                    return false;
+                });
+                
+                if (matchedItem) {
+                    playScanBeep();
+                    if (typeof selectQuickItem === 'function') {
+                        selectQuickItem(matchedItem.id);
+                    } else {
+                        const input = document.getElementById(targetInputId);
+                        if (input) {
+                            input.value = decodedText;
+                            input.dispatchEvent(new Event('input'));
+                        }
+                    }
+                    stopCameraScanner();
+                } else {
+                    playScanBeep();
+                    const input = document.getElementById(targetInputId);
+                    if (input) {
+                        input.value = decodedText;
+                        input.dispatchEvent(new Event('input'));
+                    }
+                    alert(`⚠️ لم يتم العثور على صنف بالباركود: ${decodedText}`);
+                    stopCameraScanner();
+                }
+            },
+            (errorMessage) => {}
+        ).then(() => {
+            document.getElementById('scanner-status').innerText = '🟢 الكاميرا متصلة وتعمل حالياً';
+            document.getElementById('scanner-status').style.color = '#34d399';
+        }).catch(err => {
+            document.getElementById('scanner-status').innerText = '❌ تعذر الوصول للكاميرا: يرجى إعطاء الصلاحية';
+            document.getElementById('scanner-status').style.color = '#f43f5e';
+            console.error("Camera access failed", err);
+        });
+    });
+}
+
+function stopCameraScanner() {
+    document.getElementById('barcode-scanner-modal').style.display = 'none';
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.stop().then(() => {
+            return html5QrcodeScanner.clear();
+        }).catch(err => {
+            console.error("Failed to stop scanner", err);
+        }).finally(() => {
+            html5QrcodeScanner = null;
+        });
+    }
+}
+
+function loadScannerLibrary(callback) {
+    if (window.Html5Qrcode) {
+        callback();
+        return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/html5-qrcode';
+    script.onload = callback;
+    document.head.appendChild(script);
+}
+
+function playScanBeep() {
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
+    } catch(e) {
+        console.error("Failed to play audio", e);
+    }
+}
+</script>
 </body>
 </html>
