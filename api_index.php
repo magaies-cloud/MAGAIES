@@ -463,6 +463,19 @@ if ($token === $saasSecret) {
             $retCode = 0;
             $isWindows = (stristr(PHP_OS, 'WIN') || DIRECTORY_SEPARATOR === '\\');
             
+            // Get current PHP user and file owner to give a precise SSH command
+            $currentUser = 'unknown';
+            if (function_exists('posix_getpwuid') && function_exists('posix_geteuid')) {
+                $currentUser = posix_getpwuid(posix_geteuid())['name'] ?? 'unknown';
+            } else {
+                $currentUser = trim(@shell_exec('whoami') ?: 'unknown');
+            }
+            
+            $fileOwner = 'unknown';
+            if (function_exists('posix_getpwuid') && file_exists($file)) {
+                $fileOwner = posix_getpwuid(fileowner($file))['name'] ?? 'unknown';
+            }
+            
             // Try to set safe git directory ownership for the web server user
             @exec("git config --global --add safe.directory " . escapeshellarg(__DIR__) . " 2>&1");
             
@@ -481,7 +494,7 @@ if ($token === $saasSecret) {
                 if ($isWritable) {
                     jsonResponse([
                         'success' => false, 
-                        'error' => 'فشل قفل الملف: صلاحيات السيرفر الحالية تمنع خادم الويب من تعديل تصاريح الملف (Permission Denied). إذا كان السيرفر لينكس يرجى تشغيل: ./lock_whatsapp_service.sh ، وإذا كان ويندوز يرجى تشغيل: attrib +r whatsapp-service.mjs',
+                        'error' => "فشل قفل الملف: خادم الويب (المستخدم: {$currentUser}) لا يملك الصلاحية لتعديل تصاريح الملف (المالك الحالي للملف: {$fileOwner}). لتمكين الأزرار من العمل يرجى تشغيل هذا الأمر مرة واحدة في SSH على السيرفر:\n\nsudo chown {$currentUser}:{$currentUser} " . escapeshellarg($file),
                         'git_output' => implode("\n", $output),
                         'os' => PHP_OS
                     ], 500);
@@ -507,7 +520,7 @@ if ($token === $saasSecret) {
                 if (!$isWritable) {
                     jsonResponse([
                         'success' => false, 
-                        'error' => 'فشل فك قفل الملف: صلاحيات السيرفر تمنع خادم الويب من تغيير تصاريح الملف. إذا كان السيرفر لينكس يرجى تشغيل: chmod 644 whatsapp-service.mjs ، وإذا كان ويندوز يرجى تشغيل: attrib -r whatsapp-service.mjs',
+                        'error' => "فشل فك قفل الملف: خادم الويب (المستخدم: {$currentUser}) لا يملك الصلاحية لتعديل تصاريح الملف (المالك الحالي للملف: {$fileOwner}). لتمكين الأزرار من العمل يرجى تشغيل هذا الأمر مرة واحدة في SSH على السيرفر:\n\nsudo chown {$currentUser}:{$currentUser} " . escapeshellarg($file),
                         'git_output' => implode("\n", $output),
                         'os' => PHP_OS
                     ], 500);
