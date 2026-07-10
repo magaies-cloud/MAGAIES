@@ -455,6 +455,7 @@ $tenant_id = null;
 $saasSecret = defined('SAAS_ADMIN_TOKEN') ? SAAS_ADMIN_TOKEN : getenv('SAAS_ADMIN_TOKEN');
 
 if ($token === $saasSecret) {
+    if ($resource === 'saas') {
         if ($action === 'wa-lock' || $action === 'wa-unlock') {
             $isLock = ($action === 'wa-lock');
             $file = __DIR__ . '/whatsapp-service.mjs';
