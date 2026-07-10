@@ -1311,32 +1311,113 @@
             background-color: var(--gold-primary);
         }
 
-        /* Context Menu */
+        /* Context Menu Crystal Glass Styling */
         #col-context-menu {
-            position: absolute;
-            z-index: 100000;
-            background: var(--velvet-panel-hover);
-            border: 1px solid var(--gold-border);
-            border-radius: 8px;
-            padding: 10px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            position: fixed;
+            background: rgba(15, 23, 42, 0.96) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(56, 189, 248, 0.25) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 15px rgba(56, 189, 248, 0.1) !important;
+            color: #ffffff !important;
+            font-family: 'Tajawal', sans-serif !important;
+            width: 250px !important;
+            z-index: 100000 !important;
             display: none;
-            min-width: 150px;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            flex-direction: column;
+            padding: 8px 0 !important;
+            overflow: visible !important;
+            animation: contextFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
+        @keyframes contextFadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(-5px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .context-menu-header {
+            padding: 8px 16px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: #38bdf8;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(56, 189, 248, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .context-menu-item {
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: rgba(241, 245, 249, 0.9);
+            position: relative;
+        }
+
+        .context-menu-item:hover {
+            background: rgba(56, 189, 248, 0.15);
+            color: #ffffff;
+        }
+
+        .context-submenu {
+            position: absolute;
+            right: 100%;
+            top: 0;
+            background: rgba(15, 23, 42, 0.98);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 10px;
+            width: 200px;
+            display: none;
+            flex-direction: column;
+            padding: 6px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 100001;
+        }
+
+        .context-menu-item:hover > .context-submenu {
+            display: flex;
+        }
+
+        .context-submenu-item {
+            padding: 8px 14px;
+            font-size: 0.8rem;
+            color: rgba(241, 245, 249, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .context-submenu-item:hover {
+            background: rgba(56, 189, 248, 0.15);
+            color: #ffffff;
+        }
+
+        .context-submenu-item.active {
+            color: #38bdf8;
+            font-weight: 800;
+        }
+
         .col-toggle-item {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 10px;
+            padding: 6px 14px;
             cursor: pointer;
             color: #fff;
             font-size: 0.8rem;
-            border-radius: 4px;
+            width: 100%;
         }
         .col-toggle-item:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(56, 189, 248, 0.15);
         }
  
         
@@ -2536,8 +2617,88 @@
     
     <!-- Context Menu for Columns -->
     <div id="col-context-menu">
-        <div style="font-size: 0.75rem; color: var(--gold-primary); margin-bottom: 8px; font-weight: bold; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">إظهار/إخفاء الأعمدة</div>
-        <div id="col-toggle-list" style="max-height: 300px; overflow-y: auto;"></div>
+        <!-- Header -->
+        <div class="context-menu-header" style="font-size: 0.85rem; color: #38bdf8; margin-bottom: 8px; font-weight: bold; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px;">
+            ⚙️ <span id="context-col-name">تخصيص العمود</span>
+        </div>
+        
+        <!-- Alignment Sub-menu -->
+        <div class="context-menu-item">
+            محاذاة النص <span>◀</span>
+            <div class="context-submenu">
+                <div class="context-submenu-item" onclick="setColumnAlign('right')">➡️ يمين (أقصى اليمين)</div>
+                <div class="context-submenu-item" onclick="setColumnAlign('center')">↔️ في المنتصف</div>
+                <div class="context-submenu-item" onclick="setColumnAlign('left')">⬅️ يسار</div>
+            </div>
+        </div>
+        
+        <!-- Font Size Sub-menu -->
+        <div class="context-menu-item">
+            حجم الخط <span>◀</span>
+            <div class="context-submenu">
+                <div class="context-submenu-item" onclick="setColumnFontSize('0.9rem')">صغير</div>
+                <div class="context-submenu-item" onclick="setColumnFontSize('1.05rem')">متوسط (+درجتين)</div>
+                <div class="context-submenu-item" onclick="setColumnFontSize('1.25rem')">كبير (+4 درجات)</div>
+                <div class="context-submenu-item" onclick="setColumnFontSize('1.5rem')">كبير جداً</div>
+            </div>
+        </div>
+        
+        <!-- Font Weight Sub-menu -->
+        <div class="context-menu-item">
+            سماكة الخط <span>◀</span>
+            <div class="context-submenu">
+                <div class="context-submenu-item" onclick="setColumnFontWeight('bold')">🔠 عريض (Bold)</div>
+                <div class="context-submenu-item" onclick="setColumnFontWeight('normal')">📄 عادي (Regular)</div>
+            </div>
+        </div>
+        
+        <!-- Decimals Sub-menu (Conditional) -->
+        <div class="context-menu-item" id="context-decimals-option">
+            الخانات العشرية <span>◀</span>
+            <div class="context-submenu">
+                <div class="context-submenu-item" onclick="setColumnDecimals(0)">0 (بدون فواصل)</div>
+                <div class="context-submenu-item" onclick="setColumnDecimals(1)">1 (فاصلة واحدة)</div>
+                <div class="context-submenu-item" onclick="setColumnDecimals(2)">2 (فاصلتين)</div>
+                <div class="context-submenu-item" onclick="setColumnDecimals(3)">3 (ثلاث فواصل)</div>
+                <div class="context-submenu-item" onclick="setColumnDecimals(4)">4 (أربع فواصل)</div>
+            </div>
+        </div>
+        
+        <!-- Text Color Sub-menu -->
+        <div class="context-menu-item">
+            لون الخط <span>◀</span>
+            <div class="context-submenu">
+                <div class="context-submenu-item" onclick="setColumnColor('')"><span class="color-dot" style="background:#fff; width:10px; height:10px; border-radius:50%; display:inline-block; margin-left:6px; border:1px solid #ccc;"></span> افتراضي</div>
+                <div class="context-submenu-item" onclick="setColumnColor('#000000')"><span class="color-dot" style="background:#000; width:10px; height:10px; border-radius:50%; display:inline-block; margin-left:6px; border:1px solid #ccc;"></span> أسود داكن</div>
+                <div class="context-submenu-item" onclick="setColumnColor('#10b981')"><span class="color-dot" style="background:#10b981; width:10px; height:10px; border-radius:50%; display:inline-block; margin-left:6px; border:1px solid #ccc;"></span> أخضر زمردي</div>
+                <div class="context-submenu-item" onclick="setColumnColor('#fbbf24')"><span class="color-dot" style="background:#fbbf24; width:10px; height:10px; border-radius:50%; display:inline-block; margin-left:6px; border:1px solid #ccc;"></span> ذهبي</div>
+                <div class="context-submenu-item" onclick="setColumnColor('#38bdf8')"><span class="color-dot" style="background:#38bdf8; width:10px; height:10px; border-radius:50%; display:inline-block; margin-left:6px; border:1px solid #ccc;"></span> أزرق سماوي</div>
+                <div class="context-submenu-item" onclick="setColumnColor('#f87171')"><span class="color-dot" style="background:#f87171; width:10px; height:10px; border-radius:50%; display:inline-block; margin-left:6px; border:1px solid #ccc;"></span> أحمر</div>
+            </div>
+        </div>
+        
+        <div style="height:1px; background:rgba(255,255,255,0.08); margin:6px 0;"></div>
+        
+        <!-- Position reordering direct options -->
+        <div class="context-menu-item" onclick="moveColumn('right')">
+            نقل لليمين ➡️
+        </div>
+        <div class="context-menu-item" onclick="moveColumn('left')">
+            نقل لليسار ⬅️
+        </div>
+        <div class="context-menu-item" onclick="hideCurrentColumn()" style="color:#f87171;">
+            إزالة العمود ❌
+        </div>
+        
+        <div style="height:1px; background:rgba(255,255,255,0.08); margin:6px 0;"></div>
+        
+        <!-- Manage columns visibility submenu -->
+        <div class="context-menu-item">
+            أضف/أظهر الأعمدة ➕
+            <div class="context-submenu" id="col-toggle-list" style="width: 200px; max-height: 250px; overflow-y: auto;">
+                <!-- filled dynamically -->
+            </div>
+        </div>
     </div>
 
     <script>
@@ -2585,55 +2746,23 @@
 
         // --- Context Menu ---
         const menu = document.getElementById('col-context-menu');
-        const toggleList = document.getElementById('col-toggle-list');
         
-        const updateMenu = () => {
-            toggleList.innerHTML = '';
-            const currentThs = table.querySelectorAll('thead th');
-            currentThs.forEach((th, index) => {
-                let title = th.textContent.trim() || 'إجراء';
-                
-                const item = document.createElement('label');
-                item.className = 'col-toggle-item';
-                
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.checked = th.style.display !== 'none';
-                checkbox.dataset.colIndex = index + 1;
-                
-                checkbox.addEventListener('change', (e) => {
-                    const isChecked = e.target.checked;
-                    const colIndex = e.target.dataset.colIndex;
-                    
-                    table.querySelector(`thead th:nth-child(${colIndex})`).style.display = isChecked ? '' : 'none';
-                    
-                    const rows = table.querySelectorAll('tbody tr');
-                    rows.forEach(row => {
-                        const td = row.querySelector(`td:nth-child(${colIndex})`);
-                        if(td) td.style.display = isChecked ? '' : 'none';
-                    });
-                    
-                    if (window.saveColumnVisibility) window.saveColumnVisibility();
-                });
-                
-                item.appendChild(checkbox);
-                item.appendChild(document.createTextNode(title));
-                toggleList.appendChild(item);
-            });
-        };
-
         table.addEventListener('contextmenu', (e) => {
-            if(e.target.closest('table') === table) {
+            const cell = e.target.closest('th, td');
+            if (cell) {
                 e.preventDefault();
-                updateMenu();
-                menu.style.display = 'block';
-                menu.style.left = `${e.pageX}px`;
-                menu.style.top = `${e.pageY}px`;
+                let colId = cell.getAttribute('data-col-id');
+                if (colId === null) {
+                    const row = cell.parentElement;
+                    const children = Array.from(row.children);
+                    colId = children.indexOf(cell);
+                }
+                window.showContextMenu(e, colId);
             }
         });
 
         document.addEventListener('click', (e) => {
-            if (!menu.contains(e.target) && e.button !== 2) {
+            if (menu && !menu.contains(e.target) && e.button !== 2) {
                 menu.style.display = 'none';
             }
         });
@@ -2851,8 +2980,285 @@
         setTimeout(() => {
             initDraggableColumns();
             window.applySavedColumnVisibility();
+            if (typeof window.applyColumnStyles === 'function') window.applyColumnStyles();
         }, 600);
     });
+
+    // --- Upgraded Context Menu JS Implementation ---
+    let currentRightClickedColId = null;
+
+    window.showContextMenu = function(e, colId) {
+        currentRightClickedColId = parseInt(colId);
+        
+        const menu = document.getElementById('col-context-menu');
+        if (!menu) return;
+        
+        const colNames = {
+            0: '#',
+            1: 'الصنف',
+            2: 'الوحدة',
+            3: 'الكمية',
+            4: 'السعر',
+            5: 'العدد',
+            6: 'المتاح',
+            7: 'المتبقي',
+            8: 'سعر العملة',
+            9: 'إجمالي العملة',
+            10: 'المخزن',
+            11: 'الإجمالي',
+            12: 'الحذف'
+        };
+        
+        const contextNameSpan = document.getElementById('context-col-name');
+        if (contextNameSpan) {
+            contextNameSpan.textContent = 'تخصيص: ' + (colNames[currentRightClickedColId] || 'العمود');
+        }
+        
+        const numericCols = [3, 4, 5, 6, 7, 8, 9, 11];
+        const decOption = document.getElementById('context-decimals-option');
+        if (decOption) {
+            decOption.style.display = numericCols.includes(currentRightClickedColId) ? 'flex' : 'none';
+        }
+        
+        buildVisibilitySubmenu();
+        
+        menu.style.display = 'flex';
+        
+        let left = e.clientX;
+        let top = e.clientY;
+        
+        if (left + 260 > window.innerWidth) {
+            left = window.innerWidth - 260;
+        }
+        if (top + 400 > window.innerHeight) {
+            top = window.innerHeight - 400;
+        }
+        
+        menu.style.left = left + 'px';
+        menu.style.top = top + 'px';
+    };
+
+    function buildVisibilitySubmenu() {
+        const toggleList = document.getElementById('col-toggle-list');
+        if (!toggleList) return;
+        
+        toggleList.innerHTML = '';
+        
+        const colNames = {
+            0: '#',
+            1: 'الصنف',
+            2: 'الوحدة',
+            3: 'الكمية',
+            4: 'السعر',
+            5: 'العدد',
+            6: 'المتاح',
+            7: 'المتبقي',
+            8: 'سعر العملة',
+            9: 'إجمالي العملة',
+            10: 'المخزن',
+            11: 'الإجمالي'
+        };
+        
+        let hiddenStr = localStorage.getItem('erp_sales_col_vis_v4');
+        let hidden = hiddenStr ? JSON.parse(hiddenStr) : [];
+        
+        Object.keys(colNames).forEach(id => {
+            let colId = parseInt(id);
+            let isVisible = !hidden.includes(colId);
+            
+            const item = document.createElement('label');
+            item.className = 'col-toggle-item';
+            item.style.display = 'flex';
+            item.style.alignItems = 'center';
+            item.style.gap = '8px';
+            item.style.padding = '6px 14px';
+            item.style.cursor = 'pointer';
+            item.style.fontSize = '0.8rem';
+            item.style.width = '100%';
+            item.style.justifyContent = 'space-between';
+            item.style.boxSizing = 'border-box';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = isVisible;
+            checkbox.style.cursor = 'pointer';
+            
+            checkbox.addEventListener('change', (event) => {
+                toggleColumnVisibility(colId, event.target.checked);
+            });
+            
+            item.appendChild(document.createTextNode(colNames[colId]));
+            item.appendChild(checkbox);
+            
+            item.addEventListener('click', (ev) => {
+                if (ev.target !== checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                    toggleColumnVisibility(colId, checkbox.checked);
+                }
+                ev.stopPropagation();
+            });
+            
+            toggleList.appendChild(item);
+        });
+    }
+
+    window.toggleColumnVisibility = function(colId, show) {
+        let hiddenStr = localStorage.getItem('erp_sales_col_vis_v4');
+        let hidden = hiddenStr ? JSON.parse(hiddenStr) : [];
+        
+        if (show) {
+            hidden = hidden.filter(id => id !== colId);
+        } else {
+            if (!hidden.includes(colId)) {
+                hidden.push(colId);
+            }
+        }
+        
+        localStorage.setItem('erp_sales_col_vis_v4', JSON.stringify(hidden));
+        
+        let th = document.querySelector(`#pos-grid thead th[data-col-id="${colId}"]`);
+        if (th) th.style.display = show ? '' : 'none';
+        
+        let tds = document.querySelectorAll(`#pos-grid tbody td[data-col-id="${colId}"]`);
+        tds.forEach(td => {
+            td.style.display = show ? '' : 'none';
+        });
+        
+        window.applySavedColumnVisibility();
+    };
+
+    window.setColumnAlign = function(align) {
+        if (currentRightClickedColId === null) return;
+        
+        let alignments = JSON.parse(localStorage.getItem('erp_sales_col_align_v4') || '{}');
+        alignments[currentRightClickedColId] = align;
+        localStorage.setItem('erp_sales_col_align_v4', JSON.stringify(alignments));
+        
+        window.applyColumnStyles(currentRightClickedColId);
+        closeContextMenu();
+    };
+
+    window.setColumnFontSize = function(size) {
+        if (currentRightClickedColId === null) return;
+        
+        let fontSizes = JSON.parse(localStorage.getItem('erp_sales_col_font_size_v4') || '{}');
+        fontSizes[currentRightClickedColId] = size;
+        localStorage.setItem('erp_sales_col_font_size_v4', JSON.stringify(fontSizes));
+        
+        window.applyColumnStyles(currentRightClickedColId);
+        closeContextMenu();
+    };
+
+    window.setColumnFontWeight = function(weight) {
+        if (currentRightClickedColId === null) return;
+        
+        let fontWeights = JSON.parse(localStorage.getItem('erp_sales_col_font_weight_v4') || '{}');
+        fontWeights[currentRightClickedColId] = weight;
+        localStorage.setItem('erp_sales_col_font_weight_v4', JSON.stringify(fontWeights));
+        
+        window.applyColumnStyles(currentRightClickedColId);
+        closeContextMenu();
+    };
+
+    window.setColumnDecimals = function(decimals) {
+        if (currentRightClickedColId === null) return;
+        
+        let decimalsObj = JSON.parse(localStorage.getItem('erp_sales_col_decimals_v4') || '{}');
+        decimalsObj[currentRightClickedColId] = decimals;
+        localStorage.setItem('erp_sales_col_decimals_v4', JSON.stringify(decimalsObj));
+        
+        if (typeof renderGrid === 'function') renderGrid();
+        closeContextMenu();
+    };
+
+    window.setColumnColor = function(color) {
+        if (currentRightClickedColId === null) return;
+        
+        let colors = JSON.parse(localStorage.getItem('erp_sales_col_color_v4') || '{}');
+        colors[currentRightClickedColId] = color;
+        localStorage.setItem('erp_sales_col_color_v4', JSON.stringify(colors));
+        
+        window.applyColumnStyles(currentRightClickedColId);
+        closeContextMenu();
+    };
+
+    window.moveColumn = function(direction) {
+        if (currentRightClickedColId === null) return;
+        
+        const theadTr = document.querySelector('#pos-grid thead tr');
+        if (!theadTr) return;
+        
+        const th = theadTr.querySelector(`th[data-col-id="${currentRightClickedColId}"]`);
+        if (!th) return;
+        
+        if (direction === 'right') {
+            let sibling = th.previousElementSibling;
+            if (sibling && sibling.getAttribute('data-col-id') !== '0') {
+                sibling.before(th);
+            }
+        } else {
+            let sibling = th.nextElementSibling;
+            if (sibling && sibling.getAttribute('data-col-id') !== '12') {
+                sibling.after(th);
+            }
+        }
+        
+        if (typeof saveColumnOrder === 'function') saveColumnOrder();
+        if (typeof applySavedColumnOrder === 'function') applySavedColumnOrder(true);
+        closeContextMenu();
+    };
+
+    window.hideCurrentColumn = function() {
+        if (currentRightClickedColId === null) return;
+        if (currentRightClickedColId === 0 || currentRightClickedColId === 12) return;
+        
+        toggleColumnVisibility(currentRightClickedColId, false);
+        closeContextMenu();
+    };
+
+    window.applyColumnStyles = function(colId = null) {
+        let alignments = JSON.parse(localStorage.getItem('erp_sales_col_align_v4') || '{}');
+        let fontSizes = JSON.parse(localStorage.getItem('erp_sales_col_font_size_v4') || '{}');
+        let fontWeights = JSON.parse(localStorage.getItem('erp_sales_col_font_weight_v4') || '{}');
+        let colors = JSON.parse(localStorage.getItem('erp_sales_col_color_v4') || '{}');
+        
+        let targetCols = colId !== null ? [colId] : Array.from({length: 13}, (_, i) => i);
+        
+        targetCols.forEach(id => {
+            let align = alignments[id] || '';
+            let fontSize = fontSizes[id] || '';
+            let fontWeight = fontWeights[id] || '';
+            let color = colors[id] || '';
+            
+            let th = document.querySelector(`#pos-grid thead th[data-col-id="${id}"]`);
+            if (th) {
+                if (align) th.style.textAlign = align;
+                if (color) th.style.color = color;
+                if (fontWeight) th.style.fontWeight = fontWeight;
+            }
+            
+            let cells = document.querySelectorAll(`#pos-grid tbody td[data-col-id="${id}"]`);
+            cells.forEach(cell => {
+                if (align) cell.style.textAlign = align;
+                if (color) cell.style.color = color;
+                if (fontWeight) cell.style.fontWeight = fontWeight;
+                
+                let controls = cell.querySelectorAll('input, select, span, div');
+                controls.forEach(ctrl => {
+                    if (align) ctrl.style.textAlign = align;
+                    if (color) ctrl.style.color = color;
+                    if (fontWeight) ctrl.style.fontWeight = fontWeight;
+                    if (fontSize) ctrl.style.setProperty('font-size', fontSize, 'important');
+                });
+            });
+        });
+    };
+
+    function closeContextMenu() {
+        const menu = document.getElementById('col-context-menu');
+        if (menu) menu.style.display = 'none';
+        currentRightClickedColId = null;
+    }
     </script>
 
 <!-- Barcode Scanner Modal -->

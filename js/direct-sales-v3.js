@@ -59,9 +59,21 @@ let currentViewedInvoiceNo = null;
 // ════════════════════════════════════════
 //  HELPERS
 // ════════════════════════════════════════
-function fmtNum(n) {
+function fmtNum(n, colId = null) {
     if (n === 0 || n === '0' || !n) return '0';
-    return Number(n).toLocaleString('en-US');
+    
+    let decimals = 2; // default decimals
+    if (colId !== null) {
+        let decimalsObj = JSON.parse(localStorage.getItem('erp_sales_col_decimals_v4') || '{}');
+        if (decimalsObj[colId] !== undefined) {
+            decimals = parseInt(decimalsObj[colId]);
+        }
+    }
+    
+    return Number(n).toLocaleString('en-US', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+    });
 }
 function parseNum(str) {
     return parseFloat(String(str).replace(/,/g, '')) || 0;
@@ -1616,21 +1628,21 @@ function updateRowCalcs(id) {
     if (bundleEl) bundleEl.textContent = fmtNum(calcs.bundles);
     if (shilaEl) shilaEl.textContent = fmtNum(calcs.shilaQty);
     if (shilaRemEl) shilaRemEl.textContent = fmtNum(calcs.shilaRem);
-    if (priceEl && document.activeElement !== priceEl) priceEl.value = fmtNum(row.price);
+    if (priceEl && document.activeElement !== priceEl) priceEl.value = fmtNum(row.price, 4);
 
     const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
     const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
     let computedFcPrice = row.fcPrice !== undefined ? row.fcPrice : (isBaseSDG ? row.price / exRate : row.price * exRate);
     
-    if (fcPriceEl && document.activeElement !== fcPriceEl) fcPriceEl.value = fmtNum(computedFcPrice);
-    if (totalFcEl) totalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0));
+    if (fcPriceEl && document.activeElement !== fcPriceEl) fcPriceEl.value = fmtNum(computedFcPrice, 8);
+    if (totalFcEl) totalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0), 9);
 
     if (availEl) {
-        availEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty);
+        availEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty, 6);
         availEl.className = 'g-readonly ' + (calcs.availQty !== '—' && calcs.availQty < row.quantity ? 'warn-val' : 'avail-val');
     }
     if (remEl) {
-        remEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty - calcs.baseQty);
+        remEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty - calcs.baseQty, 7);
         remEl.className = 'g-readonly ' + (calcs.availQty !== '—' && (calcs.availQty - calcs.baseQty) < 0 ? 'warn-val' : 'rem-val');
     }
 
@@ -1701,12 +1713,12 @@ function renderGrid() {
                     ${itemUnitsHtml}
                 </select>
             </td>
-            <td><input type="text" inputmode="decimal" class="g-input" value="${row.quantity || ''}" placeholder="0"
+            <td><input type="text" inputmode="decimal" class="g-input" value="${row.quantity !== undefined ? fmtNum(row.quantity, 3) : ''}" placeholder="0"
                 onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)"
                 onblur="this.value=parseNum(this.value)||''; checkAutoAddRow(${row.id})"></td>
             <td>
                 <div style="display:flex; align-items:center; gap:4px;">
-                    <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price)}"
+                    <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price, 4)}"
                         onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
                         onblur="this.value=fmtNum(parseNum(this.value)); checkAutoAddRow(${row.id})" style="flex:1;">
                     <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'sales')" title="سجل أسعار الصنف للعميل" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:4px; padding:4px; border:1px solid rgba(56,189,248,0.2); cursor:pointer;">
@@ -1716,20 +1728,20 @@ function renderGrid() {
             </td>
             <td>
                 <div style="display:flex; align-items:center; gap:4px; justify-content:center;">
-                    <input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
+                    <input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty, 5)}" placeholder="0"
                         onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
                         onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700; width:100%;" tabindex="-1">
                     <span style="font-size:11px; color:var(--text-muted); white-space:nowrap;">${item ? item.baseUnit : ''}</span>
                 </div>
             </td>
-            <td><span class="g-readonly" data-avail="${row.id}" style="color:#0ea5e9; font-weight:bold; display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty) : '—'}</span></td>
-            <td><span class="g-readonly" data-rem="${row.id}" style="color:#f59e0b; font-weight:bold; display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty - calcs.baseQty) : '—'}</span></td>
+            <td><span class="g-readonly" data-avail="${row.id}" style="color:#0ea5e9; font-weight:bold; display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty, 6) : '—'}</span></td>
+            <td><span class="g-readonly" data-rem="${row.id}" style="color:#f59e0b; font-weight:bold; display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty - calcs.baseQty, 7) : '—'}</span></td>
             <td>
-                <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}"
+                <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)), 8)}"
                     onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
                     onblur="this.value=fmtNum(parseNum(this.value)); checkAutoAddRow(${row.id})" style="color:#10b981; font-weight:700;" tabindex="-1">
             </td>
-            <td><span class="g-readonly total-fc-val" style="color:#10b981; font-weight:bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0))}</span></td>
+            <td><span class="g-readonly total-fc-val" style="color:#10b981; font-weight:bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0), 9)}</span></td>
 
             <td class="td-wh">
                 <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1">
@@ -1738,7 +1750,7 @@ function renderGrid() {
                 </select>
             </td>
 
-            <td><span class="g-readonly total-val" style="color:var(--gold-primary); font-weight:bold;" data-total="${row.id}">${fmtNum(calcs.total)}</span></td>
+            <td><span class="g-readonly total-val" style="color:var(--gold-primary); font-weight:bold;" data-total="${row.id}">${fmtNum(calcs.total, 11)}</span></td>
 
             <td>
                 <div style="display: flex; gap: 5px; justify-content: center;">
@@ -1753,6 +1765,7 @@ function renderGrid() {
         `;
         if (window.reorderTds) window.reorderTds(tr);
         tbody.appendChild(tr);
+        if (window.applyColumnStyles) window.applyColumnStyles();
 
         // ── Mobile Card ──
         const card = document.createElement('div');
@@ -1854,7 +1867,6 @@ function renderGrid() {
         `;
 
     });
-    autoFitAllColumns();
 }
 
 // ════════════════════════════════════════
@@ -3619,7 +3631,7 @@ function initTableResizer() {
 
         resizer.addEventListener('dblclick', (e) => {
             e.stopPropagation();
-            autoFitColumn(table, index, true); // force auto-fit and clear manual flag
+            autoFitColumn(table, index);
         });
 
         col.style.position = 'relative';
@@ -3646,7 +3658,6 @@ function initTableResizer() {
                 const deltaX = startX - moveEvent.clientX; // RTL calculation
                 const newWidth = Math.max(40, startWidth + deltaX);
                 col.style.width = newWidth + 'px';
-                col.dataset.manuallyResized = "true"; // mark as manually resized
             };
 
             const onMouseUp = () => {
@@ -3662,15 +3673,9 @@ function initTableResizer() {
     });
 }
 
-function autoFitColumn(table, colIndex, force = false) {
+function autoFitColumn(table, colIndex) {
     const th = table.querySelectorAll('thead th')[colIndex];
     if (!th) return;
-
-    if (th.dataset.manuallyResized === "true" && !force) return;
-
-    if (force) {
-        delete th.dataset.manuallyResized;
-    }
 
     const dummy = document.createElement('span');
     dummy.style.visibility = 'hidden';
@@ -3718,25 +3723,5 @@ function autoFitColumn(table, colIndex, force = false) {
     });
 
     th.style.width = Math.max(50, maxWidth) + 'px';
-}
-
-function autoFitAllColumns() {
-    const table = document.getElementById('pos-grid');
-    if (!table) return;
-
-    const cols = table.querySelectorAll('thead th');
-    
-    // First, convert all widths to pixels if not already converted
-    cols.forEach(c => {
-        if (!c.style.width.includes('px')) {
-            c.style.width = c.getBoundingClientRect().width + 'px';
-        }
-    });
-
-    // Now fit each column
-    cols.forEach((col, index) => {
-        if (index === cols.length - 1) return; // Skip delete column
-        autoFitColumn(table, index, false); // respect manually resized columns
-    });
 }
 
