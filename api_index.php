@@ -456,6 +456,13 @@ $saasSecret = defined('SAAS_ADMIN_TOKEN') ? SAAS_ADMIN_TOKEN : getenv('SAAS_ADMI
 
 if ($token === $saasSecret) {
     if ($resource === 'saas') {
+        if ($action === 'wa-lock-status') {
+            $file = __DIR__ . '/whatsapp-service.mjs';
+            clearstatcache(true, $file);
+            $isLocked = !is_writable($file);
+            jsonResponse(['success' => true, 'isLocked' => $isLocked]);
+        }
+
         if ($action === 'wa-lock' || $action === 'wa-unlock') {
             $isLock = ($action === 'wa-lock');
             $file = __DIR__ . '/whatsapp-service.mjs';

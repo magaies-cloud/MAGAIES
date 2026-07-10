@@ -881,8 +881,7 @@
                 <button class="btn-outline" id="admin-wa-refresh-btn" style="padding: 10px 20px; border-radius: 8px; cursor: pointer; flex: 1; min-width: 120px;" onclick="checkAdminWhatsAppConnection()">تحديث الحالة</button>
                 <button class="btn-outline" id="admin-wa-restart-btn" style="display: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; flex: 1; min-width: 120px; border-color: #f59e0b; color: #f59e0b;" onclick="restartAdminWhatsApp()">🔄 إعادة تشغيل الخدمة</button>
                 <button class="btn-outline" id="admin-wa-diagnose-btn" style="padding: 8px 15px; border-radius: 8px; cursor: pointer; min-width: 100px; border-color: #38bdf8; color: #38bdf8; font-size: 0.85rem;" onclick="diagnoseWhatsApp()">🔍 تشخيص</button>
-                <button class="btn-outline" id="admin-wa-lock-btn" style="padding: 8px 15px; border-radius: 8px; cursor: pointer; min-width: 100px; border-color: #ef4444; color: #ef4444; font-size: 0.85rem;" onclick="setWhatsAppLock(true)">🔒 قفل التحديثات</button>
-                <button class="btn-outline" id="admin-wa-unlock-btn" style="padding: 8px 15px; border-radius: 8px; cursor: pointer; min-width: 100px; border-color: #10b981; color: #10b981; font-size: 0.85rem;" onclick="setWhatsAppLock(false)">🔓 فك القفل</button>
+                <button class="btn-outline" id="admin-wa-lock-toggle-btn" style="padding: 8px 15px; border-radius: 8px; cursor: pointer; min-width: 130px; font-weight: bold; font-size: 0.85rem;" onclick="toggleWhatsAppLock()">⏳ فحص القفل...</button>
                 <button class="btn-primary" id="admin-wa-close-btn" style="display: none; padding: 10px 20px; background: #25d366; border: none; font-weight: bold; color: #ffffff; border-radius: 8px; cursor: pointer; flex: 1; min-width: 120px;" onclick="closeModal('admin-wa-modal')">إغلاق النافذة</button>
             </div>
         </div>
@@ -1355,6 +1354,7 @@
         async function openAdminWhatsAppModal() {
             document.getElementById('admin-wa-modal').style.display = 'flex';
             checkAdminWhatsAppConnection();
+            checkWhatsAppLockStatus();
         }
 
         async function checkAdminWhatsAppConnection(isSilent = false) {
@@ -1611,13 +1611,46 @@
             }
         }
 
-        async function setWhatsAppLock(shouldLock) {
+        let currentWaLockStatus = false;
+
+        async function checkWhatsAppLockStatus() {
+            const btn = document.getElementById('admin-wa-lock-toggle-btn');
+            try {
+                const res = await fetch(apiUrl('saas', 'wa-lock-status'), {
+                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    currentWaLockStatus = data.isLocked;
+                    updateLockBtnUI();
+                }
+            } catch(e) {
+                console.error('Failed to get lock status', e);
+            }
+        }
+
+        function updateLockBtnUI() {
+            const btn = document.getElementById('admin-wa-lock-toggle-btn');
+            if (currentWaLockStatus) {
+                btn.innerHTML = '🔒 الملف مقفول ومحمي';
+                btn.style.borderColor = '#10b981'; // Green for safe
+                btn.style.color = '#10b981';
+                btn.style.background = 'rgba(16, 185, 129, 0.1)';
+            } else {
+                btn.innerHTML = '🔓 الملف مفتوح للتحديثات';
+                btn.style.borderColor = '#ef4444'; // Red for exposed
+                btn.style.color = '#ef4444';
+                btn.style.background = 'rgba(239, 68, 68, 0.1)';
+            }
+        }
+
+        async function toggleWhatsAppLock() {
+            const shouldLock = !currentWaLockStatus;
             const action = shouldLock ? 'wa-lock' : 'wa-unlock';
-            const statusText = document.getElementById('admin-wa-status-text');
-            const btn = document.getElementById(shouldLock ? 'admin-wa-lock-btn' : 'admin-wa-unlock-btn');
+            const btn = document.getElementById('admin-wa-lock-toggle-btn');
             
-            const originalText = btn.innerText;
-            btn.innerText = '⌛ جاري...';
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '⌛ جاري التنفيذ...';
             btn.disabled = true;
             
             try {
@@ -1627,14 +1660,17 @@
                 const data = await res.json();
                 
                 if (data.success) {
-                    alert(data.message);
+                    currentWaLockStatus = shouldLock;
+                    updateLockBtnUI();
+                    alert(data.message || (shouldLock ? 'تم قفل الملف بنجاح' : 'تم فك قفل الملف بنجاح'));
                 } else {
                     alert('❌ ' + (data.message || data.error || 'خطأ غير معروف'));
+                    updateLockBtnUI();
                 }
             } catch (e) {
                 alert('❌ تعذر الاتصال بالسيرفر: ' + e.message);
+                updateLockBtnUI();
             } finally {
-                btn.innerText = originalText;
                 btn.disabled = false;
             }
         }
