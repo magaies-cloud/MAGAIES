@@ -1854,6 +1854,7 @@ function renderGrid() {
         `;
 
     });
+    autoFitAllColumns();
 }
 
 // ════════════════════════════════════════
@@ -3618,7 +3619,7 @@ function initTableResizer() {
 
         resizer.addEventListener('dblclick', (e) => {
             e.stopPropagation();
-            autoFitColumn(table, index);
+            autoFitColumn(table, index, true); // force auto-fit and clear manual flag
         });
 
         col.style.position = 'relative';
@@ -3645,6 +3646,7 @@ function initTableResizer() {
                 const deltaX = startX - moveEvent.clientX; // RTL calculation
                 const newWidth = Math.max(40, startWidth + deltaX);
                 col.style.width = newWidth + 'px';
+                col.dataset.manuallyResized = "true"; // mark as manually resized
             };
 
             const onMouseUp = () => {
@@ -3660,9 +3662,15 @@ function initTableResizer() {
     });
 }
 
-function autoFitColumn(table, colIndex) {
+function autoFitColumn(table, colIndex, force = false) {
     const th = table.querySelectorAll('thead th')[colIndex];
     if (!th) return;
+
+    if (th.dataset.manuallyResized === "true" && !force) return;
+
+    if (force) {
+        delete th.dataset.manuallyResized;
+    }
 
     const dummy = document.createElement('span');
     dummy.style.visibility = 'hidden';
@@ -3710,5 +3718,25 @@ function autoFitColumn(table, colIndex) {
     });
 
     th.style.width = Math.max(50, maxWidth) + 'px';
+}
+
+function autoFitAllColumns() {
+    const table = document.getElementById('pos-grid');
+    if (!table) return;
+
+    const cols = table.querySelectorAll('thead th');
+    
+    // First, convert all widths to pixels if not already converted
+    cols.forEach(c => {
+        if (!c.style.width.includes('px')) {
+            c.style.width = c.getBoundingClientRect().width + 'px';
+        }
+    });
+
+    // Now fit each column
+    cols.forEach((col, index) => {
+        if (index === cols.length - 1) return; // Skip delete column
+        autoFitColumn(table, index, false); // respect manually resized columns
+    });
 }
 
