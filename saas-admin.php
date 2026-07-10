@@ -881,6 +881,8 @@
                 <button class="btn-outline" id="admin-wa-refresh-btn" style="padding: 10px 20px; border-radius: 8px; cursor: pointer; flex: 1; min-width: 120px;" onclick="checkAdminWhatsAppConnection()">تحديث الحالة</button>
                 <button class="btn-outline" id="admin-wa-restart-btn" style="display: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; flex: 1; min-width: 120px; border-color: #f59e0b; color: #f59e0b;" onclick="restartAdminWhatsApp()">🔄 إعادة تشغيل الخدمة</button>
                 <button class="btn-outline" id="admin-wa-diagnose-btn" style="padding: 8px 15px; border-radius: 8px; cursor: pointer; min-width: 100px; border-color: #38bdf8; color: #38bdf8; font-size: 0.85rem;" onclick="diagnoseWhatsApp()">🔍 تشخيص</button>
+                <button class="btn-outline" id="admin-wa-lock-btn" style="padding: 8px 15px; border-radius: 8px; cursor: pointer; min-width: 100px; border-color: #ef4444; color: #ef4444; font-size: 0.85rem;" onclick="setWhatsAppLock(true)">🔒 قفل التحديثات</button>
+                <button class="btn-outline" id="admin-wa-unlock-btn" style="padding: 8px 15px; border-radius: 8px; cursor: pointer; min-width: 100px; border-color: #10b981; color: #10b981; font-size: 0.85rem;" onclick="setWhatsAppLock(false)">🔓 فك القفل</button>
                 <button class="btn-primary" id="admin-wa-close-btn" style="display: none; padding: 10px 20px; background: #25d366; border: none; font-weight: bold; color: #ffffff; border-radius: 8px; cursor: pointer; flex: 1; min-width: 120px;" onclick="closeModal('admin-wa-modal')">إغلاق النافذة</button>
             </div>
         </div>
@@ -1606,6 +1608,34 @@
                     statusText.innerText = '❌ فشل التشخيص: ' + e.message;
                     statusText.style.color = '#ef4444';
                 }
+            }
+        }
+
+        async function setWhatsAppLock(shouldLock) {
+            const action = shouldLock ? 'wa-lock' : 'wa-unlock';
+            const statusText = document.getElementById('admin-wa-status-text');
+            const btn = document.getElementById(shouldLock ? 'admin-wa-lock-btn' : 'admin-wa-unlock-btn');
+            
+            const originalText = btn.innerText;
+            btn.innerText = '⌛ جاري...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch(apiUrl('saas', action), {
+                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    alert(data.message);
+                } else {
+                    alert('❌ فشلت العملية: ' + (data.error || 'خطأ غير معروف'));
+                }
+            } catch (e) {
+                alert('❌ تعذر الاتصال بالسيرفر: ' + e.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
             }
         }
 

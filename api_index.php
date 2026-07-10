@@ -455,7 +455,32 @@ $tenant_id = null;
 $saasSecret = defined('SAAS_ADMIN_TOKEN') ? SAAS_ADMIN_TOKEN : getenv('SAAS_ADMIN_TOKEN');
 
 if ($token === $saasSecret) {
-    if ($resource === 'saas') {
+        if ($action === 'wa-lock' || $action === 'wa-unlock') {
+            $isLock = ($action === 'wa-lock');
+            $file = __DIR__ . '/whatsapp-service.mjs';
+            $output = [];
+            $retCode = 0;
+            
+            if ($isLock) {
+                @exec("git update-index --skip-worktree " . escapeshellarg($file) . " 2>&1", $output, $retCode);
+                @chmod($file, 0444);
+                jsonResponse([
+                    'success' => true, 
+                    'message' => 'تم قفل التحديثات بنجاح (محمي ضد أي تعديل أو رفع جديد).',
+                    'git_output' => implode("\n", $output)
+                ]);
+            } else {
+                @exec("git update-index --no-skip-worktree " . escapeshellarg($file) . " 2>&1", $output, $retCode);
+                @chmod($file, 0644);
+                jsonResponse([
+                    'success' => true, 
+                    'message' => 'تم فك القفل بنجاح (الملف جاهز لتلقي التحديثات البرمجية الجديدة).',
+                    'git_output' => implode("\n", $output)
+                ]);
+            }
+            exit;
+        }
+
         if ($action === 'wa-proxy') {
             startWhatsAppServiceIfNeeded();
             $endpoint = $_GET['a2'] ?? 'status';
