@@ -2615,8 +2615,8 @@
         { id: 5, name: "العدد", visible: true, width: "100px", align: "center" },
         { id: 6, name: "المتاح", visible: true, width: "100px", align: "center" },
         { id: 7, name: "المتبقي", visible: true, width: "100px", align: "center" },
-        { id: 8, name: "سعر العملة", visible: true, width: "120px", align: "center" },
-        { id: 9, name: "إجمالي العملة", visible: true, width: "140px", align: "center" },
+        { id: 8, name: "سعر العملة", visible: false, width: "120px", align: "center" },
+        { id: 9, name: "إجمالي العملة", visible: false, width: "140px", align: "center" },
         { id: 10, name: "المخزن", visible: true, width: "140px", align: "center" },
         { id: 11, name: "الإجمالي", visible: true, width: "120px", align: "center" },
         { id: 12, name: "حذف", visible: true, width: "80px", align: "center" }
@@ -2631,7 +2631,9 @@
             console.error("Error reading grid settings", e);
         }
         
-        if (!settings) {
+        // One-time check to force-hide currency columns for existing users
+        const hasUpgradeKey = localStorage.getItem('erp_grid_upgrade_v2');
+        if (!settings || !hasUpgradeKey) {
             settings = {
                 columns: JSON.parse(JSON.stringify(DEFAULT_GRID_COLUMNS)),
                 fontSize: 16,
@@ -2640,6 +2642,8 @@
                 decimalPlaces: 2,
                 align: 'center'
             };
+            localStorage.setItem('erp_grid_customizer_v1', JSON.stringify(settings));
+            localStorage.setItem('erp_grid_upgrade_v2', 'true');
         } else {
             if (!settings.columns || settings.columns.length === 0) {
                 settings.columns = JSON.parse(JSON.stringify(DEFAULT_GRID_COLUMNS));
