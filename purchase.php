@@ -2094,7 +2094,11 @@
             emptyState.style.display = 'none';
             tbody.innerHTML = '';
             
-            invoices.sort((a,b) => new Date(b.timestamp || b.date) - new Date(a.timestamp || a.date));
+            invoices.sort((a,b) => {
+                const dateA = new Date(a.timestamp || a.date || 0).getTime();
+                const dateB = new Date(b.timestamp || b.date || 0).getTime();
+                return (isNaN(dateB) ? 0 : dateB) - (isNaN(dateA) ? 0 : dateA);
+            });
             
             const fragment = document.createDocumentFragment();
             invoices.forEach(inv => {

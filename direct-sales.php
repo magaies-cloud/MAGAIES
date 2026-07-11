@@ -2795,9 +2795,9 @@
             
             // Sort by date/time descending
             invoices.sort((a,b) => {
-                const dateA = new Date(a.timestamp || a.date).getTime();
-                const dateB = new Date(b.timestamp || b.date).getTime();
-                return dateB - dateA;
+                const dateA = new Date(a.timestamp || a.date || 0).getTime();
+                const dateB = new Date(b.timestamp || b.date || 0).getTime();
+                return (isNaN(dateB) ? 0 : dateB) - (isNaN(dateA) ? 0 : dateA);
             });
             
             const fragment = document.createDocumentFragment();
