@@ -2188,11 +2188,14 @@ function submitInvoice(ignoreWarnings = false) {
     const grandTotal = document.getElementById('t-grand').textContent;
 
     // Save invoice data
+    const supplierSearchEl = document.getElementById('hdr-customer-search');
     const data = {
         createdBy: (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown',
         invoiceNo: committedNo,
+        timestamp: new Date().toISOString(),
         date: document.getElementById('hdr-date').value,
         customer: document.getElementById('hdr-customer').value,
+        supplierName: supplierSearchEl ? supplierSearchEl.value : '',
         saleType: currentSaleType,
         currency: cur,
         exchangeRate: document.getElementById('hdr-exchange-rate').value,
@@ -2588,8 +2591,10 @@ function onSuccessNewInvoice(closeModalFlag = true) {
 function onSuccessDone() {
     const overlay = document.getElementById('success-modal-overlay');
     if (overlay) { overlay.classList.remove('visible'); setTimeout(() => overlay.remove(), 400); }
-    // In production: navigate to sales list
-    // window.location.href = 'sales-list.html';
+    // Navigate back to purchase hub and refresh the transactions list
+    if (typeof showPurchaseHub === 'function') {
+        setTimeout(() => showPurchaseHub(), 500);
+    }
 }
 
 // ════════════════════════════════════════
