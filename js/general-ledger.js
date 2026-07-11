@@ -523,7 +523,7 @@ function extractFilters() {
 
 /* ─── Initialization ─── */
 let choicesInstances = [];
-document.addEventListener('DBReady', () => {
+function initGeneralLedgerApp() {
     buildAccountsList();
     extractFilters(); // Build filters dynamically
     const now = new Date();
@@ -571,7 +571,13 @@ document.addEventListener('DBReady', () => {
     } catch (e) {
         console.error("Error parsing URL accountId:", e);
     }
-});
+}
+
+if (window.APP_READY) {
+    initGeneralLedgerApp();
+} else {
+    document.addEventListener('DBReady', initGeneralLedgerApp);
+}
 
 function getAccountName(id) {
     if(id === 'ALL') return 'جميع الحسابات';
