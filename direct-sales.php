@@ -2800,6 +2800,7 @@
                 return dateB - dateA;
             });
             
+            const fragment = document.createDocumentFragment();
             invoices.forEach(inv => {
                 const tr = document.createElement('tr');
                 
@@ -2857,8 +2858,9 @@
                         ${actionBtns}
                     </td>
                 `;
-                tbody.appendChild(tr);
+                fragment.appendChild(tr);
             });
+            tbody.appendChild(fragment);
         }
         
         function filterHubTransactions() {

@@ -2096,6 +2096,7 @@
             
             invoices.sort((a,b) => new Date(b.timestamp || b.date) - new Date(a.timestamp || a.date));
             
+            const fragment = document.createDocumentFragment();
             invoices.forEach(inv => {
                 const tr = document.createElement('tr');
                 
@@ -2136,8 +2137,9 @@
                         <button onclick="deleteHubTransaction('${inv.invoiceNo}')" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:6px; width:34px; height:34px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;" title="حذف">🗑️</button>
                     </td>
                 `;
-                tbody.appendChild(tr);
+                fragment.appendChild(tr);
             });
+            tbody.appendChild(fragment);
         }
         
         function filterHubTransactions() {
