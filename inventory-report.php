@@ -379,12 +379,18 @@
         let itemsDb = [];
         let invDb = [];
 
-        document.addEventListener('DBReady', () => {
+        function initInventoryReport() {
             populateWarehouseFilter();
             loadData();
             populateCategoryFilter();
             applyFilters();
-        });
+        }
+
+        if (window.APP_READY) {
+            initInventoryReport();
+        } else {
+            document.addEventListener('DBReady', initInventoryReport);
+        }
 
         function populateWarehouseFilter() {
             const select = document.getElementById('filter-warehouse');
@@ -427,8 +433,8 @@
             let reservedStockMap = {};
 
             let warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
-            warehousesDb.unshift({ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' });
             let getWarehouseName = (id) => {
+                if (id === 'PENDING_RECEIPT') return '⏳ بضاعة قيد الاستلام';
                 let w = warehousesDb.find(w => w.id === id || w.name === id);
                 return w ? w.name : 'المخزن الرئيسي';
             };
@@ -442,7 +448,7 @@
 
             // 1. ADD Purchases (Inward)
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-            purchases = purchases.filter(x => !x.deleted);
+            purchases = purchases.filter(x => !x.deleted && !x.isGRN && !x.isReturn);
             purchases.forEach(inv => {
                 let whName = getWarehouseName(inv.warehouseId || inv.warehouse);
                 (inv.items || inv.lines || []).forEach(line => {
@@ -688,7 +694,7 @@
             </div>`;
         
         let inventoryData = [];
-        let rows = document.querySelectorAll('#report-tbody tr');
+        let rows = document.querySelectorAll('#inventory-tbody tr');
         let limit = Math.min(rows.length, 100); 
         
         for(let i=0; i<limit; i++) {
