@@ -693,25 +693,25 @@ function renderDetailPane(index) {
 
     // Build Header & Metadata Info Card inside a single unified card container
     let html = `
-        <div class="unified-details-card" style="background: rgba(15,23,42,0.45); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);">
-            <div class="detail-header" style="padding-bottom: 0px; margin-bottom: 0px; display: flex; flex-direction: column; gap: 10px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                    <span class="type-badge ${item._typeClass}" style="font-size:1.05rem; padding:6px 14px; font-weight:900;">${item._typeLabel}</span>
-                    <button class="btn-action" style="width: auto; padding: 6px 12px; font-size: 0.85rem; font-weight: 800; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; transition: 0.2s; font-family:'Tajawal', sans-serif;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'" onclick="resetSelection()">✖️ إغلاق التفاصيل</button>
+        <div class="unified-details-card">
+            <div class="detail-header">
+                <div class="detail-header-top">
+                    <span class="type-badge ${item._typeClass}">${item._typeLabel}</span>
+                    <button class="btn-action close-details-btn" onclick="resetSelection()">✖️ إغلاق التفاصيل</button>
                 </div>
                 
                 <!-- Unified Horizontal Metadata Bar (Reference, Date, Entity, Payment Method) -->
-                <div style="display: flex; align-items: center; gap: 15px; font-size: 0.88rem; color: #cbd5e1; flex-wrap: wrap; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); line-height: 1.4;">
-                    <div><span style="color: #94a3b8; margin-left: 2px;">المرجع:</span><strong style="color: #38bdf8; font-family: monospace;">#${ref}</strong></div>
-                    <div><span style="color: #94a3b8; margin-left: 2px;">التاريخ:</span><strong style="color: #fff;">${dateStr}</strong></div>
-                    <div><span style="color: #94a3b8; margin-left: 2px;">${labelEntity}:</span><strong style="color: #fff; font-weight: 800;">${customer}</strong></div>
-                    <div><span style="color: #94a3b8; margin-left: 2px;">الدفع:</span><strong style="color: #c084fc;">${pMethod}</strong></div>
+                <div class="detail-meta-bar">
+                    <div><span class="meta-label">المرجع:</span><strong class="meta-ref">#${ref}</strong></div>
+                    <div><span class="meta-label">التاريخ:</span><strong class="meta-val">${dateStr}</strong></div>
+                    <div><span class="meta-label">${labelEntity}:</span><strong class="meta-val">${customer}</strong></div>
+                    <div><span class="meta-label">الدفع:</span><strong class="meta-pay">${pMethod}</strong></div>
                 </div>
 
                 <!-- Description / Statement line -->
                 ${item.description || item.notes || item.statement ? `
-                    <div style="margin-top: 5px; font-size: 0.92rem; color: #fff; background: rgba(56,189,248,0.08); border-right: 4px solid #38bdf8; padding: 10px 14px; border-radius: 8px; font-weight: 700; line-height: 1.5;">
-                        <span style="color: #38bdf8; font-weight: 900; margin-left: 5px;">البيان/الوصف:</span>
+                    <div class="detail-desc-box">
+                        <span class="desc-label">البيان/الوصف:</span>
                         ${item.description || item.notes || item.statement}
                     </div>
                 ` : ''}
@@ -721,8 +721,8 @@ function renderDetailPane(index) {
     // 1. Items List (For Invoices/Sales/Purchases)
     if (item.items && item.items.length > 0) {
         html += `
-            <div style="border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 15px;">
-                <div class="section-title" style="margin-bottom: 12px;"><span>📦</span> تفاصيل الأصناف والفاتورة</div>
+            <div class="detail-section-items">
+                <div class="section-title"><span>📦</span> تفاصيل الأصناف والفاتورة</div>
                 <table class="detail-table">
                     <thead>
                         <tr>
@@ -740,20 +740,20 @@ function renderDetailPane(index) {
                             const total = parseFloat(i.total || i.amount || i.subtotal || (qty * price));
                             return `
                                 <tr>
-                                    <td style="font-weight:bold; color:#fff;">${name}</td>
-                                    <td style="text-align:center; font-family: monospace; font-weight: 800; color:#cbd5e1;">${qty}</td>
-                                    <td style="text-align:left; font-family: monospace; color:#cbd5e1;">${fmtCurrency(price)}</td>
-                                    <td style="text-align:left;"><span style="color:#10b981; font-weight:900; font-family: monospace;">${fmtCurrency(total)}</span></td>
+                                    <td class="item-name">${name}</td>
+                                    <td class="item-qty">${qty}</td>
+                                    <td class="item-price">${fmtCurrency(price)}</td>
+                                    <td class="item-total"><span>${fmtCurrency(total)}</span></td>
                                 </tr>
                             `;
                         }).join('')}
                     </tbody>
                 </table>
-                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.15); padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.02);">
-                    <span style="font-weight: bold; color: #94a3b8; font-size: 0.9rem;">إجمالي قيمة الفاتورة:</span>
-                    <div style="display:flex; align-items:center;">
-                        ${foreignAmt > 0 ? `<span style="font-weight: 900; color: #fbbf24; font-size: 1.25rem; font-family: monospace; margin-left: 15px; padding-left: 15px; border-left: 1px solid rgba(255,255,255,0.1);">${fmtCurrency(foreignAmt)} <span style="font-size:0.8rem; font-family:'Tajawal', sans-serif;">${currency}</span></span>` : ''}
-                        <span style="font-weight: 900; color: #10b981; font-size: 1.25rem; font-family: monospace;">${fmtCurrency(amt)} <span style="font-size:0.8rem; font-family:'Tajawal', sans-serif;">SDG</span></span>
+                <div class="detail-total-bar">
+                    <span class="total-lbl">إجمالي قيمة الفاتورة:</span>
+                    <div class="total-val-box">
+                        ${foreignAmt > 0 ? `<span class="val-foreign">${fmtCurrency(foreignAmt)} <span class="cur-lbl">${currency}</span></span>` : ''}
+                        <span class="val-local">${fmtCurrency(amt)} <span class="cur-lbl">SDG</span></span>
                     </div>
                 </div>
             </div>
@@ -777,34 +777,34 @@ function renderDetailPane(index) {
 
     if (isVoucher) {
         html += `
-            <div style="border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 15px;">
-                <div class="section-title" style="margin-bottom: 12px;"><span>💸</span> أطراف المعاملة المالية</div>
+            <div class="detail-section-voucher">
+                <div class="section-title"><span>💸</span> أطراف المعاملة المالية</div>
                 
-                <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="voucher-flow-wrapper">
                     <!-- Debtor (المدين - الآخذ) -->
-                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.12); padding: 10px 14px; border-radius: 10px;">
-                        <span style="font-weight: 800; color: #10b981; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
-                            <span style="background: #10b981; color: #fff; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.75rem; font-family: monospace;">+</span>
+                    <div class="detail-debtor-row">
+                        <span class="row-title">
+                            <span class="sign-plus">+</span>
                             المدين (الآخذ):
                         </span>
-                        <span style="font-weight: 900; color: #fff; font-size: 1.05rem;">${getAccName(drAccount)}</span>
+                        <span class="row-val">${getAccName(drAccount)}</span>
                     </div>
 
                     <!-- Creditor (الدائن - المعطي) -->
-                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.12); padding: 10px 14px; border-radius: 10px;">
-                        <span style="font-weight: 800; color: #f87171; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
-                            <span style="background: #ef4444; color: #fff; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.75rem; font-family: monospace;">-</span>
+                    <div class="detail-creditor-row">
+                        <span class="row-title">
+                            <span class="sign-minus">-</span>
                             الدائن (المعطي):
                         </span>
-                        <span style="font-weight: 900; color: #fff; font-size: 1.05rem;">${getAccName(crAccount)}</span>
+                        <span class="row-val">${getAccName(crAccount)}</span>
                     </div>
                     
                     <!-- Amount (المبلغ) -->
-                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(56,189,248,0.03); border: 1px solid rgba(56,189,248,0.12); padding: 10px 14px; border-radius: 10px; margin-top: 5px;">
-                        <span style="font-weight: 800; color: #cbd5e1; font-size: 0.95rem;">المبلغ الصافي:</span>
-                        <div style="display:flex; align-items:center;">
-                            ${foreignAmt > 0 ? `<span style="font-weight: 900; color: #fbbf24; font-size: 1.35rem; font-family: monospace; margin-left: 15px; padding-left: 15px; border-left: 1px solid rgba(255,255,255,0.1);">${fmtCurrency(foreignAmt)} <span style="font-size:0.85rem; color:#94a3b8; font-family:'Tajawal', sans-serif;">${currency}</span></span>` : ''}
-                            <span style="font-weight: 900; color: #38bdf8; font-size: 1.35rem; font-family: monospace;">${fmtCurrency(amt)} <span style="font-size:0.85rem; color:#94a3b8; font-family:'Tajawal', sans-serif;">SDG</span></span>
+                    <div class="detail-net-amount-row">
+                        <span class="row-title">المبلغ الصافي:</span>
+                        <div class="total-val-box">
+                            ${foreignAmt > 0 ? `<span class="val-foreign">${fmtCurrency(foreignAmt)} <span class="cur-lbl">${currency}</span></span>` : ''}
+                            <span class="val-net">${fmtCurrency(amt)} <span class="cur-lbl">SDG</span></span>
                         </div>
                     </div>
                 </div>
@@ -816,8 +816,8 @@ function renderDetailPane(index) {
     const entries = getExpectedEntries(item, amt);
     if (entries && entries.length > 0) {
         html += `
-            <div style="border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 15px;">
-                <div class="section-title" style="margin-bottom: 12px;"><span>📊</span> التوجيه المحاسبي التلقائي (قيد الاستحقاق/السداد)</div>
+            <div class="detail-section-journal">
+                <div class="section-title"><span>📊</span> التوجيه المحاسبي التلقائي (قيد الاستحقاق/السداد)</div>
                 <table class="detail-table">
                     <thead>
                         <tr>
@@ -829,9 +829,9 @@ function renderDetailPane(index) {
                     <tbody>
                         ${entries.map(e => `
                             <tr>
-                                <td><span class="${e.debit > 0 ? 'dr-text' : ''}" style="${e.debit > 0 ? '' : 'color:#64748b;'}">${e.debit > 0 ? fmtCurrency(e.debit) : '-'}</span></td>
-                                <td><span class="${e.credit > 0 ? 'cr-text' : ''}" style="${e.credit > 0 ? '' : 'color:#64748b;'}">${e.credit > 0 ? fmtCurrency(e.credit) : '-'}</span></td>
-                                <td style="font-weight:bold; color: #fff;">${getAccName(e.acc)}</td>
+                                <td><span class="${e.debit > 0 ? 'dr-text' : 'cr-inactive'}">${e.debit > 0 ? fmtCurrency(e.debit) : '-'}</span></td>
+                                <td><span class="${e.credit > 0 ? 'cr-text' : 'cr-inactive'}">${e.credit > 0 ? fmtCurrency(e.credit) : '-'}</span></td>
+                                <td class="acc-name">${getAccName(e.acc)}</td>
                             </tr>
                         `).join('')}
                     </tbody>

@@ -1,6 +1,16 @@
 <?php $page_title = 'ترحيل الحسابات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+<script src="js/lang.js"></script>
+<script>
+(function(){
+    var l = localStorage.getItem('erp_lang') || 'ar';
+    if(l==='en') {
+        document.documentElement.setAttribute('dir','ltr');
+        document.documentElement.setAttribute('lang','en');
+    }
+})();
+</script>
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
@@ -432,6 +442,278 @@
         }
     
         
+        /* Detail Pane & Unified Details Card Styles */
+        .unified-details-card {
+            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .detail-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .close-details-btn {
+            width: auto;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            background: rgba(255,255,255,0.06);
+            color: #cbd5e1;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .close-details-btn:hover {
+            background: rgba(255,255,255,0.12);
+        }
+        .detail-meta-bar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.88rem;
+            color: #cbd5e1;
+            flex-wrap: wrap;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            line-height: 1.4;
+        }
+        .detail-meta-bar .meta-label {
+            color: #94a3b8;
+            margin-left: 2px;
+        }
+        .detail-meta-bar .meta-ref {
+            color: #38bdf8;
+            font-family: monospace;
+        }
+        .detail-meta-bar .meta-val {
+            color: #fff;
+        }
+        .detail-meta-bar .meta-pay {
+            color: #c084fc;
+        }
+        .detail-desc-box {
+            margin-top: 5px;
+            font-size: 0.92rem;
+            color: #fff;
+            background: rgba(56, 189, 248, 0.08);
+            border-right: 4px solid #38bdf8;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+        .detail-desc-box .desc-label {
+            color: #38bdf8;
+            font-weight: 900;
+            margin-left: 5px;
+        }
+        .detail-section-items {
+            border-top: 1px dashed rgba(255,255,255,0.08);
+            padding-top: 15px;
+        }
+        .detail-table .item-name {
+            font-weight: bold;
+            color: #fff;
+        }
+        .detail-table .item-qty {
+            text-align: center;
+            font-family: monospace;
+            font-weight: 800;
+            color: #cbd5e1;
+        }
+        .detail-table .item-price {
+            text-align: left;
+            font-family: monospace;
+            color: #cbd5e1;
+        }
+        .detail-table .item-total {
+            text-align: left;
+        }
+        .detail-table .item-total span {
+            color: #10b981;
+            font-weight: 900;
+            font-family: monospace;
+        }
+        .detail-total-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.15);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid rgba(255,255,255,0.02);
+        }
+        .detail-total-bar .total-lbl {
+            font-weight: bold;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        .detail-total-bar .total-val-box {
+            display: flex;
+            align-items: center;
+        }
+        .detail-total-bar .val-foreign {
+            font-weight: 900;
+            color: #fbbf24;
+            font-size: 1.25rem;
+            font-family: monospace;
+            margin-left: 15px;
+            padding-left: 15px;
+            border-left: 1px solid rgba(255,255,255,0.1);
+        }
+        .detail-total-bar .val-local {
+            font-weight: 900;
+            color: #10b981;
+            font-size: 1.25rem;
+            font-family: monospace;
+        }
+        .detail-total-bar .cur-lbl {
+            font-size: 0.8rem;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .detail-section-voucher {
+            border-top: 1px dashed rgba(255,255,255,0.08);
+            padding-top: 15px;
+        }
+        .voucher-flow-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .detail-debtor-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(16,185,129,0.05);
+            border: 1px solid rgba(16,185,129,0.12);
+            padding: 10px 14px;
+            border-radius: 10px;
+        }
+        .detail-debtor-row .row-title {
+            font-weight: 800;
+            color: #10b981;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .detail-debtor-row .sign-plus {
+            background: #10b981;
+            color: #fff;
+            width: 22px;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            font-family: monospace;
+        }
+        .detail-debtor-row .row-val {
+            font-weight: 900;
+            color: #fff;
+            font-size: 1.05rem;
+        }
+
+        .detail-creditor-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(239,68,68,0.05);
+            border: 1px solid rgba(239,68,68,0.12);
+            padding: 10px 14px;
+            border-radius: 10px;
+        }
+        .detail-creditor-row .row-title {
+            font-weight: 800;
+            color: #f87171;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .detail-creditor-row .sign-minus {
+            background: #ef4444;
+            color: #fff;
+            width: 22px;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            font-family: monospace;
+        }
+        .detail-creditor-row .row-val {
+            font-weight: 900;
+            color: #fff;
+            font-size: 1.05rem;
+        }
+
+        .detail-net-amount-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(56,189,248,0.03);
+            border: 1px solid rgba(56,189,248,0.12);
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin-top: 5px;
+        }
+        .detail-net-amount-row .row-title {
+            font-weight: 800;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+        }
+        .detail-net-amount-row .val-foreign {
+            font-weight: 900;
+            color: #fbbf24;
+            font-size: 1.35rem;
+            font-family: monospace;
+            margin-left: 15px;
+            padding-left: 15px;
+            border-left: 1px solid rgba(255,255,255,0.1);
+        }
+        .detail-net-amount-row .val-net {
+            font-weight: 900;
+            color: #38bdf8;
+            font-size: 1.35rem;
+            font-family: monospace;
+        }
+        .detail-net-amount-row .cur-lbl {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .detail-section-journal {
+            border-top: 1px dashed rgba(255,255,255,0.08);
+            padding-top: 15px;
+        }
+        .detail-section-journal .cr-inactive {
+            color: #64748b;
+        }
+        .detail-section-journal .acc-name {
+            font-weight: bold;
+            color: #fff;
+        }
+        .type-chip.active .chip-count {
+            color: #ffffff;
+        }
+
         /* Universal Light Theme Overrides for Internal Screens */
         :root.light-theme body,
         :root.light-theme .ambient-bg {
@@ -445,17 +727,181 @@
         :root.light-theme .kpi-card,
         :root.light-theme .premium-header,
         :root.light-theme .top-header,
-        :root.light-theme .header-area {
+        :root.light-theme .header-area,
+        :root.light-theme .master-pane,
+        :root.light-theme .detail-pane,
+        :root.light-theme .filters-wrapper {
             background: #ffffff !important;
-            border-color: rgba(0, 0, 0, 0.08) !important;
+            border-color: #cbd5e1 !important;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
             color: #0f172a !important;
         }
-        :root.light-theme .glass-panel *,
-        :root.light-theme .neo-card *,
-        :root.light-theme .summary-card * {
-            text-shadow: none !important;
+        :root.light-theme .detail-pane {
+            background: #f1f5f9 !important; /* Premium light details background */
+            border-color: #cbd5e1 !important;
         }
+        :root.light-theme .empty-detail {
+            color: #64748b !important;
+        }
+        :root.light-theme .empty-detail h3 {
+            color: #0f172a !important;
+        }
+        :root.light-theme .unified-details-card {
+            background: #ffffff !important;
+            border-color: #cbd5e1 !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05) !important;
+        }
+        :root.light-theme .close-details-btn {
+            background: #e2e8f0 !important;
+            color: #334155 !important;
+            border-color: #cbd5e1 !important;
+        }
+        :root.light-theme .close-details-btn:hover {
+            background: #cbd5e1 !important;
+        }
+        :root.light-theme .detail-meta-bar {
+            background: #f1f5f9 !important;
+            border-color: #cbd5e1 !important;
+            color: #334155 !important;
+        }
+        :root.light-theme .detail-meta-bar .meta-label {
+            color: #475569 !important;
+        }
+        :root.light-theme .detail-meta-bar .meta-ref {
+            color: #0284c7 !important;
+        }
+        :root.light-theme .detail-meta-bar .meta-val {
+            color: #0f172a !important;
+        }
+        :root.light-theme .detail-meta-bar .meta-pay {
+            color: #7c3aed !important;
+        }
+        :root.light-theme .detail-desc-box {
+            background: rgba(2, 132, 199, 0.06) !important;
+            border-right-color: #0284c7 !important;
+            color: #0f172a !important;
+        }
+        :root.light-theme .detail-desc-box .desc-label {
+            color: #0284c7 !important;
+        }
+        :root.light-theme .detail-section-items,
+        :root.light-theme .detail-section-voucher,
+        :root.light-theme .detail-section-journal {
+            border-top-color: #cbd5e1 !important;
+        }
+        :root.light-theme .section-title {
+            color: #0f172a !important;
+        }
+        :root.light-theme .section-title span {
+            background: #e2e8f0 !important;
+            color: #0f172a !important;
+        }
+        :root.light-theme .detail-table th {
+            color: #334155 !important;
+            border-bottom-color: #cbd5e1 !important;
+        }
+        :root.light-theme .detail-table td {
+            color: #0f172a !important;
+            border-bottom-color: #e2e8f0 !important;
+        }
+        :root.light-theme .detail-table .item-name {
+            color: #0f172a !important;
+        }
+        :root.light-theme .detail-table .item-qty,
+        :root.light-theme .detail-table .item-price {
+            color: #334155 !important;
+        }
+        :root.light-theme .detail-total-bar {
+            background: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+        }
+        :root.light-theme .detail-total-bar .total-lbl {
+            color: #334155 !important;
+        }
+        :root.light-theme .detail-total-bar .val-foreign {
+            border-left-color: #cbd5e1 !important;
+            color: #b45309 !important;
+        }
+        :root.light-theme .detail-total-bar .val-local {
+            color: #059669 !important;
+        }
+
+        :root.light-theme .detail-debtor-row {
+            background: rgba(5, 150, 105, 0.05) !important;
+            border-color: rgba(5, 150, 105, 0.15) !important;
+        }
+        :root.light-theme .detail-debtor-row .row-title {
+            color: #059669 !important;
+        }
+        :root.light-theme .detail-debtor-row .row-val {
+            color: #0f172a !important;
+        }
+        
+        :root.light-theme .detail-creditor-row {
+            background: rgba(225, 29, 72, 0.05) !important;
+            border-color: rgba(225, 29, 72, 0.15) !important;
+        }
+        :root.light-theme .detail-creditor-row .row-title {
+            color: #e11d48 !important;
+        }
+        :root.light-theme .detail-creditor-row .row-val {
+            color: #0f172a !important;
+        }
+
+        :root.light-theme .detail-net-amount-row {
+            background: rgba(2, 132, 199, 0.04) !important;
+            border-color: rgba(2, 132, 199, 0.15) !important;
+        }
+        :root.light-theme .detail-net-amount-row .row-title {
+            color: #334155 !important;
+        }
+        :root.light-theme .detail-net-amount-row .val-foreign {
+            border-left-color: #cbd5e1 !important;
+            color: #b45309 !important;
+        }
+        :root.light-theme .detail-net-amount-row .val-net {
+            color: #0284c7 !important;
+        }
+        :root.light-theme .detail-net-amount-row .cur-lbl {
+            color: #475569 !important;
+        }
+        :root.light-theme .detail-section-journal .acc-name {
+            color: #0f172a !important;
+        }
+        :root.light-theme .detail-section-journal .cr-inactive {
+            color: #94a3b8 !important;
+        }
+
+        /* Type Filters / Chips Light Theme Styles */
+        :root.light-theme .type-filters {
+            background: #ffffff !important;
+            padding: 5px;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+        }
+        :root.light-theme .type-chip:not(.active) {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+        :root.light-theme .type-chip:not(.active):hover {
+            background: #e2e8f0;
+            color: #0f172a;
+            border-color: #94a3b8;
+        }
+
+        /* Table headers (Type, Date, Reference) Strong Dark Distinct styling in light theme */
+        :root.light-theme .erp-table thead {
+            background: #0f172a !important; /* Deep Premium Dark background */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
+        }
+        :root.light-theme .erp-table th {
+            color: #f8fafc !important; /* White text for strong contrast */
+            border-bottom: 2px solid #334155 !important;
+            padding: 15px 12px;
+        }
+        
         :root.light-theme table.pro-table th,
         :root.light-theme .pos-grid thead th,
         :root.light-theme .ledger-table th,
@@ -467,15 +913,72 @@
         :root.light-theme table.pro-table td,
         :root.light-theme .pos-grid tbody td,
         :root.light-theme .ledger-table td,
-        :root.light-theme .report-table td {
+        :root.light-theme .report-table td,
+        :root.light-theme .erp-table td {
             color: #1e293b !important;
             border-bottom: 1px solid rgba(0,0,0,0.08) !important;
         }
         :root.light-theme table.pro-table tbody tr:hover td,
         :root.light-theme .pos-grid tbody tr:hover td,
         :root.light-theme .ledger-table tbody tr:hover td,
-        :root.light-theme .report-table tbody tr:hover td {
+        :root.light-theme .report-table tbody tr:hover td,
+        :root.light-theme .erp-table tbody tr:hover td {
             background: rgba(0,0,0,0.02) !important;
+        }
+        
+        /* Modal & sticky overrides in light theme */
+        :root.light-theme .modal-box {
+            background: #ffffff !important;
+            border-color: #cbd5e1 !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1) !important;
+        }
+        :root.light-theme .modal-title {
+            color: #0f172a !important;
+        }
+        :root.light-theme .modal-body {
+            color: #334155 !important;
+        }
+        :root.light-theme .modal-btn.cancel {
+            background: #e2e8f0 !important;
+            color: #334155 !important;
+        }
+        :root.light-theme .modal-btn.cancel:hover {
+            background: #cbd5e1 !important;
+        }
+        :root.light-theme .sticky-action-bar {
+            background: #ffffff !important;
+            border-color: var(--primary-accent) !important;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15) !important;
+        }
+        :root.light-theme .sticky-action-bar div {
+            color: #0f172a !important;
+        }
+        :root.light-theme .search-box input,
+        :root.light-theme .date-input {
+            background: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+            color: #0f172a !important;
+        }
+        :root.light-theme .search-box input:focus,
+        :root.light-theme .date-input:focus {
+            border-color: var(--primary-accent) !important;
+            background: #ffffff !important;
+        }
+        :root.light-theme .date-filters label {
+            color: #475569 !important;
+        }
+        :root.light-theme .status-toggle {
+            background: #e2e8f0 !important;
+            border-color: #cbd5e1 !important;
+        }
+        :root.light-theme .status-btn {
+            color: #475569 !important;
+        }
+
+        :root.light-theme .glass-panel *,
+        :root.light-theme .neo-card *,
+        :root.light-theme .summary-card * {
+            text-shadow: none !important;
         }
         :root.light-theme .h-label,
         :root.light-theme .form-label,

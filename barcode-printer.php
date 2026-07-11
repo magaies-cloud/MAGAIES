@@ -1,6 +1,16 @@
 <?php $page_title = 'مقاييس - طباعة الباركود'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+<script src="js/lang.js"></script>
+<script>
+(function(){
+    var l = localStorage.getItem('erp_lang') || 'ar';
+    if(l==='en') {
+        document.documentElement.setAttribute('dir','ltr');
+        document.documentElement.setAttribute('lang','en');
+    }
+})();
+</script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

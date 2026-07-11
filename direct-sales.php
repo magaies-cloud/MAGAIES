@@ -1,6 +1,16 @@
 <?php $page_title = 'المبيعات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+<script src="js/lang.js"></script>
+<script>
+(function(){
+    var l = localStorage.getItem('erp_lang') || 'ar';
+    if(l==='en') {
+        document.documentElement.setAttribute('dir','ltr');
+        document.documentElement.setAttribute('lang','en');
+    }
+})();
+</script>
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
@@ -981,71 +991,119 @@
             margin: 0;
         }
 
-        /* ── Theme-aware Card Styling (Dark Mode Defaults) ── */
+        /* ── Theme-aware Card Styling (Dark Mode Defaults with Magical Glassy Borders & Glow) ── */
         .card-blue {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(56, 189, 248, 0.03));
-            border: 1px solid rgba(56, 189, 248, 0.25) !important;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(3, 105, 161, 0.08)) !important;
+            border: 1px solid rgba(14, 165, 233, 0.3) !important; /* Translucent blue border */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
         .card-blue .icon { color: #38bdf8; background: rgba(56, 189, 248, 0.08); }
         .card-blue .title { color: #38bdf8 !important; }
         .card-blue .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+        .card-blue:hover {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.4), rgba(3, 105, 161, 0.15)) !important;
+            border-color: rgba(14, 165, 233, 0.7) !important; /* Glowing glass border */
+            box-shadow: 0 12px 40px 0 rgba(14, 165, 233, 0.35), inset 0 0 18px rgba(14, 165, 233, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3) !important;
+        }
 
         .card-pink {
-            background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(236, 72, 153, 0.03));
-            border: 1px solid rgba(236, 72, 153, 0.25) !important;
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.25), rgba(190, 24, 74, 0.08)) !important;
+            border: 1px solid rgba(236, 72, 153, 0.3) !important; /* Translucent pink border */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
         .card-pink .icon { color: #ec4899; background: rgba(236, 72, 153, 0.08); }
         .card-pink .title { color: #ec4899 !important; }
         .card-pink .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+        .card-pink:hover {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.4), rgba(190, 24, 74, 0.15)) !important;
+            border-color: rgba(236, 72, 153, 0.7) !important; /* Glowing glass border */
+            box-shadow: 0 12px 40px 0 rgba(236, 72, 153, 0.35), inset 0 0 18px rgba(236, 72, 153, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3) !important;
+        }
 
         .card-green {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.03));
-            border: 1px solid rgba(16, 185, 129, 0.25) !important;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(4, 120, 87, 0.08)) !important;
+            border: 1px solid rgba(16, 185, 129, 0.3) !important; /* Translucent green border */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
         .card-green .icon { color: #10b981; background: rgba(16, 185, 129, 0.08); }
         .card-green .title { color: #10b981 !important; }
         .card-green .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+        .card-green:hover {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(4, 120, 87, 0.15)) !important;
+            border-color: rgba(16, 185, 129, 0.7) !important; /* Glowing glass border */
+            box-shadow: 0 12px 40px 0 rgba(16, 185, 129, 0.35), inset 0 0 18px rgba(16, 185, 129, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3) !important;
+        }
 
         .card-purple {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(168, 85, 247, 0.03));
-            border: 1px solid rgba(168, 85, 247, 0.25) !important;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(109, 40, 217, 0.08)) !important;
+            border: 1px solid rgba(168, 85, 247, 0.3) !important; /* Translucent purple border */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
         .card-purple .icon { color: #a855f7; background: rgba(168, 85, 247, 0.08); }
         .card-purple .title { color: #a855f7 !important; }
         .card-purple .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
-
-        /* ── Light Mode overrides for Hub Cards ── */
-        :root.light-theme .card-blue {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(56, 189, 248, 0.08)) !important;
-            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+        .card-purple:hover {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.4), rgba(109, 40, 217, 0.15)) !important;
+            border-color: rgba(168, 85, 247, 0.7) !important; /* Glowing glass border */
+            box-shadow: 0 12px 40px 0 rgba(168, 85, 247, 0.35), inset 0 0 18px rgba(168, 85, 247, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3) !important;
         }
-        :root.light-theme .card-blue .icon { color: #0284c7 !important; background: rgba(0, 0, 0, 0.05) !important; }
-        :root.light-theme .card-blue .title { color: #0f172a !important; }
-        :root.light-theme .card-blue .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+
+        /* ── Light Mode overrides for Hub Cards (Light Pastel Glassy Gradients, Vibrant Colored Text & Magical Hover Border Glows) ── */
+        :root.light-theme .card-blue {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.16), rgba(56, 189, 248, 0.05)) !important;
+            border: 1px solid rgba(14, 165, 233, 0.28) !important; /* Translucent blue glassy border */
+            box-shadow: 0 8px 32px 0 rgba(14, 165, 233, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
+        }
+        :root.light-theme .card-blue .icon { color: #0284c7 !important; background: rgba(14, 165, 233, 0.08) !important; }
+        :root.light-theme .card-blue .title { color: #0284c7 !important; }
+        :root.light-theme .card-blue .subtitle { color: rgba(2, 132, 199, 0.8) !important; }
+        :root.light-theme .card-blue:hover {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.3), rgba(56, 189, 248, 0.1)) !important;
+            border-color: rgba(14, 165, 233, 0.6) !important; /* Glowing blue glass border */
+            box-shadow: 0 12px 40px 0 rgba(14, 165, 233, 0.22), inset 0 0 15px rgba(14, 165, 233, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.75) !important;
+        }
 
         :root.light-theme .card-pink {
-            background: linear-gradient(135deg, rgba(236, 72, 153, 0.25), rgba(236, 72, 153, 0.08)) !important;
-            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.16), rgba(244, 114, 182, 0.05)) !important;
+            border: 1px solid rgba(236, 72, 153, 0.28) !important; /* Translucent pink glassy border */
+            box-shadow: 0 8px 32px 0 rgba(236, 72, 153, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
         }
-        :root.light-theme .card-pink .icon { color: #db2777 !important; background: rgba(0, 0, 0, 0.05) !important; }
-        :root.light-theme .card-pink .title { color: #0f172a !important; }
-        :root.light-theme .card-pink .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+        :root.light-theme .card-pink .icon { color: #db2777 !important; background: rgba(236, 72, 153, 0.08) !important; }
+        :root.light-theme .card-pink .title { color: #db2777 !important; }
+        :root.light-theme .card-pink .subtitle { color: rgba(219, 39, 119, 0.8) !important; }
+        :root.light-theme .card-pink:hover {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(244, 114, 182, 0.1)) !important;
+            border-color: rgba(236, 72, 153, 0.6) !important; /* Glowing pink glass border */
+            box-shadow: 0 12px 40px 0 rgba(236, 72, 153, 0.22), inset 0 0 15px rgba(236, 72, 153, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.75) !important;
+        }
 
         :root.light-theme .card-green {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(16, 185, 129, 0.08)) !important;
-            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.16), rgba(52, 211, 153, 0.05)) !important;
+            border: 1px solid rgba(16, 185, 129, 0.28) !important; /* Translucent green glassy border */
+            box-shadow: 0 8px 32px 0 rgba(16, 185, 129, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
         }
-        :root.light-theme .card-green .icon { color: #059669 !important; background: rgba(0, 0, 0, 0.05) !important; }
-        :root.light-theme .card-green .title { color: #0f172a !important; }
-        :root.light-theme .card-green .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+        :root.light-theme .card-green .icon { color: #059669 !important; background: rgba(16, 185, 129, 0.08) !important; }
+        :root.light-theme .card-green .title { color: #059669 !important; }
+        :root.light-theme .card-green .subtitle { color: rgba(5, 150, 105, 0.8) !important; }
+        :root.light-theme .card-green:hover {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(52, 211, 153, 0.1)) !important;
+            border-color: rgba(16, 185, 129, 0.6) !important; /* Glowing green glass border */
+            box-shadow: 0 12px 40px 0 rgba(16, 185, 129, 0.22), inset 0 0 15px rgba(16, 185, 129, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.75) !important;
+        }
 
         :root.light-theme .card-purple {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(168, 85, 247, 0.08)) !important;
-            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.16), rgba(192, 132, 252, 0.05)) !important;
+            border: 1px solid rgba(168, 85, 247, 0.28) !important; /* Translucent purple glassy border */
+            box-shadow: 0 8px 32px 0 rgba(168, 85, 247, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
         }
-        :root.light-theme .card-purple .icon { color: #7c3aed !important; background: rgba(0, 0, 0, 0.05) !important; }
-        :root.light-theme .card-purple .title { color: #0f172a !important; }
-        :root.light-theme .card-purple .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+        :root.light-theme .card-purple .icon { color: #7c3aed !important; background: rgba(168, 85, 247, 0.08) !important; }
+        :root.light-theme .card-purple .title { color: #7c3aed !important; }
+        :root.light-theme .card-purple .subtitle { color: rgba(124, 58, 237, 0.8) !important; }
+        :root.light-theme .card-purple:hover {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(192, 132, 252, 0.1)) !important;
+            border-color: rgba(168, 85, 247, 0.6) !important; /* Glowing purple glass border */
+            box-shadow: 0 12px 40px 0 rgba(168, 85, 247, 0.22), inset 0 0 15px rgba(168, 85, 247, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.75) !important;
+        }
         .hub-badge {
             padding: 4px 10px;
             border-radius: 20px;
@@ -1108,9 +1166,150 @@
             background: rgba(0, 0, 0, 0.04) !important;
         }
         :root.light-theme input, :root.light-theme select, :root.light-theme textarea {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+            color: #1e293b !important;
+            border: 1.5px solid rgba(148, 163, 184, 0.5) !important;
+            border-radius: 10px !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+            transition: all 0.3s ease !important;
+        }
+        :root.light-theme input:focus, :root.light-theme select:focus, :root.light-theme textarea:focus {
+            border-color: rgba(99, 102, 241, 0.6) !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04), 0 0 0 3px rgba(99, 102, 241, 0.12) !important;
+            outline: none !important;
+        }
+
+        /* Professional Light Theme overrides for invoice header inputs (replacing harsh black/dark styling) */
+        :root.light-theme .ds-top-row .ctrl-input, 
+        :root.light-theme .ds-top-row select.ctrl-input, 
+        :root.light-theme .ds-top-row input.ctrl-input,
+        :root.light-theme .ds-top-row textarea.ctrl-input,
+        :root.light-theme .pro-panel .ctrl-input,
+        :root.light-theme #hdr-customer-search,
+        :root.light-theme #hdr-currency,
+        :root.light-theme #hdr-exchange-rate,
+        :root.light-theme #hdr-payment-method,
+        :root.light-theme #hdr-payment-account,
+        :root.light-theme #hdr-warehouse,
+        :root.light-theme #hdr-cost-center,
+        :root.light-theme #hdr-description,
+        :root.light-theme #pay-detail-1,
+        :root.light-theme #pay-detail-2,
+        :root.light-theme #pay-detail-3,
+        :root.light-theme #hdr-date {
+            border: 1.5px solid rgba(99, 102, 241, 0.3) !important; /* Elegant indigo/slate tint */
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+            color: #0f172a !important;
+            border-radius: 12px !important;
+            padding: 8px 12px !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(99, 102, 241, 0.03) !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            font-weight: 700 !important;
+        }
+
+        :root.light-theme .ds-top-row .ctrl-input:focus, 
+        :root.light-theme .ds-top-row select.ctrl-input:focus, 
+        :root.light-theme .ds-top-row input.ctrl-input:focus,
+        :root.light-theme .ds-top-row textarea.ctrl-input:focus,
+        :root.light-theme .pro-panel .ctrl-input:focus,
+        :root.light-theme #hdr-customer-search:focus,
+        :root.light-theme #hdr-currency:focus,
+        :root.light-theme #hdr-exchange-rate:focus,
+        :root.light-theme #hdr-payment-method:focus,
+        :root.light-theme #hdr-payment-account:focus,
+        :root.light-theme #hdr-warehouse:focus,
+        :root.light-theme #hdr-cost-center:focus,
+        :root.light-theme #hdr-description:focus,
+        :root.light-theme #pay-detail-1:focus,
+        :root.light-theme #pay-detail-2:focus,
+        :root.light-theme #pay-detail-3:focus,
+        :root.light-theme #hdr-date:focus {
+            border-color: rgba(99, 102, 241, 0.7) !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03), 0 0 0 3px rgba(99, 102, 241, 0.15), 0 4px 12px rgba(99, 102, 241, 0.15) !important;
             background: #ffffff !important;
-            color: #000000 !important;
-            border: 1px solid rgba(0, 0, 0, 0.18) !important;
+            outline: none !important;
+        }
+
+        :root.light-theme .ds-top-row .ctrl-input:hover, 
+        :root.light-theme .ds-top-row select.ctrl-input:hover, 
+        :root.light-theme .ds-top-row input.ctrl-input:hover,
+        :root.light-theme .ds-top-row textarea.ctrl-input:hover,
+        :root.light-theme .pro-panel .ctrl-input:hover,
+        :root.light-theme #hdr-customer-search:hover,
+        :root.light-theme #hdr-currency:hover,
+        :root.light-theme #hdr-exchange-rate:hover,
+        :root.light-theme #hdr-payment-method:hover,
+        :root.light-theme #hdr-payment-account:hover,
+        :root.light-theme #hdr-warehouse:hover,
+        :root.light-theme #hdr-cost-center:hover,
+        :root.light-theme #hdr-description:hover,
+        :root.light-theme #pay-detail-1:hover,
+        :root.light-theme #pay-detail-2:hover,
+        :root.light-theme #pay-detail-3:hover,
+        :root.light-theme #hdr-date:hover {
+            border-color: rgba(99, 102, 241, 0.5) !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03), 0 3px 10px rgba(99, 102, 241, 0.08) !important;
+        }
+
+        /* Choices.js Light Theme Overrides */
+        :root.light-theme .choices__inner {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+            border: 1.5px solid rgba(99, 102, 241, 0.3) !important;
+            color: #0f172a !important;
+            border-radius: 12px !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(99, 102, 241, 0.03) !important;
+            transition: all 0.3s ease !important;
+        }
+        :root.light-theme .choices__list--dropdown {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border: 1.5px solid rgba(99, 102, 241, 0.4) !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important;
+            border-radius: 12px !important;
+        }
+        :root.light-theme .choices__item {
+            color: #0f172a !important;
+        }
+        :root.light-theme .choices__item--selectable.is-highlighted {
+            background-color: rgba(99, 102, 241, 0.08) !important;
+            color: #4f46e5 !important;
+        }
+        :root.light-theme .choices__input {
+            color: #0f172a !important;
+            background-color: #ffffff !important;
+            border: 1px solid rgba(148, 163, 184, 0.3) !important;
+            border-radius: 6px !important;
+        }
+
+        /* Custom Customer Dropdown Light Theme Styling */
+        :root.light-theme #customer-dropdown-list {
+            background: #ffffff !important;
+            border: 1.5px solid rgba(99, 102, 241, 0.4) !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important;
+            border-radius: 12px !important;
+        }
+        :root.light-theme .custom-dropdown-item {
+            color: #1e293b !important;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.15) !important;
+            background: transparent !important;
+        }
+        :root.light-theme .custom-dropdown-item:hover, 
+        :root.light-theme .custom-dropdown-item.selected {
+            background: rgba(99, 102, 241, 0.06) !important;
+            color: #4f46e5 !important;
+        }
+        :root.light-theme .custom-dropdown-empty {
+            color: #64748b !important;
+        }
+
+        :root.light-theme #hdr-date-label {
+            color: #4f46e5 !important;
+            text-shadow: none !important;
+        }
+        :root.light-theme .date-icon-wrap {
+            background: rgba(99, 102, 241, 0.06) !important;
+            border: 1px solid rgba(99, 102, 241, 0.2) !important;
+            color: #4f46e5 !important;
         }
     
         /* User request: Sky Blue outer border for invoice header inputs */
@@ -1532,13 +1731,34 @@
         :root.light-theme .ctrl-input:not(table *),
         :root.light-theme .v-input:not(table *) {
             font-size: 1.45rem !important;
-            color: #000000 !important;
-            font-weight: 800 !important;
-            border: 2px solid #000000 !important;
-            background: #ffffff !important;
-            box-shadow: none !important;
+            color: #1e293b !important;
+            font-weight: 700 !important;
+            border: 1.5px solid rgba(148, 163, 184, 0.5) !important;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
             padding: 8px 12px !important;
             height: auto !important;
+            border-radius: 10px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        :root.light-theme input:not(table *):not(.choices__input):focus,
+        :root.light-theme select:not(table *):focus,
+        :root.light-theme textarea:not(table *):focus,
+        :root.light-theme .ctrl-input:not(table *):focus,
+        :root.light-theme .v-input:not(table *):focus {
+            border-color: rgba(99, 102, 241, 0.6) !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04), 0 0 0 3px rgba(99, 102, 241, 0.12), 0 2px 8px rgba(99, 102, 241, 0.15) !important;
+            outline: none !important;
+        }
+
+        :root.light-theme input:not(table *):not(.choices__input):hover,
+        :root.light-theme select:not(table *):hover,
+        :root.light-theme textarea:not(table *):hover,
+        :root.light-theme .ctrl-input:not(table *):hover,
+        :root.light-theme .v-input:not(table *):hover {
+            border-color: rgba(99, 102, 241, 0.4) !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
         }
 
         /* Keep customer search padding left correct to accommodate the ledger button if absolute */
@@ -1565,20 +1785,25 @@
             color: #000000 !important;
         }
 
-        /* Action Buttons outside the table */
-        :root.light-theme button:not(table *):not(.pro-serial-btn):not(.modal-close) {
+        /* Action Buttons outside the table (Exclude Hub Action Cards to retain premium glassmorphic styling) */
+        :root.light-theme button:not(table *):not(.pro-serial-btn):not(.modal-close):not(.hub-action-card) {
             font-size: 1.3rem !important;
-            color: #000000 !important;
-            font-weight: 800 !important;
-            border: 2px solid #000000 !important;
-            background: #ffffff !important;
+            color: #334155 !important;
+            font-weight: 700 !important;
+            border: 1.5px solid rgba(148, 163, 184, 0.4) !important;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%) !important;
             padding: 8px 16px !important;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255,255,255,0.8) !important;
+            border-radius: 10px !important;
+            transition: all 0.3s ease !important;
         }
 
-        :root.light-theme button:not(table *):not(.pro-serial-btn):not(.modal-close):hover {
-            background: #e2e8f0 !important;
-            color: #000000 !important;
+        :root.light-theme button:not(table *):not(.pro-serial-btn):not(.modal-close):not(.hub-action-card):hover {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%) !important;
+            color: #1e293b !important;
+            border-color: rgba(99, 102, 241, 0.4) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255,255,255,0.8) !important;
+            transform: translateY(-1px);
         }
         
         /* Make sure plus button next to customer stays formatted well but larger */
@@ -1595,7 +1820,53 @@
             padding: 6px 12px !important;
             font-size: 1.3rem !important;
         }
-\n</style>
+
+        /* Sleek, glassy overrides for search box and refresh button in Light Theme */
+        :root.light-theme #hub-search {
+            height: 34px !important;
+            padding: 5px 12px !important;
+            font-size: 0.9rem !important;
+            font-weight: 700 !important;
+            border: 1px solid rgba(14, 165, 233, 0.3) !important; /* Blue glassy border */
+            background: rgba(14, 165, 233, 0.04) !important; /* Translucent blue background */
+            border-radius: 8px !important;
+            color: #0f172a !important;
+            box-shadow: inset 0 1px 2px rgba(14, 165, 233, 0.05) !important;
+            transition: all 0.3s ease !important;
+        }
+        :root.light-theme #hub-search:focus {
+            background: #ffffff !important;
+            border-color: rgba(14, 165, 233, 0.6) !important;
+            box-shadow: 0 0 8px rgba(14, 165, 233, 0.2), inset 0 1px 1px rgba(0,0,0,0.05) !important;
+            outline: none !important;
+        }
+        
+        :root.light-theme #sales-hub-view .btn-action,
+        :root.light-theme .neo-card-title .btn-action {
+            height: 34px !important;
+            padding: 5px 14px !important;
+            font-size: 0.85rem !important;
+            font-weight: 700 !important;
+            color: #334155 !important;
+            border: 1px solid rgba(15, 23, 42, 0.15) !important; /* Subtle dark glassy border */
+            background: rgba(15, 23, 42, 0.05) !important; /* Translucent grey background */
+            border-radius: 8px !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            transition: all 0.3s ease !important;
+        }
+        :root.light-theme #sales-hub-view .btn-action:hover,
+        :root.light-theme .neo-card-title .btn-action:hover {
+            background: rgba(15, 23, 42, 0.1) !important;
+            border-color: rgba(15, 23, 42, 0.3) !important;
+            color: #0f172a !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+            transform: translateY(-1px) !important;
+        }
+</style>
 </head>
 <body>
     <!-- Toast Container -->
@@ -1710,7 +1981,7 @@
         <!-- Recent Transactions Table -->
         <div class="neo-card" style="flex: 1; display: flex; flex-direction: column; overflow: visible; margin-bottom: 15px;">
             <div class="neo-card-title" style="font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;">
-                <span>📋 العمليات الأخيرة (Recent Transactions)</span>
+                <span style="color: #ef4444 !important; font-weight: 800;">📋 عمليات المبيعات الأخيرة</span>
                 <div style="display: flex; gap: 10px;">
                     <input type="text" id="hub-search" class="v-input" placeholder="بحث برقم الفاتورة أو العميل..." style="width: 250px;" oninput="filterHubTransactions()">
                     <button class="btn-action" style="width: auto; padding: 6px 12px; font-size: 0.8rem; background: rgba(255,255,255,0.05);" onclick="loadHubTransactions()">🔄 تحديث</button>
@@ -2017,7 +2288,7 @@
                             <div class="h-form-group" style="flex: 25; min-width: 0; display:flex; align-items:center; gap:10px;">
                                 <label class="h-label" style="margin:0; white-space:nowrap;">سعر الصرف</label>
                                 <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1; width: 100%;">
-                                    <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="document.getElementById('hdr-exchange-rate').disabled = (this.value === 'SDG'); document.getElementById('hdr-exchange-rate').value = (this.value === 'SDG') ? '1' : ''; recalcAll();" style="flex: 1.2; min-width:0; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
+                                    <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="handleCurrencyChange(this.value)" style="flex: 1.2; min-width:0; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
                                         <option value="SDG">🇸🇩 جنيه</option>
                                         <option value="USD">🇺🇸 دولار</option>
                                         <option value="SAR">🇸🇦 ريال</option>
@@ -2271,7 +2542,7 @@
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/html2pdf.bundle.min.js"></script>
     <script defer src="js/whatsapp-integration.js"></script>
-    <script defer src="js/app.js?v=1783054967.56221"></script>
+    <script defer src="js/app.js?v=<?php echo time(); ?>"></script>
     <script defer src="js/print-engine.js"></script>
     
 
@@ -2280,6 +2551,76 @@
     <script>
         // Sales Hub Logic
         let currentSalesView = 'hub'; // 'hub' or 'editor'
+
+        function handleCurrencyChange(val) {
+            const rateInput = document.getElementById('hdr-exchange-rate');
+            if (!rateInput) return;
+            
+            if (val === 'SDG') {
+                rateInput.value = '1';
+                rateInput.disabled = true;
+                if (typeof recalcAll === 'function') recalcAll();
+                return;
+            }
+            
+            // Always enable editing for foreign currencies
+            rateInput.disabled = false;
+            
+            // Step 1: Try to get rate from local settings function
+            let rate = 0;
+            if (window.getExchangeRateForCurrency) {
+                rate = window.getExchangeRateForCurrency(val);
+            }
+            
+            if (rate > 0) {
+                rateInput.value = rate;
+                if (typeof recalcAll === 'function') recalcAll();
+                return;
+            }
+            
+            // Step 2: Try to read directly from localStorage settings (any mode)
+            try {
+                const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+                if (val === 'USD' && cfg.rateUSD) { rateInput.value = cfg.rateUSD; if (typeof recalcAll === 'function') recalcAll(); return; }
+                if (val === 'SAR' && cfg.rateSAR) { rateInput.value = cfg.rateSAR; if (typeof recalcAll === 'function') recalcAll(); return; }
+                if (val === 'AED' && cfg.rateAED) { rateInput.value = cfg.rateAED; if (typeof recalcAll === 'function') recalcAll(); return; }
+            } catch(e) {}
+            
+            // Step 3: Try to fetch from API directly (central rate)
+            rateInput.value = '';
+            rateInput.placeholder = '⏳ جاري التحميل...';
+            
+            fetch('api_index.php/exchange-rate')
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.rate) {
+                        const usdRate = parseFloat(data.rate);
+                        if (usdRate > 0) {
+                            window._cachedGlobalRate = usdRate;
+                            let finalRate = usdRate;
+                            if (val === 'SAR') finalRate = parseFloat((usdRate / 3.75).toFixed(4));
+                            if (val === 'AED') finalRate = parseFloat((usdRate / 3.67).toFixed(4));
+                            if (val === 'EGP') finalRate = parseFloat((usdRate / 50.0).toFixed(4));
+                            
+                            rateInput.value = finalRate;
+                            if (typeof recalcAll === 'function') recalcAll();
+                            return;
+                        }
+                    }
+                    // No rate found from API either
+                    rateInput.value = '';
+                    rateInput.placeholder = 'أدخل سعر الصرف';
+                })
+                .catch(() => {
+                    rateInput.value = '';
+                    rateInput.placeholder = 'أدخل سعر الصرف';
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // No need for auto-init - currency defaults to SDG
+            // handleCurrencyChange only needed when user explicitly changes currency
+        });
 
         function showSalesHub() {
             document.getElementById('invoice-editor-view').style.display = 'none';

@@ -1,6 +1,16 @@
 <?php $page_title = 'الإعدادات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+<script src="js/lang.js"></script>
+<script>
+(function(){
+    var l = localStorage.getItem('erp_lang') || 'ar';
+    if(l==='en') {
+        document.documentElement.setAttribute('dir','ltr');
+        document.documentElement.setAttribute('lang','en');
+    }
+})();
+</script>
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
@@ -426,15 +436,15 @@
 
     <!-- Tabs Navigation -->
     <div class="tabs-nav">
-        <button class="tab-btn active" onclick="switchTab('company')">🏢 بيانات الشركة</button>
-        <button class="tab-btn" onclick="switchTab('finance')">💰 المالية والضرائب</button>
-        <button class="tab-btn" onclick="switchTab('inventory')">📦 المخزون والعمليات</button>
-        <button class="tab-btn" onclick="switchTab('printing')">🖨️ الطباعة والفواتير</button>
-        <button class="tab-btn" onclick="switchTab('email')">📧 إعدادات البريد SMTP</button>
-        <button class="tab-btn" onclick="switchTab('whatsapp')">💬 ربط الواتساب</button>
-        <button class="tab-btn" onclick="switchTab('users')">🛡️ المستخدمين</button>
-        <button class="tab-btn" onclick="switchTab('ui')">🎨 الواجهة</button>
-        <button class="tab-btn" onclick="switchTab('system')">💾 النظام والنسخ</button>
+        <button class="tab-btn active" onclick="switchTab('company')" data-i18n="settings.companyData">🏢 بيانات الشركة</button>
+        <button class="tab-btn" onclick="switchTab('finance')" data-i18n="settings.financeTax">💰 المالية والضرائب</button>
+        <button class="tab-btn" onclick="switchTab('inventory')" data-i18n="settings.warehouses">📦 المخازن</button>
+        <button class="tab-btn" onclick="switchTab('printing')" data-i18n="settings.printing">🖨️ إعدادات الطباعة</button>
+        <button class="tab-btn" onclick="switchTab('email')" data-i18n="settings.smtp">📧 إعدادات البريد SMTP</button>
+        <button class="tab-btn" onclick="switchTab('whatsapp')" data-i18n="settings.whatsapp">💬 ربط الواتساب</button>
+        <button class="tab-btn" onclick="switchTab('users')" data-i18n="settings.users">🛡️ المستخدمين</button>
+        <button class="tab-btn" onclick="switchTab('ui')" data-i18n="settings.langUI">🎨 اللغة والواجهة</button>
+        <button class="tab-btn" onclick="switchTab('system')" data-i18n="settings.system">💾 النظام والنسخ</button>
     </div>
 
     <div class="settings-layout">
@@ -752,26 +762,42 @@
         <!-- Tab: UI -->
         <div class="tab-content" id="tab-ui">
             <div class="glass-panel" id="panel-ui">
-                <div class="setting-title">🎨 واجهة المستخدم والمظهر</div>
+                <!-- Language Section -->
+                <div class="setting-title" data-i18n="settings.langTitle">🌐 اللغة</div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label class="form-label" data-i18n="settings.selectLang">اختر لغة واجهة النظام</label>
+                    <div style="display: flex; gap: 15px; margin-top: 8px;">
+                        <button type="button" id="lang-btn-ar" onclick="switchLanguage('ar')" class="action-btn" style="flex:1; padding: 14px 20px; font-size: 1.05rem; font-weight: 800; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; cursor: pointer;">
+                            🇸🇦 العربية
+                        </button>
+                        <button type="button" id="lang-btn-en" onclick="switchLanguage('en')" class="action-btn" style="flex:1; padding: 14px 20px; font-size: 1.05rem; font-weight: 800; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; cursor: pointer;">
+                            🇬🇧 English
+                        </button>
+                    </div>
+                </div>
+
+                <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+
+                <div class="setting-title" data-i18n="settings.uiTitle">🎨 واجهة المستخدم والمظهر</div>
                 <div class="form-group">
-                    <label class="form-label">حجم الخط الرئيسي للنظام (Font Size)</label>
+                    <label class="form-label" data-i18n="settings.fontSize">حجم الخط الرئيسي للنظام (Font Size)</label>
                     <select class="form-select" id="cfg-font-size" onchange="previewFontSize(this.value)">
-                        <option value="14">صغير جداً (14px)</option>
-                        <option value="16" selected>متوسط (16px - افتراضي)</option>
-                        <option value="18">كبير (18px)</option>
-                        <option value="20">كبير جداً (20px)</option>
+                        <option value="14" data-i18n="settings.fontVerySmall">صغير جداً (14px)</option>
+                        <option value="16" selected data-i18n="settings.fontMedium">متوسط (16px - افتراضي)</option>
+                        <option value="18" data-i18n="settings.fontLarge">كبير (18px)</option>
+                        <option value="20" data-i18n="settings.fontVeryLarge">كبير جداً (20px)</option>
                     </select>
                 </div>
                 <div class="setting-row">
-                    <span class="form-label" style="margin:0;">تفعيل الوضع الليلي التلقائي العميق</span>
+                    <span class="form-label" style="margin:0;" data-i18n="settings.autoDark">تفعيل الوضع التلقائي الغامق</span>
                     <label class="switch"><input type="checkbox" id="cfg-auto-dark" checked><span class="slider"></span></label>
                 </div>
                 <div class="setting-row" style="margin-top: 15px;">
-                    <span class="form-label" style="margin:0;">إظهار الأذكار في الترويسة العلوية</span>
+                    <span class="form-label" style="margin:0;" data-i18n="settings.showShapes">إظهار الأشكال في الترويسة العليا</span>
                     <label class="switch"><input type="checkbox" id="cfg-show-athkar" checked><span class="slider"></span></label>
                 </div>
                 <div class="form-group" style="margin-top: 15px;">
-                    <label class="form-label">مدة تسجيل الخروج التلقائي عند عدم النشاط</label>
+                    <label class="form-label" data-i18n="settings.autoLogout">مدة تسجيل الخروج التلقائي عند عدم النشاط</label>
                     <select class="form-select" id="cfg-auto-logout">
                         <option value="0" selected>بدون (معطل)</option>
                         <option value="30">30 ثانية</option>
@@ -812,8 +838,35 @@
 </div>
 
 <script defer src="js/localforage.min.js"></script>
-<script defer src="js/app.js?v=1783054970.00941"></script>
+<script defer src="js/app.js?v=<?php echo time(); ?>"></script>
 <script defer src="js/whatsapp-integration.js"></script>
+<script>
+// Language switcher logic for settings page
+function switchLanguage(lang) {
+    setLang(lang);
+    highlightLangBtn(lang);
+    setTimeout(() => window.location.reload(), 300);
+}
+function highlightLangBtn(lang) {
+    const arBtn = document.getElementById('lang-btn-ar');
+    const enBtn = document.getElementById('lang-btn-en');
+    if (!arBtn || !enBtn) return;
+    arBtn.style.background = 'rgba(255,255,255,0.05)';
+    arBtn.style.borderColor = 'rgba(255,255,255,0.1)';
+    arBtn.style.color = '#94a3b8';
+    enBtn.style.background = 'rgba(255,255,255,0.05)';
+    enBtn.style.borderColor = 'rgba(255,255,255,0.1)';
+    enBtn.style.color = '#94a3b8';
+    const activeBtn = lang === 'ar' ? arBtn : enBtn;
+    activeBtn.style.background = 'linear-gradient(135deg, rgba(99,102,241,0.3), rgba(139,92,246,0.2))';
+    activeBtn.style.borderColor = 'rgba(99,102,241,0.6)';
+    activeBtn.style.color = '#fff';
+    activeBtn.style.boxShadow = '0 0 20px rgba(99,102,241,0.3)';
+}
+document.addEventListener('DOMContentLoaded', function() {
+    highlightLangBtn(getLang());
+});
+</script>
 
 <script>
     // ─── Load Settings on Page Open ───────────────────────────
@@ -874,7 +927,17 @@
         modeSelect.addEventListener('change', function() {
             if (this.value === 'global') {
                 rateInputs.forEach(i => { i.disabled = true; i.style.opacity = '0.7'; });
-                // Attempt to load global rates if implemented in tenant data later
+                // Try to show the current central rate for reference
+                fetch('api_index.php/exchange-rate')
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data && data.visible && data.rate) {
+                            const usdRate = parseFloat(data.rate);
+                            if (usdInput) usdInput.value = usdRate;
+                            if (sarInput) sarInput.value = (usdRate / 3.75).toFixed(2);
+                            if (aedInput) aedInput.value = (usdRate / 3.67).toFixed(2);
+                        }
+                    }).catch(() => {});
             } else {
                 if (canEditRates) {
                     rateInputs.forEach(i => { i.disabled = false; i.style.opacity = '1'; });
@@ -1039,9 +1102,9 @@
             modeSelect.value = cfg.exchangeMode;
             modeSelect.dispatchEvent(new Event('change'));
         }
-        if (cfg.rateUSD !== undefined) document.getElementById('cfg-rate-usd').value = cfg.rateUSD;
-        if (cfg.rateSAR !== undefined) document.getElementById('cfg-rate-sar').value = cfg.rateSAR;
-        if (cfg.rateAED !== undefined) document.getElementById('cfg-rate-aed').value = cfg.rateAED;
+        if (cfg.rateUSD != null) document.getElementById('cfg-rate-usd').value = cfg.rateUSD;
+        if (cfg.rateSAR != null) document.getElementById('cfg-rate-sar').value = cfg.rateSAR;
+        if (cfg.rateAED != null) document.getElementById('cfg-rate-aed').value = cfg.rateAED;
 
         // Inventory Rules
         document.getElementById('cfg-allow-negative-stock').checked = cfg.allowNegativeStock || false;
@@ -1124,9 +1187,9 @@
 
             // Exchange Rates
             exchangeMode:      document.getElementById('cfg-exchange-mode').value,
-            rateUSD:           parseFloat(document.getElementById('cfg-rate-usd').value) || null,
-            rateSAR:           parseFloat(document.getElementById('cfg-rate-sar').value) || null,
-            rateAED:           parseFloat(document.getElementById('cfg-rate-aed').value) || null,
+            rateUSD:           parseFloat(document.getElementById('cfg-rate-usd').value) || oldCfg.rateUSD || null,
+            rateSAR:           parseFloat(document.getElementById('cfg-rate-sar').value) || oldCfg.rateSAR || null,
+            rateAED:           parseFloat(document.getElementById('cfg-rate-aed').value) || oldCfg.rateAED || null,
 
             // Inventory
             allowNegativeStock: document.getElementById('cfg-allow-negative-stock').checked,

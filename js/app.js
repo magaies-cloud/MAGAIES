@@ -1189,42 +1189,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 dashboard:{view:true}
             };
         }
+        const _t = (typeof window.t === 'function') ? window.t : function(k, fb) { return fb || k; };
 
         const allNavItems = [
             {
-                href: 'dashboard-pro.php', label: 'لوحة التحكم', color: '#22d3ee', module: 'dashboard',
+                href: 'dashboard-pro.php', label: _t('sidebar.dashboard', 'لوحة التحكم'), color: '#22d3ee', module: 'dashboard',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>'
             },
             {
-                href: 'direct-sales.php', label: 'المبيعات', color: '#34d399', module: 'sales',
+                href: 'direct-sales.php', label: _t('sidebar.sales', 'المبيعات'), color: '#34d399', module: 'sales',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>'
             },
             {
-                href: 'purchase.php', label: 'المشتريات', color: '#fb923c', badge: true, module: 'purchase',
+                href: 'purchase.php', label: _t('sidebar.purchases', 'المشتريات'), color: '#fb923c', badge: true, module: 'purchase',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1"/>'
             },
             {
-                href: 'inventory-report.php', label: 'تقارير المخزون والجرد', color: '#a78bfa', module: 'inventory',
+                href: 'inventory-report.php', label: _t('sidebar.inventory', 'تقارير المخزون والجرد'), color: '#a78bfa', module: 'inventory',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>'
             },
             {
-                href: 'vouchers-hub.php', label: 'المعاملات المالية', color: '#fbbf24', module: 'finance',
+                href: 'vouchers-hub.php', label: _t('sidebar.finance', 'المعاملات المالية'), color: '#fbbf24', module: 'finance',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>'
             },
             {
-                href: 'master-data.php', label: 'البيانات الأساسية', color: '#f472b6', module: 'master_data',
+                href: 'master-data.php', label: _t('sidebar.masterData', 'البيانات الأساسية'), color: '#f472b6', module: 'master_data',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>'
             },
             {
-                href: 'analytics.php', label: 'تقارير مالية', color: '#38bdf8', module: 'reports',
+                href: 'analytics.php', label: _t('sidebar.reports', 'تقارير مالية'), color: '#38bdf8', module: 'reports',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>'
             },
             {
-                href: 'alarm.php', label: 'التنبيهات', color: '#f87171', badge: true, module: 'dashboard',
+                href: 'alarm.php', label: _t('sidebar.alerts', 'التنبيهات'), color: '#f87171', badge: true, module: 'dashboard',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>'
             },
             {
-                href: 'settings.php', label: 'الإعدادات', color: '#a3e635', module: 'settings',
+                href: 'settings.php', label: _t('sidebar.settings', 'الإعدادات'), color: '#a3e635', module: 'settings',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 11-6 0 3 3 0 016 0z"/>'
             },
         ];
@@ -1232,7 +1233,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add Audit Log dynamically for admins only
         if (user.securityLevel >= 8 || user.role === 'admin' || user.username === 'admin') {
             allNavItems.push({
-                href: 'audit-log.php', label: 'الصندوق الأسود', color: '#111827', module: 'dashboard', // set to dashboard so it ignores normal perms
+                href: 'audit-log.php', label: _t('sidebar.auditLog', 'الصندوق الأسود'), color: '#111827', module: 'dashboard', // set to dashboard so it ignores normal perms
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>'
             });
         }
@@ -1263,7 +1264,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                     </svg>
                 </span>
-                <span class="sidebar-logo-text">مقاييس (MAGAIEES)</span>
+                <span class="sidebar-logo-text">${_t('sidebar.brand', 'مقاييس (MAGAIEES)')}</span>
             </div>
             <nav class="sidebar-nav">${navHTML}</nav>
             <div class="sidebar-footer">
@@ -1273,7 +1274,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                         </svg>
                     </span>
-                    <span class="sidebar-text">خروج</span>
+                    <span class="sidebar-text">${_t('sidebar.logout', 'خروج')}</span>
                 </a>
             </div>
         </aside>`;
@@ -2201,6 +2202,77 @@ window.populateCurrencyDropdowns = function() {
         select.innerHTML = window.getCurrencyOptionsHtml(currentVal);
     });
 };
+
+window.getExchangeRateForCurrency = function(currency) {
+    if (!currency || currency === 'SDG') return 1;
+    
+    let settings = {};
+    try {
+        const str = localStorage.getItem('erp_settings_v1');
+        if (str) settings = JSON.parse(str);
+    } catch(e) {}
+    
+    const mode = settings.exchangeMode || 'global';
+    
+    if (mode === 'manual') {
+        // Manual mode: use rates from settings
+        if (currency === 'USD' && settings.rateUSD) return parseFloat(settings.rateUSD);
+        if (currency === 'SAR' && settings.rateSAR) return parseFloat(settings.rateSAR);
+        if (currency === 'AED' && settings.rateAED) return parseFloat(settings.rateAED);
+        // Cross-rate fallback from USD
+        if (settings.rateUSD) {
+            const usd = parseFloat(settings.rateUSD);
+            if (usd > 0) {
+                if (currency === 'SAR') return parseFloat((usd / 3.75).toFixed(4));
+                if (currency === 'AED') return parseFloat((usd / 3.67).toFixed(4));
+                if (currency === 'EGP') return parseFloat((usd / 50.0).toFixed(4));
+            }
+        }
+        return 0; // Return 0 so the user knows they need to enter a rate
+    }
+    
+    // Global mode: use central rate from header or cached API response
+    let centralRate = 0;
+    
+    // Try header element first
+    const centralValEl = document.getElementById('global-exchange-rate-val');
+    if (centralValEl) {
+        const txt = centralValEl.innerText.replace(/,/g, '').trim();
+        if (txt && txt !== '-') centralRate = parseFloat(txt) || 0;
+    }
+    
+    // Try cached rate
+    if (centralRate <= 0 && window._cachedGlobalRate) {
+        centralRate = window._cachedGlobalRate;
+    }
+    
+    if (centralRate > 0) {
+        if (currency === 'USD') return centralRate;
+        if (currency === 'SAR') return parseFloat((centralRate / 3.75).toFixed(4));
+        if (currency === 'AED') return parseFloat((centralRate / 3.67).toFixed(4));
+        if (currency === 'EGP') return parseFloat((centralRate / 50.0).toFixed(4));
+    }
+    
+    // Fallback: try manual rates even in global mode
+    if (settings.rateUSD && currency === 'USD') return parseFloat(settings.rateUSD);
+    if (settings.rateSAR && currency === 'SAR') return parseFloat(settings.rateSAR);
+    if (settings.rateAED && currency === 'AED') return parseFloat(settings.rateAED);
+    
+    return 0; // Return 0 so user sees they need to enter a rate
+};
+
+// Pre-fetch the global exchange rate so it's available immediately
+(function() {
+    try {
+        fetch('api_index.php/exchange-rate')
+            .then(r => r.json())
+            .then(d => {
+                if (d && d.visible && d.rate) {
+                    window._cachedGlobalRate = parseFloat(d.rate);
+                }
+            }).catch(() => {});
+    } catch(e) {}
+})();
 
 document.addEventListener('DOMContentLoaded', () => {
     window.populateCurrencyDropdowns();

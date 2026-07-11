@@ -1337,14 +1337,31 @@
         // Load Public Data
         async function loadPublicData() {
             try {
-                const res = await fetch('/api_index.php?r=public&_=' + Date.now());
-                if (!res.ok) throw new Error('HTTP error ' + res.status);
-                const text = await res.text();
                 let data;
                 try {
+                    const res = await fetch('/api_index.php?r=public&_=' + Date.now());
+                    if (!res.ok) throw new Error('HTTP error ' + res.status);
+                    const text = await res.text();
                     data = JSON.parse(text);
-                } catch(e) {
-                    throw new Error('Invalid JSON response: ' + text.substring(0, 100));
+                } catch (fetchError) {
+                    console.warn("Failed to fetch live public data, using default fallback data:", fetchError);
+                    data = {
+                        plans: [
+                            {id: 4, name: "باقة تجريبية (مجانية)", price: "0", status: "active", isTrial: true, storage: "5", duration: "128", maxUsers: "3"},
+                            {id: 1, name: "باقة الأساسية", price: "20", status: "active", isTrial: false, storage: "10", duration: "360", maxUsers: "5"},
+                            {id: 2, name: "باقة المتقدمة", price: "80", status: "active", isTrial: false, storage: "50", duration: "360", maxUsers: "20"},
+                            {id: 3, name: "باقة الشركات (VIP)", price: "100", status: "active", isTrial: false, storage: "200", duration: "360", maxUsers: "100"}
+                        ],
+                        partners: [
+                            {id: 1, name: "مقاييس", logo: "https://ui-avatars.com/api/?name=%D9%85%D9%82%D8%A7%D9%8A%D9%8A%D8%B3&background=38bdf8&color=fff&size=100", link: "#"},
+                            {id: 2, name: "مصنع الأسعد", logo: "https://ui-avatars.com/api/?name=%D9%85%D8%B5%D9%86%D8%B9+%D8%A7%D9%84%D8%A3%D8%B3%D8%B9%D8%AF&background=818cf8&color=fff&size=100", link: "#"},
+                            {id: 3, name: "أوميغا", logo: "https://ui-avatars.com/api/?name=%D8%A3%D9%88%D9%85%D9%8A%D8%BA%D8%A7&background=10b981&color=fff&size=100", link: "#"},
+                            {id: 4, name: "بنك الخرطوم", logo: "https://ui-avatars.com/api/?name=%D8%A8%D9%86%D9%83+%D8%A7%D9%84%D8%AE%D8%B1%D8%B7%D9%88%D9%85&background=f59e0b&color=fff&size=100", link: "#"},
+                            {id: 5, name: "بنك المزارع", logo: "https://ui-avatars.com/api/?name=%D8%A8%D9%86%D9%83+%D8%A7%D9%84%D9%85%D8%B2%D8%A7%D8%B1%D8%B9&background=ef4444&color=fff&size=100", link: "#"}
+                        ],
+                        ads: [],
+                        partners_enabled: true
+                    };
                 }
                 
                 // Ads Logic

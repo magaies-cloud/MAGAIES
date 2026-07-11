@@ -1,6 +1,16 @@
 <?php $page_title = 'المشتريات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+<script src="js/lang.js"></script>
+<script>
+(function(){
+    var l = localStorage.getItem('erp_lang') || 'ar';
+    if(l==='en') {
+        document.documentElement.setAttribute('dir','ltr');
+        document.documentElement.setAttribute('lang','en');
+    }
+})();
+</script>
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
@@ -465,71 +475,119 @@
             margin: 0;
         }
 
-        /* ── Theme-aware Card Styling (Dark Mode Defaults) ── */
+        /* ── Theme-aware Card Styling (Dark Mode Defaults with Magical Glassy Borders & Glow) ── */
         .card-orange {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.03));
-            border: 1px solid rgba(245, 158, 11, 0.25) !important;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(180, 83, 9, 0.08)) !important;
+            border: 1px solid rgba(245, 158, 11, 0.3) !important; /* Translucent orange border */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
         .card-orange .icon { color: #f59e0b; background: rgba(245, 158, 11, 0.08); }
         .card-orange .title { color: #f59e0b !important; }
         .card-orange .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+        .card-orange:hover {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.4), rgba(180, 83, 9, 0.15)) !important;
+            border-color: rgba(245, 158, 11, 0.7) !important; /* Glowing orange glass border */
+            box-shadow: 0 12px 40px 0 rgba(245, 158, 11, 0.35), inset 0 0 18px rgba(245, 158, 11, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3) !important;
+        }
 
         .card-blue {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(56, 189, 248, 0.03));
-            border: 1px solid rgba(56, 189, 248, 0.25) !important;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(3, 105, 161, 0.08)) !important;
+            border: 1px solid rgba(14, 165, 233, 0.3) !important; /* Translucent blue border */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
         .card-blue .icon { color: #38bdf8; background: rgba(56, 189, 248, 0.08); }
         .card-blue .title { color: #38bdf8 !important; }
         .card-blue .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+        .card-blue:hover {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.4), rgba(3, 105, 161, 0.15)) !important;
+            border-color: rgba(14, 165, 233, 0.7) !important; /* Glowing blue glass border */
+            box-shadow: 0 12px 40px 0 rgba(14, 165, 233, 0.35), inset 0 0 18px rgba(14, 165, 233, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3) !important;
+        }
 
         .card-pink {
-            background: linear-gradient(135deg, rgba(244, 63, 94, 0.15), rgba(244, 63, 94, 0.03));
-            border: 1px solid rgba(244, 63, 94, 0.25) !important;
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.25), rgba(190, 24, 74, 0.08)) !important;
+            border: 1px solid rgba(236, 72, 153, 0.3) !important; /* Translucent pink border */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
         .card-pink .icon { color: #f43f5e; background: rgba(244, 63, 94, 0.08); }
         .card-pink .title { color: #f43f5e !important; }
         .card-pink .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+        .card-pink:hover {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.4), rgba(190, 24, 74, 0.15)) !important;
+            border-color: rgba(236, 72, 153, 0.7) !important; /* Glowing pink glass border */
+            box-shadow: 0 12px 40px 0 rgba(236, 72, 153, 0.35), inset 0 0 18px rgba(236, 72, 153, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3) !important;
+        }
 
         .card-purple {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(168, 85, 247, 0.03));
-            border: 1px solid rgba(168, 85, 247, 0.25) !important;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(109, 40, 217, 0.08)) !important;
+            border: 1px solid rgba(168, 85, 247, 0.3) !important; /* Translucent purple border */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
         .card-purple .icon { color: #a855f7; background: rgba(168, 85, 247, 0.08); }
         .card-purple .title { color: #a855f7 !important; }
         .card-purple .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
-
-        /* ── Light Mode overrides for Hub Cards ── */
-        :root.light-theme .card-orange {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(245, 158, 11, 0.08)) !important;
-            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+        .card-purple:hover {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.4), rgba(109, 40, 217, 0.15)) !important;
+            border-color: rgba(168, 85, 247, 0.7) !important; /* Glowing purple glass border */
+            box-shadow: 0 12px 40px 0 rgba(168, 85, 247, 0.35), inset 0 0 18px rgba(168, 85, 247, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3) !important;
         }
-        :root.light-theme .card-orange .icon { color: #d97706 !important; background: rgba(0, 0, 0, 0.05) !important; }
-        :root.light-theme .card-orange .title { color: #0f172a !important; }
-        :root.light-theme .card-orange .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+
+        /* ── Light Mode overrides for Hub Cards (Light Pastel Glassy Gradients, Vibrant Colored Text & Magical Hover Border Glows) ── */
+        :root.light-theme .card-orange {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(251, 191, 36, 0.05)) !important;
+            border: 1px solid rgba(245, 158, 11, 0.28) !important; /* Translucent orange glassy border */
+            box-shadow: 0 8px 32px 0 rgba(245, 158, 11, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
+        }
+        :root.light-theme .card-orange .icon { color: #d97706 !important; background: rgba(245, 158, 11, 0.08) !important; }
+        :root.light-theme .card-orange .title { color: #d97706 !important; }
+        :root.light-theme .card-orange .subtitle { color: rgba(217, 119, 6, 0.8) !important; }
+        :root.light-theme .card-orange:hover {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(251, 191, 36, 0.1)) !important;
+            border-color: rgba(245, 158, 11, 0.6) !important; /* Glowing orange glass border */
+            box-shadow: 0 12px 40px 0 rgba(245, 158, 11, 0.22), inset 0 0 15px rgba(245, 158, 11, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.75) !important;
+        }
 
         :root.light-theme .card-blue {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(56, 189, 248, 0.08)) !important;
-            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.16), rgba(56, 189, 248, 0.05)) !important;
+            border: 1px solid rgba(14, 165, 233, 0.28) !important; /* Translucent blue glassy border */
+            box-shadow: 0 8px 32px 0 rgba(14, 165, 233, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
         }
-        :root.light-theme .card-blue .icon { color: #0284c7 !important; background: rgba(0, 0, 0, 0.05) !important; }
-        :root.light-theme .card-blue .title { color: #0f172a !important; }
-        :root.light-theme .card-blue .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+        :root.light-theme .card-blue .icon { color: #0284c7 !important; background: rgba(14, 165, 233, 0.08) !important; }
+        :root.light-theme .card-blue .title { color: #0284c7 !important; }
+        :root.light-theme .card-blue .subtitle { color: rgba(2, 132, 199, 0.8) !important; }
+        :root.light-theme .card-blue:hover {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.3), rgba(56, 189, 248, 0.1)) !important;
+            border-color: rgba(14, 165, 233, 0.6) !important; /* Glowing blue glass border */
+            box-shadow: 0 12px 40px 0 rgba(14, 165, 233, 0.22), inset 0 0 15px rgba(14, 165, 233, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.75) !important;
+        }
 
         :root.light-theme .card-pink {
-            background: linear-gradient(135deg, rgba(254, 205, 211, 0.25), rgba(254, 205, 211, 0.08)) !important;
-            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.16), rgba(244, 114, 182, 0.05)) !important;
+            border: 1px solid rgba(236, 72, 153, 0.28) !important; /* Translucent pink glassy border */
+            box-shadow: 0 8px 32px 0 rgba(236, 72, 153, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
         }
-        :root.light-theme .card-pink .icon { color: #e11d48 !important; background: rgba(0, 0, 0, 0.05) !important; }
-        :root.light-theme .card-pink .title { color: #0f172a !important; }
-        :root.light-theme .card-pink .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+        :root.light-theme .card-pink .icon { color: #db2777 !important; background: rgba(236, 72, 153, 0.08) !important; }
+        :root.light-theme .card-pink .title { color: #db2777 !important; }
+        :root.light-theme .card-pink .subtitle { color: rgba(219, 39, 119, 0.8) !important; }
+        :root.light-theme .card-pink:hover {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(244, 114, 182, 0.1)) !important;
+            border-color: rgba(236, 72, 153, 0.6) !important; /* Glowing pink glass border */
+            box-shadow: 0 12px 40px 0 rgba(236, 72, 153, 0.22), inset 0 0 15px rgba(236, 72, 153, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.75) !important;
+        }
 
         :root.light-theme .card-purple {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(168, 85, 247, 0.08)) !important;
-            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.16), rgba(192, 132, 252, 0.05)) !important;
+            border: 1px solid rgba(168, 85, 247, 0.28) !important; /* Translucent purple glassy border */
+            box-shadow: 0 8px 32px 0 rgba(168, 85, 247, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
         }
-        :root.light-theme .card-purple .icon { color: #7c3aed !important; background: rgba(0, 0, 0, 0.05) !important; }
-        :root.light-theme .card-purple .title { color: #0f172a !important; }
-        :root.light-theme .card-purple .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+        :root.light-theme .card-purple .icon { color: #7c3aed !important; background: rgba(168, 85, 247, 0.08) !important; }
+        :root.light-theme .card-purple .title { color: #7c3aed !important; }
+        :root.light-theme .card-purple .subtitle { color: rgba(124, 58, 237, 0.8) !important; }
+        :root.light-theme .card-purple:hover {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(192, 132, 252, 0.1)) !important;
+            border-color: rgba(168, 85, 247, 0.6) !important; /* Glowing purple glass border */
+            box-shadow: 0 12px 40px 0 rgba(168, 85, 247, 0.22), inset 0 0 15px rgba(168, 85, 247, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.75) !important;
+        }
         .hub-badge {
             padding: 4px 10px;
             border-radius: 20px;
@@ -963,71 +1021,119 @@
             margin: 0;
         }
 
-        /* ── Theme-aware Card Styling (Dark Mode Defaults) ── */
+        /* ── Theme-aware Card Styling (Dark Mode Defaults with Magical Glassy Borders & Glow) ── */
         .card-orange {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.03));
-            border: 1px solid rgba(245, 158, 11, 0.25) !important;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(180, 83, 9, 0.08)) !important;
+            border: 1px solid rgba(245, 158, 11, 0.3) !important; /* Translucent orange border */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
         .card-orange .icon { color: #f59e0b; background: rgba(245, 158, 11, 0.08); }
         .card-orange .title { color: #f59e0b !important; }
         .card-orange .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+        .card-orange:hover {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.4), rgba(180, 83, 9, 0.15)) !important;
+            border-color: rgba(245, 158, 11, 0.7) !important; /* Glowing orange glass border */
+            box-shadow: 0 12px 40px 0 rgba(245, 158, 11, 0.35), inset 0 0 18px rgba(245, 158, 11, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3) !important;
+        }
 
         .card-blue {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(56, 189, 248, 0.03));
-            border: 1px solid rgba(56, 189, 248, 0.25) !important;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(3, 105, 161, 0.08)) !important;
+            border: 1px solid rgba(14, 165, 233, 0.3) !important; /* Translucent blue border */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
         .card-blue .icon { color: #38bdf8; background: rgba(56, 189, 248, 0.08); }
         .card-blue .title { color: #38bdf8 !important; }
         .card-blue .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+        .card-blue:hover {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.4), rgba(3, 105, 161, 0.15)) !important;
+            border-color: rgba(14, 165, 233, 0.7) !important; /* Glowing blue glass border */
+            box-shadow: 0 12px 40px 0 rgba(14, 165, 233, 0.35), inset 0 0 18px rgba(14, 165, 233, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3) !important;
+        }
 
         .card-pink {
-            background: linear-gradient(135deg, rgba(244, 63, 94, 0.15), rgba(244, 63, 94, 0.03));
-            border: 1px solid rgba(244, 63, 94, 0.25) !important;
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.25), rgba(190, 24, 74, 0.08)) !important;
+            border: 1px solid rgba(236, 72, 153, 0.3) !important; /* Translucent pink border */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
         .card-pink .icon { color: #f43f5e; background: rgba(244, 63, 94, 0.08); }
         .card-pink .title { color: #f43f5e !important; }
         .card-pink .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+        .card-pink:hover {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.4), rgba(190, 24, 74, 0.15)) !important;
+            border-color: rgba(236, 72, 153, 0.7) !important; /* Glowing pink glass border */
+            box-shadow: 0 12px 40px 0 rgba(236, 72, 153, 0.35), inset 0 0 18px rgba(236, 72, 153, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3) !important;
+        }
 
         .card-purple {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(168, 85, 247, 0.03));
-            border: 1px solid rgba(168, 85, 247, 0.25) !important;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(109, 40, 217, 0.08)) !important;
+            border: 1px solid rgba(168, 85, 247, 0.3) !important; /* Translucent purple border */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
         .card-purple .icon { color: #a855f7; background: rgba(168, 85, 247, 0.08); }
         .card-purple .title { color: #a855f7 !important; }
         .card-purple .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
-
-        /* ── Light Mode overrides for Hub Cards ── */
-        :root.light-theme .card-orange {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(245, 158, 11, 0.08)) !important;
-            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+        .card-purple:hover {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.4), rgba(109, 40, 217, 0.15)) !important;
+            border-color: rgba(168, 85, 247, 0.7) !important; /* Glowing purple glass border */
+            box-shadow: 0 12px 40px 0 rgba(168, 85, 247, 0.35), inset 0 0 18px rgba(168, 85, 247, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3) !important;
         }
-        :root.light-theme .card-orange .icon { color: #d97706 !important; background: rgba(0, 0, 0, 0.05) !important; }
-        :root.light-theme .card-orange .title { color: #0f172a !important; }
-        :root.light-theme .card-orange .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+
+        /* ── Light Mode overrides for Hub Cards (Light Pastel Glassy Gradients, Vibrant Colored Text & Magical Hover Border Glows) ── */
+        :root.light-theme .card-orange {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(251, 191, 36, 0.05)) !important;
+            border: 1px solid rgba(245, 158, 11, 0.28) !important; /* Translucent orange glassy border */
+            box-shadow: 0 8px 32px 0 rgba(245, 158, 11, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
+        }
+        :root.light-theme .card-orange .icon { color: #d97706 !important; background: rgba(245, 158, 11, 0.08) !important; }
+        :root.light-theme .card-orange .title { color: #d97706 !important; }
+        :root.light-theme .card-orange .subtitle { color: rgba(217, 119, 6, 0.8) !important; }
+        :root.light-theme .card-orange:hover {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(251, 191, 36, 0.1)) !important;
+            border-color: rgba(245, 158, 11, 0.6) !important; /* Glowing orange glass border */
+            box-shadow: 0 12px 40px 0 rgba(245, 158, 11, 0.22), inset 0 0 15px rgba(245, 158, 11, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.75) !important;
+        }
 
         :root.light-theme .card-blue {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(56, 189, 248, 0.08)) !important;
-            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.16), rgba(56, 189, 248, 0.05)) !important;
+            border: 1px solid rgba(14, 165, 233, 0.28) !important; /* Translucent blue glassy border */
+            box-shadow: 0 8px 32px 0 rgba(14, 165, 233, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
         }
-        :root.light-theme .card-blue .icon { color: #0284c7 !important; background: rgba(0, 0, 0, 0.05) !important; }
-        :root.light-theme .card-blue .title { color: #0f172a !important; }
-        :root.light-theme .card-blue .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+        :root.light-theme .card-blue .icon { color: #0284c7 !important; background: rgba(14, 165, 233, 0.08) !important; }
+        :root.light-theme .card-blue .title { color: #0284c7 !important; }
+        :root.light-theme .card-blue .subtitle { color: rgba(2, 132, 199, 0.8) !important; }
+        :root.light-theme .card-blue:hover {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.3), rgba(56, 189, 248, 0.1)) !important;
+            border-color: rgba(14, 165, 233, 0.6) !important; /* Glowing blue glass border */
+            box-shadow: 0 12px 40px 0 rgba(14, 165, 233, 0.22), inset 0 0 15px rgba(14, 165, 233, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.75) !important;
+        }
 
         :root.light-theme .card-pink {
-            background: linear-gradient(135deg, rgba(254, 205, 211, 0.25), rgba(254, 205, 211, 0.08)) !important;
-            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.16), rgba(244, 114, 182, 0.05)) !important;
+            border: 1px solid rgba(236, 72, 153, 0.28) !important; /* Translucent pink glassy border */
+            box-shadow: 0 8px 32px 0 rgba(236, 72, 153, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
         }
-        :root.light-theme .card-pink .icon { color: #e11d48 !important; background: rgba(0, 0, 0, 0.05) !important; }
-        :root.light-theme .card-pink .title { color: #0f172a !important; }
-        :root.light-theme .card-pink .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+        :root.light-theme .card-pink .icon { color: #db2777 !important; background: rgba(236, 72, 153, 0.08) !important; }
+        :root.light-theme .card-pink .title { color: #db2777 !important; }
+        :root.light-theme .card-pink .subtitle { color: rgba(219, 39, 119, 0.8) !important; }
+        :root.light-theme .card-pink:hover {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(244, 114, 182, 0.1)) !important;
+            border-color: rgba(236, 72, 153, 0.6) !important; /* Glowing pink glass border */
+            box-shadow: 0 12px 40px 0 rgba(236, 72, 153, 0.22), inset 0 0 15px rgba(236, 72, 153, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.75) !important;
+        }
 
         :root.light-theme .card-purple {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(168, 85, 247, 0.08)) !important;
-            border: 2px solid rgba(0, 0, 0, 0.35) !important; /* Black glassy border */
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.16), rgba(192, 132, 252, 0.05)) !important;
+            border: 1px solid rgba(168, 85, 247, 0.28) !important; /* Translucent purple glassy border */
+            box-shadow: 0 8px 32px 0 rgba(168, 85, 247, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
         }
-        :root.light-theme .card-purple .icon { color: #7c3aed !important; background: rgba(0, 0, 0, 0.05) !important; }
-        :root.light-theme .card-purple .title { color: #0f172a !important; }
-        :root.light-theme .card-purple .subtitle { color: rgba(15, 23, 42, 0.75) !important; }
+        :root.light-theme .card-purple .icon { color: #7c3aed !important; background: rgba(168, 85, 247, 0.08) !important; }
+        :root.light-theme .card-purple .title { color: #7c3aed !important; }
+        :root.light-theme .card-purple .subtitle { color: rgba(124, 58, 237, 0.8) !important; }
+        :root.light-theme .card-purple:hover {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(192, 132, 252, 0.1)) !important;
+            border-color: rgba(168, 85, 247, 0.6) !important; /* Glowing purple glass border */
+            box-shadow: 0 12px 40px 0 rgba(168, 85, 247, 0.22), inset 0 0 15px rgba(168, 85, 247, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.75) !important;
+        }
         .hub-badge {
             padding: 4px 10px;
             border-radius: 20px;
@@ -1560,7 +1666,7 @@
                     <div class="h-form-group" style="flex: 1.6; min-width: 220px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
                           <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">سعر الصرف</label>
                           <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 5px; flex: 1;">
-                            <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="document.getElementById('hdr-exchange-rate').disabled = (this.value === 'SDG'); document.getElementById('hdr-exchange-rate').value = (this.value === 'SDG') ? '1' : ''; recalcAll();" style="flex: 1;">
+                            <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="handleCurrencyChange(this.value)" style="flex: 1;">
                                 <option value="SDG">🇸🇩 جنيه</option>
                                 <option value="USD">🇺🇸 دولار</option>
                                 <option value="SAR">🇸🇦 ريال</option>
@@ -1789,22 +1895,85 @@
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/html2pdf.bundle.min.js"></script>
     <script defer src="js/whatsapp-integration.js"></script>
-    <script defer src="js/app.js?v=1783054969.28779"></script>
+    <script defer src="js/app.js?v=<?php echo time(); ?>"></script>
     <script defer src="js/print-engine.js"></script>
     
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-          
-              }
-          });
-      });
-    </script>
-    <script defer src="js/purchase-pro-v4.js?v=31"></script>
+    <script defer src="js/purchase-pro-v4.js?v=<?php echo time(); ?>"></script>
 </div>
 
     <script>
         // Purchase Hub Logic
         let currentPurchaseView = 'hub';
+
+        function handleCurrencyChange(val) {
+            const rateInput = document.getElementById('hdr-exchange-rate');
+            if (!rateInput) return;
+            
+            if (val === 'SDG') {
+                rateInput.value = '1';
+                rateInput.disabled = true;
+                if (typeof recalcAll === 'function') recalcAll();
+                return;
+            }
+            
+            // Always enable editing for foreign currencies
+            rateInput.disabled = false;
+            
+            // Step 1: Try to get rate from local settings function
+            let rate = 0;
+            if (window.getExchangeRateForCurrency) {
+                rate = window.getExchangeRateForCurrency(val);
+            }
+            
+            if (rate > 0) {
+                rateInput.value = rate;
+                if (typeof recalcAll === 'function') recalcAll();
+                return;
+            }
+            
+            // Step 2: Try to read directly from localStorage settings (any mode)
+            try {
+                const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+                if (val === 'USD' && cfg.rateUSD) { rateInput.value = cfg.rateUSD; if (typeof recalcAll === 'function') recalcAll(); return; }
+                if (val === 'SAR' && cfg.rateSAR) { rateInput.value = cfg.rateSAR; if (typeof recalcAll === 'function') recalcAll(); return; }
+                if (val === 'AED' && cfg.rateAED) { rateInput.value = cfg.rateAED; if (typeof recalcAll === 'function') recalcAll(); return; }
+            } catch(e) {}
+            
+            // Step 3: Try to fetch from API directly (central rate)
+            rateInput.value = '';
+            rateInput.placeholder = '⏳ جاري التحميل...';
+            
+            fetch('api_index.php/exchange-rate')
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.rate) {
+                        const usdRate = parseFloat(data.rate);
+                        if (usdRate > 0) {
+                            window._cachedGlobalRate = usdRate;
+                            let finalRate = usdRate;
+                            if (val === 'SAR') finalRate = parseFloat((usdRate / 3.75).toFixed(4));
+                            if (val === 'AED') finalRate = parseFloat((usdRate / 3.67).toFixed(4));
+                            if (val === 'EGP') finalRate = parseFloat((usdRate / 50.0).toFixed(4));
+                            
+                            rateInput.value = finalRate;
+                            if (typeof recalcAll === 'function') recalcAll();
+                            return;
+                        }
+                    }
+                    // No rate found from API either
+                    rateInput.value = '';
+                    rateInput.placeholder = 'أدخل سعر الصرف';
+                })
+                .catch(() => {
+                    rateInput.value = '';
+                    rateInput.placeholder = 'أدخل سعر الصرف';
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // No need for auto-init - currency defaults to SDG
+            // handleCurrencyChange only needed when user explicitly changes currency
+        });
 
         function showPurchaseHub() {
             document.getElementById('purchase-editor-view').style.display = 'none';

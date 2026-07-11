@@ -1,11 +1,33 @@
 <?php
 require_once 'db.php';
 header('Content-Type: application/json; charset=UTF-8');
-$allowed_origins = ['https://elsajana.com', 'https://c.elsajana.com', 'http://localhost:8080'];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if (in_array($origin, $allowed_origins)) {
-    header("Access-Control-Allow-Origin: $origin");
-    header("Access-Control-Allow-Credentials: true");
+if (!empty($origin)) {
+    $allowed = false;
+    $exact_allowed = [
+        'https://elsajana.com',
+        'https://www.elsajana.com',
+        'https://c.elsajana.com',
+        'http://localhost:8080',
+        'http://localhost:3000',
+        'http://127.0.0.1:8080',
+        'http://127.0.0.1:3000'
+    ];
+    if (in_array($origin, $exact_allowed)) {
+        $allowed = true;
+    } else {
+        $parsed = parse_url($origin);
+        if (isset($parsed['host'])) {
+            $host = $parsed['host'];
+            if ($host === 'elsajana.com' || (function_exists('str_ends_with') ? str_ends_with($host, '.elsajana.com') : substr($host, -13) === '.elsajana.com')) {
+                $allowed = true;
+            }
+        }
+    }
+    if ($allowed) {
+        header("Access-Control-Allow-Origin: $origin");
+        header("Access-Control-Allow-Credentials: true");
+    }
 }
 
 // Verify auth token

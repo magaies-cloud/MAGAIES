@@ -649,6 +649,10 @@ function loadInvoiceFromStorage(invNo) {
         if(data.notes) document.getElementById('inv-notes').value = data.notes;
         if(data.warehouse) document.getElementById('hdr-warehouse').value = data.warehouse;
         if(data.currency) document.getElementById('hdr-currency').value = data.currency;
+        if(data.exchangeRate !== undefined) {
+            document.getElementById('hdr-exchange-rate').value = data.exchangeRate;
+            document.getElementById('hdr-exchange-rate').disabled = (data.currency === 'SDG');
+        }
         
         // Customer
         const custId = data.customer || data.customerId;
@@ -2447,6 +2451,17 @@ function onSuccessNewInvoice(closeModalFlag = true) {
     document.getElementById('t-labor').value = '0';
     document.getElementById('t-transport').value = '0';
     onCustomerChange();
+
+    // Reset currency to default SDG and set exchange rate
+    const currencySelect = document.getElementById('hdr-currency');
+    const rateInput = document.getElementById('hdr-exchange-rate');
+    if (currencySelect) {
+        currencySelect.value = 'SDG';
+    }
+    if (rateInput) {
+        rateInput.value = '1';
+        rateInput.disabled = true;
+    }
 
     // Show the NEXT invoice number (peeked, not committed)
     const nextNo = peekNextInvoiceNumber(currentSaleType);

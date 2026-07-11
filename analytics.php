@@ -1,6 +1,16 @@
 <?php $page_title = 'التقارير'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+<script src="js/lang.js"></script>
+<script>
+(function(){
+    var l = localStorage.getItem('erp_lang') || 'ar';
+    if(l==='en') {
+        document.documentElement.setAttribute('dir','ltr');
+        document.documentElement.setAttribute('lang','en');
+    }
+})();
+</script>
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
@@ -504,7 +514,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
         }
 
         /* Compact Bento Card */
@@ -576,6 +586,34 @@
         .quick-report-card .card-info h4 { margin: 0; font-size: 1.05rem; font-weight: 800; color: #f8fafc; }
         .quick-report-card .card-info p { margin: 0; font-size: 0.8rem; color: #94a3b8; line-height: 1.4; font-weight: 500; }
 
+        /* ── Light Mode overrides for Quick Report Cards ── */
+        :root.light-theme .quick-report-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.6)) !important;
+            border: 1px solid rgba(15, 23, 42, 0.08) !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.03), inset 0 1px 0 0 rgba(255, 255, 255, 0.8) !important;
+        }
+        :root.light-theme .quick-report-card .card-info h4 {
+            color: #0f172a !important;
+        }
+        :root.light-theme .quick-report-card .card-info p {
+            color: #475569 !important;
+            font-weight: 600 !important;
+        }
+        :root.light-theme .quick-report-card .icon-wrap {
+            background: rgba(15, 23, 42, 0.03) !important;
+            border-color: rgba(15, 23, 42, 0.06) !important;
+            color: #0f172a !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04) !important;
+        }
+        :root.light-theme .quick-report-card:hover {
+            background: var(--glow-bg) !important;
+            border-color: var(--glow-color) !important;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06), 0 0 20px rgba(255,255,255,0.5) !important;
+        }
+        :root.light-theme .quick-report-card:hover .icon-wrap {
+            color: #000 !important;
+        }
+
         /* Fix double sidebar spacing issue */
         body.has-sidebar { padding-right: 0 !important; }
     </style>
@@ -628,23 +666,14 @@
         <a href="financial-reports.php" class="quick-report-card" style="--glow-color: rgba(52, 211, 153, 0.65); --glow-bg: rgba(52, 211, 153, 0.12);">
             <div class="icon-wrap">📊</div>
             <div class="card-info">
-                <h4>الإفصاحات والقوائم</h4>
+                <h4>التقارير والقوائم</h4>
                 <p>الحسابات الختامية، الأرباح والخسائر وميزان المراجعة الشامل.</p>
-            </div>
-        </a>
-
-        <!-- 4. Analysis -->
-        <a onclick="document.querySelector('.kpi-grid').scrollIntoView({ behavior: 'smooth' })" class="quick-report-card" style="--glow-color: rgba(56, 189, 248, 0.65); --glow-bg: rgba(56, 189, 248, 0.12);">
-            <div class="icon-wrap">📈</div>
-            <div class="card-info">
-                <h4>التحليلات والمؤشرات</h4>
-                <p>مؤشرات الأداء الرئيسية والرسوم البيانية للمبيعات والمشتريات.</p>
             </div>
         </a>
     </div>
 
     <!-- AI Insights Section -->
-    <div class="ai-insights-section glass-panel" style="border-top: 3px solid #8b5cf6; padding: 25px; margin-top: 30px; margin-bottom: 30px;">
+    <div class="ai-insights-section glass-panel" style="border-top: 3px solid #8b5cf6; padding: 25px; margin-top: 15px; margin-bottom: 30px;">
         <h3 style="color: #c084fc; font-size: 1.4rem; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">
             <span style="font-size: 1.8rem; animation: pulse 2s infinite;">🤖</span> 
             المحلل المالي الذكي (AI Reports & Analytics)

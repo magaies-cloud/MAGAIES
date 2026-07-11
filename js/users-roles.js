@@ -12,7 +12,7 @@ const MODULES = [
     { id: 'master_data', name: 'البيانات الأساسية' },
     { id: 'reports', name: 'التقارير التحليلية' },
     { id: 'settings', name: 'الإعدادات والصلاحيات' },
-    { id: 'inventory_rules', name: 'قواعد المخزون والعمليات' },
+    { id: 'inventory_rules', name: 'قواعد المخازن' },
     { id: 'posting_accounts', name: 'ترحيل واعتماد الحسابات' },
     { id: 'exchange_rates', name: 'تعديل أسعار الصرف اليومية' }
 ];
