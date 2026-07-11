@@ -2556,15 +2556,23 @@ function onSuccessNewInvoice(closeModalFlag = true) {
     document.getElementById('t-transport').value = '0';
     onCustomerChange();
 
-    // Reset currency to default SDG and set exchange rate
+    // Reset currency to default System Currency and set exchange rate
     const currencySelect = document.getElementById('hdr-currency');
     const rateInput = document.getElementById('hdr-exchange-rate');
+    
+    let defaultCurrency = 'SDG';
+    try {
+        const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+        if (cfg.currency) {
+            defaultCurrency = cfg.currency;
+        }
+    } catch(e) {}
+
     if (currencySelect) {
-        currencySelect.value = 'SDG';
-    }
-    if (rateInput) {
-        rateInput.value = '1';
-        rateInput.disabled = true;
+        currencySelect.value = defaultCurrency;
+        if (typeof handleCurrencyChange === 'function') {
+            handleCurrencyChange(defaultCurrency);
+        }
     }
 
     // Show the NEXT invoice number (peeked, not committed)
