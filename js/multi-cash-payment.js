@@ -317,7 +317,7 @@ function confirmDelete() {
 async function saveVoucher() {
     const type = document.getElementById('voucher-type').value;
     const date = document.getElementById('voucher-date').value;
-    const mainAccount = document.getElementById('main-account').value;
+    const mainAccount = document.getElementById('main-account').getAttribute('data-id') || document.getElementById('main-account').value;
     const desc = document.getElementById('voucher-desc').value.trim();
     const ref = document.getElementById('voucher-ref').value.trim();
     const currency = document.getElementById('currency').value;
@@ -350,7 +350,8 @@ async function saveVoucher() {
     let hasError = false;
 
     rows.forEach((row, index) => {
-        const acc = row.querySelector('.sub-account').value.trim();
+        const subAccInput = row.querySelector('.sub-account');
+        const acc = subAccInput.getAttribute('data-id') || subAccInput.value.trim();
         const amtStr = row.querySelector('.sub-amount').value;
         const amt = cleanNum(amtStr);
         const subDesc = row.querySelector('.sub-desc') ? row.querySelector('.sub-desc').value.trim() : '';

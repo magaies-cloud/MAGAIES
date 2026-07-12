@@ -289,6 +289,7 @@ function loadData() {
     // 2.2 Multiple Receipts (erp_receipts_v1)
     const multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
     multiReceipts.forEach(v => {
+        if (!v.isPosted) return;
         const cc = v.costCenter || 'ALL';
         const rate = parseNum(v.exchangeRate || 1);
         const mainAcc = v.mainAccount || v.toAccount || 'safe-001';
@@ -304,6 +305,7 @@ function loadData() {
     // 2.3 Multiple Payments (erp_payments_v1)
     const multiPayments = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
     multiPayments.forEach(v => {
+        if (!v.isPosted) return;
         const cc = v.costCenter || 'ALL';
         const rate = parseNum(v.exchangeRate || 1);
         const mainAcc = v.mainAccount || v.fromAccount || 'safe-001';

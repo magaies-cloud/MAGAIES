@@ -296,6 +296,7 @@ function collectAllTransactions() {
     // 2.2 Multiple Receipts (erp_receipts_v1)
     const multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
     multiReceipts.forEach(v => {
+        if (!v.isPosted) return;
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
         const time = v.time || timeNow;
@@ -331,6 +332,7 @@ function collectAllTransactions() {
     // 2.3 Multiple Payments (erp_payments_v1)
     const multiPayments = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
     multiPayments.forEach(v => {
+        if (!v.isPosted) return;
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
         const time = v.time || timeNow;
