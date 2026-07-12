@@ -165,6 +165,7 @@ body {
     grid-template-columns: 1fr 1fr;
     gap: 14px;
     margin-bottom: 14px;
+    align-items: start;
 }
 @media (max-width: 900px) {
     .header-grid { grid-template-columns: 1fr; }

@@ -920,6 +920,33 @@
     }
     .tot-grand .lbl { font-size: 0.75rem; font-weight: 900; color: #38bdf8; }
     .tot-grand .val { font-size: 1.15rem; font-weight: 900; color: #fff; font-family: 'Outfit', sans-serif; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+    /* Table Context Menu Styling */
+    .grid-context-menu {
+        display: none; position: absolute; z-index: 100000; min-width: 200px;
+        background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(56, 189, 248, 0.3);
+        border-radius: 8px; padding: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    }
+    .grid-context-title {
+        font-size: 0.8rem; color: var(--gold-primary); margin-bottom: 8px; font-weight: bold; 
+        text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px; 
+        font-family: 'Tajawal', sans-serif;
+    }
+    .context-item-custom {
+        padding: 8px 12px; cursor: pointer; color: #fff; display: flex; align-items: center; 
+        gap: 8px; transition: 0.2s; border-radius: 6px; font-family: 'Tajawal', sans-serif; font-size: 0.9rem;
+    }
+    .context-item-custom:hover { background: rgba(56,189,248,0.15); color: #38bdf8; }
+    .context-item-hr { border: 0; border-top: 1px solid rgba(255,255,255,0.08); margin: 4px 0; }
+
+    /* Light Theme Context Menu */
+    :root.light-theme .grid-context-menu {
+        background: rgba(255, 255, 255, 0.98); border-color: rgba(0,0,0,0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+    :root.light-theme .grid-context-title { color: #8b5cf6; border-color: rgba(0,0,0,0.05); }
+    :root.light-theme .context-item-custom { color: #334155; }
+    :root.light-theme .context-item-custom:hover { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+    :root.light-theme .context-item-hr { border-top-color: rgba(0,0,0,0.05); }
 </style>
 
 
@@ -2919,15 +2946,15 @@
     </script>
     
     <!-- Context Menu for Columns -->
-    <div id="col-context-menu" style="display:none; position:absolute; z-index:100000; min-width:200px; background: rgba(15, 23, 42, 0.92); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
-        <div style="font-size: 0.8rem; color: var(--gold-primary); margin-bottom: 8px; font-weight: bold; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px; font-family:'Tajawal', sans-serif;">🛠️ خيارات الجدول</div>
-        <div class="context-item-custom" onclick="openGridSettingsModal()" style="padding: 8px 12px; cursor: pointer; color: #fff; display: flex; align-items: center; gap: 8px; transition: 0.2s; border-radius: 6px; font-family:'Tajawal', sans-serif; font-size:0.9rem;" onmouseover="this.style.background='rgba(56,189,248,0.15)', this.style.color='#38bdf8'" onmouseout="this.style.background='transparent', this.style.color='#fff'">⚙️ تخصيص الأعمدة والخطوط...</div>
-        <hr style="border:0; border-top:1px solid rgba(255,255,255,0.08); margin:4px 0;">
-        <div class="context-item-custom" onclick="quickAlignGrid('right')" style="padding: 8px 12px; cursor: pointer; color: #fff; display: flex; align-items: center; gap: 8px; transition: 0.2s; border-radius: 6px; font-family:'Tajawal', sans-serif; font-size:0.9rem;" onmouseover="this.style.background='rgba(56,189,248,0.15)', this.style.color='#38bdf8'" onmouseout="this.style.background='transparent', this.style.color='#fff'">➡️ محاذاة النص لليمين</div>
-        <div class="context-item-custom" onclick="quickAlignGrid('center')" style="padding: 8px 12px; cursor: pointer; color: #fff; display: flex; align-items: center; gap: 8px; transition: 0.2s; border-radius: 6px; font-family:'Tajawal', sans-serif; font-size:0.9rem;" onmouseover="this.style.background='rgba(56,189,248,0.15)', this.style.color='#38bdf8'" onmouseout="this.style.background='transparent', this.style.color='#fff'">↕️ محاذاة النص للوسط</div>
-        <div class="context-item-custom" onclick="quickAlignGrid('left')" style="padding: 8px 12px; cursor: pointer; color: #fff; display: flex; align-items: center; gap: 8px; transition: 0.2s; border-radius: 6px; font-family:'Tajawal', sans-serif; font-size:0.9rem;" onmouseover="this.style.background='rgba(56,189,248,0.15)', this.style.color='#38bdf8'" onmouseout="this.style.background='transparent', this.style.color='#fff'">⬅️ محاذاة النص لليسار</div>
-        <hr style="border:0; border-top:1px solid rgba(255,255,255,0.08); margin:4px 0;">
-        <div class="context-item-custom" onclick="quickResetGrid()" style="padding: 8px 12px; cursor: pointer; color: #fff; display: flex; align-items: center; gap: 8px; transition: 0.2s; border-radius: 6px; font-family:'Tajawal', sans-serif; font-size:0.9rem;" onmouseover="this.style.background='rgba(56,189,248,0.15)', this.style.color='#38bdf8'" onmouseout="this.style.background='transparent', this.style.color='#fff'">🔄 استعادة الضبط الافتراضي</div>
+    <div id="col-context-menu" class="grid-context-menu">
+        <div class="grid-context-title">🛠️ خيارات الجدول</div>
+        <div class="context-item-custom" onclick="openGridSettingsModal()">⚙️ تخصيص الأعمدة والخطوط...</div>
+        <hr class="context-item-hr">
+        <div class="context-item-custom" onclick="quickAlignGrid('right')">➡️ محاذاة النص لليمين</div>
+        <div class="context-item-custom" onclick="quickAlignGrid('center')">↕️ محاذاة النص للوسط</div>
+        <div class="context-item-custom" onclick="quickAlignGrid('left')">⬅️ محاذاة النص لليسار</div>
+        <hr class="context-item-hr">
+        <div class="context-item-custom" onclick="quickResetGrid()">🔄 استعادة الضبط الافتراضي</div>
     </div>
 
     <!-- Slick Modal for POS Grid Customization -->

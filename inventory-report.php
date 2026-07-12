@@ -101,14 +101,72 @@
         }
 
         /* Nav Tabs */
-        .nav-tabs { display: flex; gap: 12px; margin-bottom: 5px; flex-wrap: wrap; }
-        .nav-tab {
-            padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: 700;
-            color: var(--text-secondary); background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
-            transition: 0.3s; display: flex; align-items: center; gap: 8px; font-size: 0.85rem;
+                /* Unified Nav Tabs Container */
+        .nav-tabs { 
+            display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+            background: rgba(15, 23, 42, 0.7); padding: 12px 15px; border-radius: 16px; 
+            border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: inset 0 2px 20px rgba(0,0,0,0.4);
+            backdrop-filter: blur(15px);
         }
-        .nav-tab:hover { background: rgba(255,255,255,0.08); color: #fff; }
-        .nav-tab.active { background: rgba(236,72,153,0.15); border-color: var(--pink-accent); color: var(--pink-accent); box-shadow: 0 0 15px var(--pink-glow); }
+        .nav-tabs::-webkit-scrollbar { display: none; }
+        .nav-tab {
+            padding: 12px 25px; border-radius: 12px; text-decoration: none; font-weight: 700;
+            color: #94a3b8; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.03);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 8px; font-size: 0.95rem;
+            position: relative; overflow: hidden; white-space: nowrap; flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        /* Kinetic Hover Effect */
+        .nav-tab::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); transform: skewX(-20deg); transition: 0.5s; }
+        .nav-tab:hover::before { left: 150%; }
+
+        /* Button 1: Blue */
+        .nav-tab:nth-child(1):hover { background: rgba(59, 130, 246, 0.1); color: #fff; border-color: rgba(59, 130, 246, 0.3); transform: translateY(-2px); }
+        .nav-tab:nth-child(1).active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.2)); border-color: rgba(59, 130, 246, 0.5); color: #60a5fa; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+
+        /* Button 2: Emerald */
+        .nav-tab:nth-child(2):hover { background: rgba(16, 185, 129, 0.1); color: #fff; border-color: rgba(16, 185, 129, 0.3); transform: translateY(-2px); }
+        .nav-tab:nth-child(2).active { background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2)); border-color: rgba(16, 185, 129, 0.5); color: #34d399; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+
+        /* Button 3: Amber */
+        .nav-tab:nth-child(3):hover { background: rgba(245, 158, 11, 0.1); color: #fff; border-color: rgba(245, 158, 11, 0.3); transform: translateY(-2px); }
+        .nav-tab:nth-child(3).active { background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2)); border-color: rgba(245, 158, 11, 0.5); color: #fbbf24; box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
+
+        /* Button 4: Purple */
+        .nav-tab:nth-child(4):hover { background: rgba(139, 92, 246, 0.1); color: #fff; border-color: rgba(139, 92, 246, 0.3); transform: translateY(-2px); }
+        .nav-tab:nth-child(4).active { background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(109, 40, 217, 0.2)); border-color: rgba(139, 92, 246, 0.5); color: #c084fc; box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+
+        /* Button 5: Rose */
+        .nav-tab:nth-child(5):hover { background: rgba(244, 63, 94, 0.1); color: #fff; border-color: rgba(244, 63, 94, 0.3); transform: translateY(-2px); }
+        .nav-tab:nth-child(5).active { background: linear-gradient(135deg, rgba(244, 63, 94, 0.2), rgba(225, 29, 72, 0.2)); border-color: rgba(244, 63, 94, 0.5); color: #fb7185; box-shadow: 0 0 20px rgba(244, 63, 94, 0.3); }
+
+        /* Button 6: Cyan */
+        .nav-tab:nth-child(6):hover { background: rgba(6, 182, 212, 0.1); color: #fff; border-color: rgba(6, 182, 212, 0.3); transform: translateY(-2px); }
+        .nav-tab:nth-child(6).active { background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(8, 145, 178, 0.2)); border-color: rgba(6, 182, 212, 0.5); color: #22d3ee; box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); }
+
+        /* Light Mode Styling */
+        :root.light-theme .nav-tabs { background: rgba(248, 250, 252, 0.85); border: 1px solid rgba(0,0,0,0.06); box-shadow: inset 0 2px 10px rgba(0,0,0,0.02); }
+        :root.light-theme .nav-tab { color: #64748b; background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        :root.light-theme .nav-tab::before { background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent); }
+        
+        /* Light Mode active/hover states per button (Neon effect) */
+        :root.light-theme .nav-tab:nth-child(1):hover { background: #fff; color: #1e3a8a; border-color: #3b82f6; box-shadow: 0 5px 15px rgba(59, 130, 246, 0.2); transform: translateY(-2px); }
+        :root.light-theme .nav-tab:nth-child(1).active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); color: #2563eb; border-color: #3b82f6; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
+
+        :root.light-theme .nav-tab:nth-child(2):hover { background: #fff; color: #064e3b; border-color: #10b981; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2); transform: translateY(-2px); }
+        :root.light-theme .nav-tab:nth-child(2).active { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1)); color: #059669; border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
+
+        :root.light-theme .nav-tab:nth-child(3):hover { background: #fff; color: #78350f; border-color: #f59e0b; box-shadow: 0 5px 15px rgba(245, 158, 11, 0.2); transform: translateY(-2px); }
+        :root.light-theme .nav-tab:nth-child(3).active { background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1)); color: #d97706; border-color: #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
+
+        :root.light-theme .nav-tab:nth-child(4):hover { background: #fff; color: #4c1d95; border-color: #8b5cf6; box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2); transform: translateY(-2px); }
+        :root.light-theme .nav-tab:nth-child(4).active { background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(109, 40, 217, 0.1)); color: #7c3aed; border-color: #8b5cf6; box-shadow: 0 0 20px rgba(139, 92, 246, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
+
+        :root.light-theme .nav-tab:nth-child(5):hover { background: #fff; color: #881337; border-color: #f43f5e; box-shadow: 0 5px 15px rgba(244, 63, 94, 0.2); transform: translateY(-2px); }
+        :root.light-theme .nav-tab:nth-child(5).active { background: linear-gradient(135deg, rgba(244, 63, 94, 0.1), rgba(225, 29, 72, 0.1)); color: #e11d48; border-color: #f43f5e; box-shadow: 0 0 20px rgba(244, 63, 94, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
+
+        :root.light-theme .nav-tab:nth-child(6):hover { background: #fff; color: #164e63; border-color: #06b6d4; box-shadow: 0 5px 15px rgba(6, 182, 212, 0.2); transform: translateY(-2px); }
+        :root.light-theme .nav-tab:nth-child(6).active { background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(8, 145, 178, 0.1)); color: #0891b2; border-color: #06b6d4; box-shadow: 0 0 20px rgba(6, 182, 212, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
 
         /* Header Panel */
         .dash-header {
@@ -121,7 +179,7 @@
             width: 45px; height: 45px; border-radius: 12px; background: linear-gradient(135deg, var(--pink-accent), #f472b6);
             display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 4px 15px var(--pink-glow);
         }
-        .dash-logo h1 { margin: 0; font-size: 1.2rem; font-weight: 900; color: #fff; }
+        .dash-logo h1 { margin: 0; font-size: 1.2rem; font-weight: 900; color: var(--text-main); }
         .dash-logo p { margin: 0; font-size: 0.75rem; color: var(--text-secondary); }
 
         /* Controls */
@@ -132,11 +190,11 @@
         }
         .btn-sync { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
         .btn-sync:hover { background: rgba(56, 189, 248, 0.3); box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); }
-        .btn-print { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--glass-border); }
+        .btn-print { background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--glass-border); }
         .btn-print:hover { background: rgba(255,255,255,0.15); }
         .btn-excel { background: linear-gradient(135deg, var(--emerald-accent), #34d399); color: #000; box-shadow: 0 4px 15px var(--emerald-glow); }
         .btn-excel:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--emerald-glow); }
-        .btn-icon-nav { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+        .btn-icon-nav { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-main); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
         .btn-icon-nav:hover { background: rgba(255,255,255,0.15); }
 
         /* KPI Cards */
@@ -174,7 +232,7 @@
         .f-group label { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
         .f-input {
             background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
-            color: #fff; padding: 12px 15px; font-size: 0.9rem; outline: none; transition: 0.3s; font-family: 'Inter', sans-serif;
+            color: var(--text-main); padding: 12px 15px; font-size: 0.9rem; outline: none; transition: 0.3s; font-family: 'Inter', sans-serif;
         }
         .f-input:focus { border-color: var(--pink-accent); box-shadow: 0 0 0 3px rgba(236,72,153,0.15); background: rgba(0,0,0,0.5); }
 
@@ -223,13 +281,13 @@
 
         .header-brand { display: flex; align-items: center; gap: 12px; }
         .brand-icon { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #fbbf24, #d97706); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 6px 15px rgba(245, 158, 11, 0.4), inset 0 2px 5px rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2); }
-        .brand-text h1 { margin: 0; font-size: 1.1rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; text-shadow: 0 2px 5px rgba(255,255,255,0.1); }
+        .brand-text h1 { margin: 0; font-size: 1.1rem; font-weight: 900; color: var(--text-main); letter-spacing: 0.5px; text-shadow: 0 2px 5px rgba(255,255,255,0.1); }
         .brand-text p { margin: 0; font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
         .header-center { text-align: center; }
         .header-center h2 { margin: 0; font-size: 1.2rem; font-weight: 900; background: linear-gradient(to right, #fff, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; }
         .header-controls { display: flex; align-items: center; gap: 12px; }
         
-        .icon-btn { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 36px; height: 36px; border-radius: 10px; color: #fff; font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; position: relative; }
+        .icon-btn { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); width: 36px; height: 36px; border-radius: 10px; color: var(--text-main); font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; position: relative; }
         .icon-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); box-shadow: 0 5px 10px rgba(0,0,0,0.3); }
         .user-info { display: flex; align-items: center; gap: 8px; background: rgba(15,23,42,0.6); padding: 6px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); }
     </style>
@@ -250,9 +308,7 @@
         :root.light-theme .header-center h2 { background: linear-gradient(to right, #0f172a, #334155); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         :root.light-theme .brand-text h1 { color: #0f172a; text-shadow: none; }
         :root.light-theme .brand-text p { color: #475569; text-shadow: none; }
-        :root.light-theme .icon-btn, :root.light-theme .user-info, :root.light-theme .clock-container { background: rgba(255,255,255,0.8); color: #0f172a; border-color: rgba(0,0,0,0.1); }
-        :root.light-theme .icon-btn:hover { background: #f8fafc; color: #000; box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
-        :root.light-theme #header-user-name { color: #0f172a !important; }
+
         :root.light-theme .online-users { background: rgba(16,185,129,0.1) !important; border-color: rgba(16,185,129,0.2) !important; }
     </style>
     
@@ -274,21 +330,22 @@
         <?php include 'includes/header.php'; ?>
 
         <!-- Navigation and Actions Row -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-wrap: wrap; gap: 15px;">
             <div class="nav-tabs" style="margin-bottom: 0;">
                 <a data-href="inventory-report.php" onclick="window.location.href='inventory-report.php'" class="nav-tab active">📦 جرد الأرصدة العام</a>
+                <a data-href="warehouse-inventory.php" onclick="window.location.href='warehouse-inventory.php'" class="nav-tab">🏢 جرد المخزن</a>
+                <a data-href="inventory-summary.php" onclick="window.location.href='inventory-summary.php'" class="nav-tab">📊 ملخص الحركات</a>
+                <a data-href="inventory-analytics.php" onclick="window.location.href='inventory-analytics.php'" class="nav-tab">🧠 التحليل الاستراتيجي</a>
                 <a data-href="item-ledger.php" onclick="window.location.href='item-ledger.php'" class="nav-tab">📑 حركة الصنف</a>
                 <a data-href="warehouse-ledger.php" onclick="window.location.href='warehouse-ledger.php'" class="nav-tab">🏭 حركة المخزن</a>
             </div>
 
             <div class="dash-controls" style="margin: 0; display: flex; gap: 8px;">
-                <button class="btn-action btn-sync" onclick="loadData(); applyFilters();" title="إعادة الحساب ومطابقة المشتريات والمبيعات">🔄 تحديث الأرصدة</button>
-                <button class="btn-action btn-print" onclick="previewReport()">👁️ معاينة</button>
                 <button class="btn-action btn-print" onclick="window.print()">🖨️ طباعة</button>
                 <button class="btn-action btn-print" onclick="window.openExportModal(exportExcel, {element: document.getElementById('report-table-wrap'), filename: 'inventory-report.pdf', orientation: 'landscape'})">📥 تصدير</button>
                 <button class="btn-action" onclick="runAIInventory()" style="background: linear-gradient(135deg, #ec4899, #be185d); color: white; border: none; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);">🤖 محلل المخزون (AI)</button>
     
-                <button class="btn-icon-nav" onclick="history.back()" title="رجوع" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; color: #fff; cursor: pointer; transition: 0.3s;">↩</button>
+                <button class="btn-icon-nav" onclick="history.back()" title="رجوع" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; color: var(--text-main); cursor: pointer; transition: 0.3s;">↩</button>
             </div>
         </div>
 
@@ -556,7 +613,7 @@
                 tr.className = `delay-${index % 6}`; // Staggered animation classes
                 tr.innerHTML = `
                     <td><span class="code-pill">${row.itemId}</span></td>
-                    <td style="font-weight:700; color:#fff;">${row.itemName} <div style="font-size:0.7rem; color:var(--text-secondary); margin-top:4px;">وحدة التقييم: ${row.unit}</div></td>
+                    <td style="font-weight:700; color:var(--text-primary);">${row.itemName} <div style="font-size:0.7rem; color:var(--text-secondary); margin-top:4px;">وحدة التقييم: ${row.unit}</div></td>
                     <td>${row.category}</td>
                     <td>${row.warehouse}</td>
                     <td style="text-align:center; color:#38bdf8;" class="qty-main">${actualQty.toLocaleString()}</td>

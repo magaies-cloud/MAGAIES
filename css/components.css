@@ -991,7 +991,7 @@ body.has-sidebar > *:not(.global-sidebar) {
 }
 
 .sidebar-logo-text {
-    font-size: 1rem;
+    font-size: 20px;
     font-weight: 800;
     color: #e2e8f0;
     padding-right: 10px;
@@ -1084,7 +1084,7 @@ body.has-sidebar > *:not(.global-sidebar) {
     right: var(--sb-collapsed);  /* starts just left of the icon */
     top: 50%;
     transform: translateY(-50%);
-    font-size: 0.9rem;
+    font-size: 18px;
     font-weight: 500;
     color: rgba(226, 232, 240, 0.9);
     white-space: nowrap;

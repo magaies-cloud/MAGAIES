@@ -151,7 +151,7 @@
 :root.light-theme td, :root.light-theme th, :root.light-theme tr {
   border-color: rgba(0, 0, 0, 0.08) !important;
 }
-:root.light-theme input, :root.light-theme select, :root.light-theme textarea,
+:root.light-theme input, :root.light-theme select, :root.light-theme select option, :root.light-theme textarea,
 :root.light-theme .v-input,
 :root.light-theme .wh-select,
 :root.light-theme .qty-input,
@@ -255,6 +255,57 @@
 }
 :root.light-theme .premium-header.header-theme-audit {
     background: linear-gradient(135deg, rgba(244,114,182,0.35), rgba(168,85,247,0.35), rgba(99,102,241,0.35), rgba(56,189,248,0.35)) !important;
+}
+
+/* Light Theme Header Controls Glassmorphism */
+:root.light-theme .user-info,
+:root.light-theme .clock-container,
+:root.light-theme #online-users-badge,
+:root.light-theme #global-exchange-rate-box,
+:root.light-theme .icon-btn,
+:root.light-theme .fullscreen-toggle-btn,
+:root.light-theme .theme-toggle-btn,
+:root.light-theme .back-arrow-btn {
+    background: rgba(255, 255, 255, 0.45) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+    color: #0f172a !important;
+}
+
+:root.light-theme .icon-btn:hover,
+:root.light-theme .fullscreen-toggle-btn:hover,
+:root.light-theme .theme-toggle-btn:hover,
+:root.light-theme .back-arrow-btn:hover,
+:root.light-theme .user-info:hover {
+    background: rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+:root.light-theme #header-user-name,
+:root.light-theme #header-clock,
+:root.light-theme .fullscreen-toggle-btn,
+:root.light-theme .theme-toggle-btn,
+:root.light-theme .back-arrow-btn {
+    color: #0f172a !important;
+    text-shadow: none !important;
+}
+
+:root.light-theme #header-user-role,
+:root.light-theme #header-date-mini {
+    color: #334155 !important;
+    text-shadow: none !important;
+}
+
+:root.light-theme #online-users-badge span,
+:root.light-theme #online-users-count {
+    color: #047857 !important;
+    text-shadow: none !important;
+}
+:root.light-theme #global-exchange-rate-box span,
+:root.light-theme #global-exchange-rate-val {
+    color: #b45309 !important;
+    text-shadow: none !important;
 }
 
 :root.light-theme .global-sidebar {

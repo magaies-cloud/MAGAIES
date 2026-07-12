@@ -1323,12 +1323,52 @@ document.addEventListener('DOMContentLoaded', function() {
         const reader = new FileReader();
         reader.onload = async function(e) {
             try {
-                const data = JSON.parse(e.target.result);
+                let raw = e.target.result;
+
+                // Strip UTF-8 BOM if present
+                if (raw.charCodeAt(0) === 0xFEFF) {
+                    raw = raw.substring(1);
+                }
+                raw = raw.replace(/^[\x00-\x08\x0B\x0C\x0E-\x1F]+/, '');
+                raw = raw.trim();
+
+                // ─── Detect SQL dump vs JSON ────────────────────────
+                const isSqlDump = raw.startsWith('--') || raw.startsWith('SET ') || raw.startsWith('DROP ');
+
+                if (isSqlDump) {
+                    await restoreFromSqlDump(raw);
+                    return;
+                }
+
+                // ─── JSON restore (existing logic) ──────────────────
+                let jsonStr = raw;
+                if (!raw.startsWith('{') && !raw.startsWith('[')) {
+                    const braceIdx = raw.indexOf('{');
+                    if (braceIdx !== -1) {
+                        jsonStr = raw.substring(braceIdx);
+                    } else {
+                        alert('ملف النسخ الاحتياطي لا يحتوي على بيانات JSON صالحة.\n\nتأكد من أنك تختار ملف النسخ الاحتياطي الصحيح (بصيغة .json أو .sql).');
+                        return;
+                    }
+                }
+
+                const data = JSON.parse(jsonStr);
+                if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
+                    alert('ملف النسخ الاحتياطي فارغ أو غير صالح.');
+                    return;
+                }
+
+                let entries = Array.isArray(data)
+                    ? (data.length > 0 && data[0] && data[0].key ? data.map(item => [item.key, item.value || item.data]) : null)
+                    : Object.entries(data);
+
+                if (!entries) { alert('صيغة ملف النسخ الاحتياطي غير معروفة.'); return; }
+
                 let count = 0;
-                for (let [k, v] of Object.entries(data)) {
+                for (let [k, v] of entries) {
+                    if (!k) continue;
                     if (window.getTenantKey) {
-                        const localKey = k.replace(window.TENANT_ID + '_', '');
-                        const tk = window.getTenantKey(localKey);
+                        const tk = k.startsWith('tenant_') ? k : window.getTenantKey(k);
                         await localforage.setItem(tk, v);
                         window.DB_STORE[tk] = v;
                     } else {
@@ -1340,11 +1380,192 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('تم استعادة ' + count + ' سجلات بنجاح. سيتم تحديث الصفحة.');
                 window.location.reload();
             } catch (err) {
-                console.error(err);
-                alert('حدث خطأ أثناء قراءة ملف النسخ الاحتياطي.');
+                console.error('Restore error:', err);
+                let rawPreview = '';
+                try { rawPreview = (e.target.result || '').substring(0, 200).replace(/[\n\r]/g, ' '); } catch(ex) {}
+                alert('حدث خطأ أثناء قراءة ملف النسخ الاحتياطي.\n\nالتفاصيل: ' + err.message + '\n\nبداية الملف: ' + rawPreview);
             }
         };
-        reader.readAsText(file);
+        reader.onerror = function() {
+            alert('حدث خطأ أثناء قراءة الملف. تأكد من أن الملف سليم.');
+        };
+        reader.readAsText(file, 'UTF-8');
+    }
+
+    // ─── SQL Dump Parser ──────────────────────────────────────
+    async function restoreFromSqlDump(sql) {
+        // Map SQL table names → localforage keys (matching api_index.php sync engine)
+        const tableToKey = {
+            'users': 'erp_users_v1',
+            'customers': 'erp_customers_v1',
+            'suppliers': 'erp_suppliers_v1',
+            'items': 'erp_items_v1',
+            'inventory': 'erp_inventory_v1',
+            'sales_invoices': 'erp_sales_invoices_v1',
+            'purchase_invoices': 'erp_purchase_invoices_v1',
+            'receipts': 'erp_receipts_v1',
+            'payments': 'erp_payments_v1',
+            'journal_vouchers': 'erp_journal_vouchers_v1',
+            'settings': 'erp_settings_v1',
+            'warehouses': 'erp_warehouses_v1',
+            'banks': 'erp_banks_v1',
+            'safes': 'erp_safes_v1',
+            'categories': 'erp_categories_v1',
+            'roles': 'erp_roles_v1',
+            'checks': 'erp_checks_v1',
+            'gl_entries': 'erp_gl_v1',
+            'single_receipts': 'erp_single_receipts_v1',
+            'single_payments': 'erp_single_payments_v1',
+            'partners': 'erp_partners_v1',
+            'employees': 'erp_employees_v1',
+            'payroll': 'erp_payroll_v1',
+            'reserved_sales': 'erp_reserved_sales_v1',
+            'delivery_notes': 'erp_delivery_notes_v1',
+            'accounts': 'erp_accounts_v1',
+            'audit_logs': 'erp_audit_logs',
+            'financial_periods': 'erp_financial_periods_v1'
+        };
+
+        // Parse INSERT statements from SQL dump
+        const insertRegex = /INSERT\s+INTO\s+`(\w+)`\s*\(([^)]+)\)\s*VALUES\s*([\s\S]*?);\s*$/gm;
+        const collectedData = {}; // key → array of JSON objects
+
+        let match;
+        while ((match = insertRegex.exec(sql)) !== null) {
+            const tableName = match[1];
+            const colsPart = match[2];
+            const valuesPart = match[3];
+
+            const erpKey = tableToKey[tableName];
+            if (!erpKey) continue; // Skip system tables (tenants, global_settings, etc.)
+
+            // Parse column names
+            const columns = colsPart.split(',').map(c => c.trim().replace(/`/g, ''));
+            const dataColIdx = columns.indexOf('data');
+
+            if (dataColIdx === -1) continue; // No 'data' column — skip
+
+            if (!collectedData[erpKey]) collectedData[erpKey] = [];
+
+            // Parse each row from VALUES — handles multi-row INSERTs
+            const rows = splitSqlValues(valuesPart);
+            for (const rowStr of rows) {
+                try {
+                    const vals = parseSqlRow(rowStr);
+                    if (vals && vals[dataColIdx]) {
+                        let jsonVal = vals[dataColIdx];
+                        // Unescape SQL string escaping
+                        jsonVal = jsonVal
+                            .replace(/\\'/g, "'")
+                            .replace(/\\"/g, '"')
+                            .replace(/\\\\/g, '\\')
+                            .replace(/\\n/g, '\n')
+                            .replace(/\\r/g, '\r')
+                            .replace(/\\0/g, '\0');
+                        const obj = JSON.parse(jsonVal);
+                        if (obj) collectedData[erpKey].push(obj);
+                    }
+                } catch (rowErr) {
+                    // Skip unparseable rows silently
+                    console.warn('Skipped row in table ' + tableName + ':', rowErr.message);
+                }
+            }
+        }
+
+        const totalKeys = Object.keys(collectedData).length;
+        if (totalKeys === 0) {
+            alert('لم يتم العثور على بيانات قابلة للاستعادة في ملف SQL.\n\nتأكد من أن الملف يحتوي على بيانات المشترك الصحيح.');
+            return;
+        }
+
+        let totalRecords = 0;
+        for (let [key, arr] of Object.entries(collectedData)) {
+            if (window.getTenantKey) {
+                const tk = key.startsWith('tenant_') ? key : window.getTenantKey(key);
+                await localforage.setItem(tk, arr);
+                window.DB_STORE[tk] = arr;
+            } else {
+                await localforage.setItem(key, arr);
+                window.DB_STORE[key] = arr;
+            }
+            totalRecords += arr.length;
+        }
+
+        alert('✅ تم استعادة نسخة SQL بنجاح!\n\n' +
+              '📊 ' + totalKeys + ' جداول\n' +
+              '📝 ' + totalRecords + ' سجل\n\n' +
+              'سيتم تحديث الصفحة الآن.');
+        window.location.reload();
+    }
+
+    // Split multi-row VALUES: (row1),(row2),(row3)
+    function splitSqlValues(valuesStr) {
+        const rows = [];
+        let depth = 0, start = -1;
+        let inStr = false, strChar = '', escape = false;
+
+        for (let i = 0; i < valuesStr.length; i++) {
+            const ch = valuesStr[i];
+            if (escape) { escape = false; continue; }
+            if (ch === '\\') { escape = true; continue; }
+
+            if (inStr) {
+                if (ch === strChar) inStr = false;
+                continue;
+            }
+
+            if (ch === "'" || ch === '"') { inStr = true; strChar = ch; continue; }
+            if (ch === '(') { if (depth === 0) start = i + 1; depth++; }
+            if (ch === ')') {
+                depth--;
+                if (depth === 0 && start !== -1) {
+                    rows.push(valuesStr.substring(start, i));
+                    start = -1;
+                }
+            }
+        }
+        return rows;
+    }
+
+    // Parse a single SQL row string into an array of values
+    function parseSqlRow(rowStr) {
+        const vals = [];
+        let current = '';
+        let inStr = false, strChar = '', escape = false;
+        let isNull = false;
+
+        for (let i = 0; i <= rowStr.length; i++) {
+            const ch = i < rowStr.length ? rowStr[i] : ','; // Force flush at end
+
+            if (escape) { current += ch; escape = false; continue; }
+
+            if (inStr) {
+                if (ch === '\\') { escape = true; current += ch; continue; }
+                if (ch === strChar) {
+                    // Check for double-quote escape ('')
+                    if (i + 1 < rowStr.length && rowStr[i + 1] === strChar) {
+                        current += ch; i++; continue;
+                    }
+                    inStr = false; continue;
+                }
+                current += ch;
+                continue;
+            }
+
+            if (ch === "'" || ch === '"') { inStr = true; strChar = ch; continue; }
+            if (ch === ',' || i === rowStr.length) {
+                const trimmed = current.trim();
+                if (trimmed.toUpperCase() === 'NULL') {
+                    vals.push(null);
+                } else {
+                    vals.push(current);
+                }
+                current = '';
+                continue;
+            }
+            current += ch;
+        }
+        return vals;
     }
 </script>
 </body>

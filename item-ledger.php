@@ -38,11 +38,36 @@
 
         .filter-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
         .input-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; }
-        .input-group select, .input-group input { width: 100%; padding: 10px 15px; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--glass-border); border-radius: 10px; color: #fff; font-size: 0.95rem; outline: none; }
+        .input-group select, .input-group input { width: 100%; padding: 10px 15px; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--glass-border); border-radius: 10px; color: var(--text-primary); font-size: 0.95rem; outline: none; }
         .input-group select:focus, .input-group input:focus { border-color: var(--primary-accent); }
 
-        .summary-card { padding: 20px; text-align: center; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(0,0,0,0.2); }
-        .summary-title { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 10px; }
+        .kpi-container {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            animation: pulseGlow 4s infinite alternate;
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.05); }
+            100% { box-shadow: 0 0 30px rgba(56, 189, 248, 0.15); }
+        }
+        .summary-card { padding: 20px; text-align: center; border-radius: 12px; backdrop-filter: blur(8px); transition: transform 0.3s, box-shadow 0.3s; position: relative; z-index: 1; }
+        .summary-card:hover { transform: translateY(-5px); }
+        
+        .c-blue { background: rgba(56, 189, 248, 0.1); border-left: 4px solid #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); box-shadow: 0 4px 15px rgba(56, 189, 248, 0.1); }
+        .c-blue:hover { box-shadow: 0 8px 25px rgba(56, 189, 248, 0.2); }
+        .c-emerald { background: rgba(52, 211, 153, 0.1); border-left: 4px solid #34d399; border: 1px solid rgba(52, 211, 153, 0.3); box-shadow: 0 4px 15px rgba(52, 211, 153, 0.1); }
+        .c-emerald:hover { box-shadow: 0 8px 25px rgba(52, 211, 153, 0.2); }
+        .c-rose { background: rgba(248, 113, 113, 0.1); border-left: 4px solid #f87171; border: 1px solid rgba(248, 113, 113, 0.3); box-shadow: 0 4px 15px rgba(248, 113, 113, 0.1); }
+        .c-rose:hover { box-shadow: 0 8px 25px rgba(248, 113, 113, 0.2); }
+        .c-amber { background: rgba(251, 191, 36, 0.1); border-left: 4px solid #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); box-shadow: 0 4px 15px rgba(251, 191, 36, 0.1); }
+        .c-amber:hover { box-shadow: 0 8px 25px rgba(251, 191, 36, 0.2); }
+
+        .summary-title { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 10px; font-weight: 700; }
         .summary-value { font-size: 1.8rem; font-weight: 900; margin: 0; }
 
         .pro-table { width: 100%; border-collapse: separate; border-spacing: 0; }
@@ -54,10 +79,72 @@
         .type-out { background: rgba(248, 113, 113, 0.15); color: #f87171; }
         .type-bal { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
 
-        .nav-tabs { display:flex; gap:15px; margin-bottom:10px; flex-wrap:wrap; }
-        .nav-tab { padding:10px 20px; border-radius:10px; text-decoration:none; font-weight:700; color:#fff; background:rgba(255,255,255,0.05); border:1px solid var(--glass-border); transition:0.3s; }
-        .nav-tab:hover { background:rgba(255,255,255,0.1); }
-        .nav-tab.active { background:var(--primary-accent); border-color:var(--primary-accent); }
+                /* Unified Nav Tabs Container */
+        .nav-tabs { 
+            display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+            background: rgba(15, 23, 42, 0.7); padding: 12px 15px; border-radius: 16px; 
+            border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: inset 0 2px 20px rgba(0,0,0,0.4);
+            backdrop-filter: blur(15px);
+        }
+        .nav-tabs::-webkit-scrollbar { display: none; }
+        .nav-tab {
+            padding: 12px 25px; border-radius: 12px; text-decoration: none; font-weight: 700;
+            color: #94a3b8; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.03);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 8px; font-size: 0.95rem;
+            position: relative; overflow: hidden; white-space: nowrap; flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        /* Kinetic Hover Effect */
+        .nav-tab::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); transform: skewX(-20deg); transition: 0.5s; }
+        .nav-tab:hover::before { left: 150%; }
+
+        /* Button 1: Blue */
+        .nav-tab:nth-child(1):hover { background: rgba(59, 130, 246, 0.1); color: #fff; border-color: rgba(59, 130, 246, 0.3); transform: translateY(-2px); }
+        .nav-tab:nth-child(1).active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.2)); border-color: rgba(59, 130, 246, 0.5); color: #60a5fa; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+
+        /* Button 2: Emerald */
+        .nav-tab:nth-child(2):hover { background: rgba(16, 185, 129, 0.1); color: #fff; border-color: rgba(16, 185, 129, 0.3); transform: translateY(-2px); }
+        .nav-tab:nth-child(2).active { background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2)); border-color: rgba(16, 185, 129, 0.5); color: #34d399; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+
+        /* Button 3: Amber */
+        .nav-tab:nth-child(3):hover { background: rgba(245, 158, 11, 0.1); color: #fff; border-color: rgba(245, 158, 11, 0.3); transform: translateY(-2px); }
+        .nav-tab:nth-child(3).active { background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2)); border-color: rgba(245, 158, 11, 0.5); color: #fbbf24; box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
+
+        /* Button 4: Purple */
+        .nav-tab:nth-child(4):hover { background: rgba(139, 92, 246, 0.1); color: #fff; border-color: rgba(139, 92, 246, 0.3); transform: translateY(-2px); }
+        .nav-tab:nth-child(4).active { background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(109, 40, 217, 0.2)); border-color: rgba(139, 92, 246, 0.5); color: #c084fc; box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+
+        /* Button 5: Rose */
+        .nav-tab:nth-child(5):hover { background: rgba(244, 63, 94, 0.1); color: #fff; border-color: rgba(244, 63, 94, 0.3); transform: translateY(-2px); }
+        .nav-tab:nth-child(5).active { background: linear-gradient(135deg, rgba(244, 63, 94, 0.2), rgba(225, 29, 72, 0.2)); border-color: rgba(244, 63, 94, 0.5); color: #fb7185; box-shadow: 0 0 20px rgba(244, 63, 94, 0.3); }
+
+        /* Button 6: Cyan */
+        .nav-tab:nth-child(6):hover { background: rgba(6, 182, 212, 0.1); color: #fff; border-color: rgba(6, 182, 212, 0.3); transform: translateY(-2px); }
+        .nav-tab:nth-child(6).active { background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(8, 145, 178, 0.2)); border-color: rgba(6, 182, 212, 0.5); color: #22d3ee; box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); }
+
+        /* Light Mode Styling */
+        :root.light-theme .nav-tabs { background: rgba(248, 250, 252, 0.85); border: 1px solid rgba(0,0,0,0.06); box-shadow: inset 0 2px 10px rgba(0,0,0,0.02); }
+        :root.light-theme .nav-tab { color: #64748b; background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        :root.light-theme .nav-tab::before { background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent); }
+        
+        /* Light Mode active/hover states per button (Neon effect) */
+        :root.light-theme .nav-tab:nth-child(1):hover { background: #fff; color: #1e3a8a; border-color: #3b82f6; box-shadow: 0 5px 15px rgba(59, 130, 246, 0.2); transform: translateY(-2px); }
+        :root.light-theme .nav-tab:nth-child(1).active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); color: #2563eb; border-color: #3b82f6; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
+
+        :root.light-theme .nav-tab:nth-child(2):hover { background: #fff; color: #064e3b; border-color: #10b981; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2); transform: translateY(-2px); }
+        :root.light-theme .nav-tab:nth-child(2).active { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1)); color: #059669; border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
+
+        :root.light-theme .nav-tab:nth-child(3):hover { background: #fff; color: #78350f; border-color: #f59e0b; box-shadow: 0 5px 15px rgba(245, 158, 11, 0.2); transform: translateY(-2px); }
+        :root.light-theme .nav-tab:nth-child(3).active { background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1)); color: #d97706; border-color: #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
+
+        :root.light-theme .nav-tab:nth-child(4):hover { background: #fff; color: #4c1d95; border-color: #8b5cf6; box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2); transform: translateY(-2px); }
+        :root.light-theme .nav-tab:nth-child(4).active { background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(109, 40, 217, 0.1)); color: #7c3aed; border-color: #8b5cf6; box-shadow: 0 0 20px rgba(139, 92, 246, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
+
+        :root.light-theme .nav-tab:nth-child(5):hover { background: #fff; color: #881337; border-color: #f43f5e; box-shadow: 0 5px 15px rgba(244, 63, 94, 0.2); transform: translateY(-2px); }
+        :root.light-theme .nav-tab:nth-child(5).active { background: linear-gradient(135deg, rgba(244, 63, 94, 0.1), rgba(225, 29, 72, 0.1)); color: #e11d48; border-color: #f43f5e; box-shadow: 0 0 20px rgba(244, 63, 94, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
+
+        :root.light-theme .nav-tab:nth-child(6):hover { background: #fff; color: #164e63; border-color: #06b6d4; box-shadow: 0 5px 15px rgba(6, 182, 212, 0.2); transform: translateY(-2px); }
+        :root.light-theme .nav-tab:nth-child(6).active { background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(8, 145, 178, 0.1)); color: #0891b2; border-color: #06b6d4; box-shadow: 0 0 20px rgba(6, 182, 212, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
 
         @media print {
             body { background: #fff !important; color: #000 !important; }
@@ -73,6 +160,7 @@
             background: #f8fafc !important;
         }
         :root.light-theme .glass-panel,
+        :root.light-theme .neon-glass-panel,
         :root.light-theme .neo-card,
         :root.light-theme .summary-card,
         :root.light-theme .filter-panel,
@@ -112,6 +200,21 @@
         :root.light-theme .report-table tbody tr:hover td {
             background: rgba(0,0,0,0.02) !important;
         }
+        :root.light-theme .input-group select, 
+        :root.light-theme .input-group input {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            border-color: rgba(0, 0, 0, 0.18) !important;
+        }
+        :root.light-theme .kpi-container {
+            background: rgba(255, 255, 255, 0.6) !important;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+        }
+        :root.light-theme .c-blue { background: rgba(56, 189, 248, 0.15) !important; }
+        :root.light-theme .c-emerald { background: rgba(52, 211, 153, 0.15) !important; }
+        :root.light-theme .c-rose { background: rgba(248, 113, 113, 0.15) !important; }
+        :root.light-theme .c-amber { background: rgba(251, 191, 36, 0.15) !important; }
+
         :root.light-theme .h-label,
         :root.light-theme .form-label,
         :root.light-theme .tot-lbl,
@@ -154,16 +257,26 @@
 
 
     <div class="ledger-container">
-        <!-- Quick Nav -->
-        <div class="nav-tabs">
-            <a data-href="inventory-report.php" onclick="window.location.href='inventory-report.php'" class="nav-tab">جرد الأرصدة العام</a>
-            <a data-href="item-ledger.php" onclick="window.location.href='item-ledger.php'" class="nav-tab active">حركة صنف (كارت الصنف)</a>
-            <a data-href="warehouse-ledger.php" onclick="window.location.href='warehouse-ledger.php'" class="nav-tab">حركة مخزن تفصيلية</a>
-        </div>
-
         <!-- Header -->
         <?php $header_theme_class = 'header-theme-inventory'; ?>
         <?php include 'includes/header.php'; ?>
+
+        <!-- Navigation and Actions Row -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-wrap: wrap; gap: 15px;">
+            <div class="nav-tabs" style="margin-bottom: 0;">
+                <a data-href="inventory-report.php" onclick="window.location.href='inventory-report.php'" class="nav-tab">📦 جرد الأرصدة العام</a>
+                <a data-href="warehouse-inventory.php" onclick="window.location.href='warehouse-inventory.php'" class="nav-tab">🏢 جرد المخزن</a>
+                <a data-href="inventory-summary.php" onclick="window.location.href='inventory-summary.php'" class="nav-tab">📊 ملخص الحركات</a>
+                <a data-href="inventory-analytics.php" onclick="window.location.href='inventory-analytics.php'" class="nav-tab">🧠 التحليل الاستراتيجي</a>
+                <a data-href="item-ledger.php" onclick="window.location.href='item-ledger.php'" class="nav-tab active">📑 حركة الصنف</a>
+                <a data-href="warehouse-ledger.php" onclick="window.location.href='warehouse-ledger.php'" class="nav-tab">🏭 حركة المخزن</a>
+            </div>
+
+            <div class="dash-controls" style="margin: 0; display: flex; gap: 8px;">
+                <button class="btn-action btn-print" onclick="window.print()" style="background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer;">🖨️ طباعة</button>
+                <button class="btn-icon-nav" onclick="history.back()" title="رجوع" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; color: var(--text-main); cursor: pointer; transition: 0.3s;">↩</button>
+            </div>
+        </div>
 
         <!-- Filters -->
         <div class="neon-glass-panel filter-row" style="padding:20px;">
@@ -190,22 +303,24 @@
         </div>
 
         <!-- KPI Summary for Item -->
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
-            <div class="summary-card" style="border-left: 4px solid #38bdf8;">
-                <div class="summary-title">الرصيد الافتتاحي (أول المدة)</div>
-                <h3 class="summary-value" id="sum-open">0</h3>
-            </div>
-            <div class="summary-card" style="border-left: 4px solid #34d399;">
-                <div class="summary-title">إجمالي الوارد (مشتريات)</div>
-                <h3 class="summary-value" id="sum-in" style="color:#34d399;">0</h3>
-            </div>
-            <div class="summary-card" style="border-left: 4px solid #f87171;">
-                <div class="summary-title">إجمالي المنصرف (مبيعات)</div>
-                <h3 class="summary-value" id="sum-out" style="color:#f87171;">0</h3>
-            </div>
-            <div class="summary-card" style="border-left: 4px solid #fbbf24;">
-                <div class="summary-title">الرصيد الفعلي الحالي</div>
-                <h3 class="summary-value" id="sum-balance" style="color:#fbbf24;">0</h3>
+        <div class="kpi-container neon-glass-panel">
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
+                <div class="summary-card c-blue">
+                    <div class="summary-title">الرصيد الافتتاحي (أول المدة)</div>
+                    <h3 class="summary-value" id="sum-open" style="color:#38bdf8;">0</h3>
+                </div>
+                <div class="summary-card c-emerald">
+                    <div class="summary-title">إجمالي الوارد (مشتريات)</div>
+                    <h3 class="summary-value" id="sum-in" style="color:#34d399;">0</h3>
+                </div>
+                <div class="summary-card c-rose">
+                    <div class="summary-title">إجمالي المنصرف (مبيعات)</div>
+                    <h3 class="summary-value" id="sum-out" style="color:#f87171;">0</h3>
+                </div>
+                <div class="summary-card c-amber">
+                    <div class="summary-title">الرصيد الفعلي الحالي</div>
+                    <h3 class="summary-value" id="sum-balance" style="color:#fbbf24;">0</h3>
+                </div>
             </div>
         </div>
 

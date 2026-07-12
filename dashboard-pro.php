@@ -639,7 +639,7 @@
                     </a>
                     
                     <a data-href="inventory-report.php" onclick="window.location.href='inventory-report.php'" class="quick-action-btn" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px; border-bottom: 2px solid #a78bfa;">
-                        <span class="qa-icon">📦</span> تقارير المخزون والجرد
+                        <span class="qa-icon">📦</span> المخازن
                     </a>
                 </div>
             </div>
@@ -997,12 +997,13 @@
             document.getElementById('low-stock-list').innerHTML = lowStockHTML || '<div style="color:var(--text-secondary); font-size:0.85rem; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 10px; text-align: center;">المخزون آمن حالياً ✅</div>';
 
             // Dynamic cost calculation
+            const _cachedPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]');
             function getItemCost(itemId) {
                 const item = items.find(i => i.id === itemId);
                 if (item && item.openingQty > 0 && item.openingValue > 0) {
                     return Number(item.openingValue) / Number(item.openingQty);
                 }
-                const purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]');
+                const purchases = _cachedPurchases;
                 let lastPrice = null;
                 for (let inv of purchases) {
                     if (inv.deleted) continue;

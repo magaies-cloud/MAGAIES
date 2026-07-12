@@ -1205,7 +1205,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1"/>'
             },
             {
-                href: 'inventory-report.php', label: _t('sidebar.inventory', 'تقارير المخزون والجرد'), color: '#a78bfa', module: 'inventory',
+                href: 'inventory-report.php', label: _t('sidebar.inventory', 'المخازن'), color: '#a78bfa', module: 'inventory',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>'
             },
             {
@@ -2549,6 +2549,12 @@ document.addEventListener('DOMContentLoaded', () => {
     buttons.forEach(btn => {
         const onClickAttr = btn.getAttribute('onclick') || '';
         if (onClickAttr.includes('window.print()') || onClickAttr.includes('printVoucher()') || onClickAttr.includes('printInvoice()')) {
+            // Skip injection on inventory/ledger pages as requested by user
+            const currentPath = window.location.pathname.toLowerCase();
+            if (currentPath.includes('inventory') || currentPath.includes('ledger') || currentPath.includes('analytics')) {
+                return;
+            }
+
             // Check if we already injected next to it
             if (btn.nextElementSibling && btn.nextElementSibling.classList.contains('btn-print-preview')) return;
             // Also ensure it's not the newly injected preview button itself
