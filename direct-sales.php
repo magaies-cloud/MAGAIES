@@ -852,7 +852,7 @@
         #totals-calc-card {
             transition: flex 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), min-width 0.8s, opacity 0.5s ease-in-out, transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
             transform-origin: left center;
-            flex: 25;
+            flex: 15;
             min-width: 250px;
         }
         .hidden-totals {
@@ -2312,7 +2312,7 @@
                             </div>
 
                             <!-- Exchange Rate Field (25% width) -->
-                            <div class="h-form-group" style="flex: 25; min-width: 0; display:flex; align-items:center; gap:10px;">
+                            <div class="h-form-group" style="flex: 15; min-width: 0; display:flex; align-items:center; gap:10px;">
                                 <label class="h-label" style="margin:0; white-space:nowrap;">سعر الصرف</label>
                                 <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1; width: 100%;">
                                     <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="handleCurrencyChange(this.value)" style="flex: 1.2; min-width:0; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
@@ -2322,7 +2322,7 @@
                                         <option value="AED">🇦🇪 درهم</option>
                                         <option value="EGP">🇪🇬 مصري</option>
                                     </select>
-                                    <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" disabled oninput="recalcAll()" style="flex: 0.8; min-width:0; text-align: center; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);" placeholder="الصرف">
+                                    <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" disabled oninput="recalcAll()" style="flex: 0.8; min-width:0; text-align: center; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);" placeholder="الصرف" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
                                 </div>
                             </div>
 
@@ -2419,11 +2419,11 @@
                     
                     <div class="tot-row" style="padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
                         <span class="tot-lbl">الترحيل</span>
-                        <input type="text" inputmode="decimal" class="v-input tot-input tl-input" id="t-transport" value="0" onfocus="this.select()" oninput="recalcAll()" onblur="this.value=fmtNum(parseNum(this.value))" style="width:120px; text-align:left; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); border-radius: 6px; padding: 2px 8px; height: 26px; color: #fff; font-size: 0.85rem; line-height: 1;">
+                        <input type="text" inputmode="decimal" class="v-input tot-input tl-input" id="t-transport" value="0" onfocus="this.select()" oninput="recalcAll()" onblur="this.value=fmtNum(parseNum(this.value))" style="width:120px; text-align:left; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); border-radius: 6px; padding: 2px 8px; height: 26px; color: #fff; font-size: 0.85rem; line-height: 1;" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
                     </div>
                     <div class="tot-row" style="padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
                         <span class="tot-lbl">تكلفة العمالة</span>
-                        <input type="text" inputmode="decimal" class="v-input tot-input tl-input" id="t-labor" value="0" onfocus="this.select()" oninput="recalcAll()" onblur="this.value=fmtNum(parseNum(this.value))" style="width:120px; text-align:left; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); border-radius: 6px; padding: 2px 8px; height: 26px; color: #fff; font-size: 0.85rem; line-height: 1;">
+                        <input type="text" inputmode="decimal" class="v-input tot-input tl-input" id="t-labor" value="0" onfocus="this.select()" oninput="recalcAll()" onblur="this.value=fmtNum(parseNum(this.value))" style="width:120px; text-align:left; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); border-radius: 6px; padding: 2px 8px; height: 26px; color: #fff; font-size: 0.85rem; line-height: 1;" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
                     </div>
                     <div class="tot-row" style="padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
                         <span class="tot-lbl">إضافات أخرى</span>
@@ -2553,11 +2553,11 @@
         </div>
 
         <div id="adjustments-panel" style="display: none;">
-            <input type="text" id="discount-amt" value="0">
+            <input type="text" id="discount-amt" value="0" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
             <input type="number" id="discount-pct" value="0">
-            <input type="text" id="tax-amt" value="0">
+            <input type="text" id="tax-amt" value="0" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
             <input type="number" id="tax-pct" value="0">
-            <input type="text" id="addition-amt" value="0">
+            <input type="text" id="addition-amt" value="0" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
             <input type="number" id="addition-pct" value="0">
         </div>
 

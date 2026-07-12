@@ -1803,7 +1803,7 @@ function renderGrid() {
                     <label class="label">التعادل</label>
                     <input type="text" inputmode="decimal" class="ctrl-input" value="${row.customFactor !== undefined ? row.customFactor : calcs.unitFactor}" placeholder="1"
                 onfocus="this.select()" oninput="updateRow(${row.id},'customFactor',this.value)"
-                onblur="this.value=parseNum(this.value)||1" tabindex="-1">
+                onblur="this.value=parseNum(this.value)||1" tabindex="-1" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
                 </div>
                 <div class="ctrl-group">
                     <label class="label">الكمية الوحدة</label>
@@ -1856,11 +1856,11 @@ function renderGrid() {
                 <div style="display:flex; gap:8px;">
                     <div class="ctrl-group" style="flex:1;">
                         <label class="label">سعر الشراء</label>
-                        <input type="text" inputmode="decimal" class="ctrl-input" placeholder="0" value="${row.buyPrice !== undefined ? fmtNum(row.buyPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'buyPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))">
+                        <input type="text" inputmode="decimal" class="ctrl-input" placeholder="0" value="${row.buyPrice !== undefined ? fmtNum(row.buyPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'buyPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
                     </div>
                     <div class="ctrl-group" style="flex:1;">
                         <label class="label">سعر البيع</label>
-                        <input type="text" inputmode="decimal" class="ctrl-input" placeholder="0" value="${row.sellPrice !== undefined ? fmtNum(row.sellPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'sellPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))">
+                        <input type="text" inputmode="decimal" class="ctrl-input" placeholder="0" value="${row.sellPrice !== undefined ? fmtNum(row.sellPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'sellPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
                     </div>
                 </div>
             </div>

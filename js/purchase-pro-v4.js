@@ -2054,34 +2054,57 @@ function recalcAll() {
         lbl.textContent = isBaseSDG ? 'جملة الوحدة أجنبي' : 'جملة الوحدة جنيه';
     });
 
+    let invTotalLocal = 0;
+    let invTotalFc = 0;
+
     // Recompute fcPrice for all rows and update DOM
     rows.forEach(row => {
         if (isBaseSDG) {
-            row.fcPrice = row.price / exRate;
+            row.fcPrice = (row.price || 0) / exRate;
         } else {
-            row.fcPrice = row.price * exRate;
+            row.fcPrice = (row.price || 0) * exRate;
         }
+        
+        let rowQty = parseNum(row.quantity);
+        let rowPriceLocal = parseNum(row.price);
+        let rowPriceFc = parseNum(row.fcPrice);
+
+        invTotalLocal += (rowQty * rowPriceLocal);
+        invTotalFc += (rowQty * rowPriceFc);
+
         updateRowCalcs(row.id);
     });
 
-    const invTotal = getInvoiceTotal();
-    const labor = parseNum(document.getElementById('t-labor').value);
-    const transport = parseNum(document.getElementById('t-transport').value);
-    const discountAmt = parseNum(document.getElementById('discount-amt').value);
-    const taxAmt = parseNum(document.getElementById('tax-amt').value);
-    const additionAmt = parseNum(document.getElementById('addition-amt').value);
+    const laborLoc = parseNum(document.getElementById('t-labor')?.value || 0);
+    const transportLoc = parseNum(document.getElementById('t-transport')?.value || 0);
+    const additionsLoc = parseNum(document.getElementById('t-additions-loc')?.value || document.getElementById('t-additions')?.value || document.getElementById('addition-amt')?.value || 0);
+    const taxLoc = parseNum(document.getElementById('t-tax-loc')?.value || document.getElementById('t-tax')?.value || document.getElementById('tax-amt')?.value || 0);
+    const discountLoc = parseNum(document.getElementById('t-discount-loc')?.value || document.getElementById('t-discount')?.value || document.getElementById('discount-amt')?.value || 0);
 
-    const grand = invTotal + labor + transport + additionAmt + taxAmt - discountAmt;
+    const laborFc = parseNum(document.getElementById('t-labor-fc')?.value || 0);
+    const transportFc = parseNum(document.getElementById('t-transport-fc')?.value || 0);
+    const additionsFc = parseNum(document.getElementById('t-additions-fc')?.value || 0);
+    const taxFc = parseNum(document.getElementById('t-tax-fc')?.value || 0);
+    const discountFc = parseNum(document.getElementById('t-discount-fc')?.value || 0);
 
-    // Update totals display
-    document.getElementById('t-invoice-total').textContent = fmtNum(invTotal) + ' ' + cur;
-    document.getElementById('t-additions').textContent = '+ ' + fmtNum(additionAmt) + ' ' + cur;
-    document.getElementById('t-tax').textContent = '+ ' + fmtNum(taxAmt) + ' ' + cur;
-    document.getElementById('t-discount').textContent = '- ' + fmtNum(discountAmt) + ' ' + cur;
-    document.getElementById('t-grand').innerHTML = fmtNum(grand) + ' <span style="color: #ef4444; font-size: 0.9em; text-shadow: none;">' + cur + '</span>';
+    const grandLoc = invTotalLocal + laborLoc + transportLoc + additionsLoc + taxLoc - discountLoc;
+    const grandFc = invTotalFc + laborFc + transportFc + additionsFc + taxFc - discountFc;
 
-    // Footer
-    document.getElementById('footer-grand').textContent = fmtNum(grand) + ' ' + cur;
+    // Update totals display (Internal Hidden)
+    const tInvoiceTotal = document.getElementById('t-invoice-total');
+    if (tInvoiceTotal) tInvoiceTotal.textContent = fmtNum(invTotalLocal);
+    const tInvoiceTotalFc = document.getElementById('t-invoice-total-fc');
+    if (tInvoiceTotalFc) tInvoiceTotalFc.textContent = fmtNum(invTotalFc);
+    
+    // Update dual grand totals (remove currency symbols per user request)
+    const tGrandLocal = document.getElementById('t-grand-local');
+    if (tGrandLocal) tGrandLocal.textContent = fmtNum(grandLoc);
+    const tGrandFc = document.getElementById('t-grand-fc');
+    if (tGrandFc) tGrandFc.textContent = fmtNum(grandFc);
+
+    // Footer grand
+    const footerGrand = document.getElementById('footer-grand');
+    if (footerGrand) footerGrand.textContent = fmtNum(grandLoc);
 
     // Dynamic UI Animation — toggle CSS classes
     const totalsCard = document.getElementById('totals-calc-card');
@@ -2124,10 +2147,10 @@ function saveDraft() {
         items: rows,
         notes: document.getElementById('inv-notes').value,
         status: 'draft',
-        grandTotal: parseNum(document.getElementById('t-grand').textContent),
-        totalAmount: parseNum(document.getElementById('t-grand').textContent),
-        laborCost: parseNum(document.getElementById('t-labor').value),
-        transportCost: parseNum(document.getElementById('t-transport').value)
+        grandTotal: parseNum(document.getElementById('t-grand-local')?.textContent || 0),
+        totalAmount: parseNum(document.getElementById('t-grand-local')?.textContent || 0),
+        laborCost: parseNum(document.getElementById('t-labor')?.value || 0),
+        transportCost: parseNum(document.getElementById('t-transport')?.value || 0)
     };
     localStorage.setItem('erp_draft_' + data.invoiceNo, JSON.stringify(data));
     showToast('📑 تم حفظ المسودة بنجاح', 'success', 2500);
@@ -2185,7 +2208,7 @@ function submitInvoice(ignoreWarnings = false) {
         committedNo = commitInvoiceNumber(currentSaleType); // increment
     }
     const cur = getCurrency();
-    const grandTotal = document.getElementById('t-grand').textContent;
+    const grandTotal = document.getElementById('t-grand-local').textContent;
 
     // Save invoice data
     const supplierSearchEl = document.getElementById('hdr-customer-search');
@@ -2209,10 +2232,10 @@ function submitInvoice(ignoreWarnings = false) {
         items: rows.map(r => ({...r})),
         notes: document.getElementById('inv-notes').value,
         status: 'confirmed',
-        grandTotal: parseNum(document.getElementById('t-grand').textContent),
-        totalAmount: parseNum(document.getElementById('t-grand').textContent),
-        laborCost: parseNum(document.getElementById('t-labor').value),
-        transportCost: parseNum(document.getElementById('t-transport').value)
+        grandTotal: parseNum(document.getElementById('t-grand-local')?.textContent || 0),
+        totalAmount: parseNum(document.getElementById('t-grand-local')?.textContent || 0),
+        laborCost: parseNum(document.getElementById('t-labor')?.value || 0),
+        transportCost: parseNum(document.getElementById('t-transport')?.value || 0)
     };
 
     // Update Bank/Safe balance
@@ -2755,7 +2778,7 @@ function generatePrintArea(type) {
     const custName = document.getElementById('hdr-customer-search').value || (type === 'sales' ? 'عميل نقدي' : 'مورد نقدي');
     const invNo = document.getElementById('hdr-inv-no').value;
     const invDate = document.getElementById('hdr-date').value;
-    const grandTotal = document.getElementById('t-grand').textContent;
+    const grandTotal = document.getElementById('t-grand-local')?.textContent || '0';
     const currency = getCurrency();
 
     let html = '';
@@ -2905,7 +2928,7 @@ function printCurrentInvoice() {
     const addAmt      = parseNum(document.getElementById('addition-amt')?.value || '0');
     const laborVal    = parseNum(document.getElementById('t-labor')?.value      || '0');
     const transportVal= parseNum(document.getElementById('t-transport')?.value  || '0');
-    const grandVal    = parseNum(document.getElementById('t-grand')?.textContent || '0');
+    const grandVal    = parseNum(document.getElementById('t-grand-local')?.textContent || '0');
 
     const data = {
         type:          'purchase',

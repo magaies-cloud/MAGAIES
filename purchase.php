@@ -405,6 +405,88 @@
         transform: scaleX(0);
     }
 
+
+    /* ================= 2027 LEDGER BUTTON DESIGN ================= */
+    @keyframes neonPulse {
+        0% { box-shadow: 0 0 5px #0ea5e9, 0 0 10px #0ea5e9, inset 0 0 5px rgba(14, 165, 233, 0.5); border-color: rgba(14, 165, 233, 0.8); }
+        50% { box-shadow: 0 0 15px #38bdf8, 0 0 25px #38bdf8, inset 0 0 10px rgba(56, 189, 248, 0.8); border-color: #38bdf8; }
+        100% { box-shadow: 0 0 5px #0ea5e9, 0 0 10px #0ea5e9, inset 0 0 5px rgba(14, 165, 233, 0.5); border-color: rgba(14, 165, 233, 0.8); }
+    }
+
+    @keyframes subtleShake {
+        0% { transform: translateY(-50%) rotate(0deg); }
+        25% { transform: translateY(-50%) rotate(0.8deg); }
+        50% { transform: translateY(-50%) rotate(0deg); }
+        75% { transform: translateY(-50%) rotate(-0.8deg); }
+        100% { transform: translateY(-50%) rotate(0deg); }
+    }
+
+    .ledger-btn-2027 {
+        position: absolute;
+        left: 6px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 5;
+        font-size: 0.8rem;
+        font-weight: 800;
+        padding: 0 10px;
+        height: 26px;
+        display: none; /* Displayed via JS when customer selected */
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(2, 132, 199, 0.3));
+        color: #e0f2fe;
+        border: 1px solid rgba(14, 165, 233, 0.5);
+        border-radius: 6px;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: neonPulse 2s infinite alternate, subtleShake 4s infinite ease-in-out;
+        text-shadow: 0 0 4px rgba(255,255,255,0.4);
+        cursor: pointer;
+        overflow: hidden;
+        font-family: 'Tajawal', sans-serif;
+    }
+
+    .ledger-btn-2027::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 50%);
+        opacity: 0;
+        transform: scale(0.5);
+        transition: all 0.4s ease;
+        pointer-events: none;
+    }
+
+    .ledger-btn-2027:hover::before {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+
+    .ledger-btn-2027:hover {
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.4), rgba(2, 132, 199, 0.7));
+        color: #ffffff;
+        text-shadow: 0 0 8px #ffffff;
+        box-shadow: 0 0 20px #0ea5e9, 0 0 30px #38bdf8, inset 0 0 15px rgba(56, 189, 248, 0.9);
+        animation: subtleShake 1s infinite ease-in-out; /* Shake faster on hover */
+    }
+
+    :root.light-theme .ledger-btn-2027 {
+        color: #0c4a6e;
+        text-shadow: none;
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(14, 165, 233, 0.4));
+        border-color: #0ea5e9;
+        animation: subtleShake 4s infinite ease-in-out; /* Removed pulse from light theme to avoid washed out look */
+        box-shadow: 0 2px 8px rgba(14, 165, 233, 0.4);
+    }
+    :root.light-theme .ledger-btn-2027:hover {
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.8), rgba(2, 132, 199, 1));
+        color: white;
+        box-shadow: 0 4px 15px rgba(14, 165, 233, 0.6);
+    }
+    
 </style>
 
     <style>
@@ -1642,14 +1724,14 @@
                 </div>
                 <!-- Row 1: Supplier, Currency, Payment -->
                 <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 5px;">
-                    <div class="h-form-group" style="flex: 1.5; min-width: 200px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                    <div class="h-form-group" style="flex: 2; min-width: 250px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
                           <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">المورد</label>
                           <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1;">
                             
                                     <div class="custom-dropdown" style="flex:1;">
                                         <div class="custom-dropdown-input-wrap" style="position: relative;">
-                                            <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم المورد..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15); padding-left: 95px !important;" autocomplete="one-time-code">
-                                            <button type="button" id="hdr-customer-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('hdr-customer').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.8rem; padding: 4px 8px; height: 32px; display: none;" title="دفتر الأستاذ العام">📖 دفتر الأستاذ</button>
+                                            <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم المورد..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15); padding-left: 60px !important;" autocomplete="one-time-code">
+                                            <button type="button" id="hdr-customer-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('hdr-customer').value)" class="ledger-btn-2027" title="دفتر الأستاذ العام">أستاذ</button>
                                             <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange()">
                                             <div class="custom-dropdown-list" id="customer-dropdown-list">
                                                 <!-- Populated via JS -->
@@ -1663,7 +1745,7 @@
                         </div>
                     </div>
 
-                    <div class="h-form-group" style="flex: 1.6; min-width: 220px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                    <div class="h-form-group" style="flex: 1.8; min-width: 200px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
                           <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">سعر الصرف</label>
                           <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 5px; flex: 1;">
                             <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="handleCurrencyChange(this.value)" style="flex: 1;">
@@ -1673,11 +1755,11 @@
                                 <option value="AED">🇦🇪 درهم</option>
                                 <option value="EGP">🇪🇬 مصري</option>
                             </select>
-                            <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" disabled oninput="recalcAll()" style="flex: 1.5; text-align: center;" placeholder="الصرف">
+                            <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" disabled oninput="recalcAll()" style="flex: 1.5; text-align: center;" placeholder="الصرف" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
                         </div>
                     </div>
 
-                    <div class="h-form-group" style="flex: 1; min-width: 120px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                    <div class="h-form-group" style="flex: 0.8; min-width: 100px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
                           <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">الدفع</label>
                           <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
                             <select class="v-input ctrl-input" id="hdr-payment-method" onchange="togglePaymentAccount()">
@@ -1692,19 +1774,19 @@
 
                 <!-- Row 1.5: Payment Details (Hidden by default, shown for Bank/Cheque) -->
                 <div id="payment-details-row" style="display: none; gap: 15px; flex-wrap: wrap; margin-top: -5px; padding: 10px; background: rgba(56, 189, 248, 0.05); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 8px;">
-                    <div class="h-form-group" style="flex: 1; min-width: 120px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                    <div class="h-form-group" style="flex: 0.8; min-width: 100px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
                           <label class="h-label" id="pay-detail-1-label" style="margin: 0; white-space: nowrap; font-size:0.9rem; color:#38bdf8;">رقم المرجع</label>
                           <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
                             <input type="text" class="v-input ctrl-input" id="pay-detail-1" placeholder="..." style="height: 32px !important; min-height: 32px !important; font-size: 0.95rem !important;">
                         </div>
                     </div>
-                    <div class="h-form-group" style="flex: 1; min-width: 120px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                    <div class="h-form-group" style="flex: 0.8; min-width: 100px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
                           <label class="h-label" id="pay-detail-2-label" style="margin: 0; white-space: nowrap; font-size:0.9rem; color:#38bdf8;">اسم البنك</label>
                           <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
                             <input type="text" class="v-input ctrl-input" id="pay-detail-2" placeholder="..." style="height: 32px !important; min-height: 32px !important; font-size: 0.95rem !important;">
                         </div>
                     </div>
-                    <div class="h-form-group" style="flex: 1; min-width: 120px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                    <div class="h-form-group" style="flex: 0.8; min-width: 100px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
                           <label class="h-label" id="pay-detail-3-label" style="margin: 0; white-space: nowrap; font-size:0.9rem; color:#38bdf8;">الفرع</label>
                           <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
                             <input type="text" class="v-input ctrl-input" id="pay-detail-3" placeholder="..." style="height: 32px !important; min-height: 32px !important; font-size: 0.95rem !important;">
@@ -1762,36 +1844,58 @@
         </div>
 
         <!-- Totals Card (Now second in DOM, rendering on the Left in RTL) -->
-        <div class="neo-card totals-card hidden-totals" id="totals-calc-card" style="margin-bottom: 0; flex-direction: column; justify-content: space-between; border-top: 2px solid var(--gold-primary);">
+                <div class="neo-card totals-card hidden-totals" id="totals-calc-card" style="margin-bottom: 0; flex-direction: column; justify-content: space-between; border-top: 2px solid var(--gold-primary); width: 330px; flex-shrink: 0;">
             <div class="neo-card-title" style="margin-bottom: 10px; text-align: center; color: var(--gold-primary); font-size: 0.95rem;">🧮 الإجماليات</div>
             
-            <!-- Hidden: keeps JS id reference working -->
             <span id="t-invoice-total" style="display:none;">0</span>
-            
-            <div class="tot-row" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <span class="tot-lbl">الترحيل</span>
-                <input type="text" inputmode="decimal" class="v-input tot-input tl-input" id="t-transport" value="0" onfocus="this.select()" oninput="recalcAll()" onblur="this.value=fmtNum(parseNum(this.value))" style="width:120px; text-align:left; background: rgba(249, 115, 22, 0.15); border: 1px solid rgba(249, 115, 22, 0.4); border-radius: 6px; padding: 2px 8px; height: 26px; color: #fff; font-size: 0.85rem; line-height: 1;">
-            </div>
-            <div class="tot-row" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <span class="tot-lbl">تكلفة العمالة</span>
-                <input type="text" inputmode="decimal" class="v-input tot-input tl-input" id="t-labor" value="0" onfocus="this.select()" oninput="recalcAll()" onblur="this.value=fmtNum(parseNum(this.value))" style="width:120px; text-align:left; background: rgba(249, 115, 22, 0.15); border: 1px solid rgba(249, 115, 22, 0.4); border-radius: 6px; padding: 2px 8px; height: 26px; color: #fff; font-size: 0.85rem; line-height: 1;">
-            </div>
-            <div class="tot-row" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <span class="tot-lbl">إضافات أخرى</span>
-                <span class="tot-val" id="t-additions" style="color:var(--gold-primary);">+ 0</span>
-            </div>
-            <div class="tot-row" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <span class="tot-lbl">الضريبة</span>
-                <span class="tot-val" id="t-tax" style="color:var(--danger-color);">+ 0</span>
-            </div>
-            <div class="tot-row" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <span class="tot-lbl">خصم مكتسب</span>
-                <span class="tot-val" id="t-discount" style="color:var(--success-color);">- 0</span>
-            </div>
+            <span id="t-invoice-total-fc" style="display:none;">0</span>
 
-            <div class="tot-grand" style="margin-top: auto; background: rgba(56, 189, 248, 0.1); padding: 10px 15px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3);">
-                <span class="lbl" style="font-weight: 800; color: #38bdf8;">الصافي النهائي</span>
-                <span class="val" id="t-grand" style="font-size: 1.4rem; color: #fff;">0</span>
+            <table style="width:100%; border-collapse: collapse; text-align: right; margin-bottom: 10px;">
+                <thead>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; font-size: 0.8rem;">
+                        <th style="padding-bottom:5px; text-align:right;">البيان</th>
+                        <th style="padding-bottom:5px; text-align:center;">محلي</th>
+                        <th style="padding-bottom:5px; text-align:center;">أجنبي</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 8px 0; color: #fff; font-size:0.85rem;">الترحيل</td>
+                        <td style="padding: 8px 2px;"><input type="text" inputmode="decimal" class="v-input tot-input tl-input amount" id="t-transport" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('transport')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width:100%; text-align:center; background: rgba(249, 115, 22, 0.15); border: 1px solid rgba(249, 115, 22, 0.4); border-radius: 4px; padding: 2px; height: 26px; color: #fff; font-size: 0.85rem;" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" ></td>
+                        <td style="padding: 8px 2px;"><input type="text" inputmode="decimal" class="v-input tot-input tl-input amount" id="t-transport-fc" value="0" onfocus="this.select()" oninput="if(typeof syncLocal==='function')syncLocal('transport')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width:100%; text-align:center; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 4px; padding: 2px; height: 26px; color: #fff; font-size: 0.85rem;" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" ></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 8px 0; color: #fff; font-size:0.85rem;">عمالة/طرح</td>
+                        <td style="padding: 8px 2px;"><input type="text" inputmode="decimal" class="v-input tot-input tl-input amount" id="t-labor" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('labor')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width:100%; text-align:center; background: rgba(249, 115, 22, 0.15); border: 1px solid rgba(249, 115, 22, 0.4); border-radius: 4px; padding: 2px; height: 26px; color: #fff; font-size: 0.85rem;" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" ></td>
+                        <td style="padding: 8px 2px;"><input type="text" inputmode="decimal" class="v-input tot-input tl-input amount" id="t-labor-fc" value="0" onfocus="this.select()" oninput="if(typeof syncLocal==='function')syncLocal('labor')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width:100%; text-align:center; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 4px; padding: 2px; height: 26px; color: #fff; font-size: 0.85rem;" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" ></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 8px 0; color: var(--gold-primary); font-size:0.85rem;">إضافات</td>
+                        <td style="padding: 8px 2px;"><input type="text" inputmode="decimal" class="v-input tot-input tl-input amount" id="t-additions-loc" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('additions')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width:100%; text-align:center; background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.4); border-radius: 4px; padding: 2px; height: 26px; color: #fff; font-size: 0.85rem;" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" ></td>
+                        <td style="padding: 8px 2px;"><input type="text" inputmode="decimal" class="v-input tot-input tl-input amount" id="t-additions-fc" value="0" onfocus="this.select()" oninput="if(typeof syncLocal==='function')syncLocal('additions')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width:100%; text-align:center; background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.4); border-radius: 4px; padding: 2px; height: 26px; color: #fff; font-size: 0.85rem;" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" ></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 8px 0; color: var(--danger-color); font-size:0.85rem;">الضريبة</td>
+                        <td style="padding: 8px 2px;"><input type="text" inputmode="decimal" class="v-input tot-input tl-input amount" id="t-tax-loc" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('tax')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width:100%; text-align:center; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 4px; padding: 2px; height: 26px; color: #fff; font-size: 0.85rem;" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" ></td>
+                        <td style="padding: 8px 2px;"><input type="text" inputmode="decimal" class="v-input tot-input tl-input amount" id="t-tax-fc" value="0" onfocus="this.select()" oninput="if(typeof syncLocal==='function')syncLocal('tax')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width:100%; text-align:center; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 4px; padding: 2px; height: 26px; color: #fff; font-size: 0.85rem;" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" ></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 8px 0; color: var(--success-color); font-size:0.85rem;">خصم</td>
+                        <td style="padding: 8px 2px;"><input type="text" inputmode="decimal" class="v-input tot-input tl-input amount" id="t-discount-loc" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('discount')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width:100%; text-align:center; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 4px; padding: 2px; height: 26px; color: #fff; font-size: 0.85rem;" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" ></td>
+                        <td style="padding: 8px 2px;"><input type="text" inputmode="decimal" class="v-input tot-input tl-input amount" id="t-discount-fc" value="0" onfocus="this.select()" oninput="if(typeof syncLocal==='function')syncLocal('discount')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width:100%; text-align:center; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 4px; padding: 2px; height: 26px; color: #fff; font-size: 0.85rem;" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" ></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="tot-grand" style="margin-top: auto; background: rgba(56, 189, 248, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); display: flex; flex-direction: column; gap: 5px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="lbl" style="font-weight: 800; color: #38bdf8; font-size:0.9rem;">صافي محلي</span>
+                    <span class="val amount" id="t-grand-local" style="font-size: 1.2rem; color: #fff;">0</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="lbl" style="font-weight: 800; color: #10b981; font-size:0.9rem;">صافي أجنبي</span>
+                    <span class="val amount" id="t-grand-fc" style="font-size: 1.2rem; color: #fff;">0</span>
+                </div>
             </div>
         </div>
 
@@ -1880,11 +1984,11 @@
         <!-- Hidden Adjustments & Notes -->
         <div id="adjustments-panel" style="display: none;">
             <input type="hidden" id="inv-notes" value="">
-            <input type="text" id="discount-amt" value="0">
+            <input type="text" id="discount-amt" value="0" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
             <input type="number" id="discount-pct" value="0">
-            <input type="text" id="tax-amt" value="0">
+            <input type="text" id="tax-amt" value="0" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
             <input type="number" id="tax-pct" value="0">
-            <input type="text" id="addition-amt" value="0">
+            <input type="text" id="addition-amt" value="0" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
             <input type="number" id="addition-pct" value="0">
         </div>
 

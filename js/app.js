@@ -2403,6 +2403,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return Number(String(str).replace(/,/g, '')) || 0;
     };
 
+    
     window.applySystemNumberFormatting = function() {
         const allPrefs = JSON.parse(localStorage.getItem('systemNumberPrefs') || '{}');
         const currentPage = getPageName();
@@ -2417,25 +2418,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 els.forEach(el => {
                     if (prefs.color) el.style.setProperty('color', prefs.color, 'important');
                     if (prefs.size) el.style.setProperty('font-size', prefs.size + 'px', 'important');
+                    if (prefs.font) el.style.setProperty('font-family', prefs.font, 'important');
                     
-                    // Format if it's an input and not active
+                    function formatCustomNum(val) {
+                        let dec = prefs.decimals !== undefined ? parseInt(prefs.decimals) : 2;
+                        let fixed = val.toFixed(dec);
+                        let parts = fixed.split('.');
+                        let intPart = parts[0];
+                        let decPart = parts.length > 1 ? parts[1] : '';
+                        
+                        let tSep = prefs.thousandsSep !== undefined ? prefs.thousandsSep : ',';
+                        if (tSep === 'none') tSep = '';
+                        
+                        let dSep = prefs.decimalSep !== undefined ? prefs.decimalSep : '.';
+                        
+                        if (tSep) {
+                            intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, tSep);
+                        }
+                        
+                        return dec > 0 ? intPart + dSep + decPart : intPart;
+                    }
+
                     if (el.tagName === 'INPUT' && document.activeElement !== el) {
+                        const isSearch = el.id && el.id.toLowerCase().includes('search');
+                        const isDesc = el.className.includes('desc') || el.className.includes('note') || el.className.includes('center');
+                        if (isSearch || isDesc) return;
+                        if (el.placeholder && el.placeholder.includes('ابحث')) return;
+                        
                         const val = window.cleanNumGlobal(el.value);
                         if (val !== 0 || el.value !== '') {
-                            let dec = prefs.decimals !== undefined ? parseInt(prefs.decimals) : 2;
-                            let opts = { minimumFractionDigits: dec, maximumFractionDigits: dec };
-                            if (prefs.thousands === false) opts.useGrouping = false;
-                            el.value = val.toLocaleString('en-US', opts);
+                            el.value = formatCustomNum(val);
                         }
                     } else if (el.tagName !== 'INPUT' && el.textContent.trim() !== '') {
-                        // Try to reformat text content safely
                         const txt = el.textContent;
-                        if (/^[0-9.,-]+$/.test(txt.trim())) {
+                        if (/^[0-9.,\s'-]+$/.test(txt.trim())) {
                             const val = window.cleanNumGlobal(txt);
-                            let dec = prefs.decimals !== undefined ? parseInt(prefs.decimals) : 2;
-                            let opts = { minimumFractionDigits: dec, maximumFractionDigits: dec };
-                            if (prefs.thousands === false) opts.useGrouping = false;
-                            el.textContent = val.toLocaleString('en-US', opts);
+                            el.textContent = formatCustomNum(val);
                         }
                     }
                 });
@@ -2764,3 +2782,46 @@ window.openGeneralLedgerForAccount = function(accountId) {
     window.open(`general-ledger.php?accountId=${accountId}`, '_blank');
 };
 
+
+
+// ==========================================
+// GLOBAL NUMERIC FIELD PROTECTION (IRONCLAD)
+// ==========================================
+document.addEventListener('keypress', function(e) {
+    if (e.target && e.target.tagName === 'INPUT') {
+        const t = e.target;
+        const isNumField = (
+            t.type === 'number' || 
+            t.inputMode === 'decimal' || 
+            t.inputMode === 'numeric' || 
+            (t.id && (t.id.toLowerCase().includes('amount') || t.id.toLowerCase().includes('price') || t.id.toLowerCase().includes('qty') || t.id.toLowerCase().includes('amt') || t.id.toLowerCase().includes('total') || t.id.toLowerCase().includes('balance')))
+        );
+
+        if (isNumField) {
+            const charCode = (e.which) ? e.which : e.keyCode;
+            // Allow numbers (48-57), dot (46), minus (45)
+            if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode !== 46 && charCode !== 45) {
+                e.preventDefault();
+            }
+        }
+    }
+});
+
+// Also prevent pasting letters
+document.addEventListener('paste', function(e) {
+    if (e.target && e.target.tagName === 'INPUT') {
+        const t = e.target;
+        const isNumField = (
+            t.type === 'number' || 
+            t.inputMode === 'decimal' || 
+            t.inputMode === 'numeric' || 
+            (t.id && (t.id.toLowerCase().includes('amount') || t.id.toLowerCase().includes('price') || t.id.toLowerCase().includes('qty') || t.id.toLowerCase().includes('amt') || t.id.toLowerCase().includes('total') || t.id.toLowerCase().includes('balance')))
+        );
+        if (isNumField) {
+            let paste = (e.clipboardData || window.clipboardData).getData('text');
+            if (/[^0-9.-]/.test(paste)) {
+                e.preventDefault();
+            }
+        }
+    }
+});
