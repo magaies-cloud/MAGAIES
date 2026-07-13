@@ -937,10 +937,32 @@ function getExpectedEntries(item, amt) {
             expectedEntries.push({ acc: item.customerId || item.customer || 'عملاء نقدي', debit: 0, credit: parsedAmt, stmt: 'سداد' });
         }
     } else if (item._metaKey === 'erp_purchase_invoices_v1') {
+        const suppAcc = item.supplierId || item.supplier || item.customer || 'موردين نقدي';
         expectedEntries.push({ acc: 'exp-purchases', debit: parsedAmt, credit: 0, stmt: 'مشتريات' });
-        expectedEntries.push({ acc: item.supplierId || item.supplier || item.customer, debit: 0, credit: parsedAmt, stmt: 'مستحقات' });
-        if (item.paymentMethod !== 'credit') {
-            expectedEntries.push({ acc: item.supplierId || item.supplier || item.customer, debit: parsedAmt, credit: 0, stmt: 'سداد' });
+        expectedEntries.push({ acc: suppAcc, debit: 0, credit: parsedAmt, stmt: 'مستحقات' });
+        
+        if (item.paymentMethod === 'hybrid' || item.paymentMethod === 'multipay') {
+            // Post cash portion if any
+            if (item.cashAmount > 0) {
+                expectedEntries.push({ acc: suppAcc, debit: parseFloat(item.cashAmount), credit: 0, stmt: 'سداد نقدي مع الفاتورة' });
+                expectedEntries.push({ acc: item.paymentAccountId || 'safe-001', debit: 0, credit: parseFloat(item.cashAmount), stmt: 'سداد نقدي مع الفاتورة' });
+            }
+            // Post bank transfers if any
+            if (item.bankTransfers && item.bankTransfers.length > 0) {
+                item.bankTransfers.forEach(bt => {
+                    expectedEntries.push({ acc: suppAcc, debit: parseFloat(bt.amount), credit: 0, stmt: 'سداد تحويل بنكي' });
+                    expectedEntries.push({ acc: bt.bankAccountId || 'safe-001', debit: 0, credit: parseFloat(bt.amount), stmt: 'سداد تحويل بنكي' });
+                });
+            }
+            // Post cheques if any
+            if (item.cheques && item.cheques.length > 0) {
+                item.cheques.forEach(ch => {
+                    expectedEntries.push({ acc: suppAcc, debit: parseFloat(ch.amount), credit: 0, stmt: `شيك صادرة رقم ${ch.chequeNo}` });
+                    expectedEntries.push({ acc: 'cheques-payable', debit: 0, credit: parseFloat(ch.amount), stmt: `شيك صادرة رقم ${ch.chequeNo}` });
+                });
+            }
+        } else if (item.paymentMethod !== 'credit') {
+            expectedEntries.push({ acc: suppAcc, debit: parsedAmt, credit: 0, stmt: 'سداد' });
             expectedEntries.push({ acc: item.paymentAccountId || 'safe-001', debit: 0, credit: parsedAmt, stmt: 'سداد' });
         }
     }

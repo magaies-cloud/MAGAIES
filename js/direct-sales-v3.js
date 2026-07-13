@@ -1985,15 +1985,79 @@ function initMultiPaymentSystem() {
             dueInput.value = nextMonth.toISOString().split('T')[0];
         }
         
+        // Reset toggle buttons active states (none active by default)
+        document.getElementById('toggle-cash').classList.remove('active');
+        document.getElementById('toggle-credit').classList.remove('active');
+        document.getElementById('toggle-bank').classList.remove('active');
+        document.getElementById('toggle-cheque').classList.remove('active');
+        
         // Reset inputs
         document.getElementById('pay-cash-amount').value = '0';
         document.getElementById('pay-credit-amount').value = '0';
         document.getElementById('bank-transfers-list').innerHTML = '';
         document.getElementById('cheques-list').innerHTML = '';
         
+        updatePaymentSectionsVisibility();
         recalcPaymentSummary();
     } catch(e) {
         console.error("Error in initMultiPaymentSystem:", e);
+    }
+}
+
+function togglePaymentSection(type) {
+    const btn = document.getElementById('toggle-' + type);
+    if (!btn) return;
+    
+    const isActive = btn.classList.contains('active');
+    
+    // Toggle active state class
+    if (isActive) {
+        btn.classList.remove('active');
+    } else {
+        btn.classList.add('active');
+    }
+    
+    // Update container visibilities
+    updatePaymentSectionsVisibility();
+    
+    // If deactivated, reset values
+    if (isActive) {
+        if (type === 'cash') {
+            document.getElementById('pay-cash-amount').value = '0';
+        } else if (type === 'credit') {
+            document.getElementById('pay-credit-amount').value = '0';
+        } else if (type === 'bank') {
+            document.getElementById('bank-transfers-list').innerHTML = '';
+        } else if (type === 'cheque') {
+            document.getElementById('cheques-list').innerHTML = '';
+        }
+    } else {
+        // If activated, autofill the remaining balance
+        autofillRemaining(type);
+    }
+    
+    recalcPaymentSummary();
+}
+
+function updatePaymentSectionsVisibility() {
+    const cashActive = document.getElementById('toggle-cash').classList.contains('active');
+    const creditActive = document.getElementById('toggle-credit').classList.contains('active');
+    const bankActive = document.getElementById('toggle-bank').classList.contains('active');
+    const chequeActive = document.getElementById('toggle-cheque').classList.contains('active');
+    
+    document.getElementById('pay-cash-section').style.display = cashActive ? 'flex' : 'none';
+    document.getElementById('pay-credit-section').style.display = creditActive ? 'flex' : 'none';
+    document.getElementById('pay-bank-section').style.display = bankActive ? 'flex' : 'none';
+    document.getElementById('pay-cheque-section').style.display = chequeActive ? 'flex' : 'none';
+
+    // Toggle show-totals with smooth animation
+    const totalsCard = document.querySelector('.payment-summary-card');
+    if (totalsCard) {
+        if (cashActive || creditActive || bankActive || chequeActive) {
+            totalsCard.classList.add('show-totals');
+        } else {
+            totalsCard.classList.remove('show-totals');
+        }
     }
 }
 
@@ -2068,19 +2132,28 @@ function recalcPaymentSummary() {
     const additionAmt = parseNum(document.getElementById('addition-amt')?.value || 0);
     const grand = invTotal + labor + transport + additionAmt + taxAmt - discountAmt;
     
+    const cashActive = document.getElementById('toggle-cash').classList.contains('active');
+    const creditActive = document.getElementById('toggle-credit').classList.contains('active');
+    const bankActive = document.getElementById('toggle-bank').classList.contains('active');
+    const chequeActive = document.getElementById('toggle-cheque').classList.contains('active');
+    
     // Calculate payment sums
-    const cash = parseNum(document.getElementById('pay-cash-amount')?.value || 0);
-    const credit = parseNum(document.getElementById('pay-credit-amount')?.value || 0);
+    const cash = cashActive ? parseNum(document.getElementById('pay-cash-amount')?.value || 0) : 0;
+    const credit = creditActive ? parseNum(document.getElementById('pay-credit-amount')?.value || 0) : 0;
     
     let transfersSum = 0;
-    document.querySelectorAll('.bt-amount-input').forEach(input => {
-        transfersSum += parseNum(input.value);
-    });
+    if (bankActive) {
+        document.querySelectorAll('.bt-amount-input').forEach(input => {
+            transfersSum += parseNum(input.value);
+        });
+    }
     
     let chequesSum = 0;
-    document.querySelectorAll('.ch-amount-input').forEach(input => {
-        chequesSum += parseNum(input.value);
-    });
+    if (chequeActive) {
+        document.querySelectorAll('.ch-amount-input').forEach(input => {
+            chequesSum += parseNum(input.value);
+        });
+    }
     
     const totalPaid = cash + credit + transfersSum + chequesSum;
     const remaining = grand - totalPaid;
@@ -2092,23 +2165,104 @@ function recalcPaymentSummary() {
     
     if (totInd) totInd.textContent = fmtNum(grand) + ' ' + cur;
     if (paidInd) paidInd.textContent = fmtNum(totalPaid) + ' ' + cur;
+    const remCard = document.getElementById('payment-remaining-card');
     if (remInd) {
         remInd.textContent = fmtNum(remaining) + ' ' + cur;
         if (Math.abs(remaining) < 0.01) {
             remInd.style.color = '#34d399'; // Green
-            remInd.style.textShadow = '0 0 12px rgba(52,211,153,0.4)';
+            remInd.style.textShadow = '0 0 12px rgba(52,211,153,0.5)';
+            if (remCard) {
+                remCard.style.background = 'rgba(16, 185, 129, 0.1)';
+                remCard.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+            }
         } else if (remaining > 0) {
             remInd.style.color = '#f87171'; // Red
             remInd.style.textShadow = '0 0 12px rgba(248,113,113,0.4)';
+            if (remCard) {
+                remCard.style.background = 'rgba(239, 68, 68, 0.08)';
+                remCard.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+            }
         } else {
             remInd.style.color = '#fbbf24'; // Amber
             remInd.style.textShadow = '0 0 12px rgba(251,191,36,0.4)';
+            if (remCard) {
+                remCard.style.background = 'rgba(245, 158, 11, 0.08)';
+                remCard.style.borderColor = 'rgba(245, 158, 11, 0.35)';
+            }
         }
     }
 }
 
 function onPaymentAmountInput() {
     recalcPaymentSummary();
+}
+
+function previewCurrentPromissoryNote() {
+    const custSearch = document.getElementById('hdr-customer-search').value;
+    const creditAmt = parseNum(document.getElementById('pay-credit-amount').value);
+    if (creditAmt <= 0) {
+        showToast('⚠️ الرجاء إدخال مبلغ آجل أولاً لمعاينة الكمبيالة', 'warning');
+        return;
+    }
+    
+    const cashActive = document.getElementById('toggle-cash').classList.contains('active');
+    const bankActive = document.getElementById('toggle-bank').classList.contains('active');
+    const chequeActive = document.getElementById('toggle-cheque').classList.contains('active');
+    
+    const cashAmt = cashActive ? parseNum(document.getElementById('pay-cash-amount').value) : 0;
+    
+    let bankTransfers = [];
+    if (bankActive) {
+        document.querySelectorAll('#bank-transfers-list .payment-row-item').forEach(row => {
+            const amount = parseNum(row.querySelector('.bt-amount-input').value);
+            if (amount > 0) {
+                bankTransfers.push({ amount });
+            }
+        });
+    }
+    
+    let cheques = [];
+    if (chequeActive) {
+        document.querySelectorAll('#cheques-list .payment-row-item').forEach(row => {
+            const amount = parseNum(row.querySelector('.ch-amount-input').value);
+            if (amount > 0) {
+                cheques.push({ amount });
+            }
+        });
+    }
+    
+    const tempInv = {
+        invoiceNo: document.getElementById('hdr-inv-no').value,
+        date: document.getElementById('hdr-date').value,
+        dueDate: document.getElementById('pay-credit-due-date').value,
+        customerName: custSearch || 'عميل آجل',
+        currency: getCurrency(),
+        creditAmount: creditAmt,
+        cashAmount: cashAmt,
+        bankTransfers: bankTransfers,
+        cheques: cheques,
+        grandTotal: parseNum(document.getElementById('t-grand').textContent)
+    };
+    
+    if (window.InvoicePrinter && typeof window.InvoicePrinter.printPromissoryNote === 'function') {
+        window.InvoicePrinter.printPromissoryNote(tempInv);
+    }
+}
+
+function printCurrentPromissoryNote(invNo) {
+    const str = localStorage.getItem('erp_inv_' + invNo) || localStorage.getItem('erp_draft_' + invNo);
+    if (!str) {
+        showToast('❌ لم يتم العثور على الفاتورة', 'error');
+        return;
+    }
+    try {
+        const data = JSON.parse(str);
+        if (window.InvoicePrinter && typeof window.InvoicePrinter.printPromissoryNote === 'function') {
+            window.InvoicePrinter.printPromissoryNote(data);
+        }
+    } catch(e) {
+        console.error("Error printing promissory note:", e);
+    }
 }
 
 function autofillRemaining(type) {
@@ -2121,20 +2275,29 @@ function autofillRemaining(type) {
     const additionAmt = parseNum(document.getElementById('addition-amt')?.value || 0);
     const grand = invTotal + labor + transport + additionAmt + taxAmt - discountAmt;
     
-    const cash = parseNum(document.getElementById('pay-cash-amount')?.value || 0);
-    const credit = parseNum(document.getElementById('pay-credit-amount')?.value || 0);
+    const cashActive = document.getElementById('toggle-cash').classList.contains('active');
+    const creditActive = document.getElementById('toggle-credit').classList.contains('active');
+    const bankActive = document.getElementById('toggle-bank').classList.contains('active');
+    const chequeActive = document.getElementById('toggle-cheque').classList.contains('active');
+    
+    const cash = (cashActive && type !== 'cash') ? parseNum(document.getElementById('pay-cash-amount')?.value || 0) : 0;
+    const credit = (creditActive && type !== 'credit') ? parseNum(document.getElementById('pay-credit-amount')?.value || 0) : 0;
     
     let transfersSum = 0;
-    document.querySelectorAll('.bt-amount-input').forEach(input => {
-        transfersSum += parseNum(input.value);
-    });
+    if (bankActive) {
+        document.querySelectorAll('.bt-amount-input').forEach(input => {
+            transfersSum += parseNum(input.value);
+        });
+    }
     
     let chequesSum = 0;
-    document.querySelectorAll('.ch-amount-input').forEach(input => {
-        chequesSum += parseNum(input.value);
-    });
+    if (chequeActive) {
+        document.querySelectorAll('.ch-amount-input').forEach(input => {
+            chequesSum += parseNum(input.value);
+        });
+    }
     
-    const currentTotalPaidExceptTarget = (type === 'cash' ? credit : cash) + transfersSum + chequesSum;
+    const currentTotalPaidExceptTarget = cash + credit + transfersSum + chequesSum;
     const remainingToFill = grand - currentTotalPaidExceptTarget;
     
     if (type === 'cash') {
@@ -2144,6 +2307,46 @@ function autofillRemaining(type) {
     }
     
     recalcPaymentSummary();
+}
+
+function getPaymentMethodFromUI() {
+    const cashActive = document.getElementById('toggle-cash').classList.contains('active');
+    const creditActive = document.getElementById('toggle-credit').classList.contains('active');
+    const bankActive = document.getElementById('toggle-bank').classList.contains('active');
+    const chequeActive = document.getElementById('toggle-cheque').classList.contains('active');
+    
+    if (!cashActive && !creditActive && !bankActive && !chequeActive) {
+        return 'cash';
+    }
+    
+    const cashAmt = cashActive ? parseNum(document.getElementById('pay-cash-amount').value) : 0;
+    const creditAmt = creditActive ? parseNum(document.getElementById('pay-credit-amount').value) : 0;
+    
+    let transfersCount = 0;
+    if (bankActive) {
+        document.querySelectorAll('#bank-transfers-list .bt-amount-input').forEach(input => {
+            if (parseNum(input.value) > 0) transfersCount++;
+        });
+    }
+    
+    let chequesCount = 0;
+    if (chequeActive) {
+        document.querySelectorAll('#cheques-list .ch-amount-input').forEach(input => {
+            if (parseNum(input.value) > 0) chequesCount++;
+        });
+    }
+    
+    if (creditAmt > 0 && cashAmt === 0 && transfersCount === 0 && chequesCount === 0) {
+        return 'credit';
+    } else if (transfersCount > 0 && cashAmt === 0 && creditAmt === 0 && chequesCount === 0 && transfersCount === 1) {
+        return 'bank';
+    } else if (chequesCount > 0 && cashAmt === 0 && creditAmt === 0 && transfersCount === 0 && chequesCount === 1) {
+        return 'cheque';
+    } else if (cashAmt > 0 && creditAmt === 0 && transfersCount === 0 && chequesCount === 0) {
+        return 'cash';
+    } else {
+        return 'hybrid';
+    }
 }
 
 function loadPaymentDataIntoUI(data) {
@@ -2157,20 +2360,34 @@ function loadPaymentDataIntoUI(data) {
         const cashAccSelect = document.getElementById('hdr-payment-account');
         const dueDateInput = document.getElementById('pay-credit-due-date');
         
+        // Deactivate all toggle buttons first
+        document.getElementById('toggle-cash').classList.remove('active');
+        document.getElementById('toggle-credit').classList.remove('active');
+        document.getElementById('toggle-bank').classList.remove('active');
+        document.getElementById('toggle-cheque').classList.remove('active');
+        
         if (data.paymentMethod === 'hybrid' || data.paymentMethod === 'multipay') {
-            if (cashInput) cashInput.value = (data.cashAmount || 0).toFixed(2);
-            if (creditInput) creditInput.value = (data.creditAmount || 0).toFixed(2);
-            if (cashAccSelect && data.paymentAccountId) cashAccSelect.value = data.paymentAccountId;
-            if (dueDateInput && data.dueDate) dueDateInput.value = data.dueDate;
+            if (data.cashAmount > 0) {
+                document.getElementById('toggle-cash').classList.add('active');
+                if (cashInput) cashInput.value = (data.cashAmount || 0).toFixed(2);
+                if (cashAccSelect && data.paymentAccountId) cashAccSelect.value = data.paymentAccountId;
+            }
+            if (data.creditAmount > 0) {
+                document.getElementById('toggle-credit').classList.add('active');
+                if (creditInput) creditInput.value = (data.creditAmount || 0).toFixed(2);
+                if (dueDateInput && data.dueDate) dueDateInput.value = data.dueDate;
+            }
             
             // Load Bank transfers
             if (data.bankTransfers && data.bankTransfers.length > 0) {
+                document.getElementById('toggle-bank').classList.add('active');
                 data.bankTransfers.forEach(bt => {
                     addBankTransferRow(bt);
                 });
             }
             // Load Cheques
             if (data.cheques && data.cheques.length > 0) {
+                document.getElementById('toggle-cheque').classList.add('active');
                 data.cheques.forEach(ch => {
                     addChequeRow(ch);
                 });
@@ -2178,18 +2395,22 @@ function loadPaymentDataIntoUI(data) {
         } else {
             // Legacy / Standard invoice conversions
             if (data.paymentMethod === 'credit') {
+                document.getElementById('toggle-credit').classList.add('active');
                 if (creditInput) creditInput.value = (data.grandTotal || 0).toFixed(2);
                 if (dueDateInput && data.dueDate) dueDateInput.value = data.dueDate;
             } else if (data.paymentMethod === 'cash') {
+                document.getElementById('toggle-cash').classList.add('active');
                 if (cashInput) cashInput.value = (data.grandTotal || 0).toFixed(2);
                 if (cashAccSelect && data.paymentAccountId) cashAccSelect.value = data.paymentAccountId;
             } else if (data.paymentMethod === 'bank') {
+                document.getElementById('toggle-bank').classList.add('active');
                 addBankTransferRow({
                     bankAccountId: data.paymentAccountId,
                     reference: data.reference || data.payDetail1 || '',
                     amount: data.grandTotal || 0
                 });
             } else if (data.paymentMethod === 'cheque') {
+                document.getElementById('toggle-cheque').classList.add('active');
                 addChequeRow({
                     chequeNo: data.chequeNo || data.payDetail1 || '',
                     bankName: data.bankName || data.payDetail2 || '',
@@ -2198,6 +2419,8 @@ function loadPaymentDataIntoUI(data) {
                 });
             }
         }
+        
+        updatePaymentSectionsVisibility();
         recalcPaymentSummary();
     } catch(e) {
         console.error("Error in loadPaymentDataIntoUI:", e);
@@ -2209,6 +2432,40 @@ function loadPaymentDataIntoUI(data) {
 // ════════════════════════════════════════
 function saveDraft() {
     if (rows.length === 0) { showToast('⚠️ لا توجد أصناف لحفظها', 'warning'); return; }
+    const paymentMethod = getPaymentMethodFromUI();
+    const cashActive = document.getElementById('toggle-cash').classList.contains('active');
+    const creditActive = document.getElementById('toggle-credit').classList.contains('active');
+    const bankActive = document.getElementById('toggle-bank').classList.contains('active');
+    const chequeActive = document.getElementById('toggle-cheque').classList.contains('active');
+    
+    const cashAmt = cashActive ? parseNum(document.getElementById('pay-cash-amount').value) : 0;
+    const creditAmt = creditActive ? parseNum(document.getElementById('pay-credit-amount').value) : 0;
+    
+    let bankTransfers = [];
+    if (bankActive) {
+        document.querySelectorAll('#bank-transfers-list .payment-row-item').forEach(row => {
+            const bankAccountId = row.querySelector('.bt-bank-select').value;
+            const reference = row.querySelector('.bt-ref-input').value;
+            const amount = parseNum(row.querySelector('.bt-amount-input').value);
+            if (amount > 0) {
+                bankTransfers.push({ bankAccountId, reference, amount });
+            }
+        });
+    }
+    
+    let cheques = [];
+    if (chequeActive) {
+        document.querySelectorAll('#cheques-list .payment-row-item').forEach(row => {
+            const chequeNo = row.querySelector('.ch-no-input').value;
+            const bankName = row.querySelector('.ch-bank-input').value;
+            const dueDate = row.querySelector('.ch-date-input').value;
+            const amount = parseNum(row.querySelector('.ch-amount-input').value);
+            if (amount > 0) {
+                cheques.push({ chequeNo, bankName, dueDate, amount });
+            }
+        });
+    }
+
     const data = {
         invoiceNo: document.getElementById('hdr-inv-no').value,
         date: document.getElementById('hdr-date').value,
@@ -2216,7 +2473,12 @@ function saveDraft() {
         saleType: currentSaleType,
         currency: getCurrency(),
         exchangeRate: document.getElementById('hdr-exchange-rate').value,
-        paymentMethod: document.getElementById('hdr-payment-method').value,
+        paymentMethod: paymentMethod,
+        paymentAccountId: document.getElementById('hdr-payment-account').value,
+        cashAmount: cashAmt,
+        creditAmount: creditAmt,
+        bankTransfers: bankTransfers,
+        cheques: cheques,
         warehouse: document.getElementById('hdr-warehouse').value,
         description: document.getElementById('hdr-description').value,
         items: rows,
@@ -2252,52 +2514,61 @@ function submitInvoice(ignoreWarnings = false) {
     const grandAmount = parseNum(grandTotal);
 
     // --- 1. Multi-Payment Read & Validation ---
-    const cashAmt = parseNum(document.getElementById('pay-cash-amount').value);
-    const creditAmt = parseNum(document.getElementById('pay-credit-amount').value);
-    
+    const cashActive = document.getElementById('toggle-cash').classList.contains('active');
+    const creditActive = document.getElementById('toggle-credit').classList.contains('active');
+    const bankActive = document.getElementById('toggle-bank').classList.contains('active');
+    const chequeActive = document.getElementById('toggle-cheque').classList.contains('active');
+
+    let cashAmt = 0;
+    let creditAmt = 0;
     let bankTransfers = [];
     let transfersSum = 0;
-    document.querySelectorAll('#bank-transfers-list .payment-row-item').forEach(row => {
-        const bankAccountId = row.querySelector('.bt-bank-select').value;
-        const reference = row.querySelector('.bt-ref-input').value;
-        const amount = parseNum(row.querySelector('.bt-amount-input').value);
-        if (amount > 0) {
-            bankTransfers.push({ bankAccountId, reference, amount });
-            transfersSum += amount;
-        }
-    });
-    
     let cheques = [];
     let chequesSum = 0;
-    document.querySelectorAll('#cheques-list .payment-row-item').forEach(row => {
-        const chequeNo = row.querySelector('.ch-no-input').value;
-        const bankName = row.querySelector('.ch-bank-input').value;
-        const dueDate = row.querySelector('.ch-date-input').value;
-        const amount = parseNum(row.querySelector('.ch-amount-input').value);
-        if (amount > 0) {
-            cheques.push({ chequeNo, bankName, dueDate, amount });
-            chequesSum += amount;
-        }
-    });
-
-    const totalPaid = cashAmt + creditAmt + transfersSum + chequesSum;
-    const remaining = grandAmount - totalPaid;
-
-    if (Math.abs(remaining) > 0.05) {
-        showToast(`❌ مجموع المبالغ المدفوعة لا يتطابق مع إجمالي الفاتورة. المتبقي: ${fmtNum(remaining)} ${cur}`, 'error', 5000);
-        return;
-    }
-
-    // Determine legacy paymentMethod string for backwards compatibility
     let paymentMethod = 'cash';
-    if (creditAmt > 0 && cashAmt === 0 && transfersSum === 0 && chequesSum === 0) {
-        paymentMethod = 'credit';
-    } else if (transfersSum > 0 && cashAmt === 0 && creditAmt === 0 && chequesSum === 0 && bankTransfers.length === 1) {
-        paymentMethod = 'bank';
-    } else if (chequesSum > 0 && cashAmt === 0 && creditAmt === 0 && transfersSum === 0 && cheques.length === 1) {
-        paymentMethod = 'cheque';
+
+    if (!cashActive && !creditActive && !bankActive && !chequeActive) {
+        // DEFAULT RULE: If no payment method is toggled, default to Cash for full amount
+        cashAmt = grandAmount;
+        paymentMethod = 'cash';
     } else {
-        paymentMethod = 'hybrid';
+        cashAmt = cashActive ? parseNum(document.getElementById('pay-cash-amount').value) : 0;
+        creditAmt = creditActive ? parseNum(document.getElementById('pay-credit-amount').value) : 0;
+        
+        if (bankActive) {
+            document.querySelectorAll('#bank-transfers-list .payment-row-item').forEach(row => {
+                const bankAccountId = row.querySelector('.bt-bank-select').value;
+                const reference = row.querySelector('.bt-ref-input').value;
+                const amount = parseNum(row.querySelector('.bt-amount-input').value);
+                if (amount > 0) {
+                    bankTransfers.push({ bankAccountId, reference, amount });
+                    transfersSum += amount;
+                }
+            });
+        }
+        
+        if (chequeActive) {
+            document.querySelectorAll('#cheques-list .payment-row-item').forEach(row => {
+                const chequeNo = row.querySelector('.ch-no-input').value;
+                const bankName = row.querySelector('.ch-bank-input').value;
+                const dueDate = row.querySelector('.ch-date-input').value;
+                const amount = parseNum(row.querySelector('.ch-amount-input').value);
+                if (amount > 0) {
+                    cheques.push({ chequeNo, bankName, dueDate, amount });
+                    chequesSum += amount;
+                }
+            });
+        }
+
+        const totalPaid = cashAmt + creditAmt + transfersSum + chequesSum;
+        const remaining = grandAmount - totalPaid;
+
+        if (Math.abs(remaining) > 0.05) {
+            showToast(`❌ مجموع المبالغ المدفوعة لا يتطابق مع إجمالي الفاتورة. المتبقي: ${fmtNum(remaining)} ${cur}`, 'error', 5000);
+            return;
+        }
+
+        paymentMethod = getPaymentMethodFromUI();
     }
 
     const cust = CUSTOMERS.find(c => String(c.id) === String(custId));
@@ -2766,6 +3037,20 @@ function showSuccessModal(invoiceNo, grandTotal, currency, warnings = []) {
             ${warningsHtml}
             <div class="success-actions" style="margin-top: 20px; display:flex; flex-direction:column; gap:10px;">
                 <button class="btn btn-success success-btn" style="background:linear-gradient(135deg,#38bdf8,#0284c7);" onclick="printCurrentInvoice()">🖨️ طباعة الفاتورة</button>
+                
+                ${(() => {
+                    const str = localStorage.getItem('erp_inv_' + invoiceNo) || localStorage.getItem('erp_draft_' + invoiceNo);
+                    if (str) {
+                        try {
+                            const data = JSON.parse(str);
+                            if (parseFloat(data.creditAmount) > 0) {
+                                return `<button class="btn btn-success success-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);" onclick="printCurrentPromissoryNote('${invoiceNo}')">📜 طباعة الكمبيالة / إقرار دين المدين</button>`;
+                            }
+                        } catch(e) {}
+                    }
+                    return '';
+                })()}
+                
                 <div style="display:flex; gap:10px;">
                     <button class="btn btn-ghost success-btn" style="flex:1;" onclick="onSuccessNewInvoice()">عملية جديدة</button>
                     <button class="btn btn-success success-btn" style="flex:1;" onclick="onSuccessDone()">قائمة المبيعات</button>

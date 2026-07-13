@@ -331,6 +331,115 @@ window.InvoicePrinter = (function () {
         document.body.appendChild(overlay);
     }
 
+    function buildPromissoryNoteHTML(data) {
+        const cfg = getSettings();
+        const companyName = cfg.companyName || 'MAGAIES ERP';
+        const dateStr = data.date || new Date().toISOString().split('T')[0];
+        const creditAmt = parseFloat(data.creditAmount || 0);
+        const curStr = data.currency || 'SDG';
+        
+        let otherPaymentsText = '';
+        const grand = parseFloat(data.grandTotal || 0);
+        const otherPaid = grand - creditAmt;
+        if (otherPaid > 0) {
+            const methods = [];
+            if (data.cashAmount > 0) methods.push(`نقداً: ${data.cashAmount} ${curStr}`);
+            if (data.bankTransfers && data.bankTransfers.length > 0) {
+                const bSum = data.bankTransfers.reduce((s, b) => s + (parseFloat(b.amount) || 0), 0);
+                methods.push(`تحويل بنكي: ${bSum} ${curStr}`);
+            }
+            if (data.cheques && data.cheques.length > 0) {
+                const cSum = data.cheques.reduce((s, c) => s + (parseFloat(c.amount) || 0), 0);
+                methods.push(`شيكات: ${cSum} ${curStr}`);
+            }
+            otherPaymentsText = `<p style="margin-top:10px; font-size:0.95rem; color:#475569;">علماً بأن إجمالي قيمة الفاتورة هو <strong>${grand} ${curStr}</strong>، وتم سداد الباقي وقدره <strong>${otherPaid} ${curStr}</strong> بموجب (${methods.join(' و ')}).</p>`;
+        }
+        
+        const isFull = (Math.abs(creditAmt - grand) < 0.05);
+        const amtTypeLabel = isFull ? 'كامل قيمة' : 'الجزء المتبقي من قيمة';
+        
+        return `
+            <div class="promissory-note-container" style="direction: rtl; text-align: right; font-family: 'Cairo', sans-serif; padding: 40px; background: #fff; color: #1e293b; max-width: 800px; margin: 0 auto; border: 2px double #cbd5e1; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                <div style="text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 15px; margin-bottom: 25px;">
+                    <h2 style="margin: 0; font-size: 1.8rem; font-weight: 900; color: #0f172a;">📜 سند لأمر / كمبيالة إقرار دين</h2>
+                    <p style="margin: 5px 0 0 0; color: #64748b; font-size: 0.95rem;">محرر وفقاً للأنظمة واللوائح المعمول بها</p>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; margin-bottom: 30px; font-size: 0.95rem; background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                    <div>المبلغ: <strong>${creditAmt} ${curStr}</strong></div>
+                    <div>التاريخ: <strong>${dateStr}</strong></div>
+                    <div>المكان: <strong>الفرع الرئيسي</strong></div>
+                </div>
+                
+                <div style="font-size: 1.1rem; line-height: 1.8; color: #334155; margin-bottom: 40px; text-align: justify;">
+                    أنا الموقع أدناه المدين/ <strong>${data.customerName || data.customer || '..............................................................'}</strong>
+                    <br>
+                    أقر وأعترف بكامل أهليتي المعتبرة شرعاً وقانوناً بأنني مدين لـ: <strong>${companyName}</strong>
+                    <br>
+                    بمبلغ وقدره: <strong>${creditAmt} ${curStr}</strong> (فقط وقدره ..........................................................................................................)
+                    <br>
+                    وهو يمثل <strong>${amtTypeLabel}</strong> الفاتورة رقم <strong>#${data.invoiceNo || '—'}</strong> الصادرة بتاريخ <strong>${dateStr}</strong>.
+                    ${otherPaymentsText}
+                    <br>
+                    وأتعهد وألتزم التزاماً غير معلق على شرط بسداد هذا المبلغ بالكامل لصالح الدائن في تاريخ الاستحقاق الموافق: <strong>${data.dueDate || '................................'}</strong>.
+                </div>
+                
+                <div style="display: flex; gap: 30px; justify-content: space-between; margin-top: 50px; font-size: 0.95rem;">
+                    <div style="flex: 1; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; background: #fafafa;">
+                        <h4 style="margin: 0 0 10px 0; border-bottom: 1px solid #cbd5e1; padding-bottom: 5px; color:#0f172a;">✍️ بيانات وتوقيع المدين (المقر بالدين)</h4>
+                        <div style="margin-bottom: 8px;">الاسم الكامل: ..............................................................</div>
+                        <div style="margin-bottom: 8px;">رقم الهوية/الجواز: ..............................................................</div>
+                        <div style="margin-bottom: 8px;">رقم الهاتف: ..............................................................</div>
+                        <div style="margin-bottom: 8px;">التوقيع: ..............................................................</div>
+                        <div>التاريخ: ..............................................................</div>
+                    </div>
+                    
+                    <div style="flex: 1; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; background: #fafafa; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                        <h4 style="margin: 0 0 15px 0; color:#0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 5px; width: 100%;">🏢 الختم الرسمي للشركة</h4>
+                        <div style="width: 120px; height: 120px; border: 2px dashed #94a3b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 0.8rem;">ختم المؤسسة</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 40px; font-size: 0.8rem; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+                    تم إنشاء هذا السند تلقائياً عبر نظام المبيعات. يحق للمؤسسة اتخاذ الإجراءات القانونية اللازمة في حال عدم السداد في الموعد المحدد.
+                </div>
+            </div>
+        `;
+    }
+
+    function showPromissoryNotePreview(data) {
+        const existing = document.getElementById('print-invoice-frame');
+        if (existing) existing.remove();
+
+        const html = buildPromissoryNoteHTML(data);
+
+        const overlay = document.createElement('div');
+        overlay.id = 'print-invoice-frame';
+        overlay.className = 'print-preview-overlay show';
+        overlay.innerHTML = `
+            <div class="print-preview-wrapper">
+                <div class="print-toolbar">
+                    <div class="print-toolbar-title">
+                        📜 معاينة الكمبيالة / سند لأمر — فاتورة #${data.invoiceNo || '—'}
+                    </div>
+                    <div class="print-toolbar-actions">
+                        <button class="btn-print-now" onclick="window.InvoicePrinter.doPrint()">
+                            🖨️ طباعة الآن
+                        </button>
+                        <button class="btn-close-preview" onclick="window.InvoicePrinter.closePreview()">
+                            ✕ إغلاق
+                        </button>
+                    </div>
+                </div>
+                <div style="padding: 24px; background: #f0f4f8;">
+                    ${html}
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+    }
+
     function closePreview() {
         const el = document.getElementById('print-invoice-frame');
         if (el) el.remove();
@@ -342,25 +451,8 @@ window.InvoicePrinter = (function () {
 
     // ── Public API ───────────────────────────────────────────
     return {
-        /**
-         * Show print preview for a given invoice data object.
-         * @param {Object} data - Invoice data
-         * @param {string} data.invoiceNo
-         * @param {string} data.date
-         * @param {string} data.customerName
-         * @param {string} data.currency
-         * @param {string} data.paymentMethod
-         * @param {string} data.warehouseName
-         * @param {number} data.grandTotal
-         * @param {number} data.subtotal
-         * @param {number} data.discountAmt
-         * @param {number} data.taxAmt
-         * @param {string} data.notes
-         * @param {string} data.type  - 'sales' | 'purchase'
-         * @param {string} data.typeLabel - e.g. 'فاتورة مبيعات مباشرة'
-         * @param {Array}  data.items - [{itemName, unit, quantity, price, total, baseQty}]
-         */
         print: showPreview,
+        printPromissoryNote: showPromissoryNotePreview,
         closePreview: closePreview,
         doPrint: doPrint,
         buildHTML: buildInvoiceHTML

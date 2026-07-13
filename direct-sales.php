@@ -2479,91 +2479,133 @@
             </div><!-- end items-panel -->
 
             <!-- ══ FULL-WIDTH: تفاصيل الدفع ══ -->
-            <div class="panel" id="payment-panel" style="z-index: 40; margin-top: 15px;">
-                <div class="panel-header-row">
-                    <div class="panel-title">💳 طريقة وتفاصيل الدفع</div>
+            <div class="panel" id="payment-panel" style="z-index: 40; margin-top: 15px; background: rgba(30, 41, 59, 0.45) !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important; backdrop-filter: blur(10px);">
+                <style>
+                    .pay-toggle-btn.active {
+                        background: linear-gradient(135deg, #ff7300, #ff9100) !important;
+                        border-color: #ff7300 !important;
+                        color: #fff !important;
+                        box-shadow: 0 0 12px rgba(255, 115, 0, 0.4) !important;
+                    }
+                    .payment-summary-card {
+                        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                        transform-origin: top;
+                        max-height: 0;
+                        opacity: 0;
+                        overflow: hidden;
+                        padding: 0 20px !important;
+                        border-color: transparent !important;
+                        transform: scaleY(0);
+                        flex: 0;
+                        min-width: 0 !important;
+                        margin: 0;
+                    }
+                    .payment-summary-card.show-totals {
+                        max-height: 350px;
+                        opacity: 1;
+                        padding: 20px !important;
+                        border-color: rgba(255,255,255,0.08) !important;
+                        transform: scaleY(1);
+                        flex: 1;
+                        min-width: 280px !important;
+                    }
+                </style>
+                <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 15px 20px; background: rgba(15,23,42,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
+                    <div class="panel-title" style="background: linear-gradient(135deg, #ff4d4d, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.15rem; font-weight: 900; display: inline-flex; align-items: center; gap: 6px; margin: 0;">
+                        <span>💳</span> طريقة وتفاصيل الدفع
+                    </div>
+                    <div class="payment-toggles" style="display: flex; gap: 8px;">
+                        <button type="button" class="pay-toggle-btn" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💵 نقدي</button>
+                        <button type="button" class="pay-toggle-btn" id="toggle-credit" onclick="togglePaymentSection('credit')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💳 آجل</button>
+                        <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦 تحويل بنكي</button>
+                        <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">✍️ شيك</button>
+                    </div>
                 </div>
                 
                 <div class="payment-layout" style="display: flex; gap: 20px; padding: 15px; flex-wrap: wrap;">
                     <!-- Left Section: Invoice Totals Summary -->
-                    <div class="payment-summary-card" style="flex: 1; min-width: 280px; background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: center; gap: 15px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="color: #94a3b8; font-size: 1rem; font-weight: bold;">إجمالي الفاتورة:</span>
+                    <div class="payment-summary-card" style="flex: 1; min-width: 280px; background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: center; gap: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 5px;">
+                            <span style="color: #94a3b8; font-size: 0.9rem; font-weight: bold;">💵 إجمالي المدفوع:</span>
+                            <span id="payment-paid-indicator" style="font-size: 1.15rem; font-weight: 900; color: #34d399; text-shadow: 0 0 8px rgba(52,211,153,0.15);">0.00 SDG</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">
+                            <span style="color: #94a3b8; font-size: 1rem; font-weight: bold;">📊 إجمالي الفاتورة:</span>
                             <span id="payment-total-indicator" style="font-size: 1.5rem; font-weight: 900; color: #fff;">0.00 SDG</span>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px;">
-                            <span style="color: #94a3b8; font-size: 1rem; font-weight: bold;">إجمالي المدفوع:</span>
-                            <span id="payment-paid-indicator" style="font-size: 1.5rem; font-weight: 900; color: #34d399;">0.00 SDG</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px;">
-                            <span style="color: #94a3b8; font-size: 1rem; font-weight: bold;">المبلغ المتبقي:</span>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">
+                            <span style="color: #94a3b8; font-size: 1.05rem; font-weight: bold;">⚖️ المبلغ المتبقي:</span>
                             <span id="payment-remaining-indicator" style="font-size: 1.7rem; font-weight: 900; color: #f87171; text-shadow: 0 0 10px rgba(248,113,113,0.3);">0.00 SDG</span>
                         </div>
                         <!-- Quick Actions to autofill -->
                         <div style="display: flex; gap: 10px; margin-top: 10px;">
-                            <button type="button" class="btn-action" onclick="autofillRemaining('cash')" style="flex: 1; font-size: 0.8rem; background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); padding: 6px; border-radius: 6px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.background='rgba(52, 211, 153, 0.25)';" onmouseout="this.style.background='rgba(52, 211, 153, 0.15)';">سداد المتبقي كاش</button>
-                            <button type="button" class="btn-action" onclick="autofillRemaining('credit')" style="flex: 1; font-size: 0.8rem; background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3); padding: 6px; border-radius: 6px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.background='rgba(99, 102, 241, 0.25)';" onmouseout="this.style.background='rgba(99, 102, 241, 0.15)';">سداد المتبقي آجل</button>
+                            <button type="button" class="btn-action" onclick="autofillRemaining('cash')" style="flex: 1; font-size: 0.8rem; background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.4); padding: 8px; border-radius: 8px; cursor: pointer;">تعبئة النقدي</button>
+                            <button type="button" class="btn-action" onclick="autofillRemaining('credit')" style="flex: 1; font-size: 0.8rem; background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); padding: 8px; border-radius: 8px; cursor: pointer;">تعبئة الآجل</button>
                         </div>
                     </div>
 
-                    <!-- Right Section: Inputs and payment methods -->
-                    <div class="payment-methods-entry" style="flex: 2; min-width: 320px; display: flex; flex-direction: column; gap: 15px;">
-                        <!-- Cash and Credit row -->
-                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                            <!-- Cash payment group -->
-                            <div class="payment-method-box" style="flex: 1; min-width: 240px; background: rgba(30,41,59,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-size: 1.2rem;">💵</span>
-                                    <span style="font-weight: 800; color: #ff7300; font-size: 0.95rem;">الدفع النقدي (كاش)</span>
-                                </div>
-                                <div style="display: flex; gap: 10px; align-items: center;">
-                                    <input type="number" class="v-input ctrl-input" id="pay-cash-amount" value="0" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: 0.8; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; text-align: center;">
-                                    <select class="v-input ctrl-input" id="hdr-payment-account" style="flex: 1.2; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px;">
-                                        <!-- Populated dynamically (safes only) -->
-                                    </select>
-                                </div>
+                    <!-- Right Section: Payment Details Forms -->
+                    <div class="payment-details-card" style="flex: 2; min-width: 320px; display: flex; flex-direction: column; gap: 10px;">
+                        
+                        <!-- Cash payment box (Visible by default) -->
+                        <div id="pay-cash-section" class="payment-method-box" style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 1.2rem;">💵</span>
+                                <span style="font-weight: 800; color: #34d399; font-size: 0.95rem;">الدفع النقدي (كاش)</span>
                             </div>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="number" class="v-input ctrl-input" id="pay-cash-amount" value="0" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: 0.8; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; text-align: center;">
+                                <select class="v-input ctrl-input" id="hdr-payment-account" style="flex: 1.2; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px;">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                        </div>
 
-                            <!-- Credit payment group -->
-                            <div class="payment-method-box" style="flex: 1; min-width: 240px; background: rgba(30,41,59,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px;">
+                        <!-- Credit payment box (Toggled off by default) -->
+                        <div id="pay-credit-section" class="payment-method-box" style="background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.18); border-radius: 12px; padding: 15px; display: none; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <span style="font-size: 1.2rem;">💳</span>
-                                    <span style="font-weight: 800; color: #ff7300; font-size: 0.95rem;">البيع الآجل (على الحساب)</span>
+                                    <span style="font-weight: 800; color: #fbbf24; font-size: 0.95rem;">البيع الآجل (على الحساب)</span>
                                 </div>
-                                <div style="display: flex; gap: 10px; align-items: center;">
-                                    <input type="number" class="v-input ctrl-input" id="pay-credit-amount" value="0" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: 1; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; text-align: center;">
-                                    <div id="pay-credit-due-group" style="flex: 1.2; display: flex; align-items: center; gap: 5px;">
-                                        <label style="font-size: 0.72rem; color: #94a3b8; white-space: nowrap;">تاريخ الاستحقاق</label>
-                                        <input type="date" class="v-input ctrl-input" id="pay-credit-due-date" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 4px;">
-                                    </div>
+                                <span style="font-size: 0.72rem; color: #94a3b8;">ℹ️ سند إقرار دين تلقائي</span>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; width: 100%;">
+                                <input type="number" class="v-input ctrl-input" id="pay-credit-amount" value="0" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ الآجل..." style="flex: 1; min-width: 110px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; text-align: center;">
+                                
+                                <div id="pay-credit-due-group" style="flex: 1.2; min-width: 160px; display: flex; align-items: center; gap: 5px;">
+                                    <label style="font-size: 0.72rem; color: #94a3b8; white-space: nowrap;">تاريخ الاستحقاق</label>
+                                    <input type="date" class="v-input ctrl-input" id="pay-credit-due-date" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 4px; width: 100%;">
                                 </div>
+                                
+                                <button type="button" class="btn-action" onclick="previewCurrentPromissoryNote()" style="flex: 0.8; min-width: 110px; height: 38px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #f59e0b; padding: 0 10px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight: bold; transition: 0.2s;" onmouseover="this.style.background='rgba(245, 158, 11, 0.25)';" onmouseout="this.style.background='rgba(245, 158, 11, 0.15)';">📄 معاينة الكمبيالة</button>
                             </div>
                         </div>
 
-                        <!-- Bank Transfers group -->
-                        <div class="payment-method-box" style="background: rgba(30,41,59,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <!-- Bank Transfers box (Toggled off by default) -->
+                        <div id="pay-bank-section" class="payment-method-box" style="background: rgba(59, 130, 246, 0.04); border: 1px solid rgba(59, 130, 246, 0.18); border-radius: 12px; padding: 15px; display: none; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <span style="font-size: 1.2rem;">🏦</span>
-                                    <span style="font-weight: 800; color: #ff7300; font-size: 0.95rem;">التحويلات البنكية</span>
+                                    <span style="font-weight: 800; color: #60a5fa; font-size: 0.95rem;">التحويلات البنكية</span>
                                 </div>
-                                <button type="button" class="btn-action" onclick="addBankTransferRow()" style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; font-weight: bold; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: 0.3s;" onmouseover="this.style.background='rgba(59, 130, 246, 0.25)';" onmouseout="this.style.background='rgba(59, 130, 246, 0.15)';">➕ إضافة تحويل</button>
+                                <button type="button" class="btn-action" onclick="addBankTransferRow()" style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; font-weight: bold; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; display: flex; align-items: center; gap: 4px;" onmouseover="this.style.background='rgba(59, 130, 246, 0.25)';" onmouseout="this.style.background='rgba(59, 130, 246, 0.15)';">➕ إضافة تحويل</button>
                             </div>
-                            <!-- Dynamic bank rows -->
-                            <div id="bank-transfers-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                            <!-- Dynamic bank transfers rows -->
+                            <div id="bank-transfers-list" style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;"></div>
                         </div>
 
-                        <!-- Cheques group -->
-                        <div class="payment-method-box" style="background: rgba(30,41,59,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <!-- Cheques box (Toggled off by default) -->
+                        <div id="pay-cheque-section" class="payment-method-box" style="background: rgba(139, 92, 246, 0.04); border: 1px solid rgba(139, 92, 246, 0.18); border-radius: 12px; padding: 15px; display: none; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <span style="font-size: 1.2rem;">✍️</span>
-                                    <span style="font-weight: 800; color: #ff7300; font-size: 0.95rem;">الشيكات الآجلة / الفورية</span>
+                                    <span style="font-weight: 800; color: #c084fc; font-size: 0.95rem;">الشيكات الآجلة / الفورية</span>
                                 </div>
-                                <button type="button" class="btn-action" onclick="addChequeRow()" style="background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.4); color: #c084fc; font-weight: bold; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: 0.3s;" onmouseover="this.style.background='rgba(139, 92, 246, 0.25)';" onmouseout="this.style.background='rgba(139, 92, 246, 0.15)';">➕ إضافة شيك</button>
+                                <button type="button" class="btn-action" onclick="addChequeRow()" style="background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.4); color: #c084fc; font-weight: bold; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; display: flex; align-items: center; gap: 4px;" onmouseover="this.style.background='rgba(139, 92, 246, 0.25)';" onmouseout="this.style.background='rgba(139, 92, 246, 0.15)';">➕ إضافة شيك</button>
                             </div>
                             <!-- Dynamic cheque rows -->
-                            <div id="cheques-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                            <div id="cheques-list" style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;"></div>
                         </div>
                     </div>
                 </div>

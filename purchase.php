@@ -1722,12 +1722,11 @@
                     </div>
 
                 </div>
-                <!-- Row 1: Supplier, Currency, Payment -->
+                <!-- Row 1: Supplier, Currency -->
                 <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 5px;">
-                    <div class="h-form-group" style="flex: 2; min-width: 250px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                    <div class="h-form-group" style="flex: 3; min-width: 250px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
                           <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">المورد</label>
                           <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1;">
-                            
                                     <div class="custom-dropdown" style="flex:1;">
                                         <div class="custom-dropdown-input-wrap" style="position: relative;">
                                             <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم المورد..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15); padding-left: 60px !important;" autocomplete="one-time-code">
@@ -1738,14 +1737,9 @@
                                             </div>
                                         </div>
                                     </div>
-
-                            <button onclick="window.location.href='master-data.php?tab=suppliers'" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid rgba(16,212,143,0.3); width: 32px; height: 32px; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2); transition: 0.2s;" title="البيانات الأساسية للموردين">
-                                ➕
-                            </button>
-                        </div>
+                          </div>
                     </div>
-
-                    <div class="h-form-group" style="flex: 1.8; min-width: 200px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                    <div class="h-form-group" style="flex: 2; min-width: 200px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
                           <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">سعر الصرف</label>
                           <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 5px; flex: 1;">
                             <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="handleCurrencyChange(this.value)" style="flex: 1;">
@@ -1758,54 +1752,13 @@
                             <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" disabled oninput="recalcAll()" style="flex: 1.5; text-align: center;" placeholder="الصرف" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
                         </div>
                     </div>
-
-                    <div class="h-form-group" style="flex: 0.8; min-width: 100px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
-                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">الدفع</label>
-                          <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
-                            <select class="v-input ctrl-input" id="hdr-payment-method" onchange="togglePaymentAccount()">
-                                <option value="cash">نقدي فوري</option>
-                                <option value="credit">آجل (على الحساب)</option>
-                                <option value="bank">تحويل بنكي</option>
-                                <option value="cheque">شيك</option>
-                            </select>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Row 1.5: Payment Details (Hidden by default, shown for Bank/Cheque) -->
-                <div id="payment-details-row" style="display: none; gap: 15px; flex-wrap: wrap; margin-top: -5px; padding: 10px; background: rgba(56, 189, 248, 0.05); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 8px;">
-                    <div class="h-form-group" style="flex: 0.8; min-width: 100px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
-                          <label class="h-label" id="pay-detail-1-label" style="margin: 0; white-space: nowrap; font-size:0.9rem; color:#38bdf8;">رقم المرجع</label>
-                          <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
-                            <input type="text" class="v-input ctrl-input" id="pay-detail-1" placeholder="..." style="height: 32px !important; min-height: 32px !important; font-size: 0.95rem !important;">
-                        </div>
-                    </div>
-                    <div class="h-form-group" style="flex: 0.8; min-width: 100px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
-                          <label class="h-label" id="pay-detail-2-label" style="margin: 0; white-space: nowrap; font-size:0.9rem; color:#38bdf8;">اسم البنك</label>
-                          <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
-                            <input type="text" class="v-input ctrl-input" id="pay-detail-2" placeholder="..." style="height: 32px !important; min-height: 32px !important; font-size: 0.95rem !important;">
-                        </div>
-                    </div>
-                    <div class="h-form-group" style="flex: 0.8; min-width: 100px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
-                          <label class="h-label" id="pay-detail-3-label" style="margin: 0; white-space: nowrap; font-size:0.9rem; color:#38bdf8;">الفرع</label>
-                          <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
-                            <input type="text" class="v-input ctrl-input" id="pay-detail-3" placeholder="..." style="height: 32px !important; min-height: 32px !important; font-size: 0.95rem !important;">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Row 2: Treasury, Warehouse, Cost Center -->
+                <!-- Row 2: Warehouse, Cost Center -->
                 <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 5px;">
-                    <div class="h-form-group" id="payment-account-group" style="flex: 1; min-width: 150px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
-                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 80px;">الخزينة / البنك</label>
-                          <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
-                            <select class="v-input ctrl-input" id="hdr-payment-account"></select>
-                        </div>
-                    </div>
-
-                    <div class="h-form-group" style="flex: 1; min-width: 150px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
+                    <div class="h-form-group" style="flex: 1; min-width: 150px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
                           <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">المخزن</label>
-                          <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
+                          <div class="h-input-wrapper" style="flex: 1; flex-direction: row !important; display: flex !important; align-items: center !important;">
                             <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange()"></select>
                         </div>
                     </div>
@@ -1941,6 +1894,139 @@
             </div>
             <div class="mobile-cards" id="mobile-cards"></div>
         </div>
+
+            <!-- ══ FULL-WIDTH: تفاصيل الدفع ══ -->
+            <div class="panel" id="payment-panel" style="z-index: 40; margin-top: 15px; background: rgba(30, 41, 59, 0.45) !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important; backdrop-filter: blur(10px);">
+                <style>
+                    .pay-toggle-btn.active {
+                        background: linear-gradient(135deg, #ff7300, #ff9100) !important;
+                        border-color: #ff7300 !important;
+                        color: #fff !important;
+                        box-shadow: 0 0 12px rgba(255, 115, 0, 0.4) !important;
+                    }
+                    .payment-summary-card {
+                        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                        transform-origin: top;
+                        max-height: 0;
+                        opacity: 0;
+                        overflow: hidden;
+                        padding: 0 20px !important;
+                        border-color: transparent !important;
+                        transform: scaleY(0);
+                        flex: 0;
+                        min-width: 0 !important;
+                        margin: 0;
+                    }
+                    .payment-summary-card.show-totals {
+                        max-height: 350px;
+                        opacity: 1;
+                        padding: 20px !important;
+                        border-color: rgba(255,255,255,0.08) !important;
+                        transform: scaleY(1);
+                        flex: 1;
+                        min-width: 280px !important;
+                    }
+                </style>
+                <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 15px 20px; background: rgba(15,23,42,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
+                    <div class="panel-title" style="background: linear-gradient(135deg, #ff4d4d, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.15rem; font-weight: 900; display: inline-flex; align-items: center; gap: 6px; margin: 0;">
+                        <span>💳</span> طريقة وتفاصيل الدفع
+                    </div>
+                    <div class="payment-toggles" style="display: flex; gap: 8px;">
+                        <button type="button" class="pay-toggle-btn" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💵 نقدي</button>
+                        <button type="button" class="pay-toggle-btn" id="toggle-credit" onclick="togglePaymentSection('credit')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💳 آجل</button>
+                        <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦 تحويل بنكي</button>
+                        <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">✍️ شيك</button>
+                    </div>
+                </div>
+                
+                <div class="payment-layout" style="display: flex; gap: 20px; padding: 15px; flex-wrap: wrap;">
+                    <!-- Left Section: Invoice Totals Summary -->
+                    <div class="payment-summary-card" style="flex: 1; min-width: 280px; background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: center; gap: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 5px;">
+                            <span style="color: #94a3b8; font-size: 0.9rem; font-weight: bold;">💵 إجمالي المدفوع:</span>
+                            <span id="payment-paid-indicator" style="font-size: 1.15rem; font-weight: 900; color: #34d399; text-shadow: 0 0 8px rgba(52,211,153,0.15);">0.00 SDG</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">
+                            <span style="color: #94a3b8; font-size: 1rem; font-weight: bold;">📊 إجمالي الفاتورة:</span>
+                            <span id="payment-total-indicator" style="font-size: 1.5rem; font-weight: 900; color: #fff;">0.00 SDG</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">
+                            <span style="color: #94a3b8; font-size: 1.05rem; font-weight: bold;">⚖️ المبلغ المتبقي:</span>
+                            <span id="payment-remaining-indicator" style="font-size: 1.7rem; font-weight: 900; color: #f87171; text-shadow: 0 0 10px rgba(248,113,113,0.3);">0.00 SDG</span>
+                        </div>
+                        <!-- Quick Actions to autofill -->
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button type="button" class="btn-action" onclick="autofillRemaining('cash')" style="flex: 1; font-size: 0.8rem; background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.4); padding: 8px; border-radius: 8px; cursor: pointer;">تعبئة النقدي</button>
+                            <button type="button" class="btn-action" onclick="autofillRemaining('credit')" style="flex: 1; font-size: 0.8rem; background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); padding: 8px; border-radius: 8px; cursor: pointer;">تعبئة الآجل</button>
+                        </div>
+                    </div>
+
+                    <!-- Right Section: Payment Details Forms -->
+                    <div class="payment-details-card" style="flex: 2; min-width: 320px; display: flex; flex-direction: column; gap: 10px;">
+                        
+                        <!-- Cash payment box (Visible by default) -->
+                        <div id="pay-cash-section" class="payment-method-box" style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 1.2rem;">💵</span>
+                                <span style="font-weight: 800; color: #34d399; font-size: 0.95rem;">الدفع النقدي (كاش)</span>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="number" class="v-input ctrl-input" id="pay-cash-amount" value="0" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: 0.8; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; text-align: center;">
+                                <select class="v-input ctrl-input" id="hdr-payment-account" style="flex: 1.2; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px;">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Credit payment box (Toggled off by default) -->
+                        <div id="pay-credit-section" class="payment-method-box" style="background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.18); border-radius: 12px; padding: 15px; display: none; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 1.2rem;">💳</span>
+                                    <span style="font-weight: 800; color: #fbbf24; font-size: 0.95rem;">الشراء الآجل (على الحساب)</span>
+                                </div>
+                                <span style="font-size: 0.72rem; color: #94a3b8;">ℹ️ إقرار دين للمورد تلقائي</span>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; width: 100%;">
+                                <input type="number" class="v-input ctrl-input" id="pay-credit-amount" value="0" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ الآجل..." style="flex: 1; min-width: 110px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; text-align: center;">
+                                
+                                <div id="pay-credit-due-group" style="flex: 1.2; min-width: 160px; display: flex; align-items: center; gap: 5px;">
+                                    <label style="font-size: 0.72rem; color: #94a3b8; white-space: nowrap;">تاريخ الاستحقاق</label>
+                                    <input type="date" class="v-input ctrl-input" id="pay-credit-due-date" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 4px; width: 100%;">
+                                </div>
+                                
+                                <button type="button" class="btn-action" onclick="previewCurrentPromissoryNote()" style="flex: 0.8; min-width: 110px; height: 38px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #f59e0b; padding: 0 10px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight: bold; transition: 0.2s;" onmouseover="this.style.background='rgba(245, 158, 11, 0.25)';" onmouseout="this.style.background='rgba(245, 158, 11, 0.15)';">📄 معاينة الكمبيالة</button>
+                            </div>
+                        </div>
+
+                        <!-- Bank Transfers box (Toggled off by default) -->
+                        <div id="pay-bank-section" class="payment-method-box" style="background: rgba(59, 130, 246, 0.04); border: 1px solid rgba(59, 130, 246, 0.18); border-radius: 12px; padding: 15px; display: none; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 1.2rem;">🏦</span>
+                                    <span style="font-weight: 800; color: #60a5fa; font-size: 0.95rem;">التحويلات البنكية</span>
+                                </div>
+                                <button type="button" class="btn-action" onclick="addBankTransferRow()" style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; font-weight: bold; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; display: flex; align-items: center; gap: 4px;" onmouseover="this.style.background='rgba(59, 130, 246, 0.25)';" onmouseout="this.style.background='rgba(59, 130, 246, 0.15)';">➕ إضافة تحويل</button>
+                            </div>
+                            <!-- Dynamic bank transfers rows -->
+                            <div id="bank-transfers-list" style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;"></div>
+                        </div>
+
+                        <!-- Cheques box (Toggled off by default) -->
+                        <div id="pay-cheque-section" class="payment-method-box" style="background: rgba(139, 92, 246, 0.04); border: 1px solid rgba(139, 92, 246, 0.18); border-radius: 12px; padding: 15px; display: none; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 1.2rem;">✍️</span>
+                                    <span style="font-weight: 800; color: #c084fc; font-size: 0.95rem;">الشيكات الصادرة (المؤجلة / الفورية)</span>
+                                </div>
+                                <button type="button" class="btn-action" onclick="addChequeRow()" style="background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.4); color: #c084fc; font-weight: bold; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; display: flex; align-items: center; gap: 4px;" onmouseover="this.style.background='rgba(139, 92, 246, 0.25)';" onmouseout="this.style.background='rgba(139, 92, 246, 0.15)';">➕ إضافة شيك</button>
+                            </div>
+                            <!-- Dynamic cheque rows -->
+                            <div id="cheques-list" style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         <div class="items-toolbar" style="display: flex; align-items: center; justify-content: center; padding: 15px; border-radius: 12px; background: rgba(18, 15, 25, 0.8); border: 1px solid rgba(255,255,255,0.05); margin-top: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
             
