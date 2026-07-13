@@ -147,7 +147,7 @@ document.addEventListener('DBReady', () => {
     const voucherId = urlParams.get('id');
     if (voucherId) {
         singlePaymentsData = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
-        const idx = singlePaymentsData.findIndex(v => v.id === voucherId);
+        const idx = singlePaymentsData.findIndex(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId) || String(v.paymentNo) === String(voucherId));
         if (idx !== -1) {
             currentViewedIndex = idx;
             renderVoucher(singlePaymentsData[idx]);

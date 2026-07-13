@@ -51,7 +51,7 @@ document.addEventListener('DBReady', () => {
     const voucherId = urlParams.get('id');
     if (voucherId) {
         jvData = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
-        const idx = jvData.findIndex(v => v.id === voucherId);
+        const idx = jvData.findIndex(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId) || String(v.jvNo) === String(voucherId));
         if (idx !== -1) {
             currentViewedIndex = idx;
             renderVoucher(jvData[idx]);

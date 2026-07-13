@@ -12,7 +12,7 @@
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>استلام بضاعة | Al-Sajana ERP</title>
@@ -1889,11 +1889,11 @@
 
             <div class="tot-grand" style="margin-top: auto; background: rgba(56, 189, 248, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); display: flex; flex-direction: column; gap: 5px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="lbl" style="font-weight: 800; color: #38bdf8; font-size:0.9rem;">صافي محلي</span>
+                    <span class="lbl" id="lbl-grand-local" style="font-weight: 800; color: #38bdf8; font-size:0.9rem;">صافي محلي</span>
                     <span class="val amount" id="t-grand-local" style="font-size: 1.2rem; color: #fff;">0</span>
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="lbl" style="font-weight: 800; color: #10b981; font-size:0.9rem;">صافي أجنبي</span>
+                    <span class="lbl" id="lbl-grand-fc" style="font-weight: 800; color: #10b981; font-size:0.9rem;">صافي أجنبي</span>
                     <span class="val amount" id="t-grand-fc" style="font-size: 1.2rem; color: #fff;">0</span>
                 </div>
             </div>
@@ -2006,6 +2006,61 @@
 </div>
 
     <script>
+        // Real-time synchronization of local and foreign adjustments
+        window.syncFc = function(name) {
+            let localId = '';
+            let fcId = '';
+            if (name === 'transport') { localId = 't-transport'; fcId = 't-transport-fc'; }
+            else if (name === 'labor') { localId = 't-labor'; fcId = 't-labor-fc'; }
+            else if (name === 'additions') { localId = 't-additions-loc'; fcId = 't-additions-fc'; }
+            else if (name === 'tax') { localId = 't-tax-loc'; fcId = 't-tax-fc'; }
+            else if (name === 'discount') { localId = 't-discount-loc'; fcId = 't-discount-fc'; }
+
+            if (!localId || !fcId) return;
+
+            const rateInput = document.getElementById('hdr-exchange-rate');
+            const rate = rateInput ? (parseFloat(rateInput.value) || 1) : 1;
+            const localEl = document.getElementById(localId);
+            const fcEl = document.getElementById(fcId);
+            
+            if (localEl && fcEl) {
+                const pNum = typeof window.parseNum === 'function' ? window.parseNum : function(v) { return parseFloat(v.toString().replace(/,/g, '')) || 0; };
+                const fNum = typeof window.fmtNum === 'function' ? window.fmtNum : function(v) { return v % 1 === 0 ? v : parseFloat(v.toFixed(4)); };
+                
+                const localVal = pNum(localEl.value);
+                const fcVal = rate > 0 ? (localVal / rate) : 0;
+                fcEl.value = fNum(fcVal);
+                if (typeof window.recalcAll === 'function') window.recalcAll();
+            }
+        };
+
+        window.syncLocal = function(name) {
+            let localId = '';
+            let fcId = '';
+            if (name === 'transport') { localId = 't-transport'; fcId = 't-transport-fc'; }
+            else if (name === 'labor') { localId = 't-labor'; fcId = 't-labor-fc'; }
+            else if (name === 'additions') { localId = 't-additions-loc'; fcId = 't-additions-fc'; }
+            else if (name === 'tax') { localId = 't-tax-loc'; fcId = 't-tax-fc'; }
+            else if (name === 'discount') { localId = 't-discount-loc'; fcId = 't-discount-fc'; }
+
+            if (!localId || !fcId) return;
+
+            const rateInput = document.getElementById('hdr-exchange-rate');
+            const rate = rateInput ? (parseFloat(rateInput.value) || 1) : 1;
+            const localEl = document.getElementById(localId);
+            const fcEl = document.getElementById(fcId);
+            
+            if (localEl && fcEl) {
+                const pNum = typeof window.parseNum === 'function' ? window.parseNum : function(v) { return parseFloat(v.toString().replace(/,/g, '')) || 0; };
+                const fNum = typeof window.fmtNum === 'function' ? window.fmtNum : function(v) { return v % 1 === 0 ? v : parseFloat(v.toFixed(4)); };
+                
+                const fcVal = pNum(fcEl.value);
+                const localVal = fcVal * rate;
+                localEl.value = fNum(localVal);
+                if (typeof window.recalcAll === 'function') window.recalcAll();
+            }
+        };
+
         // Purchase Hub Logic
         let currentPurchaseView = 'hub';
 
@@ -2735,6 +2790,206 @@ document.addEventListener('mouseup', () => {
         advancedModalCard.style.transition = ''; // restore transition
     }
 });
+</script>
+
+<!-- Numeric Custom Context Menu -->
+<div id="num-context-menu" class="glass-panel" style="
+    display: none;
+    position: fixed;
+    z-index: 20000;
+    width: 280px;
+    padding: 15px;
+    border-radius: 16px;
+    background: rgba(15, 12, 22, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    direction: rtl;
+    font-family: 'Outfit', sans-serif;
+">
+    <div style="font-weight: bold; color: #38bdf8; margin-bottom: 12px; font-size: 0.9rem; border-bottom: 1px dashed rgba(255,255,255,0.15); padding-bottom: 5px; display:flex; align-items:center; gap:6px;">
+        <span>⚙️</span> خصائص عرض الأرقام
+    </div>
+    
+    <!-- Font Color Selector -->
+    <div style="margin-bottom: 12px;">
+        <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 6px;">لون النص:</div>
+        <div style="display: flex; gap: 8px;">
+            <button onclick="setNumStyle('color', '#ffffff')" style="width:20px; height:20px; border-radius:50%; background:#ffffff; border:1px solid #fff; cursor:pointer;" title="أبيض"></button>
+            <button onclick="setNumStyle('color', '#38bdf8')" style="width:20px; height:20px; border-radius:50%; background:#38bdf8; border:none; cursor:pointer;" title="لبني"></button>
+            <button onclick="setNumStyle('color', '#10b981')" style="width:20px; height:20px; border-radius:50%; background:#10b981; border:none; cursor:pointer;" title="أخضر"></button>
+            <button onclick="setNumStyle('color', '#fbbf24')" style="width:20px; height:20px; border-radius:50%; background:#fbbf24; border:none; cursor:pointer;" title="أصفر"></button>
+            <button onclick="setNumStyle('color', '#ef4444')" style="width:20px; height:20px; border-radius:50%; background:#ef4444; border:none; cursor:pointer;" title="أحمر"></button>
+            <button onclick="setNumStyle('color', '#c084fc')" style="width:20px; height:20px; border-radius:50%; background:#c084fc; border:none; cursor:pointer;" title="بنفسجي"></button>
+        </div>
+    </div>
+
+    <!-- Font Size Selector -->
+    <div style="margin-bottom: 12px;">
+        <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 6px;">حجم الخط:</div>
+        <select onchange="setNumStyle('size', this.value)" style="width:100%; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:6px; padding:4px; font-size:0.8rem; outline:none;">
+            <option value="">افتراضي</option>
+            <option value="0.75rem">صغير جداً (0.75)</option>
+            <option value="0.85rem">صغير (0.85)</option>
+            <option value="1rem">متوسط (1.0)</option>
+            <option value="1.15rem">كبير (1.15)</option>
+            <option value="1.3rem">كبير جداً (1.3)</option>
+        </select>
+    </div>
+
+    <!-- Font Family Selector -->
+    <div style="margin-bottom: 12px;">
+        <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 6px;">نوع الخط (أوضح 3 خطوط للأرقام):</div>
+        <select onchange="setNumStyle('font', this.value)" style="width:100%; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:6px; padding:4px; font-size:0.8rem; outline:none;">
+            <option value="Inter">1. Inter (خط واجهة مستخدم نقي)</option>
+            <option value="Outfit">2. Outfit (هندسي عصري)</option>
+            <option value="JetBrains Mono">3. JetBrains Mono (خطي مونو دقيق جداً للأرقام)</option>
+        </select>
+    </div>
+
+    <!-- Thousands Separator -->
+    <div style="margin-bottom: 12px;">
+        <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 6px;">فاصل الآلاف:</div>
+        <select onchange="setNumFormat('thousandSep', this.value)" style="width:100%; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:6px; padding:4px; font-size:0.8rem; outline:none;">
+            <option value=",">فاصلة ( , )</option>
+            <option value=" ">مسافة فارغة (   )</option>
+            <option value="none">بدون فاصل</option>
+        </select>
+    </div>
+
+    <!-- Decimal Separator -->
+    <div style="margin-bottom: 12px;">
+        <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 6px;">الفاصل العشري:</div>
+        <select onchange="setNumFormat('decimalSep', this.value)" style="width:100%; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:6px; padding:4px; font-size:0.8rem; outline:none;">
+            <option value=".">نقطة ( . )</option>
+            <option value=",">فاصلة ( , )</option>
+        </select>
+    </div>
+
+    <!-- Rounding Decimals -->
+    <div style="margin-bottom: 5px;">
+        <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 6px;">خانة التقريب العشري:</div>
+        <select onchange="setNumFormat('decimals', parseInt(this.value))" style="width:100%; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:6px; padding:4px; font-size:0.8rem; outline:none;">
+            <option value="0">بدون فواصل (0)</option>
+            <option value="1">منزلة واحدة (1)</option>
+            <option value="2">منزلتين (2)</option>
+            <option value="3">3 منازل (3)</option>
+            <option value="4">4 منازل (4)</option>
+        </select>
+    </div>
+</div>
+
+<script>
+    function applyStylingPrefs() {
+        const prefs = JSON.parse(localStorage.getItem('num_style_prefs') || '{}');
+        const color = prefs.color || '';
+        const size = prefs.size || '';
+        const font = prefs.font || '';
+
+        let css = '';
+        if (color) {
+            css += `.amount, .val, .g-input, .g-readonly, .ctrl-input, .tot-input { color: ${color} !important; }\n`;
+        }
+        if (size) {
+            css += `.amount, .val, .g-input, .g-readonly, .ctrl-input, .tot-input { font-size: ${size} !important; }\n`;
+        }
+        if (font) {
+            let fontStack = '';
+            if (font === 'Inter') fontStack = "'Inter', sans-serif";
+            else if (font === 'Outfit') fontStack = "'Outfit', sans-serif";
+            else if (font === 'JetBrains Mono') fontStack = "'JetBrains Mono', monospace";
+            
+            if (fontStack) {
+                css += `.amount, .val, .g-input, .g-readonly, .ctrl-input, .tot-input { font-family: ${fontStack} !important; }\n`;
+            }
+        }
+
+        let styleEl = document.getElementById('custom-num-styles');
+        if (!styleEl) {
+            styleEl = document.createElement('style');
+            styleEl.id = 'custom-num-styles';
+            document.head.appendChild(styleEl);
+        }
+        styleEl.innerHTML = css;
+    }
+
+    window.setNumStyle = function(prop, val) {
+        const prefs = JSON.parse(localStorage.getItem('num_style_prefs') || '{}');
+        prefs[prop] = val;
+        localStorage.setItem('num_style_prefs', JSON.stringify(prefs));
+        applyStylingPrefs();
+    };
+
+    window.setNumFormat = function(prop, val) {
+        const prefs = JSON.parse(localStorage.getItem('num_format_prefs') || '{}');
+        prefs[prop] = val;
+        localStorage.setItem('num_format_prefs', JSON.stringify(prefs));
+        if (typeof window.recalcAll === 'function') window.recalcAll();
+    };
+
+    window.openNumContextMenu = function(e) {
+        e.preventDefault();
+        const menu = document.getElementById('num-context-menu');
+        if (!menu) return;
+
+        menu.style.display = 'block';
+        
+        let left = e.clientX;
+        let top = e.clientY;
+        if (left + 280 > window.innerWidth) left = window.innerWidth - 290;
+        if (top + 380 > window.innerHeight) top = window.innerHeight - 390;
+        
+        menu.style.left = left + 'px';
+        menu.style.top = top + 'px';
+
+        const formatPrefs = JSON.parse(localStorage.getItem('num_format_prefs') || '{}');
+        const stylePrefs = JSON.parse(localStorage.getItem('num_style_prefs') || '{}');
+
+        const sizeSelect = menu.querySelector('select[onchange*="size"]');
+        if (sizeSelect && stylePrefs.size !== undefined) sizeSelect.value = stylePrefs.size;
+
+        const fontSelect = menu.querySelector('select[onchange*="font"]');
+        if (fontSelect && stylePrefs.font !== undefined) fontSelect.value = stylePrefs.font;
+
+        const thousandSelect = menu.querySelector('select[onchange*="thousandSep"]');
+        if (thousandSelect && formatPrefs.thousandSep !== undefined) thousandSelect.value = formatPrefs.thousandSep;
+
+        const decimalSelect = menu.querySelector('select[onchange*="decimalSep"]');
+        if (decimalSelect && formatPrefs.decimalSep !== undefined) decimalSelect.value = formatPrefs.decimalSep;
+
+        const decimalsSelect = menu.querySelector('select[onchange*="decimals"]');
+        if (decimalsSelect && formatPrefs.decimals !== undefined) decimalsSelect.value = formatPrefs.decimals;
+    };
+
+    document.addEventListener('contextmenu', function(e) {
+        const target = e.target;
+        const isNumberElement = target.classList.contains('amount') || 
+                                target.classList.contains('val') || 
+                                target.classList.contains('g-input') || 
+                                target.classList.contains('g-readonly') || 
+                                target.classList.contains('ctrl-input') || 
+                                target.classList.contains('tot-input') ||
+                                target.id.startsWith('t-') ||
+                                target.id.includes('grand') ||
+                                /^[0-9,.\s\-+]+$/.test(target.textContent.trim()) ||
+                                (target.value && /^[0-9,.\s\-+]+$/.test(target.value));
+
+        if (isNumberElement) {
+            openNumContextMenu(e);
+        } else {
+            const menu = document.getElementById('num-context-menu');
+            if (menu) menu.style.display = 'none';
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        const menu = document.getElementById('num-context-menu');
+        if (menu && !menu.contains(e.target)) {
+            menu.style.display = 'none';
+        }
+    });
+
+    applyStylingPrefs();
 </script>
 
 </body>

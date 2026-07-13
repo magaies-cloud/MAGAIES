@@ -508,13 +508,10 @@
     <!-- Vouchers Grid - Full Width -->
     <div class="vouchers-grid">
 
-
-
-
         <!-- 3. Single Payment -->
-        <a data-href="single-cash-payment.php" onclick="window.location.href='single-cash-payment.php'" class="premium-card" style="width: 90%; height: 70%; margin: 0 auto;">
+        <a data-href="single-cash-payment.php" onclick="window.location.href='single-cash-payment.php'" class="premium-card" style="--card-color: #f43f5e; --card-rgb: 244, 63, 94;">
             <div class="card-glow"></div>
-            <div class="flow-badge">
+            <div class="flow-badge" style="background: rgba(244, 63, 94, 0.1); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.2);">
                 <span>🔴</span> مدفوعات
             </div>
             <div class="card-content">
@@ -524,8 +521,8 @@
                 <h3 class="v-title">حركية مالية</h3>
                 <p class="v-subtitle">صرف مبلغ لجهة واحدة.</p>
                 <div class="v-footer">
-                    <span class="v-badge">Payment</span>
-                    <span class="v-arrow">←</span>
+                    <span class="v-badge" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e; border-color: rgba(244, 63, 94, 0.3);">Payment</span>
+                    <span class="v-arrow" style="background: #f43f5e; color: #fff;">←</span>
                 </div>
             </div>
         </a>
@@ -587,10 +584,24 @@
             </div>
         </a>
 
-
-
-
-
+        <!-- Posting Accounts -->
+        <a data-href="posting-accounts.php" onclick="window.location.href='posting-accounts.php'" class="premium-card" style="--card-color: #38bdf8; --card-rgb: 56, 189, 248;">
+            <div class="card-glow"></div>
+            <div class="flow-badge" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2);">
+                <span>🔄</span> ترحيل
+            </div>
+            <div class="card-content">
+                <div class="icon-wrapper">
+                    <span class="v-icon">🔄</span>
+                </div>
+                <h3 class="v-title">ترحيل الحسابات</h3>
+                <p class="v-subtitle">مراجعة وترحيل العمليات المالية وتدقيق الحسابات المفتوحة.</p>
+                <div class="v-footer">
+                    <span class="v-badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);">Posting</span>
+                    <span class="v-arrow" style="background: #38bdf8; color: #fff;">←</span>
+                </div>
+            </div>
+        </a>
 
     </div>
 

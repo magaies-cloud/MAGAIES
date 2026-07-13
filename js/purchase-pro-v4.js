@@ -70,40 +70,60 @@ let currentViewedInvoiceNo = null;
 //  HELPERS
 // ════════════════════════════════════════
 function fmtNum(n, colId = null) {
-    if (n === 0 || n === '0' || !n) return '0';
-    let decimals = 2; // Default
-    let separator = ','; // Default
-    if (colId && gridColumnsConfig[colId]) {
-        decimals = parseInt(gridColumnsConfig[colId].decimals);
-        if (isNaN(decimals)) decimals = 2;
-        separator = gridColumnsConfig[colId].thousandsSeparator;
+    if (n === 0 || n === '0' || !n) {
+        n = 0;
     }
     
-    // If no decimals needed and it's a whole number, format without decimals
-    if (decimals === 0) {
-        let numStr = Math.round(Number(n)).toString();
-        if (separator === ',') {
-            return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        } else if (separator === '.') {
-            return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        }
-        return numStr;
+    // Read preferences from localStorage
+    const prefs = JSON.parse(localStorage.getItem('num_format_prefs') || '{}');
+    let decimals = prefs.decimals !== undefined ? prefs.decimals : 2;
+    let separator = prefs.thousandSep !== undefined ? prefs.thousandSep : ',';
+    let decimalSep = prefs.decimalSep !== undefined ? prefs.decimalSep : '.';
+
+    let val = parseFloat(n);
+    if (isNaN(val)) val = 0;
+
+    let numStr = val.toFixed(decimals);
+    let parts = numStr.split('.');
+    
+    // Apply thousands separator
+    if (separator !== 'none') {
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, separator);
     }
     
-    let numStr = Number(n).toFixed(decimals);
-    if (separator === ',') {
-        let parts = numStr.split('.');
-        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        return parts.join('.');
-    } else if (separator === '.') {
-        let parts = numStr.split('.');
-        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        return parts.length > 1 ? parts.join(',') : parts[0];
+    // Apply decimal separator
+    let decimalPart = parts[1] || '';
+    if (decimalPart) {
+        return parts[0] + decimalSep + decimalPart;
     }
-    return numStr;
+    return parts[0];
 }
 function parseNum(str) {
-    return parseFloat(String(str).replace(/,/g, '')) || 0;
+    if (str === null || str === undefined) return 0;
+    if (typeof str === 'number') return str;
+    
+    let s = String(str).trim();
+    if (!s) return 0;
+
+    // Get current formatting prefs
+    const prefs = JSON.parse(localStorage.getItem('num_format_prefs') || '{}');
+    const thousandSep = prefs.thousandSep !== undefined ? prefs.thousandSep : ',';
+    const decimalSep = prefs.decimalSep !== undefined ? prefs.decimalSep : '.';
+
+    // Remove thousands separators
+    if (thousandSep !== 'none') {
+        const escapedSep = thousandSep.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        s = s.replace(new RegExp(escapedSep, 'g'), '');
+    }
+
+    // Replace decimal separator with standard dot
+    if (decimalSep !== '.') {
+        const escapedDec = decimalSep.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        s = s.replace(new RegExp(escapedDec, 'g'), '.');
+    }
+
+    let n = parseFloat(s);
+    return isNaN(n) ? 0 : n;
 }
 function showToast(msg, type = 'success', ms = 3000) {
     const c = document.getElementById('toast-container');
@@ -270,7 +290,7 @@ function initPurchaseApp() {
         if (!loaded) {
             // Sometimes id is the UUID, we need to find the invoiceNo
             const purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-            const inv = purchases.find(p => p.id === invoiceId || p.invoiceNo === invoiceId);
+            const inv = purchases.find(p => String(p.id) === String(invoiceId) || String(p.invoiceNo) === String(invoiceId));
             if (inv && inv.invoiceNo) {
                 loadInvoiceFromStorage(inv.invoiceNo);
             }
@@ -711,7 +731,7 @@ function loadInvoiceFromStorage(invNo) {
     
     if (!data) {
         let allPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-        data = allPurchases.find(inv => inv.invoiceNo === invNo || inv.id === invNo);
+        data = allPurchases.find(inv => String(inv.invoiceNo) === String(invNo) || String(inv.id) === String(invNo));
     }
     
     if (!data) return false;
@@ -741,6 +761,19 @@ function loadInvoiceFromStorage(invNo) {
             document.getElementById('hdr-exchange-rate').value = data.exchangeRate;
             document.getElementById('hdr-exchange-rate').disabled = (data.currency === 'SDG');
         }
+
+        // Adjustments
+        document.getElementById('t-labor').value = data.laborCost !== undefined ? fmtNum(data.laborCost) : '0';
+        document.getElementById('t-labor-fc').value = data.laborCostFc !== undefined ? fmtNum(data.laborCostFc) : '0';
+        document.getElementById('t-transport').value = data.transportCost !== undefined ? fmtNum(data.transportCost) : '0';
+        document.getElementById('t-transport-fc').value = data.transportCostFc !== undefined ? fmtNum(data.transportCostFc) : '0';
+        
+        document.getElementById('t-additions-loc').value = data.additionsCost !== undefined ? fmtNum(data.additionsCost) : '0';
+        document.getElementById('t-additions-fc').value = data.additionsCostFc !== undefined ? fmtNum(data.additionsCostFc) : '0';
+        document.getElementById('t-tax-loc').value = data.taxCost !== undefined ? fmtNum(data.taxCost) : '0';
+        document.getElementById('t-tax-fc').value = data.taxCostFc !== undefined ? fmtNum(data.taxCostFc) : '0';
+        document.getElementById('t-discount-loc').value = data.discountCost !== undefined ? fmtNum(data.discountCost) : '0';
+        document.getElementById('t-discount-fc').value = data.discountCostFc !== undefined ? fmtNum(data.discountCostFc) : '0';
         
         // Customer
         const custId = data.customer || data.customerId;
@@ -2087,8 +2120,15 @@ function recalcAll() {
     const taxFc = parseNum(document.getElementById('t-tax-fc')?.value || 0);
     const discountFc = parseNum(document.getElementById('t-discount-fc')?.value || 0);
 
-    const grandLoc = invTotalLocal + laborLoc + transportLoc + additionsLoc + taxLoc - discountLoc;
-    const grandFc = invTotalFc + laborFc + transportFc + additionsFc + taxFc - discountFc;
+    let grandLoc = 0;
+    let grandFc = 0;
+    if (isBaseSDG) {
+        grandLoc = invTotalLocal + laborLoc + transportLoc + additionsLoc + taxLoc - discountLoc;
+        grandFc = invTotalFc + laborFc + transportFc + additionsFc + taxFc - discountFc;
+    } else {
+        grandLoc = invTotalLocal + laborFc + transportFc + additionsFc + taxFc - discountFc;
+        grandFc = invTotalFc + laborLoc + transportLoc + additionsLoc + taxLoc - discountLoc;
+    }
 
     // Update totals display (Internal Hidden)
     const tInvoiceTotal = document.getElementById('t-invoice-total');
@@ -2096,6 +2136,23 @@ function recalcAll() {
     const tInvoiceTotalFc = document.getElementById('t-invoice-total-fc');
     if (tInvoiceTotalFc) tInvoiceTotalFc.textContent = fmtNum(invTotalFc);
     
+    // Update labels dynamically based on currency
+    const lblLocal = document.getElementById('lbl-grand-local');
+    const lblFc = document.getElementById('lbl-grand-fc');
+    if (lblLocal && lblFc) {
+        if (isBaseSDG) {
+            lblLocal.textContent = 'صافي محلي';
+            lblLocal.style.color = '#38bdf8';
+            lblFc.textContent = 'صافي أجنبي';
+            lblFc.style.color = '#10b981';
+        } else {
+            lblLocal.textContent = 'صافي أجنبي';
+            lblLocal.style.color = '#10b981';
+            lblFc.textContent = 'صافي محلي';
+            lblFc.style.color = '#38bdf8';
+        }
+    }
+
     // Update dual grand totals (remove currency symbols per user request)
     const tGrandLocal = document.getElementById('t-grand-local');
     if (tGrandLocal) tGrandLocal.textContent = fmtNum(grandLoc);
@@ -2150,7 +2207,15 @@ function saveDraft() {
         grandTotal: parseNum(document.getElementById('t-grand-local')?.textContent || 0),
         totalAmount: parseNum(document.getElementById('t-grand-local')?.textContent || 0),
         laborCost: parseNum(document.getElementById('t-labor')?.value || 0),
-        transportCost: parseNum(document.getElementById('t-transport')?.value || 0)
+        laborCostFc: parseNum(document.getElementById('t-labor-fc')?.value || 0),
+        transportCost: parseNum(document.getElementById('t-transport')?.value || 0),
+        transportCostFc: parseNum(document.getElementById('t-transport-fc')?.value || 0),
+        additionsCost: parseNum(document.getElementById('t-additions-loc')?.value || 0),
+        additionsCostFc: parseNum(document.getElementById('t-additions-fc')?.value || 0),
+        taxCost: parseNum(document.getElementById('t-tax-loc')?.value || 0),
+        taxCostFc: parseNum(document.getElementById('t-tax-fc')?.value || 0),
+        discountCost: parseNum(document.getElementById('t-discount-loc')?.value || 0),
+        discountCostFc: parseNum(document.getElementById('t-discount-fc')?.value || 0)
     };
     localStorage.setItem('erp_draft_' + data.invoiceNo, JSON.stringify(data));
     showToast('📑 تم حفظ المسودة بنجاح', 'success', 2500);
@@ -2235,7 +2300,15 @@ function submitInvoice(ignoreWarnings = false) {
         grandTotal: parseNum(document.getElementById('t-grand-local')?.textContent || 0),
         totalAmount: parseNum(document.getElementById('t-grand-local')?.textContent || 0),
         laborCost: parseNum(document.getElementById('t-labor')?.value || 0),
-        transportCost: parseNum(document.getElementById('t-transport')?.value || 0)
+        laborCostFc: parseNum(document.getElementById('t-labor-fc')?.value || 0),
+        transportCost: parseNum(document.getElementById('t-transport')?.value || 0),
+        transportCostFc: parseNum(document.getElementById('t-transport-fc')?.value || 0),
+        additionsCost: parseNum(document.getElementById('t-additions-loc')?.value || 0),
+        additionsCostFc: parseNum(document.getElementById('t-additions-fc')?.value || 0),
+        taxCost: parseNum(document.getElementById('t-tax-loc')?.value || 0),
+        taxCostFc: parseNum(document.getElementById('t-tax-fc')?.value || 0),
+        discountCost: parseNum(document.getElementById('t-discount-loc')?.value || 0),
+        discountCostFc: parseNum(document.getElementById('t-discount-fc')?.value || 0)
     };
 
     // Update Bank/Safe balance

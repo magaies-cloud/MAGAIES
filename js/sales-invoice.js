@@ -1,4 +1,4 @@
-﻿/* ═══════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════
    sales-invoice.js — POS Engine v6.0
    Real-time Reactive Calculations · Sequential Invoices
    ═══════════════════════════════════════════════════════ */
@@ -197,7 +197,7 @@ document.addEventListener('DBReady', () => {
         if (!loaded) {
             // Sometimes id is the UUID, we need to find the invoiceNo
             const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-            const inv = sales.find(s => s.id === invoiceId || s.invoiceNo === invoiceId);
+            const inv = sales.find(s => String(s.id) === String(invoiceId) || String(s.invoiceNo) === String(invoiceId));
             if (inv && inv.invoiceNo) {
                 loadInvoiceFromStorage(inv.invoiceNo);
             }
@@ -409,7 +409,7 @@ function loadInvoiceFromStorage(invNo) {
     
     if (!data) {
         let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-        data = allSales.find(inv => inv.invoiceNo === invNo || inv.id === invNo);
+        data = allSales.find(inv => String(inv.invoiceNo) === String(invNo) || String(inv.id) === String(invNo));
     }
     
     if (!data) return false;

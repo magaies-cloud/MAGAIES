@@ -101,7 +101,7 @@ document.addEventListener('DBReady', () => {
     const voucherId = urlParams.get('id');
     if (voucherId) {
         singleReceiptsData = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
-        const idx = singleReceiptsData.findIndex(v => v.id === voucherId);
+        const idx = singleReceiptsData.findIndex(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId) || String(v.receiptNo) === String(voucherId));
         if (idx !== -1) {
             currentViewedIndex = idx;
             renderVoucher(singleReceiptsData[idx]);

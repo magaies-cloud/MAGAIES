@@ -616,6 +616,57 @@
 
         /* Fix double sidebar spacing issue */
         body.has-sidebar { padding-right: 0 !important; }
+
+        /* Daily Report Premium Table & Modal Styles */
+        .premium-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 10px;
+            background: rgba(255,255,255,0.01);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .premium-table th {
+            background: rgba(255, 255, 255, 0.03);
+            color: #94a3b8;
+            padding: 12px 15px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: right;
+        }
+        .premium-table td {
+            padding: 12px 15px;
+            color: #e2e8f0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: 0.85rem;
+            text-align: right;
+        }
+        .premium-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .premium-table tbody tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        :root.light-theme .premium-table {
+            background: #ffffff;
+            border-color: rgba(0,0,0,0.08);
+        }
+        :root.light-theme .premium-table th {
+            background: #f1f5f9;
+            color: #334155;
+            border-bottom-color: rgba(0,0,0,0.12);
+        }
+        :root.light-theme .premium-table td {
+            color: #1e293b;
+            border-bottom-color: rgba(0,0,0,0.06);
+        }
+        :root.light-theme .premium-table tbody tr:hover td {
+            background: rgba(0,0,0,0.02);
+        }
     </style>
 </head>
 <body>
@@ -644,15 +695,6 @@
             </div>
         </a>
 
-        <!-- 2. Posting Accounts -->
-        <a href="posting-accounts.php" class="quick-report-card" style="--glow-color: rgba(192, 132, 252, 0.65); --glow-bg: rgba(192, 132, 252, 0.12);">
-            <div class="icon-wrap">🔄</div>
-            <div class="card-info">
-                <h4>ترحيل الحسابات</h4>
-                <p>مراجعة وترحيل العمليات المالية وتدقيق الحسابات المفتوحة.</p>
-            </div>
-        </a>
-
         <!-- Balances Report -->
         <a href="balances-report.php" class="quick-report-card" style="--glow-color: rgba(244, 63, 94, 0.65); --glow-bg: rgba(244, 63, 94, 0.12);">
             <div class="icon-wrap">💰</div>
@@ -668,6 +710,15 @@
             <div class="card-info">
                 <h4>التقارير والقوائم</h4>
                 <p>الحسابات الختامية، الأرباح والخسائر وميزان المراجعة الشامل.</p>
+            </div>
+        </a>
+
+        <!-- Daily Report -->
+        <a href="#" onclick="showDailyReportModal(); return false;" class="quick-report-card" style="--glow-color: rgba(168, 85, 247, 0.65); --glow-bg: rgba(168, 85, 247, 0.12);">
+            <div class="icon-wrap">📅</div>
+            <div class="card-info">
+                <h4>تقرير اليومية</h4>
+                <p>ملخص شامل للحركات المالية وحركة الأصناف في المستودعات اليوم.</p>
             </div>
         </a>
     </div>
@@ -1249,7 +1300,326 @@
             });
         }
     });
+
+    // --- Daily Report Logic ---
+    const resolveWhName = (id) => {
+        try {
+            const whs = JSON.parse(localStorage.getItem('erp_warehouses_v1') || '[]');
+            const wh = whs.find(w => w.id === id);
+            return wh ? wh.name : (id === 'w-main' ? 'المخزن الرئيسي' : id);
+        } catch(e) {
+            return id;
+        }
+    };
+
+    const resolveClientName = (id, customersList) => {
+        const cust = customersList.find(c => c.id === id);
+        return cust ? cust.name : id;
+    };
+
+    const resolveItemName = (id, itemsList) => {
+        const item = itemsList.find(i => i.id === id);
+        return item ? item.name : id;
+    };
+
+    window.showDailyReportModal = function() {
+        const modal = document.getElementById('dailyReport-modal');
+        modal.style.display = 'flex';
+        
+        // Set default date to today
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const todayStr = `${year}-${month}-${day}`;
+        
+        const dateInput = document.getElementById('daily-report-date');
+        if (dateInput) {
+            dateInput.value = todayStr;
+        }
+        
+        loadDailyReportData(todayStr);
+    };
+
+    window.loadDailyReportData = function(dateStr) {
+        const container = document.getElementById('dailyReport-content');
+        container.innerHTML = 'جاري تحميل تقرير اليومية... ⏳';
+        setTimeout(() => {
+            try {
+                container.innerHTML = generateDailyReport(dateStr);
+            } catch(e) {
+                console.error(e);
+                container.innerHTML = `<span style="color:#f43f5e">حدث خطأ أثناء إنشاء التقرير: ${e.message}</span>`;
+            }
+        }, 200);
+    };
+
+    function generateDailyReport(dateStr) {
+        const sales = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []).filter(x => !x.deleted && x.saleType !== 'preliminary' && x.status !== 'preliminary');
+        const purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted && !x.isGRN && !x.isReturn);
+        const items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+        const payments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+        const receipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+        const multiPayments = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
+        const multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
+        const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
+        const customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+
+        // Filter by Date
+        const todaySales = sales.filter(x => x.date === dateStr);
+        const todayPurchases = purchases.filter(x => x.date === dateStr);
+        const todayPayments = payments.filter(x => x.date === dateStr && !x.deleted);
+        const todayReceipts = receipts.filter(x => x.date === dateStr && !x.deleted);
+        const todayMultiPayments = multiPayments.filter(x => x.date === dateStr && !x.deleted);
+        const todayMultiReceipts = multiReceipts.filter(x => x.date === dateStr && !x.deleted);
+        const todayJvs = jvs.filter(x => x.date === dateStr && !x.deleted);
+
+        // Sum KPIs
+        const totalSalesAmt = todaySales.reduce((sum, x) => sum + (parseFloat(x.grandTotal) || 0), 0);
+        const totalPurchasesAmt = todayPurchases.reduce((sum, x) => sum + (parseFloat(x.grandTotal) || 0), 0);
+        const totalReceiptsAmt = todayReceipts.reduce((sum, x) => sum + (parseFloat(x.amount) || 0), 0) + todayMultiReceipts.reduce((sum, x) => sum + (parseFloat(x.totalAmount) || 0), 0);
+        const totalPaymentsAmt = todayPayments.reduce((sum, x) => sum + (parseFloat(x.amount) || 0), 0) + todayMultiPayments.reduce((sum, x) => sum + (parseFloat(x.totalAmount) || 0), 0);
+        const netFlow = totalReceiptsAmt - totalPaymentsAmt;
+
+        // Build Financial Table HTML
+        let finRows = '';
+        todayReceipts.forEach(x => {
+            finRows += `
+                <tr>
+                    <td><span style="background:rgba(16,185,129,0.15); color:#10b981; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700;">سند قبض مفرد</span></td>
+                    <td>#${x.id || '-'}</td>
+                    <td>${x.description || x.notes || 'قبض نقدية'}</td>
+                    <td>${resolveClientName(x.customer || x.clientId, customers)}</td>
+                    <td><strong style="color:#10b981;">+${(parseFloat(x.amount) || 0).toLocaleString()} SDG</strong></td>
+                </tr>`;
+        });
+        todayMultiReceipts.forEach(x => {
+            finRows += `
+                <tr>
+                    <td><span style="background:rgba(16,185,129,0.15); color:#10b981; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700;">سند قبض مجمع</span></td>
+                    <td>#${x.id || '-'}</td>
+                    <td>${x.notes || 'قبض مجمع'}</td>
+                    <td>-</td>
+                    <td><strong style="color:#10b981;">+${(parseFloat(x.totalAmount) || 0).toLocaleString()} SDG</strong></td>
+                </tr>`;
+        });
+        todayPayments.forEach(x => {
+            finRows += `
+                <tr>
+                    <td><span style="background:rgba(244,63,94,0.15); color:#f43f5e; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700;">سند صرف مفرد</span></td>
+                    <td>#${x.id || '-'}</td>
+                    <td>${x.description || x.notes || 'صرف نقدية'}</td>
+                    <td>${resolveClientName(x.customer || x.clientId, customers)}</td>
+                    <td><strong style="color:#f43f5e;">-${(parseFloat(x.amount) || 0).toLocaleString()} SDG</strong></td>
+                </tr>`;
+        });
+        todayMultiPayments.forEach(x => {
+            finRows += `
+                <tr>
+                    <td><span style="background:rgba(244,63,94,0.15); color:#f43f5e; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700;">سند صرف مجمع</span></td>
+                    <td>#${x.id || '-'}</td>
+                    <td>${x.notes || 'صرف مجمع'}</td>
+                    <td>-</td>
+                    <td><strong style="color:#f43f5e;">-${(parseFloat(x.totalAmount) || 0).toLocaleString()} SDG</strong></td>
+                </tr>`;
+        });
+        todayJvs.forEach(x => {
+            finRows += `
+                <tr>
+                    <td><span style="background:rgba(168,85,247,0.15); color:#a855f7; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700;">قيد محاسبي</span></td>
+                    <td>#${x.id || '-'}</td>
+                    <td>${x.statement || 'قيد يومية'}</td>
+                    <td>-</td>
+                    <td><strong>${(parseFloat(x.totalAmount) || 0).toLocaleString()} SDG</strong></td>
+                </tr>`;
+        });
+
+        if(!finRows) {
+            finRows = `<tr><td colspan="5" style="text-align:center; padding:15px; color:#94a3b8;">لا توجد حركات مالية مسجلة لهذا اليوم.</td></tr>`;
+        }
+
+        // Build Invoices Table HTML
+        let invRows = '';
+        todaySales.forEach(x => {
+            let itemsList = (x.items || []).map(item => `${item.name} (${item.quantity || item.qty} وحدات)`).join('، ');
+            invRows += `
+                <tr>
+                    <td><span style="background:rgba(52,211,153,0.15); color:#34d399; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700;">فاتورة مبيعات</span></td>
+                    <td>#${x.invoiceNo || '-'}</td>
+                    <td>${resolveClientName(x.customer || x.customerId, customers)}</td>
+                    <td>${x.paymentMethod === 'credit' ? 'آجل 💳' : 'نقداً 💵'}</td>
+                    <td><span style="font-size:0.8rem; color:#cbd5e1;">${itemsList || '-'}</span></td>
+                    <td><strong style="color:#34d399;">${(parseFloat(x.grandTotal) || 0).toLocaleString()} SDG</strong></td>
+                </tr>`;
+        });
+        todayPurchases.forEach(x => {
+            let itemsList = (x.items || x.lines || []).map(item => `${resolveItemName(item.itemId || item.productId, items)} (${item.quantity || item.qty} وحدات)`).join('، ');
+            invRows += `
+                <tr>
+                    <td><span style="background:rgba(245,158,11,0.15); color:#f59e0b; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700;">فاتورة مشتريات</span></td>
+                    <td>#${x.invoiceNo || '-'}</td>
+                    <td>${resolveClientName(x.customer || x.customerId, customers)}</td>
+                    <td>${x.paymentMethod === 'credit' ? 'آجل 💳' : 'نقداً 💵'}</td>
+                    <td><span style="font-size:0.8rem; color:#cbd5e1;">${itemsList || '-'}</span></td>
+                    <td><strong style="color:#f59e0b;">${(parseFloat(x.grandTotal) || 0).toLocaleString()} SDG</strong></td>
+                </tr>`;
+        });
+
+        if(!invRows) {
+            invRows = `<tr><td colspan="6" style="text-align:center; padding:15px; color:#94a3b8;">لا توجد فواتير مبيعات أو مشتريات مسجلة لهذا اليوم.</td></tr>`;
+        }
+
+        // Build Inventory Movements Table HTML
+        let stockRows = '';
+        todaySales.forEach(inv => {
+            (inv.items || []).forEach(line => {
+                stockRows += `
+                    <tr>
+                        <td>${line.name}</td>
+                        <td><span style="background:rgba(244,63,94,0.15); color:#f43f5e; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700;">صرف (بيع)</span></td>
+                        <td><strong style="color:#f87171;">-${line.quantity || line.qty}</strong></td>
+                        <td>${resolveWhName(inv.deliveryWarehouse || line.warehouseId || inv.warehouse)}</td>
+                        <td>فاتورة مبيعات #${inv.invoiceNo}</td>
+                    </tr>`;
+            });
+        });
+        todayPurchases.forEach(inv => {
+            (inv.items || inv.lines || []).forEach(line => {
+                stockRows += `
+                    <tr>
+                        <td>${resolveItemName(line.itemId || line.productId, items)}</td>
+                        <td><span style="background:rgba(16,185,129,0.15); color:#10b981; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700;">إدخل (شراء)</span></td>
+                        <td><strong style="color:#34d399;">+${line.quantity || line.qty}</strong></td>
+                        <td>${resolveWhName(line.warehouseId || inv.warehouseId || inv.warehouse)}</td>
+                        <td>فاتورة مشتريات #${inv.invoiceNo}</td>
+                    </tr>`;
+            });
+        });
+
+        if(!stockRows) {
+            stockRows = `<tr><td colspan="5" style="text-align:center; padding:15px; color:#94a3b8;">لا توجد حركة للأصناف في المستودعات لهذا اليوم.</td></tr>`;
+        }
+
+        // Modal Content template
+        return `
+            <!-- Summary Dashboard Inside Modal -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:15px; margin-bottom:25px;">
+                <div style="background:rgba(56, 189, 248, 0.08); border:1px solid rgba(56, 189, 248, 0.2); padding:15px; border-radius:12px; text-align:center;">
+                    <div style="font-size:0.8rem; color:#94a3b8; font-weight:600;">المبيعات اليومية</div>
+                    <div style="font-size:1.15rem; font-weight:800; color:#38bdf8; margin-top:5px;">${totalSalesAmt.toLocaleString()} SDG</div>
+                </div>
+                <div style="background:rgba(245, 158, 11, 0.08); border:1px solid rgba(245, 158, 11, 0.2); padding:15px; border-radius:12px; text-align:center;">
+                    <div style="font-size:0.8rem; color:#94a3b8; font-weight:600;">المشتريات اليومية</div>
+                    <div style="font-size:1.15rem; font-weight:800; color:#f59e0b; margin-top:5px;">${totalPurchasesAmt.toLocaleString()} SDG</div>
+                </div>
+                <div style="background:rgba(16, 185, 129, 0.08); border:1px solid rgba(16, 185, 129, 0.2); padding:15px; border-radius:12px; text-align:center;">
+                    <div style="font-size:0.8rem; color:#94a3b8; font-weight:600;">إجمالي المقبوضات</div>
+                    <div style="font-size:1.15rem; font-weight:800; color:#10b981; margin-top:5px;">${totalReceiptsAmt.toLocaleString()} SDG</div>
+                </div>
+                <div style="background:rgba(244, 63, 94, 0.08); border:1px solid rgba(244, 63, 94, 0.2); padding:15px; border-radius:12px; text-align:center;">
+                    <div style="font-size:0.8rem; color:#94a3b8; font-weight:600;">إجمالي المدفوعات</div>
+                    <div style="font-size:1.15rem; font-weight:800; color:#f43f5e; margin-top:5px;">${totalPaymentsAmt.toLocaleString()} SDG</div>
+                </div>
+                <div style="background:rgba(168, 85, 247, 0.08); border:1px solid rgba(168, 85, 247, 0.2); padding:15px; border-radius:12px; text-align:center; grid-column:span 1;">
+                    <div style="font-size:0.8rem; color:#94a3b8; font-weight:600;">صافي التدفق المالي</div>
+                    <div style="font-size:1.15rem; font-weight:800; color:${netFlow >= 0 ? '#10b981' : '#f43f5e'}; margin-top:5px;">${netFlow.toLocaleString()} SDG</div>
+                </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:25px;">
+                <!-- Section 1: Financial Movements -->
+                <div>
+                    <h4 style="margin:0 0 10px; color:#fff; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:5px; font-weight:800; font-size:1rem; display:flex; align-items:center; gap:8px;">
+                        <span>💵</span> السندات والقيود المالية
+                    </h4>
+                    <div style="overflow-x:auto;">
+                        <table class="premium-table">
+                            <thead>
+                                <tr>
+                                    <th>نوع المستند</th>
+                                    <th>الرقم المرجعي</th>
+                                    <th>البيان / الوصف</th>
+                                    <th>العميل/المورد</th>
+                                    <th>المبلغ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${finRows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Section 2: Invoices -->
+                <div>
+                    <h4 style="margin:0 0 10px; color:#fff; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:5px; font-weight:800; font-size:1rem; display:flex; align-items:center; gap:8px;">
+                        <span>🧾</span> الفواتير التجارية (بيع وشراء)
+                    </h4>
+                    <div style="overflow-x:auto;">
+                        <table class="premium-table">
+                            <thead>
+                                <tr>
+                                    <th>نوع الفاتورة</th>
+                                    <th>رقم الفاتورة</th>
+                                    <th>الجهة</th>
+                                    <th>طريقة الدفع</th>
+                                    <th>الأصناف المباعة/المشتراة</th>
+                                    <th>الإجمالي</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${invRows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Section 3: Warehouse / Item Movements -->
+                <div>
+                    <h4 style="margin:0 0 10px; color:#fff; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:5px; font-weight:800; font-size:1rem; display:flex; align-items:center; gap:8px;">
+                        <span>📦</span> حركة الأصناف في المستودعات
+                    </h4>
+                    <div style="overflow-x:auto;">
+                        <table class="premium-table">
+                            <thead>
+                                <tr>
+                                    <th>اسم الصنف</th>
+                                    <th>نوع الحركة</th>
+                                    <th>الكمية</th>
+                                    <th>المستودع</th>
+                                    <th>المستند المرجعي</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${stockRows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
 </script>
+
+<!-- Daily Report Modal -->
+<div id="dailyReport-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,3,8,0.85); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center; direction: rtl;">
+    <div class="glass-panel" style="width: 95%; max-width: 900px; max-height: 90vh; overflow-y: auto; padding: 30px; position: relative; border: 1px solid rgba(255,255,255,0.12); border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+        <button onclick="document.getElementById('dailyReport-modal').style.display='none'" style="position: absolute; top: 15px; left: 15px; background: none; border: none; color: #f87171; font-size: 1.8rem; cursor: pointer; transition: 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">&times;</button>
+        <h3 style="color: #a855f7; margin-bottom: 20px; font-weight: 800; border-bottom: 1px dashed rgba(255,255,255,0.15); padding-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
+            <span style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size: 1.5rem;">📅</span> تقرير اليومية الشامل
+            </span>
+            <div style="display:flex; align-items:center; gap:8px; font-size:0.85rem; font-weight:normal; color:#cbd5e1;">
+                <span>تاريخ التقرير:</span>
+                <input type="date" id="daily-report-date" style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:8px; padding:6px 12px; font-family:inherit; outline:none;" onchange="loadDailyReportData(this.value)">
+            </div>
+        </h3>
+        <div id="dailyReport-content" style="color: #e2e8f0; line-height: 1.8; font-size: 0.95rem;">
+            <!-- Content populated dynamically -->
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
 

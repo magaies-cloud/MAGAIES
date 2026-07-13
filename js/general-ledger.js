@@ -244,24 +244,35 @@ function collectAllTransactions() {
         const time = v.time || timeNow;
         const isPosted = v.isPosted !== false;
         
+        const rate = parseNum(v.rate || 1);
+        const isBaseSDG = (currency === 'SDG');
+        const amount = parseNum(v.amount);
+        const amountLocal = parseNum(v.amountLocal || (amount * rate));
+        const valLoc = amountLocal;
+        const valFc = isBaseSDG ? 0 : amount;
+
         // Receiving side (Safe/Bank)
         txns.push({
             date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند قبض',
             account: v.toAccount || 'safe-001', counterAccount: v.fromAccount,
-            statement: 'استلام نقدية',
+            statement: 'سند قبض #' + (v.voucherNo || v.id),
             additionalNote: v.fromStatement || 'سند قبض نقدي',
-            debit: parseNum(v.amountLocal), credit: 0, costCenter, currency,
-            exchangeRate: parseNum(v.rate || 1),
+            debit: valLoc, credit: 0, 
+            debitForeign: valFc, creditForeign: 0,
+            costCenter, currency,
+            exchangeRate: rate,
             isPosted: isPosted
         });
         // Disbursing side (Customer/Supplier pays us)
         txns.push({
             date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند صرف',
             account: v.fromAccount, counterAccount: v.toAccount || 'safe-001',
-            statement: 'استلام نقدية',
+            statement: 'سند قبض #' + (v.voucherNo || v.id),
             additionalNote: v.fromStatement || 'سند صرف نقدي',
-            debit: 0, credit: parseNum(v.amountLocal), costCenter, currency,
-            exchangeRate: parseNum(v.rate || 1),
+            debit: 0, credit: valLoc, 
+            debitForeign: 0, creditForeign: valFc,
+            costCenter, currency,
+            exchangeRate: rate,
             isPosted: isPosted
         });
     });
@@ -274,98 +285,131 @@ function collectAllTransactions() {
         const time = v.time || timeNow;
         const isPosted = v.isPosted !== false;
 
+        const rate = parseNum(v.rate || 1);
+        const isBaseSDG = (currency === 'SDG');
+        const amount = parseNum(v.amount);
+        const amountLocal = parseNum(v.amountLocal || (amount * rate));
+        const valLoc = amountLocal;
+        const valFc = isBaseSDG ? 0 : amount;
+
         // Disbursing side (Safe/Bank)
         txns.push({
             date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
             account: v.fromAccount || 'safe-001', counterAccount: v.toAccount,
-            statement: 'صرف نقدية',
+            statement: 'سند صرف #' + (v.voucherNo || v.id),
             additionalNote: v.toStatement || 'سند صرف نقدي',
-            debit: 0, credit: parseNum(v.amountLocal), costCenter, currency,
-            exchangeRate: parseNum(v.rate || 1),
+            debit: 0, credit: valLoc, 
+            debitForeign: 0, creditForeign: valFc,
+            costCenter, currency,
+            exchangeRate: rate,
             isPosted: isPosted
         });
         // Receiving side (Supplier/Customer receives from us)
         txns.push({
             date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
             account: v.toAccount, counterAccount: v.fromAccount || 'safe-001',
-            statement: 'صرف نقدية',
+            statement: 'سند صرف #' + (v.voucherNo || v.id),
             additionalNote: v.toStatement || 'سند استلام نقدي',
-            debit: parseNum(v.amountLocal), credit: 0, costCenter, currency,
-            exchangeRate: parseNum(v.rate || 1),
+            debit: valLoc, credit: 0, 
+            debitForeign: valFc, creditForeign: 0,
+            costCenter, currency,
+            exchangeRate: rate,
             isPosted: isPosted
         });
     });
 
-    // 2.2 Multiple Receipts (erp_receipts_v1)
-    const multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
+    // 2b. Multi-Receipts
+    const multiReceipts = JSON.parse(localStorage.getItem('erp_multi_receipts_v1')) || [];
     multiReceipts.forEach(v => {
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
         const time = v.time || timeNow;
-        const mainAcc = v.mainAccount || v.toAccount || 'safe-001';
         const isPosted = v.isPosted !== false;
-        
-        // Receiving side (Safe/Bank) -> Debited for totalAmount
+        const mainAcc = v.toAccount || 'safe-001';
+
+        const rate = parseNum(v.exchangeRate || 1);
+        const isBaseSDG = (currency === 'SDG');
+        const totalAmount = parseNum(v.totalAmount);
+        const valLoc = isBaseSDG ? totalAmount : totalAmount * rate;
+        const valFc = isBaseSDG ? 0 : totalAmount;
+
         txns.push({
             date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
             account: mainAcc, counterAccount: 'حسابات فرعية متعددة',
             statement: v.description || 'قبض مجمع',
             additionalNote: v.description || 'سند قبض مجمع',
-            debit: parseNum(v.totalAmount), credit: 0, costCenter, currency,
-            exchangeRate: parseNum(v.exchangeRate || 1),
+            debit: valLoc, credit: 0, 
+            debitForeign: valFc, creditForeign: 0,
+            costCenter, currency,
+            exchangeRate: rate,
             isPosted: isPosted
         });
 
-        // Disbursing side (Each sub-account) -> Credited for item.amount
-        if (v.items && Array.isArray(v.items)) {
+        if (v.items && v.items.length > 0) {
             v.items.forEach(item => {
+                const amt = parseNum(item.amount);
+                const amtLoc = isBaseSDG ? amt : amt * rate;
+                const amtFc = isBaseSDG ? 0 : amt;
+
                 txns.push({
                     date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
                     account: item.account, counterAccount: mainAcc,
                     statement: item.statement || 'قبض مجمع فرعي',
                     additionalNote: item.note || v.description || 'سند قبض مجمع',
-                    debit: 0, credit: parseNum(item.amount), 
+                    debit: 0, credit: amtLoc, 
+                    debitForeign: 0, creditForeign: amtFc,
                     costCenter: item.costCenter || costCenter, 
                     currency,
-                    exchangeRate: parseNum(v.exchangeRate || 1),
+                    exchangeRate: rate,
                     isPosted: isPosted
                 });
             });
         }
     });
 
-    // 2.3 Multiple Payments (erp_payments_v1)
-    const multiPayments = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
+    // 2c. Multi-Payments
+    const multiPayments = JSON.parse(localStorage.getItem('erp_multi_payments_v1')) || [];
     multiPayments.forEach(v => {
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
         const time = v.time || timeNow;
-        const mainAcc = v.mainAccount || v.fromAccount || 'safe-001';
         const isPosted = v.isPosted !== false;
+        const mainAcc = v.fromAccount || 'safe-001';
 
-        // Disbursing side (Safe/Bank) -> Credited for totalAmount
+        const rate = parseNum(v.exchangeRate || 1);
+        const isBaseSDG = (currency === 'SDG');
+        const totalAmount = parseNum(v.totalAmount);
+        const valLoc = isBaseSDG ? totalAmount : totalAmount * rate;
+        const valFc = isBaseSDG ? 0 : totalAmount;
+
         txns.push({
             date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
             account: mainAcc, counterAccount: 'حسابات فرعية متعددة',
             statement: v.description || 'صرف مجمع',
             additionalNote: v.description || 'سند صرف مجمع',
-            debit: 0, credit: parseNum(v.totalAmount), costCenter, currency,
-            exchangeRate: parseNum(v.exchangeRate || 1),
+            debit: 0, credit: valLoc, 
+            debitForeign: 0, creditForeign: valFc,
+            costCenter, currency,
+            exchangeRate: rate,
             isPosted: isPosted
         });
 
-        // Receiving side (Each sub-account) -> Debited for item.amount
-        if (v.items && Array.isArray(v.items)) {
+        if (v.items && v.items.length > 0) {
             v.items.forEach(item => {
+                const amt = parseNum(item.amount);
+                const amtLoc = isBaseSDG ? amt : amt * rate;
+                const amtFc = isBaseSDG ? 0 : amt;
+
                 txns.push({
                     date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
                     account: item.account, counterAccount: mainAcc,
                     statement: item.statement || 'صرف مجمع فرعي',
                     additionalNote: item.note || v.description || 'سند صرف مجمع',
-                    debit: parseNum(item.amount), credit: 0, 
+                    debit: amtLoc, credit: 0, 
+                    debitForeign: amtFc, creditForeign: 0,
                     costCenter: item.costCenter || costCenter, 
                     currency,
-                    exchangeRate: parseNum(v.exchangeRate || 1),
+                    exchangeRate: rate,
                     isPosted: isPosted
                 });
             });
@@ -381,20 +425,32 @@ function collectAllTransactions() {
         v.lines.forEach(line => {
             const costCenter = line.costCenter || v.costCenter || 'بدون مركز';
             const currency = line.currency || v.currency || 'SDG';
+
+            const rate = parseNum(line.rate || 1);
+            const isBaseSDG = (currency === 'SDG');
+            const deb = parseNum(line.debit);
+            const cred = parseNum(line.credit);
+            const debLoc = isBaseSDG ? deb : deb * rate;
+            const debFc = isBaseSDG ? 0 : deb;
+            const credLoc = isBaseSDG ? cred : cred * rate;
+            const credFc = isBaseSDG ? 0 : cred;
+
             txns.push({
                 date: v.date, time: time, ref: v.id, type: 'jv', typeLabel: 'قيد يومي',
                 account: line.account, counterAccount: '-',
-                statement: 'قيد يومي',
+                statement: 'قيد يومي #' + (v.voucherNo || v.id),
                 additionalNote: v.statement || line.note || 'قيد يومي',
-                debit: parseNum(line.debit), credit: parseNum(line.credit), costCenter, currency,
-                exchangeRate: parseNum(line.rate || 1),
+                debit: debLoc, credit: credLoc, 
+                debitForeign: debFc, creditForeign: credFc,
+                costCenter, currency,
+                exchangeRate: rate,
                 isPosted: isPosted
             });
         });
     });
 
     // 4. Sales Invoices
-    const sales = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []).filter(x => x.saleType !== 'preliminary' && x.status !== 'preliminary');
+    const sales = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []).filter(x => !x.deleted && !x.isGDN);
     sales.forEach(inv => {
         let total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
         if (total === 0 && inv.items && inv.items.length > 0) {
@@ -409,22 +465,31 @@ function collectAllTransactions() {
         const customerAcct = inv.customerId || inv.customer;
         const isPosted = inv.isPosted !== false;
 
+        const rate = parseNum(inv.exchangeRate || 1);
+        const isBaseSDG = (currency === 'SDG');
+        const amtLoc = isBaseSDG ? total : total * rate;
+        const amtFc = isBaseSDG ? 0 : total;
+
         txns.push({
             date: inv.date, time: time, ref: refNo, type: 'invoice', typeLabel: 'مبيعات',
             account: customerAcct, counterAccount: 'revenue-sales',
-            statement: 'فاتورة مبيعات',
+            statement: 'فاتورة مبيعات #' + refNo,
             additionalNote: `مبيعات آجلة — ${inv.customerName || inv.customer || ''}`,
-            debit: total, credit: 0, costCenter, currency,
-            exchangeRate: parseNum(inv.exchangeRate || 1),
+            debit: amtLoc, credit: 0, 
+            debitForeign: amtFc, creditForeign: 0,
+            costCenter, currency,
+            exchangeRate: rate,
             isPosted: isPosted
         });
         txns.push({
             date: inv.date, time: time, ref: refNo, type: 'invoice', typeLabel: 'مبيعات',
             account: 'revenue-sales', counterAccount: customerAcct,
-            statement: 'فاتورة مبيعات',
+            statement: 'فاتورة مبيعات #' + refNo,
             additionalNote: `إيرادات — ${inv.customerName || inv.customer || ''}`,
-            debit: 0, credit: total, costCenter, currency,
-            exchangeRate: parseNum(inv.exchangeRate || 1),
+            debit: 0, credit: amtLoc, 
+            debitForeign: 0, creditForeign: amtFc,
+            costCenter, currency,
+            exchangeRate: rate,
             isPosted: isPosted
         });
 
@@ -435,8 +500,10 @@ function collectAllTransactions() {
                 account: paymentAcct, counterAccount: customerAcct,
                 statement: 'استلام نقدية',
                 additionalNote: 'سداد نقدي مع الفاتورة',
-                debit: total, credit: 0, costCenter, currency,
-                exchangeRate: parseNum(inv.exchangeRate || 1),
+                debit: amtLoc, credit: 0, 
+                debitForeign: amtFc, creditForeign: 0,
+                costCenter, currency,
+                exchangeRate: rate,
                 isPosted: isPosted
             });
             txns.push({
@@ -444,8 +511,10 @@ function collectAllTransactions() {
                 account: customerAcct, counterAccount: paymentAcct,
                 statement: 'استلام نقدية',
                 additionalNote: 'سداد نقدي مع الفاتورة',
-                debit: 0, credit: total, costCenter, currency,
-                exchangeRate: parseNum(inv.exchangeRate || 1),
+                debit: 0, credit: amtLoc, 
+                debitForeign: 0, creditForeign: amtFc,
+                costCenter, currency,
+                exchangeRate: rate,
                 isPosted: isPosted
             });
         }
@@ -467,22 +536,31 @@ function collectAllTransactions() {
         const supplierAcct = inv.supplierId || inv.supplier || inv.customer;
         const isPosted = inv.isPosted !== false;
 
+        const rate = parseNum(inv.exchangeRate || 1);
+        const isBaseSDG = (currency === 'SDG');
+        const amtLoc = isBaseSDG ? total : total * rate;
+        const amtFc = isBaseSDG ? 0 : total;
+
         txns.push({
             date: inv.date, time: time, ref: refNo, type: 'purchase', typeLabel: 'مشتريات',
             account: 'exp-purchases', counterAccount: supplierAcct,
-            statement: 'فاتورة مشتريات',
+            statement: 'فاتورة مشتريات #' + refNo,
             additionalNote: `مشتريات آجلة — ${inv.supplierName || inv.supplier || ''}`,
-            debit: total, credit: 0, costCenter, currency,
-            exchangeRate: parseNum(inv.exchangeRate || 1),
+            debit: amtLoc, credit: 0, 
+            debitForeign: amtFc, creditForeign: 0,
+            costCenter, currency,
+            exchangeRate: rate,
             isPosted: isPosted
         });
         txns.push({
             date: inv.date, time: time, ref: refNo, type: 'purchase', typeLabel: 'مشتريات',
             account: supplierAcct, counterAccount: 'exp-purchases',
-            statement: 'فاتورة مشتريات',
+            statement: 'فاتورة مشتريات #' + refNo,
             additionalNote: `مستحقات مورد — ${inv.supplierName || inv.supplier || ''}`,
-            debit: 0, credit: total, costCenter, currency,
-            exchangeRate: parseNum(inv.exchangeRate || 1),
+            debit: 0, credit: amtLoc, 
+            debitForeign: 0, creditForeign: amtFc,
+            costCenter, currency,
+            exchangeRate: rate,
             isPosted: isPosted
         });
 
@@ -493,8 +571,10 @@ function collectAllTransactions() {
                 account: paymentAcct, counterAccount: supplierAcct,
                 statement: 'صرف نقدية',
                 additionalNote: 'سداد نقدي مع الفاتورة',
-                debit: 0, credit: total, costCenter, currency,
-                exchangeRate: parseNum(inv.exchangeRate || 1),
+                debit: 0, credit: amtLoc,
+                debitForeign: 0, creditForeign: amtFc,
+                costCenter, currency,
+                exchangeRate: rate,
                 isPosted: isPosted
             });
             txns.push({
@@ -502,8 +582,10 @@ function collectAllTransactions() {
                 account: supplierAcct, counterAccount: paymentAcct,
                 statement: 'صرف نقدية',
                 additionalNote: 'سداد نقدي مع الفاتورة',
-                debit: total, credit: 0, costCenter, currency,
-                exchangeRate: parseNum(inv.exchangeRate || 1),
+                debit: amtLoc, credit: 0,
+                debitForeign: amtFc, creditForeign: 0,
+                costCenter, currency,
+                exchangeRate: rate,
                 isPosted: isPosted
             });
         }
@@ -1152,7 +1234,7 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
         if (!c.visible) return;
         activeColsCount++;
         let displayName = c.alias ? c.alias : c.name;
-        ths += `<th style="width:${c.width};">${displayName}<div class="resize-handle-left"></div><div class="resize-handle-right"></div></th>`;
+        ths += `<th style="width:${c.width};">${displayName}<div class="resize-handle"></div></th>`;
     });
     thead.innerHTML = `<tr>${ths}</tr>`;
 
@@ -1200,7 +1282,7 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
 
         const counterAccName = getAccountName(t.counterAccount) || '-';
 
-        let rowHtml = `<tr title="${t.isOpening ? '' : 'انقر لعرض المستند (Drill-down)'}" ${t.isOpening ? '' : `onclick="openDrillDown('${t.type}', '${t.ref}')"`} style="${t.isOpening ? 'background:rgba(255,255,255,0.03);' : ''}">`;
+        let rowHtml = `<tr data-type="${t.type}" data-ref="${t.ref}" data-is-opening="${t.isOpening ? 'true' : 'false'}" title="${t.isOpening ? '' : 'انقر لعرض المستند (Drill-down)'}" ${t.isOpening ? '' : `onclick="openDrillDown('${t.type}', '${t.ref}')"`} style="${t.isOpening ? 'background:rgba(255,255,255,0.03);' : ''}">`;
 
         // Map values to IDs
         const colValues = {
@@ -1232,7 +1314,7 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
                     val = '<span class="td-empty">—</span>';
                 } else {
                     let formatted = fmtNumDec(val, c.dec);
-                    val = `<div class="num-cell-wrapper ${currentNumFont}" onclick="toggleReviewMode(event)" oncontextmenu="showContextMenu(event, '${t.type}', '${t.ref}')">${formatted}</div>`;
+                    val = `<div class="num-cell-wrapper ${currentNumFont}" onclick="showContextMenu(event, '${t.type}', '${t.ref}')" oncontextmenu="showContextMenu(event, '${t.type}', '${t.ref}')">${formatted}</div>`;
                 }
             }
 
@@ -1693,8 +1775,9 @@ window.showContextMenu = function(e, type, ref) {
     e.preventDefault();
     e.stopPropagation();
     
-    // Go directly to the document as requested by user
-    openDrillDown(type, ref);
+    if (window.openLedgerContextMenu) {
+        window.openLedgerContextMenu(e, type, ref, e.currentTarget);
+    }
 };
 
 function closeContextMenu() {

@@ -1200,5 +1200,168 @@ function runAISmartSearch() {
     });
 }
 </script>
+
+<!-- Custom Context Menu for General Ledger -->
+<div id="ledger-context-menu" class="glass-panel" style="
+    display: none;
+    position: fixed;
+    z-index: 20000;
+    width: 240px;
+    padding: 8px;
+    border-radius: 12px;
+    background: rgba(15, 12, 22, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    direction: rtl;
+    font-family: 'Outfit', 'Tajawal', sans-serif;
+">
+    <!-- Option 1: Show Source Document -->
+    <button id="btn-show-doc" style="
+        width: 100%;
+        text-align: right;
+        background: none;
+        border: none;
+        color: #e2e8f0;
+        padding: 10px 12px;
+        font-size: 0.88rem;
+        cursor: pointer;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+        outline: none;
+    " onmouseover="this.style.background='rgba(56, 189, 248, 0.15)'; this.style.color='#38bdf8';" onmouseout="this.style.background='none'; this.style.color='#e2e8f0';">
+        <span>🔍</span>
+        <span id="doc-action-text">عرض أصل المستند</span>
+    </button>
+
+    <!-- Option 2: Toggle Review Mode -->
+    <button id="btn-toggle-review" style="
+        width: 100%;
+        text-align: right;
+        background: none;
+        border: none;
+        color: #e2e8f0;
+        padding: 10px 12px;
+        font-size: 0.88rem;
+        cursor: pointer;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+        outline: none;
+        border-top: 1px solid rgba(255,255,255,0.05);
+        margin-top: 4px;
+        padding-top: 10px;
+    " onmouseover="this.style.background='rgba(16, 185, 129, 0.15)'; this.style.color='#10b981';" onmouseout="this.style.background='none'; this.style.color='#e2e8f0';">
+        <span>✅</span>
+        <span>تعليم كـ مراجع (مراجعة)</span>
+    </button>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tbody = document.getElementById('ledger-tbody');
+        const menu = document.getElementById('ledger-context-menu');
+        const btnShowDoc = document.getElementById('btn-show-doc');
+        const btnToggleReview = document.getElementById('btn-toggle-review');
+        const actionText = document.getElementById('doc-action-text');
+
+        let currentType = '';
+        let currentRef = '';
+        let currentCell = null;
+
+        window.openLedgerContextMenu = function(e, type, ref, cellEl = null) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (type === 'opening') {
+                if (menu) menu.style.display = 'none';
+                return;
+            }
+
+            currentType = type;
+            currentRef = ref;
+            currentCell = cellEl;
+
+            // Map type to localized name
+            let typeName = 'المستند';
+            if (type === 'invoice') typeName = 'فاتورة المبيعات';
+            else if (type === 'purchase') typeName = 'فاتورة المشتريات';
+            else if (type === 'jv') typeName = 'قيد اليومية';
+            else if (type === 'receipt') typeName = 'سند القبض';
+            else if (type === 'payment') typeName = 'سند الصرف';
+
+            actionText.textContent = `عرض ${typeName} (#${ref})`;
+
+            // Show/hide toggle review button
+            if (btnToggleReview) {
+                btnToggleReview.style.display = cellEl ? 'flex' : 'none';
+            }
+
+            menu.style.display = 'block';
+            
+            // Position menu at mouse cursor
+            let left = e.clientX;
+            let top = e.clientY;
+            if (left + 240 > window.innerWidth) left = window.innerWidth - 250;
+            const menuHeight = cellEl ? 100 : 50;
+            if (top + menuHeight > window.innerHeight) top = window.innerHeight - (menuHeight + 10);
+
+            menu.style.left = left + 'px';
+            menu.style.top = top + 'px';
+        };
+
+        if (tbody) {
+            // Context menu delegation for the row (outside number cells)
+            tbody.addEventListener('contextmenu', (e) => {
+                // If it was clicked on a number cell wrapper, let the showContextMenu handle it
+                if (e.target.closest('.num-cell-wrapper')) return;
+
+                const tr = e.target.closest('tr');
+                if (!tr) return;
+
+                const isOpening = tr.getAttribute('data-is-opening') === 'true';
+                const type = tr.getAttribute('data-type');
+                const ref = tr.getAttribute('data-ref');
+
+                if (isOpening || !type || !ref) {
+                    if (menu) menu.style.display = 'none';
+                    return;
+                }
+
+                window.openLedgerContextMenu(e, type, ref, null);
+            });
+        }
+
+        if (btnShowDoc) {
+            btnShowDoc.addEventListener('click', () => {
+                if (typeof openDrillDown === 'function') {
+                    openDrillDown(currentType, currentRef);
+                }
+                menu.style.display = 'none';
+            });
+        }
+
+        if (btnToggleReview) {
+            btnToggleReview.addEventListener('click', () => {
+                if (currentCell) {
+                    currentCell.classList.toggle('reviewed-cell');
+                }
+                menu.style.display = 'none';
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (menu && !menu.contains(e.target)) {
+                menu.style.display = 'none';
+            }
+        });
+    });
+</script>
+
 </body>
 </html>
