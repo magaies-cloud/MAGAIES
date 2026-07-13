@@ -42,7 +42,7 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
 
         const data = await response.json();
         
-        if (!response.ok) {
+        if (!response.ok || data.error || data.success === false) {
             throw new Error(data.error || 'API Error');
         }
 

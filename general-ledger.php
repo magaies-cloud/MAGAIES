@@ -189,7 +189,15 @@
 
 
         /* SGL Theme */
-        .ledger-header { background: linear-gradient(135deg, rgba(192,132,252,0.15), rgba(15,23,42,0.9)); border: 1px solid rgba(192,132,252,0.2); border-radius: 16px; padding: 25px; margin-bottom: 20px; }
+        .ledger-header { 
+            background: linear-gradient(135deg, rgba(192,132,252,0.15), rgba(15,23,42,0.9)); 
+            border: 1px solid rgba(192,132,252,0.2); 
+            border-radius: 16px; 
+            padding: 32px 25px; 
+            margin-bottom: 20px; 
+            height: auto !important; 
+            display: block !important; 
+        }
         .badge-sgl { background: #c084fc; color: #fff; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 900; letter-spacing: 1px; display: inline-block; vertical-align: middle; margin-right: 10px; }
         
         .filter-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
@@ -225,6 +233,102 @@
             letter-spacing: 0.5px;
             pointer-events: none;
             text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+        }
+
+        /* Unified SGL Filter Grid Styles */
+        .sgl-filter-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            row-gap: 20px;
+            column-gap: 15px;
+            align-items: stretch;
+            margin-bottom: 0;
+        }
+
+        .filter-group-row {
+            display: flex;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 12px !important;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            padding: 10px 14px;
+            transition: all 0.3s ease;
+            position: relative;
+            box-sizing: border-box;
+            min-height: 48px;
+        }
+        .filter-group-row label {
+            margin-bottom: 0 !important;
+            white-space: nowrap !important;
+            color: #ff7300 !important; 
+            font-size: 0.95rem !important; 
+            font-weight: 900 !important; 
+            letter-spacing: 0.5px !important;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8) !important;
+        }
+        .filter-group-row:focus-within {
+            border-color: #a855f7;
+            box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.15), inset 0 0 10px rgba(168, 85, 247, 0.1);
+            background: rgba(15, 23, 42, 0.9);
+            transform: translateY(-2px);
+        }
+
+        /* Stacking Context Fixes to keep dropdowns on top */
+        .sgl-main-account { z-index: 30 !important; }
+        .sgl-period-all, .sgl-period-from, .sgl-period-to { z-index: 25 !important; }
+        .sgl-currency { z-index: 20 !important; }
+        
+        .sgl-type { z-index: 10 !important; }
+        .sgl-costcenter { z-index: 9 !important; }
+        .sgl-posted { z-index: 8 !important; }
+        .sgl-search { z-index: 7 !important; }
+
+        /* Desktop Layout (min-width: 1200px) */
+        @media (min-width: 1200px) {
+            .sgl-main-account { grid-column: span 6 !important; }
+            .sgl-period-all { grid-column: span 4 !important; }
+            .sgl-period-from { grid-column: span 2 !important; }
+            .sgl-period-to { grid-column: span 2 !important; }
+            .sgl-currency { grid-column: span 2 !important; }
+            
+            .sgl-type { grid-column: span 3 !important; }
+            .sgl-costcenter { grid-column: span 3 !important; }
+            .sgl-posted { grid-column: span 3 !important; }
+            .sgl-search { grid-column: span 3 !important; }
+        }
+
+        /* Large Tablets / Small Desktops (768px to 1199px) */
+        @media (min-width: 768px) and (max-width: 1199px) {
+            .sgl-main-account { grid-column: span 12 !important; }
+            .sgl-period-all { grid-column: span 6 !important; }
+            .sgl-period-from { grid-column: span 3 !important; }
+            .sgl-period-to { grid-column: span 3 !important; }
+            .sgl-currency { grid-column: span 6 !important; }
+            
+            .sgl-type { grid-column: span 6 !important; }
+            .sgl-costcenter { grid-column: span 6 !important; }
+            .sgl-posted { grid-column: span 6 !important; }
+            .sgl-search { grid-column: span 6 !important; }
+        }
+
+        /* Mobile Screens (max-width: 767px) */
+        @media (max-width: 767px) {
+            .sgl-filter-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .sgl-main-account,
+            .sgl-period-all,
+            .sgl-period-from,
+            .sgl-period-to,
+            .sgl-currency,
+            .sgl-type,
+            .sgl-costcenter,
+            .sgl-posted,
+            .sgl-search {
+                grid-column: span 1 !important;
+            }
         }
         /* Old duplicate filter-input CSS removed */
         .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 15px; }
@@ -392,7 +496,7 @@
         .filter-input {
             background: transparent !important;
             border: none !important;
-            padding: 0 !important;
+            padding: 6px 0 !important;
             color: #f8fafc !important;
             font-size: 0.95rem !important;
             box-shadow: none !important;
@@ -400,6 +504,8 @@
             outline: none !important;
             width: 100%;
             font-family: inherit;
+            text-align: center !important;
+            text-align-last: center !important;
         }
         .filter-input:focus {
             box-shadow: none !important;
@@ -411,6 +517,7 @@
             background: #1e293b;
             color: #fff;
             padding: 10px;
+            text-align: center !important;
         }
         /* Custom date picker icon color */
         ::-webkit-calendar-picker-indicator {
@@ -677,60 +784,60 @@
     <!-- FILTER SECTION -->
     <div class="ledger-header no-print premium-header">
         <div class="premium-header-bg"></div>
-        <!-- الصف الأول: الحساب والتواريخ (الأولوية القصوى) -->
-        <div class="filter-row-single">
-            <div class="filter-group-inline col-span-2">
+        <div class="sgl-filter-grid">
+            <!-- السطر الأول -->
+            <!-- الحساب الرئيسي (Label and input on the same line) -->
+            <div class="filter-group-row sgl-main-account">
                 <label>الحساب الرئيسي</label>
-                <div class="search-wrap" style="display:flex; gap:5px; align-items: center; position: relative; width: 100%;">
-                    <div style="position:relative; flex:1;">
+                <div style="flex: 1; display: flex; align-items: center; position: relative;">
+                    <!-- Input search container -->
+                    <div class="search-wrap" id="account-search-wrap" style="display:flex; flex:1; align-items: center; position: relative; width: 100%;">
                         <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث باسم أو رقم الحساب..." autocomplete="off" oninput="onAccountSearch()" onkeyup="onAccountSearchKey(event)" style="width:100%;">
                         <button class="search-clear-btn" id="search-clear-btn">✕</button>
                         <ul class="autocomplete-list" id="autocomplete-list"></ul>
                     </div>
-                    <button type="button" class="btn-action" onclick="runAISmartSearch()" id="btn-smart-search" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); color:white; border:none; padding: 0 12px; border-radius: 6px; box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3); font-weight: bold; cursor: pointer; transition: 0.3s; height: 26px; font-size: 0.8rem; white-space:nowrap; margin-right: 5px;" title="البحث بالمعنى (الذكاء الاصطناعي)">🤖 ذكي</button>
-                </div>
-                <div class="selected-account-chip" id="selected-chip">
-                    <span id="chip-icon">🏷️</span>
-                    <span id="chip-name" style="flex:1;"></span>
-                    <button class="chip-remove" onclick="clearAccountSearch()" title="إلغاء">✕</button>
+                    <!-- Selected Account Chip (Styled cleanly like the input to keep height matching) -->
+                    <div class="selected-account-chip" id="selected-chip" style="display: none; align-items: center; gap: 8px; width: 100%; border: none; background: transparent; padding: 0; margin: 0; box-shadow: none;">
+                        <span id="chip-icon" style="font-size: 1.15rem; line-height: 1;">🏷️</span>
+                        <span id="chip-name" style="flex:1; font-size: 0.95rem; color: #f8fafc; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+                        <button class="chip-remove" onclick="clearAccountSearch()" title="إلغاء" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.1rem; padding: 0 5px; line-height: 1;">✕</button>
+                    </div>
                 </div>
                 <input type="hidden" id="filter-account" value="ALL">
             </div>
 
             <!-- Date Filter Section -->
-            <div class="filter-group-inline" id="date-all-period-btn" style="cursor: pointer; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 8px; background: rgba(168, 85, 247, 0.1); border: 1px dashed rgba(168, 85, 247, 0.4); grid-column: span 2;" onclick="setDateMode('range')">
+            <div class="filter-group-inline sgl-period-all" id="date-all-period-btn" style="cursor: pointer; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 8px; background: rgba(168, 85, 247, 0.1); border: 1px dashed rgba(168, 85, 247, 0.4); min-height: 48px; box-sizing: border-box;" onclick="setDateMode('range')">
                 <span style="font-size: 1.2rem;">📅</span>
                 <span style="color: #c084fc; font-weight: bold;">الفترة: كل الفترة</span>
                 <span style="font-size: 0.75rem; background: rgba(168, 85, 247, 0.2); padding: 2px 6px; border-radius: 6px; color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.3);">تخصيص ⚡</span>
             </div>
 
-            <div class="filter-group-inline" id="date-from-container" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                    <label>من تاريخ</label>
-                    <span onclick="setDateMode('all'); event.stopPropagation();" style="color: #f87171; font-size: 0.75rem; cursor: pointer; font-weight: bold; padding: 0 4px;" title="إلغاء وتعيين كل الفترة">✕ إلغاء</span>
-                </div>
-                <input type="date" class="filter-input" id="filter-from" onchange="runReport()">
+            <div class="filter-group-row sgl-period-from" id="date-from-container" style="display: none;">
+                <label style="white-space: nowrap;">من تاريخ</label>
+                <input type="date" class="filter-input" id="filter-from" onchange="runReport()" style="flex: 1;">
+                <span onclick="setDateMode('all'); event.stopPropagation();" style="color: #f87171; font-size: 0.75rem; cursor: pointer; font-weight: bold; padding: 0 4px; white-space: nowrap;" title="إلغاء وتعيين كل الفترة">✕ إلغاء</span>
             </div>
 
-            <div class="filter-group-inline" id="date-to-container" style="display: none;">
-                <label>إلى تاريخ</label>
-                <input type="date" class="filter-input" id="filter-to" onchange="runReport()">
+            <div class="filter-group-row sgl-period-to" id="date-to-container" style="display: none;">
+                <label style="white-space: nowrap;">إلى تاريخ</label>
+                <input type="date" class="filter-input" id="filter-to" onchange="runReport()" style="flex: 1;">
             </div>
-        </div>
 
-        <!-- الصف الثاني: الفلاتر الإضافية والبحث النصي -->
-        <div class="filter-row-single" style="margin-bottom: 5px;">
-            <div class="filter-group-inline">
+            <!-- العملة -->
+            <div class="filter-group-row sgl-currency">
                 <label>العملة</label>
-                <select class="filter-input" id="filter-currency">
+                <select class="filter-input" id="filter-currency" style="flex: 1;">
                     <option value="ALL">جميع العملات</option>
                     <!-- Will be populated dynamically -->
                 </select>
             </div>
 
-            <div class="filter-group-inline">
+            <!-- السطر الثاني -->
+            <!-- نوع الحركة -->
+            <div class="filter-group-row sgl-type">
                 <label>نوع الحركة</label>
-                <select class="filter-input" id="filter-type">
+                <select class="filter-input" id="filter-type" style="flex: 1;">
                     <option value="ALL">جميع الحركات</option>
                     <option value="receipt">سند قبض</option>
                     <option value="payment">سند صرف</option>
@@ -740,15 +847,27 @@
                 </select>
             </div>
 
-            <div class="filter-group-inline">
+            <!-- مركز التكلفة -->
+            <div class="filter-group-row sgl-costcenter">
                 <label>مركز التكلفة</label>
-                <select class="filter-input" id="filter-costcenter">
+                <select class="filter-input" id="filter-costcenter" style="flex: 1;">
                     <option value="ALL">الكل</option>
                     <!-- Will be populated dynamically -->
                 </select>
             </div>
 
-            <div class="filter-group-inline">
+            <!-- حالة الترحيل -->
+            <div class="filter-group-row sgl-posted">
+                <label>حالة الترحيل</label>
+                <select class="filter-input" id="filter-posted" onchange="runReport()" style="flex: 1;">
+                    <option value="ALL">الكل (مرحل وغير مرحل)</option>
+                    <option value="posted">مرحلة فقط</option>
+                    <option value="unposted">غير مرحلة فقط</option>
+                </select>
+            </div>
+
+            <!-- البحث النصي (Label and input on the same line) -->
+            <div class="filter-group-row sgl-search">
                 <label title="بحث سريع برقم المرجع أو كلمة في البيان">بحث نصي (مرجع/بيان)</label>
                 <input type="text" class="filter-input" id="filter-search" placeholder="اكتب للبحث..." autocomplete="off" onkeyup="if(event.key === 'Enter') runReport()">
             </div>

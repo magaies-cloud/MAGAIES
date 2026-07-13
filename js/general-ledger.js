@@ -151,12 +151,10 @@ function onAccountSearchKey(e) {
 
 function selectAccount(id, name, icon) {
     document.getElementById('filter-account').value = id;
-    const input = document.getElementById('account-search-input');
-    const btnSmart = document.getElementById('btn-smart-search');
+    const wrap = document.getElementById('account-search-wrap');
     const chip = document.getElementById('selected-chip');
     
-    if (input) input.style.display = 'none';
-    if (btnSmart) btnSmart.style.display = 'none';
+    if (wrap) wrap.style.display = 'none';
     
     if (chip) {
         chip.style.display = 'flex';
@@ -176,15 +174,14 @@ function clearAccountSearch() {
     const chip = document.getElementById('selected-chip');
     if (chip) chip.style.display = 'none';
     
+    const wrap = document.getElementById('account-search-wrap');
     const input = document.getElementById('account-search-input');
-    const btnSmart = document.getElementById('btn-smart-search');
     
+    if (wrap) wrap.style.display = 'flex';
     if (input) {
-        input.style.display = 'block';
         input.value = '';
         input.focus();
     }
-    if (btnSmart) btnSmart.style.display = 'inline-block';
     
     // Reset Report View
     const tbody = document.getElementById('ledger-tbody');
@@ -245,6 +242,7 @@ function collectAllTransactions() {
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
         const time = v.time || timeNow;
+        const isPosted = v.isPosted !== false;
         
         // Receiving side (Safe/Bank)
         txns.push({
@@ -253,7 +251,8 @@ function collectAllTransactions() {
             statement: 'استلام نقدية',
             additionalNote: v.fromStatement || 'سند قبض نقدي',
             debit: parseNum(v.amountLocal), credit: 0, costCenter, currency,
-            exchangeRate: parseNum(v.rate || 1)
+            exchangeRate: parseNum(v.rate || 1),
+            isPosted: isPosted
         });
         // Disbursing side (Customer/Supplier pays us)
         txns.push({
@@ -262,7 +261,8 @@ function collectAllTransactions() {
             statement: 'استلام نقدية',
             additionalNote: v.fromStatement || 'سند صرف نقدي',
             debit: 0, credit: parseNum(v.amountLocal), costCenter, currency,
-            exchangeRate: parseNum(v.rate || 1)
+            exchangeRate: parseNum(v.rate || 1),
+            isPosted: isPosted
         });
     });
 
@@ -272,6 +272,7 @@ function collectAllTransactions() {
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
         const time = v.time || timeNow;
+        const isPosted = v.isPosted !== false;
 
         // Disbursing side (Safe/Bank)
         txns.push({
@@ -280,7 +281,8 @@ function collectAllTransactions() {
             statement: 'صرف نقدية',
             additionalNote: v.toStatement || 'سند صرف نقدي',
             debit: 0, credit: parseNum(v.amountLocal), costCenter, currency,
-            exchangeRate: parseNum(v.rate || 1)
+            exchangeRate: parseNum(v.rate || 1),
+            isPosted: isPosted
         });
         // Receiving side (Supplier/Customer receives from us)
         txns.push({
@@ -289,18 +291,19 @@ function collectAllTransactions() {
             statement: 'صرف نقدية',
             additionalNote: v.toStatement || 'سند استلام نقدي',
             debit: parseNum(v.amountLocal), credit: 0, costCenter, currency,
-            exchangeRate: parseNum(v.rate || 1)
+            exchangeRate: parseNum(v.rate || 1),
+            isPosted: isPosted
         });
     });
 
     // 2.2 Multiple Receipts (erp_receipts_v1)
     const multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
     multiReceipts.forEach(v => {
-        if (!v.isPosted) return;
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
         const time = v.time || timeNow;
         const mainAcc = v.mainAccount || v.toAccount || 'safe-001';
+        const isPosted = v.isPosted !== false;
         
         // Receiving side (Safe/Bank) -> Debited for totalAmount
         txns.push({
@@ -309,7 +312,8 @@ function collectAllTransactions() {
             statement: v.description || 'قبض مجمع',
             additionalNote: v.description || 'سند قبض مجمع',
             debit: parseNum(v.totalAmount), credit: 0, costCenter, currency,
-            exchangeRate: parseNum(v.exchangeRate || 1)
+            exchangeRate: parseNum(v.exchangeRate || 1),
+            isPosted: isPosted
         });
 
         // Disbursing side (Each sub-account) -> Credited for item.amount
@@ -323,7 +327,8 @@ function collectAllTransactions() {
                     debit: 0, credit: parseNum(item.amount), 
                     costCenter: item.costCenter || costCenter, 
                     currency,
-                    exchangeRate: parseNum(v.exchangeRate || 1)
+                    exchangeRate: parseNum(v.exchangeRate || 1),
+                    isPosted: isPosted
                 });
             });
         }
@@ -332,11 +337,11 @@ function collectAllTransactions() {
     // 2.3 Multiple Payments (erp_payments_v1)
     const multiPayments = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
     multiPayments.forEach(v => {
-        if (!v.isPosted) return;
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
         const time = v.time || timeNow;
         const mainAcc = v.mainAccount || v.fromAccount || 'safe-001';
+        const isPosted = v.isPosted !== false;
 
         // Disbursing side (Safe/Bank) -> Credited for totalAmount
         txns.push({
@@ -345,7 +350,8 @@ function collectAllTransactions() {
             statement: v.description || 'صرف مجمع',
             additionalNote: v.description || 'سند صرف مجمع',
             debit: 0, credit: parseNum(v.totalAmount), costCenter, currency,
-            exchangeRate: parseNum(v.exchangeRate || 1)
+            exchangeRate: parseNum(v.exchangeRate || 1),
+            isPosted: isPosted
         });
 
         // Receiving side (Each sub-account) -> Debited for item.amount
@@ -359,7 +365,8 @@ function collectAllTransactions() {
                     debit: parseNum(item.amount), credit: 0, 
                     costCenter: item.costCenter || costCenter, 
                     currency,
-                    exchangeRate: parseNum(v.exchangeRate || 1)
+                    exchangeRate: parseNum(v.exchangeRate || 1),
+                    isPosted: isPosted
                 });
             });
         }
@@ -370,6 +377,7 @@ function collectAllTransactions() {
     jvs.forEach(v => {
         if (!v.lines) return;
         const time = v.time || timeNow;
+        const isPosted = v.isPosted !== false;
         v.lines.forEach(line => {
             const costCenter = line.costCenter || v.costCenter || 'بدون مركز';
             const currency = line.currency || v.currency || 'SDG';
@@ -379,7 +387,8 @@ function collectAllTransactions() {
                 statement: 'قيد يومي',
                 additionalNote: v.statement || line.note || 'قيد يومي',
                 debit: parseNum(line.debit), credit: parseNum(line.credit), costCenter, currency,
-                exchangeRate: parseNum(line.rate || 1)
+                exchangeRate: parseNum(line.rate || 1),
+                isPosted: isPosted
             });
         });
     });
@@ -398,6 +407,7 @@ function collectAllTransactions() {
         const time = inv.time || timeNow;
         const refNo = inv.invoiceNo || inv.id;
         const customerAcct = inv.customerId || inv.customer;
+        const isPosted = inv.isPosted !== false;
 
         txns.push({
             date: inv.date, time: time, ref: refNo, type: 'invoice', typeLabel: 'مبيعات',
@@ -405,7 +415,8 @@ function collectAllTransactions() {
             statement: 'فاتورة مبيعات',
             additionalNote: `مبيعات آجلة — ${inv.customerName || inv.customer || ''}`,
             debit: total, credit: 0, costCenter, currency,
-            exchangeRate: parseNum(inv.exchangeRate || 1)
+            exchangeRate: parseNum(inv.exchangeRate || 1),
+            isPosted: isPosted
         });
         txns.push({
             date: inv.date, time: time, ref: refNo, type: 'invoice', typeLabel: 'مبيعات',
@@ -413,7 +424,8 @@ function collectAllTransactions() {
             statement: 'فاتورة مبيعات',
             additionalNote: `إيرادات — ${inv.customerName || inv.customer || ''}`,
             debit: 0, credit: total, costCenter, currency,
-            exchangeRate: parseNum(inv.exchangeRate || 1)
+            exchangeRate: parseNum(inv.exchangeRate || 1),
+            isPosted: isPosted
         });
 
         if (inv.paymentMethod !== 'credit') {
@@ -424,7 +436,8 @@ function collectAllTransactions() {
                 statement: 'استلام نقدية',
                 additionalNote: 'سداد نقدي مع الفاتورة',
                 debit: total, credit: 0, costCenter, currency,
-                exchangeRate: parseNum(inv.exchangeRate || 1)
+                exchangeRate: parseNum(inv.exchangeRate || 1),
+                isPosted: isPosted
             });
             txns.push({
                 date: inv.date, time: time, ref: refNo + '-PAID', type: 'receipt', typeLabel: 'سداد فاتورة',
@@ -432,7 +445,8 @@ function collectAllTransactions() {
                 statement: 'استلام نقدية',
                 additionalNote: 'سداد نقدي مع الفاتورة',
                 debit: 0, credit: total, costCenter, currency,
-                exchangeRate: parseNum(inv.exchangeRate || 1)
+                exchangeRate: parseNum(inv.exchangeRate || 1),
+                isPosted: isPosted
             });
         }
     });
@@ -451,6 +465,7 @@ function collectAllTransactions() {
         const time = inv.time || timeNow;
         const refNo = inv.invoiceNo || inv.id;
         const supplierAcct = inv.supplierId || inv.supplier || inv.customer;
+        const isPosted = inv.isPosted !== false;
 
         txns.push({
             date: inv.date, time: time, ref: refNo, type: 'purchase', typeLabel: 'مشتريات',
@@ -458,7 +473,8 @@ function collectAllTransactions() {
             statement: 'فاتورة مشتريات',
             additionalNote: `مشتريات آجلة — ${inv.supplierName || inv.supplier || ''}`,
             debit: total, credit: 0, costCenter, currency,
-            exchangeRate: parseNum(inv.exchangeRate || 1)
+            exchangeRate: parseNum(inv.exchangeRate || 1),
+            isPosted: isPosted
         });
         txns.push({
             date: inv.date, time: time, ref: refNo, type: 'purchase', typeLabel: 'مشتريات',
@@ -466,7 +482,8 @@ function collectAllTransactions() {
             statement: 'فاتورة مشتريات',
             additionalNote: `مستحقات مورد — ${inv.supplierName || inv.supplier || ''}`,
             debit: 0, credit: total, costCenter, currency,
-            exchangeRate: parseNum(inv.exchangeRate || 1)
+            exchangeRate: parseNum(inv.exchangeRate || 1),
+            isPosted: isPosted
         });
 
         if (inv.paymentMethod !== 'credit') {
@@ -477,7 +494,8 @@ function collectAllTransactions() {
                 statement: 'صرف نقدية',
                 additionalNote: 'سداد نقدي مع الفاتورة',
                 debit: 0, credit: total, costCenter, currency,
-                exchangeRate: parseNum(inv.exchangeRate || 1)
+                exchangeRate: parseNum(inv.exchangeRate || 1),
+                isPosted: isPosted
             });
             txns.push({
                 date: inv.date, time: time, ref: refNo + '-PAID', type: 'payment', typeLabel: 'سداد مشتريات',
@@ -485,7 +503,8 @@ function collectAllTransactions() {
                 statement: 'صرف نقدية',
                 additionalNote: 'سداد نقدي مع الفاتورة',
                 debit: total, credit: 0, costCenter, currency,
-                exchangeRate: parseNum(inv.exchangeRate || 1)
+                exchangeRate: parseNum(inv.exchangeRate || 1),
+                isPosted: isPosted
             });
         }
     });
@@ -973,6 +992,7 @@ function runReport() {
     const typeFilter = document.getElementById('filter-type').value;
     const ccFilter = document.getElementById('filter-costcenter').value;
     const curFilter = document.getElementById('filter-currency').value;
+    const postedFilter = document.getElementById('filter-posted') ? document.getElementById('filter-posted').value : 'ALL';
 
     if (currentDateMode === 'range' && (!fromDate || !toDate)) {
         return showToast('يرجى تحديد الفترة الزمنية', 'warning');
@@ -988,7 +1008,7 @@ function runReport() {
     }
 
     setTimeout(() => {
-        executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, curFilter);
+        executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, curFilter, postedFilter);
         if (btnIcon && btnSpinner) {
             btnIcon.style.display = 'inline-block';
             btnSpinner.style.display = 'none';
@@ -997,7 +1017,7 @@ function runReport() {
     }, 400);
 }
 
-function executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, curFilter) {
+function executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, curFilter, postedFilter) {
     let txns = [...ALL_TXNS];
 
     // Filter Account and Setup Opening Balance
@@ -1051,16 +1071,26 @@ function executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, 
     let priorTxns = [];
     let currentTxns = [];
 
+    // Separate based on dates first
     if (currentDateMode === 'all') {
         currentTxns = [...txns];
     } else {
         priorTxns = txns.filter(t => t.date < fromDate);
-        priorTxns.forEach(t => {
-            runningBal += t.debit;
-            runningBal -= t.credit;
-        });
         currentTxns = txns.filter(t => t.date >= fromDate && t.date <= toDate);
     }
+
+    // Apply Posted status filter to both sets to keep opening balances correct
+    if (postedFilter && postedFilter !== 'ALL') {
+        const wantPosted = (postedFilter === 'posted');
+        priorTxns = priorTxns.filter(t => t.isPosted === wantPosted);
+        currentTxns = currentTxns.filter(t => t.isPosted === wantPosted);
+    }
+
+    // Calculate opening balance after filtering prior transactions
+    priorTxns.forEach(t => {
+        runningBal += t.debit;
+        runningBal -= t.credit;
+    });
 
     if (typeFilter !== 'ALL') currentTxns = currentTxns.filter(t => t.type === typeFilter);
     if (ccFilter !== 'ALL') currentTxns = currentTxns.filter(t => t.costCenter === ccFilter);

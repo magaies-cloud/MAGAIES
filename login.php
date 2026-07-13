@@ -93,27 +93,50 @@
             color: #e2e8f0;
             font-size: 0.95rem;
             font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
         }
         .input-field {
             width: 100%;
             padding: 15px;
             border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.15);
-            background: rgba(255, 255, 255, 0.05);
-            color: #f8fafc;
-            font-size: 1rem;
+            border: 1.5px solid rgba(255,255,255,0.15);
+            background: rgba(0, 0, 0, 0.35);
+            color: #ffffff;
+            font-size: 1.05rem;
+            font-weight: 500;
             outline: none;
             transition: all 0.3s ease;
+            box-sizing: border-box;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
         }
         .input-field::placeholder {
             color: rgba(255,255,255,0.4);
+            font-weight: 400;
         }
         .input-field:focus {
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15), inset 0 2px 4px rgba(0,0,0,0.2);
             border-color: #38bdf8;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.5);
+        }
+        .toggle-pwd-btn {
+            position: absolute;
+            left: 15px;
+            top: 38px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: color 0.2s;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .toggle-pwd-btn:hover {
+            color: #38bdf8;
         }
         .btn-login {
             width: 100%;
@@ -149,7 +172,7 @@
         <div class="logo-container" style="animation: pulse 4s infinite; mix-blend-mode: screen; filter: invert(1) hue-rotate(180deg) brightness(1.2) drop-shadow(0 0 20px rgba(56, 189, 248, 0.6));">
             <img src="assets/logo.png" alt="Logo" loading="lazy" style="width: 140px; height: auto;">
         </div>
-        <div class="title" style="background: linear-gradient(to right, #38bdf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px;">مقاييس (MAGAIEES) 2026</div>
+        <div class="title" style="background: linear-gradient(to right, #ffffff, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; font-weight: 900; letter-spacing: 1px;">مقاييس MAGAIEES ERP</div>
         <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: -15px; font-weight: 700;">نظام إدارة موارد المؤسسات المتكامل الذكي</p>
         
         <div class="input-group">
@@ -157,10 +180,25 @@
             <input type="text" class="input-field" id="username" placeholder="أدخل اسم المستخدم" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
         </div>
         
-        <div class="input-group">
+        <div class="input-group" style="position: relative;">
             <label>كلمة المرور</label>
-            <input type="password" class="input-field" id="password" placeholder="أدخل كلمة المرور" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
+            <input type="password" class="input-field" id="password" placeholder="أدخل كلمة المرور" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" style="padding-left: 50px;">
+            <button type="button" class="toggle-pwd-btn" onclick="togglePassword()" title="إظهار/إخفاء كلمة المرور" id="toggle-pwd-icon">👁️</button>
         </div>
+        
+        <script>
+            function togglePassword() {
+                const pwdInput = document.getElementById('password');
+                const toggleIcon = document.getElementById('toggle-pwd-icon');
+                if (pwdInput.type === 'password') {
+                    pwdInput.type = 'text';
+                    toggleIcon.innerHTML = '🙈';
+                } else {
+                    pwdInput.type = 'password';
+                    toggleIcon.innerHTML = '👁️';
+                }
+            }
+        </script>
         
         <button class="btn-login" onclick="handleLogin()">دخول آمن</button>
         
@@ -240,6 +278,10 @@
 
                 if (res.ok) {
                     const data = await res.json();
+                    if (data.error || data.success === false) {
+                        alert(data.error || 'فشل تسجيل الدخول');
+                        return;
+                    }
                     document.cookie = "session_active=true; path=/";
                     sessionStorage.setItem('session_active', 'true');
                     localStorage.setItem('authToken', data.token);
@@ -249,7 +291,7 @@
                     return;
                 } else {
                     const err = await res.json();
-                    if (res.status === 403 || res.status === 400) {
+                    if (res.status === 403 || res.status === 400 || res.status === 401) {
                         alert(err.error || err.message);
                         return;
                     }
