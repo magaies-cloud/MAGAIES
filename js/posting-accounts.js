@@ -47,7 +47,9 @@ const paymentMethodMap = {
     'cash': 'نقدي',
     'credit': 'آجل',
     'cheque': 'شيك',
-    'bank': 'تحويل بنكي'
+    'bank': 'تحويل بنكي',
+    'hybrid': 'دفع مشترك',
+    'multipay': 'دفع مشترك'
 };
 
 let accountsList = [];
@@ -910,7 +912,27 @@ function getExpectedEntries(item, amt) {
     } else if (item._metaKey === 'erp_sales_invoices_v1') {
         expectedEntries.push({ acc: item.customerId || item.customer || 'عملاء نقدي', debit: parsedAmt, credit: 0, stmt: 'مبيعات' });
         expectedEntries.push({ acc: 'revenue-sales', debit: 0, credit: parsedAmt, stmt: 'إيرادات' });
-        if (item.paymentMethod !== 'credit') {
+        if (item.paymentMethod === 'hybrid' || item.paymentMethod === 'multipay') {
+            // Post cash portion if any
+            if (item.cashAmount > 0) {
+                expectedEntries.push({ acc: item.paymentAccountId || 'safe-001', debit: parseFloat(item.cashAmount), credit: 0, stmt: 'سداد نقدي مع الفاتورة' });
+                expectedEntries.push({ acc: item.customerId || item.customer || 'عملاء نقدي', debit: 0, credit: parseFloat(item.cashAmount), stmt: 'سداد نقدي مع الفاتورة' });
+            }
+            // Post bank transfers if any
+            if (item.bankTransfers && item.bankTransfers.length > 0) {
+                item.bankTransfers.forEach(bt => {
+                    expectedEntries.push({ acc: bt.bankAccountId || 'safe-001', debit: parseFloat(bt.amount), credit: 0, stmt: 'سداد تحويل بنكي' });
+                    expectedEntries.push({ acc: item.customerId || item.customer || 'عملاء نقدي', debit: 0, credit: parseFloat(bt.amount), stmt: 'سداد تحويل بنكي' });
+                });
+            }
+            // Post cheques if any
+            if (item.cheques && item.cheques.length > 0) {
+                item.cheques.forEach(ch => {
+                    expectedEntries.push({ acc: 'cheques-receivable', debit: parseFloat(ch.amount), credit: 0, stmt: `شيك رقم ${ch.chequeNo}` });
+                    expectedEntries.push({ acc: item.customerId || item.customer || 'عملاء نقدي', debit: 0, credit: parseFloat(ch.amount), stmt: `شيك رقم ${ch.chequeNo}` });
+                });
+            }
+        } else if (item.paymentMethod !== 'credit') {
             expectedEntries.push({ acc: item.paymentAccountId || 'safe-001', debit: parsedAmt, credit: 0, stmt: 'سداد' });
             expectedEntries.push({ acc: item.customerId || item.customer || 'عملاء نقدي', debit: 0, credit: parsedAmt, stmt: 'سداد' });
         }

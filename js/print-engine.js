@@ -114,8 +114,26 @@ window.InvoicePrinter = (function () {
             </div>
         ` : '';
 
-        const payMethodMap = { cash: 'نقدي', credit: 'آجل', bank: 'تحويل بنكي', cheque: 'شيك' };
-        const payMethod = payMethodMap[data.paymentMethod] || data.paymentMethod || '—';
+        const payMethodMap = { cash: 'نقدي', credit: 'آجل', bank: 'تحويل بنكي', cheque: 'شيك', hybrid: 'دفع مشترك (مختلط)' };
+        let payMethod = payMethodMap[data.paymentMethod] || data.paymentMethod || '—';
+        
+        if (data.paymentMethod === 'hybrid' || data.paymentMethod === 'multipay') {
+            const parts = [];
+            const curStr = data.currency || 'SDG';
+            if (data.cashAmount > 0) parts.push(`نقدي ${data.cashAmount} ${curStr}`);
+            if (data.creditAmount > 0) parts.push(`آجل ${data.creditAmount} ${curStr}`);
+            if (data.bankTransfers && data.bankTransfers.length > 0) {
+                const bSum = data.bankTransfers.reduce((s, b) => s + (parseFloat(b.amount) || 0), 0);
+                parts.push(`بنكي ${bSum} ${curStr}`);
+            }
+            if (data.cheques && data.cheques.length > 0) {
+                const cSum = data.cheques.reduce((s, c) => s + (parseFloat(c.amount) || 0), 0);
+                parts.push(`شيكات ${cSum} ${curStr}`);
+            }
+            if (parts.length > 0) {
+                payMethod = `دفع مشترك (${parts.join(' + ')})`;
+            }
+        }
 
         return `
             <div class="inv-header">

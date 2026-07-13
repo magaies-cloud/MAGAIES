@@ -493,7 +493,103 @@ function collectAllTransactions() {
             isPosted: isPosted
         });
 
-        if (inv.paymentMethod !== 'credit') {
+        if (inv.paymentMethod === 'hybrid' || inv.paymentMethod === 'multipay') {
+            // A. Cash Safe Portion
+            const cash = parseNum(inv.cashAmount || 0);
+            if (cash > 0) {
+                const cashLoc = isBaseSDG ? cash : cash * rate;
+                const cashFc = isBaseSDG ? 0 : cash;
+                const paymentAcct = inv.paymentAccountId || 'safe-001';
+                txns.push({
+                    date: inv.date, time: time, ref: refNo + '-PAID', type: 'receipt', typeLabel: 'سداد فاتورة',
+                    account: paymentAcct, counterAccount: customerAcct,
+                    statement: 'استلام نقدية (نقداً)',
+                    additionalNote: 'سداد نقدي مع الفاتورة',
+                    debit: cashLoc, credit: 0, 
+                    debitForeign: cashFc, creditForeign: 0,
+                    costCenter, currency,
+                    exchangeRate: rate,
+                    isPosted: isPosted
+                });
+                txns.push({
+                    date: inv.date, time: time, ref: refNo + '-PAID', type: 'receipt', typeLabel: 'سداد فاتورة',
+                    account: customerAcct, counterAccount: paymentAcct,
+                    statement: 'استلام نقدية (نقداً)',
+                    additionalNote: 'سداد نقدي مع الفاتورة',
+                    debit: 0, credit: cashLoc, 
+                    debitForeign: 0, creditForeign: cashFc,
+                    costCenter, currency,
+                    exchangeRate: rate,
+                    isPosted: isPosted
+                });
+            }
+            // B. Bank Transfer Portions
+            if (inv.bankTransfers && inv.bankTransfers.length > 0) {
+                inv.bankTransfers.forEach((bt, idx) => {
+                    const amt = parseNum(bt.amount || 0);
+                    if (amt > 0) {
+                        const amtLocBt = isBaseSDG ? amt : amt * rate;
+                        const amtFcBt = isBaseSDG ? 0 : amt;
+                        const bankAcct = bt.bankAccountId || 'bank-001';
+                        txns.push({
+                            date: inv.date, time: time, ref: `${refNo}-BT${idx+1}`, type: 'receipt', typeLabel: 'سداد فاتورة',
+                            account: bankAcct, counterAccount: customerAcct,
+                            statement: `تحويل بنكي مرجع #${bt.reference || ''}`,
+                            additionalNote: 'سداد تحويل بنكي مع الفاتورة',
+                            debit: amtLocBt, credit: 0, 
+                            debitForeign: amtFcBt, creditForeign: 0,
+                            costCenter, currency,
+                            exchangeRate: rate,
+                            isPosted: isPosted
+                        });
+                        txns.push({
+                            date: inv.date, time: time, ref: `${refNo}-BT${idx+1}`, type: 'receipt', typeLabel: 'سداد فاتورة',
+                            account: customerAcct, counterAccount: bankAcct,
+                            statement: `تحويل بنكي مرجع #${bt.reference || ''}`,
+                            additionalNote: 'سداد تحويل بنكي مع الفاتورة',
+                            debit: 0, credit: amtLocBt, 
+                            debitForeign: 0, creditForeign: amtFcBt,
+                            costCenter, currency,
+                            exchangeRate: rate,
+                            isPosted: isPosted
+                        });
+                    }
+                });
+            }
+            // C. Cheque Portions
+            if (inv.cheques && inv.cheques.length > 0) {
+                inv.cheques.forEach((ch, idx) => {
+                    const amt = parseNum(ch.amount || 0);
+                    if (amt > 0) {
+                        const amtLocCh = isBaseSDG ? amt : amt * rate;
+                        const amtFcCh = isBaseSDG ? 0 : amt;
+                        const chequeAcct = 'cheques-receivable';
+                        txns.push({
+                            date: inv.date, time: time, ref: `${refNo}-CH${idx+1}`, type: 'receipt', typeLabel: 'سداد فاتورة',
+                            account: chequeAcct, counterAccount: customerAcct,
+                            statement: `شيك رقم #${ch.chequeNo || ''} استحقاق ${ch.dueDate || ''}`,
+                            additionalNote: 'سداد شيك مع الفاتورة',
+                            debit: amtLocCh, credit: 0, 
+                            debitForeign: amtFcCh, creditForeign: 0,
+                            costCenter, currency,
+                            exchangeRate: rate,
+                            isPosted: isPosted
+                        });
+                        txns.push({
+                            date: inv.date, time: time, ref: `${refNo}-CH${idx+1}`, type: 'receipt', typeLabel: 'سداد فاتورة',
+                            account: customerAcct, counterAccount: chequeAcct,
+                            statement: `شيك رقم #${ch.chequeNo || ''} استحقاق ${ch.dueDate || ''}`,
+                            additionalNote: 'سداد شيك مع الفاتورة',
+                            debit: 0, credit: amtLocCh, 
+                            debitForeign: 0, creditForeign: amtFcCh,
+                            costCenter, currency,
+                            exchangeRate: rate,
+                            isPosted: isPosted
+                        });
+                    }
+                });
+            }
+        } else if (inv.paymentMethod !== 'credit') {
             const paymentAcct = inv.paymentAccountId || 'safe-001';
             txns.push({
                 date: inv.date, time: time, ref: refNo + '-PAID', type: 'receipt', typeLabel: 'سداد فاتورة',

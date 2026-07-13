@@ -242,6 +242,8 @@ function initSalesApp() {
         ITEMS = ITEMS.filter(item => item && item.status !== 'inactive');
 
         populateDropdowns();
+        populatePaymentAccounts();
+        initMultiPaymentSystem();
         initHeader();
         
         if (rows.length === 0) {
@@ -692,6 +694,7 @@ function loadInvoiceFromStorage(invNo) {
         
         renderGrid();
         recalcAll();
+        loadPaymentDataIntoUI(data);
         if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
         return true;
     } catch(e) {
@@ -1933,6 +1936,272 @@ function recalcAll() {
 
         }
     }
+    
+    // Recalculate payment details whenever invoice totals change
+    recalcPaymentSummary();
+}
+
+// ════════════════════════════════════════
+//  MULTI-PAYMENT SYSTEM FUNCTIONS
+// ════════════════════════════════════════
+function populatePaymentAccounts() {
+    try {
+        let safes = [];
+        let banks = [];
+        try {
+            safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
+            banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+        } catch(e) {}
+        
+        safes = safes.filter(x => x && !x.deleted);
+        banks = banks.filter(x => x && !x.deleted);
+        
+        window.PAYMENT_SAFES = safes;
+        window.PAYMENT_BANKS = banks;
+        
+        const select = document.getElementById('hdr-payment-account');
+        if (select) {
+            let html = '';
+            safes.forEach(s => {
+                html += `<option value="${s.id}">💰 ${s.name}</option>`;
+            });
+            if (!html) {
+                html = '<option value="">-- لا توجد صناديق نقدية --</option>';
+            }
+            select.innerHTML = html;
+        }
+    } catch(e) {
+        console.error("Error in populatePaymentAccounts:", e);
+    }
+}
+
+function initMultiPaymentSystem() {
+    try {
+        // Set default due date to 30 days from now
+        const dueInput = document.getElementById('pay-credit-due-date');
+        if (dueInput) {
+            const nextMonth = new Date();
+            nextMonth.setDate(nextMonth.getDate() + 30);
+            dueInput.value = nextMonth.toISOString().split('T')[0];
+        }
+        
+        // Reset inputs
+        document.getElementById('pay-cash-amount').value = '0';
+        document.getElementById('pay-credit-amount').value = '0';
+        document.getElementById('bank-transfers-list').innerHTML = '';
+        document.getElementById('cheques-list').innerHTML = '';
+        
+        recalcPaymentSummary();
+    } catch(e) {
+        console.error("Error in initMultiPaymentSystem:", e);
+    }
+}
+
+function addBankTransferRow(existingData = null) {
+    const container = document.getElementById('bank-transfers-list');
+    if (!container) return;
+    
+    const rowId = 'bt-row-' + Date.now() + '-' + Math.random().toString(36).substring(2,5);
+    
+    let banksHtml = '';
+    if (window.PAYMENT_BANKS && window.PAYMENT_BANKS.length > 0) {
+        window.PAYMENT_BANKS.forEach(b => {
+            banksHtml += `<option value="${b.id}" ${existingData && existingData.bankAccountId === b.id ? 'selected' : ''}>🏦 ${b.name}</option>`;
+        });
+    } else {
+        banksHtml = '<option value="">-- لا توجد حسابات بنكية --</option>';
+    }
+    
+    const rowDiv = document.createElement('div');
+    rowDiv.id = rowId;
+    rowDiv.className = 'payment-row-item';
+    rowDiv.style = 'display: flex; gap: 10px; align-items: center; background: rgba(59, 130, 246, 0.05); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.15); margin-bottom: 5px;';
+    
+    rowDiv.innerHTML = `
+        <select class="v-input ctrl-input bt-bank-select" style="flex: 1.2; height: 34px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; padding: 0 4px;">
+            ${banksHtml}
+        </select>
+        <input type="text" class="v-input ctrl-input bt-ref-input" value="${existingData ? existingData.reference : ''}" placeholder="رقم المرجع..." style="flex: 1; height: 34px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
+        <input type="number" class="v-input ctrl-input bt-amount-input" value="${existingData ? existingData.amount : '0'}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: 0.8; height: 34px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
+        <button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 6px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size:0.85rem;" title="حذف">✕</button>
+    `;
+    
+    container.appendChild(rowDiv);
+    onPaymentAmountInput();
+}
+
+function addChequeRow(existingData = null) {
+    const container = document.getElementById('cheques-list');
+    if (!container) return;
+    
+    const rowId = 'ch-row-' + Date.now() + '-' + Math.random().toString(36).substring(2,5);
+    
+    const rowDiv = document.createElement('div');
+    rowDiv.id = rowId;
+    rowDiv.className = 'payment-row-item';
+    rowDiv.style = 'display: flex; gap: 10px; align-items: center; background: rgba(139, 92, 246, 0.05); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.15); flex-wrap: wrap; margin-bottom: 5px;';
+    
+    rowDiv.innerHTML = `
+        <input type="text" class="v-input ctrl-input ch-no-input" value="${existingData ? existingData.chequeNo : ''}" placeholder="رقم الشيك..." style="flex: 1; min-width: 100px; height: 34px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
+        <input type="text" class="v-input ctrl-input ch-bank-input" value="${existingData ? existingData.bankName : ''}" placeholder="اسم البنك..." style="flex: 1.2; min-width: 120px; height: 34px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
+        <div style="display:flex; align-items:center; gap:5px; flex: 1.2; min-width: 140px;">
+            <label style="font-size:0.7rem; color:#94a3b8; white-space:nowrap;">الاستحقاق</label>
+            <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData && existingData.dueDate ? existingData.dueDate : ''}" style="height: 34px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.8rem; padding: 0 4px;">
+        </div>
+        <input type="number" class="v-input ctrl-input ch-amount-input" value="${existingData ? existingData.amount : '0'}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: 0.8; min-width: 80px; height: 34px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
+        <button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 6px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size:0.85rem;" title="حذف">✕</button>
+    `;
+    
+    container.appendChild(rowDiv);
+    onPaymentAmountInput();
+}
+
+function recalcPaymentSummary() {
+    const cur = getCurrency();
+    
+    // Calculate grand total from invoice items total
+    const invTotal = getInvoiceTotal();
+    const labor = parseNum(document.getElementById('t-labor')?.value || 0);
+    const transport = parseNum(document.getElementById('t-transport')?.value || 0);
+    const discountAmt = parseNum(document.getElementById('discount-amt')?.value || 0);
+    const taxAmt = parseNum(document.getElementById('tax-amt')?.value || 0);
+    const additionAmt = parseNum(document.getElementById('addition-amt')?.value || 0);
+    const grand = invTotal + labor + transport + additionAmt + taxAmt - discountAmt;
+    
+    // Calculate payment sums
+    const cash = parseNum(document.getElementById('pay-cash-amount')?.value || 0);
+    const credit = parseNum(document.getElementById('pay-credit-amount')?.value || 0);
+    
+    let transfersSum = 0;
+    document.querySelectorAll('.bt-amount-input').forEach(input => {
+        transfersSum += parseNum(input.value);
+    });
+    
+    let chequesSum = 0;
+    document.querySelectorAll('.ch-amount-input').forEach(input => {
+        chequesSum += parseNum(input.value);
+    });
+    
+    const totalPaid = cash + credit + transfersSum + chequesSum;
+    const remaining = grand - totalPaid;
+    
+    // Update displays
+    const totInd = document.getElementById('payment-total-indicator');
+    const paidInd = document.getElementById('payment-paid-indicator');
+    const remInd = document.getElementById('payment-remaining-indicator');
+    
+    if (totInd) totInd.textContent = fmtNum(grand) + ' ' + cur;
+    if (paidInd) paidInd.textContent = fmtNum(totalPaid) + ' ' + cur;
+    if (remInd) {
+        remInd.textContent = fmtNum(remaining) + ' ' + cur;
+        if (Math.abs(remaining) < 0.01) {
+            remInd.style.color = '#34d399'; // Green
+            remInd.style.textShadow = '0 0 12px rgba(52,211,153,0.4)';
+        } else if (remaining > 0) {
+            remInd.style.color = '#f87171'; // Red
+            remInd.style.textShadow = '0 0 12px rgba(248,113,113,0.4)';
+        } else {
+            remInd.style.color = '#fbbf24'; // Amber
+            remInd.style.textShadow = '0 0 12px rgba(251,191,36,0.4)';
+        }
+    }
+}
+
+function onPaymentAmountInput() {
+    recalcPaymentSummary();
+}
+
+function autofillRemaining(type) {
+    const cur = getCurrency();
+    const invTotal = getInvoiceTotal();
+    const labor = parseNum(document.getElementById('t-labor')?.value || 0);
+    const transport = parseNum(document.getElementById('t-transport')?.value || 0);
+    const discountAmt = parseNum(document.getElementById('discount-amt')?.value || 0);
+    const taxAmt = parseNum(document.getElementById('tax-amt')?.value || 0);
+    const additionAmt = parseNum(document.getElementById('addition-amt')?.value || 0);
+    const grand = invTotal + labor + transport + additionAmt + taxAmt - discountAmt;
+    
+    const cash = parseNum(document.getElementById('pay-cash-amount')?.value || 0);
+    const credit = parseNum(document.getElementById('pay-credit-amount')?.value || 0);
+    
+    let transfersSum = 0;
+    document.querySelectorAll('.bt-amount-input').forEach(input => {
+        transfersSum += parseNum(input.value);
+    });
+    
+    let chequesSum = 0;
+    document.querySelectorAll('.ch-amount-input').forEach(input => {
+        chequesSum += parseNum(input.value);
+    });
+    
+    const currentTotalPaidExceptTarget = (type === 'cash' ? credit : cash) + transfersSum + chequesSum;
+    const remainingToFill = grand - currentTotalPaidExceptTarget;
+    
+    if (type === 'cash') {
+        document.getElementById('pay-cash-amount').value = Math.max(0, remainingToFill).toFixed(2);
+    } else if (type === 'credit') {
+        document.getElementById('pay-credit-amount').value = Math.max(0, remainingToFill).toFixed(2);
+    }
+    
+    recalcPaymentSummary();
+}
+
+function loadPaymentDataIntoUI(data) {
+    try {
+        initMultiPaymentSystem(); // Clear first
+        
+        if (!data) return;
+        
+        const cashInput = document.getElementById('pay-cash-amount');
+        const creditInput = document.getElementById('pay-credit-amount');
+        const cashAccSelect = document.getElementById('hdr-payment-account');
+        const dueDateInput = document.getElementById('pay-credit-due-date');
+        
+        if (data.paymentMethod === 'hybrid' || data.paymentMethod === 'multipay') {
+            if (cashInput) cashInput.value = (data.cashAmount || 0).toFixed(2);
+            if (creditInput) creditInput.value = (data.creditAmount || 0).toFixed(2);
+            if (cashAccSelect && data.paymentAccountId) cashAccSelect.value = data.paymentAccountId;
+            if (dueDateInput && data.dueDate) dueDateInput.value = data.dueDate;
+            
+            // Load Bank transfers
+            if (data.bankTransfers && data.bankTransfers.length > 0) {
+                data.bankTransfers.forEach(bt => {
+                    addBankTransferRow(bt);
+                });
+            }
+            // Load Cheques
+            if (data.cheques && data.cheques.length > 0) {
+                data.cheques.forEach(ch => {
+                    addChequeRow(ch);
+                });
+            }
+        } else {
+            // Legacy / Standard invoice conversions
+            if (data.paymentMethod === 'credit') {
+                if (creditInput) creditInput.value = (data.grandTotal || 0).toFixed(2);
+                if (dueDateInput && data.dueDate) dueDateInput.value = data.dueDate;
+            } else if (data.paymentMethod === 'cash') {
+                if (cashInput) cashInput.value = (data.grandTotal || 0).toFixed(2);
+                if (cashAccSelect && data.paymentAccountId) cashAccSelect.value = data.paymentAccountId;
+            } else if (data.paymentMethod === 'bank') {
+                addBankTransferRow({
+                    bankAccountId: data.paymentAccountId,
+                    reference: data.reference || data.payDetail1 || '',
+                    amount: data.grandTotal || 0
+                });
+            } else if (data.paymentMethod === 'cheque') {
+                addChequeRow({
+                    chequeNo: data.chequeNo || data.payDetail1 || '',
+                    bankName: data.bankName || data.payDetail2 || '',
+                    dueDate: data.dueDate || data.payDetail3 || '',
+                    amount: data.grandTotal || 0
+                });
+            }
+        }
+        recalcPaymentSummary();
+    } catch(e) {
+        console.error("Error in loadPaymentDataIntoUI:", e);
+    }
 }
 
 // ════════════════════════════════════════
@@ -1978,22 +2247,74 @@ function submitInvoice(ignoreWarnings = false) {
     const hasZeroQty = rows.some(r => r.quantity <= 0);
     if (hasZeroQty) { showToast('⚠️ الكمية يجب أن تكون أكبر من صفر', 'warning'); return; }
 
-    const paymentMethod = document.getElementById('hdr-payment-method').value;
+    const cur = getCurrency();
+    const grandTotal = document.getElementById('t-grand').textContent;
+    const grandAmount = parseNum(grandTotal);
+
+    // --- 1. Multi-Payment Read & Validation ---
+    const cashAmt = parseNum(document.getElementById('pay-cash-amount').value);
+    const creditAmt = parseNum(document.getElementById('pay-credit-amount').value);
+    
+    let bankTransfers = [];
+    let transfersSum = 0;
+    document.querySelectorAll('#bank-transfers-list .payment-row-item').forEach(row => {
+        const bankAccountId = row.querySelector('.bt-bank-select').value;
+        const reference = row.querySelector('.bt-ref-input').value;
+        const amount = parseNum(row.querySelector('.bt-amount-input').value);
+        if (amount > 0) {
+            bankTransfers.push({ bankAccountId, reference, amount });
+            transfersSum += amount;
+        }
+    });
+    
+    let cheques = [];
+    let chequesSum = 0;
+    document.querySelectorAll('#cheques-list .payment-row-item').forEach(row => {
+        const chequeNo = row.querySelector('.ch-no-input').value;
+        const bankName = row.querySelector('.ch-bank-input').value;
+        const dueDate = row.querySelector('.ch-date-input').value;
+        const amount = parseNum(row.querySelector('.ch-amount-input').value);
+        if (amount > 0) {
+            cheques.push({ chequeNo, bankName, dueDate, amount });
+            chequesSum += amount;
+        }
+    });
+
+    const totalPaid = cashAmt + creditAmt + transfersSum + chequesSum;
+    const remaining = grandAmount - totalPaid;
+
+    if (Math.abs(remaining) > 0.05) {
+        showToast(`❌ مجموع المبالغ المدفوعة لا يتطابق مع إجمالي الفاتورة. المتبقي: ${fmtNum(remaining)} ${cur}`, 'error', 5000);
+        return;
+    }
+
+    // Determine legacy paymentMethod string for backwards compatibility
+    let paymentMethod = 'cash';
+    if (creditAmt > 0 && cashAmt === 0 && transfersSum === 0 && chequesSum === 0) {
+        paymentMethod = 'credit';
+    } else if (transfersSum > 0 && cashAmt === 0 && creditAmt === 0 && chequesSum === 0 && bankTransfers.length === 1) {
+        paymentMethod = 'bank';
+    } else if (chequesSum > 0 && cashAmt === 0 && creditAmt === 0 && transfersSum === 0 && cheques.length === 1) {
+        paymentMethod = 'cheque';
+    } else {
+        paymentMethod = 'hybrid';
+    }
+
     const cust = CUSTOMERS.find(c => String(c.id) === String(custId));
 
-    // --- Hard Block: 2 Unpaid Credit Invoices ---
-    if (paymentMethod === 'credit' && cust && cust.id !== 'walk-in') {
+    // --- Hard Block: 2 Unpaid Credit Invoices (Run if there is credit amount) ---
+    if (creditAmt > 0 && cust && cust.id !== 'walk-in') {
         const debt = cust.ledger || 0;
         if (debt > 0) {
             let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-            const creditInvs = allSales.filter(inv => (inv.customer === cust.id || inv.customerId === cust.id) && inv.paymentMethod === 'credit');
+            const creditInvs = allSales.filter(inv => (inv.customer === cust.id || inv.customerId === cust.id) && (inv.paymentMethod === 'credit' || (inv.creditAmount && inv.creditAmount > 0)));
             creditInvs.reverse(); // Newest first
 
             let remainingDebt = debt;
             let unpaidCount = 0;
 
             for (const inv of creditInvs) {
-                let invTotal = inv.grandTotal;
+                let invTotal = inv.creditAmount !== undefined ? inv.creditAmount : inv.grandTotal;
                 if (invTotal === undefined) {
                     invTotal = inv.items ? inv.items.reduce((sum, item) => sum + ((item.quantity||0) * (item.price||0)), 0) : 0;
                 }
@@ -2003,7 +2324,6 @@ function submitInvoice(ignoreWarnings = false) {
             }
 
             if (unpaidCount >= 2) {
-                // Hard block!
                 const existing = document.getElementById('confirm-warning-overlay');
                 if (existing) existing.remove();
                 
@@ -2030,16 +2350,12 @@ function submitInvoice(ignoreWarnings = false) {
         }
 
         // Credit check for non-cash customers
-        const custId = document.getElementById('hdr-customer').value;
-        const cust = CUSTOMERS.find(c => String(c.id) === String(custId));
-        if (cust && cust.id !== 'walk-in' && cust.creditLimit > 0) {
+        if (creditAmt > 0 && cust && cust.id !== 'walk-in' && cust.creditLimit > 0) {
             const totalDebt = cust.ledger + cust.checks;
-            const remaining = cust.creditLimit - totalDebt;
-            const grand = parseNum(document.getElementById('t-grand').textContent);
-            if (grand > remaining) {
-                const diff = grand - remaining;
-                const cur = getCurrency();
-                warnings.push(`الفاتورة تتجاوز حد الائتمان. (المبلغ سيتجاوز الحد بمقدار <strong>${fmtNum(diff)} ${cur}</strong>)`);
+            const remainingLimit = cust.creditLimit - totalDebt;
+            if (creditAmt > remainingLimit) {
+                const diff = creditAmt - remainingLimit;
+                warnings.push(`مبلغ البيع الآجل يتجاوز حد الائتمان. (المبلغ سيتجاوز الحد بمقدار <strong>${fmtNum(diff)} ${cur}</strong>)`);
             }
         }
 
@@ -2060,14 +2376,14 @@ function submitInvoice(ignoreWarnings = false) {
     } else {
         committedNo = commitInvoiceNumber(currentSaleType); // increment
     }
-    const cur = getCurrency();
-    const grandTotal = document.getElementById('t-grand').textContent;
 
     // Save invoice data
     let dueDateValue = null;
-    if (document.getElementById('hdr-payment-method').value === 'credit') {
-        dueDateValue = document.getElementById('hdr-due-date').value;
+    if (creditAmt > 0) {
+        dueDateValue = document.getElementById('pay-credit-due-date').value;
     }
+
+    const paymentAccountId = document.getElementById('hdr-payment-account').value; // Cash account ID
 
     const data = {
         invoiceNo: committedNo,
@@ -2083,6 +2399,11 @@ function submitInvoice(ignoreWarnings = false) {
         currency: cur,
         exchangeRate: document.getElementById('hdr-exchange-rate').value,
         paymentMethod: paymentMethod,
+        paymentAccountId: paymentAccountId, // Safe for cash portion
+        cashAmount: cashAmt,
+        creditAmount: creditAmt,
+        bankTransfers: bankTransfers,
+        cheques: cheques,
         warehouse: document.getElementById('hdr-warehouse').value,
         description: document.getElementById('hdr-description').value,
         items: rows.map(r => ({...r})),
@@ -2090,36 +2411,64 @@ function submitInvoice(ignoreWarnings = false) {
         subTotal: parseNum(document.getElementById('t-subtotal')?.textContent || document.getElementById('t-invoice-total')?.textContent || 0),
         discount: parseNum(document.getElementById('t-discount')?.value || document.getElementById('t-discount')?.textContent || 0),
         vatAmount: parseNum(document.getElementById('t-vat')?.textContent || document.getElementById('t-tax')?.textContent || 0),
-        grandTotal: parseNum(grandTotal),
+        grandTotal: grandAmount,
         status: currentSaleType === 'preliminary' ? 'preliminary' : 'pending_delivery',
         timestamp: new Date().toISOString(),
         customerName: cust ? cust.name : 'عميل نقدي'
     };
 
     // Update Bank/Safe balance ONLY if not preliminary
-    const paymentAccountId = document.getElementById('hdr-payment-account').value;
-    const grandAmount = parseNum(grandTotal);
-    let usedAccountName = '';
+    let safeAccountName = '';
+    let bankTransferNames = [];
     
-    if (currentSaleType !== 'preliminary' && paymentMethod !== 'credit' && paymentAccountId) {
+    if (currentSaleType !== 'preliminary') {
         let banks = [];
         try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e) {}
-        const bIdx = banks.findIndex(b => b.id === paymentAccountId);
-        if (bIdx > -1) {
-            let currentBalance = parseFloat(banks[bIdx].currentBalance);
-            if (isNaN(currentBalance)) {
-                currentBalance = parseFloat(banks[bIdx].openingBalance) || 0;
+        
+        // A. Cash Safe Portion
+        if (cashAmt > 0 && paymentAccountId) {
+            const bIdx = banks.findIndex(b => b.id === paymentAccountId);
+            if (bIdx > -1) {
+                let currentBalance = parseFloat(banks[bIdx].currentBalance);
+                if (isNaN(currentBalance)) {
+                    currentBalance = parseFloat(banks[bIdx].openingBalance) || 0;
+                }
+                banks[bIdx].currentBalance = currentBalance + cashAmt;
+                safeAccountName = banks[bIdx].name;
             }
-            banks[bIdx].currentBalance = currentBalance + grandAmount;
-            localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
-            data.paymentAccountId = paymentAccountId;
-            usedAccountName = banks[bIdx].name;
+        }
+        
+        // B. Bank Transfer Portions
+        bankTransfers.forEach(bt => {
+            const bIdx = banks.findIndex(b => b.id === bt.bankAccountId);
+            if (bIdx > -1) {
+                let currentBalance = parseFloat(banks[bIdx].currentBalance);
+                if (isNaN(currentBalance)) {
+                    currentBalance = parseFloat(banks[bIdx].openingBalance) || 0;
+                }
+                banks[bIdx].currentBalance = currentBalance + bt.amount;
+                bankTransferNames.push(banks[bIdx].name);
+            }
+        });
+        
+        localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+        
+        // C. Customer Credit Debt Portion
+        if (creditAmt > 0 && custId && custId !== 'walk-in') {
+            let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+            const cIdx = customers.findIndex(c => c.id === custId);
+            if (cIdx > -1) {
+                let currentBalance = parseFloat(customers[cIdx].currentBalance);
+                if (isNaN(currentBalance)) currentBalance = 0;
+                customers[cIdx].currentBalance = currentBalance + creditAmt;
+                localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
+            }
         }
     }
 
     localStorage.setItem('erp_inv_' + committedNo, JSON.stringify(data));
 
-    // Append or Update global sales invoices array for inventory calculation
+    // Append or Update global sales invoices array
     let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     if (currentViewedInvoiceNo) {
         const idx = allSales.findIndex(inv => inv.invoiceNo === currentViewedInvoiceNo);
@@ -2130,26 +2479,23 @@ function submitInvoice(ignoreWarnings = false) {
     }
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
 
-    // Update Customer Balance (Debt) ONLY if not preliminary
-    if (currentSaleType !== 'preliminary' && paymentMethod === 'credit' && custId && custId !== 'walk-in') {
-        let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-        const cIdx = customers.findIndex(c => c.id === custId);
-        if (cIdx > -1) {
-            let currentBalance = parseFloat(customers[cIdx].currentBalance);
-            if (isNaN(currentBalance)) currentBalance = 0;
-            customers[cIdx].currentBalance = currentBalance + grandAmount;
-            localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
-        }
-    }
-
     // Notice: Inventory is NO LONGER DEDUCTED HERE for new invoices!
     // It will be deducted only upon Delivery.
 
-    // Show professional success modal (we can pass the warnings array so it still shows them if desired)
-    // To grab the actual warnings to display in success modal, we need to generate them again if ignoreWarnings is true.
+    // Show professional success toasts
+    if (safeAccountName && cashAmt > 0) {
+        showToast(`تمت إضافة ${fmtNum(cashAmt)} ${cur} إلى رصيد: ${safeAccountName}`, 'success', 4000);
+    }
+    if (bankTransferNames.length > 0) {
+        showToast(`تم إيداع التحويلات البنكية بقيمة ${fmtNum(transfersSum)} ${cur} بنجاح`, 'success', 4000);
+    }
+    if (creditAmt > 0 && custId !== 'walk-in') {
+        showToast(`تم ترحيل مبلغ ${fmtNum(creditAmt)} ${cur} إلى حساب العميل كمديونية آجل`, 'warning', 4000);
+    }
+
+    // Show warnings if ignoreWarnings is true
     let finalWarnings = [];
     if (ignoreWarnings) {
-        const mainWh = document.getElementById('hdr-warehouse').value;
         for (const row of rows) {
             const item = ITEMS.find(i => String(i.id) === String(row.itemId));
             if (!item) continue;
@@ -2159,34 +2505,14 @@ function submitInvoice(ignoreWarnings = false) {
                 finalWarnings.push(`الصنف "<strong>${item.name}</strong>" تجاوز المخزون بمقدار <strong>${fmtNum(diff)} ${item.baseUnit || 'وحدة أساسية'}</strong>`);
             }
         }
-        const custId = document.getElementById('hdr-customer').value;
-        const cust = CUSTOMERS.find(c => String(c.id) === String(custId));
-        if (cust && cust.id !== 'walk-in' && cust.creditLimit > 0) {
-            const totalDebt = cust.ledger + cust.checks;
-            const remaining = cust.creditLimit - totalDebt;
-            const grand = parseNum(document.getElementById('t-grand').textContent);
-            if (grand > remaining) {
-                const diff = grand - remaining;
-                const cur = getCurrency();
-                finalWarnings.push(`الفاتورة تجاوزت حد الائتمان بمقدار <strong>${fmtNum(diff)} ${cur}</strong>`);
-            }
-        }
     }
 
-    if (usedAccountName) {
-        showToast(`تمت إضافة ${fmtNum(grandAmount)} ${cur} إلى رصيد: ${usedAccountName}`, 'success', 5000);
-    }
-
-    // Instead of resetting the form, keep the invoice loaded so they can print/WhatsApp it.
     currentViewedInvoiceNo = committedNo;
     document.getElementById('hdr-inv-no').value = committedNo;
     document.getElementById('inv-number').textContent = committedNo;
     if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
 
     showSuccessModal(committedNo, grandTotal, cur, finalWarnings);
-
-    // In production: POST to API
-    // fetch('/api/v1/sales/invoices', { method:'POST', body:JSON.stringify(data) })
 }
 
 // ════════════════════════════════════════
@@ -2302,19 +2628,44 @@ function executeDeleteTransaction() {
     }
     const grandAmount = parseFloat(oldInv.grandTotal) || 0;
 
-    // 1. Revert Customer Balance (if credit)
-    if (oldInv.paymentMethod === 'credit' && oldInv.customer && oldInv.customer !== 'walk-in') {
+    // 1. Revert Customer Balance (if credit / hybrid)
+    let creditRevertAmount = 0;
+    if (oldInv.paymentMethod === 'hybrid' || oldInv.paymentMethod === 'multipay') {
+        creditRevertAmount = parseFloat(oldInv.creditAmount) || 0;
+    } else if (oldInv.paymentMethod === 'credit') {
+        creditRevertAmount = grandAmount;
+    }
+    if (creditRevertAmount > 0 && oldInv.customer && oldInv.customer !== 'walk-in') {
         let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
         const cIdx = customers.findIndex(c => c.id === oldInv.customer);
         if (cIdx > -1) {
             let currentBalance = parseFloat(customers[cIdx].currentBalance) || 0;
-            customers[cIdx].currentBalance = currentBalance - grandAmount; // Revert debt
+            customers[cIdx].currentBalance = currentBalance - creditRevertAmount; // Revert debt
             localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
         }
     }
 
-    // 2. Revert Bank/Safe Balance (if cash)
-    if (oldInv.paymentMethod !== 'credit' && oldInv.paymentAccountId) {
+    // 2. Revert Bank/Safe Balance (if cash / bank / cheque / hybrid)
+    if (oldInv.paymentMethod === 'hybrid' || oldInv.paymentMethod === 'multipay') {
+        let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+        // Revert cash portion
+        if (oldInv.cashAmount > 0 && oldInv.paymentAccountId) {
+            const bIdx = banks.findIndex(b => b.id === oldInv.paymentAccountId);
+            if (bIdx > -1) {
+                banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - parseFloat(oldInv.cashAmount);
+            }
+        }
+        // Revert bank transfers
+        if (oldInv.bankTransfers && oldInv.bankTransfers.length > 0) {
+            oldInv.bankTransfers.forEach(bt => {
+                const bIdx = banks.findIndex(b => b.id === bt.bankAccountId);
+                if (bIdx > -1) {
+                    banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - parseFloat(bt.amount);
+                }
+            });
+        }
+        localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+    } else if (oldInv.paymentMethod !== 'credit' && oldInv.paymentAccountId) {
         let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
         const bIdx = banks.findIndex(b => b.id === oldInv.paymentAccountId);
         if (bIdx > -1) {
@@ -2477,6 +2828,7 @@ function onSuccessNewInvoice(closeModalFlag = true) {
     document.getElementById('hdr-inv-no').value = nextNo;
 
     renderGrid();
+    initMultiPaymentSystem();
     recalcAll();
     if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
 }
