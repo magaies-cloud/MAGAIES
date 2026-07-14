@@ -1896,6 +1896,58 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
             transform: translateY(-1px) !important;
         }
+
+        /* Premium Glassmorphic Custom Themes */
+        #form-fields-card {
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.35), rgba(4, 120, 87, 0.12)) !important;
+            border: 1px solid rgba(52, 211, 153, 0.45) !important;
+            border-top: 3px solid #10b981 !important;
+            border-radius: 18px !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 0 15px rgba(16, 185, 129, 0.25), inset 0 1px 1px rgba(255,255,255,0.05) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            transition: all 0.5s ease-in-out !important;
+        }
+        :root.light-theme #form-fields-card {
+            background: linear-gradient(135deg, rgba(209, 250, 229, 0.8), rgba(240, 253, 250, 0.6)) !important;
+            border: 1px solid rgba(52, 211, 153, 0.5) !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1), 0 0 15px rgba(16, 185, 129, 0.15), inset 0 1px 1px rgba(255,255,255,0.8) !important;
+            color: #065f46 !important;
+        }
+        :root.light-theme #form-fields-card * {
+            text-shadow: none !important;
+        }
+
+        .table-container {
+            background: linear-gradient(135deg, rgba(120, 53, 4, 0.35), rgba(154, 52, 18, 0.12)) !important;
+            border: 1px solid rgba(251, 146, 60, 0.45) !important;
+            border-top: 3px solid #f97316 !important;
+            border-radius: 18px !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 0 15px rgba(249, 115, 22, 0.25), inset 0 1px 1px rgba(255,255,255,0.05) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            transition: all 0.5s ease-in-out !important;
+        }
+        :root.light-theme .table-container {
+            background: linear-gradient(135deg, rgba(254, 243, 199, 0.8), rgba(255, 251, 235, 0.6)) !important;
+            border: 1px solid rgba(251, 146, 60, 0.5) !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1), 0 0 15px rgba(249, 115, 22, 0.15), inset 0 1px 1px rgba(255,255,255,0.8) !important;
+        }
+
+        .items-toolbar {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.6), rgba(30, 41, 59, 0.3)) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-radius: 18px !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 0 12px rgba(255, 255, 255, 0.08), inset 0 1px 1px rgba(255,255,255,0.03) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            transition: all 0.5s ease-in-out !important;
+        }
+        :root.light-theme .items-toolbar {
+            background: linear-gradient(135deg, rgba(241, 245, 249, 0.8), rgba(248, 250, 252, 0.6)) !important;
+            border: 1px solid rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05), 0 0 12px rgba(0, 0, 0, 0.03), inset 0 1px 1px rgba(255,255,255,0.8) !important;
+        }
 </style>
 </head>
 <body>
