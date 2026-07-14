@@ -20,59 +20,49 @@
     <link rel="stylesheet" href="css/design-system.css?v=20260709_5"><link rel="stylesheet" href="css/theme.css?v=20260709_5">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
         <style>
-        body {
+        body, body.has-sidebar, body.has-sidebar.sidebar-open {
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(2, 6, 23, 0.95)), url('assets/ai_bg.png') no-repeat center center fixed;
-            background-size: cover;
+            background: url('assets/user_bg_fast.jpg') no-repeat center center fixed !important;
+            background-size: cover !important;
+            background-image: url('assets/user_bg_fast.jpg') !important;
             overflow: hidden;
             position: relative;
+            animation: none !important;
+            transition: none !important;
+            transform: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
 
-        @keyframes pulse {
-            0% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.4)); }
-            50% { transform: scale(1.05); filter: drop-shadow(0 0 25px rgba(56, 189, 248, 0.8)); }
-            100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.4)); }
-        }
-        
-        .ambient-orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.4;
-            animation: float 10s infinite ease-in-out alternate;
-            z-index: -1;
-            pointer-events: none;
-        }
-        
-        @keyframes float {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, -50px); }
-        }
 
         .login-card {
             width: 90%;
             max-width: 420px;
-            padding: 40px 30px;
+            padding: 45px 35px;
             display: flex;
             flex-direction: column;
             gap: 20px;
             text-align: center;
-            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border-radius: 24px;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.2);
-            background: rgba(15, 23, 42, 0.6);
+            /* Glassmorphism */
+            backdrop-filter: blur(25px) saturate(190%);
+            -webkit-backdrop-filter: blur(25px) saturate(190%);
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 
+                        inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
+            background: rgba(15, 22, 38, 0.55) !important;
             z-index: 10;
+            
+            /* Guaranteed Static & Centered */
+            position: relative;
+            margin: auto !important; /* ensures equal margins left/right/top/bottom in flex container */
+            animation: none !important;
+            transition: none !important;
+            transform: none !important;
         }
         .logo {
             font-size: 3rem;
@@ -90,35 +80,37 @@
         .input-group label {
             display: block;
             margin-bottom: 8px;
-            color: #e2e8f0;
+            color: rgba(255, 255, 255, 0.95) !important;
             font-size: 0.95rem;
-            font-weight: 600;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.4);
         }
         .input-field {
             width: 100%;
-            padding: 15px;
-            border-radius: 12px;
-            border: 1.5px solid rgba(255,255,255,0.15);
-            background: rgba(0, 0, 0, 0.35);
-            color: #ffffff;
+            padding: 15px 18px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: #ffffff !important;
             font-size: 1.05rem;
             font-weight: 500;
             outline: none;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-sizing: border-box;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 
+                        0 4px 6px rgba(0, 0, 0, 0.05);
         }
         .input-field::placeholder {
-            color: rgba(255,255,255,0.4);
+            color: rgba(255, 255, 255, 0.5) !important;
             font-weight: 400;
         }
         .input-field:focus {
-            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15), inset 0 2px 4px rgba(0,0,0,0.2);
-            border-color: #38bdf8;
-            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.25), 
+                        inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+            border-color: rgba(56, 189, 248, 0.65) !important;
+            background: rgba(255, 255, 255, 0.13) !important;
         }
         .toggle-pwd-btn {
             position: absolute;
@@ -126,7 +118,7 @@
             top: 38px;
             background: none;
             border: none;
-            color: #94a3b8;
+            color: rgba(255, 255, 255, 0.6) !important;
             cursor: pointer;
             font-size: 1.2rem;
             transition: color 0.2s;
@@ -136,41 +128,67 @@
             justify-content: center;
         }
         .toggle-pwd-btn:hover {
-            color: #38bdf8;
+            color: #38bdf8 !important;
         }
         .btn-login {
             width: 100%;
             padding: 15px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #38bdf8, #818cf8);
-            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.3);
-            color: white;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8) !important;
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.4) !important;
+            color: white !important;
             font-size: 1.1rem;
             font-weight: 800;
             border: none;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .btn-login:hover {
-            box-shadow: 0 15px 25px rgba(56, 189, 248, 0.5);
+            box-shadow: 0 12px 30px rgba(56, 189, 248, 0.6) !important;
+            transform: translateY(-2px);
         }
         .btn-login:active {
-            transform: scale(0.98);
+            transform: translateY(1px) scale(0.98);
         }
         .device-info {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-top: 20px;
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.75) !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-top: 15px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: inline-block;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
-<body>
-    <div class="ambient-orb" style="width: 400px; height: 400px; background: #38bdf8; top: -10%; left: -10%;"></div>
-    <div class="ambient-orb" style="width: 350px; height: 350px; background: #818cf8; bottom: -10%; right: -10%; animation-duration: 15s; animation-direction: alternate-reverse;"></div>
-
+<body style="display:flex !important; align-items:center !important; justify-content:center !important; height:100vh !important; padding:0 !important; margin:0 !important; animation:none !important; transition:none !important; transform:none !important; background-image:url('assets/user_bg_fast.jpg') !important; background-size:cover !important; background-position:center center !important; background-repeat:no-repeat !important; background-attachment:fixed !important; overflow:hidden !important;">
+    <script>
+        // Kill any classes or styles injected by external scripts that cause movement
+        (function(){
+            var b = document.body;
+            // Remove all classes from body to prevent sidebar padding transitions
+            new MutationObserver(function(mutations){
+                mutations.forEach(function(m){
+                    if(m.type === 'attributes' && m.attributeName === 'class'){
+                        b.className = '';
+                    }
+                });
+            }).observe(b, {attributes: true, attributeFilter: ['class']});
+            // Also override style changes
+            b.style.setProperty('padding', '0', 'important');
+            b.style.setProperty('margin', '0', 'important');
+            b.style.setProperty('animation', 'none', 'important');
+            b.style.setProperty('transition', 'none', 'important');
+            b.style.setProperty('transform', 'none', 'important');
+        })();
+    </script>
     <div class="login-card">
-        <div class="logo-container" style="animation: pulse 4s infinite; mix-blend-mode: screen; filter: invert(1) hue-rotate(180deg) brightness(1.2) drop-shadow(0 0 20px rgba(56, 189, 248, 0.6));">
-            <img src="assets/logo.png" alt="Logo" loading="lazy" style="width: 140px; height: auto;">
+        <div class="logo-container" style="margin-bottom: 5px;">
+            <img src="assets/logo.png" alt="Logo" loading="lazy" style="width: 130px; height: auto; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));">
         </div>
         <div class="title" style="background: linear-gradient(to right, #ffffff, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; font-weight: 900; letter-spacing: 1px;">مقاييس MAGAIEES ERP</div>
         <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: -15px; font-weight: 700;">نظام إدارة موارد المؤسسات المتكامل الذكي</p>
