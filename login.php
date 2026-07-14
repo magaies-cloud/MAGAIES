@@ -16,6 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="preload" as="image" href="assets/user_bg_fast.jpg">
     <title>مقاييس 2026 - تسجيل الدخول</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260709_5"><link rel="stylesheet" href="css/theme.css?v=20260709_5">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
@@ -25,7 +26,8 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background: url('assets/user_bg_fast.jpg') no-repeat center center fixed !important;
+            background-color: #0c101b !important;
+            background: #0c101b url('assets/user_bg_fast.jpg') no-repeat center center fixed !important;
             background-size: cover !important;
             background-image: url('assets/user_bg_fast.jpg') !important;
             overflow: hidden;
@@ -165,7 +167,7 @@
         }
     </style>
 </head>
-<body style="display:flex !important; align-items:center !important; justify-content:center !important; height:100vh !important; padding:0 !important; margin:0 !important; animation:none !important; transition:none !important; transform:none !important; background-image:url('assets/user_bg_fast.jpg') !important; background-size:cover !important; background-position:center center !important; background-repeat:no-repeat !important; background-attachment:fixed !important; overflow:hidden !important;">
+<body style="display:flex !important; align-items:center !important; justify-content:center !important; height:100vh !important; padding:0 !important; margin:0 !important; animation:none !important; transition:none !important; transform:none !important; background-color:#0c101b !important; background-image:url('assets/user_bg_fast.jpg') !important; background-size:cover !important; background-position:center center !important; background-repeat:no-repeat !important; background-attachment:fixed !important; overflow:hidden !important;">
     <script>
         // Kill any classes or styles injected by external scripts that cause movement
         (function(){
