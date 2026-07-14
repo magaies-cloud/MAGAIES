@@ -851,7 +851,10 @@
     #purchase-top-container #form-fields-card {
         flex: 1; 
         min-width: 0; 
-        transition: flex 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), max-width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+        transition: padding-bottom 0.5s ease, flex 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), max-width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+    }
+    #purchase-top-container #form-fields-card.expanded-form {
+        padding-bottom: 10px !important; /* Make bottom spacing compact to match top margin */
     }
     #purchase-top-container #totals-calc-card {
         display: flex !important;
@@ -1355,12 +1358,12 @@
         transition: margin-bottom 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
     #purchase-top-container #form-fields-card {
-        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         flex: 1; /* Grows to take all available space automatically */
         min-width: 0; /* Prevents flex blowout on small screens */
+        transition: padding-bottom 0.5s ease, all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
     }
-    #purchase-top-container #form-fields-card {
-        transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+    #purchase-top-container #form-fields-card.expanded-form {
+        padding-bottom: 10px !important;
     }
     #purchase-top-container #totals-calc-card {
         transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
