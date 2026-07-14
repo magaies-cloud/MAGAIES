@@ -840,8 +840,13 @@
 
 <style>
 /* Purchase Top Container CSS */
-        #purchase-top-container {
-        display: flex; gap: 20px; align-items: stretch; width: 100%; margin-bottom: 15px;
+    #purchase-top-container {
+        display: flex; gap: 20px; align-items: stretch; width: 100%; 
+        margin-bottom: 25px; /* Margin when totals card is visible */
+        transition: margin-bottom 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    #purchase-top-container.form-expanded {
+        margin-bottom: 8px; /* Margin when totals card is hidden (matches top margin) */
     }
     #purchase-top-container #form-fields-card {
         flex: 1; 
@@ -1346,7 +1351,8 @@
 <style>
 /* Purchase Top Container CSS */
     #purchase-top-container {
-        display: flex; gap: 20px; align-items: stretch; width: 100%; margin-bottom: 15px;
+        display: flex; gap: 20px; align-items: stretch; width: 100%;
+        transition: margin-bottom 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
     #purchase-top-container #form-fields-card {
         transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1644,7 +1650,7 @@
     <!-- Form Fields (Now first in DOM, rendering on the Right in RTL) -->
         
 <!-- WRAPPER FOR TOP SECTION -->
-<div id="purchase-top-container" style="display: flex; gap: 15px; align-items: stretch; transition: all 0.5s ease; width: 100%; margin-bottom: 10px;">
+<div id="purchase-top-container" class="form-expanded" style="display: flex; gap: 15px; align-items: stretch; transition: all 0.5s ease; width: 100%;">
 <div class="neo-card expanded-form" id="form-fields-card" style="margin-bottom: 0;">
             <div style="display: flex; flex-direction: column; gap: 15px;">
                 

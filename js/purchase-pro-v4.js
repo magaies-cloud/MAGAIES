@@ -2102,15 +2102,18 @@ function recalcAll() {
     const formCard = document.getElementById('form-fields-card');
     if (totalsCard && formCard) {
         const hasItems = rows.some(r => (parseFloat(r.price) || 0) * (parseFloat(r.quantity) || 0) > 0);
+        const topContainer = document.getElementById('purchase-top-container');
 
         if (hasItems) {
             // Remove hiding classes, add showing classes
             totalsCard.classList.remove('hidden-totals');
             formCard.classList.remove('expanded-form');
+            if (topContainer) topContainer.classList.remove('form-expanded');
         } else {
             // Add hiding classes, add expanded class
             totalsCard.classList.add('hidden-totals');
             formCard.classList.add('expanded-form');
+            if (topContainer) topContainer.classList.add('form-expanded');
         }
     }
     
