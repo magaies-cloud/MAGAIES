@@ -2430,6 +2430,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         let tSep = prefs.thousandsSep !== undefined ? prefs.thousandsSep : ',';
                         if (tSep === 'none') tSep = '';
                         
+                        // input[type="number"] cannot have thousands separators (commas)
+                        if (el.tagName === 'INPUT' && el.type === 'number') {
+                            tSep = '';
+                        }
+                        
                         let dSep = prefs.decimalSep !== undefined ? prefs.decimalSep : '.';
                         
                         if (tSep) {
@@ -2541,7 +2546,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (val !== 0 || e.target.value !== '') {
                             let dec = prefs.decimals !== undefined ? parseInt(prefs.decimals) : 2;
                             let opts = { minimumFractionDigits: dec, maximumFractionDigits: dec };
-                            if (prefs.thousands === false) opts.useGrouping = false;
+                            if (prefs.thousands === false || e.target.type === 'number') opts.useGrouping = false;
                             e.target.value = val.toLocaleString('en-US', opts);
                         }
                     }

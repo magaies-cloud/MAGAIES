@@ -420,8 +420,8 @@
                         </div>
                         <div class="form-grid">
                             <div class="input-group"><label>اسم العميل / الشركة</label><input type="text" id="cust-name" placeholder="مثال: أحمد للتجارة"></div>
-                            <div class="input-group"><label>رقم الهاتف</label><input type="text" id="cust-phone" placeholder="0024912300675"></div>
-                            <div class="input-group"><label>رقم الواتساب</label><input type="text" id="cust-whatsapp" placeholder="0024912300675"></div>
+                            <div class="input-group"><label>رقم الهاتف</label><input type="text" id="cust-phone" placeholder="00249123000000"></div>
+                            <div class="input-group"><label>رقم الواتساب</label><input type="text" id="cust-whatsapp" placeholder="00249123000000"></div>
                             <div class="input-group"><label>الايميل (البريد الإلكتروني)</label><input type="email" id="cust-email" placeholder="example@email.com"></div>
                             <div class="input-group" style="grid-column: span 2;"><label>العنوان</label><input type="text" id="cust-address" placeholder="مثال: الخرطوم، مقاييس"></div>
                             <div class="input-group"><label>العملة</label><select id="cust-currency" class="system-currency-select" onchange="updateCustExchangeRate()"></select></div>
@@ -486,8 +486,8 @@
                         </div>
                         <div class="form-grid">
                             <div class="input-group"><label>اسم المورد / المصنع</label><input type="text" id="sup-name" placeholder="مثال: مصنع جياد"></div>
-                            <div class="input-group"><label>رقم الهاتف</label><input type="text" id="sup-phone" placeholder="0024912300675"></div>
-                            <div class="input-group"><label>رقم الواتساب</label><input type="text" id="sup-whatsapp" placeholder="0024912300675"></div>
+                            <div class="input-group"><label>رقم الهاتف</label><input type="text" id="sup-phone" placeholder="00249123000000"></div>
+                            <div class="input-group"><label>رقم الواتساب</label><input type="text" id="sup-whatsapp" placeholder="00249123000000"></div>
                             <div class="input-group"><label>الايميل (البريد الإلكتروني)</label><input type="email" id="sup-email" placeholder="example@email.com"></div>
                             <div class="input-group" style="grid-column: span 2;"><label>العنوان</label><input type="text" id="sup-address" placeholder="موقع المصنع / المعرض"></div>
                             <div class="input-group"><label>العملة</label><select id="sup-currency" class="system-currency-select" onchange="updateSupExchangeRate()"></select></div>

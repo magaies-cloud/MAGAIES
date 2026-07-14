@@ -351,7 +351,9 @@ async function saveVoucher() {
 
     rows.forEach((row, index) => {
         const subAccInput = row.querySelector('.sub-account');
-        const acc = subAccInput.getAttribute('data-id') || subAccInput.value.trim();
+        const searchInput = row.querySelector('input[type="text"][id$="-search"]') || row.querySelector('.multi-input');
+        const accName = searchInput ? searchInput.value.trim() : '';
+        const acc = subAccInput.getAttribute('data-id') || accName;
         const amtStr = row.querySelector('.sub-amount').value;
         const amt = cleanNum(amtStr);
         const subDesc = row.querySelector('.sub-desc') ? row.querySelector('.sub-desc').value.trim() : '';
@@ -406,7 +408,7 @@ async function saveVoucher() {
         mobileTransferNo: mobileTransferNo,
         mobileNote: mobileNote,
         items: items, // Contains {account, amount, statement}
-        isPosted: false, // Sent to posting screen
+        isPosted: true, // Auto-post to reflect in general ledger immediately
         createdAt: new Date().toISOString()
     };
 
@@ -749,11 +751,12 @@ function loadVoucherIntoForm(v) {
     // 3. Set main account
     const mainAccHidden = document.getElementById('main-account');
     if (mainAccHidden) {
-        mainAccHidden.value = v.mainAccount || '';
+        mainAccHidden.value = getAccountName(v.mainAccount) || '';
+        mainAccHidden.setAttribute('data-id', v.mainAccount || '');
     }
     const mainAccSearch = document.getElementById('main-account-search');
     if (mainAccSearch) {
-        mainAccSearch.value = v.mainAccount || '';
+        mainAccSearch.value = getAccountName(v.mainAccount) || '';
     }
     
     // 4. Set payment method radio

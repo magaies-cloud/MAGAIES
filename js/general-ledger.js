@@ -319,7 +319,7 @@ function collectAllTransactions() {
     });
 
     // 2b. Multi-Receipts
-    const multiReceipts = JSON.parse(localStorage.getItem('erp_multi_receipts_v1')) || [];
+    const multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
     multiReceipts.forEach(v => {
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
@@ -368,7 +368,7 @@ function collectAllTransactions() {
     });
 
     // 2c. Multi-Payments
-    const multiPayments = JSON.parse(localStorage.getItem('erp_multi_payments_v1')) || [];
+    const multiPayments = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
     multiPayments.forEach(v => {
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
