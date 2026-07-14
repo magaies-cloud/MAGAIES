@@ -877,6 +877,38 @@
     #sales-top-container {
         display: flex; gap: 20px; align-items: stretch; width: 100%; margin-bottom: 15px;
     }
+    
+    /* Glassmorphic First Panel (Invoice Details) - Sky Blue/Cyan Sapphire Glow */
+    #form-fields-card {
+        background: rgba(30, 41, 59, 0.45) !important;
+        backdrop-filter: blur(25px) saturate(140%) !important;
+        -webkit-backdrop-filter: blur(25px) saturate(140%) !important;
+        border: 1px solid rgba(56, 189, 248, 0.35) !important;
+        border-radius: 18px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 15px rgba(56, 189, 248, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.05) !important;
+        transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+    }
+    #form-fields-card:hover {
+        border-color: rgba(56, 189, 248, 0.6) !important;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(56, 189, 248, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.08) !important;
+    }
+
+    /* Glassmorphic Second Panel (Items Grid) - Mint Emerald Glow */
+    #items-panel {
+        background: rgba(16, 24, 39, 0.5) !important;
+        backdrop-filter: blur(25px) saturate(140%) !important;
+        -webkit-backdrop-filter: blur(25px) saturate(140%) !important;
+        border: 1px solid rgba(16, 185, 129, 0.35) !important;
+        border-radius: 18px !important;
+        padding: 20px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 15px rgba(16, 185, 129, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.05) !important;
+        transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+    }
+    #items-panel:hover {
+        border-color: rgba(16, 185, 129, 0.6) !important;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(16, 185, 129, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.08) !important;
+    }
+
     #sales-top-container #form-fields-card {
         flex: 1; 
         min-width: 0; 
@@ -1895,73 +1927,6 @@
             color: #0f172a !important;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
             transform: translateY(-1px) !important;
-        }
-
-        /* Premium Glassmorphic Custom Themes */
-        #form-fields-card {
-            background: linear-gradient(135deg, rgba(6, 78, 59, 0.35), rgba(4, 120, 87, 0.12)) !important;
-            border: 1px solid rgba(52, 211, 153, 0.45) !important;
-            border-top: 3px solid #10b981 !important;
-            border-radius: 18px !important;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 0 15px rgba(16, 185, 129, 0.25), inset 0 1px 1px rgba(255,255,255,0.05) !important;
-            backdrop-filter: blur(20px) !important;
-            -webkit-backdrop-filter: blur(20px) !important;
-            transition: all 0.5s ease-in-out !important;
-        }
-        :root.light-theme #form-fields-card {
-            background: linear-gradient(135deg, rgba(209, 250, 229, 0.8), rgba(240, 253, 250, 0.6)) !important;
-            border: 1px solid rgba(52, 211, 153, 0.5) !important;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1), 0 0 15px rgba(16, 185, 129, 0.15), inset 0 1px 1px rgba(255,255,255,0.8) !important;
-            color: #065f46 !important;
-        }
-        :root.light-theme #form-fields-card * {
-            text-shadow: none !important;
-        }
-
-        .table-container {
-            background: linear-gradient(135deg, rgba(120, 53, 4, 0.35), rgba(154, 52, 18, 0.12)) !important;
-            border: 1px solid rgba(251, 146, 60, 0.45) !important;
-            border-top: 3px solid #f97316 !important;
-            border-radius: 18px !important;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 0 15px rgba(249, 115, 22, 0.25), inset 0 1px 1px rgba(255,255,255,0.05) !important;
-            backdrop-filter: blur(20px) !important;
-            -webkit-backdrop-filter: blur(20px) !important;
-            transition: all 0.5s ease-in-out !important;
-        }
-        :root.light-theme .table-container {
-            background: linear-gradient(135deg, rgba(254, 243, 199, 0.8), rgba(255, 251, 235, 0.6)) !important;
-            border: 1px solid rgba(251, 146, 60, 0.5) !important;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1), 0 0 15px rgba(249, 115, 22, 0.15), inset 0 1px 1px rgba(255,255,255,0.8) !important;
-        }
-
-        .items-toolbar {
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.6), rgba(30, 41, 59, 0.3)) !important;
-            border: 1px solid rgba(255, 255, 255, 0.12) !important;
-            border-radius: 18px !important;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 0 12px rgba(255, 255, 255, 0.08), inset 0 1px 1px rgba(255,255,255,0.03) !important;
-            backdrop-filter: blur(20px) !important;
-            -webkit-backdrop-filter: blur(20px) !important;
-            transition: all 0.5s ease-in-out !important;
-        }
-        :root.light-theme .items-toolbar {
-            background: linear-gradient(135deg, rgba(241, 245, 249, 0.8), rgba(248, 250, 252, 0.6)) !important;
-            border: 1px solid rgba(0, 0, 0, 0.08) !important;
-        }
-
-        #payment-panel {
-            background: linear-gradient(135deg, rgba(146, 64, 14, 0.25), rgba(217, 119, 6, 0.08)) !important;
-            border: 1px solid rgba(245, 158, 11, 0.4) !important;
-            border-top: 3px solid #f59e0b !important;
-            border-radius: 18px !important;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 0 15px rgba(245, 158, 11, 0.22), inset 0 1px 1px rgba(255,255,255,0.05) !important;
-            backdrop-filter: blur(20px) !important;
-            -webkit-backdrop-filter: blur(20px) !important;
-            transition: all 0.5s ease-in-out !important;
-        }
-        :root.light-theme #payment-panel {
-            background: linear-gradient(135deg, rgba(254, 243, 199, 0.75), rgba(255, 251, 235, 0.55)) !important;
-            border: 1px solid rgba(245, 158, 11, 0.45) !important;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08), 0 0 15px rgba(245, 158, 11, 0.12), inset 0 1px 1px rgba(255,255,255,0.8) !important;
         }
 </style>
 </head>
