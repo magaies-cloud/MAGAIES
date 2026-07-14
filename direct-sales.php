@@ -859,6 +859,8 @@
             flex: 0 0 0% !important;
             min-width: 0 !important;
             max-width: 0 !important;
+            height: 0 !important;
+            max-height: 0 !important;
             padding: 0 !important;
             border-width: 0 !important;
             opacity: 0 !important;
@@ -901,12 +903,13 @@
         flex: 0 0 0px !important;
         min-width: 0px !important;
         max-width: 0px !important;
+        height: 0px !important;
+        max-height: 0px !important;
         opacity: 0 !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
         border-width: 0 !important;
+        overflow: hidden !important;
     }
     .tot-row {
         display: flex; justify-content: space-between; align-items: center;
