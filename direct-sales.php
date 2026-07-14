@@ -2479,8 +2479,22 @@
             </div><!-- end items-panel -->
 
             <!-- ══ FULL-WIDTH: تفاصيل الدفع ══ -->
-            <div class="panel" id="payment-panel" style="z-index: 40; margin-top: 15px; background: rgba(30, 41, 59, 0.45) !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important; backdrop-filter: blur(10px);">
+            <div class="panel" id="payment-panel" style="z-index: 40; margin-top: 15px; padding: 0 !important; background: rgba(15, 23, 42, 0.22) !important; border: 1px solid rgba(234, 179, 8, 0.22) !important; backdrop-filter: blur(18px) saturate(130%) !important; -webkit-backdrop-filter: blur(18px) saturate(130%) !important;">
                 <style>
+                    #payment-panel {
+                        animation: glassPulseGold 3.5s infinite ease-in-out;
+                        transition: all 0.4s ease;
+                    }
+                    @keyframes glassPulseGold {
+                        0%, 100% {
+                            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 0 10px rgba(234, 179, 8, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+                            border-color: rgba(234, 179, 8, 0.22) !important;
+                        }
+                        50% {
+                            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), 0 0 20px rgba(234, 179, 8, 0.38), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+                            border-color: rgba(234, 179, 8, 0.45) !important;
+                        }
+                    }
                     .pay-toggle-btn.active {
                         background: linear-gradient(135deg, #ff7300, #ff9100) !important;
                         border-color: #ff7300 !important;
@@ -2510,7 +2524,7 @@
                         min-width: 280px !important;
                     }
                 </style>
-                <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 15px 20px; background: rgba(15,23,42,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
+                <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 12px 20px; background: rgba(15,23,42,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
                     <div class="panel-title" style="background: linear-gradient(135deg, #ff4d4d, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.15rem; font-weight: 900; display: inline-flex; align-items: center; gap: 6px; margin: 0;">
                         <span>💳</span> طريقة وتفاصيل الدفع
                     </div>
@@ -2522,7 +2536,7 @@
                     </div>
                 </div>
                 
-                <div class="payment-layout" style="display: flex; gap: 20px; padding: 15px; flex-wrap: wrap;">
+                <div class="payment-layout" id="payment-layout" style="display: none; gap: 15px; padding: 15px; flex-wrap: wrap;">
                     <!-- Left Section: Invoice Totals Summary -->
                     <div class="payment-summary-card" style="flex: 1; min-width: 280px; background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: center; gap: 12px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 5px;">

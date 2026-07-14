@@ -2050,10 +2050,16 @@ function updatePaymentSectionsVisibility() {
     document.getElementById('pay-bank-section').style.display = bankActive ? 'flex' : 'none';
     document.getElementById('pay-cheque-section').style.display = chequeActive ? 'flex' : 'none';
 
+    const hasActive = cashActive || creditActive || bankActive || chequeActive;
+    const layout = document.getElementById('payment-layout');
+    if (layout) {
+        layout.style.display = hasActive ? 'flex' : 'none';
+    }
+
     // Toggle show-totals with smooth animation
     const totalsCard = document.querySelector('.payment-summary-card');
     if (totalsCard) {
-        if (cashActive || creditActive || bankActive || chequeActive) {
+        if (hasActive) {
             totalsCard.classList.add('show-totals');
         } else {
             totalsCard.classList.remove('show-totals');
