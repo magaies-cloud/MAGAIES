@@ -1571,7 +1571,22 @@
         :root.light-theme .items-toolbar {
             background: linear-gradient(135deg, rgba(241, 245, 249, 0.8), rgba(248, 250, 252, 0.6)) !important;
             border: 1px solid rgba(0, 0, 0, 0.08) !important;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05), 0 0 12px rgba(0, 0, 0, 0.03), inset 0 1px 1px rgba(255,255,255,0.8) !important;
+        }
+
+        #payment-panel {
+            background: linear-gradient(135deg, rgba(146, 64, 14, 0.25), rgba(217, 119, 6, 0.08)) !important;
+            border: 1px solid rgba(245, 158, 11, 0.4) !important;
+            border-top: 3px solid #f59e0b !important;
+            border-radius: 18px !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 0 15px rgba(245, 158, 11, 0.22), inset 0 1px 1px rgba(255,255,255,0.05) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            transition: all 0.5s ease-in-out !important;
+        }
+        :root.light-theme #payment-panel {
+            background: linear-gradient(135deg, rgba(254, 243, 199, 0.75), rgba(255, 251, 235, 0.55)) !important;
+            border: 1px solid rgba(245, 158, 11, 0.45) !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08), 0 0 15px rgba(245, 158, 11, 0.12), inset 0 1px 1px rgba(255,255,255,0.8) !important;
         }
 </style>
 </head>
