@@ -1219,39 +1219,29 @@
 
                                     <!-- Cheque section -->
                                     <div id="pay-cheque-section" class="payment-method-box" style="background: rgba(139, 92, 246, 0.04); border: 1px solid rgba(139, 92, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
-                                        <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
+                                        <div style="display: flex; align-items: center; gap: 8px; min-width: 140px; width: 140px; flex: none;">
                                             <span style="font-size: 1.2rem;">✍️</span>
                                             <span style="font-weight: 800; color: #c084fc; font-size: 0.95rem;">تفاصيل الشيك</span>
                                         </div>
-                                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; flex: 1; min-width: 320px;">
-                                            <div style="display: flex; align-items: center; gap: 5px;">
-                                                <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">رقم الشيك:</label>
-                                                <input type="text" class="v-input ctrl-input" id="check-no" placeholder="رقم الشيك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
+                                        <div style="display: flex; gap: 12px; flex: 1; min-width: 320px; align-items: center; flex-wrap: wrap;">
+                                            <div style="flex: 1.2; min-width: 160px; display: flex; align-items: center; gap: 6px;">
+                                                <label style="font-size: 0.78rem; color: #94a3b8; white-space: nowrap;">اسم البنك:</label>
+                                                <input type="text" class="v-input ctrl-input" id="check-branch" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
                                             </div>
-                                            <div style="display: flex; align-items: center; gap: 5px;">
-                                                <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">البنك/الفرع:</label>
-                                                <input type="text" class="v-input ctrl-input" id="check-branch" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
+                                            <div style="flex: 1; min-width: 130px; display: flex; align-items: center; gap: 6px;">
+                                                <label style="font-size: 0.78rem; color: #94a3b8; white-space: nowrap;">رقم الشيك:</label>
+                                                <input type="text" class="v-input ctrl-input" id="check-no" placeholder="رقم الشيك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
                                             </div>
-                                            <div style="display: flex; align-items: center; gap: 5px;">
-                                                <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">تاريخ الشيك:</label>
-                                                <input type="date" class="v-input ctrl-input" id="check-date" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;">
+                                            <div style="flex: 1; min-width: 150px; display: flex; align-items: center; gap: 6px;">
+                                                <label style="font-size: 0.78rem; color: #94a3b8; white-space: nowrap;">تاريخ الشيك:</label>
+                                                <input type="date" class="v-input ctrl-input" id="check-date" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;">
                                             </div>
-                                            <div style="display: flex; align-items: center; gap: 5px;">
-                                                <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">الاستحقاق:</label>
-                                                <input type="date" class="v-input ctrl-input" id="check-due-date" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;">
-                                            </div>
-                                            <div style="display: flex; align-items: center; gap: 5px;">
-                                                <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">رقم الدفتر:</label>
-                                                <input type="text" class="v-input ctrl-input" id="check-ref" placeholder="الدفتر..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
-                                            </div>
-                                            <div style="display: flex; align-items: center; gap: 5px;">
-                                                <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">الرقم المرجعي:</label>
-                                                <input type="text" class="v-input ctrl-input" id="check-ref-no" placeholder="المرجع..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
-                                            </div>
-                                            <div style="grid-column: span 3; display: flex; align-items: center; justify-content: flex-end; gap: 5px; margin-top: 5px;">
-                                                <input type="checkbox" id="check-settle-local" style="width: 16px; height: 16px; cursor: pointer;">
-                                                <label for="check-settle-local" style="font-size: 0.8rem; color: #c084fc; cursor: pointer; user-select: none;">إرفاق صورة المستند</label>
-                                            </div>
+                                            
+                                            <!-- Hidden inputs for backward compatibility -->
+                                            <input type="hidden" id="check-due-date" value="">
+                                            <input type="hidden" id="check-ref" value="">
+                                            <input type="hidden" id="check-ref-no" value="">
+                                            <input type="checkbox" id="check-settle-local" style="display: none;">
                                         </div>
                                     </div>
 
