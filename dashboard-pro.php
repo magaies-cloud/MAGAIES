@@ -188,9 +188,22 @@
             display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;
         }
         .kpi-cards .glass-panel {
-            padding: 8px 12px;
+            padding: 10px 14px;
             border-radius: 12px;
+            background: #16131d !important;
+            border: 2px solid rgba(255, 255, 255, 0.12) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
         }
+        .kpi-cards .glass-panel:hover {
+            transform: translateY(-5px) scale(1.04) !important;
+            border-width: 3.5px !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45) !important;
+        }
+        .kpi-cards .glass-panel.neon-border-primary:hover { border-color: #3b82f6 !important; background: #1a1725 !important; }
+        .kpi-cards .glass-panel.neon-border-success:hover { border-color: #10b981 !important; background: #131b18 !important; }
+        .kpi-cards .glass-panel.neon-border-warning:hover { border-color: #fbbf24 !important; background: #1f1b13 !important; }
+        .kpi-cards .glass-panel.neon-border-danger:hover { border-color: #f87171 !important; background: #1f1315 !important; }
         .kpi-title { color:var(--text-secondary); font-size:0.75rem; font-weight: 700; }
         .kpi-icon-bg {
             display: inline-flex;
@@ -269,15 +282,18 @@
         .quick-action-btn {
             display: flex; align-items: center; gap: 10px;
             padding: 10px 14px; border-radius: 12px; text-decoration: none; font-weight: 800; font-size: 0.9rem;
-            color: #fff; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.05);
+            color: #fff; background: #16131c; border: 2px solid rgba(255,255,255,0.12);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.35);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); position: relative; overflow: hidden;
             font-family: 'Tajawal', sans-serif;
         }
         .quick-action-btn:hover { 
             animation: tactileBuzz 0.1s linear infinite;
-            border-color: rgba(255,255,255,0.3);
+            transform: translateY(-4px) scale(1.05) !important;
+            border-color: rgba(255,255,255,0.35) !important;
+            border-width: 3px !important;
+            background: #231e2d !important;
             z-index: 10;
         }
 
@@ -372,17 +388,18 @@
         .admin-action-btn {
             display: inline-flex; align-items: center; gap: 8px;
             padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: 800; font-size: 0.85rem;
-            color: #fff; background: rgba(15, 23, 42, 0.4); border: 1.5px solid rgba(255,255,255,0.08);
+            color: #fff; background: #16131c; border: 2px solid rgba(255,255,255,0.12);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); cursor: pointer;
             font-family: 'Tajawal', sans-serif;
             box-shadow: inset 0 0 10px rgba(255,255,255,0.01), 0 4px 10px rgba(0,0,0,0.15);
         }
         .admin-action-btn:hover {
-            transform: translateY(-2px);
-            background: rgba(255,255,255,0.08);
-            border-color: rgba(255,255,255,0.25);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+            transform: translateY(-4px) scale(1.05) !important;
+            background: #231e2d !important;
+            border-color: rgba(255, 255, 255, 0.35) !important;
+            border-width: 3px !important;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4) !important;
         }
         .admin-action-settings {
             border-bottom: 4.5px solid #64748b !important;
@@ -481,10 +498,30 @@
         :root.light-theme .panel,
         :root.light-theme .neo-card,
         :root.light-theme .glass-panel {
-            background: var(--surface) !important;
-            border-color: var(--border) !important;
+            background: #ffffff !important;
+            border: 3.5px solid #000000 !important;
+            border-radius: 12px !important;
             color: #000000 !important;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06) !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08) !important;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+        :root.light-theme .admin-action-btn,
+        :root.light-theme .quick-action-btn {
+            background: #ffffff !important;
+            border: 3.5px solid #000000 !important;
+            border-radius: 12px !important;
+            color: #000000 !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+        :root.light-theme .admin-action-btn:hover,
+        :root.light-theme .quick-action-btn:hover,
+        :root.light-theme .glass-panel.spotlight-card:hover,
+        :root.light-theme .glass-panel:hover {
+            transform: translateY(-5px) scale(1.05) !important;
+            border: 5px solid #000000 !important;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18) !important;
+            background: #ffffff !important;
         }
         :root.light-theme td, :root.light-theme th, :root.light-theme tr {
             color: #000000 !important;
@@ -504,16 +541,6 @@
             background: #ffffff !important;
             color: #000000 !important;
             border: 1px solid rgba(0, 0, 0, 0.18) !important;
-        }
-        :root.light-theme .admin-action-btn {
-            background: rgba(0,0,0,0.03);
-            border-color: rgba(0,0,0,0.1);
-            color: #000000;
-        }
-        :root.light-theme .admin-action-btn:hover {
-            background: rgba(0,0,0,0.06);
-            border-color: rgba(0,0,0,0.18);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
         }
         :root.light-theme .qa-icon {
             border: 2px solid rgba(0, 0, 0, 0.15) !important;
