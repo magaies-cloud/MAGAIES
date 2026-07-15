@@ -427,16 +427,10 @@ async function saveVoucher() {
 
         chequeRows.forEach((row, idx) => {
             const chNo = row.querySelector('.cheque-no').value.trim();
-            const chBranch = row.querySelector('.cheque-branch').value.trim();
+            const chBranch = 'البنك الرئيسي';
             const chDate = row.querySelector('.cheque-date').value;
             const chAmt = cleanNum(row.querySelector('.cheque-amount').value);
 
-            if (!chBranch) {
-                showToast(`السطر ${idx + 1}: يرجى إدخال اسم البنك`, "error");
-                row.querySelector('.cheque-branch').focus();
-                hasInvalidCheque = true;
-                return;
-            }
             if (!chNo || chNo.length < 6) {
                 showToast(`السطر ${idx + 1}: يجب أن يكون رقم الشيك أكثر من 5 أرقام`, "error");
                 row.querySelector('.cheque-no').focus();
@@ -1172,11 +1166,27 @@ window.addTransferRow = function(no = '', note = '', amt = 0) {
     const container = document.getElementById('transfers-container');
     if (!container) return;
 
+    const isFirst = (container.children.length === 0);
     const row = document.createElement('div');
     row.className = 'transfer-row';
-    row.style.cssText = 'display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;';
+    row.style.cssText = 'display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; width: 100%;';
     
+    const labelHTML = isFirst 
+        ? `<div style="display: flex; align-items: center; gap: 8px; min-width: 140px; width: 140px; flex: none;">
+               <span style="font-size: 1.1rem;">🏦</span>
+               <span style="font-weight: 800; color: #60a5fa; font-size: 0.9rem;">تفاصيل التحويلة</span>
+           </div>`
+        : `<div style="display: flex; align-items: center; gap: 8px; min-width: 140px; width: 140px; flex: none;">
+               <span style="font-size: 1.1rem; visibility: hidden;">🏦</span>
+               <span style="font-weight: 800; color: #60a5fa; font-size: 0.9rem; opacity: 0.6;">تحويلة إضافية</span>
+           </div>`;
+
+    const buttonHTML = isFirst
+        ? `<button type="button" onclick="addTransferRow()" class="pay-toggle-btn" style="background: rgba(59,130,246,0.2); border: 1px solid #60a5fa; color:#60a5fa; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">➕</button>`
+        : `<button type="button" onclick="removeTransferRow(this)" class="btn-del-row" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: none; font-size: 0.9rem;">✖</button>`;
+
     row.innerHTML = `
+        ${labelHTML}
         <div style="flex: 1.2; min-width: 150px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">رقم الحساب:</label>
             <input type="text" class="v-input ctrl-input transfer-no" value="${no}" placeholder="رقم حساب التحويل..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff;">
@@ -1189,7 +1199,9 @@ window.addTransferRow = function(no = '', note = '', amt = 0) {
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">المبلغ:</label>
             <input type="text" class="v-input ctrl-input transfer-amount" value="${amt > 0 ? fmtNum(amt) : ''}" placeholder="0.00" oninput="restrictToNumbers(this)" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
         </div>
-        <button type="button" onclick="removeTransferRow(this)" class="btn-del-row" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: none;">✖</button>
+        <div style="display: flex; justify-content: flex-end; width: 40px; flex: none;">
+            ${buttonHTML}
+        </div>
     `;
     container.appendChild(row);
     
@@ -1212,20 +1224,32 @@ window.addChequeRow = function(branch = '', no = '', date = '', amt = 0) {
     const container = document.getElementById('cheques-container');
     if (!container) return;
 
+    const isFirst = (container.children.length === 0);
     const row = document.createElement('div');
     row.className = 'cheque-row';
-    row.style.cssText = 'display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;';
+    row.style.cssText = 'display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; width: 100%;';
     
+    const labelHTML = isFirst 
+        ? `<div style="display: flex; align-items: center; gap: 8px; min-width: 140px; width: 140px; flex: none;">
+               <span style="font-size: 1.1rem;">✍️</span>
+               <span style="font-weight: 800; color: #c084fc; font-size: 0.9rem;">تفاصيل الشيك</span>
+           </div>`
+        : `<div style="display: flex; align-items: center; gap: 8px; min-width: 140px; width: 140px; flex: none;">
+               <span style="font-size: 1.1rem; visibility: hidden;">✍️</span>
+               <span style="font-weight: 800; color: #c084fc; font-size: 0.9rem; opacity: 0.6;">شيك إضافي</span>
+           </div>`;
+
+    const buttonHTML = isFirst
+        ? `<button type="button" onclick="addChequeRow()" class="pay-toggle-btn" style="background: rgba(139,92,246,0.2); border: 1px solid #c084fc; color:#c084fc; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">➕</button>`
+        : `<button type="button" onclick="removeChequeRow(this)" class="btn-del-row" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: none; font-size: 0.9rem;">✖</button>`;
+
     row.innerHTML = `
-        <div style="flex: 1.2; min-width: 140px; display: flex; align-items: center; gap: 5px;">
-            <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">اسم البنك:</label>
-            <input type="text" class="v-input ctrl-input cheque-branch" value="${branch}" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
-        </div>
-        <div style="flex: 1; min-width: 110px; display: flex; align-items: center; gap: 5px;">
+        ${labelHTML}
+        <div style="flex: 1.2; min-width: 150px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">رقم الشيك:</label>
             <input type="text" class="v-input ctrl-input cheque-no" value="${no}" placeholder="رقم الشيك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
         </div>
-        <div style="flex: 1; min-width: 130px; display: flex; align-items: center; gap: 5px;">
+        <div style="flex: 1.2; min-width: 160px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">تاريخ الشيك:</label>
             <input type="date" class="v-input ctrl-input cheque-date" value="${date}" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;">
         </div>
@@ -1233,7 +1257,9 @@ window.addChequeRow = function(branch = '', no = '', date = '', amt = 0) {
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">المبلغ:</label>
             <input type="text" class="v-input ctrl-input cheque-amount" value="${amt > 0 ? fmtNum(amt) : ''}" placeholder="0.00" oninput="restrictToNumbers(this)" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
         </div>
-        <button type="button" onclick="removeChequeRow(this)" class="btn-del-row" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: none;">✖</button>
+        <div style="display: flex; justify-content: flex-end; width: 40px; flex: none;">
+            ${buttonHTML}
+        </div>
     `;
     container.appendChild(row);
     
