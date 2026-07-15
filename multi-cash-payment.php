@@ -456,51 +456,42 @@
                         </div>
 
                         <!-- Bank Transfer section -->
-                        <div id="pay-bank-section" class="payment-method-box" style="background: rgba(59, 130, 246, 0.04); border: 1px solid rgba(59, 130, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
-                            <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
-                                <span style="font-size: 1.2rem;">🏦</span>
-                                <span style="font-weight: 800; color: #60a5fa; font-size: 0.95rem;">تفاصيل التحويل البنكي للمجمع</span>
+                        <div id="pay-bank-section" class="payment-method-box" style="background: rgba(59, 130, 246, 0.04); border: 1px solid rgba(59, 130, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(59,130,246,0.1); padding-bottom: 8px; margin-bottom: 5px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 1.2rem;">🏦</span>
+                                    <span style="font-weight: 800; color: #60a5fa; font-size: 0.95rem;">تفاصيل التحويلات البنكية للمجمع</span>
+                                </div>
+                                <button type="button" onclick="addTransferRow()" class="pay-toggle-btn" style="background: rgba(59,130,246,0.2); border-color:#60a5fa; color:#60a5fa; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; height: 30px;">➕ إضافة تحويل</button>
                             </div>
-                            <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
-                                <div style="flex: 1.2; min-width: 180px; display: flex; align-items: center; gap: 5px;">
-                                    <label style="font-size: 0.78rem; color: #94a3b8; white-space: nowrap;">رقم الحساب:</label>
-                                    <input type="text" class="v-input ctrl-input" id="mobile-transfer-no" placeholder="رقم حساب التحويل..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff;">
-                                </div>
-                                <div style="flex: 1.5; min-width: 200px; display: flex; align-items: center; gap: 5px;">
-                                    <label style="font-size: 0.78rem; color: #94a3b8; white-space: nowrap;">ملاحظات:</label>
-                                    <input type="text" class="v-input ctrl-input" id="mobile-note" placeholder="ملاحظات التحويل..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff;">
-                                </div>
+                            <div id="transfers-container" style="display: flex; flex-direction: column; gap: 8px;">
+                                <!-- Dynamic rows -->
                             </div>
                         </div>
 
                         <!-- Cheque section -->
-                        <div id="pay-cheque-section" class="payment-method-box" style="background: rgba(139, 92, 246, 0.04); border: 1px solid rgba(139, 92, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
-                            <div style="display: flex; align-items: center; gap: 8px; min-width: 140px; width: 140px; flex: none;">
-                                <span style="font-size: 1.2rem;">✍️</span>
-                                <span style="font-weight: 800; color: #c084fc; font-size: 0.95rem;">تفاصيل الشيك</span>
+                        <div id="pay-cheque-section" class="payment-method-box" style="background: rgba(139, 92, 246, 0.04); border: 1px solid rgba(139, 92, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(139,92,246,0.1); padding-bottom: 8px; margin-bottom: 5px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 1.2rem;">✍️</span>
+                                    <span style="font-weight: 800; color: #c084fc; font-size: 0.95rem;">تفاصيل الشيكات</span>
+                                </div>
+                                <button type="button" onclick="addChequeRow()" class="pay-toggle-btn" style="background: rgba(139,92,246,0.2); border-color:#c084fc; color:#c084fc; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; height: 30px;">➕ إضافة شيك</button>
                             </div>
-                            <div style="display: flex; gap: 12px; flex: 1; min-width: 320px; align-items: center; flex-wrap: wrap;">
-                                <div style="flex: 1.2; min-width: 160px; display: flex; align-items: center; gap: 6px;">
-                                    <label style="font-size: 0.78rem; color: #94a3b8; white-space: nowrap;">اسم البنك:</label>
-                                    <input type="text" class="v-input ctrl-input" id="check-branch" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
-                                </div>
-                                <div style="flex: 1; min-width: 130px; display: flex; align-items: center; gap: 6px;">
-                                    <label style="font-size: 0.78rem; color: #94a3b8; white-space: nowrap;">رقم الشيك:</label>
-                                    <input type="text" class="v-input ctrl-input" id="check-no" placeholder="رقم الشيك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
-                                </div>
-                                <div style="flex: 1; min-width: 150px; display: flex; align-items: center; gap: 6px;">
-                                    <label style="font-size: 0.78rem; color: #94a3b8; white-space: nowrap;">تاريخ الشيك:</label>
-                                    <input type="date" class="v-input ctrl-input" id="check-date" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;">
-                                </div>
-                                
-                                <!-- Hidden check-due-date for compatibility -->
-                                <input type="hidden" id="check-due-date" value="">
+                            <div id="cheques-container" style="display: flex; flex-direction: column; gap: 8px;">
+                                <!-- Dynamic rows -->
                             </div>
                         </div>
 
-                    </div>
-                </div>
-            </div>
+                        <!-- Hidden legacy inputs to prevent crashes in old scripts -->
+                        <div style="display: none;">
+                            <input type="text" id="mobile-transfer-no">
+                            <input type="text" id="mobile-note">
+                            <input type="text" id="check-no">
+                            <input type="text" id="check-branch">
+                            <input type="date" id="check-date">
+                            <input type="date" id="check-due-date">
+                        </div>
 
             <!-- Sticky Footer for Totals & Save -->
             <div class="sticky-footer" style="background: rgba(15,23,42,0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border-top: 1px solid rgba(56, 189, 248, 0.4); border-left: 1px solid rgba(56, 189, 248, 0.4); border-right: 1px solid rgba(56, 189, 248, 0.4); border-radius: 20px 20px 0 0; padding: 8px 15px; position: sticky; bottom: 0; z-index: 100; box-shadow: 0 -10px 40px rgba(0,0,0,0.6), inset 0 2px 15px rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">

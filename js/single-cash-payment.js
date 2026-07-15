@@ -243,6 +243,7 @@ function calcEquiv(source) {
         amt = eq * rate;
         amtEl.value = addCommas(amt.toFixed(2));
     }
+    if (typeof syncFirstRowAmount === 'function') syncFirstRowAmount();
     if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();
 }
 
@@ -291,18 +292,7 @@ function resetVoucherSilent() {
     document.querySelector('input[name="payment_method"][value="cash"]').checked = true;
     togglePaymentMethod();
 
-    // Reset Mobile
-    document.getElementById('mobile-transfer-no').value = '';
-    document.getElementById('mobile-note').value = '';
-
-    // Reset Check
-    document.getElementById('check-no').value = '';
-    document.getElementById('check-date').value = '';
-    document.getElementById('check-due-date').value = '';
-    document.getElementById('check-ref').value = '';
-    document.getElementById('check-ref-no').value = '';
-    document.getElementById('check-branch').value = '';
-    document.getElementById('check-settle-local').checked = false;
+    if (typeof initPaymentContainers === 'function') initPaymentContainers();
 
     updateBalances();
     setNextVoucherNumber();
@@ -368,17 +358,8 @@ function renderVoucher(v) {
     document.querySelector(`input[name="payment_method"][value="${method}"]`).checked = true;
     togglePaymentMethod();
 
-    if (method === 'mobile') {
-        document.getElementById('mobile-transfer-no').value = v.mobileTransferNo || '';
-        document.getElementById('mobile-note').value = v.mobileNote || '';
-    } else if (method === 'check') {
-        document.getElementById('check-no').value = v.checkNo || '';
-        document.getElementById('check-date').value = v.checkDate || '';
-        document.getElementById('check-due-date').value = v.checkDueDate || '';
-        document.getElementById('check-ref').value = v.checkRef || '';
-        document.getElementById('check-ref-no').value = v.checkRefNo || '';
-        document.getElementById('check-branch').value = v.checkBranch || '';
-        document.getElementById('check-settle-local').checked = !!v.checkSettleLocal;
+    if (typeof loadVoucherPaymentDetails === 'function') {
+        loadVoucherPaymentDetails(v);
     }
     
     updateCurrency();
@@ -440,52 +421,100 @@ function submitVoucher() {
     };
 
     if (method === 'mobile') {
-        const transferNo = document.getElementById('mobile-transfer-no').value.trim();
-        
-        if (!transferNo) {
-            showToast("يرجى إدخال رقم حساب التحويل", "error");
-            document.getElementById('mobile-transfer-no').focus();
+        const transferRows = document.querySelectorAll('.transfer-row');
+        let transfers = [];
+        let totalTransfersAmount = 0;
+        let hasInvalidTransfer = false;
+
+        transferRows.forEach((row, idx) => {
+            const trNo = row.querySelector('.transfer-no').value.trim();
+            const trNote = row.querySelector('.transfer-note').value.trim();
+            const trAmt = parseNum(row.querySelector('.transfer-amount').value);
+
+            if (!trNo) {
+                showToast(`السطر ${idx + 1}: يرجى إدخال رقم حساب التحويل`, "error");
+                row.querySelector('.transfer-no').focus();
+                hasInvalidTransfer = true;
+                return;
+            }
+            if (trNo.length < 6) {
+                showToast(`السطر ${idx + 1}: يجب أن يكون رقم التحويل أكثر من 5 أرقام`, "error");
+                row.querySelector('.transfer-no').focus();
+                hasInvalidTransfer = true;
+                return;
+            }
+            if (!window.isBankReferenceUnique(trNo, 'mobile', document.getElementById('voucher-number').innerText)) {
+                showToast(`السطر ${idx + 1}: رقم التحويل مكرر.`, "error");
+                hasInvalidTransfer = true;
+                return;
+            }
+
+            transfers.push({ transferNo: trNo, note: trNote, amount: trAmt });
+            totalTransfersAmount += trAmt;
+        });
+
+        if (hasInvalidTransfer) return;
+
+        if (Math.abs(totalTransfersAmount - amtLocal) > 0.01) {
+            showToast("مجموع مبالغ التحويلات لا يساوي مبلغ السند الإجمالي.", "error");
             return;
         }
 
-        if (transferNo.length < 6) {
-            showToast("يجب أن يكون رقم التحويل أكثر من 5 أرقام", "error");
-            document.getElementById('mobile-transfer-no').focus();
-            return;
+        voucherData.bankTransfers = transfers;
+        if (transfers.length > 0) {
+            voucherData.mobileTransferNo = transfers[0].transferNo;
+            voucherData.mobileNote = transfers[0].note;
         }
-
-        if (!window.isBankReferenceUnique(transferNo, 'mobile', document.getElementById('voucher-number').innerText)) {
-            showToast("رقم التحويل مكرر. يجب أن لا يتكرر الرقم نهائياً في النظام.", "error");
-            showDuplicateModal(transferNo);
-            return; // Prevent saving
-        }
-
-        voucherData.mobileTransferNo = transferNo;
-        voucherData.mobileNote = document.getElementById('mobile-note').value;
     } else if (method === 'check') {
-        voucherData.checkNo = document.getElementById('check-no').value.trim();
-        
-        if (!voucherData.checkNo || voucherData.checkNo.length < 6) {
-            showToast("يجب أن يكون رقم الشيك أكثر من 5 أرقام", "error");
-            document.getElementById('check-no').focus();
+        const chequeRows = document.querySelectorAll('.cheque-row');
+        let cheques = [];
+        let totalChequesAmount = 0;
+        let hasInvalidCheque = false;
+
+        chequeRows.forEach((row, idx) => {
+            const chNo = row.querySelector('.cheque-no').value.trim();
+            const chBranch = row.querySelector('.cheque-branch').value.trim();
+            const chDate = row.querySelector('.cheque-date').value;
+            const chAmt = parseNum(row.querySelector('.cheque-amount').value);
+
+            if (!chBranch) {
+                showToast(`السطر ${idx + 1}: يرجى إدخال اسم البنك`, "error");
+                row.querySelector('.cheque-branch').focus();
+                hasInvalidCheque = true;
+                return;
+            }
+            if (!chNo || chNo.length < 6) {
+                showToast(`السطر ${idx + 1}: يجب أن يكون رقم الشيك أكثر من 5 أرقام`, "error");
+                row.querySelector('.cheque-no').focus();
+                hasInvalidCheque = true;
+                return;
+            }
+            if (!window.isBankReferenceUnique(chNo, 'check', document.getElementById('voucher-number').innerText)) {
+                showToast(`السطر ${idx + 1}: رقم الشيك مكرر.`, "error");
+                hasInvalidCheque = true;
+                return;
+            }
+
+            cheques.push({ checkNo: chNo, checkBranch: chBranch, checkDate: chDate, amount: chAmt });
+            totalChequesAmount += chAmt;
+        });
+
+        if (hasInvalidCheque) return;
+
+        if (Math.abs(totalChequesAmount - amtLocal) > 0.01) {
+            showToast("مجموع مبالغ الشيكات لا يساوي مبلغ السند الإجمالي.", "error");
             return;
         }
 
-        if (!window.isBankReferenceUnique(voucherData.checkNo, 'check', document.getElementById('voucher-number').innerText)) {
-            showToast("رقم الشيك مكرر. يجب أن لا يتكرر الرقم نهائياً في النظام.", "error");
-            return; // Prevent saving
-        }
-
-        voucherData.checkDate = document.getElementById('check-date').value;
-        voucherData.checkDueDate = document.getElementById('check-due-date').value;
-        voucherData.checkRef = document.getElementById('check-ref').value;
-        voucherData.checkRefNo = document.getElementById('check-ref-no').value;
-        voucherData.checkBranch = document.getElementById('check-branch').value;
-        voucherData.checkSettleLocal = document.getElementById('check-settle-local').checked;
-        
-        if (!voucherData.checkBranch) {
-            showToast("يرجى إدخال اسم البنك", "error");
-            return;
+        voucherData.cheques = cheques;
+        if (cheques.length > 0) {
+            voucherData.checkNo = cheques[0].checkNo;
+            voucherData.checkBranch = cheques[0].checkBranch;
+            voucherData.checkDate = cheques[0].checkDate;
+            voucherData.checkDueDate = '';
+            voucherData.checkRef = '';
+            voucherData.checkRefNo = '';
+            voucherData.checkSettleLocal = false;
         }
     }
 
@@ -1223,4 +1252,172 @@ function getAccountName(id) {
     }
     return cleanId || idStr;
 }
+
+// ═══════════════════════════════════════════════════════
+// Multiple Bank Transfers & Cheques Dynamic Manipulation
+// ═══════════════════════════════════════════════════════
+
+window.addTransferRow = function(no = '', note = '', amt = 0) {
+    const container = document.getElementById('transfers-container');
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = 'transfer-row';
+    row.style.cssText = 'display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;';
+    
+    row.innerHTML = `
+        <div style="flex: 1.2; min-width: 150px; display: flex; align-items: center; gap: 5px;">
+            <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">رقم الحساب:</label>
+            <input type="text" class="v-input ctrl-input transfer-no" value="${no}" placeholder="رقم حساب التحويل..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff;">
+        </div>
+        <div style="flex: 1.5; min-width: 180px; display: flex; align-items: center; gap: 5px;">
+            <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">ملاحظات:</label>
+            <input type="text" class="v-input ctrl-input transfer-note" value="${note}" placeholder="ملاحظات التحويل..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff;">
+        </div>
+        <div style="flex: 0.8; min-width: 110px; display: flex; align-items: center; gap: 5px;">
+            <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">المبلغ:</label>
+            <input type="text" class="v-input ctrl-input transfer-amount" value="${amt > 0 ? fmtNum(amt) : ''}" placeholder="0.00" oninput="restrictToNumbers(this)" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
+        </div>
+        <button type="button" onclick="removeTransferRow(this)" class="btn-del-row" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: none;">✖</button>
+    `;
+    container.appendChild(row);
+    
+    // Play sound if manual addition
+    if (no === '' && typeof playClickSound === 'function') playClickSound();
+    syncFirstRowAmount();
+};
+
+window.removeTransferRow = function(btn) {
+    const container = document.getElementById('transfers-container');
+    const rows = container.querySelectorAll('.transfer-row');
+    if (rows.length <= 1) {
+        showToast('يجب إدخال تحويل واحد على الأقل', 'error');
+        return;
+    }
+    btn.closest('.transfer-row').remove();
+    syncFirstRowAmount();
+};
+
+window.addChequeRow = function(branch = '', no = '', date = '', amt = 0) {
+    const container = document.getElementById('cheques-container');
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = 'cheque-row';
+    row.style.cssText = 'display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;';
+    
+    row.innerHTML = `
+        <div style="flex: 1.2; min-width: 140px; display: flex; align-items: center; gap: 5px;">
+            <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">اسم البنك:</label>
+            <input type="text" class="v-input ctrl-input cheque-branch" value="${branch}" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
+        </div>
+        <div style="flex: 1; min-width: 110px; display: flex; align-items: center; gap: 5px;">
+            <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">رقم الشيك:</label>
+            <input type="text" class="v-input ctrl-input cheque-no" value="${no}" placeholder="رقم الشيك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
+        </div>
+        <div style="flex: 1; min-width: 130px; display: flex; align-items: center; gap: 5px;">
+            <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">تاريخ الشيك:</label>
+            <input type="date" class="v-input ctrl-input cheque-date" value="${date}" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;">
+        </div>
+        <div style="flex: 0.8; min-width: 110px; display: flex; align-items: center; gap: 5px;">
+            <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">المبلغ:</label>
+            <input type="text" class="v-input ctrl-input cheque-amount" value="${amt > 0 ? fmtNum(amt) : ''}" placeholder="0.00" oninput="restrictToNumbers(this)" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
+        </div>
+        <button type="button" onclick="removeChequeRow(this)" class="btn-del-row" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: none;">✖</button>
+    `;
+    container.appendChild(row);
+    
+    // Play sound if manual addition
+    if (no === '' && typeof playClickSound === 'function') playClickSound();
+    syncFirstRowAmount();
+};
+
+window.removeChequeRow = function(btn) {
+    const container = document.getElementById('cheques-container');
+    const rows = container.querySelectorAll('.cheque-row');
+    if (rows.length <= 1) {
+        showToast('يجب إدخال شيك واحد على الأقل', 'error');
+        return;
+    }
+    btn.closest('.cheque-row').remove();
+    syncFirstRowAmount();
+};
+
+window.initPaymentContainers = function() {
+    const transfersContainer = document.getElementById('transfers-container');
+    const chequesContainer = document.getElementById('cheques-container');
+    if (transfersContainer) {
+        transfersContainer.innerHTML = '';
+        addTransferRow('', '', 0);
+    }
+    if (chequesContainer) {
+        chequesContainer.innerHTML = '';
+        addChequeRow('', '', '', 0);
+    }
+};
+
+window.syncFirstRowAmount = function() {
+    const totalAmount = parseNum(document.getElementById('amount-local').value);
+    const transferRows = document.querySelectorAll('.transfer-row');
+    if (transferRows.length === 1) {
+        transferRows[0].querySelector('.transfer-amount').value = fmtNum(totalAmount);
+    }
+    const chequeRows = document.querySelectorAll('.cheque-row');
+    if (chequeRows.length === 1) {
+        chequeRows[0].querySelector('.cheque-amount').value = fmtNum(totalAmount);
+    }
+};
+
+window.loadVoucherPaymentDetails = function(v) {
+    const method = v.paymentMethod || 'cash';
+    const transfersContainer = document.getElementById('transfers-container');
+    const chequesContainer = document.getElementById('cheques-container');
+    if (transfersContainer) transfersContainer.innerHTML = '';
+    if (chequesContainer) chequesContainer.innerHTML = '';
+
+    if (method === 'mobile') {
+        if (v.bankTransfers && Array.isArray(v.bankTransfers) && v.bankTransfers.length > 0) {
+            v.bankTransfers.forEach(tr => {
+                addTransferRow(tr.transferNo, tr.note, tr.amount);
+            });
+        } else {
+            addTransferRow(v.mobileTransferNo || '', v.mobileNote || '', v.amountLocal || 0);
+        }
+    } else if (method === 'check') {
+        if (v.cheques && Array.isArray(v.cheques) && v.cheques.length > 0) {
+            v.cheques.forEach(ch => {
+                addChequeRow(ch.checkBranch, ch.checkNo, ch.checkDate, ch.amount);
+            });
+        } else {
+            addChequeRow(v.checkBranch || '', v.checkNo || '', v.checkDate || '', v.amountLocal || 0);
+        }
+    } else {
+        initPaymentContainers();
+    }
+};
+
+function playClickSound() {
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.08);
+    } catch(e) {}
+}
+
+// Hook setup into document load
+document.addEventListener('DOMContentLoaded', () => {
+    initPaymentContainers();
+});
+
 
