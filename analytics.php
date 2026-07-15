@@ -25,11 +25,11 @@
 
         :root.light-theme {
             --bg-color: #f1f5f9;
-            --glass-border: rgba(0, 0, 0, 0.08);
+            --glass-border: #000000;
         }
         :root.light-theme body {
             background-color: var(--bg-color);
-            color: #000000;
+            color: #000000 !important;
         }
         :root.light-theme .ambient-bg {
             background: radial-gradient(circle at 50% 50%, #f8fafc 0%, #cbd5e1 100%) !important;
@@ -38,58 +38,64 @@
         :root.light-theme .chart-card,
         :root.light-theme .ai-insights-section {
             background: #ffffff !important;
-            border-color: rgba(0, 0, 0, 0.08) !important;
+            border: 2px solid #000000 !important;
             color: #000000 !important;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05) !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08) !important;
         }
         :root.light-theme .chart-title {
             color: #000000 !important;
+            font-weight: bold !important;
         }
         :root.light-theme h3,
         :root.light-theme h4,
         :root.light-theme .kpi-label {
             color: #000000 !important;
+            font-weight: bold !important;
         }
         :root.light-theme .kpi-value {
-            color: #0f172a !important;
+            color: #000000 !important;
+            font-weight: 900 !important;
         }
         :root.light-theme .ai-card {
             background: #ffffff !important;
-            border-color: rgba(139, 92, 246, 0.2) !important;
+            border: 2px solid #000000 !important;
             color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
         }
         :root.light-theme .ai-card h4 {
-            color: #1e293b !important;
+            color: #000000 !important;
+            font-weight: bold !important;
         }
         :root.light-theme .ai-card p {
-            color: #475569 !important;
+            color: #000000 !important;
         }
         :root.light-theme .ai-card div[style*="background: rgba(0,0,0,0.3)"] {
             background: rgba(0, 0, 0, 0.03) !important;
-            border-color: rgba(0, 0, 0, 0.1) !important;
-            color: #1e293b !important;
+            border: 1.5px solid #000000 !important;
+            color: #000000 !important;
         }
         :root.light-theme .ai-card div[style*="background: rgba(0,0,0,0.3)"] strong {
             color: #000000 !important;
         }
         :root.light-theme .report-category-card {
             background: #ffffff !important;
-            border-color: rgba(0, 0, 0, 0.08) !important;
+            border: 2px solid #000000 !important;
             color: #000000 !important;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05) !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08) !important;
         }
         :root.light-theme .report-category-title {
             color: #0ea5e9 !important;
+            font-weight: bold !important;
         }
         :root.light-theme .report-link-item {
             background: rgba(0, 0, 0, 0.03) !important;
-            color: #334155 !important;
-            border-color: rgba(0, 0, 0, 0.05) !important;
+            color: #000000 !important;
+            border: 1.5px solid #000000 !important;
         }
         :root.light-theme .report-link-item:hover {
             background: rgba(0, 0, 0, 0.06) !important;
             color: #000000 !important;
+            border-color: #000000 !important;
         }
         :root {
             --bg-color: #050308;
@@ -896,9 +902,9 @@
         :root.light-theme .top-header,
         :root.light-theme .header-area {
             background: #ffffff !important;
-            border-color: rgba(0, 0, 0, 0.08) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
-            color: #0f172a !important;
+            border: 2px solid #000000 !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+            color: #000000 !important;
         }
         :root.light-theme .glass-panel *,
         :root.light-theme .neo-card *,
@@ -910,21 +916,22 @@
         :root.light-theme .ledger-table th,
         :root.light-theme .report-table th {
             background: #f1f5f9 !important;
-            color: #0f172a !important;
-            border-bottom: 2px solid #cbd5e1 !important;
+            color: #000000 !important;
+            border: 2px solid #000000 !important;
+            border-bottom: 3px solid #000000 !important;
         }
         :root.light-theme table.pro-table td,
         :root.light-theme .pos-grid tbody td,
         :root.light-theme .ledger-table td,
         :root.light-theme .report-table td {
-            color: #1e293b !important;
-            border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+            color: #000000 !important;
+            border-bottom: 2px solid #000000 !important;
         }
         :root.light-theme table.pro-table tbody tr:hover td,
         :root.light-theme .pos-grid tbody tr:hover td,
         :root.light-theme .ledger-table tbody tr:hover td,
         :root.light-theme .report-table tbody tr:hover td {
-            background: rgba(0,0,0,0.02) !important;
+            background: rgba(0,0,0,0.03) !important;
         }
         :root.light-theme .h-label,
         :root.light-theme .form-label,
@@ -932,22 +939,26 @@
         :root.light-theme .lbl,
         :root.light-theme label,
         :root.light-theme .table-header {
-            color: #334155 !important;
+            color: #000000 !important;
+            font-weight: bold !important;
         }
         :root.light-theme .tot-val,
         :root.light-theme .val {
-            color: #0f172a !important;
+            color: #000000 !important;
+            font-weight: bold !important;
         }
         :root.light-theme .h-form-group,
         :root.light-theme .control-panel {
             background: transparent !important;
-            border-color: rgba(0,0,0,0.08) !important;
+            border: 2px solid #000000 !important;
         }
         :root.light-theme .modern-btn {
-            color: #1e293b !important;
+            color: #000000 !important;
+            border: 1.5px solid #000000 !important;
         }
         :root.light-theme .modern-btn:hover {
-            color: #0f172a !important;
+            color: #000000 !important;
+            background: rgba(0, 0, 0, 0.05) !important;
         }
         /* Neon text colors correction for light theme */
         :root.light-theme .text-emerald-400, :root.light-theme span[style*="color: #34d399"], :root.light-theme span[style*="color:#34d399"] { color: #059669 !important; }
@@ -1099,6 +1110,11 @@
     }
 
     function updateCharts(dates, salesData, purchasesData, topProductLabels, topProductData) {
+        const isLightTheme = document.documentElement.classList.contains('light-theme');
+        const gridColor = isLightTheme ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.05)';
+        const tickColor = isLightTheme ? '#000000' : '#ffffff';
+        const fontSettings = { family: 'Tajawal', weight: 'bold' };
+
         const ctxFlow = document.getElementById('salesChart').getContext('2d');
         let gradientSales = ctxFlow.createLinearGradient(0, 0, 0, 400);
         gradientSales.addColorStop(0, 'rgba(16, 185, 129, 0.4)');
@@ -1147,15 +1163,22 @@
                 maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
                 scales: {
-                    x: { grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, ticks: { padding: 10 } },
+                    x: { 
+                        grid: { color: gridColor, drawBorder: false }, 
+                        ticks: { color: tickColor, font: fontSettings, padding: 10 } 
+                    },
                     y: { 
-                        grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, 
+                        grid: { color: gridColor, drawBorder: false }, 
                         beginAtZero: true,
-                        ticks: { padding: 15, callback: value => (value >= 1000 ? (value / 1000) + 'k' : value) }
+                        ticks: { color: tickColor, font: fontSettings, padding: 15, callback: value => (value >= 1000 ? (value / 1000) + 'k' : value) }
                     }
                 },
                 plugins: {
-                    legend: { position: 'top', align: 'end', labels: { usePointStyle: true, padding: 20 } },
+                    legend: { 
+                        position: 'top', 
+                        align: 'end', 
+                        labels: { color: tickColor, font: fontSettings, usePointStyle: true, padding: 20 } 
+                    },
                     tooltip: { backgroundColor: 'rgba(10, 8, 15, 0.9)', padding: 15, cornerRadius: 12 }
                 }
             }
@@ -1176,7 +1199,10 @@
             options: {
                 responsive: true, maintainAspectRatio: false, cutout: '75%', layout: { padding: 20 },
                 plugins: {
-                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } },
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { color: tickColor, font: fontSettings, usePointStyle: true, padding: 20 } 
+                    },
                     tooltip: { backgroundColor: 'rgba(10, 8, 15, 0.9)', padding: 15, cornerRadius: 12 }
                 }
             }
