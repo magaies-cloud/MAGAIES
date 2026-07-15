@@ -243,6 +243,7 @@ function calcEquiv(source) {
         amt = eq * rate;
         amtEl.value = addCommas(amt.toFixed(2));
     }
+    if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();
 }
 
 function resetVoucher() {
