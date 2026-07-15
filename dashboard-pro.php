@@ -279,8 +279,66 @@
 
         .quick-action-btn:not([class*="qa-"]):hover { box-shadow: 0 0 15px rgba(255,255,255,0.4), 0 0 30px rgba(255,255,255,0.2), inset 0 0 15px rgba(255,255,255,0.1) !important; }
 
-        .qa-icon { font-size: 1.1rem; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: inline-block; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
-        .quick-action-btn:hover .qa-icon { transform: scale(1.4) rotate(5deg) translateY(-2px); filter: brightness(1.25) drop-shadow(0 2px 6px rgba(255,255,255,0.4)); }
+        .qa-icon {
+            font-size: 1.3rem; /* Increased size by one step */
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px; /* Sharp rounded corners */
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.04);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            margin-left: 8px; /* Spacing for RTL */
+            flex-shrink: 0;
+        }
+        
+        /* Specific accent backgrounds and borders for admin action buttons (Dark Mode default) */
+        .admin-action-settings .qa-icon {
+            background: rgba(100, 116, 139, 0.15);
+            border-color: rgba(100, 116, 139, 0.3);
+        }
+        .admin-action-master .qa-icon {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        .admin-action-jobs .qa-icon {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        .admin-action-notifications .qa-icon {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        /* Hover states: border thickens (sumk yazid daraja), icon scales up, background darkens */
+        .admin-action-btn:hover .qa-icon {
+            transform: scale(1.25) rotate(5deg) translateY(-2px);
+            border-width: 3.5px; /* Thicker border (حواف تزيد أكثر لتكون وضوح) */
+        }
+        .admin-action-settings:hover .qa-icon {
+            background: rgba(100, 116, 139, 0.35) !important;
+            border-color: #64748b !important;
+        }
+        .admin-action-master:hover .qa-icon {
+            background: rgba(59, 130, 246, 0.35) !important;
+            border-color: #3b82f6 !important;
+        }
+        .admin-action-jobs:hover .qa-icon {
+            background: rgba(16, 185, 129, 0.35) !important;
+            border-color: #10b981 !important;
+        }
+        .admin-action-notifications:hover .qa-icon {
+            background: rgba(239, 68, 68, 0.35) !important;
+            border-color: #ef4444 !important;
+        }
+        
+        .quick-action-btn:hover .qa-icon {
+            transform: scale(1.25) rotate(5deg) translateY(-2px);
+            border-width: 3.5px;
+        }
 
         /* Compact Tables */
         .premium-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.85rem; }
@@ -441,6 +499,51 @@
             background: rgba(0,0,0,0.06);
             border-color: rgba(0,0,0,0.18);
             box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+        :root.light-theme .qa-icon {
+            border: 2px solid rgba(0, 0, 0, 0.15) !important;
+            background: rgba(0, 0, 0, 0.03) !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+        }
+        
+        /* Light Mode specific color coding (lighter backgrounds, clear borders) */
+        :root.light-theme .admin-action-settings .qa-icon {
+            background: rgba(100, 116, 139, 0.1) !important;
+            border-color: rgba(100, 116, 139, 0.35) !important;
+        }
+        :root.light-theme .admin-action-master .qa-icon {
+            background: rgba(59, 130, 246, 0.1) !important;
+            border-color: rgba(59, 130, 246, 0.35) !important;
+        }
+        :root.light-theme .admin-action-jobs .qa-icon {
+            background: rgba(16, 185, 129, 0.1) !important;
+            border-color: rgba(16, 185, 129, 0.35) !important;
+        }
+        :root.light-theme .admin-action-notifications .qa-icon {
+            background: rgba(239, 68, 68, 0.1) !important;
+            border-color: rgba(239, 68, 68, 0.35) !important;
+        }
+
+        /* Hover states in Light Mode: backgrounds darken, borders thicken */
+        :root.light-theme .admin-action-btn:hover .qa-icon {
+            border-width: 3.5px !important;
+            transform: scale(1.25) rotate(5deg) translateY(-2px) !important;
+        }
+        :root.light-theme .admin-action-settings:hover .qa-icon {
+            background: rgba(100, 116, 139, 0.3) !important;
+            border-color: #64748b !important;
+        }
+        :root.light-theme .admin-action-master:hover .qa-icon {
+            background: rgba(59, 130, 246, 0.3) !important;
+            border-color: #3b82f6 !important;
+        }
+        :root.light-theme .admin-action-jobs:hover .qa-icon {
+            background: rgba(16, 185, 129, 0.3) !important;
+            border-color: #10b981 !important;
+        }
+        :root.light-theme .admin-action-notifications:hover .qa-icon {
+            background: rgba(239, 68, 68, 0.3) !important;
+            border-color: #ef4444 !important;
         }
         :root.light-theme .admin-actions-row {
             background: rgba(0, 0, 0, 0.03);
