@@ -267,53 +267,9 @@
 
         <input type="hidden" id="voucher-type" value="payment">
 
-        <div class="split-layout-wrapper" id="main-layout-wrapper">
-            <!-- Left Side Panel (Hidden by default, slides in when Check/Transfer is active) -->
-            <div class="side-panel" id="payment-details-panel">
-                <h3 class="form-section-title" style="color: #fbbf24; border-color: rgba(251,191,36,0.2);">
-                    <span style="display:inline-block; margin-left:8px; font-size:1.3rem;">📋</span> 
-                    تفاصيل <span id="panel-title-type">الشيك</span>
-                </h3>
-                
-                <!-- MOBILE TRANSFER FIELDS -->
-                <div id="section-mobile" class="dynamic-section" style="display:none; padding:0; background:none; border:none; margin:0;">
-                    <div class="form-grid" style="grid-template-columns: 1fr; gap: 15px; margin-bottom: 0;">
-                        <div>
-                            <label class="label" style="color:#94a3b8; font-size:0.85rem; margin-bottom:5px; display:block;">رقم حساب التحويل</label>
-                            <input type="text" class="form-input" id="mobile-transfer-no" placeholder="رقم الحساب..." style="padding: 10px 12px; background: rgba(0,0,0,0.3);">
-                        </div>
-                        <div>
-                            <label class="label" style="color:#94a3b8; font-size:0.85rem; margin-bottom:5px; display:block;">ملاحظات التحويل...</label>
-                            <input type="text" class="form-input" id="mobile-note" placeholder="ملاحظات التحويل..." style="padding: 10px 12px; background: rgba(0,0,0,0.3);">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CHECK FIELDS -->
-                <div id="section-check" class="dynamic-section" style="display:none; padding:0; background:none; border:none; margin:0;">
-                    <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 0;">
-                        <div>
-                            <label class="label" style="color:#94a3b8; font-size:0.85rem; margin-bottom:5px; display:block;">رقم الشيك</label>
-                            <input type="text" class="form-input" id="check-no" placeholder="000000" style="padding: 10px 12px; background: rgba(0,0,0,0.3);">
-                        </div>
-                        <div>
-                            <label class="label" style="color:#94a3b8; font-size:0.85rem; margin-bottom:5px; display:block;">اسم البنك</label>
-                            <input type="text" class="form-input" id="check-branch" placeholder="الفرع..." style="padding: 10px 12px; background: rgba(0,0,0,0.3);">
-                        </div>
-                        <div>
-                            <label class="label" style="color:#94a3b8; font-size:0.85rem; margin-bottom:5px; display:block;">تاريخ الشيك</label>
-                            <input type="date" class="form-input" id="check-date" style="padding: 10px 12px; background: rgba(0,0,0,0.3);">
-                        </div>
-                        <div>
-                            <label class="label" style="color:#94a3b8; font-size:0.85rem; margin-bottom:5px; display:block;">تاريخ الاستحقاق</label>
-                            <input type="date" class="form-input" id="check-due-date" style="padding: 10px 12px; background: rgba(0,0,0,0.3);">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Side (Main Content area) -->
-            <div class="main-panel glass-panel" id="main-form-panel" style="padding: 25px; position: relative;">
+        <div class="split-layout-wrapper" id="main-layout-wrapper" style="display: block; width: 100%;">
+            <!-- Main Content area (Full width) -->
+            <div class="main-panel glass-panel" id="main-form-panel" style="padding: 25px; position: relative; width: 100%;">
                 
                 <div class="form-section-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; width: 100%;">
                     <div style="display: flex; align-items: center; gap: 8px;"><span>👤</span> بيانات الطرف الرئيسي</div>
@@ -343,36 +299,6 @@
                     <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; height: 44px; padding: 0 12px;">
                         <span style="color: #94a3b8; font-size: 0.9rem; font-weight: bold; white-space: nowrap;">📅 التاريخ:</span>
                         <input type="date" id="voucher-date" class="form-input" style="background: transparent; border: none; color: #fff; font-weight: bold; padding: 0; margin: 0; height: 100%; width: 135px; outline: none; box-shadow: none;">
-                    </div>
-
-                    <!-- 3. طريقة الدفع -->
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <label class="label" style="color:#cbd5e1; display:flex; align-items:center; gap:5px; margin-bottom:0; font-size:1.1rem; font-weight:bold; white-space:nowrap;">
-                            <span style="font-size:1.1rem; opacity:0.8;">💳</span> طريقة الدفع
-                        </label>
-                        <div class="payment-methods-tabs" style="margin:0; box-shadow:none; background: transparent; padding: 0; display: flex; gap: 8px;">
-                            <label class="pm-tab" style="flex: 0 0 auto; margin: 0;">
-                                <input type="radio" name="payment_method" value="cash" checked onchange="togglePaymentMethod()">
-                                <div class="pm-tab-content" style="padding: 6px 15px; gap: 6px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); flex-direction: row; height: 44px;">
-                                    <span class="pm-icon" style="font-size: 1.2rem;">💵</span>
-                                    <span class="pm-label" style="font-size: 0.9rem; margin-top: 0;">نقدي</span>
-                                </div>
-                            </label>
-                            <label class="pm-tab" style="flex: 0 0 auto; margin: 0;">
-                                <input type="radio" name="payment_method" value="check" onchange="togglePaymentMethod()">
-                                <div class="pm-tab-content" style="padding: 6px 15px; gap: 6px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); flex-direction: row; height: 44px;">
-                                    <span class="pm-icon" style="font-size: 1.2rem;">🧾</span>
-                                    <span class="pm-label" style="font-size: 0.9rem; margin-top: 0;">شيك</span>
-                                </div>
-                            </label>
-                            <label class="pm-tab" style="flex: 0 0 auto; margin: 0;">
-                                <input type="radio" name="payment_method" value="mobile" onchange="togglePaymentMethod()">
-                                <div class="pm-tab-content" style="padding: 6px 15px; gap: 6px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); flex-direction: row; height: 44px;">
-                                    <span class="pm-icon" style="font-size: 1.2rem;">📱</span>
-                                    <span class="pm-label" style="font-size: 0.9rem; margin-top: 0;">تحويل</span>
-                                </div>
-                            </label>
-                        </div>
                     </div>
 
                     <!-- 4. الرقم المرجعي الاختياري -->
@@ -440,6 +366,142 @@
             </table>
             
             <button class="btn-add-row" onclick="addRow()">+ إضافة حساب جديد</button>
+
+            <!-- Hidden radios to prevent legacy JS checks breaking -->
+            <div style="display: none;">
+                <input type="radio" name="payment_method" value="cash" id="radio-cash" checked>
+                <input type="radio" name="payment_method" value="check" id="radio-check">
+                <input type="radio" name="payment_method" value="mobile" id="radio-mobile">
+            </div>
+
+            <!-- Unified Payment details panel styled like Sales/Purchase -->
+            <style>
+                .pay-toggle-btn {
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    color: #94a3b8;
+                    padding: 6px 14px;
+                    border-radius: 20px;
+                    font-size: 0.9rem;
+                    font-weight: 800;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+                .pay-toggle-btn.active {
+                    background: rgba(56, 189, 248, 0.2) !important;
+                    border-color: #38bdf8 !important;
+                    color: #38bdf8 !important;
+                    box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+                }
+                #toggle-cash.active {
+                    background: rgba(16, 185, 129, 0.2) !important;
+                    border-color: #34d399 !important;
+                    color: #34d399 !important;
+                    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+                }
+                #toggle-bank.active {
+                    background: rgba(59, 130, 246, 0.2) !important;
+                    border-color: #60a5fa !important;
+                    color: #60a5fa !important;
+                    box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+                }
+                #toggle-cheque.active {
+                    background: rgba(139, 92, 246, 0.2) !important;
+                    border-color: #c084fc !important;
+                    color: #c084fc !important;
+                    box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
+                }
+                .payment-method-box {
+                    transition: all 0.3s ease;
+                }
+            </style>
+            <div id="payment-panel" style="display: none; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; margin-top: 20px; margin-bottom: 20px;">
+                <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 12px 20px; background: rgba(15,23,42,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
+                    <div class="panel-title" style="background: linear-gradient(135deg, #ff4d4d, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.15rem; font-weight: 900; display: inline-flex; align-items: center; gap: 6px; margin: 0; white-space: nowrap; flex: none;">
+                        <span>💳</span> طريقة وتفاصيل الدفع للمستند المجمع
+                    </div>
+                    
+                    <!-- Sleek Payment Progress Bar (Inline) -->
+                    <div class="payment-progress-container" style="flex: 1; display: flex; align-items: center; gap: 12px; min-width: 280px; padding: 0 10px;">
+                        <div class="progress-bar-wrapper" style="height: 10px; flex: 1; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden; display: flex; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); min-width: 120px;">
+                            <div id="prog-cash" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(16,185,129,0.3);"></div>
+                            <div id="prog-bank" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(59,130,246,0.3);"></div>
+                            <div id="prog-cheque" style="width: 0%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #a78bfa); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(139,92,246,0.3);"></div>
+                        </div>
+                        <span id="payment-status-badge" style="font-size: 0.78rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; transition: all 0.3s ease; white-space: nowrap; background: rgba(16, 185, 129, 0.15); color: #34d399; box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);" data-status="fully-paid">💳 مدفوعة بالكامل</span>
+                    </div>
+
+                    <div class="payment-toggles" style="display: flex; gap: 8px; flex: none;">
+                        <button type="button" class="pay-toggle-btn active" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💵 نقدي</button>
+                        <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦 تحويل بنكي</button>
+                        <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">✍️ شيك</button>
+                    </div>
+                </div>
+                
+                <div class="payment-layout" id="payment-layout" style="display: flex; gap: 15px; padding: 15px; flex-wrap: wrap;">
+                    <div class="payment-details-card" style="flex: 1; min-width: 100%; display: flex; flex-direction: column; gap: 10px;">
+                        
+                        <!-- Cash section -->
+                        <div id="pay-cash-section" class="payment-method-box" style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
+                                <span style="font-size: 1.2rem;">💵</span>
+                                <span style="font-weight: 800; color: #34d399; font-size: 0.95rem;">الدفع النقدي (كاش)</span>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
+                                <span style="color: #94a3b8; font-size: 0.9rem;">سيتم السداد نقداً بالكامل للمستند المجمع.</span>
+                            </div>
+                        </div>
+
+                        <!-- Bank Transfer section -->
+                        <div id="pay-bank-section" class="payment-method-box" style="background: rgba(59, 130, 246, 0.04); border: 1px solid rgba(59, 130, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
+                                <span style="font-size: 1.2rem;">🏦</span>
+                                <span style="font-weight: 800; color: #60a5fa; font-size: 0.95rem;">تفاصيل التحويل البنكي للمجمع</span>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
+                                <div style="flex: 1.2; min-width: 180px; display: flex; align-items: center; gap: 5px;">
+                                    <label style="font-size: 0.78rem; color: #94a3b8; white-space: nowrap;">رقم الحساب:</label>
+                                    <input type="text" class="v-input ctrl-input" id="mobile-transfer-no" placeholder="رقم حساب التحويل..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff;">
+                                </div>
+                                <div style="flex: 1.5; min-width: 200px; display: flex; align-items: center; gap: 5px;">
+                                    <label style="font-size: 0.78rem; color: #94a3b8; white-space: nowrap;">ملاحظات:</label>
+                                    <input type="text" class="v-input ctrl-input" id="mobile-note" placeholder="ملاحظات التحويل..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cheque section -->
+                        <div id="pay-cheque-section" class="payment-method-box" style="background: rgba(139, 92, 246, 0.04); border: 1px solid rgba(139, 92, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
+                                <span style="font-size: 1.2rem;">✍️</span>
+                                <span style="font-weight: 800; color: #c084fc; font-size: 0.95rem;">تفاصيل الشيك للمجمع</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; flex: 1; min-width: 320px;">
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">رقم الشيك:</label>
+                                    <input type="text" class="v-input ctrl-input" id="check-no" placeholder="رقم الشيك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">البنك/الفرع:</label>
+                                    <input type="text" class="v-input ctrl-input" id="check-branch" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">تاريخ الشيك:</label>
+                                    <input type="date" class="v-input ctrl-input" id="check-date" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">الاستحقاق:</label>
+                                    <input type="date" class="v-input ctrl-input" id="check-due-date" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255, 255, 255, 0.1); height: 36px; font-size:0.8rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
 
             <!-- Sticky Footer for Totals & Save -->
             <div class="sticky-footer" style="background: rgba(15,23,42,0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border-top: 1px solid rgba(56, 189, 248, 0.4); border-left: 1px solid rgba(56, 189, 248, 0.4); border-right: 1px solid rgba(56, 189, 248, 0.4); border-radius: 20px 20px 0 0; padding: 8px 15px; position: sticky; bottom: 0; z-index: 100; box-shadow: 0 -10px 40px rgba(0,0,0,0.6), inset 0 2px 15px rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">

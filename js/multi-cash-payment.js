@@ -92,30 +92,15 @@ function setVoucherType(type) {
 }
 
 function togglePaymentMethod() {
-    const pm = document.querySelector('input[name="payment_method"]:checked').value;
-    const sidePanel = document.getElementById('payment-details-panel');
-    const layoutWrapper = document.getElementById('main-layout-wrapper');
-    const secCheck = document.getElementById('section-check');
-    const secMobile = document.getElementById('section-mobile');
-    const panelTitle = document.getElementById('panel-title-type');
-
-    if (pm === 'check') {
-        if (layoutWrapper) layoutWrapper.classList.add('has-sidebar');
-        if (secCheck) secCheck.style.display = 'block';
-        if (secMobile) secMobile.style.display = 'none';
-        if (panelTitle) panelTitle.innerText = 'الشيك';
-    } else if (pm === 'mobile') {
-        if (layoutWrapper) layoutWrapper.classList.add('has-sidebar');
-        if (secCheck) secCheck.style.display = 'none';
-        if (secMobile) secMobile.style.display = 'block';
-        if (panelTitle) panelTitle.innerText = 'التحويل';
-    } else {
-        if (layoutWrapper) layoutWrapper.classList.remove('has-sidebar');
-        setTimeout(() => {
-            if (secCheck) secCheck.style.display = 'none';
-            if (secMobile) secMobile.style.display = 'none';
-        }, 500); // Wait for transition
-    }
+    const radioCash = document.getElementById('radio-cash');
+    const radioCheck = document.getElementById('radio-check');
+    const radioMobile = document.getElementById('radio-mobile');
+    
+    let method = 'cash';
+    if (radioCheck && radioCheck.checked) method = 'cheque';
+    else if (radioMobile && radioMobile.checked) method = 'bank';
+    
+    togglePaymentSection(method);
 }
 
 function updateLabels() {
@@ -212,6 +197,16 @@ function calcTotal() {
     
     if (typeof window.applySystemNumberFormatting === 'function') {
         window.applySystemNumberFormatting();
+    }
+
+    const paymentPanel = document.getElementById('payment-panel');
+    if (paymentPanel) {
+        if (total > 0) {
+            paymentPanel.style.display = 'block';
+            if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();
+        } else {
+            paymentPanel.style.display = 'none';
+        }
     }
 }
 
@@ -445,6 +440,11 @@ async function saveVoucher() {
             await localforage.setItem(tKey, existingData);
         } else {
             localStorage.setItem(tKey, JSON.stringify(existingData));
+        }
+
+        // Apply dynamic account balance effects
+        if (typeof applyGroupedVoucherEffect === 'function') {
+            applyGroupedVoucherEffect(voucher, false);
         }
 
         showToast('تم حفظ السند المجمع بنجاح وإرساله لشاشة الترحيل!', 'success');
@@ -839,3 +839,244 @@ function addRowWithData(item) {
     `;
     if (tbody) tbody.appendChild(tr);
 }
+
+function applyGroupedVoucherEffect(voucher, isRevert = false) {
+    if (!voucher) return;
+    const type = voucher.type; // 'payment' or 'receipt'
+    const multiplier = isRevert ? -1 : 1;
+    
+    // 1. Update Main Account
+    const mainAccId = voucher.mainAccount || (type === 'payment' ? voucher.fromAccount : voucher.toAccount);
+    if (mainAccId) {
+        const amt = voucher.totalAmount * multiplier;
+        const amtEffect = (type === 'payment') ? -amt : amt;
+        
+        if (mainAccId.startsWith('safe-')) {
+            let id = mainAccId.substring(5);
+            let safes = [];
+            try { safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || []; } catch(e){}
+            let idx = safes.findIndex(s => String(s.id) === String(id));
+            if (idx > -1) {
+                safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtEffect;
+                localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
+            }
+        } else if (mainAccId.startsWith('bank-')) {
+            let id = mainAccId.substring(5);
+            let banks = [];
+            try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e){}
+            let idx = banks.findIndex(b => String(b.id) === String(id));
+            if (idx > -1) {
+                banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtEffect;
+                localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+            }
+        }
+    }
+
+    // 2. Update Items Accounts
+    if (voucher.items && Array.isArray(voucher.items)) {
+        voucher.items.forEach(item => {
+            const itemAccId = item.account;
+            if (!itemAccId) return;
+            const amt = item.amount * multiplier;
+            
+            let amtEffect = 0;
+            if (type === 'payment') {
+                if (itemAccId.startsWith('cust-') || itemAccId.startsWith('supp-')) {
+                    amtEffect = -amt;
+                } else {
+                    amtEffect = amt;
+                }
+            } else { // receipt
+                if (itemAccId.startsWith('cust-') || itemAccId.startsWith('supp-')) {
+                    amtEffect = -amt;
+                } else {
+                    amtEffect = amt;
+                }
+            }
+
+            if (itemAccId.startsWith('cust-')) {
+                let id = itemAccId.substring(5);
+                let custs = [];
+                try { custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || []; } catch(e){}
+                let idx = custs.findIndex(c => String(c.id) === String(id));
+                if (idx > -1) {
+                    custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtEffect;
+                    localStorage.setItem('erp_customers_v1', JSON.stringify(custs));
+                }
+            } else if (itemAccId.startsWith('supp-')) {
+                let id = itemAccId.substring(5);
+                let sups = [];
+                try { sups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []; } catch(e){}
+                let idx = sups.findIndex(s => String(s.id) === String(id));
+                if (idx > -1) {
+                    sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtEffect;
+                    localStorage.setItem('erp_suppliers_v1', JSON.stringify(sups));
+                }
+            } else if (itemAccId.startsWith('bank-')) {
+                let id = itemAccId.substring(5);
+                let banks = [];
+                try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e){}
+                let idx = banks.findIndex(b => String(b.id) === String(id));
+                if (idx > -1) {
+                    banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtEffect;
+                    localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+                }
+            } else if (itemAccId.startsWith('safe-')) {
+                let id = itemAccId.substring(5);
+                let safes = [];
+                try { safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || []; } catch(e){}
+                let idx = safes.findIndex(s => String(s.id) === String(id));
+                if (idx > -1) {
+                    safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtEffect;
+                    localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
+                }
+            } else if (itemAccId.startsWith('exp-')) {
+                let id = itemAccId.substring(4);
+                let accounts = [];
+                try { accounts = JSON.parse(localStorage.getItem('erp_accounts_v1')) || []; } catch(e){}
+                let idx = accounts.findIndex(a => String(a.id) === String(id));
+                if (idx > -1) {
+                    accounts[idx].currentBalance = (parseFloat(accounts[idx].currentBalance) || 0) + amtEffect;
+                    localStorage.setItem('erp_accounts_v1', JSON.stringify(accounts));
+                }
+            }
+        });
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+// Inline Payment Panel & Formatting Logic (Grouped Vouchers)
+// ═══════════════════════════════════════════════════════
+
+window.togglePaymentSection = function(method) {
+    const radioCash = document.getElementById('radio-cash');
+    const radioCheck = document.getElementById('radio-check');
+    const radioMobile = document.getElementById('radio-mobile');
+    
+    if (method === 'cash') {
+        if (radioCash) radioCash.checked = true;
+    } else if (method === 'bank') {
+        if (radioMobile) radioMobile.checked = true;
+    } else if (method === 'cheque') {
+        if (radioCheck) radioCheck.checked = true;
+    }
+    
+    if (typeof playClickSound === 'function') {
+        playClickSound();
+    }
+
+    document.querySelectorAll('.pay-toggle-btn').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById(`toggle-${method}`);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    const secCash = document.getElementById('pay-cash-section');
+    const secBank = document.getElementById('pay-bank-section');
+    const secCheque = document.getElementById('pay-cheque-section');
+    
+    if (secCash) secCash.style.display = (method === 'cash') ? 'flex' : 'none';
+    if (secBank) secBank.style.display = (method === 'bank') ? 'flex' : 'none';
+    if (secCheque) secCheque.style.display = (method === 'cheque') ? 'flex' : 'none';
+
+    recalcPaymentSummary();
+};
+
+window.recalcPaymentSummary = function() {
+    const totalAmount = cleanNum(document.getElementById('total-amount').innerText);
+    const radioCash = document.getElementById('radio-cash');
+    const radioCheck = document.getElementById('radio-check');
+    const radioMobile = document.getElementById('radio-mobile');
+    
+    let isCash = radioCash && radioCash.checked;
+    let isCheck = radioCheck && radioCheck.checked;
+    let isMobile = radioMobile && radioMobile.checked;
+    
+    const progCash = document.getElementById('prog-cash');
+    const progBank = document.getElementById('prog-bank');
+    const progCheque = document.getElementById('prog-cheque');
+    
+    if (progCash) progCash.style.width = '0%';
+    if (progBank) progBank.style.width = '0%';
+    if (progCheque) progCheque.style.width = '0%';
+
+    const badge = document.getElementById('payment-status-badge');
+
+    if (totalAmount > 0) {
+        if (isCash) {
+            if (progCash) progCash.style.width = '100%';
+            if (badge) {
+                badge.innerText = '💵 مدفوعة كاش بالكامل';
+                badge.style.background = 'rgba(16, 185, 129, 0.15)';
+                badge.style.color = '#34d399';
+                badge.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.2)';
+            }
+        } else if (isMobile) {
+            if (progBank) progBank.style.width = '100%';
+            if (badge) {
+                badge.innerText = '🏦 محولة بالكامل';
+                badge.style.background = 'rgba(59, 130, 246, 0.15)';
+                badge.style.color = '#60a5fa';
+                badge.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.2)';
+            }
+        } else if (isCheck) {
+            if (progCheque) progCheque.style.width = '100%';
+            if (badge) {
+                badge.innerText = '🧾 شيك بالكامل';
+                badge.style.background = 'rgba(139, 92, 246, 0.15)';
+                badge.style.color = '#c084fc';
+                badge.style.boxShadow = '0 0 10px rgba(139, 92, 246, 0.2)';
+            }
+        }
+    } else {
+        if (badge) {
+            badge.innerText = '⚠️ في انتظار إدخال المبالغ';
+            badge.style.background = 'rgba(239, 68, 68, 0.15)';
+            badge.style.color = '#f87171';
+            badge.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.2)';
+        }
+    }
+};
+
+function playClickSound() {
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.08);
+    } catch(e) {}
+}
+
+// Event Delegation for dynamically added sub-amount input fields
+document.addEventListener('focus', function(event) {
+    const input = event.target;
+    if (input.classList.contains('sub-amount')) {
+        const val = parseFloat(input.value.replace(/,/g, '')) || 0;
+        if (val === 0) {
+            input.value = '';
+        }
+    }
+}, true);
+
+document.addEventListener('blur', function(event) {
+    const input = event.target;
+    if (input.classList.contains('sub-amount')) {
+        const val = parseFloat(input.value.replace(/,/g, '')) || 0;
+        if (input.value.trim() === '') {
+            input.value = '';
+        } else {
+            let parts = val.toFixed(2).split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            input.value = parts.join('.');
+        }
+        calcTotal();
+    }
+}, true);
