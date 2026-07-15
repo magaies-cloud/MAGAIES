@@ -159,6 +159,67 @@ function commitInvoiceNumber(type) {
 //  INIT
 // ════════════════════════════════════════
 function initSalesApp() {
+    // ────── MIGRATE OLD INVOICE NUMBERS TO S+YYMM+SEQ ──────
+    try {
+        let allInv = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+        const sRx = /^S\d{8}$/;
+        let hasOld = false;
+        for (const inv of allInv) {
+            const no = String(inv.invoiceNo || '');
+            if (no && no !== 'preliminary' && !no.startsWith('PRE-') && !sRx.test(no)) {
+                hasOld = true; break;
+            }
+        }
+        if (hasOld) {
+            const byMonth = {};
+            allInv.forEach(inv => {
+                const no = String(inv.invoiceNo || '');
+                if (no === 'preliminary' || no.startsWith('PRE-')) return;
+                const d = (inv.date || inv.createdAt) ? new Date(inv.date || inv.createdAt) : new Date();
+                const vd = isNaN(d.getTime()) ? new Date() : d;
+                const yymm = String(vd.getFullYear()).substring(2, 4) + String(vd.getMonth() + 1).padStart(2, '0');
+                if (!byMonth[yymm]) byMonth[yymm] = { s: [], old: [] };
+                if (sRx.test(no)) { byMonth[yymm].s.push(inv); } else { byMonth[yymm].old.push(inv); }
+            });
+            const idMap = {};
+            for (const yymm of Object.keys(byMonth)) {
+                const { s, old } = byMonth[yymm];
+                if (old.length === 0) continue;
+                const dp = 'S' + yymm;
+                let mx = 0;
+                s.forEach(inv => { const sq = parseInt(String(inv.invoiceNo).substring(5), 10); if (!isNaN(sq) && sq > mx) mx = sq; });
+                old.sort((a, b) => { const c = (a.date||a.createdAt||'').localeCompare(b.date||b.createdAt||''); return c !== 0 ? c : (a.time||'').localeCompare(b.time||''); });
+                old.forEach(inv => {
+                    mx++;
+                    const oldNo = inv.invoiceNo;
+                    const newNo = dp + String(mx).padStart(4, '0');
+                    idMap[oldNo] = newNo;
+                    inv.invoiceNo = newNo;
+                    if (inv.id === oldNo) inv.id = newNo;
+                    // Migrate detail keys
+                    ['erp_inv_', 'erp_draft_'].forEach(pfx => {
+                        const oldData = localStorage.getItem(pfx + oldNo);
+                        if (oldData) {
+                            try {
+                                const p = JSON.parse(oldData);
+                                p.invoiceNo = newNo;
+                                if (p.id === oldNo) p.id = newNo;
+                                localStorage.setItem(pfx + newNo, JSON.stringify(p));
+                                localStorage.removeItem(pfx + oldNo);
+                            } catch(e) {}
+                        }
+                    });
+                });
+            }
+            if (Object.keys(idMap).length > 0) {
+                localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allInv));
+                console.log('[initSalesApp Migration] Converted old invoice numbers:', idMap);
+            }
+        }
+    } catch(e) {
+        console.error('[initSalesApp Migration] Error:', e);
+    }
+    // ────── END MIGRATION ──────
     try {
         // Reload WAREHOUSES from localStorage
         let localWH = [];
