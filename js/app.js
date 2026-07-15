@@ -584,6 +584,137 @@ JSON.parse = function(val) {
             console.error('Migration failed:', e);
         }
 
+        // ════════════════════════════════════════
+        //  RE-MIGRATION OF C- PREFIX SALES INVOICES TO S PREFIX
+        // ════════════════════════════════════════
+        try {
+            const prefixSet = new Set(['tenant_default_', getTenantPrefix()]);
+            try {
+                const lsKeys = Object.keys(localStorage);
+                lsKeys.forEach(k => {
+                    if (k.endsWith('erp_sales_invoices_v1')) {
+                        prefixSet.add(k.substring(0, k.length - 'erp_sales_invoices_v1'.length));
+                    }
+                });
+            } catch(e) {}
+            
+            for (const pref of prefixSet) {
+                const salesKey = pref + 'erp_sales_invoices_v1';
+                let salesVal = window.DB_STORE[salesKey] || localGetItem(salesKey);
+                if (!salesVal) continue;
+                
+                let sales = JSON.parse(salesVal);
+                let hasChanges = false;
+                const idMap = {};
+                
+                sales.forEach(inv => {
+                    const oldNo = inv.invoiceNo;
+                    if (oldNo && oldNo.startsWith('C-')) {
+                        const newNo = 'S' + oldNo.substring(2);
+                        idMap[oldNo] = newNo;
+                        inv.invoiceNo = newNo;
+                        if (inv.id === oldNo) inv.id = newNo;
+                        hasChanges = true;
+                    }
+                });
+                
+                if (hasChanges) {
+                    // Update main list
+                    window.DB_STORE[salesKey] = JSON.stringify(sales);
+                    localSetItem(salesKey, JSON.stringify(sales));
+                    await localforage.setItem(salesKey, JSON.stringify(sales));
+                    
+                    // Mark as dirty to trigger push to cloud
+                    dirtyKeys.add('erp_sales_invoices_v1');
+                    
+                    // Rename detailed invoice objects (erp_inv_C-... and erp_draft_C-...)
+                    for (const oldNo of Object.keys(idMap)) {
+                        const newNo = idMap[oldNo];
+                        
+                        const detailKeys = ['erp_inv_', 'erp_draft_'];
+                        for (const dKey of detailKeys) {
+                            const keyOld = pref + dKey + oldNo;
+                            const keyNew = pref + dKey + newNo;
+                            
+                            const detailData = window.DB_STORE[keyOld] || localGetItem(keyOld);
+                            if (detailData) {
+                                try {
+                                    const parsed = JSON.parse(detailData);
+                                    parsed.invoiceNo = newNo;
+                                    if (parsed.id === oldNo) parsed.id = newNo;
+                                    const valStr = JSON.stringify(parsed);
+                                    
+                                    window.DB_STORE[keyNew] = valStr;
+                                    localSetItem(keyNew, valStr);
+                                    await localforage.setItem(keyNew, valStr);
+                                    
+                                    // delete old key
+                                    delete window.DB_STORE[keyOld];
+                                    localRemoveItem(keyOld);
+                                    await localforage.removeItem(keyOld);
+                                } catch(e){}
+                            }
+                        }
+                    }
+                    
+                    // Also check and update references in other stores (vouchers, ledger)
+                    const storesToUpdate = [
+                        'erp_receipts_v1', 'erp_payments_v1', 
+                        'erp_single_receipts_v1', 'erp_single_payments_v1', 
+                        'erp_journal_vouchers_v1'
+                    ];
+                    
+                    for (const baseKey of storesToUpdate) {
+                        const targetKey = pref + baseKey;
+                        const storeVal = window.DB_STORE[targetKey] || localGetItem(targetKey);
+                        if (!storeVal) continue;
+                        
+                        let storeData = JSON.parse(storeVal);
+                        let storeChanged = false;
+                        storeData.forEach(item => {
+                            // check if item refers to old invoice number
+                            if (item.invoiceNo && idMap[item.invoiceNo]) {
+                                item.invoiceNo = idMap[item.invoiceNo];
+                                storeChanged = true;
+                            }
+                            if (item.invoice_id && idMap[item.invoice_id]) {
+                                item.invoice_id = idMap[item.invoice_id];
+                                storeChanged = true;
+                            }
+                            if (item.docId && idMap[item.docId]) {
+                                item.docId = idMap[item.docId];
+                                storeChanged = true;
+                            }
+                            if (item.reference && idMap[item.reference]) {
+                                item.reference = idMap[item.reference];
+                                storeChanged = true;
+                            }
+                            if (item.ref && idMap[item.ref]) {
+                                item.ref = idMap[item.ref];
+                                storeChanged = true;
+                            }
+                        });
+                        
+                        if (storeChanged) {
+                            window.DB_STORE[targetKey] = JSON.stringify(storeData);
+                            localSetItem(targetKey, JSON.stringify(storeData));
+                            await localforage.setItem(targetKey, JSON.stringify(storeData));
+                            dirtyKeys.add(baseKey);
+                        }
+                    }
+                    
+                    console.log(`[C- to S Migration] Migrated invoices for prefix ${pref}:`, idMap);
+                }
+            }
+            
+            // Trigger push to cloud if there were changes and online
+            if (dirtyKeys.size > 0 && navigator.onLine) {
+                pushToCloud();
+            }
+        } catch(e) {
+            console.error('C- to S re-migration failed:', e);
+        }
+
         window.APP_READY = true;
         document.dispatchEvent(new Event('DBReady'));
     }
