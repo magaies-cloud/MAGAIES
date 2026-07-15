@@ -182,7 +182,124 @@
         :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
         :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
         :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
-\n</style>
+
+        /* ─── Premium Glassmorphic Layout Preset Buttons ─── */
+        .preset-slots-container {
+            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 10px 20px;
+            border-radius: 16px;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        .preset-btn {
+            position: relative;
+            background: rgba(30, 41, 59, 0.35);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #cbd5e1;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            user-select: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .preset-btn[data-slot-id="1"] { --accent-color: 168, 85, 247; }
+        .preset-btn[data-slot-id="2"] { --accent-color: 6, 182, 212; }
+        .preset-btn[data-slot-id="3"] { --accent-color: 16, 185, 129; }
+        .preset-btn[data-slot-id="4"] { --accent-color: 245, 158, 11; }
+        
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 6px rgba(var(--accent-color), 0.6); }
+            50% { box-shadow: 0 0 14px rgba(var(--accent-color), 0.9); }
+            100% { box-shadow: 0 0 6px rgba(var(--accent-color), 0.6); }
+        }
+        
+        .preset-btn::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgb(var(--accent-color));
+            box-shadow: 0 0 8px rgba(var(--accent-color), 0.8);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+        .preset-btn:hover::before {
+            transform: scale(1.4);
+        }
+        .preset-btn:hover {
+            background: rgba(30, 41, 59, 0.6);
+            border-color: rgba(var(--accent-color), 0.6);
+            color: #ffffff;
+            box-shadow: 0 10px 25px rgba(var(--accent-color), 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            transform: scale(1.06) translateY(-3px);
+        }
+        .preset-btn.active {
+            background: rgba(var(--accent-color), 0.15);
+            border-color: rgba(var(--accent-color), 0.85);
+            color: #ffffff;
+            box-shadow: 0 0 25px rgba(var(--accent-color), 0.4), inset 0 1px 1px rgba(var(--accent-color), 0.2);
+            transform: scale(1.03);
+        }
+        .preset-btn.holding {
+            background: rgba(var(--accent-color), 0.25) !important;
+            border-color: rgba(var(--accent-color), 1) !important;
+            box-shadow: 0 0 35px rgba(var(--accent-color), 0.6) !important;
+            transform: scale(0.96) translateY(0);
+        }
+        .preset-clock-svg {
+            flex-shrink: 0;
+            width: 16px;
+            height: 16px;
+            filter: drop-shadow(0 0 2px rgba(var(--accent-color), 0.5));
+            transition: transform 0.3s ease;
+        }
+        .preset-btn:hover .preset-clock-svg {
+            transform: rotate(15deg);
+        }
+        .preset-clock-progress {
+            stroke: rgb(var(--accent-color)) !important;
+            transition: stroke-dashoffset 0.05s linear;
+        }
+        :root.light-theme .preset-slots-container {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+        }
+        :root.light-theme .preset-btn {
+            background: rgba(255, 255, 255, 0.7);
+            border-color: rgba(15, 23, 42, 0.08);
+            color: #334155;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+        }
+        :root.light-theme .preset-btn:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(var(--accent-color), 0.7);
+            color: #0f172a;
+            box-shadow: 0 10px 25px rgba(var(--accent-color), 0.18);
+        }
+        :root.light-theme .preset-btn.active {
+            background: rgba(var(--accent-color), 0.09);
+            border-color: rgba(var(--accent-color), 0.8);
+            color: #0f172a;
+            box-shadow: 0 0 20px rgba(var(--accent-color), 0.28);
+        }
+</style>
 </head>
 <body>
 
@@ -246,11 +363,20 @@
                 </select>
             </div>
         </div>
-        <div style="display:flex; gap:12px; margin-top:10px; align-items:center; flex-wrap:wrap;">
+        <div style="display:flex; gap:12px; margin-top:10px; align-items:center; flex-wrap:wrap; width: 100%;">
             <button class="btn-run" onclick="runReport()">
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 تشغيل التقرير
             </button>
+
+            <div style="height: 24px; width: 1px; background: rgba(255,255,255,0.15); margin: 0 10px;" class="no-print"></div>
+
+            <div class="preset-slots-container no-print" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <span style="font-size:0.85rem; color:#94a3b8; font-weight:bold; margin-left: 5px;">💾 تخطيطات سريعة (اضغط مطولاً 8ث للحفظ):</span>
+                <div id="balances-presets-wrap" style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <!-- Preset buttons will be generated by JS -->
+                </div>
+            </div>
         </div>
     </div>
 

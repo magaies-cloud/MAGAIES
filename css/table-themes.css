@@ -165,7 +165,7 @@
     padding: 10px 10px !important; /* Slightly larger for big numbers */
     white-space: nowrap; 
     position: relative;
-    text-align: center !important; /* Center horizontally */
+    text-align: center; /* Center horizontally */
     vertical-align: middle !important; /* Center vertically */
 }
 
@@ -295,32 +295,37 @@
     to { opacity: 1; transform: scale(1); }
 }
 
-/* Draggable Column Handle (Light & Visible) */
+/* Draggable Column Handle (Light & Visible, Centered on Borders) */
 .resize-handle {
     position: absolute;
     top: 0;
-    left: 0; /* RTL alignment */
-    width: 8px;
+    left: -5px; /* Centered over the column boundary line */
+    width: 10px;
     height: 100%;
     cursor: col-resize;
-    background: rgba(255, 255, 255, 0.3);
-    border-left: 2px solid rgba(255, 255, 255, 0.9);
-    z-index: 10;
-    transition: all 0.2s;
-    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    z-index: 100; /* Ensure it is clickable over headers */
+    background: transparent;
 }
-.resize-handle:hover, .resize-handle:active {
+.resize-handle::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 4px;
+    width: 2px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.25);
+    transition: all 0.2s;
+}
+.resize-handle:hover::after, .resize-handle:active::after {
     background: #38bdf8;
-    width: 12px;
-    border-left: 2px solid #fff;
-    box-shadow: -2px 0 10px rgba(56,189,248,0.5);
+    width: 4px;
+    left: 3px;
+    box-shadow: 0 0 10px rgba(56,189,248,0.8);
 }
 /* Ensure dark themes have visible handles too */
-.table-theme-blue .resize-handle, .table-theme-emerald .resize-handle {
-    background: rgba(255, 255, 255, 0.2);
-    border-left: 2px solid rgba(255, 255, 255, 0.6);
+.table-theme-blue .resize-handle::after, .table-theme-emerald .resize-handle::after {
+    background: rgba(255, 255, 255, 0.15);
 }
-.table-theme-blue .resize-handle:hover, .table-theme-emerald .resize-handle:hover {
+.table-theme-blue .resize-handle:hover::after, .table-theme-emerald .resize-handle:hover::after {
     background: #60a5fa;
-    border-left: 2px solid #fff;
 }

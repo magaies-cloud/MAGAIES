@@ -149,7 +149,7 @@ function onAccountSearchKey(e) {
     }
 }
 
-function selectAccount(id, name, icon) {
+window.selectAccount = function selectAccount(id, name, icon) {
     document.getElementById('filter-account').value = id;
     const wrap = document.getElementById('account-search-wrap');
     const chip = document.getElementById('selected-chip');
@@ -1239,7 +1239,10 @@ function executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, 
         }
         
         if (foundAccount) {
-            intrinsicBal = parseNum(foundAccount.openingDebit || 0) - parseNum(foundAccount.openingCredit || 0);
+            let opDeb = parseNum(foundAccount.openingDebit || 0);
+            let opCred = parseNum(foundAccount.openingCredit || 0);
+            let opBal = parseNum(foundAccount.openingBalance || foundAccount.opening_balance || 0);
+            intrinsicBal = opBal !== 0 ? opBal : (opDeb - opCred);
             accountCurrency = foundAccount.currency || 'SDG';
             accountExRate = parseNum(foundAccount.exRate || 1);
         }
@@ -1289,29 +1292,52 @@ function executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, 
         return da.localeCompare(db);
     });
 
-    if (acctFilter !== 'ALL' && (runningBal !== 0 || currentTxns.length > 0)) {
-        let openingDebit = runningBal > 0 ? runningBal : 0;
-        let openingCredit = runningBal < 0 ? Math.abs(runningBal) : 0;
+    if (acctFilter !== 'ALL') {
+        let hasOpening = (intrinsicBal !== 0);
+        let hasPrior = (currentDateMode !== 'all' && priorTxns.length > 0);
         
-        let openingDate = fromDate;
-        let openingStatement = 'رصيد ما قبل الفترة';
-        if (currentDateMode === 'all') {
-            openingStatement = 'رصيد افتتاحي';
-            if (txns.length > 0) {
-                openingDate = txns.reduce((min, t) => t.date < min ? t.date : min, txns[0].date);
-            } else {
-                openingDate = '—';
-            }
+        let priorSum = 0;
+        priorTxns.forEach(t => {
+            priorSum += t.debit;
+            priorSum -= t.credit;
+        });
+
+        let opDate = '—';
+        if (txns.length > 0) {
+            opDate = txns.reduce((min, t) => t.date < min ? t.date : min, txns[0].date);
         }
 
-        currentTxns.unshift({
-            date: openingDate, time: '', ref: 'OPENING', type: 'opening', typeLabel: 'افتتاحي',
-            account: acctFilter, counterAccount: '-',
-            statement: openingStatement,
-            debit: openingDebit, credit: openingCredit, costCenter: '', 
-            currency: accountCurrency, exchangeRate: accountExRate,
-            isOpening: true
-        });
+        // 1. Prepend "رصيد افتتاحي" (Opening Balance)
+        if (hasOpening || currentDateMode === 'all' || !hasPrior) {
+            let opDebit = intrinsicBal > 0 ? intrinsicBal : 0;
+            let opCredit = intrinsicBal < 0 ? Math.abs(intrinsicBal) : 0;
+            
+            currentTxns.unshift({
+                date: opDate, time: '', ref: 'OPENING', type: 'opening', typeLabel: 'افتتاحي',
+                account: acctFilter, counterAccount: '-',
+                statement: 'رصيد افتتاحي',
+                additionalNote: 'رصيد افتتاحي',
+                debit: opDebit, credit: opCredit, costCenter: '', 
+                currency: accountCurrency, exchangeRate: accountExRate,
+                isOpening: true
+            });
+        }
+        
+        // 2. Prepend "رصيد ما قبل الفترة" if there are prior transactions
+        if (hasPrior && priorSum !== 0) {
+            let preDebit = priorSum > 0 ? priorSum : 0;
+            let preCredit = priorSum < 0 ? Math.abs(priorSum) : 0;
+            
+            currentTxns.unshift({
+                date: fromDate, time: '', ref: 'PRE-PERIOD', type: 'opening', typeLabel: 'افتتاحي',
+                account: acctFilter, counterAccount: '-',
+                statement: 'رصيد ما قبل الفترة',
+                additionalNote: 'رصيد ما قبل الفترة',
+                debit: preDebit, credit: preCredit, costCenter: '', 
+                currency: accountCurrency, exchangeRate: accountExRate,
+                isOpening: true
+            });
+        }
     }
 
     renderTable(currentTxns, acctFilter, fromDate, toDate);
@@ -1330,7 +1356,8 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
         if (!c.visible) return;
         activeColsCount++;
         let displayName = c.alias ? c.alias : c.name;
-        ths += `<th style="width:${c.width};">${displayName}<div class="resize-handle"></div></th>`;
+        let thAlign = c.align ? `text-align:${c.align} !important;` : '';
+        ths += `<th style="width:${c.width}; ${thAlign}">${displayName}<div class="resize-handle"></div></th>`;
     });
     thead.innerHTML = `<tr>${ths}</tr>`;
 
@@ -1419,13 +1446,18 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
             if (c.color) style.push(`color:${c.color} !important`);
             if (c.bold || t.isOpening) style.push(`font-weight:bold`);
             if (c.size) style.push(`font-size:${c.size}`);
+            if (c.align) style.push(`text-align:${c.align} !important`);
             
             if (['statement', 'note'].includes(c.id)) {
                 style.push('max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;');
             }
             if (['debit', 'debitF', 'credit', 'creditF'].includes(c.id) && (typeof val === 'string' && val.indexOf('<div') === -1)) style.push('font-family:monospace');
 
-            rowHtml += `<td style="${style.join('; ')}" title="${(typeof val === 'string' && val.includes('<')) ? '' : val}">${val}</td>`;
+            let extraAttrs = '';
+            if (c.id === 'counterAcc') {
+                extraAttrs = ` class="counter-acc-cell" data-acc-id="${t.counterAccount || ''}" data-acc-name="${counterAccName}"`;
+            }
+            rowHtml += `<td${extraAttrs} style="${style.join('; ')}" title="${(typeof val === 'string' && val.includes('<')) ? '' : val}">${val}</td>`;
         });
 
         rowHtml += `</tr>`;
@@ -1725,21 +1757,21 @@ function printDirectly() {
 
 /* ─── Dynamic Column Configuration & Sidebar ─── */
 const defaultColConfig = [
-    { id: 'idx', name: '#', alias: '', visible: true, width: '50px', bg: '', color: '#64748b', bold: false, size: '0.8rem', dec: 0 },
-    { id: 'date', name: 'التاريخ', alias: '', visible: true, width: 'auto', bg: '', color: '', bold: false, size: '0.85rem', dec: 0 },
-    { id: 'account', name: 'الحساب الرئيسي', alias: '', visible: true, width: 'auto', bg: '', color: '#cbd5e1', bold: false, size: '0.85rem', dec: 0 },
-    { id: 'counterAcc', name: 'الحساب المقابل', alias: '', visible: true, width: 'auto', bg: '', color: '#e2e8f0', bold: false, size: '0.85rem', dec: 0 },
-    { id: 'statement', name: 'حالة السند', alias: '', visible: true, width: '150px', bg: '', color: '#e2e8f0', bold: false, size: '0.85rem', dec: 0 },
-    { id: 'note', name: 'ملحوظة إضافية', alias: '', visible: true, width: '150px', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 0 },
-    { id: 'costCenter', name: 'مركز التكلفة', alias: '', visible: true, width: 'auto', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 0 },
-    { id: 'debit', name: 'مدين محلي (عليه)', alias: '', visible: true, width: 'auto', bg: '', color: '#34d399', bold: true, size: '0.9rem', dec: 2 },
-    { id: 'credit', name: 'دائن محلي (له)', alias: '', visible: true, width: 'auto', bg: '', color: '#f87171', bold: true, size: '0.9rem', dec: 2 },
-    { id: 'balance', name: 'الرصيد محلي', alias: '', visible: true, width: 'auto', bg: '', color: '#c084fc', bold: true, size: '0.9rem', dec: 2 },
-    { id: 'currency', name: 'العملة', alias: '', visible: true, width: 'auto', bg: '', color: '#c084fc', bold: false, size: '0.85rem', dec: 0 },
-    { id: 'exRate', name: 'سعر الصرف', alias: '', visible: true, width: 'auto', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 2 },
-    { id: 'debitF', name: 'مدين أجنبي (عليه)', alias: '', visible: true, width: 'auto', bg: '', color: '#34d399', bold: true, size: '0.9rem', dec: 2 },
-    { id: 'creditF', name: 'دائن أجنبي (له)', alias: '', visible: true, width: 'auto', bg: '', color: '#f87171', bold: true, size: '0.9rem', dec: 2 },
-    { id: 'balanceF', name: 'رصيد أجنبي', alias: '', visible: true, width: 'auto', bg: '', color: '#c084fc', bold: true, size: '0.9rem', dec: 2 }
+    { id: 'idx', name: '#', alias: '', visible: true, width: '50px', bg: '', color: '#64748b', bold: false, size: '0.8rem', dec: 0, align: 'center' },
+    { id: 'date', name: 'التاريخ', alias: '', visible: true, width: 'auto', bg: '', color: '', bold: false, size: '0.85rem', dec: 0, align: 'center' },
+    { id: 'account', name: 'الحساب الرئيسي', alias: '', visible: true, width: 'auto', bg: '', color: '#cbd5e1', bold: false, size: '0.85rem', dec: 0, align: 'center' },
+    { id: 'counterAcc', name: 'الحساب المقابل', alias: '', visible: true, width: 'auto', bg: '', color: '#e2e8f0', bold: false, size: '0.85rem', dec: 0, align: 'center' },
+    { id: 'statement', name: 'حالة السند', alias: '', visible: true, width: '150px', bg: '', color: '#e2e8f0', bold: false, size: '0.85rem', dec: 0, align: 'center' },
+    { id: 'note', name: 'ملحوظة إضافية', alias: '', visible: true, width: '150px', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 0, align: 'center' },
+    { id: 'costCenter', name: 'مركز التكلفة', alias: '', visible: true, width: 'auto', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 0, align: 'center' },
+    { id: 'debit', name: 'مدين محلي (عليه)', alias: '', visible: true, width: 'auto', bg: '', color: '#34d399', bold: true, size: '0.9rem', dec: 2, align: 'center' },
+    { id: 'credit', name: 'دائن محلي (له)', alias: '', visible: true, width: 'auto', bg: '', color: '#f87171', bold: true, size: '0.9rem', dec: 2, align: 'center' },
+    { id: 'balance', name: 'الرصيد محلي', alias: '', visible: true, width: 'auto', bg: '', color: '#c084fc', bold: true, size: '0.9rem', dec: 2, align: 'center' },
+    { id: 'currency', name: 'العملة', alias: '', visible: true, width: 'auto', bg: '', color: '#c084fc', bold: false, size: '0.85rem', dec: 0, align: 'center' },
+    { id: 'exRate', name: 'سعر الصرف', alias: '', visible: true, width: 'auto', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 2, align: 'center' },
+    { id: 'debitF', name: 'مدين أجنبي (عليه)', alias: '', visible: true, width: 'auto', bg: '', color: '#34d399', bold: true, size: '0.9rem', dec: 2, align: 'center' },
+    { id: 'creditF', name: 'دائن أجنبي (له)', alias: '', visible: true, width: 'auto', bg: '', color: '#f87171', bold: true, size: '0.9rem', dec: 2, align: 'center' },
+    { id: 'balanceF', name: 'رصيد أجنبي', alias: '', visible: true, width: 'auto', bg: '', color: '#c084fc', bold: true, size: '0.9rem', dec: 2, align: 'center' }
 ];
 
 let colConfig = [];
@@ -1766,6 +1798,7 @@ function loadColumnConfig() {
                 const found = loadedConfig.find(c => c.id === defCol.id);
                 if (found) {
                     found.name = defCol.name; // Keep name aligned with the new default name
+                    if (!found.align) found.align = defCol.align || 'center'; // Set default alignment
                     merged.push(found);
                 } else {
                     merged.push(defCol);
@@ -1997,6 +2030,14 @@ function renderSidebarConfig() {
                     </div>
                 </div>
                 <div class="cfg-row">
+                    <span>محاذاة النص:</span>
+                    <select class="cfg-input" onchange="updateColField(${index}, 'align', this.value)" style="width:120px;">
+                        <option value="center" ${col.align === 'center' ? 'selected' : ''}>الوسط ↔️</option>
+                        <option value="right" ${col.align === 'right' ? 'selected' : ''}>اليمين ➡️</option>
+                        <option value="left" ${col.align === 'left' ? 'selected' : ''}>اليسار ⬅️</option>
+                    </select>
+                </div>
+                <div class="cfg-row">
                     <span>الألوان (نص/خلفية):</span>
                     <div style="display:flex; gap:5px;">
                         <input type="color" class="cfg-input" value="${col.color || '#ffffff'}" onchange="updateColField(${index}, 'color', this.value)" title="لون النص">
@@ -2005,8 +2046,16 @@ function renderSidebarConfig() {
                 </div>
                 ${['debit', 'credit', 'total', 'balance', 'exRate', 'debitF', 'creditF', 'balanceF'].includes(col.id) ? `
                 <div class="cfg-row">
-                    <span>الفواصل العشرية:</span>
-                    <input type="number" class="cfg-input" value="${col.dec}" min="0" max="6" style="width:60px;" onchange="updateColField(${index}, 'dec', parseInt(this.value))">
+                    <span>التقريب (العشري):</span>
+                    <select class="cfg-input" onchange="updateColField(${index}, 'dec', parseInt(this.value))" style="width:120px;">
+                        <option value="0" ${col.dec === 0 ? 'selected' : ''}>بدون خانات (0)</option>
+                        <option value="1" ${col.dec === 1 ? 'selected' : ''}>خانة واحدة (1)</option>
+                        <option value="2" ${col.dec === 2 ? 'selected' : ''}>خانتين (2)</option>
+                        <option value="3" ${col.dec === 3 ? 'selected' : ''}>3 خانات (3)</option>
+                        <option value="4" ${col.dec === 4 ? 'selected' : ''}>4 خانات (4)</option>
+                        <option value="5" ${col.dec === 5 ? 'selected' : ''}>5 خانات (5)</option>
+                        <option value="6" ${col.dec === 6 ? 'selected' : ''}>6 خانات (6)</option>
+                    </select>
                 </div>
                 ` : ''}
             </div>
@@ -2122,7 +2171,8 @@ function applyConfigToHeaders() {
     colConfig.forEach(c => {
         if (!c.visible) return;
         let displayName = c.alias ? c.alias : c.name;
-        ths += `<th style="width:${c.width};">${displayName}<div class="resize-handle"></div></th>`;
+        let thAlign = c.align ? `text-align:${c.align} !important;` : '';
+        ths += `<th style="width:${c.width}; ${thAlign}">${displayName}<div class="resize-handle"></div></th>`;
     });
     thead.innerHTML = `<tr>${ths}</tr>`;
 }

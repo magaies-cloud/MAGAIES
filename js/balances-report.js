@@ -137,6 +137,9 @@ loadLayout();
 document.addEventListener('DOMContentLoaded', () => {
     applyLayoutToDOM();
     bindRowContextMenu();
+    if (typeof window.renderBalancesPresets === 'function') {
+        window.renderBalancesPresets();
+    }
 });
 
 function saveLayout() {
@@ -151,6 +154,10 @@ function saveLayout() {
         
         localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
         showToast('تم حفظ التصميم في قاعدة البيانات بنجاح', 'success');
+        
+        if (typeof window.renderBalancesPresets === 'function') {
+            window.renderBalancesPresets();
+        }
     } catch(e) {
         console.error('Error saving layout', e);
         showToast('فشل في حفظ التصميم', 'error');
@@ -664,10 +671,21 @@ function bindRowContextMenu() {
         const partnerName = row.getAttribute('data-partner-name');
         const partnerType = row.getAttribute('data-partner-type');
 
-        partnerHeader.textContent = `${partnerName} (${partnerType === 'CUST' ? 'عميل' : 'مورد'})`;
+        let typeLbl = 'مورد';
+        if (partnerType === 'CUST') typeLbl = 'عميل';
+        else if (partnerType === 'BANK') typeLbl = 'بنك';
+        else if (partnerType === 'SAFE') typeLbl = 'خزينة';
+        else if (partnerType === 'EXP') typeLbl = 'مصروف';
+        partnerHeader.textContent = `${partnerName} (${typeLbl})`;
 
         gotoLedgerBtn.onclick = function() {
-            window.location.href = `general-ledger.php?accountId=${partnerId}`;
+            let prefix = '';
+            if (partnerType === 'CUST') prefix = 'cust-';
+            else if (partnerType === 'SUPP') prefix = 'supp-';
+            else if (partnerType === 'BANK') prefix = 'bank-';
+            else if (partnerType === 'SAFE') prefix = 'safe-';
+            else if (partnerType === 'EXP') prefix = 'exp-';
+            window.location.href = `general-ledger.php?accountId=${prefix}${partnerId}`;
         };
 
         partnerCtxMenu.style.display = 'block';
@@ -936,5 +954,171 @@ function shareEmail() {
 function shareWhatsApp() {
     showToast('جاري التحويل للواتساب...', 'success');
     window.open("https://api.whatsapp.com/send?text=تم إرسال تقرير الأرصدة من النظام المالي", "_blank");
+}
+
+/* ─── Premium Glassmorphic Quick Presets (Hold 8s to Save, Click to Apply) ─── */
+window.getBalancesPresets = function() {
+    let list = [];
+    try {
+        list = JSON.parse(localStorage.getItem('balances_report_presets_v1'));
+    } catch(e) {}
+    if (!list || list.length !== 4) {
+        list = [
+            { id: 1, name: 'تخطيط 1', colConfigs: null, colOrder: null },
+            { id: 2, name: 'تخطيط 2', colConfigs: null, colOrder: null },
+            { id: 3, name: 'تخطيط 3', colConfigs: null, colOrder: null },
+            { id: 4, name: 'تخطيط 4', colConfigs: null, colOrder: null }
+        ];
+        localStorage.setItem('balances_report_presets_v1', JSON.stringify(list));
+    }
+    return list;
+};
+
+window.renderBalancesPresets = function() {
+    const wrap = document.getElementById('balances-presets-wrap');
+    if (!wrap) return;
+    
+    const list = window.getBalancesPresets();
+    wrap.innerHTML = '';
+    
+    list.forEach(p => {
+        const btn = document.createElement('div');
+        btn.setAttribute('data-slot-id', p.id); // Color-coding preset slots
+        
+        let isActive = p.colConfigs && 
+                       JSON.stringify(p.colConfigs) === JSON.stringify(window.colConfigs) && 
+                       JSON.stringify(p.colOrder) === JSON.stringify(window.colOrder);
+                       
+        btn.className = `preset-btn ${p.colConfigs ? 'has-data' : ''} ${isActive ? 'active' : ''}`;
+        btn.title = p.colConfigs ? `نقرة لتطبيق [${p.name}]. اضغط مطولاً (8 ثوانٍ) للحفظ هنا. كليك يمين للحذف.` : `اضغط مطولاً (8 ثوانٍ) لحفظ التخطيط الحالي هنا.`;
+        
+        btn.innerHTML = `
+            <svg class="preset-clock-svg" width="16" height="16" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.15)" stroke-width="3" fill="none"></circle>
+                <circle class="preset-clock-progress" cx="12" cy="12" r="10" stroke="#38bdf8" stroke-width="3" fill="none" stroke-dasharray="62.8" stroke-dashoffset="62.8" transform="rotate(-90 12 12)"></circle>
+            </svg>
+            <span>${p.name}</span>
+        `;
+        
+        setupPresetButtonEvents(btn, p);
+        wrap.appendChild(btn);
+    });
+};
+
+function setupPresetButtonEvents(btn, p) {
+    let holdTimer = null;
+    let progressInterval = null;
+    let holdStartTime = 0;
+    let isHolding = false;
+    const HOLD_DURATION = 8000; // 8 seconds
+    const clockProgress = btn.querySelector('.preset-clock-progress');
+
+    function startHold(e) {
+        if (e.type === 'touchstart') {
+            e.preventDefault();
+        }
+        isHolding = true;
+        holdStartTime = Date.now();
+        btn.classList.add('holding');
+        
+        let elapsed = 0;
+        progressInterval = setInterval(() => {
+            elapsed = Date.now() - holdStartTime;
+            let percent = Math.min(elapsed / HOLD_DURATION, 1);
+            let offset = 62.8 * (1 - percent);
+            if (clockProgress) {
+                clockProgress.style.strokeDashoffset = offset;
+            }
+        }, 50);
+
+        holdTimer = setTimeout(() => {
+            endHold();
+            savePresetLayout(p.id);
+        }, HOLD_DURATION);
+    }
+
+    function cancelHold(e) {
+        if (!isHolding) return;
+        let elapsed = Date.now() - holdStartTime;
+        endHold();
+
+        if (elapsed < 500) {
+            applyPresetLayout(p.id);
+        }
+    }
+
+    function endHold() {
+        isHolding = false;
+        btn.classList.remove('holding');
+        if (holdTimer) clearTimeout(holdTimer);
+        if (progressInterval) clearInterval(progressInterval);
+        if (clockProgress) {
+            clockProgress.style.strokeDashoffset = 62.8;
+        }
+    }
+
+    btn.addEventListener('mousedown', startHold);
+    btn.addEventListener('touchstart', startHold, { passive: false });
+    
+    btn.addEventListener('mouseup', cancelHold);
+    btn.addEventListener('touchend', cancelHold);
+    btn.addEventListener('mouseleave', endHold);
+    
+    btn.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        if (!p.colConfigs) return;
+        if (confirm("هل أنت متأكد من رغبتك في حذف هذا التخطيط المبرمج؟")) {
+            let list = window.getBalancesPresets();
+            list[p.id-1] = { id: p.id, name: 'تخطيط ' + p.id, colConfigs: null, colOrder: null };
+            localStorage.setItem('balances_report_presets_v1', JSON.stringify(list));
+            showToast("تم حذف برمجة التخطيط", "success");
+            window.renderBalancesPresets();
+        }
+    });
+}
+
+function savePresetLayout(id) {
+    let list = window.getBalancesPresets();
+    let name = prompt("أدخل اسماً لتسمية هذا التخطيط المخصص (سلوت " + id + "):", list[id-1].name || ("تخطيط " + id));
+    if (name === null) return; // cancelled
+    name = name.trim() || ("تخطيط " + id);
+
+    list[id-1] = {
+        id: id,
+        name: name,
+        colConfigs: JSON.parse(JSON.stringify(window.colConfigs)),
+        colOrder: [...window.colOrder]
+    };
+    
+    localStorage.setItem('balances_report_presets_v1', JSON.stringify(list));
+    showToast("تم حفظ التخطيط '" + name + "' بنجاح في السلوت " + id, "success");
+    window.renderBalancesPresets();
+}
+
+function applyPresetLayout(id) {
+    let list = window.getBalancesPresets();
+    let p = list[id-1];
+    if (!p || !p.colConfigs) {
+        showToast("هذا التخطيط فارغ! اضغط مطولاً (8 ثوانٍ) لحفظ التخطيط الحالي هنا.", "warning");
+        return;
+    }
+
+    window.colConfigs = p.colConfigs;
+    window.colOrder = p.colOrder;
+    
+    try {
+        const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
+        const settings = JSON.parse(settingsStr);
+        settings.balancesReportLayout = {
+            colConfigs: window.colConfigs,
+            colOrder: window.colOrder
+        };
+        localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
+    } catch(e) {}
+
+    applyLayoutToDOM();
+    
+    showToast("تم تطبيق التخطيط المخصص: " + p.name, "success");
+    window.renderBalancesPresets();
 }
 

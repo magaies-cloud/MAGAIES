@@ -12,7 +12,7 @@
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700;800&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
@@ -339,7 +339,7 @@
         .s-val { font-size: 1.2rem; font-weight: 900; letter-spacing: 0.5px; }
 
         .ledger-table-wrap { overflow-x: auto; background: rgba(15,23,42,0.5); border-radius: 12px; }
-        .ledger-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        .ledger-table { width: 100%; border-collapse: collapse; min-width: 800px; table-layout: fixed; }
         .ledger-table th, .ledger-table td { padding: 12px 15px; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
         .ledger-table th { background: rgba(0,0,0,0.3); color: #94a3b8; font-weight: 700; white-space: nowrap; }
         .ledger-table tbody tr:hover { background: rgba(255,255,255,0.02); }
@@ -1015,10 +1015,9 @@
         <div style="margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
             <label style="display:block; margin-bottom:10px; font-weight:800; color:#38bdf8;">📝 خط الأرقام المحاسبية:</label>
             <div class="font-chips-container">
+                <button class="font-chip" onclick="changeNumberFont('num-font-jetbrains')" id="btn-font-num-font-jetbrains" style="font-family: 'JetBrains Mono', monospace;">JetBrains Mono</button>
                 <button class="font-chip" onclick="changeNumberFont('num-font-roboto')" id="btn-font-num-font-roboto" style="font-family: 'Roboto Mono', monospace;">Roboto Mono</button>
                 <button class="font-chip" onclick="changeNumberFont('num-font-inter')" id="btn-font-num-font-inter" style="font-family: 'Inter', sans-serif;">Inter Font</button>
-                <button class="font-chip" onclick="changeNumberFont('num-font-jetbrains')" id="btn-font-num-font-jetbrains" style="font-family: 'JetBrains Mono', monospace;">JetBrains</button>
-                <button class="font-chip" onclick="changeNumberFont('num-font-poppins')" id="btn-font-num-font-poppins" style="font-family: 'Poppins', sans-serif;">Poppins</button>
             </div>
         </div>
 
@@ -1260,6 +1259,30 @@ function runAISmartSearch() {
         <span>✅</span>
         <span>تعليم كـ مراجع (مراجعة)</span>
     </button>
+
+    <!-- Option 3: Go to Counter Account Ledger -->
+    <button id="btn-go-to-ledger" style="
+        width: 100%;
+        text-align: right;
+        background: none;
+        border: none;
+        color: #e2e8f0;
+        padding: 10px 12px;
+        font-size: 0.88rem;
+        cursor: pointer;
+        border-radius: 8px;
+        display: none;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+        outline: none;
+        border-top: 1px solid rgba(255,255,255,0.05);
+        margin-top: 4px;
+        padding-top: 10px;
+    " onmouseover="this.style.background='rgba(168, 85, 247, 0.15)'; this.style.color='#a855f7';" onmouseout="this.style.background='none'; this.style.color='#e2e8f0';">
+        <span>📖</span>
+        <span id="ledger-action-text">الذهاب لدفتر الأستاذ</span>
+    </button>
 </div>
 
 <script>
@@ -1278,7 +1301,12 @@ function runAISmartSearch() {
             e.preventDefault();
             e.stopPropagation();
 
-            if (type === 'opening') {
+            const btnGoTo = document.getElementById('btn-go-to-ledger');
+            if (cellEl || !e.target.closest('.counter-acc-cell')) {
+                if (btnGoTo) btnGoTo.style.display = 'none';
+            }
+
+            if (type === 'opening' && (!btnGoTo || btnGoTo.style.display === 'none')) {
                 if (menu) menu.style.display = 'none';
                 return;
             }
@@ -1327,6 +1355,33 @@ function runAISmartSearch() {
                 const isOpening = tr.getAttribute('data-is-opening') === 'true';
                 const type = tr.getAttribute('data-type');
                 const ref = tr.getAttribute('data-ref');
+
+                const counterCell = e.target.closest('.counter-acc-cell');
+                const btnGoTo = document.getElementById('btn-go-to-ledger');
+
+                if (counterCell) {
+                    const accId = counterCell.getAttribute('data-acc-id');
+                    const accName = counterCell.getAttribute('data-acc-name');
+                    if (accId && accId !== '-' && accId !== '') {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        if (btnGoTo) {
+                            btnGoTo.style.display = 'flex';
+                            const actionTxt = document.getElementById('ledger-action-text');
+                            if (actionTxt) actionTxt.textContent = `دفتر أستاذ: ${accName}`;
+                            btnGoTo.onclick = () => {
+                                window.selectAccount(accId, accName, '🏷️');
+                                if (menu) menu.style.display = 'none';
+                            };
+                        }
+
+                        window.openLedgerContextMenu(e, type || 'opening', ref || 'OPENING', null);
+                        return;
+                    }
+                }
+
+                if (btnGoTo) btnGoTo.style.display = 'none';
 
                 if (isOpening || !type || !ref) {
                     if (menu) menu.style.display = 'none';
