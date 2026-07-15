@@ -89,6 +89,16 @@ function peekNextInvoiceNumber(type) {
             if (!isNaN(seq) && seq > max) {
                 max = seq;
             }
+        } else if (invNo.includes('-')) {
+            // Fallback to match old format containing '-' if it matches current year/month
+            let parts = invNo.split('-');
+            let noStr = parts.length > 1 ? parts[1] : parts[0];
+            if (noStr.startsWith(yy + mm)) {
+                const seq = parseInt(noStr.substring(4), 10);
+                if (!isNaN(seq) && seq > max) {
+                    max = seq;
+                }
+            }
         }
     });
     return `${datePrefix}${String(max + 1).padStart(4, '0')}`;

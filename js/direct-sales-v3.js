@@ -102,10 +102,9 @@ const SALE_PREFIX = { direct:'', split:'', delivery:'', proforma:'', costcenter:
 // Peek: show the next number WITHOUT incrementing (safe for refresh)
 function peekNextInvoiceNumber(type) {
     let list = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-    let prefix = '';
     
     if (type === 'preliminary') {
-        prefix = 'PRE-';
+        let prefix = 'PRE-';
         let max = 0;
         list.forEach(inv => {
             if (inv.saleType === 'preliminary' || (inv.invoiceNo && inv.invoiceNo.startsWith('PRE-'))) {
@@ -119,28 +118,35 @@ function peekNextInvoiceNumber(type) {
         });
         return `${prefix}${String(max + 1).padStart(6, '0')}`;
     } else {
-        try {
-            const userStr = localStorage.getItem('user');
-            if(userStr) {
-                const userObj = JSON.parse(userStr);
-                if(userObj && userObj.username) {
-                    prefix = userObj.username.substring(0, 3).toUpperCase() + '-';
-                }
-            }
-        } catch(e) {}
+        const now = new Date();
+        const yy = String(now.getFullYear()).substring(2, 4);
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const datePrefix = 'S' + yy + mm;
         
         let max = 0;
         list.forEach(inv => {
             if (inv.saleType !== 'preliminary' && (!inv.invoiceNo || !inv.invoiceNo.startsWith('PRE-'))) {
-                let parts = (inv.invoiceNo || '').split('-');
-                let noStr = parts.length > 1 ? parts[1] : parts[0];
-                let no = parseInt(noStr || '0', 10);
-                if (!isNaN(no) && no > max) {
-                    max = no;
+                const invNo = String(inv.invoiceNo || '');
+                if (invNo.startsWith(datePrefix)) {
+                    const seqStr = invNo.substring(datePrefix.length);
+                    const seq = parseInt(seqStr, 10);
+                    if (!isNaN(seq) && seq > max) {
+                        max = seq;
+                    }
+                } else if (invNo.includes('-')) {
+                    // Fallback to match old format containing '-' if it matches current year/month
+                    let parts = invNo.split('-');
+                    let noStr = parts.length > 1 ? parts[1] : parts[0];
+                    if (noStr.startsWith(yy + mm)) {
+                        const seq = parseInt(noStr.substring(4), 10);
+                        if (!isNaN(seq) && seq > max) {
+                            max = seq;
+                        }
+                    }
                 }
             }
         });
-        return `${prefix}${String(max + 1).padStart(6, '0')}`;
+        return `${datePrefix}${String(max + 1).padStart(4, '0')}`;
     }
 }
 
