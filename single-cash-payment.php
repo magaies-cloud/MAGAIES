@@ -1092,9 +1092,6 @@
 
                         <!-- Row 4: البيان -->
                         <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.02); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                            <label class="label" style="display:flex; align-items:center; gap:5px; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">
-                                <span style="font-size:1.1rem; opacity:0.8;">📝</span> البيان
-                            </label>
                             <div style="display: flex; flex-grow: 1; gap: 10px;">
                                 <input type="text" class="form-input input-glow-focus hover-glow" id="to-statement" data-next="btn-save" placeholder="اكتب مبرر أو تفاصيل الدفع (البيان)..." style="height: 48px; border-radius: 10px; flex-grow: 1;">
                                 <button type="button" onclick="autoCategorize()" id="btn-auto-categorize" style="background: linear-gradient(135deg, #c084fc, #9333ea); color: white; border: none; border-radius: 10px; padding: 0 15px; height: 48px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; white-space: nowrap; box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4); transition: transform 0.2s;" title="توجيه محاسبي ذكي">
@@ -1110,6 +1107,7 @@
                             <input type="radio" name="payment_method" value="check" id="radio-check">
                             <input type="radio" name="payment_method" value="mobile" id="radio-mobile">
                             <input type="radio" name="payment_method" value="credit" id="radio-credit">
+                            <input type="radio" name="payment_method" value="hybrid" id="radio-hybrid">
                         </div>
 
                         <!-- Unified Payment details panel styled like Sales/Purchase -->
@@ -1158,14 +1156,20 @@
                                 color: #c084fc !important;
                                 box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
                             }
+                            #toggle-hybrid.active {
+                                background: rgba(245, 158, 11, 0.2) !important;
+                                border-color: #fbbf24 !important;
+                                color: #fbbf24 !important;
+                                box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+                            }
                             .payment-method-box {
                                 transition: all 0.3s ease;
                             }
                         </style>
-                        <div id="payment-panel" style="display: none; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; margin-top: 20px;">
+                        <div id="payment-panel" style="display: none; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; margin-top: 20px; margin-bottom: 20px;">
                             <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 12px 20px; background: rgba(15,23,42,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
                                 <div class="panel-title" style="background: linear-gradient(135deg, #ff4d4d, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.15rem; font-weight: 900; display: inline-flex; align-items: center; gap: 6px; margin: 0; white-space: nowrap; flex: none;">
-                                    <span>💳</span> طريقة وتفاصيل الدفع
+                                    <span>💳</span> طريقة وتفاصيل الدفع للمستند المجمع
                                 </div>
                                 
                                 <!-- Sleek Payment Progress Bar (Inline) -->
@@ -1182,6 +1186,7 @@
                                     <button type="button" class="pay-toggle-btn active" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💵 نقدي</button>
                                     <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦 تحويل بنكي</button>
                                     <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">✍️ شيك</button>
+                                    <button type="button" class="pay-toggle-btn" id="toggle-hybrid" onclick="togglePaymentSection('hybrid')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦✍️ تحويل وشيك</button>
                                 </div>
                             </div>
                             
@@ -1388,27 +1393,69 @@
             if (document.getElementById('toggle-cash')?.classList.contains('active')) method = 'cash';
             else if (document.getElementById('toggle-bank')?.classList.contains('active')) method = 'bank';
             else if (document.getElementById('toggle-cheque')?.classList.contains('active')) method = 'cheque';
+            else if (document.getElementById('toggle-hybrid')?.classList.contains('active')) method = 'hybrid';
             
             // Progress widths
             const elCash = document.getElementById('prog-cash');
             const elBank = document.getElementById('prog-bank');
             const elCheque = document.getElementById('prog-cheque');
             
-            if (elCash) elCash.style.width = (method === 'cash') ? '100%' : '0%';
-            if (elBank) elBank.style.width = (method === 'bank') ? '100%' : '0%';
-            if (elCheque) elCheque.style.width = (method === 'cheque') ? '100%' : '0%';
+            if (elCash) elCash.style.width = '0%';
+            if (elBank) elBank.style.width = '0%';
+            if (elCheque) elCheque.style.width = '0%';
+            
+            if (method === 'cash') {
+                if (elCash) elCash.style.width = '100%';
+            } else if (method === 'bank') {
+                if (elBank) elBank.style.width = '100%';
+            } else if (method === 'cheque') {
+                if (elCheque) elCheque.style.width = '100%';
+            } else if (method === 'hybrid') {
+                let tSum = 0;
+                document.querySelectorAll('.transfer-row .transfer-amount').forEach(inp => tSum += parseFloat(inp.value.replace(/,/g, '')) || 0);
+                let cSum = 0;
+                document.querySelectorAll('.cheque-row .cheque-amount').forEach(inp => cSum += parseFloat(inp.value.replace(/,/g, '')) || 0);
+                
+                const bankPct = Math.min(100, (tSum / amount) * 100);
+                const chequePct = Math.min(100, (cSum / amount) * 100);
+                
+                if (elBank) elBank.style.width = bankPct + '%';
+                if (elCheque) elCheque.style.width = chequePct + '%';
+            }
             
             // Update status badge
             const badge = document.getElementById('payment-status-badge');
             if (badge) {
-                if (badge.dataset.status !== 'fully-paid') {
-                    PlaySound.success();
-                    badge.dataset.status = 'fully-paid';
+                if (method === 'hybrid') {
+                    let tSum = 0;
+                    document.querySelectorAll('.transfer-row .transfer-amount').forEach(inp => tSum += parseFloat(inp.value.replace(/,/g, '')) || 0);
+                    let cSum = 0;
+                    document.querySelectorAll('.cheque-row .cheque-amount').forEach(inp => cSum += parseFloat(inp.value.replace(/,/g, '')) || 0);
+                    
+                    if (Math.abs((tSum + cSum) - amount) < 0.01) {
+                        badge.textContent = '💳 مدفوعة بالكامل (تحويل وشيك)';
+                        badge.style.background = 'rgba(56, 189, 248, 0.15)';
+                        badge.style.color = '#38bdf8';
+                        badge.style.boxShadow = '0 0 10px rgba(56, 189, 248, 0.2)';
+                    } else {
+                        const remaining = amount - (tSum + cSum);
+                        let parts = remaining.toFixed(2).split('.');
+                        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                        badge.textContent = `⏳ متبقي: ${parts.join('.')}`;
+                        badge.style.background = 'rgba(245, 158, 11, 0.15)';
+                        badge.style.color = '#fbbf24';
+                        badge.style.boxShadow = '0 0 10px rgba(245, 158, 11, 0.2)';
+                    }
+                } else {
+                    if (badge.dataset.status !== 'fully-paid') {
+                        PlaySound.success();
+                        badge.dataset.status = 'fully-paid';
+                    }
+                    badge.textContent = '💳 مدفوعة بالكامل';
+                    badge.style.background = 'rgba(16, 185, 129, 0.15)';
+                    badge.style.color = '#34d399';
+                    badge.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.2)';
                 }
-                badge.textContent = '💳 مدفوعة بالكامل';
-                badge.style.background = 'rgba(16, 185, 129, 0.15)';
-                badge.style.color = '#34d399';
-                badge.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.2)';
             }
         }
 
@@ -1427,8 +1474,8 @@
             
             // 3. Update payment method boxes visibility
             document.getElementById('pay-cash-section').style.display = (method === 'cash') ? 'flex' : 'none';
-            document.getElementById('pay-bank-section').style.display = (method === 'bank') ? 'flex' : 'none';
-            document.getElementById('pay-cheque-section').style.display = (method === 'cheque') ? 'flex' : 'none';
+            document.getElementById('pay-bank-section').style.display = (method === 'bank' || method === 'hybrid') ? 'flex' : 'none';
+            document.getElementById('pay-cheque-section').style.display = (method === 'cheque' || method === 'hybrid') ? 'flex' : 'none';
             document.getElementById('pay-credit-section').style.display = (method === 'credit') ? 'flex' : 'none';
             
             // 4. Update progress bars
@@ -1478,8 +1525,8 @@
                 // Update boxes visibility
                 if (document.getElementById('pay-cash-section')) {
                     document.getElementById('pay-cash-section').style.display = (clientMethod === 'cash') ? 'flex' : 'none';
-                    document.getElementById('pay-bank-section').style.display = (clientMethod === 'bank') ? 'flex' : 'none';
-                    document.getElementById('pay-cheque-section').style.display = (clientMethod === 'cheque') ? 'flex' : 'none';
+                    document.getElementById('pay-bank-section').style.display = (clientMethod === 'bank' || clientMethod === 'hybrid') ? 'flex' : 'none';
+                    document.getElementById('pay-cheque-section').style.display = (clientMethod === 'cheque' || clientMethod === 'hybrid') ? 'flex' : 'none';
                 }
                 
                 recalcPaymentSummary();

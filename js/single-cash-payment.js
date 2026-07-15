@@ -170,14 +170,23 @@ function updateBalances() {
 }
 
 function togglePaymentMethod() {
-    const method = document.querySelector('input[name="payment_method"]:checked').value;
-    document.getElementById('section-mobile').classList.remove('active');
-    document.getElementById('section-check').classList.remove('active');
+    const methodEl = document.querySelector('input[name="payment_method"]:checked');
+    if (!methodEl) return;
+    const method = methodEl.value;
+    
+    // Check if the legacy elements exist (to prevent crashes on old layouts)
+    const secMobile = document.getElementById('section-mobile');
+    const secCheck = document.getElementById('section-check');
+    if (secMobile) secMobile.classList.remove('active');
+    if (secCheck) secCheck.classList.remove('active');
 
     if (method === 'mobile') {
-        document.getElementById('section-mobile').classList.add('active');
+        if (secMobile) secMobile.classList.add('active');
     } else if (method === 'check') {
-        document.getElementById('section-check').classList.add('active');
+        if (secCheck) secCheck.classList.add('active');
+    } else if (method === 'hybrid') {
+        if (secMobile) secMobile.classList.add('active');
+        if (secCheck) secCheck.classList.add('active');
     }
 }
 
@@ -505,6 +514,95 @@ function submitVoucher() {
             return;
         }
 
+        voucherData.cheques = cheques;
+        if (cheques.length > 0) {
+            voucherData.checkNo = cheques[0].checkNo;
+            voucherData.checkBranch = cheques[0].checkBranch;
+            voucherData.checkDate = cheques[0].checkDate;
+            voucherData.checkDueDate = '';
+            voucherData.checkRef = '';
+            voucherData.checkRefNo = '';
+            voucherData.checkSettleLocal = false;
+        }
+    } else if (method === 'hybrid') {
+        const transferRows = document.querySelectorAll('.transfer-row');
+        let transfers = [];
+        let totalTransfersAmount = 0;
+        let hasInvalidTransfer = false;
+
+        transferRows.forEach((row, idx) => {
+            const trNo = row.querySelector('.transfer-no').value.trim();
+            const trNote = row.querySelector('.transfer-note').value.trim();
+            const trAmt = parseNum(row.querySelector('.transfer-amount').value);
+
+            if (!trNo) {
+                showToast(`السطر ${idx + 1}: يرجى إدخال رقم حساب التحويل`, "error");
+                row.querySelector('.transfer-no').focus();
+                hasInvalidTransfer = true;
+                return;
+            }
+            if (trNo.length < 6) {
+                showToast(`السطر ${idx + 1}: يجب أن يكون رقم التحويل أكثر من 5 أرقام`, "error");
+                row.querySelector('.transfer-no').focus();
+                hasInvalidTransfer = true;
+                return;
+            }
+            if (!window.isBankReferenceUnique(trNo, 'mobile', document.getElementById('voucher-number').innerText)) {
+                showToast(`السطر ${idx + 1}: رقم التحويل مكرر.`, "error");
+                hasInvalidTransfer = true;
+                return;
+            }
+
+            transfers.push({ transferNo: trNo, note: trNote, amount: trAmt });
+            totalTransfersAmount += trAmt;
+        });
+
+        if (hasInvalidTransfer) return;
+
+        const chequeRows = document.querySelectorAll('.cheque-row');
+        let cheques = [];
+        let totalChequesAmount = 0;
+        let hasInvalidCheque = false;
+
+        chequeRows.forEach((row, idx) => {
+            const chNo = row.querySelector('.cheque-no').value.trim();
+            const chBranch = row.querySelector('.cheque-branch').value.trim();
+            const chDate = row.querySelector('.cheque-date').value;
+            const chAmt = parseNum(row.querySelector('.cheque-amount').value);
+            if (!chBranch) {
+                showToast(`السطر ${idx + 1}: يرجى إدخال اسم البنك`, "error");
+                row.querySelector('.cheque-branch').focus();
+                hasInvalidCheque = true;
+                return;
+            }
+            if (!chNo || chNo.length < 6) {
+                showToast(`السطر ${idx + 1}: يجب أن يكون رقم الشيك أكثر من 5 أرقام`, "error");
+                row.querySelector('.cheque-no').focus();
+                hasInvalidCheque = true;
+                return;
+            }
+            if (!window.isBankReferenceUnique(chNo, 'check', document.getElementById('voucher-number').innerText)) {
+                showToast(`السطر ${idx + 1}: رقم الشيك مكرر.`, "error");
+                hasInvalidCheque = true;
+                return;
+            }
+
+            cheques.push({ checkNo: chNo, checkBranch: chBranch, checkDate: chDate, amount: chAmt });
+            totalChequesAmount += chAmt;
+        });
+
+        if (hasInvalidCheque) return;
+
+        if (Math.abs((totalTransfersAmount + totalChequesAmount) - amtLocal) > 0.01) {
+            showToast("مجموع مبالغ التحويلات والشيكات لا يساوي مبلغ السند الإجمالي.", "error");
+            return;
+        }
+
+        voucherData.bankTransfers = transfers;
+        if (transfers.length > 0) {
+            voucherData.mobileTransferNo = transfers[0].transferNo;
+            voucherData.mobileNote = transfers[0].note;
+        }
         voucherData.cheques = cheques;
         if (cheques.length > 0) {
             voucherData.checkNo = cheques[0].checkNo;
@@ -1291,7 +1389,7 @@ window.addTransferRow = function(no = '', note = '', amt = 0) {
         </div>
         <div style="flex: 0.8; min-width: 110px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">المبلغ:</label>
-            <input type="text" class="v-input ctrl-input transfer-amount" value="${amt > 0 ? fmtNum(amt) : ''}" placeholder="0.00" oninput="restrictToNumbers(this)" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
+            <input type="text" class="v-input ctrl-input transfer-amount" value="${amt > 0 ? fmtNum(amt) : ''}" placeholder="0.00" oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
         </div>
         <div style="display: flex; justify-content: flex-end; width: 40px; flex: none;">
             ${buttonHTML}
@@ -1342,7 +1440,7 @@ window.addChequeRow = function(branch = '', no = '', date = '', amt = 0) {
         ${labelHTML}
         <div style="flex: 0.8; min-width: 110px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">المبلغ:</label>
-            <input type="text" class="v-input ctrl-input cheque-amount" value="${amt > 0 ? fmtNum(amt) : ''}" placeholder="0.00" oninput="restrictToNumbers(this)" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
+            <input type="text" class="v-input ctrl-input cheque-amount" value="${amt > 0 ? fmtNum(amt) : ''}" placeholder="0.00" oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
         </div>
         <div style="flex: 1.2; min-width: 140px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">اسم البنك:</label>

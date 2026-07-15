@@ -95,10 +95,12 @@ function togglePaymentMethod() {
     const radioCash = document.getElementById('radio-cash');
     const radioCheck = document.getElementById('radio-check');
     const radioMobile = document.getElementById('radio-mobile');
+    const radioHybrid = document.getElementById('radio-hybrid');
     
     let method = 'cash';
     if (radioCheck && radioCheck.checked) method = 'cheque';
     else if (radioMobile && radioMobile.checked) method = 'bank';
+    else if (radioHybrid && radioHybrid.checked) method = 'hybrid';
     
     togglePaymentSection(method);
 }
@@ -454,6 +456,82 @@ async function saveVoucher() {
             return;
         }
 
+        if (cheques.length > 0) {
+            checkNo = cheques[0].checkNo;
+            checkBranch = cheques[0].checkBranch;
+            checkDate = cheques[0].checkDate;
+        }
+    } else if (paymentMethod === 'hybrid') {
+        const transferRows = document.querySelectorAll('.transfer-row');
+        let totalTransfersAmount = 0;
+        let hasInvalidTransfer = false;
+
+        transferRows.forEach((row, idx) => {
+            const trNo = row.querySelector('.transfer-no').value.trim();
+            const trNote = row.querySelector('.transfer-note').value.trim();
+            const trAmt = cleanNum(row.querySelector('.transfer-amount').value);
+
+            if (!trNo) {
+                showToast(`السطر ${idx + 1}: يرجى إدخال رقم حساب التحويل`, "error");
+                row.querySelector('.transfer-no').focus();
+                hasInvalidTransfer = true;
+                return;
+            }
+            if (trNo.length < 6) {
+                showToast(`السطر ${idx + 1}: يجب أن يكون رقم التحويل أكثر من 5 أرقام`, "error");
+                row.querySelector('.transfer-no').focus();
+                hasInvalidTransfer = true;
+                return;
+            }
+            if (window.isBankReferenceUnique && !window.isBankReferenceUnique(trNo, 'mobile')) {
+                showToast(`السطر ${idx + 1}: رقم التحويل مكرر.`, "error");
+                hasInvalidTransfer = true;
+                return;
+            }
+
+            bankTransfers.push({ transferNo: trNo, note: trNote, amount: trAmt });
+            totalTransfersAmount += trAmt;
+        });
+
+        if (hasInvalidTransfer) return;
+
+        const chequeRows = document.querySelectorAll('.cheque-row');
+        let totalChequesAmount = 0;
+        let hasInvalidCheque = false;
+
+        chequeRows.forEach((row, idx) => {
+            const chNo = row.querySelector('.cheque-no').value.trim();
+            const chBranch = 'البنك الرئيسي';
+            const chDate = row.querySelector('.cheque-date').value;
+            const chAmt = cleanNum(row.querySelector('.cheque-amount').value);
+
+            if (!chNo || chNo.length < 6) {
+                showToast(`السطر ${idx + 1}: يجب أن يكون رقم الشيك أكثر من 5 أرقام`, "error");
+                row.querySelector('.cheque-no').focus();
+                hasInvalidCheque = true;
+                return;
+            }
+            if (window.isBankReferenceUnique && !window.isBankReferenceUnique(chNo, 'check')) {
+                showToast(`السطر ${idx + 1}: رقم الشيك مكرر.`, "error");
+                hasInvalidCheque = true;
+                return;
+            }
+
+            cheques.push({ checkNo: chNo, checkBranch: chBranch, checkDate: chDate, amount: chAmt });
+            totalChequesAmount += chAmt;
+        });
+
+        if (hasInvalidCheque) return;
+
+        if (Math.abs((totalTransfersAmount + totalChequesAmount) - finalTotal) > 0.01) {
+            showToast("مجموع مبالغ التحويلات والشيكات لا يساوي إجمالي السند المجمع.", "error");
+            return;
+        }
+
+        if (bankTransfers.length > 0) {
+            mobileTransferNo = bankTransfers[0].transferNo;
+            mobileNote = bankTransfers[0].note;
+        }
         if (cheques.length > 0) {
             checkNo = cheques[0].checkNo;
             checkBranch = cheques[0].checkBranch;
@@ -1029,6 +1107,7 @@ window.togglePaymentSection = function(method) {
     const radioCash = document.getElementById('radio-cash');
     const radioCheck = document.getElementById('radio-check');
     const radioMobile = document.getElementById('radio-mobile');
+    const radioHybrid = document.getElementById('radio-hybrid');
     
     if (method === 'cash') {
         if (radioCash) radioCash.checked = true;
@@ -1036,6 +1115,8 @@ window.togglePaymentSection = function(method) {
         if (radioMobile) radioMobile.checked = true;
     } else if (method === 'cheque') {
         if (radioCheck) radioCheck.checked = true;
+    } else if (method === 'hybrid') {
+        if (radioHybrid) radioHybrid.checked = true;
     }
     
     if (typeof playClickSound === 'function') {
@@ -1051,8 +1132,8 @@ window.togglePaymentSection = function(method) {
     const secCheque = document.getElementById('pay-cheque-section');
     
     if (secCash) secCash.style.display = (method === 'cash') ? 'flex' : 'none';
-    if (secBank) secBank.style.display = (method === 'bank') ? 'flex' : 'none';
-    if (secCheque) secCheque.style.display = (method === 'cheque') ? 'flex' : 'none';
+    if (secBank) secBank.style.display = (method === 'bank' || method === 'hybrid') ? 'flex' : 'none';
+    if (secCheque) secCheque.style.display = (method === 'cheque' || method === 'hybrid') ? 'flex' : 'none';
 
     recalcPaymentSummary();
 };
@@ -1062,10 +1143,12 @@ window.recalcPaymentSummary = function() {
     const radioCash = document.getElementById('radio-cash');
     const radioCheck = document.getElementById('radio-check');
     const radioMobile = document.getElementById('radio-mobile');
+    const radioHybrid = document.getElementById('radio-hybrid');
     
     let isCash = radioCash && radioCash.checked;
     let isCheck = radioCheck && radioCheck.checked;
     let isMobile = radioMobile && radioMobile.checked;
+    let isHybrid = radioHybrid && radioHybrid.checked;
     
     const progCash = document.getElementById('prog-cash');
     const progBank = document.getElementById('prog-bank');
@@ -1101,6 +1184,31 @@ window.recalcPaymentSummary = function() {
                 badge.style.background = 'rgba(139, 92, 246, 0.15)';
                 badge.style.color = '#c084fc';
                 badge.style.boxShadow = '0 0 10px rgba(139, 92, 246, 0.2)';
+            }
+        } else if (isHybrid) {
+            let tSum = 0;
+            document.querySelectorAll('.transfer-row .transfer-amount').forEach(inp => tSum += cleanNum(inp.value));
+            let cSum = 0;
+            document.querySelectorAll('.cheque-row .cheque-amount').forEach(inp => cSum += cleanNum(inp.value));
+            
+            const bankPct = Math.min(100, (tSum / totalAmount) * 100);
+            const chequePct = Math.min(100, (cSum / totalAmount) * 100);
+            
+            if (progBank) progBank.style.width = bankPct + '%';
+            if (progCheque) progCheque.style.width = chequePct + '%';
+            
+            if (badge) {
+                if (Math.abs((tSum + cSum) - totalAmount) < 0.01) {
+                    badge.innerText = '💳 مدفوعة بالكامل (تحويل وشيك)';
+                    badge.style.background = 'rgba(56, 189, 248, 0.15)';
+                    badge.style.color = '#38bdf8';
+                    badge.style.boxShadow = '0 0 10px rgba(56, 189, 248, 0.2)';
+                } else {
+                    badge.innerText = `⏳ متبقي: ${fmtNum(totalAmount - (tSum + cSum))}`;
+                    badge.style.background = 'rgba(245, 158, 11, 0.15)';
+                    badge.style.color = '#fbbf24';
+                    badge.style.boxShadow = '0 0 10px rgba(245, 158, 11, 0.2)';
+                }
             }
         }
     } else {
@@ -1197,7 +1305,7 @@ window.addTransferRow = function(no = '', note = '', amt = 0) {
         </div>
         <div style="flex: 0.8; min-width: 110px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">المبلغ:</label>
-            <input type="text" class="v-input ctrl-input transfer-amount" value="${amt > 0 ? fmtNum(amt) : ''}" placeholder="0.00" oninput="restrictToNumbers(this)" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
+            <input type="text" class="v-input ctrl-input transfer-amount" value="${amt > 0 ? fmtNum(amt) : ''}" placeholder="0.00" oninput="restrictToNumbers(this); recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
         </div>
         <div style="display: flex; justify-content: flex-end; width: 40px; flex: none;">
             ${buttonHTML}
@@ -1247,7 +1355,7 @@ window.addChequeRow = function(branch = '', no = '', date = '', amt = 0) {
         ${labelHTML}
         <div style="flex: 0.8; min-width: 110px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">المبلغ:</label>
-            <input type="text" class="v-input ctrl-input cheque-amount" value="${amt > 0 ? fmtNum(amt) : ''}" placeholder="0.00" oninput="restrictToNumbers(this)" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
+            <input type="text" class="v-input ctrl-input cheque-amount" value="${amt > 0 ? fmtNum(amt) : ''}" placeholder="0.00" oninput="restrictToNumbers(this); recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
         </div>
         <div style="flex: 1.2; min-width: 140px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">اسم البنك:</label>

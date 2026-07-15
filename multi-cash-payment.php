@@ -372,6 +372,7 @@
                 <input type="radio" name="payment_method" value="cash" id="radio-cash" checked>
                 <input type="radio" name="payment_method" value="check" id="radio-check">
                 <input type="radio" name="payment_method" value="mobile" id="radio-mobile">
+                <input type="radio" name="payment_method" value="hybrid" id="radio-hybrid">
             </div>
 
             <!-- Unified Payment details panel styled like Sales/Purchase -->
@@ -414,6 +415,12 @@
                     color: #c084fc !important;
                     box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
                 }
+                #toggle-hybrid.active {
+                    background: rgba(245, 158, 11, 0.2) !important;
+                    border-color: #fbbf24 !important;
+                    color: #fbbf24 !important;
+                    box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+                }
                 .payment-method-box {
                     transition: all 0.3s ease;
                 }
@@ -426,7 +433,7 @@
                     
                     <!-- Sleek Payment Progress Bar (Inline) -->
                     <div class="payment-progress-container" style="flex: 1; display: flex; align-items: center; gap: 12px; min-width: 280px; padding: 0 10px;">
-                        <div class="progress-bar-wrapper" style="height: 10px; flex: 1; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden; display: flex; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); min-width: 120px;">
+                        <div class="progress-bar-wrapper" style="height: 10px; flex: 1; background: rgba(255, 255, 255, 0.05); border-radius: 5px; overflow: hidden; display: flex; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); min-width: 120px;">
                             <div id="prog-cash" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(16,185,129,0.3);"></div>
                             <div id="prog-bank" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(59,130,246,0.3);"></div>
                             <div id="prog-cheque" style="width: 0%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #a78bfa); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(139,92,246,0.3);"></div>
@@ -438,6 +445,7 @@
                         <button type="button" class="pay-toggle-btn active" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💵 نقدي</button>
                         <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦 تحويل بنكي</button>
                         <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">✍️ شيك</button>
+                        <button type="button" class="pay-toggle-btn" id="toggle-hybrid" onclick="togglePaymentSection('hybrid')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦✍️ تحويل وشيك</button>
                     </div>
                 </div>
                 
