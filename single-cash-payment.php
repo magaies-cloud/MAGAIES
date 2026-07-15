@@ -1174,13 +1174,11 @@
                                         <div id="prog-cash" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(16,185,129,0.3);"></div>
                                         <div id="prog-bank" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(59,130,246,0.3);"></div>
                                         <div id="prog-cheque" style="width: 0%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #a78bfa); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(139,92,246,0.3);"></div>
-                                        <div id="prog-credit" style="width: 100%; height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(245,158,11,0.3);"></div>
                                     </div>
-                                    <span id="payment-status-badge" style="font-size: 0.78rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; transition: all 0.3s ease; white-space: nowrap;">⏳ آجلة بالكامل</span>
+                                    <span id="payment-status-badge" style="font-size: 0.78rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; transition: all 0.3s ease; white-space: nowrap; background: rgba(16, 185, 129, 0.15); color: #34d399; box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);" data-status="fully-paid">💳 مدفوعة بالكامل</span>
                                 </div>
 
                                 <div class="payment-toggles" style="display: flex; gap: 8px; flex: none;">
-                                    <button type="button" class="pay-toggle-btn" id="toggle-credit" onclick="togglePaymentSection('credit')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💳 آجل</button>
                                     <button type="button" class="pay-toggle-btn active" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💵 نقدي</button>
                                     <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦 تحويل بنكي</button>
                                     <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">✍️ شيك</button>
@@ -1189,17 +1187,6 @@
                             
                             <div class="payment-layout" id="payment-layout" style="display: flex; gap: 15px; padding: 15px; flex-wrap: wrap;">
                                 <div class="payment-details-card" style="flex: 1; min-width: 100%; display: flex; flex-direction: column; gap: 10px;">
-                                    
-                                    <!-- Credit section -->
-                                    <div id="pay-credit-section" class="payment-method-box" style="background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.18); border-radius: 12px; padding: 12px 15px; display: none; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
-                                        <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
-                                            <span style="font-size: 1.2rem;">💳</span>
-                                            <span style="font-weight: 800; color: #fbbf24; font-size: 0.95rem;">آجل على الحساب</span>
-                                        </div>
-                                        <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
-                                            <span style="color: #94a3b8; font-size: 0.9rem;">سيتم تسجيل الحركة كمديونية آجلة مستحقة.</span>
-                                        </div>
-                                    </div>
 
                                     <!-- Cash section -->
                                     <div id="pay-cash-section" class="payment-method-box" style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
@@ -1427,8 +1414,7 @@
             
             // Get active method
             let method = 'cash';
-            if (document.getElementById('toggle-credit')?.classList.contains('active')) method = 'credit';
-            else if (document.getElementById('toggle-cash')?.classList.contains('active')) method = 'cash';
+            if (document.getElementById('toggle-cash')?.classList.contains('active')) method = 'cash';
             else if (document.getElementById('toggle-bank')?.classList.contains('active')) method = 'bank';
             else if (document.getElementById('toggle-cheque')?.classList.contains('active')) method = 'cheque';
             
@@ -1436,32 +1422,22 @@
             const elCash = document.getElementById('prog-cash');
             const elBank = document.getElementById('prog-bank');
             const elCheque = document.getElementById('prog-cheque');
-            const elCredit = document.getElementById('prog-credit');
             
             if (elCash) elCash.style.width = (method === 'cash') ? '100%' : '0%';
             if (elBank) elBank.style.width = (method === 'bank') ? '100%' : '0%';
             if (elCheque) elCheque.style.width = (method === 'cheque') ? '100%' : '0%';
-            if (elCredit) elCredit.style.width = (method === 'credit') ? '100%' : '0%';
             
             // Update status badge
             const badge = document.getElementById('payment-status-badge');
             if (badge) {
-                if (method === 'credit') {
-                    badge.textContent = '⏳ آجلة بالكامل';
-                    badge.style.background = 'rgba(245, 158, 11, 0.15)';
-                    badge.style.color = '#fbbf24';
-                    badge.style.boxShadow = '0 0 10px rgba(245, 158, 11, 0.2)';
-                    badge.dataset.status = 'deferred';
-                } else {
-                    if (badge.dataset.status !== 'fully-paid') {
-                        PlaySound.success();
-                        badge.dataset.status = 'fully-paid';
-                    }
-                    badge.textContent = '💳 مدفوعة بالكامل';
-                    badge.style.background = 'rgba(16, 185, 129, 0.15)';
-                    badge.style.color = '#34d399';
-                    badge.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.2)';
+                if (badge.dataset.status !== 'fully-paid') {
+                    PlaySound.success();
+                    badge.dataset.status = 'fully-paid';
                 }
+                badge.textContent = '💳 مدفوعة بالكامل';
+                badge.style.background = 'rgba(16, 185, 129, 0.15)';
+                badge.style.color = '#34d399';
+                badge.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.2)';
             }
         }
 
@@ -1533,7 +1509,6 @@
                     document.getElementById('pay-cash-section').style.display = (clientMethod === 'cash') ? 'flex' : 'none';
                     document.getElementById('pay-bank-section').style.display = (clientMethod === 'bank') ? 'flex' : 'none';
                     document.getElementById('pay-cheque-section').style.display = (clientMethod === 'cheque') ? 'flex' : 'none';
-                    document.getElementById('pay-credit-section').style.display = (clientMethod === 'credit') ? 'flex' : 'none';
                 }
                 
                 recalcPaymentSummary();
