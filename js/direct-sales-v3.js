@@ -653,14 +653,27 @@ function loadPreviousInvoice() {
             return String(a.invoiceNo || '').localeCompare(String(b.invoiceNo || ''));
         });
     
+    if (sorted.length === 0) {
+        showToast('ℹ️ لا توجد فواتير محفوظة', 'warning');
+        return;
+    }
+    
     const idx = sorted.findIndex(inv => inv.invoiceNo === currentNo || inv.id === currentNo);
-    if (idx > 0) {
-        const prevNo = sorted[idx - 1].invoiceNo;
+    let targetIdx = -1;
+    if (idx === -1) {
+        // Current invoice not in list (new/unsaved) — go to last saved invoice
+        targetIdx = sorted.length - 1;
+    } else if (idx > 0) {
+        targetIdx = idx - 1;
+    }
+    
+    if (targetIdx >= 0) {
+        const prevNo = sorted[targetIdx].invoiceNo;
         if (loadInvoiceFromStorage(prevNo)) {
             showToast(`✅ تم استرجاع الفاتورة ${prevNo}`);
         }
     } else {
-        showToast('ℹ️ لا توجد فواتير سابقة محفوظة', 'warning');
+        showToast('ℹ️ أنت في أول فاتورة', 'warning');
     }
 }
 
@@ -1045,15 +1058,26 @@ function loadPreviousInvoice() {
             if (tcmp !== 0) return tcmp;
             return String(a.invoiceNo || '').localeCompare(String(b.invoiceNo || ''));
         });
+    if (sorted.length === 0) {
+        showToast('ℹ️ لا توجد فواتير محفوظة', 'warning');
+        return;
+    }
     
     const idx = sorted.findIndex(inv => inv.invoiceNo === currentNo || inv.id === currentNo);
-    if (idx > 0) {
-        const prevNo = sorted[idx - 1].invoiceNo;
+    let targetIdx = -1;
+    if (idx === -1) {
+        targetIdx = sorted.length - 1;
+    } else if (idx > 0) {
+        targetIdx = idx - 1;
+    }
+    
+    if (targetIdx >= 0) {
+        const prevNo = sorted[targetIdx].invoiceNo;
         if (loadInvoiceFromStorage(prevNo)) {
             showToast(`✅ تم استرجاع الفاتورة ${prevNo}`);
         }
     } else {
-        showToast('ℹ️ لا توجد فواتير سابقة محفوظة', 'warning');
+        showToast('ℹ️ أنت في أول فاتورة', 'warning');
     }
 }
 
