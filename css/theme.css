@@ -308,6 +308,49 @@
     text-shadow: none !important;
 }
 
+/* Global Typography Contrast Override for Light Mode */
+:root.light-theme,
+:root.light-theme body,
+:root.light-theme p,
+:root.light-theme label,
+:root.light-theme h1,
+:root.light-theme h2,
+:root.light-theme h3,
+:root.light-theme h4,
+:root.light-theme h5,
+:root.light-theme h6,
+:root.light-theme td,
+:root.light-theme th,
+:root.light-theme input,
+:root.light-theme select,
+:root.light-theme textarea,
+:root.light-theme button,
+:root.light-theme .sidebar-text,
+:root.light-theme .kpi-label,
+:root.light-theme .kpi-desc,
+:root.light-theme .card-info h4,
+:root.light-theme .card-info p,
+:root.light-theme a:not(.sidebar-logout) {
+    color: #000000 !important; /* Force deep black font */
+    font-weight: 800 !important; /* Thick bold font for extra contrast */
+    text-shadow: none !important;
+}
+
+/* Override muted or gray inline colors in Light Mode globally */
+:root.light-theme [style*="color:#94a3b8"],
+:root.light-theme [style*="color:#cbd5e1"],
+:root.light-theme [style*="color:#64748b"],
+:root.light-theme [style*="color: #94a3b8"],
+:root.light-theme [style*="color: #cbd5e1"],
+:root.light-theme [style*="color: #64748b"],
+:root.light-theme [style*="color:var(--text-secondary)"],
+:root.light-theme [style*="color: var(--text-secondary)"],
+:root.light-theme [style*="color:var(--text-muted)"],
+:root.light-theme [style*="color: var(--text-muted)"] {
+    color: #000000 !important;
+    font-weight: 800 !important;
+}
+
 :root.light-theme .global-sidebar {
   background: #ffffff !important;
   border-left: 2.5px solid #000000 !important; /* Bold border */
