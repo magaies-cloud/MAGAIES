@@ -137,6 +137,27 @@ document.addEventListener('DBReady', () => {
         });
 
 
+    // Populate the split payment selectors
+    const payCashSafe = document.getElementById('pay-cash-safe');
+    if (payCashSafe) {
+        let safeOpts = '';
+        localSafes.forEach(s => safeOpts += `<option value="safe-${s.id}">${s.name}</option>`);
+        payCashSafe.innerHTML = safeOpts;
+    }
+    const payBankAcc = document.getElementById('pay-bank-account');
+    if (payBankAcc) {
+        let bankOpts = '';
+        localBanks.forEach(b => bankOpts += `<option value="bank-${b.id}">${b.name}</option>`);
+        payBankAcc.innerHTML = bankOpts;
+    }
+    const payChequeAcc = document.getElementById('pay-cheque-account');
+    if (payChequeAcc) {
+        let chequeOpts = '';
+        localBanks.forEach(b => chequeOpts += `<option value="bank-${b.id}">${b.name}</option>`);
+        localSafes.forEach(s => chequeOpts += `<option value="safe-${s.id}">${s.name}</option>`);
+        payChequeAcc.innerHTML = chequeOpts;
+    }
+
     toAccEl.addEventListener('change', updateBalances);
     
     // Initialize UI
@@ -288,9 +309,19 @@ function resetVoucherSilent() {
     
     document.getElementById('from-statement').value = '';
 
-    // Reset Radio to Cash
-    document.querySelector('input[name="payment_method"][value="cash"]').checked = true;
-    togglePaymentMethod();
+    // Reset split payment fields
+    if (document.getElementById('pay-cash-amount')) document.getElementById('pay-cash-amount').value = '';
+    if (document.getElementById('pay-cash-safe')) document.getElementById('pay-cash-safe').selectedIndex = 0;
+    if (document.getElementById('pay-bank-account')) document.getElementById('pay-bank-account').selectedIndex = 0;
+    if (document.getElementById('pay-cheque-account')) document.getElementById('pay-cheque-account').selectedIndex = 0;
+
+    // Reset toggles to cash active only
+    document.querySelectorAll('.pay-toggle-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('toggle-cash')?.classList.add('active');
+    
+    if (document.getElementById('pay-cash-section')) document.getElementById('pay-cash-section').style.display = 'flex';
+    if (document.getElementById('pay-bank-section')) document.getElementById('pay-bank-section').style.display = 'none';
+    if (document.getElementById('pay-cheque-section')) document.getElementById('pay-cheque-section').style.display = 'none';
 
     if (typeof initPaymentContainers === 'function') initPaymentContainers();
 
@@ -395,7 +426,14 @@ function submitVoucher() {
     window.isSubmitting = true;
     setTimeout(() => { window.isSubmitting = false; }, 2000);
 
-    const method = document.querySelector('input[name="payment_method"]:checked').value;
+    const isCashActive = document.getElementById('toggle-cash')?.classList.contains('active');
+    const isBankActive = document.getElementById('toggle-bank')?.classList.contains('active');
+    const isChequeActive = document.getElementById('toggle-cheque')?.classList.contains('active');
+
+    if (!isCashActive && !isBankActive && !isChequeActive) {
+        showToast("يرجى تحديد طريقة دفع واحدة على الأقل", "error");
+        return;
+    }
 
     const voucherData = {
         createdBy: (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown',
@@ -415,12 +453,36 @@ function submitVoucher() {
         fromStatement: document.getElementById('from-statement').value,
         costCenter: document.getElementById('cost-center') ? document.getElementById('cost-center').value : '',
         
-        paymentMethod: method,
-        
+        paymentMethod: 'hybrid',
         timestamp: new Date().toISOString()
     };
 
-    if (method === 'mobile') {
+    let calculatedTotal = 0;
+
+    // 1. Validate Cash if active
+    if (isCashActive) {
+        const cashSafe = document.getElementById('pay-cash-safe').value;
+        const cashAmt = parseNum(document.getElementById('pay-cash-amount').value);
+        if (!cashSafe) {
+            showToast("يرجى اختيار صندوق/خزنة الدفع النقدي", "error");
+            return;
+        }
+        if (cashAmt <= 0) {
+            showToast("يرجى إدخال مبلغ دفع نقدي صالح", "error");
+            return;
+        }
+        voucherData.cashAmount = cashAmt;
+        voucherData.cashAccount = cashSafe;
+        calculatedTotal += cashAmt;
+    }
+
+    // 2. Validate Bank if active
+    if (isBankActive) {
+        const bankAcc = document.getElementById('pay-bank-account').value;
+        if (!bankAcc) {
+            showToast("يرجى اختيار حساب البنك للدفع", "error");
+            return;
+        }
         const transferRows = document.querySelectorAll('.transfer-row');
         let transfers = [];
         let totalTransfersAmount = 0;
@@ -454,18 +516,28 @@ function submitVoucher() {
         });
 
         if (hasInvalidTransfer) return;
-
-        if (Math.abs(totalTransfersAmount - amtLocal) > 0.01) {
-            showToast("مجموع مبالغ التحويلات لا يساوي مبلغ السند الإجمالي.", "error");
+        if (totalTransfersAmount <= 0) {
+            showToast("يرجى إدخال مبالغ تحويل بنكي صالحة", "error");
             return;
         }
 
+        voucherData.bankAmount = totalTransfersAmount;
+        voucherData.bankAccount = bankAcc;
         voucherData.bankTransfers = transfers;
         if (transfers.length > 0) {
             voucherData.mobileTransferNo = transfers[0].transferNo;
             voucherData.mobileNote = transfers[0].note;
         }
-    } else if (method === 'check') {
+        calculatedTotal += totalTransfersAmount;
+    }
+
+    // 3. Validate Cheque if active
+    if (isChequeActive) {
+        const chequeAcc = document.getElementById('pay-cheque-account').value;
+        if (!chequeAcc) {
+            showToast("يرجى اختيار حساب صرف الشيكات", "error");
+            return;
+        }
         const chequeRows = document.querySelectorAll('.cheque-row');
         let cheques = [];
         let totalChequesAmount = 0;
@@ -477,7 +549,7 @@ function submitVoucher() {
             const chDate = row.querySelector('.cheque-date').value;
             const chAmt = parseNum(row.querySelector('.cheque-amount').value);
             if (!chBranch) {
-                showToast(`السطر ${idx + 1}: يرجى إدخال اسم البنك`, "error");
+                showToast(`السطر ${idx + 1}: يرجى إدخال اسم البنك للشيك`, "error");
                 row.querySelector('.cheque-branch').focus();
                 hasInvalidCheque = true;
                 return;
@@ -499,12 +571,13 @@ function submitVoucher() {
         });
 
         if (hasInvalidCheque) return;
-
-        if (Math.abs(totalChequesAmount - amtLocal) > 0.01) {
-            showToast("مجموع مبالغ الشيكات لا يساوي مبلغ السند الإجمالي.", "error");
+        if (totalChequesAmount <= 0) {
+            showToast("يرجى إدخال مبالغ شيكات صالحة", "error");
             return;
         }
 
+        voucherData.chequeAmount = totalChequesAmount;
+        voucherData.chequeAccount = chequeAcc;
         voucherData.cheques = cheques;
         if (cheques.length > 0) {
             voucherData.checkNo = cheques[0].checkNo;
@@ -515,84 +588,112 @@ function submitVoucher() {
             voucherData.checkRefNo = '';
             voucherData.checkSettleLocal = false;
         }
+        calculatedTotal += totalChequesAmount;
+    }
+
+    if (Math.abs(calculatedTotal - amtLocal) > 0.02) {
+        showToast(`مجموع مبالغ الدفع تفصيلياً (${calculatedTotal.toFixed(2)}) لا يساوي مبلغ السند الإجمالي (${amtLocal.toFixed(2)}).`, "error");
+        return;
     }
 
     singlePaymentsData = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
     
-    // Balance update logic
-    function applyPaymentEffect(fromAccId, toAccId, amount, isRevert = false) {
-        if (!fromAccId || !toAccId) return;
-        let multiplier = isRevert ? -1 : 1;
-        let amtSafe = -amount * multiplier; // safe decreases
-        let amtBeneficiary = -amount * multiplier; // beneficiary balance decreases (repaid)
-
-        // 1. Update fromAccount (Safe/Bank)
-        if (fromAccId.startsWith('safe-')) {
-            let id = fromAccId.substring(5);
-            let safes = [];
-            try { safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || []; } catch(e){}
-            let idx = safes.findIndex(s => String(s.id) === String(id));
-            if (idx > -1) {
-                safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtSafe;
-                localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
-            }
-        } else if (fromAccId.startsWith('bank-')) {
-            let id = fromAccId.substring(5);
-            let banks = [];
-            try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e){}
-            let idx = banks.findIndex(b => String(b.id) === String(id));
-            if (idx > -1) {
-                banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtSafe;
-                localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+    // Unified balance update logic supporting split payments
+    function applyUnifiedPaymentEffect(v, isRevert = false) {
+        if (!v) return;
+        const multiplier = isRevert ? -1 : 1;
+        const amount = v.amountLocal || 0;
+        
+        // 1. Update Beneficiary/Recipient Account (debit/toAccount)
+        const toAccId = v.toAccount;
+        if (toAccId) {
+            let amtBeneficiary = -amount * multiplier;
+            if (toAccId.startsWith('cust-')) {
+                let id = toAccId.substring(5);
+                let custs = [];
+                try { custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || []; } catch(e){}
+                let idx = custs.findIndex(c => String(c.id) === String(id));
+                if (idx > -1) {
+                    custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtBeneficiary;
+                    localStorage.setItem('erp_customers_v1', JSON.stringify(custs));
+                }
+            } else if (toAccId.startsWith('supp-')) {
+                let id = toAccId.substring(5);
+                let sups = [];
+                try { sups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []; } catch(e){}
+                let idx = sups.findIndex(s => String(s.id) === String(id));
+                if (idx > -1) {
+                    sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtBeneficiary;
+                    localStorage.setItem('erp_suppliers_v1', JSON.stringify(sups));
+                }
+            } else if (toAccId.startsWith('bank-')) {
+                let id = toAccId.substring(5);
+                let banks = [];
+                try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e){}
+                let idx = banks.findIndex(b => String(b.id) === String(id));
+                if (idx > -1) {
+                    banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtBeneficiary;
+                    localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+                }
+            } else if (toAccId.startsWith('safe-')) {
+                let id = toAccId.substring(5);
+                let safes = [];
+                try { safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || []; } catch(e){}
+                let idx = safes.findIndex(s => String(s.id) === String(id));
+                if (idx > -1) {
+                    safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtBeneficiary;
+                    localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
+                }
+            } else if (toAccId.startsWith('exp-')) {
+                let id = toAccId.substring(4);
+                let accounts = [];
+                try { accounts = JSON.parse(localStorage.getItem('erp_accounts_v1')) || []; } catch(e){}
+                let idx = accounts.findIndex(a => String(a.id) === String(id));
+                if (idx > -1) {
+                    accounts[idx].currentBalance = (parseFloat(accounts[idx].currentBalance) || 0) + amount * multiplier;
+                    localStorage.setItem('erp_accounts_v1', JSON.stringify(accounts));
+                }
             }
         }
 
-        // 2. Update toAccount (Beneficiary: Customer/Supplier/Safe/Bank/Expense)
-        if (toAccId.startsWith('cust-')) {
-            let id = toAccId.substring(5);
-            let custs = [];
-            try { custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || []; } catch(e){}
-            let idx = custs.findIndex(c => String(c.id) === String(id));
-            if (idx > -1) {
-                custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtBeneficiary;
-                localStorage.setItem('erp_customers_v1', JSON.stringify(custs));
+        // 2. Update Source Accounts (credit/fromAccount or split accounts)
+        function deductFromSource(accId, amt) {
+            if (!accId || amt <= 0) return;
+            const amtSafe = -amt * multiplier;
+            if (accId.startsWith('safe-')) {
+                let id = accId.substring(5);
+                let safes = [];
+                try { safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || []; } catch(e){}
+                let idx = safes.findIndex(s => String(s.id) === String(id));
+                if (idx > -1) {
+                    safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtSafe;
+                    localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
+                }
+            } else if (accId.startsWith('bank-')) {
+                let id = accId.substring(5);
+                let banks = [];
+                try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e){}
+                let idx = banks.findIndex(b => String(b.id) === String(id));
+                if (idx > -1) {
+                    banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtSafe;
+                    localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+                }
             }
-        } else if (toAccId.startsWith('supp-')) {
-            let id = toAccId.substring(5);
-            let sups = [];
-            try { sups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []; } catch(e){}
-            let idx = sups.findIndex(s => String(s.id) === String(id));
-            if (idx > -1) {
-                sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtBeneficiary;
-                localStorage.setItem('erp_suppliers_v1', JSON.stringify(sups));
+        }
+
+        if (v.paymentMethod === 'hybrid') {
+            if (v.cashAmount > 0 && v.cashAccount) {
+                deductFromSource(v.cashAccount, v.cashAmount);
             }
-        } else if (toAccId.startsWith('bank-')) {
-            let id = toAccId.substring(5);
-            let banks = [];
-            try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e){}
-            let idx = banks.findIndex(b => String(b.id) === String(id));
-            if (idx > -1) {
-                banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtBeneficiary;
-                localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+            if (v.bankAmount > 0 && v.bankAccount) {
+                deductFromSource(v.bankAccount, v.bankAmount);
             }
-        } else if (toAccId.startsWith('safe-')) {
-            let id = toAccId.substring(5);
-            let safes = [];
-            try { safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || []; } catch(e){}
-            let idx = safes.findIndex(s => String(s.id) === String(id));
-            if (idx > -1) {
-                safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtBeneficiary;
-                localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
+            if (v.chequeAmount > 0 && v.chequeAccount) {
+                deductFromSource(v.chequeAccount, v.chequeAmount);
             }
-        } else if (toAccId.startsWith('exp-')) {
-            let id = toAccId.substring(4);
-            let accounts = [];
-            try { accounts = JSON.parse(localStorage.getItem('erp_accounts_v1')) || []; } catch(e){}
-            let idx = accounts.findIndex(a => String(a.id) === String(id));
-            if (idx > -1) {
-                accounts[idx].currentBalance = (parseFloat(accounts[idx].currentBalance) || 0) + amount * multiplier;
-                localStorage.setItem('erp_accounts_v1', JSON.stringify(accounts));
-            }
+        } else {
+            // Fallback for legacy vouchers
+            deductFromSource(v.fromAccount, amount);
         }
     }
 
@@ -601,16 +702,16 @@ function submitVoucher() {
         
         // Revert old payment effect
         const oldVoucher = singlePaymentsData[currentViewedIndex];
-        applyPaymentEffect(oldVoucher.fromAccount, oldVoucher.toAccount, oldVoucher.amountLocal, true);
+        applyUnifiedPaymentEffect(oldVoucher, true);
         
         // Apply new payment effect
-        applyPaymentEffect(voucherData.fromAccount, voucherData.toAccount, voucherData.amountLocal, false);
+        applyUnifiedPaymentEffect(voucherData, false);
         
         singlePaymentsData[currentViewedIndex] = voucherData;
         localStorage.setItem('erp_single_payments_v1', JSON.stringify(singlePaymentsData));
         showToast(`تم تعديل السند رقم ${voucherData.id} بنجاح!`, "success");
     } else {
-        applyPaymentEffect(voucherData.fromAccount, voucherData.toAccount, voucherData.amountLocal, false);
+        applyUnifiedPaymentEffect(voucherData, false);
         singlePaymentsData.push(voucherData);
         localStorage.setItem('erp_single_payments_v1', JSON.stringify(singlePaymentsData));
         const currentSeq = parseInt(localStorage.getItem('erp_single_payment_seq') || '0');
@@ -636,54 +737,7 @@ function confirmDelete() {
     }
     if (confirm("هل أنت متأكد من حذف هذا السند نهائياً؟")) {
         const oldVoucher = singlePaymentsData[currentViewedIndex];
-        
-        // Revert old payment effect
-        function applyPaymentEffect(fromAccId, toAccId, amount, isRevert = false) {
-            let multiplier = isRevert ? -1 : 1;
-            let amtSafe = -amount * multiplier;
-            let amtBeneficiary = -amount * multiplier;
-
-            let custs = [];
-            try {
-                custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
-                if (!Array.isArray(custs)) custs = [];
-            } catch(e) {
-                custs = [];
-            }
-            let cIdx = custs.findIndex(c => c.id === toAccId);
-            if (cIdx > -1) {
-                custs[cIdx].currentBalance = (custs[cIdx].currentBalance || 0) + amtBeneficiary;
-                localStorage.setItem('erp_customers_v1', JSON.stringify(custs));
-            } else {
-                let sups = [];
-            try {
-                sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
-                if (!Array.isArray(sups)) sups = [];
-            } catch(e) {
-                sups = [];
-            }
-                let sIdx = sups.findIndex(s => s.id === toAccId);
-                if (sIdx > -1) {
-                    sups[sIdx].currentBalance = (sups[sIdx].currentBalance || 0) + amtBeneficiary;
-                    localStorage.setItem('erp_suppliers_v1', JSON.stringify(sups));
-                }
-            }
-
-            let banks = [];
-            try {
-                banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
-                if (!Array.isArray(banks)) banks = [];
-            } catch(e) {
-                banks = [];
-            }
-            let bIdx = banks.findIndex(b => b.id === fromAccId);
-            if (bIdx > -1) {
-                banks[bIdx].currentBalance = (banks[bIdx].currentBalance || 0) + amtSafe;
-                localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
-            }
-        }
-        
-        applyPaymentEffect(oldVoucher.fromAccount, oldVoucher.toAccount, oldVoucher.amountLocal, true);
+        applyUnifiedPaymentEffect(oldVoucher, true);
 
         singlePaymentsData.splice(currentViewedIndex, 1);
         localStorage.setItem('erp_single_payments_v1', JSON.stringify(singlePaymentsData));
@@ -1393,42 +1447,105 @@ window.initPaymentContainers = function() {
 
 window.syncFirstRowAmount = function() {
     const totalAmount = parseNum(document.getElementById('amount-local').value);
+    
+    const isCashActive = document.getElementById('toggle-cash')?.classList.contains('active');
+    const isBankActive = document.getElementById('toggle-bank')?.classList.contains('active');
+    const isChequeActive = document.getElementById('toggle-cheque')?.classList.contains('active');
+    
     const transferRows = document.querySelectorAll('.transfer-row');
-    if (transferRows.length === 1) {
-        transferRows[0].querySelector('.transfer-amount').value = fmtNum(totalAmount);
-    }
     const chequeRows = document.querySelectorAll('.cheque-row');
-    if (chequeRows.length === 1) {
-        chequeRows[0].querySelector('.cheque-amount').value = fmtNum(totalAmount);
+    
+    const activeCount = (isCashActive ? 1 : 0) + (isBankActive ? 1 : 0) + (isChequeActive ? 1 : 0);
+    if (activeCount === 1) {
+        if (isCashActive) {
+            const el = document.getElementById('pay-cash-amount');
+            if (el) el.value = fmtNum(totalAmount);
+        }
+        if (isBankActive && transferRows.length === 1) {
+            transferRows[0].querySelector('.transfer-amount').value = fmtNum(totalAmount);
+        }
+        if (isChequeActive && chequeRows.length === 1) {
+            chequeRows[0].querySelector('.cheque-amount').value = fmtNum(totalAmount);
+        }
     }
 };
 
 window.loadVoucherPaymentDetails = function(v) {
-    const method = v.paymentMethod || 'cash';
     const transfersContainer = document.getElementById('transfers-container');
     const chequesContainer = document.getElementById('cheques-container');
     if (transfersContainer) transfersContainer.innerHTML = '';
     if (chequesContainer) chequesContainer.innerHTML = '';
 
-    if (method === 'mobile') {
-        if (v.bankTransfers && Array.isArray(v.bankTransfers) && v.bankTransfers.length > 0) {
-            v.bankTransfers.forEach(tr => {
-                addTransferRow(tr.transferNo, tr.note, tr.amount);
-            });
-        } else {
-            addTransferRow(v.mobileTransferNo || '', v.mobileNote || '', v.amountLocal || 0);
+    // Clear active states
+    document.querySelectorAll('.pay-toggle-btn').forEach(btn => btn.classList.remove('active'));
+
+    const secCash = document.getElementById('pay-cash-section');
+    const secBank = document.getElementById('pay-bank-section');
+    const secCheque = document.getElementById('pay-cheque-section');
+
+    if (secCash) secCash.style.display = 'none';
+    if (secBank) secBank.style.display = 'none';
+    if (secCheque) secCheque.style.display = 'none';
+
+    if (v.paymentMethod === 'hybrid') {
+        if (v.cashAmount > 0) {
+            document.getElementById('toggle-cash')?.classList.add('active');
+            if (secCash) secCash.style.display = 'flex';
+            if (document.getElementById('pay-cash-safe')) document.getElementById('pay-cash-safe').value = v.cashAccount || '';
+            if (document.getElementById('pay-cash-amount')) document.getElementById('pay-cash-amount').value = fmtNum(v.cashAmount);
         }
-    } else if (method === 'check') {
-        if (v.cheques && Array.isArray(v.cheques) && v.cheques.length > 0) {
-            v.cheques.forEach(ch => {
-                addChequeRow(ch.checkBranch, ch.checkNo, ch.checkDate, ch.amount);
-            });
-        } else {
-            addChequeRow(v.checkBranch || '', v.checkNo || '', v.checkDate || '', v.amountLocal || 0);
+        if (v.bankAmount > 0) {
+            document.getElementById('toggle-bank')?.classList.add('active');
+            if (secBank) secBank.style.display = 'flex';
+            if (document.getElementById('pay-bank-account')) document.getElementById('pay-bank-account').value = v.bankAccount || '';
+            if (v.bankTransfers && Array.isArray(v.bankTransfers)) {
+                v.bankTransfers.forEach(tr => {
+                    addTransferRow(tr.transferNo, tr.note, tr.amount);
+                });
+            }
+        }
+        if (v.chequeAmount > 0) {
+            document.getElementById('toggle-cheque')?.classList.add('active');
+            if (secCheque) secCheque.style.display = 'flex';
+            if (document.getElementById('pay-cheque-account')) document.getElementById('pay-cheque-account').value = v.chequeAccount || '';
+            if (v.cheques && Array.isArray(v.cheques)) {
+                v.cheques.forEach(ch => {
+                    addChequeRow(ch.checkBranch, ch.checkNo, ch.checkDate, ch.amount);
+                });
+            }
         }
     } else {
-        initPaymentContainers();
+        const method = v.paymentMethod || 'cash';
+        if (method === 'cash') {
+            document.getElementById('toggle-cash')?.classList.add('active');
+            if (secCash) secCash.style.display = 'flex';
+            if (document.getElementById('pay-cash-safe')) document.getElementById('pay-cash-safe').value = v.fromAccount || '';
+            if (document.getElementById('pay-cash-amount')) document.getElementById('pay-cash-amount').value = fmtNum(v.amountLocal);
+        } else if (method === 'mobile') {
+            document.getElementById('toggle-bank')?.classList.add('active');
+            if (secBank) secBank.style.display = 'flex';
+            if (document.getElementById('pay-bank-account')) document.getElementById('pay-bank-account').value = v.fromAccount || '';
+            if (v.bankTransfers && Array.isArray(v.bankTransfers) && v.bankTransfers.length > 0) {
+                v.bankTransfers.forEach(tr => {
+                    addTransferRow(tr.transferNo, tr.note, tr.amount);
+                });
+            } else {
+                addTransferRow(v.mobileTransferNo || '', v.mobileNote || '', v.amountLocal || 0);
+            }
+        } else if (method === 'check') {
+            document.getElementById('toggle-cheque')?.classList.add('active');
+            if (secCheque) secCheque.style.display = 'flex';
+            if (document.getElementById('pay-cheque-account')) document.getElementById('pay-cheque-account').value = v.fromAccount || '';
+            if (v.cheques && Array.isArray(v.cheques) && v.cheques.length > 0) {
+                v.cheques.forEach(ch => {
+                    addChequeRow(ch.checkBranch, ch.checkNo, ch.checkDate, ch.amount);
+                });
+            } else {
+                addChequeRow(v.checkBranch || '', v.checkNo || '', v.checkDate || '', v.amountLocal || 0);
+            }
+        }
     }
+    recalcPaymentSummary();
 };
 
 function playClickSound() {

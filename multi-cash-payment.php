@@ -435,9 +435,9 @@
                     </div>
 
                     <div class="payment-toggles" style="display: flex; gap: 8px; flex: none;">
-                        <button type="button" class="pay-toggle-btn active" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💵 نقدي</button>
-                        <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦 تحويل بنكي</button>
-                        <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">✍️ شيك</button>
+                        <button type="button" class="pay-toggle-btn active" id="toggle-cash" onclick="togglePaymentSection('cash')">💵 نقدي</button>
+                        <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')">🏦 تحويل بنكي</button>
+                        <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')">✍️ شيك</button>
                     </div>
                 </div>
                 
@@ -450,13 +450,28 @@
                                 <span style="font-size: 1.2rem;">💵</span>
                                 <span style="font-weight: 800; color: #34d399; font-size: 0.95rem;">الدفع النقدي (كاش)</span>
                             </div>
-                            <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
-                                <span style="color: #94a3b8; font-size: 0.9rem;">سيتم السداد نقداً بالكامل للمستند المجمع.</span>
+                            <div style="display: flex; gap: 15px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
+                                <div style="display: flex; align-items: center; gap: 5px; min-width: 200px; flex: 1.5;">
+                                    <label style="font-size: 0.85rem; color: #94a3b8; white-space: nowrap;">الصندوق / الخزنة:</label>
+                                    <select id="pay-cash-safe" class="v-input ctrl-input" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff;">
+                                        <!-- Will be populated dynamically from erp_safes_v1 -->
+                                    </select>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 5px; min-width: 150px; flex: 1;">
+                                    <label style="font-size: 0.85rem; color: #94a3b8; white-space: nowrap;">المبلغ النقدي:</label>
+                                    <input type="text" id="pay-cash-amount" class="v-input ctrl-input" placeholder="0.00" oninput="restrictToNumbers(this); recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
+                                </div>
                             </div>
                         </div>
 
                         <!-- Bank Transfer section -->
                         <div id="pay-bank-section" class="payment-method-box" style="background: rgba(59, 130, 246, 0.04); border: 1px solid rgba(59, 130, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px;">
+                            <div id="pay-bank-account-wrap" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
+                                <label style="font-size: 0.85rem; color: #94a3b8; white-space: nowrap;">الدفع من حساب البنك:</label>
+                                <select id="pay-bank-account" class="v-input ctrl-input" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 8px; width: 250px; border-radius: 6px; color:#fff;">
+                                    <!-- Populated dynamically from erp_banks_v1 -->
+                                </select>
+                            </div>
                             <div id="transfers-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
                                 <!-- Dynamic rows -->
                             </div>
@@ -464,6 +479,12 @@
 
                         <!-- Cheque section -->
                         <div id="pay-cheque-section" class="payment-method-box" style="background: rgba(139, 92, 246, 0.04); border: 1px solid rgba(139, 92, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px;">
+                            <div id="pay-cheque-account-wrap" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
+                                <label style="font-size: 0.85rem; color: #94a3b8; white-space: nowrap;">حساب صرف الشيكات:</label>
+                                <select id="pay-cheque-account" class="v-input ctrl-input" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 8px; width: 250px; border-radius: 6px; color:#fff;">
+                                    <!-- Populated dynamically from erp_banks_v1/erp_safes_v1 -->
+                                </select>
+                            </div>
                             <div id="cheques-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
                                 <!-- Dynamic rows -->
                             </div>

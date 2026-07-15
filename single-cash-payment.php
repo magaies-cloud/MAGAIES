@@ -1179,9 +1179,9 @@
                                 </div>
 
                                 <div class="payment-toggles" style="display: flex; gap: 8px; flex: none;">
-                                    <button type="button" class="pay-toggle-btn active" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💵 نقدي</button>
-                                    <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦 تحويل بنكي</button>
-                                    <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">✍️ شيك</button>
+                                    <button type="button" class="pay-toggle-btn active" id="toggle-cash" onclick="togglePaymentSection('cash')">💵 نقدي</button>
+                                    <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')">🏦 تحويل بنكي</button>
+                                    <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')">✍️ شيك</button>
                                 </div>
                             </div>
                             
@@ -1189,29 +1189,50 @@
                                 <div class="payment-details-card" style="flex: 1; min-width: 100%; display: flex; flex-direction: column; gap: 10px;">
 
                                     <!-- Cash section -->
-                                    <div id="pay-cash-section" class="payment-method-box" style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
-                                        <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
-                                            <span style="font-size: 1.2rem;">💵</span>
-                                            <span style="font-weight: 800; color: #34d399; font-size: 0.95rem;">الدفع النقدي (كاش)</span>
-                                        </div>
-                                        <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
-                                            <span style="color: #94a3b8; font-size: 0.9rem;">سيتم السداد نقداً بالكامل من خلال الصندوق المحدد.</span>
-                                        </div>
-                                    </div>
+                                     <div id="pay-cash-section" class="payment-method-box" style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
+                                         <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
+                                             <span style="font-size: 1.2rem;">💵</span>
+                                             <span style="font-weight: 800; color: #34d399; font-size: 0.95rem;">الدفع النقدي (كاش)</span>
+                                         </div>
+                                         <div style="display: flex; gap: 15px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
+                                             <div style="display: flex; align-items: center; gap: 5px; min-width: 200px; flex: 1.5;">
+                                                 <label style="font-size: 0.85rem; color: #94a3b8; white-space: nowrap;">الصندوق / الخزنة:</label>
+                                                 <select id="pay-cash-safe" class="v-input ctrl-input" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff;">
+                                                     <!-- Will be populated dynamically from erp_safes_v1 -->
+                                                 </select>
+                                             </div>
+                                             <div style="display: flex; align-items: center; gap: 5px; min-width: 150px; flex: 1;">
+                                                 <label style="font-size: 0.85rem; color: #94a3b8; white-space: nowrap;">المبلغ النقدي:</label>
+                                                 <input type="text" id="pay-cash-amount" class="v-input ctrl-input" placeholder="0.00" oninput="restrictToNumbers(this); recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
+                                             </div>
+                                         </div>
+                                     </div>
 
-                                    <!-- Bank Transfer section -->
-                                    <div id="pay-bank-section" class="payment-method-box" style="background: rgba(59, 130, 246, 0.04); border: 1px solid rgba(59, 130, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px;">
-                                        <div id="transfers-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-                                            <!-- Dynamic rows -->
-                                        </div>
-                                    </div>
+                                     <!-- Bank Transfer section -->
+                                     <div id="pay-bank-section" class="payment-method-box" style="background: rgba(59, 130, 246, 0.04); border: 1px solid rgba(59, 130, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px;">
+                                         <div id="pay-bank-account-wrap" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
+                                             <label style="font-size: 0.85rem; color: #94a3b8; white-space: nowrap;">الدفع من حساب البنك:</label>
+                                             <select id="pay-bank-account" class="v-input ctrl-input" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 8px; width: 250px; border-radius: 6px; color:#fff;">
+                                                 <!-- Populated dynamically from erp_banks_v1 -->
+                                             </select>
+                                         </div>
+                                         <div id="transfers-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                                             <!-- Dynamic rows -->
+                                         </div>
+                                     </div>
 
-                                    <!-- Cheque section -->
-                                    <div id="pay-cheque-section" class="payment-method-box" style="background: rgba(139, 92, 246, 0.04); border: 1px solid rgba(139, 92, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px;">
-                                        <div id="cheques-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-                                            <!-- Dynamic rows -->
-                                        </div>
-                                    </div>
+                                     <!-- Cheque section -->
+                                     <div id="pay-cheque-section" class="payment-method-box" style="background: rgba(139, 92, 246, 0.04); border: 1px solid rgba(139, 92, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px;">
+                                         <div id="pay-cheque-account-wrap" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
+                                             <label style="font-size: 0.85rem; color: #94a3b8; white-space: nowrap;">حساب صرف الشيكات:</label>
+                                             <select id="pay-cheque-account" class="v-input ctrl-input" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 8px; width: 250px; border-radius: 6px; color:#fff;">
+                                                 <!-- Populated dynamically from erp_banks_v1/erp_safes_v1 -->
+                                             </select>
+                                         </div>
+                                         <div id="cheques-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                                             <!-- Dynamic rows -->
+                                         </div>
+                                     </div>
 
                                     <!-- Hidden legacy inputs to prevent crashes in old scripts -->
                                     <div style="display: none;">
@@ -1371,67 +1392,113 @@
 
         function recalcPaymentSummary() {
             const amtStr = document.getElementById('amount-local')?.value || '0';
-            const amount = parseFloat(amtStr.replace(/,/g, '')) || 0;
+            const totalAmount = parseFloat(amtStr.replace(/,/g, '')) || 0;
             
             const panel = document.getElementById('payment-panel');
             if (!panel) return;
             
-            if (amount <= 0.01) {
+            if (totalAmount <= 0.01) {
                 panel.style.display = 'none';
                 return;
             }
             
             panel.style.display = 'block';
             
-            // Get active method
-            let method = 'cash';
-            if (document.getElementById('toggle-cash')?.classList.contains('active')) method = 'cash';
-            else if (document.getElementById('toggle-bank')?.classList.contains('active')) method = 'bank';
-            else if (document.getElementById('toggle-cheque')?.classList.contains('active')) method = 'cheque';
+            let cashAmt = 0;
+            if (document.getElementById('toggle-cash')?.classList.contains('active')) {
+                cashAmt = parseFloat(document.getElementById('pay-cash-amount')?.value.replace(/,/g, '')) || 0;
+            }
             
-            // Progress widths
+            let bankAmt = 0;
+            if (document.getElementById('toggle-bank')?.classList.contains('active')) {
+                const transferRows = document.querySelectorAll('.transfer-row');
+                transferRows.forEach(row => {
+                    bankAmt += parseFloat(row.querySelector('.transfer-amount')?.value.replace(/,/g, '')) || 0;
+                });
+            }
+            
+            let chequeAmt = 0;
+            if (document.getElementById('toggle-cheque')?.classList.contains('active')) {
+                const chequeRows = document.querySelectorAll('.cheque-row');
+                chequeRows.forEach(row => {
+                    chequeAmt += parseFloat(row.querySelector('.cheque-amount')?.value.replace(/,/g, '')) || 0;
+                });
+            }
+            
+            const paidSum = cashAmt + bankAmt + chequeAmt;
+            const remaining = totalAmount - paidSum;
+            
             const elCash = document.getElementById('prog-cash');
             const elBank = document.getElementById('prog-bank');
             const elCheque = document.getElementById('prog-cheque');
             
-            if (elCash) elCash.style.width = (method === 'cash') ? '100%' : '0%';
-            if (elBank) elBank.style.width = (method === 'bank') ? '100%' : '0%';
-            if (elCheque) elCheque.style.width = (method === 'cheque') ? '100%' : '0%';
+            if (elCash) elCash.style.width = totalAmount > 0 ? (cashAmt / totalAmount * 100) + '%' : '0%';
+            if (elBank) elBank.style.width = totalAmount > 0 ? (bankAmt / totalAmount * 100) + '%' : '0%';
+            if (elCheque) elCheque.style.width = totalAmount > 0 ? (chequeAmt / totalAmount * 100) + '%' : '0%';
             
-            // Update status badge
             const badge = document.getElementById('payment-status-badge');
             if (badge) {
-                if (badge.dataset.status !== 'fully-paid') {
-                    PlaySound.success();
-                    badge.dataset.status = 'fully-paid';
+                if (Math.abs(remaining) < 0.02) {
+                    badge.textContent = '💳 مدفوعة بالكامل';
+                    badge.style.background = 'rgba(16, 185, 129, 0.15)';
+                    badge.style.color = '#34d399';
+                } else if (remaining > 0) {
+                    badge.textContent = `⚠️ غير مكتملة (متبقي: ${remaining.toFixed(2)})`;
+                    badge.style.background = 'rgba(245, 158, 11, 0.15)';
+                    badge.style.color = '#f59e0b';
+                } else {
+                    badge.textContent = `⚠️ زيادة في الدفع (فارق: ${Math.abs(remaining).toFixed(2)})`;
+                    badge.style.background = 'rgba(239, 68, 68, 0.15)';
+                    badge.style.color = '#f87171';
                 }
-                badge.textContent = '💳 مدفوعة بالكامل';
-                badge.style.background = 'rgba(16, 185, 129, 0.15)';
-                badge.style.color = '#34d399';
-                badge.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.2)';
             }
         }
 
         function togglePaymentSection(method) {
-            // 1. Set radio checked
-            const radioId = (method === 'bank') ? 'radio-mobile' : ((method === 'cheque') ? 'radio-check' : 'radio-' + method);
-            const radio = document.getElementById(radioId);
-            if (radio) {
-                radio.checked = true;
+            const activeBtn = document.getElementById('toggle-' + method);
+            if (activeBtn) {
+                activeBtn.classList.toggle('active');
             }
             
-            // 2. Update active toggle button style
-            document.querySelectorAll('.pay-toggle-btn').forEach(btn => btn.classList.remove('active'));
-            const activeBtn = document.getElementById('toggle-' + method);
-            if (activeBtn) activeBtn.classList.add('active');
+            const isSectionActive = activeBtn && activeBtn.classList.contains('active');
+            const targetSecMap = {
+                'cash': 'pay-cash-section',
+                'bank': 'pay-bank-section',
+                'cheque': 'pay-cheque-section'
+            };
+            const secId = targetSecMap[method];
+            if (secId) {
+                document.getElementById(secId).style.display = isSectionActive ? 'flex' : 'none';
+            }
             
-            // 3. Update payment method boxes visibility
-            document.getElementById('pay-cash-section').style.display = (method === 'cash') ? 'flex' : 'none';
-            document.getElementById('pay-bank-section').style.display = (method === 'bank') ? 'flex' : 'none';
-            document.getElementById('pay-cheque-section').style.display = (method === 'cheque') ? 'flex' : 'none';
-            document.getElementById('pay-credit-section').style.display = (method === 'credit') ? 'flex' : 'none';
+            // Auto fill remaining amount if we just enabled it
+            if (isSectionActive) {
+                const totalAmount = parseFloat(document.getElementById('amount-local').value.replace(/,/g, '')) || 0;
+                let cashAmt = 0;
+                if (document.getElementById('toggle-cash').classList.contains('active') && method !== 'cash') {
+                    cashAmt = parseFloat(document.getElementById('pay-cash-amount').value.replace(/,/g, '')) || 0;
+                }
+                let bankAmt = 0;
+                if (document.getElementById('toggle-bank').classList.contains('active') && method !== 'bank') {
+                    document.querySelectorAll('.transfer-row .transfer-amount').forEach(el => bankAmt += parseFloat(el.value.replace(/,/g, '')) || 0);
+                }
+                let chequeAmt = 0;
+                if (document.getElementById('toggle-cheque').classList.contains('active') && method !== 'cheque') {
+                    document.querySelectorAll('.cheque-row .cheque-amount').forEach(el => chequeAmt += parseFloat(el.value.replace(/,/g, '')) || 0);
+                }
+                const currentUnpaid = Math.max(0, totalAmount - (cashAmt + bankAmt + chequeAmt));
+                
+                if (method === 'cash') {
+                    document.getElementById('pay-cash-amount').value = currentUnpaid.toFixed(2);
+                } else if (method === 'bank') {
+                    const row = document.querySelector('.transfer-row .transfer-amount');
+                    if (row) row.value = currentUnpaid.toFixed(2);
+                } else if (method === 'cheque') {
+                    const row = document.querySelector('.cheque-row .cheque-amount');
+                    if (row) row.value = currentUnpaid.toFixed(2);
+                }
+            }
             
-            // 4. Update progress bars
             recalcPaymentSummary();
         }
 

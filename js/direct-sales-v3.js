@@ -4232,11 +4232,11 @@ async function sendInvoiceWA(invoiceNo) {
 function updateActionButtonsVisibility() {
     const previewBtn = document.getElementById('btn-preview-invoice');
     const waBtn = document.getElementById('btn-whatsapp-invoice');
+    // Preview button always visible
+    if (previewBtn) previewBtn.style.display = 'flex';
     if (currentViewedInvoiceNo) {
-        if (previewBtn) previewBtn.style.display = 'flex';
         if (waBtn) waBtn.style.display = 'flex';
     } else {
-        if (previewBtn) previewBtn.style.display = 'none';
         if (waBtn) waBtn.style.display = 'none';
     }
 }
