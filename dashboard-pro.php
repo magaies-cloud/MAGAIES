@@ -285,8 +285,8 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 36px;
-            height: 36px;
+            width: 38px; /* Slightly larger wrapper */
+            height: 38px;
             border-radius: 10px; /* Sharp rounded corners */
             border: 2px solid rgba(255, 255, 255, 0.15);
             background: rgba(255, 255, 255, 0.04);
@@ -295,50 +295,42 @@
             flex-shrink: 0;
         }
         
-        /* Specific accent backgrounds and borders for admin action buttons (Dark Mode default) */
-        .admin-action-settings .qa-icon {
-            background: rgba(100, 116, 139, 0.15);
-            border-color: rgba(100, 116, 139, 0.3);
-        }
-        .admin-action-master .qa-icon {
-            background: rgba(59, 130, 246, 0.15);
-            border-color: rgba(59, 130, 246, 0.3);
-        }
-        .admin-action-jobs .qa-icon {
-            background: rgba(16, 185, 129, 0.15);
-            border-color: rgba(16, 185, 129, 0.3);
-        }
-        .admin-action-notifications .qa-icon {
-            background: rgba(239, 68, 68, 0.15);
-            border-color: rgba(239, 68, 68, 0.3);
-        }
+        /* Default/Dark Mode: Color coding for the quick action buttons */
+        /* 1. Settings */
+        .admin-action-settings .qa-icon { background: rgba(100, 116, 139, 0.15); border-color: rgba(100, 116, 139, 0.35); }
+        /* 2. Master Data */
+        .admin-action-master .qa-icon { background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.35); }
+        /* 3. Jobs/Tasks */
+        .admin-action-jobs .qa-icon { background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.35); }
+        /* 4. Notifications */
+        .admin-action-notifications .qa-icon { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.35); }
+        /* 5. Sales (qa-primary) */
+        .qa-primary .qa-icon { background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.35); }
+        /* 6. Purchases & 8. Checks (qa-warning) */
+        .qa-warning .qa-icon { background: rgba(251, 191, 36, 0.15); border-color: rgba(251, 191, 36, 0.35); }
+        /* 7. Transactions (qa-danger) */
+        .qa-danger .qa-icon { background: rgba(248, 113, 113, 0.15); border-color: rgba(248, 113, 113, 0.35); }
+        /* 9. Reports (qa-purple) */
+        .qa-purple .qa-icon { background: rgba(192, 132, 252, 0.15); border-color: rgba(192, 132, 252, 0.35); }
+        /* 10. Warehouses (inventory-report link) */
+        a[data-href="inventory-report.php"] .qa-icon { background: rgba(167, 139, 250, 0.15); border-color: rgba(167, 139, 250, 0.35); }
 
-        /* Hover states: border thickens (sumk yazid daraja), icon scales up, background darkens */
-        .admin-action-btn:hover .qa-icon {
-            transform: scale(1.25) rotate(5deg) translateY(-2px);
-            border-width: 3.5px; /* Thicker border (حواف تزيد أكثر لتكون وضوح) */
-        }
-        .admin-action-settings:hover .qa-icon {
-            background: rgba(100, 116, 139, 0.35) !important;
-            border-color: #64748b !important;
-        }
-        .admin-action-master:hover .qa-icon {
-            background: rgba(59, 130, 246, 0.35) !important;
-            border-color: #3b82f6 !important;
-        }
-        .admin-action-jobs:hover .qa-icon {
-            background: rgba(16, 185, 129, 0.35) !important;
-            border-color: #10b981 !important;
-        }
-        .admin-action-notifications:hover .qa-icon {
-            background: rgba(239, 68, 68, 0.35) !important;
-            border-color: #ef4444 !important;
+        /* Hover states in default/Dark Mode: scale to 1.4, border to 4.5px, background darkens */
+        .admin-action-btn:hover .qa-icon,
+        .quick-action-btn:hover .qa-icon {
+            transform: scale(1.4) rotate(5deg) translateY(-2px) !important;
+            border-width: 4.5px !important;
         }
         
-        .quick-action-btn:hover .qa-icon {
-            transform: scale(1.25) rotate(5deg) translateY(-2px);
-            border-width: 3.5px;
-        }
+        .admin-action-settings:hover .qa-icon { background: rgba(100, 116, 139, 0.45) !important; border-color: #64748b !important; }
+        .admin-action-master:hover .qa-icon { background: rgba(59, 130, 246, 0.45) !important; border-color: #3b82f6 !important; }
+        .admin-action-jobs:hover .qa-icon { background: rgba(16, 185, 129, 0.45) !important; border-color: #10b981 !important; }
+        .admin-action-notifications:hover .qa-icon { background: rgba(239, 68, 68, 0.45) !important; border-color: #ef4444 !important; }
+        .qa-primary:hover .qa-icon { background: rgba(56, 189, 248, 0.45) !important; border-color: #38bdf8 !important; }
+        .qa-warning:hover .qa-icon { background: rgba(251, 191, 36, 0.45) !important; border-color: #fbbf24 !important; }
+        .qa-danger:hover .qa-icon { background: rgba(248, 113, 113, 0.45) !important; border-color: #f87171 !important; }
+        .qa-purple:hover .qa-icon { background: rgba(192, 132, 252, 0.45) !important; border-color: #c084fc !important; }
+        a[data-href="inventory-report.php"]:hover .qa-icon { background: rgba(167, 139, 250, 0.45) !important; border-color: #a78bfa !important; }
 
         /* Compact Tables */
         .premium-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.85rem; }
@@ -507,44 +499,32 @@
         }
         
         /* Light Mode specific color coding (lighter backgrounds, clear borders) */
-        :root.light-theme .admin-action-settings .qa-icon {
-            background: rgba(100, 116, 139, 0.1) !important;
-            border-color: rgba(100, 116, 139, 0.35) !important;
-        }
-        :root.light-theme .admin-action-master .qa-icon {
-            background: rgba(59, 130, 246, 0.1) !important;
-            border-color: rgba(59, 130, 246, 0.35) !important;
-        }
-        :root.light-theme .admin-action-jobs .qa-icon {
-            background: rgba(16, 185, 129, 0.1) !important;
-            border-color: rgba(16, 185, 129, 0.35) !important;
-        }
-        :root.light-theme .admin-action-notifications .qa-icon {
-            background: rgba(239, 68, 68, 0.1) !important;
-            border-color: rgba(239, 68, 68, 0.35) !important;
-        }
+        :root.light-theme .admin-action-settings .qa-icon { background: rgba(100, 116, 139, 0.1) !important; border-color: rgba(100, 116, 139, 0.35) !important; }
+        :root.light-theme .admin-action-master .qa-icon { background: rgba(59, 130, 246, 0.1) !important; border-color: rgba(59, 130, 246, 0.35) !important; }
+        :root.light-theme .admin-action-jobs .qa-icon { background: rgba(16, 185, 129, 0.1) !important; border-color: rgba(16, 185, 129, 0.35) !important; }
+        :root.light-theme .admin-action-notifications .qa-icon { background: rgba(239, 68, 68, 0.1) !important; border-color: rgba(239, 68, 68, 0.35) !important; }
+        :root.light-theme .qa-primary .qa-icon { background: rgba(56, 189, 248, 0.1) !important; border-color: rgba(56, 189, 248, 0.35) !important; }
+        :root.light-theme .qa-warning .qa-icon { background: rgba(251, 191, 36, 0.1) !important; border-color: rgba(251, 191, 36, 0.35) !important; }
+        :root.light-theme .qa-danger .qa-icon { background: rgba(248, 113, 113, 0.1) !important; border-color: rgba(248, 113, 113, 0.35) !important; }
+        :root.light-theme .qa-purple .qa-icon { background: rgba(192, 132, 252, 0.1) !important; border-color: rgba(192, 132, 252, 0.35) !important; }
+        :root.light-theme a[data-href="inventory-report.php"] .qa-icon { background: rgba(167, 139, 250, 0.1) !important; border-color: rgba(167, 139, 250, 0.35) !important; }
 
-        /* Hover states in Light Mode: backgrounds darken, borders thicken */
-        :root.light-theme .admin-action-btn:hover .qa-icon {
-            border-width: 3.5px !important;
-            transform: scale(1.25) rotate(5deg) translateY(-2px) !important;
+        /* Hover states in Light Mode: backgrounds darken, borders thicken (4.5px), scale up to 1.4 */
+        :root.light-theme .admin-action-btn:hover .qa-icon,
+        :root.light-theme .quick-action-btn:hover .qa-icon {
+            border-width: 4.5px !important;
+            transform: scale(1.4) rotate(5deg) translateY(-2px) !important;
         }
-        :root.light-theme .admin-action-settings:hover .qa-icon {
-            background: rgba(100, 116, 139, 0.3) !important;
-            border-color: #64748b !important;
-        }
-        :root.light-theme .admin-action-master:hover .qa-icon {
-            background: rgba(59, 130, 246, 0.3) !important;
-            border-color: #3b82f6 !important;
-        }
-        :root.light-theme .admin-action-jobs:hover .qa-icon {
-            background: rgba(16, 185, 129, 0.3) !important;
-            border-color: #10b981 !important;
-        }
-        :root.light-theme .admin-action-notifications:hover .qa-icon {
-            background: rgba(239, 68, 68, 0.3) !important;
-            border-color: #ef4444 !important;
-        }
+        
+        :root.light-theme .admin-action-settings:hover .qa-icon { background: rgba(100, 116, 139, 0.3) !important; border-color: #64748b !important; }
+        :root.light-theme .admin-action-master:hover .qa-icon { background: rgba(59, 130, 246, 0.3) !important; border-color: #3b82f6 !important; }
+        :root.light-theme .admin-action-jobs:hover .qa-icon { background: rgba(16, 185, 129, 0.3) !important; border-color: #10b981 !important; }
+        :root.light-theme .admin-action-notifications:hover .qa-icon { background: rgba(239, 68, 68, 0.3) !important; border-color: #ef4444 !important; }
+        :root.light-theme .qa-primary:hover .qa-icon { background: rgba(56, 189, 248, 0.3) !important; border-color: #38bdf8 !important; }
+        :root.light-theme .qa-warning:hover .qa-icon { background: rgba(251, 191, 36, 0.3) !important; border-color: #fbbf24 !important; }
+        :root.light-theme .qa-danger:hover .qa-icon { background: rgba(248, 113, 113, 0.3) !important; border-color: #f87171 !important; }
+        :root.light-theme .qa-purple:hover .qa-icon { background: rgba(192, 132, 252, 0.3) !important; border-color: #c084fc !important; }
+        :root.light-theme a[data-href="inventory-report.php"]:hover .qa-icon { background: rgba(167, 139, 250, 0.3) !important; border-color: #a78bfa !important; }
         :root.light-theme .admin-actions-row {
             background: rgba(0, 0, 0, 0.03);
             border-color: rgba(0, 0, 0, 0.06);
