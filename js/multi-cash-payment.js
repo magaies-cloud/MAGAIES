@@ -1103,52 +1103,84 @@ function applyGroupedVoucherEffect(voucher, isRevert = false) {
 // Inline Payment Panel & Formatting Logic (Grouped Vouchers)
 // ═══════════════════════════════════════════════════════
 
-window.togglePaymentSection = function(method) {
-    const radioCash = document.getElementById('radio-cash');
-    const radioCheck = document.getElementById('radio-check');
-    const radioMobile = document.getElementById('radio-mobile');
-    const radioHybrid = document.getElementById('radio-hybrid');
-    
-    if (method === 'cash') {
-        if (radioCash) radioCash.checked = true;
-    } else if (method === 'bank') {
-        if (radioMobile) radioMobile.checked = true;
-    } else if (method === 'cheque') {
-        if (radioCheck) radioCheck.checked = true;
-    } else if (method === 'hybrid') {
-        if (radioHybrid) radioHybrid.checked = true;
+window.togglePaymentSection = function(clickedMethod) {
+    const btnCash = document.getElementById('toggle-cash');
+    const btnBank = document.getElementById('toggle-bank');
+    const btnCheque = document.getElementById('toggle-cheque');
+
+    if (clickedMethod === 'cash') {
+        if (btnCash) btnCash.classList.add('active');
+        if (btnBank) btnBank.classList.remove('active');
+        if (btnCheque) btnCheque.classList.remove('active');
+    } else {
+        if (btnCash) btnCash.classList.remove('active');
+        
+        const btn = document.getElementById('toggle-' + clickedMethod);
+        if (btn) {
+            btn.classList.toggle('active');
+        }
+        
+        // If both bank and cheque are deactivated, fallback to cash
+        const bankActive = btnBank?.classList.contains('active');
+        const chequeActive = btnCheque?.classList.contains('active');
+        if (!bankActive && !chequeActive) {
+            if (btnCash) btnCash.classList.add('active');
+        }
     }
-    
+
     if (typeof playClickSound === 'function') {
         playClickSound();
     }
 
-    document.querySelectorAll('.pay-toggle-btn').forEach(btn => btn.classList.remove('active'));
-    const activeBtn = document.getElementById(`toggle-${method}`);
-    if (activeBtn) activeBtn.classList.add('active');
+    // Sync with radio buttons
+    const btnBankActive = btnBank?.classList.contains('active');
+    const btnChequeActive = btnCheque?.classList.contains('active');
 
+    const radioCash = document.getElementById('radio-cash');
+    const radioCheck = document.getElementById('radio-check');
+    const radioMobile = document.getElementById('radio-mobile');
+    const radioHybrid = document.getElementById('radio-hybrid');
+
+    if (radioCash) radioCash.checked = false;
+    if (radioCheck) radioCheck.checked = false;
+    if (radioMobile) radioMobile.checked = false;
+    if (radioHybrid) radioHybrid.checked = false;
+
+    if (btnBankActive && btnChequeActive) {
+        if (radioHybrid) radioHybrid.checked = true;
+    } else if (btnBankActive) {
+        if (radioMobile) radioMobile.checked = true;
+    } else if (btnChequeActive) {
+        if (radioCheck) radioCheck.checked = true;
+    } else {
+        if (radioCash) radioCash.checked = true;
+    }
+
+    // Update payment method boxes visibility
+    const isCash = !btnBankActive && !btnChequeActive;
     const secCash = document.getElementById('pay-cash-section');
     const secBank = document.getElementById('pay-bank-section');
     const secCheque = document.getElementById('pay-cheque-section');
-    
-    if (secCash) secCash.style.display = (method === 'cash') ? 'flex' : 'none';
-    if (secBank) secBank.style.display = (method === 'bank' || method === 'hybrid') ? 'flex' : 'none';
-    if (secCheque) secCheque.style.display = (method === 'cheque' || method === 'hybrid') ? 'flex' : 'none';
+
+    if (secCash) secCash.style.display = isCash ? 'flex' : 'none';
+    if (secBank) secBank.style.display = btnBankActive ? 'flex' : 'none';
+    if (secCheque) secCheque.style.display = btnChequeActive ? 'flex' : 'none';
 
     recalcPaymentSummary();
 };
 
 window.recalcPaymentSummary = function() {
     const totalAmount = cleanNum(document.getElementById('total-amount').innerText);
-    const radioCash = document.getElementById('radio-cash');
-    const radioCheck = document.getElementById('radio-check');
-    const radioMobile = document.getElementById('radio-mobile');
-    const radioHybrid = document.getElementById('radio-hybrid');
-    
-    let isCash = radioCash && radioCash.checked;
-    let isCheck = radioCheck && radioCheck.checked;
-    let isMobile = radioMobile && radioMobile.checked;
-    let isHybrid = radioHybrid && radioHybrid.checked;
+    const btnCash = document.getElementById('toggle-cash');
+    const btnBank = document.getElementById('toggle-bank');
+    const btnCheque = document.getElementById('toggle-cheque');
+
+    const bankActive = btnBank?.classList.contains('active');
+    const chequeActive = btnCheque?.classList.contains('active');
+    const isCash = !bankActive && !chequeActive;
+    const isHybrid = bankActive && chequeActive;
+    const isMobile = bankActive && !chequeActive;
+    const isCheck = chequeActive && !bankActive;
     
     const progCash = document.getElementById('prog-cash');
     const progBank = document.getElementById('prog-bank');

@@ -1156,12 +1156,6 @@
                                 color: #c084fc !important;
                                 box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
                             }
-                            #toggle-hybrid.active {
-                                background: rgba(245, 158, 11, 0.2) !important;
-                                border-color: #fbbf24 !important;
-                                color: #fbbf24 !important;
-                                box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
-                            }
                             .payment-method-box {
                                 transition: all 0.3s ease;
                             }
@@ -1186,7 +1180,6 @@
                                     <button type="button" class="pay-toggle-btn active" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💵 نقدي</button>
                                     <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦 تحويل بنكي</button>
                                     <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">✍️ شيك</button>
-                                    <button type="button" class="pay-toggle-btn" id="toggle-hybrid" onclick="togglePaymentSection('hybrid')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦✍️ تحويل وشيك</button>
                                 </div>
                             </div>
                             
@@ -1390,10 +1383,13 @@
             
             // Get active method
             let method = 'cash';
-            if (document.getElementById('toggle-cash')?.classList.contains('active')) method = 'cash';
-            else if (document.getElementById('toggle-bank')?.classList.contains('active')) method = 'bank';
-            else if (document.getElementById('toggle-cheque')?.classList.contains('active')) method = 'cheque';
-            else if (document.getElementById('toggle-hybrid')?.classList.contains('active')) method = 'hybrid';
+            const bankActive = document.getElementById('toggle-bank')?.classList.contains('active');
+            const chequeActive = document.getElementById('toggle-cheque')?.classList.contains('active');
+            
+            if (bankActive && chequeActive) method = 'hybrid';
+            else if (bankActive) method = 'bank';
+            else if (chequeActive) method = 'cheque';
+            else method = 'cash';
             
             // Progress widths
             const elCash = document.getElementById('prog-cash');
@@ -1459,26 +1455,55 @@
             }
         }
 
-        function togglePaymentSection(method) {
-            // 1. Set radio checked
-            const radioId = (method === 'bank') ? 'radio-mobile' : ((method === 'cheque') ? 'radio-check' : 'radio-' + method);
+        function togglePaymentSection(clickedMethod) {
+            const btnCash = document.getElementById('toggle-cash');
+            const btnBank = document.getElementById('toggle-bank');
+            const btnCheque = document.getElementById('toggle-cheque');
+
+            if (clickedMethod === 'cash') {
+                if (btnCash) btnCash.classList.add('active');
+                if (btnBank) btnBank.classList.remove('active');
+                if (btnCheque) btnCheque.classList.remove('active');
+            } else {
+                if (btnCash) btnCash.classList.remove('active');
+                
+                const btn = document.getElementById('toggle-' + clickedMethod);
+                if (btn) {
+                    btn.classList.toggle('active');
+                }
+                
+                // If both bank and cheque are deactivated, fallback to cash
+                const bankActive = btnBank?.classList.contains('active');
+                const chequeActive = btnCheque?.classList.contains('active');
+                if (!bankActive && !chequeActive) {
+                    if (btnCash) btnCash.classList.add('active');
+                }
+            }
+
+            // Sync with radio buttons
+            const bankActive = btnBank?.classList.contains('active');
+            const chequeActive = btnCheque?.classList.contains('active');
+            
+            let radioId = 'radio-cash';
+            if (bankActive && chequeActive) radioId = 'radio-hybrid';
+            else if (bankActive) radioId = 'radio-mobile';
+            else if (chequeActive) radioId = 'radio-check';
+
             const radio = document.getElementById(radioId);
             if (radio) {
                 radio.checked = true;
             }
+
+            // Update payment method boxes visibility
+            const isCash = !bankActive && !chequeActive;
+            document.getElementById('pay-cash-section').style.display = isCash ? 'flex' : 'none';
+            document.getElementById('pay-bank-section').style.display = bankActive ? 'flex' : 'none';
+            document.getElementById('pay-cheque-section').style.display = chequeActive ? 'flex' : 'none';
             
-            // 2. Update active toggle button style
-            document.querySelectorAll('.pay-toggle-btn').forEach(btn => btn.classList.remove('active'));
-            const activeBtn = document.getElementById('toggle-' + method);
-            if (activeBtn) activeBtn.classList.add('active');
+            if (document.getElementById('pay-credit-section')) {
+                document.getElementById('pay-credit-section').style.display = 'none';
+            }
             
-            // 3. Update payment method boxes visibility
-            document.getElementById('pay-cash-section').style.display = (method === 'cash') ? 'flex' : 'none';
-            document.getElementById('pay-bank-section').style.display = (method === 'bank' || method === 'hybrid') ? 'flex' : 'none';
-            document.getElementById('pay-cheque-section').style.display = (method === 'cheque' || method === 'hybrid') ? 'flex' : 'none';
-            document.getElementById('pay-credit-section').style.display = (method === 'credit') ? 'flex' : 'none';
-            
-            // 4. Update progress bars
             recalcPaymentSummary();
         }
 
@@ -1515,18 +1540,34 @@
             window.togglePaymentMethod = function() {
                 const methodRadio = document.querySelector('input[name="payment_method"]:checked');
                 const method = methodRadio ? methodRadio.value : 'cash';
-                const clientMethod = (method === 'mobile') ? 'bank' : ((method === 'check') ? 'cheque' : method);
                 
-                // Update active toggle button style
-                document.querySelectorAll('.pay-toggle-btn').forEach(btn => btn.classList.remove('active'));
-                const activeBtn = document.getElementById('toggle-' + clientMethod);
-                if (activeBtn) activeBtn.classList.add('active');
-                
-                // Update boxes visibility
+                const btnCash = document.getElementById('toggle-cash');
+                const btnBank = document.getElementById('toggle-bank');
+                const btnCheque = document.getElementById('toggle-cheque');
+
+                if (btnCash) btnCash.classList.remove('active');
+                if (btnBank) btnBank.classList.remove('active');
+                if (btnCheque) btnCheque.classList.remove('active');
+
+                if (method === 'mobile') {
+                    if (btnBank) btnBank.classList.add('active');
+                } else if (method === 'check') {
+                    if (btnCheque) btnCheque.classList.add('active');
+                } else if (method === 'hybrid') {
+                    if (btnBank) btnBank.classList.add('active');
+                    if (btnCheque) btnCheque.classList.add('active');
+                } else {
+                    if (btnCash) btnCash.classList.add('active');
+                }
+
+                const bankActive = btnBank?.classList.contains('active');
+                const chequeActive = btnCheque?.classList.contains('active');
+                const isCash = !bankActive && !chequeActive;
+
                 if (document.getElementById('pay-cash-section')) {
-                    document.getElementById('pay-cash-section').style.display = (clientMethod === 'cash') ? 'flex' : 'none';
-                    document.getElementById('pay-bank-section').style.display = (clientMethod === 'bank' || clientMethod === 'hybrid') ? 'flex' : 'none';
-                    document.getElementById('pay-cheque-section').style.display = (clientMethod === 'cheque' || clientMethod === 'hybrid') ? 'flex' : 'none';
+                    document.getElementById('pay-cash-section').style.display = isCash ? 'flex' : 'none';
+                    document.getElementById('pay-bank-section').style.display = bankActive ? 'flex' : 'none';
+                    document.getElementById('pay-cheque-section').style.display = chequeActive ? 'flex' : 'none';
                 }
                 
                 recalcPaymentSummary();

@@ -415,12 +415,6 @@
                     color: #c084fc !important;
                     box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
                 }
-                #toggle-hybrid.active {
-                    background: rgba(245, 158, 11, 0.2) !important;
-                    border-color: #fbbf24 !important;
-                    color: #fbbf24 !important;
-                    box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
-                }
                 .payment-method-box {
                     transition: all 0.3s ease;
                 }
@@ -445,7 +439,6 @@
                         <button type="button" class="pay-toggle-btn active" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💵 نقدي</button>
                         <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦 تحويل بنكي</button>
                         <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">✍️ شيك</button>
-                        <button type="button" class="pay-toggle-btn" id="toggle-hybrid" onclick="togglePaymentSection('hybrid')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦✍️ تحويل وشيك</button>
                     </div>
                 </div>
                 
