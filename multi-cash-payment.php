@@ -457,28 +457,14 @@
 
                         <!-- Bank Transfer section -->
                         <div id="pay-bank-section" class="payment-method-box" style="background: rgba(59, 130, 246, 0.04); border: 1px solid rgba(59, 130, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(59,130,246,0.1); padding-bottom: 8px; margin-bottom: 5px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-size: 1.2rem;">🏦</span>
-                                    <span style="font-weight: 800; color: #60a5fa; font-size: 0.95rem;">تفاصيل التحويلات البنكية للمجمع</span>
-                                </div>
-                                <button type="button" onclick="addTransferRow()" class="pay-toggle-btn" style="background: rgba(59,130,246,0.2); border-color:#60a5fa; color:#60a5fa; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; height: 30px;">➕ إضافة تحويل</button>
-                            </div>
-                            <div id="transfers-container" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div id="transfers-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
                                 <!-- Dynamic rows -->
                             </div>
                         </div>
 
                         <!-- Cheque section -->
                         <div id="pay-cheque-section" class="payment-method-box" style="background: rgba(139, 92, 246, 0.04); border: 1px solid rgba(139, 92, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(139,92,246,0.1); padding-bottom: 8px; margin-bottom: 5px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-size: 1.2rem;">✍️</span>
-                                    <span style="font-weight: 800; color: #c084fc; font-size: 0.95rem;">تفاصيل الشيكات</span>
-                                </div>
-                                <button type="button" onclick="addChequeRow()" class="pay-toggle-btn" style="background: rgba(139,92,246,0.2); border-color:#c084fc; color:#c084fc; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; height: 30px;">➕ إضافة شيك</button>
-                            </div>
-                            <div id="cheques-container" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div id="cheques-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
                                 <!-- Dynamic rows -->
                             </div>
                         </div>
