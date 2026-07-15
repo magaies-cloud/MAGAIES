@@ -172,6 +172,418 @@ JSON.parse = function(val) {
             }
         });
 
+        // ════════════════════════════════════════
+        //  ONE-TIME DATA MIGRATION TO DATE-BASED SERIALS (INSIDE initDB)
+        // ════════════════════════════════════════
+        try {
+            if (localGetItem('erp_miga_v10_done') !== 'true') {
+                const suffixes = [
+                    'erp_sales_invoices_v1',
+                    'erp_purchase_invoices_v1',
+                    'erp_single_payments_v1',
+                    'erp_single_receipts_v1',
+                    'erp_payments_v1',
+                    'erp_receipts_v1',
+                    'erp_journal_vouchers_v1',
+                    'erp_inventory_v1'
+                ];
+                
+                const prefixSet = new Set(['tenant_default_', getTenantPrefix()]);
+                
+                // Scan IndexedDB keys
+                try {
+                    if (window.localforage && typeof localforage.keys === 'function') {
+                        const lfKeys = await localforage.keys();
+                        lfKeys.forEach(k => {
+                            suffixes.forEach(suff => {
+                                if (k.endsWith(suff)) {
+                                    prefixSet.add(k.substring(0, k.length - suff.length));
+                                }
+                            });
+                        });
+                    }
+                } catch(e) {}
+                
+                // Scan localStorage keys
+                try {
+                    const lsKeys = Object.keys(localStorage);
+                    lsKeys.forEach(k => {
+                        suffixes.forEach(suff => {
+                            if (k.endsWith(suff)) {
+                                prefixSet.add(k.substring(0, k.length - suff.length));
+                            }
+                        });
+                    });
+                } catch(e) {}
+                
+                for (const pref of prefixSet) {
+                    const salesKey = pref + 'erp_sales_invoices_v1';
+                    const purchaseKey = pref + 'erp_purchase_invoices_v1';
+                    const singlePayKey = pref + 'erp_single_payments_v1';
+                    const singleRecKey = pref + 'erp_single_receipts_v1';
+                    const payKey = pref + 'erp_payments_v1';
+                    const recKey = pref + 'erp_receipts_v1';
+                    const jvKey = pref + 'erp_journal_vouchers_v1';
+                    const invKey = pref + 'erp_inventory_v1';
+                    const printKey = 'erp_print_requests';
+                    
+                    let sales = JSON.parse(window.DB_STORE[salesKey] || localGetItem(salesKey) || '[]');
+                    let purchases = JSON.parse(window.DB_STORE[purchaseKey] || localGetItem(purchaseKey) || '[]');
+                    let singlePayments = JSON.parse(window.DB_STORE[singlePayKey] || localGetItem(singlePayKey) || '[]');
+                    let singleReceipts = JSON.parse(window.DB_STORE[singleRecKey] || localGetItem(singleRecKey) || '[]');
+                    let payments = JSON.parse(window.DB_STORE[payKey] || localGetItem(payKey) || '[]');
+                    let receipts = JSON.parse(window.DB_STORE[recKey] || localGetItem(recKey) || '[]');
+                    let jvs = JSON.parse(window.DB_STORE[jvKey] || localGetItem(jvKey) || '[]');
+                    let inventory = JSON.parse(window.DB_STORE[invKey] || localGetItem(invKey) || '[]');
+                    let prints = JSON.parse(window.DB_STORE[printKey] || localGetItem(printKey) || '[]');
+                    
+                    const idMap = {};
+                    const detailsToSave = {};
+                    const keysToDelete = [];
+                    
+                    function getYYMM(dateStr) {
+                        const d = dateStr ? new Date(dateStr) : new Date();
+                        const validD = isNaN(d.getTime()) ? new Date() : d;
+                        const yy = String(validD.getFullYear()).substring(2, 4);
+                        const mm = String(validD.getMonth() + 1).padStart(2, '0');
+                        return yy + mm;
+                    }
+
+                    function chronoCompare(a, b) {
+                        const dateA = a.date || a.createdAt || '';
+                        const dateB = b.date || b.createdAt || '';
+                        const cmp = dateA.localeCompare(dateB);
+                        if (cmp !== 0) return cmp;
+                        
+                        const timeA = a.time || '';
+                        const timeB = b.time || '';
+                        const cmpTime = timeA.localeCompare(timeB);
+                        if (cmpTime !== 0) return cmpTime;
+                        
+                        return (a._originalIndex || 0) - (b._originalIndex || 0);
+                    }
+                    
+                    // 1. Migrate Sales Invoices
+                    const salesByMonth = {};
+                    sales.forEach((inv, idx) => {
+                        inv._originalIndex = idx;
+                        const yymm = getYYMM(inv.date || inv.createdAt);
+                        if (!salesByMonth[yymm]) salesByMonth[yymm] = [];
+                        salesByMonth[yymm].push(inv);
+                    });
+                    for (const yymm of Object.keys(salesByMonth)) {
+                        salesByMonth[yymm].sort(chronoCompare);
+                        for (let index = 0; index < salesByMonth[yymm].length; index++) {
+                            const inv = salesByMonth[yymm][index];
+                            const oldNo = inv.invoiceNo;
+                            if (oldNo === 'preliminary' || String(oldNo).startsWith('PRE-')) continue;
+                            
+                            const newNo = 'S' + yymm + String(index + 1).padStart(4, '0');
+                            if (oldNo !== newNo) {
+                                idMap[oldNo] = newNo;
+                                inv.invoiceNo = newNo;
+                                if (inv.id === oldNo) inv.id = newNo;
+                                
+                                const detailKeyOld = pref + 'erp_inv_' + oldNo;
+                                const detailKeyNew = pref + 'erp_inv_' + newNo;
+                                const detailData = window.DB_STORE[detailKeyOld] || localGetItem(detailKeyOld);
+                                if (detailData) {
+                                    try {
+                                        const parsed = JSON.parse(detailData);
+                                        parsed.invoiceNo = newNo;
+                                        if (parsed.id === oldNo) parsed.id = newNo;
+                                        detailsToSave[detailKeyNew] = JSON.stringify(parsed);
+                                        keysToDelete.push(detailKeyOld);
+                                    } catch(e){}
+                                }
+                            }
+                        }
+                    }
+                    
+                    // 2. Migrate Purchase Invoices
+                    const purByMonth = {};
+                    purchases.forEach((inv, idx) => {
+                        inv._originalIndex = idx;
+                        const yymm = getYYMM(inv.date || inv.createdAt);
+                        if (!purByMonth[yymm]) purByMonth[yymm] = [];
+                        purByMonth[yymm].push(inv);
+                    });
+                    for (const yymm of Object.keys(purByMonth)) {
+                        purByMonth[yymm].sort(chronoCompare);
+                        for (let index = 0; index < purByMonth[yymm].length; index++) {
+                            const inv = purByMonth[yymm][index];
+                            const oldNo = inv.invoiceNo;
+                            
+                            const newNo = 'P' + yymm + String(index + 1).padStart(4, '0');
+                            if (oldNo !== newNo) {
+                                idMap[oldNo] = newNo;
+                                inv.invoiceNo = newNo;
+                                if (inv.id === oldNo) inv.id = newNo;
+                                
+                                const detailKeyOld = pref + 'erp_pur_' + oldNo;
+                                const detailKeyNew = pref + 'erp_pur_' + newNo;
+                                const detailData = window.DB_STORE[detailKeyOld] || localGetItem(detailKeyOld);
+                                if (detailData) {
+                                    try {
+                                        const parsed = JSON.parse(detailData);
+                                        parsed.invoiceNo = newNo;
+                                        if (parsed.id === oldNo) parsed.id = newNo;
+                                        detailsToSave[detailKeyNew] = JSON.stringify(parsed);
+                                        keysToDelete.push(detailKeyOld);
+                                    } catch(e){}
+                                }
+                            }
+                        }
+                    }
+                    
+                    // 3. Migrate Single Payments
+                    const spByMonth = {};
+                    singlePayments.forEach((v, idx) => {
+                        v._originalIndex = idx;
+                        const yymm = getYYMM(v.date || v.createdAt);
+                        if (!spByMonth[yymm]) spByMonth[yymm] = [];
+                        spByMonth[yymm].push(v);
+                    });
+                    for (const yymm of Object.keys(spByMonth)) {
+                        spByMonth[yymm].sort(chronoCompare);
+                        for (let index = 0; index < spByMonth[yymm].length; index++) {
+                            const v = spByMonth[yymm][index];
+                            const oldNo = v.id || v.voucherNo;
+                            
+                            const newNo = 'E' + yymm + String(index + 1).padStart(4, '0');
+                            if (oldNo !== newNo) {
+                                idMap[oldNo] = newNo;
+                                if (v.id === oldNo) v.id = newNo;
+                                if (v.voucherNo === oldNo) v.voucherNo = newNo;
+                            }
+                        }
+                    }
+                    
+                    // 4. Migrate Single Receipts
+                    const srByMonth = {};
+                    singleReceipts.forEach((v, idx) => {
+                        v._originalIndex = idx;
+                        const yymm = getYYMM(v.date || v.createdAt);
+                        if (!srByMonth[yymm]) srByMonth[yymm] = [];
+                        srByMonth[yymm].push(v);
+                    });
+                    for (const yymm of Object.keys(srByMonth)) {
+                        srByMonth[yymm].sort(chronoCompare);
+                        for (let index = 0; index < srByMonth[yymm].length; index++) {
+                            const v = srByMonth[yymm][index];
+                            const oldNo = v.id || v.voucherNo;
+                            
+                            const newNo = 'E' + yymm + String(index + 1).padStart(4, '0');
+                            if (oldNo !== newNo) {
+                                idMap[oldNo] = newNo;
+                                if (v.id === oldNo) v.id = newNo;
+                                if (v.voucherNo === oldNo) v.voucherNo = newNo;
+                            }
+                        }
+                    }
+                    
+                    // 4a. Migrate Grouped Payments (MVP-XXXX -> M26070001)
+                    const seenPayVouchers = new Set();
+                    const uniqueGroupedPayVouchers = [];
+                    payments.forEach((p, idx) => {
+                        if (p.isGrouped && p.voucherNo) {
+                            if (!seenPayVouchers.has(p.voucherNo)) {
+                                seenPayVouchers.add(p.voucherNo);
+                                uniqueGroupedPayVouchers.push({
+                                    voucherNo: p.voucherNo,
+                                    date: p.date || p.createdAt,
+                                    _originalIndex: idx
+                                });
+                            }
+                        }
+                    });
+                    const gpByMonth = {};
+                    uniqueGroupedPayVouchers.forEach(v => {
+                        const yymm = getYYMM(v.date);
+                        if (!gpByMonth[yymm]) gpByMonth[yymm] = [];
+                        gpByMonth[yymm].push(v);
+                    });
+                    for (const yymm of Object.keys(gpByMonth)) {
+                        gpByMonth[yymm].sort(chronoCompare);
+                        for (let index = 0; index < gpByMonth[yymm].length; index++) {
+                            const v = gpByMonth[yymm][index];
+                            const oldNo = v.voucherNo;
+                            const isOldFormat = !/^M\d{8}$/.test(oldNo);
+                            if (isOldFormat) {
+                                const newNo = 'M' + yymm + String(index + 1).padStart(4, '0');
+                                idMap[oldNo] = newNo;
+                            }
+                        }
+                    }
+
+                    // 4b. Migrate Grouped Receipts (MVR-XXXX -> M26070001)
+                    const seenRecVouchers = new Set();
+                    const uniqueGroupedRecVouchers = [];
+                    receipts.forEach((r, idx) => {
+                        if (r.isGrouped && r.voucherNo) {
+                            if (!seenRecVouchers.has(r.voucherNo)) {
+                                seenRecVouchers.add(r.voucherNo);
+                                uniqueGroupedRecVouchers.push({
+                                    voucherNo: r.voucherNo,
+                                    date: r.date || r.createdAt,
+                                    _originalIndex: idx
+                                });
+                            }
+                        }
+                    });
+                    const grByMonth = {};
+                    uniqueGroupedRecVouchers.forEach(v => {
+                        const yymm = getYYMM(v.date);
+                        if (!grByMonth[yymm]) grByMonth[yymm] = [];
+                        grByMonth[yymm].push(v);
+                    });
+                    for (const yymm of Object.keys(grByMonth)) {
+                        grByMonth[yymm].sort(chronoCompare);
+                        for (let index = 0; index < grByMonth[yymm].length; index++) {
+                            const v = grByMonth[yymm][index];
+                            const oldNo = v.voucherNo;
+                            const isOldFormat = !/^M\d{8}$/.test(oldNo);
+                            if (isOldFormat) {
+                                const newNo = 'M' + yymm + String(index + 1).padStart(4, '0');
+                                idMap[oldNo] = newNo;
+                            }
+                        }
+                    }
+                    
+                    // Cleanup _originalIndex properties
+                    sales.forEach(inv => delete inv._originalIndex);
+                    purchases.forEach(inv => delete inv._originalIndex);
+                    singlePayments.forEach(v => delete v._originalIndex);
+                    singleReceipts.forEach(v => delete v._originalIndex);
+
+                    const hasChanges = Object.keys(idMap).length > 0;
+                    
+                    if (hasChanges) {
+                        // Apply details changes
+                        for (const keyOld of keysToDelete) {
+                            delete window.DB_STORE[keyOld];
+                            localRemoveItem(keyOld);
+                            await localforage.removeItem(keyOld);
+                        }
+                        for (const keyNew of Object.keys(detailsToSave)) {
+                            const valStr = detailsToSave[keyNew];
+                            window.DB_STORE[keyNew] = valStr;
+                            localSetItem(keyNew, valStr);
+                            await localforage.setItem(keyNew, valStr);
+                        }
+                        
+                        // Save main lists
+                        const salesVal = JSON.stringify(sales);
+                        window.DB_STORE[salesKey] = salesVal;
+                        localSetItem(salesKey, salesVal);
+                        await localforage.setItem(salesKey, salesVal);
+                        
+                        const purVal = JSON.stringify(purchases);
+                        window.DB_STORE[purchaseKey] = purVal;
+                        localSetItem(purchaseKey, purVal);
+                        await localforage.setItem(purchaseKey, purVal);
+                        
+                        const spVal = JSON.stringify(singlePayments);
+                        window.DB_STORE[singlePayKey] = spVal;
+                        localSetItem(singlePayKey, spVal);
+                        await localforage.setItem(singlePayKey, spVal);
+                        
+                        const srVal = JSON.stringify(singleReceipts);
+                        window.DB_STORE[singleRecKey] = srVal;
+                        localSetItem(singleRecKey, srVal);
+                        await localforage.setItem(singleRecKey, srVal);
+                        
+                        // 5. Update references in GL payments / receipts
+                        let paymentsChanged = false;
+                        payments.forEach(p => {
+                            if (p.voucherNo && idMap[p.voucherNo]) {
+                                p.voucherNo = idMap[p.voucherNo];
+                                paymentsChanged = true;
+                            }
+                            if (p.invoiceNo && idMap[p.invoiceNo]) {
+                                p.invoiceNo = idMap[p.invoiceNo];
+                                paymentsChanged = true;
+                            }
+                            if (p.refNo && idMap[p.refNo]) {
+                                p.refNo = idMap[p.refNo];
+                                paymentsChanged = true;
+                            }
+                        });
+                        if (paymentsChanged) {
+                            const valStr = JSON.stringify(payments);
+                            window.DB_STORE[payKey] = valStr;
+                            localSetItem(payKey, valStr);
+                            await localforage.setItem(payKey, valStr);
+                        }
+                        
+                        let receiptsChanged = false;
+                        receipts.forEach(r => {
+                            if (r.voucherNo && idMap[r.voucherNo]) {
+                                r.voucherNo = idMap[r.voucherNo];
+                                receiptsChanged = true;
+                            }
+                            if (r.invoiceNo && idMap[r.invoiceNo]) {
+                                r.invoiceNo = idMap[r.invoiceNo];
+                                receiptsChanged = true;
+                            }
+                            if (r.refNo && idMap[r.refNo]) {
+                                r.refNo = idMap[r.refNo];
+                                receiptsChanged = true;
+                            }
+                        });
+                        if (receiptsChanged) {
+                            const valStr = JSON.stringify(receipts);
+                            window.DB_STORE[recKey] = valStr;
+                            localSetItem(recKey, valStr);
+                            await localforage.setItem(recKey, valStr);
+                        }
+                        
+                        // 6. Update Inventory entries references
+                        let invChanged = false;
+                        inventory.forEach(item => {
+                            if (item.invoiceNo && idMap[item.invoiceNo]) {
+                                item.invoiceNo = idMap[item.invoiceNo];
+                                invChanged = true;
+                            }
+                            if (item.refNo && idMap[item.refNo]) {
+                                item.refNo = idMap[item.refNo];
+                                invChanged = true;
+                            }
+                        });
+                        if (invChanged) {
+                            const valStr = JSON.stringify(inventory);
+                            window.DB_STORE[invKey] = valStr;
+                            localSetItem(invKey, valStr);
+                            await localforage.setItem(invKey, valStr);
+                        }
+                        
+                        // 7. Update Print Requests references
+                        let printChanged = false;
+                        prints.forEach(req => {
+                            if (req.id && idMap[req.id]) {
+                                req.id = idMap[req.id];
+                                printChanged = true;
+                            }
+                            if (req.invoiceNo && idMap[req.invoiceNo]) {
+                                req.invoiceNo = idMap[req.invoiceNo];
+                                printChanged = true;
+                            }
+                        });
+                        if (printChanged) {
+                            const valStr = JSON.stringify(prints);
+                            window.DB_STORE[printKey] = valStr;
+                            localSetItem(printKey, valStr);
+                            await localforage.setItem(printKey, valStr);
+                        }
+                    }
+                }
+                
+                localSetItem('erp_miga_v10_done', 'true');
+            }
+        } catch(e) {
+            console.error('Migration failed:', e);
+        }
+
         window.APP_READY = true;
         document.dispatchEvent(new Event('DBReady'));
     }

@@ -642,14 +642,30 @@ async function loadNextMultiVoucherNumber() {
     } catch(e) {}
     if (!Array.isArray(existingData)) existingData = Object.values(existingData);
     
-    const groupedVouchers = existingData.filter(v => v.isGrouped);
-    const nextNum = groupedVouchers.length + 1;
-    const prefix = type === 'payment' ? 'MVP' : 'MVR';
-    const padNum = String(nextNum).padStart(4, '0');
+    const now = new Date();
+    const yy = String(now.getFullYear()).substring(2, 4);
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const datePrefix = yy + mm;
+    const prefix = 'M';
     
+    let max = 0;
+    const groupedVouchers = existingData.filter(v => v.isGrouped);
+    groupedVouchers.forEach(v => {
+        const vNo = String(v.voucherNo || '');
+        const matchPrefix = prefix + datePrefix;
+        if (vNo.startsWith(matchPrefix)) {
+            const seqStr = vNo.substring(matchPrefix.length);
+            const seq = parseInt(seqStr, 10);
+            if (!isNaN(seq) && seq > max) {
+                max = seq;
+            }
+        }
+    });
+    
+    const padNum = String(max + 1).padStart(4, '0');
     const displayEl = document.getElementById('voucher-no-display');
     if (displayEl) {
-        displayEl.value = `${prefix}-${padNum}`;
+        displayEl.value = `${prefix}${datePrefix}${padNum}`;
     }
 }
 

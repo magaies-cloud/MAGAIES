@@ -283,8 +283,8 @@
                     <div class="ctrl-group">
                         <label class="label">طريقة الدفع</label>
                         <select class="ctrl-input" id="hdr-payment-method" onchange="togglePaymentAccount()">
-                            <option value="cash">نقدي مباشر</option>
                             <option value="credit">آجل (ذمم مدينة)</option>
+                            <option value="cash">نقدي مباشر</option>
                             <option value="bank">تحويل بنكي (شبكة)</option>
                             <option value="cheque">شيك</option>
                         </select>

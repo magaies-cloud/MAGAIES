@@ -2005,6 +2005,14 @@ function initMultiPaymentSystem() {
 }
 
 function togglePaymentSection(type) {
+    if (type === 'credit') {
+        const btn = document.getElementById('toggle-credit');
+        if (btn) btn.classList.add('active');
+        updatePaymentSectionsVisibility();
+        recalcPaymentSummary();
+        return;
+    }
+
     const btn = document.getElementById('toggle-' + type);
     if (!btn) return;
     
@@ -2024,8 +2032,6 @@ function togglePaymentSection(type) {
     if (isActive) {
         if (type === 'cash') {
             document.getElementById('pay-cash-amount').value = '0';
-        } else if (type === 'credit') {
-            document.getElementById('pay-credit-amount').value = '0';
         } else if (type === 'bank') {
             document.getElementById('bank-transfers-list').innerHTML = '';
         } else if (type === 'cheque') {
@@ -2041,16 +2047,33 @@ function togglePaymentSection(type) {
 
 function updatePaymentSectionsVisibility() {
     const cashActive = document.getElementById('toggle-cash').classList.contains('active');
-    const creditActive = document.getElementById('toggle-credit').classList.contains('active');
     const bankActive = document.getElementById('toggle-bank').classList.contains('active');
     const chequeActive = document.getElementById('toggle-cheque').classList.contains('active');
     
+    // Force credit toggle to be active
+    const creditBtn = document.getElementById('toggle-credit');
+    if (creditBtn) creditBtn.classList.add('active');
+    
     document.getElementById('pay-cash-section').style.display = cashActive ? 'flex' : 'none';
-    document.getElementById('pay-credit-section').style.display = creditActive ? 'flex' : 'none';
+    document.getElementById('pay-credit-section').style.display = 'flex'; // Always visible
     document.getElementById('pay-bank-section').style.display = bankActive ? 'flex' : 'none';
     document.getElementById('pay-cheque-section').style.display = chequeActive ? 'flex' : 'none';
 
-    const hasActive = cashActive || creditActive || bankActive || chequeActive;
+    // Auto-add first row if empty when section becomes active
+    if (bankActive) {
+        const btList = document.getElementById('bank-transfers-list');
+        if (btList && btList.children.length === 0) {
+            addBankTransferRow();
+        }
+    }
+    if (chequeActive) {
+        const chList = document.getElementById('cheques-list');
+        if (chList && chList.children.length === 0) {
+            addChequeRow();
+        }
+    }
+
+    const hasActive = cashActive || bankActive || chequeActive || (creditBtn && creditBtn.classList.contains('active'));
     const layout = document.getElementById('payment-layout');
     if (layout) {
         layout.style.display = hasActive ? 'flex' : 'none';
@@ -2082,18 +2105,37 @@ function addBankTransferRow(existingData = null) {
         banksHtml = '<option value="">-- لا توجد حسابات بنكية --</option>';
     }
     
+    const isFirst = container.children.length === 0;
+    
     const rowDiv = document.createElement('div');
     rowDiv.id = rowId;
-    rowDiv.className = 'payment-row-item';
-    rowDiv.style = 'display: flex; gap: 10px; align-items: center; background: rgba(59, 130, 246, 0.05); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.15); margin-bottom: 5px;';
+    rowDiv.className = 'payment-row-item payment-method-box';
+    rowDiv.style = 'display: flex; gap: 15px; align-items: center; justify-content: space-between; background: rgba(59, 130, 246, 0.04); border: 1px solid rgba(59, 130, 246, 0.18); border-radius: 12px; padding: 12px 15px; width: 100%; flex-wrap: wrap; margin-bottom: 5px;';
     
+    const titleCol = isFirst
+        ? `<div style="display: flex; align-items: center; gap: 8px; min-width: 200px;">
+               <span style="font-size: 1.2rem;">🏦</span>
+               <span style="font-weight: 800; color: #60a5fa; font-size: 0.95rem;">التحويلات البنكية</span>
+           </div>`
+        : `<div class="desktop-only-title-placeholder" style="display: flex; align-items: center; gap: 8px; min-width: 200px; opacity: 0; pointer-events: none;">
+               <span style="font-size: 1.2rem;">🏦</span>
+               <span style="font-weight: 800; color: #60a5fa; font-size: 0.95rem;">التحويلات البنكية</span>
+           </div>`;
+
+    const actionBtn = isFirst
+        ? `<button type="button" onclick="addBankTransferRow()" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; border-radius: 6px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; font-weight: bold;" title="إضافة تحويل آخر">➕</button>`
+        : `<button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 6px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size:0.85rem;" title="حذف">✕</button>`;
+        
     rowDiv.innerHTML = `
-        <select class="v-input ctrl-input bt-bank-select" style="flex: 1.2; height: 34px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; padding: 0 4px;">
-            ${banksHtml}
-        </select>
-        <input type="text" class="v-input ctrl-input bt-ref-input" value="${existingData ? existingData.reference : ''}" placeholder="رقم المرجع..." style="flex: 1; height: 34px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
-        <input type="number" class="v-input ctrl-input bt-amount-input" value="${existingData ? existingData.amount : '0'}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: 0.8; height: 34px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
-        <button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 6px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size:0.85rem;" title="حذف">✕</button>
+        ${titleCol}
+        <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px;">
+            <select class="v-input ctrl-input bt-bank-select" style="flex: 1.2; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; padding: 0 4px;">
+                ${banksHtml}
+            </select>
+            <input type="text" class="v-input ctrl-input bt-ref-input" value="${existingData ? existingData.reference : ''}" placeholder="رقم المرجع..." style="flex: 1; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
+            <input type="number" class="v-input ctrl-input bt-amount-input" value="${existingData ? existingData.amount : '0'}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: 0.8; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
+            ${actionBtn}
+        </div>
     `;
     
     container.appendChild(rowDiv);
@@ -2105,21 +2147,41 @@ function addChequeRow(existingData = null) {
     if (!container) return;
     
     const rowId = 'ch-row-' + Date.now() + '-' + Math.random().toString(36).substring(2,5);
+    const today = new Date().toISOString().split('T')[0];
+    
+    const isFirst = container.children.length === 0;
     
     const rowDiv = document.createElement('div');
     rowDiv.id = rowId;
-    rowDiv.className = 'payment-row-item';
-    rowDiv.style = 'display: flex; gap: 10px; align-items: center; background: rgba(139, 92, 246, 0.05); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.15); flex-wrap: wrap; margin-bottom: 5px;';
+    rowDiv.className = 'payment-row-item payment-method-box';
+    rowDiv.style = 'display: flex; gap: 15px; align-items: center; justify-content: space-between; background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.15); border-radius: 12px; padding: 12px 15px; width: 100%; flex-wrap: wrap; margin-bottom: 5px;';
     
+    const titleCol = isFirst
+        ? `<div style="display: flex; align-items: center; gap: 8px; min-width: 200px;">
+               <span style="font-size: 1.2rem;">✍️</span>
+               <span style="font-weight: 800; color: #c084fc; font-size: 0.95rem;">الشيكات الآجلة / الفورية</span>
+           </div>`
+        : `<div class="desktop-only-title-placeholder" style="display: flex; align-items: center; gap: 8px; min-width: 200px; opacity: 0; pointer-events: none;">
+               <span style="font-size: 1.2rem;">✍️</span>
+               <span style="font-weight: 800; color: #c084fc; font-size: 0.95rem;">الشيكات الآجلة / الفورية</span>
+           </div>`;
+
+    const actionBtn = isFirst
+        ? `<button type="button" onclick="addChequeRow()" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; border-radius: 6px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; font-weight: bold;" title="إضافة شيك آخر">➕</button>`
+        : `<button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 6px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size:0.85rem;" title="حذف">✕</button>`;
+
     rowDiv.innerHTML = `
-        <input type="text" class="v-input ctrl-input ch-no-input" value="${existingData ? existingData.chequeNo : ''}" placeholder="رقم الشيك..." style="flex: 1; min-width: 100px; height: 34px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
-        <input type="text" class="v-input ctrl-input ch-bank-input" value="${existingData ? existingData.bankName : ''}" placeholder="اسم البنك..." style="flex: 1.2; min-width: 120px; height: 34px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
-        <div style="display:flex; align-items:center; gap:5px; flex: 1.2; min-width: 140px;">
-            <label style="font-size:0.7rem; color:#94a3b8; white-space:nowrap;">الاستحقاق</label>
-            <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData && existingData.dueDate ? existingData.dueDate : ''}" style="height: 34px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.8rem; padding: 0 4px;">
+        ${titleCol}
+        <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
+            <input type="text" class="v-input ctrl-input ch-no-input" value="${existingData ? existingData.chequeNo : ''}" placeholder="رقم الشيك..." style="flex: 1; min-width: 90px; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
+            <input type="text" class="v-input ctrl-input ch-bank-input" value="${existingData ? existingData.bankName : ''}" placeholder="اسم البنك..." style="flex: 1.2; min-width: 110px; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
+            <div style="display:flex; align-items:center; gap:5px; flex: 1.3; min-width: 160px;">
+                <label style="font-size:0.75rem; color:#94a3b8; white-space:nowrap;">الاستحقاق:</label>
+                <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData && existingData.dueDate ? existingData.dueDate : today}" style="height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; padding: 0 4px; width: 100%;">
+            </div>
+            <input type="number" class="v-input ctrl-input ch-amount-input" value="${existingData ? existingData.amount : '0'}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: 0.8; min-width: 80px; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
+            ${actionBtn}
         </div>
-        <input type="number" class="v-input ctrl-input ch-amount-input" value="${existingData ? existingData.amount : '0'}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: 0.8; min-width: 80px; height: 34px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
-        <button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 6px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size:0.85rem;" title="حذف">✕</button>
     `;
     
     container.appendChild(rowDiv);
@@ -2305,11 +2367,20 @@ function autofillRemaining(type) {
     
     const currentTotalPaidExceptTarget = cash + credit + transfersSum + chequesSum;
     const remainingToFill = grand - currentTotalPaidExceptTarget;
-    
     if (type === 'cash') {
         document.getElementById('pay-cash-amount').value = Math.max(0, remainingToFill).toFixed(2);
     } else if (type === 'credit') {
         document.getElementById('pay-credit-amount').value = Math.max(0, remainingToFill).toFixed(2);
+    } else if (type === 'bank') {
+        const firstAmtInput = document.querySelector('#bank-transfers-list .bt-amount-input');
+        if (firstAmtInput) {
+            firstAmtInput.value = Math.max(0, remainingToFill).toFixed(2);
+        }
+    } else if (type === 'cheque') {
+        const firstAmtInput = document.querySelector('#cheques-list .ch-amount-input');
+        if (firstAmtInput) {
+            firstAmtInput.value = Math.max(0, remainingToFill).toFixed(2);
+        }
     }
     
     recalcPaymentSummary();

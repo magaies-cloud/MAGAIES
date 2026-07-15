@@ -137,34 +137,30 @@ function togglePaymentMethod() {
 }
 
 function setNextVoucherNumber() {
-    let prefix = '';
-    try {
-        const userStr = localStorage.getItem('user');
-        if(userStr) {
-            const userObj = JSON.parse(userStr);
-            if(userObj && userObj.username) {
-                prefix = userObj.username.substring(0, 3).toUpperCase() + '-';
-            }
-        }
-    } catch(e) {}
-
     let srData = [];
     try {
         srData = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
     } catch(e) {}
 
-    let unique5 = "";
-    let isUnique = false;
-    let attempts = 0;
-    while (!isUnique && attempts < 1000) {
-        unique5 = Math.floor(10000 + Math.random() * 90000).toString();
-        const testNo = prefix + unique5;
-        const exists = srData.some(v => v.voucherNo === testNo);
-        if (!exists) isUnique = true;
-        attempts++;
-    }
+    const now = new Date();
+    const yy = String(now.getFullYear()).substring(2, 4);
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const datePrefix = 'E' + yy + mm;
 
-    document.getElementById('voucher-number').innerText = prefix + unique5;
+    let max = 0;
+    srData.forEach(v => {
+        const vNo = String(v.id || v.voucherNo || '');
+        if (vNo.startsWith(datePrefix)) {
+            const seqStr = vNo.substring(datePrefix.length);
+            const seq = parseInt(seqStr, 10);
+            if (!isNaN(seq) && seq > max) {
+                max = seq;
+            }
+        }
+    });
+
+    const nextNo = `${datePrefix}${String(max + 1).padStart(4, '0')}`;
+    document.getElementById('voucher-number').innerText = nextNo;
 }
 
 function updateCurrency() {

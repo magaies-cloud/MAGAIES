@@ -334,7 +334,7 @@
                         <button type="button" onclick="navigateVoucher(-1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.2rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند السابق">◀</button>
                         <div style="display: flex; align-items: center; gap: 4px;">
                             <span style="color: #94a3b8; font-size: 0.9rem; font-weight: bold; white-space: nowrap;">📄 السند:</span>
-                            <input type="text" id="voucher-no-display" readonly style="background: transparent; border: none; color: #fff; font-weight: bold; width: 95px; text-align: center; outline: none; font-size:1rem;" value="">
+                            <input type="text" id="voucher-no-display" readonly style="background: transparent; border: none; color: #fff; font-weight: bold; width: 140px; text-align: center; outline: none; font-size:1rem;" value="">
                         </div>
                         <button type="button" onclick="navigateVoucher(1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.2rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند التالي">▶</button>
                     </div>

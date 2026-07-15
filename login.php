@@ -168,26 +168,6 @@
     </style>
 </head>
 <body style="display:flex !important; align-items:center !important; justify-content:center !important; height:100vh !important; padding:0 !important; margin:0 !important; animation:none !important; transition:none !important; transform:none !important; background-color:#0c101b !important; background-image:url('assets/user_bg_fast.jpg') !important; background-size:cover !important; background-position:center center !important; background-repeat:no-repeat !important; background-attachment:fixed !important; overflow:hidden !important;">
-    <script>
-        // Kill any classes or styles injected by external scripts that cause movement
-        (function(){
-            var b = document.body;
-            // Remove all classes from body to prevent sidebar padding transitions
-            new MutationObserver(function(mutations){
-                mutations.forEach(function(m){
-                    if(m.type === 'attributes' && m.attributeName === 'class'){
-                        b.className = '';
-                    }
-                });
-            }).observe(b, {attributes: true, attributeFilter: ['class']});
-            // Also override style changes
-            b.style.setProperty('padding', '0', 'important');
-            b.style.setProperty('margin', '0', 'important');
-            b.style.setProperty('animation', 'none', 'important');
-            b.style.setProperty('transition', 'none', 'important');
-            b.style.setProperty('transform', 'none', 'important');
-        })();
-    </script>
     <div class="login-card">
         <div class="logo-container" style="margin-bottom: 5px;">
             <img src="assets/logo.png" alt="Logo" loading="lazy" style="width: 130px; height: auto; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));">

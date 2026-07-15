@@ -75,26 +75,23 @@ const SALE_PREFIX = { direct:'', split:'', delivery:'', proforma:'', costcenter:
 // Peek: show the next number WITHOUT incrementing (safe for refresh)
 function peekNextInvoiceNumber(type) {
     let list = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-    let prefix = '';
-    try {
-        const userStr = localStorage.getItem('user');
-        if(userStr) {
-            const userObj = JSON.parse(userStr);
-            if(userObj && userObj.username) {
-                prefix = userObj.username.substring(0, 3).toUpperCase() + '-';
-            }
-        }
-    } catch(e) {}
+    const now = new Date();
+    const yy = String(now.getFullYear()).substring(2, 4);
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const datePrefix = 'S' + yy + mm;
+    
     let max = 0;
     list.forEach(inv => {
-        let parts = (inv.invoiceNo || '').split('-');
-        let noStr = parts.length > 1 ? parts[1] : parts[0];
-        let no = parseInt(noStr || '0', 10);
-        if (!isNaN(no) && no > max) {
-            max = no;
+        const invNo = String(inv.invoiceNo || '');
+        if (invNo.startsWith(datePrefix)) {
+            const seqStr = invNo.substring(datePrefix.length);
+            const seq = parseInt(seqStr, 10);
+            if (!isNaN(seq) && seq > max) {
+                max = seq;
+            }
         }
     });
-    return `${prefix}${String(max + 1).padStart(6, '0')}`;
+    return `${datePrefix}${String(max + 1).padStart(4, '0')}`;
 }
 
 // Commit: actually increment the counter (only on real save/submit)
@@ -352,48 +349,40 @@ function addNewCustomer() {
 
 function loadPreviousInvoice() {
     const currentNoStr = document.getElementById('hdr-inv-no').value;
-    let parts = currentNoStr.split('-');
-    let numStr = parts.length > 1 ? parts[1] : parts[0];
-    let prefix = parts.length > 1 ? parts[0] + '-' : '';
-    let num = parseInt(numStr, 10);
-    if (isNaN(num)) return;
+    let list = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     
-    let found = false;
-    while(num > 1 && !found) {
-        num--;
-        const testNo = prefix + String(num).padStart(6, '0');
-        if(loadInvoiceFromStorage(testNo)) {
-            showToast(`✅ تم استرجاع الفاتورة ${testNo}`);
-            found = true;
+    let previousInvoices = list
+        .filter(inv => inv.invoiceNo && inv.invoiceNo < currentNoStr)
+        .sort((a, b) => b.invoiceNo.localeCompare(a.invoiceNo));
+        
+    if (previousInvoices.length > 0) {
+        const prevNo = previousInvoices[0].invoiceNo;
+        if (loadInvoiceFromStorage(prevNo)) {
+            showToast(`✅ تم استرجاع الفاتورة ${prevNo}`);
+            return;
         }
     }
-    if(!found) showToast('ℹ️ لا توجد فواتير سابقة محفوظة', 'warning');
+    showToast('ℹ️ لا توجد فواتير سابقة محفوظة', 'warning');
 }
 
 function loadNextInvoice() {
     const currentNoStr = document.getElementById('hdr-inv-no').value;
-    let parts = currentNoStr.split('-');
-    let numStr = parts.length > 1 ? parts[1] : parts[0];
-    let prefix = parts.length > 1 ? parts[0] + '-' : '';
-    let num = parseInt(numStr, 10);
-    if (isNaN(num)) return;
+    let list = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     
-    let found = false;
-    // max check next 10 numbers
-    for(let i=1; i<=10; i++) {
-        const testNo = prefix + String(num + i).padStart(6, '0');
-        if(loadInvoiceFromStorage(testNo)) {
-            showToast(`✅ تم استرجاع الفاتورة ${testNo}`);
-            found = true;
-            break;
+    let nextInvoices = list
+        .filter(inv => inv.invoiceNo && inv.invoiceNo > currentNoStr)
+        .sort((a, b) => a.invoiceNo.localeCompare(b.invoiceNo));
+        
+    if (nextInvoices.length > 0) {
+        const nextNo = nextInvoices[0].invoiceNo;
+        if (loadInvoiceFromStorage(nextNo)) {
+            showToast(`✅ تم استرجاع الفاتورة ${nextNo}`);
+            return;
         }
     }
     
-    if(!found) {
-        // If no next invoice saved, jump to "New" mode
-        onSuccessNewInvoice();
-        showToast('✨ فاتورة جديدة', 'success');
-    }
+    onSuccessNewInvoice();
+    showToast('✨ فاتورة جديدة', 'success');
 }
 
 function loadInvoiceFromStorage(invNo) {
@@ -654,51 +643,7 @@ function addNewCustomer() {
     showToast(`✅ تم إضافة العميل: ${name}`);
 }
 
-function loadPreviousInvoice() {
-    const currentNoStr = document.getElementById('hdr-inv-no').value;
-    let parts = currentNoStr.split('-');
-    let numStr = parts.length > 1 ? parts[1] : parts[0];
-    let prefix = parts.length > 1 ? parts[0] + '-' : '';
-    let num = parseInt(numStr, 10);
-    if (isNaN(num)) return;
-    
-    let found = false;
-    while(num > 1 && !found) {
-        num--;
-        const testNo = prefix + String(num).padStart(6, '0');
-        if(loadInvoiceFromStorage(testNo)) {
-            showToast(`✅ تم استرجاع الفاتورة ${testNo}`);
-            found = true;
-        }
-    }
-    if(!found) showToast('ℹ️ لا توجد فواتير سابقة محفوظة', 'warning');
-}
 
-function loadNextInvoice() {
-    const currentNoStr = document.getElementById('hdr-inv-no').value;
-    let parts = currentNoStr.split('-');
-    let numStr = parts.length > 1 ? parts[1] : parts[0];
-    let prefix = parts.length > 1 ? parts[0] + '-' : '';
-    let num = parseInt(numStr, 10);
-    if (isNaN(num)) return;
-    
-    let found = false;
-    // max check next 10 numbers
-    for(let i=1; i<=10; i++) {
-        const testNo = prefix + String(num + i).padStart(6, '0');
-        if(loadInvoiceFromStorage(testNo)) {
-            showToast(`✅ تم استرجاع الفاتورة ${testNo}`);
-            found = true;
-            break;
-        }
-    }
-    
-    if(!found) {
-        // If no next invoice saved, jump to "New" mode
-        onSuccessNewInvoice();
-        showToast('✨ فاتورة جديدة', 'success');
-    }
-}
 
 function loadInvoiceFromStorage(invNo) {
     let str = localStorage.getItem('erp_inv_' + invNo);
