@@ -3654,14 +3654,15 @@ function closePriceHistoryModal() {
 // ════════════════════════════════════════
 function printCurrentInvoice() {
     const WAREHOUSES_local = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || WAREHOUSES;
-    const whId   = document.getElementById('hdr-warehouse').value;
+    const whEl   = document.getElementById('hdr-warehouse');
+    const whId   = whEl ? whEl.value : '';
     const whObj  = WAREHOUSES_local.find(w => w.id === whId);
 
     // Build items array for the print engine
-    const printItems = rows
-        .filter(r => r.itemId)
+    const printItems = (rows || [])
+        .filter(r => r && r.itemId)
         .map(r => {
-            const item   = ITEMS.find(i => String(i.id) === String(r.itemId));
+            const item   = ITEMS.find(i => i && String(i.id) === String(r.itemId));
             const calcs  = getRowCalcs(r);
             return {
                 itemName:     item ? item.name : '—',
@@ -3673,7 +3674,12 @@ function printCurrentInvoice() {
             };
         });
 
-    const subtotalVal = parseNum(document.getElementById('t-sub')?.textContent || '0');
+    const subtotalVal = parseNum(
+        document.getElementById('t-sub')?.textContent || 
+        document.getElementById('t-subtotal')?.textContent || 
+        document.getElementById('t-invoice-total')?.textContent || 
+        '0'
+    );
     const discAmt     = parseNum(document.getElementById('discount-amt')?.value || '0');
     const taxAmt      = parseNum(document.getElementById('tax-amt')?.value      || '0');
     const addAmt      = parseNum(document.getElementById('addition-amt')?.value || '0');
@@ -3681,19 +3687,22 @@ function printCurrentInvoice() {
     const transportVal= parseNum(document.getElementById('t-transport')?.value  || '0');
     const grandVal    = parseNum(document.getElementById('t-grand')?.textContent || '0');
 
+    const paymentMethodEl = document.getElementById('hdr-payment-method');
+    const paymentMethod = paymentMethodEl ? paymentMethodEl.value : (typeof getPaymentMethodFromUI === 'function' ? getPaymentMethodFromUI() : 'cash');
+
     const data = {
         type:          'sales',
         typeLabel:     currentSaleType === 'direct' ? 'فاتورة مبيعات مباشرة' :
                        currentSaleType === 'split'  ? 'فاتورة بيع مقسّمة'    :
                        currentSaleType === 'proforma'? 'عرض سعر (بروفورما)'  : 'فاتورة مبيعات',
-        invoiceNo:     document.getElementById('hdr-inv-no').value,
-        date:          document.getElementById('hdr-date').value,
-        customerName:  document.getElementById('hdr-customer-search').value || 'زبون نقدي',
+        invoiceNo:     document.getElementById('hdr-inv-no')?.value || '',
+        date:          document.getElementById('hdr-date')?.value || '',
+        customerName:  document.getElementById('hdr-customer-search')?.value || 'زبون نقدي',
         currency:      getCurrency(),
         exchangeRate:  parseNum(document.getElementById('hdr-exchange-rate')?.value || '1'),
-        paymentMethod: document.getElementById('hdr-payment-method').value,
+        paymentMethod: paymentMethod,
         warehouseName: whObj ? whObj.name : '—',
-        notes:         document.getElementById('inv-notes').value,
+        notes:         document.getElementById('inv-notes')?.value || '',
         items:         printItems,
         subtotal:      subtotalVal,
         discountAmt:   discAmt,
