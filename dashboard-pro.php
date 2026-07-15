@@ -192,8 +192,27 @@
             border-radius: 12px;
         }
         .kpi-title { color:var(--text-secondary); font-size:0.75rem; font-weight: 700; }
-        .kpi-icon-bg { padding: 4px 6px; border-radius: 8px; }
-        .kpi-icon-bg span { font-size: 1rem; }
+        .kpi-icon-bg {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            flex-shrink: 0;
+        }
+        .kpi-icon-bg span {
+            font-size: 1.4rem;
+            transition: all 0.3s ease;
+        }
+        .spotlight-card:hover .kpi-icon-bg {
+            transform: scale(1.3) rotate(-5deg);
+            border-width: 3.5px !important;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.35);
+        }
         .kpi-val { margin:2px 0 0; font-size:1.15rem; font-weight:900; font-family: 'Outfit', sans-serif; line-height: 1.2; }
         .kpi-desc { font-size:0.65rem; margin-top:2px; font-weight: 600; }
 
@@ -366,36 +385,40 @@
             box-shadow: 0 6px 15px rgba(0,0,0,0.3);
         }
         .admin-action-settings {
-            border-bottom: 2.5px solid #64748b !important;
+            border-bottom: 4.5px solid #64748b !important;
         }
         .admin-action-settings:hover {
             color: #fff;
             box-shadow: 0 0 15px rgba(100,116,139,0.5), inset 0 0 10px rgba(100,116,139,0.15) !important;
             border-color: #94a3b8 !important;
+            border-bottom: 6px solid #94a3b8 !important;
         }
         .admin-action-master {
-            border-bottom: 2.5px solid var(--theme-blue) !important;
+            border-bottom: 4.5px solid var(--theme-blue) !important;
         }
         .admin-action-master:hover {
             color: #fff;
             box-shadow: 0 0 15px rgba(59,130,246,0.5), inset 0 0 10px rgba(59,130,246,0.15) !important;
             border-color: #60a5fa !important;
+            border-bottom: 6px solid #60a5fa !important;
         }
         .admin-action-jobs {
-            border-bottom: 2.5px solid #10b981 !important;
+            border-bottom: 4.5px solid #10b981 !important;
         }
         .admin-action-jobs:hover {
             color: #fff;
             box-shadow: 0 0 15px rgba(16,185,129,0.5), inset 0 0 10px rgba(16,185,129,0.15) !important;
             border-color: #34d399 !important;
+            border-bottom: 6px solid #34d399 !important;
         }
         .admin-action-notifications {
-            border-bottom: 2.5px solid var(--theme-red) !important;
+            border-bottom: 4.5px solid var(--theme-red) !important;
         }
         .admin-action-notifications:hover {
             color: #fff;
             box-shadow: 0 0 15px rgba(248,113,113,0.5), inset 0 0 10px rgba(248,113,113,0.15) !important;
             border-color: #f87171 !important;
+            border-bottom: 6px solid #f87171 !important;
         }
         .admin-action-btn:hover .qa-icon {
             transform: scale(1.4) rotate(5deg) translateY(-2px);
@@ -525,6 +548,15 @@
         :root.light-theme .qa-danger:hover .qa-icon { background: rgba(248, 113, 113, 0.3) !important; border-color: #f87171 !important; }
         :root.light-theme .qa-purple:hover .qa-icon { background: rgba(192, 132, 252, 0.3) !important; border-color: #c084fc !important; }
         :root.light-theme a[data-href="inventory-report.php"]:hover .qa-icon { background: rgba(167, 139, 250, 0.3) !important; border-color: #a78bfa !important; }
+        :root.light-theme .kpi-icon-bg {
+            border: 2px solid rgba(0, 0, 0, 0.12) !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+        }
+        :root.light-theme .spotlight-card:hover .kpi-icon-bg {
+            border-color: #000000 !important;
+            border-width: 3.5px !important;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12) !important;
+        }
         :root.light-theme .admin-actions-row {
             background: rgba(0, 0, 0, 0.03);
             border-color: rgba(0, 0, 0, 0.06);
