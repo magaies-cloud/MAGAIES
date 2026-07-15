@@ -126,5 +126,5 @@ http.createServer((req, res) => {
     // فتح المتصفح تلقائياً على الرابط المحلي بطريقة تدعم جميع أنظمة التشغيل
     const { exec } = require('child_process');
     const startCmd = process.platform === 'win32' ? 'start' : (process.platform === 'darwin' ? 'open' : 'xdg-open');
-    exec(`${startCmd} http://localhost:${PORT}/saas-admin.php`);
+    exec(`${startCmd} http://localhost:${PORT}/`);
 });

@@ -79,6 +79,12 @@ function parseNum(str) {
 }
 function showToast(msg, type = 'success', ms = 3000) {
     const c = document.getElementById('toast-container');
+    if (c) {
+        const existingToasts = c.querySelectorAll('.toast');
+        for (let t of existingToasts) {
+            if (t.innerHTML === msg) return;
+        }
+    }
     const t = document.createElement('div');
     t.className = `toast ${type}`;
     t.innerHTML = msg;
@@ -2037,9 +2043,6 @@ function togglePaymentSection(type) {
         } else if (type === 'cheque') {
             document.getElementById('cheques-list').innerHTML = '';
         }
-    } else {
-        // If activated, autofill the remaining balance
-        autofillRemaining(type);
     }
     
     recalcPaymentSummary();
@@ -2129,11 +2132,11 @@ function addBankTransferRow(existingData = null) {
     rowDiv.innerHTML = `
         ${titleCol}
         <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px;">
+            <input type="number" class="v-input ctrl-input bt-amount-input" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : '0.00'}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: none; width: 145px; min-width: 145px; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size: 1.15rem; font-weight: 800; color: #60a5fa !important; text-align:center;">
             <select class="v-input ctrl-input bt-bank-select" style="flex: 1.2; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; padding: 0 4px;">
                 ${banksHtml}
             </select>
             <input type="text" class="v-input ctrl-input bt-ref-input" value="${existingData ? existingData.reference : ''}" placeholder="رقم المرجع..." style="flex: 1; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
-            <input type="number" class="v-input ctrl-input bt-amount-input" value="${existingData ? existingData.amount : '0'}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: 0.8; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
             ${actionBtn}
         </div>
     `;
@@ -2173,13 +2176,13 @@ function addChequeRow(existingData = null) {
     rowDiv.innerHTML = `
         ${titleCol}
         <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
+            <input type="number" class="v-input ctrl-input ch-amount-input" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : '0.00'}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: none; width: 145px; min-width: 145px; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size: 1.15rem; font-weight: 800; color: #c084fc !important; text-align:center;">
             <input type="text" class="v-input ctrl-input ch-no-input" value="${existingData ? existingData.chequeNo : ''}" placeholder="رقم الشيك..." style="flex: 1; min-width: 90px; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
             <input type="text" class="v-input ctrl-input ch-bank-input" value="${existingData ? existingData.bankName : ''}" placeholder="اسم البنك..." style="flex: 1.2; min-width: 110px; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
             <div style="display:flex; align-items:center; gap:5px; flex: 1.3; min-width: 160px;">
                 <label style="font-size:0.75rem; color:#94a3b8; white-space:nowrap;">الاستحقاق:</label>
                 <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData && existingData.dueDate ? existingData.dueDate : today}" style="height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; padding: 0 4px; width: 100%;">
             </div>
-            <input type="number" class="v-input ctrl-input ch-amount-input" value="${existingData ? existingData.amount : '0'}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: 0.8; min-width: 80px; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
             ${actionBtn}
         </div>
     `;
@@ -2188,7 +2191,58 @@ function addChequeRow(existingData = null) {
     onPaymentAmountInput();
 }
 
-function recalcPaymentSummary() {
+// Audio Synthesizer for high-quality audio feedbacks
+const PlaySound = {
+    ctx: null,
+    init() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    },
+    success() {
+        try {
+            this.init();
+            const now = this.ctx.currentTime;
+            const osc1 = this.ctx.createOscillator();
+            const osc2 = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc1.type = 'sine';
+            osc2.type = 'sine';
+            osc1.frequency.setValueAtTime(523.25, now); // C5
+            osc1.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
+            osc2.frequency.setValueAtTime(659.25, now); // E5
+            osc2.frequency.exponentialRampToValueAtTime(1046.50, now + 0.15); // C6
+            gain.gain.setValueAtTime(0.08, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc1.start(now);
+            osc2.start(now);
+            osc1.stop(now + 0.25);
+            osc2.stop(now + 0.25);
+        } catch(e) {}
+    },
+    error() {
+        try {
+            this.init();
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(180, now);
+            osc.frequency.linearRampToValueAtTime(120, now + 0.15);
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.2);
+        } catch(e) {}
+    }
+};
+
+function recalcPaymentSummary(isRevertCall = false) {
     const cur = getCurrency();
     
     // Calculate grand total from invoice items total
@@ -2200,6 +2254,35 @@ function recalcPaymentSummary() {
     const additionAmt = parseNum(document.getElementById('addition-amt')?.value || 0);
     const grand = invTotal + labor + transport + additionAmt + taxAmt - discountAmt;
     
+    // Show/hide entire payment details panel depending on invoice grand total
+    const paymentPanel = document.getElementById('payment-panel');
+    if (paymentPanel) {
+        if (grand > 0.01) {
+            paymentPanel.style.display = 'block';
+        } else {
+            paymentPanel.style.display = 'none';
+            
+            // Deactivate toggles
+            const cashBtn = document.getElementById('toggle-cash');
+            const bankBtn = document.getElementById('toggle-bank');
+            const chequeBtn = document.getElementById('toggle-cheque');
+            if (cashBtn) cashBtn.classList.remove('active');
+            if (bankBtn) bankBtn.classList.remove('active');
+            if (chequeBtn) chequeBtn.classList.remove('active');
+            
+            // Clear inputs
+            const cashAmtInput = document.getElementById('pay-cash-amount');
+            if (cashAmtInput) cashAmtInput.value = '0';
+            const btList = document.getElementById('bank-transfers-list');
+            if (btList) btList.innerHTML = '';
+            const chList = document.getElementById('cheques-list');
+            if (chList) chList.innerHTML = '';
+            
+            // Update sections visibility
+            updatePaymentSectionsVisibility();
+        }
+    }
+    
     const cashActive = document.getElementById('toggle-cash').classList.contains('active');
     const creditActive = document.getElementById('toggle-credit').classList.contains('active');
     const bankActive = document.getElementById('toggle-bank').classList.contains('active');
@@ -2207,7 +2290,6 @@ function recalcPaymentSummary() {
     
     // Calculate payment sums
     const cash = cashActive ? parseNum(document.getElementById('pay-cash-amount')?.value || 0) : 0;
-    const credit = creditActive ? parseNum(document.getElementById('pay-credit-amount')?.value || 0) : 0;
     
     let transfersSum = 0;
     if (bankActive) {
@@ -2223,8 +2305,76 @@ function recalcPaymentSummary() {
         });
     }
     
+    // Credit is always the remaining balance of the invoice total!
+    const credit = Math.max(0, grand - (cash + transfersSum + chequesSum));
+    const creditInput = document.getElementById('pay-credit-amount');
+    if (creditInput) {
+        creditInput.value = credit.toFixed(2);
+    }
+    
+    // Collapse credit section if it becomes zero, showing it again if > 0
+    const creditSection = document.getElementById('pay-credit-section');
+    if (creditSection) {
+        if (credit <= 0.005) {
+            creditSection.classList.add('collapsed');
+        } else {
+            creditSection.classList.remove('collapsed');
+        }
+    }
+    
     const totalPaid = cash + credit + transfersSum + chequesSum;
     const remaining = grand - totalPaid;
+    
+    // Initialize last valid values on inputs
+    const cashInput = document.getElementById('pay-cash-amount');
+    if (cashInput && cashInput.dataset.lastValidValue === undefined) {
+        cashInput.dataset.lastValidValue = cashInput.value || '0';
+    }
+    document.querySelectorAll('.bt-amount-input').forEach(input => {
+        if (input.dataset.lastValidValue === undefined) {
+            input.dataset.lastValidValue = input.value || '0';
+        }
+    });
+    document.querySelectorAll('.ch-amount-input').forEach(input => {
+        if (input.dataset.lastValidValue === undefined) {
+            input.dataset.lastValidValue = input.value || '0';
+        }
+    });
+
+    // Check if entered payment amounts exceed the invoice grand total
+    const enteredPayments = cash + transfersSum + chequesSum;
+    if (enteredPayments > grand + 0.01) {
+        showToast('⚠️ المبلغ الذي تم إدخاله أكبر من قيمة الفاتورة!', 'warning');
+        if (typeof PlaySound !== 'undefined') PlaySound.error();
+        
+        // Revert active input to its last valid value
+        const activeInput = document.activeElement;
+        if (activeInput && (activeInput.id === 'pay-cash-amount' || activeInput.classList.contains('bt-amount-input') || activeInput.classList.contains('ch-amount-input'))) {
+            activeInput.value = activeInput.dataset.lastValidValue || '0';
+            
+            // Re-trigger shake animation
+            activeInput.classList.remove('input-error-shake');
+            void activeInput.offsetWidth; // trigger reflow
+            activeInput.classList.add('input-error-shake');
+        }
+        
+        // Recalculate to correct the indicators using reverted values
+        return recalcPaymentSummary(true);
+    } else {
+        // Save the valid values
+        if (cashInput) {
+            cashInput.dataset.lastValidValue = cashInput.value;
+            if (!isRevertCall) cashInput.classList.remove('input-error-shake');
+        }
+        document.querySelectorAll('.bt-amount-input').forEach(input => {
+            input.dataset.lastValidValue = input.value;
+            if (!isRevertCall) input.classList.remove('input-error-shake');
+        });
+        document.querySelectorAll('.ch-amount-input').forEach(input => {
+            input.dataset.lastValidValue = input.value;
+            if (!isRevertCall) input.classList.remove('input-error-shake');
+        });
+    }
     
     // Update displays
     const totInd = document.getElementById('payment-total-indicator');
@@ -2256,6 +2406,53 @@ function recalcPaymentSummary() {
             if (remCard) {
                 remCard.style.background = 'rgba(245, 158, 11, 0.08)';
                 remCard.style.borderColor = 'rgba(245, 158, 11, 0.35)';
+            }
+        }
+    }
+
+    // Update progress bars & status badge dynamically
+    const totalPayments = cash + transfersSum + chequesSum + credit;
+    if (totalPayments > 0) {
+        const cashPct = (cash / totalPayments) * 100;
+        const bankPct = (transfersSum / totalPayments) * 100;
+        const chequePct = (chequesSum / totalPayments) * 100;
+        const creditPct = (credit / totalPayments) * 100;
+        
+        const elCash = document.getElementById('prog-cash');
+        const elBank = document.getElementById('prog-bank');
+        const elCheque = document.getElementById('prog-cheque');
+        const elCredit = document.getElementById('prog-credit');
+        
+        if (elCash) elCash.style.width = cashPct + '%';
+        if (elBank) elBank.style.width = bankPct + '%';
+        if (elCheque) elCheque.style.width = chequePct + '%';
+        if (elCredit) elCredit.style.width = creditPct + '%';
+        
+        // Update Status Badge
+        const statusBadge = document.getElementById('payment-status-badge');
+        if (statusBadge) {
+            if (credit <= 0.01) {
+                // Play sound if transitioned to fully paid
+                if (statusBadge.dataset.status !== 'fully-paid') {
+                    if (typeof PlaySound !== 'undefined') PlaySound.success();
+                    statusBadge.dataset.status = 'fully-paid';
+                }
+                statusBadge.textContent = '💳 مدفوعة بالكامل';
+                statusBadge.style.background = 'rgba(16, 185, 129, 0.15)';
+                statusBadge.style.color = '#34d399';
+                statusBadge.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.2)';
+            } else if (cash > 0 || transfersSum > 0 || chequesSum > 0) {
+                statusBadge.dataset.status = 'partially-paid';
+                statusBadge.textContent = '⚖️ مدفوعة جزئياً';
+                statusBadge.style.background = 'rgba(59, 130, 246, 0.15)';
+                statusBadge.style.color = '#60a5fa';
+                statusBadge.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.2)';
+            } else {
+                statusBadge.dataset.status = 'deferred';
+                statusBadge.textContent = '⏳ آجلة بالكامل';
+                statusBadge.style.background = 'rgba(245, 158, 11, 0.15)';
+                statusBadge.style.color = '#fbbf24';
+                statusBadge.style.boxShadow = '0 0 10px rgba(245, 158, 11, 0.2)';
             }
         }
     }
@@ -2605,9 +2802,9 @@ function submitInvoice(ignoreWarnings = false) {
     let paymentMethod = 'cash';
 
     if (!cashActive && !creditActive && !bankActive && !chequeActive) {
-        // DEFAULT RULE: If no payment method is toggled, default to Cash for full amount
-        cashAmt = grandAmount;
-        paymentMethod = 'cash';
+        // DEFAULT RULE: If no payment method is toggled, default to Credit (Deferred) for full amount
+        creditAmt = grandAmount;
+        paymentMethod = 'credit';
     } else {
         cashAmt = cashActive ? parseNum(document.getElementById('pay-cash-amount').value) : 0;
         creditAmt = creditActive ? parseNum(document.getElementById('pay-credit-amount').value) : 0;
@@ -4330,4 +4527,108 @@ function submitInvoiceSplit() {
     
     showSalesHub();
 }
+
+// Keydown delegation for payment inputs to block typing when value exceeds grand total
+document.addEventListener('keydown', function(event) {
+    const input = event.target;
+    if (!(input.id === 'pay-cash-amount' || input.classList.contains('bt-amount-input') || input.classList.contains('ch-amount-input'))) {
+        return;
+    }
+    
+    // Allow control keys
+    if (event.key === 'Backspace' || event.key === 'Delete' || event.key === 'ArrowLeft' || event.key === 'ArrowRight' || 
+        event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'Tab' || event.key === 'Escape' || event.key === 'Enter') {
+        return;
+    }
+    
+    // Only intercept digits and decimal points
+    const isDigit = /^[0-9]$/.test(event.key);
+    const isDot = event.key === '.';
+    if (!isDigit && !isDot) {
+        if (!event.ctrlKey && !event.metaKey && event.key.length === 1) {
+            event.preventDefault();
+        }
+        return;
+    }
+    
+    // Construct potential new value
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+    const oldVal = input.value;
+    const newValStr = oldVal.slice(0, start) + event.key + oldVal.slice(end);
+    const newVal = parseFloat(newValStr) || 0;
+    
+    // Calculate potential total payment
+    const invTotal = typeof getInvoiceTotal === 'function' ? getInvoiceTotal() : 0;
+    const labor = parseNum(document.getElementById('t-labor')?.value || 0);
+    const transport = parseNum(document.getElementById('t-transport')?.value || 0);
+    const discountAmt = parseNum(document.getElementById('discount-amt')?.value || 0);
+    const taxAmt = parseNum(document.getElementById('tax-amt')?.value || 0);
+    const additionAmt = parseNum(document.getElementById('addition-amt')?.value || 0);
+    const grand = invTotal + labor + transport + additionAmt + taxAmt - discountAmt;
+    
+    const cashActive = document.getElementById('toggle-cash').classList.contains('active');
+    const bankActive = document.getElementById('toggle-bank').classList.contains('active');
+    const chequeActive = document.getElementById('toggle-cheque').classList.contains('active');
+    
+    let cash = 0;
+    if (cashActive) {
+        cash = (input.id === 'pay-cash-amount') ? newVal : parseNum(document.getElementById('pay-cash-amount')?.value || 0);
+    }
+    
+    let transfersSum = 0;
+    if (bankActive) {
+        document.querySelectorAll('.bt-amount-input').forEach(inp => {
+            if (inp === input) {
+                transfersSum += newVal;
+            } else {
+                transfersSum += parseNum(inp.value);
+            }
+        });
+    }
+    
+    let chequesSum = 0;
+    if (chequeActive) {
+        document.querySelectorAll('.ch-amount-input').forEach(inp => {
+            if (inp === input) {
+                chequesSum += newVal;
+            } else {
+                chequesSum += parseNum(inp.value);
+            }
+        });
+    }
+    
+    const potentialTotalPaid = cash + transfersSum + chequesSum;
+    if (potentialTotalPaid > grand + 0.01) {
+        event.preventDefault(); // Block the typing!
+        if (typeof PlaySound !== 'undefined') PlaySound.error();
+        
+        showToast('⚠️ المبلغ الذي تم إدخاله أكبر من قيمة الفاتورة!', 'warning');
+        
+        // Shake the input container and turn border red immediately
+        input.classList.remove('input-error-shake');
+        void input.offsetWidth; // trigger reflow
+        input.classList.add('input-error-shake');
+    }
+});
+
+// Blur delegation to format payment inputs to 2 decimal places
+document.addEventListener('blur', function(event) {
+    const input = event.target;
+    if (input.id === 'pay-cash-amount' || input.classList.contains('bt-amount-input') || input.classList.contains('ch-amount-input')) {
+        const val = parseFloat(input.value) || 0;
+        input.value = val.toFixed(2);
+    }
+}, true);
+
+// Focus delegation to clear zero values instantly on click/focus
+document.addEventListener('focus', function(event) {
+    const input = event.target;
+    if (input.id === 'pay-cash-amount' || input.classList.contains('bt-amount-input') || input.classList.contains('ch-amount-input')) {
+        const val = parseFloat(input.value) || 0;
+        if (val === 0) {
+            input.value = '';
+        }
+    }
+}, true);
 

@@ -2514,7 +2514,7 @@
             </div><!-- end items-panel -->
 
             <!-- ══ FULL-WIDTH: تفاصيل الدفع ══ -->
-            <div class="panel" id="payment-panel" style="z-index: 40; margin-top: 15px; padding: 0 !important; background: rgba(15, 23, 42, 0.22) !important; border: 1px solid rgba(234, 179, 8, 0.22) !important; backdrop-filter: blur(18px) saturate(130%) !important; -webkit-backdrop-filter: blur(18px) saturate(130%) !important;">
+            <div class="panel" id="payment-panel" style="display: none; z-index: 40; margin-top: 15px; padding: 0 !important; background: rgba(15, 23, 42, 0.22) !important; border: 1px solid rgba(234, 179, 8, 0.22) !important; backdrop-filter: blur(18px) saturate(130%) !important; -webkit-backdrop-filter: blur(18px) saturate(130%) !important;">
                 <style>
                     #payment-panel {
                         animation: glassPulseGold 3.5s infinite ease-in-out;
@@ -2558,12 +2558,54 @@
                         flex: 1;
                         min-width: 280px !important;
                     }
+                    #pay-credit-section {
+                        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                        overflow: hidden;
+                        max-height: 150px;
+                        opacity: 1;
+                        transform: scaleY(1);
+                        transform-origin: top;
+                    }
+                    #pay-credit-section.collapsed {
+                        max-height: 0 !important;
+                        opacity: 0 !important;
+                        padding-top: 0 !important;
+                        padding-bottom: 0 !important;
+                        margin-top: 0 !important;
+                        margin-bottom: 0 !important;
+                        border-color: transparent !important;
+                        transform: scaleY(0) !important;
+                        pointer-events: none;
+                    }
+                    @keyframes errorShake {
+                        0%, 100% { transform: translateX(0); }
+                        20%, 60% { transform: translateX(-10px); }
+                        40%, 80% { transform: translateX(10px); }
+                    }
+                    .input-error-shake, .input-error-shake:focus {
+                        border-color: #ef4444 !important;
+                        outline: none !important;
+                        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.45) !important;
+                        animation: errorShake 0.4s ease-in-out !important;
+                    }
                 </style>
-                <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 12px 20px; background: rgba(15,23,42,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
-                    <div class="panel-title" style="background: linear-gradient(135deg, #ff4d4d, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.15rem; font-weight: 900; display: inline-flex; align-items: center; gap: 6px; margin: 0;">
+                <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 12px 20px; background: rgba(15,23,42,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
+                    <div class="panel-title" style="background: linear-gradient(135deg, #ff4d4d, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.15rem; font-weight: 900; display: inline-flex; align-items: center; gap: 6px; margin: 0; white-space: nowrap; flex: none;">
                         <span>💳</span> طريقة وتفاصيل الدفع
                     </div>
-                    <div class="payment-toggles" style="display: flex; gap: 8px;">
+                    
+                    <!-- Sleek Payment Progress Bar (Inline) -->
+                    <div class="payment-progress-container" style="flex: 1; display: flex; align-items: center; gap: 12px; min-width: 280px; padding: 0 10px;">
+                        <div class="progress-bar-wrapper" style="height: 10px; flex: 1; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden; display: flex; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); min-width: 120px;">
+                            <div id="prog-cash" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(16,185,129,0.3);"></div>
+                            <div id="prog-bank" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(59,130,246,0.3);"></div>
+                            <div id="prog-cheque" style="width: 0%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #a78bfa); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(139,92,246,0.3);"></div>
+                            <div id="prog-credit" style="width: 100%; height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(245,158,11,0.3);"></div>
+                        </div>
+                        <span id="payment-status-badge" style="font-size: 0.78rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; transition: all 0.3s ease; white-space: nowrap;">⏳ آجلة بالكامل</span>
+                    </div>
+
+                    <div class="payment-toggles" style="display: flex; gap: 8px; flex: none;">
                         <button type="button" class="pay-toggle-btn" id="toggle-credit" onclick="togglePaymentSection('credit')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💳 آجل</button>
                         <button type="button" class="pay-toggle-btn" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💵 نقدي</button>
                         <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦 تحويل بنكي</button>
@@ -2577,12 +2619,12 @@
                         
                         <!-- Credit payment box (Toggled off by default) -->
                         <div id="pay-credit-section" class="payment-method-box" style="background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.18); border-radius: 12px; padding: 12px 15px; display: none; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
-                            <div style="display: flex; align-items: center; gap: 8px; min-width: 170px;">
+                            <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
                                 <span style="font-size: 1.2rem;">💳</span>
-                                <span style="font-weight: 800; color: #fbbf24; font-size: 0.95rem;">البيع الآجل (على الحساب)</span>
+                                <span style="font-weight: 800; color: #fbbf24; font-size: 0.95rem;">آجل على الحساب</span>
                             </div>
                             <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
-                                <input type="number" class="v-input ctrl-input" id="pay-credit-amount" value="0" step="any" readonly placeholder="المبلغ الآجل..." style="flex: 1; min-width: 100px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; text-align: center;">
+                                <input type="number" class="v-input ctrl-input" id="pay-credit-amount" value="0.00" step="any" readonly placeholder="المبلغ الآجل..." style="flex: none; width: 145px; min-width: 145px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; text-align: center; font-size: 1.15rem; font-weight: 800; color: #fbbf24 !important;">
                                 
                                 <div id="pay-credit-due-group" style="flex: 1.2; min-width: 180px; display: flex; align-items: center; gap: 5px;">
                                     <label style="font-size: 0.78rem; color: #94a3b8; white-space: nowrap;">تاريخ الاستحقاق:</label>
@@ -2595,12 +2637,12 @@
 
                         <!-- Cash payment box (Visible by default) -->
                         <div id="pay-cash-section" class="payment-method-box" style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
-                            <div style="display: flex; align-items: center; gap: 8px; min-width: 170px;">
+                            <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
                                 <span style="font-size: 1.2rem;">💵</span>
                                 <span style="font-weight: 800; color: #34d399; font-size: 0.95rem;">الدفع النقدي (كاش)</span>
                             </div>
                             <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px;">
-                                <input type="number" class="v-input ctrl-input" id="pay-cash-amount" value="0" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: 0.8; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; text-align: center;">
+                                <input type="number" class="v-input ctrl-input" id="pay-cash-amount" value="0.00" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: none; width: 145px; min-width: 145px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; text-align: center; font-size: 1.15rem; font-weight: 800; color: #34d399 !important;">
                                 <select class="v-input ctrl-input" id="hdr-payment-account" style="flex: 1.2; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px;">
                                     <!-- Populated dynamically -->
                                 </select>
