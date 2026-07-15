@@ -85,9 +85,10 @@
         :root.light-theme .md-tab-btn {
             background: #ffffff !important;
             border-color: rgba(0,0,0,0.06) !important;
-            color: #64748b !important;
+            color: #000000 !important;
             box-shadow: 0 2px 5px rgba(0,0,0,0.02);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 800 !important;
         }
         :root.light-theme .md-tab-btn:hover {
             background: linear-gradient(135deg, #f8fafc, #f1f5f9) !important;
@@ -179,9 +180,9 @@
             gap: 10px; margin-bottom: 0;
         }
         .md-tabs-title { display: none; }
-        .md-tab-btn { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); text-align: center; padding: 10px 15px; font-size: 0.9rem; font-weight: 700; color: #94a3b8; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px; white-space: nowrap; border-radius: 12px; }
-        .md-tab-btn:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.1); transform: translateY(-2px); }
-        .md-tab-btn.active { color: #fff; background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; box-shadow: 0 5px 15px rgba(56,189,248,0.2); }
+        .md-tab-btn { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); text-align: center; padding: 10px 15px; font-size: 0.9rem; font-weight: 800; color: #ffffff; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px; white-space: nowrap; border-radius: 12px; }
+        .md-tab-btn:hover { background: rgba(255,255,255,0.08); color: #ffffff; border-color: rgba(255,255,255,0.1); transform: translateY(-2px); }
+        .md-tab-btn.active { color: #ffffff; background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; box-shadow: 0 5px 15px rgba(56,189,248,0.2); }
         .md-tab-icon { font-size: 1.1rem; }
 
         .md-content-area { flex: 1; display: flex; flex-direction: column; width: 100%; box-sizing: border-box; }
