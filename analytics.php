@@ -44,24 +44,37 @@
         :root.light-theme .quick-report-card,
         :root.light-theme .kpi-card {
             background: #ffffff !important; /* Pure white card for contrast */
-            border: 2.5px solid #000000 !important; /* Thicker bold black border */
+            border: 3.5px solid #000000 !important; /* Thicker bold black border (3.5px) */
+            border-radius: 12px !important; /* Sharper rounded corners (تقليل الحواف) */
             color: #000000 !important;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
         }
         
         :root.light-theme .glass-panel:hover,
         :root.light-theme .chart-card:hover,
         :root.light-theme .ai-insights-section:hover,
-        :root.light-theme .ai-card:hover,
         :root.light-theme .report-category-card:hover,
-        :root.light-theme .quick-report-card:hover,
         :root.light-theme .kpi-card:hover {
-            border-color: #000000 !important;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.18) !important;
-            transform: translateY(-5px) scale(1.025) !important;
+            border-color: #7c3aed !important; /* Change border color slightly to a beautiful bright purple */
+            box-shadow: 0 15px 35px rgba(124, 58, 237, 0.22) !important; /* Glow light effect */
+            transform: translateY(-6px) scale(1.03) !important; /* Scale up slightly and lift */
             background: #ffffff !important;
         }
+
+        /* Color-coded hover settings for quick reports bento grid */
+        :root.light-theme .quick-report-card:hover {
+            border-color: var(--glow-color) !important;
+            box-shadow: 0 15px 35px var(--glow-color) !important;
+            transform: translateY(-6px) scale(1.04) !important;
+            background: #ffffff !important;
+        }
+        
+        /* Color-coded hover settings for AI cards */
+        :root.light-theme .ai-card:nth-child(1):hover { border-color: #8b5cf6 !important; box-shadow: 0 15px 35px rgba(139,92,246,0.25) !important; transform: translateY(-6px) scale(1.04) !important; background: #ffffff !important; }
+        :root.light-theme .ai-card:nth-child(2):hover { border-color: #38bdf8 !important; box-shadow: 0 15px 35px rgba(56,189,248,0.25) !important; transform: translateY(-6px) scale(1.04) !important; background: #ffffff !important; }
+        :root.light-theme .ai-card:nth-child(3):hover { border-color: #f87171 !important; box-shadow: 0 15px 35px rgba(248,113,113,0.25) !important; transform: translateY(-6px) scale(1.04) !important; background: #ffffff !important; }
+        :root.light-theme .ai-card:nth-child(4):hover { border-color: #34d399 !important; box-shadow: 0 15px 35px rgba(52,211,153,0.25) !important; transform: translateY(-6px) scale(1.04) !important; background: #ffffff !important; }
 
         /* Gray letters override to dark black in Light Mode */
         :root.light-theme [style*="color:#94a3b8"],
@@ -924,7 +937,8 @@
         :root.light-theme .top-header,
         :root.light-theme .header-area {
             background: #ffffff !important;
-            border: 2px solid #000000 !important;
+            border: 3.5px solid #000000 !important;
+            border-radius: 12px !important;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
             color: #000000 !important;
         }
