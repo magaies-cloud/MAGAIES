@@ -23,7 +23,7 @@ jobs:
         port: 22
         script: |
           cd /var/www/magaees
-          git remote set-url origin https://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@github.com/magaies-cloud/MAGAIES.git
+          git remote set-url origin https://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@github.com/magaies-cloud/magaies.git
           git update-index --no-skip-worktree whatsapp-service.mjs || true
           chmod 644 whatsapp-service.mjs || true
           git fetch origin
