@@ -24,7 +24,9 @@
     
 
         :root.light-theme {
+            font-size: 106% !important; /* Increase typography by 1 step */
             --bg-color: #f1f5f9;
+            --surface: #ffffff;
             --glass-border: #000000;
         }
         :root.light-theme body {
@@ -32,16 +34,48 @@
             color: #000000 !important;
         }
         :root.light-theme .ambient-bg {
-            background: radial-gradient(circle at 50% 50%, #f8fafc 0%, #cbd5e1 100%) !important;
+            background: #f1f5f9 !important; /* Pure light off-white background */
         }
         :root.light-theme .glass-panel,
         :root.light-theme .chart-card,
-        :root.light-theme .ai-insights-section {
-            background: #ffffff !important;
-            border: 2px solid #000000 !important;
+        :root.light-theme .ai-insights-section,
+        :root.light-theme .ai-card,
+        :root.light-theme .report-category-card,
+        :root.light-theme .quick-report-card,
+        :root.light-theme .kpi-card {
+            background: #ffffff !important; /* Pure white card for contrast */
+            border: 2.5px solid #000000 !important; /* Thicker bold black border */
             color: #000000 !important;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
         }
+        
+        :root.light-theme .glass-panel:hover,
+        :root.light-theme .chart-card:hover,
+        :root.light-theme .ai-insights-section:hover,
+        :root.light-theme .ai-card:hover,
+        :root.light-theme .report-category-card:hover,
+        :root.light-theme .quick-report-card:hover,
+        :root.light-theme .kpi-card:hover {
+            border-color: #000000 !important;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.18) !important;
+            transform: translateY(-5px) scale(1.025) !important;
+            background: #ffffff !important;
+        }
+
+        /* Gray letters override to dark black in Light Mode */
+        :root.light-theme [style*="color:#94a3b8"],
+        :root.light-theme [style*="color:#cbd5e1"],
+        :root.light-theme [style*="color:#64748b"],
+        :root.light-theme [style*="color: #94a3b8"],
+        :root.light-theme [style*="color: #cbd5e1"],
+        :root.light-theme [style*="color: #64748b"],
+        :root.light-theme .kpi-label,
+        :root.light-theme p,
+        :root.light-theme span {
+            color: #000000 !important;
+        }
+
         :root.light-theme .chart-title {
             color: #000000 !important;
             font-weight: bold !important;
@@ -55,12 +89,6 @@
         :root.light-theme .kpi-value {
             color: #000000 !important;
             font-weight: 900 !important;
-        }
-        :root.light-theme .ai-card {
-            background: #ffffff !important;
-            border: 2px solid #000000 !important;
-            color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
         }
         :root.light-theme .ai-card h4 {
             color: #000000 !important;
@@ -77,12 +105,6 @@
         :root.light-theme .ai-card div[style*="background: rgba(0,0,0,0.3)"] strong {
             color: #000000 !important;
         }
-        :root.light-theme .report-category-card {
-            background: #ffffff !important;
-            border: 2px solid #000000 !important;
-            color: #000000 !important;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08) !important;
-        }
         :root.light-theme .report-category-title {
             color: #0ea5e9 !important;
             font-weight: bold !important;
@@ -98,9 +120,9 @@
             border-color: #000000 !important;
         }
         :root {
-            --bg-color: #050308;
-            --surface: rgba(18, 15, 25, 0.65);
-            --surface-hover: rgba(28, 24, 38, 0.85);
+            --bg-color: #000000; /* Pure black background for high contrast */
+            --surface: #13101a; /* Dark gray surface for card contrast */
+            --surface-hover: #1e1926;
             --border: rgba(255, 255, 255, 0.08);
             --glass-border: rgba(255, 255, 255, 0.08);
             --border-highlight: rgba(255, 255, 255, 0.2);
