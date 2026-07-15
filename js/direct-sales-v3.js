@@ -636,46 +636,59 @@ function addNewCustomer() {
 }
 
 function loadPreviousInvoice() {
-    const currentNoStr = document.getElementById('hdr-inv-no').value;
-    let parts = currentNoStr.split('-');
-    let numStr = parts.length > 1 ? parts[1] : parts[0];
-    let prefix = parts.length > 1 ? parts[0] + '-' : '';
-    let num = parseInt(numStr, 10);
-    if (isNaN(num)) return;
+    const currentNo = document.getElementById('hdr-inv-no').value;
+    if (!currentNo) return;
     
-    let found = false;
-    while(num > 1 && !found) {
-        num--;
-        const testNo = prefix + String(num).padStart(6, '0');
-        if(loadInvoiceFromStorage(testNo)) {
-            showToast(`✅ تم استرجاع الفاتورة ${testNo}`);
-            found = true;
+    let allSales = [];
+    try { allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e) {}
+    
+    // Filter out preliminary and sort by date/time then invoiceNo
+    const sorted = allSales
+        .filter(inv => inv.invoiceNo && inv.invoiceNo !== 'preliminary' && !String(inv.invoiceNo).startsWith('PRE-'))
+        .sort((a, b) => {
+            const cmp = (a.date || a.createdAt || '').localeCompare(b.date || b.createdAt || '');
+            if (cmp !== 0) return cmp;
+            const tcmp = (a.time || '').localeCompare(b.time || '');
+            if (tcmp !== 0) return tcmp;
+            return String(a.invoiceNo || '').localeCompare(String(b.invoiceNo || ''));
+        });
+    
+    const idx = sorted.findIndex(inv => inv.invoiceNo === currentNo || inv.id === currentNo);
+    if (idx > 0) {
+        const prevNo = sorted[idx - 1].invoiceNo;
+        if (loadInvoiceFromStorage(prevNo)) {
+            showToast(`✅ تم استرجاع الفاتورة ${prevNo}`);
         }
+    } else {
+        showToast('ℹ️ لا توجد فواتير سابقة محفوظة', 'warning');
     }
-    if(!found) showToast('ℹ️ لا توجد فواتير سابقة محفوظة', 'warning');
 }
 
 function loadNextInvoice() {
-    const currentNoStr = document.getElementById('hdr-inv-no').value;
-    let parts = currentNoStr.split('-');
-    let numStr = parts.length > 1 ? parts[1] : parts[0];
-    let prefix = parts.length > 1 ? parts[0] + '-' : '';
-    let num = parseInt(numStr, 10);
-    if (isNaN(num)) return;
+    const currentNo = document.getElementById('hdr-inv-no').value;
+    if (!currentNo) return;
     
-    let found = false;
-    // max check next 10 numbers
-    for(let i=1; i<=10; i++) {
-        const testNo = prefix + String(num + i).padStart(6, '0');
-        if(loadInvoiceFromStorage(testNo)) {
-            showToast(`✅ تم استرجاع الفاتورة ${testNo}`);
-            found = true;
-            break;
+    let allSales = [];
+    try { allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e) {}
+    
+    const sorted = allSales
+        .filter(inv => inv.invoiceNo && inv.invoiceNo !== 'preliminary' && !String(inv.invoiceNo).startsWith('PRE-'))
+        .sort((a, b) => {
+            const cmp = (a.date || a.createdAt || '').localeCompare(b.date || b.createdAt || '');
+            if (cmp !== 0) return cmp;
+            const tcmp = (a.time || '').localeCompare(b.time || '');
+            if (tcmp !== 0) return tcmp;
+            return String(a.invoiceNo || '').localeCompare(String(b.invoiceNo || ''));
+        });
+    
+    const idx = sorted.findIndex(inv => inv.invoiceNo === currentNo || inv.id === currentNo);
+    if (idx >= 0 && idx < sorted.length - 1) {
+        const nextNo = sorted[idx + 1].invoiceNo;
+        if (loadInvoiceFromStorage(nextNo)) {
+            showToast(`✅ تم استرجاع الفاتورة ${nextNo}`);
         }
-    }
-    
-    if(!found) {
-        // If no next invoice saved, jump to "New" mode
+    } else {
+        // No next invoice, jump to new
         onSuccessNewInvoice();
         showToast('✨ فاتورة جديدة', 'success');
     }
@@ -1017,46 +1030,57 @@ function addNewCustomer() {
 }
 
 function loadPreviousInvoice() {
-    const currentNoStr = document.getElementById('hdr-inv-no').value;
-    let parts = currentNoStr.split('-');
-    let numStr = parts.length > 1 ? parts[1] : parts[0];
-    let prefix = parts.length > 1 ? parts[0] + '-' : '';
-    let num = parseInt(numStr, 10);
-    if (isNaN(num)) return;
+    const currentNo = document.getElementById('hdr-inv-no').value;
+    if (!currentNo) return;
     
-    let found = false;
-    while(num > 1 && !found) {
-        num--;
-        const testNo = prefix + String(num).padStart(6, '0');
-        if(loadInvoiceFromStorage(testNo)) {
-            showToast(`✅ تم استرجاع الفاتورة ${testNo}`);
-            found = true;
+    let allSales = [];
+    try { allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e) {}
+    
+    const sorted = allSales
+        .filter(inv => inv.invoiceNo && inv.invoiceNo !== 'preliminary' && !String(inv.invoiceNo).startsWith('PRE-'))
+        .sort((a, b) => {
+            const cmp = (a.date || a.createdAt || '').localeCompare(b.date || b.createdAt || '');
+            if (cmp !== 0) return cmp;
+            const tcmp = (a.time || '').localeCompare(b.time || '');
+            if (tcmp !== 0) return tcmp;
+            return String(a.invoiceNo || '').localeCompare(String(b.invoiceNo || ''));
+        });
+    
+    const idx = sorted.findIndex(inv => inv.invoiceNo === currentNo || inv.id === currentNo);
+    if (idx > 0) {
+        const prevNo = sorted[idx - 1].invoiceNo;
+        if (loadInvoiceFromStorage(prevNo)) {
+            showToast(`✅ تم استرجاع الفاتورة ${prevNo}`);
         }
+    } else {
+        showToast('ℹ️ لا توجد فواتير سابقة محفوظة', 'warning');
     }
-    if(!found) showToast('ℹ️ لا توجد فواتير سابقة محفوظة', 'warning');
 }
 
 function loadNextInvoice() {
-    const currentNoStr = document.getElementById('hdr-inv-no').value;
-    let parts = currentNoStr.split('-');
-    let numStr = parts.length > 1 ? parts[1] : parts[0];
-    let prefix = parts.length > 1 ? parts[0] + '-' : '';
-    let num = parseInt(numStr, 10);
-    if (isNaN(num)) return;
+    const currentNo = document.getElementById('hdr-inv-no').value;
+    if (!currentNo) return;
     
-    let found = false;
-    // max check next 10 numbers
-    for(let i=1; i<=10; i++) {
-        const testNo = prefix + String(num + i).padStart(6, '0');
-        if(loadInvoiceFromStorage(testNo)) {
-            showToast(`✅ تم استرجاع الفاتورة ${testNo}`);
-            found = true;
-            break;
+    let allSales = [];
+    try { allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e) {}
+    
+    const sorted = allSales
+        .filter(inv => inv.invoiceNo && inv.invoiceNo !== 'preliminary' && !String(inv.invoiceNo).startsWith('PRE-'))
+        .sort((a, b) => {
+            const cmp = (a.date || a.createdAt || '').localeCompare(b.date || b.createdAt || '');
+            if (cmp !== 0) return cmp;
+            const tcmp = (a.time || '').localeCompare(b.time || '');
+            if (tcmp !== 0) return tcmp;
+            return String(a.invoiceNo || '').localeCompare(String(b.invoiceNo || ''));
+        });
+    
+    const idx = sorted.findIndex(inv => inv.invoiceNo === currentNo || inv.id === currentNo);
+    if (idx >= 0 && idx < sorted.length - 1) {
+        const nextNo = sorted[idx + 1].invoiceNo;
+        if (loadInvoiceFromStorage(nextNo)) {
+            showToast(`✅ تم استرجاع الفاتورة ${nextNo}`);
         }
-    }
-    
-    if(!found) {
-        // If no next invoice saved, jump to "New" mode
+    } else {
         onSuccessNewInvoice();
         showToast('✨ فاتورة جديدة', 'success');
     }
