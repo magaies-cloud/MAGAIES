@@ -429,8 +429,8 @@
                             <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="cust-tax" placeholder="الرقم الضريبي للعميل"></div>
                             <input type="hidden" id="cust-account-no" value="">
                             <div class="input-group">
-                                <label>الرصيد الافتتاحي (موجب = عليه، سالب = له)</label>
-                                <input type="number" id="cust-opening-balance" placeholder="0.00">
+                                <label>الرصيد الافتتاحي <small style="color:#f97316; font-weight:normal;">(موجب = نريد منه | سالب = هو يريد مننا)</small></label>
+                                <input type="number" id="cust-opening-balance" step="any" placeholder="0.00" style="direction:ltr; text-align:center;">
                                 <input type="hidden" id="cust-opening-debit" value="0">
                                 <input type="hidden" id="cust-opening-credit" value="0">
                             </div>
@@ -495,8 +495,8 @@
                             <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="sup-tax" placeholder="الرقم الضريبي للمورد"></div>
                             <input type="hidden" id="sup-account-no" value="">
                             <div class="input-group">
-                                <label>الرصيد الافتتاحي (موجب = عليه، سالب = له)</label>
-                                <input type="number" id="sup-opening-balance" placeholder="0.00">
+                                <label>الرصيد الافتتاحي <small style="color:#f97316; font-weight:normal;">(موجب = نريد منه | سالب = هو يريد مننا)</small></label>
+                                <input type="number" id="sup-opening-balance" step="any" placeholder="0.00" style="direction:ltr; text-align:center;">
                                 <input type="hidden" id="sup-opening-debit" value="0">
                                 <input type="hidden" id="sup-opening-credit" value="0">
                             </div>
@@ -1227,7 +1227,11 @@
             tbody.innerHTML = '';
             customers.forEach(c => {
                 const statusBadge = c.status === 'vip' ? '🌟 VIP' : (c.status === 'blacklisted' ? '🔴 موقوف' : '🟢 نشط');
-                tbody.insertAdjacentHTML('beforeend', `<tr><td>${c.name} <small>${statusBadge}</small></td><td>${c.phone || '-'}</td><td>${c.currentBalance} SDG</td><td>${c.creditLimit} SDG</td><td><button class="btn-text" onclick="editCustomer('${c.id}')">تعديل</button><button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteCustomer('${c.id}')">حذف</button></td></tr>`);
+                const bal = parseFloat(c.currentBalance) || 0;
+                const balColor = bal > 0 ? '#f87171' : (bal < 0 ? '#34d399' : '#94a3b8');
+                const balLabel = bal > 0 ? 'عليه (نريد منه)' : (bal < 0 ? 'له (يريد مننا)' : 'مسدد');
+                const balDisplay = `<span style="color:${balColor}; font-weight:900; font-family:monospace;">${Math.abs(bal).toLocaleString()}</span> <small style="color:${balColor}; opacity:0.8;">${balLabel}</small>`;
+                tbody.insertAdjacentHTML('beforeend', `<tr><td>${c.name} <small>${statusBadge}</small></td><td>${c.phone || '-'}</td><td>${balDisplay}</td><td>${c.creditLimit} SDG</td><td><button class="btn-text" onclick="editCustomer('${c.id}')">تعديل</button><button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteCustomer('${c.id}')">حذف</button></td></tr>`);
             });
         }
 
@@ -1446,7 +1450,11 @@
             tbody.innerHTML = '';
             suppliers.forEach(s => {
                 const statusBadge = s.status === 'blacklisted' ? '🔴 موقوف' : '🟢 نشط';
-                tbody.insertAdjacentHTML('beforeend', `<tr><td>${s.name} <small>${statusBadge}</small></td><td>${s.phone||'-'}</td><td>${s.currentBalance} SDG</td><td>${s.creditLimit} SDG</td><td><button class="btn-text" onclick="editSupplier('${s.id}')">تعديل</button><button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteSupplier('${s.id}')">حذف</button></td></tr>`);
+                const bal = parseFloat(s.currentBalance) || 0;
+                const balColor = bal > 0 ? '#f87171' : (bal < 0 ? '#34d399' : '#94a3b8');
+                const balLabel = bal > 0 ? 'عليه (نريد منه)' : (bal < 0 ? 'له (يريد مننا)' : 'مسدد');
+                const balDisplay = `<span style="color:${balColor}; font-weight:900; font-family:monospace;">${Math.abs(bal).toLocaleString()}</span> <small style="color:${balColor}; opacity:0.8;">${balLabel}</small>`;
+                tbody.insertAdjacentHTML('beforeend', `<tr><td>${s.name} <small>${statusBadge}</small></td><td>${s.phone||'-'}</td><td>${balDisplay}</td><td>${s.creditLimit} SDG</td><td><button class="btn-text" onclick="editSupplier('${s.id}')">تعديل</button><button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteSupplier('${s.id}')">حذف</button></td></tr>`);
             });
         }
         

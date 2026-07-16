@@ -594,6 +594,8 @@ function addNewCustomer() {
     if (!name) { showToast('❌ يرجى إدخال اسم العميل', 'error'); return; }
 
     const newId = 'C-' + String(Date.now()).slice(-6);
+    const openingDebit = openingBalance >= 0 ? openingBalance : 0;
+    const openingCredit = openingBalance < 0 ? Math.abs(openingBalance) : 0;
     const newCust = { 
         id: newId, 
         name: name, 
@@ -602,6 +604,8 @@ function addNewCustomer() {
         email: email,
         address: address,
         securityLevel: securityLevel,
+        openingDebit: openingDebit,
+        openingCredit: openingCredit,
         currentBalance: openingBalance,
         creditLimit: credit,
         status: 'active',
@@ -1001,6 +1005,8 @@ function addNewCustomer() {
     if (!name) { showToast('❌ يرجى إدخال اسم العميل', 'error'); return; }
 
     const newId = 'C-' + String(Date.now()).slice(-6);
+    const openingDebit = openingBalance >= 0 ? openingBalance : 0;
+    const openingCredit = openingBalance < 0 ? Math.abs(openingBalance) : 0;
     const newCust = { 
         id: newId, 
         name: name, 
@@ -1009,6 +1015,8 @@ function addNewCustomer() {
         email: email,
         address: address,
         securityLevel: securityLevel,
+        openingDebit: openingDebit,
+        openingCredit: openingCredit,
         currentBalance: openingBalance,
         creditLimit: credit,
         status: 'active',

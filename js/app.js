@@ -1839,7 +1839,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </a>`).join('');
 
         const sidebarHTML = `
-        <aside class="global-sidebar" style="z-index: 999999 !important; display: flex !important; visibility: visible !important;">
+        <aside class="global-sidebar" style="z-index: 999999 !important; display: flex; visibility: visible;">
             <div class="sidebar-header">
                 <span class="sidebar-logo-icon">
                     <svg width="26" height="26" fill="none" stroke="#38bdf8" viewBox="0 0 24 24">
@@ -3154,9 +3154,9 @@ document.addEventListener('DOMContentLoaded', () => {
     buttons.forEach(btn => {
         const onClickAttr = btn.getAttribute('onclick') || '';
         if (onClickAttr.includes('window.print()') || onClickAttr.includes('printVoucher()') || onClickAttr.includes('printInvoice()')) {
-            // Skip injection on inventory/ledger pages as requested by user
+            // Skip injection on inventory/ledger/single-cash-payment pages as requested by user
             const currentPath = window.location.pathname.toLowerCase();
-            if (currentPath.includes('inventory') || currentPath.includes('ledger') || currentPath.includes('analytics')) {
+            if (currentPath.includes('inventory') || currentPath.includes('ledger') || currentPath.includes('analytics') || currentPath.includes('single-cash-payment')) {
                 return;
             }
 
@@ -3500,6 +3500,13 @@ window.openReportPreview = function(title, targetSelector) {
                         margin: 0 !important;
                         overflow: visible !important;
                     }
+                    @page {
+                        size: landscape;
+                    }
+                    /* Hide Sidebar specifically if inline important was somehow preserved */
+                    .global-sidebar { display: none !important; }
+                    .btn-link, .btn-action { display: none !important; }
+                    
                     #report-preview-modal .glass-panel > div:first-child {
                         display: none !important;
                     }
@@ -3516,6 +3523,34 @@ window.openReportPreview = function(title, targetSelector) {
                         width: 100% !important;
                         max-width: 100% !important;
                     }
+                    /* Professional A4 Fit Adjustments */
+                    #report-preview-sheet table, #report-preview-sheet .dash-table {
+                        min-width: 0 !important;
+                        width: 100% !important;
+                        table-layout: auto !important;
+                        border-collapse: collapse !important;
+                    }
+                    #report-preview-sheet th[style], #report-preview-sheet td[style] {
+                        /* Override inline widths that break print layout */
+                        width: auto !important;
+                    }
+                    #report-preview-sheet th, #report-preview-sheet td {
+                        padding: 6px 4px !important;
+                        font-size: 11px !important;
+                        white-space: normal !important;
+                        word-break: break-word !important;
+                        border: 1px solid #cbd5e1 !important;
+                    }
+                    #report-preview-sheet th {
+                        font-size: 10px !important;
+                        background: #f8fafc !important;
+                        color: #1e293b !important;
+                        padding: 8px 4px !important;
+                    }
+                    /* Let specific columns compress more based on content */
+                    #report-preview-sheet td {
+                        max-width: 150px; /* Force word wrap on very long text */
+                    }
                 }
             `;
             document.head.appendChild(style);
@@ -3523,6 +3558,25 @@ window.openReportPreview = function(title, targetSelector) {
     }
 
     const cloned = target.cloneNode(true);
+    
+    // Remove "إجراءات" column from cloned table specifically for printing
+    const ths = cloned.querySelectorAll('th');
+    let actionColIndex = -1;
+    ths.forEach((th, index) => {
+        if(th.textContent.includes('إجراءات')) {
+            actionColIndex = index;
+            th.remove();
+        }
+    });
+    if(actionColIndex > -1) {
+        const trs = cloned.querySelectorAll('tbody tr');
+        trs.forEach(tr => {
+            const tds = tr.querySelectorAll('td');
+            if(tds[actionColIndex]) {
+                tds[actionColIndex].remove();
+            }
+        });
+    }
     
     const originalInputs = target.querySelectorAll('input, select');
     const clonedInputs = cloned.querySelectorAll('input, select');
@@ -3664,3 +3718,4 @@ window.printReportDirectly = function(title, targetSelector) {
         window.print();
     }, 150);
 };
+

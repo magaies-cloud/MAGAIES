@@ -723,8 +723,241 @@ function submitVoucher() {
     }
 }
 
+function buildVoucherPrintHTML() {
+    let printWrapper = document.getElementById('voucher-print-wrapper');
+    let printArea = document.getElementById('voucher-print-area');
+    
+    if (!printWrapper) {
+        printWrapper = document.createElement('div');
+        printWrapper.id = 'voucher-print-wrapper';
+        printWrapper.style.display = 'none';
+        document.body.appendChild(printWrapper);
+        
+        printArea = document.createElement('div');
+        printArea.id = 'voucher-print-area';
+        printWrapper.appendChild(printArea);
+    }
+    
+    // Get Company Settings
+    let cfg = {};
+    try {
+        cfg = JSON.parse(localStorage.getItem('erp_company_settings')) || {};
+    } catch(e) {}
+    
+    const vCompany = cfg.companyName || document.getElementById('header-company-name-top')?.innerText || 'مقاييس (MAGAIEES)';
+    const logoData = cfg.logoBase64 || '';
+    const logoHtml = logoData ? `<img src="${logoData}" style="max-height: 80px; max-width: 180px; object-fit: contain; border-radius: 8px;">` : `<div style="font-size:24px; font-weight:900; color:#0f172a;">${vCompany}</div>`;
+    
+    // Gather values
+    const vDate = document.getElementById('hdr-date') ? document.getElementById('hdr-date').value : '';
+    const vNo = document.getElementById('voucher-number') ? document.getElementById('voucher-number').innerText : '';
+    const vUser = document.getElementById('header-user-name') ? document.getElementById('header-user-name').innerText : '';
+    const vAmount = document.getElementById('amount-local') ? document.getElementById('amount-local').value : '';
+    
+    const vCurSelect = document.getElementById('currency');
+    const vCurrency = vCurSelect && vCurSelect.selectedIndex > -1 ? vCurSelect.options[vCurSelect.selectedIndex].text : '';
+    
+    const vRate = document.getElementById('exchange-rate') ? document.getElementById('exchange-rate').value : '';
+    const vValue = document.getElementById('amount-foreign') ? document.getElementById('amount-foreign').value : '';
+    
+    const fromInput = document.getElementById('from-account-search');
+    const vFrom = fromInput ? fromInput.value : '';
+    
+    const toInput = document.getElementById('to-account-search');
+    const vTo = toInput ? toInput.value : '';
+    
+    const vBeneficiary = document.getElementById('beneficiary-name') ? document.getElementById('beneficiary-name').value : '';
+    const vStatement = document.getElementById('to-statement') ? document.getElementById('to-statement').value : '';
+    
+    const payMethodEl = document.querySelector('input[name="payment_method"]:checked');
+    let vMethod = 'نقدي';
+    if(payMethodEl) {
+        if(payMethodEl.id === 'pay-cash') vMethod = 'نقدي';
+        else if(payMethodEl.id === 'pay-check') vMethod = 'شيك';
+        else if(payMethodEl.id === 'pay-transfer') vMethod = 'تحويل بنكي';
+        else if(payMethodEl.id === 'pay-card') vMethod = 'بطاقة بنكية';
+    }
+
+    const premiumHtml = `
+<div class="voucher-print" style="direction: rtl; font-family: 'Tajawal', 'Cairo', sans-serif; background: #fff; color: #0f172a; padding: 20px;">
+    
+    <!-- Header with Logo -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 30px;">
+        <div style="text-align: right; width: 33%;">
+            <h2 style="margin: 0; font-size: 22px; font-weight: 900; color: #1e293b;">${vCompany}</h2>
+            <div style="color: #64748b; font-size: 14px; margin-top: 5px;">نظام إدارة الأعمال المتكامل</div>
+        </div>
+        <div style="text-align: center; width: 33%;">
+            <div style="display: inline-block; padding: 10px 25px; border: 2px solid #0f172a; border-radius: 12px; background: #f8fafc;">
+                <h3 style="margin: 0; font-size: 24px; font-weight: 900; color: #0f172a;">سند صرف نقدية</h3>
+                <div style="font-size: 14px; font-weight: bold; color: #b91c1c; margin-top: 4px;">حركة مالية</div>
+            </div>
+        </div>
+        <div style="text-align: left; width: 33%; display: flex; justify-content: flex-end;">
+            ${logoHtml}
+        </div>
+    </div>
+    
+    <!-- Meta Data Grid -->
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; background: #f1f5f9; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 1px solid #cbd5e1;">
+        <div style="width: 30%; margin-bottom: 10px;">
+            <div style="font-size: 12px; color: #64748b; font-weight: bold;">رقم المستند</div>
+            <div style="font-size: 18px; font-weight: 900; color: #b91c1c; font-family: monospace;">${vNo}</div>
+        </div>
+        <div style="width: 30%; margin-bottom: 10px;">
+            <div style="font-size: 12px; color: #64748b; font-weight: bold;">التاريخ</div>
+            <div style="font-size: 16px; font-weight: bold; color: #0f172a;">${vDate}</div>
+        </div>
+        <div style="width: 30%; margin-bottom: 10px;">
+            <div style="font-size: 12px; color: #64748b; font-weight: bold;">المستخدم المستخرج</div>
+            <div style="font-size: 16px; font-weight: bold; color: #0f172a;">${vUser}</div>
+        </div>
+    </div>
+    
+    <!-- Financial Values -->
+    <div style="display: flex; justify-content: space-between; border-radius: 12px; border: 2px solid #0ea5e9; overflow: hidden; margin-bottom: 30px;">
+        <div style="flex: 1; text-align: center; padding: 15px; background: rgba(14, 165, 233, 0.1);">
+            <div style="font-size: 14px; color: #0284c7; font-weight: bold; margin-bottom: 5px;">المبلغ (محلي)</div>
+            <div style="font-size: 28px; font-weight: 900; color: #0f172a;">${vAmount}</div>
+        </div>
+        <div style="width: 1px; background: #0ea5e9;"></div>
+        <div style="flex: 1; text-align: center; padding: 15px;">
+            <div style="font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 5px;">العملة</div>
+            <div style="font-size: 20px; font-weight: bold; color: #0f172a;">${vCurrency}</div>
+        </div>
+        <div style="width: 1px; background: #0ea5e9;"></div>
+        <div style="flex: 1; text-align: center; padding: 15px;">
+            <div style="font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 5px;">سعر التعادل</div>
+            <div style="font-size: 20px; font-weight: bold; color: #0f172a;">${vRate}</div>
+        </div>
+        <div style="width: 1px; background: #0ea5e9;"></div>
+        <div style="flex: 1; text-align: center; padding: 15px; background: rgba(245, 158, 11, 0.1);">
+            <div style="font-size: 14px; color: #d97706; font-weight: bold; margin-bottom: 5px;">القيمة (أجنبي)</div>
+            <div style="font-size: 20px; font-weight: 900; color: #0f172a;">${vValue}</div>
+        </div>
+    </div>
+
+    <!-- Accounts Info -->
+    <div style="margin-bottom: 40px;">
+        <h4 style="font-size: 18px; color: #1e293b; border-bottom: 2px solid #cbd5e1; padding-bottom: 10px; margin-bottom: 20px;">تفاصيل الحسابات</h4>
+        
+        <table style="width: 100%; border-collapse: separate; border-spacing: 0 10px;">
+            <tr>
+                <td style="width: 25%; padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; font-weight: bold; color: #475569;">من حساب (الصرف):</td>
+                <td style="padding: 15px; border: 1px solid #e2e8f0; border-right: none; border-radius: 8px 0 0 8px; font-weight: 900; font-size: 18px; color: #1d4ed8;">${vFrom}</td>
+            </tr>
+            <tr>
+                <td style="padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; font-weight: bold; color: #475569;">إلى حساب (الاستلام):</td>
+                <td style="padding: 15px; border: 1px solid #e2e8f0; border-right: none; border-radius: 8px 0 0 8px; font-weight: 900; font-size: 18px; color: #047857;">${vTo}</td>
+            </tr>
+            <tr>
+                <td style="padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; font-weight: bold; color: #475569;">اسم المستفيد:</td>
+                <td style="padding: 15px; border: 1px solid #e2e8f0; border-right: none; border-radius: 8px 0 0 8px; font-size: 16px; color: #0f172a;">${vBeneficiary || '—'}</td>
+            </tr>
+            <tr>
+                <td style="padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; font-weight: bold; color: #475569;">طريقة الدفع:</td>
+                <td style="padding: 15px; border: 1px solid #e2e8f0; border-right: none; border-radius: 8px 0 0 8px; font-size: 16px; color: #0f172a;">
+                    <span style="display: inline-block; padding: 4px 12px; background: #e0e7ff; color: #4338ca; border-radius: 6px; font-weight: bold;">${vMethod}</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; font-weight: bold; color: #475569;">البيان / الملاحظات:</td>
+                <td style="padding: 15px; border: 1px solid #e2e8f0; border-right: none; border-radius: 8px 0 0 8px; font-size: 16px; color: #0f172a;">${vStatement || '—'}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Signatures -->
+    <div style="display: flex; justify-content: space-around; margin-top: 60px; padding-top: 30px; border-top: 1px dashed #cbd5e1;">
+        <div style="text-align: center; width: 25%;">
+            <div style="height: 60px;"></div>
+            <hr style="border-top: 2px solid #94a3b8; margin-bottom: 10px;">
+            <strong style="color: #475569;">توقيع المستلم</strong>
+        </div>
+        <div style="text-align: center; width: 25%;">
+            <div style="height: 60px;"></div>
+            <hr style="border-top: 2px solid #94a3b8; margin-bottom: 10px;">
+            <strong style="color: #475569;">توقيع المحاسب</strong>
+        </div>
+        <div style="text-align: center; width: 25%;">
+            <div style="height: 60px;"></div>
+            <hr style="border-top: 2px solid #94a3b8; margin-bottom: 10px;">
+            <strong style="color: #475569;">الاعتماد</strong>
+        </div>
+    </div>
+</div>
+    `;
+    
+    printArea.innerHTML = premiumHtml;
+    
+    const previewPaper = document.getElementById('premium-voucher-paper');
+    if(previewPaper) {
+        previewPaper.innerHTML = premiumHtml;
+    }
+}
+
+function previewVoucher() {
+    buildVoucherPrintHTML();
+    const modal = document.getElementById('premium-voucher-preview-modal');
+    if(modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => {
+            modal.style.opacity = '1';
+            modal.querySelector('.glass-panel').style.transform = 'translateY(0)';
+        }, 10);
+    }
+}
+
+function closePremiumPreview() {
+    const modal = document.getElementById('premium-voucher-preview-modal');
+    if(modal) {
+        modal.style.opacity = '0';
+        modal.querySelector('.glass-panel').style.transform = 'translateY(30px)';
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    }
+}
+
 function printVoucher() {
-    window.print();
+    buildVoucherPrintHTML();
+    
+    if (!document.getElementById('voucher-print-css')) {
+        const style = document.createElement('style');
+        style.id = 'voucher-print-css';
+        style.textContent = `
+            @media print {
+                body * {
+                    visibility: hidden;
+                }
+                #voucher-print-wrapper, #voucher-print-wrapper * {
+                    visibility: visible;
+                }
+                #voucher-print-wrapper {
+                    display: block !important;
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                    margin: 0;
+                    padding: 0;
+                }
+                @page {
+                    size: A4 portrait;
+                    margin: 10mm;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    const printWrapper = document.getElementById('voucher-print-wrapper');
+    if (printWrapper) printWrapper.style.display = 'block';
+
+    setTimeout(() => {
+        window.print();
+        if (printWrapper) printWrapper.style.display = 'none';
+    }, 200);
 }
 
 function confirmDelete() {
@@ -1552,5 +1785,48 @@ function playClickSound() {
 document.addEventListener('DOMContentLoaded', () => {
     initPaymentContainers();
 });
+
+window.unifyVoucherSequences = function() {
+    if (!confirm('هل أنت متأكد من رغبتك في توحيد أرقام جميع السندات القديمة لتتبع التسلسل الجديد (E+سنة+شهر+000X)؟\nسيتم ترتيب جميع السندات حسب تاريخ إنشائها وإعطاؤها تسلسلاً موحداً، ولا يمكن التراجع عن هذه العملية.')) return;
+    
+    let spData = [];
+    try {
+        spData = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+    } catch(e) {}
+
+    if (spData.length === 0) {
+        showToast('لا توجد سندات قديمة لإعادة ترقيمها', 'warning');
+        return;
+    }
+
+    // Sort by date oldest first
+    spData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    let seqMap = {};
+
+    spData.forEach(v => {
+        const d = new Date(v.date || Date.now());
+        const yy = String(d.getFullYear()).substring(2, 4);
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const prefix = 'E' + yy + mm;
+        
+        if (!seqMap[prefix]) seqMap[prefix] = 1;
+        
+        const newId = `${prefix}${String(seqMap[prefix]).padStart(4, '0')}`;
+        v.id = newId;
+        if(v.voucherNo !== undefined) v.voucherNo = newId;
+        
+        seqMap[prefix]++;
+    });
+
+    localStorage.setItem('erp_single_payments_v1', JSON.stringify(spData));
+    showToast('تم ترتيب وتوحيد تسلسل جميع السندات بنجاح!', 'success');
+    
+    setTimeout(() => {
+        window.location.reload();
+    }, 1500);
+};
+
+
 
 

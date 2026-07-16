@@ -91,6 +91,48 @@
             localStorage.setItem('erp_theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
             window.dispatchEvent(new Event('themeChanged'));
         }
+
+        // Global Backdrop Click to Go Back Interaction (Immediate, bypasses JS cache)
+        document.addEventListener('click', function(e) {
+            try {
+                if (!e || !e.target) return;
+                
+                // Exclude home/dashboard and login screens
+                const path = window.location.pathname.toLowerCase();
+                if (path.includes('dashboard-pro') || path.includes('login') || path.includes('index') || path === '/' || path.endsWith('/magaees') || path.endsWith('/magaees/')) {
+                    return;
+                }
+
+                const target = e.target;
+                if (typeof target.closest !== 'function') return;
+
+                // Protect ONLY interactive elements. We want background/empty areas to trigger 'back'
+                const interactiveSelectors = [
+                    'button', 'input', 'select', 'textarea', 'a', 'label', 'table', 'form',
+                    '.modal-overlay', '.modal', '.custom-dropdown-list', '.toast-container', '.choices',
+                    '.user-info', '#online-users-badge', '.clock-container', '.crystal-pill', '.bal-card',
+                    '[onclick]' // Any element with an onclick attribute
+                ];
+
+                for (let i = 0; i < interactiveSelectors.length; i++) {
+                    if (target.closest(interactiveSelectors[i])) {
+                        return; // Ignored as click is in or on an interactive component
+                    }
+                }
+
+                // If we get here, it's an empty space, margin, or layout container
+                // Navigate back immediately
+                e.preventDefault();
+                e.stopPropagation();
+                if (document.referrer) {
+                    window.history.back();
+                } else {
+                    window.location.href = 'dashboard-pro.php';
+                }
+            } catch (err) {
+                console.error('Error in backdrop click:', err);
+            }
+        }, true); // Use CAPTURE phase to intercept before any other script calls stopPropagation
         </script>
     </div>
 </header>
