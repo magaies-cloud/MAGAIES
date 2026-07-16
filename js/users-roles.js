@@ -9,6 +9,8 @@ const MODULES = [
     { id: 'purchase', name: 'المشتريات' },
     { id: 'inventory', name: 'تقارير المخزون والجرد' },
     { id: 'finance', name: 'المعاملات المالية' },
+    { id: 'finance_single', name: 'حركة مالية' },
+    { id: 'finance_multi', name: 'حركة مالية مجمعة' },
     { id: 'master_data', name: 'البيانات الأساسية' },
     { id: 'reports', name: 'التقارير التحليلية' },
     { id: 'settings', name: 'الإعدادات والصلاحيات' },

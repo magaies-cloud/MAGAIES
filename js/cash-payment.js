@@ -173,9 +173,34 @@ function updateCurrency(id) {
     if (curr === 'SDG') {
         rateEl.value = '1.0';
         rateEl.readOnly = true;
+        rateEl.style.opacity = '0.6';
     } else {
-        rateEl.readOnly = false;
-        if(parseNum(rateEl.value) === 1) rateEl.value = ''; // Clear 1.0 if they switch to foreign
+        let rate = 0;
+        if (typeof window.getExchangeRateForCurrency === 'function') {
+            rate = window.getExchangeRateForCurrency(curr);
+        }
+        if (rate > 0) {
+            rateEl.value = parseFloat(rate).toFixed(4);
+        } else {
+            rateEl.value = '';
+        }
+        let canEdit = true;
+        try {
+            const userStr = localStorage.getItem('erp_currentUser');
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                if (user.username !== 'admin' && user.role !== 'admin' && (!user.securityLevel || user.securityLevel < 9)) {
+                    let perms = {};
+                    if (typeof window.resolveUserPermissions === 'function') perms = window.resolveUserPermissions(user);
+                    canEdit = !!(perms.exchange_rates && perms.exchange_rates.edit);
+                }
+            }
+        } catch(e) {}
+        rateEl.readOnly = !canEdit;
+        rateEl.style.opacity = canEdit ? '1' : '0.6';
+        if (rate > 0 && typeof showToast === 'function') {
+            showToast('سعر الصرف: ' + parseFloat(rate).toFixed(4), 'info');
+        }
     }
     calcEquiv(id, 'rate');
 }

@@ -3347,7 +3347,7 @@ function addChequeRow(existingData = null) {
                 <input type="number" class="v-input ctrl-input ch-amount-input" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : '0.00'}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: none; width: 145px; min-width: 145px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; text-align: center; font-size: 1.15rem; font-weight: 800; color: #c084fc !important;">
                 <input type="text" class="v-input ctrl-input ch-no-input" value="${existingData?.chequeNo || ''}" placeholder="رقم الشيك..." style="flex: 1; min-width: 90px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; text-align: center; font-size: 0.85rem;">
                 <input type="text" class="v-input ctrl-input ch-bank-input" value="${existingData?.bankName || ''}" placeholder="اسم البنك..." style="flex: 1.2; min-width: 110px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; text-align: center; font-size: 0.85rem;">
-                <div style="display:flex; align-items:center; gap:5px; flex: 1.3; min-width: 160px;">
+                <div style="display:flex; align-items:center; gap:5px; flex: 1.3; min-width: 200px;">
                     <label style="font-size:0.75rem; color:#94a3b8; white-space:nowrap;">الاستحقاق:</label>
                     <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData?.dueDate || today}" style="height: 36px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; padding: 0 4px; width: 100%;">
                 </div>

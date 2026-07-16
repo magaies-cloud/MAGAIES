@@ -1383,7 +1383,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (matchedRole && matchedRole.permissions) {
                             const rolePerms = matchedRole.permissions;
                             // Additive merge: Role Perms + User Overrides
-                            const modulesList = ['dashboard','sales','purchase','inventory','finance','master_data','reports','settings','inventory_rules','posting_accounts'];
+                            const modulesList = ['dashboard','sales','purchase','inventory','finance','finance_single','finance_multi','master_data','reports','settings','inventory_rules','posting_accounts','exchange_rates'];
                             for (let mod of modulesList) {
                                 if (!finalPerms[mod]) finalPerms[mod] = {};
                                 if (!rolePerms[mod]) rolePerms[mod] = {};
@@ -1409,12 +1409,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Fallback for legacy admin session or missing permissions, and Super Admin Bypass
         if (user.username === 'admin' || user.role === 'admin' || user.roleId === 'admin_fallback' || user.securityLevel >= 9) {
             perms = {
-                sales:{view:true,add:true,edit:true,delete:true,print:true,approve:true}, 
-                purchase:{view:true,add:true,edit:true,delete:true,print:true,approve:true}, 
-                inventory:{view:true,add:true,edit:true,delete:true,print:true,approve:true}, 
-                finance:{view:true,add:true,edit:true,delete:true,print:true,approve:true}, 
-                master_data:{view:true,add:true,edit:true,delete:true,print:true,approve:true}, 
-                reports:{view:true,add:true,edit:true,delete:true,print:true,approve:true}, 
+                sales:{view:true,add:true,edit:true,delete:true,print:true,approve:true},
+                purchase:{view:true,add:true,edit:true,delete:true,print:true,approve:true},
+                inventory:{view:true,add:true,edit:true,delete:true,print:true,approve:true},
+                finance:{view:true,add:true,edit:true,delete:true,print:true,approve:true},
+                finance_single:{view:true,add:true,edit:true,delete:true,print:true,approve:true},
+                finance_multi:{view:true,add:true,edit:true,delete:true,print:true,approve:true},
+                master_data:{view:true,add:true,edit:true,delete:true,print:true,approve:true},
+                reports:{view:true,add:true,edit:true,delete:true,print:true,approve:true},
                 settings:{view:true,add:true,edit:true,delete:true,print:true,approve:true},
                 posting_accounts:{view:true,add:true,edit:true,delete:true,print:true,approve:true},
                 dashboard:{view:true}
@@ -1438,8 +1440,9 @@ document.addEventListener('DOMContentLoaded', () => {
             'vouchers-hub.php': 'finance',
             'cash-receipt.php': 'finance',
             'cash-payment.php': 'finance',
-            'single-cash-receipt.php': 'finance',
-            'single-cash-payment.php': 'finance',
+            'single-cash-receipt.php': 'finance_single',
+            'single-cash-payment.php': 'finance_single',
+            'multi-cash-payment.php': 'finance_multi',
             'payment-voucher.php': 'finance',
             'journal-voucher.php': 'finance',
             'general-ledger.php': 'finance',

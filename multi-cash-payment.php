@@ -20,6 +20,129 @@
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
     <style>
+        @keyframes flowOut {
+            0% { transform: translateX(0); opacity: 0.4; }
+            50% { transform: translateX(-10px); opacity: 1; filter: drop-shadow(0 0 3px #ef4444); }
+            100% { transform: translateX(0); opacity: 0.4; }
+        }
+        .animated-arrow-left {
+            display: inline-block;
+            margin-right: 8px;
+            color: #ef4444;
+            animation: flowOut 1.5s infinite ease-in-out;
+            font-size: 1.6rem;
+            vertical-align: middle;
+            font-weight: bold;
+        }
+
+        @keyframes flowIn {
+            0% { transform: translateX(0); opacity: 0.4; }
+            50% { transform: translateX(10px); opacity: 1; filter: drop-shadow(0 0 3px currentColor); }
+            100% { transform: translateX(0); opacity: 0.4; }
+        }
+        .animated-arrow-right {
+            display: inline-block;
+            margin-right: 8px;
+            color: inherit;
+            animation: flowIn 1.5s infinite ease-in-out;
+            font-size: 1.6rem;
+            vertical-align: middle;
+            font-weight: bold;
+        }
+
+        /* Glassmorphism Containers */
+        .glass-container {
+            padding: 15px 22px 22px 22px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .glass-container:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px 0 rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        #secondary-table-container {
+            padding-top: 4px !important;
+        }
+
+        #secondary-table-container th {
+            padding-top: 6px !important;
+            padding-bottom: 6px !important;
+        }
+
+        .glass-red {
+            background: rgba(239, 68, 68, 0.03) !important;
+            border-right: 5px solid rgba(239, 68, 68, 0.3) !important;
+        }
+        .glass-red:hover {
+            background: rgba(239, 68, 68, 0.06) !important;
+            border-right-color: rgba(239, 68, 68, 0.7) !important;
+            box-shadow: 0 16px 40px 0 rgba(239, 68, 68, 0.06) !important;
+        }
+
+        .glass-green {
+            background: rgba(16, 185, 129, 0.03) !important;
+            border-right: 5px solid rgba(16, 185, 129, 0.3) !important;
+        }
+        .glass-green:hover {
+            background: rgba(16, 185, 129, 0.06) !important;
+            border-right-color: rgba(16, 185, 129, 0.7) !important;
+            box-shadow: 0 16px 40px 0 rgba(16, 185, 129, 0.06) !important;
+        }
+
+        /* High Contrast Inputs, Placeholders, and Labels */
+        input::placeholder,
+        select::placeholder,
+        textarea::placeholder,
+        .form-input::placeholder,
+        .form-select::placeholder,
+        .multi-input::placeholder {
+            color: rgba(255, 255, 255, 0.6) !important;
+            opacity: 1 !important;
+        }
+
+        input, select, textarea, .form-input, .form-select, .multi-input {
+            color: #ffffff !important;
+        }
+
+        .glass-container label {
+            color: #e2e8f0;
+        }
+
+        /* High Contrast for Payment Method Details Inputs & Labels */
+        .payment-method-box label {
+            color: #e2e8f0 !important;
+            opacity: 1 !important;
+        }
+        .payment-method-box input {
+            color: #ffffff !important;
+        }
+        .payment-method-box input::placeholder {
+            color: rgba(255, 255, 255, 0.6) !important;
+            opacity: 1 !important;
+        }
+
+        /* Auto-Expanding heights for payment containers */
+        #payment-panel,
+        .payment-layout,
+        .payment-details-card,
+        .payment-method-box,
+        #transfers-container,
+        #cheques-container {
+            height: auto !important;
+            min-height: fit-content !important;
+            overflow: visible !important;
+        }
+
         .top-action-bar { background: rgba(249, 115, 22, 0.1); border-bottom: 1px solid rgba(249, 115, 22, 0.2); }
         .action-tab.active { background: #f97316; color: #fff; border-color: #f97316; }
 
@@ -199,9 +322,8 @@
             left: 0;
             right: 0;
             z-index: 9999;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: #0b1120 !important;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             max-height: 280px;
             overflow-y: auto;
@@ -232,25 +354,188 @@
 
         /* Voucher Type Toggle Buttons (صرف/استلام مجمع) */
         .voucher-type-btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #94a3b8;
+            background: rgba(0,0,0,0.5) !important;
+            border: 1px solid rgba(255,255,255,0.15) !important;
+            color: #cbd5e1 !important;
+            box-shadow: none !important;
+            min-width: 175px !important;
+            height: 45px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 10px !important;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
         }
         .voucher-type-btn:hover {
-            background: rgba(255,255,255,0.1);
-            color: #fff;
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+            border-color: rgba(255,255,255,0.4) !important;
+            transform: scale(1.02);
         }
         .voucher-type-btn.active-payment {
-            background: rgba(239, 68, 68, 0.15);
-            border-color: rgba(239, 68, 68, 0.4);
-            color: #fca5a5;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+            background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+            border: 2px solid #ffffff !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6) !important;
+            font-weight: 900 !important;
+            animation: activePulse 2s infinite ease-in-out;
         }
         .voucher-type-btn.active-receipt {
-            background: rgba(16, 185, 129, 0.15);
-            border-color: rgba(16, 185, 129, 0.4);
-            color: #6ee7b7;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+            background: linear-gradient(135deg, #10b981, #059669) !important;
+            border: 2px solid #ffffff !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6) !important;
+            font-weight: 900 !important;
+            animation: activePulseGreen 2s infinite ease-in-out;
+        }
+
+        /* Pulsing active buttons */
+        @keyframes activePulse {
+            0% { transform: scale(1.02); box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
+            50% { transform: scale(1.06); box-shadow: 0 0 25px rgba(239, 68, 68, 0.9), 0 0 0 4px rgba(239, 68, 68, 0.3); }
+            100% { transform: scale(1.02); box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
+        }
+        @keyframes activePulseGreen {
+            0% { transform: scale(1.02); box-shadow: 0 0 15px rgba(16, 185, 129, 0.6); }
+            50% { transform: scale(1.06); box-shadow: 0 0 25px rgba(16, 185, 129, 0.9), 0 0 0 4px rgba(16, 185, 129, 0.3); }
+            100% { transform: scale(1.02); box-shadow: 0 0 15px rgba(16, 185, 129, 0.6); }
+        }
+
+        /* Heartbeat for active state circles */
+        @keyframes heartBeatRed {
+            0% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
+            20% { transform: scale(1.4); background-color: #ff8787; box-shadow: 0 0 15px #ff8787; }
+            40% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
+            60% { transform: scale(1.4); background-color: #ef4444; box-shadow: 0 0 15px #ef4444; }
+            80% { transform: scale(1.2); background-color: #fca5a5; box-shadow: 0 0 12px #fca5a5; }
+            100% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
+        }
+        @keyframes heartBeatGreen {
+            0% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
+            20% { transform: scale(1.4); background-color: #a7f3d0; box-shadow: 0 0 15px #a7f3d0; }
+            40% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
+            60% { transform: scale(1.4); background-color: #10b981; box-shadow: 0 0 15px #10b981; }
+            80% { transform: scale(1.2); background-color: #6ee7b7; box-shadow: 0 0 12px #6ee7b7; }
+            100% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
+        }
+
+        .voucher-type-btn.active-payment span {
+            animation: heartBeatRed 1.2s infinite ease-in-out !important;
+        }
+        .voucher-type-btn.active-receipt span {
+            animation: heartBeatGreen 1.2s infinite ease-in-out !important;
+        }
+
+        /* Color Wave Animation */
+        @keyframes colorWave {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .wave-bg {
+            background-size: 300% 300% !important;
+            animation: colorWave 5s ease infinite !important;
+        }
+
+        /* ═══ Row Add/Delete Animations ═══ */
+        @keyframes rowSlideIn {
+            from { opacity: 0; transform: translateY(-15px) scale(0.97); max-height: 0; }
+            to { opacity: 1; transform: translateY(0) scale(1); max-height: 100px; }
+        }
+        @keyframes rowSlideOut {
+            from { opacity: 1; transform: translateX(0) scale(1); max-height: 100px; }
+            to { opacity: 0; transform: translateX(40px) scale(0.9); max-height: 0; padding: 0; margin: 0; }
+        }
+        .multi-row { animation: rowSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .multi-row.removing { animation: rowSlideOut 0.3s ease forwards; pointer-events: none; }
+
+        /* ═══ Focus Glow Effect ═══ */
+        .multi-input:focus, .v-input:focus, .ctrl-input:focus {
+            outline: none !important;
+            border-color: rgba(56, 189, 248, 0.6) !important;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15), 0 0 15px rgba(56, 189, 248, 0.1) !important;
+            transition: border-color 0.3s, box-shadow 0.3s !important;
+        }
+
+        /* ═══ Shake Animation for Errors ═══ */
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            10%, 50%, 90% { transform: translateX(-6px); }
+            30%, 70% { transform: translateX(6px); }
+        }
+        .shake-error {
+            animation: shakeError 0.5s ease;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+        }
+
+        /* ═══ Save Success Celebration ═══ */
+        @keyframes saveSuccess {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.15); }
+            50% { transform: scale(0.95); }
+            70% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .save-success-anim {
+            animation: saveSuccess 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        /* ═══ Confetti Overlay ═══ */
+        @keyframes confettiFall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .confetti-piece {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            z-index: 99999;
+            border-radius: 2px;
+            animation: confettiFall 2.5s linear forwards;
+            pointer-events: none;
+        }
+
+        /* ═══ Number Counter Transition ═══ */
+        .amount-animate {
+            transition: transform 0.2s ease;
+        }
+        .amount-animate.changed {
+            transform: scale(1.08);
+            color: #fbbf24 !important;
+        }
+
+        /* ═══ Button Active Press ═══ */
+        .crystal-btn:active, .btn-add-row-inline:active {
+            transform: scale(0.92) !important;
+            transition: transform 0.1s !important;
+        }
+
+        /* ═══ Transfer/Cheque Row Animations ═══ */
+        .transfer-row, .cheque-row {
+            animation: rowSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .transfer-row.removing, .cheque-row.removing {
+            animation: rowSlideOut 0.3s ease forwards;
+            pointer-events: none;
+        }
+
+        /* ═══ Payment Section Smooth Transition ═══ */
+        #cash-section, #bank-section, #cheque-section {
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ═══ Skeleton Loading ═══ */
+        @keyframes skeletonShimmer {
+            0% { background-position: -200px 0; }
+            100% { background-position: calc(200px + 100%) 0; }
+        }
+        .skeleton-loading {
+            background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+            background-size: 200px 100%;
+            animation: skeletonShimmer 1.5s infinite;
+            border-radius: 6px;
         }
     </style>
 </head>
@@ -271,101 +556,115 @@
             <!-- Main Content area (Full width) -->
             <div class="main-panel glass-panel" id="main-form-panel" style="padding: 25px; position: relative; width: 100%;">
                 
-                <div class="form-section-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; width: 100%;">
-                    <div style="display: flex; align-items: center; gap: 8px;"><span>👤</span> بيانات الطرف الرئيسي</div>
-                    <div style="display: flex; gap: 8px; margin-left: 5px;">
-                        <button id="btn-payment" class="voucher-type-btn active-payment" onclick="setVoucherType('payment')" style="padding: 12px 36px; font-size: 1.2rem; border-radius: 12px; font-weight: 800; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 12px; font-family: 'Tajawal', sans-serif; min-width: 240px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-                            <span style="width: 16px; height: 16px; border-radius: 50%; background: #ef4444; display: inline-block; box-shadow: 0 0 12px #ef4444, 0 0 25px #ef4444;"></span> صرف مجمع
-                        </button>
-                        <button id="btn-receipt" class="voucher-type-btn" onclick="setVoucherType('receipt')" style="padding: 12px 36px; font-size: 1.2rem; border-radius: 12px; font-weight: 800; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 12px; font-family: 'Tajawal', sans-serif; min-width: 240px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-                            <span style="width: 16px; height: 16px; border-radius: 50%; background: #10b981; display: inline-block; box-shadow: 0 0 12px #10b981, 0 0 25px #10b981;"></span> استلام مجمع
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Payment Methods Row -->
-                <div id="payment-methods-row" style="display: flex; align-items: center; justify-content: flex-start; gap: 20px; margin-bottom: 25px; background: rgba(239, 68, 68, 0.08); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2); flex-wrap: wrap; transition: all 0.4s ease;">
-                    <!-- 1. رقم السند والملاحة -->
-                    <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; height: 44px; padding: 0 8px;">
-                        <button type="button" onclick="navigateVoucher(-1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.2rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند السابق">◀</button>
-                        <div style="display: flex; align-items: center; gap: 4px;">
-                            <span style="color: #94a3b8; font-size: 0.9rem; font-weight: bold; white-space: nowrap;">📄 السند:</span>
-                            <input type="text" id="voucher-no-display" readonly style="background: transparent; border: none; color: #fff; font-weight: bold; width: 140px; text-align: center; outline: none; font-size:1rem;" value="">
+                <!-- Unified Top Row (Payment Methods Row) -->
+                <div id="payment-methods-row" class="wave-bg" style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 25px; background: linear-gradient(45deg, #b91c1c, #ef4444, #991b1b, #dc2626); padding: 12px 15px; border-radius: 12px; border: 1px solid #f87171; flex-wrap: wrap; transition: all 0.4s ease; box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4);">
+                    
+                    <!-- Title & Toggles -->
+                    <div style="display: flex; align-items: center; gap: 15px; flex: none; flex-wrap: wrap;">
+                        <div id="main-party-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.1rem; font-weight: 700; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                            <span>👤</span> بيان الطرف الرئيسي
                         </div>
-                        <button type="button" onclick="navigateVoucher(1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.2rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند التالي">▶</button>
+                        <div style="display: flex; gap: 8px;">
+                            <button id="btn-payment" class="voucher-type-btn active-payment" onclick="setVoucherType('payment')" style="padding: 8px 16px; font-size: 1rem; border-radius: 8px; font-weight: 800; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Tajawal', sans-serif; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                                <span style="width: 12px; height: 12px; border-radius: 50%; background: #ef4444; display: inline-block; box-shadow: 0 0 10px #ef4444;"></span> صرف مجمع
+                            </button>
+                            <button id="btn-receipt" class="voucher-type-btn" onclick="setVoucherType('receipt')" style="padding: 8px 16px; font-size: 1rem; border-radius: 8px; font-weight: 800; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Tajawal', sans-serif; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                                <span style="width: 12px; height: 12px; border-radius: 50%; background: #10b981; display: inline-block; box-shadow: 0 0 10px #10b981;"></span> استلام مجمع
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- 2. التاريخ -->
-                    <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; height: 44px; padding: 0 12px;">
-                        <span style="color: #94a3b8; font-size: 0.9rem; font-weight: bold; white-space: nowrap;">📅 التاريخ:</span>
-                        <input type="date" id="voucher-date" class="form-input" style="background: transparent; border: none; color: #fff; font-weight: bold; padding: 0; margin: 0; height: 100%; width: 135px; outline: none; box-shadow: none;">
+                    <!-- Voucher Details (Ref, Date, No) -->
+                    <div style="display: flex; align-items: center; gap: 15px; flex: 1; justify-content: flex-end; flex-wrap: wrap;">
+                        
+                        <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; height: 40px; padding: 0 8px;">
+                            <button type="button" onclick="navigateVoucher(-1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.1rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند السابق">◀</button>
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <span style="color: #94a3b8; font-size: 0.85rem; font-weight: bold; white-space: nowrap;">📄 السند:</span>
+                                <input type="text" id="voucher-no-display" readonly style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; width: 140px; text-align: center; outline: none !important; font-size:0.95rem; box-shadow: none !important; padding: 0;" value="">
+                            </div>
+                            <button type="button" onclick="navigateVoucher(1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.1rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند التالي">▶</button>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; height: 40px; padding: 0 12px;">
+                            <span style="color: #94a3b8; font-size: 0.85rem; font-weight: bold; white-space: nowrap;">📅 التاريخ:</span>
+                            <input type="date" id="voucher-date" style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; padding: 0; margin: 0; height: 100%; width: 130px; outline: none !important; box-shadow: none !important; font-size: 0.9rem; -webkit-appearance: none; appearance: none;">
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                            <input type="text" autocomplete="off" id="voucher-ref" class="form-input" placeholder="رقم المرجع (اختياري)" style="height: 40px; width: 160px; background: rgba(0,0,0,0.3); font-size: 0.9rem;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Primary Inputs Glass Container -->
+                <div id="primary-inputs-container" class="glass-container glass-red" style="position: relative; z-index: 15;">
+                    <!-- Form Inputs Row -->
+                    <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; overflow: visible; padding-bottom: 10px; margin-bottom: 15px;">
+
+                        <div style="flex: 2; min-width: 250px;">
+                            <label id="main-account-label" style="color: #f87171 !important; font-size: 1.1rem; margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left">←</span></label>
+                            <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
+                                <input type="hidden" id="main-account">
+                                <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color);">
+                                <div class="custom-dropdown-list" id="main-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
+                            </div>
+                        </div>
+
+                        <div style="flex: 1; min-width: 120px;">
+                            <label style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; display: block; white-space: nowrap;">العملة</label>
+                            <select id="currency" class="form-select" onchange="onCurrencyChange()">
+                                <option value="SDG">جنيه (SDG)</option>
+                                <option value="USD">دولار (USD)</option>
+                                <option value="AED">درهم (AED)</option>
+                            </select>
+                        </div>
+                        
+                        <div style="flex: 1; min-width: 100px;">
+                            <label style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; display: block; white-space: nowrap;">التعادل</label>
+                            <input type="text" autocomplete="off" id="exchange-rate" class="form-input" value="1.0" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); typeof calcTotal === 'function' ? calcTotal() : null;" style="font-weight: bold; font-family: monospace;">
+                        </div>
+                        
+                        <div style="flex: 1; min-width: 150px;">
+                            <label style="color: #10b981; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالمحلي</label>
+                            <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-weight: 900; font-family: monospace; color: #10b981; background: rgba(255,255,255,0.05);">
+                        </div>
+                        
+                        <div style="flex: 1; min-width: 150px;">
+                            <label style="color: #ef4444; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالأجنبي</label>
+                            <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-weight: 900; font-family: monospace; color: #ef4444; background: rgba(255,255,255,0.05);">
+                        </div>
                     </div>
 
-                    <!-- 4. الرقم المرجعي الاختياري -->
-                    <div style="flex-grow: 1; display: flex; justify-content: flex-end; align-items: center;">
-                        <input type="text" id="voucher-ref" class="form-input" placeholder="رقم المرجع (اختياري)" style="height: 44px; max-width: 200px; background: rgba(0,0,0,0.3);">
+                    <div style="display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.2); padding: 12px 15px; min-height: 50px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                        <label style="color: #ffffff; font-size: 1rem; font-weight: bold; margin: 0; white-space: nowrap;">البيان العام / الوصف:</label>
+                        <input type="text" autocomplete="off" id="voucher-desc" class="form-input" placeholder="وصف عام للحركة المجمعة..." style="flex: 1; margin: 0; background: transparent; border: none; padding: 5px; box-shadow: none; font-size: 1rem;">
                     </div>
                 </div>
 
-                <div class="form-grid">
 
-                <div>
-                    <label id="main-account-label" style="color: #f87171 !important; font-size: 1.1rem; margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s;">من حساب (صرف)</label>
-                    <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
-                        <input type="hidden" id="main-account">
-                        <input type="text" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color);">
-                        <div class="custom-dropdown-list" id="main-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
-                    </div>
+                <!-- Secondary Table Glass Container -->
+                <div id="secondary-table-container" class="glass-container glass-green" style="position: relative; z-index: 5;">
+                    <table class="multi-table" id="voucher-table">
+                        <thead id="table-header" style="cursor: context-menu;" title="اضغط كليك يمين للتحكم بالأعمدة">
+                            <tr>
+                                <th id="sub-account-header" style="width: 25%; color: #34d399 !important; font-size: 1.1rem;">إلى حساب (استلام) <span class="animated-arrow-right">→</span></th>
+                                <th style="width: 15%;">المبلغ</th>
+                                <th class="col-desc" style="width: 30%;">البيان الفرعي</th>
+                                <th class="col-cost-center" style="width: 15%;">مركز التكلفة</th>
+                                <th class="col-note" style="width: 20%;">ملحوظة</th>
+                                <th class="col-check-no" style="width: 10%;">رقم الشيك</th>
+                                <th class="col-check-date" style="width: 10%;">تاريخ الشيك</th>
+                                <th class="col-check-due" style="width: 10%;">الاستحقاق</th>
+                                <th style="width: 5%;">إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="entries-body">
+                            <!-- Rows will be added dynamically -->
+                        </tbody>
+                    </table>
                 </div>
-
-                <div>
-                    <label style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; display: block;">العملة</label>
-                    <select id="currency" class="form-select" onchange="document.getElementById('exchange-rate').focus()">
-                        <option value="SDG">جنيه (SDG)</option>
-                        <option value="USD">دولار (USD)</option>
-                        <option value="AED">درهم (AED)</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; display: block;">التعادل</label>
-                    <input type="text" id="exchange-rate" class="form-input" value="1.0" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); typeof calcTotal === 'function' ? calcTotal() : null;" style="font-weight: bold; font-family: monospace;">
-                </div>
-                <div>
-                    <label style="color: #10b981; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: bold;">💵 الإجمالي بالمحلي</label>
-                    <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-weight: 900; font-family: monospace; color: #10b981; background: rgba(255,255,255,0.05);">
-                </div>
-                <div>
-                    <label style="color: #ef4444; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: bold;">💵 الإجمالي بالأجنبي</label>
-                    <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-weight: 900; font-family: monospace; color: #ef4444; background: rgba(255,255,255,0.05);">
-                </div>
-                <div style="grid-column: 1 / -1;">
-                    <label style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px; display: block;">البيان العام / الوصف</label>
-                    <input type="text" id="voucher-desc" class="form-input" placeholder="وصف عام للحركة المجمعة...">
-                </div>
-            </div>
-
-            <div class="form-section-title" id="sub-accounts-title" style="margin-top: 30px;"><span>👥</span> إلى حساب (استلام)</div>
             
-            <table class="multi-table" id="voucher-table">
-                <thead id="table-header" style="cursor: context-menu;" title="اضغط كليك يمين للتحكم بالأعمدة">
-                    <tr>
-                        <th id="sub-account-header" style="width: 25%;">إلى حساب (استلام)</th>
-                        <th style="width: 15%;">المبلغ</th>
-                        <th class="col-desc" style="width: 30%;">البيان الفرعي</th>
-                        <th class="col-cost-center" style="width: 15%;">مركز التكلفة</th>
-                        <th class="col-note" style="width: 20%;">ملحوظة</th>
-                        <th class="col-check-no" style="width: 10%;">رقم الشيك</th>
-                        <th class="col-check-date" style="width: 10%;">تاريخ الشيك</th>
-                        <th class="col-check-due" style="width: 10%;">الاستحقاق</th>
-                        <th style="width: 5%;">إجراء</th>
-                    </tr>
-                </thead>
-                <tbody id="entries-body">
-                    <!-- Rows will be added dynamically -->
-                </tbody>
-            </table>
-            
-            <button class="btn-add-row" onclick="addRow()">+ إضافة حساب جديد</button>
 
             <!-- Hidden radios to prevent legacy JS checks breaking -->
             <div style="display: none;">
@@ -419,8 +718,8 @@
                     transition: all 0.3s ease;
                 }
             </style>
-            <div id="payment-panel" style="display: none; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; margin-top: 20px; margin-bottom: 20px;">
-                <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 12px 20px; background: rgba(15,23,42,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
+            <div id="payment-panel" style="display: none; background: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(139, 92, 246, 0.15)); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 12px; margin-top: 20px; margin-bottom: 20px;">
+                <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 12px 20px; background: rgba(79, 70, 229, 0.1); border-bottom: 1px solid rgba(99, 102, 241, 0.2); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
                     <div class="panel-title" style="background: linear-gradient(135deg, #ff4d4d, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.15rem; font-weight: 900; display: inline-flex; align-items: center; gap: 6px; margin: 0; white-space: nowrap; flex: none;">
                         <span>💳</span> طريقة وتفاصيل الدفع للمستند المجمع
                     </div>
@@ -446,25 +745,25 @@
                     <div class="payment-details-card" style="flex: 1; min-width: 100%; display: flex; flex-direction: column; gap: 10px;">
                         
                         <!-- Cash section -->
-                        <div id="pay-cash-section" class="payment-method-box" style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
+                        <div id="pay-cash-section" class="payment-method-box" style="background: rgba(251, 191, 36, 0.04); border: 1px solid rgba(251, 191, 36, 0.18); border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
                                 <span style="font-size: 1.2rem;">💵</span>
-                                <span style="font-weight: 800; color: #34d399; font-size: 0.95rem;">الدفع النقدي (كاش)</span>
+                                <span style="font-weight: 800; color: #fbbf24; font-size: 0.95rem;">الدفع النقدي (كاش)</span>
                             </div>
                             <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
-                                <span style="color: #94a3b8; font-size: 0.9rem;">سيتم السداد نقداً بالكامل للمستند المجمع.</span>
+                                <span style="color: #ffffff; font-size: 0.9rem; font-weight: bold;">سيتم السداد نقداً بالكامل للمستند المجمع.</span>
                             </div>
                         </div>
 
                         <!-- Bank Transfer section -->
-                        <div id="pay-bank-section" class="payment-method-box" style="background: rgba(59, 130, 246, 0.04); border: 1px solid rgba(59, 130, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px;">
+                        <div id="pay-bank-section" class="payment-method-box" style="background: rgba(251, 191, 36, 0.04); border: 1px solid rgba(251, 191, 36, 0.18); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px;">
                             <div id="transfers-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
                                 <!-- Dynamic rows -->
                             </div>
                         </div>
 
                         <!-- Cheque section -->
-                        <div id="pay-cheque-section" class="payment-method-box" style="background: rgba(139, 92, 246, 0.04); border: 1px solid rgba(139, 92, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px;">
+                        <div id="pay-cheque-section" class="payment-method-box" style="background: rgba(251, 191, 36, 0.04); border: 1px solid rgba(251, 191, 36, 0.18); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px;">
                             <div id="cheques-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
                                 <!-- Dynamic rows -->
                             </div>
@@ -472,110 +771,107 @@
 
                         <!-- Hidden legacy inputs to prevent crashes in old scripts -->
                         <div style="display: none;">
-                            <input type="text" id="mobile-transfer-no">
-                            <input type="text" id="mobile-note">
-                            <input type="text" id="check-no">
-                            <input type="text" id="check-branch">
+                            <input type="text" autocomplete="off" id="mobile-transfer-no">
+                            <input type="text" autocomplete="off" id="mobile-note">
+                            <input type="text" autocomplete="off" id="check-no">
+                            <input type="text" autocomplete="off" id="check-branch">
                             <input type="date" id="check-date">
                             <input type="date" id="check-due-date">
                         </div>
-
-            <!-- Sticky Footer for Totals & Save -->
-            <div class="sticky-footer" style="background: rgba(15,23,42,0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border-top: 1px solid rgba(56, 189, 248, 0.4); border-left: 1px solid rgba(56, 189, 248, 0.4); border-right: 1px solid rgba(56, 189, 248, 0.4); border-radius: 20px 20px 0 0; padding: 8px 15px; position: sticky; bottom: 0; z-index: 100; box-shadow: 0 -10px 40px rgba(0,0,0,0.6), inset 0 2px 15px rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                
-                <!-- Totals Section -->
-                <div style="display: flex; gap: 20px; align-items: center;">
-                    <div style="color: #94a3b8; font-size: 0.9rem;">إجمالي الأسطر: <span id="total-rows" style="color: #fff; font-weight: bold; font-family: monospace;">0</span></div>
-                    <div style="font-size: 1.3rem; color: #f97316;">الإجمالي الكلي: <span id="total-amount" style="color: #fff; font-weight: 900; font-family: monospace; letter-spacing: 1px;">0.00</span></div>
+                    </div>
                 </div>
+            </div>
 
-                <!-- Action Buttons Section -->
-                <style>
-                    .footer-actions .btn { font-size: 0.85rem !important; padding: 8px 15px !important; }
-                    .footer-actions .btn-save-master { font-size: 0.95rem !important; padding: 8px 20px !important; font-weight: bold; }
+            <style>
+                .footer-actions .btn { font-size: 0.85rem !important; padding: 8px 15px !important; }
+                .footer-actions .btn-save-master { font-size: 0.95rem !important; padding: 8px 20px !important; font-weight: bold; }
                 
-        
-        /* Universal Light Theme Overrides for Internal Screens */
-        :root.light-theme body,
-        :root.light-theme .ambient-bg {
-            background: #f8fafc !important;
-        }
-        :root.light-theme .glass-panel,
-        :root.light-theme .neo-card,
-        :root.light-theme .summary-card,
-        :root.light-theme .filter-panel,
-        :root.light-theme .chart-card,
-        :root.light-theme .kpi-card,
-        :root.light-theme .premium-header,
-        :root.light-theme .top-header,
-        :root.light-theme .header-area {
-            background: #ffffff !important;
-            border-color: rgba(0, 0, 0, 0.08) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
-            color: #0f172a !important;
-        }
-        :root.light-theme .glass-panel *,
-        :root.light-theme .neo-card *,
-        :root.light-theme .summary-card * {
-            text-shadow: none !important;
-        }
-        :root.light-theme table.pro-table th,
-        :root.light-theme .pos-grid thead th,
-        :root.light-theme .ledger-table th,
-        :root.light-theme .report-table th {
-            background: #f1f5f9 !important;
-            color: #0f172a !important;
-            border-bottom: 2px solid #cbd5e1 !important;
-        }
-        :root.light-theme table.pro-table td,
-        :root.light-theme .pos-grid tbody td,
-        :root.light-theme .ledger-table td,
-        :root.light-theme .report-table td {
-            color: #1e293b !important;
-            border-bottom: 1px solid rgba(0,0,0,0.08) !important;
-        }
-        :root.light-theme table.pro-table tbody tr:hover td,
-        :root.light-theme .pos-grid tbody tr:hover td,
-        :root.light-theme .ledger-table tbody tr:hover td,
-        :root.light-theme .report-table tbody tr:hover td {
-            background: rgba(0,0,0,0.02) !important;
-        }
-        :root.light-theme .h-label,
-        :root.light-theme .form-label,
-        :root.light-theme .tot-lbl,
-        :root.light-theme .lbl,
-        :root.light-theme label,
-        :root.light-theme .table-header {
-            color: #334155 !important;
-        }
-        :root.light-theme .tot-val,
-        :root.light-theme .val {
-            color: #0f172a !important;
-        }
-        :root.light-theme .h-form-group,
-        :root.light-theme .control-panel {
-            background: transparent !important;
-            border-color: rgba(0,0,0,0.08) !important;
-        }
-        :root.light-theme .modern-btn {
-            color: #1e293b !important;
-        }
-        :root.light-theme .modern-btn:hover {
-            color: #0f172a !important;
-        }
-        /* Neon text colors correction for light theme */
-        :root.light-theme .text-emerald-400, :root.light-theme span[style*="color: #34d399"], :root.light-theme span[style*="color:#34d399"] { color: #059669 !important; }
-        :root.light-theme .text-rose-400, :root.light-theme span[style*="color: #f87171"], :root.light-theme span[style*="color:#f87171"] { color: #e11d48 !important; }
-        :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
-        :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
-        :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
-\n</style>
-                <div class="footer-actions" style="display: flex; gap: 8px; flex-wrap: wrap; flex-grow: 1; justify-content: flex-end;">
-                    <button type="button" class="btn crystal-btn btn-exit" onclick="if(document.referrer) { window.history.back(); } else { window.location.href='dashboard-pro.php'; }" title="الرجوع للشاشة السابقة">🚪 خروج</button>
-                    <button type="button" class="btn crystal-btn btn-new" onclick="resetVoucher()">✨ مستند جديد</button>
-                    <button type="button" class="btn crystal-btn btn-print" onclick="printVoucher()">🖨️ طباعة</button>
-                    <button type="button" class="btn crystal-btn btn-delete" onclick="confirmDelete()">🗑️ حذف المستند</button>
-                    <button type="button" class="btn crystal-btn btn-save-master" id="btn-save" onclick="saveVoucher()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">✅ حفظ واعتماد السند</button>
+                /* Universal Light Theme Overrides for Internal Screens */
+                :root.light-theme body,
+                :root.light-theme .ambient-bg {
+                    background: #f8fafc !important;
+                }
+                :root.light-theme .glass-panel,
+                :root.light-theme .neo-card,
+                :root.light-theme .summary-card,
+                :root.light-theme .filter-panel,
+                :root.light-theme .chart-card,
+                :root.light-theme .kpi-card,
+                :root.light-theme .premium-header,
+                :root.light-theme .top-header,
+                :root.light-theme .header-area {
+                    background: #ffffff !important;
+                    border-color: rgba(0, 0, 0, 0.08) !important;
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+                    color: #0f172a !important;
+                }
+                :root.light-theme .glass-panel *,
+                :root.light-theme .neo-card *,
+                :root.light-theme .summary-card * {
+                    text-shadow: none !important;
+                }
+                :root.light-theme table.pro-table th,
+                :root.light-theme .pos-grid thead th,
+                :root.light-theme .ledger-table th,
+                :root.light-theme .report-table th {
+                    background: #f1f5f9 !important;
+                    color: #0f172a !important;
+                    border-bottom: 2px solid #cbd5e1 !important;
+                }
+                :root.light-theme table.pro-table td,
+                :root.light-theme .pos-grid tbody td,
+                :root.light-theme .ledger-table td,
+                :root.light-theme .report-table td {
+                    color: #1e293b !important;
+                    border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+                }
+                :root.light-theme table.pro-table tbody tr:hover td,
+                :root.light-theme .pos-grid tbody tr:hover td,
+                :root.light-theme .ledger-table tbody tr:hover td,
+                :root.light-theme .report-table tbody tr:hover td {
+                    background: rgba(0,0,0,0.02) !important;
+                }
+                :root.light-theme .h-label,
+                :root.light-theme .form-label,
+                :root.light-theme .tot-lbl,
+                :root.light-theme .lbl,
+                :root.light-theme label,
+                :root.light-theme .table-header {
+                    color: #334155 !important;
+                }
+                :root.light-theme .tot-val,
+                :root.light-theme .val {
+                    color: #0f172a !important;
+                }
+                :root.light-theme .h-form-group,
+                :root.light-theme .control-panel {
+                    background: transparent !important;
+                    border-color: rgba(0,0,0,0.08) !important;
+                }
+                :root.light-theme .modern-btn {
+                    color: #1e293b !important;
+                }
+                :root.light-theme .modern-btn:hover {
+                    color: #0f172a !important;
+                }
+                /* Neon text colors correction for light theme */
+                :root.light-theme .text-emerald-400, :root.light-theme span[style*="color: #34d399"], :root.light-theme span[style*="color:#34d399"] { color: #059669 !important; }
+                :root.light-theme .text-rose-400, :root.light-theme span[style*="color: #f87171"], :root.light-theme span[style*="color:#f87171"] { color: #e11d48 !important; }
+                :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
+                :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
+                :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
+            </style>
+
+            <!-- Action Buttons Section Integrated Into Main Card -->
+            <div style="padding: 20px 0 10px 0; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px; width: 100%;">
+                <!-- Action Buttons Section -->
+                <div class="footer-actions" style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; width: 100%;">
+                    <button type="button" class="btn crystal-btn btn-exit" onclick="if(document.referrer) { window.history.back(); } else { window.location.href='dashboard-pro.php'; }" title="الرجوع للشاشة السابقة" style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; font-family: 'Tajawal', sans-serif;">🚪 خروج</button>
+                    <button type="button" class="btn crystal-btn btn-new" onclick="resetVoucher()" style="background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; color: #7dd3fc; font-family: 'Tajawal', sans-serif;">✨ مستند جديد</button>
+                    <button type="button" class="btn crystal-btn btn-print" onclick="directPrint()" style="background: rgba(139, 92, 246, 0.15); border: 1px solid #8b5cf6; color: #c084fc; font-family: 'Tajawal', sans-serif;">🖨️ طباعة</button>
+                    <button type="button" class="btn crystal-btn btn-print-preview" onclick="printVoucher()" style="background: rgba(14, 165, 233, 0.15); border: 1px solid #0ea5e9; color: #7dd3fc; font-family: 'Tajawal', sans-serif;">👁️ معاينة</button>
+                    <button type="button" class="btn crystal-btn btn-delete" onclick="confirmDelete()" style="background: rgba(244, 63, 94, 0.15); border: 1px solid #f43f5e; color: #fda4af; font-family: 'Tajawal', sans-serif;">🗑️ حذف المستند</button>
+                    <button type="button" class="btn crystal-btn btn-save-master" id="btn-save" onclick="saveVoucher()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; font-weight: bold; padding: 10px 25px !important; border-radius: 20px; border: none; box-shadow: 0 0 15px rgba(16,185,129,0.4); font-family: 'Tajawal', sans-serif;">✅ حفظ واعتماد السند</button>
                 </div>
             </div>
         </div>
@@ -590,6 +886,63 @@
         <label class="context-menu-item"><input type="checkbox" value="check-date" onchange="toggleColumn('check-date', this.checked)"> تاريخ الشيك</label>
         <label class="context-menu-item"><input type="checkbox" value="check-due" onchange="toggleColumn('check-due', this.checked)"> الاستحقاق</label>
     </div>
+
+    <!-- Print Preview Modal -->
+    <div id="print-preview-modal" class="preview-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;">
+        <div class="preview-modal-content" style="background: #ffffff; width: 100%; max-width: 900px; height: 90vh; border-radius: 16px; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); overflow: hidden; animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+            <!-- Modal Header -->
+            <div style="padding: 15px 25px; background: #0f172a; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;">
+                <div style="display: flex; align-items: center; gap: 10px; color: #38bdf8;">
+                    <span style="font-size: 1.4rem;">👁️</span>
+                    <h3 style="margin: 0; font-size: 1.15rem; font-weight: bold; font-family: 'Tajawal', sans-serif;">معاينة المستند قبل الطباعة</h3>
+                </div>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <button onclick="window.print()" style="background: #0ea5e9; border: none; border-radius: 8px; color: #fff; padding: 8px 16px; font-weight: bold; cursor: pointer; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(14,165,233,0.3); transition: transform 0.2s;">🖨️ طباعة</button>
+                    <button onclick="closePrintPreviewModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #94a3b8; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; transition: all 0.2s;">✖</button>
+                </div>
+            </div>
+            <!-- Scrollable Preview Area -->
+            <div id="preview-modal-body" style="flex: 1; overflow-y: auto; padding: 30px; background: #f8fafc; direction: rtl;">
+                <!-- Content will be injected here -->
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        @keyframes zoomIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        @media print {
+            body > *:not(#print-preview-modal) {
+                display: none !important;
+            }
+            #print-preview-modal {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                background: #fff !important;
+                padding: 0 !important;
+                display: flex !important;
+            }
+            .preview-modal-content {
+                box-shadow: none !important;
+                height: auto !important;
+                max-width: 100% !important;
+                border-radius: 0 !important;
+            }
+            #preview-modal-body {
+                background: #fff !important;
+                padding: 0 !important;
+            }
+            /* Hide modal header with print/close buttons when printing */
+            #print-preview-modal > div > div:first-child {
+                display: none !important;
+            }
+        }
+    </style>
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>

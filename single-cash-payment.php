@@ -1159,6 +1159,17 @@
                             .payment-method-box {
                                 transition: all 0.3s ease;
                             }
+                            /* Auto-Expanding heights for payment containers */
+                            #payment-panel,
+                            .payment-layout,
+                            .payment-details-card,
+                            .payment-method-box,
+                            #transfers-container,
+                            #cheques-container {
+                                height: auto !important;
+                                min-height: fit-content !important;
+                                overflow: visible !important;
+                            }
                         </style>
                         <div id="payment-panel" style="display: none; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; margin-top: 20px; margin-bottom: 20px;">
                             <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 12px 20px; background: rgba(15,23,42,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
