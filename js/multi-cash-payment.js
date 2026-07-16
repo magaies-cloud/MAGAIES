@@ -838,6 +838,19 @@ async function saveVoucher() {
     if (saveBtn && saveBtn.disabled) return;
     if (saveBtn) { saveBtn.disabled = true; saveBtn.style.opacity = '0.6'; saveBtn.style.pointerEvents = 'none'; }
 
+    // Helper to re-enable save button on validation errors
+    function reEnableSave() {
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = '1'; saveBtn.style.pointerEvents = 'auto'; }
+    }
+    // Helper to highlight field with red border and shake
+    function highlightError(el) {
+        if (!el) return;
+        el.style.border = '2px solid #ef4444';
+        el.style.boxShadow = '0 0 12px rgba(239,68,68,0.5)';
+        if (typeof shakeElement === 'function') shakeElement(el);
+        setTimeout(() => { el.style.border = ''; el.style.boxShadow = ''; }, 4000);
+    }
+
     const type = document.getElementById('voucher-type').value;
     const date = document.getElementById('voucher-date').value;
     const mainAccount = document.getElementById('main-account').getAttribute('data-id') || document.getElementById('main-account').value;
@@ -858,8 +871,8 @@ async function saveVoucher() {
     let bankTransfers = [];
     let cheques = [];
 
-    if (!date) return showToast('يرجى تحديد تاريخ العملية', 'error');
-    if (!mainAccount) return showToast('يرجى اختيار الحساب الرئيسي', 'error');
+    if (!date) { highlightError(document.getElementById('voucher-date')); reEnableSave(); return showToast('يرجى تحديد تاريخ العملية', 'error'); }
+    if (!mainAccount) { highlightError(document.getElementById('main-account-search')); reEnableSave(); return showToast('يرجى اختيار الحساب الرئيسي', 'error'); }
 
     const rows = document.querySelectorAll('.multi-row');
     const items = [];
@@ -880,8 +893,8 @@ async function saveVoucher() {
         const subCheckDue = row.querySelector('.sub-check-due') ? row.querySelector('.sub-check-due').value : '';
 
         if (acc || amt > 0) {
-            if (!acc) { showToast(`السطر ${index+1}: الرجاء إدخال اسم الحساب.`, 'error'); hasError = true; }
-            if (amt <= 0) { showToast(`السطر ${index+1}: الرجاء إدخال مبلغ صحيح.`, 'error'); hasError = true; }
+            if (!acc) { showToast(`السطر ${index+1}: الرجاء إدخال اسم الحساب.`, 'error'); highlightError(searchInput); hasError = true; }
+            if (amt <= 0) { showToast(`السطر ${index+1}: الرجاء إدخال مبلغ صحيح.`, 'error'); highlightError(row.querySelector('.sub-amount')); hasError = true; }
             items.push({
                 account: acc,
                 amount: amt,
@@ -895,10 +908,10 @@ async function saveVoucher() {
         }
     });
 
-    if (hasError) return;
+    if (hasError) { reEnableSave(); return; }
     if (items.length === 0) {
         showToast('يجب إدخال حساب فرعي واحد على الأقل.', 'error');
-        return;
+        reEnableSave(); return;
     }
 
     const finalTotal = items.reduce((sum, item) => sum + item.amount, 0);
@@ -916,12 +929,14 @@ async function saveVoucher() {
 
             if (!trNo) {
                 showToast(`السطر ${idx + 1}: يرجى إدخال رقم حساب التحويل`, "error");
+                highlightError(row.querySelector('.transfer-no'));
                 row.querySelector('.transfer-no').focus();
                 hasInvalidTransfer = true;
                 return;
             }
             if (trNo.length < 6) {
                 showToast(`السطر ${idx + 1}: يجب أن يكون رقم التحويل أكثر من 5 أرقام`, "error");
+                highlightError(row.querySelector('.transfer-no'));
                 row.querySelector('.transfer-no').focus();
                 hasInvalidTransfer = true;
                 return;
@@ -936,11 +951,11 @@ async function saveVoucher() {
             totalTransfersAmount += trAmt;
         });
 
-        if (hasInvalidTransfer) return;
+        if (hasInvalidTransfer) { reEnableSave(); return; }
 
         if (Math.abs(totalTransfersAmount - finalTotal) > 0.01) {
             showToast("مجموع مبالغ التحويلات لا يساوي إجمالي السند المجمع.", "error");
-            return;
+            reEnableSave(); return;
         }
 
         if (bankTransfers.length > 0) {
@@ -960,6 +975,7 @@ async function saveVoucher() {
 
             if (!chNo || chNo.length < 6) {
                 showToast(`السطر ${idx + 1}: يجب أن يكون رقم الشيك أكثر من 5 أرقام`, "error");
+                highlightError(row.querySelector('.cheque-no'));
                 row.querySelector('.cheque-no').focus();
                 hasInvalidCheque = true;
                 return;
@@ -974,11 +990,11 @@ async function saveVoucher() {
             totalChequesAmount += chAmt;
         });
 
-        if (hasInvalidCheque) return;
+        if (hasInvalidCheque) { reEnableSave(); return; }
 
         if (Math.abs(totalChequesAmount - finalTotal) > 0.01) {
             showToast("مجموع مبالغ الشيكات لا يساوي إجمالي السند المجمع.", "error");
-            return;
+            reEnableSave(); return;
         }
 
         if (cheques.length > 0) {
@@ -998,12 +1014,14 @@ async function saveVoucher() {
 
             if (!trNo) {
                 showToast(`السطر ${idx + 1}: يرجى إدخال رقم حساب التحويل`, "error");
+                highlightError(row.querySelector('.transfer-no'));
                 row.querySelector('.transfer-no').focus();
                 hasInvalidTransfer = true;
                 return;
             }
             if (trNo.length < 6) {
                 showToast(`السطر ${idx + 1}: يجب أن يكون رقم التحويل أكثر من 5 أرقام`, "error");
+                highlightError(row.querySelector('.transfer-no'));
                 row.querySelector('.transfer-no').focus();
                 hasInvalidTransfer = true;
                 return;
@@ -1018,7 +1036,7 @@ async function saveVoucher() {
             totalTransfersAmount += trAmt;
         });
 
-        if (hasInvalidTransfer) return;
+        if (hasInvalidTransfer) { reEnableSave(); return; }
 
         const chequeRows = document.querySelectorAll('.cheque-row');
         let totalChequesAmount = 0;
@@ -1032,6 +1050,7 @@ async function saveVoucher() {
 
             if (!chNo || chNo.length < 6) {
                 showToast(`السطر ${idx + 1}: يجب أن يكون رقم الشيك أكثر من 5 أرقام`, "error");
+                highlightError(row.querySelector('.cheque-no'));
                 row.querySelector('.cheque-no').focus();
                 hasInvalidCheque = true;
                 return;
@@ -1046,11 +1065,11 @@ async function saveVoucher() {
             totalChequesAmount += chAmt;
         });
 
-        if (hasInvalidCheque) return;
+        if (hasInvalidCheque) { reEnableSave(); return; }
 
         if (Math.abs((totalTransfersAmount + totalChequesAmount) - finalTotal) > 0.01) {
             showToast("مجموع مبالغ التحويلات والشيكات لا يساوي إجمالي السند المجمع.", "error");
-            return;
+            reEnableSave(); return;
         }
 
         if (bankTransfers.length > 0) {
