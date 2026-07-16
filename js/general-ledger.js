@@ -637,6 +637,39 @@ function collectAllTransactions() {
         const amtLoc = isBaseSDG ? total : total * rate;
         const amtFc = isBaseSDG ? 0 : total;
 
+        if (inv.isAdjustment) {
+            const absAmtLoc = Math.abs(amtLoc);
+            const absAmtFc = Math.abs(amtFc);
+            const isSurplus = (amtLoc >= 0);
+
+            txns.push({
+                date: inv.date, time: time, ref: refNo, type: 'adjustment', typeLabel: 'تسوية مخزنية',
+                account: isSurplus ? 'act-inventory' : 'exp-inventory-adjustments',
+                counterAccount: isSurplus ? 'exp-inventory-adjustments' : 'act-inventory',
+                statement: 'تسوية مخزنية للفروقات #' + refNo,
+                additionalNote: inv.notes || 'تسوية مخزنية للفروقات',
+                debit: absAmtLoc, credit: 0, 
+                debitForeign: absAmtFc, creditForeign: 0,
+                costCenter, currency,
+                exchangeRate: rate,
+                isPosted: isPosted
+            });
+            txns.push({
+                date: inv.date, time: time, ref: refNo, type: 'adjustment', typeLabel: 'تسوية مخزنية',
+                account: isSurplus ? 'exp-inventory-adjustments' : 'act-inventory',
+                counterAccount: isSurplus ? 'act-inventory' : 'exp-inventory-adjustments',
+                statement: 'تسوية مخزنية للفروقات #' + refNo,
+                additionalNote: inv.notes || 'تسوية مخزنية للفروقات',
+                debit: 0, credit: absAmtLoc, 
+                debitForeign: 0, creditForeign: absAmtFc,
+                costCenter, currency,
+                exchangeRate: rate,
+                isPosted: isPosted
+            });
+            return;
+        }
+
+
         txns.push({
             date: inv.date, time: time, ref: refNo, type: 'purchase', typeLabel: 'مشتريات',
             account: 'exp-purchases', counterAccount: supplierAcct,

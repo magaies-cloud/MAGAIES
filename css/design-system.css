@@ -1787,3 +1787,56 @@ button[onclick*="sendCurrentInvoiceEmail"]:hover { border-color: rgba(245, 158, 
 button[onclick*="clearForm"], .btn-draft, .btn-delete { border-bottom: 3px solid rgba(244, 63, 94, 0.6) !important; }
 button[onclick*="clearForm"]:hover, .btn-draft:hover, .btn-delete:hover { border-color: rgba(244, 63, 94, 1) !important; box-shadow: 0 10px 25px rgba(0,0,0,0.4), 0 0 20px rgba(244, 63, 94, 0.6) !important; }
 
+/* Disable all animations and transitions on transitionless pages */
+.no-page-transition *,
+.no-page-transition *::before,
+.no-page-transition *::after {
+  animation: none !important;
+  transition: none !important;
+  transition-duration: 0s !important;
+}
+
+/* Force visibility on elements that start hidden (opacity:0) for animation purposes */
+.no-page-transition .dash-table tbody tr,
+.no-page-transition .pos-grid tbody tr,
+.no-page-transition .inventory-card,
+.no-page-transition .kpi-card,
+.no-page-transition .glass-panel,
+.no-page-transition .pos-wrapper {
+  opacity: 1 !important;
+}
+
+/* Disable hover shifts, scale effects, and translation movements on tabs, buttons, links, and cards */
+.no-page-transition .nav-tab,
+.no-page-transition .nav-tab:hover,
+.no-page-transition .nav-tab.active,
+.no-page-transition .btn-action,
+.no-page-transition .btn-action:hover,
+.no-page-transition .btn-action:active,
+.no-page-transition .sub-btn,
+.no-page-transition .sub-btn:hover,
+.no-page-transition .sub-btn:active,
+.no-page-transition .kpi-card,
+.no-page-transition .kpi-card:hover,
+.no-page-transition .card,
+.no-page-transition .card:hover,
+.no-page-transition .dash-table tbody tr,
+.no-page-transition .dash-table tbody tr:hover,
+.no-page-transition button,
+.no-page-transition button:hover,
+.no-page-transition button:active,
+.no-page-transition a,
+.no-page-transition a:hover,
+.no-page-transition a:active,
+.no-page-transition .pos-wrapper,
+.no-page-transition .pos-grid tbody tr,
+.no-page-transition .pos-grid tbody tr:hover {
+  transform: none !important;
+}
+
+/* Disable shine sweeps and sheen animations on tabs */
+.no-page-transition .nav-tab::before {
+  display: none !important;
+}
+
+

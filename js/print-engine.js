@@ -25,18 +25,32 @@ window.InvoicePrinter = (function () {
         const currency = data.currency || cfg.currency || 'SDG';
         const printedAt = new Date().toLocaleString('ar-SD-u-nu-latn');
 
-        // Build copies array: [customer, company, warehouse]
+        // Build copies array: [customer/supplier, company, warehouse]
         const copies = [];
+        const isPurchase = data.type === 'purchase';
 
-        // ── Customer / Company copy ───────────────────────────
+        // ── Customer/Supplier & Company copy ──────────────────
         const mainCopyHtml = buildMainCopy(data, companyName, companyPhone, companyAddress, companyReg, currency);
-        copies.push({ label: 'نسخة العميل', html: mainCopyHtml, color: '#1e3a5f' });
-        copies.push({ label: 'نسخة الشركة', html: mainCopyHtml, color: '#065f46' });
+        copies.push({
+            label: isPurchase ? 'نسخة المورد' : 'نسخة العميل',
+            html: mainCopyHtml,
+            color: isPurchase ? '#047857' : '#1e3a5f'
+        });
+        copies.push({
+            label: 'نسخة الشركة',
+            html: mainCopyHtml,
+            color: isPurchase ? '#0f766e' : '#065f46'
+        });
 
         // ── Warehouse copy ────────────────────────────────────
         if (data.items && data.items.length > 0) {
             const whHtml = buildWarehouseCopy(data, companyName, currency);
-            copies.push({ label: 'إذن المستودع', html: whHtml, color: '#4c1d95', isWarehouse: true });
+            copies.push({
+                label: 'إذن المستودع',
+                html: whHtml,
+                color: isPurchase ? '#7c2d12' : '#4c1d95',
+                isWarehouse: true
+            });
         }
 
         // Filter copies if a single copy is requested
@@ -295,11 +309,49 @@ window.InvoicePrinter = (function () {
         `;
     }
 
+    // ── Current preview data (stored for re-rendering on copy change) ──
+    let _currentPreviewData = null;
+
+    function _getSelectedCopyFilter() {
+        const sel = document.getElementById('print-copy-selector');
+        return sel ? sel.value : 'all';
+    }
+
+    function _refreshPreviewContent() {
+        if (!_currentPreviewData) return;
+        const filter = _getSelectedCopyFilter();
+        const isPurchase = _currentPreviewData.type === 'purchase';
+        let singleCopyLabel = null;
+        if (filter === 'customer') singleCopyLabel = isPurchase ? 'نسخة المورد' : 'نسخة العميل';
+        else if (filter === 'company') singleCopyLabel = 'نسخة الشركة';
+        else if (filter === 'warehouse') singleCopyLabel = 'إذن المستودع';
+        // else 'all' → null → show all copies
+
+        const html = buildInvoiceHTML(_currentPreviewData, singleCopyLabel);
+        const container = document.getElementById('print-preview-content');
+        if (container) container.innerHTML = html;
+    }
+
     // ── Show Preview Modal ───────────────────────────────────
     function showPreview(data) {
         // Remove existing
         const existing = document.getElementById('print-invoice-frame');
         if (existing) existing.remove();
+
+        _currentPreviewData = data;
+
+        // Context-aware theming: purchase vs sales
+        const isPurchase = data.type === 'purchase';
+        const toolbarBg = isPurchase ? 'linear-gradient(135deg, #064e3b, #065f46)' : '#1e293b';
+        const previewTitle = isPurchase
+            ? `📋 معاينة فاتورة المشتريات — #${data.invoiceNo || '—'}`
+            : `🖨️ معاينة الطباعة — فاتورة #${data.invoiceNo || '—'}`;
+        const printBtnStyle = isPurchase
+            ? 'background: linear-gradient(135deg, #10b981, #059669);'
+            : 'background: linear-gradient(135deg, #38bdf8, #0284c7);';
+        const selectClass = isPurchase ? 'print-copy-select purchase-theme' : 'print-copy-select';
+        const partyLabel = isPurchase ? '🏪 نسخة المورد' : '👤 نسخة العميل';
+        const partyValue = 'customer';
 
         const html = buildInvoiceHTML(data);
 
@@ -307,13 +359,20 @@ window.InvoicePrinter = (function () {
         overlay.id = 'print-invoice-frame';
         overlay.className = 'print-preview-overlay show';
         overlay.innerHTML = `
-            <div class="print-preview-wrapper">
-                <div class="print-toolbar">
+            <div class="print-preview-wrapper ${isPurchase ? 'purchase-preview' : ''}">
+                <div class="print-toolbar" style="background: ${toolbarBg};">
                     <div class="print-toolbar-title">
-                        🖨️ معاينة الطباعة — فاتورة #${data.invoiceNo || '—'}
+                        ${previewTitle}
                     </div>
                     <div class="print-toolbar-actions">
-                        <span class="print-copy-badge">3 نسخ: عميل · شركة · مستودع</span>
+                        <div class="print-copy-dropdown-wrapper">
+                            <select id="print-copy-selector" class="${selectClass}" onchange="window.InvoicePrinter._refreshPreviewContent()">
+                                <option value="all">📄 الكل (3 نسخ)</option>
+                                <option value="${partyValue}">${partyLabel}</option>
+                                <option value="company">🏢 نسخة الشركة</option>
+                                <option value="warehouse">🏭 إذن المستودع</option>
+                            </select>
+                        </div>
                         <button class="btn-print-now" onclick="window.InvoicePrinter.doPrint()">
                             🖨️ طباعة الآن
                         </button>
@@ -322,7 +381,7 @@ window.InvoicePrinter = (function () {
                         </button>
                     </div>
                 </div>
-                <div style="padding: 24px; background: #f0f4f8;">
+                <div id="print-preview-content" style="padding: 24px; background: ${isPurchase ? '#f0fdf4' : '#f0f4f8'};">
                     ${html}
                 </div>
             </div>
@@ -446,7 +505,9 @@ window.InvoicePrinter = (function () {
     }
 
     function doPrint() {
-        window.print();
+        // Re-render with the selected copy filter before printing
+        _refreshPreviewContent();
+        setTimeout(() => window.print(), 100);
     }
 
     // ── Public API ───────────────────────────────────────────
@@ -455,7 +516,8 @@ window.InvoicePrinter = (function () {
         printPromissoryNote: showPromissoryNotePreview,
         closePreview: closePreview,
         doPrint: doPrint,
-        buildHTML: buildInvoiceHTML
+        buildHTML: buildInvoiceHTML,
+        _refreshPreviewContent: _refreshPreviewContent
     };
 
 })();

@@ -139,7 +139,7 @@ $header_theme_class = "header-theme-inventory";
         :root.light-theme .sub-btn.active { color: #fff !important; }
     </style>
 </head>
-<body>
+<body class="no-page-transition">
     <div class="ambient-bg"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
     
 
@@ -158,7 +158,8 @@ $header_theme_class = "header-theme-inventory";
                     <a data-href="warehouse-ledger.php" onclick="window.location.href='warehouse-ledger.php'" class="nav-tab">🏭 حركة المخزن</a>
                 </div>
                 <div class="dash-controls" style="margin: 0;">
-                    <button class="btn-action btn-print" onclick="window.print()" style="background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer;">🖨️ طباعة التقرير</button>
+                    <button class="btn-action" onclick="previewAnalyticsReport()" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(13,148,136,0.2); margin-left: 8px;">👁️ معاينة</button>
+                    <button class="btn-action btn-print" onclick="printAnalyticsReportDirectly()" style="background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer;">🖨️ طباعة التقرير</button>
                 </div>
             </div>
 
@@ -301,7 +302,7 @@ $header_theme_class = "header-theme-inventory";
             // Generate basic actual inventory mapping
             let actualStockMap = {}; 
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-            purchases = purchases.filter(x => !x.deleted && !x.isGRN && !x.isReturn);
+            purchases = purchases.filter(x => !x.deleted);
             purchases.forEach(inv => {
                 (inv.items || inv.lines || []).forEach(line => {
                     let itemId = line.itemId || line.productId;
@@ -313,6 +314,9 @@ $header_theme_class = "header-theme-inventory";
             salesDb.forEach(inv => {
                 (inv.items || []).forEach(line => {
                     let itemId = line.itemId;
+                    if (inv.saleType === 'reserved' && inv.deliveryStatus !== 'delivered') {
+                        return; // Skip if reserved but not delivered yet
+                    }
                     let item = itemsDb.find(i => i.id === itemId);
                     let baseQty = line.customBaseQty !== undefined ? line.customBaseQty : ((parseFloat(line.quantity) || 0) * (line.customFactor || 1) * (item ? (item.conversionFactor || 1) : 1));
                     actualStockMap[itemId] = (actualStockMap[itemId] || 0) - baseQty;
@@ -533,6 +537,28 @@ $header_theme_class = "header-theme-inventory";
             document.getElementById('kpi-abc-a').innerHTML = `${cA} <span>صنف</span>`;
             document.getElementById('kpi-abc-b').innerHTML = `${cB} <span>صنف</span>`;
             document.getElementById('kpi-abc-c').innerHTML = `${cC} <span>صنف</span>`;
+        }
+        function previewAnalyticsReport() {
+            const activeSection = Array.from(document.querySelectorAll('.view-section')).find(el => el.style.display !== 'none');
+            if (!activeSection) return;
+            
+            let title = 'تقرير التحليل الاستراتيجي للمخزن';
+            if (activeSection.id === 'view-profitability') title = 'تحليل ربحية الأصناف';
+            else if (activeSection.id === 'view-aging') title = 'تحليل أعمار المخزون وركود البضاعة';
+            else if (activeSection.id === 'view-abc') title = 'تصنيف ABC لحركة المخزون';
+            
+            openReportPreview(title, activeSection);
+        }
+        function printAnalyticsReportDirectly() {
+            const activeSection = Array.from(document.querySelectorAll('.view-section')).find(el => el.style.display !== 'none');
+            if (!activeSection) return;
+            
+            let title = 'تقرير التحليل الاستراتيجي للمخزن';
+            if (activeSection.id === 'view-profitability') title = 'تحليل ربحية الأصناف';
+            else if (activeSection.id === 'view-aging') title = 'تحليل أعمار المخزون وركود البضاعة';
+            else if (activeSection.id === 'view-abc') title = 'تصنيف ABC لحركة المخزون';
+            
+            printReportDirectly(title, activeSection);
         }
     </script>
 </body>

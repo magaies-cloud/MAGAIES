@@ -120,7 +120,7 @@ $header_theme_class = "header-theme-inventory";
         :root.light-theme .kpi-title, :root.light-theme .f-group label { color: #334155 !important; }
     </style>
 </head>
-<body>
+<body class="no-page-transition">
     <div class="ambient-bg"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
     
 
@@ -140,7 +140,8 @@ $header_theme_class = "header-theme-inventory";
                 </div>
 
                 <div class="dash-controls" style="margin: 0; display: flex; gap: 8px;">
-                    <button class="btn-action btn-print" onclick="window.print()" style="background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer;">🖨️ طباعة</button>
+                    <button class="btn-action" onclick="openReportPreview('تقرير ملخص حركات المخزون', '#report-table-wrap')" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(13,148,136,0.2);">👁️ معاينة</button>
+                    <button class="btn-action btn-print" onclick="printReportDirectly('تقرير ملخص حركات المخزون', '#report-table-wrap')" style="background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer;">🖨️ طباعة</button>
                     <button class="btn-action btn-print" onclick="alert('تصدير Excel قيد التطوير')" style="background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer;">📥 تصدير</button>
                 </div>
             </div>
@@ -300,10 +301,10 @@ $header_theme_class = "header-theme-inventory";
             });
 
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-            purchases = purchases.filter(x => !x.deleted && !x.isGRN && !x.isReturn);
+            purchases = purchases.filter(x => !x.deleted);
             
             let sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-            sales = sales.filter(x => !x.deleted && x.saleType !== 'preliminary' && x.status !== 'preliminary' && x.saleType !== 'reserved');
+            sales = sales.filter(x => !x.deleted && x.saleType !== 'preliminary' && x.status !== 'preliminary' && (x.saleType !== 'reserved' || x.deliveryStatus === 'delivered'));
 
             // 1. Process Purchases
             purchases.forEach(inv => {

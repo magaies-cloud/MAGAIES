@@ -255,7 +255,7 @@
     </style>
     
 </head>
-<body>
+<body class="no-page-transition">
 
     <!-- Ambient Animated Background -->
     <div class="ambient-bg">
@@ -281,7 +281,8 @@
             </div>
 
             <div class="dash-controls" style="margin: 0; display: flex; gap: 8px;">
-                <button class="btn-action btn-print" onclick="window.print()">🖨️ طباعة</button>
+                <button class="btn-action" onclick="openReportPreview('تقرير جرد حركة مخازن الأرصدة', '#report-table-wrap')" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; box-shadow: 0 4px 15px rgba(13, 148, 136, 0.4);">👁️ معاينة</button>
+                <button class="btn-action btn-print" onclick="printReportDirectly('تقرير جرد حركة مخازن الأرصدة', '#report-table-wrap')">🖨️ طباعة</button>
                 <button class="btn-action btn-print" onclick="window.openExportModal(exportExcel, {element: document.getElementById('report-table-wrap'), filename: 'inventory-report.pdf', orientation: 'landscape'})">📥 تصدير</button>
                 <button class="btn-action" onclick="runAIInventory()" style="background: linear-gradient(135deg, #ec4899, #be185d); color: white; border: none; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);">🤖 محلل المخزون (AI)</button>
     
@@ -340,7 +341,7 @@
 
         <!-- Data Table -->
         <div class="table-panel">
-            <div class="table-wrapper">
+            <div class="table-wrapper" id="report-table-wrap">
                 <table class="dash-table">
                     <thead>
                         <tr>
@@ -445,7 +446,7 @@
 
             // 1. ADD Purchases (Inward)
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-            purchases = purchases.filter(x => !x.deleted && !x.isGRN && !x.isReturn);
+            purchases = purchases.filter(x => !x.deleted);
             purchases.forEach(inv => {
                 let whName = getWarehouseName(inv.warehouseId || inv.warehouse);
                 (inv.items || inv.lines || []).forEach(line => {
@@ -468,7 +469,13 @@
                     let baseQty = line.customBaseQty !== undefined ? line.customBaseQty : ((parseFloat(line.quantity) || 0) * (line.customFactor || 1) * (item ? (item.conversionFactor || 1) : 1));
 
                     if (inv.saleType === 'reserved') {
-                        reservedStockMap[key] = (reservedStockMap[key] || 0) + baseQty;
+                        if (inv.deliveryStatus === 'delivered') {
+                            // If delivered, it is deducted from actual stock and no longer reserved
+                            actualStockMap[key] = (actualStockMap[key] || 0) - baseQty;
+                        } else {
+                            // Still reserved in warehouse
+                            reservedStockMap[key] = (reservedStockMap[key] || 0) + baseQty;
+                        }
                     } else {
                         actualStockMap[key] = (actualStockMap[key] || 0) - baseQty;
                     }
@@ -696,11 +703,11 @@
         
         for(let i=0; i<limit; i++) {
             let cols = rows[i].querySelectorAll('td');
-            if(cols.length >= 6) {
-                let name = cols[1].innerText.trim();
-                let qty = cols[2].innerText.trim();
-                let cost = cols[3].innerText.trim();
-                let totalCost = cols[5].innerText.trim();
+            if(cols.length >= 9) {
+                let name = cols[1].innerText.split('\n')[0].trim();
+                let qty = cols[4].innerText.trim();
+                let cost = cols[7].innerText.trim();
+                let totalCost = cols[8].innerText.trim();
                 if(name) {
                     inventoryData.push(`الصنف: ${name} | الكمية المتوفرة: ${qty} | سعر التكلفة: ${cost} | الإجمالي: ${totalCost}`);
                 }

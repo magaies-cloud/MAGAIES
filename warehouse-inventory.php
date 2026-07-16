@@ -313,7 +313,7 @@
     </style>
     
 </head>
-<body>
+<body class="no-page-transition">
 
     <!-- Ambient Animated Background -->
     <div class="ambient-bg">
@@ -341,8 +341,10 @@
             </div>
 
             <div class="dash-controls" style="margin: 0; display: flex; gap: 8px;">
-                <button class="btn-action btn-print" onclick="window.print()">🖨️ طباعة</button>
+                <button class="btn-action" onclick="openReportPreview('تقرير جرد المخزون', '#report-table-wrap')" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; box-shadow: 0 4px 15px rgba(13, 148, 136, 0.4);">👁️ معاينة</button>
+                <button class="btn-action btn-print" onclick="printReportDirectly('تقرير جرد المخزون', '#report-table-wrap')">🖨️ طباعة</button>
                 <button class="btn-action btn-print" onclick="window.openExportModal(exportExcel, {element: document.getElementById('report-table-wrap'), filename: 'inventory-report.pdf', orientation: 'landscape'})">📥 تصدير</button>
+                <button class="btn-action" onclick="openStocktakeModal()" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">⚙️ تسوية المخزون (Stocktake)</button>
                 <button class="btn-action" onclick="runAIInventory()" style="background: linear-gradient(135deg, #ec4899, #be185d); color: white; border: none; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);">🤖 محلل المخزون (AI)</button>
     
                 <button class="btn-icon-nav" onclick="history.back()" title="رجوع" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; color: var(--text-main); cursor: pointer; transition: 0.3s;">↩</button>
@@ -399,7 +401,7 @@
 
         <!-- Data Table -->
         <div class="table-panel">
-            <div class="table-wrapper">
+            <div class="table-wrapper" id="report-table-wrap">
                 <table class="dash-table">
                     <thead>
                         <tr>
@@ -451,12 +453,6 @@
         function populateWarehouseFilter() {
             const select = document.getElementById('filter-warehouse');
             let warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
-            
-            // Add an empty default option forcing selection
-            const defaultOpt = document.createElement('option');
-            defaultOpt.value = "";
-            defaultOpt.text = "-- يرجى اختيار مخزن --";
-            select.appendChild(defaultOpt);
 
             if (warehousesDb.length === 0) {
                 warehousesDb = [{ id:'w-main', name:'المخزن الرئيسي' }];
@@ -468,6 +464,11 @@
                 opt.text = wh.name;
                 select.appendChild(opt);
             });
+
+            // Set the first warehouse (or second, to prefer the main warehouse over pending receipt) by default
+            if (select.options.length > 0) {
+                select.selectedIndex = select.options.length > 1 ? 1 : 0;
+            }
         }
 
         function loadData() {
@@ -511,7 +512,7 @@
 
             // 1. ADD Purchases (Inward)
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-            purchases = purchases.filter(x => !x.deleted && !x.isGRN && !x.isReturn);
+            purchases = purchases.filter(x => !x.deleted);
             purchases.forEach(inv => {
                 let whName = getWarehouseName(inv.warehouseId || inv.warehouse);
                 (inv.items || inv.lines || []).forEach(line => {
@@ -534,7 +535,11 @@
                     let baseQty = line.customBaseQty !== undefined ? line.customBaseQty : ((parseFloat(line.quantity) || 0) * (line.customFactor || 1) * (item ? (item.conversionFactor || 1) : 1));
 
                     if (inv.saleType === 'reserved') {
-                        reservedStockMap[key] = (reservedStockMap[key] || 0) + baseQty;
+                        if (inv.deliveryStatus === 'delivered') {
+                            actualStockMap[key] = (actualStockMap[key] || 0) - baseQty;
+                        } else {
+                            reservedStockMap[key] = (reservedStockMap[key] || 0) + baseQty;
+                        }
                     } else {
                         actualStockMap[key] = (actualStockMap[key] || 0) - baseQty;
                     }
@@ -664,6 +669,240 @@
         function exportExcel() {
             alert('وظيفة تصدير Excel قيد التطوير!');
         }
+
+        // Stocktake / Adjustment Functions
+        function openStocktakeModal() {
+            const filterWh = document.getElementById('filter-warehouse');
+            const adjWh = document.getElementById('adj-warehouse');
+            adjWh.innerHTML = '';
+            
+            Array.from(filterWh.options).forEach(opt => {
+                if (opt.value !== 'ALL' && opt.value !== '') {
+                    const newOpt = document.createElement('option');
+                    newOpt.value = opt.value;
+                    newOpt.text = opt.text;
+                    adjWh.appendChild(newOpt);
+                }
+            });
+
+            if (filterWh.value !== 'ALL' && filterWh.value !== '') {
+                adjWh.value = filterWh.value;
+            }
+
+            document.getElementById('stocktake-modal').style.display = 'flex';
+            loadStocktakeItems();
+        }
+
+        function closeStocktakeModal() {
+            document.getElementById('stocktake-modal').style.display = 'none';
+        }
+
+        let stocktakeData = [];
+
+        function loadStocktakeItems() {
+            const wh = document.getElementById('adj-warehouse').value;
+            const tbody = document.getElementById('stocktake-tbody');
+            tbody.innerHTML = '';
+
+            let currentInv = buildRealInventory(itemsDb);
+            let whInv = currentInv.filter(inv => inv.warehouse === wh);
+
+            stocktakeData = [];
+
+            if (whInv.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--text-secondary);">لا توجد أصناف في هذا المخزن حالياً.</td></tr>`;
+                document.getElementById('adj-total-val').textContent = '0.00';
+                return;
+            }
+
+            whInv.forEach((row, index) => {
+                const item = itemsDb.find(i => i.id === row.itemId);
+                if (!item) return;
+
+                let baseUnit = item.units && item.units.length > 0 ? item.units[0].unitName : (item.unit || 'وحدة');
+                let price = item.units && item.units.length > 0 ? item.units[0].cashPrice : (item.price || 0);
+                price = parseFloat((price || 0).toString().replace(/,/g, '')) || 0;
+
+                const bookQty = row.qty || 0;
+                
+                stocktakeData.push({
+                    itemId: row.itemId,
+                    name: item.name || 'بدون اسم',
+                    unit: baseUnit,
+                    price: price,
+                    bookQty: bookQty
+                });
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:700;">${item.name} <div style="font-size:0.7rem; color:var(--text-secondary); margin-top:2px;">الوحدة: ${baseUnit} | التكلفة: ${price.toLocaleString()}</div></td>
+                    <td style="text-align:center; color:#38bdf8; font-weight:700;">${bookQty.toLocaleString()}</td>
+                    <td style="text-align:center;">
+                        <input type="number" class="f-input" id="phys-${row.itemId}" value="${bookQty}" oninput="calculateStocktakeDiff('${row.itemId}')" style="width:100px; text-align:center; padding:5px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:#fff; font-weight:700;">
+                    </td>
+                    <td style="text-align:center; font-weight:700;" id="diff-${row.itemId}">0</td>
+                    <td style="text-align:center; font-weight:700;" id="val-${row.itemId}">0.00</td>
+                `;
+                tbody.appendChild(tr);
+                calculateStocktakeDiff(row.itemId);
+            });
+        }
+
+        function calculateStocktakeDiff(itemId) {
+            const row = stocktakeData.find(d => d.itemId === itemId);
+            if (!row) return;
+
+            const physInput = document.getElementById(`phys-${itemId}`);
+            const physQty = parseFloat(physInput.value) || 0;
+            const diff = physQty - row.bookQty;
+            const diffVal = diff * row.price;
+
+            const diffTd = document.getElementById(`diff-${itemId}`);
+            const valTd = document.getElementById(`val-${itemId}`);
+
+            valTd.textContent = diffVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            if (diff > 0) {
+                diffTd.innerHTML = `<span style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 700; display: inline-block;">+${diff.toLocaleString()}</span>`;
+                valTd.style.color = '#10b981';
+            } else if (diff < 0) {
+                diffTd.innerHTML = `<span style="background: rgba(239, 68, 68, 0.15); color: #ef4444; padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 700; display: inline-block;">${diff.toLocaleString()}</span>`;
+                valTd.style.color = '#ef4444';
+            } else {
+                diffTd.innerHTML = `<span style="color: var(--text-secondary);">${diff.toLocaleString()}</span>`;
+                valTd.style.color = 'var(--text-secondary)';
+            }
+
+            let totalAdjVal = 0;
+            stocktakeData.forEach(d => {
+                const pQty = parseFloat(document.getElementById(`phys-${d.itemId}`).value) || 0;
+                totalAdjVal += (pQty - d.bookQty) * d.price;
+            });
+
+            const totalEl = document.getElementById('adj-total-val');
+            totalEl.textContent = totalAdjVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            if (totalAdjVal > 0) {
+                totalEl.style.color = '#10b981';
+            } else if (totalAdjVal < 0) {
+                totalEl.style.color = '#ef4444';
+            } else {
+                totalEl.style.color = '#fbbf24';
+            }
+        }
+
+        function saveStocktake() {
+            const wh = document.getElementById('adj-warehouse').value;
+            const notes = document.getElementById('adj-notes').value.trim();
+
+            const itemsToAdjust = [];
+            let totalAdjVal = 0;
+
+            const currency = document.getElementById('adj-currency').value;
+            const rate = parseFloat(document.getElementById('adj-exchange-rate').value) || 1;
+
+            stocktakeData.forEach(d => {
+                const physQty = parseFloat(document.getElementById(`phys-${d.itemId}`).value) || 0;
+                const diff = physQty - d.bookQty;
+                if (diff !== 0) {
+                    itemsToAdjust.push({
+                        itemId: d.itemId,
+                        unitId: 'base',
+                        unitName: d.unit,
+                        quantity: diff,
+                        price: d.price / rate,
+                        taxRate: 0,
+                        total: (diff * d.price) / rate
+                    });
+                    totalAdjVal += diff * d.price;
+                }
+            });
+
+            if (itemsToAdjust.length === 0) {
+                showToast('لم يتم إجراء أي تعديل على الكميات لتسويتها!', 'warning');
+                return;
+            }
+
+            const totalAdjValForeign = totalAdjVal / rate;
+
+            const confirmMsg = `هل أنت متأكد من ترحيل هذه التسوية؟\nسيتم تعديل أرصدة الأصناف (${itemsToAdjust.length} صنف) في المخازن، وتوليد قيود تسوية الفروقات تلقائياً بقيمة إجمالية ${totalAdjValForeign.toLocaleString()} ${currency}.`;
+            if (!confirm(confirmMsg)) return;
+
+            const adjInv = {
+                id: 'ADJ-' + Date.now(),
+                isAdjustment: true,
+                warehouse: wh,
+                warehouseId: wh,
+                date: new Date().toISOString(),
+                notes: notes || 'تسوية مخزنية للفروقات',
+                currency: currency,
+                exchangeRate: rate,
+                items: itemsToAdjust,
+                grandTotal: totalAdjValForeign,
+                status: 'completed',
+                createdBy: (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown'
+            };
+
+            let allPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+            allPurchases.push(adjInv);
+            localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+
+            let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+            itemsToAdjust.forEach(adj => {
+                let entry = currentInvData.find(inv => inv.itemId === adj.itemId && inv.warehouse === wh);
+                if (entry) {
+                    entry.qty = (parseFloat(entry.qty) || 0) + adj.quantity;
+                } else {
+                    currentInvData.push({
+                        itemId: adj.itemId,
+                        warehouse: wh,
+                        qty: adj.quantity,
+                        minQty: 10
+                    });
+                }
+            });
+            localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
+
+            showToast('تم ترحيل التسوية وتوليد القيود بنجاح!', 'success');
+            closeStocktakeModal();
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
+
+        function onCurrencyChange() {
+            const curr = document.getElementById('adj-currency').value;
+            const rateGroup = document.getElementById('exchange-rate-group');
+            const rateInput = document.getElementById('adj-exchange-rate');
+            
+            if (curr === 'SDG') {
+                rateGroup.style.display = 'none';
+                rateInput.value = '1.00';
+            } else {
+                rateGroup.style.display = 'block';
+                if (curr === 'USD') rateInput.value = '600.00';
+                else if (curr === 'SAR') rateInput.value = '160.00';
+                else if (curr === 'AED') rateInput.value = '163.00';
+            }
+
+            const currencyTh = document.getElementById('currency-th-label');
+            if (currencyTh) {
+                currencyTh.textContent = `قيمة الفرق (${curr})`;
+            }
+
+            const totalValLabel = document.getElementById('adj-total-val-label');
+            if (totalValLabel) {
+                totalValLabel.textContent = curr;
+            }
+
+            updateAllDiffs();
+        }
+
+        function updateAllDiffs() {
+            stocktakeData.forEach(d => {
+                calculateStocktakeDiff(d.itemId);
+            });
+        }
     </script>
 
         <!-- AI Inventory Modal -->
@@ -681,6 +920,69 @@
                 </div>
             </div>
         </div>
+
+        <!-- Stocktake Modal -->
+        <div id="stocktake-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center; direction: rtl; backdrop-filter: blur(8px);">
+            <div class="glass-panel" style="width: 95%; max-width: 1100px; max-height: 90vh; display: flex; flex-direction: column; padding: 25px; position: relative; border: 1px solid rgba(16, 185, 129, 0.4); background: #0f172a; border-radius: 16px;">
+                <button onclick="closeStocktakeModal()" style="position: absolute; top: 15px; left: 15px; background: none; border: none; color: #94a3b8; font-size: 1.8rem; cursor: pointer; transition: 0.3s;" onmouseover="this.style.color='#10b981'" onmouseout="this.style.color='#94a3b8'">&times;</button>
+                
+                <h3 style="color: #10b981; margin: 0 0 20px 0; font-weight: 900; border-bottom: 1px solid rgba(16, 185, 129, 0.2); padding-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.8rem;">⚙️</span> تسوية وجرد المخزون (Physical Stocktake)
+                </h3>
+                
+                <div style="display: grid; grid-template-columns: 2fr 1.5fr 1.5fr 3fr; gap: 15px; margin-bottom: 20px;">
+                    <div class="f-group" style="margin:0;">
+                        <label style="color:#94a3b8; font-size:0.75rem; font-weight:700; margin-bottom:5px; display:block;">المخزن المستهدف بالتسوية</label>
+                        <select id="adj-warehouse" class="f-input" onchange="loadStocktakeItems()" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:#fff; padding:10px 15px; outline:none;">
+                        </select>
+                    </div>
+                    <div class="f-group" style="margin:0;">
+                        <label style="color:#94a3b8; font-size:0.75rem; font-weight:700; margin-bottom:5px; display:block;">العملة</label>
+                        <select id="adj-currency" class="f-input" onchange="onCurrencyChange()" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:#fff; padding:10px 15px; outline:none;">
+                            <option value="SDG">SDG (العملة المحلية)</option>
+                            <option value="USD">USD (الدولار الأمريكي)</option>
+                            <option value="SAR">SAR (الريال السعودي)</option>
+                            <option value="AED">AED (الدرهم الإماراتي)</option>
+                        </select>
+                    </div>
+                    <div class="f-group" id="exchange-rate-group" style="margin:0; display:none;">
+                        <label style="color:#94a3b8; font-size:0.75rem; font-weight:700; margin-bottom:5px; display:block;">سعر الصرف</label>
+                        <input type="number" id="adj-exchange-rate" value="1.00" step="0.01" oninput="updateAllDiffs()" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:#fff; padding:10px 15px; outline:none;">
+                    </div>
+                    <div class="f-group" style="margin:0;">
+                        <label style="color:#94a3b8; font-size:0.75rem; font-weight:700; margin-bottom:5px; display:block;">ملاحظات / سبب التسوية</label>
+                        <input type="text" id="adj-notes" placeholder="مثال: تسوية الجرد السنوي للعام 2026..." style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:#fff; padding:10px 15px; outline:none;">
+                    </div>
+                </div>
+
+                <div style="flex: 1; overflow-y: auto; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); border-radius:12px; background:rgba(0,0,0,0.2);">
+                    <table class="dash-table" style="width:100%; border-collapse:collapse; min-width:unset !important;">
+                        <thead>
+                            <tr>
+                                <th>اسم الصنف</th>
+                                <th style="text-align:center; width:120px;">الرصيد الدفتري</th>
+                                <th style="text-align:center; width:140px;">الجرد الفعلي</th>
+                                <th style="text-align:center; width:120px; text-shadow:0 0 10px rgba(16,185,129,0.3);">الزيادة / النقصان</th>
+                                <th style="text-align:center; width:140px;" id="currency-th-label">قيمة الفرق (SDG)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stocktake-tbody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.08); padding-top:15px;">
+                    <div style="display:flex; gap:20px; font-weight:700; font-size:1rem; color:#f8fafc;">
+                        <div>إجمالي قيمة التعديل: <span id="adj-total-val" style="color:#fbbf24;">0.00</span> <span id="adj-total-val-label">SDG</span></div>
+                        <div style="font-size:0.85rem; color:#94a3b8; align-self:center;">(الزيادة باللون الأخضر، والعجز باللون الوردي)</div>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button onclick="closeStocktakeModal()" class="btn-action btn-print" style="padding:10px 20px;">إلغاء</button>
+                        <button onclick="saveStocktake()" class="btn-action" style="background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; padding:10px 25px; box-shadow:0 4px 15px rgba(16,185,129,0.3);">ترحيل التسوية وتوليد القيود 💾</button>
+                    </div>
+                </div>
+            </div>
         <style>@keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
         
         /* Universal Light Theme Overrides for Internal Screens */

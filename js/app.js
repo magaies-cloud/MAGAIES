@@ -1434,6 +1434,10 @@ document.addEventListener('DOMContentLoaded', () => {
             'purchase.php': 'purchase',
             'purchase-order.html': 'purchase',
             'inventory-report.php': 'inventory',
+            'warehouse-inventory.php': 'inventory',
+            'inventory-movement.php': 'inventory',
+            'inventory-summary.php': 'inventory',
+            'inventory-analytics.php': 'inventory',
             'inventory.php': 'inventory',
             'item-ledger.php': 'inventory',
             'warehouse-ledger.php': 'inventory',
@@ -3408,3 +3412,255 @@ document.addEventListener('paste', function(e) {
         }
     }
 });
+
+// --- Universal Report Print Preview System ---
+window.openReportPreview = function(title, targetSelector) {
+    let target = null;
+    if (typeof targetSelector === 'string') {
+        target = document.getElementById(targetSelector) || 
+                 document.querySelector(targetSelector) ||
+                 document.getElementById(targetSelector.replace('#', '')) ||
+                 document.querySelector('.table-wrapper') ||
+                 document.querySelector('.table-panel') ||
+                 document.querySelector('.dash-table') ||
+                 document.querySelector('.report-table');
+    } else {
+        target = targetSelector;
+    }
+    if (!target) {
+        alert('لم يتم العثور على جدول التقرير!');
+        return;
+    }
+
+    let modal = document.getElementById('report-preview-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'report-preview-modal';
+        modal.className = 'modal-overlay';
+        modal.setAttribute('style', `
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(15, 23, 42, 0.9); z-index: 11000; align-items: center; 
+            justify-content: center; direction: rtl; backdrop-filter: blur(8px);
+        `);
+        modal.innerHTML = `
+            <div class="glass-panel" style="width: 95%; max-width: 1300px; height: 90vh; display: flex; flex-direction: column; padding: 25px; border: 1px solid rgba(255,255,255,0.1); background: #0f172a; border-radius: 16px; color:#fff; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:15px; margin-bottom:15px;" class="no-print">
+                    <h3 style="margin:0; font-weight:900; color:#38bdf8; display:flex; align-items:center; gap:10px; font-size:1.25rem;">
+                        <span>👁️</span> معاينة الطباعة الاحترافية
+                    </h3>
+                    <div style="display:flex; gap:10px;">
+                        <button onclick="printReportFromPreview()" class="btn-action" style="background:linear-gradient(135deg,#38bdf8,#0284c7); color:white; border:none; padding:8px 20px; font-weight:700; border-radius:8px; cursor:pointer; box-shadow:0 4px 10px rgba(56,189,248,0.2);">🖨️ طباعة التقرير</button>
+                        <button onclick="closeReportPreview()" class="btn-action" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white; padding:8px 15px; border-radius:8px; cursor:pointer;">إغلاق</button>
+                    </div>
+                </div>
+                
+                <div style="flex:1; overflow-y:auto; background:#f1f5f9; padding:45px 20px; display:flex; justify-content:center; border-radius:12px;" class="preview-scroll-container">
+                    <div id="report-preview-sheet" style="width:100%; max-width:1200px; background:#fff; color:#000; padding:45px; box-shadow:0 10px 30px rgba(0,0,0,0.15); border-radius:6px; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-height:fit-content; height:fit-content; box-sizing:border-box; overflow-x:auto;">
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        let style = document.getElementById('report-preview-print-css');
+        if (!style) {
+            style = document.createElement('style');
+            style.id = 'report-preview-print-css';
+            style.textContent = `
+                #report-preview-modal.print-direct-mode {
+                    display: none !important;
+                }
+                @media print {
+                    #report-preview-modal.print-direct-mode {
+                        display: block !important;
+                    }
+                    body > *:not(#report-preview-modal) {
+                        display: none !important;
+                    }
+                    #report-preview-modal {
+                        position: absolute !important;
+                        left: 0 !important;
+                        top: 0 !important;
+                        width: 100% !important;
+                        height: auto !important;
+                        background: #fff !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        display: block !important;
+                        overflow: visible !important;
+                    }
+                    #report-preview-modal .glass-panel {
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        height: auto !important;
+                        border: none !important;
+                        background: #fff !important;
+                        padding: 0 !important;
+                        box-shadow: none !important;
+                        margin: 0 !important;
+                        overflow: visible !important;
+                    }
+                    #report-preview-modal .glass-panel > div:first-child {
+                        display: none !important;
+                    }
+                    #report-preview-modal .preview-scroll-container {
+                        background: #fff !important;
+                        padding: 0 !important;
+                        overflow: visible !important;
+                    }
+                    #report-preview-sheet {
+                        box-shadow: none !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        border: none !important;
+                        width: 100% !important;
+                        max-width: 100% !important;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+
+    const cloned = target.cloneNode(true);
+    
+    const originalInputs = target.querySelectorAll('input, select');
+    const clonedInputs = cloned.querySelectorAll('input, select');
+    clonedInputs.forEach((input, index) => {
+        const orig = originalInputs[index];
+        let valText = '';
+        if (orig.tagName === 'SELECT') {
+            valText = orig.options[orig.selectedIndex]?.text || '';
+        } else {
+            valText = orig.value || '';
+        }
+        const span = document.createElement('span');
+        span.textContent = valText;
+        span.style.fontWeight = 'bold';
+        span.style.color = '#000';
+        input.parentNode.replaceChild(span, input);
+    });
+
+    cloned.querySelectorAll('button, .btn, .btn-action, .no-print, script').forEach(el => el.remove());
+
+    cloned.querySelectorAll('table').forEach(table => {
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        table.style.marginTop = '15px';
+        table.style.direction = 'rtl';
+        table.style.fontSize = '0.85rem';
+        table.style.color = '#000';
+        table.style.background = '#fff';
+        
+        table.querySelectorAll('th, td').forEach(cell => {
+            cell.style.border = '1px solid #94a3b8';
+            cell.style.padding = '8px 10px';
+            cell.style.verticalAlign = 'middle';
+            if (cell.tagName === 'TH') {
+                cell.style.background = '#f8fafc';
+                cell.style.color = '#0f172a';
+                cell.style.fontWeight = '800';
+                cell.style.borderBottom = '2px solid #475569';
+            }
+        });
+    });
+
+    const filters = [];
+    document.querySelectorAll('.filters-bar input, .filters-bar select, .filter-panel input, .filter-panel select, .f-group input, .f-group select').forEach(input => {
+        if (input.closest('#stocktake-modal') || input.closest('#report-preview-modal')) return;
+        let labelText = '';
+        const parent = input.closest('.f-group') || input.parentElement;
+        if (parent) {
+            const label = parent.querySelector('label');
+            if (label) labelText = label.textContent.trim().replace(':', '');
+        }
+        if (!labelText && input.placeholder) labelText = input.placeholder;
+        
+        let valText = '';
+        if (input.tagName === 'SELECT') {
+            valText = input.options[input.selectedIndex]?.text || '';
+        } else {
+            valText = input.value || '';
+        }
+        
+        if (valText && valText !== 'ALL' && valText !== 'الكل' && valText !== 'جميع الفئات' && valText !== 'جميع المخازن') {
+            filters.push(`<strong>${labelText || 'تصفية'}:</strong> ${valText}`);
+        }
+    });
+
+    const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+    const companyName = cfg.companyName || JSON.parse(localStorage.getItem('user'))?.company_name || 'شركة الأصيل للتجارة والمخازن';
+    const printedAt = new Date().toLocaleString('ar-SD-u-nu-latn');
+    const userName = JSON.parse(localStorage.getItem('user'))?.fullName || 'المدير العام';
+
+    let headerHtml = `
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px double #0f172a; padding-bottom:15px; margin-bottom:20px; direction:rtl;">
+            <div style="text-align:right; width:33%;">
+                <h2 style="margin:0; font-size:1.4rem; font-weight:800; color:#0f172a;">${companyName}</h2>
+                <div style="font-size:0.75rem; color:#475569; margin-top:4px;">الهاتف: ${cfg.phone || '—'}</div>
+                <div style="font-size:0.75rem; color:#475569;">العنوان: ${cfg.address || '—'}</div>
+            </div>
+            <div style="text-align:center; width:33%;">
+                <div style="border: 2px solid #0f172a; padding: 8px 15px; border-radius: 6px; background: #f8fafc; display:inline-block;">
+                    <h3 style="margin:0; font-size:1.15rem; font-weight:900; color:#0f172a; white-space:nowrap;">${title}</h3>
+                </div>
+            </div>
+            <div style="text-align:left; width:33%; font-size:0.75rem; color:#475569; line-height:1.5;">
+                <div>تاريخ الجرد/الطباعة: <strong>${printedAt}</strong></div>
+                <div>المستخدم: <strong>${userName}</strong></div>
+            </div>
+        </div>
+    `;
+
+    let filtersHtml = '';
+    if (filters.length > 0) {
+        filtersHtml = `
+            <div style="font-size:0.8rem; margin-bottom:15px; padding:8px 12px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:6px; direction:rtl; text-align:right; color:#334155;">
+                🎛️ <strong>الفلاتر المطبقة:</strong> ${filters.join('  |  ')}
+            </div>
+        `;
+    }
+
+    let footerHtml = `
+        <div style="margin-top:40px; border-top:1px solid #94a3b8; padding-top:15px; display:flex; justify-content:space-between; font-size:0.75rem; color:#64748b; direction:rtl;">
+            <div>طُبع بواسطة نظام MAGAIES للمحاسبة والمستودعات · magaees.cloud</div>
+            <div>صفحة 1 من 1</div>
+        </div>
+    `;
+
+    const sheet = document.getElementById('report-preview-sheet');
+    sheet.innerHTML = headerHtml + filtersHtml + `<div style="margin-top:10px;"></div>` + cloned.innerHTML + footerHtml;
+
+    modal.style.display = 'flex';
+};
+
+window.closeReportPreview = function() {
+    const modal = document.getElementById('report-preview-modal');
+    if (modal) modal.style.display = 'none';
+};
+
+window.printReportFromPreview = function() {
+    window.print();
+};
+
+window.printReportDirectly = function(title, targetSelector) {
+    window.openReportPreview(title, targetSelector);
+    
+    const modal = document.getElementById('report-preview-modal');
+    if (modal) {
+        modal.classList.add('print-direct-mode');
+    }
+    
+    const closeAfterPrint = () => {
+        window.closeReportPreview();
+        if (modal) {
+            modal.classList.remove('print-direct-mode');
+        }
+        window.removeEventListener('afterprint', closeAfterPrint);
+    };
+    window.addEventListener('afterprint', closeAfterPrint);
+    
+    setTimeout(() => {
+        window.print();
+    }, 150);
+};

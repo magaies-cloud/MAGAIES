@@ -1,6 +1,20 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 
+// Helper to load environment variables from .env
+function loadEnv($path) {
+    if (!file_exists($path)) return;
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) continue;
+        if (strpos($line, '=') === false) continue;
+        [$key, $value] = explode('=', $line, 2);
+        $_ENV[trim($key)] = trim($value);
+        putenv(trim($key) . '=' . trim($value));
+    }
+}
+loadEnv(__DIR__ . '/../.env');
+
 // 1. Get JSON Payload
 $inputData = json_decode(file_get_contents('php://input'), true);
 $userMessage = $inputData['message'] ?? '';

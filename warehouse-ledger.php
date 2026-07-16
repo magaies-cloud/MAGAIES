@@ -17,34 +17,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>مقاييس (MAGAIEES) - كشف المخزن التحليلي</title>
-    <link rel="stylesheet" href="css/theme.css?v=neon2">
-    <link rel="stylesheet" href="css/components.css?v=neon2">
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260626_4">
         <style>
-        html { background: var(--bg-color); scroll-behavior: smooth; }
-        body { padding: 0; min-height: 100vh; overflow-x: hidden; font-family: 'Inter', sans-serif; background: var(--bg-color); }
+        :root {
+            /* Theme: Pink & Emerald Dashboard */
+            --bg-dark: #0a0e17;
+            --panel-bg: rgba(16, 24, 39, 0.7);
+            --pink-accent: #ec4899;
+            --pink-glow: rgba(236, 72, 153, 0.4);
+            --emerald-accent: #10b981;
+            --emerald-glow: rgba(16, 185, 129, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+
+        :root.light-theme {
+            --bg-dark: #f1f5f9;
+            --panel-bg: rgba(255, 255, 255, 0.95);
+            --text-primary: #000000;
+            --text-secondary: #1e293b;
+            --glass-border: rgba(0, 0, 0, 0.08);
+        }
+
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'Inter', 'Tajawal', sans-serif;
+            margin: 0; padding: 0;
+            background-image: radial-gradient(circle at top right, rgba(236,72,153,0.05), transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(16,185,129,0.05), transparent 40%);
+            min-height: 100vh;
+        }
+
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
-        ::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.4); border-radius: 10px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
 
-        .ledger-container { display: flex; flex-direction: column; gap: 20px; padding: 15px; width: 100%; min-height: 100vh; box-sizing: border-box; }
-        @media (min-width: 768px) { .ledger-container { padding: 25px 35px 40px 25px; gap: 25px; } }
+        .dashboard-container {
+            display: flex; flex-direction: column; gap: 20px;
+            padding: 20px 30px; box-sizing: border-box; max-width: 1600px; margin: 0 auto;
+        }
 
-        .neon-glass-panel { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border-radius: 16px; border: 1px solid var(--glass-border); }
-
-        .filter-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .input-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; }
-        .input-group select, .input-group input { width: 100%; padding: 10px 15px; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--glass-border); border-radius: 10px; color: var(--text-primary); font-size: 0.95rem; outline: none; }
-        .input-group select:focus, .input-group input:focus { border-color: var(--primary-accent); }
-
-        .pro-table { width: 100%; border-collapse: separate; border-spacing: 0; }
-        .pro-table th { background: rgba(15, 76, 129, 0.2); color: var(--text-secondary); font-weight: 600; padding: 10px; text-align: right; border-bottom: 1px solid var(--glass-border); }
-        .pro-table td { padding: 10px; color: #f8fafc; border-bottom: 1px solid rgba(255, 255, 255, 0.05); vertical-align: middle; }
-        
-        .type-badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; }
-        .type-in { background: rgba(52, 211, 153, 0.15); color: #34d399; }
-        .type-out { background: rgba(248, 113, 113, 0.15); color: #f87171; }
-
-                /* Unified Nav Tabs Container */
+        /* Nav Tabs */
         .nav-tabs { 
             display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
             background: rgba(15, 23, 42, 0.7); padding: 12px 15px; border-radius: 16px; 
@@ -59,143 +79,129 @@
             position: relative; overflow: hidden; white-space: nowrap; flex-shrink: 0;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        /* Kinetic Hover Effect */
         .nav-tab::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); transform: skewX(-20deg); transition: 0.5s; }
         .nav-tab:hover::before { left: 150%; }
 
-        /* Button 1: Blue */
+        /* Button hover/active colors */
         .nav-tab:nth-child(1):hover { background: rgba(59, 130, 246, 0.1); color: #fff; border-color: rgba(59, 130, 246, 0.3); transform: translateY(-2px); }
         .nav-tab:nth-child(1).active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.2)); border-color: rgba(59, 130, 246, 0.5); color: #60a5fa; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
-
-        /* Button 2: Emerald */
         .nav-tab:nth-child(2):hover { background: rgba(16, 185, 129, 0.1); color: #fff; border-color: rgba(16, 185, 129, 0.3); transform: translateY(-2px); }
         .nav-tab:nth-child(2).active { background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2)); border-color: rgba(16, 185, 129, 0.5); color: #34d399; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
-
-        /* Button 3: Amber */
         .nav-tab:nth-child(3):hover { background: rgba(245, 158, 11, 0.1); color: #fff; border-color: rgba(245, 158, 11, 0.3); transform: translateY(-2px); }
         .nav-tab:nth-child(3).active { background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2)); border-color: rgba(245, 158, 11, 0.5); color: #fbbf24; box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
-
-        /* Button 4: Purple */
         .nav-tab:nth-child(4):hover { background: rgba(139, 92, 246, 0.1); color: #fff; border-color: rgba(139, 92, 246, 0.3); transform: translateY(-2px); }
         .nav-tab:nth-child(4).active { background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(109, 40, 217, 0.2)); border-color: rgba(139, 92, 246, 0.5); color: #c084fc; box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
-
-        /* Button 5: Rose */
         .nav-tab:nth-child(5):hover { background: rgba(244, 63, 94, 0.1); color: #fff; border-color: rgba(244, 63, 94, 0.3); transform: translateY(-2px); }
         .nav-tab:nth-child(5).active { background: linear-gradient(135deg, rgba(244, 63, 94, 0.2), rgba(225, 29, 72, 0.2)); border-color: rgba(244, 63, 94, 0.5); color: #fb7185; box-shadow: 0 0 20px rgba(244, 63, 94, 0.3); }
-
-        /* Button 6: Cyan */
         .nav-tab:nth-child(6):hover { background: rgba(6, 182, 212, 0.1); color: #fff; border-color: rgba(6, 182, 212, 0.3); transform: translateY(-2px); }
         .nav-tab:nth-child(6).active { background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(8, 145, 178, 0.2)); border-color: rgba(6, 182, 212, 0.5); color: #22d3ee; box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); }
 
-        /* Light Mode Styling */
+        /* Light Mode Styling for tabs */
         :root.light-theme .nav-tabs { background: rgba(248, 250, 252, 0.85); border: 1px solid rgba(0,0,0,0.06); box-shadow: inset 0 2px 10px rgba(0,0,0,0.02); }
         :root.light-theme .nav-tab { color: #64748b; background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
         :root.light-theme .nav-tab::before { background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent); }
-        
-        /* Light Mode active/hover states per button (Neon effect) */
+
         :root.light-theme .nav-tab:nth-child(1):hover { background: #fff; color: #1e3a8a; border-color: #3b82f6; box-shadow: 0 5px 15px rgba(59, 130, 246, 0.2); transform: translateY(-2px); }
         :root.light-theme .nav-tab:nth-child(1).active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); color: #2563eb; border-color: #3b82f6; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-
         :root.light-theme .nav-tab:nth-child(2):hover { background: #fff; color: #064e3b; border-color: #10b981; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2); transform: translateY(-2px); }
         :root.light-theme .nav-tab:nth-child(2).active { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1)); color: #059669; border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-
         :root.light-theme .nav-tab:nth-child(3):hover { background: #fff; color: #78350f; border-color: #f59e0b; box-shadow: 0 5px 15px rgba(245, 158, 11, 0.2); transform: translateY(-2px); }
         :root.light-theme .nav-tab:nth-child(3).active { background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1)); color: #d97706; border-color: #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-
         :root.light-theme .nav-tab:nth-child(4):hover { background: #fff; color: #4c1d95; border-color: #8b5cf6; box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2); transform: translateY(-2px); }
         :root.light-theme .nav-tab:nth-child(4).active { background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(109, 40, 217, 0.1)); color: #7c3aed; border-color: #8b5cf6; box-shadow: 0 0 20px rgba(139, 92, 246, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-
         :root.light-theme .nav-tab:nth-child(5):hover { background: #fff; color: #881337; border-color: #f43f5e; box-shadow: 0 5px 15px rgba(244, 63, 94, 0.2); transform: translateY(-2px); }
         :root.light-theme .nav-tab:nth-child(5).active { background: linear-gradient(135deg, rgba(244, 63, 94, 0.1), rgba(225, 29, 72, 0.1)); color: #e11d48; border-color: #f43f5e; box-shadow: 0 0 20px rgba(244, 63, 94, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-
         :root.light-theme .nav-tab:nth-child(6):hover { background: #fff; color: #164e63; border-color: #06b6d4; box-shadow: 0 5px 15px rgba(6, 182, 212, 0.2); transform: translateY(-2px); }
         :root.light-theme .nav-tab:nth-child(6).active { background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(8, 145, 178, 0.1)); color: #0891b2; border-color: #06b6d4; box-shadow: 0 0 20px rgba(6, 182, 212, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-    
-        
-        /* Universal Light Theme Overrides for Internal Screens */
-        :root.light-theme body,
-        :root.light-theme .ambient-bg {
-            background: #f8fafc !important;
+
+        /* Controls / Buttons */
+        .dash-controls { display: flex; align-items: center; gap: 12px; }
+        .btn-action {
+            padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; border: none; transition: 0.3s;
+            display: flex; align-items: center; gap: 8px;
         }
+        .btn-print { background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--glass-border); }
+        .btn-print:hover { background: rgba(255,255,255,0.15); }
+        .btn-icon-nav { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-primary); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+        .btn-icon-nav:hover { background: rgba(255,255,255,0.15); }
+
+        /* Filters Bar style matching inventory-report */
+        .filters-bar {
+            background: var(--panel-bg); backdrop-filter: blur(15px); border-radius: 16px; padding: 20px;
+            border: 1px solid var(--glass-border); display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        .input-group label { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-group select, .input-group input {
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+            color: var(--text-primary); padding: 12px 15px; font-size: 0.9rem; outline: none; transition: 0.3s; font-family: 'Inter', 'Tajawal', sans-serif;
+        }
+        .input-group select:focus, .input-group input:focus { border-color: var(--pink-accent); box-shadow: 0 0 0 3px rgba(236,72,153,0.15); background: rgba(0,0,0,0.5); }
+
+        /* Data Table style matching inventory-report */
+        .table-panel {
+            background: var(--panel-bg); backdrop-filter: blur(15px); border-radius: 16px;
+            border: 1px solid var(--glass-border); box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            overflow: hidden; display: flex; flex-direction: column;
+        }
+        .table-wrapper { overflow-x: auto; overflow-y: auto; max-height: 60vh; }
+        .dash-table { width: 100%; border-collapse: collapse; min-width: 100%; }
+        .dash-table thead { position: sticky; top: 0; z-index: 10; }
+        .dash-table th {
+            background: rgba(10, 15, 25, 0.95); padding: 15px; text-align: right;
+            font-size: 0.75rem; font-weight: 800; color: var(--text-secondary); border-bottom: 2px solid var(--glass-border);
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .dash-table td { padding: 15px; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle; transition: background 0.2s; color: #f8fafc; }
+        .dash-table tbody tr { animation: fadeSlideIn 0.4s ease-out forwards; opacity: 0; transform: translateY(10px); }
+        .dash-table tbody tr:hover td { background: rgba(255,255,255,0.03); }
+
+        @keyframes fadeSlideIn { to { opacity: 1; transform: translateY(0); } }
+
+        .type-badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; }
+        .type-in { background: rgba(16, 185, 129, 0.15); color: var(--emerald-accent); }
+        .type-out { background: rgba(236, 72, 153, 0.15); color: var(--pink-accent); }
+
+        /* Universal Light Theme Overrides */
+        :root.light-theme body { background-color: var(--bg-dark); color: var(--text-primary); }
         :root.light-theme .glass-panel,
-        :root.light-theme .neon-glass-panel,
-        :root.light-theme .neo-card,
-        :root.light-theme .summary-card,
-        :root.light-theme .filter-panel,
-        :root.light-theme .chart-card,
-        :root.light-theme .kpi-card,
-        :root.light-theme .premium-header,
-        :root.light-theme .top-header,
-        :root.light-theme .header-area {
+        :root.light-theme .premium-card,
+        :root.light-theme .filters-bar,
+        :root.light-theme .table-panel {
             background: #ffffff !important;
             border-color: rgba(0, 0, 0, 0.08) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
-            color: #0f172a !important;
+            color: #000000 !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06) !important;
         }
-        :root.light-theme .glass-panel *,
-        :root.light-theme .neo-card *,
-        :root.light-theme .summary-card * {
-            text-shadow: none !important;
+        :root.light-theme td, :root.light-theme th, :root.light-theme tr {
+            color: #000000 !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
         }
-        :root.light-theme table.pro-table th,
-        :root.light-theme .pos-grid thead th,
-        :root.light-theme .ledger-table th,
-        :root.light-theme .report-table th {
-            background: #f1f5f9 !important;
-            color: #0f172a !important;
-            border-bottom: 2px solid #cbd5e1 !important;
+        :root.light-theme .dash-table th {
+            background: rgba(0, 0, 0, 0.04) !important;
+            color: #000000 !important;
         }
-        :root.light-theme table.pro-table td,
-        :root.light-theme .pos-grid tbody td,
-        :root.light-theme .ledger-table td,
-        :root.light-theme .report-table td {
-            color: #1e293b !important;
-            border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+        :root.light-theme .dash-table tbody tr {
+            background: rgba(255, 255, 255, 0.95) !important;
         }
-        :root.light-theme table.pro-table tbody tr:hover td,
-        :root.light-theme .pos-grid tbody tr:hover td,
-        :root.light-theme .ledger-table tbody tr:hover td,
-        :root.light-theme .report-table tbody tr:hover td {
-            background: rgba(0,0,0,0.02) !important;
+        :root.light-theme .dash-table tbody tr:hover td {
+            background: rgba(0, 0, 0, 0.04) !important;
         }
-        :root.light-theme .input-group select, 
-        :root.light-theme .input-group input {
+        :root.light-theme input, :root.light-theme select {
             background: #ffffff !important;
-            color: #0f172a !important;
-            border-color: rgba(0, 0, 0, 0.18) !important;
+            color: #000000 !important;
+            border: 1px solid rgba(0, 0, 0, 0.18) !important;
         }
-        :root.light-theme .h-label,
-        :root.light-theme .form-label,
-        :root.light-theme .tot-lbl,
-        :root.light-theme .lbl,
-        :root.light-theme label,
-        :root.light-theme .table-header {
-            color: #334155 !important;
+
+        @media print {
+            body { background: #fff !important; color: #000 !important; }
+            .table-panel, .dash-table th, .dash-table td { background: #fff !important; color: #000 !important; border-color: #ccc !important; }
+            .global-sidebar, button, .filters-bar { display: none !important; }
         }
-        :root.light-theme .tot-val,
-        :root.light-theme .val {
-            color: #0f172a !important;
-        }
-        :root.light-theme .h-form-group,
-        :root.light-theme .control-panel {
-            background: transparent !important;
-            border-color: rgba(0,0,0,0.08) !important;
-        }
-        :root.light-theme .modern-btn {
-            color: #1e293b !important;
-        }
-        :root.light-theme .modern-btn:hover {
-            color: #0f172a !important;
-        }
-        /* Neon text colors correction for light theme */
-        :root.light-theme .text-emerald-400, :root.light-theme span[style*="color: #34d399"], :root.light-theme span[style*="color:#34d399"] { color: #059669 !important; }
-        :root.light-theme .text-rose-400, :root.light-theme span[style*="color: #f87171"], :root.light-theme span[style*="color:#f87171"] { color: #e11d48 !important; }
-        :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
-        :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
-        :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
 \n</style>
 </head>
-<body>
+<body class="no-page-transition">
 
     <!-- Ambient Animated Background -->
     <div class="ambient-bg">
@@ -205,7 +211,7 @@
     </div>
 
 
-    <div class="ledger-container">
+    <div class="dashboard-container">
         <!-- Header -->
         <?php $header_theme_class = 'header-theme-inventory'; ?>
         <?php include 'includes/header.php'; ?>
@@ -222,13 +228,14 @@
             </div>
 
             <div class="dash-controls" style="margin: 0; display: flex; gap: 8px;">
-                <button class="btn-action btn-print" onclick="window.print()" style="background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer;">🖨️ طباعة</button>
-                <button class="btn-icon-nav" onclick="history.back()" title="رجوع" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; color: var(--text-main); cursor: pointer; transition: 0.3s;">↩</button>
+                <button class="btn-action" onclick="openReportPreview('تقرير حركة المخزن التفصيلي', '#report-table-wrap')" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(13,148,136,0.2);">👁️ معاينة</button>
+                <button class="btn-action btn-print" onclick="printReportDirectly('تقرير حركة المخزن التفصيلي', '#report-table-wrap')" style="background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer;">🖨️ طباعة</button>
+                <button class="btn-icon-nav" onclick="history.back()" title="رجوع" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; color: var(--text-primary); cursor: pointer; transition: 0.3s;">↩</button>
             </div>
         </div>
 
         <!-- Filters -->
-        <div class="neon-glass-panel filter-row" style="padding:20px;">
+        <div class="filters-bar">
             <div class="input-group" style="grid-column: span 2;">
                 <label>اختر المخزن</label>
                 <select id="warehouse-select" onchange="loadLedger()">
@@ -246,17 +253,17 @@
         </div>
 
         <!-- Ledger Table -->
-        <div class="neon-glass-panel" style="padding:1px; overflow:hidden;">
-            <div style="overflow-x:auto;">
-                <table class="pro-table">
+        <div class="table-panel">
+            <div class="table-wrapper" id="report-table-wrap">
+                <table class="dash-table">
                     <thead>
                         <tr>
                             <th>التاريخ</th>
                             <th>رقم المستند</th>
                             <th>المستند / البيان</th>
                             <th>الصنف</th>
-                            <th style="color:#34d399;">وارد (دخول)</th>
-                            <th style="color:#f87171;">منصرف (خروج)</th>
+                            <th style="color:#10b981; background:rgba(16,185,129,0.05); text-align: right;">وارد (دخول)</th>
+                            <th style="color:#ec4899; background:rgba(236,72,153,0.05); text-align: right;">منصرف (خروج)</th>
                         </tr>
                     </thead>
                     <tbody id="ledger-tbody">
@@ -296,13 +303,20 @@
                 return item ? item.name : 'صنف غير معروف';
             };
 
+            let warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+            let getWarehouseId = (nameOrId) => {
+                if (!nameOrId) return '';
+                const wh = warehousesDb.find(w => w.id === nameOrId || w.name === nameOrId);
+                return wh ? wh.id : nameOrId;
+            };
+
             // 1. Get Purchases
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
             purchases = purchases.filter(x => !x.deleted);
             purchases.forEach(inv => {
-                let wh = inv.warehouseId || inv.warehouse;
-                if (wh === warehouseId) {
-                    (inv.items || inv.lines || []).forEach(line => {
+                (inv.items || inv.lines || []).forEach(line => {
+                    let wh = getWarehouseId(line.warehouseId || inv.warehouseId || inv.warehouse);
+                    if (wh === warehouseId) {
                         let itemId = line.itemId || line.productId;
                         let baseQty = 0;
                         if (line.customBaseQty !== undefined) {
@@ -314,18 +328,32 @@
                             baseQty = (parseFloat(line.quantity) || 0) * factor * conv;
                         }
 
+                        let typeName = 'فاتورة مشتريات';
+                        let typeCode = 'in';
+                        let valIn = baseQty;
+                        let valOut = 0;
+
+                        if (inv.isReturn) {
+                            typeName = 'مردودات مشتريات';
+                            typeCode = 'out';
+                            valIn = 0;
+                            valOut = Math.abs(baseQty);
+                        } else if (inv.isGRN) {
+                            typeName = 'مذكرة استلام مخزني';
+                        }
+
                         history.push({
                             date: new Date(inv.date || inv.receiveDate || Date.now()),
-                            typeCode: 'in',
-                            typeName: 'فاتورة مشتريات',
+                            typeCode: typeCode,
+                            typeName: typeName,
                             ref: inv.invoiceNo || inv.poNumber || inv.id,
                             docId: inv.invoiceNo || inv.id, // Fixed docId for drill-down
                             itemName: getItemName(itemId), // Support new schema
-                            in: baseQty,
-                            out: 0
+                            in: valIn,
+                            out: valOut
                         });
-                    });
-                }
+                    }
+                });
             });
 
             // 2. Get Sales
@@ -335,9 +363,13 @@
                 let hdrWh = inv.warehouse;
                 
                 (inv.items || []).forEach(line => {
-                    let lineWh = line.warehouseId || hdrWh;
+                    let lineWh = getWarehouseId(line.warehouseId || hdrWh);
                     
                     if (lineWh === warehouseId) {
+                        if (inv.saleType === 'reserved' && inv.deliveryStatus !== 'delivered') {
+                            return; // Skip if reserved but not delivered yet
+                        }
+
                         let itemId = line.itemId;
                         let baseQty = 0;
                         if (line.customBaseQty !== undefined) {
@@ -412,14 +444,14 @@
                     tr.style.cursor = 'pointer';
                     tr.title = 'عرض تفاصيل المستند الأصلي';
                     tr.onclick = () => { window.open(target, '_blank'); };
-                    tr.onmouseover = () => tr.style.background = 'rgba(56, 189, 248, 0.05)';
+                    tr.onmouseover = () => tr.style.background = 'rgba(236, 72, 153, 0.05)';
                     tr.onmouseout = () => tr.style.background = '';
                     
                     refHtml = `
                         <div style="display:flex; align-items:center; gap:8px;">
                             <span>${row.ref}</span>
-                            <button onclick="event.stopPropagation(); window.open('${target}', '_blank')" style="background:rgba(56,189,248,0.1); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); border-radius:6px; padding:3px 8px; cursor:pointer; font-size:0.75rem; font-weight:bold; display:flex; align-items:center; gap:4px; transition:all 0.2s;" onmouseover="this.style.background='#38bdf8'; this.style.color='#fff';" onmouseout="this.style.background='rgba(56,189,248,0.1)'; this.style.color='#38bdf8';">
-                                لم يتم العثور
+                            <button onclick="event.stopPropagation(); window.open('${target}', '_blank')" style="background:rgba(236,72,153,0.1); color:#ec4899; border:1px solid rgba(236,72,153,0.3); border-radius:6px; padding:3px 8px; cursor:pointer; font-size:0.75rem; font-weight:bold; display:flex; align-items:center; gap:4px; transition:all 0.2s;" onmouseover="this.style.background='#ec4899'; this.style.color='#fff';" onmouseout="this.style.background='rgba(236,72,153,0.1)'; this.style.color='#ec4899';">
+                                🔗 عرض الأصل
                             </button>
                         </div>
                     `;
@@ -429,9 +461,9 @@
                     <td>${dStr}</td>
                     <td>${typeBadge}</td>
                     <td style="font-weight:600;">${refHtml}</td>
-                    <td style="color:#38bdf8; font-weight:700;">${row.itemName}</td>
-                    <td style="color:#34d399; font-weight:700;">${row.in > 0 ? '+ ' + row.in : '-'}</td>
-                    <td style="color:#f87171; font-weight:700;">${row.out > 0 ? '- ' + row.out : '-'}</td>
+                    <td style="color:#fbbf24; font-weight:700;">${row.itemName}</td>
+                    <td style="color:#10b981; font-weight:700;">${row.in > 0 ? '+ ' + row.in : '-'}</td>
+                    <td style="color:#ec4899; font-weight:700;">${row.out > 0 ? '- ' + row.out : '-'}</td>
                 `;
                 tbody.appendChild(tr);
             });
