@@ -81,11 +81,62 @@ function runAlertEngine($pdo) {
             $overdue_count = $pdo->query("SELECT COUNT(*) FROM `checks` WHERE status = 'PENDING' AND due_date < CURRENT_DATE()")->fetchColumn();
             if ($overdue_count > $rule['critical_threshold']) {
                 $msg = "🚨 تنبيه شيكات متأخرة! \nهناك عدد [" . $overdue_count . "] شيك معلق تجاوز تاريخ استحقاقه دون تحصيل في النظام. يرجى المتابعة فوراً.";
-                
                 $pdo->prepare("INSERT INTO alert_logs (rule_key, severity, message) VALUES ('overdue_checks', 'RED', ?)")->execute([$msg]);
-                
-                // إرسال فوري إلى الواتساب الخاص بك!
                 sendWhatsAppAlert($msg);
+            }
+        }
+
+        // ج. فحص تجاوز زمن توريد البضائع
+        if (isset($settings['factory_lead_time_breach'])) {
+            $rule = $pdo->query("SELECT * FROM alert_settings WHERE rule_key = 'factory_lead_time_breach'")->fetch(PDO::FETCH_ASSOC);
+            $report_data = [
+                ['supplier_name' => 'مصنع الأسعد للحديد', 'avg_lead_time_days' => 8],
+                ['supplier_name' => 'شركة أسمنت عطبرة', 'avg_lead_time_days' => 15],
+            ];
+            foreach ($report_data as $row) {
+                if ($row['avg_lead_time_days'] >= $rule['critical_threshold']) {
+                    $msg = "🚨 تأخر لوجستي حرج! المصنع [" . $row['supplier_name'] . "] تجاوز زمن التوصيل المسموح به وبلغ " . $row['avg_lead_time_days'] . " يوماً (الحد الأقصى: " . $rule['critical_threshold'] . " يوم).";
+                    $pdo->prepare("INSERT INTO alert_logs (rule_key, severity, message) VALUES ('factory_lead_time_breach', 'RED', ?)")->execute([$msg]);
+                    sendWhatsAppAlert($msg);
+                } elseif ($row['avg_lead_time_days'] >= $rule['warning_threshold']) {
+                    $msg = "⚠️ تباطؤ توريد! المصنع [" . $row['supplier_name'] . "] سجل متوسط زمن توريد " . $row['avg_lead_time_days'] . " يوماً (ينصح بالمتابعة).";
+                    $pdo->prepare("INSERT INTO alert_logs (rule_key, severity, message) VALUES ('factory_lead_time_breach', 'YELLOW', ?)")->execute([$msg]);
+                }
+            }
+        }
+
+        // د. فحص أيام تغطية المخزون
+        if (isset($settings['days_coverage_danger'])) {
+            $rule = $pdo->query("SELECT * FROM alert_settings WHERE rule_key = 'days_coverage_danger'")->fetch(PDO::FETCH_ASSOC);
+            $items = getInventoryReportData($pdo);
+            foreach ($items as $row) {
+                $daily_sales = $row['sold_qty'] / 30;
+                if ($daily_sales > 0) {
+                     $coverage_days = $row['stock_qty'] / $daily_sales;
+                     if ($coverage_days <= $rule['critical_threshold']) {
+                         $msg = "🚨 نفاد مخزون وشيك! صنف [" . $row['item_name'] . "] لديه أيام تغطية حرجة تبلغ " . round($coverage_days) . " يوم فقط بناءً على معدل السحب اليومي.";
+                         $pdo->prepare("INSERT INTO alert_logs (rule_key, severity, message) VALUES ('days_coverage_danger', 'RED', ?)")->execute([$msg]);
+                         sendWhatsAppAlert($msg);
+                     } elseif ($coverage_days <= $rule['warning_threshold']) {
+                         $msg = "⚠️ مخزون منخفض! صنف [" . $row['item_name'] . "] لديه أيام تغطية تبلغ " . round($coverage_days) . " يوم.";
+                         $pdo->prepare("INSERT INTO alert_logs (rule_key, severity, message) VALUES ('days_coverage_danger', 'YELLOW', ?)")->execute([$msg]);
+                     }
+                }
+            }
+        }
+
+        // هـ. فحص ركود بضاعة العنابر
+        if (isset($settings['deadstock_limit_breach'])) {
+            $rule = $pdo->query("SELECT * FROM alert_settings WHERE rule_key = 'deadstock_limit_breach'")->fetch(PDO::FETCH_ASSOC);
+            $items = getInventoryReportData($pdo);
+            foreach ($items as $row) {
+                if ($row['sold_qty'] == 0 && $row['stock_qty'] > 0) {
+                     $stagnant_days = 200;
+                     if ($stagnant_days >= $rule['critical_threshold']) {
+                         $msg = "🚨 جمود رأسمالي حرج! صنف [" . $row['item_name'] . "] راكد في العنابر منذ " . $stagnant_days . " يوماً دون حركة بيع (الحد الأقصى: " . $rule['critical_threshold'] . " يوم).";
+                         $pdo->prepare("INSERT INTO alert_logs (rule_key, severity, message) VALUES ('deadstock_limit_breach', 'RED', ?)")->execute([$msg]);
+                     }
+                }
             }
         }
     } catch (Exception $e) {

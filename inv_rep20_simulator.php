@@ -1,0 +1,118 @@
+<?php
+require_once 'db_bridge.php';
+$pdo = getDBConnection();
+$raw_data = getInventoryReportData($pdo);
+
+$sim_delay = isset($_POST['sim_delay']) ? (int)$_POST['sim_delay'] : 5; 
+$report_data = [];
+
+foreach ($raw_data as $row) {
+    $daily = $row['avg_daily_sales'] > 0 ? $row['avg_daily_sales'] : 2.5; 
+    
+    $remaining_stock = $row['stock_qty'] - ($sim_delay * $daily);
+    $status = '✓ آمن ومستقر';
+    $color = 'text-emerald-400 bg-emerald-500/5';
+    if ($remaining_stock <= 0) {
+        $status = '🚨 خطر النفاد الكامل';
+        $color = 'text-red-400 bg-red-500/5';
+        $remaining_stock = 0;
+    } elseif ($remaining_stock <= $row['min_limit']) {
+        $status = '⚠️ نفاد حرج (تحت حد الأمان)';
+        $color = 'text-amber-400 bg-amber-500/5';
+    }
+    
+    $report_data[] = [
+        'item_name' => $row['item_name'],
+        'current_stock' => $row['stock_qty'],
+        'expected_consumption' => $sim_delay * $daily,
+        'remaining_stock' => $remaining_stock,
+        'status' => $status,
+        'color' => $color
+    ];
+}
+?>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>محاكي النواقص - MAGAIEES ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 p-6" style="background-color: #060911;">
+    <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
+        <div>
+            <h1 class="text-xl font-black text-purple-400"><i class="fa-solid fa-magic"></i> محاكي سيناريوهات ونواقص المخازن المستقبلية</h1>
+            <p class="text-slate-500 text-xs mt-1">يتوقع تأثر رصيد عنابر التخزين في السجانة في حال تأخر التوريد من المصانع لعدة أيام</p>
+        </div>
+        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold hover:bg-slate-800">العودة للبوابة</a>
+    </div>
+
+    <div class="bg-slate-900/40 p-5 rounded-2xl border border-slate-800 mb-6">
+        <form method="POST" class="flex items-center gap-4">
+            <span class="text-xs font-bold text-slate-300">حدد عدد أيام تأخر التوريد من المصانع:</span>
+            <input type="number" name="sim_delay" value="<?php echo $sim_delay; ?>" min="1" max="60" class="px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-center w-20 font-bold text-purple-400">
+            <button type="submit" class="px-4 py-1.5 bg-purple-600 hover:bg-purple-500 rounded-lg text-xs font-bold transition-all">تشغيل المحاكاة</button>
+        </form>
+    </div>
+
+    <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-md mb-8">
+        <table class="w-full text-right border-collapse text-sm">
+            <thead>
+                <tr class="bg-slate-950 text-slate-400 text-xs border-b border-slate-800">
+                    <th class="p-4 font-bold">اسم الصنف</th>
+                    <th class="p-4 font-bold text-center">الرصيد الفعلي الحالي</th>
+                    <th class="p-4 font-bold text-center">الاستهلاك المتوقع خلال التأخير</th>
+                    <th class="p-4 font-bold text-center">الرصيد المتبقي المتوقع</th>
+                    <th class="p-4 font-bold text-center text-purple-400">حالة الخطر بعد التأخير</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/50">
+                <?php foreach ($report_data as $row): ?>
+                    <tr class="hover:bg-slate-900/40 transition-colors">
+                        <td class="p-4 font-bold text-slate-200"><?php echo htmlspecialchars($row['item_name']); ?></td>
+                        <td class="p-4 text-center font-mono"><?php echo number_format($row['current_stock']); ?> طن</td>
+                        <td class="p-4 text-center font-mono text-slate-400"><?php echo number_format($row['expected_consumption'], 1); ?> طن</td>
+                        <td class="p-4 text-center font-mono font-bold"><?php echo number_format($row['remaining_stock'], 1); ?> طن</td>
+                        <td class="p-4 text-center font-bold <?php echo $row['color']; ?>"><?php echo $row['status']; ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- منحنى التراجع المتوقع في الرصيد في الأسفل -->
+    <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
+        <h3 class="text-xs font-bold text-slate-300 mb-4">📈 منحنى تناقص المخزن المتوقع لكل صنف بسبب التأخر</h3>
+        <div class="h-80">
+            <canvas id="simChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('simChart').getContext('2d');
+        const reportData = <?php echo json_encode($report_data); ?>;
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: reportData.map(r => r.item_name),
+                datasets: [
+                    { label: 'الرصيد الفعلي الحالي', data: reportData.map(r => r.current_stock), backgroundColor: '#64748b' },
+                    { label: 'الرصيد المتبقي المتوقع', data: reportData.map(r => r.remaining_stock), backgroundColor: '#a855f7' }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#94a3b8' } } },
+                scales: {
+                    x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
+                    y: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

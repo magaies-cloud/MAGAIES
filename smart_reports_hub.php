@@ -706,6 +706,9 @@ $header_theme_class = 'header-theme-reports';
                 <div class="ai-badge">● مصنف ولاء العملاء</div>
             </a>
 
+
+
+
         </div>
 
     </div>

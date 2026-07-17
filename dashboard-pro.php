@@ -760,6 +760,22 @@
         <!-- Ultra Premium Quick Actions Grid -->
         <div class="glass-panel" style="padding: 14px 18px;">
             
+            <!-- أزرار المستشارين والضبط الذكي للبضائع والأموال في أعلى السطر الأول -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-bottom: 15px;">
+                <a data-href="ai_goods_advisor.php" onclick="window.location.href='ai_goods_advisor.php'" class="quick-action-btn qa-success" style="display: flex; justify-content: center; align-items: center; white-space: nowrap; font-size: 0.95rem; padding: 12px 20px; border-bottom: 2.5px solid #10b981; background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 182, 212, 0.12) 100%);">
+                    <span class="qa-icon" style="font-size: 1.4rem;"><i class="fa-solid fa-boxes-stacked"></i></span> مستشار الـ AI الاستراتيجي للبضائع
+                </a>
+                <a data-href="alerts_manager.php" onclick="window.location.href='alerts_manager.php'" class="quick-action-btn qa-success" style="display: flex; justify-content: center; align-items: center; white-space: nowrap; font-size: 0.95rem; padding: 12px 20px; border-bottom: 2.5px solid #10b981; background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(52, 211, 153, 0.08) 100%);">
+                    <span class="qa-icon" style="font-size: 1.4rem;"><i class="fa-solid fa-bell"></i></span> تنبيهات المخازن الذكية
+                </a>
+                <a data-href="ai_money_advisor.php" onclick="window.location.href='ai_money_advisor.php'" class="quick-action-btn qa-purple" style="display: flex; justify-content: center; align-items: center; white-space: nowrap; font-size: 0.95rem; padding: 12px 20px; border-bottom: 2.5px solid #a855f7; background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(236, 72, 153, 0.12) 100%);">
+                    <span class="qa-icon" style="font-size: 1.4rem;"><i class="fa-solid fa-coins"></i></span> مستشار الـ AI الاستراتيجي للأموال
+                </a>
+                <a data-href="alerts_manager.php" onclick="window.location.href='alerts_manager.php'" class="quick-action-btn qa-purple" style="display: flex; justify-content: center; align-items: center; white-space: nowrap; font-size: 0.95rem; padding: 12px 20px; border-bottom: 2.5px solid #a855f7; background: linear-gradient(135deg, rgba(168, 85, 247, 0.08) 0%, rgba(192, 132, 252, 0.08) 100%);">
+                    <span class="qa-icon" style="font-size: 1.4rem;"><i class="fa-solid fa-triangle-exclamation"></i></span> تنبيهات التقارير المالية الذكية
+                </a>
+            </div>
+
             <!-- Row 1: لوحة الإدارة والتحكم (الإعدادات والمهام) -->
             <div class="admin-actions-row">
                 <div class="actions-row-title" style="min-width: auto; padding-left: 15px;">
@@ -810,13 +826,17 @@
                     <a data-href="analytics.php" onclick="window.location.href='analytics.php'" class="quick-action-btn qa-purple" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px;">
                         <span class="qa-icon"><i class="fa-solid fa-chart-line"></i></span> تقارير مالية
                     </a>
-
+ 
                     <a data-href="smart_reports_hub.php" onclick="window.location.href='smart_reports_hub.php'" class="quick-action-btn qa-purple" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px; background: rgba(168, 85, 247, 0.15); border-bottom: 2px solid #a855f7;">
-                        <span class="qa-icon"><i class="fa-solid fa-brain"></i></span> التقارير الذكية V2
+                        <span class="qa-icon"><i class="fa-solid fa-brain"></i></span> التقرير المالي الذكي V2
                     </a>
                     
                     <a data-href="inventory-report.php" onclick="window.location.href='inventory-report.php'" class="quick-action-btn" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px; border-bottom: 2px solid #a78bfa;">
                         <span class="qa-icon"><i class="fa-solid fa-boxes-stacked"></i></span> المخازن
+                    </a>
+ 
+                    <a data-href="smart_inventory_report.php" onclick="window.location.href='smart_inventory_report.php'" class="quick-action-btn qa-success" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px; border-bottom: 2px solid #10b981; background: rgba(16, 185, 129, 0.08);">
+                        <span class="qa-icon"><i class="fa-solid fa-chart-pie"></i></span> تقارير المخازن الذكية
                     </a>
                 </div>
             </div>
