@@ -61,8 +61,28 @@
                 <span style="color:#fbd38d; font-size:0.75rem; font-weight:800;"><span data-i18n="header.exchangeRate">سعر الصرف:</span> <span id="global-exchange-rate-val" style="color:#fff; font-size:0.85rem;">-</span></span>
             </div>
         </div>
-        <!-- Theme -->
+        <!-- Theme & Currency -->
         <div style="display:flex; align-items:center; gap:8px;">
+            <?php
+            $current_page_name = basename($_SERVER['PHP_SELF']);
+            $show_header_currency = !in_array($current_page_name, ['login.php', 'index.php', 'dashboard-pro.php', 'smart_reports_hub.php']);
+            if ($show_header_currency):
+                $header_curr = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
+            ?>
+                <!-- Currency Toggle Widget -->
+                <div class="header-currency-toggle" style="display:flex; background:rgba(0,0,0,0.25); padding:3px; border-radius:10px; border:1px solid rgba(255,255,255,0.06); align-items:center; gap:3px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); height: 36px; box-sizing: border-box;">
+                    <button onclick="changeHeaderCurrency('SDG')" style="border:none; background:<?php echo $header_curr === 'SDG' ? 'linear-gradient(135deg, #10b981, #34d399)' : 'transparent'; ?>; color:<?php echo $header_curr === 'SDG' ? '#000' : '#94a3b8'; ?>; font-size:0.72rem; font-weight:800; padding:4px 10px; border-radius:7px; cursor:pointer; transition:all 0.3s; font-family:'Cairo'; height: 28px; line-height: 20px;">جنيه</button>
+                    <button onclick="changeHeaderCurrency('USD')" style="border:none; background:<?php echo $header_curr === 'USD' ? 'linear-gradient(135deg, #00ffff, #3b82f6)' : 'transparent'; ?>; color:<?php echo $header_curr === 'USD' ? '#000' : '#94a3b8'; ?>; font-size:0.72rem; font-weight:800; padding:4px 10px; border-radius:7px; cursor:pointer; transition:all 0.3s; font-family:'Cairo'; height: 28px; line-height: 20px;">دولار</button>
+                </div>
+                <script>
+                function changeHeaderCurrency(curr) {
+                    let url = new URL(window.location.href);
+                    url.searchParams.set('currency', curr);
+                    window.location.href = url.toString();
+                }
+                </script>
+            <?php endif; ?>
+
             <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
                 <button class="fullscreen-toggle-btn" onclick="toggleFullScreen()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.15rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.fullscreen" title="توسيع الشاشة">⛶</button>
                 <button class="theme-toggle-btn" onclick="toggleTheme()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.toggleTheme" title="تبديل المظهر">🌓</button>

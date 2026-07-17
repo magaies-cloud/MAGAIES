@@ -521,11 +521,7 @@ $header_theme_class = 'header-theme-reports';
             <p>تقارير جيل 2026 تم تدقيقها وتطويرها بواسطة خبراء الأنظمة والمحاسبة الدولية لتمنحك رؤية فورية.</p>
         </div>
 
-        <!-- أداة تبديل العملة الفورية لدعم الجنيه السوداني والدولار الأمريكي -->
-        <div class="currency-selector">
-            <a href="?currency=SDG" class="curr-btn <?php echo $selected_currency === 'SDG' ? 'active' : ''; ?>">جنيه سوداني (SDG)</a>
-            <a href="?currency=USD" class="curr-btn <?php echo $selected_currency === 'USD' ? 'active' : ''; ?>">دولار أمريكي (USD)</a>
-        </div>
+
 
         <!-- شبكة الـ 6 تقارير العالمية والحديثة -->
         <div class="reports-grid">
