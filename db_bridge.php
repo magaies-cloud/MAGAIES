@@ -1,6 +1,6 @@
 <?php
 // ==============================================================
-// جسر الربط الموحد والكامل لبيانات MAGAIEES ERP
+// جسر البيانات الذكي والسريع لربط "السجانة سمارت ERP" بقاعدة البيانات الحقيقية
 // يربط كافة التقارير الاستراتيجية بقاعدة البيانات الحقيقية
 // ==============================================================
 
@@ -10,29 +10,33 @@ define('DB_USER', 'root');
 define('DB_PASS', '');         
 
 function getDBConnection() {
-    try {
-        $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8", DB_USER, DB_PASS);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-        return $pdo;
-    } catch (PDOException $e) {
-        // المحاولة باستخدام ملف الاتصال الافتراضي للنظام إذا كان متوفراً
+    static $pdo = null;
+    if ($pdo === null) {
         try {
-            @include_once __DIR__ . '/api/db.php';
-            if (isset($pdo)) {
-                return $pdo;
-            }
-        } catch (Exception $ex) {}
+            $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8", DB_USER, DB_PASS);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            $pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+        } catch (PDOException $e) {
+            // المحاولة باستخدام ملف الاتصال الافتراضي للنظام إذا كان متوفراً
+            try {
+                @include_once __DIR__ . '/api/db.php';
+                if (isset($pdo)) {
+                    return $pdo;
+                }
+            } catch (Exception $ex) {}
 
-        error_log("خطأ في الاتصال بقاعدة البيانات: " . $e->getMessage());
-        die("<div style='background:#7f1d1d; color:#fecaca; padding:20px; text-align:center; font-family:sans-serif; border-radius:12px; margin:20px; direction:rtl;'>
-                <h3 style='margin:0 0 10px 0;'>⚠️ فشل الاتصال بقاعدة البيانات الحقيقية</h3>
-                <p style='margin:0; font-size:14px;'>الرجاء التأكد من تشغيل خادم MySQL (مثل XAMPP أو WampServer) ومطابقة اسم قاعدة البيانات المسمى <strong>magaies</strong>.</p>
-             </div>");
+            error_log("خطأ في الاتصال بقاعدة البيانات: " . $e->getMessage());
+            die("<div style='background:#7f1d1d; color:#fecaca; padding:20px; text-align:center; font-family:sans-serif; border-radius:10px; direction:rtl;'>
+                    <h3>⚠️ تنبيه: فشل الاتصال التلقائي بقاعدة البيانات الحقيقية</h3>
+                    <p>يرجى تشغيل خادم الـ MySQL وتسمية قاعدة البيانات باسم <strong>magaies</strong> ليعمل الربط فوراً.</p>
+                 </div>");
+        }
     }
+    return $pdo;
 }
 
-// دالة فحص وجود الحقل current_balance في جدول الحسابات
+// دالة فحص وجود الحقل current_balance في جدول الحسابات لمنع الأخطاء البرمجية
 function hasCurrentBalanceColumn($pdo) {
     static $has_col = null;
     if ($has_col !== null) return $has_col;
@@ -48,7 +52,7 @@ function hasCurrentBalanceColumn($pdo) {
 // -------------------------------------------------------------
 // 1. تقرير "تحليل عمق الائتمان" (Debt Concentration)
 // -------------------------------------------------------------
-function getDebtConcentration($pdo) {
+function getDebtConcentrationData($pdo) {
     try {
         if (hasCurrentBalanceColumn($pdo)) {
             $query = "
@@ -77,11 +81,14 @@ function getDebtConcentration($pdo) {
         return [];
     }
 }
+function getDebtConcentration($pdo) {
+    return getDebtConcentrationData($pdo);
+}
 
 // -------------------------------------------------------------
 // 2. مؤشر "معدل دوران الزبائن" (Customer Churn Rate)
 // -------------------------------------------------------------
-function getCustomerChurn($pdo, $days_threshold = 60) {
+function getCustomerChurnData($pdo, $days_threshold = 60) {
     try {
         $query = "
             SELECT 
@@ -105,11 +112,14 @@ function getCustomerChurn($pdo, $days_threshold = 60) {
         return [];
     }
 }
+function getCustomerChurn($pdo, $days_threshold = 60) {
+    return getCustomerChurnData($pdo, $days_threshold);
+}
 
 // -------------------------------------------------------------
 // 3. تقرير "ربحية الصنف/العميل" (Customer Profitability Matrix)
 // -------------------------------------------------------------
-function getCustomerProfitability($pdo) {
+function getCustomerProfitabilityData($pdo) {
     try {
         $query = "
             SELECT 
@@ -128,11 +138,14 @@ function getCustomerProfitability($pdo) {
         return [];
     }
 }
+function getCustomerProfitability($pdo) {
+    return getCustomerProfitabilityData($pdo);
+}
 
 // -------------------------------------------------------------
 // 4. لوحة "توازن الشيكات" (Check Clearing Velocity)
 // -------------------------------------------------------------
-function getCheckClearingVelocity($pdo) {
+function getCheckClearingVelocityData($pdo) {
     try {
         $query = "
             SELECT 
@@ -151,11 +164,14 @@ function getCheckClearingVelocity($pdo) {
         return [];
     }
 }
+function getCheckClearingVelocity($pdo) {
+    return getCheckClearingVelocityData($pdo);
+}
 
 // -------------------------------------------------------------
 // 5. تقرير "استهلاك الأصناف الموسمية" (Seasonal Trend Analysis)
 // -------------------------------------------------------------
-function getSeasonalTrends($pdo) {
+function getSeasonalTrendsData($pdo) {
     try {
         $query = "
             SELECT 
@@ -173,11 +189,14 @@ function getSeasonalTrends($pdo) {
         return [];
     }
 }
+function getSeasonalTrends($pdo) {
+    return getSeasonalTrendsData($pdo);
+}
 
 // -------------------------------------------------------------
-// 6. دفتر الأستاذ العصري (Multi-Dimensional Ledger)
+// 6. دفتر الأستاذ العصري المطور (Multi-Dimensional Ledger)
 // -------------------------------------------------------------
-function getMultiDimensionalLedger($pdo, $customer_id) {
+function getMultiDimensionalLedgerData($pdo, $customer_id) {
     try {
         if (hasCurrentBalanceColumn($pdo)) {
             $query = "
@@ -209,11 +228,14 @@ function getMultiDimensionalLedger($pdo, $customer_id) {
         return null;
     }
 }
+function getMultiDimensionalLedger($pdo, $customer_id) {
+    return getMultiDimensionalLedgerData($pdo, $customer_id);
+}
 
 // -------------------------------------------------------------
 // 7. تقرير "انحراف السعر" (Price Variance Report)
 // -------------------------------------------------------------
-function getPriceVariance($pdo) {
+function getPriceVarianceData($pdo) {
     try {
         $query = "
             SELECT 
@@ -235,11 +257,14 @@ function getPriceVariance($pdo) {
         return [];
     }
 }
+function getPriceVariance($pdo) {
+    return getPriceVarianceData($pdo);
+}
 
 // -------------------------------------------------------------
 // 8. تقرير "أداء الموردين" (Supplier Reliability Index)
 // -------------------------------------------------------------
-function getSupplierPerformance($pdo) {
+function getSupplierPerformanceData($pdo) {
     try {
         $query = "
             SELECT 
@@ -258,11 +283,14 @@ function getSupplierPerformance($pdo) {
         return [];
     }
 }
+function getSupplierPerformance($pdo) {
+    return getSupplierPerformanceData($pdo);
+}
 
 // -------------------------------------------------------------
 // 9. تحليل "السيولة اللحظية المتوقعة" (Live Cash Flow Forecast)
 // -------------------------------------------------------------
-function getLiveCashFlowForecast($pdo, $current_cash_on_hand) {
+function getLiveCashFlowForecastData($pdo, $current_cash_on_hand) {
     try {
         $query = "
             SELECT 
@@ -287,11 +315,14 @@ function getLiveCashFlowForecast($pdo, $current_cash_on_hand) {
         ];
     }
 }
+function getLiveCashFlowForecast($pdo, $current_cash_on_hand) {
+    return getLiveCashFlowForecastData($pdo, $current_cash_on_hand);
+}
 
 // -------------------------------------------------------------
 // 10. تقرير "مصفوفة تكرار الزيارة والولاء" (Customer Engagement Grid)
 // -------------------------------------------------------------
-function getCustomerEngagement($pdo) {
+function getCustomerEngagementData($pdo) {
     try {
         $query = "
             SELECT 
@@ -314,9 +345,12 @@ function getCustomerEngagement($pdo) {
         return [];
     }
 }
+function getCustomerEngagement($pdo) {
+    return getCustomerEngagementData($pdo);
+}
 
 // -------------------------------------------------------------
-// جلب السيولة المجمعة للخزن والبنوك (التقرير الهجين الثاني)
+// ميزة متممة: جلب السيولة اللحظية للبنوك والخزن (حقيقي)
 // -------------------------------------------------------------
 function getRealTimeLiquidity($pdo) {
     try {
@@ -332,7 +366,7 @@ function getRealTimeLiquidity($pdo) {
                     END AS color
                 FROM accounts 
                 WHERE type = 'BANK' OR type = 'VAULT'
-                ORDER BY current_balance DESC
+                ORDER BY current_balance DESC;
             ";
         } else {
             $query = "
@@ -346,7 +380,7 @@ function getRealTimeLiquidity($pdo) {
                     END AS color
                 FROM accounts 
                 WHERE type = 'BANK' OR type = 'VAULT' OR type = 'CUSTOMER' OR type = 'SUPPLIER'
-                ORDER BY amount DESC
+                ORDER BY amount DESC;
             ";
         }
         return $pdo->query($query)->fetchAll(PDO::FETCH_ASSOC);
@@ -356,7 +390,7 @@ function getRealTimeLiquidity($pdo) {
 }
 
 // -------------------------------------------------------------
-// جلب المديونيات الشاملة (تقرير مديونيات الأرصدة الحقيقي)
+// ميزة متممة: جلب تقرير مديونيات الأرصدة الشامل (دفتر + شيكات)
 // -------------------------------------------------------------
 function getCustomerExposureData($pdo) {
     try {
@@ -372,7 +406,7 @@ function getCustomerExposureData($pdo) {
                 LEFT JOIN `checks` c ON a.id = c.account_id
                 WHERE a.type = 'CUSTOMER'
                 GROUP BY a.id, a.name
-                ORDER BY total_exposure DESC
+                ORDER BY total_exposure DESC;
             ";
         } else {
             $query = "
@@ -385,7 +419,7 @@ function getCustomerExposureData($pdo) {
                 FROM accounts a
                 WHERE a.type = 'CUSTOMER'
                 GROUP BY a.id, a.name
-                ORDER BY total_exposure DESC
+                ORDER BY total_exposure DESC;
             ";
         }
         return $pdo->query($query)->fetchAll(PDO::FETCH_ASSOC);
@@ -398,13 +432,11 @@ function getCustomerExposureData($pdo) {
 // دالة إرسال التنبيهات مباشرة إلى رقمك على الواتساب
 // -------------------------------------------------------------
 function sendWhatsAppAlert($message) {
-    // إعدادات خدمة UltraMsg (أو أي بوابة أخرى تفضلها)
-    $instance_id = 'instance99999'; // استبدله بمعرف جهازك (Instance ID) من لوحة التحكم
-    $token = 'your_token_here';     // استبدله بالتوكن الخاص بحسابك (Token)
-    $my_phone = '+249912345678';    // ضع رقم هاتفك الشخصي هنا بالصيغة الدولية
+    $instance_id = 'instance99999'; 
+    $token = 'your_token_here';     
+    $my_phone = '+249912345678';    
     
     try {
-        // محاولة جلب الإعدادات ديناميكياً من جدول الإعدادات العامة إذا كانت متوفرة
         @include_once __DIR__ . '/api/db.php';
         if (isset($pdo)) {
             $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('whatsapp_instance_id', 'whatsapp_token', 'whatsapp_phone')");
@@ -415,14 +447,12 @@ function sendWhatsAppAlert($message) {
         }
     } catch (Exception $e) {}
 
-    // تجهيز نص الرسالة وتشفيره للروابط
     $params = array(
         'token' => $token,
         'to' => $my_phone,
         'body' => $message
     );
     
-    // إرسال الطلب عبر cURL بأسرع أداء تشغيلي خلفي
     $curl = curl_init();
     curl_setopt_array($curl, array(
         CURLOPT_URL => "https://api.ultramsg.com/" . $instance_id . "/messages/chat",
