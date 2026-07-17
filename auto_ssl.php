@@ -40,10 +40,11 @@ $reloadNginx = false;
 foreach ($subdomains as $sub) {
     if (empty($sub) || $sub === 'www') continue;
     $domain = $sub . ".elsajana.com";
+    $wwwDomain = "www." . $domain;
     
     if (!is_dir("/etc/letsencrypt/live/$domain")) {
-        echo "[" . date('Y-m-d H:i:s') . "] Generating SSL for $domain...\n";
-        $cmd = "certbot certonly --webroot -w /var/www/magaees -d " . escapeshellarg($domain) . " --non-interactive --agree-tos --email C00105@gmail.com";
+        echo "[" . date('Y-m-d H:i:s') . "] Generating SSL for $domain and $wwwDomain...\n";
+        $cmd = "certbot certonly --webroot -w /var/www/magaees -d " . escapeshellarg($domain) . " -d " . escapeshellarg($wwwDomain) . " --non-interactive --agree-tos --email C00105@gmail.com";
         system($cmd, $retval);
         
         if ($retval === 0) {
@@ -60,13 +61,13 @@ foreach ($subdomains as $sub) {
         $nginxConfig = <<<NGINX
 server {
     listen 80;
-    server_name $domain;
+    server_name $domain $wwwDomain;
     return 301 https://\$host\$request_uri;
 }
 
 server {
     listen 443 ssl;
-    server_name $domain;
+    server_name $domain $wwwDomain;
     root /var/www/magaees;
     index index.html login.html index.php;
 
@@ -88,3 +89,5 @@ if ($reloadNginx) {
     echo "[" . date('Y-m-d H:i:s') . "] Reloading Nginx...\n";
     system("systemctl reload nginx");
 }
+
+?>
