@@ -332,6 +332,15 @@ $selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
                 <div class="ai-badge">● تحليلات ومخططات بيانية تفاعلية</div>
             </a>
 
+            <!-- 13. بورصة الحديد والتنبؤ بالمخاطر -->
+            <a href="steel_market_forecast.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #f59e0b; --shadow-color: 245, 158, 11;">
+                <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
+                <div class="card-icon">🏗️</div>
+                <div class="card-title">بورصة الحديد والتنبؤ بالمخاطر</div>
+                <div class="card-desc">منحنى تتبع بورصة المعادن العالمية LME وتوقعات أسعار حديد التسليح المستورد محلياً.</div>
+                <div class="ai-badge">● بورصة الحديد وتوقعات الأسعار</div>
+            </a>
+
         </div>
 
     </div>
