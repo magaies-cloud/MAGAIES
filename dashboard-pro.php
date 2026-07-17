@@ -12,10 +12,12 @@
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>لوحة التحكم</title>
+    <link rel="preload" href="css/design-system.css?v=20260709_5" as="style">
+    <link rel="preload" href="js/app.js?v=20260717" as="script">
     <link rel="stylesheet" href="css/design-system.css?v=20260709_5">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
@@ -69,8 +71,10 @@
         }
 
         .orb {
-            position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.15;
+            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.12;
             animation: floatOrb 20s infinite alternate ease-in-out;
+            will-change: transform;
+            contain: layout style paint;
         }
 
         .orb-1 { width: 500px; height: 500px; background: var(--primary-accent); top: -5%; right: -5%; }
@@ -951,18 +955,22 @@
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=<?php echo time(); ?>"></script>
+    <script defer src="js/app.js?v=20260717"></script>
     <script>
-        // Spotlight Effect Mouse Tracker
+        // Spotlight Effect Mouse Tracker (throttled to 60fps)
+        let _spotlightTick = false;
         document.addEventListener('mousemove', e => {
-            for(const card of document.querySelectorAll('.spotlight-card')) {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                card.style.setProperty('--mouse-x', `${x}px`);
-                card.style.setProperty('--mouse-y', `${y}px`);
-            }
-        });
+            if (_spotlightTick) return;
+            _spotlightTick = true;
+            requestAnimationFrame(() => {
+                for(const card of document.querySelectorAll('.spotlight-card')) {
+                    const rect = card.getBoundingClientRect();
+                    card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+                    card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+                }
+                _spotlightTick = false;
+            });
+        }, { passive: true });
 
         // Check Authentication
         document.addEventListener('DBReady', () => {
@@ -1566,7 +1574,9 @@
             });
         }
         window.addEventListener('themeChanged', () => {
-            location.reload();
+            // تطبيق الثيم بدون إعادة تحميل الصفحة - أسرع بكثير
+            const isLight = document.documentElement.classList.contains('light-theme');
+            document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
         });
         </script>
     

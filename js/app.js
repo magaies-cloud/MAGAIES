@@ -139,27 +139,29 @@ JSON.parse = function(val) {
         };
     }
 
-    // Load data from IndexedDB into DB_STORE
+    // Load data from IndexedDB into DB_STORE (optimized: localStorage first, IndexedDB async)
     async function initDB() {
+        // 1. FAST PATH: Load from localStorage immediately (synchronous)
+        syncKeys.forEach(key => {
+            const tenantKey = window.getTenantKey(key);
+            const val = originalGetItem.call(localStorage, tenantKey) || originalGetItem.call(localStorage, key);
+            if (val !== null) {
+                window.DB_STORE[tenantKey] = val;
+            }
+        });
+
+        // 2. SLOW PATH: Update from IndexedDB in background (async, non-blocking)
         try {
-            await Promise.all(syncKeys.map(async (key) => {
+            Promise.all(syncKeys.map(async (key) => {
                 const tenantKey = window.getTenantKey(key);
-                let val = null;
                 try {
-                    val = await localforage.getItem(tenantKey);
-                } catch(err) {
-                    console.warn(`localforage failed or timed out for ${tenantKey}, using localStorage`, err);
-                }
-                if (val === null) {
-                    val = originalGetItem.call(localStorage, tenantKey) || originalGetItem.call(localStorage, key);
-                }
-                if (val !== null) {
-                    window.DB_STORE[tenantKey] = val;
-                }
-            }));
-        } catch (e) {
-            console.error("IndexedDB Initialization Error:", e);
-        }
+                    const val = await localforage.getItem(tenantKey);
+                    if (val !== null && val !== window.DB_STORE[tenantKey]) {
+                        window.DB_STORE[tenantKey] = val;
+                    }
+                } catch(err) {}
+            })).catch(e => {});
+        } catch (e) {}
 
         // Complete fallback check: Ensure all syncKeys are loaded in DB_STORE from localStorage if still empty
         syncKeys.forEach(key => {
@@ -1869,9 +1871,50 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.sidebar-item').forEach(link => {
             if (link.getAttribute('data-href') === currentPage || link.getAttribute('href') === currentPage) link.classList.add('active');
         });
+
+        // --- PREFETCH: Pre-download pages on hover for instant navigation ---
+        const _prefetched = new Set();
+        document.querySelectorAll('.sidebar-item[data-href]').forEach(link => {
+            link.addEventListener('mouseenter', () => {
+                const href = link.getAttribute('data-href');
+                if (href && !_prefetched.has(href) && href !== currentPage) {
+                    _prefetched.add(href);
+                    const prefetchLink = document.createElement('link');
+                    prefetchLink.rel = 'prefetch';
+                    prefetchLink.href = href;
+                    prefetchLink.as = 'document';
+                    document.head.appendChild(prefetchLink);
+                }
+            }, { passive: true, once: true });
+        });
     }
 
     injectSidebar();
+
+    // --- Navigation Transition: Instant fade overlay on page leave ---
+    (function() {
+        const overlay = document.createElement('div');
+        overlay.id = 'nav-transition-overlay';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(3,4,9,0.92);z-index:999999;opacity:0;pointer-events:none;transition:opacity 0.15s ease;';
+        document.body.appendChild(overlay);
+
+        // Show overlay instantly when navigating away
+        document.querySelectorAll('.sidebar-item[data-href], a[href]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const href = link.getAttribute('data-href') || link.getAttribute('href');
+                if (href && !href.startsWith('#') && !href.startsWith('javascript') && href !== currentPage) {
+                    overlay.style.opacity = '1';
+                    overlay.style.pointerEvents = 'all';
+                }
+            });
+        });
+
+        // Hide overlay when arriving at new page (back/forward navigation)
+        window.addEventListener('pageshow', () => {
+            overlay.style.opacity = '0';
+            overlay.style.pointerEvents = 'none';
+        });
+    })();
 
     // --- 3. Fullscreen Control ---
     window.toggleFullScreen = function() {

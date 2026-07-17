@@ -1147,7 +1147,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=<?php echo time(); ?>"></script>
+    <script defer src="js/app.js?v=20260717"></script>
     <script defer src="js/posting-accounts.js?v=<?php echo time(); ?>"></script>
     <script>
         function injectDummyData() {

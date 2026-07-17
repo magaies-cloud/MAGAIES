@@ -288,7 +288,7 @@ $header_theme_class = "header-theme-inventory";
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=<?php echo time(); ?>"></script>
+    <script defer src="js/app.js?v=20260717"></script>
     <script>
         let itemsDb = [];
         let salesDb = [];
