@@ -341,6 +341,15 @@ $selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
                 <div class="ai-badge">● بورصة الحديد وتوقعات الأسعار</div>
             </a>
 
+            <!-- 14. تقرير مديونيات الأرصدة الاستراتيجي (Customer Exposure) -->
+            <a href="customer_exposure.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #fbbf24; --shadow-color: 251, 191, 36;">
+                <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
+                <div class="card-icon">🎚️</div>
+                <div class="card-title">تقرير مديونيات الأرصدة الاستراتيجي</div>
+                <div class="card-desc">تحليل حجم المخاطرة الكلية لمديونيات العملاء (الأستاذ + الشيكات) وتقييم حالة الأمان لكل عميل.</div>
+                <div class="ai-badge">● تقرير التعرض المالي للعملاء</div>
+            </a>
+
         </div>
 
     </div>
