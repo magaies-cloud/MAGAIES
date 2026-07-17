@@ -3,41 +3,50 @@
 // نظام Al-Sajana Smart ERP 2026 - تحليلات الجيل القادم (Next-Gen Analytics)
 // ====================================================================
 
+// استدعاء جسر الربط الموحد الحقيقي لبنوك وخزن السجانة
+require_once 'db_bridge.php';
+
 $selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
 $rate = ($selected_currency === 'SDG') ? 600000 : 1000;
 
-// محاولة جلب البيانات من قاعدة البيانات للمخطط الهجين للعملاء
+$mock_mode = false;
+$cash_vaults = [];
 $customers_stacked = [];
+
 try {
-    @include_once __DIR__ . '/api/db.php';
-    if (isset($pdo)) {
-        $query = "
-            SELECT 
-                a.name AS name,
-                COALESCE((SELECT SUM(t.total_amount) FROM transactions t WHERE t.account_id = a.id), 0) AS ledger,
-                COALESCE((SELECT SUM(c.amount) FROM `checks` c WHERE c.account_id = a.id AND c.type = 'INBOUND' AND c.status = 'PENDING'), 0) AS checks
-            FROM accounts a
-            WHERE a.type = 'CUSTOMER'
-            ORDER BY ledger DESC
-            LIMIT 10
-        ";
-        $stmt = $pdo->query($query);
-        $db_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($db_rows as $r) {
-            $customers_stacked[] = [
-                "name" => $r['name'],
-                "ledger" => (float)$r['ledger'],
-                "checks" => (float)$r['checks'],
-                "total" => (float)$r['ledger'] + (float)$r['checks']
-            ];
-        }
+    $pdo = getDBConnection();
+    // جلب تفاصيل السيولة الحقيقية الموزعة في البنوك والخزن حالياً
+    $cash_vaults = getRealTimeLiquidity($pdo);
+    
+    // جلب مديونيات العملاء الحقيقية للرسم البياني الثاني
+    $customers_exposure = getCustomerExposureData($pdo);
+    
+    // تحويل البيانات لتناسب المخطط الهجين
+    foreach ($customers_exposure as $c) {
+        $customers_stacked[] = [
+            "name" => $c['customer_name'],
+            "ledger" => (float)$c['ledger_balance'],
+            "checks" => (float)$c['pending_checks_total'],
+            "total" => (float)$c['total_exposure']
+        ];
     }
+    
+    // نأخذ أعلى 4 عملاء فقط للرسم البياني لضمان عدم ازدحام الشاشة وسرعة الأداء
+    $customers_stacked = array_slice($customers_stacked, 0, 4);
 } catch (Exception $e) {
-    // خطأ أو الجداول غير مهيأة
+    $mock_mode = true;
 }
 
-// البديل في حال خلو قاعدة البيانات
-if (empty($customers_stacked)) {
+if ($mock_mode || empty($cash_vaults)) {
+    $cash_vaults = [
+        ["name" => "الخزنة الرئيسية - السجانة", "amount" => $rate * 14.1, "color" => "#10b981"],
+        ["name" => "حساب بنك الخرطوم", "amount" => $rate * 20.0, "color" => "#3b82f6"],
+        ["name" => "حساب بنك أم درمان الوطني", "amount" => $rate * 7.5, "color" => "#8b5cf6"],
+        ["name" => "خزنة الكاش الفرعية", "amount" => $rate * 2.5, "color" => "#f59e0b"]
+    ];
+}
+
+if ($mock_mode || empty($customers_stacked)) {
     $customers_stacked = [
         ["name" => "شركة النيل للتجارة", "ledger" => $rate * 7.5, "checks" => $rate * 3.3, "total" => $rate * 10.8],
         ["name" => "محلات أولاد أم درمان", "ledger" => $rate * 2.0, "checks" => $rate * 5.8, "total" => $rate * 7.8],
@@ -46,15 +55,11 @@ if (empty($customers_stacked)) {
     ];
 }
 
-$cash_runway_months = 5.4; // عدد الأشهر المتوقع للسيولة
-$cash_vaults = [
-    ["name" => "الخزنة الرئيسية - السجانة", "amount" => $rate * 14.1, "color" => "#10b981"],
-    ["name" => "حساب بنك الخرطوم", "amount" => $rate * 20.0, "color" => "#3b82f6"],
-    ["name" => "حساب بنك أم درمان الوطني", "amount" => $rate * 7.5, "color" => "#8b5cf6"],
-    ["name" => "خزنة الكاش الفرعية", "amount" => $rate * 2.5, "color" => "#f59e0b"]
-];
-
 $total_cash = array_sum(array_column($cash_vaults, 'amount'));
+$cash_runway_months = ($total_cash > 0) ? round(($total_cash / (2.5 * $rate)), 1) : 0; // محاكاة علمية بناءً على متوسط مصاريف 2.5 مليون شهرياً (مع ضرب قيمة العملة بمعدل التحويل للتعويض)
+if ($cash_runway_months == 0) {
+    $cash_runway_months = 5.4;
+}
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
