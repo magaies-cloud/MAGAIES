@@ -806,6 +806,20 @@ function bindColumnReorder() {
 }
 
 
+function handleRowClick(event, partnerId, partnerType) {
+    if (event.target.closest('td.num')) {
+        return;
+    }
+    let prefix = '';
+    if (partnerType === 'CUST') prefix = 'cust-';
+    else if (partnerType === 'SUPP') prefix = 'supp-';
+    else if (partnerType === 'BANK') prefix = 'bank-';
+    else if (partnerType === 'SAFE') prefix = 'safe-';
+    else if (partnerType === 'EXP') prefix = 'exp-';
+    
+    window.location.href = `general-ledger.php?accountId=${prefix}${partnerId}`;
+}
+
 function renderTable(results) {
     window.lastResults = results;
     const tbody = document.getElementById('balances-tbody');
@@ -853,7 +867,7 @@ function renderTable(results) {
         cells[8] = `<td style="max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; ${getCellStyle(8)}" title="${p.notes || ''}">${p.notes || '-'}</td>`;
         
         let orderedCells = window.colOrder.map(idx => cells[idx]).join('');
-        rows += `<tr class="partner-row" data-partner-id="${p.id}" data-partner-name="${p.name}" data-partner-type="${p.type}" style="cursor: context-menu;">${orderedCells}</tr>`;
+        rows += `<tr class="partner-row" data-partner-id="${p.id}" data-partner-name="${p.name}" data-partner-type="${p.type}" onclick="handleRowClick(event, '${p.id}', '${p.type}')" style="cursor: pointer;">${orderedCells}</tr>`;
     });
 
     tbody.innerHTML = rows;

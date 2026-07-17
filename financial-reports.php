@@ -398,6 +398,14 @@
                     <p class="card-desc">تحليل المتأخرات وفترات الاستحقاق لمعرفة الديون المعدومة وقيد التحصيل.</p>
                 </div>
             </a>
+            <a data-href="financial_health.php?currency=<?php echo $selected_currency; ?>" onclick="window.location.href='financial_health.php?currency=<?php echo $selected_currency; ?>'" class="bento-card" style="--glow-color: rgba(99, 102, 241, 0.6);">
+                <span class="badge badge-new" style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border-color: rgba(99, 102, 241, 0.3);">متصل لحظياً (Live)</span>
+                <div class="card-icon-wrapper">🛡️</div>
+                <div class="card-content">
+                    <h3 class="card-title">التقارير الصحية المالية ومعدلات الأمان</h3>
+                    <p class="card-desc">تحليل فترات التحصيل (DSO)، أعمار الديون ومخصصات حماية رأس المال لتوقع السيولة ومخاطر السوق.</p>
+                </div>
+            </a>
             <a data-href="customer-portfolio.php" onclick="window.location.href='customer-portfolio.php'" class="bento-card" style="--glow-color: rgba(245, 158, 11, 0.6);">
                 <span class="badge badge-new" style="background:rgba(245,158,11,0.15); color:#f59e0b; border-color:rgba(245,158,11,0.3);">⭐ متقدم</span>
                 <div class="card-icon-wrapper">💼</div>

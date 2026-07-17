@@ -429,7 +429,7 @@
                             <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="cust-tax" placeholder="الرقم الضريبي للعميل"></div>
                             <input type="hidden" id="cust-account-no" value="">
                             <div class="input-group">
-                                <label>الرصيد الافتتاحي <small style="color:#f97316; font-weight:normal;">(موجب = نريد منه | سالب = هو يريد مننا)</small></label>
+                                <label>الرصيد الافتتاحي <small style="color:#f97316; font-weight:normal;">(موجب = عليه | سالب = له (يريد منا))</small></label>
                                 <input type="number" id="cust-opening-balance" step="any" placeholder="0.00" style="direction:ltr; text-align:center;">
                                 <input type="hidden" id="cust-opening-debit" value="0">
                                 <input type="hidden" id="cust-opening-credit" value="0">
@@ -495,7 +495,7 @@
                             <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="sup-tax" placeholder="الرقم الضريبي للمورد"></div>
                             <input type="hidden" id="sup-account-no" value="">
                             <div class="input-group">
-                                <label>الرصيد الافتتاحي <small style="color:#f97316; font-weight:normal;">(موجب = نريد منه | سالب = هو يريد مننا)</small></label>
+                                <label>الرصيد الافتتاحي <small style="color:#f97316; font-weight:normal;">(موجب = له | سالب = عليه (نريد منه))</small></label>
                                 <input type="number" id="sup-opening-balance" step="any" placeholder="0.00" style="direction:ltr; text-align:center;">
                                 <input type="hidden" id="sup-opening-debit" value="0">
                                 <input type="hidden" id="sup-opening-credit" value="0">
@@ -1229,7 +1229,7 @@
                 const statusBadge = c.status === 'vip' ? '🌟 VIP' : (c.status === 'blacklisted' ? '🔴 موقوف' : '🟢 نشط');
                 const bal = parseFloat(c.currentBalance) || 0;
                 const balColor = bal > 0 ? '#f87171' : (bal < 0 ? '#34d399' : '#94a3b8');
-                const balLabel = bal > 0 ? 'عليه (نريد منه)' : (bal < 0 ? 'له (يريد مننا)' : 'مسدد');
+                const balLabel = bal > 0 ? 'عليه' : (bal < 0 ? 'له' : 'مسدد');
                 const balDisplay = `<span style="color:${balColor}; font-weight:900; font-family:monospace;">${Math.abs(bal).toLocaleString()}</span> <small style="color:${balColor}; opacity:0.8;">${balLabel}</small>`;
                 tbody.insertAdjacentHTML('beforeend', `<tr><td>${c.name} <small>${statusBadge}</small></td><td>${c.phone || '-'}</td><td>${balDisplay}</td><td>${c.creditLimit} SDG</td><td><button class="btn-text" onclick="editCustomer('${c.id}')">تعديل</button><button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteCustomer('${c.id}')">حذف</button></td></tr>`);
             });
@@ -1374,8 +1374,8 @@
             const email = document.getElementById('sup-email').value;
             const address = document.getElementById('sup-address').value;
             const opBalance = parseFloat(document.getElementById('sup-opening-balance').value) || 0;
-            const openingDebit = opBalance >= 0 ? opBalance : 0;
-            const openingCredit = opBalance < 0 ? Math.abs(opBalance) : 0;
+            const openingCredit = opBalance >= 0 ? opBalance : 0;
+            const openingDebit = opBalance < 0 ? Math.abs(opBalance) : 0;
             const exRate = parseFloat(document.getElementById('sup-ex-rate').value) || 1;
             const currency = document.getElementById('sup-currency').value || 'SDG';
             const taxNumber = document.getElementById('sup-tax').value || '';
@@ -1419,7 +1419,7 @@
                 id, name, phone, whatsapp, email, address, 
                 openingDebit, openingCredit, 
                 currency, exRate, taxNumber, accountNo,
-                currentBalance: (openingDebit - openingCredit), 
+                currentBalance: (openingCredit - openingDebit), 
                 creditLimit: limit,
                 securityLevel: security, status: status, notes
             };
@@ -1451,8 +1451,8 @@
             suppliers.forEach(s => {
                 const statusBadge = s.status === 'blacklisted' ? '🔴 موقوف' : '🟢 نشط';
                 const bal = parseFloat(s.currentBalance) || 0;
-                const balColor = bal > 0 ? '#f87171' : (bal < 0 ? '#34d399' : '#94a3b8');
-                const balLabel = bal > 0 ? 'عليه (نريد منه)' : (bal < 0 ? 'له (يريد مننا)' : 'مسدد');
+                const balColor = bal > 0 ? '#34d399' : (bal < 0 ? '#f87171' : '#94a3b8');
+                const balLabel = bal > 0 ? 'له' : (bal < 0 ? 'عليه' : 'مسدد');
                 const balDisplay = `<span style="color:${balColor}; font-weight:900; font-family:monospace;">${Math.abs(bal).toLocaleString()}</span> <small style="color:${balColor}; opacity:0.8;">${balLabel}</small>`;
                 tbody.insertAdjacentHTML('beforeend', `<tr><td>${s.name} <small>${statusBadge}</small></td><td>${s.phone||'-'}</td><td>${balDisplay}</td><td>${s.creditLimit} SDG</td><td><button class="btn-text" onclick="editSupplier('${s.id}')">تعديل</button><button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteSupplier('${s.id}')">حذف</button></td></tr>`);
             });
@@ -1493,7 +1493,7 @@
             document.getElementById('sup-whatsapp').value = sup.whatsapp || '';
             document.getElementById('sup-email').value = sup.email || '';
             document.getElementById('sup-address').value = sup.address || '';
-            const bal = (sup.openingDebit || 0) - (sup.openingCredit || 0);
+            const bal = (sup.openingCredit || 0) - (sup.openingDebit || 0);
             document.getElementById('sup-opening-balance').value = bal || '';
             document.getElementById('sup-currency').value = sup.currency || 'SDG';
             document.getElementById('sup-ex-rate').value = sup.exRate || 1;

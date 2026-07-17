@@ -20,6 +20,10 @@
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- استدعاء وتفعيل مكتبة Tailwind CSS للتنسيق والألوان -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- استدعاء مكتبة الأيقونات الشهيرة FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
     
 
@@ -725,8 +729,112 @@
     <?php $header_theme_class = 'header-theme-reports'; ?>
     <?php include 'includes/header.php'; ?>
 
+    <!-- قسم الأزرار والتقارير العشرة الاستراتيجية -->
+    <div class="mb-8 p-6 bg-slate-900/50 border border-slate-700/50 rounded-2xl text-right mt-6" dir="rtl">
+        <h2 class="text-xl font-bold text-slate-200 mb-6 flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-emerald-400"></i> لوحة الأزرار والتقارير الاستراتيجية الـ 10
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            
+            <!-- 1. تقرير عمق الائتمان -->
+            <a href="credit_concentration.php" class="p-4 rounded-xl border border-red-500/30 bg-slate-800/50 hover:bg-red-950/20 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-sm">
+                <div class="text-red-400 text-xl"><i class="fa-solid fa-chart-pie"></i></div>
+                <div class="mt-4">
+                    <h3 class="font-black text-sm text-slate-100">1. تحليل عمق الائتمان</h3>
+                    <p class="text-[11px] text-slate-400 mt-1 leading-tight">كعكة مديونية السوق ونسبة تركز الديون</p>
+                </div>
+            </a>
+
+            <!-- 2. معدل دوران الزبائن -->
+            <a href="customer_churn.php" class="p-4 rounded-xl border border-orange-500/30 bg-slate-800/50 hover:bg-orange-950/20 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-sm">
+                <div class="text-orange-400 text-xl"><i class="fa-solid fa-users-slash"></i></div>
+                <div class="mt-4">
+                    <h3 class="font-black text-sm text-slate-100">2. معدل دوران الزبائن</h3>
+                    <p class="text-[11px] text-slate-400 mt-1 leading-tight">اكتشاف العملاء المنقطعين ودرجة الخطورة</p>
+                </div>
+            </a>
+
+            <!-- 3. ربحية الصنف/العميل -->
+            <a href="customer_profitability.php" class="p-4 rounded-xl border border-green-500/30 bg-slate-800/50 hover:bg-green-950/20 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-sm">
+                <div class="text-green-400 text-xl"><i class="fa-solid fa-chart-line"></i></div>
+                <div class="mt-4">
+                    <h3 class="font-black text-sm text-slate-100">3. ربحية الصنف / العميل</h3>
+                    <p class="text-[11px] text-slate-400 mt-1 leading-tight">صافي أرباح المبيعات وليس حجمها فقط</p>
+                </div>
+            </a>
+
+            <!-- 4. لوحة توازن الشيكات -->
+            <a href="checks_detector.php?currency=SDG" class="p-4 rounded-xl border-2 border-emerald-500 bg-emerald-950/30 hover:bg-emerald-950/50 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-md ring-2 ring-emerald-500/20">
+                <div class="text-emerald-400 text-xl flex justify-between items-center w-full">
+                    <i class="fa-solid fa-money-check-dollar"></i>
+                    <span class="text-[9px] bg-emerald-500 text-slate-900 font-bold px-2 py-0.5 rounded animate-pulse">مفتوح الآن</span>
+                </div>
+                <div class="mt-4">
+                    <h3 class="font-black text-sm text-emerald-300">4. لوحة توازن الشيكات</h3>
+                    <p class="text-[11px] text-emerald-400 mt-1 leading-tight">كاشف ومقارن الشيكات وأوراق القبض</p>
+                </div>
+            </a>
+
+            <!-- 5. استهلاك الأصناف الموسمية -->
+            <a href="seasonal_trends.php" class="p-4 rounded-xl border border-teal-500/30 bg-slate-800/50 hover:bg-teal-950/20 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-sm">
+                <div class="text-teal-400 text-xl"><i class="fa-solid fa-cloud-sun"></i></div>
+                <div class="mt-4">
+                    <h3 class="font-black text-sm text-slate-100">5. استهلاك الأصناف الموسمية</h3>
+                    <p class="text-[11px] text-slate-400 mt-1 leading-tight">سحب الحديد والأسمنت حسب فصول السنة</p>
+                </div>
+            </a>
+
+            <!-- 6. دفتر الأستاذ العصري -->
+            <a href="modern_ledger.php" class="p-4 rounded-xl border border-indigo-500/30 bg-slate-800/50 hover:bg-indigo-950/20 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-sm">
+                <div class="text-indigo-400 text-xl"><i class="fa-solid fa-book-open-reader"></i></div>
+                <div class="mt-4">
+                    <h3 class="font-black text-sm text-slate-100">6. دفتر الأستاذ العصري</h3>
+                    <p class="text-[11px] text-slate-400 mt-1 leading-tight">ملف بانورامي متكامل لكل عميل بشاشة واحدة</p>
+                </div>
+            </a>
+
+            <!-- 7. تقرير انحراف السعر -->
+            <a href="price_variance.php" class="p-4 rounded-xl border border-amber-500/30 bg-slate-800/50 hover:bg-amber-950/20 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-sm">
+                <div class="text-amber-400 text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div class="mt-4">
+                    <h3 class="font-black text-sm text-slate-100">7. تقرير انحراف السعر</h3>
+                    <p class="text-[11px] text-slate-400 mt-1 leading-tight">مراقبة الفواتير والخصومات اليدوية</p>
+                </div>
+            </a>
+
+            <!-- 8. أداء الموردين -->
+            <a href="supplier_performance.php" class="p-4 rounded-xl border border-purple-500/30 bg-slate-800/50 hover:bg-purple-950/20 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-sm">
+                <div class="text-purple-400 text-xl"><i class="fa-solid fa-truck-ramp-box"></i></div>
+                <div class="mt-4">
+                    <h3 class="font-black text-sm text-slate-100">8. أداء الموردين</h3>
+                    <p class="text-[11px] text-slate-400 mt-1 leading-tight">قياس ثبات أسعار مصانع الحديد والشركاء</p>
+                </div>
+            </a>
+
+            <!-- 9. السيولة اللحظية المتوقعة -->
+            <a href="cashflow_forecast.php" class="p-4 rounded-xl border border-emerald-500/30 bg-slate-800/50 hover:bg-emerald-950/20 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-sm">
+                <div class="text-emerald-400 text-xl"><i class="fa-solid fa-vault"></i></div>
+                <div class="mt-4">
+                    <h3 class="font-black text-sm text-slate-100">9. السيولة اللحظية المتوقعة</h3>
+                    <p class="text-[11px] text-slate-400 mt-1 leading-tight">التنبؤ بوضع الخزنة والكاش بعد 30 يوماً</p>
+                </div>
+            </a>
+
+            <!-- 10. مصفوفة تكرار الزيارة والولاء -->
+            <a href="customer_engagement.php" class="p-4 rounded-xl border border-cyan-500/30 bg-slate-800/50 hover:bg-cyan-950/20 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-sm">
+                <div class="text-cyan-400 text-xl"><i class="fa-solid fa-id-card-clip"></i></div>
+                <div class="mt-4">
+                    <h3 class="font-black text-sm text-slate-100">10. مصفوفة تكرار الزيارة والولاء</h3>
+                    <p class="text-[11px] text-slate-400 mt-1 leading-tight">تصنيف الزبائن لتقديم خصومات ذكية</p>
+                </div>
+            </a>
+
+        </div>
+    </div>
+
     <!-- Desktop/Mobile Premium Reports Bento Grid (Rearranged under header) -->
-    <div class="quick-reports-grid" style="animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);">
+    <div class="quick-reports-grid" style="animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1); display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
         <!-- 1. General Ledger -->
         <a href="general-ledger.php" class="quick-report-card" style="--glow-color: rgba(251, 191, 36, 0.65); --glow-bg: rgba(251, 191, 36, 0.12);">
             <div class="icon-wrap">📓</div>
@@ -760,6 +868,15 @@
             <div class="card-info">
                 <h4>تقرير اليومية</h4>
                 <p>ملخص شامل للحركات المالية وحركة الأصناف في المستودعات اليوم.</p>
+            </div>
+        </a>
+
+        <!-- V2 Smart Reports Hub -->
+        <a href="smart_reports_hub.php" class="quick-report-card" style="--glow-color: rgba(6, 182, 212, 0.65); --glow-bg: rgba(6, 182, 212, 0.12);">
+            <div class="icon-wrap">🚀</div>
+            <div class="card-info">
+                <h4>بوابة التقارير الذكية V2</h4>
+                <p>مركز التقارير المحاسبية المتقدم للتدفقات النقدية ونقطة التعادل.</p>
             </div>
         </a>
     </div>

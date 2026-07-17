@@ -720,6 +720,10 @@
                     <a data-href="analytics.php" onclick="window.location.href='analytics.php'" class="quick-action-btn qa-purple" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px;">
                         <span class="qa-icon">📊</span> تقارير مالية
                     </a>
+
+                    <a data-href="smart_reports_hub.php" onclick="window.location.href='smart_reports_hub.php'" class="quick-action-btn qa-purple" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px; background: rgba(168, 85, 247, 0.15); border-bottom: 2px solid #a855f7;">
+                        <span class="qa-icon">✨</span> التقارير الذكية V2
+                    </a>
                     
                     <a data-href="inventory-report.php" onclick="window.location.href='inventory-report.php'" class="quick-action-btn" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px; border-bottom: 2px solid #a78bfa;">
                         <span class="qa-icon">📦</span> المخازن
