@@ -3,53 +3,21 @@
 // نظام Al-Sajana Smart ERP 2026 - تقرير مديونيات الأرصدة الاستراتيجي
 // ====================================================================
 
+// استدعاء جسر الربط الموحد الحقيقي
+require_once 'db_bridge.php';
+
 $selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
 $rate = ($selected_currency === 'SDG') ? 600000 : 1000;
 
-// الاتصال بقاعدة البيانات
+// الاتصال المباشر بالقاعدة الحقيقية لجهازك
 $mock_mode = false;
+$report_data = [];
 try {
-    require_once __DIR__ . '/api/db.php';
-    if (!isset($pdo)) {
-        $mock_mode = true;
-    }
+    $pdo = getDBConnection();
+    // جلب بيانات مديونيات العملاء الحقيقية من الخزن والعملاء والشيكات
+    $report_data = getCustomerExposureData($pdo);
 } catch (Exception $e) {
     $mock_mode = true;
-}
-
-// جلب البيانات (الأستاذ + الشيكات للعملاء)
-$report_data = [];
-if (!$mock_mode) {
-    try {
-        $sql_query = "
-            SELECT 
-                a.id AS customer_id,
-                a.name AS customer_name,
-                COALESCE((SELECT SUM(t.total_amount) FROM transactions t WHERE t.account_id = a.id), 0) AS ledger_balance,
-                COALESCE((SELECT SUM(c.amount) FROM `checks` c WHERE c.account_id = a.id AND c.type = 'INBOUND' AND c.status = 'PENDING'), 0) AS pending_checks_total
-            FROM accounts a
-            WHERE a.type = 'CUSTOMER'
-        ";
-        $stmt = $pdo->query($sql_query);
-        $db_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($db_rows as $row) {
-            $ledger = (float)$row['ledger_balance'];
-            $checks = (float)$row['pending_checks_total'];
-            $report_data[] = [
-                "customer_name" => $row['customer_name'],
-                "ledger_balance" => $ledger,
-                "pending_checks_total" => $checks,
-                "total_exposure" => $ledger + $checks
-            ];
-        }
-        
-        // ترتيب التقرير حسب التعرض الكلي للمخاطر
-        usort($report_data, function($a, $b) {
-            return $b['total_exposure'] <=> $a['total_exposure'];
-        });
-    } catch (Exception $e) {
-        $mock_mode = true;
-    }
 }
 
 if ($mock_mode || empty($report_data)) {
@@ -60,13 +28,9 @@ if ($mock_mode || empty($report_data)) {
         ["customer_name" => "المقاولات السودانية الحديثة", "ledger_balance" => $rate * 4.6, "pending_checks_total" => 0, "total_exposure" => $rate * 4.6],
         ["customer_name" => "أعمال الخرطوم للأسمنت ومواد البناء", "ledger_balance" => $rate * 0.8, "pending_checks_total" => $rate * 2.5, "total_exposure" => $rate * 3.3]
     ];
-    
-    // ترتيب تنازلي
-    usort($report_data, function($a, $b) {
-        return $b['total_exposure'] <=> $a['total_exposure'];
-    });
 }
 
+// حساب المجاميع الكلية بشكل لحظي فائق السرعة
 $total_ledger_all = array_sum(array_column($report_data, 'ledger_balance'));
 $total_checks_all = array_sum(array_column($report_data, 'pending_checks_total'));
 $total_exposure_all = array_sum(array_column($report_data, 'total_exposure'));
