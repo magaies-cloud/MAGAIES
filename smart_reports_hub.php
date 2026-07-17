@@ -350,6 +350,15 @@ $selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
                 <div class="ai-badge">● تقرير التعرض المالي للعملاء</div>
             </a>
 
+            <!-- 15. مركز تخصيص وإدارة التنبيهات الذكية (Alerts Manager) -->
+            <a href="alerts_manager.php" class="report-card" style="--accent-color: #ef4444; --shadow-color: 239, 68, 68;">
+                <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
+                <div class="card-icon">🔔</div>
+                <div class="card-title">إدارة وتخصيص التنبيهات الذكية</div>
+                <div class="card-desc">تحكم كامل في قواعد الأمان والإنذار المبكر وضبط عتبات ومستويات التحذير المالي الحرج.</div>
+                <div class="ai-badge">● محرك التحكم في التنبيهات</div>
+            </a>
+
         </div>
 
     </div>
