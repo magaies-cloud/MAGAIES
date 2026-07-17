@@ -393,4 +393,62 @@ function getCustomerExposureData($pdo) {
         return [];
     }
 }
+
+// -------------------------------------------------------------
+// دالة إرسال التنبيهات مباشرة إلى رقمك على الواتساب
+// -------------------------------------------------------------
+function sendWhatsAppAlert($message) {
+    // إعدادات خدمة UltraMsg (أو أي بوابة أخرى تفضلها)
+    $instance_id = 'instance99999'; // استبدله بمعرف جهازك (Instance ID) من لوحة التحكم
+    $token = 'your_token_here';     // استبدله بالتوكن الخاص بحسابك (Token)
+    $my_phone = '+249912345678';    // ضع رقم هاتفك الشخصي هنا بالصيغة الدولية
+    
+    try {
+        // محاولة جلب الإعدادات ديناميكياً من جدول الإعدادات العامة إذا كانت متوفرة
+        @include_once __DIR__ . '/api/db.php';
+        if (isset($pdo)) {
+            $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('whatsapp_instance_id', 'whatsapp_token', 'whatsapp_phone')");
+            $settings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+            if (!empty($settings['whatsapp_instance_id'])) $instance_id = $settings['whatsapp_instance_id'];
+            if (!empty($settings['whatsapp_token'])) $token = $settings['whatsapp_token'];
+            if (!empty($settings['whatsapp_phone'])) $my_phone = $settings['whatsapp_phone'];
+        }
+    } catch (Exception $e) {}
+
+    // تجهيز نص الرسالة وتشفيره للروابط
+    $params = array(
+        'token' => $token,
+        'to' => $my_phone,
+        'body' => $message
+    );
+    
+    // إرسال الطلب عبر cURL بأسرع أداء تشغيلي خلفي
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => "https://api.ultramsg.com/" . $instance_id . "/messages/chat",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_SSL_VERIFYHOST => 0,
+        CURLOPT_SSL_VERIFYPEER => 0,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => http_build_query($params),
+        CURLOPT_HTTPHEADER => array(
+            "content-type: application-x-www-form-urlencoded"
+        ),
+    ));
+    
+    $response = curl_exec($curl);
+    $err = curl_error($curl);
+    curl_close($curl);
+    
+    if ($err) {
+        error_log("فشل إرسال واتساب: " . $err);
+        return false;
+    } else {
+        return true;
+    }
+}
 ?>
