@@ -3,6 +3,8 @@
 // نظام Al-Sajana Smart ERP 2026 - دفتر الأستاذ العام المطور وتوزيع الديون
 // ====================================================================
 $selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
+$page_title = 'دفتر الأستاذ العام المطور V2';
+$header_theme_class = 'header-theme-reports';
 $rate = ($selected_currency === 'SDG') ? 600000 : 1000;
 
 // فلاتر البحث والتاريخ
@@ -110,8 +112,8 @@ try {
             $conditions = [];
             $params = [':cid' => $target_customer_id];
             
-            if (!empty($date_from)) { $sales_query .= " AND date_val >= :date_from"; $params[':date_from'] = $date_from; }
-            if (!empty($date_to)) { $sales_query .= " AND date_val <= :date_to"; $params[':date_to'] = $date_to; }
+            if (!empty($date_from)) { $sales_query .= " AND date_val >= :date_from"; $params[':date_from'] = $date_from . ' 00:00:00'; }
+            if (!empty($date_to)) { $sales_query .= " AND date_val <= :date_to_end"; $params[':date_to_end'] = $date_to . ' 23:59:59'; }
             
             $sales_stmt = $pdo->prepare($sales_query);
             $sales_stmt->execute($params);
@@ -119,8 +121,8 @@ try {
             // للحصول على فواتير المبيعات للعميل كـ String "cust-XX" أحياناً في JSON
             $sales_query_str = "SELECT date_val, data FROM sales_invoices WHERE is_deleted = 0 AND customer_id_val = :cid_str";
             $params_str = [':cid_str' => 'cust-' . $target_customer_id];
-            if (!empty($date_from)) { $sales_query_str .= " AND date_val >= :date_from"; $params_str[':date_from'] = $date_from; }
-            if (!empty($date_to)) { $sales_query_str .= " AND date_val <= :date_to"; $params_str[':date_to'] = $date_to; }
+            if (!empty($date_from)) { $sales_query_str .= " AND date_val >= :date_from"; $params_str[':date_from'] = $date_from . ' 00:00:00'; }
+            if (!empty($date_to)) { $sales_query_str .= " AND date_val <= :date_to_end"; $params_str[':date_to_end'] = $date_to . ' 23:59:59'; }
             $sales_stmt_str = $pdo->prepare($sales_query_str);
             $sales_stmt_str->execute($params_str);
             
@@ -147,8 +149,8 @@ try {
                 ':cust_pattern1' => '%"fromAccount":"' . $cust_key . '"%',
                 ':cust_pattern2' => '%"fromAccount": "' . $cust_key . '"%'
             ];
-            if (!empty($date_from)) { $receipts_query .= " AND date_val >= :r_date_from"; $r_params[':r_date_from'] = $date_from; }
-            if (!empty($date_to)) { $receipts_query .= " AND date_val <= :r_date_to"; $r_params[':r_date_to'] = $date_to; }
+            if (!empty($date_from)) { $receipts_query .= " AND date_val >= :r_date_from"; $r_params[':r_date_from'] = $date_from . ' 00:00:00'; }
+            if (!empty($date_to)) { $receipts_query .= " AND date_val <= :r_date_to_end"; $r_params[':r_date_to_end'] = $date_to . ' 23:59:59'; }
             
             $receipts_stmt = $pdo->prepare($receipts_query);
             $receipts_stmt->execute($r_params);
@@ -225,9 +227,9 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-dark: #05030a;
-            --panel-bg: rgba(15, 10, 25, 0.75);
-            --border-neon: rgba(0, 255, 255, 0.2);
+            --bg-dark: #090514;
+            --panel-bg: rgba(20, 15, 38, 0.7);
+            --border-neon: rgba(0, 255, 127, 0.2);
             --text-main: #ffffff;
             --text-muted: #a0aec0;
         }
@@ -239,8 +241,8 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
         
         .filter-container { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 15px 20px; margin-bottom: 30px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; animation: slideUp 0.6s ease-out 0.2s backwards; }
         .filter-input { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px 15px; border-radius: 8px; font-family: 'Cairo'; outline: none; }
-        .filter-input:focus { border-color: #00ffff; }
-        .btn-filter { background: linear-gradient(135deg, #00ffff, #ff0055); color: #000; border: none; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Cairo'; }
+        .filter-input:focus { border-color: #00ff7f; }
+        .btn-filter { background: linear-gradient(135deg, #00ff7f, #00ffff); color: #000; border: none; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Cairo'; }
         
         .grid-layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; }
         .chart-container { background: rgba(0,0,0,0.25); border-radius: 20px; padding: 25px; border: 1px solid rgba(255,255,255,0.03); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; animation: slideUp 0.6s ease-out 0.4s backwards; }
@@ -260,19 +262,13 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
     </div>
+    <?php include 'includes/header.php'; ?>
     <div class="glass-panel">
         <?php if ($is_mock_data): ?>
         <div style="background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #fbbf24; padding: 10px 20px; border-radius: 14px; text-align: center; font-size: 13px; font-weight: bold; margin-bottom: 20px; animation: fadeIn 1s ease-out;">
             ⚠️ الشاشة تعرض بيانات تجريبية حالياً — سيتم عرض البيانات الحقيقية عند توفر عمليات بيعية في النظام
         </div>
         <?php endif; ?>
-        <div class="header">
-            <div>
-                <h1 style="margin:0; background: linear-gradient(135deg, #00ffff, #ff0055); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight:900;">دفتر الأستاذ العام المطور (تحليل الديون التفاعلي)</h1>
-                <p style="color: var(--text-muted); margin: 5px 0 0 0;">كشف حساب حركي متزامن مع هيكل توزيع المحفظة الائتمانية للعملاء</p>
-            </div>
-            <a href="smart_reports_hub.php?currency=<?php echo $selected_currency; ?>" class="btn-back">⬅️ العودة للبوابة</a>
-        </div>
         
         <form method="GET" class="filter-container">
             <input type="hidden" name="currency" value="<?php echo htmlspecialchars($selected_currency); ?>">
@@ -300,7 +296,7 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
             </div>
             <button type="submit" class="btn-filter">تحديث الكشف</button>
             <?php if(!empty($date_from) || !empty($date_to)): ?>
-                <a href="general_ledger_v2.php?currency=<?php echo $selected_currency; ?>&accountId=cust-<?php echo $target_customer_id; ?>" style="color:#ff0055; text-decoration:none; font-size:13px; margin-right:10px;">إلغاء الفلتر</a>
+                <a href="general_ledger_v2.php?currency=<?php echo $selected_currency; ?>&accountId=cust-<?php echo $target_customer_id; ?>" style="color:#00ff7f; text-decoration:none; font-size:13px; margin-right:10px;">إلغاء الفلتر</a>
             <?php endif; ?>
         </form>
 
@@ -345,7 +341,7 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
 
             <!-- كعكة توزيع الديون -->
             <div class="chart-container">
-                <h3 style="margin-top:0; color:#ff0055; margin-bottom:20px; width:100%;">🍩 التمركز الائتماني للسوق</h3>
+                <h3 style="margin-top:0; color:#00ff7f; margin-bottom:20px; width:100%;">🍩 التمركز الائتماني للسوق</h3>
                 <div style="width: 250px; height: 250px; margin-bottom: 20px;">
                     <canvas id="debtDonutChart"></canvas>
                 </div>
@@ -401,7 +397,7 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
                 datasets: [{
                     data: [<?php foreach ($debt_distribution as $dd) { echo $dd['debt'] . ","; } ?>],
                     backgroundColor: [<?php foreach ($debt_distribution as $dd) { echo "'" . $dd['color'] . "',"; } ?>],
-                    borderColor: '#05030a',
+                    borderColor: '#090514',
                     borderWidth: 3
                 }]
             },
@@ -409,7 +405,13 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false }, tooltip: { titleFont: { family: 'Cairo' }, bodyFont: { family: 'Cairo' } } },
-                cutout: '65%'
+                cutout: '65%',
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 1800,
+                    easing: 'easeOutQuart'
+                }
             }
         });
     </script>
