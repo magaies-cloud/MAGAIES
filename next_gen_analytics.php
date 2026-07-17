@@ -1,9 +1,4 @@
 <?php
-// ====================================================================
-// نظام Al-Sajana Smart ERP 2026 - تحليلات الجيل القادم (Next-Gen Analytics)
-// ====================================================================
-
-// استدعاء جسر الربط الموحد الحقيقي لـ MAGAIEES ERP
 require_once 'db_bridge.php';
 
 $selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
@@ -18,50 +13,19 @@ $customers_exposure = getCustomerExposureData($pdo);
 // نأخذ أعلى 4 عملاء فقط لضمان عدم ازدحام الرسم البياني
 $customers_stacked = array_slice($customers_exposure, 0, 4);
 
-// حساب تقديري لممر السيولة بناءً على متوسط مصاريف 2.5 مليون شهرياً (مع تعديل العملة لتفادي الصفر)
+// حساب تقديري لممر السيولة بناءً على متوسط مصاريف 2.5 مليون شهرياً
+$cash_runway_months = ($total_cash > 0) ? round(($total_cash / 2500000), 1) : 0;
+?>
+<?php
+// تهيئة وإعداد البيانات للمخططات البصرية والجدول للتوافق مع بنية الشاشة
 $rate = ($selected_currency === 'SDG') ? 600000 : 1000;
-$divisor = ($selected_currency === 'SDG') ? 2500000 : (2500000 / $rate);
-$cash_runway_months = ($total_cash > 0) ? round(($total_cash / $divisor), 1) : 0;
-if ($cash_runway_months == 0) {
-    $cash_runway_months = 5.4;
-}
-
-// في حال عدم توفر أي بيانات في الخزن، استخدام البيانات الافتراضية
-if (empty($cash_vaults)) {
-    $cash_vaults = [
-        ["name" => "الخزنة الرئيسية - السجانة", "amount" => $rate * 14.1, "color" => "#10b981"],
-        ["name" => "حساب بنك الخرطوم", "amount" => $rate * 20.0, "color" => "#3b82f6"],
-        ["name" => "حساب بنك أم درمان الوطني", "amount" => $rate * 7.5, "color" => "#8b5cf6"],
-        ["name" => "خزنة الكاش الفرعية", "amount" => $rate * 2.5, "color" => "#f59e0b"]
-    ];
-    $total_cash = array_sum(array_column($cash_vaults, 'amount'));
-}
-
-// في حال عدم توفر أي بيانات للعملاء، استخدام البيانات الافتراضية للرسم البياني
-if (empty($customers_stacked)) {
-    $customers_stacked = [
-        ["customer_name" => "شركة النيل للتجارة", "ledger_balance" => $rate * 7.5, "pending_checks_total" => $rate * 3.3, "total_exposure" => $rate * 10.8],
-        ["customer_name" => "محلات أولاد أم درمان", "ledger_balance" => $rate * 2.0, "pending_checks_total" => $rate * 5.8, "total_exposure" => $rate * 7.8],
-        ["customer_name" => "المقاولات السودانية", "ledger_balance" => $rate * 4.6, "pending_checks_total" => $rate * 1.3, "total_exposure" => $rate * 5.9],
-        ["customer_name" => "أعمال الخرطوم للأسمنت", "ledger_balance" => $rate * 1.5, "pending_checks_total" => $rate * 2.5, "total_exposure" => $rate * 4.0]
-    ];
-}
-
-// تهيئة البيانات للمخطط الهجين للعملاء بالتوافق مع التسميات القديمة
 foreach ($customers_stacked as &$c) {
-    if (!isset($c['name'])) {
-        $c['name'] = $c['customer_name'] ?? '';
-    }
-    if (!isset($c['ledger'])) {
-        $c['ledger'] = $c['ledger_balance'] ?? 0;
-    }
-    if (!isset($c['checks'])) {
-        $c['checks'] = $c['pending_checks_total'] ?? 0;
-    }
-    if (!isset($c['total'])) {
-        $c['total'] = $c['total_exposure'] ?? 0;
-    }
+    if (!isset($c['name'])) $c['name'] = $c['customer_name'] ?? '';
+    if (!isset($c['ledger'])) $c['ledger'] = $c['ledger_balance'] ?? 0;
+    if (!isset($c['checks'])) $c['checks'] = $c['pending_checks_total'] ?? 0;
+    if (!isset($c['total'])) $c['total'] = $c['total_exposure'] ?? 0;
 }
+unset($c);
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
