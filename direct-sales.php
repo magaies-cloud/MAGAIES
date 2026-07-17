@@ -982,6 +982,38 @@
     :root.light-theme .context-item-custom { color: #334155; }
     :root.light-theme .context-item-custom:hover { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
     :root.light-theme .context-item-hr { border-top-color: rgba(0,0,0,0.05); }
+
+    /* ====== الحركات والانيميشنات المأخوذة من شاشة دوران المخزون ====== */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(40px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.85); }
+        to   { opacity: 1; transform: scale(1); }
+    }
+    @keyframes pulseGlow {
+        0%, 100% { box-shadow: 0 0 15px rgba(56,189,248,0.1); }
+        50%      { box-shadow: 0 0 30px rgba(56,189,248,0.25); }
+    }
+
+    .animate-fade   { animation: fadeIn 0.6s ease-out both; }
+    .animate-slide  { animation: slideUp 0.7s ease-out both; }
+    .animate-scale  { animation: scaleIn 0.5s ease-out both; }
+    .stagger-1 { animation-delay: 0.05s; }
+    .stagger-2 { animation-delay: 0.1s; }
+    .stagger-3 { animation-delay: 0.15s; }
+    .stagger-4 { animation-delay: 0.2s; }
+    .stagger-5 { animation-delay: 0.25s; }
+
+    /* توهج نبضي للوحات الزجاجية */
+    .glass-panel-pulse {
+        animation: pulseGlow 4s ease-in-out infinite;
+    }
 </style>
 
 
@@ -2001,30 +2033,30 @@
     </div>
 
     <!-- Unified Premium Header -->
-    <?php $header_theme_class = 'header-theme-sales'; ?>
-    <?php include 'includes/header.php'; ?>
+        <?php $header_theme_class = 'header-theme-sales'; ?>
+        <?php include 'includes/header.php'; ?>
 
 
         
     <!-- ═══ SALES HUB VIEW ═══ -->
-    <div id="sales-hub-view" style="display: flex; flex-direction: column; height: 100%; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 0 5px;">
+    <div id="sales-hub-view" class="animate-fade" style="display: flex; flex-direction: column; height: 100%; gap: 20px; padding: 0 5px;">
         <!-- Action Cards (فاتورة جديدة, تقسيم الفاتورة, تسليم, فاتورة مبدئية) -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-            <button onclick="openInvoiceEditor('pending_delivery')" class="hub-action-card card-blue">
+            <button onclick="openInvoiceEditor('pending_delivery')" class="hub-action-card card-blue animate-scale stagger-1">
                 <div class="icon">➕</div>
                 <div class="text-content">
                     <div class="title">فاتورة جديدة</div>
                     <div class="subtitle">إنشاء فاتورة مبيعات (بدون خصم مخزون)</div>
                 </div>
             </button>
-            <button onclick="openSplitInvoiceView()" class="hub-action-card card-pink">
+            <button onclick="openSplitInvoiceView()" class="hub-action-card card-pink animate-scale stagger-2">
                 <div class="icon">✂️</div>
                 <div class="text-content">
                     <div class="title">تقسيم الفاتورة</div>
                     <div class="subtitle">تقسيم فاتورة مبيعات إلى فاتورتين مستقلتين</div>
                 </div>
             </button>
-            <button onclick="openDeliveryHub()" class="hub-action-card card-green">
+            <button onclick="openDeliveryHub()" class="hub-action-card card-green animate-scale stagger-3">
                 <div class="icon">🚚</div>
                 <div class="text-content">
                     <div class="title">تسليم</div>

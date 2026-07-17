@@ -110,13 +110,20 @@ try {
     <meta charset="UTF-8">
     <title>مركز إدارة وتخصيص التنبيهات - السجانة ERP</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Cairo', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-6" style="background-color: #080c14;">
+<body class="bg-slate-950 text-slate-100 min-h-screen p-6">
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
 
     <!-- الرأس -->
     <div class="mb-8 border-b border-slate-800 pb-4 flex justify-between items-center">

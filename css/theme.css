@@ -228,34 +228,21 @@
   color: #000000 !important;
 }
 
-/* Vibrant Light Mode Header Gradients */
-:root.light-theme .premium-header.header-theme-dashboard {
-    background: linear-gradient(135deg, rgba(56,189,248,0.35), rgba(99,102,241,0.35), rgba(236,72,153,0.35), rgba(16,185,129,0.35)) !important;
+/* Vibrant Light Mode Header Glow Colors */
+:root.light-theme .premium-header {
+    background: rgba(255, 255, 255, 0.55) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
 }
-:root.light-theme .premium-header.header-theme-sales {
-    background: linear-gradient(135deg, rgba(163,230,53,0.45), rgba(250,204,21,0.45), rgba(249,115,22,0.45), rgba(56,189,248,0.45)) !important;
-}
-:root.light-theme .premium-header.header-theme-purchase {
-    background: linear-gradient(135deg, rgba(56,189,248,0.35), rgba(99,102,241,0.35), rgba(236,72,153,0.35), rgba(16,185,129,0.35)) !important;
-}
-:root.light-theme .premium-header.header-theme-inventory {
-    background: linear-gradient(135deg, rgba(245,158,11,0.45), rgba(251,191,36,0.45), rgba(217,119,6,0.45), rgba(252,211,77,0.45)) !important;
-}
-:root.light-theme .premium-header.header-theme-masterdata {
-    background: linear-gradient(135deg, rgba(139,92,246,0.35), rgba(217,70,239,0.35), rgba(168,85,247,0.35), rgba(192,132,252,0.35)) !important;
-}
-:root.light-theme .premium-header.header-theme-reports {
-    background: linear-gradient(135deg, rgba(244,63,94,0.45), rgba(249,115,22,0.45), rgba(245,158,11,0.45), rgba(251,113,133,0.45)) !important;
-}
-:root.light-theme .premium-header.header-theme-alarm {
-    background: linear-gradient(135deg, rgba(239,68,68,0.45), rgba(249,115,22,0.45), rgba(220,38,38,0.45), rgba(244,63,94,0.45)) !important;
-}
-:root.light-theme .premium-header.header-theme-settings {
-    background: linear-gradient(135deg, rgba(71,85,105,0.35), rgba(14,165,233,0.35), rgba(99,102,241,0.35), rgba(100,116,139,0.35)) !important;
-}
-:root.light-theme .premium-header.header-theme-audit {
-    background: linear-gradient(135deg, rgba(244,114,182,0.35), rgba(168,85,247,0.35), rgba(99,102,241,0.35), rgba(56,189,248,0.35)) !important;
-}
+:root.light-theme .premium-header.header-theme-dashboard { --glow-color: rgba(99, 102, 241, 0.8); }
+:root.light-theme .premium-header.header-theme-sales { --glow-color: rgba(16, 185, 129, 0.8); }
+:root.light-theme .premium-header.header-theme-purchase { --glow-color: rgba(168, 85, 247, 0.8); }
+:root.light-theme .premium-header.header-theme-inventory { --glow-color: rgba(245, 158, 11, 0.8); }
+:root.light-theme .premium-header.header-theme-masterdata { --glow-color: rgba(217, 70, 239, 0.8); }
+:root.light-theme .premium-header.header-theme-reports { --glow-color: rgba(20, 184, 166, 0.8); }
+:root.light-theme .premium-header.header-theme-alarm { --glow-color: rgba(239, 68, 68, 0.8); }
+:root.light-theme .premium-header.header-theme-settings { --glow-color: rgba(100, 116, 139, 0.8); }
+:root.light-theme .premium-header.header-theme-audit { --glow-color: rgba(244, 114, 182, 0.8); }
 
 /* Light Theme Header Controls Glassmorphism */
 :root.light-theme .user-info,
@@ -757,92 +744,71 @@ select option {
    UNIFIED PREMIUM HEADER - Standardized Across All Pages
    ═══════════════════════════════════════════════════════ */
 .premium-header {
-    background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(99, 102, 241, 0.15), rgba(236, 72, 153, 0.15), rgba(16, 185, 129, 0.15));
-    background-size: 300% 300%;
-    backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 20px;
-    padding: 12px 20px;
+    --glow-color: rgba(99, 102, 241, 0.65); /* لون الوهج الافتراضي */
+    background: rgba(15, 23, 42, 0.45) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 16px !important; /* نفس انحناء بطاقات الأرصدة */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255,255,255,0.03) !important;
+    
+    position: relative !important;
+    overflow: hidden !important;
+    z-index: 10 !important;
+    
+    /* توحيد الهوامش */
+    margin-top: 20px !important;
+    margin-bottom: 25px !important;
+    width: 100%;
+    height: 110px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 110px;
+    padding: 12px 20px;
     box-sizing: border-box;
-    width: 100%;
     flex-shrink: 0;
-    margin-top: 4px !important;
-    margin-bottom: 15px;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 1px rgba(0,0,0,0.3);
-    animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1), animateGradient 12s ease infinite;
-    position: relative;
-    overflow: hidden;
+    
+    /* إضافة الانتقال السلس للمؤثرات */
+    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+    animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
+/* تأثير التحليق ملغى بناءً على طلبك - الترويسة ثابتة تماماً */
+
+/* الطبقة العلوية المضيئة الثابتة */
+.premium-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--glow-color, rgba(255,255,255,0.5)), transparent);
+    opacity: 0.5;
+}
+
+/* توهج خلفي ناعم ثابت */
 .premium-header::after {
     content: '';
     position: absolute;
-    top: 0; left: -100%;
-    width: 40%; height: 100%;
-    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
-    transform: skewX(-25deg);
-    animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 60%; height: 100%;
+    background: radial-gradient(ellipse at top, var(--glow-color, rgba(255,255,255,0.15)) 0%, transparent 70%);
+    opacity: 0.5;
     pointer-events: none;
-}
-
-@keyframes animateGradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    z-index: -1;
 }
 
 @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
-/* --- Page-Specific Header Color Themes --- */
-/* Dashboard: Blue / Indigo / Pink / Green */
-.premium-header.header-theme-dashboard {
-    background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(99,102,241,0.15), rgba(236,72,153,0.15), rgba(16,185,129,0.15));
-    background-size: 300% 300%;
-}
-/* Sales: Lime / Yellow / Orange / Blue */
-.premium-header.header-theme-sales {
-    background: linear-gradient(135deg, rgba(163,230,53,0.15), rgba(250,204,21,0.15), rgba(249,115,22,0.15), rgba(56,189,248,0.15));
-    background-size: 300% 300%;
-}
-/* Purchase: Blue / Indigo / Pink / Green */
-.premium-header.header-theme-purchase {
-    background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(99,102,241,0.15), rgba(236,72,153,0.15), rgba(16,185,129,0.15));
-    background-size: 300% 300%;
-}
-/* Inventory: Amber / Gold */
-.premium-header.header-theme-inventory {
-    background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(251,191,36,0.15), rgba(217,119,6,0.15), rgba(252,211,77,0.15));
-    background-size: 300% 300%;
-}
-/* Master Data: Purple / Violet */
-.premium-header.header-theme-masterdata {
-    background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(217,70,239,0.15), rgba(168,85,247,0.15), rgba(192,132,252,0.15));
-    background-size: 300% 300%;
-}
-/* Financial Reports: Red / Orange / Amber / Rose */
-.premium-header.header-theme-reports {
-    background: linear-gradient(135deg, rgba(244,63,94,0.15), rgba(249,115,22,0.15), rgba(245,158,11,0.15), rgba(251,113,133,0.15));
-    background-size: 300% 300%;
-}
-/* Alarm: Red / Orange / Crimson / Rose */
-.premium-header.header-theme-alarm {
-    background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(249,115,22,0.15), rgba(220,38,38,0.15), rgba(244,63,94,0.15));
-    background-size: 300% 300%;
-}
-/* Settings: Slate / Sky / Indigo */
-.premium-header.header-theme-settings {
-    background: linear-gradient(135deg, rgba(71,85,105,0.15), rgba(14,165,233,0.15), rgba(99,102,241,0.15), rgba(100,116,139,0.15));
-    background-size: 300% 300%;
-}
-/* Audit Log: Pink / Purple / Indigo / Blue */
-.premium-header.header-theme-audit {
-    background: linear-gradient(135deg, rgba(244,114,182,0.15), rgba(168,85,247,0.15), rgba(99,102,241,0.15), rgba(56,189,248,0.15));
-    background-size: 300% 300%;
-}
+/* --- Page-Specific Header Color Themes (Glows only, keeping premium 0.45 transparent background) --- */
+.premium-header.header-theme-dashboard { --glow-color: rgba(99, 102, 241, 0.65); }
+.premium-header.header-theme-sales { --glow-color: rgba(16, 185, 129, 0.65); }
+.premium-header.header-theme-purchase { --glow-color: rgba(168, 85, 247, 0.65); }
+.premium-header.header-theme-inventory { --glow-color: rgba(245, 158, 11, 0.65); }
+.premium-header.header-theme-masterdata { --glow-color: rgba(217, 70, 239, 0.65); }
+.premium-header.header-theme-reports { --glow-color: rgba(20, 184, 166, 0.65); }
+.premium-header.header-theme-alarm { --glow-color: rgba(239, 68, 68, 0.65); }
+.premium-header.header-theme-settings { --glow-color: rgba(100, 116, 139, 0.65); }
+.premium-header.header-theme-audit { --glow-color: rgba(244, 114, 182, 0.65); }
 
 /* Responsive Header */
 @media (max-width: 768px) {

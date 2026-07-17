@@ -431,8 +431,8 @@
     <div id="save-badge" class="save-badge">✅ تم حفظ الإعدادات بنجاح</div>
 
     <!-- Unified Premium Header -->
-    <?php $header_theme_class = 'header-theme-settings'; ?>
-    <?php include 'includes/header.php'; ?>
+        <?php $header_theme_class = 'header-theme-settings'; ?>
+        <?php include 'includes/header.php'; ?>
 
     <!-- Tabs Navigation -->
     <div class="tabs-nav">

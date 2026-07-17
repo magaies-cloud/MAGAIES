@@ -131,7 +131,7 @@ if (empty($netting_report)) {
             --text-main: #ffffff;
             --text-muted: #a0aec0;
         }
-        body { background-color: var(--bg-dark); color: var(--text-main); font-family: 'Cairo', sans-serif; padding: 30px; background-image: radial-gradient(circle at top left, rgba(0, 255, 255, 0.08), transparent 40%); }
+        body { color: var(--text-main); font-family: 'Cairo', sans-serif; padding: 30px; }
         .glass-panel { background: var(--panel-bg); backdrop-filter: blur(15px); border: 1px solid var(--border-neon); border-radius: 24px; padding: 30px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .btn-back { background: transparent; color: var(--text-muted); border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 16px; border-radius: 12px; text-decoration: none; font-size: 13px; }
@@ -146,6 +146,11 @@ if (empty($netting_report)) {
     </style>
 </head>
 <body>
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
     <div class="glass-panel">
         <div class="header">
             <div>

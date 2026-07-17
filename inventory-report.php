@@ -326,7 +326,7 @@
     <div class="dashboard-container">
 
         <!-- Premium Header for Inventory -->
-        <?php $header_theme_class = 'header-theme-inventory'; ?>
+                <?php $header_theme_class = 'header-theme-inventory'; ?>
         <?php include 'includes/header.php'; ?>
 
         <!-- Navigation and Actions Row -->

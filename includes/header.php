@@ -106,6 +106,11 @@
                 const target = e.target;
                 if (typeof target.closest !== 'function') return;
 
+                // التقييد: تفعيل زر الرجوع للخلف عند الضغط في المساحات الفارغة داخل الترويسة والشريط الجانبي فقط
+                if (!target.closest('.global-sidebar') && !target.closest('.premium-header')) {
+                    return; // تجاهل النقرات في أي مكان آخر (مثل شاشة التقارير أو الحاويات الرئيسية)
+                }
+
                 // Protect ONLY interactive elements. We want background/empty areas to trigger 'back'
                 const interactiveSelectors = [
                     'button', 'input', 'select', 'textarea', 'a', 'label', 'table', 'form',

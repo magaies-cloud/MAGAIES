@@ -623,8 +623,94 @@
         :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
         :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
         :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
-\n</style>
+\n
+        /* =======================================================================
+           تعديلات التبسيط الجمالي لتوحيد التصميم وجعله مريحاً للعين (حذف النيون والألوان الصارخة)
+           ======================================================================= */
+        .neon-border-primary,
+        .neon-border-success,
+        .neon-border-warning,
+        .neon-border-danger,
+        .neon-border-purple {
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+
+        :root.light-theme .neon-border-primary,
+        :root.light-theme .neon-border-success,
+        :root.light-theme .neon-border-warning,
+        :root.light-theme .neon-border-danger,
+        :root.light-theme .neon-border-purple {
+            border: 1px solid rgba(0, 0, 0, 0.06) !important;
+            border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+        }
+
+        .quick-action-btn, .admin-action-btn {
+            border-bottom: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important;
+        }
+
+        .quick-action-btn:hover, .admin-action-btn:hover {
+            transform: translateY(-2px) !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            border-color: rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25) !important;
+            color: #fff !important;
+            animation: none !important;
+        }
+
+        .qa-primary, .qa-warning, .qa-success, .qa-danger, .qa-purple,
+        .admin-action-settings, .admin-action-master, .admin-action-jobs, .admin-action-notifications {
+            border-bottom: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+        }
+        
+        .qa-primary:hover, .qa-warning:hover, .qa-success:hover, .qa-danger:hover, .qa-purple:hover,
+        .admin-action-settings:hover, .admin-action-master:hover, .admin-action-jobs:hover, .admin-action-notifications:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: #fff !important;
+            border-color: rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25) !important;
+        }
+
+        :root.light-theme .quick-action-btn, 
+        :root.light-theme .admin-action-btn,
+        :root.light-theme .qa-primary, 
+        :root.light-theme .qa-warning, 
+        :root.light-theme .qa-success, 
+        :root.light-theme .qa-danger, 
+        :root.light-theme .qa-purple,
+        :root.light-theme .admin-action-settings, 
+        :root.light-theme .admin-action-master, 
+        :root.light-theme .admin-action-jobs, 
+        :root.light-theme .admin-action-notifications {
+            background: #ffffff !important;
+            color: #1e293b !important;
+            border: 1px solid rgba(0, 0, 0, 0.08) !important;
+            border-bottom: 1.5px solid rgba(0, 0, 0, 0.12) !important;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04) !important;
+        }
+        
+        :root.light-theme .quick-action-btn:hover, 
+        :root.light-theme .admin-action-btn:hover,
+        :root.light-theme .qa-primary:hover, 
+        :root.light-theme .qa-warning:hover, 
+        :root.light-theme .qa-success:hover, 
+        :root.light-theme .qa-danger:hover, 
+        :root.light-theme .qa-purple:hover,
+        :root.light-theme .admin-action-settings:hover, 
+        :root.light-theme .admin-action-master, 
+        :root.light-theme .admin-action-jobs, 
+        :root.light-theme .admin-action-notifications {
+            background: rgba(0, 0, 0, 0.02) !important;
+            color: #0f172a !important;
+            border-color: rgba(0, 0, 0, 0.18) !important;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06) !important;
+        }
     
+</style>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
@@ -638,7 +724,7 @@
     <div class="dash-main">
 
         <!-- Unified Premium Header -->
-        <?php $header_theme_class = 'header-theme-dashboard'; ?>
+                <?php $header_theme_class = 'header-theme-dashboard'; ?>
         <?php include 'includes/header.php'; ?>
 
         <!-- Ultra Premium Instant Financial Ticker -->
@@ -677,7 +763,7 @@
                 </div>
                 <div style="display: flex; gap: 12px; flex-wrap: wrap; flex: 1;">
                     <a data-href="settings.php" onclick="window.location.href='settings.php'" class="admin-action-btn admin-action-settings" style="flex: 1; justify-content: center; white-space: nowrap;">
-                        <span class="qa-icon">⚙️</span> الإعدادات
+                        <span class="qa-icon"><i class="fa-solid fa-cog"></i></span> الإعدادات
                     </a>
                     
                     <a data-href="master-data.php" onclick="window.location.href='master-data.php'" class="admin-action-btn admin-action-master" style="flex: 1; justify-content: center; white-space: nowrap;">
@@ -685,11 +771,11 @@
                     </a>
                     
                     <a data-href="jobs.php" onclick="window.location.href='jobs.php'" class="admin-action-btn admin-action-jobs" style="flex: 1; justify-content: center; white-space: nowrap;">
-                        <span class="qa-icon">💼</span> المهام
+                        <span class="qa-icon"><i class="fa-solid fa-briefcase"></i></span> المهام
                     </a>
                     
                     <a onclick="toggleNotifications()" class="admin-action-btn admin-action-notifications" style="flex: 1; justify-content: center; white-space: nowrap; cursor: pointer; position: relative;">
-                        <span class="qa-icon">🔔</span> التنبيهات
+                        <span class="qa-icon"><i class="fa-solid fa-bell"></i></span> التنبيهات
                         <span id="notif-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: var(--theme-red); color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.65rem; font-weight: bold; border: 1px solid #fff;">0</span>
                     </a>
                 </div>
@@ -698,35 +784,35 @@
             <!-- Row 2: العمليات الحالية والمبيعات والمشتريات -->
             <div class="operations-actions-row">
                 <div class="actions-row-title" style="min-width: auto; padding-left: 15px;">
-                    <span>📊</span>
+                    <span><i class="fa-solid fa-bars-progress"></i></span>
                 </div>
                 <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; flex-wrap: nowrap; flex: 1;">
                     <a data-href="direct-sales.php" onclick="window.location.href='direct-sales.php'" class="quick-action-btn qa-primary" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px;">
-                        <span class="qa-icon">⚡</span> مبيعات
+                        <span class="qa-icon"><i class="fa-solid fa-file-invoice-dollar"></i></span> مبيعات
                     </a>
                     
                     <a data-href="purchase.php" onclick="window.location.href='purchase.php'" class="quick-action-btn qa-warning" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px;">
-                        <span class="qa-icon">📦</span> مشتريات
+                        <span class="qa-icon"><i class="fa-solid fa-cart-shopping"></i></span> مشتريات
                     </a>
                     
                     <a data-href="vouchers-hub.php" onclick="window.location.href='vouchers-hub.php'" class="quick-action-btn qa-danger" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px;">
-                        <span class="qa-icon">💸</span> المعاملات المالية
+                        <span class="qa-icon"><i class="fa-solid fa-money-bill-transfer"></i></span> المعاملات المالية
                     </a>
                     
                     <a data-href="checks-cycle.php" onclick="window.location.href='checks-cycle.php'" class="quick-action-btn qa-warning" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px;">
-                        <span class="qa-icon">🧾</span> شيكات
+                        <span class="qa-icon"><i class="fa-solid fa-money-check"></i></span> شيكات
                     </a>
                     
                     <a data-href="analytics.php" onclick="window.location.href='analytics.php'" class="quick-action-btn qa-purple" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px;">
-                        <span class="qa-icon">📊</span> تقارير مالية
+                        <span class="qa-icon"><i class="fa-solid fa-chart-line"></i></span> تقارير مالية
                     </a>
 
                     <a data-href="smart_reports_hub.php" onclick="window.location.href='smart_reports_hub.php'" class="quick-action-btn qa-purple" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px; background: rgba(168, 85, 247, 0.15); border-bottom: 2px solid #a855f7;">
-                        <span class="qa-icon">✨</span> التقارير الذكية V2
+                        <span class="qa-icon"><i class="fa-solid fa-brain"></i></span> التقارير الذكية V2
                     </a>
                     
                     <a data-href="inventory-report.php" onclick="window.location.href='inventory-report.php'" class="quick-action-btn" style="flex: 1 1 auto; justify-content: center; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px; border-bottom: 2px solid #a78bfa;">
-                        <span class="qa-icon">📦</span> المخازن
+                        <span class="qa-icon"><i class="fa-solid fa-boxes-stacked"></i></span> المخازن
                     </a>
                 </div>
             </div>
@@ -737,9 +823,9 @@
             <div class="glass-panel spotlight-card neon-border-primary">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span class="kpi-title">مبيعات اليوم</span>
-                    <div class="kpi-icon-bg" style="background: rgba(59, 130, 246, 0.1);"><span>🛒</span></div>
+                    <div class="kpi-icon-bg" style="background: rgba(59, 130, 246, 0.1);"><i class="fa-solid fa-cash-register text-sky-400"></i></div>
                 </div>
-                <h3 id="kpi-sales" class="kpi-val" style="color: var(--theme-blue);">0 SDG</h3>
+                <h3 id="kpi-sales" class="kpi-val">0 SDG</h3>
                 <div class="kpi-desc" style="color:#34d399;">↑ 15% مقارنة بالأمس</div>
             </div>
             
@@ -755,16 +841,16 @@
             <div class="glass-panel spotlight-card neon-border-warning">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span class="kpi-title">إجمالي المخزون</span>
-                    <div class="kpi-icon-bg" style="background: rgba(245, 158, 11, 0.1);"><span>📦</span></div>
+                    <div class="kpi-icon-bg" style="background: rgba(245, 158, 11, 0.1);"><i class="fa-solid fa-warehouse text-amber-400"></i></div>
                 </div>
-                <h3 id="kpi-inventory" class="kpi-val" style="color: var(--theme-orange);">0 صنف</h3>
+                <h3 id="kpi-inventory" class="kpi-val">0 صنف</h3>
                 <div id="kpi-warehouses-count" class="kpi-desc" style="color:#fbbf24;">موزعة على 3 مخازن</div>
             </div>
             
             <div class="glass-panel spotlight-card neon-border-danger">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span class="kpi-title">تنبيهات مخزون</span>
-                    <div class="kpi-icon-bg" style="background: rgba(248, 113, 113, 0.1);"><span>⚠️</span></div>
+                    <div class="kpi-icon-bg" style="background: rgba(248, 113, 113, 0.1);"><i class="fa-solid fa-triangle-exclamation text-rose-400"></i></div>
                 </div>
                 <h3 id="kpi-alerts" class="kpi-val" style="color: var(--theme-red);">0 أصناف</h3>
                 <div class="kpi-desc" style="color:#f87171;">تحتاج لإعادة طلب سريع</div>
@@ -775,29 +861,29 @@
         <div class="charts-grid">
             <!-- Cashflow -->
             <div class="glass-panel neon-border-success">
-                <h3 style="color: var(--theme-green);">💹 التدفق النقدي (أسبوعي)</h3>
+                <h3><i class="fa-solid fa-money-bill-trend-up text-emerald-400" style="margin-left: 8px;"></i> التدفق النقدي (أسبوعي)</h3>
                 <div class="chart-container"><canvas id="cashflowChart"></canvas></div>
             </div>
             <!-- Sales Distribution -->
             <div class="glass-panel neon-border-primary">
-                <h3 style="color: var(--theme-blue);">📊 توزيع المبيعات حسب الفئة</h3>
+                <h3><i class="fa-solid fa-chart-pie text-sky-400" style="margin-left: 8px;"></i> توزيع المبيعات حسب الفئة</h3>
                 <div class="chart-container"><canvas id="categoryChart"></canvas></div>
             </div>
             <!-- Inventory Radar -->
             <div class="glass-panel neon-border-warning">
-                <h3 style="color: var(--theme-orange);">🎯 حالة المخزون (الرادار)</h3>
+                <h3><i class="fa-solid fa-bullseye text-amber-400" style="margin-left: 8px;"></i> حالة المخزون (الرادار)</h3>
                 <div class="chart-container"><canvas id="inventoryChart"></canvas></div>
             </div>
             <!-- Warehouses Capacity -->
             <div class="glass-panel neon-border-danger">
-                <h3 style="color: var(--theme-red);">🏢 السعة التخزينية للمخازن</h3>
+                <h3><i class="fa-solid fa-warehouse text-rose-400" style="margin-left: 8px;"></i> السعة التخزينية للمخازن</h3>
                 <div class="chart-container"><canvas id="warehousesChart"></canvas></div>
             </div>
         </div>
 
         <!-- Top Customers full-width -->
         <div class="glass-panel neon-border-purple" style="padding: 20px;">
-            <h3 style="color: var(--theme-purple);">👥 المديونية وسقف الائتمان</h3>
+            <h3><i class="fa-solid fa-users-viewfinder text-purple-400" style="margin-left: 8px;"></i> المديونية وسقف الائتمان</h3>
             <div class="chart-container" style="height:280px;"><canvas id="customersChart"></canvas></div>
         </div>
 
@@ -805,7 +891,7 @@
         <div class="bottom-section">
             <!-- Recent Transactions -->
             <div class="glass-panel neon-border-primary">
-                <h3>📋 أحدث العمليات</h3>
+                <h3><i class="fa-solid fa-clock-rotate-left text-sky-400" style="margin-left: 8px;"></i> أحدث العمليات</h3>
                 <div style="overflow-x:auto;">
                     <table class="premium-table">
                         <thead>
@@ -824,7 +910,7 @@
 
             <!-- Unreceived Permissions (Pending Deliveries) -->
             <div class="glass-panel neon-border-warning">
-                <h3>⏳ أذونات لم تستلم (قيد الانتظار)</h3>
+                <h3><i class="fa-solid fa-hourglass-half text-amber-400" style="margin-left: 8px;"></i> أذونات لم تستلم (قيد الانتظار)</h3>
                 <div id="pending-deliveries-list" style="display:flex; flex-direction:column; gap:12px;">
                     <!-- Populated by JS -->
                 </div>
@@ -832,15 +918,15 @@
 
             <!-- Low Stock Alerts -->
             <div class="glass-panel neon-border-danger">
-                <h3>🔴 تنبيهات المخزون (نواقص)</h3>
+                <h3><i class="fa-solid fa-triangle-exclamation text-rose-400" style="margin-left: 8px;"></i> تنبيهات المخزون (نواقص)</h3>
                 <div id="low-stock-list" style="display:flex; flex-direction:column; gap:12px;"></div>
             </div>
         </div>
 
         <!-- Sajana Protocol (Social & Security) -->
         <div class="glass-panel" style="text-align:center; border: 1px solid rgba(56,189,248,0.2); background: linear-gradient(to right, rgba(15,23,42,0.6), rgba(30,41,59,0.4)); padding: 20px;">
-            <h3 style="margin:0 0 15px; font-size:1.1rem; color:var(--theme-blue); font-weight:900; justify-content: center;">
-                🛡️ بروتوكول مقاييس الدولي - نظام الحماية
+            <h3 style="margin:0 0 15px; font-size:1.1rem; font-weight:900; justify-content: center;">
+                <i class="fa-solid fa-shield-halved text-sky-400" style="margin-left: 8px;"></i> بروتوكول مقاييس الدولي - نظام الحماية
             </h3>
             
             <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
@@ -856,7 +942,7 @@
     <!-- Notifications Modal Overlay -->
     <div id="notifications-dropdown" style="display:none; position:fixed; top:0; left:0; width: 100%; height:100vh; background:rgba(5,3,8,0.85); backdrop-filter:blur(10px); z-index:9999; justify-content:center; align-items:center; opacity:0; transition: opacity 0.3s ease;" onclick="toggleNotifications()">
         <div class="glass-panel" style="width:90%; max-width:450px; max-height:80vh; overflow-y:auto; padding:25px; border:1px solid rgba(255,255,255,0.1); border-radius:20px; position:relative; box-shadow: 0 25px 50px rgba(0,0,0,0.5);" onclick="event.stopPropagation()">
-            <h3 style="margin:0 0 15px 0; padding-bottom:15px; border-bottom:1px dashed rgba(255,255,255,0.1); color:#fff; font-size:1.1rem; text-align:center; font-weight: 800; justify-content: center;">🔔 إشعارات المديونيات</h3>
+            <h3 style="margin:0 0 15px 0; padding-bottom:15px; border-bottom:1px dashed rgba(255,255,255,0.1); color:#fff; font-size:1.1rem; text-align:center; font-weight: 800; justify-content: center;"><i class="fa-solid fa-bell text-rose-400" style="margin-left: 8px;"></i> إشعارات المديونيات</h3>
             <div id="notif-list" style="display:flex; flex-direction:column; gap:12px;">
                 <div style="color:var(--text-secondary); text-align:center; font-size:0.85rem; padding:15px;">لا توجد إشعارات حالياً</div>
             </div>

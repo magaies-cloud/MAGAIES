@@ -5,13 +5,30 @@
 // ====================================================================
 
 $selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
+$page_title = 'بوابة التقارير الذكية V2';
+$header_theme_class = 'header-theme-reports';
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <script src="js/lang.js"></script>
+    <script>
+    (function(){
+        var l = localStorage.getItem('erp_lang') || 'ar';
+        if(l==='en') {
+            document.documentElement.setAttribute('dir','ltr');
+            document.documentElement.setAttribute('lang','en');
+        }
+    })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>بوابة التقارير الذكية العالمية | Al-Sajana ERP</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="js/app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -23,19 +40,28 @@ $selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
         }
 
         body {
-            background-color: var(--bg-dark);
             color: var(--text-main);
             font-family: 'Cairo', sans-serif;
             margin: 0;
-            padding: 40px 20px;
-            background-image: radial-gradient(circle at 10% 20%, rgba(255, 0, 127, 0.1) 0%, transparent 40%),
-                              radial-gradient(circle at 90% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 40%);
-            background-attachment: fixed;
+            background-color: var(--bg-dark);
+            overflow-x: hidden;
+        }
+
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 20% 30%, rgba(0, 255, 255, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(255, 0, 127, 0.08) 0%, transparent 50%);
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px; /* توسيع الحاوية قليلاً */
             margin: 0 auto;
+            padding: 40px 40px; /* هوامش داخلية ممتازة من جميع الجهات */
         }
 
         /* هيدر ترحيبي فخم */
@@ -59,6 +85,7 @@ $selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
             font-size: 15px;
             margin: 0;
         }
+
 
         /* شبكة الأيقونات والتقارير الذكية */
         .reports-grid {
@@ -194,16 +221,304 @@ $selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
             50% { transform: scale(1.2); opacity: 1; }
             100% { transform: scale(0.85); opacity: 0.5; }
         }
+
+        /* ===== مؤثرات حركية احترافية ===== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .welcome-header {
+            animation: fadeIn 1s ease-out;
+        }
+
+        .currency-selector {
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .report-card {
+            opacity: 0;
+            animation: fadeInUp 0.7s ease-out forwards;
+        }
+
+        /* تأخير متتابع لكل كرت */
+        .report-card:nth-child(1) { animation-delay: 0.05s; }
+        .report-card:nth-child(2) { animation-delay: 0.1s; }
+        .report-card:nth-child(3) { animation-delay: 0.15s; }
+        .report-card:nth-child(4) { animation-delay: 0.2s; }
+        .report-card:nth-child(5) { animation-delay: 0.25s; }
+        .report-card:nth-child(6) { animation-delay: 0.3s; }
+        .report-card:nth-child(7) { animation-delay: 0.35s; }
+        .report-card:nth-child(8) { animation-delay: 0.4s; }
+        .report-card:nth-child(9) { animation-delay: 0.45s; }
+        .report-card:nth-child(10) { animation-delay: 0.5s; }
+        .report-card:nth-child(11) { animation-delay: 0.55s; }
+        .report-card:nth-child(12) { animation-delay: 0.6s; }
+        .report-card:nth-child(13) { animation-delay: 0.65s; }
+        .report-card:nth-child(14) { animation-delay: 0.7s; }
+        .report-card:nth-child(15) { animation-delay: 0.75s; }
+        .report-card:nth-child(16) { animation-delay: 0.8s; }
+
+        /* توهج الأيقونة عند التحويم */
+        .report-card:hover .card-icon {
+            animation: float 2s ease-in-out infinite;
+        }
+
+        /* بريق متحرك على الشارة */
+        .report-card:hover .ai-badge {
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite linear;
+        }
+
+        /* تأثير توهج نيون خلف الكرت */
+        .report-card:hover::after {
+            content: '';
+            position: absolute;
+            top: -1px; left: -1px; right: -1px; bottom: -1px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, var(--accent-color), transparent, var(--accent-color));
+            opacity: 0.15;
+            z-index: -1;
+            filter: blur(15px);
+        }
+
+        /* زر العملة - انتقال سلس */
+        .curr-btn {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .curr-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        /* جزيئات الخلفية المتحركة */
+        .particles {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden;
+        }
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: particleFloat linear infinite;
+            filter: blur(1px);
+        }
+        @keyframes particleFloat {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+.card-icon {
+            font-size: 45px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px var(--accent-color));
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .card-desc {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        .ai-badge {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* تحكم بالعملة */
+        .currency-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .curr-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+            padding: 8px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .curr-btn.active {
+            background: linear-gradient(135deg, #00ffff, #ff007f);
+            color: #000;
+            border: none;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+        }
+
+        .live-badge {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: rgba(0, 255, 127, 0.08);
+            color: #00ff7f;
+            border: 1px solid rgba(0, 255, 127, 0.15);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 10.5px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background-color: #00ff7f;
+            border-radius: 50%;
+            animation: pulse 1.8s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.85); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.85); opacity: 0.5; }
+        }
+
+        /* ===== مؤثرات حركية احترافية ===== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .welcome-header {
+            animation: fadeIn 1s ease-out;
+        }
+
+        .currency-selector {
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .report-card {
+            opacity: 0;
+            animation: fadeInUp 0.7s ease-out forwards;
+        }
+
+        /* تأخير متتابع لكل كرت */
+        .report-card:nth-child(1) { animation-delay: 0.05s; }
+        .report-card:nth-child(2) { animation-delay: 0.1s; }
+        .report-card:nth-child(3) { animation-delay: 0.15s; }
+        .report-card:nth-child(4) { animation-delay: 0.2s; }
+        .report-card:nth-child(5) { animation-delay: 0.25s; }
+        .report-card:nth-child(6) { animation-delay: 0.3s; }
+        .report-card:nth-child(7) { animation-delay: 0.35s; }
+        .report-card:nth-child(8) { animation-delay: 0.4s; }
+        .report-card:nth-child(9) { animation-delay: 0.45s; }
+        .report-card:nth-child(10) { animation-delay: 0.5s; }
+        .report-card:nth-child(11) { animation-delay: 0.55s; }
+        .report-card:nth-child(12) { animation-delay: 0.6s; }
+        .report-card:nth-child(13) { animation-delay: 0.65s; }
+        .report-card:nth-child(14) { animation-delay: 0.7s; }
+        .report-card:nth-child(15) { animation-delay: 0.75s; }
+        .report-card:nth-child(16) { animation-delay: 0.8s; }
+
+        /* توهج الأيقونة عند التحويم */
+        .report-card:hover .card-icon {
+            animation: float 2s ease-in-out infinite;
+        }
+
+        /* بريق متحرك على الشارة */
+        .report-card:hover .ai-badge {
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite linear;
+        }
+
+        /* تأثير توهج نيون خلف الكرت */
+        .report-card:hover::after {
+            content: '';
+            position: absolute;
+            top: -1px; left: -1px; right: -1px; bottom: -1px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, var(--accent-color), transparent, var(--accent-color));
+            opacity: 0.15;
+            z-index: -1;
+            filter: blur(15px);
+        }
+
+        /* زر العملة - انتقال سلس */
+        .curr-btn {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .curr-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="container" style="position: relative; z-index: 1;">
+        
+        <?php $header_theme_class = 'header-theme-reports'; ?>
         
         <!-- الهيدر الترحيبي -->
         <div class="welcome-header">
             <h1>مركز التقارير المحاسبية والذكاء المالي V2</h1>
-            <p>تقارير جيل 2026 تم تدقيقها وتطويرها بواسطة خبراء الأنظمة والمحاسبة الدولية لتمنحك رؤية فورية لأسواق السجانة.</p>
+            <p>تقارير جيل 2026 تم تدقيقها وتطويرها بواسطة خبراء الأنظمة والمحاسبة الدولية لتمنحك رؤية فورية.</p>
         </div>
 
         <!-- أداة تبديل العملة الفورية لدعم الجنيه السوداني والدولار الأمريكي -->
@@ -359,9 +674,86 @@ $selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
                 <div class="ai-badge">● محرك التحكم في التنبيهات</div>
             </a>
 
+            <!-- 16. معدل دوران الزبائن -->
+            <a href="customer_churn.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #f97316; --shadow-color: 249, 115, 22;">
+                <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
+                <div class="card-icon">🏃‍♂️</div>
+                <div class="card-title">معدل دوران وانقطاع الزبائن</div>
+                <div class="card-desc">اكتشاف العملاء المنقطعين وتحديد درجة خطورة فقدانهم بناءً على آخر نشاط بيعي.</div>
+                <div class="ai-badge">● محلل خطر الانقطاع</div>
+            </a>
+
+            <!-- 17. استهلاك الأصناف الموسمية -->
+            <a href="seasonal_trends.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #14b8a6; --shadow-color: 20, 184, 166;">
+                <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
+                <div class="card-icon">🌦️</div>
+                <div class="card-title">استهلاك الأصناف الموسمية</div>
+                <div class="card-desc">تحليل سحب الحديد والأسمنت وتأثيره على التدفقات النقدية الداخلة والخارجة حسب أشهر السنة.</div>
+                <div class="ai-badge">● متتبع المواسم</div>
+            </a>
+
+            <!-- 18. تقرير انحراف السعر -->
+            <a href="price_variance.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #f59e0b; --shadow-color: 245, 158, 11;">
+                <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
+                <div class="card-icon">📉</div>
+                <div class="card-title">احترافية التسعير وانحراف السعر</div>
+                <div class="card-desc">مراقبة الفواتير والخصومات اليدوية وفروقات الأسعار لنفس الأصناف لمعرفة أعلى وأقل سعر.</div>
+                <div class="ai-badge">● مراقب هوامش البيع</div>
+            </a>
+
+            <!-- 19. مصفوفة تكرار الزيارة والولاء -->
+            <a href="customer_engagement.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #06b6d4; --shadow-color: 6, 182, 212;">
+                <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
+                <div class="card-icon">💎</div>
+                <div class="card-title">مصفوفة تكرار الزيارة والولاء</div>
+                <div class="card-desc">تصنيف الزبائن (VIP، مستمر، عابر) بناءً على حجم التعامل وعدد الزيارات لتقديم خصومات ذكية.</div>
+                <div class="ai-badge">● مصنف ولاء العملاء</div>
+            </a>
+
         </div>
 
     </div>
+
+    <script>
+    // === إنشاء جزيئات الخلفية المتحركة بخصائص متطورة ===
+    (function() {
+        const container = document.getElementById('particles');
+        // مجموعة ألوان غنية وموسعة للوهج
+        const colors = [
+            '#00ffff', '#ff007f', '#00ff7f', '#ffa500', '#9d4edd', 
+            '#3b82f6', '#ec4899', '#fcd34d', '#14b8a6', '#8b5cf6', '#ef4444'
+        ];
+        
+        // زيادة عدد الجزيئات لتأثير أكثف
+        for (let i = 0; i < 40; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            
+            // توزيع عشوائي أفقياً
+            p.style.left = Math.random() * 100 + '%';
+            
+            // اختيار لون عشوائي
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            p.style.backgroundColor = color;
+            
+            // تأثير التوهج اللوني (Neon Glow)
+            p.style.boxShadow = '0 0 12px ' + color + ', 0 0 20px ' + color;
+            
+            // سرعة متفاوته لتأثير واقعي (من 10 إلى 30 ثانية للنزول)
+            p.style.animationDuration = (10 + Math.random() * 20) + 's';
+            
+            // تأخير عشوائي كي لا تنزل كلها في وقت واحد
+            p.style.animationDelay = (Math.random() * 15) + 's';
+            
+            // حجم أكبر للجزيئات (بين 4 بكسل و 12 بكسل)
+            const size = (4 + Math.random() * 8) + 'px';
+            p.style.width = size;
+            p.style.height = size;
+            
+            container.appendChild(p);
+        }
+    })();
+    </script>
 
 </body>
 </html>

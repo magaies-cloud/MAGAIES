@@ -1594,8 +1594,8 @@
         <div class="orb orb-3"></div>
     </div>
     
-    <?php $header_theme_class = 'header-theme-purchase'; ?>
-    <?php include 'includes/header.php'; ?>
+        <?php $header_theme_class = 'header-theme-purchase'; ?>
+        <?php include 'includes/header.php'; ?>
 
     <!-- ═══ PURCHASE HUB VIEW ═══ -->
     <div id="purchase-hub-view" style="display: flex; flex-direction: column; flex: 1; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 10px 0; max-width: 100%; margin: 0; overflow-y: auto;">
