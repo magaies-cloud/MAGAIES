@@ -18,6 +18,7 @@ $monthly_outflows = [];
 $labels = [];
 
 $db_connected = false;
+$is_mock_data = false; // علامة البيانات التجريبية
 
 try {
     @include_once __DIR__ . '/api/db.php';
@@ -46,11 +47,6 @@ try {
             if (!isset($inflows[$date])) $inflows[$date] = 0;
             $d = json_decode($row['data'], true);
             $inflows[$date] += (float)($d['totalAmount'] ?? 0);
-            
-            // إضافة للشيكات المعلقة/التحصيل القادم للـ 30 يوم القادمة (تقريبياً من الفواتير الآجلة)
-            if (strtotime($row['date_val']) >= strtotime('-30 days') && ($d['paymentMethod'] ?? '') !== 'cash') {
-                $upcoming_collection += ((float)($d['totalAmount'] ?? 0)) * 0.2; // نفترض 20% تحصيل قادم
-            }
         }
         // سندات القبض
         $receipts_stmt = $pdo->query("SELECT date_val, data FROM single_receipts WHERE is_deleted = 0");
@@ -70,11 +66,6 @@ try {
             if (!isset($outflows[$date])) $outflows[$date] = 0;
             $d = json_decode($row['data'], true);
             $outflows[$date] += (float)($d['totalAmount'] ?? ($d['grandTotal'] ?? 0));
-            
-            // إضافة للالتزامات القادمة
-            if (strtotime($row['date_val']) >= strtotime('-30 days')) {
-                $upcoming_payable += ((float)($d['totalAmount'] ?? ($d['grandTotal'] ?? 0))) * 0.3; // 30% دفع قادم
-            }
         }
         // سندات الصرف
         $payments_stmt = $pdo->query("SELECT date_val, data FROM single_payments WHERE is_deleted = 0");
@@ -110,6 +101,28 @@ try {
             $monthly_inflows[] = $inflows[$m] ?? 0;
             $monthly_outflows[] = $outflows[$m] ?? 0;
         }
+        
+        // --- حساب التحصيل والدفع القادم من الشيكات المعلقة الحقيقية (30 يوم) ---
+        try {
+            $checks_stmt = $pdo->query("SELECT data FROM `checks` WHERE is_deleted = 0 OR is_deleted IS NULL");
+            while ($crow = $checks_stmt->fetch()) {
+                $cd = json_decode($crow['data'], true);
+                if (!$cd || ($cd['status'] ?? '') !== 'PENDING') continue;
+                $due = $cd['dueDate'] ?? ($cd['due_date'] ?? '');
+                if (!$due) continue;
+                // فقط الشيكات المعلقة خلال الـ 30 يوم القادمة
+                if ($due >= date('Y-m-d') && $due <= date('Y-m-d', strtotime('+30 days'))) {
+                    $amt = (float)($cd['amount'] ?? 0);
+                    if (($cd['type'] ?? '') === 'INBOUND') {
+                        $upcoming_collection += $amt;
+                    } else {
+                        $upcoming_payable += $amt;
+                    }
+                }
+            }
+        } catch (Exception $ex) {
+            // جدول الشيكات غير موجود
+        }
     }
 } catch (Exception $e) {
     // خطأ أو الجداول غير مهيأة
@@ -117,6 +130,7 @@ try {
 
 // البديل في حال خلو قاعدة البيانات
 if ($current_cash == 0 && empty($labels)) {
+    $is_mock_data = true;
     $current_cash = $rate * 45.5;
     $upcoming_collection = $rate * 18.0;
     $upcoming_payable = $rate * 12.5;
@@ -188,6 +202,11 @@ $trend_outflow = count($monthly_outflows) > 1 ? (($monthly_outflows[count($month
 </head>
 <body>
     <div class="glass-panel">
+        <?php if ($is_mock_data): ?>
+        <div style="background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #fbbf24; padding: 10px 20px; border-radius: 14px; text-align: center; font-size: 13px; font-weight: bold; margin-bottom: 20px; animation: fadeIn 1s ease-out;">
+            ⚠️ الشاشة تعرض بيانات تجريبية حالياً — سيتم عرض البيانات الحقيقية عند توفر عمليات بيعية في النظام
+        </div>
+        <?php endif; ?>
         <div class="header">
             <div>
                 <h1 style="margin:0; background: linear-gradient(135deg, #00ff7f, #00ffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight:900;">كاشف التدفقات النقدية الفعلي (IAS 7)</h1>

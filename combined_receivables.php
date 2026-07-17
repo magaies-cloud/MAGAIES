@@ -10,23 +10,66 @@ $layout_mode = isset($_GET['layout']) ? $_GET['layout'] : 'premium'; // premium,
 $exchange_rate = 600.0; 
 
 $report_data = [];
+$is_mock_data = false;
 try {
     @include_once __DIR__ . '/api/db.php';
     if (isset($pdo)) {
-        $query = "
-            SELECT 
-                a.id,
-                a.name AS account_name,
-                a.type AS account_type,
-                COALESCE((SELECT SUM(t.total_amount) FROM transactions t WHERE t.account_id = a.id), 0) AS ledger_balance,
-                COALESCE((SELECT SUM(c.amount) FROM checks c WHERE c.account_id = a.id AND c.type = 'INBOUND' AND c.status = 'PENDING'), 0) AS pending_inbound,
-                COALESCE((SELECT SUM(c.amount) FROM checks c WHERE c.account_id = a.id AND c.type = 'OUTBOUND' AND c.status = 'PENDING'), 0) AS pending_outbound
-            FROM accounts a
-            WHERE a.type = 'CUSTOMER' OR a.type = 'SUPPLIER'
-            ORDER BY ledger_balance DESC
-        ";
-        $stmt = $pdo->query($query);
-        $report_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // --- جلب العملاء وأرصدتهم من جدول customers (بنية JSON) ---
+        $customers = [];
+        $cust_stmt = $pdo->query("SELECT id, data FROM customers WHERE is_deleted = 0 OR is_deleted IS NULL");
+        while ($row = $cust_stmt->fetch()) {
+            $d = json_decode($row['data'], true);
+            if (!$d) continue;
+            $cid = $d['id'] ?? $row['id'];
+            $customers[$cid] = [
+                'id' => $row['id'],
+                'account_name' => $d['name'] ?? 'عميل غير معروف',
+                'account_type' => 'CUSTOMER',
+                'ledger_balance' => (float)($d['currentBalance'] ?? 0),
+                'pending_inbound' => 0.0,
+                'pending_outbound' => 0.0
+            ];
+        }
+        
+        // --- جلب الموردين وأرصدتهم من جدول suppliers (بنية JSON) ---
+        $suppliers = [];
+        try {
+            $sup_stmt = $pdo->query("SELECT id, data FROM suppliers WHERE is_deleted = 0 OR is_deleted IS NULL");
+            while ($row = $sup_stmt->fetch()) {
+                $d = json_decode($row['data'], true);
+                if (!$d) continue;
+                $sid = $d['id'] ?? $row['id'];
+                $suppliers[$sid] = [
+                    'id' => $row['id'],
+                    'account_name' => $d['name'] ?? 'مورد غير معروف',
+                    'account_type' => 'SUPPLIER',
+                    'ledger_balance' => -1 * abs((float)($d['currentBalance'] ?? 0)),
+                    'pending_inbound' => 0.0,
+                    'pending_outbound' => 0.0
+                ];
+            }
+        } catch (Exception $ex) {}
+        
+        // --- جلب الشيكات المعلقة وربطها بالعملاء/الموردين ---
+        try {
+            $chk_stmt = $pdo->query("SELECT data FROM `checks` WHERE is_deleted = 0 OR is_deleted IS NULL");
+            while ($row = $chk_stmt->fetch()) {
+                $c = json_decode($row['data'], true);
+                if (!$c || ($c['status'] ?? '') !== 'PENDING') continue;
+                $amount = (float)($c['amount'] ?? 0);
+                $custId = $c['customerId'] ?? ($c['customer'] ?? '');
+                $supId = $c['supplierId'] ?? ($c['supplier'] ?? '');
+                
+                if (($c['type'] ?? '') === 'INBOUND' && $custId && isset($customers[$custId])) {
+                    $customers[$custId]['pending_inbound'] += $amount;
+                } elseif (($c['type'] ?? '') === 'OUTBOUND' && $supId && isset($suppliers[$supId])) {
+                    $suppliers[$supId]['pending_outbound'] += $amount;
+                }
+            }
+        } catch (Exception $ex) {}
+        
+        // دمج القوائم
+        $report_data = array_merge(array_values($customers), array_values($suppliers));
     }
 } catch (Exception $e) {
     // خطأ أو الجداول غير مهيأة
@@ -34,6 +77,7 @@ try {
 
 // البديل في حال خلو قاعدة البيانات
 if (empty($report_data)) {
+    $is_mock_data = true;
     $report_data = [
         [
             'id' => 1,
@@ -132,6 +176,12 @@ $total_combined_payables = $total_ledger_payables + $total_pending_outbound;
 <body class="<?php echo $layout_mode === 'premium' ? 'text-slate-100' : 'text-slate-800'; ?> min-h-screen p-6">
 
     <div class="max-w-7xl mx-auto">
+
+        <?php if ($is_mock_data): ?>
+        <div class="bg-amber-900/30 border border-amber-500/30 text-amber-300 px-4 py-2 rounded-xl text-sm text-center mb-6 font-bold">
+            ⚠️ الشاشة تعرض بيانات تجريبية حالياً — سيتم عرض البيانات الحقيقية عند توفر عمليات بيعية في النظام
+        </div>
+        <?php endif; ?>
 
         <!-- هيدر الصفحة الرئيسي -->
         <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8 border-b pb-5 <?php echo $layout_mode === 'premium' ? 'border-slate-800' : 'border-slate-200'; ?>">

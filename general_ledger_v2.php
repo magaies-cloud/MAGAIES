@@ -16,6 +16,7 @@ $ledger_entries = [];
 $selected_customer = "اختر عميلاً";
 $customers_list = [];
 $db_connected = false;
+$is_mock_data = false; // علامة البيانات التجريبية
 
 try {
     @include_once __DIR__ . '/api/db.php';
@@ -137,32 +138,32 @@ try {
                 ];
             }
             
-            // ب. سندات القبض (دائن)
+            // ب. سندات القبض (دائن) - محسّن: فلترة SQL بـ JSON لتقليل الحمل على PHP
+            $cust_key = 'cust-' . $target_customer_id;
             $receipts_query = "SELECT date_val, data FROM single_receipts WHERE is_deleted = 0";
-            if (!empty($date_from)) { $receipts_query .= " AND date_val >= :r_date_from"; $params[':r_date_from'] = $date_from; }
-            if (!empty($date_to)) { $receipts_query .= " AND date_val <= :r_date_to"; $params[':r_date_to'] = $date_to; }
+            // محاولة فلترة في SQL مباشرة باستخدام LIKE على حقل data للعميل المحدد
+            $receipts_query .= " AND (data LIKE :cust_pattern1 OR data LIKE :cust_pattern2)";
+            $r_params = [
+                ':cust_pattern1' => '%"fromAccount":"' . $cust_key . '"%',
+                ':cust_pattern2' => '%"fromAccount": "' . $cust_key . '"%'
+            ];
+            if (!empty($date_from)) { $receipts_query .= " AND date_val >= :r_date_from"; $r_params[':r_date_from'] = $date_from; }
+            if (!empty($date_to)) { $receipts_query .= " AND date_val <= :r_date_to"; $r_params[':r_date_to'] = $date_to; }
             
             $receipts_stmt = $pdo->prepare($receipts_query);
-            // إزالة cid من params مؤقتا
-            $r_params = [];
-            if (!empty($date_from)) $r_params[':r_date_from'] = $date_from;
-            if (!empty($date_to)) $r_params[':r_date_to'] = $date_to;
             $receipts_stmt->execute($r_params);
             
             while ($row = $receipts_stmt->fetch()) {
                 $d = json_decode($row['data'], true);
                 $from_acc = $d['fromAccount'] ?? '';
-                // التحقق من أن السند من العميل
-                if (strpos($from_acc, 'cust-') !== false) {
-                    $receipt_cid = (int)str_replace('cust-', '', $from_acc);
-                    if ($receipt_cid == $target_customer_id) {
-                        $ledger_entries[] = [
-                            'date' => $row['date_val'],
-                            'desc' => 'سند قبض ' . ($d['description'] ?? ''),
-                            'debit' => 0,
-                            'credit' => (float)($d['amountLocal'] ?? 0)
-                        ];
-                    }
+                // تأكيد نهائي في PHP أن السند فعلاً من العميل المحدد
+                if ($from_acc === $cust_key) {
+                    $ledger_entries[] = [
+                        'date' => $row['date_val'],
+                        'desc' => 'سند قبض ' . ($d['description'] ?? ''),
+                        'debit' => 0,
+                        'credit' => (float)($d['amountLocal'] ?? 0)
+                    ];
                 }
             }
             
@@ -183,8 +184,9 @@ try {
     // خطأ أو لا توجد جداول
 }
 
-// البديل في حال تعذر الاستعلام أو البيانات فارغة
+// البديل في حال تعذر الاستعلام أو البيانات فارغة - مع علامة تجريبية
 if (empty($debt_distribution) && empty($date_from) && empty($date_to)) {
+    $is_mock_data = true;
     $debt_distribution = [
         ['customer' => 'شركة النيل الأزرق للمقاولات', 'debt' => $rate * 14.5, 'color' => '#ff0055', 'percentage' => 41.2],
         ['customer' => 'مجموعة البرج الهندسية', 'debt' => $rate * 8.2, 'color' => '#00ffff', 'percentage' => 23.3],
@@ -194,6 +196,7 @@ if (empty($debt_distribution) && empty($date_from) && empty($date_to)) {
 }
 
 if (!$customer_profile && empty($date_from) && empty($date_to)) {
+    $is_mock_data = true;
     $customer_profile = [
         'customer_name' => 'شركة النيل الأزرق للمقاولات',
         'current_balance' => $rate * 14.5,
@@ -205,6 +208,7 @@ if (!$customer_profile && empty($date_from) && empty($date_to)) {
 }
 
 if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
+    $is_mock_data = true;
     $ledger_entries = [
         ['date' => '2026-06-01', 'desc' => 'رصيد افتتاحي مرحل', 'debit' => $rate * 5.0, 'credit' => 0, 'balance' => $rate * 5.0],
         ['date' => '2026-06-15', 'desc' => 'فاتورة بيع حديد 4 لينيا الأسعد (آجل)', 'debit' => $rate * 12.0, 'credit' => 0, 'balance' => $rate * 17.0],
@@ -257,6 +261,11 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
         <div class="orb orb-3"></div>
     </div>
     <div class="glass-panel">
+        <?php if ($is_mock_data): ?>
+        <div style="background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #fbbf24; padding: 10px 20px; border-radius: 14px; text-align: center; font-size: 13px; font-weight: bold; margin-bottom: 20px; animation: fadeIn 1s ease-out;">
+            ⚠️ الشاشة تعرض بيانات تجريبية حالياً — سيتم عرض البيانات الحقيقية عند توفر عمليات بيعية في النظام
+        </div>
+        <?php endif; ?>
         <div class="header">
             <div>
                 <h1 style="margin:0; background: linear-gradient(135deg, #00ffff, #ff0055); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight:900;">دفتر الأستاذ العام المطور (تحليل الديون التفاعلي)</h1>
