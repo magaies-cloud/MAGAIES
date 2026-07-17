@@ -41,8 +41,13 @@ function runAlertEngine($pdo) {
             foreach ($customers as $c) {
                 $usage_percent = ($c['current_balance'] / $c['credit_limit']) * 100;
                 if ($usage_percent >= $rule['critical_threshold']) {
-                    $msg = "🚨 العميل [" . $c['name'] . "] تجاوز الحد الائتماني الحرج بنسبة " . round($usage_percent) . "% (الرصيد: " . number_format($c['current_balance']) . " / الحد: " . number_format($c['credit_limit']) . ")";
+                    $msg = "🚨 خطر ائتماني حرج! العميل [" . $c['name'] . "] تجاوز الحد الائتماني بنسبة " . round($usage_percent) . "% \n💰 الرصيد الحالي: " . number_format($c['current_balance']) . " \n🚧 الحد المسموح: " . number_format($c['credit_limit']);
+                    
+                    // حفظ التنبيه في قاعدة البيانات
                     $pdo->prepare("INSERT INTO alert_logs (rule_key, severity, message) VALUES ('credit_limit_breach', 'RED', ?)")->execute([$msg]);
+                    
+                    // إرسال فوري إلى الواتساب الخاص بك!
+                    sendWhatsAppAlert($msg);
                 } elseif ($usage_percent >= $rule['warning_threshold']) {
                     $msg = "⚠️ العميل [" . $c['name'] . "] يقترب من الحد الائتماني بنسبة " . round($usage_percent) . "%";
                     $pdo->prepare("INSERT INTO alert_logs (rule_key, severity, message) VALUES ('credit_limit_breach', 'YELLOW', ?)")->execute([$msg]);
@@ -55,8 +60,12 @@ function runAlertEngine($pdo) {
             $rule = $pdo->query("SELECT * FROM alert_settings WHERE rule_key = 'overdue_checks'")->fetch(PDO::FETCH_ASSOC);
             $overdue_count = $pdo->query("SELECT COUNT(*) FROM `checks` WHERE status = 'PENDING' AND due_date < CURRENT_DATE()")->fetchColumn();
             if ($overdue_count > $rule['critical_threshold']) {
-                $msg = "🚨 هناك عدد " . $overdue_count . " شيكات معلقة تجاوزت تاريخ استحقاقها دون تحصيل!";
+                $msg = "🚨 تنبيه شيكات متأخرة! \nهناك عدد [" . $overdue_count . "] شيك معلق تجاوز تاريخ استحقاقه دون تحصيل في النظام. يرجى المتابعة فوراً.";
+                
                 $pdo->prepare("INSERT INTO alert_logs (rule_key, severity, message) VALUES ('overdue_checks', 'RED', ?)")->execute([$msg]);
+                
+                // إرسال فوري إلى الواتساب الخاص بك!
+                sendWhatsAppAlert($msg);
             }
         }
     } catch (Exception $e) {
