@@ -192,6 +192,66 @@
             100% { transform: translate(0, 0) scale(1); }
         }
 
+        /* CSS rules for the 10 strategic reports buttons */
+        .strategic-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: linear-gradient(135deg, rgba(20, 16, 40, 0.6) 0%, rgba(10, 8, 24, 0.8) 100%) !important;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+            border-radius: 16px !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .strategic-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.03) 30%,
+                rgba(255, 255, 255, 0.18) 50%,
+                rgba(255, 255, 255, 0.03) 70%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            transition: all 0.6s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .strategic-btn:hover::after {
+            left: 100%;
+            opacity: 1;
+            transition: all 0.8s ease-in-out;
+        }
+
+        .strategic-btn:hover {
+            transform: translateY(-8px) scale(1.06) !important;
+            border-color: var(--accent-color) !important;
+            box-shadow: 0 12px 30px rgba(var(--shadow-rgb), 0.35), 0 0 15px rgba(var(--shadow-rgb), 0.25) !important;
+            animation: gentle-wobble 0.6s ease-in-out;
+            background: linear-gradient(135deg, rgba(30, 24, 60, 0.7) 0%, rgba(15, 12, 36, 0.9) 100%) !important;
+        }
+
+        @keyframes gentle-wobble {
+            0% { transform: translateY(-8px) scale(1.06) rotate(0deg); }
+            20% { transform: translateY(-8px) scale(1.06) rotate(1deg); }
+            40% { transform: translateY(-8px) scale(1.06) rotate(-1deg); }
+            60% { transform: translateY(-8px) scale(1.06) rotate(0.5deg); }
+            80% { transform: translateY(-8px) scale(1.06) rotate(-0.5deg); }
+            100% { transform: translateY(-8px) scale(1.06) rotate(0deg); }
+        }
+
         /* Layout Container taking full width with small equal padding */
         .analytics-container {
             width: 100%;
@@ -738,8 +798,8 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             
             <!-- 1. تقرير عمق الائتمان -->
-            <a href="credit_concentration.php" class="p-4 rounded-xl border border-red-500/30 bg-slate-800/50 hover:bg-red-950/20 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-sm">
-                <div class="text-red-400 text-xl"><i class="fa-solid fa-chart-pie"></i></div>
+            <a href="credit_concentration.php" class="p-4 strategic-btn" style="--accent-color: #ef4444; --shadow-rgb: 239, 68, 68;">
+                <div class="text-red-400 text-xl"><i class="fa-solid fa-chart-pie animate-pulse"></i></div>
                 <div class="mt-4">
                     <h3 class="font-black text-sm text-slate-100">1. تحليل عمق الائتمان</h3>
                     <p class="text-[11px] text-slate-400 mt-1 leading-tight">كعكة مديونية السوق ونسبة تركز الديون</p>
@@ -747,8 +807,8 @@
             </a>
 
             <!-- 2. معدل دوران الزبائن -->
-            <a href="customer_churn.php" class="p-4 rounded-xl border border-orange-500/30 bg-slate-800/50 hover:bg-orange-950/20 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-sm">
-                <div class="text-orange-400 text-xl"><i class="fa-solid fa-users-slash"></i></div>
+            <a href="customer_churn.php" class="p-4 strategic-btn" style="--accent-color: #f97316; --shadow-rgb: 249, 115, 22;">
+                <div class="text-orange-400 text-xl"><i class="fa-solid fa-users-slash animate-pulse"></i></div>
                 <div class="mt-4">
                     <h3 class="font-black text-sm text-slate-100">2. معدل دوران الزبائن</h3>
                     <p class="text-[11px] text-slate-400 mt-1 leading-tight">اكتشاف العملاء المنقطعين ودرجة الخطورة</p>
@@ -756,8 +816,8 @@
             </a>
 
             <!-- 3. ربحية الصنف/العميل -->
-            <a href="customer_profitability.php" class="p-4 rounded-xl border border-green-500/30 bg-slate-800/50 hover:bg-green-950/20 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-sm">
-                <div class="text-green-400 text-xl"><i class="fa-solid fa-chart-line"></i></div>
+            <a href="customer_profitability.php" class="p-4 strategic-btn" style="--accent-color: #10b981; --shadow-rgb: 16, 185, 129;">
+                <div class="text-green-400 text-xl"><i class="fa-solid fa-chart-line animate-pulse"></i></div>
                 <div class="mt-4">
                     <h3 class="font-black text-sm text-slate-100">3. ربحية الصنف / العميل</h3>
                     <p class="text-[11px] text-slate-400 mt-1 leading-tight">صافي أرباح المبيعات وليس حجمها فقط</p>
@@ -765,20 +825,20 @@
             </a>
 
             <!-- 4. لوحة توازن الشيكات -->
-            <a href="checks_detector.php?currency=SDG" class="p-4 rounded-xl border-2 border-emerald-500 bg-emerald-950/30 hover:bg-emerald-950/50 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-md ring-2 ring-emerald-500/20">
-                <div class="text-emerald-400 text-xl flex justify-between items-center w-full">
-                    <i class="fa-solid fa-money-check-dollar"></i>
-                    <span class="text-[9px] bg-emerald-500 text-slate-900 font-bold px-2 py-0.5 rounded animate-pulse">مفتوح الآن</span>
+            <a href="checks_detector.php?currency=SDG" class="p-4 strategic-btn" style="--accent-color: #06b6d4; --shadow-rgb: 6, 182, 212;">
+                <div class="text-cyan-400 text-xl flex justify-between items-center w-full">
+                    <i class="fa-solid fa-money-check-dollar animate-pulse"></i>
+                    <span class="text-[9px] bg-cyan-500 text-slate-900 font-bold px-2 py-0.5 rounded animate-pulse">مفتوح الآن</span>
                 </div>
                 <div class="mt-4">
-                    <h3 class="font-black text-sm text-emerald-300">4. لوحة توازن الشيكات</h3>
-                    <p class="text-[11px] text-emerald-400 mt-1 leading-tight">كاشف ومقارن الشيكات وأوراق القبض</p>
+                    <h3 class="font-black text-sm text-cyan-300">4. لوحة توازن الشيكات</h3>
+                    <p class="text-[11px] text-cyan-400 mt-1 leading-tight">كاشف ومقارن الشيكات وأوراق القبض</p>
                 </div>
             </a>
 
             <!-- 5. استهلاك الأصناف الموسمية -->
-            <a href="seasonal_trends.php" class="p-4 rounded-xl border border-teal-500/30 bg-slate-800/50 hover:bg-teal-950/20 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-sm">
-                <div class="text-teal-400 text-xl"><i class="fa-solid fa-cloud-sun"></i></div>
+            <a href="seasonal_trends.php" class="p-4 strategic-btn" style="--accent-color: #14b8a6; --shadow-rgb: 20, 184, 166;">
+                <div class="text-teal-400 text-xl"><i class="fa-solid fa-cloud-sun animate-pulse"></i></div>
                 <div class="mt-4">
                     <h3 class="font-black text-sm text-slate-100">5. استهلاك الأصناف الموسمية</h3>
                     <p class="text-[11px] text-slate-400 mt-1 leading-tight">سحب الحديد والأسمنت حسب فصول السنة</p>
@@ -786,8 +846,8 @@
             </a>
 
             <!-- 6. دفتر الأستاذ العصري -->
-            <a href="modern_ledger.php" class="p-4 rounded-xl border border-indigo-500/30 bg-slate-800/50 hover:bg-indigo-950/20 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-sm">
-                <div class="text-indigo-400 text-xl"><i class="fa-solid fa-book-open-reader"></i></div>
+            <a href="modern_ledger.php" class="p-4 strategic-btn" style="--accent-color: #6366f1; --shadow-rgb: 99, 102, 241;">
+                <div class="text-indigo-400 text-xl"><i class="fa-solid fa-book-open-reader animate-pulse"></i></div>
                 <div class="mt-4">
                     <h3 class="font-black text-sm text-slate-100">6. دفتر الأستاذ العصري</h3>
                     <p class="text-[11px] text-slate-400 mt-1 leading-tight">ملف بانورامي متكامل لكل عميل بشاشة واحدة</p>
@@ -795,8 +855,8 @@
             </a>
 
             <!-- 7. تقرير انحراف السعر -->
-            <a href="price_variance.php" class="p-4 rounded-xl border border-amber-500/30 bg-slate-800/50 hover:bg-amber-950/20 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-sm">
-                <div class="text-amber-400 text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <a href="price_variance.php" class="p-4 strategic-btn" style="--accent-color: #f59e0b; --shadow-rgb: 245, 158, 11;">
+                <div class="text-amber-400 text-xl"><i class="fa-solid fa-triangle-exclamation animate-pulse"></i></div>
                 <div class="mt-4">
                     <h3 class="font-black text-sm text-slate-100">7. تقرير انحراف السعر</h3>
                     <p class="text-[11px] text-slate-400 mt-1 leading-tight">مراقبة الفواتير والخصومات اليدوية</p>
@@ -804,8 +864,8 @@
             </a>
 
             <!-- 8. أداء الموردين -->
-            <a href="supplier_performance.php" class="p-4 rounded-xl border border-purple-500/30 bg-slate-800/50 hover:bg-purple-950/20 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-sm">
-                <div class="text-purple-400 text-xl"><i class="fa-solid fa-truck-ramp-box"></i></div>
+            <a href="supplier_performance.php" class="p-4 strategic-btn" style="--accent-color: #a855f7; --shadow-rgb: 168, 85, 247;">
+                <div class="text-purple-400 text-xl"><i class="fa-solid fa-truck-ramp-box animate-pulse"></i></div>
                 <div class="mt-4">
                     <h3 class="font-black text-sm text-slate-100">8. أداء الموردين</h3>
                     <p class="text-[11px] text-slate-400 mt-1 leading-tight">قياس ثبات أسعار مصانع الحديد والشركاء</p>
@@ -813,8 +873,8 @@
             </a>
 
             <!-- 9. السيولة اللحظية المتوقعة -->
-            <a href="cashflow_forecast.php" class="p-4 rounded-xl border border-emerald-500/30 bg-slate-800/50 hover:bg-emerald-950/20 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-sm">
-                <div class="text-emerald-400 text-xl"><i class="fa-solid fa-vault"></i></div>
+            <a href="cashflow_forecast.php" class="p-4 strategic-btn" style="--accent-color: #22c55e; --shadow-rgb: 34, 197, 94;">
+                <div class="text-emerald-400 text-xl"><i class="fa-solid fa-vault animate-pulse"></i></div>
                 <div class="mt-4">
                     <h3 class="font-black text-sm text-slate-100">9. السيولة اللحظية المتوقعة</h3>
                     <p class="text-[11px] text-slate-400 mt-1 leading-tight">التنبؤ بوضع الخزنة والكاش بعد 30 يوماً</p>
@@ -822,8 +882,8 @@
             </a>
 
             <!-- 10. مصفوفة تكرار الزيارة والولاء -->
-            <a href="customer_engagement.php" class="p-4 rounded-xl border border-cyan-500/30 bg-slate-800/50 hover:bg-cyan-950/20 text-right transition-all flex flex-col justify-between hover:scale-[1.02] shadow-sm">
-                <div class="text-cyan-400 text-xl"><i class="fa-solid fa-id-card-clip"></i></div>
+            <a href="customer_engagement.php" class="p-4 strategic-btn" style="--accent-color: #06b6d4; --shadow-rgb: 6, 182, 212;">
+                <div class="text-cyan-400 text-xl"><i class="fa-solid fa-id-card-clip animate-pulse"></i></div>
                 <div class="mt-4">
                     <h3 class="font-black text-sm text-slate-100">10. مصفوفة تكرار الزيارة والولاء</h3>
                     <p class="text-[11px] text-slate-400 mt-1 leading-tight">تصنيف الزبائن لتقديم خصومات ذكية</p>
