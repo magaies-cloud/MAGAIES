@@ -37,7 +37,27 @@ function runAlertEngine($pdo) {
         // أ. فحص تجاوز الحد الائتماني للعميل (إذا كان مفعل)
         if (isset($settings['credit_limit_breach'])) {
             $rule = $pdo->query("SELECT * FROM alert_settings WHERE rule_key = 'credit_limit_breach'")->fetch(PDO::FETCH_ASSOC);
-            $customers = $pdo->query("SELECT customer_name AS name, current_balance, credit_limit FROM customer_credit_profiles WHERE credit_limit > 0")->fetchAll(PDO::FETCH_ASSOC);
+            $customers = [];
+            try {
+                $stmt = $pdo->query("SELECT data FROM customers");
+                while ($row = $stmt->fetch()) {
+                    $c = json_decode($row['data'], true);
+                    if ($c && (float)($c['creditLimit'] ?? 0) > 0) {
+                        $customers[] = [
+                            'name' => $c['name'] ?? 'عميل غير معروف',
+                            'current_balance' => (float)($c['currentBalance'] ?? 0),
+                            'credit_limit' => (float)($c['creditLimit'] ?? 0)
+                        ];
+                    }
+                }
+            } catch (Exception $ex) {}
+
+            if (empty($customers)) {
+                try {
+                    $customers = $pdo->query("SELECT customer_name AS name, current_balance, credit_limit FROM customer_credit_profiles WHERE credit_limit > 0")->fetchAll(PDO::FETCH_ASSOC);
+                } catch (Exception $ex) {}
+            }
+
             foreach ($customers as $c) {
                 $usage_percent = ($c['current_balance'] / $c['credit_limit']) * 100;
                 if ($usage_percent >= $rule['critical_threshold']) {
