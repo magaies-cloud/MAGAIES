@@ -2,7 +2,7 @@
 // ====================================================================
 // نظام Al-Sajana Smart ERP 2026 - تقرير الصحة المالية ومؤشرات الأمان
 // ====================================================================
-$selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
+$selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
 $rate = ($selected_currency === 'SDG') ? 600000 : 1000;
 
 // === فلترة التاريخ (من - إلى) ===

@@ -3,7 +3,7 @@
 // نظام Al-Sajana Smart ERP 2026 - معدل دوران وانقطاع الزبائن
 // ====================================================================
 require_once 'db_bridge.php';
-$selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
+$selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
 $pdo = getDBConnection();
 
 $data = getCustomerChurnData($pdo);

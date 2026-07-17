@@ -3,7 +3,7 @@
 // نظام Al-Sajana Smart ERP 2026 - تقرير حساب مديونية الأرصدة الشامل (دفتر الأستاذ + الشيكات)
 // ====================================================================
 
-$selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'BOTH'; // SDG, USD, BOTH
+$selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'BOTH'); // SDG, USD, BOTH
 $layout_mode = isset($_GET['layout']) ? $_GET['layout'] : 'premium'; // premium, simple
 
 // سعر صرف افتراضي للتثمين

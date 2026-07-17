@@ -3,7 +3,7 @@
 // نظام Al-Sajana Smart ERP 2026 - مراقب سقوف المديونية والائتمان
 // تم إصلاحه ليعمل مع البيانات الحقيقية من جداول customers و sales_invoices
 // ====================================================================
-$selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
+$selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
 $rate = ($selected_currency === 'SDG') ? 600000 : 1000;
 
 // فلترة البحث والترتيب

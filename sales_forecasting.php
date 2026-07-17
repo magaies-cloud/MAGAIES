@@ -5,7 +5,7 @@
 // الاتصال بقاعدة البيانات بشكل آمن
 @include_once __DIR__ . '/api/db.php';
 
-$selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
+$selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
 
 // ---- فلتر التاريخ ----
 $date_from = isset($_GET['date_from']) ? $_GET['date_from'] : '';

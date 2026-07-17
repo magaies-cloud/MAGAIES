@@ -2,7 +2,7 @@
 // ====================================================================
 // نظام Al-Sajana Smart ERP 2026 - دفتر الأستاذ العام المطور وتوزيع الديون
 // ====================================================================
-$selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
+$selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
 $page_title = 'دفتر الأستاذ العام المطور V2';
 $header_theme_class = 'header-theme-reports';
 $rate = ($selected_currency === 'SDG') ? 600000 : 1000;

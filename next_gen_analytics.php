@@ -1,7 +1,7 @@
 <?php
 require_once 'db_bridge.php';
 
-$selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
+$selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
 $pdo = getDBConnection();
 
 // جلب تفاصيل السيولة الحقيقية الموزعة في البنوك والخزن من حساباتك حالياً

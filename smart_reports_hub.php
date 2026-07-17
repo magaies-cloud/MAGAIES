@@ -4,7 +4,7 @@
 // تم تصميمها وهندستها لتكون مستقلة تماماً لحماية نظامك القديم من الأخطاء
 // ====================================================================
 
-$selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
+$selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
 $page_title = 'بوابة التقارير الذكية V2';
 $header_theme_class = 'header-theme-reports';
 ?>
@@ -527,7 +527,7 @@ $header_theme_class = 'header-theme-reports';
         <div class="reports-grid">
 
             <!-- 0. دفتر الأستاذ العام المطور والذكي V2 -->
-            <a href="general_ledger_v2.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #3b82f6; --shadow-color: 59, 130, 246;">
+            <a href="general_ledger_v2.php" class="report-card" style="--accent-color: #3b82f6; --shadow-color: 59, 130, 246;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">📖</div>
                 <div class="card-title">دفتر الأستاذ العام المطور والذكي V2</div>
@@ -536,7 +536,7 @@ $header_theme_class = 'header-theme-reports';
             </a>
 
             <!-- 1. كاشف التدفقات النقدية الفعلي -->
-            <a href="cashflow_modern.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #00ff7f; --shadow-color: 0, 255, 127;">
+            <a href="cashflow_modern.php" class="report-card" style="--accent-color: #00ff7f; --shadow-color: 0, 255, 127;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">💸</div>
                 <div class="card-title">كاشف التدفقات النقدية الفعلي (IAS 7)</div>
@@ -545,7 +545,7 @@ $header_theme_class = 'header-theme-reports';
             </a>
 
             <!-- 2. تحليل ربحية وهامش مساهمة البضائع -->
-            <a href="profitability_analysis.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #ff007f; --shadow-color: 255, 0, 127;">
+            <a href="profitability_analysis.php" class="report-card" style="--accent-color: #ff007f; --shadow-color: 255, 0, 127;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">📊</div>
                 <div class="card-title">محلل ربحية وهامش مساهمة الأصناف</div>
@@ -554,7 +554,7 @@ $header_theme_class = 'header-theme-reports';
             </a>
 
             <!-- 3. مؤشر نقطة التعادل الديناميكي -->
-            <a href="breakeven_analysis.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #ffa500; --shadow-color: 255, 165, 0;">
+            <a href="breakeven_analysis.php" class="report-card" style="--accent-color: #ffa500; --shadow-color: 255, 165, 0;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">🎯</div>
                 <div class="card-title">تحليل نقطة التعادل الفوري (Break-Even)</div>
@@ -563,7 +563,7 @@ $header_theme_class = 'header-theme-reports';
             </a>
 
             <!-- 4. تقرير ركود البضائع ومعدل الدوران -->
-            <a href="inventory_turnover.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #00ffff; --shadow-color: 0, 255, 255;">
+            <a href="inventory_turnover.php" class="report-card" style="--accent-color: #00ffff; --shadow-color: 0, 255, 255;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">📦</div>
                 <div class="card-title">محلل ركود البضائع ومعدل الدوران</div>
@@ -572,7 +572,7 @@ $header_theme_class = 'header-theme-reports';
             </a>
 
             <!-- 5. التنبؤ بالسيولة والمبيعات القادمة -->
-            <a href="sales_forecasting.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #9d4edd; --shadow-color: 157, 78, 221;">
+            <a href="sales_forecasting.php" class="report-card" style="--accent-color: #9d4edd; --shadow-color: 157, 78, 221;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">🔮</div>
                 <div class="card-title">التنبؤ المالي الذكي (AI Forecasting)</div>
@@ -581,7 +581,7 @@ $header_theme_class = 'header-theme-reports';
             </a>
 
             <!-- 6. مؤشرات الصحة المالية والنسب المحاسبية -->
-            <a href="financial_health.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #ffcc00; --shadow-color: 255, 204, 0;">
+            <a href="financial_health.php" class="report-card" style="--accent-color: #ffcc00; --shadow-color: 255, 204, 0;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">🛡️</div>
                 <div class="card-title">تقرير الصحة المالية ومعدلات الأمان</div>
@@ -590,7 +590,7 @@ $header_theme_class = 'header-theme-reports';
             </a>
 
             <!-- 7. محلل الأرصدة الشامل (خزائن، بنوك، موردين) -->
-            <a href="balances_modern_hub.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #00ffff; --shadow-color: 0, 255, 255;">
+            <a href="balances_modern_hub.php" class="report-card" style="--accent-color: #00ffff; --shadow-color: 0, 255, 255;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">🏦</div>
                 <div class="card-title">محلل الأرصدة الشامل (خزائن، بنوك، موردين)</div>
@@ -599,7 +599,7 @@ $header_theme_class = 'header-theme-reports';
             </a>
 
             <!-- 8. مراقب سقوف الائتمان والمديونية العامه -->
-            <a href="credit_limits_dashboard.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #ff0055; --shadow-color: 255, 0, 85;">
+            <a href="credit_limits_dashboard.php" class="report-card" style="--accent-color: #ff0055; --shadow-color: 255, 0, 85;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">⚠️</div>
                 <div class="card-title">مراقب سقوف الائتمان والمديونية العامه</div>
@@ -608,7 +608,7 @@ $header_theme_class = 'header-theme-reports';
             </a>
 
             <!-- 9. كاشف ومقارن الشيكات والالتزامات الورقية -->
-            <a href="checks_detector.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #00ff7f; --shadow-color: 0, 255, 127;">
+            <a href="checks_detector.php" class="report-card" style="--accent-color: #00ff7f; --shadow-color: 0, 255, 127;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">💳</div>
                 <div class="card-title">كاشف ومقارن الشيكات والالتزامات</div>
@@ -617,7 +617,7 @@ $header_theme_class = 'header-theme-reports';
             </a>
 
             <!-- 10. مؤشر موثوقية وثبات أسعار الموردين -->
-            <a href="supplier_reliability.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #a855f7; --shadow-color: 168, 85, 247;">
+            <a href="supplier_reliability.php" class="report-card" style="--accent-color: #a855f7; --shadow-color: 168, 85, 247;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">🤝</div>
                 <div class="card-title">مؤشر موثوقية وثبات أسعار الموردين</div>
@@ -626,7 +626,7 @@ $header_theme_class = 'header-theme-reports';
             </a>
 
             <!-- 11. حساب مديونية الأرصدة الشامل -->
-            <a href="combined_receivables.php?currency=BOTH&layout=premium" class="report-card" style="--accent-color: #00ffff; --shadow-color: 0, 255, 255;">
+            <a href="combined_receivables.php?layout=premium" class="report-card" style="--accent-color: #00ffff; --shadow-color: 0, 255, 255;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">⚖️</div>
                 <div class="card-title">حساب مديونية الأرصدة الشامل</div>
@@ -635,7 +635,7 @@ $header_theme_class = 'header-theme-reports';
             </a>
 
             <!-- 12. تحليلات الجيل القادم -->
-            <a href="next_gen_analytics.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #10b981; --shadow-color: 16, 185, 129;">
+            <a href="next_gen_analytics.php" class="report-card" style="--accent-color: #10b981; --shadow-color: 16, 185, 129;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">🔮</div>
                 <div class="card-title">تحليلات الجيل القادم (Next-Gen)</div>
@@ -644,7 +644,7 @@ $header_theme_class = 'header-theme-reports';
             </a>
 
             <!-- 13. بورصة الحديد والتنبؤ بالمخاطر -->
-            <a href="steel_market_forecast.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #f59e0b; --shadow-color: 245, 158, 11;">
+            <a href="steel_market_forecast.php" class="report-card" style="--accent-color: #f59e0b; --shadow-color: 245, 158, 11;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">🏗️</div>
                 <div class="card-title">بورصة الحديد والتنبؤ بالمخاطر</div>
@@ -653,7 +653,7 @@ $header_theme_class = 'header-theme-reports';
             </a>
 
             <!-- 14. تقرير مديونيات الأرصدة الاستراتيجي (Customer Exposure) -->
-            <a href="customer_exposure.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #fbbf24; --shadow-color: 251, 191, 36;">
+            <a href="customer_exposure.php" class="report-card" style="--accent-color: #fbbf24; --shadow-color: 251, 191, 36;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">🎚️</div>
                 <div class="card-title">تقرير مديونيات الأرصدة الاستراتيجي</div>
@@ -671,7 +671,7 @@ $header_theme_class = 'header-theme-reports';
             </a>
 
             <!-- 16. معدل دوران الزبائن -->
-            <a href="customer_churn.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #f97316; --shadow-color: 249, 115, 22;">
+            <a href="customer_churn.php" class="report-card" style="--accent-color: #f97316; --shadow-color: 249, 115, 22;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">🏃‍♂️</div>
                 <div class="card-title">معدل دوران وانقطاع الزبائن</div>
@@ -680,7 +680,7 @@ $header_theme_class = 'header-theme-reports';
             </a>
 
             <!-- 17. استهلاك الأصناف الموسمية -->
-            <a href="seasonal_trends.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #14b8a6; --shadow-color: 20, 184, 166;">
+            <a href="seasonal_trends.php" class="report-card" style="--accent-color: #14b8a6; --shadow-color: 20, 184, 166;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">🌦️</div>
                 <div class="card-title">استهلاك الأصناف الموسمية</div>
@@ -689,7 +689,7 @@ $header_theme_class = 'header-theme-reports';
             </a>
 
             <!-- 18. تقرير انحراف السعر -->
-            <a href="price_variance.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #f59e0b; --shadow-color: 245, 158, 11;">
+            <a href="price_variance.php" class="report-card" style="--accent-color: #f59e0b; --shadow-color: 245, 158, 11;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">📉</div>
                 <div class="card-title">احترافية التسعير وانحراف السعر</div>
@@ -698,7 +698,7 @@ $header_theme_class = 'header-theme-reports';
             </a>
 
             <!-- 19. مصفوفة تكرار الزيارة والولاء -->
-            <a href="customer_engagement.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #06b6d4; --shadow-color: 6, 182, 212;">
+            <a href="customer_engagement.php" class="report-card" style="--accent-color: #06b6d4; --shadow-color: 6, 182, 212;">
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">💎</div>
                 <div class="card-title">مصفوفة تكرار الزيارة والولاء</div>

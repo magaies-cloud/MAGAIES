@@ -67,7 +67,7 @@
             $current_page_name = basename($_SERVER['PHP_SELF']);
             $show_header_currency = !in_array($current_page_name, ['login.php', 'index.php', 'dashboard-pro.php', 'smart_reports_hub.php']);
             if ($show_header_currency):
-                $header_curr = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
+                $header_curr = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
             ?>
                 <!-- Currency Toggle Widget -->
                 <div class="header-currency-toggle" style="display:flex; background:rgba(0,0,0,0.25); padding:3px; border-radius:10px; border:1px solid rgba(255,255,255,0.06); align-items:center; gap:3px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); height: 36px; box-sizing: border-box;">
@@ -76,8 +76,9 @@
                 </div>
                 <script>
                 function changeHeaderCurrency(curr) {
+                    document.cookie = "currency=" + curr + "; path=/; max-age=" + (30 * 24 * 60 * 60);
                     let url = new URL(window.location.href);
-                    url.searchParams.set('currency', curr);
+                    url.searchParams.delete('currency');
                     window.location.href = url.toString();
                 }
                 </script>
