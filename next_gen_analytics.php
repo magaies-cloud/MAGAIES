@@ -1,4 +1,7 @@
 <?php
+$page_title = 'تحليلات الجيل القادم (Next-Gen)';
+$header_theme_class = 'header-theme-reports';
+
 require_once 'db_bridge.php';
 
 $selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
@@ -15,6 +18,28 @@ $customers_stacked = array_slice($customers_exposure, 0, 4);
 
 // حساب تقديري لممر السيولة بناءً على متوسط مصاريف 2.5 مليون شهرياً
 $cash_runway_months = ($total_cash > 0) ? round(($total_cash / 2500000), 1) : 0;
+
+// دالة تحويل العملة الموحدة للتقارير
+if (!function_exists('convertReportAmount')) {
+    function convertReportAmount($amount, $txCurrency, $txRate, $selectedCurrency) {
+        if (empty($txCurrency)) $txCurrency = 'SDG';
+        if ($txCurrency === $selectedCurrency) {
+            return (float)$amount;
+        }
+        $usdToSdgRate = 600; // السعر القياسي الافتراضي للنظام
+        $rate = (float)$txRate;
+        if ($rate <= 0) {
+            $rate = $usdToSdgRate;
+        }
+        if ($txCurrency === 'USD' && $selectedCurrency === 'SDG') {
+            return (float)$amount * $rate;
+        } else if ($txCurrency === 'SDG' && $selectedCurrency === 'USD') {
+            return (float)$amount / $rate;
+        }
+        return (float)$amount;
+    }
+}
+
 ?>
 <?php
 // تهيئة وإعداد البيانات للمخططات البصرية والجدول للتوافق مع بنية الشاشة
@@ -29,7 +54,25 @@ unset($c);
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+<script src="js/lang.js"></script>
+<script>
+(function(){
+    var l = localStorage.getItem("erp_lang") || "ar";
+    if(l==="en") {
+        document.documentElement.setAttribute("dir","ltr");
+        document.documentElement.setAttribute("lang","en");
+    }
+})();
+</script>
+
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260626_4">
+
     <meta charset="UTF-8">
     <title>تحليلات النقلة النوعية - MAGAIEES ERP</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -38,10 +81,28 @@ unset($c);
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: hidden;
+        }
+        .page-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0px 30px 20px 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
         body { font-family: 'Cairo', sans-serif; }
     </style>
 </head>
 <body class="bg-slate-955 text-slate-100 min-h-screen p-6" style="background-color: #030409;">
+    <div class="page-container">
+        <?php include "includes/header.php"; ?>
 
     <!-- رأس الصفحة -->
     <div class="mb-8 border-b border-slate-800 pb-4 flex justify-between items-center">
@@ -250,5 +311,7 @@ unset($c);
             }
         });
     </script>
+    </div>
+    <script defer src="js/app.js"></script>
 </body>
 </html>

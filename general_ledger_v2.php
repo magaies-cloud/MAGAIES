@@ -10,7 +10,7 @@ $rate = ($selected_currency === 'SDG') ? 600000 : 1000;
 // فلاتر البحث والتاريخ
 $date_from = isset($_GET['date_from']) ? $_GET['date_from'] : '';
 $date_to = isset($_GET['date_to']) ? $_GET['date_to'] : '';
-$target_customer_id = isset($_GET['accountId']) ? (int)str_replace('cust-', '', $_GET['accountId']) : 0;
+$target_customer_id = isset($_GET['accountId']) ? str_replace('cust-', '', $_GET['accountId']) : '';
 
 $debt_distribution = [];
 $customer_profile = null;
@@ -43,7 +43,7 @@ try {
             $customers_list[$cid] = $cname;
             
             // تحديد العميل الافتراضي إذا لم يتم اختيار عميل
-            if ($target_customer_id == 0 && count($customers_list) == 1) {
+            if (empty($target_customer_id) && count($customers_list) == 1) {
                 $target_customer_id = $cid;
             }
             
@@ -59,14 +59,14 @@ try {
             }
         }
         
-        if ($target_customer_id == 0 && !empty($all_debts)) {
+        if (empty($target_customer_id) && !empty($all_debts)) {
             // اختيار العميل الأكبر مديونية كافتراضي
             usort($all_debts, function($a, $b) { return $b['debt'] <=> $a['debt']; });
             $target_customer_id = $all_debts[0]['id'];
         }
         
         // جلب اسم العميل المختار حتى لو رصيده صفر
-        if ($target_customer_id > 0 && isset($customers_list[$target_customer_id])) {
+        if (!empty($target_customer_id) && isset($customers_list[$target_customer_id])) {
             $selected_customer = $customers_list[$target_customer_id];
             $customer_profile = [
                 'customer_name' => $selected_customer,
@@ -106,60 +106,63 @@ try {
         }
         
         // 2. بناء دفتر الأستاذ للعميل المختار
-        if ($target_customer_id > 0) {
-            // أ. الفواتير (مدين)
-            $sales_query = "SELECT date_val, data FROM sales_invoices WHERE is_deleted = 0 AND customer_id_val = :cid";
-            $conditions = [];
-            $params = [':cid' => $target_customer_id];
+        if (!empty($target_customer_id)) {
+            // أ. الفواتير (مدين) - جلب جميع الفواتير وتصفيتها بالـ ID المناسب
+            $sales_query = "SELECT date_val, data FROM sales_invoices WHERE is_deleted = 0";
+            $params = [];
             
-            if (!empty($date_from)) { $sales_query .= " AND date_val >= :date_from"; $params[':date_from'] = $date_from . ' 00:00:00'; }
-            if (!empty($date_to)) { $sales_query .= " AND date_val <= :date_to_end"; $params[':date_to_end'] = $date_to . ' 23:59:59'; }
+            if (!empty($date_from)) { 
+                $sales_query .= " AND date_val >= :date_from"; 
+                $params[':date_from'] = $date_from . ' 00:00:00'; 
+            }
+            if (!empty($date_to)) { 
+                $sales_query .= " AND date_val <= :date_to_end"; 
+                $params[':date_to_end'] = $date_to . ' 23:59:59'; 
+            }
             
             $sales_stmt = $pdo->prepare($sales_query);
             $sales_stmt->execute($params);
             
-            // للحصول على فواتير المبيعات للعميل كـ String "cust-XX" أحياناً في JSON
-            $sales_query_str = "SELECT date_val, data FROM sales_invoices WHERE is_deleted = 0 AND customer_id_val = :cid_str";
-            $params_str = [':cid_str' => 'cust-' . $target_customer_id];
-            if (!empty($date_from)) { $sales_query_str .= " AND date_val >= :date_from"; $params_str[':date_from'] = $date_from . ' 00:00:00'; }
-            if (!empty($date_to)) { $sales_query_str .= " AND date_val <= :date_to_end"; $params_str[':date_to_end'] = $date_to . ' 23:59:59'; }
-            $sales_stmt_str = $pdo->prepare($sales_query_str);
-            $sales_stmt_str->execute($params_str);
-            
-            $all_sales_rows = array_merge($sales_stmt->fetchAll(), $sales_stmt_str->fetchAll());
-            // إزالة التكرار إن وجد
-            $unique_sales_rows = array_map("unserialize", array_unique(array_map("serialize", $all_sales_rows)));
-
-            foreach ($unique_sales_rows as $row) {
+            while ($row = $sales_stmt->fetch()) {
                 $d = json_decode($row['data'], true);
-                $ledger_entries[] = [
-                    'date' => $row['date_val'],
-                    'desc' => 'فاتورة مبيعات ' . ($d['invoiceNo'] ?? ''),
-                    'debit' => (float)($d['totalAmount'] ?? 0),
-                    'credit' => 0
-                ];
+                if (!$d) continue;
+                
+                $inv_cust_id = $d['customerId'] ?? ($d['customer_id'] ?? ($d['customer'] ?? ''));
+                $clean_inv_cust_id = str_replace('cust-', '', $inv_cust_id);
+                
+                if ($clean_inv_cust_id === $target_customer_id) {
+                    $ledger_entries[] = [
+                        'date' => $row['date_val'],
+                        'desc' => 'فاتورة مبيعات ' . ($d['invoiceNo'] ?? ($d['id'] ?? '')),
+                        'debit' => (float)($d['totalAmount'] ?? ($d['grandTotal'] ?? 0)),
+                        'credit' => 0
+                    ];
+                }
             }
             
-            // ب. سندات القبض (دائن) - محسّن: فلترة SQL بـ JSON لتقليل الحمل على PHP
-            $cust_key = 'cust-' . $target_customer_id;
+            // ب. سندات القبض (دائن) - تصفية في PHP لضمان الدقة
             $receipts_query = "SELECT date_val, data FROM single_receipts WHERE is_deleted = 0";
-            // محاولة فلترة في SQL مباشرة باستخدام LIKE على حقل data للعميل المحدد
-            $receipts_query .= " AND (data LIKE :cust_pattern1 OR data LIKE :cust_pattern2)";
-            $r_params = [
-                ':cust_pattern1' => '%"fromAccount":"' . $cust_key . '"%',
-                ':cust_pattern2' => '%"fromAccount": "' . $cust_key . '"%'
-            ];
-            if (!empty($date_from)) { $receipts_query .= " AND date_val >= :r_date_from"; $r_params[':r_date_from'] = $date_from . ' 00:00:00'; }
-            if (!empty($date_to)) { $receipts_query .= " AND date_val <= :r_date_to_end"; $r_params[':r_date_to_end'] = $date_to . ' 23:59:59'; }
+            $r_params = [];
+            if (!empty($date_from)) { 
+                $receipts_query .= " AND date_val >= :r_date_from"; 
+                $r_params[':r_date_from'] = $date_from . ' 00:00:00'; 
+            }
+            if (!empty($date_to)) { 
+                $receipts_query .= " AND date_val <= :r_date_to_end"; 
+                $r_params[':r_date_to_end'] = $date_to . ' 23:59:59'; 
+            }
             
             $receipts_stmt = $pdo->prepare($receipts_query);
             $receipts_stmt->execute($r_params);
             
             while ($row = $receipts_stmt->fetch()) {
                 $d = json_decode($row['data'], true);
+                if (!$d) continue;
+                
                 $from_acc = $d['fromAccount'] ?? '';
-                // تأكيد نهائي في PHP أن السند فعلاً من العميل المحدد
-                if ($from_acc === $cust_key) {
+                $clean_from_acc = str_replace('cust-', '', $from_acc);
+                
+                if ($clean_from_acc === $target_customer_id) {
                     $ledger_entries[] = [
                         'date' => $row['date_val'],
                         'desc' => 'سند قبض ' . ($d['description'] ?? ''),
@@ -209,7 +212,7 @@ if (!$customer_profile && empty($date_from) && empty($date_to)) {
     $selected_customer = 'شركة النيل الأزرق للمقاولات';
 }
 
-if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
+if (empty($ledger_entries) && empty($date_from) && empty($date_to) && (!$db_connected || empty($customers_list))) {
     $is_mock_data = true;
     $ledger_entries = [
         ['date' => '2026-06-01', 'desc' => 'رصيد افتتاحي مرحل', 'debit' => $rate * 5.0, 'credit' => 0, 'balance' => $rate * 5.0],
@@ -220,10 +223,25 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+<script src="js/lang.js"></script>
+<script>
+(function(){
+    var l = localStorage.getItem('erp_lang') || 'ar';
+    if(l==='en') {
+        document.documentElement.setAttribute('dir','ltr');
+        document.documentElement.setAttribute('lang','en');
+    }
+})();
+</script>
 <head>
     <meta charset="UTF-8">
     <title>دفتر الأستاذ العام وتوزيع الديون | Al-Sajana ERP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260626_4">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -237,9 +255,19 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
             background-color: var(--bg-dark); 
             color: var(--text-main); 
             font-family: 'Cairo', sans-serif; 
-            padding: 30px; 
+            margin: 0; padding: 0;
             background-image: radial-gradient(circle at top left, rgba(157, 78, 221, 0.1), transparent 45%); 
-            margin: 0;
+            overflow-x: hidden;
+        }
+        .ledger-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0px 30px 20px 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
         .glass-panel { background: var(--panel-bg); backdrop-filter: blur(15px); border: 1px solid var(--border-neon); border-radius: 24px; padding: 30px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); animation: fadeIn 0.8s ease-out; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
@@ -269,8 +297,10 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
     </div>
-    <?php include 'includes/header.php'; ?>
-    <div class="glass-panel">
+    
+    <div class="ledger-container">
+        <?php include 'includes/header.php'; ?>
+        <div class="glass-panel">
         <?php if ($is_mock_data): ?>
         <div style="background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #fbbf24; padding: 10px 20px; border-radius: 14px; text-align: center; font-size: 13px; font-weight: bold; margin-bottom: 20px; animation: fadeIn 1s ease-out;">
             ⚠️ الشاشة تعرض بيانات تجريبية حالياً — سيتم عرض البيانات الحقيقية عند توفر عمليات بيعية في النظام
@@ -293,6 +323,24 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
                     <?php endif; ?>
                 </select>
             </div>
+            
+            <!-- زر تبديل العملة في نص السطر -->
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label style="color: var(--text-muted); font-size: 13px;">العملة:</label>
+                <div style="display:flex; background:rgba(0,0,0,0.25); padding:3px; border-radius:10px; border:1px solid rgba(255,255,255,0.06); align-items:center; gap:3px; height: 36px; box-sizing: border-box;">
+                    <button type="button" onclick="setCurrencyAndSubmit('SDG')" style="border:none; background:<?php echo $selected_currency === 'SDG' ? 'linear-gradient(135deg, #10b981, #34d399)' : 'transparent'; ?>; color:<?php echo $selected_currency === 'SDG' ? '#000' : '#94a3b8'; ?>; font-size:0.72rem; font-weight:800; padding:4px 10px; border-radius:7px; cursor:pointer; transition:all 0.3s; font-family:'Cairo'; height: 28px; line-height: 20px;">جنيه</button>
+                    <button type="button" onclick="setCurrencyAndSubmit('USD')" style="border:none; background:<?php echo $selected_currency === 'USD' ? 'linear-gradient(135deg, #00ffff, #3b82f6)' : 'transparent'; ?>; color:<?php echo $selected_currency === 'USD' ? '#000' : '#94a3b8'; ?>; font-size:0.72rem; font-weight:800; padding:4px 10px; border-radius:7px; cursor:pointer; transition:all 0.3s; font-family:'Cairo'; height: 28px; line-height: 20px;">دولار</button>
+                </div>
+            </div>
+            <script>
+            function setCurrencyAndSubmit(curr) {
+                document.cookie = "currency=" + curr + "; path=/; max-age=" + (30 * 24 * 60 * 60);
+                const form = document.querySelector('.filter-container');
+                form.querySelector('input[name="currency"]').value = curr;
+                form.submit();
+            }
+            </script>
+
             <div style="display: flex; align-items: center; gap: 10px;">
                 <label style="color: var(--text-muted); font-size: 13px;">من:</label>
                 <input type="date" name="date_from" class="filter-input" value="<?php echo htmlspecialchars($date_from); ?>">
@@ -394,6 +442,7 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
             </div>
         </div>
     </div>
+    </div>
 
     <script>
         const ctx = document.getElementById('debtDonutChart').getContext('2d');
@@ -422,5 +471,6 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
             }
         });
     </script>
+    <script defer src="js/app.js"></script>
 </body>
 </html>

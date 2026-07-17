@@ -1,4 +1,7 @@
 <?php
+$page_title = 'استهلاك الأصناف الموسمية';
+$header_theme_class = 'header-theme-reports';
+
 // ====================================================================
 // نظام Al-Sajana Smart ERP 2026 - استهلاك الأصناف الموسمية
 // ====================================================================
@@ -15,10 +18,50 @@ $total_annual = array_sum(array_column($data, 'total_annual_qty'));
 $total_autumn = array_sum(array_column($data, 'autumn_rainy_season_qty'));
 $total_summer = array_sum(array_column($data, 'summer_dry_season_qty'));
 $dominant_season = $total_summer >= $total_autumn ? 'الصيف (الجفاف)' : 'الخريف (المطر)';
+
+// دالة تحويل العملة الموحدة للتقارير
+if (!function_exists('convertReportAmount')) {
+    function convertReportAmount($amount, $txCurrency, $txRate, $selectedCurrency) {
+        if (empty($txCurrency)) $txCurrency = 'SDG';
+        if ($txCurrency === $selectedCurrency) {
+            return (float)$amount;
+        }
+        $usdToSdgRate = 600; // السعر القياسي الافتراضي للنظام
+        $rate = (float)$txRate;
+        if ($rate <= 0) {
+            $rate = $usdToSdgRate;
+        }
+        if ($txCurrency === 'USD' && $selectedCurrency === 'SDG') {
+            return (float)$amount * $rate;
+        } else if ($txCurrency === 'SDG' && $selectedCurrency === 'USD') {
+            return (float)$amount / $rate;
+        }
+        return (float)$amount;
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+<script src="js/lang.js"></script>
+<script>
+(function(){
+    var l = localStorage.getItem("erp_lang") || "ar";
+    if(l==="en") {
+        document.documentElement.setAttribute("dir","ltr");
+        document.documentElement.setAttribute("lang","en");
+    }
+})();
+</script>
+
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260626_4">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>استهلاك الأصناف الموسمية | Al-Sajana ERP</title>
@@ -26,12 +69,30 @@ $dominant_season = $total_summer >= $total_autumn ? 'الصيف (الجفاف)' 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    <style>body{font-family:'Cairo',sans-serif;background:#030409;}
+    <style>
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: hidden;
+        }
+        .page-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0px 30px 20px 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+body{font-family:'Cairo',sans-serif;background:#030409;}
     @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
     .anim{animation:fadeInUp .6s ease-out backwards}
     </style>
 </head>
 <body class="text-slate-100 min-h-screen p-6">
+    <div class="page-container">
+        <?php include "includes/header.php"; ?>
 
     <div class="max-w-7xl mx-auto">
 
@@ -42,23 +103,7 @@ $dominant_season = $total_summer >= $total_autumn ? 'الصيف (الجفاف)' 
         <?php endif; ?>
 
         <!-- الهيدر -->
-        <div class="mb-8 border-b border-slate-800 pb-4 flex justify-between items-center flex-wrap gap-4">
-            <div>
-                <h1 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-cyan-400">
-                    <i class="fa-solid fa-cloud-sun-rain"></i> استهلاك الأصناف الموسمية
-                </h1>
-                <p class="text-slate-400 text-sm mt-1">تحليل سحب الحديد والأسمنت وتأثيره على التدفقات حسب أشهر السنة</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <div class="flex bg-slate-900 rounded-xl p-1 border border-slate-700">
-                    <a href="?currency=SDG" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all <?php echo $selected_currency === 'SDG' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'; ?>">SDG</a>
-                    <a href="?currency=USD" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all <?php echo $selected_currency === 'USD' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'; ?>">USD</a>
-                </div>
-                <a href="smart_reports_hub.php?currency=<?php echo $selected_currency; ?>" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-xl text-sm font-bold transition-all">
-                    البوابة <i class="fa-solid fa-arrow-left mr-1"></i>
-                </a>
-            </div>
-        </div>
+        
 
         <!-- المؤشرات -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -141,5 +186,7 @@ $dominant_season = $total_summer >= $total_autumn ? 'الصيف (الجفاف)' 
         }
     });
     </script>
+    </div>
+    <script defer src="js/app.js"></script>
 </body>
 </html>

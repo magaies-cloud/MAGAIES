@@ -3,6 +3,8 @@
 // نظام Al-Sajana Smart ERP 2026 - محلل ربحية وهامش مساهمة الأصناف
 // ====================================================================
 $selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
+$page_title = 'محلل ربحية وهامش مساهمة الأصناف 🎯';
+$header_theme_class = 'header-theme-reports';
 $rate = ($selected_currency === 'SDG') ? 600000 : 1000;
 
 // فلاتر التاريخ والفئة والبحث
@@ -18,6 +20,26 @@ $products = [];
 $customer_profitability = [];
 $all_categories = [];
 $db_connected = false;
+$is_mock_data = false;
+
+// دالة تحويل العملة لمحلل الربحية
+function convertProfitabilityAmount($amount, $txCurrency, $txRate, $selectedCurrency) {
+    if (empty($txCurrency)) $txCurrency = 'SDG';
+    if ($txCurrency === $selectedCurrency) {
+        return (float)$amount;
+    }
+    $usdToSdgRate = 600; // السعر القياسي الافتراضي للنظام
+    $rate = (float)$txRate;
+    if ($rate <= 0) {
+        $rate = $usdToSdgRate;
+    }
+    if ($txCurrency === 'USD' && $selectedCurrency === 'SDG') {
+        return (float)$amount * $rate;
+    } else if ($txCurrency === 'SDG' && $selectedCurrency === 'USD') {
+        return (float)$amount / $rate;
+    }
+    return (float)$amount;
+}
 
 try {
     @include_once __DIR__ . '/api/db.php';
@@ -89,6 +111,9 @@ try {
             $d = json_decode($row['data'], true);
             if (!$d) continue;
 
+            $txCurrency = $d['currency'] ?? 'SDG';
+            $txRate = $d['exchangeRate'] ?? ($d['exRate'] ?? 1);
+
             // تجميع أصناف الفاتورة
             $items_arr = $d['items'] ?? [];
             foreach ($items_arr as $item) {
@@ -98,6 +123,8 @@ try {
                 if ($total == 0 && $qty > 0) {
                     $total = $qty * (float)($item['price'] ?? 0);
                 }
+                
+                $converted_total = convertProfitabilityAmount($total, $txCurrency, $txRate, $selected_currency);
 
                 // البحث عن فئة الصنف
                 $item_category = 'غير مصنف';
@@ -117,18 +144,20 @@ try {
                 if (!isset($sales_by_item[$item_name])) {
                     $sales_by_item[$item_name] = ['total_revenue' => 0, 'total_qty' => 0, 'category' => $item_category];
                 }
-                $sales_by_item[$item_name]['total_revenue'] += $total;
+                $sales_by_item[$item_name]['total_revenue'] += $converted_total;
                 $sales_by_item[$item_name]['total_qty'] += $qty;
             }
 
             // تجميع ربحية العملاء
             $cid = $row['customer_id_val'] ?? 'unknown';
             $cname = $d['customerName'] ?? ('عميل ' . $cid);
-            $inv_total = (float)($row['total_val'] ?? ($d['totalAmount'] ?? 0));
+            $inv_total = (float)($row['total_val'] ?? ($d['totalAmount'] ?? ($d['grandTotal'] ?? ($d['total'] ?? 0))));
+            $converted_inv_total = convertProfitabilityAmount($inv_total, $txCurrency, $txRate, $selected_currency);
+            
             if (!isset($customer_sales[$cid])) {
                 $customer_sales[$cid] = ['name' => $cname, 'gross_sales' => 0];
             }
-            $customer_sales[$cid]['gross_sales'] += $inv_total;
+            $customer_sales[$cid]['gross_sales'] += $converted_inv_total;
             // تحديث الاسم من أحدث فاتورة
             if (!empty($cname) && $cname !== 'عميل ' . $cid) {
                 $customer_sales[$cid]['name'] = $cname;
@@ -164,14 +193,20 @@ try {
             $d = json_decode($pr['data'], true);
             if (!$d) continue;
 
-            $inv_total = (float)($pr['total_val'] ?? ($d['totalAmount'] ?? 0));
-            $total_purchases_all += $inv_total;
+            $txCurrency = $d['currency'] ?? 'SDG';
+            $txRate = $d['exchangeRate'] ?? ($d['exRate'] ?? 1);
+
+            $inv_total = (float)($pr['total_val'] ?? ($d['totalAmount'] ?? ($d['grandTotal'] ?? ($d['total'] ?? 0))));
+            $converted_inv_total = convertProfitabilityAmount($inv_total, $txCurrency, $txRate, $selected_currency);
+            $total_purchases_all += $converted_inv_total;
 
             $items_arr = $d['items'] ?? [];
             foreach ($items_arr as $item) {
                 $qty = (float)($item['quantity'] ?? ($item['qty'] ?? 0));
                 $price = (float)($item['price'] ?? 0);
                 $total = $qty * $price;
+                
+                $converted_total = convertProfitabilityAmount($total, $txCurrency, $txRate, $selected_currency);
 
                 // البحث عن اسم الصنف عبر itemId
                 $item_id = $item['itemId'] ?? '';
@@ -188,7 +223,7 @@ try {
                     if (!isset($purchase_costs[$item_name])) {
                         $purchase_costs[$item_name] = ['total_cost' => 0, 'total_qty' => 0];
                     }
-                    $purchase_costs[$item_name]['total_cost'] += $total;
+                    $purchase_costs[$item_name]['total_cost'] += $converted_total;
                     $purchase_costs[$item_name]['total_qty'] += $qty;
                 }
             }
@@ -199,7 +234,15 @@ try {
         // -------------------------------------------------------
         $total_sales_all = 0;
         foreach ($sales_rows as $sr) {
-            $total_sales_all += (float)($sr['total_val'] ?? 0);
+            $d = json_decode($sr['data'], true);
+            if (!$d) continue;
+            
+            $txCurrency = $d['currency'] ?? 'SDG';
+            $txRate = $d['exchangeRate'] ?? ($d['exRate'] ?? 1);
+            
+            $inv_total = (float)($sr['total_val'] ?? ($d['totalAmount'] ?? ($d['grandTotal'] ?? ($d['total'] ?? 0))));
+            $converted_inv_total = convertProfitabilityAmount($inv_total, $txCurrency, $txRate, $selected_currency);
+            $total_sales_all += $converted_inv_total;
         }
         // نسبة الربح العامة المقدرة (للاستخدام مع العملاء)
         $global_profit_ratio = $total_sales_all > 0 ? (($total_sales_all - $total_purchases_all) / $total_sales_all) : 0.15;
@@ -274,6 +317,7 @@ try {
 // بيانات بديلة في حال فراغ قاعدة البيانات
 // ========================================
 if (empty($products)) {
+    $is_mock_data = true;
     $products = [
         [
             'name' => 'سيخ 4 لينيا الأسعد',
@@ -378,10 +422,25 @@ foreach ($chart_products as $cp) {
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+<script src="js/lang.js"></script>
+<script>
+(function(){
+    var l = localStorage.getItem('erp_lang') || 'ar';
+    if(l==='en') {
+        document.documentElement.setAttribute('dir','ltr');
+        document.documentElement.setAttribute('lang','en');
+    }
+})();
+</script>
 <head>
     <meta charset="UTF-8">
     <title>محلل الربحية وهامش المساهمة | Al-Sajana ERP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260626_4">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -396,9 +455,19 @@ foreach ($chart_products as $cp) {
             background-color: var(--bg-dark); 
             color: var(--text-main); 
             font-family: 'Cairo', sans-serif; 
-            padding: 30px; 
+            margin: 0; padding: 0;
             background-image: radial-gradient(circle at top left, rgba(157, 78, 221, 0.1), transparent 45%); 
-            margin: 0;
+            overflow-x: hidden;
+        }
+        .profitability-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0px 30px 20px 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
         .glass-panel { 
             background: var(--panel-bg); 
@@ -577,24 +646,42 @@ foreach ($chart_products as $cp) {
     </style>
 </head>
 <body>
-    <div class="glass-panel">
-        <!-- الهيدر -->
-        <div class="header">
-            <div>
-                <h1 style="margin:0; background: linear-gradient(135deg, #9d4edd, #00ffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight:900;">محلل ربحية وهامش مساهمة الأصناف 🎯</h1>
-                <p style="color: var(--text-muted); margin: 5px 0 0 0;">
-                    مراقبة حية لكفاءة تسعير المنتجات، الهوامش الربحية، وحساب مساهمة كل صنف في تغطية المصاريف
-                    <span class="db-badge <?php echo $db_connected ? 'live' : 'mock'; ?>">
-                        <?php echo $db_connected ? '🟢 بيانات حية' : '🟡 بيانات تجريبية'; ?>
-                    </span>
-                </p>
+    <!-- Ambient Animated Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="profitability-container">
+        <?php include 'includes/header.php'; ?>
+        <div class="glass-panel">
+            <?php if ($is_mock_data): ?>
+            <div style="background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #fbbf24; padding: 10px 20px; border-radius: 14px; text-align: center; font-size: 13px; font-weight: bold; margin-bottom: 20px; animation: fadeIn 1s ease-out;">
+                ⚠️ الشاشة تعرض بيانات تجريبية حالياً — سيتم عرض البيانات الحقيقية عند توفر عمليات بيعية في النظام
             </div>
-            <a href="smart_reports_hub.php?currency=<?php echo $selected_currency; ?>" class="btn-back">⬅️ العودة للبوابة</a>
-        </div>
+            <?php endif; ?>
 
         <!-- شريط الفلاتر -->
         <form method="GET" class="filters-bar">
             <input type="hidden" name="currency" value="<?php echo htmlspecialchars($selected_currency); ?>">
+            
+            <!-- زر تبديل العملة في نص السطر -->
+            <div class="filter-group">
+                <label>💵 العملة</label>
+                <div style="display:flex; background:rgba(0,0,0,0.25); padding:3px; border-radius:10px; border:1px solid rgba(255,255,255,0.06); align-items:center; gap:3px; height: 36px; box-sizing: border-box;">
+                    <button type="button" onclick="setCurrencyAndSubmit('SDG')" style="border:none; background:<?php echo $selected_currency === 'SDG' ? 'linear-gradient(135deg, #10b981, #34d399)' : 'transparent'; ?>; color:<?php echo $selected_currency === 'SDG' ? '#000' : '#94a3b8'; ?>; font-size:0.72rem; font-weight:800; padding:4px 10px; border-radius:7px; cursor:pointer; transition:all 0.3s; font-family:'Cairo'; height: 28px; line-height: 20px;">جنيه</button>
+                    <button type="button" onclick="setCurrencyAndSubmit('USD')" style="border:none; background:<?php echo $selected_currency === 'USD' ? 'linear-gradient(135deg, #00ffff, #3b82f6)' : 'transparent'; ?>; color:<?php echo $selected_currency === 'USD' ? '#000' : '#94a3b8'; ?>; font-size:0.72rem; font-weight:800; padding:4px 10px; border-radius:7px; cursor:pointer; transition:all 0.3s; font-family:'Cairo'; height: 28px; line-height: 20px;">دولار</button>
+                </div>
+            </div>
+            <script>
+            function setCurrencyAndSubmit(curr) {
+                document.cookie = "currency=" + curr + "; path=/; max-age=" + (30 * 24 * 60 * 60);
+                const form = document.querySelector('.filters-bar');
+                form.querySelector('input[name="currency"]').value = curr;
+                form.submit();
+            }
+            </script>
             <div class="filter-group">
                 <label>📅 من تاريخ</label>
                 <input type="date" name="date_from" value="<?php echo htmlspecialchars($date_from); ?>">
@@ -772,6 +859,7 @@ foreach ($chart_products as $cp) {
                 </tbody>
             </table>
         </div>
+    </div>
     </div>
 
     <script>
@@ -1007,5 +1095,6 @@ foreach ($chart_products as $cp) {
             }
         });
     </script>
+    <script defer src="js/app.js"></script>
 </body>
 </html>

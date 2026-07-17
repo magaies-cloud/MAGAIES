@@ -156,6 +156,8 @@ $header_theme_class = "header-theme-inventory";
                     <a data-href="inventory-analytics.php" onclick="window.location.href='inventory-analytics.php'" class="nav-tab active">🧠 التحليل الاستراتيجي</a>
                     <a data-href="item-ledger.php" onclick="window.location.href='item-ledger.php'" class="nav-tab">📑 حركة الصنف</a>
                     <a data-href="warehouse-ledger.php" onclick="window.location.href='warehouse-ledger.php'" class="nav-tab">🏭 حركة المخزن</a>
+                <a data-href="ai_goods_advisor.php" onclick="window.location.href='ai_goods_advisor.php'" class="nav-tab">🤖 مستشار الـ AI للبضائع</a>
+                <a data-href="smart_inventory_report.php" onclick="window.location.href='smart_inventory_report.php'" class="nav-tab">📊 تقارير المخازن الذكية</a>
                 </div>
                 <div class="dash-controls" style="margin: 0;">
                     <button class="btn-action" onclick="previewAnalyticsReport()" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(13,148,136,0.2); margin-left: 8px;">👁️ معاينة</button>

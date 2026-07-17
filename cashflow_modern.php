@@ -3,6 +3,8 @@
 // نظام Al-Sajana Smart ERP 2026 - كاشف التدفقات النقدية الفعلي V2
 // ====================================================================
 $selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
+$page_title = 'كاشف التدفقات النقدية الفعلي (IAS 7)';
+$header_theme_class = 'header-theme-reports';
 $rate = ($selected_currency === 'SDG') ? 600000 : 1000;
 
 // فلاتر البحث والتاريخ
@@ -20,6 +22,25 @@ $labels = [];
 $db_connected = false;
 $is_mock_data = false; // علامة البيانات التجريبية
 
+// دالة تحويل العملة للتدفقات النقدية الفعلية
+function convertCashflowAmount($amount, $txCurrency, $txRate, $selectedCurrency) {
+    if (empty($txCurrency)) $txCurrency = 'SDG';
+    if ($txCurrency === $selectedCurrency) {
+        return (float)$amount;
+    }
+    $usdToSdgRate = 600; // السعر القياسي الافتراضي للنظام
+    $rate = (float)$txRate;
+    if ($rate <= 0) {
+        $rate = $usdToSdgRate;
+    }
+    if ($txCurrency === 'USD' && $selectedCurrency === 'SDG') {
+        return (float)$amount * $rate;
+    } else if ($txCurrency === 'SDG' && $selectedCurrency === 'USD') {
+        return (float)$amount / $rate;
+    }
+    return (float)$amount;
+}
+
 try {
     @include_once __DIR__ . '/api/db.php';
     if (isset($pdo)) {
@@ -29,13 +50,21 @@ try {
         $safes_stmt = $pdo->query("SELECT data FROM safes WHERE is_deleted = 0 OR is_deleted IS NULL");
         while ($row = $safes_stmt->fetch()) {
             $data = json_decode($row['data'], true);
-            $current_cash += (float)($data['currentBalance'] ?? ($data['balance'] ?? 0));
+            if (!$data) continue;
+            $amt = (float)($data['currentBalance'] ?? ($data['balance'] ?? 0));
+            $curr = $data['currency'] ?? 'SDG';
+            $ex_rate = $data['exRate'] ?? ($data['rate'] ?? 1);
+            $current_cash += convertCashflowAmount($amt, $curr, $ex_rate, $selected_currency);
         }
         
         $banks_stmt = $pdo->query("SELECT data FROM banks WHERE is_deleted = 0 OR is_deleted IS NULL");
         while ($row = $banks_stmt->fetch()) {
             $data = json_decode($row['data'], true);
-            $current_cash += (float)($data['currentBalance'] ?? ($data['balance'] ?? 0));
+            if (!$data) continue;
+            $amt = (float)($data['currentBalance'] ?? ($data['balance'] ?? 0));
+            $curr = $data['currency'] ?? 'SDG';
+            $ex_rate = $data['exRate'] ?? ($data['rate'] ?? 1);
+            $current_cash += convertCashflowAmount($amt, $curr, $ex_rate, $selected_currency);
         }
         
         // 2. تجميع التدفقات الداخلة (المبيعات + المقبوضات)
@@ -46,7 +75,12 @@ try {
             $date = date('Y-m', strtotime($row['date_val']));
             if (!isset($inflows[$date])) $inflows[$date] = 0;
             $d = json_decode($row['data'], true);
-            $inflows[$date] += (float)($d['totalAmount'] ?? 0);
+            if (!$d) continue;
+            
+            $amt = (float)($d['totalAmount'] ?? ($d['grandTotal'] ?? ($d['total'] ?? 0)));
+            $curr = $d['currency'] ?? 'SDG';
+            $ex_rate = $d['exchangeRate'] ?? ($d['exRate'] ?? 1);
+            $inflows[$date] += convertCashflowAmount($amt, $curr, $ex_rate, $selected_currency);
         }
         // سندات القبض
         $receipts_stmt = $pdo->query("SELECT date_val, data FROM single_receipts WHERE is_deleted = 0");
@@ -54,7 +88,12 @@ try {
             $date = date('Y-m', strtotime($row['date_val']));
             if (!isset($inflows[$date])) $inflows[$date] = 0;
             $d = json_decode($row['data'], true);
-            $inflows[$date] += (float)($d['amountLocal'] ?? 0);
+            if (!$d) continue;
+            
+            $amt = (float)($d['amountLocal'] ?? ($d['amount'] ?? 0));
+            $curr = $d['currency'] ?? 'SDG';
+            $ex_rate = $d['rate'] ?? 1;
+            $inflows[$date] += convertCashflowAmount($amt, $curr, $ex_rate, $selected_currency);
         }
         
         // 3. تجميع التدفقات الخارجة (المشتريات + المدفوعات)
@@ -65,7 +104,12 @@ try {
             $date = date('Y-m', strtotime($row['date_val']));
             if (!isset($outflows[$date])) $outflows[$date] = 0;
             $d = json_decode($row['data'], true);
-            $outflows[$date] += (float)($d['totalAmount'] ?? ($d['grandTotal'] ?? 0));
+            if (!$d) continue;
+            
+            $amt = (float)($d['totalAmount'] ?? ($d['grandTotal'] ?? ($d['total'] ?? 0)));
+            $curr = $d['currency'] ?? 'SDG';
+            $ex_rate = $d['exchangeRate'] ?? ($d['exRate'] ?? 1);
+            $outflows[$date] += convertCashflowAmount($amt, $curr, $ex_rate, $selected_currency);
         }
         // سندات الصرف
         $payments_stmt = $pdo->query("SELECT date_val, data FROM single_payments WHERE is_deleted = 0");
@@ -73,7 +117,12 @@ try {
             $date = date('Y-m', strtotime($row['date_val']));
             if (!isset($outflows[$date])) $outflows[$date] = 0;
             $d = json_decode($row['data'], true);
-            $outflows[$date] += (float)($d['amountLocal'] ?? 0);
+            if (!$d) continue;
+            
+            $amt = (float)($d['amountLocal'] ?? ($d['amount'] ?? 0));
+            $curr = $d['currency'] ?? 'SDG';
+            $ex_rate = $d['rate'] ?? 1;
+            $outflows[$date] += convertCashflowAmount($amt, $curr, $ex_rate, $selected_currency);
         }
         
         // تجهيز بيانات الرسم البياني
@@ -113,10 +162,13 @@ try {
                 // فقط الشيكات المعلقة خلال الـ 30 يوم القادمة
                 if ($due >= date('Y-m-d') && $due <= date('Y-m-d', strtotime('+30 days'))) {
                     $amt = (float)($cd['amount'] ?? 0);
+                    $curr = $cd['currency'] ?? 'SDG';
+                    $ex_rate = $cd['rate'] ?? ($cd['exchangeRate'] ?? 1);
+                    $convertedAmt = convertCashflowAmount($amt, $curr, $ex_rate, $selected_currency);
                     if (($cd['type'] ?? '') === 'INBOUND') {
-                        $upcoming_collection += $amt;
+                        $upcoming_collection += $convertedAmt;
                     } else {
-                        $upcoming_payable += $amt;
+                        $upcoming_payable += $convertedAmt;
                     }
                 }
             }
@@ -145,10 +197,25 @@ $trend_outflow = count($monthly_outflows) > 1 ? (($monthly_outflows[count($month
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+<script src="js/lang.js"></script>
+<script>
+(function(){
+    var l = localStorage.getItem('erp_lang') || 'ar';
+    if(l==='en') {
+        document.documentElement.setAttribute('dir','ltr');
+        document.documentElement.setAttribute('lang','en');
+    }
+})();
+</script>
 <head>
     <meta charset="UTF-8">
     <title>كاشف التدفقات النقدية | Al-Sajana ERP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260626_4">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -162,8 +229,19 @@ $trend_outflow = count($monthly_outflows) > 1 ? (($monthly_outflows[count($month
             background-color: var(--bg-dark);
             color: var(--text-main);
             font-family: 'Cairo', sans-serif;
-            padding: 30px;
+            margin: 0; padding: 0;
             background-image: radial-gradient(circle at top left, rgba(0, 255, 127, 0.08), transparent 40%);
+            overflow-x: hidden;
+        }
+        .cashflow-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0px 30px 20px 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
         .glass-panel {
             background: var(--panel-bg);
@@ -201,22 +279,41 @@ $trend_outflow = count($monthly_outflows) > 1 ? (($monthly_outflows[count($month
     </style>
 </head>
 <body>
-    <div class="glass-panel">
-        <?php if ($is_mock_data): ?>
-        <div style="background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #fbbf24; padding: 10px 20px; border-radius: 14px; text-align: center; font-size: 13px; font-weight: bold; margin-bottom: 20px; animation: fadeIn 1s ease-out;">
-            ⚠️ الشاشة تعرض بيانات تجريبية حالياً — سيتم عرض البيانات الحقيقية عند توفر عمليات بيعية في النظام
-        </div>
-        <?php endif; ?>
-        <div class="header">
-            <div>
-                <h1 style="margin:0; background: linear-gradient(135deg, #00ff7f, #00ffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight:900;">كاشف التدفقات النقدية الفعلي (IAS 7)</h1>
-                <p style="color: var(--text-muted); margin: 5px 0 0 0;">مراقبة السيولة الحقيقية وحركة الخزائن والبنك</p>
-            </div>
-            <a href="smart_reports_hub.php?currency=<?php echo $selected_currency; ?>" class="btn-back">⬅️ العودة للبوابة</a>
-        </div>
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
 
-        <form method="GET" class="filter-container">
-            <input type="hidden" name="currency" value="<?php echo htmlspecialchars($selected_currency); ?>">
+    <div class="cashflow-container">
+        <?php include 'includes/header.php'; ?>
+        <div class="glass-panel">
+            <?php if ($is_mock_data): ?>
+            <div style="background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #fbbf24; padding: 10px 20px; border-radius: 14px; text-align: center; font-size: 13px; font-weight: bold; margin-bottom: 20px; animation: fadeIn 1s ease-out;">
+                ⚠️ الشاشة تعرض بيانات تجريبية حالياً — سيتم عرض البيانات الحقيقية عند توفر عمليات بيعية في النظام
+            </div>
+            <?php endif; ?>
+
+            <form method="GET" class="filter-container">
+                <input type="hidden" name="currency" value="<?php echo htmlspecialchars($selected_currency); ?>">
+                
+                <!-- زر تبديل العملة في نص السطر -->
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label style="color: var(--text-muted); font-size: 13px;">العملة:</label>
+                    <div style="display:flex; background:rgba(0,0,0,0.25); padding:3px; border-radius:10px; border:1px solid rgba(255,255,255,0.06); align-items:center; gap:3px; height: 36px; box-sizing: border-box;">
+                        <button type="button" onclick="setCurrencyAndSubmit('SDG')" style="border:none; background:<?php echo $selected_currency === 'SDG' ? 'linear-gradient(135deg, #10b981, #34d399)' : 'transparent'; ?>; color:<?php echo $selected_currency === 'SDG' ? '#000' : '#94a3b8'; ?>; font-size:0.72rem; font-weight:800; padding:4px 10px; border-radius:7px; cursor:pointer; transition:all 0.3s; font-family:'Cairo'; height: 28px; line-height: 20px;">جنيه</button>
+                        <button type="button" onclick="setCurrencyAndSubmit('USD')" style="border:none; background:<?php echo $selected_currency === 'USD' ? 'linear-gradient(135deg, #00ffff, #3b82f6)' : 'transparent'; ?>; color:<?php echo $selected_currency === 'USD' ? '#000' : '#94a3b8'; ?>; font-size:0.72rem; font-weight:800; padding:4px 10px; border-radius:7px; cursor:pointer; transition:all 0.3s; font-family:'Cairo'; height: 28px; line-height: 20px;">دولار</button>
+                    </div>
+                </div>
+                <script>
+                function setCurrencyAndSubmit(curr) {
+                    document.cookie = "currency=" + curr + "; path=/; max-age=" + (30 * 24 * 60 * 60);
+                    const form = document.querySelector('.filter-container');
+                    form.querySelector('input[name="currency"]').value = curr;
+                    form.submit();
+                }
+                </script>
             <div style="display: flex; align-items: center; gap: 10px;">
                 <label style="color: var(--text-muted); font-size: 13px;">من شهر:</label>
                 <input type="month" name="date_from" class="filter-input" value="<?php echo htmlspecialchars($date_from); ?>">
@@ -272,6 +369,7 @@ $trend_outflow = count($monthly_outflows) > 1 ? (($monthly_outflows[count($month
         <div class="chart-container">
             <canvas id="cashflowChart"></canvas>
         </div>
+    </div>
     </div>
 
     <script>
@@ -344,5 +442,6 @@ $trend_outflow = count($monthly_outflows) > 1 ? (($monthly_outflows[count($month
             }
         });
     </script>
+    <script defer src="js/app.js"></script>
 </body>
 </html>

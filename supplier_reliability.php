@@ -1,4 +1,7 @@
 <?php
+$page_title = 'مؤشر موثوقية وثبات أسعار الموردين';
+$header_theme_class = 'header-theme-reports';
+
 // ====================================================================
 // نظام Al-Sajana Smart ERP 2026 - مؤشر موثوقية وثبات أسعار الموردين
 // ====================================================================
@@ -146,15 +149,71 @@ if (empty($suppliers) && empty($search_query) && empty($date_from) && empty($dat
         $total_orders += $s['orders'];
     }
 }
+
+// دالة تحويل العملة الموحدة للتقارير
+if (!function_exists('convertReportAmount')) {
+    function convertReportAmount($amount, $txCurrency, $txRate, $selectedCurrency) {
+        if (empty($txCurrency)) $txCurrency = 'SDG';
+        if ($txCurrency === $selectedCurrency) {
+            return (float)$amount;
+        }
+        $usdToSdgRate = 600; // السعر القياسي الافتراضي للنظام
+        $rate = (float)$txRate;
+        if ($rate <= 0) {
+            $rate = $usdToSdgRate;
+        }
+        if ($txCurrency === 'USD' && $selectedCurrency === 'SDG') {
+            return (float)$amount * $rate;
+        } else if ($txCurrency === 'SDG' && $selectedCurrency === 'USD') {
+            return (float)$amount / $rate;
+        }
+        return (float)$amount;
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+<script src="js/lang.js"></script>
+<script>
+(function(){
+    var l = localStorage.getItem("erp_lang") || "ar";
+    if(l==="en") {
+        document.documentElement.setAttribute("dir","ltr");
+        document.documentElement.setAttribute("lang","en");
+    }
+})();
+</script>
+
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260626_4">
+
     <meta charset="UTF-8">
     <title>مؤشر موثوقية الموردين | Al-Sajana ERP</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: hidden;
+        }
+        .page-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0px 30px 20px 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
         :root {
             --bg-dark: #04020a;
             --panel-bg: rgba(14, 8, 28, 0.75);
@@ -197,12 +256,11 @@ if (empty($suppliers) && empty($search_query) && empty($date_from) && empty($dat
     </style>
 </head>
 <body>
+    <div class="page-container">
+        <?php include "includes/header.php"; ?>
     <div class="glass-panel">
         <div class="header">
-            <div>
-                <h1 style="margin:0; background: linear-gradient(135deg, #a855f7, #00ffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight:900;">مؤشر موثوقية الموردين وثبات الأسعار (Supplier Reliability Index)</h1>
-                <p style="color: var(--text-muted); margin: 5px 0 0 0;">تقييم متقدم لأداء الموردين، ثبات أسعارهم، وحجم التوريد لتحديد الموردين الأكثر استقراراً</p>
-            </div>
+            
             <a href="smart_reports_hub.php?currency=<?php echo $selected_currency; ?>" class="btn-back">⬅️ العودة للبوابة</a>
         </div>
 
@@ -363,5 +421,7 @@ if (empty($suppliers) && empty($search_query) && empty($date_from) && empty($dat
         });
         <?php endif; ?>
     </script>
+    </div>
+    <script defer src="js/app.js"></script>
 </body>
 </html>

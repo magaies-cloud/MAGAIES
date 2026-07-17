@@ -239,7 +239,7 @@
         /* Content Grid */
         .vouchers-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 15px;
             width: 100%;
         }
@@ -599,6 +599,25 @@
                 <div class="v-footer">
                     <span class="v-badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);">Posting</span>
                     <span class="v-arrow" style="background: #38bdf8; color: #fff;">←</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- AI Money Advisor -->
+        <a data-href="ai_money_advisor.php" onclick="window.location.href='ai_money_advisor.php'" class="premium-card" style="--card-color: #10b981; --card-rgb: 16, 185, 129;">
+            <div class="card-glow"></div>
+            <div class="flow-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">
+                <span>🤖</span> مستشار
+            </div>
+            <div class="card-content">
+                <div class="icon-wrapper">
+                    <span class="v-icon">🤖</span>
+                </div>
+                <h3 class="v-title">مستشار الـ AI للأموال</h3>
+                <p class="v-subtitle">تحليل مالي ذكي وإدارة التدفقات النقدية بالذكاء الاصطناعي.</p>
+                <div class="v-footer">
+                    <span class="v-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);">AI Advisor</span>
+                    <span class="v-arrow" style="background: #10b981; color: #fff;">←</span>
                 </div>
             </div>
         </a>

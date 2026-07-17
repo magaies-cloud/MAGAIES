@@ -1780,14 +1780,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 href: 'dashboard-pro.php', label: _t('sidebar.dashboard', 'لوحة التحكم'), color: '#22d3ee', module: 'dashboard',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>'
             },
-            {
-                href: 'ai_goods_advisor.php', label: _t('sidebar.aiGoodsAdvisor', 'مستشار الـ AI الاستراتيجي للبضائع'), color: '#10b981', module: 'dashboard',
-                icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>'
-            },
-            {
-                href: 'ai_money_advisor.php', label: _t('sidebar.aiMoneyAdvisor', 'مستشار الـ AI الاستراتيجي للأموال'), color: '#a855f7', module: 'dashboard',
-                icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>'
-            },
+
+
             {
                 href: 'alerts_manager.php', label: _t('sidebar.alertsManager', 'تنبيهات التقارير المالية الذكية'), color: '#ef4444', module: 'dashboard',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>'
@@ -1800,10 +1794,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 href: 'master-data.php', label: _t('sidebar.masterData', 'البيانات الأساسية'), color: '#f472b6', module: 'master_data',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>'
             },
-            {
-                href: 'jobs.php', label: _t('sidebar.jobs', 'المهام'), color: '#0d9488', module: 'dashboard',
-                icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>'
-            },
+
             {
                 href: 'alarm.php', label: _t('sidebar.alerts', 'التنبيهات'), color: '#f87171', badge: true, module: 'dashboard',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>'
@@ -1820,26 +1811,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 href: 'vouchers-hub.php', label: _t('sidebar.finance', 'المعاملات المالية'), color: '#fbbf24', module: 'finance',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>'
             },
-            {
-                href: 'checks-cycle.php', label: _t('sidebar.checks', 'شيكات'), color: '#eab308', module: 'finance',
-                icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>'
-            },
+
             {
                 href: 'analytics.php', label: _t('sidebar.reports', 'تقارير مالية'), color: '#38bdf8', module: 'reports',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>'
             },
-            {
-                href: 'smart_reports_hub.php', label: _t('sidebar.smartReports', 'التقرير المالي الذكي V2'), color: '#a855f7', module: 'reports',
-                icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>'
-            },
+
             {
                 href: 'inventory-report.php', label: _t('sidebar.inventory', 'المخازن'), color: '#a78bfa', module: 'inventory',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>'
             },
-            {
-                href: 'smart_inventory_report.php', label: _t('sidebar.smartInventory', 'تقارير المخازن الذكية'), color: '#10b981', module: 'inventory',
-                icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 3.055A9.003 9.003 0 1020.945 13H11V3.055z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />'
-            },
+
         ];
 
         // Add Audit Log dynamically for admins only

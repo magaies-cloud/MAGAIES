@@ -1,4 +1,7 @@
 <?php
+$page_title = 'محلل ركود البضائع ومعدل الدوران';
+$header_theme_class = 'header-theme-reports';
+
 // ====================================================================
 // نظام Al-Sajana Smart ERP 2026 - محلل ركود البضائع ومعدلات الدوران
 // ====================================================================
@@ -316,16 +319,72 @@ foreach ($items_metrics as $im) {
     $chart_colors[]  = str_replace('#', 'rgba(', '') . ''; // سنعيد بناء الألوان في JS
     $chart_borders[] = $im['class_color'];
 }
+
+// دالة تحويل العملة الموحدة للتقارير
+if (!function_exists('convertReportAmount')) {
+    function convertReportAmount($amount, $txCurrency, $txRate, $selectedCurrency) {
+        if (empty($txCurrency)) $txCurrency = 'SDG';
+        if ($txCurrency === $selectedCurrency) {
+            return (float)$amount;
+        }
+        $usdToSdgRate = 600; // السعر القياسي الافتراضي للنظام
+        $rate = (float)$txRate;
+        if ($rate <= 0) {
+            $rate = $usdToSdgRate;
+        }
+        if ($txCurrency === 'USD' && $selectedCurrency === 'SDG') {
+            return (float)$amount * $rate;
+        } else if ($txCurrency === 'SDG' && $selectedCurrency === 'USD') {
+            return (float)$amount / $rate;
+        }
+        return (float)$amount;
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+<script src="js/lang.js"></script>
+<script>
+(function(){
+    var l = localStorage.getItem("erp_lang") || "ar";
+    if(l==="en") {
+        document.documentElement.setAttribute("dir","ltr");
+        document.documentElement.setAttribute("lang","en");
+    }
+})();
+</script>
+
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260626_4">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محلل ركود البضائع ومعدل دوران المخزون | Al-Sajana ERP</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: hidden;
+        }
+        .page-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0px 30px 20px 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
         /* ====== المتغيرات الأساسية ====== */
         :root {
             --bg-dark: #04030a;
@@ -647,13 +706,12 @@ foreach ($items_metrics as $im) {
     </style>
 </head>
 <body>
+    <div class="page-container">
+        <?php include "includes/header.php"; ?>
     <div class="glass-panel animate-fade">
         <!-- ====== الهيدر ====== -->
         <div class="header">
-            <div>
-                <h1>📦 محلل ركود البضائع ومعدل دوران المخزون</h1>
-                <p>كشف فوري للأصناف سريعة الحركة والبضائع الراكدة التي تجمد السيولة • <?php echo count($items_metrics); ?> صنف</p>
-            </div>
+            
             <a href="smart_reports_hub.php?currency=<?php echo htmlspecialchars($selected_currency); ?>" class="btn-back">⬅️ العودة للبوابة</a>
         </div>
 
@@ -974,5 +1032,7 @@ foreach ($items_metrics as $im) {
             }
         });
     </script>
+    </div>
+    <script defer src="js/app.js"></script>
 </body>
 </html>

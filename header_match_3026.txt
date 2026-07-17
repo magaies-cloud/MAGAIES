@@ -1,0 +1,174 @@
+Created At: 2026-07-17T22:50:42Z
+Completed At: 2026-07-17T22:50:42Z
+File Path: `file:///c:/xampp/htdocs/magaees/includes/header.php`
+Total Lines: 165
+Total Bytes: 15220
+Showing lines 1 to 165
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: <header class="premium-header <?php echo isset($header_theme_class) ? $header_theme_class : ''; ?>" style="display:flex; justify-content:space-between; align-items:center; gap:15px;">
+2:     <!-- Left: Logo / Brand -->
+3:     <div style="display:flex; align-items:center; gap:12px; flex:1;">
+4:         <div style="background:linear-gradient(135deg,#10b981,#34d399); width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">??</div>
+5:         <div>
+6:             <div style="color:#fff; font-weight:800; font-size:1rem; letter-spacing:0.5px;" id="header-company-name-top" data-i18n="sidebar.brand">?????? (MAGAIEES)</div>
+7:             <div style="color:var(--text-secondary); font-size:0.7rem;" data-i18n="header.systemName">???? ????? ???????</div>
+8:         </div>
+9:     </div>
+10: 
+11:     <!-- Center: Page Title -->
+12:     <?php
+13:     $dynamic_icon = '?'; // default
+14:     if (isset($page_title)) {
+15:         if (strpos($page_title, '???? ??????') !== false || strpos($page_title, 'SaaS') !== false || strpos($page_title, 'Dashboard') !== false) $dynamic_icon = '???';
+16:         elseif (strpos($page_title, '??????') !== false || strpos($page_title, '????????') !== false || strpos($page_title, 'Sales') !== false) $dynamic_icon = '??';
+17:         elseif (strpos($page_title, '???????') !== false || strpos($page_title, '?????????') !== false || strpos($page_title, '??????') !== false || strpos($page_title, 'Purchase') !== false) $dynamic_icon = '???';
+18:         elseif (strpos($page_title, '?????') !== false || strpos($page_title, '?????') !== false || strpos($page_title, '???') !== false || strpos($page_title, '???') !== false || strpos($page_title, '?????') !== false || strpos($page_title, '?????') !== false || strpos($page_title, '??????') !== false || strpos($page_title, 'Inventory') !== false) $dynamic_icon = '??';
+19:         elseif (strpos($page_title, '????') !== false || strpos($page_title, '????') !== false || strpos($page_title, '???') !== false || strpos($page_title, '???') !== false || strpos($page_title, '???') !== false || strpos($page_title, '????') !== false || strpos($page_title, '?????') !== false || strpos($page_title, '?????') !== false || strpos($page_title, '????') !== false || strpos($page_title, '???') !== false || strpos($page_title, 'Finance') !== false || strpos($page_title, 'Account') !== false) $dynamic_icon = '??';
+20:         elseif (strpos($page_title, '?????') !== false || strpos($page_title, 'Check') !== false) $dynamic_icon = '??';
+21:         elseif (strpos($page_title, '?????') !== false || strpos($page_title, '????') !== false || strpos($page_title, '???') !== false || strpos($page_title, '?????') !== false || strpos($page_title, 'Partner') !== false) $dynamic_icon = '??';
+22:         elseif (strpos($page_title, '???????') !== false || strpos($page_title, '?????') !== false || strpos($page_title, '????') !== false || strpos($page_title, '????') !== false || strpos($page_title, '??????') !== false || strpos($page_title, '???') !== false || strpos($page_title, '?????') !== false || strpos($page_title, 'Settings') !== false || strpos($page_title, 'Master') !== false) $dynamic_icon = '??';
+23:         elseif (strpos($page_title, '??????') !== false || strpos($page_title, '????????') !== false || strpos($page_title, '?????') !== false || strpos($page_title, 'Report') !== false) $dynamic_icon = '??';
+24:         elseif (strpos($page_title, '???????') !== false || strpos($page_title, 'Alert') !== false) $dynamic_icon = '??';
+25:         elseif (strpos($page_title, '??????') !== false || strpos($page_title, 'Barcode') !== false) $dynamic_icon = '???';
+26:         elseif (strpos($page_title, 'Audit') !== false || strpos($page_title, '???????') !== false) $dynamic_icon = '??';
+27:     }
+28:     ?>
+29:     <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+30:         <h2 class="header-page-title">
+31:             <span class="header-page-title-icon"><?php echo $dynamic_icon; ?></span>
+32:             <?php echo isset($page_title) ? htmlspecialchars($page_title) : '?????? (MAGAIEES)'; ?>
+33:         </h2>
+34:         <div id="dashboard-athkar-container" class="islamic-ticker-container" style="display: none;">
+35:             <div class="islamic-ticker">
+36:                 ????????? ??????? ???????????? ? ????????? ??????? ?????????? ?? ???????????? ??????? ????????? ???????? ?? ?????????? ????? ????????? ????? ?????????? ?????????
+37:             </div>
+38:         </div>
+39:     </div>
+40: 
+41:     <!-- Right: Controls -->
+42:     <div style="display:flex; align-items:center; gap:12px; flex:1; justify-content:flex-end;">
+43:         <!-- User Info & Online Users -->
+44:         <div style="display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:6px;">
+45:             <div class="user-info" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); padding: 5px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; min-width: 90px;" onclick="document.getElementById('profile-modal').style.display='flex'">
+46:                 <div id="header-user-name" style="font-size: 0.95rem; font-weight: 800; color: #fff; text-align: center;">???? ???????...</div>
+47:                 <div id="header-user-role" style="font-size: 0.75rem; color: #38bdf8; text-align: center;" data-i18n="header.sysAdmin">???? ??????</div>
+48:             </div>
+49:             <div id="online-users-badge" style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:3px 12px; min-width:90px; text-align:center; box-shadow:inset 0 0 10px rgba(16,185,129,0.1); cursor:pointer;" onclick="alert('?????????? ???????? ??????: \n' + (window.onlineUsersList || []).join('\n'))">
+50:                 <span style="color:#6ee7b7; font-size:0.7rem; font-weight:800;"><span data-i18n="header.onlineNow">???? ????:</span> <span id="online-users-count" style="color:#fff; font-size:0.8rem;">1</span> <span style="font-size:0.6rem;">??</span></span>
+51:             </div>
+52:         </div>
+53: 
+54:         <!-- Clock & Exchange Rate -->
+55:         <div class="header-time-stack" style="display:flex; flex-direction:column; gap:6px; align-items:center;">
+56:             <div class="clock-container" style="display:flex; flex-direction:column; align-items:center; background:rgba(15,23,42,0.6); padding:4px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); min-width:110px; width:100%; box-sizing:border-box;">
+57:                 <span id="header-clock" style="color:#34d399; font-size:1.1rem; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:1px; text-shadow: 0 0 10px rgba(16,185,129,0.5);">00:00:00</span>
+58:                 <span id="header-date-mini" style="color:var(--text-secondary); font-size:0.65rem; margin-top:1px;">???? ???????...</span>
+59:             </div>
+60:             <div id="global-exchange-rate-box" style="display:none; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); border-radius:10px; padding:3px 12px; min-width:110px; text-align:center; box-shadow:inset 0 0 10px rgba(245,158,11,0.1); width:100%; box-sizing:border-box;">
+61:                 <span style="color:#fbd38d; font-size:0.75rem; font-weight:800;"><span data-i18n="header.exchangeRate">??? ?????:</span> <span id="global-exchange-rate-val" style="color:#fff; font-size:0.85rem;">-</span></span>
+62:             </div>
+63:         </div>
+64:         <!-- Theme & Currency -->
+65:         <div style="display:flex; align-items:center; gap:8px;">
+66:             <?php
+67:             $current_page_name = basename($_SERVER['PHP_SELF']);
+68:             $show_header_currency = !in_array($current_page_name, ['login.php', 'index.php', 'dashboard-pro.php', 'smart_reports_hub.php', 'general_ledger_v2.php', 'cashflow_modern.php', 'profitability_analysis.php']);
+69:             if ($show_header_currency):
+70:                 $header_curr = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
+71:             ?>
+72:                 <!-- Currency Toggle Widget -->
+73:                 <div class="header-currency-toggle" style="display:flex; background:rgba(0,0,0,0.25); padding:3px; border-radius:10px; border:1px solid rgba(255,255,255,0.06); align-items:center; gap:3px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); height: 36px; box-sizing: border-box;">
+74:                     <button onclick="changeHeaderCurrency('SDG')" style="border:none; background:<?php echo $header_curr === 'SDG' ? 'linear-gradient(135deg, #10b981, #34d399)' : 'transparent'; ?>; color:<?php echo $header_curr === 'SDG' ? '#000' : '#94a3b8'; ?>; font-size:0.72rem; font-weight:800; padding:4px 10px; border-radius:7px; cursor:pointer; transition:all 0.3s; font-family:'Cairo'; height: 28px; line-height: 20px;">????</button>
+75:                     <button onclick="changeHeaderCurrency('USD')" style="border:none; background:<?php echo $header_curr === 'USD' ? 'linear-gradient(135deg, #00ffff, #3b82f6)' : 'transparent'; ?>; color:<?php echo $header_curr === 'USD' ? '#000' : '#94a3b8'; ?>; font-size:0.72rem; font-weight:800; padding:4px 10px; border-radius:7px; cursor:pointer; transition:all 0.3s; font-family:'Cairo'; height: 28px; line-height: 20px;">?????</button>
+76:                 </div>
+77:                 <script>
+78:                 function changeHeaderCurrency(curr) {
+79:                     document.cookie = "currency=" + curr + "; path=/; max-age=" + (30 * 24 * 60 * 60);
+80:                     let url = new URL(window.location.href);
+81:                     url.searchParams.delete('currency');
+82:                     window.location.href = url.toString();
+83:                 }
+84:                 </script>
+85:             <?php endif; ?>
+86: 
+87:             <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+88:                 <button class="fullscreen-toggle-btn" onclick="toggleFullScreen()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.15rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.fullscreen" title="????? ??????">?</button>
+89:                 <button class="theme-toggle-btn" onclick="toggleTheme()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.toggleTheme" title="????? ??????">??</button>
+90:             </div>
+91:             <button class="back-arrow-btn" onclick="history.back()" style="background:rgba(255,255,255,0.1); border:none; border-radius:12px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.back" title="????">??</button>
+92:         </div>
+93:         <script>
+94:         function toggleFullScreen() {
+95:             if (!document.fullscreenElement) {
+96:                 document.documentElement.requestFullscreen().catch(err => {
+97:                     console.error("Error enabling full-screen:", err);
+98:                 });
+99:             } else {
+100:                 if (document.exitFullscreen) {
+101:                     document.exitFullscreen();
+102:                 }
+103:             }
+104:         }
+105:         
+106:         // Theme initialization and toggle logic
+107:         if (localStorage.getItem('erp_theme') === 'light') {
+108:             document.documentElement.classList.add('light-theme');
+109:         }
+110:         function toggleTheme() {
+111:             document.documentElement.classList.toggle('light-theme');
+112:             localStorage.setItem('erp_theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
+113:             window.dispatchEvent(new Event('themeChanged'));
+114:         }
+115: 
+116:         // Global Backdrop Click to Go Back Interaction (Immediate, bypasses JS cache)
+117:         document.addEventListener('click', function(e) {
+118:             try {
+119:                 if (!e || !e.target) return;
+120:                 
+121:                 // Exclude home/dashboard and login screens
+122:                 const path = window.location.pathname.toLowerCase();
+123:                 if (path.includes('dashboard-pro') || path.includes('login') || path.includes('index') || path === '/' || path.endsWith('/magaees') || path.endsWith('/magaees/')) {
+124:                     return;
+125:                 }
+126: 
+127:                 const target = e.target;
+128:                 if (typeof target.closest !== 'function') return;
+129: 
+130:                 // ???????: ????? ?? ?????? ????? ??? ????? ?? ???????? ??????? ???? ???????? ??????? ??????? ???
+131:                 if (!target.closest('.global-sidebar') && !target.closest('.premium-header')) {
+132:                     return; // ????? ??????? ?? ?? ???? ??? (??? ???? ???????? ?? ???????? ????????)
+133:                 }
+134: 
+135:                 // Protect ONLY interactive elements. We want background/empty areas to trigger 'back'
+136:                 const interactiveSelectors = [
+137:                     'button', 'input', 'select', 'textarea', 'a', 'label', 'table', 'form',
+138:                     '.modal-overlay', '.modal', '.custom-dropdown-list', '.toast-container', '.choices',
+139:                     '.user-info', '#online-users-badge', '.clock-container', '.crystal-pill', '.bal-card',
+140:                     '[onclick]' // Any element with an onclick attribute
+141:                 ];
+142: 
+143:                 for (let i = 0; i < interactiveSelectors.length; i++) {
+144:                     if (target.closest(interactiveSelectors[i])) {
+145:                         return; // Ignored as click is in or on an interactive component
+146:                     }
+147:                 }
+148: 
+149:                 // If we get here, it's an empty space, margin, or layout container
+150:                 // Navigate back immediately
+151:                 e.preventDefault();
+152:                 e.stopPropagation();
+153:                 if (document.referrer) {
+154:                     window.history.back();
+155:                 } else {
+156:                     window.location.href = 'dashboard-pro.php';
+157:                 }
+158:             } catch (err) {
+159:                 console.error('Error in backdrop click:', err);
+160:             }
+161:         }, true); // Use CAPTURE phase to intercept before any other script calls stopPropagation
+162:         </script>
+163:     </div>
+164: </header>
+165: 
+The above content shows the entire, complete file contents of the requested file.
+

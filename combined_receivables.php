@@ -1,4 +1,7 @@
 <?php
+$page_title = 'حساب مديونية الأرصدة الشامل';
+$header_theme_class = 'header-theme-reports';
+
 // ====================================================================
 // نظام Al-Sajana Smart ERP 2026 - تقرير حساب مديونية الأرصدة الشامل (دفتر الأستاذ + الشيكات)
 // ====================================================================
@@ -140,16 +143,72 @@ foreach ($report_data as $row) {
 
 $total_combined_receivables = $total_ledger_receivables + $total_pending_inbound;
 $total_combined_payables = $total_ledger_payables + $total_pending_outbound;
+
+// دالة تحويل العملة الموحدة للتقارير
+if (!function_exists('convertReportAmount')) {
+    function convertReportAmount($amount, $txCurrency, $txRate, $selectedCurrency) {
+        if (empty($txCurrency)) $txCurrency = 'SDG';
+        if ($txCurrency === $selectedCurrency) {
+            return (float)$amount;
+        }
+        $usdToSdgRate = 600; // السعر القياسي الافتراضي للنظام
+        $rate = (float)$txRate;
+        if ($rate <= 0) {
+            $rate = $usdToSdgRate;
+        }
+        if ($txCurrency === 'USD' && $selectedCurrency === 'SDG') {
+            return (float)$amount * $rate;
+        } else if ($txCurrency === 'SDG' && $selectedCurrency === 'USD') {
+            return (float)$amount / $rate;
+        }
+        return (float)$amount;
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+<script src="js/lang.js"></script>
+<script>
+(function(){
+    var l = localStorage.getItem("erp_lang") || "ar";
+    if(l==="en") {
+        document.documentElement.setAttribute("dir","ltr");
+        document.documentElement.setAttribute("lang","en");
+    }
+})();
+</script>
+
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css?v=20260626_4">
+
     <meta charset="UTF-8">
     <title>تقرير مديونية الأرصدة الشامل | Al-Sajana ERP</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: hidden;
+        }
+        .page-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0px 30px 20px 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
         body {
             font-family: 'Cairo', sans-serif;
         }
@@ -173,7 +232,9 @@ $total_combined_payables = $total_ledger_payables + $total_pending_outbound;
         <?php endif; ?>
     </style>
 </head>
-<body class="<?php echo $layout_mode === 'premium' ? 'text-slate-100' : 'text-slate-800'; ?> min-h-screen p-6">
+<body class="<?php echo $layout_mode === 'premium' ? 'text-slate-100' : 'text-slate-800'; ?>
+    <div class="page-container">
+        <?php include "includes/header.php"; ?> min-h-screen p-6">
 
     <div class="max-w-7xl mx-auto">
 
@@ -184,50 +245,7 @@ $total_combined_payables = $total_ledger_payables + $total_pending_outbound;
         <?php endif; ?>
 
         <!-- هيدر الصفحة الرئيسي -->
-        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8 border-b pb-5 <?php echo $layout_mode === 'premium' ? 'border-slate-800' : 'border-slate-200'; ?>">
-            <div>
-                <h1 class="text-3xl font-black flex items-center gap-3">
-                    <span class="p-2.5 rounded-2xl <?php echo $layout_mode === 'premium' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-indigo-100 text-indigo-600'; ?>">
-                        <i class="fa-solid fa-scale-balanced"></i>
-                    </span>
-                    حساب مديونية الأرصدة الشامل
-                </h1>
-                <p class="text-sm mt-2 <?php echo $layout_mode === 'premium' ? 'text-slate-400' : 'text-slate-500'; ?>">
-                    تقرير جامع يدمج رصيد دفتر الأستاذ العام للعميل/المورد مضافاً إليه الشيكات المعلقة والالتزامات غير المحصلة.
-                </p>
-            </div>
-            
-            <!-- أزرار خيارات العملات والمظهر -->
-            <div class="flex flex-wrap items-center gap-3">
-                <!-- اختيار طريقة العرض -->
-                <div class="flex bg-slate-800/80 rounded-xl p-1 border border-slate-700">
-                    <a href="?currency=<?php echo $selected_currency; ?>&layout=premium" class="px-4 py-2 rounded-lg text-xs font-bold transition-all <?php echo $layout_mode === 'premium' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'; ?>">
-                        <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> اللوحة العالمية
-                    </a>
-                    <a href="?currency=<?php echo $selected_currency; ?>&layout=simple" class="px-4 py-2 rounded-lg text-xs font-bold transition-all <?php echo $layout_mode === 'simple' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'; ?>">
-                        <i class="fa-solid fa-table-list mr-1"></i> الجدول البسيط
-                    </a>
-                </div>
-
-                <!-- اختيار العملة -->
-                <div class="flex bg-slate-800/80 rounded-xl p-1 border border-slate-700">
-                    <a href="?currency=SDG&layout=<?php echo $layout_mode; ?>" class="px-3 py-2 rounded-lg text-xs font-bold transition-all <?php echo $selected_currency === 'SDG' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'; ?>">
-                        SDG
-                    </a>
-                    <a href="?currency=USD&layout=<?php echo $layout_mode; ?>" class="px-3 py-2 rounded-lg text-xs font-bold transition-all <?php echo $selected_currency === 'USD' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'; ?>">
-                        USD
-                    </a>
-                    <a href="?currency=BOTH&layout=<?php echo $layout_mode; ?>" class="px-3 py-2 rounded-lg text-xs font-bold transition-all <?php echo $selected_currency === 'BOTH' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'; ?>">
-                        العملتان معاً
-                    </a>
-                </div>
-
-                <!-- زر الرجوع -->
-                <a href="smart_reports_hub.php" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-xl text-xs font-bold transition-colors">
-                    <i class="fa-solid fa-arrow-right mr-1"></i> البوابة
-                </a>
-            </div>
-        </div>
+        
 
         <?php if ($layout_mode === 'premium'): ?>
         <!-- ==================== العرض العالمي الفخم ==================== -->
@@ -484,5 +502,7 @@ $total_combined_payables = $total_ledger_payables + $total_pending_outbound;
 
     </div>
 
+    </div>
+    <script defer src="js/app.js"></script>
 </body>
 </html>
