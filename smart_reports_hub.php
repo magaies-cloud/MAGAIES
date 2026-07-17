@@ -323,6 +323,15 @@ $selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
                 <div class="ai-badge">● مديونية الأستاذ + الشيكات</div>
             </a>
 
+            <!-- 12. تحليلات الجيل القادم -->
+            <a href="next_gen_analytics.php?currency=<?php echo $selected_currency; ?>" class="report-card" style="--accent-color: #10b981; --shadow-color: 16, 185, 129;">
+                <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
+                <div class="card-icon">🔮</div>
+                <div class="card-title">تحليلات الجيل القادم (Next-Gen)</div>
+                <div class="card-desc">رسوم بيانية تفاعلية متقدمة ومخططات هجينة ومقاييس الأمان وحماية الأصول من التعثر.</div>
+                <div class="ai-badge">● تحليلات ومخططات بيانية تفاعلية</div>
+            </a>
+
         </div>
 
     </div>
