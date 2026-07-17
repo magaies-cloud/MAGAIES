@@ -3,62 +3,64 @@
 // نظام Al-Sajana Smart ERP 2026 - تحليلات الجيل القادم (Next-Gen Analytics)
 // ====================================================================
 
-// استدعاء جسر الربط الموحد الحقيقي لبنوك وخزن السجانة
+// استدعاء جسر الربط الموحد الحقيقي لـ MAGAIEES ERP
 require_once 'db_bridge.php';
 
 $selected_currency = isset($_GET['currency']) ? $_GET['currency'] : 'SDG';
+$pdo = getDBConnection();
+
+// جلب تفاصيل السيولة الحقيقية الموزعة في البنوك والخزن من حساباتك حالياً
+$cash_vaults = getRealTimeLiquidity($pdo);
+$total_cash = array_sum(array_column($cash_vaults, 'amount'));
+
+// جلب مديونيات العملاء الحقيقية للرسم البياني الثاني
+$customers_exposure = getCustomerExposureData($pdo);
+// نأخذ أعلى 4 عملاء فقط لضمان عدم ازدحام الرسم البياني
+$customers_stacked = array_slice($customers_exposure, 0, 4);
+
+// حساب تقديري لممر السيولة بناءً على متوسط مصاريف 2.5 مليون شهرياً (مع تعديل العملة لتفادي الصفر)
 $rate = ($selected_currency === 'SDG') ? 600000 : 1000;
-
-$mock_mode = false;
-$cash_vaults = [];
-$customers_stacked = [];
-
-try {
-    $pdo = getDBConnection();
-    // جلب تفاصيل السيولة الحقيقية الموزعة في البنوك والخزن حالياً
-    $cash_vaults = getRealTimeLiquidity($pdo);
-    
-    // جلب مديونيات العملاء الحقيقية للرسم البياني الثاني
-    $customers_exposure = getCustomerExposureData($pdo);
-    
-    // تحويل البيانات لتناسب المخطط الهجين
-    foreach ($customers_exposure as $c) {
-        $customers_stacked[] = [
-            "name" => $c['customer_name'],
-            "ledger" => (float)$c['ledger_balance'],
-            "checks" => (float)$c['pending_checks_total'],
-            "total" => (float)$c['total_exposure']
-        ];
-    }
-    
-    // نأخذ أعلى 4 عملاء فقط للرسم البياني لضمان عدم ازدحام الشاشة وسرعة الأداء
-    $customers_stacked = array_slice($customers_stacked, 0, 4);
-} catch (Exception $e) {
-    $mock_mode = true;
+$divisor = ($selected_currency === 'SDG') ? 2500000 : (2500000 / $rate);
+$cash_runway_months = ($total_cash > 0) ? round(($total_cash / $divisor), 1) : 0;
+if ($cash_runway_months == 0) {
+    $cash_runway_months = 5.4;
 }
 
-if ($mock_mode || empty($cash_vaults)) {
+// في حال عدم توفر أي بيانات في الخزن، استخدام البيانات الافتراضية
+if (empty($cash_vaults)) {
     $cash_vaults = [
         ["name" => "الخزنة الرئيسية - السجانة", "amount" => $rate * 14.1, "color" => "#10b981"],
         ["name" => "حساب بنك الخرطوم", "amount" => $rate * 20.0, "color" => "#3b82f6"],
         ["name" => "حساب بنك أم درمان الوطني", "amount" => $rate * 7.5, "color" => "#8b5cf6"],
         ["name" => "خزنة الكاش الفرعية", "amount" => $rate * 2.5, "color" => "#f59e0b"]
     ];
+    $total_cash = array_sum(array_column($cash_vaults, 'amount'));
 }
 
-if ($mock_mode || empty($customers_stacked)) {
+// في حال عدم توفر أي بيانات للعملاء، استخدام البيانات الافتراضية للرسم البياني
+if (empty($customers_stacked)) {
     $customers_stacked = [
-        ["name" => "شركة النيل للتجارة", "ledger" => $rate * 7.5, "checks" => $rate * 3.3, "total" => $rate * 10.8],
-        ["name" => "محلات أولاد أم درمان", "ledger" => $rate * 2.0, "checks" => $rate * 5.8, "total" => $rate * 7.8],
-        ["name" => "المقاولات السودانية", "ledger" => $rate * 4.6, "checks" => $rate * 1.3, "total" => $rate * 5.9],
-        ["name" => "أعمال الخرطوم للأسمنت", "ledger" => $rate * 1.5, "checks" => $rate * 2.5, "total" => $rate * 4.0]
+        ["customer_name" => "شركة النيل للتجارة", "ledger_balance" => $rate * 7.5, "pending_checks_total" => $rate * 3.3, "total_exposure" => $rate * 10.8],
+        ["customer_name" => "محلات أولاد أم درمان", "ledger_balance" => $rate * 2.0, "pending_checks_total" => $rate * 5.8, "total_exposure" => $rate * 7.8],
+        ["customer_name" => "المقاولات السودانية", "ledger_balance" => $rate * 4.6, "pending_checks_total" => $rate * 1.3, "total_exposure" => $rate * 5.9],
+        ["customer_name" => "أعمال الخرطوم للأسمنت", "ledger_balance" => $rate * 1.5, "pending_checks_total" => $rate * 2.5, "total_exposure" => $rate * 4.0]
     ];
 }
 
-$total_cash = array_sum(array_column($cash_vaults, 'amount'));
-$cash_runway_months = ($total_cash > 0) ? round(($total_cash / (2.5 * $rate)), 1) : 0; // محاكاة علمية بناءً على متوسط مصاريف 2.5 مليون شهرياً (مع ضرب قيمة العملة بمعدل التحويل للتعويض)
-if ($cash_runway_months == 0) {
-    $cash_runway_months = 5.4;
+// تهيئة البيانات للمخطط الهجين للعملاء بالتوافق مع التسميات القديمة
+foreach ($customers_stacked as &$c) {
+    if (!isset($c['name'])) {
+        $c['name'] = $c['customer_name'] ?? '';
+    }
+    if (!isset($c['ledger'])) {
+        $c['ledger'] = $c['ledger_balance'] ?? 0;
+    }
+    if (!isset($c['checks'])) {
+        $c['checks'] = $c['pending_checks_total'] ?? 0;
+    }
+    if (!isset($c['total'])) {
+        $c['total'] = $c['total_exposure'] ?? 0;
+    }
 }
 ?>
 <!DOCTYPE html>
