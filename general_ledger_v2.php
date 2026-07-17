@@ -227,22 +227,29 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-dark: #090514;
-            --panel-bg: rgba(20, 15, 38, 0.7);
-            --border-neon: rgba(0, 255, 127, 0.2);
+            --bg-dark: #040209;
+            --panel-bg: rgba(14, 8, 28, 0.75);
+            --border-neon: rgba(157, 78, 221, 0.25);
             --text-main: #ffffff;
             --text-muted: #a0aec0;
         }
-        body { color: var(--text-main); font-family: 'Cairo', sans-serif; padding: 30px; }
+        body { 
+            background-color: var(--bg-dark); 
+            color: var(--text-main); 
+            font-family: 'Cairo', sans-serif; 
+            padding: 30px; 
+            background-image: radial-gradient(circle at top left, rgba(157, 78, 221, 0.1), transparent 45%); 
+            margin: 0;
+        }
         .glass-panel { background: var(--panel-bg); backdrop-filter: blur(15px); border: 1px solid var(--border-neon); border-radius: 24px; padding: 30px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); animation: fadeIn 0.8s ease-out; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .btn-back { background: transparent; color: var(--text-muted); border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 16px; border-radius: 12px; text-decoration: none; font-size: 13px; transition: all 0.3s; }
-        .btn-back:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .btn-back:hover { background: rgba(157, 78, 221, 0.15); border-color: #9d4edd; color: #fff; }
         
         .filter-container { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 15px 20px; margin-bottom: 30px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; animation: slideUp 0.6s ease-out 0.2s backwards; }
         .filter-input { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px 15px; border-radius: 8px; font-family: 'Cairo'; outline: none; }
-        .filter-input:focus { border-color: #00ff7f; }
-        .btn-filter { background: linear-gradient(135deg, #00ff7f, #00ffff); color: #000; border: none; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Cairo'; }
+        .filter-input:focus { border-color: #9d4edd; box-shadow: 0 0 10px rgba(157, 78, 221, 0.3); }
+        .btn-filter { background: linear-gradient(135deg, #9d4edd, #6930c3); color: #fff; border: none; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Cairo'; }
         
         .grid-layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; }
         .chart-container { background: rgba(0,0,0,0.25); border-radius: 20px; padding: 25px; border: 1px solid rgba(255,255,255,0.03); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; animation: slideUp 0.6s ease-out 0.4s backwards; }
@@ -296,7 +303,7 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
             </div>
             <button type="submit" class="btn-filter">تحديث الكشف</button>
             <?php if(!empty($date_from) || !empty($date_to)): ?>
-                <a href="general_ledger_v2.php?currency=<?php echo $selected_currency; ?>&accountId=cust-<?php echo $target_customer_id; ?>" style="color:#00ff7f; text-decoration:none; font-size:13px; margin-right:10px;">إلغاء الفلتر</a>
+                <a href="general_ledger_v2.php?currency=<?php echo $selected_currency; ?>&accountId=cust-<?php echo $target_customer_id; ?>" style="color:#9d4edd; text-decoration:none; font-size:13px; margin-right:10px;">إلغاء الفلتر</a>
             <?php endif; ?>
         </form>
 
@@ -341,7 +348,7 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to)) {
 
             <!-- كعكة توزيع الديون -->
             <div class="chart-container">
-                <h3 style="margin-top:0; color:#00ff7f; margin-bottom:20px; width:100%;">🍩 التمركز الائتماني للسوق</h3>
+                <h3 style="margin-top:0; color:#9d4edd; margin-bottom:20px; width:100%;">🍩 التمركز الائتماني للسوق</h3>
                 <div style="width: 250px; height: 250px; margin-bottom: 20px;">
                     <canvas id="debtDonutChart"></canvas>
                 </div>
