@@ -239,11 +239,11 @@ window.adjustAmountFontSize = function(input) {
 function updateCurrency() {
     const curr = document.getElementById('currency').value;
     const rateEl = document.getElementById('exchange-rate');
-    const symbolEl = document.getElementById('amount-currency-symbol');
+    const symbolEl1 = document.getElementById('amount-currency-symbol');
+    const symbolEl2 = document.getElementById('amount-foreign-currency-symbol');
     
-    if (symbolEl) {
-        symbolEl.innerText = curr;
-    }
+    if (symbolEl1) symbolEl1.innerText = curr;
+    if (symbolEl2) symbolEl2.innerText = curr;
 
     if (curr === 'SDG') {
         rateEl.value = '1.0';
@@ -273,9 +273,11 @@ function calcEquiv(source) {
     if (source === 'local' || source === 'rate') {
         eq = rate === 0 ? 0 : amt / rate;
         eqEl.value = addCommas(eq.toFixed(2));
+        if (typeof adjustAmountFontSize === 'function') adjustAmountFontSize(eqEl);
     } else if (source === 'foreign') {
         amt = eq * rate;
         amtEl.value = addCommas(amt.toFixed(2));
+        if (typeof adjustAmountFontSize === 'function') adjustAmountFontSize(amtEl);
     }
     if (typeof syncFirstRowAmount === 'function') syncFirstRowAmount();
     if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();
