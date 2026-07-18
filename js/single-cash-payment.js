@@ -219,9 +219,32 @@ function setNextVoucherNumber() {
     document.getElementById('voucher-number').innerText = nextNo;
 }
 
+window.adjustAmountFontSize = function(input) {
+    const len = input.value.length;
+    if (len > 14) {
+        input.style.setProperty('font-size', '1.2rem', 'important');
+        input.style.setProperty('letter-spacing', '0px', 'important');
+    } else if (len > 11) {
+        input.style.setProperty('font-size', '1.5rem', 'important');
+        input.style.setProperty('letter-spacing', '1px', 'important');
+    } else if (len > 8) {
+        input.style.setProperty('font-size', '1.8rem', 'important');
+        input.style.setProperty('letter-spacing', '2px', 'important');
+    } else {
+        input.style.setProperty('font-size', '2.5rem', 'important');
+        input.style.setProperty('letter-spacing', '3px', 'important');
+    }
+};
+
 function updateCurrency() {
     const curr = document.getElementById('currency').value;
     const rateEl = document.getElementById('exchange-rate');
+    const symbolEl = document.getElementById('amount-currency-symbol');
+    
+    if (symbolEl) {
+        symbolEl.innerText = curr;
+    }
+
     if (curr === 'SDG') {
         rateEl.value = '1.0';
         rateEl.readOnly = true;
