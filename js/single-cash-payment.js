@@ -242,10 +242,22 @@ function updateCurrency() {
     const symbolEl1 = document.getElementById('amount-currency-symbol');
     const symbolEl2 = document.getElementById('amount-foreign-currency-symbol');
     
-    if (symbolEl1) symbolEl1.innerText = curr;
+    // Fetch local default currency from settings
+    let localCurr = 'SDG';
+    try {
+        const getTenantKey = window.getTenantKey || ((k) => k);
+        const settings = JSON.parse(localStorage.getItem(getTenantKey('erp_settings_v1')) || localStorage.getItem('erp_settings_v1')) || {};
+        localCurr = settings.currency || 'SDG';
+    } catch (e) {
+        localCurr = 'SDG';
+    }
+    
+    // symbolEl1 is the Local Amount (المبلغ), so it uses the system local currency
+    if (symbolEl1) symbolEl1.innerText = localCurr;
+    // symbolEl2 is the Foreign Amount (القيمة), so it uses the selected currency
     if (symbolEl2) symbolEl2.innerText = curr;
 
-    if (curr === 'SDG') {
+    if (curr === localCurr || curr === 'SDG') {
         rateEl.value = '1.0';
         rateEl.readOnly = true;
     } else {
@@ -297,8 +309,15 @@ function resetVoucherSilent() {
     document.getElementById('to-account').value = '';
     document.getElementById('to-account-search').value = '';
     
+    let localCurr = 'SDG';
+    try {
+        const getTenantKey = window.getTenantKey || ((k) => k);
+        const settings = JSON.parse(localStorage.getItem(getTenantKey('erp_settings_v1')) || localStorage.getItem('erp_settings_v1')) || {};
+        localCurr = settings.currency || 'SDG';
+    } catch (e) { }
+
     document.getElementById('amount-local').value = '';
-    document.getElementById('currency').value = 'SDG';
+    document.getElementById('currency').value = localCurr;
     document.getElementById('exchange-rate').value = '1.0';
     document.getElementById('exchange-rate').readOnly = true;
     document.getElementById('amount-foreign').value = '';
@@ -306,6 +325,7 @@ function resetVoucherSilent() {
     document.getElementById('beneficiary-name').value = '';
     
     document.getElementById('from-account').value = '';
+    updateCurrency();
     const defFromAcc = (ACCOUNTS || []).find(a => String(a.id) === 'safe-001');
     document.getElementById('from-account-search').value = defFromAcc ? defFromAcc.name : '';
     if (window.fromAccChoice) {
