@@ -294,13 +294,32 @@ function calcEquiv(source) {
         return parts.join('.');
     }
 
+    function triggerDynamicAnimation(el) {
+        if (!el) return;
+        el.classList.remove('dynamic-value-update');
+        void el.offsetWidth; // trigger reflow
+        el.classList.add('dynamic-value-update');
+        // Remove class after animation completes (0.5s) to allow re-triggering
+        setTimeout(() => {
+            el.classList.remove('dynamic-value-update');
+        }, 500);
+    }
+
     if (source === 'local' || source === 'rate') {
-        eq = rate === 0 ? 0 : amt / rate;
-        eqEl.value = addCommas(eq.toFixed(2));
+        const newEq = rate === 0 ? 0 : amt / rate;
+        const formattedEq = addCommas(newEq.toFixed(2));
+        if (eqEl.value !== formattedEq) {
+            eqEl.value = formattedEq;
+            triggerDynamicAnimation(eqEl);
+        }
         if (typeof adjustAmountFontSize === 'function') adjustAmountFontSize(eqEl);
     } else if (source === 'foreign') {
-        amt = eq * rate;
-        amtEl.value = addCommas(amt.toFixed(2));
+        const newAmt = eq * rate;
+        const formattedAmt = addCommas(newAmt.toFixed(2));
+        if (amtEl.value !== formattedAmt) {
+            amtEl.value = formattedAmt;
+            triggerDynamicAnimation(amtEl);
+        }
         if (typeof adjustAmountFontSize === 'function') adjustAmountFontSize(amtEl);
     }
     if (typeof syncFirstRowAmount === 'function') syncFirstRowAmount();
