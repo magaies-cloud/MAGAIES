@@ -279,6 +279,44 @@ function updateCurrency() {
     }
 }
 
+window.animateInputNumber = function(inputEl, endValueStr, duration = 300) {
+    if (inputEl.animationInterval) {
+        clearInterval(inputEl.animationInterval);
+    }
+    const endVal = parseNum(endValueStr);
+    let startVal = parseNum(inputEl.value) || 0;
+    
+    if (Math.abs(endVal - startVal) < 0.01) {
+        inputEl.value = endValueStr;
+        if (typeof adjustAmountFontSize === 'function') adjustAmountFontSize(inputEl);
+        return;
+    }
+
+    const startTime = performance.now();
+    
+    function addCommas(numStr) {
+        let parts = numStr.split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return parts.join('.');
+    }
+
+    inputEl.animationInterval = setInterval(() => {
+        const elapsed = performance.now() - startTime;
+        let progress = elapsed / duration;
+        
+        if (progress >= 1) {
+            progress = 1;
+            clearInterval(inputEl.animationInterval);
+            inputEl.value = endValueStr;
+        } else {
+            const easeOut = progress * (2 - progress);
+            const currentVal = startVal + (endVal - startVal) * easeOut;
+            inputEl.value = addCommas(currentVal.toFixed(2));
+        }
+        if (typeof adjustAmountFontSize === 'function') adjustAmountFontSize(inputEl);
+    }, 16);
+};
+
 function calcEquiv(source) {
     const amtEl = document.getElementById('amount-local');
     const rateEl = document.getElementById('exchange-rate');
@@ -294,33 +332,22 @@ function calcEquiv(source) {
         return parts.join('.');
     }
 
-    function triggerDynamicAnimation(el) {
-        if (!el) return;
-        el.classList.remove('dynamic-value-update');
-        void el.offsetWidth; // trigger reflow
-        el.classList.add('dynamic-value-update');
-        // Remove class after animation completes (0.5s) to allow re-triggering
-        setTimeout(() => {
-            el.classList.remove('dynamic-value-update');
-        }, 500);
-    }
-
     if (source === 'local' || source === 'rate') {
-        const newEq = rate === 0 ? 0 : amt / rate;
-        const formattedEq = addCommas(newEq.toFixed(2));
-        if (eqEl.value !== formattedEq) {
-            eqEl.value = formattedEq;
-            triggerDynamicAnimation(eqEl);
+        eq = rate === 0 ? 0 : amt / rate;
+        if (typeof animateInputNumber === 'function') {
+            animateInputNumber(eqEl, addCommas(eq.toFixed(2)));
+        } else {
+            eqEl.value = addCommas(eq.toFixed(2));
+            if (typeof adjustAmountFontSize === 'function') adjustAmountFontSize(eqEl);
         }
-        if (typeof adjustAmountFontSize === 'function') adjustAmountFontSize(eqEl);
     } else if (source === 'foreign') {
-        const newAmt = eq * rate;
-        const formattedAmt = addCommas(newAmt.toFixed(2));
-        if (amtEl.value !== formattedAmt) {
-            amtEl.value = formattedAmt;
-            triggerDynamicAnimation(amtEl);
+        amt = eq * rate;
+        if (typeof animateInputNumber === 'function') {
+            animateInputNumber(amtEl, addCommas(amt.toFixed(2)));
+        } else {
+            amtEl.value = addCommas(amt.toFixed(2));
+            if (typeof adjustAmountFontSize === 'function') adjustAmountFontSize(amtEl);
         }
-        if (typeof adjustAmountFontSize === 'function') adjustAmountFontSize(amtEl);
     }
     if (typeof syncFirstRowAmount === 'function') syncFirstRowAmount();
     if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();

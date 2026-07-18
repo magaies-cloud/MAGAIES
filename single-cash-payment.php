@@ -54,15 +54,6 @@
             transform: scale(1.02);
         }
 
-        @keyframes dynamicValueUpdate {
-            0% { transform: scale(1); filter: brightness(1); text-shadow: 0 0 0px transparent; }
-            30% { transform: scale(1.08); filter: brightness(1.5); text-shadow: 0 0 20px currentColor; background-color: rgba(255,255,255,0.1); }
-            100% { transform: scale(1); filter: brightness(1); text-shadow: 0 0 0px transparent; }
-        }
-        .dynamic-value-update {
-            animation: dynamicValueUpdate 0.5s ease-out !important;
-        }
-
         /* Micro-interactions (Buttons & Payment Tabs) */
         .btn:hover, .pm-tab input:checked + .pm-tab-content {
             transform: translateY(-3px) scale(1.02);
