@@ -42,31 +42,27 @@
     <div style="display:flex; align-items:center; gap:12px; flex:1; justify-content:flex-end;">
         <!-- User Info & Online Users -->
         <div style="display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:6px; margin:6px 0;">
-            <div class="user-info" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); padding: 4px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; width: 130px; height: 48px; box-sizing: border-box;" onclick="document.getElementById('profile-modal').style.display='flex'">
-                <div id="header-user-name" style="font-size: 1.1rem; font-weight: 800; color: #fff; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">جاري التحميل...</div>
-                <div id="header-user-role" style="font-size: 0.65rem; color: #38bdf8; text-align: center; margin-top: 1px;" data-i18n="header.sysAdmin">مدير النظام</div>
+            <div class="user-info" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); padding: 5px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; min-width: 90px;" onclick="document.getElementById('profile-modal').style.display='flex'">
+                <div id="header-user-name" style="font-size: 0.95rem; font-weight: 800; color: #fff; text-align: center;">جاري التحميل...</div>
+                <div id="header-user-role" style="font-size: 0.75rem; color: #38bdf8; text-align: center;" data-i18n="header.sysAdmin">مدير النظام</div>
             </div>
-            <div id="online-users-badge" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); border-radius:12px; padding:4px 14px; width: 130px; height: 48px; box-sizing:border-box; box-shadow:inset 0 0 10px rgba(16,185,129,0.1); cursor:pointer;" onclick="alert('المستخدمين المتصلين حالياً: \n' + (window.onlineUsersList || []).join('\n'))">
-                <div style="font-size: 1.1rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 4px;">
-                    <span id="online-users-count">1</span>
-                    <span style="font-size: 0.8rem;">🟢</span>
-                </div>
-                <div style="font-size: 0.65rem; color: #6ee7b7; margin-top: 1px;" data-i18n="header.onlineNow">متصل الآن</div>
+            <div id="online-users-badge" style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:3px 12px; min-width:90px; text-align:center; box-shadow:inset 0 0 10px rgba(16,185,129,0.1); cursor:pointer;" onclick="alert('المستخدمين المتصلين حالياً: \n' + (window.onlineUsersList || []).join('\n'))">
+                <span style="color:#6ee7b7; font-size:0.7rem; font-weight:800;"><span data-i18n="header.onlineNow">متصل الآن:</span> <span id="online-users-count" style="color:#fff; font-size:0.8rem;">1</span> <span style="font-size:0.6rem;">🟢</span></span>
             </div>
         </div>
 
         <!-- Clock & Exchange Rate -->
         <div class="header-time-stack" style="display:flex; flex-direction:column; gap:6px; align-items:center; margin:6px 0;">
-            <div class="clock-container" style="display:flex; flex-direction:column; align-items:center; justify-content: center; background:rgba(15,23,42,0.6); padding:4px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); width:130px; height: 48px; box-sizing:border-box;">
+            <div class="clock-container" style="display:flex; flex-direction:column; align-items:center; background:rgba(15,23,42,0.6); padding:4px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); min-width:110px; width:100%; box-sizing:border-box;">
                 <span id="header-clock" style="color:#34d399; font-size:1.1rem; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:1px; text-shadow: 0 0 10px rgba(16,185,129,0.5);">00:00:00</span>
-                <span id="header-date-mini" style="color:var(--text-secondary); font-size:0.65rem; margin-top:1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">جاري التحميل...</span>
+                <span id="header-date-mini" style="color:var(--text-secondary); font-size:0.65rem; margin-top:1px;">جاري التحميل...</span>
             </div>
-            <div id="global-exchange-rate-box" style="display:none; position:relative; cursor:pointer; flex-direction:column; align-items:center; justify-content: center; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); border-radius:12px; padding:4px 14px; width:130px; height: 48px; box-sizing:border-box; box-shadow:inset 0 0 10px rgba(245,158,11,0.1);" onclick="toggleExchangeHistory(event)">
-                <div style="font-size: 1.1rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 4px;">
-                    <span id="global-exchange-rate-val">-</span>
-                    <span id="global-exchange-rate-trend" style="display:flex; align-items:center;"></span>
-                </div>
-                <div style="font-size: 0.65rem; color: #fbd38d; margin-top: 1px;" data-i18n="header.exchangeRate">سعر الصرف</div>
+            <div id="global-exchange-rate-box" style="display:none; position:relative; cursor:pointer; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); border-radius:10px; padding:3px 12px; min-width:110px; text-align:center; box-shadow:inset 0 0 10px rgba(245,158,11,0.1); width:100%; box-sizing:border-box;" onclick="toggleExchangeHistory(event)">
+                <span style="color:#fbd38d; font-size:0.75rem; font-weight:800;">
+                    <span id="global-exchange-rate-trend" style="margin-left:4px;"></span>
+                    <span data-i18n="header.exchangeRate">سعر الصرف:</span> 
+                    <span id="global-exchange-rate-val" style="color:#fff; font-size:0.85rem;">-</span>
+                </span>
             </div>
         </div>
         <!-- Theme & Currency -->
