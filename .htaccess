@@ -1,3 +1,15 @@
+# ============================================
+# PERMANENT FIX: Redirect www.c.elsajana.com -> c.elsajana.com
+# This rule is committed to Git so it survives every deploy.
+# ============================================
+RewriteEngine On
+
+# Force redirect www.c.elsajana.com to c.elsajana.com (fixes SSL cert mismatch)
+RewriteCond %{HTTP_HOST} ^www\.c\.elsajana\.com$ [NC]
+RewriteRule ^(.*)$ https://c.elsajana.com/$1 [R=301,L]
+
+# ============================================
+
 # Protect sensitive files
 <FilesMatch "^\.(env|git)">
     Require all denied
