@@ -2567,19 +2567,75 @@ window.openExportModal = function(csvExportCallback, pdfExportConfig) {
     modal.style.display = 'flex';
 };
 
-// --- EXCHANGE RATE: Load on page load (public endpoint, no token needed) ---
-document.addEventListener('DOMContentLoaded', () => {
+window.toggleExchangeHistory = function(e) {
+    e.stopPropagation();
+    const dropdown = document.getElementById('exchange-rate-history-dropdown');
+    if (dropdown) {
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    }
+};
+
+document.addEventListener('click', () => {
+    const dropdown = document.getElementById('exchange-rate-history-dropdown');
+    if (dropdown && dropdown.style.display === 'block') {
+        dropdown.style.display = 'none';
+    }
+});
+
+function updateExchangeRateUI(data) {
     const exBox = document.getElementById('global-exchange-rate-box');
     const exVal = document.getElementById('global-exchange-rate-val');
-    if (!exBox || !exVal) return; // not on a page with exchange rate box
+    const exTrend = document.getElementById('global-exchange-rate-trend');
+    const exHistoryList = document.getElementById('exchange-rate-history-list');
 
+    if (exBox && exVal && data) {
+        if (data.visible) {
+            exBox.style.display = 'block';
+            exVal.innerText = parseFloat(data.rate).toLocaleString('en-US');
+            
+            if (exTrend) {
+                if (data.trend === 'up') exTrend.innerHTML = '<span style="color:#10b981; font-size:0.85rem;">⬆️</span>';
+                else if (data.trend === 'down') exTrend.innerHTML = '<span style="color:#ef4444; font-size:0.85rem;">⬇️</span>';
+                else exTrend.innerHTML = '';
+            }
+
+            if (exHistoryList) {
+                exHistoryList.innerHTML = '';
+                if (data.history && data.history.length > 0) {
+                    data.history.forEach(item => {
+                        let arrow = '';
+                        let color = 'var(--text-primary)';
+                        if (item.trend === 'up') { arrow = '⬆️'; color = '#10b981'; }
+                        if (item.trend === 'down') { arrow = '⬇️'; color = '#ef4444'; }
+                        
+                        exHistoryList.innerHTML += `
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding:6px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.85rem;">
+                                <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                                    <span style="color:var(--text-secondary); font-size:0.75rem;">${item.date}</span>
+                                    <span style="color:rgba(255,255,255,0.4); font-size:0.65rem;">${item.time}</span>
+                                </div>
+                                <div style="font-weight:bold; color:${color}; display:flex; align-items:center; gap:6px;">
+                                    ${parseFloat(item.rate).toLocaleString('en-US')} ${arrow}
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    exHistoryList.innerHTML = '<div style="text-align:center; color:var(--text-secondary); font-size:0.8rem; padding:10px;">لا توجد سجلات سابقة</div>';
+                }
+            }
+        } else {
+            exBox.style.display = 'none';
+        }
+    }
+}
+
+// --- EXCHANGE RATE: Load on page load (public endpoint, no token needed) ---
+document.addEventListener('DOMContentLoaded', () => {
     fetch('api_index.php/exchange-rate')
         .then(res => res.json())
         .then(data => {
-            if (data && data.visible) {
-                exVal.innerText = parseFloat(data.rate).toLocaleString('en-US');
-                exBox.style.display = 'block';
-            }
+            if (data) updateExchangeRateUI(data);
         })
         .catch(() => {});
 });
@@ -2626,17 +2682,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
                 if (data.exchange_rate) {
-                    // The exchange rate box is pre-built in HTML — just update its value
-                    const exBox = document.getElementById('global-exchange-rate-box');
-                    const exVal = document.getElementById('global-exchange-rate-val');
-                    if (exBox && exVal) {
-                        if (data.exchange_rate.visible) {
-                            exBox.style.display = 'block';
-                            exVal.innerText = parseFloat(data.exchange_rate.rate).toLocaleString('en-US');
-                        } else {
-                            exBox.style.display = 'none';
-                        }
-                    }
+                    updateExchangeRateUI(data.exchange_rate);
                 }
             }
         } catch (e) {

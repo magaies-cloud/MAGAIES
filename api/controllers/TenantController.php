@@ -305,7 +305,45 @@ class TenantController {
             $auto_logout_value = isset($input['auto_logout_value']) ? (int)$input['auto_logout_value'] : 30;
             $auto_logout_unit = isset($input['auto_logout_unit']) ? $input['auto_logout_unit'] : 'minutes';
             
-            $val = json_encode(['rate' => $rate, 'visible' => $visible]);
+            // --- Exchange Rate History Logic ---
+            $history = [];
+            $trend = 'same';
+            try {
+                $stmt = $this->pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'exchange_rate'");
+                if ($row = $stmt->fetchColumn()) {
+                    $currentVal = json_decode($row, true);
+                    if ($currentVal && isset($currentVal['rate'])) {
+                        $oldRate = floatval($currentVal['rate']);
+                        if ($rate > $oldRate) $trend = 'up';
+                        elseif ($rate < $oldRate) $trend = 'down';
+                        else $trend = $currentVal['trend'] ?? 'same';
+                        
+                        $history = $currentVal['history'] ?? [];
+                        
+                        // Add to history only if rate actually changed
+                        if ($rate !== $oldRate) {
+                            array_unshift($history, [
+                                'date' => date('Y-m-d'),
+                                'time' => date('H:i'),
+                                'rate' => $rate,
+                                'old_rate' => $oldRate,
+                                'trend' => $trend
+                            ]);
+                            if (count($history) > 50) $history = array_slice($history, 0, 50);
+                        }
+                    }
+                }
+            } catch (Exception $e) {}
+            
+            if (empty($history)) {
+                // initial fallback
+                $history = [['date' => date('Y-m-d'), 'time' => date('H:i'), 'rate' => $rate, 'old_rate' => 0, 'trend' => 'up']];
+                $trend = 'up';
+            }
+
+            $val = json_encode(['rate' => $rate, 'visible' => $visible, 'trend' => $trend, 'history' => $history]);
+            // --- End Exchange Rate History Logic ---
+            
             try {
                 $this->pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('exchange_rate', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$val, $val]);
                 $this->pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('activation_delay_hours', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([(string)$activation_delay_hours, (string)$activation_delay_hours]);

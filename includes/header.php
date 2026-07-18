@@ -57,8 +57,19 @@
                 <span id="header-clock" style="color:#34d399; font-size:1.1rem; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:1px; text-shadow: 0 0 10px rgba(16,185,129,0.5);">00:00:00</span>
                 <span id="header-date-mini" style="color:var(--text-secondary); font-size:0.65rem; margin-top:1px;">جاري التحميل...</span>
             </div>
-            <div id="global-exchange-rate-box" style="display:none; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); border-radius:10px; padding:3px 12px; min-width:110px; text-align:center; box-shadow:inset 0 0 10px rgba(245,158,11,0.1); width:100%; box-sizing:border-box;">
-                <span style="color:#fbd38d; font-size:0.75rem; font-weight:800;"><span data-i18n="header.exchangeRate">سعر الصرف:</span> <span id="global-exchange-rate-val" style="color:#fff; font-size:0.85rem;">-</span></span>
+            <div id="global-exchange-rate-box" style="display:none; position:relative; cursor:pointer; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); border-radius:10px; padding:3px 12px; min-width:110px; text-align:center; box-shadow:inset 0 0 10px rgba(245,158,11,0.1); width:100%; box-sizing:border-box;" onclick="toggleExchangeHistory(event)">
+                <span style="color:#fbd38d; font-size:0.75rem; font-weight:800;">
+                    <span id="global-exchange-rate-trend" style="margin-left:4px;"></span>
+                    <span data-i18n="header.exchangeRate">سعر الصرف:</span> 
+                    <span id="global-exchange-rate-val" style="color:#fff; font-size:0.85rem;">-</span>
+                </span>
+                <!-- History Dropdown -->
+                <div id="exchange-rate-history-dropdown" style="display:none; position:absolute; top:110%; left:50%; transform:translateX(-50%); background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:12px; width:220px; padding:10px; box-shadow:0 10px 25px rgba(0,0,0,0.5); z-index:100; text-align:right; cursor:default;" onclick="event.stopPropagation()">
+                    <div style="color:var(--text-primary); font-size:0.85rem; font-weight:bold; margin-bottom:8px; border-bottom:1px solid var(--border-color); padding-bottom:5px; text-align:center;">سجل تغييرات السعر</div>
+                    <div id="exchange-rate-history-list" style="max-height:180px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
+                        <div style="text-align:center; color:var(--text-secondary); font-size:0.75rem;">جاري التحميل...</div>
+                    </div>
+                </div>
             </div>
         </div>
         <!-- Theme & Currency -->
