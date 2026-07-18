@@ -262,9 +262,21 @@ function updateCurrency() {
         rateEl.readOnly = true;
     } else {
         rateEl.readOnly = false;
-        if(parseNum(rateEl.value) === 1) rateEl.value = ''; 
+        if (typeof window.getExchangeRateForCurrency === 'function') {
+            const fetchedRate = window.getExchangeRateForCurrency(curr);
+            if (fetchedRate && fetchedRate !== 1) {
+                rateEl.value = fetchedRate;
+            } else if(parseNum(rateEl.value) === 1) {
+                rateEl.value = ''; 
+            }
+        } else {
+            if(parseNum(rateEl.value) === 1) rateEl.value = ''; 
+        }
     }
     calcEquiv('rate');
+    if (typeof adjustAmountFontSize === 'function') {
+        adjustAmountFontSize(rateEl);
+    }
 }
 
 function calcEquiv(source) {
