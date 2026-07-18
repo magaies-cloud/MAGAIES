@@ -64,20 +64,21 @@ document.addEventListener('DBReady', () => {
         toSelect.innerHTML = options;
     }
 
+    const getTenantKey = window.getTenantKey || ((k) => k);
     let localCusts = [], localSups = [], localBanks = [], localSafes = [], localExp = [], localJobs = [];
-    try { localCusts = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted); } catch(e) {}
-    try { localSups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted); } catch(e) {}
-    try { localBanks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e) {}
-    try { localSafes = JSON.parse(localStorage.getItem('erp_safes_v1')) || []; } catch(e) {}
-    try { localExp = JSON.parse(localStorage.getItem('erp_accounts_v1')) || []; } catch(e) {}
-    try { localJobs = JSON.parse(localStorage.getItem('erp_jobs_v1')) || []; } catch(e) {}
+    try { localCusts = (JSON.parse(localStorage.getItem(getTenantKey('erp_customers_v1')) || localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted); } catch(e) {}
+    try { localSups = (JSON.parse(localStorage.getItem(getTenantKey('erp_suppliers_v1')) || localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted); } catch(e) {}
+    try { localBanks = JSON.parse(localStorage.getItem(getTenantKey('erp_banks_v1')) || localStorage.getItem('erp_banks_v1')) || []; } catch(e) {}
+    try { localSafes = JSON.parse(localStorage.getItem(getTenantKey('erp_safes_v1')) || localStorage.getItem('erp_safes_v1')) || []; } catch(e) {}
+    try { localExp = JSON.parse(localStorage.getItem(getTenantKey('erp_accounts_v1')) || localStorage.getItem('erp_accounts_v1')) || []; } catch(e) {}
+    try { localJobs = JSON.parse(localStorage.getItem(getTenantKey('erp_jobs_v1')) || localStorage.getItem('erp_jobs_v1')) || []; } catch(e) {}
     
     ACCOUNTS = [];
-    localCusts.forEach(c => ACCOUNTS.push({ id: `cust-${c.id}`, name: c.name, type: 'عميل', color: '#10b981', balances: { checks: 0, debt: parseFloat(c.currentBalance) || 0, loan: 0 } }));
-    localSups.forEach(s => ACCOUNTS.push({ id: `supp-${s.id}`, name: s.name, type: 'مورد', color: '#f59e0b', balances: { checks: 0, debt: 0, loan: parseFloat(s.currentBalance) || 0 } }));
-    localBanks.forEach(b => ACCOUNTS.push({ id: `bank-${b.id}`, name: b.name, type: 'بنك', color: '#3b82f6', balances: { checks: 0, debt: parseFloat(b.currentBalance) || 0, loan: 0 } }));
-    localSafes.forEach(s => ACCOUNTS.push({ id: `safe-${s.id}`, name: s.name, type: 'خزنة', color: '#8b5cf6', balances: { checks: 0, debt: parseFloat(s.currentBalance) || 0, loan: 0 } }));
-    localExp.forEach(e => ACCOUNTS.push({ id: `exp-${e.id}`, name: e.name, type: 'عام', color: '#64748b', balances: { checks: 0, debt: parseFloat(e.currentBalance) || 0, loan: 0 } }));
+    localCusts.forEach(c => ACCOUNTS.push({ id: `cust-${c.id}`, name: c.name || c.customerName, type: 'عميل', color: '#10b981', balances: { checks: 0, debt: parseFloat(c.currentBalance) || 0, loan: 0 } }));
+    localSups.forEach(s => ACCOUNTS.push({ id: `supp-${s.id}`, name: s.name || s.supplierName, type: 'مورد', color: '#f59e0b', balances: { checks: 0, debt: 0, loan: parseFloat(s.currentBalance) || 0 } }));
+    localBanks.forEach(b => ACCOUNTS.push({ id: `bank-${b.id}`, name: b.name || b.bankName, type: 'بنك', color: '#3b82f6', balances: { checks: 0, debt: parseFloat(b.currentBalance) || 0, loan: 0 } }));
+    localSafes.forEach(s => ACCOUNTS.push({ id: `safe-${s.id}`, name: s.name || s.safeName, type: 'خزنة', color: '#8b5cf6', balances: { checks: 0, debt: parseFloat(s.currentBalance) || 0, loan: 0 } }));
+    localExp.forEach(e => ACCOUNTS.push({ id: `exp-${e.id}`, name: e.name || e.accountName, type: 'عام', color: '#64748b', balances: { checks: 0, debt: parseFloat(e.currentBalance) || 0, loan: 0 } }));
 
     document.getElementById('hdr-date').valueAsDate = new Date();
     setNextVoucherNumber();
@@ -193,7 +194,8 @@ function togglePaymentMethod() {
 function setNextVoucherNumber() {
     let spData = [];
     try {
-        spData = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+        const getTenantKey = window.getTenantKey || ((k) => k);
+        spData = JSON.parse(localStorage.getItem(getTenantKey('erp_single_payments_v1')) || localStorage.getItem('erp_single_payments_v1')) || [];
     } catch(e) {}
 
     const now = new Date();
@@ -615,7 +617,8 @@ function submitVoucher() {
         }
     }
 
-    singlePaymentsData = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    singlePaymentsData = JSON.parse(localStorage.getItem(getTenantKey('erp_single_payments_v1')) || localStorage.getItem('erp_single_payments_v1')) || [];
     
     // Balance update logic
     function applyPaymentEffect(fromAccId, toAccId, amount, isRevert = false) {
@@ -624,72 +627,73 @@ function submitVoucher() {
         let amtSafe = -amount * multiplier; // safe decreases
         let amtBeneficiary = -amount * multiplier; // beneficiary balance decreases (repaid)
 
+        // Helper function for multi-tenant local storage
+        const loadEntity = (key) => {
+            try { return JSON.parse(localStorage.getItem(getTenantKey(key)) || localStorage.getItem(key)) || []; } catch(e) { return []; }
+        };
+        const saveEntity = (key, data) => {
+            localStorage.setItem(getTenantKey(key), JSON.stringify(data));
+        };
+
         // 1. Update fromAccount (Safe/Bank)
         if (fromAccId.startsWith('safe-')) {
             let id = fromAccId.substring(5);
-            let safes = [];
-            try { safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || []; } catch(e){}
+            let safes = loadEntity('erp_safes_v1');
             let idx = safes.findIndex(s => String(s.id) === String(id));
             if (idx > -1) {
                 safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtSafe;
-                localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
+                saveEntity('erp_safes_v1', safes);
             }
         } else if (fromAccId.startsWith('bank-')) {
             let id = fromAccId.substring(5);
-            let banks = [];
-            try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e){}
+            let banks = loadEntity('erp_banks_v1');
             let idx = banks.findIndex(b => String(b.id) === String(id));
             if (idx > -1) {
                 banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtSafe;
-                localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+                saveEntity('erp_banks_v1', banks);
             }
         }
 
         // 2. Update toAccount (Beneficiary: Customer/Supplier/Safe/Bank/Expense)
         if (toAccId.startsWith('cust-')) {
             let id = toAccId.substring(5);
-            let custs = [];
-            try { custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || []; } catch(e){}
+            let custs = loadEntity('erp_customers_v1');
             let idx = custs.findIndex(c => String(c.id) === String(id));
             if (idx > -1) {
                 custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtBeneficiary;
-                localStorage.setItem('erp_customers_v1', JSON.stringify(custs));
+                saveEntity('erp_customers_v1', custs);
             }
         } else if (toAccId.startsWith('supp-')) {
             let id = toAccId.substring(5);
-            let sups = [];
-            try { sups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []; } catch(e){}
+            let sups = loadEntity('erp_suppliers_v1');
             let idx = sups.findIndex(s => String(s.id) === String(id));
             if (idx > -1) {
                 sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtBeneficiary;
-                localStorage.setItem('erp_suppliers_v1', JSON.stringify(sups));
+                saveEntity('erp_suppliers_v1', sups);
             }
         } else if (toAccId.startsWith('bank-')) {
             let id = toAccId.substring(5);
-            let banks = [];
-            try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e){}
+            let banks = loadEntity('erp_banks_v1');
             let idx = banks.findIndex(b => String(b.id) === String(id));
             if (idx > -1) {
                 banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtBeneficiary;
-                localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+                saveEntity('erp_banks_v1', banks);
             }
         } else if (toAccId.startsWith('safe-')) {
             let id = toAccId.substring(5);
-            let safes = [];
-            try { safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || []; } catch(e){}
+            let safes = loadEntity('erp_safes_v1');
             let idx = safes.findIndex(s => String(s.id) === String(id));
             if (idx > -1) {
                 safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtBeneficiary;
-                localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
+                saveEntity('erp_safes_v1', safes);
             }
         } else if (toAccId.startsWith('exp-')) {
             let id = toAccId.substring(4);
-            let accounts = [];
-            try { accounts = JSON.parse(localStorage.getItem('erp_accounts_v1')) || []; } catch(e){}
+            let accounts = loadEntity('erp_accounts_v1');
             let idx = accounts.findIndex(a => String(a.id) === String(id));
             if (idx > -1) {
                 accounts[idx].currentBalance = (parseFloat(accounts[idx].currentBalance) || 0) + amount * multiplier;
-                localStorage.setItem('erp_accounts_v1', JSON.stringify(accounts));
+                saveEntity('erp_accounts_v1', accounts);
             }
         }
     }
@@ -705,14 +709,14 @@ function submitVoucher() {
         applyPaymentEffect(voucherData.fromAccount, voucherData.toAccount, voucherData.amountLocal, false);
         
         singlePaymentsData[currentViewedIndex] = voucherData;
-        localStorage.setItem('erp_single_payments_v1', JSON.stringify(singlePaymentsData));
+        localStorage.setItem(getTenantKey('erp_single_payments_v1'), JSON.stringify(singlePaymentsData));
         showToast(`تم تعديل السند رقم ${voucherData.id} بنجاح!`, "success");
     } else {
         applyPaymentEffect(voucherData.fromAccount, voucherData.toAccount, voucherData.amountLocal, false);
         singlePaymentsData.push(voucherData);
-        localStorage.setItem('erp_single_payments_v1', JSON.stringify(singlePaymentsData));
-        const currentSeq = parseInt(localStorage.getItem('erp_single_payment_seq') || '0');
-        localStorage.setItem('erp_single_payment_seq', currentSeq + 1);
+        localStorage.setItem(getTenantKey('erp_single_payments_v1'), JSON.stringify(singlePaymentsData));
+        const currentSeq = parseInt(localStorage.getItem(getTenantKey('erp_single_payment_seq')) || localStorage.getItem('erp_single_payment_seq') || '0');
+        localStorage.setItem(getTenantKey('erp_single_payment_seq'), currentSeq + 1);
         showToast(`تم اعتماد السند رقم ${voucherData.id} بنجاح!`, "success");
     }
 
@@ -1060,10 +1064,31 @@ document.addEventListener('DOMContentLoaded', () => {
     updateLedgerButtons();
 });
 
+window.buildAccountsArray = function() {
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    let localCusts = [], localSups = [], localBanks = [], localSafes = [], localExp = [], localJobs = [];
+    try { localCusts = (JSON.parse(localStorage.getItem(getTenantKey('erp_customers_v1')) || localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted); } catch(e) {}
+    try { localSups = (JSON.parse(localStorage.getItem(getTenantKey('erp_suppliers_v1')) || localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted); } catch(e) {}
+    try { localBanks = JSON.parse(localStorage.getItem(getTenantKey('erp_banks_v1')) || localStorage.getItem('erp_banks_v1')) || []; } catch(e) {}
+    try { localSafes = JSON.parse(localStorage.getItem(getTenantKey('erp_safes_v1')) || localStorage.getItem('erp_safes_v1')) || []; } catch(e) {}
+    try { localExp = JSON.parse(localStorage.getItem(getTenantKey('erp_accounts_v1')) || localStorage.getItem('erp_accounts_v1')) || []; } catch(e) {}
+    try { localJobs = JSON.parse(localStorage.getItem(getTenantKey('erp_jobs_v1')) || localStorage.getItem('erp_jobs_v1')) || []; } catch(e) {}
+    
+    ACCOUNTS = [];
+    localCusts.forEach(c => ACCOUNTS.push({ id: `cust-${c.id}`, name: c.name || c.customerName, type: 'عميل', color: '#10b981', balances: { checks: 0, debt: parseFloat(c.currentBalance) || 0, loan: 0 } }));
+    localSups.forEach(s => ACCOUNTS.push({ id: `supp-${s.id}`, name: s.name || s.supplierName, type: 'مورد', color: '#f59e0b', balances: { checks: 0, debt: 0, loan: parseFloat(s.currentBalance) || 0 } }));
+    localBanks.forEach(b => ACCOUNTS.push({ id: `bank-${b.id}`, name: b.name || b.bankName, type: 'بنك', color: '#3b82f6', balances: { checks: 0, debt: parseFloat(b.currentBalance) || 0, loan: 0 } }));
+    localSafes.forEach(s => ACCOUNTS.push({ id: `safe-${s.id}`, name: s.name || s.safeName, type: 'خزنة', color: '#8b5cf6', balances: { checks: 0, debt: parseFloat(s.currentBalance) || 0, loan: 0 } }));
+    localExp.forEach(e => ACCOUNTS.push({ id: `exp-${e.id}`, name: e.name || e.accountName, type: 'عام', color: '#64748b', balances: { checks: 0, debt: parseFloat(e.currentBalance) || 0, loan: 0 } }));
+};
+
 // ═══════════════════════════════════════════════════════
 // Custom Dropdown Logic for Accounts
 // ═══════════════════════════════════════════════════════
 function renderAccountDropdown(type = 'from', filter = '') {
+    if (!ACCOUNTS || ACCOUNTS.length === 0) {
+        window.buildAccountsArray();
+    }
     const listEl = document.getElementById(type + '-account-dropdown-list');
     if (!listEl) return;
     
@@ -1096,12 +1121,33 @@ function renderAccountDropdown(type = 'from', filter = '') {
         finalMatches.forEach(c => {
             const item = document.createElement('div');
             item.className = 'custom-dropdown-item';
+            item.style.padding = '12px 16px';
+            item.style.cursor = 'pointer';
+            item.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+            item.style.transition = 'background 0.2s';
             
-            let displayText = c.name;
-            if (c.type) displayText += ` <span style="font-size:0.75rem; background: ${c.color}20; color: ${c.color}; padding: 2px 8px; border-radius: 12px; margin-right: 10px; font-weight: bold; vertical-align: middle;">${c.type}</span>`;
-            if (c.code) displayText += ` <span style="font-size:0.8rem; color:#888;">[${c.code}]</span>`;
+            item.onmouseenter = () => item.style.background = 'rgba(255, 255, 255, 0.1)';
+            item.onmouseleave = () => item.style.background = 'transparent';
             
-            item.innerHTML = displayText;
+            let typeBadge = '';
+            if (c.type) {
+                typeBadge = `<span style="font-size:0.8rem; background: ${c.color}20; color: ${c.color}; padding: 4px 12px; border-radius: 20px; font-weight: bold; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px ${c.color}40;">${c.type}</span>`;
+            }
+            let codeBadge = '';
+            if (c.code) {
+                codeBadge = `<span style="font-size:0.8rem; color:#888;">[${c.code}]</span>`;
+            }
+
+            item.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-weight: bold; color: #fff;">${c.name}</span>
+                        ${codeBadge}
+                    </div>
+                    ${typeBadge}
+                </div>
+            `;
+            
             item.onmousedown = () => selectAccount(type, c.id, c.name); 
             item.onpointerdown = () => selectAccount(type, c.id, c.name);
             listEl.appendChild(item);

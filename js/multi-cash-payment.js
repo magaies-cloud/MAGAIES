@@ -1667,24 +1667,34 @@ function renderAccountDropdown(type, filter = '') {
         filtered.forEach(a => {
             const div = document.createElement('div');
             div.className = 'custom-dropdown-item';
-            div.style.cssText = 'padding: 10px 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s;';
-            div.onmouseover = () => div.style.background = 'rgba(255,255,255,0.1)';
-            div.onmouseout = () => div.style.background = 'transparent';
+            div.style.padding = '12px 16px';
+            div.style.cursor = 'pointer';
+            div.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+            div.style.transition = 'background 0.2s';
+            
+            div.onmouseenter = () => div.style.background = 'rgba(255, 255, 255, 0.1)';
+            div.onmouseleave = () => div.style.background = 'transparent';
             
             let typeTag = '';
-            if (String(a.id).startsWith('cust-')) typeTag = '<span style="font-size:0.75rem; color:#60a5fa; background:rgba(96,165,250,0.1); padding:2px 6px; border-radius:4px;">عميل</span>';
-            else if (String(a.id).startsWith('supp-')) typeTag = '<span style="font-size:0.75rem; color:#f472b6; background:rgba(244,114,182,0.1); padding:2px 6px; border-radius:4px;">مورد</span>';
-            else if (String(a.id).startsWith('bank-')) typeTag = '<span style="font-size:0.75rem; color:#a78bfa; background:rgba(167,139,250,0.1); padding:2px 6px; border-radius:4px;">بنك</span>';
-            else if (String(a.id).startsWith('safe-')) typeTag = '<span style="font-size:0.75rem; color:#34d399; background:rgba(52,211,153,0.1); padding:2px 6px; border-radius:4px;">خزينة</span>';
-            else if (String(a.id).startsWith('exp-')) typeTag = '<span style="font-size:0.75rem; color:#fbbf24; background:rgba(251,191,36,0.1); padding:2px 6px; border-radius:4px;">مصروف</span>';
+            if (String(a.id).startsWith('cust-')) typeTag = '<span style="font-size:0.8rem; background:rgba(96,165,250,0.15); color:#60a5fa; padding: 4px 12px; border-radius: 20px; font-weight: bold; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px rgba(96,165,250,0.3);">عميل</span>';
+            else if (String(a.id).startsWith('supp-')) typeTag = '<span style="font-size:0.8rem; background:rgba(244,114,182,0.15); color:#f472b6; padding: 4px 12px; border-radius: 20px; font-weight: bold; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px rgba(244,114,182,0.3);">مورد</span>';
+            else if (String(a.id).startsWith('bank-')) typeTag = '<span style="font-size:0.8rem; background:rgba(167,139,250,0.15); color:#a78bfa; padding: 4px 12px; border-radius: 20px; font-weight: bold; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px rgba(167,139,250,0.3);">بنك</span>';
+            else if (String(a.id).startsWith('safe-')) typeTag = '<span style="font-size:0.8rem; background:rgba(52,211,153,0.15); color:#34d399; padding: 4px 12px; border-radius: 20px; font-weight: bold; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px rgba(52,211,153,0.3);">خزينة</span>';
+            else if (String(a.id).startsWith('exp-')) typeTag = '<span style="font-size:0.8rem; background:rgba(251,191,36,0.15); color:#fbbf24; padding: 4px 12px; border-radius: 20px; font-weight: bold; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px rgba(251,191,36,0.3);">مصروف</span>';
 
             div.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                    <span style="font-weight: bold; color: #fff;">${a.name}</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-weight: bold; color: #fff;">${a.name}</span>
+                    </div>
                     ${typeTag}
                 </div>
             `;
-            div.onclick = (e) => {
+            div.onmousedown = (e) => {
+                e.stopPropagation();
+                selectAccount(type, a.id, a.name);
+            };
+            div.onpointerdown = (e) => {
                 e.stopPropagation();
                 selectAccount(type, a.id, a.name);
             };
