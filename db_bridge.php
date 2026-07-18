@@ -5,7 +5,7 @@
 // ==============================================================
 
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'magaies'); // تأكد من مطابقة اسم قاعدة بياناتك الحقيقية
+define('DB_NAME', 'magaees'); // تأكد من مطابقة اسم قاعدة بياناتك الحقيقية
 define('DB_USER', 'root');     
 define('DB_PASS', '');         
 
@@ -27,7 +27,7 @@ function getDBConnection() {
         $port = '3306';
         $user = 'root';
         $pass = '';
-        $db   = 'magaies';
+        $db   = 'magaees';
 
         try {
             if (file_exists(__DIR__ . '/.env')) {

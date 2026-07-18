@@ -5,7 +5,7 @@
 
 // 1. إعدادات الاتصال بقاعدة البيانات
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'magaies'); // اسم قاعدة البيانات الخاصة بك
+define('DB_NAME', 'magaees'); // اسم قاعدة البيانات الخاصة بك
 define('DB_USER', 'root');     // اسم المستخدم الافتراضي
 define('DB_PASS', '');         // كلمة المرور الافتراضية
 

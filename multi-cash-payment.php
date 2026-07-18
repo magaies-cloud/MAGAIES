@@ -80,23 +80,23 @@
         }
 
         .glass-red {
-            background: rgba(239, 68, 68, 0.03) !important;
-            border-right: 5px solid rgba(239, 68, 68, 0.3) !important;
+            background: rgba(239, 68, 68, 0.1) !important;
+            border-right: 5px solid rgba(239, 68, 68, 0.45) !important;
         }
         .glass-red:hover {
-            background: rgba(239, 68, 68, 0.06) !important;
-            border-right-color: rgba(239, 68, 68, 0.7) !important;
-            box-shadow: 0 16px 40px 0 rgba(239, 68, 68, 0.06) !important;
+            background: rgba(239, 68, 68, 0.14) !important;
+            border-right-color: rgba(239, 68, 68, 0.8) !important;
+            box-shadow: 0 16px 40px 0 rgba(239, 68, 68, 0.1) !important;
         }
 
         .glass-green {
-            background: rgba(16, 185, 129, 0.03) !important;
-            border-right: 5px solid rgba(16, 185, 129, 0.3) !important;
+            background: rgba(16, 185, 129, 0.1) !important;
+            border-right: 5px solid rgba(16, 185, 129, 0.45) !important;
         }
         .glass-green:hover {
-            background: rgba(16, 185, 129, 0.06) !important;
-            border-right-color: rgba(16, 185, 129, 0.7) !important;
-            box-shadow: 0 16px 40px 0 rgba(16, 185, 129, 0.06) !important;
+            background: rgba(16, 185, 129, 0.14) !important;
+            border-right-color: rgba(16, 185, 129, 0.8) !important;
+            box-shadow: 0 16px 40px 0 rgba(16, 185, 129, 0.1) !important;
         }
 
         /* High Contrast Inputs, Placeholders, and Labels */
@@ -255,6 +255,30 @@
             text-shadow: 0 0 10px rgba(16, 185, 129, 0.8); transform: translateY(-2px) scale(1.02);
         }
 
+        /* Pay Toggle Button Active (Glowing) States */
+        .pay-toggle-btn.active.block-btn-cash {
+            background: rgba(251, 191, 36, 0.18) !important;
+            border-color: rgba(251, 191, 36, 0.6) !important;
+            color: #fbbf24 !important;
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.3) !important;
+            transform: scale(1.03);
+        }
+        .pay-toggle-btn.active.block-btn-bank {
+            background: rgba(59, 130, 246, 0.18) !important;
+            border-color: rgba(96, 165, 250, 0.6) !important;
+            color: #60a5fa !important;
+            box-shadow: 0 0 12px rgba(96, 165, 250, 0.3) !important;
+            transform: scale(1.03);
+        }
+        .pay-toggle-btn.active.block-btn-cheque {
+            background: rgba(139, 92, 246, 0.18) !important;
+            border-color: rgba(192, 132, 252, 0.6) !important;
+            color: #c084fc !important;
+            box-shadow: 0 0 12px rgba(192, 132, 252, 0.3) !important;
+            transform: scale(1.03);
+        }
+
+
         /* Advanced Layout & Animations */
         .split-layout-wrapper {
             display: flex; flex-direction: row-reverse; gap: 0; margin-top: 15px; width: 100%; transition: all 0.6s cubic-bezier(0.25, 1, 0.2, 1);
@@ -353,52 +377,58 @@
         }
 
         /* Voucher Type Toggle Buttons (صرف/استلام مجمع) */
+        /* Voucher Type Toggle Buttons (صرف/استلام مجمع) */
         .voucher-type-btn {
-            background: rgba(0,0,0,0.5) !important;
-            border: 1px solid rgba(255,255,255,0.15) !important;
-            color: #cbd5e1 !important;
-            box-shadow: none !important;
+            background: rgba(0,0,0,0.4) !important;
+            border: 1px solid rgba(255,255,255,0.08) !important;
+            color: #94a3b8 !important;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.6) !important;
             min-width: 175px !important;
             height: 45px !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
             gap: 10px !important;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+            border-radius: 10px !important;
+            cursor: pointer !important;
+            transform: translateY(0) scale(0.97) !important;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
         }
         .voucher-type-btn:hover {
-            background: rgba(255, 255, 255, 0.1) !important;
+            background: rgba(255, 255, 255, 0.05) !important;
             color: #ffffff !important;
-            border-color: rgba(255,255,255,0.4) !important;
-            transform: scale(1.02);
+            border-color: rgba(255,255,255,0.2) !important;
+            transform: translateY(-2px) scale(1) !important;
         }
         .voucher-type-btn.active-payment {
-            background: linear-gradient(135deg, #ef4444, #dc2626) !important;
-            border: 2px solid #ffffff !important;
+            background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
+            border: 1px solid rgba(239, 68, 68, 0.8) !important;
             color: #ffffff !important;
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6) !important;
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5), 0 0 15px rgba(239, 68, 68, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
             font-weight: 900 !important;
-            animation: activePulse 2s infinite ease-in-out;
+            transform: translateY(-4px) scale(1.04) !important;
+            animation: activePulse 2.5s infinite ease-in-out !important;
         }
         .voucher-type-btn.active-receipt {
-            background: linear-gradient(135deg, #10b981, #059669) !important;
-            border: 2px solid #ffffff !important;
+            background: linear-gradient(135deg, #10b981, #047857) !important;
+            border: 1px solid rgba(16, 185, 129, 0.8) !important;
             color: #ffffff !important;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6) !important;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5), 0 0 15px rgba(16, 185, 129, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
             font-weight: 900 !important;
-            animation: activePulseGreen 2s infinite ease-in-out;
+            transform: translateY(-4px) scale(1.04) !important;
+            animation: activePulseGreen 2.5s infinite ease-in-out !important;
         }
 
         /* Pulsing active buttons */
         @keyframes activePulse {
-            0% { transform: scale(1.02); box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
-            50% { transform: scale(1.06); box-shadow: 0 0 25px rgba(239, 68, 68, 0.9), 0 0 0 4px rgba(239, 68, 68, 0.3); }
-            100% { transform: scale(1.02); box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
+            0% { box-shadow: 0 8px 20px rgba(239, 68, 68, 0.45), 0 0 10px rgba(239, 68, 68, 0.25); border-color: rgba(239, 68, 68, 0.7); }
+            50% { box-shadow: 0 12px 30px rgba(239, 68, 68, 0.75), 0 0 20px rgba(239, 68, 68, 0.5); border-color: rgba(255, 255, 255, 0.9); }
+            100% { box-shadow: 0 8px 20px rgba(239, 68, 68, 0.45), 0 0 10px rgba(239, 68, 68, 0.25); border-color: rgba(239, 68, 68, 0.7); }
         }
         @keyframes activePulseGreen {
-            0% { transform: scale(1.02); box-shadow: 0 0 15px rgba(16, 185, 129, 0.6); }
-            50% { transform: scale(1.06); box-shadow: 0 0 25px rgba(16, 185, 129, 0.9), 0 0 0 4px rgba(16, 185, 129, 0.3); }
-            100% { transform: scale(1.02); box-shadow: 0 0 15px rgba(16, 185, 129, 0.6); }
+            0% { box-shadow: 0 8px 20px rgba(16, 185, 129, 0.45), 0 0 10px rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.7); }
+            50% { box-shadow: 0 12px 30px rgba(16, 185, 129, 0.75), 0 0 20px rgba(16, 185, 129, 0.5); border-color: rgba(255, 255, 255, 0.9); }
+            100% { box-shadow: 0 8px 20px rgba(16, 185, 129, 0.45), 0 0 10px rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.7); }
         }
 
         /* Heartbeat for active state circles */
@@ -603,7 +633,7 @@
                     <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; overflow: visible; padding-bottom: 10px; margin-bottom: 15px;">
 
                         <div style="flex: 2; min-width: 250px;">
-                            <label id="main-account-label" style="color: #f87171 !important; font-size: 1.1rem; margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left">←</span></label>
+                            <label id="main-account-label" style="color: #ef4444 !important; font-size: 1.2rem; margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left">←</span></label>
                             <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
                                 <input type="hidden" id="main-account">
                                 <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color);">
@@ -636,35 +666,120 @@
                         </div>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.2); padding: 12px 15px; min-height: 50px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="display: none; align-items: center; gap: 15px; background: rgba(0,0,0,0.2); padding: 12px 15px; min-height: 50px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
                         <label style="color: #ffffff; font-size: 1rem; font-weight: bold; margin: 0; white-space: nowrap;">البيان العام / الوصف:</label>
                         <input type="text" autocomplete="off" id="voucher-desc" class="form-input" placeholder="وصف عام للحركة المجمعة..." style="flex: 1; margin: 0; background: transparent; border: none; padding: 5px; box-shadow: none; font-size: 1rem;">
                     </div>
                 </div>
 
 
-                <!-- Secondary Table Glass Container -->
-                <div id="secondary-table-container" class="glass-container glass-green" style="position: relative; z-index: 5;">
-                    <table class="multi-table" id="voucher-table">
-                        <thead id="table-header" style="cursor: context-menu;" title="اضغط كليك يمين للتحكم بالأعمدة">
-                            <tr>
-                                <th id="sub-account-header" style="width: 25%; color: #34d399 !important; font-size: 1.1rem;">إلى حساب (استلام) <span class="animated-arrow-right">→</span></th>
-                                <th style="width: 15%;">المبلغ</th>
-                                <th class="col-desc" style="width: 30%;">البيان الفرعي</th>
-                                <th class="col-cost-center" style="width: 15%;">مركز التكلفة</th>
-                                <th class="col-note" style="width: 20%;">ملحوظة</th>
-                                <th class="col-check-no" style="width: 10%;">رقم الشيك</th>
-                                <th class="col-check-date" style="width: 10%;">تاريخ الشيك</th>
-                                <th class="col-check-due" style="width: 10%;">الاستحقاق</th>
-                                <th style="width: 5%;">إجراء</th>
-                            </tr>
-                        </thead>
-                        <tbody id="entries-body">
-                            <!-- Rows will be added dynamically -->
-                        </tbody>
-                    </table>
+                <!-- ═══ حاوية الحسابات (Accounts Blocks Container) ═══ -->
+                <div id="accounts-blocks-container" style="display: flex; flex-direction: column; gap: 20px; position: relative; z-index: 10;">
+                    <!-- Blocks will be dynamically inserted here -->
                 </div>
-            
+
+                <!-- ═══ زر إضافة حساب جديد ═══ -->
+                <div style="display: flex; justify-content: center; margin-top: 20px; margin-bottom: 30px;">
+                    <button type="button" onclick="addAccountBlock()" style="padding: 12px 30px; border-radius: 30px; background: rgba(16,185,129,0.15); color: #34d399; border: 1px dashed #34d399; font-weight: 900; font-size: 1.1rem; cursor: pointer; font-family: 'Tajawal', sans-serif; transition: all 0.3s; display: flex; align-items: center; gap: 10px;" onmouseover="this.style.background='rgba(16,185,129,0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='rgba(16,185,129,0.15)'; this.style.transform='translateY(0)';">
+                        ➕ إضافة حساب مستلم / دافع آخر
+                    </button>
+                </div>
+
+                <!-- ═══ قالب الكتلة المخفي (Hidden Template) ═══ -->
+                <template id="account-block-template">
+                    <div class="account-block glass-container glass-green" data-block-id="{ID}" style="position: relative; padding: 15px; border-radius: 12px; transition: all 0.3s ease;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; padding-bottom: 0px;">
+                            <div style="display: flex; align-items: center; gap: 8px; font-size: 1.2rem; font-weight: 800; color: #34d399;">
+                                <span>📋</span> <span class="block-label">إلى حساب (مستلم)</span> <span class="animated-arrow-right" style="color: #34d399;">→</span>
+                            </div>
+                            <button type="button" class="btn-remove-block" data-action="remove-block" data-block="{ID}" style="background: rgba(239,68,68,0.15); border: none; color: #ef4444; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; transition: all 0.2s;" title="حذف هذا الحساب">✖</button>
+                        </div>
+
+                        <!-- Row 1: Account, Amount, and Method Toggles -->
+                        <div style="display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; margin-bottom: 12px;">
+                            <!-- Account -->
+                            <div style="flex: 2; min-width: 250px; position: relative; display: flex; flex-direction: column;">
+                                <div class="custom-dropdown-input-wrap" style="position: relative; flex: 1; display: flex;">
+                                    <input type="hidden" id="account-{ID}-id" class="block-account-id">
+                                    <input type="hidden" id="account-{ID}" class="block-account-name">
+                                    <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="الحساب / الجهة المستفيدة..." onfocus="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1rem; flex: 1; margin-bottom: 0;">
+                                    <div class="custom-dropdown-list" id="account-{ID}-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Total Amount (auto-calculated) -->
+                            <div style="flex: 1; min-width: 150px; display: flex; flex-direction: column; position: relative;">
+                                <input type="text" readonly id="amount-{ID}" class="form-input block-total-amount" placeholder="0.00" style="font-weight: 900; font-family: monospace; font-size: 1.15rem; text-align: center; flex: 1; margin-bottom: 0; border-color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); cursor: default; transition: all 0.4s ease;">
+                            </div>
+                            
+                            <!-- Payment Toggles -->
+                            <div style="display: flex; gap: 5px; flex: 1.5; min-width: 240px;">
+                                <button type="button" id="pm-cash-{ID}" class="pay-toggle-btn block-btn-cash" data-action="toggle-pm" data-block="{ID}" data-method="cash" style="flex: 1; padding: 0 10px; border-radius: 8px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 4px; font-family: 'Tajawal', sans-serif; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; height: 100%;">💵 نقدي</button>
+                                <button type="button" id="pm-bank-{ID}" class="pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank" style="flex: 1; padding: 0 10px; border-radius: 8px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 4px; font-family: 'Tajawal', sans-serif; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; height: 100%;">🏦 تحويل</button>
+                                <button type="button" id="pm-cheque-{ID}" class="pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque" style="flex: 1; padding: 0 10px; border-radius: 8px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 4px; font-family: 'Tajawal', sans-serif; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; height: 100%;">✍️ شيك</button>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Details Sections (aligned amounts) -->
+                        <!-- Cash Details -->
+                        <div id="cash-details-{ID}" class="block-cash-details" style="display: none; background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.3); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
+                            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                <div style="width: 80px; font-weight: bold; color: #fbbf24; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">💵 نقدي</div>
+                                <div style="width: 150px; flex-shrink: 0;">
+                                    <input type="text" autocomplete="off" id="cash-amount-{ID}" class="form-input block-cash-amount block-sub-amount" data-block-id="{ID}" placeholder="مبلغ الكاش" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+                                </div>
+                                <div style="flex: 1; min-width: 180px;">
+                                    <select id="cash-safe-{ID}" class="form-input block-cash-safe" style="margin-bottom: 0;">
+                                        <option value="">-- اختر الخزنة --</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bank Details (supports multiple transfers) -->
+                        <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
+                            <div class="bank-rows-container" id="bank-rows-{ID}">
+                                <div class="bank-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
+                                    <div style="width: 80px; font-weight: bold; color: #60a5fa; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 تحويل</div>
+                                    <div style="width: 150px; flex-shrink: 0;">
+                                        <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+                                    </div>
+                                    <div style="flex: 1; min-width: 120px;">
+                                        <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
+                                    </div>
+                                    <div style="flex: 1; min-width: 120px;">
+                                        <input type="text" autocomplete="off" class="form-input block-transfer-no-input" placeholder="رقم التحويلة" style="margin-bottom: 0;">
+                                    </div>
+                                    <button type="button" data-action="add-bank-row" data-block="{ID}" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(59,130,246,0.2); border: 1px solid #60a5fa; color: #60a5fa; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="إضافة تحويلة أخرى">➕</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cheque Details (supports multiple cheques) -->
+                        <div id="cheque-details-{ID}" class="block-cheque-details" style="display: none; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
+                            <div class="cheque-rows-container" id="cheque-rows-{ID}">
+                                <div class="cheque-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
+                                    <div style="width: 80px; font-weight: bold; color: #c084fc; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">✍️ شيك</div>
+                                    <div style="width: 150px; flex-shrink: 0;">
+                                        <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+                                    </div>
+                                    <div style="flex: 1; min-width: 90px;">
+                                        <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
+                                    </div>
+                                    <div style="flex: 1; min-width: 80px;">
+                                        <input type="text" autocomplete="off" class="form-input block-cheque-no-input" placeholder="رقم الشيك" style="margin-bottom: 0;">
+                                    </div>
+                                    <div style="flex: 1; min-width: 100px;">
+                                        <input type="date" class="form-input block-cheque-date-input" title="تاريخ الاستحقاق" style="margin-bottom: 0;">
+                                    </div>
+                                    <button type="button" data-action="add-cheque-row" data-block="{ID}" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(139,92,246,0.2); border: 1px solid #c084fc; color: #c084fc; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="إضافة شيك آخر">➕</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        </div>
+                    </div>
+                </template>
 
             <!-- Hidden radios to prevent legacy JS checks breaking -->
             <div style="display: none;">
@@ -672,114 +787,14 @@
                 <input type="radio" name="payment_method" value="check" id="radio-check">
                 <input type="radio" name="payment_method" value="mobile" id="radio-mobile">
                 <input type="radio" name="payment_method" value="hybrid" id="radio-hybrid">
-            </div>
-
-            <!-- Unified Payment details panel styled like Sales/Purchase -->
-            <style>
-                .pay-toggle-btn {
-                    background: rgba(255, 255, 255, 0.05);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    color: #94a3b8;
-                    padding: 6px 14px;
-                    border-radius: 20px;
-                    font-size: 0.9rem;
-                    font-weight: 800;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                }
-                .pay-toggle-btn.active {
-                    background: rgba(56, 189, 248, 0.2) !important;
-                    border-color: #38bdf8 !important;
-                    color: #38bdf8 !important;
-                    box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
-                }
-                #toggle-cash.active {
-                    background: rgba(16, 185, 129, 0.2) !important;
-                    border-color: #34d399 !important;
-                    color: #34d399 !important;
-                    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
-                }
-                #toggle-bank.active {
-                    background: rgba(59, 130, 246, 0.2) !important;
-                    border-color: #60a5fa !important;
-                    color: #60a5fa !important;
-                    box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
-                }
-                #toggle-cheque.active {
-                    background: rgba(139, 92, 246, 0.2) !important;
-                    border-color: #c084fc !important;
-                    color: #c084fc !important;
-                    box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
-                }
-                .payment-method-box {
-                    transition: all 0.3s ease;
-                }
-            </style>
-            <div id="payment-panel" style="display: none; background: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(139, 92, 246, 0.15)); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 12px; margin-top: 20px; margin-bottom: 20px;">
-                <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 12px 20px; background: rgba(79, 70, 229, 0.1); border-bottom: 1px solid rgba(99, 102, 241, 0.2); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
-                    <div class="panel-title" style="background: linear-gradient(135deg, #ff4d4d, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.15rem; font-weight: 900; display: inline-flex; align-items: center; gap: 6px; margin: 0; white-space: nowrap; flex: none;">
-                        <span>💳</span> طريقة وتفاصيل الدفع للمستند المجمع
-                    </div>
-                    
-                    <!-- Sleek Payment Progress Bar (Inline) -->
-                    <div class="payment-progress-container" style="flex: 1; display: flex; align-items: center; gap: 12px; min-width: 280px; padding: 0 10px;">
-                        <div class="progress-bar-wrapper" style="height: 10px; flex: 1; background: rgba(255, 255, 255, 0.05); border-radius: 5px; overflow: hidden; display: flex; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); min-width: 120px;">
-                            <div id="prog-cash" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(16,185,129,0.3);"></div>
-                            <div id="prog-bank" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(59,130,246,0.3);"></div>
-                            <div id="prog-cheque" style="width: 0%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #a78bfa); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(139,92,246,0.3);"></div>
-                        </div>
-                        <span id="payment-status-badge" style="font-size: 0.78rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; transition: all 0.3s ease; white-space: nowrap; background: rgba(16, 185, 129, 0.15); color: #34d399; box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);" data-status="fully-paid">💳 مدفوعة بالكامل</span>
-                    </div>
-
-                    <div class="payment-toggles" style="display: flex; gap: 8px; flex: none;">
-                        <button type="button" class="pay-toggle-btn active" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💵 نقدي</button>
-                        <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦 تحويل بنكي</button>
-                        <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">✍️ شيك</button>
-                    </div>
-                </div>
-                
-                <div class="payment-layout" id="payment-layout" style="display: flex; gap: 15px; padding: 15px; flex-wrap: wrap;">
-                    <div class="payment-details-card" style="flex: 1; min-width: 100%; display: flex; flex-direction: column; gap: 10px;">
-                        
-                        <!-- Cash section -->
-                        <div id="pay-cash-section" class="payment-method-box" style="background: rgba(251, 191, 36, 0.04); border: 1px solid rgba(251, 191, 36, 0.18); border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
-                            <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
-                                <span style="font-size: 1.2rem;">💵</span>
-                                <span style="font-weight: 800; color: #fbbf24; font-size: 0.95rem;">الدفع النقدي (كاش)</span>
-                            </div>
-                            <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
-                                <span style="color: #ffffff; font-size: 0.9rem; font-weight: bold;">سيتم السداد نقداً بالكامل للمستند المجمع.</span>
-                            </div>
-                        </div>
-
-                        <!-- Bank Transfer section -->
-                        <div id="pay-bank-section" class="payment-method-box" style="background: rgba(251, 191, 36, 0.04); border: 1px solid rgba(251, 191, 36, 0.18); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px;">
-                            <div id="transfers-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-                                <!-- Dynamic rows -->
-                            </div>
-                        </div>
-
-                        <!-- Cheque section -->
-                        <div id="pay-cheque-section" class="payment-method-box" style="background: rgba(251, 191, 36, 0.04); border: 1px solid rgba(251, 191, 36, 0.18); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px;">
-                            <div id="cheques-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-                                <!-- Dynamic rows -->
-                            </div>
-                        </div>
-
-                        <!-- Hidden legacy inputs to prevent crashes in old scripts -->
-                        <div style="display: none;">
-                            <input type="text" autocomplete="off" id="mobile-transfer-no">
-                            <input type="text" autocomplete="off" id="mobile-note">
-                            <input type="text" autocomplete="off" id="check-no">
-                            <input type="text" autocomplete="off" id="check-branch">
-                            <input type="date" id="check-date">
-                            <input type="date" id="check-due-date">
-                        </div>
-                    </div>
-                </div>
+                <!-- Hidden legacy inputs -->
+                <input type="text" autocomplete="off" id="mobile-transfer-no">
+                <input type="text" autocomplete="off" id="mobile-note">
+                <input type="text" autocomplete="off" id="check-no">
+                <input type="text" autocomplete="off" id="check-branch">
+                <input type="date" id="check-date">
+                <input type="date" id="check-due-date">
+                <table><tbody id="entries-body"></tbody></table>
             </div>
 
             <style>

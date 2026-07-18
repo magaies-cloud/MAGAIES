@@ -43,7 +43,7 @@ if (isset($_POST['consult_ai'])) {
     $gemini_key = $_ENV['GEMINI_API_KEY'] ?? getenv('GEMINI_API_KEY') ?: '';
     $openai_key = $_ENV['OPENAI_API_KEY'] ?? getenv('OPENAI_API_KEY') ?: '';
     
-    $prompt = "أنت خبير إداري ولوجستي في سوق السجانة لحديد التسليح ومواد البناء بالسودان. حلل بيانات مخزون البضائع الحالية لبرنامج MAGAIEES ERP وأعطني تقريراً استراتيجياً يركز على مستويات النواقص، البضاعة الراكدة، نصائح لتسريع حركة دوران البضائع وتأمين طلبيات الشراء. اكتب التقرير باللغة العربية في نقاط واضحة ومنسقة باستخدام مارك داون وبدون أي تمهيد:\n" . $data_for_ai;
+    $prompt = "أنت خبير إداري ولوجستي في سوق السجانة لحديد التسليح ومواد البناء بالسودان. حلل بيانات المخزون وأعطني تقريراً استراتيجياً مركزاً ومختصراً جداً عن النواقص والبضاعة الراكدة ونصائح الشراء. اكتب التقرير باللغة العربية في نقاط واضحة ومباشرة بدون مقدمات لتسريع الاستجابة:\n" . $data_for_ai;
 
     $success = false;
     
@@ -138,14 +138,34 @@ if (isset($_POST['consult_ai'])) {
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <script src="js/lang.js"></script>
+    <script>
+    (function(){
+        var l = localStorage.getItem('erp_lang') || 'ar';
+        if(l==='en') {
+            document.documentElement.setAttribute('dir','ltr');
+            document.documentElement.setAttribute('lang','en');
+        }
+    })();
+    </script>
     <meta charset="UTF-8">
     <title>مستشار الـ AI الاستراتيجي للبضائع - MAGAIEES ERP</title>
+    
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans p-6" style="background-color: #05080f;">
-
-    <div class="mb-8 border-b border-slate-800 pb-4 flex justify-between items-center">
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans" style="background-color: #05080f;">
+    <div class="p-6">
+        <?php $header_theme_class = 'header-theme-reports'; ?>
+        <?php include 'includes/header.php'; ?>
+        <br>
+        <div class="mb-8 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
             <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-400">
                 <i class="fa-solid fa-boxes-stacked"></i> مستشار الـ AI الاستراتيجي للبضائع (AI Goods Advisor)
@@ -166,9 +186,10 @@ if (isset($_POST['consult_ai'])) {
                 <p class="text-xs text-slate-400 leading-relaxed">بضغطة زر واحدة، سيقوم الذكاء الاصطناعي بمسح حركة مخازنك بالكامل وتوقع النواقص وإعطائك أفضل القرارات اللوجستية.</p>
             </div>
             
-            <form method="POST">
-                <button type="submit" name="consult_ai" class="w-full py-3.5 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 rounded-xl font-bold text-sm shadow-lg shadow-teal-950/50 transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> تشغيل مستشار البضائع الآن
+            <form method="POST" onsubmit="document.getElementById('ai-btn-text').innerText = 'جاري التحليل...'; document.getElementById('ai-btn-icon').classList.add('fa-spin');">
+                <input type="hidden" name="consult_ai" value="1">
+                <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 rounded-xl font-bold text-sm shadow-lg shadow-teal-950/50 transition-all flex items-center justify-center gap-2">
+                    <i id="ai-btn-icon" class="fa-solid fa-wand-magic-sparkles"></i> <span id="ai-btn-text">تشغيل مستشار البضائع الآن</span>
                 </button>
             </form>
         </div>
@@ -178,7 +199,7 @@ if (isset($_POST['consult_ai'])) {
                 <i class="fa-solid fa-file-contract text-teal-400"></i> التقرير الاستراتيجي لمخزون العنابر وحركة المواد
             </h3>
             
-            <div class="text-xs leading-relaxed text-slate-300 space-y-2 whitespace-pre-wrap">
+            <div class="text-base md:text-lg leading-relaxed text-slate-200 space-y-3 whitespace-pre-wrap font-medium">
                 <?php if (empty($ai_analysis_result)): ?>
                     <div class="text-center p-12 text-slate-500">
                         <i class="fa-solid fa-robot text-3xl mb-3 block text-slate-700"></i>
@@ -190,6 +211,46 @@ if (isset($_POST['consult_ai'])) {
             </div>
         </div>
     </div>
-
+    </div>
+    
+    <!-- عرض البيانات الحالية المستجلبة من قاعدة البيانات -->
+    <div class="mt-8 bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
+        <h3 class="font-bold text-slate-200 mb-4 flex items-center gap-2 border-b border-slate-800 pb-3">
+            <i class="fa-solid fa-database text-cyan-400"></i> البيانات الحالية (يتم تحليلها بواسطة الذكاء الاصطناعي)
+        </h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-right text-sm text-slate-300">
+                <thead class="text-xs uppercase bg-slate-800/50 text-slate-400">
+                    <tr>
+                        <th class="px-4 py-3 rounded-tr-lg">اسم الصنف</th>
+                        <th class="px-4 py-3 text-center">الرصيد الفعلي</th>
+                        <th class="px-4 py-3 text-center">حد الأمان</th>
+                        <th class="px-4 py-3 text-center rounded-tl-lg">الكمية المباعة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($stock_summary)): ?>
+                    <tr>
+                        <td colspan="4" class="px-4 py-6 text-center text-slate-500">لا توجد بيانات متاحة في قاعدة البيانات للتحليل.</td>
+                    </tr>
+                    <?php else: ?>
+                        <?php foreach ($stock_summary as $item): ?>
+                        <tr class="border-b border-slate-800/50 hover:bg-slate-800/20 transition-colors">
+                            <td class="px-4 py-3 font-semibold text-slate-200"><?php echo htmlspecialchars($item['name']); ?></td>
+                            <td class="px-4 py-3 text-center">
+                                <span class="px-2.5 py-1 rounded-md <?php echo $item['stock'] < $item['min_limit'] ? 'bg-red-500/10 text-red-400' : 'bg-emerald-500/10 text-emerald-400'; ?>">
+                                    <?php echo number_format($item['stock'], 2); ?>
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-center text-slate-400"><?php echo number_format($item['min_limit'], 2); ?></td>
+                            <td class="px-4 py-3 text-center text-cyan-400"><?php echo number_format($item['sold_qty'], 2); ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </div>
 </body>
 </html>

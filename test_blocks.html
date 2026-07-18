@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html><head><title>Block Test</title>
+<style>
+body { background: #1a1a2e; color: white; font-family: Arial; padding: 20px; }
+.form-input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px; border-radius: 6px; width: 100%; box-sizing: border-box; }
+.account-block { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+#log { background: #000; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto; margin-top: 20px; }
+.log-line { margin: 2px 0; }
+.log-ok { color: #34d399; }
+.log-err { color: #ef4444; }
+</style>
+</head><body>
+<h2>🧪 Block System Test</h2>
+
+<div id="accounts-blocks-container"></div>
+<button onclick="window.addAccountBlock()" style="padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem;">➕ Add Account Block</button>
+
+<div id="log"></div>
+
+<template id="account-block-template">
+    <div class="account-block" data-block-id="{ID}">
+        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+            <span style="font-weight: bold; color: #34d399;">📋 Account Block</span>
+            <button type="button" data-action="remove-block" data-block="{ID}" style="background: rgba(239,68,68,0.3); border: none; color: #ef4444; border-radius: 50%; width: 28px; height: 28px; cursor: pointer;">✖</button>
+        </div>
+        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+            <button type="button" id="pm-cash-{ID}" data-action="toggle-pm" data-block="{ID}" data-method="cash" style="padding: 6px 12px; background: rgba(16,185,129,0.2); border: 1px solid #34d399; color: #34d399; border-radius: 6px; cursor: pointer;">💵 Cash</button>
+            <button type="button" id="pm-bank-{ID}" data-action="toggle-pm" data-block="{ID}" data-method="bank" style="padding: 6px 12px; background: rgba(59,130,246,0.2); border: 1px solid #60a5fa; color: #60a5fa; border-radius: 6px; cursor: pointer;">🏦 Bank</button>
+            <button type="button" id="pm-cheque-{ID}" data-action="toggle-pm" data-block="{ID}" data-method="cheque" style="padding: 6px 12px; background: rgba(139,92,246,0.2); border: 1px solid #c084fc; color: #c084fc; border-radius: 6px; cursor: pointer;">✍️ Cheque</button>
+        </div>
+        <div id="cash-details-{ID}" style="display: none; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 8px; margin-bottom: 8px;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <span style="width: 60px; color: #34d399;">💵 Cash</span>
+                <input type="text" class="form-input block-sub-amount" placeholder="Amount" style="width: 120px;">
+            </div>
+        </div>
+        <div id="bank-details-{ID}" style="display: none; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); border-radius: 8px; padding: 8px; margin-bottom: 8px;">
+            <div class="bank-rows-container" id="bank-rows-{ID}">
+                <div class="bank-row" style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px;">
+                    <span style="width: 60px; color: #60a5fa;">🏦 Bank</span>
+                    <input type="text" class="form-input block-bank-amount block-sub-amount" placeholder="Amount" style="width: 120px;">
+                    <input type="text" class="form-input block-bank-name-input" placeholder="Bank Name" style="flex: 1;">
+                    <button type="button" data-action="add-bank-row" data-block="{ID}" style="width: 28px; height: 28px; border-radius: 50%; background: rgba(59,130,246,0.3); border: 1px solid #60a5fa; color: #60a5fa; cursor: pointer;">➕</button>
+                </div>
+            </div>
+        </div>
+        <div id="cheque-details-{ID}" style="display: none; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); border-radius: 8px; padding: 8px; margin-bottom: 8px;">
+            <div class="cheque-rows-container" id="cheque-rows-{ID}">
+                <div class="cheque-row" style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px;">
+                    <span style="width: 60px; color: #c084fc;">✍️ Cheque</span>
+                    <input type="text" class="form-input block-cheque-amount block-sub-amount" placeholder="Amount" style="width: 120px;">
+                    <input type="text" class="form-input block-cheque-bank-input" placeholder="Bank" style="flex: 1;">
+                    <input type="text" class="form-input block-cheque-no-input" placeholder="Cheque #" style="width: 100px;">
+                    <button type="button" data-action="add-cheque-row" data-block="{ID}" style="width: 28px; height: 28px; border-radius: 50%; background: rgba(139,92,246,0.3); border: 1px solid #c084fc; color: #c084fc; cursor: pointer;">➕</button>
+                </div>
+            </div>
+        </div>
+        <div id="amount-{ID}" style="font-size: 1.2rem; font-weight: bold; color: #fbbf24; text-align: center; padding: 6px; background: rgba(251,191,36,0.1); border-radius: 6px;">Total: 0</div>
+    </div>
+</template>
+
+<script>
+let blockCounter = 0;
+const logEl = document.getElementById('log');
+function log(msg, ok) {
+    const d = document.createElement('div');
+    d.className = 'log-line ' + (ok ? 'log-ok' : 'log-err');
+    d.textContent = new Date().toLocaleTimeString() + ' | ' + msg;
+    logEl.appendChild(d);
+    logEl.scrollTop = logEl.scrollHeight;
+}
+
+window.addAccountBlock = function() {
+    blockCounter++;
+    const id = Date.now() + '_' + blockCounter;
+    const templateEl = document.getElementById('account-block-template');
+    
+    if (!templateEl) { log('ERROR: Template not found!', false); return; }
+    
+    let rawHtml = templateEl.innerHTML;
+    log('Template innerHTML length: ' + rawHtml.length + ', has {ID}: ' + rawHtml.includes('{ID}'), true);
+    
+    const html = rawHtml.replace(/{ID}/g, id);
+    log('After replace, has {ID}: ' + html.includes('{ID}') + ', has ' + id + ': ' + html.includes(id), true);
+    
+    const container = document.getElementById('accounts-blocks-container');
+    container.insertAdjacentHTML('beforeend', html);
+    
+    // Verify elements exist
+    log('Block added with id: ' + id, true);
+    log('cheque-rows-' + id + ' exists: ' + !!document.getElementById('cheque-rows-' + id), true);
+    log('bank-rows-' + id + ' exists: ' + !!document.getElementById('bank-rows-' + id), true);
+    
+    // Check data-action buttons
+    const block = document.querySelector(`.account-block[data-block-id="${id}"]`);
+    if (block) {
+        const btns = block.querySelectorAll('[data-action]');
+        log('Found ' + btns.length + ' data-action buttons in block', true);
+        btns.forEach(b => log('  -> action=' + b.getAttribute('data-action') + ' block=' + b.getAttribute('data-block'), true));
+    }
+}
+
+window.toggleBlockPaymentMethod = function(blockId, method) {
+    const btn = document.getElementById('pm-' + method + '-' + blockId);
+    const details = document.getElementById(method + '-details-' + blockId);
+    if (!btn || !details) { log('Toggle error: btn=' + !!btn + ' details=' + !!details, false); return; }
+    
+    if (btn.classList.contains('active')) {
+        btn.classList.remove('active');
+        details.style.display = 'none';
+        btn.style.opacity = '0.5';
+        log('Toggled OFF: ' + method, true);
+    } else {
+        btn.classList.add('active');
+        details.style.display = 'block';
+        btn.style.opacity = '1';
+        log('Toggled ON: ' + method, true);
+    }
+}
+
+window.addBankRow = function(blockId) {
+    log('addBankRow called for block: ' + blockId, true);
+    const container = document.getElementById('bank-rows-' + blockId);
+    if (!container) { log('ERROR: bank-rows-' + blockId + ' NOT FOUND', false); return; }
+    const row = document.createElement('div');
+    row.className = 'bank-row';
+    row.style.cssText = 'display: flex; gap: 8px; align-items: center; margin-bottom: 4px;';
+    row.innerHTML = `
+        <span style="width: 60px;"></span>
+        <input type="text" class="form-input block-bank-amount block-sub-amount" placeholder="Amount" style="width: 120px;">
+        <input type="text" class="form-input block-bank-name-input" placeholder="Bank" style="flex: 1;">
+        <button type="button" data-action="remove-bank-row" style="width: 28px; height: 28px; border-radius: 50%; background: rgba(239,68,68,0.3); border: none; color: #ef4444; cursor: pointer;">✖</button>
+    `;
+    container.appendChild(row);
+    log('Bank row added!', true);
+}
+
+window.addChequeRow = function(blockId) {
+    log('addChequeRow called for block: ' + blockId, true);
+    const container = document.getElementById('cheque-rows-' + blockId);
+    if (!container) { log('ERROR: cheque-rows-' + blockId + ' NOT FOUND', false); return; }
+    const row = document.createElement('div');
+    row.className = 'cheque-row';
+    row.style.cssText = 'display: flex; gap: 8px; align-items: center; margin-bottom: 4px;';
+    row.innerHTML = `
+        <span style="width: 60px;"></span>
+        <input type="text" class="form-input block-cheque-amount block-sub-amount" placeholder="Amount" style="width: 120px;">
+        <input type="text" class="form-input block-cheque-bank-input" placeholder="Bank" style="flex: 1;">
+        <input type="text" class="form-input block-cheque-no-input" placeholder="Cheque #" style="width: 100px;">
+        <button type="button" data-action="remove-cheque-row" style="width: 28px; height: 28px; border-radius: 50%; background: rgba(239,68,68,0.3); border: none; color: #ef4444; cursor: pointer;">✖</button>
+    `;
+    container.appendChild(row);
+    log('Cheque row added!', true);
+}
+
+// CENTRAL EVENT DELEGATION
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    
+    const action = btn.getAttribute('data-action');
+    const blockId = btn.getAttribute('data-block');
+    log('Click detected: action=' + action + ' block=' + blockId, true);
+    
+    if (action === 'add-bank-row' && blockId) addBankRow(blockId);
+    else if (action === 'add-cheque-row' && blockId) addChequeRow(blockId);
+    else if (action === 'toggle-pm') {
+        const method = btn.getAttribute('data-method');
+        if (method && blockId) toggleBlockPaymentMethod(blockId, method);
+    }
+    else if (action === 'remove-block' && blockId) {
+        const block = document.querySelector(`.account-block[data-block-id="${blockId}"]`);
+        if (block) block.remove();
+    }
+    else if (action === 'remove-bank-row') {
+        const row = btn.closest('.bank-row');
+        if (row) row.remove();
+    }
+    else if (action === 'remove-cheque-row') {
+        const row = btn.closest('.cheque-row');
+        if (row) row.remove();
+    }
+});
+
+// Auto-add first block
+window.addAccountBlock();
+log('=== Test page ready! ===', true);
+</script>
+</body></html>

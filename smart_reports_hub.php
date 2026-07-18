@@ -28,6 +28,7 @@ $header_theme_class = 'header-theme-reports';
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
@@ -514,6 +515,8 @@ $header_theme_class = 'header-theme-reports';
     <div class="container" style="position: relative; z-index: 1;">
         
         <?php $header_theme_class = 'header-theme-reports'; ?>
+        <?php include 'includes/header.php'; ?>
+        <br>
         
         <!-- الهيدر الترحيبي -->
         <div class="welcome-header">

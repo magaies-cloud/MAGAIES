@@ -441,7 +441,7 @@
         <button class="tab-btn" onclick="switchTab('inventory')" data-i18n="settings.warehouses">📦 المخازن</button>
         <button class="tab-btn" onclick="switchTab('printing')" data-i18n="settings.printing">🖨️ إعدادات الطباعة</button>
         <button class="tab-btn" onclick="switchTab('email')" data-i18n="settings.smtp">📧 إعدادات البريد SMTP</button>
-        <button class="tab-btn" onclick="switchTab('whatsapp')" data-i18n="settings.whatsapp">💬 ربط الواتساب</button>
+
         <button class="tab-btn" onclick="switchTab('users')" data-i18n="settings.users">🛡️ المستخدمين</button>
         <button class="tab-btn" onclick="switchTab('ui')" data-i18n="settings.langUI">🎨 اللغة والواجهة</button>
         <button class="tab-btn" onclick="switchTab('system')" data-i18n="settings.system">💾 النظام والنسخ</button>
@@ -741,21 +741,28 @@
             </div>
         </div>
 
-        <!-- Tab: WhatsApp -->
-        <div class="tab-content" id="tab-whatsapp">
-            <div class="glass-panel" id="panel-whatsapp">
-                <div class="setting-title">💬 ربط الواتساب السحابي</div>
-                <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0; line-height: 1.6;">ربط رقم الواتساب الخاص بالشركة لإرسال الفواتير للعملاء والموردين مباشرة من النظام لجميع مستخدمي الشركة المصرح لهم.</p>
-                <button class="action-btn" style="background: rgba(37,211,102,0.1); color: #25d366; border: 1px solid rgba(37,211,102,0.3);" onclick="openWAModal()">📱 إدارة جلسة الواتساب ومسح الـ QR</button>
-            </div>
-        </div>
-
         <!-- Tab: Users -->
         <div class="tab-content" id="tab-users">
-            <div class="glass-panel" id="panel-users">
-                <div class="setting-title">🛡️ إدارة المستخدمين والصلاحيات</div>
-                <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0; line-height: 1.6;">إدارة حسابات الموظفين، تحديد الأدوار (أدمن، محاسب، بائع، كاشير)، وتخصيص صلاحيات الدخول لكل شاشة بدقة متناهية.</p>
-                <button class="action-btn btn-users" onclick="window.location.href='users-roles.php'">⚙️ فتح لوحة تحكم المستخدمين</button>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                
+                <div class="glass-panel" id="panel-users" style="margin: 0;">
+                    <div class="setting-title" style="border: none; margin-bottom: 10px;">🛡️ إدارة المستخدمين</div>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0; line-height: 1.6;">إدارة حسابات الموظفين، تحديد الأدوار (أدمن، محاسب، بائع)، وتخصيص الصلاحيات.</p>
+                    <button class="action-btn btn-users" onclick="window.location.href='users-roles.php'" style="margin-top: 15px;">⚙️ فتح إدارة المستخدمين</button>
+                </div>
+
+                <div class="glass-panel" id="panel-whatsapp" style="margin: 0;">
+                    <div class="setting-title" style="border: none; margin-bottom: 10px;">💬 ربط الواتساب</div>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0; line-height: 1.6;">إدارة جلسة الواتساب ومسح الـ QR لإرسال الفواتير والتنبيهات للعملاء مباشرة.</p>
+                    <button class="action-btn" style="background: rgba(37,211,102,0.1); color: #25d366; border: 1px solid rgba(37,211,102,0.3); margin-top: 15px;" onclick="openWAModal()">📱 إعداد الواتساب</button>
+                </div>
+
+                <div class="glass-panel" id="panel-audit" style="margin: 0;">
+                    <div class="setting-title" style="border: none; margin-bottom: 10px;">⬛ الصندوق الأسود</div>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0; line-height: 1.6;">سجل شامل لجميع حركات النظام لتتبع ومراقبة العمليات والتدقيق الأمني.</p>
+                    <button class="action-btn" style="background: rgba(15,23,42,0.5); color: #fff; border: 1px solid rgba(255,255,255,0.2); margin-top: 15px;" onclick="window.location.href='audit-log.php'">🔍 فتح الصندوق الأسود</button>
+                </div>
+                
             </div>
         </div>
 

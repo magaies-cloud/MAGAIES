@@ -311,6 +311,9 @@
         </div>
         <div style="display:flex; align-items:center; gap:15px;">
             <span id="last-refresh-time" style="font-size:0.85rem; color:#94a3b8; font-weight:600;">آخر تحديث: -</span>
+            <button onclick="window.location.href='alerts_manager.php'" class="refresh-btn" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); gap: 8px;">
+                <i class="fa-solid fa-triangle-exclamation"></i> تنبيهات التقارير المالية
+            </button>
             <button id="refresh-btn" class="refresh-btn" onclick="loadAlarms()">
                 <span class="spin-icon">🔄</span> تحديث التنبيهات
             </button>

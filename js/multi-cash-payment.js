@@ -2,16 +2,13 @@
 
 let currentVoucherIndex = -1;
 let currentVoucherList = [];
+let blockCounter = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
     // Set today's date
     const today = new Date().toISOString().split('T')[0];
     const dateEl = document.getElementById('voucher-date');
     if (dateEl) dateEl.value = today;
-    
-    // Add first empty row
-    addRow();
-    addRow(); // Start with 2 rows for convenience
 
     // Live date display in header
     const dateMini = document.getElementById('header-date-mini');
@@ -28,13 +25,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadNextMultiVoucherNumber();
     updateLabels();
+    
     // Apply exchange rate permission on load
     setTimeout(() => applyExchangeRatePermission(), 500);
+    
+    // Initialize first account block (delayed to ensure all functions are defined)
+    setTimeout(() => {
+        const container = document.getElementById('accounts-blocks-container');
+        if (container) container.innerHTML = '';
+        if (typeof window.addAccountBlock === 'function') {
+            window.addAccountBlock();
+        }
+    }, 100);
 });
 
 document.addEventListener('DBReady', async () => {
     await loadAllAccounts();
     applyExchangeRatePermission();
+    if (typeof populateSafesDropdown === 'function') populateSafesDropdown();
 });
 
 // ═══ Currency Change: Auto-fill exchange rate from settings ═══
@@ -151,6 +159,55 @@ function restrictToNumbers(el) {
 }
 
 function setVoucherType(type) {
+    const typeInput = document.getElementById('voucher-type');
+    if (typeInput && typeInput.value === type) return; // Prevent redundant clicks
+
+    const primary = document.getElementById('primary-inputs-container');
+    const secondary = document.getElementById('accounts-blocks-container');
+    
+    if (primary && secondary) {
+        if (typeof playClickSound === 'function') playClickSound();
+
+        // 1. Outward Animation: Smooth fade out and subtle shift
+        primary.style.transition = 'all 0.3s ease';
+        secondary.style.transition = 'all 0.3s ease';
+        
+        primary.style.opacity = '0';
+        primary.style.transform = 'translateY(10px) scale(0.99)';
+        
+        secondary.style.opacity = '0';
+        secondary.style.transform = 'translateY(10px) scale(0.99)';
+        
+        setTimeout(() => {
+            // 2. Apply UI changes while hidden
+            executeSetVoucherType(type);
+            
+            // 3. Reset transform slightly higher for smooth drop-in
+            primary.style.transition = 'none';
+            secondary.style.transition = 'none';
+            
+            primary.style.transform = 'translateY(-10px) scale(0.99)';
+            secondary.style.transform = 'translateY(-10px) scale(0.99)';
+            
+            // Force browser reflow
+            void primary.offsetWidth;
+            
+            // 4. Inward Animation: Elegant fade in and settle
+            primary.style.transition = 'all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)'; // Smooth ease-out
+            secondary.style.transition = 'all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)';
+            
+            primary.style.opacity = '1';
+            primary.style.transform = 'translateY(0) scale(1)';
+            
+            secondary.style.opacity = '1';
+            secondary.style.transform = 'translateY(0) scale(1)';
+        }, 300);
+    } else {
+        executeSetVoucherType(type);
+    }
+}
+
+function executeSetVoucherType(type) {
     const btnPayment = document.getElementById('btn-payment');
     const btnReceipt = document.getElementById('btn-receipt');
     const typeInput = document.getElementById('voucher-type');
@@ -202,6 +259,7 @@ function updateLabels() {
     const subTitle = document.getElementById('sub-accounts-title');
     const primaryContainer = document.getElementById('primary-inputs-container');
     const secondaryContainer = document.getElementById('secondary-table-container');
+    const entryCardLabel = document.getElementById('entry-card-label');
     
     if (type === 'payment') {
         if (primaryContainer) {
@@ -212,19 +270,44 @@ function updateLabels() {
         }
         if (label) {
             label.innerHTML = 'من حساب (صرف) <span class="animated-arrow-left">←</span>';
-            label.style.setProperty('color', '#f87171', 'important');
-            label.style.fontSize = '1.1rem';
+            label.style.setProperty('color', '#ef4444', 'important');
+            label.style.fontSize = '1.2rem';
         }
         if (subHeader) {
             subHeader.innerHTML = 'إلى حساب (استلام) <span class="animated-arrow-right">→</span>';
             subHeader.style.setProperty('color', '#34d399', 'important');
-            subHeader.style.fontSize = '1.1rem';
+            subHeader.style.fontSize = '1.2rem';
         }
         if (subTitle) {
             subTitle.innerHTML = '<span>👥</span> إلى حساب (استلام) <span class="animated-arrow-right">→</span>';
             subTitle.style.setProperty('color', '#34d399', 'important');
-            subTitle.style.fontSize = '1.1rem';
+            subTitle.style.fontSize = '1.2rem';
         }
+        if (entryCardLabel) {
+            entryCardLabel.innerHTML = 'إلى حساب (مستفيد) <span class="animated-arrow-right">→</span>';
+            entryCardLabel.style.setProperty('color', '#34d399', 'important');
+        }
+        document.querySelectorAll('.block-label').forEach(lbl => {
+            lbl.textContent = 'إلى حساب (مستلم)';
+            lbl.style.color = '#34d399';
+            if (lbl.parentElement) lbl.parentElement.style.color = '#34d399';
+        });
+        document.querySelectorAll('.account-block').forEach(block => {
+            block.classList.remove('glass-red');
+            block.classList.add('glass-green');
+            const arrow = block.querySelector('.animated-arrow-right, .animated-arrow-left');
+            if (arrow) {
+                arrow.className = 'animated-arrow-right';
+                arrow.textContent = '→';
+                arrow.style.color = '#34d399';
+            }
+        });
+        document.querySelectorAll('.block-total-amount').forEach(el => {
+            el.style.color = '#34d399';
+            el.style.background = 'rgba(16, 185, 129, 0.08)';
+            el.style.borderColor = 'rgba(52, 211, 153, 0.4)';
+            el.style.boxShadow = '0 0 10px rgba(52, 211, 153, 0.25)';
+        });
     } else {
         if (primaryContainer) {
             primaryContainer.className = 'glass-container glass-green';
@@ -235,63 +318,411 @@ function updateLabels() {
         if (label) {
             label.innerHTML = 'إلى حساب (استلام) <span class="animated-arrow-right">→</span>';
             label.style.setProperty('color', '#34d399', 'important');
-            label.style.fontSize = '1.1rem';
+            label.style.fontSize = '1.2rem';
         }
         if (subHeader) {
             subHeader.innerHTML = 'من حساب (دفع) <span class="animated-arrow-left">←</span>';
-            subHeader.style.setProperty('color', '#f87171', 'important');
-            subHeader.style.fontSize = '1.1rem';
+            subHeader.style.setProperty('color', '#ef4444', 'important');
+            subHeader.style.fontSize = '1.2rem';
         }
         if (subTitle) {
             subTitle.innerHTML = '<span>👥</span> من حساب (دفع) <span class="animated-arrow-left">←</span>';
-            subTitle.style.setProperty('color', '#f87171', 'important');
-            subTitle.style.fontSize = '1.1rem';
+            subTitle.style.setProperty('color', '#ef4444', 'important');
+            subTitle.style.fontSize = '1.2rem';
+        }
+        if (entryCardLabel) {
+            entryCardLabel.innerHTML = 'من حساب (دافع) <span class="animated-arrow-left">←</span>';
+            entryCardLabel.style.setProperty('color', '#ef4444', 'important');
+        }
+        document.querySelectorAll('.block-label').forEach(lbl => {
+            lbl.textContent = 'من حساب (دافع)';
+            lbl.style.color = '#ef4444';
+            if (lbl.parentElement) lbl.parentElement.style.color = '#ef4444';
+        });
+        document.querySelectorAll('.account-block').forEach(block => {
+            block.classList.remove('glass-green');
+            block.classList.add('glass-red');
+            const arrow = block.querySelector('.animated-arrow-right, .animated-arrow-left');
+            if (arrow) {
+                arrow.className = 'animated-arrow-left';
+                arrow.textContent = '←';
+                arrow.style.color = '#ef4444';
+            }
+        });
+        document.querySelectorAll('.block-total-amount').forEach(el => {
+            el.style.color = '#ef4444';
+            el.style.background = 'rgba(239, 68, 68, 0.08)';
+            el.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+            el.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.25)';
+        });
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+// Entry Card System - New UI functions
+// ═══════════════════════════════════════════════════════
+
+window.addAccountBlock = function() {
+    blockCounter++;
+    const id = Date.now() + '_' + blockCounter;
+    const templateEl = document.getElementById('account-block-template');
+    if (!templateEl) { console.error('Template not found!'); return; }
+    
+    // Get raw HTML string from template
+    // Use innerHTML directly (works in all modern browsers for <template>)
+    let rawHtml = templateEl.innerHTML;
+    // Fallback: if innerHTML is empty, try content serialization
+    if (!rawHtml || rawHtml.trim().length === 0) {
+        const tempDiv = document.createElement('div');
+        tempDiv.appendChild(templateEl.content.cloneNode(true));
+        rawHtml = tempDiv.innerHTML;
+    }
+    const html = rawHtml.replace(/{ID}/g, id);
+    
+    const container = document.getElementById('accounts-blocks-container');
+    if (!container) return;
+    container.insertAdjacentHTML('beforeend', html);
+    
+    // Set label based on voucher type
+    const voucherTypeEl = document.getElementById('voucher-type');
+    const isPayment = voucherTypeEl ? (voucherTypeEl.value === 'payment') : true;
+    const blockEl = document.querySelector(`.account-block[data-block-id="${id}"]`);
+    const label = blockEl ? blockEl.querySelector('.block-label') : null;
+    const arrow = blockEl ? blockEl.querySelector('.animated-arrow-right, .animated-arrow-left') : null;
+    
+    const totalInput = blockEl ? blockEl.querySelector('.block-total-amount') : null;
+    
+    if (isPayment) {
+        if (blockEl) {
+            blockEl.classList.remove('glass-red');
+            blockEl.classList.add('glass-green');
+        }
+        if (label) {
+            label.textContent = 'إلى حساب (مستلم)';
+            label.style.color = '#34d399';
+            if (label.parentElement) label.parentElement.style.color = '#34d399';
+        }
+        if (arrow) {
+            arrow.className = 'animated-arrow-right';
+            arrow.textContent = '→';
+            arrow.style.color = '#34d399';
+        }
+        if (totalInput) {
+            totalInput.style.color = '#34d399';
+            totalInput.style.background = 'rgba(16, 185, 129, 0.08)';
+            totalInput.style.borderColor = 'rgba(52, 211, 153, 0.4)';
+            totalInput.style.boxShadow = '0 0 10px rgba(52, 211, 153, 0.25)';
+        }
+    } else {
+        if (blockEl) {
+            blockEl.classList.remove('glass-green');
+            blockEl.classList.add('glass-red');
+        }
+        if (label) {
+            label.textContent = 'من حساب (دافع)';
+            label.style.color = '#ef4444';
+            if (label.parentElement) label.parentElement.style.color = '#ef4444';
+        }
+        if (arrow) {
+            arrow.className = 'animated-arrow-left';
+            arrow.textContent = '←';
+            arrow.style.color = '#ef4444';
+        }
+        if (totalInput) {
+            totalInput.style.color = '#ef4444';
+            totalInput.style.background = 'rgba(239, 68, 68, 0.08)';
+            totalInput.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+            totalInput.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.25)';
+        }
+    }
+    
+    // Populate safes for this block
+    const safeSelect = document.getElementById(`cash-safe-${id}`);
+    if (safeSelect && typeof window.populateSafesDropdown === 'function') {
+        window.populateSafesDropdown(safeSelect);
+    }
+    
+    // Auto toggle cash by default
+    if (typeof window.toggleBlockPaymentMethod === 'function') {
+        window.toggleBlockPaymentMethod(id, 'cash');
+    }
+    
+    // Update delete buttons visibility
+    if (typeof window.updateDeleteButtonsVisibility === 'function') {
+        window.updateDeleteButtonsVisibility();
+    }
+}
+
+window.updateDeleteButtonsVisibility = function() {
+    const blocks = document.querySelectorAll('.account-block');
+    blocks.forEach(block => {
+        const btn = block.querySelector('.btn-remove-block');
+        if (btn) {
+            if (blocks.length <= 1) {
+                btn.style.display = 'none';
+            } else {
+                btn.style.display = 'flex';
+            }
+        }
+    });
+}
+
+window.removeAccountBlock = function(id) {
+    const blocks = document.querySelectorAll('.account-block');
+    if (blocks.length <= 1) {
+        showToast('يجب أن يكون هناك حساب واحد على الأقل', 'error');
+        return;
+    }
+    const block = document.querySelector(`.account-block[data-block-id="${id}"]`);
+    if (block) {
+        block.remove();
+        calcTotal();
+        
+        // Update delete buttons visibility
+        if (typeof window.updateDeleteButtonsVisibility === 'function') {
+            window.updateDeleteButtonsVisibility();
         }
     }
 }
 
-let multiRowIdCounter = 0;
-function addRow() {
-    multiRowIdCounter++;
-    const rowId = multiRowIdCounter;
-    const tbody = document.getElementById('entries-body');
-    const isFirst = (tbody && tbody.children.length === 0);
-    const tr = document.createElement('tr');
-    tr.className = 'multi-row';
-    const actionBtn = isFirst 
-        ? `<button type="button" onclick="addRow()" class="btn-add-row-inline" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #10b981; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin: auto;" title="إضافة حساب جديد">➕</button>`
-        : `<button class="btn-del" onclick="removeRow(this)" title="حذف السطر">✖</button>`;
-    tr.innerHTML = `
-        <td>
-            <div class="custom-dropdown-input-wrap" style="width: 100%; position: relative;">
-                <input type="hidden" id="acc-${rowId}" class="sub-account">
-                <input type="text" autocomplete="off" class="multi-input" id="acc-${rowId}-search" placeholder="ابحث عن حساب..." onfocus="showAccountDropdown('acc-${rowId}')" onblur="hideAccountDropdownDelayed('acc-${rowId}')" oninput="filterAccountDropdown('acc-${rowId}')" style="width: 100%; box-sizing: border-box; background: transparent; border: none; color: #ffffff !important; padding: 10px;">
-                <div class="custom-dropdown-list" id="acc-${rowId}-dropdown-list"></div>
-            </div>
-        </td>
-        <td><input type="text" autocomplete="off" class="multi-input sub-amount" placeholder="0.00" onblur="formatInput(this)" oninput="restrictToNumbers(this); calcTotal();" style="font-family: monospace; font-weight: bold; font-size: 1.1rem; color: #10b981;"></td>
-        <td class="col-desc"><input type="text" autocomplete="off" class="multi-input sub-desc" placeholder="بيان هذا الحساب..."></td>
-        <td class="col-cost-center"><input type="text" autocomplete="off" class="multi-input sub-cost-center" placeholder="مركز التكلفة..."></td>
-        <td class="col-note"><input type="text" autocomplete="off" class="multi-input sub-note" placeholder="ملحوظة..."></td>
-        <td class="col-check-no"><input type="text" autocomplete="off" class="multi-input sub-check-no" placeholder="رقم الشيك..."></td>
-        <td class="col-check-date"><input type="date" class="multi-input sub-check-date"></td>
-        <td class="col-check-due"><input type="date" class="multi-input sub-check-due"></td>
-        <td style="text-align: center;">${actionBtn}</td>
-    `;
-    if (tbody) tbody.appendChild(tr);
-    calcTotal();
-    if (typeof window.applySystemNumberFormatting === 'function') window.applySystemNumberFormatting();
-}
-
-function removeRow(btn) {
-    const tr = btn.closest('tr');
-    if (tr) {
-        tr.classList.add('removing');
-        setTimeout(() => { tr.remove(); calcTotal(); }, 300);
+window.toggleBlockPaymentMethod = function(blockId, method) {
+    const btn = document.getElementById(`pm-${method}-${blockId}`);
+    const details = document.getElementById(`${method}-details-${blockId}`);
+    if (!btn || !details) return;
+    
+    if (btn.classList.contains('active')) {
+        btn.classList.remove('active');
+        details.style.display = 'none';
+        // Clear the amount when deactivating
+        const amtEl = document.getElementById(`${method}-amount-${blockId}`);
+        if (amtEl) amtEl.value = '';
+        recalcBlockTotal(blockId);
     } else {
-        calcTotal();
+        btn.classList.add('active');
+        details.style.display = 'block';
     }
 }
+
+// ═══ Animated Block Total Recalculation ═══
+window.recalcBlockTotal = function(blockId) {
+    const block = document.querySelector(`.account-block[data-block-id="${blockId}"]`);
+    const totalEl = document.getElementById(`amount-${blockId}`);
+    if (!totalEl || !block) return;
+    
+    // Sum ALL sub-amount inputs within this block
+    let newTotal = 0;
+    block.querySelectorAll('.block-sub-amount').forEach(inp => {
+        newTotal += parseFloat(inp.value.replace(/,/g, '')) || 0;
+    });
+
+    
+    // Animate the total with counting effect
+    const oldTotal = parseFloat(totalEl.value.replace(/,/g, '')) || 0;
+    if (oldTotal === newTotal) return;
+    
+    const voucherTypeEl = document.getElementById('voucher-type');
+    const isPayment = voucherTypeEl ? (voucherTypeEl.value === 'payment') : true;
+    const pulseShadow = isPayment ? '0 0 15px rgba(52, 211, 153, 0.65)' : '0 0 15px rgba(239, 68, 68, 0.65)';
+    const defaultShadow = isPayment ? '0 0 10px rgba(52, 211, 153, 0.25)' : '0 0 10px rgba(239, 68, 68, 0.25)';
+
+    // Visual pulse effect
+    totalEl.style.transform = 'scale(1.08)';
+    totalEl.style.boxShadow = pulseShadow;
+    
+    // Counting animation
+    const duration = 300; // ms
+    const startTime = performance.now();
+    const diff = newTotal - oldTotal;
+    
+    function animateCount(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // Ease out quad
+        const eased = 1 - (1 - progress) * (1 - progress);
+        const currentVal = oldTotal + diff * eased;
+        
+        totalEl.value = currentVal > 0 ? fmtNum(currentVal) : '0.00';
+        
+        if (progress < 1) {
+            requestAnimationFrame(animateCount);
+        } else {
+            totalEl.value = newTotal > 0 ? fmtNum(newTotal) : '0.00';
+            // Reset visual effect
+            setTimeout(() => {
+                totalEl.style.transform = 'scale(1)';
+                totalEl.style.boxShadow = defaultShadow;
+            }, 150);
+            // Update voucher grand total
+            if (typeof calcTotal === 'function') calcTotal();
+        }
+    }
+    requestAnimationFrame(animateCount);
+}
+
+// ═══ Add/Remove Bank Transfer Rows ═══
+window.addBankRow = function(blockId) {
+    console.log('addBankRow called with blockId:', blockId);
+    const container = document.getElementById(`bank-rows-${blockId}`);
+    console.log('bank container found:', !!container, `bank-rows-${blockId}`);
+    if (!container) return;
+    const row = document.createElement('div');
+    row.className = 'bank-row';
+    row.style.cssText = 'display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; animation: rowSlideIn 0.3s ease;';
+    row.innerHTML = `
+        <div style="width: 80px; flex-shrink: 0;"></div>
+        <div style="width: 150px; flex-shrink: 0;">
+            <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+        </div>
+        <div style="flex: 1; min-width: 120px;">
+            <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
+        </div>
+        <div style="flex: 1; min-width: 120px;">
+            <input type="text" autocomplete="off" class="form-input block-transfer-no-input" placeholder="رقم التحويلة" style="margin-bottom: 0;">
+        </div>
+        <button type="button" data-action="remove-bank-row" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #ef4444; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="حذف هذه التحويلة">✖</button>
+    `;
+    container.appendChild(row);
+}
+
+window.removeBankRow = function(btn, blockId) {
+    const row = btn.closest('.bank-row');
+    if (row) {
+        row.style.animation = 'rowSlideIn 0.2s ease reverse';
+        setTimeout(() => {
+            row.remove();
+            recalcBlockTotal(blockId);
+        }, 200);
+    }
+}
+
+// ═══ Add/Remove Cheque Rows ═══
+window.addChequeRow = function(blockId) {
+    console.log('addChequeRow called with blockId:', blockId);
+    const container = document.getElementById(`cheque-rows-${blockId}`);
+    console.log('cheque container found:', !!container, `cheque-rows-${blockId}`);
+    if (!container) return;
+    const row = document.createElement('div');
+    row.className = 'cheque-row';
+    row.style.cssText = 'display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; animation: rowSlideIn 0.3s ease;';
+    row.innerHTML = `
+        <div style="width: 80px; flex-shrink: 0;"></div>
+        <div style="width: 150px; flex-shrink: 0;">
+            <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+        </div>
+        <div style="flex: 1; min-width: 90px;">
+            <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
+        </div>
+        <div style="flex: 1; min-width: 80px;">
+            <input type="text" autocomplete="off" class="form-input block-cheque-no-input" placeholder="رقم الشيك" style="margin-bottom: 0;">
+        </div>
+        <div style="flex: 1; min-width: 100px;">
+            <input type="date" class="form-input block-cheque-date-input" title="تاريخ الاستحقاق" style="margin-bottom: 0;">
+        </div>
+        <button type="button" data-action="remove-cheque-row" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #ef4444; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="حذف هذا الشيك">✖</button>
+    `;
+    container.appendChild(row);
+}
+
+window.removeChequeRow = function(btn, blockId) {
+    const row = btn.closest('.cheque-row');
+    if (row) {
+        row.style.animation = 'rowSlideIn 0.2s ease reverse';
+        setTimeout(() => {
+            row.remove();
+            recalcBlockTotal(blockId);
+        }, 200);
+    }
+}
+
+// ═══ CENTRAL EVENT DELEGATION ═══
+// Uses DOM traversal instead of getElementById for maximum reliability
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    
+    const action = btn.getAttribute('data-action');
+    const block = btn.closest('.account-block');
+    const blockId = block ? block.getAttribute('data-block-id') : btn.getAttribute('data-block');
+    
+    if (action === 'add-bank-row') {
+        // Find container by DOM traversal, not by ID
+        const container = block ? block.querySelector('.bank-rows-container') : null;
+        if (!container) { console.error('bank container not found'); return; }
+        const row = document.createElement('div');
+        row.className = 'bank-row';
+        row.style.cssText = 'display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; animation: rowSlideIn 0.3s ease;';
+        row.innerHTML = `
+            <div style="width: 80px; flex-shrink: 0;"></div>
+            <div style="width: 150px; flex-shrink: 0;">
+                <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+            </div>
+            <div style="flex: 1; min-width: 120px;">
+                <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
+            </div>
+            <div style="flex: 1; min-width: 120px;">
+                <input type="text" autocomplete="off" class="form-input block-transfer-no-input" placeholder="رقم التحويلة" style="margin-bottom: 0;">
+            </div>
+            <button type="button" data-action="remove-bank-row" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #ef4444; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="حذف هذه التحويلة">✖</button>
+        `;
+        container.appendChild(row);
+        
+    } else if (action === 'add-cheque-row') {
+        // Find container by DOM traversal, not by ID
+        const container = block ? block.querySelector('.cheque-rows-container') : null;
+        if (!container) { console.error('cheque container not found'); return; }
+        const row = document.createElement('div');
+        row.className = 'cheque-row';
+        row.style.cssText = 'display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; animation: rowSlideIn 0.3s ease;';
+        row.innerHTML = `
+            <div style="width: 80px; flex-shrink: 0;"></div>
+            <div style="width: 150px; flex-shrink: 0;">
+                <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+            </div>
+            <div style="flex: 1; min-width: 90px;">
+                <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
+            </div>
+            <div style="flex: 1; min-width: 80px;">
+                <input type="text" autocomplete="off" class="form-input block-cheque-no-input" placeholder="رقم الشيك" style="margin-bottom: 0;">
+            </div>
+            <div style="flex: 1; min-width: 100px;">
+                <input type="date" class="form-input block-cheque-date-input" title="تاريخ الاستحقاق" style="margin-bottom: 0;">
+            </div>
+            <button type="button" data-action="remove-cheque-row" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #ef4444; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="حذف هذا الشيك">✖</button>
+        `;
+        container.appendChild(row);
+        
+    } else if (action === 'remove-block' && blockId) {
+        removeAccountBlock(blockId);
+    } else if (action === 'remove-bank-row') {
+        const row = btn.closest('.bank-row');
+        if (row) {
+            const bid = block ? block.getAttribute('data-block-id') : null;
+            row.style.animation = 'rowSlideIn 0.2s ease reverse';
+            setTimeout(() => { row.remove(); if(bid) recalcBlockTotal(bid); }, 200);
+        }
+    } else if (action === 'remove-cheque-row') {
+        const row = btn.closest('.cheque-row');
+        if (row) {
+            const bid = block ? block.getAttribute('data-block-id') : null;
+            row.style.animation = 'rowSlideIn 0.2s ease reverse';
+            setTimeout(() => { row.remove(); if(bid) recalcBlockTotal(bid); }, 200);
+        }
+    } else if (action === 'toggle-pm') {
+        const method = btn.getAttribute('data-method');
+        if (method && blockId) toggleBlockPaymentMethod(blockId, method);
+    }
+});
+
+// Handle oninput for sub-amount fields (via delegation)
+document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('block-sub-amount')) {
+        e.target.value = e.target.value.replace(/[^0-9.]/g, '');
+        const block = e.target.closest('.account-block');
+        if (block) {
+            recalcBlockTotal(block.getAttribute('data-block-id'));
+        }
+    }
+});
 
 function formatInput(input) {
     const val = cleanNum(input.value);
@@ -300,17 +731,22 @@ function formatInput(input) {
 }
 
 function calcTotal() {
-    const amounts = document.querySelectorAll('.sub-amount');
     let total = 0;
-    amounts.forEach(input => {
-        total += cleanNum(input.value);
+
+    const blocks = document.querySelectorAll('.account-block');
+    blocks.forEach(block => {
+        const id = block.getAttribute('data-block-id');
+        const amountInput = document.getElementById(`amount-${id}`);
+        if (amountInput) {
+            total += cleanNum(amountInput.value);
+        }
     });
 
     const totalAmtEl = document.getElementById('total-amount');
     if (totalAmtEl) totalAmtEl.innerText = fmtNum(total);
 
     const totalRowsEl = document.getElementById('total-rows');
-    if (totalRowsEl) totalRowsEl.innerText = amounts.length;
+    if (totalRowsEl) totalRowsEl.innerText = document.querySelectorAll('.account-block').length;
     
     // Update Foreign Amount (القيمة المعادل)
     const rateEl = document.getElementById('exchange-rate');
@@ -410,7 +846,7 @@ document.addEventListener('DOMContentLoaded', () => {
 /* --- Footer Actions --- */
 function resetVoucher() {
     const mainAcc = document.getElementById('main-account');
-    if (mainAcc) mainAcc.value = '';
+    if (mainAcc) { mainAcc.value = ''; mainAcc.removeAttribute('data-id'); }
     const mainSearch = document.getElementById('main-account-search');
     if (mainSearch) mainSearch.value = '';
     const refEl = document.getElementById('voucher-ref');
@@ -418,15 +854,16 @@ function resetVoucher() {
     const descEl = document.getElementById('voucher-desc');
     if (descEl) descEl.value = '';
     
-    // Clear dynamic rows
-    const tbody = document.getElementById('entries-body');
-    if (tbody) tbody.innerHTML = '';
+    // Clear blocks
+    const container = document.getElementById('accounts-blocks-container');
+    if (container) container.innerHTML = '';
+    blockCounter = 0;
+    if (typeof window.addAccountBlock === 'function') window.addAccountBlock();
     
-    addRow(); 
-    addRow();
     if (typeof initPaymentContainers === 'function') initPaymentContainers();
     calcTotal();
     loadNextMultiVoucherNumber();
+    formDirty = false;
 }
 
 window.printVoucher = function() {
@@ -476,8 +913,7 @@ window.printVoucher = function() {
     // Current print date and time
     const printDateTime = new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit'});
 
-    // Build Table Rows
-    const rows = document.querySelectorAll('.multi-row');
+    // Build Table Rows from entryItems or fallback to DOM rows
     let tableHtml = `
         <table class="print-table">
             <thead>
@@ -486,39 +922,56 @@ window.printVoucher = function() {
                     <th>الحساب / الجهة المستفيدة</th>
                     <th>المبلغ</th>
                     <th>البيان التفصيلي</th>
+                    <th>طريقة الدفع</th>
                 </tr>
             </thead>
             <tbody>
     `;
     let totalAmt = 0;
-    rows.forEach((row, idx) => {
-        const searchInput = row.querySelector('input[id$="-search"]');
-        const accName = searchInput ? searchInput.value : '';
-        if (!accName && idx > 0) return; // skip empty rows except first if empty
-        
-        const amtEl = row.querySelector('.sub-amount');
-        const amt = amtEl ? amtEl.value : '0';
-        totalAmt += parseFloat(amt.replace(/,/g, '') || 0);
-        
-        const descEl = row.querySelector('.sub-desc');
-        const note = descEl ? descEl.value : '';
-        
-        tableHtml += `
-            <tr>
-                <td>${idx + 1}</td>
-                <td>${accName}</td>
-                <td style="font-weight: bold; color: #1e293b;">${amt}</td>
-                <td>${note}</td>
-            </tr>
-        `;
-    });
+    if (entryItems.length > 0) {
+        entryItems.forEach((item, idx) => {
+            totalAmt += item.amount;
+            const pmLabel = item.paymentMethod === 'cash' ? 'نقدي' :
+                            item.paymentMethod === 'bank' ? 'تحويل بنكي' : 'شيك';
+            tableHtml += `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td>${item.accountName || item.account}</td>
+                    <td style="font-weight: bold; color: #1e293b;">${fmtNum(item.amount)}</td>
+                    <td>${item.statement || ''}</td>
+                    <td>${pmLabel}</td>
+                </tr>
+            `;
+        });
+    } else {
+        const rows = document.querySelectorAll('.multi-row');
+        rows.forEach((row, idx) => {
+            const searchInput = row.querySelector('input[id$="-search"]');
+            const accName = searchInput ? searchInput.value : '';
+            if (!accName && idx > 0) return;
+            const amtEl = row.querySelector('.sub-amount');
+            const amt = amtEl ? amtEl.value : '0';
+            totalAmt += parseFloat(amt.replace(/,/g, '') || 0);
+            const descEl = row.querySelector('.sub-desc');
+            const note = descEl ? descEl.value : '';
+            tableHtml += `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td>${accName}</td>
+                    <td style="font-weight: bold; color: #1e293b;">${amt}</td>
+                    <td>${note}</td>
+                    <td>---</td>
+                </tr>
+            `;
+        });
+    }
     tableHtml += `
             </tbody>
             <tfoot>
                 <tr>
                     <td colspan="2" style="text-align: left; font-weight: bold;">الإجمالي:</td>
                     <td style="font-weight: bold; color: #059669; font-size: 1.1rem;">${totalAmt.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
-                    <td></td>
+                    <td colspan="2"></td>
                 </tr>
             </tfoot>
         </table>
@@ -859,229 +1312,125 @@ async function saveVoucher() {
     const currency = document.getElementById('currency').value;
     const exchangeRate = parseFloat(document.getElementById('exchange-rate').value) || 1.0;
     
-    // Payment method and dynamic fields
-    const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
-    
-    let checkNo = '';
-    let checkBranch = '';
-    let checkDate = '';
-    let checkDueDate = '';
-    let mobileTransferNo = '';
-    let mobileNote = '';
-    let bankTransfers = [];
-    let cheques = [];
+    const blocks = document.querySelectorAll('.account-block');
+    let items = [];
+    let totalAmt = 0;
 
-    if (!date) { highlightError(document.getElementById('voucher-date')); reEnableSave(); return showToast('يرجى تحديد تاريخ العملية', 'error'); }
-    if (!mainAccount) { highlightError(document.getElementById('main-account-search')); reEnableSave(); return showToast('يرجى اختيار الحساب الرئيسي', 'error'); }
-
-    const rows = document.querySelectorAll('.multi-row');
-    const items = [];
-    let hasError = false;
-
-    rows.forEach((row, index) => {
-        const subAccInput = row.querySelector('.sub-account');
-        const searchInput = row.querySelector('input[type="text"][id$="-search"]') || row.querySelector('.multi-input');
-        const accName = searchInput ? searchInput.value.trim() : '';
-        const acc = subAccInput.getAttribute('data-id') || accName;
-        const amtStr = row.querySelector('.sub-amount').value;
-        const amt = cleanNum(amtStr);
-        const subDesc = row.querySelector('.sub-desc') ? row.querySelector('.sub-desc').value.trim() : '';
-        const subCostCenter = row.querySelector('.sub-cost-center') ? row.querySelector('.sub-cost-center').value.trim() : '';
-        const subNote = row.querySelector('.sub-note') ? row.querySelector('.sub-note').value.trim() : '';
-        const subCheckNo = row.querySelector('.sub-check-no') ? row.querySelector('.sub-check-no').value.trim() : '';
-        const subCheckDate = row.querySelector('.sub-check-date') ? row.querySelector('.sub-check-date').value : '';
-        const subCheckDue = row.querySelector('.sub-check-due') ? row.querySelector('.sub-check-due').value : '';
-
-        if (acc || amt > 0) {
-            if (!acc) { showToast(`السطر ${index+1}: الرجاء إدخال اسم الحساب.`, 'error'); highlightError(searchInput); hasError = true; }
-            if (amt <= 0) { showToast(`السطر ${index+1}: الرجاء إدخال مبلغ صحيح.`, 'error'); highlightError(row.querySelector('.sub-amount')); hasError = true; }
-            items.push({
-                account: acc,
-                amount: amt,
-                statement: subDesc,
-                costCenter: subCostCenter,
-                note: subNote,
-                checkNo: subCheckNo,
-                checkDate: subCheckDate,
-                checkDueDate: subCheckDue
+    for (let block of blocks) {
+        const id = block.getAttribute('data-block-id');
+        const accountSearch = document.getElementById(`account-${id}-search`);
+        const accountName = accountSearch ? accountSearch.value : '';
+        const accountId = document.getElementById(`account-${id}-id`) ? document.getElementById(`account-${id}-id`).value : (document.getElementById(`account-${id}`) ? document.getElementById(`account-${id}`).value : accountName);
+        const amount = parseFloat(cleanNum(document.getElementById(`amount-${id}`).value)) || 0;
+        const statement = document.getElementById(`statement-${id}`) ? document.getElementById(`statement-${id}`).value : '';
+        
+        if (!accountName || (!accountId && !accountName)) { 
+            showToast('يرجى تحديد جميع الحسابات', 'error'); 
+            if(accountSearch) highlightError(accountSearch);
+            reEnableSave(); 
+            return; 
+        }
+        if (amount <= 0) { 
+            showToast('المبلغ يجب أن يكون أكبر من الصفر', 'error'); 
+            highlightError(document.getElementById(`amount-${id}`));
+            reEnableSave(); 
+            return; 
+        }
+        
+        const btnCash = document.getElementById(`pm-cash-${id}`);
+        const btnBank = document.getElementById(`pm-bank-${id}`);
+        const btnCheque = document.getElementById(`pm-cheque-${id}`);
+        
+        const isCash = btnCash && btnCash.classList.contains('active');
+        const isBank = btnBank && btnBank.classList.contains('active');
+        const isCheque = btnCheque && btnCheque.classList.contains('active');
+        
+        if (!isCash && !isBank && !isCheque) {
+            showToast(`يرجى تحديد طريقة دفع واحدة على الأقل للحساب ${accountName}`, 'error'); 
+            reEnableSave(); 
+            return;
+        }
+        
+        // Collect cash data
+        const cashAmtEl = block.querySelector('.block-cash-amount');
+        const cashSafeEl = block.querySelector('.block-cash-safe');
+        const cashAmt = (isCash && cashAmtEl) ? (parseFloat(cleanNum(cashAmtEl.value)) || 0) : 0;
+        const cashSafe = (isCash && cashSafeEl) ? cashSafeEl.value : '';
+        
+        // Collect ALL bank transfer rows
+        let bankTransfers = [];
+        let bankTotalAmt = 0;
+        if (isBank) {
+            const bankRows = block.querySelectorAll('.bank-row');
+            bankRows.forEach(row => {
+                const amt = parseFloat(cleanNum(row.querySelector('.block-bank-amount')?.value)) || 0;
+                const name = row.querySelector('.block-bank-name-input')?.value || '';
+                const tno = row.querySelector('.block-transfer-no-input')?.value || '';
+                bankTotalAmt += amt;
+                bankTransfers.push({ amount: amt, bankName: name, transferNo: tno });
             });
         }
-    });
+        
+        // Collect ALL cheque rows
+        let cheques = [];
+        let chequeTotalAmt = 0;
+        if (isCheque) {
+            const chequeRows = block.querySelectorAll('.cheque-row');
+            chequeRows.forEach(row => {
+                const amt = parseFloat(cleanNum(row.querySelector('.block-cheque-amount')?.value)) || 0;
+                const bank = row.querySelector('.block-cheque-bank-input')?.value || '';
+                const no = row.querySelector('.block-cheque-no-input')?.value || '';
+                const dt = row.querySelector('.block-cheque-date-input')?.value || '';
+                chequeTotalAmt += amt;
+                cheques.push({ amount: amt, chequeBank: bank, chequeNo: no, chequeDate: dt });
+            });
+        }
 
-    if (hasError) { reEnableSave(); return; }
+        // VALIDATE SUM
+        const subSum = cashAmt + bankTotalAmt + chequeTotalAmt;
+        if (Math.abs(subSum - amount) > 0.01) {
+            showToast(`مجموع مبالغ الدفع للحساب ${accountName} لا يساوي الإجمالي (${fmtNum(amount)})`, 'error'); 
+            reEnableSave(); 
+            return;
+        }
+        
+        let activeMethods = [];
+        if(isCash) activeMethods.push('cash');
+        if(isBank) activeMethods.push('bank');
+        if(isCheque) activeMethods.push('cheque');
+
+        items.push({
+            account: accountId, 
+            accountName: accountName,
+            accountId: accountId, 
+            amount: amount, 
+            statement: statement,
+            paymentMethods: activeMethods,
+            paymentMethod: activeMethods.length > 0 ? activeMethods[0] : 'cash',
+            cashAmount: cashAmt, 
+            cashSafe: cashSafe, 
+            bankAmount: bankTotalAmt, 
+            bankTransfers: bankTransfers,
+            chequeAmount: chequeTotalAmt,
+            cheques: cheques,
+            // Legacy single fields (first transfer/cheque for backward compatibility)
+            bankName: bankTransfers.length > 0 ? bankTransfers[0].bankName : '',
+            transferNo: bankTransfers.length > 0 ? bankTransfers[0].transferNo : '',
+            chequeBank: cheques.length > 0 ? cheques[0].chequeBank : '',
+            chequeNo: cheques.length > 0 ? cheques[0].chequeNo : '',
+            chequeDate: cheques.length > 0 ? cheques[0].chequeDate : '',
+            chequeDueDate: cheques.length > 0 ? cheques[0].chequeDate : ''
+        });
+        totalAmt += amount;
+    }
+    
     if (items.length === 0) {
-        showToast('يجب إدخال حساب فرعي واحد على الأقل.', 'error');
-        reEnableSave(); return;
+        showToast('يرجى إضافة حساب واحد على الأقل', 'error');
+        reEnableSave(); 
+        return;
     }
-
-    const finalTotal = items.reduce((sum, item) => sum + item.amount, 0);
-
-    // Validate and read payment details
-    if (paymentMethod === 'mobile') {
-        const transferRows = document.querySelectorAll('.transfer-row');
-        let totalTransfersAmount = 0;
-        let hasInvalidTransfer = false;
-
-        transferRows.forEach((row, idx) => {
-            const trNo = row.querySelector('.transfer-no').value.trim();
-            const trNote = row.querySelector('.transfer-note').value.trim();
-            const trAmt = cleanNum(row.querySelector('.transfer-amount').value);
-
-            if (!trNo) {
-                showToast(`السطر ${idx + 1}: يرجى إدخال رقم حساب التحويل`, "error");
-                highlightError(row.querySelector('.transfer-no'));
-                row.querySelector('.transfer-no').focus();
-                hasInvalidTransfer = true;
-                return;
-            }
-            if (trNo.length < 6) {
-                showToast(`السطر ${idx + 1}: يجب أن يكون رقم التحويل أكثر من 5 أرقام`, "error");
-                highlightError(row.querySelector('.transfer-no'));
-                row.querySelector('.transfer-no').focus();
-                hasInvalidTransfer = true;
-                return;
-            }
-            if (window.isBankReferenceUnique && !window.isBankReferenceUnique(trNo, 'mobile')) {
-                showToast(`السطر ${idx + 1}: رقم التحويل مكرر.`, "error");
-                hasInvalidTransfer = true;
-                return;
-            }
-
-            bankTransfers.push({ transferNo: trNo, note: trNote, amount: trAmt });
-            totalTransfersAmount += trAmt;
-        });
-
-        if (hasInvalidTransfer) { reEnableSave(); return; }
-
-        if (Math.abs(totalTransfersAmount - finalTotal) > 0.01) {
-            showToast("مجموع مبالغ التحويلات لا يساوي إجمالي السند المجمع.", "error");
-            reEnableSave(); return;
-        }
-
-        if (bankTransfers.length > 0) {
-            mobileTransferNo = bankTransfers[0].transferNo;
-            mobileNote = bankTransfers[0].note;
-        }
-    } else if (paymentMethod === 'check') {
-        const chequeRows = document.querySelectorAll('.cheque-row');
-        let totalChequesAmount = 0;
-        let hasInvalidCheque = false;
-
-        chequeRows.forEach((row, idx) => {
-            const chNo = row.querySelector('.cheque-no').value.trim();
-            const chBranch = 'البنك الرئيسي';
-            const chDate = row.querySelector('.cheque-date').value;
-            const chAmt = cleanNum(row.querySelector('.cheque-amount').value);
-
-            if (!chNo || chNo.length < 6) {
-                showToast(`السطر ${idx + 1}: يجب أن يكون رقم الشيك أكثر من 5 أرقام`, "error");
-                highlightError(row.querySelector('.cheque-no'));
-                row.querySelector('.cheque-no').focus();
-                hasInvalidCheque = true;
-                return;
-            }
-            if (window.isBankReferenceUnique && !window.isBankReferenceUnique(chNo, 'check')) {
-                showToast(`السطر ${idx + 1}: رقم الشيك مكرر.`, "error");
-                hasInvalidCheque = true;
-                return;
-            }
-
-            cheques.push({ checkNo: chNo, checkBranch: chBranch, checkDate: chDate, amount: chAmt });
-            totalChequesAmount += chAmt;
-        });
-
-        if (hasInvalidCheque) { reEnableSave(); return; }
-
-        if (Math.abs(totalChequesAmount - finalTotal) > 0.01) {
-            showToast("مجموع مبالغ الشيكات لا يساوي إجمالي السند المجمع.", "error");
-            reEnableSave(); return;
-        }
-
-        if (cheques.length > 0) {
-            checkNo = cheques[0].checkNo;
-            checkBranch = cheques[0].checkBranch;
-            checkDate = cheques[0].checkDate;
-        }
-    } else if (paymentMethod === 'hybrid') {
-        const transferRows = document.querySelectorAll('.transfer-row');
-        let totalTransfersAmount = 0;
-        let hasInvalidTransfer = false;
-
-        transferRows.forEach((row, idx) => {
-            const trNo = row.querySelector('.transfer-no').value.trim();
-            const trNote = row.querySelector('.transfer-note').value.trim();
-            const trAmt = cleanNum(row.querySelector('.transfer-amount').value);
-
-            if (!trNo) {
-                showToast(`السطر ${idx + 1}: يرجى إدخال رقم حساب التحويل`, "error");
-                highlightError(row.querySelector('.transfer-no'));
-                row.querySelector('.transfer-no').focus();
-                hasInvalidTransfer = true;
-                return;
-            }
-            if (trNo.length < 6) {
-                showToast(`السطر ${idx + 1}: يجب أن يكون رقم التحويل أكثر من 5 أرقام`, "error");
-                highlightError(row.querySelector('.transfer-no'));
-                row.querySelector('.transfer-no').focus();
-                hasInvalidTransfer = true;
-                return;
-            }
-            if (window.isBankReferenceUnique && !window.isBankReferenceUnique(trNo, 'mobile')) {
-                showToast(`السطر ${idx + 1}: رقم التحويل مكرر.`, "error");
-                hasInvalidTransfer = true;
-                return;
-            }
-
-            bankTransfers.push({ transferNo: trNo, note: trNote, amount: trAmt });
-            totalTransfersAmount += trAmt;
-        });
-
-        if (hasInvalidTransfer) { reEnableSave(); return; }
-
-        const chequeRows = document.querySelectorAll('.cheque-row');
-        let totalChequesAmount = 0;
-        let hasInvalidCheque = false;
-
-        chequeRows.forEach((row, idx) => {
-            const chNo = row.querySelector('.cheque-no').value.trim();
-            const chBranch = 'البنك الرئيسي';
-            const chDate = row.querySelector('.cheque-date').value;
-            const chAmt = cleanNum(row.querySelector('.cheque-amount').value);
-
-            if (!chNo || chNo.length < 6) {
-                showToast(`السطر ${idx + 1}: يجب أن يكون رقم الشيك أكثر من 5 أرقام`, "error");
-                highlightError(row.querySelector('.cheque-no'));
-                row.querySelector('.cheque-no').focus();
-                hasInvalidCheque = true;
-                return;
-            }
-            if (window.isBankReferenceUnique && !window.isBankReferenceUnique(chNo, 'check')) {
-                showToast(`السطر ${idx + 1}: رقم الشيك مكرر.`, "error");
-                hasInvalidCheque = true;
-                return;
-            }
-
-            cheques.push({ checkNo: chNo, checkBranch: chBranch, checkDate: chDate, amount: chAmt });
-            totalChequesAmount += chAmt;
-        });
-
-        if (hasInvalidCheque) { reEnableSave(); return; }
-
-        if (Math.abs((totalTransfersAmount + totalChequesAmount) - finalTotal) > 0.01) {
-            showToast("مجموع مبالغ التحويلات والشيكات لا يساوي إجمالي السند المجمع.", "error");
-            reEnableSave(); return;
-        }
-
-        if (bankTransfers.length > 0) {
-            mobileTransferNo = bankTransfers[0].transferNo;
-            mobileNote = bankTransfers[0].note;
-        }
-        if (cheques.length > 0) {
-            checkNo = cheques[0].checkNo;
-            checkBranch = cheques[0].checkBranch;
-            checkDate = cheques[0].checkDate;
-        }
-    }
+    const finalTotal = totalAmt;
+    paymentMethod = 'hybrid';
 
     // Build the voucher object
     const voucher = {
@@ -1096,16 +1445,16 @@ async function saveVoucher() {
         currency: currency,
         exchangeRate: exchangeRate,
         foreignAmount: finalTotal / exchangeRate,
-        paymentMethod: paymentMethod,
-        checkNo: checkNo,
-        checkBranch: checkBranch,
-        checkDate: checkDate,
-        checkDueDate: checkDueDate,
-        mobileTransferNo: mobileTransferNo,
-        mobileNote: mobileNote,
-        bankTransfers: bankTransfers,
-        cheques: cheques,
-        items: items, // Contains {account, amount, statement}
+        paymentMethod: 'hybrid',
+        checkNo: '',
+        checkBranch: '',
+        checkDate: '',
+        checkDueDate: '',
+        mobileTransferNo: '',
+        mobileNote: '',
+        bankTransfers: [],
+        cheques: [],
+        items: items, // Contains {account, amount, statement, paymentMethod, bankName, ...}
         isPosted: true, // Auto-post to reflect in general ledger immediately
         createdAt: new Date().toISOString()
     };
@@ -1150,26 +1499,100 @@ async function saveVoucher() {
             applyGroupedVoucherEffect(voucher, false);
         }
 
-        showToast('تم حفظ السند المجمع بنجاح وإرساله لشاشة الترحيل!', 'success');
-        // Save success animation
+        const mainAccName = document.getElementById('main-account-search') ? document.getElementById('main-account-search').value : 'الحساب الرئيسي';
+        const subNames = voucher.items.map(i => i.accountName).join(' و ');
+        const isPay = (type === 'payment');
+        const actionText = isPay ? 'تم صرف مبلغ' : 'تم استلام مبلغ';
+        const fromText = isPay ? mainAccName : subNames;
+        const toText = isPay ? subNames : mainAccName;
+        const flowColor = isPay ? '#ef4444' : '#10b981';
+        const currencyName = document.getElementById('currency') ? document.getElementById('currency').options[document.getElementById('currency').selectedIndex].text : '';
+        
+        // Build Animated Modal
+        const modal = document.createElement('div');
+        modal.innerHTML = `
+            <div style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); z-index: 99999; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.4s ease; direction: rtl;" id="success-flow-modal">
+                <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid ${flowColor}; border-radius: 20px; padding: 40px; max-width: 600px; width: 90%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 40px ${flowColor}40; transform: scale(0.8) translateY(30px); transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                    <div style="font-size: 3.5rem; margin-bottom: 10px; animation: bounceIn 0.6s ease-out;">✅</div>
+                    <h2 style="color: #fff; font-family: 'Tajawal', sans-serif; margin-bottom: 25px; font-size: 1.8rem;">
+                        ${actionText} <span style="color: #fbbf24; font-weight: 900;">${parseFloat(voucher.totalAmount).toLocaleString()}</span> <span style="font-size: 1.2rem; color: #cbd5e1;">${currencyName}</span>
+                    </h2>
+                    
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 25px 20px; border-radius: 15px; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                        <!-- Right side (From) -->
+                        <div style="flex: 1; text-align: right; z-index: 2;">
+                            <div style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">من حساب:</div>
+                            <div style="color: #fff; font-weight: 800; font-size: 1.2rem; max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 2px 4px rgba(0,0,0,0.5);" title="${fromText}">${fromText}</div>
+                        </div>
+                        
+                        <!-- Middle (Animation) -->
+                        <div style="width: 120px; height: 3px; background: rgba(255,255,255,0.1); position: relative; flex-shrink: 0; margin: 0 20px; border-radius: 3px;">
+                            <div style="position: absolute; top: -20px; right: 0; font-size: 2rem; animation: moneyFlow 1.5s infinite linear;">💸</div>
+                        </div>
+                        
+                        <!-- Left side (To) -->
+                        <div style="flex: 1; text-align: left; z-index: 2;">
+                            <div style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">إلى حساب:</div>
+                            <div style="color: #fff; font-weight: 800; font-size: 1.2rem; max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 2px 4px rgba(0,0,0,0.5);" title="${toText}">${toText}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <style>
+                @keyframes moneyFlow {
+                    0% { transform: translateX(20px) scale(0.5); opacity: 0; }
+                    15% { opacity: 1; transform: translateX(0px) scale(1.2); }
+                    85% { opacity: 1; transform: translateX(-80px) scale(1.2); }
+                    100% { transform: translateX(-100px) scale(0.5); opacity: 0; }
+                }
+                @keyframes bounceIn {
+                    0% { transform: scale(0); }
+                    60% { transform: scale(1.2); }
+                    100% { transform: scale(1); }
+                }
+            </style>
+        `;
+        document.body.appendChild(modal);
+        
+        // Trigger animation
+        requestAnimationFrame(() => {
+            const el = document.getElementById('success-flow-modal');
+            if (el) {
+                el.style.opacity = '1';
+                el.children[0].style.transform = 'scale(1) translateY(0)';
+            }
+        });
+        
+        if (typeof playClickSound === 'function') playClickSound();
+        
+        // Save success button animation
         if (saveBtn) {
             saveBtn.innerHTML = '✅ تم الحفظ بنجاح!';
             saveBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #34d399 100%)';
-            saveBtn.style.transform = 'scale(1.1)';
+            saveBtn.style.transform = 'scale(1.05)';
             saveBtn.style.boxShadow = '0 0 30px rgba(16,185,129,0.6)';
-            setTimeout(() => {
+        }
+
+        // Hide modal and reset form after 3 seconds
+        setTimeout(() => {
+            const el = document.getElementById('success-flow-modal');
+            if (el) {
+                el.style.opacity = '0';
+                el.children[0].style.transform = 'scale(0.9) translateY(-20px)';
+                setTimeout(() => modal.remove(), 500);
+            }
+            
+            if (saveBtn) {
                 saveBtn.innerHTML = '✅ حفظ واعتماد السند';
                 saveBtn.style.transform = 'scale(1)';
                 saveBtn.style.boxShadow = '0 0 15px rgba(16,185,129,0.4)';
-            }, 2000);
-        }
-        if (typeof playClickSound === 'function') playClickSound();
-        
-        // Reset Form after short delay
-        setTimeout(() => {
+                saveBtn.style.background = '';
+                saveBtn.disabled = false;
+                saveBtn.style.opacity = '1';
+                saveBtn.style.pointerEvents = 'auto';
+            }
             resetVoucher();
-            if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = '1'; saveBtn.style.pointerEvents = 'auto'; }
-        }, 1500);
+        }, 3200);
 
     } catch (e) {
         console.error('Save error:', e);
@@ -1313,6 +1736,10 @@ window.selectAccount = function(type, id, name) {
         hiddenInp.value = name;
         hiddenInp.setAttribute('data-id', id);
     }
+    const hiddenIdInp = document.getElementById(type + '-id');
+    if (hiddenIdInp) {
+        hiddenIdInp.value = id;
+    }
     const searchEl = document.getElementById(type + '-search');
     if (searchEl) searchEl.value = name;
 
@@ -1322,13 +1749,10 @@ window.selectAccount = function(type, id, name) {
         listEl.style.display = 'none';
     }
     
-    // Jump logic
-    if (type.startsWith('acc-')) {
-        const rowTr = document.getElementById(type).closest('tr');
-        if(rowTr) {
-            const amtInp = rowTr.querySelector('.sub-amount');
-            if(amtInp) amtInp.focus();
-        }
+    if (type.startsWith('account-')) {
+        const blockId = type.replace('account-', '');
+        const amtEl = document.getElementById('amount-' + blockId);
+        if (amtEl) amtEl.focus();
     }
 };
 
@@ -1492,8 +1916,9 @@ function loadVoucherIntoForm(v) {
         mainAccSearch.value = getAccountName(v.mainAccount) || '';
     }
     
-    // 4. Set payment method radio
-    const radio = document.querySelector(`input[name="payment_method"][value="${v.paymentMethod || 'cash'}"]`);
+    // 4. Set payment method radio (fallback for old vouchers)
+    const radioMethod = v.paymentMethod === 'hybrid' ? 'cash' : (v.paymentMethod || 'cash');
+    const radio = document.querySelector(`input[name="payment_method"][value="${radioMethod}"]`);
     if (radio) {
         radio.checked = true;
         togglePaymentMethod();
@@ -1503,14 +1928,91 @@ function loadVoucherIntoForm(v) {
         loadVoucherPaymentDetails(v);
     }
     
-    // 5. Populate items table
-    const tbody = document.getElementById('entries-body');
-    if (tbody) tbody.innerHTML = '';
+    // 5. Populate blocks from saved items
+    const container = document.getElementById('accounts-blocks-container');
+    if (container) container.innerHTML = '';
+    blockCounter = 0;
     
     if (v.items && Array.isArray(v.items)) {
         v.items.forEach(item => {
-            addRowWithData(item);
+            if (typeof window.addAccountBlock === 'function') {
+                window.addAccountBlock();
+            }
+            
+            const blocks = document.querySelectorAll('.account-block');
+            if (blocks.length === 0) return;
+            const lastBlock = blocks[blocks.length - 1];
+            const blockId = lastBlock.getAttribute('data-block-id');
+            
+            const accName = item.accountName || getAccountName(item.account) || item.account || '';
+            const accSearch = document.getElementById(`account-${blockId}-search`);
+            if (accSearch) accSearch.value = accName;
+            
+            const accIdEl = document.getElementById(`account-${blockId}-id`);
+            if (accIdEl) accIdEl.value = item.accountId || item.account || '';
+            
+            const amtEl = document.getElementById(`amount-${blockId}`);
+            if (amtEl) amtEl.value = item.amount || '';
+            
+            const stmtEl = document.getElementById(`statement-${blockId}`);
+            if (stmtEl) stmtEl.value = item.statement || '';
+            
+            const pms = item.paymentMethods || [item.paymentMethod || 'cash'];
+            ['cash', 'bank', 'cheque'].forEach(pm => {
+                const btn = document.getElementById(`pm-${pm}-${blockId}`);
+                const details = document.getElementById(`${pm}-details-${blockId}`);
+                if (btn && details) {
+                    if (pms.includes(pm)) {
+                        btn.classList.add('active');
+                        details.style.display = 'block';
+                    } else {
+                        btn.classList.remove('active');
+                        details.style.display = 'none';
+                    }
+                }
+            });
+            
+            if (pms.includes('cash')) {
+                const cAmt = document.getElementById(`cash-amount-${blockId}`);
+                if (cAmt) cAmt.value = item.cashAmount || item.amount || '';
+                const cSafe = document.getElementById(`cash-safe-${blockId}`);
+                if (cSafe) {
+                    if (Array.from(cSafe.options).some(opt => opt.value === (item.cashSafe || ''))) {
+                        cSafe.value = item.cashSafe || '';
+                    } else if (item.cashSafe) {
+                        const opt = document.createElement('option');
+                        opt.value = item.cashSafe;
+                        opt.textContent = item.cashSafe;
+                        cSafe.appendChild(opt);
+                        cSafe.value = item.cashSafe;
+                    }
+                }
+            }
+            if (pms.includes('bank')) {
+                const bAmt = document.getElementById(`bank-amount-${blockId}`);
+                if (bAmt) bAmt.value = item.bankAmount || item.amount || '';
+                const bName = document.getElementById(`bank-name-${blockId}`);
+                if (bName) bName.value = item.bankName || '';
+                const bTr = document.getElementById(`transfer-no-${blockId}`);
+                if (bTr) bTr.value = item.transferNo || '';
+            }
+            if (pms.includes('cheque')) {
+                const chAmt = document.getElementById(`cheque-amount-${blockId}`);
+                if (chAmt) chAmt.value = item.chequeAmount || item.amount || '';
+                const chBank = document.getElementById(`cheque-bank-${blockId}`);
+                if (chBank) chBank.value = item.chequeBank || '';
+                const chNo = document.getElementById(`cheque-no-${blockId}`);
+                if (chNo) chNo.value = item.chequeNo || item.checkNo || '';
+                const chDate = document.getElementById(`cheque-date-${blockId}`);
+                if (chDate) chDate.value = item.chequeDate || item.checkDate || '';
+                const chDue = document.getElementById(`cheque-due-${blockId}`);
+                if (chDue) chDue.value = item.chequeDueDate || item.checkDueDate || '';
+            }
         });
+    }
+    
+    if (document.querySelectorAll('.account-block').length === 0) {
+        if (typeof window.addAccountBlock === 'function') window.addAccountBlock();
     }
     
     calcTotal();
@@ -1524,39 +2026,6 @@ function getAccountName(id) {
     return matched ? matched.name : id;
 }
 
-function addRowWithData(item) {
-    multiRowIdCounter++;
-    const rowId = multiRowIdCounter;
-    const tbody = document.getElementById('entries-body');
-    const isFirst = (tbody && tbody.children.length === 0);
-    const tr = document.createElement('tr');
-    tr.className = 'multi-row';
-    
-    const actionBtn = isFirst 
-        ? `<button type="button" onclick="addRow()" class="btn-add-row-inline" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #10b981; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin: auto;" title="إضافة حساب جديد">➕</button>`
-        : `<button class="btn-del" onclick="removeRow(this)" title="حذف السطر">✖</button>`;
-        
-    const accName = getAccountName(item.account);
-
-    tr.innerHTML = `
-        <td>
-            <div class="custom-dropdown-input-wrap" style="width: 100%; position: relative;">
-                <input type="hidden" id="acc-${rowId}" class="sub-account" value="${accName}">
-                <input type="text" autocomplete="off" class="multi-input" id="acc-${rowId}-search" placeholder="ابحث عن حساب..." onfocus="showAccountDropdown('acc-${rowId}')" onblur="hideAccountDropdownDelayed('acc-${rowId}')" oninput="filterAccountDropdown('acc-${rowId}')" style="width: 100%; box-sizing: border-box; background: transparent; border: none; color: #ffffff !important; padding: 10px;" value="${accName}">
-                <div class="custom-dropdown-list" id="acc-${rowId}-dropdown-list"></div>
-            </div>
-        </td>
-        <td><input type="text" autocomplete="off" class="multi-input sub-amount" placeholder="0.00" onblur="formatInput(this)" oninput="restrictToNumbers(this); calcTotal();" style="font-family: monospace; font-weight: bold; font-size: 1.1rem; color: #10b981;" value="${item.amount > 0 ? fmtNum(item.amount) : ''}"></td>
-        <td class="col-desc"><input type="text" autocomplete="off" class="multi-input sub-desc" placeholder="بيان هذا الحساب..." value="${item.statement || ''}"></td>
-        <td class="col-cost-center"><input type="text" autocomplete="off" class="multi-input sub-cost-center" placeholder="مركز التكلفة..." value="${item.costCenter || ''}"></td>
-        <td class="col-note"><input type="text" autocomplete="off" class="multi-input sub-note" placeholder="ملحوظة..." value="${item.note || ''}"></td>
-        <td class="col-check-no"><input type="text" autocomplete="off" class="multi-input sub-check-no" placeholder="رقم الشيك..." value="${item.checkNo || ''}"></td>
-        <td class="col-check-date"><input type="date" class="multi-input sub-check-date" value="${item.checkDate || ''}"></td>
-        <td class="col-check-due"><input type="date" class="multi-input sub-check-due" value="${item.checkDueDate || ''}"></td>
-        <td style="text-align: center;">${actionBtn}</td>
-    `;
-    if (tbody) tbody.appendChild(tr);
-}
 
 function applyGroupedVoucherEffect(voucher, isRevert = false) {
     if (!voucher) return;
@@ -1564,14 +2033,12 @@ function applyGroupedVoucherEffect(voucher, isRevert = false) {
     const multiplier = isRevert ? -1 : 1;
     const getTenantKey = window.getTenantKey || ((k) => k);
     
-    // 1. Update Main Account
-    const mainAccId = voucher.mainAccount || (type === 'payment' ? voucher.fromAccount : voucher.toAccount);
-    if (mainAccId) {
-        const amt = voucher.totalAmount * multiplier;
-        const amtEffect = (type === 'payment') ? -amt : amt;
+    // Helper function to update balance
+    function applyBalanceChange(accId, amtEffect) {
+        if (!accId || amtEffect === 0) return;
         
-        if (mainAccId.startsWith('safe-')) {
-            let id = mainAccId.substring(5);
+        if (accId.startsWith('safe-')) {
+            let id = accId.substring(5);
             let safes = [];
             try { safes = JSON.parse(localStorage.getItem(getTenantKey('erp_safes_v1'))) || []; } catch(e){}
             let idx = safes.findIndex(s => String(s.id) === String(id));
@@ -1579,8 +2046,8 @@ function applyGroupedVoucherEffect(voucher, isRevert = false) {
                 safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtEffect;
                 localStorage.setItem(getTenantKey('erp_safes_v1'), JSON.stringify(safes));
             }
-        } else if (mainAccId.startsWith('bank-')) {
-            let id = mainAccId.substring(5);
+        } else if (accId.startsWith('bank-')) {
+            let id = accId.substring(5);
             let banks = [];
             try { banks = JSON.parse(localStorage.getItem(getTenantKey('erp_banks_v1'))) || []; } catch(e){}
             let idx = banks.findIndex(b => String(b.id) === String(id));
@@ -1588,76 +2055,89 @@ function applyGroupedVoucherEffect(voucher, isRevert = false) {
                 banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtEffect;
                 localStorage.setItem(getTenantKey('erp_banks_v1'), JSON.stringify(banks));
             }
+        } else if (accId.startsWith('cust-')) {
+            let id = accId.substring(5);
+            let custs = [];
+            try { custs = JSON.parse(localStorage.getItem(getTenantKey('erp_customers_v1'))) || []; } catch(e){}
+            let idx = custs.findIndex(c => String(c.id) === String(id));
+            if (idx > -1) {
+                custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtEffect;
+                localStorage.setItem(getTenantKey('erp_customers_v1'), JSON.stringify(custs));
+            }
+        } else if (accId.startsWith('supp-')) {
+            let id = accId.substring(5);
+            let sups = [];
+            try { sups = JSON.parse(localStorage.getItem(getTenantKey('erp_suppliers_v1'))) || []; } catch(e){}
+            let idx = sups.findIndex(s => String(s.id) === String(id));
+            if (idx > -1) {
+                sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtEffect;
+                localStorage.setItem(getTenantKey('erp_suppliers_v1'), JSON.stringify(sups));
+            }
+        } else if (accId.startsWith('exp-')) {
+            let id = accId.substring(4);
+            let accounts = [];
+            try { accounts = JSON.parse(localStorage.getItem(getTenantKey('erp_accounts_v1'))) || []; } catch(e){}
+            let idx = accounts.findIndex(a => String(a.id) === String(id));
+            if (idx > -1) {
+                accounts[idx].currentBalance = (parseFloat(accounts[idx].currentBalance) || 0) + amtEffect;
+                localStorage.setItem(getTenantKey('erp_accounts_v1'), JSON.stringify(accounts));
+            }
         }
     }
 
-    // 2. Update Items Accounts
+    const mainAccIdFallback = voucher.mainAccount || (type === 'payment' ? voucher.fromAccount : voucher.toAccount);
+
+    // Update Items Accounts & Specific Payment Sources
     if (voucher.items && Array.isArray(voucher.items)) {
         voucher.items.forEach(item => {
             const itemAccId = item.account;
             if (!itemAccId) return;
-            const amt = item.amount * multiplier;
+            const itemAmt = (parseFloat(item.amount) || 0) * multiplier;
             
-            let amtEffect = 0;
+            // 1. Process Destination (Supplier/Customer/Expense)
+            let destEffect = 0;
             if (type === 'payment') {
-                if (itemAccId.startsWith('cust-') || itemAccId.startsWith('supp-')) {
-                    amtEffect = -amt;
-                } else {
-                    amtEffect = amt;
-                }
-            } else { // receipt - opposite direction
-                if (itemAccId.startsWith('cust-') || itemAccId.startsWith('supp-')) {
-                    amtEffect = amt;
-                } else {
-                    amtEffect = -amt;
-                }
+                destEffect = (itemAccId.startsWith('cust-') || itemAccId.startsWith('supp-')) ? -itemAmt : itemAmt;
+            } else { // receipt
+                destEffect = (itemAccId.startsWith('cust-') || itemAccId.startsWith('supp-')) ? itemAmt : -itemAmt;
             }
+            applyBalanceChange(itemAccId, destEffect);
 
-            if (itemAccId.startsWith('cust-')) {
-                let id = itemAccId.substring(5);
-                let custs = [];
-                try { custs = JSON.parse(localStorage.getItem(getTenantKey('erp_customers_v1'))) || []; } catch(e){}
-                let idx = custs.findIndex(c => String(c.id) === String(id));
-                if (idx > -1) {
-                    custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtEffect;
-                    localStorage.setItem(getTenantKey('erp_customers_v1'), JSON.stringify(custs));
+            // 2. Process Sources (Cash/Bank/Cheque)
+            // In Payment: source loses money (-)
+            // In Receipt: source gains money (+)
+            const sourceEffectMultiplier = (type === 'payment') ? -1 : 1;
+            
+            // Cash
+            const cashAmt = (parseFloat(item.cashAmount) || 0) * multiplier;
+            if (cashAmt > 0) {
+                const sourceAcc = item.cashSafe || mainAccIdFallback;
+                applyBalanceChange(sourceAcc, cashAmt * sourceEffectMultiplier);
+            }
+            
+            // Bank Transfers
+            const bankAmt = (parseFloat(item.bankAmount) || 0) * multiplier;
+            if (bankAmt > 0) {
+                let sourceAcc = mainAccIdFallback;
+                // Try to find the specific bank by name
+                if (item.bankTransfers && item.bankTransfers.length > 0) {
+                    const bName = item.bankTransfers[0].bankName;
+                    if (bName) {
+                        let banks = [];
+                        try { banks = JSON.parse(localStorage.getItem(getTenantKey('erp_banks_v1'))) || []; } catch(e){}
+                        let foundBank = banks.find(b => (b.name === bName || b.bankName === bName));
+                        if (foundBank) sourceAcc = 'bank-' + foundBank.id;
+                    }
                 }
-            } else if (itemAccId.startsWith('supp-')) {
-                let id = itemAccId.substring(5);
-                let sups = [];
-                try { sups = JSON.parse(localStorage.getItem(getTenantKey('erp_suppliers_v1'))) || []; } catch(e){}
-                let idx = sups.findIndex(s => String(s.id) === String(id));
-                if (idx > -1) {
-                    sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtEffect;
-                    localStorage.setItem(getTenantKey('erp_suppliers_v1'), JSON.stringify(sups));
-                }
-            } else if (itemAccId.startsWith('bank-')) {
-                let id = itemAccId.substring(5);
-                let banks = [];
-                try { banks = JSON.parse(localStorage.getItem(getTenantKey('erp_banks_v1'))) || []; } catch(e){}
-                let idx = banks.findIndex(b => String(b.id) === String(id));
-                if (idx > -1) {
-                    banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtEffect;
-                    localStorage.setItem(getTenantKey('erp_banks_v1'), JSON.stringify(banks));
-                }
-            } else if (itemAccId.startsWith('safe-')) {
-                let id = itemAccId.substring(5);
-                let safes = [];
-                try { safes = JSON.parse(localStorage.getItem(getTenantKey('erp_safes_v1'))) || []; } catch(e){}
-                let idx = safes.findIndex(s => String(s.id) === String(id));
-                if (idx > -1) {
-                    safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtEffect;
-                    localStorage.setItem(getTenantKey('erp_safes_v1'), JSON.stringify(safes));
-                }
-            } else if (itemAccId.startsWith('exp-')) {
-                let id = itemAccId.substring(4);
-                let accounts = [];
-                try { accounts = JSON.parse(localStorage.getItem(getTenantKey('erp_accounts_v1'))) || []; } catch(e){}
-                let idx = accounts.findIndex(a => String(a.id) === String(id));
-                if (idx > -1) {
-                    accounts[idx].currentBalance = (parseFloat(accounts[idx].currentBalance) || 0) + amtEffect;
-                    localStorage.setItem(getTenantKey('erp_accounts_v1'), JSON.stringify(accounts));
-                }
+                applyBalanceChange(sourceAcc, bankAmt * sourceEffectMultiplier);
+            }
+            
+            // Cheques
+            const chequeAmt = (parseFloat(item.chequeAmount) || 0) * multiplier;
+            if (chequeAmt > 0) {
+                let sourceAcc = mainAccIdFallback;
+                // Cheques usually hit main bank or stay as notes, fallback to main account for local balance
+                applyBalanceChange(sourceAcc, chequeAmt * sourceEffectMultiplier);
             }
         });
     }
@@ -2116,7 +2596,7 @@ document.addEventListener('keydown', function(e) {
 // ─── Unsaved Changes Warning ───
 let formDirty = false;
 document.addEventListener('input', function(e) {
-    if (e.target.closest('#entries-body') || e.target.id === 'main-account-search' || e.target.id === 'voucher-desc') {
+    if (e.target.closest('#accounts-blocks-container') || e.target.id === 'main-account-search' || e.target.id === 'voucher-desc') {
         formDirty = true;
     }
 });
@@ -2145,3 +2625,30 @@ if (origShowToast) {
         return origShowToast.call(this, msg, type);
     };
 }
+
+window.populateSafesDropdown = function(selectElement) {
+    if (!selectElement) return;
+    
+    // Clear and add default
+    selectElement.innerHTML = '<option value="">-- اختر الخزنة --</option>';
+    
+    try {
+        const getTenantKey = window.getTenantKey || ((k) => k);
+        const tKey = getTenantKey('erp_safes_v1');
+        let safes = JSON.parse(localStorage.getItem(tKey) || localStorage.getItem('erp_safes_v1') || '[]');
+        if (!Array.isArray(safes)) safes = Object.values(safes);
+        
+        safes.forEach(safe => {
+            if (safe.deleted) return;
+            const name = safe.safeName || safe.name;
+            if (name) {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                selectElement.appendChild(opt);
+            }
+        });
+    } catch (e) {
+        console.error('Error populating safes dropdown:', e);
+    }
+};

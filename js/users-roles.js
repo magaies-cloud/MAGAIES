@@ -84,7 +84,7 @@ function loadData() {
 // ════════════════════════════════════════
 //  DOM CONTENT LOADED
 // ════════════════════════════════════════
-document.addEventListener('DBReady', () => {
+function initUsersRolesApp() {
     // Basic Authentication Check
     if (!localStorage.getItem('authToken')) {
         window.location.href = 'login.php';
@@ -101,7 +101,13 @@ document.addEventListener('DBReady', () => {
     // Render Tables
     renderRolesTable();
     renderUsersTable();
-});
+}
+
+if (window.APP_READY) {
+    initUsersRolesApp();
+} else {
+    document.addEventListener('DBReady', initUsersRolesApp);
+}
 
 // ════════════════════════════════════════
 //  TOAST NOTIFICATION (Utility)
