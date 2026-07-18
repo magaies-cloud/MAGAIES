@@ -2590,7 +2590,6 @@ function updateExchangeRateUI(data) {
     const exBox = document.getElementById('global-exchange-rate-box');
     const exVal = document.getElementById('global-exchange-rate-val');
     const exTrend = document.getElementById('global-exchange-rate-trend');
-    const exHistoryList = document.getElementById('exchange-rate-history-list');
 
     if (exBox && exVal && data) {
         if (data.visible) {
@@ -2612,37 +2611,50 @@ function updateExchangeRateUI(data) {
                 isStable = true; // No history = stable
             }
 
-            // Apply Styling
+            // Apply Styling only to the Arrow, keep Box background unchanged
             if (isStable) {
-                exBox.style.background = 'rgba(245, 158, 11, 0.15)';
-                exBox.style.borderColor = 'rgba(245, 158, 11, 0.4)';
-                exBox.style.boxShadow = 'inset 0 0 10px rgba(245, 158, 11, 0.1)';
                 if (exTrend) exTrend.innerHTML = '<span style="color:#f59e0b; font-size:0.85rem; padding-left:4px;">■</span>';
             } else if (data.trend === 'up') {
-                exBox.style.background = 'rgba(239, 68, 68, 0.15)';
-                exBox.style.borderColor = 'rgba(239, 68, 68, 0.4)';
-                exBox.style.boxShadow = 'inset 0 0 10px rgba(239, 68, 68, 0.1)';
                 if (exTrend) exTrend.innerHTML = '<span style="color:#ef4444; font-size:0.85rem; padding-left:4px;">▲</span>';
             } else if (data.trend === 'down') {
-                exBox.style.background = 'rgba(16, 185, 129, 0.15)';
-                exBox.style.borderColor = 'rgba(16, 185, 129, 0.4)';
-                exBox.style.boxShadow = 'inset 0 0 10px rgba(16, 185, 129, 0.1)';
                 if (exTrend) exTrend.innerHTML = '<span style="color:#10b981; font-size:0.85rem; padding-left:4px;">▼</span>';
             }
 
+            // Create Modal Dynamically in body to bypass backdrop-filter stacking contexts
+            let modal = document.getElementById('exchange-rate-history-dropdown');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'exchange-rate-history-dropdown';
+                modal.style.cssText = 'display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); z-index:999999; justify-content:center; align-items:center; cursor:default;';
+                modal.onclick = window.toggleExchangeHistory;
+                modal.innerHTML = `
+                    <div style="background:var(--bg-secondary, #1e293b); border:1px solid var(--border-color, #334155); border-radius:16px; width:90%; max-width:350px; padding:20px; box-shadow:0 15px 35px rgba(0,0,0,0.6); text-align:right; position:relative;" onclick="event.stopPropagation()">
+                        <div style="color:var(--text-primary, #f8fafc); font-size:1.1rem; font-weight:bold; margin-bottom:15px; border-bottom:1px solid var(--border-color, #334155); padding-bottom:10px; text-align:center; display:flex; justify-content:space-between; align-items:center;">
+                            <span>سجل تغيرات سعر الصرف</span>
+                            <span style="cursor:pointer; color:var(--text-muted, #94a3b8); font-size:1.2rem;" onclick="window.toggleExchangeHistory()">✕</span>
+                        </div>
+                        <div id="exchange-rate-history-list" style="max-height:300px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
+                            <div style="text-align:center; color:var(--text-secondary, #cbd5e1); font-size:0.85rem;">جاري التحميل...</div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+
+            const exHistoryList = document.getElementById('exchange-rate-history-list');
             if (exHistoryList) {
                 exHistoryList.innerHTML = '';
                 if (data.history && data.history.length > 0) {
                     data.history.forEach(item => {
                         let arrow = '';
-                        let color = 'var(--text-primary)';
+                        let color = 'var(--text-primary, #f8fafc)';
                         if (item.trend === 'up') { arrow = '▲'; color = '#ef4444'; }
                         if (item.trend === 'down') { arrow = '▼'; color = '#10b981'; }
                         
                         exHistoryList.innerHTML += `
                             <div style="display:flex; justify-content:space-between; align-items:center; padding:6px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.85rem;">
                                 <div style="display:flex; flex-direction:column; align-items:flex-end;">
-                                    <span style="color:var(--text-secondary); font-size:0.75rem;">${item.date}</span>
+                                    <span style="color:var(--text-secondary, #cbd5e1); font-size:0.75rem;">${item.date}</span>
                                     <span style="color:rgba(255,255,255,0.4); font-size:0.65rem;">${item.time}</span>
                                 </div>
                                 <div style="font-weight:bold; color:${color}; display:flex; align-items:center; gap:6px;">
@@ -2652,7 +2664,7 @@ function updateExchangeRateUI(data) {
                         `;
                     });
                 } else {
-                    exHistoryList.innerHTML = '<div style="text-align:center; color:var(--text-secondary); font-size:0.8rem; padding:10px;">لا توجد سجلات سابقة</div>';
+                    exHistoryList.innerHTML = '<div style="text-align:center; color:var(--text-secondary, #cbd5e1); font-size:0.8rem; padding:10px;">لا توجد سجلات سابقة</div>';
                 }
             }
         } else {

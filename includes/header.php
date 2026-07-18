@@ -65,20 +65,6 @@
                 </span>
             </div>
         </div>
-        
-        <!-- History Modal Overlay -->
-        <div id="exchange-rate-history-dropdown" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center; cursor:default;" onclick="toggleExchangeHistory(event)">
-            <div style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:16px; width:90%; max-width:350px; padding:20px; box-shadow:0 15px 35px rgba(0,0,0,0.6); text-align:right; position:relative;" onclick="event.stopPropagation()">
-                <div style="color:var(--text-primary); font-size:1.1rem; font-weight:bold; margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:10px; text-align:center; display:flex; justify-content:space-between; align-items:center;">
-                    <span>سجل تغيرات سعر الصرف</span>
-                    <span style="cursor:pointer; color:var(--text-muted); font-size:1.2rem;" onclick="toggleExchangeHistory(event)">✕</span>
-                </div>
-                <div id="exchange-rate-history-list" style="max-height:300px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
-                    <div style="text-align:center; color:var(--text-secondary); font-size:0.85rem;">جاري التحميل...</div>
-                </div>
-            </div>
-        </div>
-        </div>
         <!-- Theme & Currency -->
         <div style="display:flex; align-items:center; gap:8px;">
             <?php
