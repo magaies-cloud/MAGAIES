@@ -63,11 +63,16 @@
                     <span data-i18n="header.exchangeRate">سعر الصرف:</span> 
                     <span id="global-exchange-rate-val" style="color:#fff; font-size:0.85rem;">-</span>
                 </span>
-                <!-- History Dropdown -->
-                <div id="exchange-rate-history-dropdown" style="display:none; position:absolute; top:110%; left:50%; transform:translateX(-50%); background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:12px; width:220px; padding:10px; box-shadow:0 10px 25px rgba(0,0,0,0.5); z-index:100; text-align:right; cursor:default;" onclick="event.stopPropagation()">
-                    <div style="color:var(--text-primary); font-size:0.85rem; font-weight:bold; margin-bottom:8px; border-bottom:1px solid var(--border-color); padding-bottom:5px; text-align:center;">سجل تغييرات السعر</div>
-                    <div id="exchange-rate-history-list" style="max-height:180px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
-                        <div style="text-align:center; color:var(--text-secondary); font-size:0.75rem;">جاري التحميل...</div>
+                <!-- History Modal -->
+                <div id="exchange-rate-history-dropdown" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center; cursor:default;" onclick="toggleExchangeHistory(event)">
+                    <div style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:12px; width:90%; max-width:400px; padding:20px; box-shadow:0 10px 40px rgba(0,0,0,0.7); text-align:right;" onclick="event.stopPropagation()">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:10px;">
+                            <div style="color:var(--text-primary); font-size:1.1rem; font-weight:bold;">سجل تغييرات السعر</div>
+                            <button onclick="toggleExchangeHistory(event)" style="background:none; border:none; color:var(--text-secondary); font-size:1.5rem; cursor:pointer; line-height:1;">&times;</button>
+                        </div>
+                        <div id="exchange-rate-history-list" style="max-height:300px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding-left:5px;">
+                            <div style="text-align:center; color:var(--text-secondary); font-size:0.9rem;">جاري التحميل...</div>
+                        </div>
                     </div>
                 </div>
             </div>

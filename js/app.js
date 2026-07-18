@@ -2571,16 +2571,11 @@ window.toggleExchangeHistory = function(e) {
     e.stopPropagation();
     const dropdown = document.getElementById('exchange-rate-history-dropdown');
     if (dropdown) {
-        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        dropdown.style.display = dropdown.style.display === 'none' ? 'flex' : 'none';
     }
 };
 
-document.addEventListener('click', () => {
-    const dropdown = document.getElementById('exchange-rate-history-dropdown');
-    if (dropdown && dropdown.style.display === 'block') {
-        dropdown.style.display = 'none';
-    }
-});
+
 
 function updateExchangeRateUI(data) {
     const exBox = document.getElementById('global-exchange-rate-box');
