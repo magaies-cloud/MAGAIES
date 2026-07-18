@@ -2568,14 +2568,23 @@ window.openExportModal = function(csvExportCallback, pdfExportConfig) {
 };
 
 window.toggleExchangeHistory = function(e) {
-    e.stopPropagation();
+    if (e) e.stopPropagation();
     const dropdown = document.getElementById('exchange-rate-history-dropdown');
     if (dropdown) {
         dropdown.style.display = dropdown.style.display === 'none' ? 'flex' : 'none';
     }
 };
 
-
+document.addEventListener('click', (e) => {
+    const dropdown = document.getElementById('exchange-rate-history-dropdown');
+    // If click is outside the box and the dropdown is open, close it
+    // Wait, the dropdown overlay itself spans 100vw/100vh and catches clicks, 
+    // so we don't strictly need this document click listener, but we can leave it safe.
+    if (dropdown && dropdown.style.display === 'flex') {
+        // We already have onclick="toggleExchangeHistory(event)" on the overlay backdrop
+        // so clicking the dark area closes it. No action needed here to prevent double toggling.
+    }
+});
 
 function updateExchangeRateUI(data) {
     const exBox = document.getElementById('global-exchange-rate-box');
