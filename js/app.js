@@ -2593,10 +2593,37 @@ function updateExchangeRateUI(data) {
             exBox.style.display = 'block';
             exVal.innerText = parseFloat(data.rate).toLocaleString('en-US');
             
-            if (exTrend) {
-                if (data.trend === 'up') exTrend.innerHTML = '<span style="color:#10b981; font-size:0.85rem;">⬆️</span>';
-                else if (data.trend === 'down') exTrend.innerHTML = '<span style="color:#ef4444; font-size:0.85rem;">⬇️</span>';
-                else exTrend.innerHTML = '';
+            // Determine stability (48 hours)
+            let isStable = false;
+            let latestChangeDate = null;
+            if (data.history && data.history.length > 0) {
+                const latest = data.history[0];
+                latestChangeDate = new Date(`${latest.date}T${latest.time}:00`);
+                const now = new Date();
+                const diffHours = (now - latestChangeDate) / (1000 * 60 * 60);
+                if (diffHours >= 48) {
+                    isStable = true;
+                }
+            } else {
+                isStable = true; // No history = stable
+            }
+
+            // Apply Styling
+            if (isStable) {
+                exBox.style.background = 'rgba(245, 158, 11, 0.15)';
+                exBox.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+                exBox.style.boxShadow = 'inset 0 0 10px rgba(245, 158, 11, 0.1)';
+                if (exTrend) exTrend.innerHTML = '<span style="color:#f59e0b; font-size:0.85rem; padding-left:4px;">■</span>';
+            } else if (data.trend === 'up') {
+                exBox.style.background = 'rgba(239, 68, 68, 0.15)';
+                exBox.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                exBox.style.boxShadow = 'inset 0 0 10px rgba(239, 68, 68, 0.1)';
+                if (exTrend) exTrend.innerHTML = '<span style="color:#ef4444; font-size:0.85rem; padding-left:4px;">▲</span>';
+            } else if (data.trend === 'down') {
+                exBox.style.background = 'rgba(16, 185, 129, 0.15)';
+                exBox.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                exBox.style.boxShadow = 'inset 0 0 10px rgba(16, 185, 129, 0.1)';
+                if (exTrend) exTrend.innerHTML = '<span style="color:#10b981; font-size:0.85rem; padding-left:4px;">▼</span>';
             }
 
             if (exHistoryList) {
@@ -2605,8 +2632,8 @@ function updateExchangeRateUI(data) {
                     data.history.forEach(item => {
                         let arrow = '';
                         let color = 'var(--text-primary)';
-                        if (item.trend === 'up') { arrow = '⬆️'; color = '#10b981'; }
-                        if (item.trend === 'down') { arrow = '⬇️'; color = '#ef4444'; }
+                        if (item.trend === 'up') { arrow = '▲'; color = '#ef4444'; }
+                        if (item.trend === 'down') { arrow = '▼'; color = '#10b981'; }
                         
                         exHistoryList.innerHTML += `
                             <div style="display:flex; justify-content:space-between; align-items:center; padding:6px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.85rem;">
