@@ -1,4 +1,8 @@
 <?php
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
+
 require_once 'db_bridge.php';
 $pdo = getDBConnection();
 $report_data = getWarehouseCapacities($pdo);
@@ -8,11 +12,142 @@ $report_data = getWarehouseCapacities($pdo);
 <head>
     <meta charset="UTF-8">
     <title>الطاقة الاستيعابية للعنابر - MAGAIEES ERP</title>
+    <link rel="stylesheet" href="css/design-system.css?v=20260719_v1">
+    <link rel="stylesheet" href="css/theme.css?v=20260719_v1">
+    <link rel="stylesheet" href="css/components.css?v=20260719_v1">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- tessans-table-compat -->
+    <style>
+        body {
+            font-family: 'Inter', 'Tajawal', sans-serif;
+            background-color: var(--bg-dark, #050308) !important;
+            color: var(--text-primary, #ffffff) !important;
+            background-image: radial-gradient(circle at top right, rgba(236,72,153,0.03), transparent 45%),
+                              radial-gradient(circle at bottom left, rgba(16,185,129,0.03), transparent 45%) !important;
+            margin: 0; padding: 0;
+            min-height: 100vh;
+        }
+
+        :root.light-theme body {
+            background-image: none !important;
+            background-color: #f1f5f9 !important;
+            color: #1e293b !important;
+        }
+
+        .dashboard-container {
+            width: 100%;
+            max-width: 98%;
+            margin: 0 auto;
+            padding: 0px 25px 25px 25px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            flex: 1;
+        }
+
+        /* تنسيقات الجداول المتوافقة مع الوضعين الفاتح والداكن */
+        .bg-slate-900\/40 {
+            background-color: rgba(30, 41, 59, 0.2) !important;
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        }
+
+        :root.light-theme .bg-slate-900\/40 {
+            background-color: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .bg-slate-950 {
+            background-color: rgba(15, 23, 42, 0.5) !important;
+        }
+
+        :root.light-theme .bg-slate-950 {
+            background-color: #f8fafc !important;
+            color: #475569 !important;
+        }
+
+        .text-slate-200 {
+            color: var(--text-primary, #e2e8f0) !important;
+        }
+
+        :root.light-theme .text-slate-200 {
+            color: #1e293b !important;
+        }
+
+        .text-slate-100 {
+            color: var(--text-primary, #f1f5f9) !important;
+        }
+
+        :root.light-theme .text-slate-100 {
+            color: #1e293b !important;
+        }
+
+        .border-slate-800 {
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        :root.light-theme .border-slate-800 {
+            border-color: rgba(0, 0, 0, 0.08) !important;
+        }
+
+        .divide-slate-800\/50 > * + * {
+            border-color: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        :root.light-theme .divide-slate-800\/50 > * + * {
+            border-color: rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .text-slate-400 {
+            color: #94a3b8 !important;
+        }
+
+        :root.light-theme .text-slate-400 {
+            color: #475569 !important;
+        }
+
+        .text-slate-500 {
+            color: #64748b !important;
+        }
+
+        :root.light-theme .text-slate-500 {
+            color: #475569 !important;
+        }
+
+        /* أزرار وتنبيهات العودة */
+        .bg-slate-900 {
+            background-color: rgba(30, 41, 59, 0.4) !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        :root.light-theme .bg-slate-900 {
+            background-color: #e2e8f0 !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            color: #1e293b !important;
+        }
+
+        /* تحسين مظهر المدخلات والمخططات البيانية */
+        input[type="number"], select {
+            background-color: rgba(15, 23, 42, 0.6) !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            color: var(--text-primary, #ffffff) !important;
+        }
+
+        :root.light-theme input[type="number"], :root.light-theme select {
+            background-color: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.12) !important;
+            color: #1e293b !important;
+        }
+    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-6" style="background-color: #060911;">
+
+<body class="text-slate-100 min-h-screen">
+    <div class="dashboard-container">
+        <?php $page_title = 'الطاقة الاستيعابية للعنابر'; include 'includes/header.php'; ?>
     <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
             <h1 class="text-xl font-black text-cyan-400"><i class="fa-solid fa-circle-dot"></i> تقرير الطاقة الاستيعابية الفعلي لعنابر التخزين</h1>
@@ -105,5 +240,9 @@ $report_data = getWarehouseCapacities($pdo);
             }
         });
     </script>
+    </div> <!-- Close .dashboard-container -->
+
+    <script defer src="js/localforage.min.js?v=20260719_v1"></script>
+    <script defer src="js/app.js?v=20260719_v1"></script>
 </body>
 </html>
