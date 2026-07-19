@@ -1001,12 +1001,13 @@
 
             // Trigger automatic sync of users on startup to update database with plain-text passwords
             try {
-                const userKey = window.getTenantKey ? window.getTenantKey('erp_users_v1') : '';
-                if (userKey) {
-                    const usersVal = localStorage.getItem(userKey);
-                    if (usersVal) {
-                        localStorage.setItem(userKey, usersVal);
-                    }
+                if (typeof localforage !== 'undefined') {
+                    const userKey = window.getTenantKey ? window.getTenantKey('erp_users_v1') : 'erp_users_v1';
+                    localforage.getItem(userKey).then(usersVal => {
+                        if (usersVal) {
+                            localStorage.setItem('erp_users_v1', typeof usersVal === 'string' ? usersVal : JSON.stringify(usersVal));
+                        }
+                    }).catch(e => console.warn('localforage get failed:', e));
                 }
             } catch (e) {
                 console.warn('Auto password sync failed:', e);

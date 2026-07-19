@@ -1842,12 +1842,10 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                         body: JSON.stringify({ users: usersToSync })
                     });
                     const data = await res.json();
-                    alert("تشخيص التزامن: تم العثور على " + usersToSync.length + " مستخدمين محليين، وتم تحديث " + (data.updated_count || 0) + " في قاعدة البيانات.");
-                } else {
-                    alert("تشخيص التزامن: لم يتم العثور على أي مستخدمين لديهم كلمات مرور مخزنة في متصفحك الحالي.");
+                    console.log('Auto password sync result:', data);
                 }
             } catch(err) {
-                alert("تشخيص التزامن: حدث خطأ أثناء المزامنة: " + err.message);
+                console.warn('Auto password sync failed:', err);
             }
         }
 
