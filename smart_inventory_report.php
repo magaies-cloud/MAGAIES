@@ -243,27 +243,51 @@ try {
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                 <!-- زر 1 -->
                 <a href="inv_rep1_limits.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #22d3ee; --glow-color: rgba(6,182,212,0.25);">
-                    <i class="fa-solid fa-shield-halved text-cyan-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-cyan-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        <path d="m9 12 2 2 4-4"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-cyan-400 transition-colors duration-300">1. حدود الأمان الأربعة</span>
                 </a>
                 <!-- زر 2 -->
                 <a href="inv_rep2_coverage.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #22d3ee; --glow-color: rgba(6,182,212,0.25);">
-                    <i class="fa-solid fa-calendar-days text-cyan-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-cyan-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                        <circle cx="12" cy="16" r="3"/>
+                        <polyline points="12 14 12 16 13.5 16.5"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-cyan-400 transition-colors duration-300">2. أيام التغطية للمخزون</span>
                 </a>
                 <!-- زر 3 -->
                 <a href="inv_rep3_deadstock.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #22d3ee; --glow-color: rgba(6,182,212,0.25);">
-                    <i class="fa-solid fa-snowflake text-cyan-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-cyan-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="2" x2="12" y2="22"/>
+                        <line x1="2" y1="12" x2="22" y2="12"/>
+                        <path d="m20 16-4-4 4-4"/>
+                        <path d="m4 8 4 4-4 4"/>
+                        <path d="m16 4-4 4-4-4"/>
+                        <path d="m8 20 4-4 4 4"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-cyan-400 transition-colors duration-300">3. مصفوفة البضاعة الراكدة</span>
                 </a>
                 <!-- زر 4 -->
                 <a href="inv_rep4_committed.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #22d3ee; --glow-color: rgba(6,182,212,0.25);">
-                    <i class="fa-solid fa-handshake-lock text-cyan-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-cyan-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        <path d="M12 15v3"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-cyan-400 transition-colors duration-300">4. البضاعة الملتزم بها للعملاء</span>
                 </a>
                 <!-- زر 5 -->
                 <a href="inv_rep5_capacity.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #22d3ee; --glow-color: rgba(6,182,212,0.25);">
-                    <i class="fa-solid fa-boxes-stacked text-cyan-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-cyan-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 21V10l9-6 9 6v11"/>
+                        <path d="M9 21V13h6v8"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-cyan-400 transition-colors duration-300">5. الطاقة الاستيعابية للعنابر</span>
                 </a>
             </div>
@@ -277,27 +301,43 @@ try {
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                 <!-- زر 6 -->
                 <a href="inv_rep6_turnover.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #34d399; --glow-color: rgba(16,185,129,0.25);">
-                    <i class="fa-solid fa-arrows-spin text-emerald-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-emerald-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-emerald-400 transition-colors duration-300">6. معدل دوران المخزون</span>
                 </a>
                 <!-- زر 7 -->
                 <a href="inv_rep7_seasonal.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #34d399; --glow-color: rgba(16,185,129,0.25);">
-                    <i class="fa-solid fa-cloud-sun text-emerald-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-emerald-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                        <path d="M16 13a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-emerald-400 transition-colors duration-300">7. السحب والطلب الموسمي</span>
                 </a>
                 <!-- زر 8 -->
                 <a href="inv_rep8_flow.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #34d399; --glow-color: rgba(16,185,129,0.25);">
-                    <i class="fa-solid fa-right-left text-emerald-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-emerald-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m17 3 4 4-4 4M21 7H3M7 21l-4-4 4-4M3 17h18"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-emerald-400 transition-colors duration-300">8. تدفق الوارد والصادر حياً</span>
                 </a>
                 <!-- زر 9 -->
                 <a href="inv_rep9_leadtime.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #34d399; --glow-color: rgba(16,185,129,0.25);">
-                    <i class="fa-solid fa-truck-fast text-emerald-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-emerald-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="1" y="3" width="15" height="13"/>
+                        <polygon points="16 8 20 8 23 11 23 16 16 16"/>
+                        <circle cx="5.5" cy="18.5" r="2.5"/>
+                        <circle cx="18.5" cy="18.5" r="2.5"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-emerald-400 transition-colors duration-300">9. زمن توريد المصانع باليوم</span>
                 </a>
                 <!-- زر 10 -->
                 <a href="inv_rep10_fulfillment.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #34d399; --glow-color: rgba(16,185,129,0.25);">
-                    <i class="fa-solid fa-clipboard-check text-emerald-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-emerald-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                        <polyline points="9 11 11 13 15 9"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-emerald-400 transition-colors duration-300">10. دقة طلبات الصرف الفوري</span>
                 </a>
             </div>
@@ -311,27 +351,44 @@ try {
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                 <!-- زر 11 -->
                 <a href="inv_rep11_velocity_margin.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #fbbf24; --glow-color: rgba(245,158,11,0.25);">
-                    <i class="fa-solid fa-gauge-high text-amber-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-amber-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 3v18h18M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-amber-400 transition-colors duration-300">11. الربحية مقابل السرعة</span>
                 </a>
                 <!-- 12 -->
                 <a href="inv_rep12_cost_variance.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #fbbf24; --glow-color: rgba(245,158,11,0.25);">
-                    <i class="fa-solid fa-scale-unbalanced text-amber-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-amber-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="3" x2="12" y2="21"/>
+                        <line x1="7" y1="12" x2="17" y2="10"/>
+                        <path d="M7 12V21M17 10V21"/>
+                        <circle cx="12" cy="3" r="1"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-amber-400 transition-colors duration-300">12. انحراف التكلفة المرجحة</span>
                 </a>
                 <!-- زر 13 -->
                 <a href="inv_rep13_zero_margin.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #fbbf24; --glow-color: rgba(245,158,11,0.25);">
-                    <i class="fa-solid fa-circle-exclamation text-amber-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-amber-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-amber-400 transition-colors duration-300">13. الأصناف الخاسرة والحرجة</span>
                 </a>
                 <!-- زر 14 -->
                 <a href="inv_rep14_gmroii.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #fbbf24; --glow-color: rgba(245,158,11,0.25);">
-                    <i class="fa-solid fa-sack-dollar text-amber-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-amber-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="6" x2="12" y2="18"/>
+                        <path d="M14.5 9.5a2.5 2.5 0 0 0-5 0v5a2.5 2.5 0 0 0 5 0"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-amber-400 transition-colors duration-300">14. العائد الاستثماري GMROII</span>
                 </a>
                 <!-- زر 15 -->
                 <a href="inv_rep15_valuation.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #fbbf24; --glow-color: rgba(245,158,11,0.25);">
-                    <i class="fa-solid fa-money-check-dollar text-amber-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-amber-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-amber-400 transition-colors duration-300">15. تقييم المخزون المالي اللحظي</span>
                 </a>
             </div>
@@ -345,27 +402,42 @@ try {
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                 <!-- زر 16 -->
                 <a href="inv_rep16_market_drop.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #c084fc; --glow-color: rgba(168,85,247,0.25);">
-                    <i class="fa-solid fa-arrow-trend-down text-purple-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-purple-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+                        <polyline points="17 18 23 18 23 12"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-purple-400 transition-colors duration-300">16. خطر هبوط الأسعار المفاجئ</span>
                 </a>
                 <!-- زر 17 -->
                 <a href="inv_rep17_shrinkage.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #c084fc; --glow-color: rgba(168,85,247,0.25);">
-                    <i class="fa-solid fa-magnifying-glass-chart text-purple-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-purple-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        <line x1="8" y1="11" x2="14" y2="11"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-purple-400 transition-colors duration-300">17. عجز التدقيق وجرد العنابر</span>
                 </a>
                 <!-- زر 18 -->
                 <a href="inv_rep18_transit.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #c084fc; --glow-color: rgba(168,85,247,0.25);">
-                    <i class="fa-solid fa-ship text-purple-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-purple-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 17h20l-2 4H4l-2-4zM12 3v14M12 3c-3 0-6 4-6 6h12c0-2-3-6-6-6z"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-purple-400 transition-colors duration-300">18. طلبيات الشحن والاستيراد</span>
                 </a>
                 <!-- زر 19 -->
                 <a href="inv_rep19_abc.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #c084fc; --glow-color: rgba(168,85,247,0.25);">
-                    <i class="fa-solid fa-cubes-stacked text-purple-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-purple-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                        <polyline points="2 17 12 22 22 17"/>
+                        <polyline points="2 12 12 17 22 12"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-purple-400 transition-colors duration-300">19. تحليل تركيز البضائع ABC</span>
                 </a>
                 <!-- زر 20 -->
                 <a href="inv_rep20_simulator.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #c084fc; --glow-color: rgba(168,85,247,0.25);">
-                    <i class="fa-solid fa-wand-magic-sparkles text-purple-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <svg class="w-10 h-10 mb-3 text-purple-400 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 4-2 2M19 8l-2 2M20 3v2M15 8h2M18 19l-9-9-6 6 9 9z"/>
+                    </svg>
                     <span class="text-sm font-black text-slate-100 group-hover:text-purple-400 transition-colors duration-300">20. محاكي سيناريوهات النواقص</span>
                 </a>
             </div>
