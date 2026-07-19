@@ -1763,7 +1763,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
                     if (!key) continue;
-                    const match = key.match(/^([a-zA-Z0-9-]+)_erp_users_v1$/);
+                    const match = key.match(/^([a-zA-Z0-9_-]+)_erp_users_v1$/);
                     if (match) {
                         const subdomain = match[1];
                         const usersData = localStorage.getItem(key);

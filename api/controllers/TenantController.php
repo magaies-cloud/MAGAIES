@@ -132,11 +132,18 @@ class TenantController {
                 if (empty($subdomain) || empty($username) || empty($plainPassword)) continue;
 
                 // Find tenant
-                $tStmt = $this->pdo->prepare("SELECT id FROM tenants WHERE subdomain = ?");
-                $tStmt->execute([$subdomain]);
-                $tenant = $tStmt->fetch();
-                if (!$tenant) continue;
-                $tenantId = $tenant['id'];
+                $tenantId = null;
+                if (strpos($subdomain, 'tenant_') === 0) {
+                    $tenantId = intval(substr($subdomain, 7));
+                } else {
+                    $tStmt = $this->pdo->prepare("SELECT id FROM tenants WHERE subdomain = ?");
+                    $tStmt->execute([$subdomain]);
+                    $tenant = $tStmt->fetch();
+                    if ($tenant) {
+                        $tenantId = $tenant['id'];
+                    }
+                }
+                if (!$tenantId) continue;
 
                 // Find user
                 $uStmt = $this->pdo->prepare("SELECT id, data FROM users WHERE tenant_id = ? AND username = ?");
