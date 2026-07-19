@@ -1115,7 +1115,7 @@ if ($resource === 'sync') {
                                         }
 
                                         // Inject user attribution for accountability
-                                        if (!isset($record['createdBy']) && $userId) {
+                                        if (!isset($record['createdBy']) && !empty($userId)) {
                                             $record['createdBy'] = $userId;
                                         }
 
@@ -1235,7 +1235,7 @@ try {
         case 'POST':
             checkFinancialRules($pdo, $tenant_id, $resource, $input);
             
-            if (!isset($input['createdBy']) && $userId) {
+            if (!isset($input['createdBy']) && !empty($userId)) {
                 $input['createdBy'] = $userId;
             }
             $dataJson = json_encode($input, JSON_UNESCAPED_UNICODE);
@@ -1253,7 +1253,7 @@ try {
             $existingRow = $stmtEx->fetch(PDO::FETCH_ASSOC) ?: null;
             checkFinancialRules($pdo, $tenant_id, $resource, $input, $existingRow);
 
-            if (!isset($input['createdBy']) && $userId) {
+            if (!isset($input['createdBy']) && !empty($userId)) {
                 $input['createdBy'] = $userId;
             }
             $dataJson = json_encode($input, JSON_UNESCAPED_UNICODE);
