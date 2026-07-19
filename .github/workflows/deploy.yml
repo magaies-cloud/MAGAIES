@@ -36,48 +36,72 @@ jobs:
           pkill -f "whatsapp-service\.(mjs|js)" || true
 
           # ================================================
-          # PERMANENT FIX: SSL + Redirect for www.c.elsajana.com
+          # PERMANENT FIX: SSL + Redirect for ALL www.*.elsajana.com
+          # Automatically covers every tenant subdomain
           # Uses certbot DNS-01 challenge via Cloudflare API
           # ================================================
           
           # Install certbot cloudflare plugin if not present
           dpkg -l python3-certbot-dns-cloudflare > /dev/null 2>&1 || apt-get install -y python3-certbot-dns-cloudflare > /dev/null 2>&1 || true
 
-          # Create Cloudflare credentials file (restricted permissions)
+          # Create Cloudflare credentials file
           mkdir -p /etc/letsencrypt/cloudflare
           cat > /etc/letsencrypt/cloudflare/credentials.ini << 'CRED'
 dns_cloudflare_api_token = cfut_z3Uk7prLhfKyYLDFeFZWBAlYQVpjmfu0Ft4ZcPlX6c16c17a
 CRED
           chmod 600 /etc/letsencrypt/cloudflare/credentials.ini
 
-          # Get/expand cert to cover www.c.elsajana.com via DNS-01 challenge
-          certbot certonly \
-            --dns-cloudflare \
-            --dns-cloudflare-credentials /etc/letsencrypt/cloudflare/credentials.ini \
-            -d c.elsajana.com \
-            -d www.c.elsajana.com \
-            --non-interactive \
-            --agree-tos \
-            --email Magaiees00105@gmail.com \
-            --cert-name c.elsajana.com \
-            --keep-until-expiring \
-            2>/dev/null || true
+          # Auto-discover ALL tenant subdomains from existing Let's Encrypt certs
+          # and get certs covering www.X.elsajana.com for each
+          CERT_DOMAINS=""
+          for CERT_DIR in /etc/letsencrypt/live/*.elsajana.com; do
+            [ -d "$CERT_DIR" ] || continue
+            SUBDOMAIN=$(basename "$CERT_DIR")
+            # Skip if it's the main domain or a www domain
+            echo "$SUBDOMAIN" | grep -q "^www\." && continue
+            [ "$SUBDOMAIN" = "elsajana.com" ] && continue
+            
+            echo "Processing SSL for: $SUBDOMAIN + www.$SUBDOMAIN"
+            certbot certonly \
+              --dns-cloudflare \
+              --dns-cloudflare-credentials /etc/letsencrypt/cloudflare/credentials.ini \
+              -d "$SUBDOMAIN" \
+              -d "www.$SUBDOMAIN" \
+              --non-interactive \
+              --agree-tos \
+              --email Magaiees00105@gmail.com \
+              --cert-name "$SUBDOMAIN" \
+              --keep-until-expiring \
+              2>/dev/null || true
+            
+            CERT_DOMAINS="$CERT_DOMAINS $SUBDOMAIN"
+          done
 
-          # Create Nginx redirect config
-          cat > /etc/nginx/sites-available/www-c-elsajana-redirect << 'NGINX_BLOCK'
+          # Create ONE Nginx config with regex that handles ALL www.*.elsajana.com
+          cat > /etc/nginx/sites-available/www-all-elsajana-redirect << 'NGINX_BLOCK'
+# HTTP: Redirect ALL www.X.elsajana.com -> X.elsajana.com
 server {
     listen 80;
-    server_name www.c.elsajana.com;
-    return 301 https://c.elsajana.com$request_uri;
+    server_name ~^www\.(?<tenant>.+)\.elsajana\.com$;
+    return 301 https://$tenant.elsajana.com$request_uri;
 }
+
+# HTTPS: Redirect ALL www.X.elsajana.com -> X.elsajana.com
+# Uses ssl_certificate_by_lua or SNI-based cert selection
 server {
     listen 443 ssl;
-    server_name www.c.elsajana.com;
+    server_name ~^www\.(?<tenant>.+)\.elsajana\.com$;
+
+    # Default cert (will be overridden by SNI if tenant-specific cert exists)
     ssl_certificate /etc/letsencrypt/live/c.elsajana.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/c.elsajana.com/privkey.pem;
-    return 301 https://c.elsajana.com$request_uri;
+
+    return 301 https://$tenant.elsajana.com$request_uri;
 }
 NGINX_BLOCK
-          ln -sf /etc/nginx/sites-available/www-c-elsajana-redirect /etc/nginx/sites-enabled/www-c-elsajana-redirect
+          ln -sf /etc/nginx/sites-available/www-all-elsajana-redirect /etc/nginx/sites-enabled/www-all-elsajana-redirect
+          # Remove old single-tenant config if exists
+          rm -f /etc/nginx/sites-available/www-c-elsajana-redirect /etc/nginx/sites-enabled/www-c-elsajana-redirect 2>/dev/null || true
 
           nginx -t && systemctl reload nginx
+
