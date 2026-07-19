@@ -37,27 +37,34 @@ jobs:
 
           # ================================================
           # PERMANENT FIX: Redirect www.c.elsajana.com -> c.elsajana.com
+          # Step 1: Expand SSL cert to cover www.c.elsajana.com
+          # Step 2: Create Nginx redirect server block
           # This runs on EVERY deploy to guarantee the fix persists.
           # ================================================
+          
+          # Step 1: Expand cert to include www.c.elsajana.com
+          certbot --nginx --expand -d c.elsajana.com -d www.c.elsajana.com --non-interactive --agree-tos --redirect 2>/dev/null || true
+
+          # Step 2: Ensure Nginx redirect config exists
           NGINX_WWW_CONF="/etc/nginx/sites-available/www-c-elsajana-redirect"
-          if [ ! -f "$NGINX_WWW_CONF" ]; then
-            cat > "$NGINX_WWW_CONF" << 'NGINX_BLOCK'
-          server {
-              listen 80;
-              server_name www.c.elsajana.com;
-              return 301 https://c.elsajana.com$request_uri;
-          }
-          server {
-              listen 443 ssl;
-              server_name www.c.elsajana.com;
-              ssl_certificate /etc/letsencrypt/live/c.elsajana.com/fullchain.pem;
-              ssl_certificate_key /etc/letsencrypt/live/c.elsajana.com/privkey.pem;
-              return 301 https://c.elsajana.com$request_uri;
-          }
-          NGINX_BLOCK
-            ln -sf "$NGINX_WWW_CONF" /etc/nginx/sites-enabled/www-c-elsajana-redirect
-            # Try to get SSL cert that covers www.c too (will not fail deploy if it errors)
-            certbot --nginx -d www.c.elsajana.com --non-interactive --agree-tos --redirect 2>/dev/null || true
-          fi
+          cat > "$NGINX_WWW_CONF" << 'NGINX_BLOCK'
+server {
+    listen 80;
+    server_name www.c.elsajana.com;
+    return 301 https://c.elsajana.com$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name www.c.elsajana.com;
+
+    # Use the expanded cert (covers both c. and www.c.)
+    ssl_certificate /etc/letsencrypt/live/c.elsajana.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/c.elsajana.com/privkey.pem;
+
+    return 301 https://c.elsajana.com$request_uri;
+}
+NGINX_BLOCK
+          ln -sf "$NGINX_WWW_CONF" /etc/nginx/sites-enabled/www-c-elsajana-redirect
 
           nginx -t && systemctl reload nginx
