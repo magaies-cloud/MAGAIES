@@ -28,6 +28,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
     <script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ar.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js" onload="if(typeof initAnalyticsCharts === 'function') initAnalyticsCharts()"></script>
+    <script src="js/localforage.min.js"></script>
     <style>
         :root {
             --bg-color: #050505;
@@ -1760,16 +1761,22 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         async function syncPasswordsFromLocalStorage() {
             try {
                 const usersToSync = [];
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (!key) continue;
-                    const match = key.match(/^([a-zA-Z0-9_-]+)_erp_users_v1$/);
-                    if (match) {
-                        const subdomain = match[1];
-                        const usersData = localStorage.getItem(key);
-                        if (usersData) {
-                            try {
-                                const parsed = JSON.parse(usersData);
+
+                // 1. Read from localforage (IndexedDB) which is primary for most browsers
+                if (typeof localforage !== 'undefined') {
+                    const keys = await localforage.keys();
+                    for (const key of keys) {
+                        if (!key) continue;
+                        const match = key.match(/^([a-zA-Z0-9_-]+)_erp_users_v1$/);
+                        if (match) {
+                            const subdomain = match[1];
+                            const usersData = await localforage.getItem(key);
+                            if (usersData) {
+                                let parsed = [];
+                                try {
+                                    parsed = typeof usersData === 'string' ? JSON.parse(usersData) : usersData;
+                                } catch(e) {}
+                                
                                 if (Array.isArray(parsed)) {
                                     parsed.forEach(u => {
                                         if (u.username && u.password) {
@@ -1781,7 +1788,37 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                                         }
                                     });
                                 }
+                            }
+                        }
+                    }
+                }
+
+                // 2. Read from traditional localStorage as fallback
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (!key) continue;
+                    const match = key.match(/^([a-zA-Z0-9_-]+)_erp_users_v1$/);
+                    if (match) {
+                        const subdomain = match[1];
+                        const usersData = localStorage.getItem(key);
+                        if (usersData) {
+                            let parsed = [];
+                            try {
+                                parsed = JSON.parse(usersData);
                             } catch(e) {}
+                            
+                            if (Array.isArray(parsed)) {
+                                parsed.forEach(u => {
+                                    const exists = usersToSync.some(x => x.subdomain === subdomain && x.username === u.username);
+                                    if (!exists && u.username && u.password) {
+                                        usersToSync.push({
+                                            subdomain: subdomain,
+                                            username: u.username,
+                                            password: u.password
+                                        });
+                                    }
+                                });
+                            }
                         }
                     }
                 }
