@@ -352,28 +352,6 @@
                 return;
             }
 
-            // DEBUG HELP: If still not found, check if "c" even exists with ANY password
-            if (username === 'c') {
-                let existingPasswords = [];
-                if (window.DB_STORE) {
-                    for (let key in window.DB_STORE) {
-                        if (key.includes('erp_users')) {
-                            try {
-                                const users = JSON.parse(window.DB_STORE[key]);
-                                const u = users.find(x => x.username.toLowerCase() === 'c');
-                                if (u) existingPasswords.push(u.password);
-                            } catch(e) {}
-                        }
-                    }
-                }
-                if (existingPasswords.length > 0) {
-                    alert('اسم المستخدم c موجود، ولكن كلمة المرور المسجلة مختلفة. الكلمة المسجلة تتكون من ' + existingPasswords[0].length + ' رموز.');
-                    return;
-                } else {
-                    alert('المستخدم c غير موجود إطلاقاً في البيانات المحلية!');
-                    return;
-                }
-            }
 
             alert('بيانات الدخول غير صحيحة أو السيرفر غير متاح');
         }
