@@ -129,7 +129,19 @@ class TenantController {
             if (strlen($newPassword) < 6) jsonResponse(['error' => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'], 400);
             
             $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
-            $this->pdo->prepare("UPDATE users SET password = ? WHERE tenant_id = ? AND role = 'admin' LIMIT 1")->execute([$hashed, $tenantId]);
+            
+            // Get admin user of this tenant to sync plain password in data column JSON
+            $stmtAdmin = $this->pdo->prepare("SELECT id, data FROM users WHERE tenant_id = ? AND role = 'admin' LIMIT 1");
+            $stmtAdmin->execute([$tenantId]);
+            $adminUser = $stmtAdmin->fetch();
+            if ($adminUser) {
+                $dataArr = json_decode($adminUser['data'], true) ?: [];
+                $dataArr['password'] = $newPassword;
+                $updatedDataJson = json_encode($dataArr, JSON_UNESCAPED_UNICODE);
+                $this->pdo->prepare("UPDATE users SET password = ?, data = ? WHERE id = ?")->execute([$hashed, $updatedDataJson, $adminUser['id']]);
+            } else {
+                $this->pdo->prepare("UPDATE users SET password = ? WHERE tenant_id = ? AND role = 'admin' LIMIT 1")->execute([$hashed, $tenantId]);
+            }
             $this->logSaaSAction('تغيير كلمة مرور المشترك', 'تغيير كلمة مرور مدير الحساب للمشترك معرّف ' . $tenantId);
             jsonResponse(['success' => true]);
         }
@@ -137,7 +149,7 @@ class TenantController {
         if ($method === 'GET' && $action === 'users') {
             $tenantId = intval($_GET['tenant_id'] ?? 0);
             if (!$tenantId) jsonResponse(['error' => 'معرّف الشركة مطلوب'], 400);
-            $stmt = $this->pdo->prepare("SELECT id, username, password, JSON_UNQUOTE(JSON_EXTRACT(data, '$.fullName')) as fullName, JSON_UNQUOTE(JSON_EXTRACT(data, '$.phone')) as phone, JSON_UNQUOTE(JSON_EXTRACT(data, '$.email')) as email, role, status, last_active, created_at FROM users WHERE tenant_id = ? ORDER BY FIELD(role, 'admin', 'manager', 'employee', 'user'), username ASC");
+            $stmt = $this->pdo->prepare("SELECT id, username, password, JSON_UNQUOTE(JSON_EXTRACT(data, '$.password')) as plain_password, JSON_UNQUOTE(JSON_EXTRACT(data, '$.fullName')) as fullName, JSON_UNQUOTE(JSON_EXTRACT(data, '$.phone')) as phone, JSON_UNQUOTE(JSON_EXTRACT(data, '$.email')) as email, role, status, last_active, created_at FROM users WHERE tenant_id = ? ORDER BY FIELD(role, 'admin', 'manager', 'employee', 'user'), username ASC");
             $stmt->execute([$tenantId]);
             jsonResponse($stmt->fetchAll());
         }
@@ -151,8 +163,15 @@ class TenantController {
             if (!$tenantId || !$username || !$password) jsonResponse(['error' => 'البيانات غير مكتملة'], 400);
             
             $hashed = password_hash($password, PASSWORD_DEFAULT);
-            $data = json_encode(['fullName' => $fullName]);
             $frontend_id = 'u_' . uniqid();
+            $data = json_encode([
+                'id' => $frontend_id,
+                'username' => $username,
+                'fullName' => $fullName,
+                'password' => $password,
+                'roleId' => $role === 'admin' ? 'role_admin_default' : 'role_user_default',
+                'status' => 'active'
+            ], JSON_UNESCAPED_UNICODE);
             
             $stmt = $this->pdo->prepare("INSERT INTO users (tenant_id, username, password, role, frontend_id, data) VALUES (?, ?, ?, ?, ?, ?)");
             $stmt->execute([$tenantId, $username, $hashed, $role, $frontend_id, $data]);
@@ -166,7 +185,16 @@ class TenantController {
             if (!$userId || empty($newPassword)) jsonResponse(['error' => 'المستخدم وكلمة المرور مطلوبان'], 400);
             if (strlen($newPassword) < 6) jsonResponse(['error' => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'], 400);
             $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
-            $this->pdo->prepare("UPDATE users SET password = ? WHERE id = ?")->execute([$hashed, $userId]);
+            
+            // Sync plain password inside data column JSON
+            $stmtEx = $this->pdo->prepare("SELECT data FROM users WHERE id = ?");
+            $stmtEx->execute([$userId]);
+            $dataJson = $stmtEx->fetchColumn();
+            $dataArr = json_decode($dataJson, true) ?: [];
+            $dataArr['password'] = $newPassword;
+            $updatedDataJson = json_encode($dataArr, JSON_UNESCAPED_UNICODE);
+            
+            $this->pdo->prepare("UPDATE users SET password = ?, data = ? WHERE id = ?")->execute([$hashed, $updatedDataJson, $userId]);
             $this->logSaaSAction('تغيير كلمة مرور مستخدم', 'تغيير كلمة مرور المستخدم معرّف ' . $userId);
             jsonResponse(['success' => true]);
         }

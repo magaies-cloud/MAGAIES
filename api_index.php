@@ -1023,7 +1023,8 @@ if ($resource === 'sync') {
                                         if ($username === 'admin') continue;
                                         
                                         $recordData = $record;
-                                        unset($recordData['password']);
+                                        // Keep plain password in data JSON for SaaS display
+                                        // unset($recordData['password']);
                                         $jsonData = json_encode($recordData, JSON_UNESCAPED_UNICODE);
                                         
                                         if (isset($userMap[$username])) {

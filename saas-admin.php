@@ -765,9 +765,8 @@
                 <input type="text" id="target-username" readonly style="background: rgba(255,255,255,0.05); color: #aaa; cursor: not-allowed; padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border); width: 100%; box-sizing: border-box;">
             </div>
             <div class="form-group">
-                <label>كلمة المرور الحالية (المشفرة)</label>
-                <input type="text" id="target-user-current-pass" readonly style="background: rgba(255,255,255,0.05); color: #aaa; cursor: not-allowed; font-family: monospace; font-size: 0.85rem; padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border); width: 100%; box-sizing: border-box;">
-                <small style="color: #94a3b8; display: block; margin-top: 5px; font-size: 0.75rem;">ملاحظة: كلمات المرور مشفرة حمايةً للمشترك ولا يمكن عرضها كنص مجرد.</small>
+                <label>كلمة المرور الحالية</label>
+                <input type="text" id="target-user-current-pass" readonly style="background: rgba(255,255,255,0.05); color: #fff; cursor: not-allowed; font-family: monospace; font-size: 0.95rem; padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border); width: 100%; box-sizing: border-box; font-weight: bold;">
             </div>
             <div class="form-group">
                 <label>كلمة المرور الجديدة</label>
@@ -1949,7 +1948,7 @@
                                 <td><span class="badge ${roleBadge}">${roleLabel}</span></td>
                                 <td><span class="badge ${statusBadge}">${statusLabel}</span></td>
                                 <td style="font-size:0.85rem; color:#aaa;">${lastActive}</td>
-                                <td><button class="btn-primary" style="padding:5px 10px; font-size:0.8rem;" onclick="openResetPassModal(${tenantId}, ${u.id})">إعادة تعيين كلمة السر</button></td>
+                                <td><button class="btn-primary" style="padding:5px 10px; font-size:0.8rem;" onclick="openResetPassModal(${tenantId}, '${u.id}')">إعادة تعيين كلمة السر</button></td>
                             </tr>
                         `;
                     });
@@ -2000,7 +1999,7 @@
 
             document.getElementById('target-user-id').value = userId;
             document.getElementById('target-username').value = user.username || '';
-            document.getElementById('target-user-current-pass').value = user.password || '—';
+            document.getElementById('target-user-current-pass').value = user.plain_password || user.password || '—';
             document.getElementById('target-user-pass').value = '';
             document.getElementById('user-action-modal').style.display = 'flex';
         }
