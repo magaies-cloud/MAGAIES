@@ -26,9 +26,22 @@ try {
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+<script src="js/lang.js"></script>
+<script>
+(function(){
+    var l = localStorage.getItem('erp_lang') || 'ar';
+    if(l==='en') {
+        document.documentElement.setAttribute('dir','ltr');
+        document.documentElement.setAttribute('lang','en');
+    }
+})();
+</script>
 <head>
     <meta charset="UTF-8">
     <title>بوابة المخازن والتقارير الاستراتيجية الـ 20 - MAGAIEES ERP</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/components.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -112,24 +125,20 @@ try {
         }
     </style>
 </head>
-<body class="text-slate-100 min-h-screen p-6">
+<body class="text-slate-100 min-h-screen">
+    <?php $page_title = 'بوابة المخازن والتقارير الاستراتيجية الـ 20'; include 'includes/header.php'; ?>
+    <div class="dashboard-container">
 
-    <div class="mb-8 border-b border-slate-800 pb-5 flex justify-between items-center">
-        <div>
-            <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400 flex items-center gap-3">
-                <i class="fa-solid fa-warehouse text-cyan-400"></i> لوحة تحكم وتقارير المخازن الذكية الـ 20 الكاملة
-            </h1>
-            <p class="text-slate-400 text-xs mt-1">المنصة المكتملة لإدارة حركة بضائع السجانة حياً ومباشرة من الداتابيز الحقيقية</p>
+        <div class="mb-8 border-b border-slate-800 pb-5 flex justify-between items-center">
+            <div>
+                <p class="text-slate-400 text-xs mt-1">المنصة المكتملة لإدارة حركة بضائع السجانة حياً ومباشرة من الداتابيز الحقيقية</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="alerts_manager.php" class="px-5 py-2.5 bg-red-950/40 hover:bg-red-900/40 text-red-400 border border-red-500/20 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2">
+                    <i class="fa-solid fa-bell"></i> ضبط تنبيهات المخازن الذكية
+                </a>
+            </div>
         </div>
-        <div class="flex items-center gap-3">
-            <a href="alerts_manager.php" class="px-5 py-2.5 bg-red-950/40 hover:bg-red-900/40 text-red-400 border border-red-500/20 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2">
-                <i class="fa-solid fa-bell"></i> ضبط تنبيهات المخازن الذكية
-            </a>
-            <a href="dashboard-pro.php" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold transition-all shadow-md">
-                <i class="fa-solid fa-arrow-right ml-1"></i> لوحة التحكم الرئيسية
-            </a>
-        </div>
-    </div>
 
     <!-- كروت المؤشرات الكبرى اللحظية الحقيقية -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
@@ -300,5 +309,10 @@ try {
 
     </div>
 
+    </div> <!-- Close .dashboard-container -->
+
+    <!-- Scripts -->
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/app.js"></script>
 </body>
 </html>
