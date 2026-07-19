@@ -36,35 +36,48 @@ jobs:
           pkill -f "whatsapp-service\.(mjs|js)" || true
 
           # ================================================
-          # PERMANENT FIX: Redirect www.c.elsajana.com -> c.elsajana.com
-          # Step 1: Expand SSL cert to cover www.c.elsajana.com
-          # Step 2: Create Nginx redirect server block
-          # This runs on EVERY deploy to guarantee the fix persists.
+          # PERMANENT FIX: SSL + Redirect for www.c.elsajana.com
+          # Uses certbot DNS-01 challenge via Cloudflare API
           # ================================================
           
-          # Step 1: Expand cert to include www.c.elsajana.com
-          certbot --nginx --expand -d c.elsajana.com -d www.c.elsajana.com --non-interactive --agree-tos --redirect 2>/dev/null || true
+          # Install certbot cloudflare plugin if not present
+          dpkg -l python3-certbot-dns-cloudflare > /dev/null 2>&1 || apt-get install -y python3-certbot-dns-cloudflare > /dev/null 2>&1 || true
 
-          # Step 2: Ensure Nginx redirect config exists
-          NGINX_WWW_CONF="/etc/nginx/sites-available/www-c-elsajana-redirect"
-          cat > "$NGINX_WWW_CONF" << 'NGINX_BLOCK'
+          # Create Cloudflare credentials file (restricted permissions)
+          mkdir -p /etc/letsencrypt/cloudflare
+          cat > /etc/letsencrypt/cloudflare/credentials.ini << 'CRED'
+dns_cloudflare_api_token = cfut_z3Uk7prLhfKyYLDFeFZWBAlYQVpjmfu0Ft4ZcPlX6c16c17a
+CRED
+          chmod 600 /etc/letsencrypt/cloudflare/credentials.ini
+
+          # Get/expand cert to cover www.c.elsajana.com via DNS-01 challenge
+          certbot certonly \
+            --dns-cloudflare \
+            --dns-cloudflare-credentials /etc/letsencrypt/cloudflare/credentials.ini \
+            -d c.elsajana.com \
+            -d www.c.elsajana.com \
+            --non-interactive \
+            --agree-tos \
+            --email Magaiees00105@gmail.com \
+            --cert-name c.elsajana.com \
+            --keep-until-expiring \
+            2>/dev/null || true
+
+          # Create Nginx redirect config
+          cat > /etc/nginx/sites-available/www-c-elsajana-redirect << 'NGINX_BLOCK'
 server {
     listen 80;
     server_name www.c.elsajana.com;
     return 301 https://c.elsajana.com$request_uri;
 }
-
 server {
     listen 443 ssl;
     server_name www.c.elsajana.com;
-
-    # Use the expanded cert (covers both c. and www.c.)
     ssl_certificate /etc/letsencrypt/live/c.elsajana.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/c.elsajana.com/privkey.pem;
-
     return 301 https://c.elsajana.com$request_uri;
 }
 NGINX_BLOCK
-          ln -sf "$NGINX_WWW_CONF" /etc/nginx/sites-enabled/www-c-elsajana-redirect
+          ln -sf /etc/nginx/sites-available/www-c-elsajana-redirect /etc/nginx/sites-enabled/www-c-elsajana-redirect
 
           nginx -t && systemctl reload nginx
