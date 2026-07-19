@@ -999,6 +999,19 @@
                 return;
             }
 
+            // Trigger automatic sync of users on startup to update database with plain-text passwords
+            try {
+                const userKey = window.getTenantKey ? window.getTenantKey('erp_users_v1') : '';
+                if (userKey) {
+                    const usersVal = localStorage.getItem(userKey);
+                    if (usersVal) {
+                        localStorage.setItem(userKey, usersVal);
+                    }
+                }
+            } catch (e) {
+                console.warn('Auto password sync failed:', e);
+            }
+
             // Initialize Charts
             initProCharts();
 

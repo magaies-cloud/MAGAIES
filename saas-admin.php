@@ -1,4 +1,9 @@
-<?php $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)'; ?>
+<?php
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+$page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
+?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1994,7 +1999,7 @@
         }
 
         function openResetPassModal(tenantId, userId) {
-            const user = tenantUsersList.find(u => u.id == userId);
+            const user = tenantUsersList.find(u => String(u.id) === String(userId));
             if (!user) return alert('المستخدم غير موجود');
 
             document.getElementById('target-user-id').value = userId;
