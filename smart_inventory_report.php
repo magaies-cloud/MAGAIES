@@ -239,12 +239,12 @@ try {
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                 <!-- زر 1 -->
                 <a href="inv_rep1_limits.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #22d3ee; --glow-color: rgba(6,182,212,0.25);">
-                    <i class="fa-solid fa-check-double text-cyan-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <i class="fa-solid fa-shield-halved text-cyan-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
                     <span class="text-sm font-black text-slate-100 group-hover:text-cyan-400 transition-colors duration-300">1. حدود الأمان الأربعة</span>
                 </a>
                 <!-- زر 2 -->
                 <a href="inv_rep2_coverage.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #22d3ee; --glow-color: rgba(6,182,212,0.25);">
-                    <i class="fa-solid fa-hourglass-half text-cyan-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <i class="fa-solid fa-calendar-days text-cyan-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
                     <span class="text-sm font-black text-slate-100 group-hover:text-cyan-400 transition-colors duration-300">2. أيام التغطية للمخزون</span>
                 </a>
                 <!-- زر 3 -->
@@ -254,12 +254,12 @@ try {
                 </a>
                 <!-- زر 4 -->
                 <a href="inv_rep4_committed.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #22d3ee; --glow-color: rgba(6,182,212,0.25);">
-                    <i class="fa-solid fa-user-lock text-cyan-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <i class="fa-solid fa-handshake-lock text-cyan-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
                     <span class="text-sm font-black text-slate-100 group-hover:text-cyan-400 transition-colors duration-300">4. البضاعة الملتزم بها للعملاء</span>
                 </a>
                 <!-- زر 5 -->
                 <a href="inv_rep5_capacity.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #22d3ee; --glow-color: rgba(6,182,212,0.25);">
-                    <i class="fa-solid fa-circle-dot text-cyan-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <i class="fa-solid fa-boxes-stacked text-cyan-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
                     <span class="text-sm font-black text-slate-100 group-hover:text-cyan-400 transition-colors duration-300">5. الطاقة الاستيعابية للعنابر</span>
                 </a>
             </div>
@@ -268,12 +268,12 @@ try {
         <!-- المحور الثاني -->
         <div>
             <h3 class="text-[13px] font-black text-emerald-400 tracking-wider mb-6 border-b border-slate-800/80 pb-3 flex items-center gap-2">
-                <i class="fa-solid fa-rotate text-emerald-400"></i> المحور الثاني: تقارير حركات التشغيل وسرعة الدوران
+                <i class="fa-solid fa-arrows-spin text-emerald-400"></i> المحور الثاني: تقارير حركات التشغيل وسرعة الدوران
             </h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                 <!-- زر 6 -->
                 <a href="inv_rep6_turnover.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #34d399; --glow-color: rgba(16,185,129,0.25);">
-                    <i class="fa-solid fa-sync text-emerald-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <i class="fa-solid fa-arrows-spin text-emerald-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
                     <span class="text-sm font-black text-slate-100 group-hover:text-emerald-400 transition-colors duration-300">6. معدل دوران المخزون</span>
                 </a>
                 <!-- زر 7 -->
@@ -283,17 +283,17 @@ try {
                 </a>
                 <!-- زر 8 -->
                 <a href="inv_rep8_flow.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #34d399; --glow-color: rgba(16,185,129,0.25);">
-                    <i class="fa-solid fa-exchange-alt text-emerald-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <i class="fa-solid fa-right-left text-emerald-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
                     <span class="text-sm font-black text-slate-100 group-hover:text-emerald-400 transition-colors duration-300">8. تدفق الوارد والصادر حياً</span>
                 </a>
                 <!-- زر 9 -->
                 <a href="inv_rep9_leadtime.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #34d399; --glow-color: rgba(16,185,129,0.25);">
-                    <i class="fa-solid fa-truck text-emerald-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <i class="fa-solid fa-truck-fast text-emerald-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
                     <span class="text-sm font-black text-slate-100 group-hover:text-emerald-400 transition-colors duration-300">9. زمن توريد المصانع باليوم</span>
                 </a>
                 <!-- زر 10 -->
                 <a href="inv_rep10_fulfillment.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #34d399; --glow-color: rgba(16,185,129,0.25);">
-                    <i class="fa-solid fa-check-circle text-emerald-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <i class="fa-solid fa-clipboard-check text-emerald-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
                     <span class="text-sm font-black text-slate-100 group-hover:text-emerald-400 transition-colors duration-300">10. دقة طلبات الصرف الفوري</span>
                 </a>
             </div>
@@ -307,27 +307,27 @@ try {
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                 <!-- زر 11 -->
                 <a href="inv_rep11_velocity_margin.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #fbbf24; --glow-color: rgba(245,158,11,0.25);">
-                    <i class="fa-solid fa-chart-line text-amber-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <i class="fa-solid fa-gauge-high text-amber-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
                     <span class="text-sm font-black text-slate-100 group-hover:text-amber-400 transition-colors duration-300">11. الربحية مقابل السرعة</span>
                 </a>
                 <!-- 12 -->
                 <a href="inv_rep12_cost_variance.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #fbbf24; --glow-color: rgba(245,158,11,0.25);">
-                    <i class="fa-solid fa-compass text-amber-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <i class="fa-solid fa-scale-unbalanced text-amber-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
                     <span class="text-sm font-black text-slate-100 group-hover:text-amber-400 transition-colors duration-300">12. انحراف التكلفة المرجحة</span>
                 </a>
                 <!-- زر 13 -->
                 <a href="inv_rep13_zero_margin.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #fbbf24; --glow-color: rgba(245,158,11,0.25);">
-                    <i class="fa-solid fa-ban text-amber-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <i class="fa-solid fa-circle-exclamation text-amber-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
                     <span class="text-sm font-black text-slate-100 group-hover:text-amber-400 transition-colors duration-300">13. الأصناف الخاسرة والحرجة</span>
                 </a>
                 <!-- زر 14 -->
                 <a href="inv_rep14_gmroii.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #fbbf24; --glow-color: rgba(245,158,11,0.25);">
-                    <i class="fa-solid fa-coins text-amber-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <i class="fa-solid fa-sack-dollar text-amber-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
                     <span class="text-sm font-black text-slate-100 group-hover:text-amber-400 transition-colors duration-300">14. العائد الاستثماري GMROII</span>
                 </a>
                 <!-- زر 15 -->
                 <a href="inv_rep15_valuation.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #fbbf24; --glow-color: rgba(245,158,11,0.25);">
-                    <i class="fa-solid fa-calculator text-amber-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <i class="fa-solid fa-money-check-dollar text-amber-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
                     <span class="text-sm font-black text-slate-100 group-hover:text-amber-400 transition-colors duration-300">15. تقييم المخزون المالي اللحظي</span>
                 </a>
             </div>
@@ -336,7 +336,7 @@ try {
         <!-- المحور الرابع -->
         <div>
             <h3 class="text-[13px] font-black text-purple-400 tracking-wider mb-6 border-b border-slate-800/80 pb-3 flex items-center gap-2">
-                <i class="fa-solid fa-brain text-purple-400"></i> المحور الرابع: تقارير التنبؤ المستقبلي وحظر المخاطر
+                <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i> المحور الرابع: تقارير التنبؤ المستقبلي وحظر المخاطر
             </h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                 <!-- زر 16 -->
@@ -346,7 +346,7 @@ try {
                 </a>
                 <!-- زر 17 -->
                 <a href="inv_rep17_shrinkage.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #c084fc; --glow-color: rgba(168,85,247,0.25);">
-                    <i class="fa-solid fa-cut text-purple-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <i class="fa-solid fa-magnifying-glass-chart text-purple-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
                     <span class="text-sm font-black text-slate-100 group-hover:text-purple-400 transition-colors duration-300">17. عجز التدقيق وجرد العنابر</span>
                 </a>
                 <!-- زر 18 -->
@@ -361,7 +361,7 @@ try {
                 </a>
                 <!-- زر 20 -->
                 <a href="inv_rep20_simulator.php" class="modern-btn p-6 flex flex-col items-center justify-center text-center h-40 group" style="--hover-color: #c084fc; --glow-color: rgba(168,85,247,0.25);">
-                    <i class="fa-solid fa-magic text-purple-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
+                    <i class="fa-solid fa-wand-magic-sparkles text-purple-400 text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"></i>
                     <span class="text-sm font-black text-slate-100 group-hover:text-purple-400 transition-colors duration-300">20. محاكي سيناريوهات النواقص</span>
                 </a>
             </div>
