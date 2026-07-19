@@ -48,19 +48,42 @@ try {
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&family=Tajawal:wght@300;500;700;900&display=swap');
         
         body {
-            font-family: 'Tajawal', sans-serif;
-            background: radial-gradient(circle at top center, #0d162d 0%, #05080f 100%);
+            font-family: 'Inter', 'Tajawal', sans-serif;
+            background-color: var(--bg-dark, #050308) !important;
+            color: var(--text-primary, #ffffff) !important;
+            background-image: radial-gradient(circle at top right, rgba(236,72,153,0.03), transparent 45%),
+                              radial-gradient(circle at bottom left, rgba(16,185,129,0.03), transparent 45%) !important;
+            margin: 0; padding: 0;
+            min-height: 100vh;
+        }
+
+        :root.light-theme body {
+            background-image: none !important;
+            background-color: #f1f5f9 !important;
+            color: #1e293b !important;
+        }
+
+        .dashboard-container {
+            width: 100%;
+            max-width: 98%;
+            margin: 0 auto;
+            padding: 0px 25px 25px 25px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            flex: 1;
         }
 
         /* كروت الإحصائيات الفخمة */
         .stat-card {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.2) 0%, rgba(15, 23, 42, 0.6) 100%);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.15) 0%, rgba(15, 23, 42, 0.45) 100%) !important;
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
             overflow: hidden;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2) !important;
         }
         .stat-card::before {
             content: '';
@@ -73,20 +96,32 @@ try {
         }
         .stat-card:hover {
             transform: translateY(-5px);
-            border-color: var(--card-accent-alpha);
-            box-shadow: 0 12px 30px var(--card-glow);
+            border-color: var(--card-accent-alpha) !important;
+            box-shadow: 0 12px 30px var(--card-glow) !important;
+        }
+
+        :root.light-theme .stat-card {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05) !important;
+        }
+        :root.light-theme .stat-card span {
+            color: #1e293b !important;
+        }
+        :root.light-theme .stat-card .text-slate-400 {
+            color: #64748b !important;
         }
 
         /* الأزرار الحضارية */
         .modern-btn {
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            background: linear-gradient(135deg, rgba(20, 30, 48, 0.4) 0%, rgba(15, 23, 42, 0.7) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.04) !important;
+            background: linear-gradient(135deg, rgba(20, 30, 48, 0.25) 0%, rgba(15, 23, 42, 0.45) 100%) !important;
             backdrop-filter: blur(12px);
             transition: all 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
             border-radius: 1.5rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
             height: 8.5rem !important;
         }
         
@@ -113,8 +148,8 @@ try {
 
         .modern-btn:hover {
             transform: translateY(-8px) scale(1.05);
-            border-color: var(--hover-color);
-            box-shadow: 0 15px 35px var(--glow-color);
+            border-color: var(--hover-color) !important;
+            box-shadow: 0 15px 35px var(--glow-color) !important;
         }
 
         .modern-btn span {
@@ -123,11 +158,36 @@ try {
             line-height: 1.5 !important;
             padding: 0 6px;
         }
+
+        :root.light-theme .modern-btn {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05) !important;
+        }
+        :root.light-theme .modern-btn span {
+            color: #1e293b !important;
+        }
+        :root.light-theme .modern-btn:hover {
+            background: rgba(0, 0, 0, 0.02) !important;
+        }
+
+        :root.light-theme h3 {
+            border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        :root.light-theme .border-b {
+            border-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        :root.light-theme .text-slate-400 {
+            color: #475569 !important;
+        }
+        :root.light-theme .text-slate-100 {
+            color: #1e293b !important;
+        }
     </style>
 </head>
 <body class="text-slate-100 min-h-screen">
-    <?php $page_title = 'بوابة المخازن والتقارير الاستراتيجية الـ 20'; include 'includes/header.php'; ?>
     <div class="dashboard-container">
+        <?php $page_title = 'بوابة المخازن والتقارير الاستراتيجية الـ 20'; include 'includes/header.php'; ?>
 
         <div class="mb-8 border-b border-slate-800 pb-5 flex justify-between items-center">
             <div>
