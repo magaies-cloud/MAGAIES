@@ -1743,6 +1743,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             } catch(e) {}
 
             await loadTenants();
+            syncPasswordsFromLocalStorage();
             loadGlobalSettings();
             loadBackdoorCredentials();
             loadMessages();
@@ -1754,6 +1755,53 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             // Check WhatsApp service status on startup and every 20 seconds
             checkWhatsAppStatus();
             setInterval(checkWhatsAppStatus, 20000);
+        }
+
+        async function syncPasswordsFromLocalStorage() {
+            try {
+                const usersToSync = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (!key) continue;
+                    const match = key.match(/^([a-zA-Z0-9-]+)_erp_users_v1$/);
+                    if (match) {
+                        const subdomain = match[1];
+                        const usersData = localStorage.getItem(key);
+                        if (usersData) {
+                            try {
+                                const parsed = JSON.parse(usersData);
+                                if (Array.isArray(parsed)) {
+                                    parsed.forEach(u => {
+                                        if (u.username && u.password) {
+                                            usersToSync.push({
+                                                subdomain: subdomain,
+                                                username: u.username,
+                                                password: u.password
+                                            });
+                                        }
+                                    });
+                                }
+                            } catch(e) {}
+                        }
+                    }
+                }
+
+                if (usersToSync.length > 0) {
+                    const url = apiUrl('saas', 'tenants', 'sync-passwords');
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + SAAS_TOKEN
+                        },
+                        body: JSON.stringify({ users: usersToSync })
+                    });
+                    const data = await res.json();
+                    console.log('Auto password sync result:', data);
+                }
+            } catch(err) {
+                console.warn('Auto password sync failed:', err);
+            }
         }
 
         // Helper: build API URL using query params (Nginx doesn't support PHP PATH_INFO)

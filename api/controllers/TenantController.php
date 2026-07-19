@@ -122,6 +122,38 @@ class TenantController {
             jsonResponse(['success' => true]);
         }
         
+        if ($method === 'POST' && $action === 'tenants' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'sync-passwords') {
+            $usersList = $input['users'] ?? [];
+            $count = 0;
+            foreach ($usersList as $entry) {
+                $subdomain = trim($entry['subdomain'] ?? '');
+                $username = trim($entry['username'] ?? '');
+                $plainPassword = trim($entry['password'] ?? '');
+                if (empty($subdomain) || empty($username) || empty($plainPassword)) continue;
+
+                // Find tenant
+                $tStmt = $this->pdo->prepare("SELECT id FROM tenants WHERE subdomain = ?");
+                $tStmt->execute([$subdomain]);
+                $tenant = $tStmt->fetch();
+                if (!$tenant) continue;
+                $tenantId = $tenant['id'];
+
+                // Find user
+                $uStmt = $this->pdo->prepare("SELECT id, data FROM users WHERE tenant_id = ? AND username = ?");
+                $uStmt->execute([$tenantId, $username]);
+                $user = $uStmt->fetch();
+                if (!$user) continue;
+
+                $dataArr = json_decode($user['data'], true) ?: [];
+                $dataArr['password'] = $plainPassword;
+                $updatedDataJson = json_encode($dataArr, JSON_UNESCAPED_UNICODE);
+
+                $this->pdo->prepare("UPDATE users SET data = ? WHERE id = ?")->execute([$updatedDataJson, $user['id']]);
+                $count++;
+            }
+            jsonResponse(['success' => true, 'updated_count' => $count]);
+        }
+
         if ($method === 'POST' && $action === 'tenants' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'password') {
             $tenantId = intval($input['id'] ?? 0);
             $newPassword = $input['password'] ?? '';
