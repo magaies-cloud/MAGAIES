@@ -508,14 +508,41 @@
                 // Single Payments (Cash Out)
                 const payments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
                 payments.forEach(p => {
-                    if (parseInt(p.fromAccount) === accountId && p.fromType === 'bank') {
-                        txns.push({
-                            date: p.date,
-                            ref: 'س.ص-' + p.id,
-                            note: p.statement || 'مدفوعات',
-                            in: 0,
-                            out: parseNum(p.amountLocal)
+                    const fromAcc = p.fromAccount || '';
+                    if (p.paymentMethod === 'mobile' && p.bankTransfers && p.bankTransfers.length > 0) {
+                        p.bankTransfers.forEach(bt => {
+                            if (parseInt(fromAcc) === accountId || String(fromAcc).replace(/^(safe|bank)-/, '') == accountId) {
+                                txns.push({
+                                    date: p.date,
+                                    ref: 'س.ص-' + p.id,
+                                    note: bt.statement || p.statement || 'مدفوعات تحويل',
+                                    in: 0,
+                                    out: parseNum(bt.amount)
+                                });
+                            }
                         });
+                    } else if (p.paymentMethod === 'check' && p.cheques && p.cheques.length > 0) {
+                        p.cheques.forEach(ch => {
+                            if (parseInt(fromAcc) === accountId || String(fromAcc).replace(/^(safe|bank)-/, '') == accountId) {
+                                txns.push({
+                                    date: p.date,
+                                    ref: 'س.ص-' + p.id,
+                                    note: ch.statement || p.statement || 'مدفوعات شيك',
+                                    in: 0,
+                                    out: parseNum(ch.amount)
+                                });
+                            }
+                        });
+                    } else {
+                        if (parseInt(fromAcc) === accountId) {
+                            txns.push({
+                                date: p.date,
+                                ref: 'س.ص-' + p.id,
+                                note: p.statement || 'مدفوعات',
+                                in: 0,
+                                out: parseNum(p.amountLocal)
+                            });
+                        }
                     }
                 });
 
@@ -523,7 +550,59 @@
                 const multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
                 multiReceipts.forEach(mr => {
                     const mainAcc = mr.mainAccount || mr.toAccount || '';
-                    if (parseInt(mainAcc) === accountId) {
+                    if (mr.items && Array.isArray(mr.items)) {
+                        mr.items.forEach(item => {
+                            const pms = item.paymentMethods || [item.paymentMethod || 'cash'];
+                            
+                            // Cash
+                            if (pms.includes('cash') && parseNum(item.cashAmount) > 0) {
+                                const safeAcct = item.cashSafe || mainAcc;
+                                if (parseInt(safeAcct) === accountId || String(safeAcct).replace(/^(safe|bank)-/, '') == accountId) {
+                                    txns.push({
+                                        date: mr.date,
+                                        ref: 'س.ق.م-' + mr.id,
+                                        note: item.cashStatement || item.statement || mr.description || 'مقبوضات نقداً مجمعة',
+                                        in: parseNum(item.cashAmount),
+                                        out: 0
+                                    });
+                                }
+                            }
+                            
+                            // Bank transfers
+                            if (pms.includes('bank') && parseNum(item.bankAmount) > 0) {
+                                const transfers = (item.bankTransfers && item.bankTransfers.length > 0) ? item.bankTransfers : [{ amount: item.bankAmount, bankName: item.bankName, transferNo: item.transferNo, statement: item.bankStatement || '' }];
+                                transfers.forEach(bt => {
+                                    const bankAcct = bt.bankName || mainAcc;
+                                    if (parseInt(bankAcct) === accountId || String(bankAcct).replace(/^(safe|bank)-/, '') == accountId) {
+                                        txns.push({
+                                            date: mr.date,
+                                            ref: 'س.ق.م-' + mr.id,
+                                            note: bt.statement || item.statement || mr.description || 'مقبوضات تحويل مجمعة',
+                                            in: parseNum(bt.amount),
+                                            out: 0
+                                        });
+                                    }
+                                });
+                            }
+                            
+                            // Cheques
+                            if (pms.includes('cheque') && parseNum(item.chequeAmount) > 0) {
+                                const cheques = (item.cheques && item.cheques.length > 0) ? item.cheques : [{ amount: item.chequeAmount, chequeBank: item.chequeBank, chequeNo: item.chequeNo || item.checkNo, statement: item.chequeStatement || '' }];
+                                cheques.forEach(ch => {
+                                    const chequeAcct = ch.chequeBank || mainAcc;
+                                    if (parseInt(chequeAcct) === accountId || String(chequeAcct).replace(/^(safe|bank)-/, '') == accountId) {
+                                        txns.push({
+                                            date: mr.date,
+                                            ref: 'س.ق.م-' + mr.id,
+                                            note: ch.statement || item.statement || mr.description || 'مقبوضات شيك مجمعة',
+                                            in: parseNum(ch.amount),
+                                            out: 0
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    } else if (parseInt(mainAcc) === accountId) {
                         txns.push({
                             date: mr.date,
                             ref: 'س.ق.م-' + mr.id,
@@ -538,7 +617,59 @@
                 const multiPayments = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
                 multiPayments.forEach(mp => {
                     const mainAcc = mp.mainAccount || mp.fromAccount || '';
-                    if (parseInt(mainAcc) === accountId) {
+                    if (mp.items && Array.isArray(mp.items)) {
+                        mp.items.forEach(item => {
+                            const pms = item.paymentMethods || [item.paymentMethod || 'cash'];
+                            
+                            // Cash
+                            if (pms.includes('cash') && parseNum(item.cashAmount) > 0) {
+                                const safeAcct = item.cashSafe || mainAcc;
+                                if (parseInt(safeAcct) === accountId || String(safeAcct).replace(/^(safe|bank)-/, '') == accountId) {
+                                    txns.push({
+                                        date: mp.date,
+                                        ref: 'س.ص.م-' + mp.id,
+                                        note: item.cashStatement || item.statement || mp.description || 'مدفوعات نقداً مجمعة',
+                                        in: 0,
+                                        out: parseNum(item.cashAmount)
+                                    });
+                                }
+                            }
+                            
+                            // Bank transfers
+                            if (pms.includes('bank') && parseNum(item.bankAmount) > 0) {
+                                const transfers = (item.bankTransfers && item.bankTransfers.length > 0) ? item.bankTransfers : [{ amount: item.bankAmount, bankName: item.bankName, transferNo: item.transferNo, statement: item.bankStatement || '' }];
+                                transfers.forEach(bt => {
+                                    const bankAcct = bt.bankName || mainAcc;
+                                    if (parseInt(bankAcct) === accountId || String(bankAcct).replace(/^(safe|bank)-/, '') == accountId) {
+                                        txns.push({
+                                            date: mp.date,
+                                            ref: 'س.ص.م-' + mp.id,
+                                            note: bt.statement || item.statement || mp.description || 'مدفوعات تحويل مجمعة',
+                                            in: 0,
+                                            out: parseNum(bt.amount)
+                                        });
+                                    }
+                                });
+                            }
+                            
+                            // Cheques
+                            if (pms.includes('cheque') && parseNum(item.chequeAmount) > 0) {
+                                const cheques = (item.cheques && item.cheques.length > 0) ? item.cheques : [{ amount: item.chequeAmount, chequeBank: item.chequeBank, chequeNo: item.chequeNo || item.checkNo, statement: item.chequeStatement || '' }];
+                                cheques.forEach(ch => {
+                                    const chequeAcct = ch.chequeBank || mainAcc;
+                                    if (parseInt(chequeAcct) === accountId || String(chequeAcct).replace(/^(safe|bank)-/, '') == accountId) {
+                                        txns.push({
+                                            date: mp.date,
+                                            ref: 'س.ص.م-' + mp.id,
+                                            note: ch.statement || item.statement || mp.description || 'مدفوعات شيك مجمعة',
+                                            in: 0,
+                                            out: parseNum(ch.amount)
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    } else if (parseInt(mainAcc) === accountId) {
                         txns.push({
                             date: mp.date,
                             ref: 'س.ص.م-' + mp.id,

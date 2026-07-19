@@ -1,3 +1,23 @@
+<script>
+    // قراءة الثيم الذي اختاره الباشمهندس مهدي من الشاشة الموحدة وتطبيقه طالما الصفحة تفتح
+    const currentTheme = localStorage.getItem('magaiees_global_theme') || 'theme-imperial';
+    document.documentElement.className = currentTheme;
+    
+    // رصد وتطبيق كلاس الصفحات الداخلية للتقارير لتكبير الخطوط 4 درجات تلقائياً
+    const pageName = window.location.pathname.split('/').pop().toLowerCase();
+    const isReportPage = pageName && pageName !== 'smart_reports_hub.php' && pageName !== 'dashboard-pro.php' && pageName !== 'login.php' && pageName !== 'index.php' && pageName !== 'inventory-report.php' && pageName !== 'analytics.php';
+    if (isReportPage) {
+        document.documentElement.classList.add('inner-report-page');
+    } else if (pageName === 'inventory-report.php') {
+        document.documentElement.classList.add('inventory-hub-page');
+    } else if (pageName === 'analytics.php') {
+        document.documentElement.classList.add('hub-report-page');
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.body.className = currentTheme;
+    });
+</script>
 <header class="premium-header <?php echo isset($header_theme_class) ? $header_theme_class : ''; ?>" style="display:flex; justify-content:space-between; align-items:center; gap:15px;">
     <!-- Left: Logo / Brand -->
     <div style="display:flex; align-items:center; gap:12px; flex:1;">
@@ -152,3 +172,4 @@
         </script>
     </div>
 </header>
+<script src="js/auto-charts.js"></script>

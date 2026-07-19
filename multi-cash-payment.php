@@ -567,6 +567,17 @@
             animation: skeletonShimmer 1.5s infinite;
             border-radius: 6px;
         }
+
+        /* ═══ High legibility white background for Amount/Value fields ═══ */
+        .transfer-amount, .cheque-amount, .block-sub-amount, .block-cash-amount, .block-bank-amount, .block-cheque-amount, .block-total-amount, .total-val, .val, .value-field, .multi-input[placeholder*="المبلغ"], .multi-input[placeholder*="القيمة"] {
+            background: #ffffff !important;
+            color: #047857 !important; /* Rich readable dark green */
+            border: 1.5px solid #cbd5e1 !important;
+        }
+        .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus, .multi-input[placeholder*="المبلغ"]:focus {
+            border-color: #f97316 !important;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25) !important;
+        }
     </style>
 </head>
 <body>
@@ -666,9 +677,9 @@
                         </div>
                     </div>
 
-                    <div style="display: none; align-items: center; gap: 15px; background: rgba(0,0,0,0.2); padding: 12px 15px; min-height: 50px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                        <label style="color: #ffffff; font-size: 1rem; font-weight: bold; margin: 0; white-space: nowrap;">البيان العام / الوصف:</label>
-                        <input type="text" autocomplete="off" id="voucher-desc" class="form-input" placeholder="وصف عام للحركة المجمعة..." style="flex: 1; margin: 0; background: transparent; border: none; padding: 5px; box-shadow: none; font-size: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.25); padding: 12px 15px; min-height: 48px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); margin-top: 12px;">
+                        <label style="color: #fbbf24; font-size: 0.95rem; font-weight: bold; margin: 0; white-space: nowrap; display: flex; align-items: center; gap: 5px;">✍️ بيان حساب الصرف:</label>
+                        <input type="text" autocomplete="off" id="voucher-desc" class="form-input" placeholder="اكتب البيان التفصيلي لحساب الصرف هنا (الذي يظهر في كشف الأستاذ العام)..." style="flex: 1; margin: 0; background: rgba(15,23,42,0.4) !important; border: 1px solid rgba(255,255,255,0.1) !important; padding: 8px 12px; height: 38px !important; font-size: 0.95rem; color: #fff !important; border-radius: 6px;">
                     </div>
                 </div>
 
@@ -733,14 +744,17 @@
                                         <option value="">-- اختر الخزنة --</option>
                                     </select>
                                 </div>
+                                <div style="flex: 1.5; min-width: 180px;">
+                                    <input type="text" autocomplete="off" class="form-input block-cash-desc-input" placeholder="بيان الكاش" style="margin-bottom: 0;">
+                                </div>
                             </div>
                         </div>
 
                         <!-- Bank Details (supports multiple transfers) -->
-                        <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
+                        <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: rgba(14, 116, 144, 0.18); border: 1.5px solid rgba(14, 116, 144, 0.45); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
                             <div class="bank-rows-container" id="bank-rows-{ID}">
                                 <div class="bank-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
-                                    <div style="width: 80px; font-weight: bold; color: #60a5fa; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 تحويل</div>
+                                    <div style="width: 80px; font-weight: bold; color: #22d3ee; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 تحويل</div>
                                     <div style="width: 150px; flex-shrink: 0;">
                                         <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
                                     </div>
@@ -750,16 +764,19 @@
                                     <div style="flex: 1; min-width: 120px;">
                                         <input type="text" autocomplete="off" class="form-input block-transfer-no-input" placeholder="رقم التحويلة" style="margin-bottom: 0;">
                                     </div>
-                                    <button type="button" data-action="add-bank-row" data-block="{ID}" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(59,130,246,0.2); border: 1px solid #60a5fa; color: #60a5fa; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="إضافة تحويلة أخرى">➕</button>
+                                    <div style="flex: 1.5; min-width: 150px;">
+                                        <input type="text" autocomplete="off" class="form-input block-bank-desc-input" placeholder="بيان التحويل" style="margin-bottom: 0;">
+                                    </div>
+                                    <button type="button" data-action="add-bank-row" data-block="{ID}" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(6, 182, 212, 0.2); border: 1px solid #22d3ee; color: #22d3ee; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="إضافة تحويلة أخرى">➕</button>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Cheque Details (supports multiple cheques) -->
-                        <div id="cheque-details-{ID}" class="block-cheque-details" style="display: none; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
+                        <div id="cheque-details-{ID}" class="block-cheque-details" style="display: none; background: rgba(147, 51, 234, 0.22); border: 1.5px solid rgba(147, 51, 234, 0.65); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease; box-shadow: inset 0 0 15px rgba(147, 51, 234, 0.1);">
                             <div class="cheque-rows-container" id="cheque-rows-{ID}">
                                 <div class="cheque-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
-                                    <div style="width: 80px; font-weight: bold; color: #c084fc; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">✍️ شيك</div>
+                                    <div style="width: 80px; font-weight: bold; color: #d8b4fe; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">✍️ شيك</div>
                                     <div style="width: 150px; flex-shrink: 0;">
                                         <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
                                     </div>
@@ -771,6 +788,9 @@
                                     </div>
                                     <div style="flex: 1; min-width: 100px;">
                                         <input type="date" class="form-input block-cheque-date-input" title="تاريخ الاستحقاق" style="margin-bottom: 0;">
+                                    </div>
+                                    <div style="flex: 1.5; min-width: 150px;">
+                                        <input type="text" autocomplete="off" class="form-input block-cheque-desc-input" placeholder="بيان الشيك" style="margin-bottom: 0;">
                                     </div>
                                     <button type="button" data-action="add-cheque-row" data-block="{ID}" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(139,92,246,0.2); border: 1px solid #c084fc; color: #c084fc; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="إضافة شيك آخر">➕</button>
                                 </div>

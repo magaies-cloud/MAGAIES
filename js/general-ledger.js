@@ -292,31 +292,101 @@ function collectAllTransactions() {
         const valLoc = amountLocal;
         const valFc = isBaseSDG ? 0 : amount;
 
-        // Disbursing side (Safe/Bank)
-        txns.push({
-            date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
-            account: v.fromAccount || 'safe-001', counterAccount: v.toAccount,
-            statement: 'سند صرف #' + (v.voucherNo || v.id),
-            additionalNote: v.toStatement || 'سند صرف نقدي',
-            debit: 0, credit: valLoc, 
-            debitForeign: 0, creditForeign: valFc,
-            costCenter, currency,
-            exchangeRate: rate,
-            isPosted: isPosted
-        });
-        // Receiving side (Supplier/Customer receives from us)
-        txns.push({
-            date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
-            account: v.toAccount, counterAccount: v.fromAccount || 'safe-001',
-            statement: 'سند صرف #' + (v.voucherNo || v.id),
-            additionalNote: v.toStatement || 'سند استلام نقدي',
-            debit: valLoc, credit: 0, 
-            debitForeign: valFc, creditForeign: 0,
-            costCenter, currency,
-            exchangeRate: rate,
-            isPosted: isPosted
-        });
+        const method = v.paymentMethod || 'cash';
+        if (method === 'mobile' && v.bankTransfers && v.bankTransfers.length > 0) {
+            v.bankTransfers.forEach(bt => {
+                const amt = parseNum(bt.amount);
+                const amtLoc = isBaseSDG ? amt : amt * rate;
+                const amtFc = isBaseSDG ? 0 : amt;
+                const stmt = bt.statement || v.statement || v.toStatement || ('تحويل بنكي - سند صرف #' + (v.voucherNo || v.id));
+
+                // Disbursing side (Safe/Bank)
+                txns.push({
+                    date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
+                    account: v.fromAccount || 'safe-001', counterAccount: v.toAccount,
+                    statement: stmt,
+                    additionalNote: stmt,
+                    debit: 0, credit: amtLoc, 
+                    debitForeign: 0, creditForeign: amtFc,
+                    costCenter, currency, exchangeRate: rate, isPosted
+                });
+                // Receiving side (Supplier/Customer receives from us)
+                txns.push({
+                    date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
+                    account: v.toAccount, counterAccount: v.fromAccount || 'safe-001',
+                    statement: stmt,
+                    additionalNote: stmt,
+                    debit: amtLoc, credit: 0, 
+                    debitForeign: amtFc, creditForeign: 0,
+                    costCenter, currency, exchangeRate: rate, isPosted
+                });
+            });
+        } else if (method === 'check' && v.cheques && v.cheques.length > 0) {
+            v.cheques.forEach(ch => {
+                const amt = parseNum(ch.amount);
+                const amtLoc = isBaseSDG ? amt : amt * rate;
+                const amtFc = isBaseSDG ? 0 : amt;
+                const stmt = ch.statement || v.statement || v.toStatement || ('شيك - سند صرف #' + (v.voucherNo || v.id));
+
+                // Disbursing side (Safe/Bank)
+                txns.push({
+                    date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
+                    account: v.fromAccount || 'safe-001', counterAccount: v.toAccount,
+                    statement: stmt,
+                    additionalNote: stmt,
+                    debit: 0, credit: amtLoc, 
+                    debitForeign: 0, creditForeign: amtFc,
+                    costCenter, currency, exchangeRate: rate, isPosted
+                });
+                // Receiving side (Supplier/Customer receives from us)
+                txns.push({
+                    date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
+                    account: v.toAccount, counterAccount: v.fromAccount || 'safe-001',
+                    statement: stmt,
+                    additionalNote: stmt,
+                    debit: amtLoc, credit: 0, 
+                    debitForeign: amtFc, creditForeign: 0,
+                    costCenter, currency, exchangeRate: rate, isPosted
+                });
+            });
+        } else {
+            // Disbursing side (Safe/Bank)
+            txns.push({
+                date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
+                account: v.fromAccount || 'safe-001', counterAccount: v.toAccount,
+                statement: v.statement || 'سند صرف #' + (v.voucherNo || v.id),
+                additionalNote: v.toStatement || 'سند صرف نقدي',
+                debit: 0, credit: valLoc, 
+                debitForeign: 0, creditForeign: valFc,
+                costCenter, currency,
+                exchangeRate: rate,
+                isPosted: isPosted
+            });
+            // Receiving side (Supplier/Customer receives from us)
+            txns.push({
+                date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
+                account: v.toAccount, counterAccount: v.fromAccount || 'safe-001',
+                statement: v.statement || 'سند صرف #' + (v.voucherNo || v.id),
+                additionalNote: v.toStatement || 'سند استلام نقدي',
+                debit: valLoc, credit: 0, 
+                debitForeign: valFc, creditForeign: 0,
+                costCenter, currency,
+                exchangeRate: rate,
+                isPosted: isPosted
+            });
+        }
     });
+
+    // Helper to resolve safe/bank account name/id from ACCOUNTS list
+    const resolveAccount = (accVal, fallback) => {
+        if (!accVal) return fallback;
+        if (/^(safe|bank|cust|supp|gl)-/.test(accVal)) return accVal;
+        if (typeof ACCOUNTS !== 'undefined' && Array.isArray(ACCOUNTS)) {
+            const found = ACCOUNTS.find(a => a.name === accVal || a.id === accVal);
+            if (found) return found.id;
+        }
+        return accVal;
+    };
 
     // 2b. Multi-Receipts
     const multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
@@ -329,40 +399,125 @@ function collectAllTransactions() {
 
         const rate = parseNum(v.exchangeRate || 1);
         const isBaseSDG = (currency === 'SDG');
-        const totalAmount = parseNum(v.totalAmount);
-        const valLoc = isBaseSDG ? totalAmount : totalAmount * rate;
-        const valFc = isBaseSDG ? 0 : totalAmount;
-
-        txns.push({
-            date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
-            account: mainAcc, counterAccount: 'حسابات فرعية متعددة',
-            statement: v.description || 'قبض مجمع',
-            additionalNote: v.description || 'سند قبض مجمع',
-            debit: valLoc, credit: 0, 
-            debitForeign: valFc, creditForeign: 0,
-            costCenter, currency,
-            exchangeRate: rate,
-            isPosted: isPosted
-        });
 
         if (v.items && v.items.length > 0) {
             v.items.forEach(item => {
-                const amt = parseNum(item.amount);
-                const amtLoc = isBaseSDG ? amt : amt * rate;
-                const amtFc = isBaseSDG ? 0 : amt;
+                const pms = item.paymentMethods || [item.paymentMethod || 'cash'];
+                
+                // Cash Portion
+                if (pms.includes('cash') && parseNum(item.cashAmount) > 0) {
+                    const amt = parseNum(item.cashAmount);
+                    const amtLoc = isBaseSDG ? amt : amt * rate;
+                    const amtFc = isBaseSDG ? 0 : amt;
+                    const safeAcct = resolveAccount(item.cashSafe, mainAcc);
+                    const stmt = item.cashStatement || item.statement || v.description || 'قبض نقدية';
 
-                txns.push({
-                    date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
-                    account: item.account, counterAccount: mainAcc,
-                    statement: item.statement || 'قبض مجمع فرعي',
-                    additionalNote: item.note || v.description || 'سند قبض مجمع',
-                    debit: 0, credit: amtLoc, 
-                    debitForeign: 0, creditForeign: amtFc,
-                    costCenter: item.costCenter || costCenter, 
-                    currency,
-                    exchangeRate: rate,
-                    isPosted: isPosted
-                });
+                    // Safe Account (Debit)
+                    txns.push({
+                        date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
+                        account: safeAcct, counterAccount: item.account,
+                        statement: v.description || stmt,
+                        additionalNote: v.description || stmt,
+                        debit: amtLoc, credit: 0, 
+                        debitForeign: amtFc, creditForeign: 0,
+                        costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                    });
+                    
+                    // Recipient/Payer Account (Credit)
+                    txns.push({
+                        date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
+                        account: item.account, counterAccount: safeAcct,
+                        statement: stmt,
+                        additionalNote: stmt,
+                        debit: 0, credit: amtLoc, 
+                        debitForeign: 0, creditForeign: amtFc,
+                        costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                    });
+                }
+
+                // Bank Transfer Portion
+                if (pms.includes('bank') && parseNum(item.bankAmount) > 0) {
+                    const transfers = (item.bankTransfers && item.bankTransfers.length > 0) ? item.bankTransfers : [{ amount: item.bankAmount, bankName: item.bankName, transferNo: item.transferNo, statement: item.bankStatement || '' }];
+                    transfers.forEach(bt => {
+                        const amt = parseNum(bt.amount);
+                        if (amt <= 0) return;
+                        const amtLoc = isBaseSDG ? amt : amt * rate;
+                        const amtFc = isBaseSDG ? 0 : amt;
+                        const bankAcct = resolveAccount(bt.bankName, mainAcc);
+                        const stmt = bt.statement || item.statement || v.description || 'قبض تحويل بنكي';
+
+                        // Bank Account (Debit)
+                        txns.push({
+                            date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
+                            account: bankAcct, counterAccount: item.account,
+                            statement: v.description || stmt,
+                            additionalNote: v.description || stmt,
+                            debit: amtLoc, credit: 0, 
+                            debitForeign: amtFc, creditForeign: 0,
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                        });
+                        
+                        // Recipient/Payer Account (Credit)
+                        txns.push({
+                            date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
+                            account: item.account, counterAccount: bankAcct,
+                            statement: stmt,
+                            additionalNote: stmt,
+                            debit: 0, credit: amtLoc, 
+                            debitForeign: 0, creditForeign: amtFc,
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                        });
+                    });
+                }
+
+                // Cheque Portion
+                if (pms.includes('cheque') && parseNum(item.chequeAmount) > 0) {
+                    const cheques = (item.cheques && item.cheques.length > 0) ? item.cheques : [{ amount: item.chequeAmount, chequeBank: item.chequeBank, chequeNo: item.chequeNo || item.checkNo, chequeDate: item.chequeDate || item.checkDate, statement: item.chequeStatement || '' }];
+                    cheques.forEach(ch => {
+                        const amt = parseNum(ch.amount);
+                        if (amt <= 0) return;
+                        const amtLoc = isBaseSDG ? amt : amt * rate;
+                        const amtFc = isBaseSDG ? 0 : amt;
+                        const chequeAcct = 'cheques-receivable';
+                        const stmt = ch.statement || item.statement || v.description || 'قبض شيك';
+
+                        // Cheque Account (Debit)
+                        txns.push({
+                            date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
+                            account: chequeAcct, counterAccount: item.account,
+                            statement: v.description || stmt,
+                            additionalNote: v.description || stmt,
+                            debit: amtLoc, credit: 0, 
+                            debitForeign: amtFc, creditForeign: 0,
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                        });
+                        
+                        // Recipient/Payer Account (Credit)
+                        txns.push({
+                            date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
+                            account: item.account, counterAccount: chequeAcct,
+                            statement: stmt,
+                            additionalNote: stmt,
+                            debit: 0, credit: amtLoc, 
+                            debitForeign: 0, creditForeign: amtFc,
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                        });
+                    });
+                }
+            });
+        } else {
+            // Fallback for old/empty items vouchers
+            const totalAmount = parseNum(v.totalAmount);
+            const valLoc = isBaseSDG ? totalAmount : totalAmount * rate;
+            const valFc = isBaseSDG ? 0 : totalAmount;
+            txns.push({
+                date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
+                account: mainAcc, counterAccount: 'حسابات فرعية متعددة',
+                statement: v.description || 'قبض مجمع',
+                additionalNote: v.description || 'سند قبض مجمع',
+                debit: valLoc, credit: 0, 
+                debitForeign: valFc, creditForeign: 0,
+                costCenter, currency, exchangeRate: rate, isPosted
             });
         }
     });
@@ -378,40 +533,125 @@ function collectAllTransactions() {
 
         const rate = parseNum(v.exchangeRate || 1);
         const isBaseSDG = (currency === 'SDG');
-        const totalAmount = parseNum(v.totalAmount);
-        const valLoc = isBaseSDG ? totalAmount : totalAmount * rate;
-        const valFc = isBaseSDG ? 0 : totalAmount;
-
-        txns.push({
-            date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
-            account: mainAcc, counterAccount: 'حسابات فرعية متعددة',
-            statement: v.description || 'صرف مجمع',
-            additionalNote: v.description || 'سند صرف مجمع',
-            debit: 0, credit: valLoc, 
-            debitForeign: 0, creditForeign: valFc,
-            costCenter, currency,
-            exchangeRate: rate,
-            isPosted: isPosted
-        });
 
         if (v.items && v.items.length > 0) {
             v.items.forEach(item => {
-                const amt = parseNum(item.amount);
-                const amtLoc = isBaseSDG ? amt : amt * rate;
-                const amtFc = isBaseSDG ? 0 : amt;
+                const pms = item.paymentMethods || [item.paymentMethod || 'cash'];
+                
+                // Cash Portion
+                if (pms.includes('cash') && parseNum(item.cashAmount) > 0) {
+                    const amt = parseNum(item.cashAmount);
+                    const amtLoc = isBaseSDG ? amt : amt * rate;
+                    const amtFc = isBaseSDG ? 0 : amt;
+                    const safeAcct = resolveAccount(item.cashSafe, mainAcc);
+                    const stmt = item.cashStatement || item.statement || v.description || 'صرف نقدية';
 
-                txns.push({
-                    date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
-                    account: item.account, counterAccount: mainAcc,
-                    statement: item.statement || 'صرف مجمع فرعي',
-                    additionalNote: item.note || v.description || 'سند صرف مجمع',
-                    debit: amtLoc, credit: 0, 
-                    debitForeign: amtFc, creditForeign: 0,
-                    costCenter: item.costCenter || costCenter, 
-                    currency,
-                    exchangeRate: rate,
-                    isPosted: isPosted
-                });
+                    // Recipient Account (Debit)
+                    txns.push({
+                        date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
+                        account: item.account, counterAccount: safeAcct,
+                        statement: stmt,
+                        additionalNote: stmt,
+                        debit: amtLoc, credit: 0, 
+                        debitForeign: amtFc, creditForeign: 0,
+                        costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                    });
+                    
+                    // Safe Account (Credit)
+                    txns.push({
+                        date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
+                        account: safeAcct, counterAccount: item.account,
+                        statement: v.description || stmt,
+                        additionalNote: v.description || stmt,
+                        debit: 0, credit: amtLoc, 
+                        debitForeign: 0, creditForeign: amtFc,
+                        costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                    });
+                }
+
+                // Bank Transfer Portion
+                if (pms.includes('bank') && parseNum(item.bankAmount) > 0) {
+                    const transfers = (item.bankTransfers && item.bankTransfers.length > 0) ? item.bankTransfers : [{ amount: item.bankAmount, bankName: item.bankName, transferNo: item.transferNo, statement: item.bankStatement || '' }];
+                    transfers.forEach(bt => {
+                        const amt = parseNum(bt.amount);
+                        if (amt <= 0) return;
+                        const amtLoc = isBaseSDG ? amt : amt * rate;
+                        const amtFc = isBaseSDG ? 0 : amt;
+                        const bankAcct = resolveAccount(bt.bankName, mainAcc);
+                        const stmt = bt.statement || item.statement || v.description || 'صرف تحويل بنكي';
+
+                        // Recipient Account (Debit)
+                        txns.push({
+                            date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
+                            account: item.account, counterAccount: bankAcct,
+                            statement: stmt,
+                            additionalNote: stmt,
+                            debit: amtLoc, credit: 0, 
+                            debitForeign: amtFc, creditForeign: 0,
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                        });
+                        
+                        // Bank Account (Credit)
+                        txns.push({
+                            date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
+                            account: bankAcct, counterAccount: item.account,
+                            statement: v.description || stmt,
+                            additionalNote: v.description || stmt,
+                            debit: 0, credit: amtLoc, 
+                            debitForeign: 0, creditForeign: amtFc,
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                        });
+                    });
+                }
+
+                // Cheque Portion
+                if (pms.includes('cheque') && parseNum(item.chequeAmount) > 0) {
+                    const cheques = (item.cheques && item.cheques.length > 0) ? item.cheques : [{ amount: item.chequeAmount, chequeBank: item.chequeBank, chequeNo: item.chequeNo || item.checkNo, chequeDate: item.chequeDate || item.checkDate, statement: item.chequeStatement || '' }];
+                    cheques.forEach(ch => {
+                        const amt = parseNum(ch.amount);
+                        if (amt <= 0) return;
+                        const amtLoc = isBaseSDG ? amt : amt * rate;
+                        const amtFc = isBaseSDG ? 0 : amt;
+                        const chequeAcct = resolveAccount(ch.chequeBank, 'banks-cheques');
+                        const stmt = ch.statement || item.statement || v.description || 'صرف شيك';
+
+                        // Recipient Account (Debit)
+                        txns.push({
+                            date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
+                            account: item.account, counterAccount: chequeAcct,
+                            statement: stmt,
+                            additionalNote: stmt,
+                            debit: amtLoc, credit: 0, 
+                            debitForeign: amtFc, creditForeign: 0,
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                        });
+                        
+                        // Cheque Account (Credit)
+                        txns.push({
+                            date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
+                            account: chequeAcct, counterAccount: item.account,
+                            statement: v.description || stmt,
+                            additionalNote: v.description || stmt,
+                            debit: 0, credit: amtLoc, 
+                            debitForeign: 0, creditForeign: amtFc,
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                        });
+                    });
+                }
+            });
+        } else {
+            // Fallback for old/empty items vouchers
+            const totalAmount = parseNum(v.totalAmount);
+            const valLoc = isBaseSDG ? totalAmount : totalAmount * rate;
+            const valFc = isBaseSDG ? 0 : totalAmount;
+            txns.push({
+                date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
+                account: mainAcc, counterAccount: 'حسابات فرعية متعددة',
+                statement: v.description || 'صرف مجمع',
+                additionalNote: v.description || 'سند صرف مجمع',
+                debit: 0, credit: valLoc, 
+                debitForeign: 0, creditForeign: valFc,
+                costCenter, currency, exchangeRate: rate, isPosted
             });
         }
     });

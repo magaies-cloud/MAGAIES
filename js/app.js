@@ -836,13 +836,66 @@ JSON.parse = function(val) {
     window.isBankReferenceUnique = function(num, type, excludeVoucherId = null) {
         if (!num) return true;
         
+        const inputVal = num.toString().trim();
+        const inputLast6 = inputVal.length >= 6 ? inputVal.slice(-6) : inputVal;
+
         // We will check all these stores because they can all contain financial transactions
         const storesToCheck = [
             'erp_receipts_v1', 'erp_payments_v1', 
             'erp_single_receipts_v1', 'erp_single_payments_v1', 
-            'erp_journal_vouchers_v1'
+            'erp_journal_vouchers_v1',
+            'erp_comprehensive_payments_v1', 'erp_comprehensive_receipts_v1'
         ];
         
+        // Helper to extract all references of a specific type (check or mobile/bank transfer) from any voucher object
+        function getVoucherReferences(item, refType) {
+            const refs = [];
+            if (!item) return refs;
+
+            if (refType === 'check') {
+                if (item.checkNo) refs.push(item.checkNo.toString().trim());
+                if (item.checkNumber) refs.push(item.checkNumber.toString().trim());
+                if (Array.isArray(item.cheques)) {
+                    item.cheques.forEach(c => {
+                        if (c.checkNo) refs.push(c.checkNo.toString().trim());
+                        if (c.chequeNo) refs.push(c.chequeNo.toString().trim());
+                    });
+                }
+                if (Array.isArray(item.items)) {
+                    item.items.forEach(child => {
+                        if (child.checkNo) refs.push(child.checkNo.toString().trim());
+                        if (child.chequeNo) refs.push(child.chequeNo.toString().trim());
+                        if (Array.isArray(child.cheques)) {
+                            child.cheques.forEach(c => {
+                                if (c.checkNo) refs.push(c.checkNo.toString().trim());
+                                if (c.chequeNo) refs.push(c.chequeNo.toString().trim());
+                            });
+                        }
+                    });
+                }
+            } else if (refType === 'mobile' || refType === 'bank') {
+                if (item.mobileTransferNo) refs.push(item.mobileTransferNo.toString().trim());
+                if (item.bankRef) refs.push(item.bankRef.toString().trim());
+                if (item.mobileRef) refs.push(item.mobileRef.toString().trim());
+                if (Array.isArray(item.bankTransfers)) {
+                    item.bankTransfers.forEach(t => {
+                        if (t.transferNo) refs.push(t.transferNo.toString().trim());
+                    });
+                }
+                if (Array.isArray(item.items)) {
+                    item.items.forEach(child => {
+                        if (child.transferNo) refs.push(child.transferNo.toString().trim());
+                        if (Array.isArray(child.bankTransfers)) {
+                            child.bankTransfers.forEach(t => {
+                                if (t.transferNo) refs.push(t.transferNo.toString().trim());
+                            });
+                        }
+                    });
+                }
+            }
+            return refs.filter(r => r.length > 0);
+        }
+
         for (const store of storesToCheck) {
             const dataStr = localStorage.getItem(store);
             if (!dataStr) continue;
@@ -854,25 +907,298 @@ JSON.parse = function(val) {
             
             for (const item of arr) {
                 // If we are editing, we ignore the same voucher ID
-                if (excludeVoucherId && item.id === excludeVoucherId) continue;
+                if (excludeVoucherId && (item.id === excludeVoucherId || item.voucherNo === excludeVoucherId)) continue;
                 
-                if (type === 'check' && item.checkNo) {
-                    const itemVal = item.checkNo.toString().trim();
-                    const inputVal = num.toString().trim();
-                    const itemLast5 = itemVal.length >= 5 ? itemVal.slice(-5) : itemVal;
-                    const inputLast5 = inputVal.length >= 5 ? inputVal.slice(-5) : inputVal;
-                    if (itemLast5 === inputLast5) return false;
-                }
-                if (type === 'mobile' && item.mobileTransferNo) {
-                    const itemVal = item.mobileTransferNo.toString().trim();
-                    const inputVal = num.toString().trim();
-                    const itemLast5 = itemVal.length >= 5 ? itemVal.slice(-5) : itemVal;
-                    const inputLast5 = inputVal.length >= 5 ? inputVal.slice(-5) : inputVal;
-                    if (itemLast5 === inputLast5) return false;
+                const itemRefs = getVoucherReferences(item, type);
+                for (const ref of itemRefs) {
+                    const itemLast6 = ref.length >= 6 ? ref.slice(-6) : ref;
+                    if (itemLast6 === inputLast6) {
+                        return false;
+                    }
                 }
             }
         }
         return true;
+    };
+
+    // Global helper for showing a stunning, modern duplicate warning modal
+    window.showDuplicateWarningModal = function(referenceNo, type) {
+        // Remove existing duplicate modal if any
+        const existing = document.getElementById('duplicate-warning-modal');
+        if (existing) existing.remove();
+
+        const isCheck = type === 'check';
+        const typeLabel = isCheck ? 'شيك' : 'حوالة بنكية';
+        const typeIcon = isCheck ? '🧾' : '🏦';
+        
+        // Create elements
+        const overlay = document.createElement('div');
+        overlay.id = 'duplicate-warning-modal';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(8, 10, 18, 0.65);
+            backdrop-filter: blur(15px) saturate(160%);
+            -webkit-backdrop-filter: blur(15px) saturate(160%);
+            z-index: 999999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            font-family: 'Tajawal', 'Inter', sans-serif;
+            direction: rtl;
+        `;
+
+        overlay.innerHTML = `
+            <!-- Background Canvas for Sparkles/Rays -->
+            <canvas id="modal-particle-canvas" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none;"></canvas>
+            
+            <!-- Glowing Light Beam -->
+            <div style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 500px;
+                height: 500px;
+                background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0) 70%);
+                pointer-events: none;
+                filter: blur(40px);
+                animation: pulseGlow 4s infinite ease-in-out;
+            "></div>
+
+            <!-- Glassmorphism Modal Card -->
+            <div style="
+                position: relative;
+                background: linear-gradient(135deg, rgba(30, 41, 59, 0.45) 0%, rgba(15, 23, 42, 0.65) 100%);
+                border: 1px solid rgba(239, 68, 68, 0.35);
+                box-shadow: 
+                    0 24px 70px rgba(0, 0, 0, 0.65), 
+                    inset 0 1px 2px rgba(255, 255, 255, 0.1),
+                    0 0 40px rgba(239, 68, 68, 0.15);
+                border-radius: 24px;
+                padding: 40px 35px;
+                width: 90%;
+                max-width: 500px;
+                text-align: center;
+                transform: scale(0.85) translateY(20px);
+                transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+                backdrop-filter: blur(25px);
+                -webkit-backdrop-filter: blur(25px);
+                overflow: hidden;
+            " id="modal-card">
+                
+                <!-- Glass Shimmer Highlight -->
+                <div style="
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+                    transform: skewX(-25deg);
+                    animation: glassShimmer 5s infinite ease-in-out;
+                "></div>
+
+                <!-- Header Icon (glowing/pulsing) -->
+                <div style="
+                    width: 80px;
+                    height: 80px;
+                    background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0.05) 100%);
+                    border: 2px solid rgba(239, 68, 68, 0.6);
+                    box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 25px auto;
+                    font-size: 2.8rem;
+                    animation: pulseIcon 2s infinite ease-in-out;
+                ">
+                    ${typeIcon}
+                </div>
+
+                <!-- Title -->
+                <h2 style="
+                    color: #ffffff;
+                    font-size: 1.8rem;
+                    font-weight: 900;
+                    margin: 0 0 15px 0;
+                    text-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+                    letter-spacing: 0.5px;
+                ">تنبيه: ${typeLabel} مكرر!</h2>
+
+                <!-- Message Description -->
+                <p style="
+                    color: #e2e8f0;
+                    font-size: 1.15rem;
+                    line-height: 1.6;
+                    margin: 0 0 20px 0;
+                    font-weight: 500;
+                ">
+                    رقم الـ${typeLabel} <span style="
+                        color: #f87171;
+                        font-family: monospace;
+                        font-weight: 900;
+                        background: rgba(239, 68, 68, 0.15);
+                        padding: 3px 10px;
+                        border-radius: 6px;
+                        border: 1px solid rgba(239, 68, 68, 0.25);
+                        font-size: 1.25rem;
+                    ">${referenceNo}</span> تم تسجيله مسبقاً في النظام.
+                </p>
+                
+                <p style="
+                    color: #94a3b8;
+                    font-size: 0.95rem;
+                    line-height: 1.5;
+                    margin: 0 0 30px 0;
+                ">
+                    الـ 6 أرقام الأخيرة متطابقة مع معاملة مسجلة مسبقاً. لمنع الحجوزات المكررة وضمان دقة الحسابات، لا يمكن حفظ هذه الحركة.
+                </p>
+
+                <!-- Close Button with Glass Glow -->
+                <button onclick="closeDuplicateWarningModal()" style="
+                    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+                    color: #ffffff;
+                    border: 1px solid rgba(255, 255, 255, 0.15);
+                    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+                    padding: 14px 30px;
+                    border-radius: 12px;
+                    font-weight: 800;
+                    cursor: pointer;
+                    font-size: 1.1rem;
+                    font-family: inherit;
+                    width: 100%;
+                    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    outline: none;
+                " onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 12px 30px rgba(239, 68, 68, 0.55)';"
+                   onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 8px 25px rgba(239, 68, 68, 0.4)';"
+                   onmousedown="this.style.transform='translateY(1px) scale(0.98)';">
+                    فهمت، سأقوم بمراجعة الرقم ✖
+                </button>
+            </div>
+
+            <style>
+                @keyframes pulseGlow {
+                    0%, 100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
+                    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+                }
+                @keyframes pulseIcon {
+                    0%, 100% { transform: scale(1); box-shadow: 0 0 25px rgba(239, 68, 68, 0.4); }
+                    50% { transform: scale(1.08); box-shadow: 0 0 35px rgba(239, 68, 68, 0.6), 0 0 15px rgba(239, 68, 68, 0.3); }
+                }
+                @keyframes glassShimmer {
+                    0% { left: -120%; }
+                    50%, 100% { left: 150%; }
+                }
+            </style>
+        `;
+
+        document.body.appendChild(overlay);
+
+        // Audio/Click Beep Warning
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+                const ctx = new AudioCtx();
+                // Low warning buzz sound
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.15);
+            }
+        } catch(e) {}
+
+        // Animate In
+        requestAnimationFrame(() => {
+            overlay.style.opacity = '1';
+            const card = document.getElementById('modal-card');
+            if (card) {
+                card.style.transform = 'scale(1) translateY(0)';
+            }
+        });
+
+        // Particle Canvas Animation (Rain / Glow droplets falling down)
+        const canvas = document.getElementById('modal-particle-canvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            let animationId;
+            
+            const resize = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            };
+            window.addEventListener('resize', resize);
+            resize();
+
+            // Particles Array
+            const particles = [];
+            for (let i = 0; i < 45; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    length: 15 + Math.random() * 20,
+                    speed: 1.5 + Math.random() * 2.5,
+                    opacity: 0.1 + Math.random() * 0.45,
+                    width: 1 + Math.random() * 1.5
+                });
+            }
+
+            const animate = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw particles (glow rain drops falling down)
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
+                ctx.lineCap = 'round';
+                
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i];
+                    ctx.beginPath();
+                    ctx.lineWidth = p.width;
+                    ctx.strokeStyle = `rgba(239, 68, 68, ${p.opacity})`;
+                    
+                    // Drawing falling line/beam
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p.x - 1, p.y + p.length);
+                    ctx.stroke();
+
+                    // Update particle y coordinate
+                    p.y += p.speed;
+                    
+                    // Reset particle to top if it reaches bottom
+                    if (p.y > canvas.height) {
+                        p.y = -p.length;
+                        p.x = Math.random() * canvas.width;
+                    }
+                }
+                animationId = requestAnimationFrame(animate);
+            };
+            animate();
+
+            // Close logic helper
+            window.closeDuplicateWarningModal = function() {
+                window.removeEventListener('resize', resize);
+                cancelAnimationFrame(animationId);
+                overlay.style.opacity = '0';
+                const card = document.getElementById('modal-card');
+                if (card) {
+                    card.style.transform = 'scale(0.85) translateY(20px)';
+                }
+                setTimeout(() => overlay.remove(), 450);
+            };
+        }
     };
 
     Storage.prototype.removeItem = function(key) {
@@ -3040,235 +3366,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 })();
 
-/* =====================================================================
-   GLOBAL SYSTEM-WIDE NUMBER FORMATTING (Per-Input)
-   ===================================================================== */
-(function() {
-    // Inject Context Menu HTML into Body if it doesn't exist
-    document.addEventListener('DOMContentLoaded', () => {
-        if (!document.getElementById('sys-number-format-menu')) {
-            const menuHtml = `
-            <div class="context-menu" id="sys-number-format-menu" style="position: absolute; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px; box-shadow: 0 15px 40px rgba(0,0,0,0.5); z-index: 999999; display: none; min-width: 250px; flex-direction: column; gap: 8px;">
-                <div style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; font-weight: bold; text-align: center;">🎨 خصائص الرقم (مخصص)</div>
-                <div style="font-size: 0.7rem; color: #94a3b8; text-align: center; margin-bottom: 10px; word-break: break-all;" id="sys-num-target-id"></div>
-                
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                    <label style="color: #fff; font-size: 0.85rem;">اللون</label>
-                    <input type="color" id="sys-num-color" style="width: 30px; height: 30px; border: none; border-radius: 5px; cursor: pointer; background: transparent; padding: 0;">
-                </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                    <label style="color: #fff; font-size: 0.85rem;">حجم الخط (px)</label>
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                        <button type="button" id="sys-num-size-dec" style="background: rgba(255,255,255,0.1); border:none; color:#fff; border-radius:4px; padding:2px 8px; cursor:pointer;">-</button>
-                        <input type="number" id="sys-num-size" style="width: 50px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; text-align: center; font-size: 0.85rem; padding: 2px;" readonly>
-                        <button type="button" id="sys-num-size-inc" style="background: rgba(255,255,255,0.1); border:none; color:#fff; border-radius:4px; padding:2px 8px; cursor:pointer;">+</button>
-                    </div>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                    <label style="color: #fff; font-size: 0.85rem;">الخانات العشرية</label>
-                    <select id="sys-num-decimals" style="background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 2px; font-size: 0.85rem; width: 60px;">
-                        <option value="0">0</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                    </select>
-                </div>
-
-                <label style="display: flex; align-items: center; justify-content: space-between; color: #fff; font-size: 0.85rem; cursor: pointer; padding-top: 5px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <span>الفاصلة الألفية (1,000)</span>
-                    <input type="checkbox" id="sys-num-thousands" style="accent-color: #f97316; width: 16px; height: 16px;">
-                </label>
-            </div>`;
-            document.body.insertAdjacentHTML('beforeend', menuHtml);
-            initSystemNumberFormatting();
-        }
-    });
-
-    let activePrefKey = null;
-    let activeElement = null;
-
-    function getPageName() {
-        let path = window.location.pathname;
-        let page = path.split('/').pop() || 'index.php';
-        return page;
-    }
-
-    function getPrefKey(el) {
-        let key = null;
-        if (el.id) key = '#' + el.id;
-        else {
-            const validClasses = Array.from(el.classList).filter(c => c !== 'form-input' && c !== 'hover-scale' && c !== 'input-glow-focus' && c !== 'hover-glow' && c !== 'g-input');
-            if (validClasses.length > 0) key = '.' + validClasses[0];
-        }
-        if (key) return getPageName() + '_' + key;
-        return null;
-    }
-
-    // Expose a clean numeric helper that strips commas globally
-    window.cleanNumGlobal = function(str) {
-        return Number(String(str).replace(/,/g, '')) || 0;
-    };
-
-    
-    window.applySystemNumberFormatting = function() {
-        const allPrefs = JSON.parse(localStorage.getItem('systemNumberPrefs') || '{}');
-        const currentPage = getPageName();
-
-        Object.keys(allPrefs).forEach(key => {
-            if (!key.startsWith(currentPage + '_')) return;
-            const selector = key.substring(currentPage.length + 1);
-            const prefs = allPrefs[key];
-            
-            try {
-                const els = document.querySelectorAll(selector);
-                els.forEach(el => {
-                    if (prefs.color) el.style.setProperty('color', prefs.color, 'important');
-                    if (prefs.size) el.style.setProperty('font-size', prefs.size + 'px', 'important');
-                    if (prefs.font) el.style.setProperty('font-family', prefs.font, 'important');
-                    
-                    function formatCustomNum(val) {
-                        let dec = prefs.decimals !== undefined ? parseInt(prefs.decimals) : 2;
-                        let fixed = val.toFixed(dec);
-                        let parts = fixed.split('.');
-                        let intPart = parts[0];
-                        let decPart = parts.length > 1 ? parts[1] : '';
-                        
-                        let tSep = prefs.thousandsSep !== undefined ? prefs.thousandsSep : ',';
-                        if (tSep === 'none') tSep = '';
-                        
-                        // input[type="number"] cannot have thousands separators (commas)
-                        if (el.tagName === 'INPUT' && el.type === 'number') {
-                            tSep = '';
-                        }
-                        
-                        let dSep = prefs.decimalSep !== undefined ? prefs.decimalSep : '.';
-                        
-                        if (tSep) {
-                            intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, tSep);
-                        }
-                        
-                        return dec > 0 ? intPart + dSep + decPart : intPart;
-                    }
-
-                    if (el.tagName === 'INPUT' && document.activeElement !== el) {
-                        const isSearch = el.id && el.id.toLowerCase().includes('search');
-                        const isDesc = el.className.includes('desc') || el.className.includes('note') || el.className.includes('center');
-                        if (isSearch || isDesc) return;
-                        if (el.placeholder && el.placeholder.includes('ابحث')) return;
-                        
-                        const val = window.cleanNumGlobal(el.value);
-                        if (val !== 0 || el.value !== '') {
-                            el.value = formatCustomNum(val);
-                        }
-                    } else if (el.tagName !== 'INPUT' && el.textContent.trim() !== '') {
-                        const txt = el.textContent;
-                        if (/^[0-9.,\s'-]+$/.test(txt.trim())) {
-                            const val = window.cleanNumGlobal(txt);
-                            el.textContent = formatCustomNum(val);
-                        }
-                    }
-                });
-            } catch(e) { }
-        });
-    };
-
-    function initSystemNumberFormatting() {
-        const menu = document.getElementById('sys-number-format-menu');
-        const cp = document.getElementById('sys-num-color');
-        const si = document.getElementById('sys-num-size');
-        const sdDec = document.getElementById('sys-num-size-dec');
-        const sdInc = document.getElementById('sys-num-size-inc');
-        const ds = document.getElementById('sys-num-decimals');
-        const tc = document.getElementById('sys-num-thousands');
-        const targetIdLabel = document.getElementById('sys-num-target-id');
-
-        function saveAndApply() {
-            if (!activePrefKey) return;
-            const allPrefs = JSON.parse(localStorage.getItem('systemNumberPrefs') || '{}');
-            allPrefs[activePrefKey] = {
-                color: cp.value,
-                size: parseInt(si.value),
-                decimals: parseInt(ds.value),
-                thousands: tc.checked
-            };
-            localStorage.setItem('systemNumberPrefs', JSON.stringify(allPrefs));
-            window.applySystemNumberFormatting();
-        }
-
-        cp.addEventListener('input', saveAndApply);
-        ds.addEventListener('change', saveAndApply);
-        tc.addEventListener('change', saveAndApply);
-        
-        sdDec.addEventListener('click', () => { si.value = Math.max(10, parseInt(si.value) - 1); saveAndApply(); });
-        sdInc.addEventListener('click', () => { si.value = Math.min(48, parseInt(si.value) + 1); saveAndApply(); });
-
-        document.addEventListener('contextmenu', (e) => {
-            const isNumeric = e.target.closest('input[type="number"], input[inputmode="numeric"], input[inputmode="decimal"], .amount, .sub-amount, .col-fc, .total-val, #total-amount, #exchange-rate, #amount-foreign, .g-readonly');
-            if (isNumeric) {
-                const key = getPrefKey(isNumeric);
-                if (key) {
-                    e.preventDefault();
-                    activePrefKey = key;
-                    activeElement = isNumeric;
-                    
-                    const selectorOnly = key.substring(getPageName().length + 1);
-                    targetIdLabel.innerText = 'الهدف: ' + selectorOnly + ' (في هذه الشاشة فقط)';
-                    
-                    const allPrefs = JSON.parse(localStorage.getItem('systemNumberPrefs') || '{}');
-                    const prefs = allPrefs[key] || { color: '#ffffff', size: parseInt(window.getComputedStyle(isNumeric).fontSize) || 16, decimals: 2, thousands: true };
-                    
-                    cp.value = prefs.color || '#ffffff';
-                    si.value = prefs.size || 16;
-                    ds.value = prefs.decimals !== undefined ? prefs.decimals : 2;
-                    tc.checked = prefs.thousands !== undefined ? prefs.thousands : true;
-
-                    menu.style.display = 'flex';
-                    menu.style.top = e.pageY + 'px';
-                    menu.style.left = e.pageX + 'px';
-                    
-                    // Keep menu in bounds
-                    const rect = menu.getBoundingClientRect();
-                    if (rect.right > window.innerWidth) menu.style.left = (window.innerWidth - rect.width - 10) + 'px';
-                    if (rect.bottom > window.innerHeight) menu.style.top = (window.innerHeight - rect.height - 10) + 'px';
-                }
-            }
-        });
-
-        document.addEventListener('click', (e) => {
-            if (menu.style.display === 'flex' && !menu.contains(e.target)) {
-                menu.style.display = 'none';
-            }
-        });
-
-        // Global blur interceptor for dynamic formatting
-        document.addEventListener('focusout', (e) => {
-            if (e.target.tagName === 'INPUT') {
-                const key = getPrefKey(e.target);
-                if (key) {
-                    const allPrefs = JSON.parse(localStorage.getItem('systemNumberPrefs') || '{}');
-                    const prefs = allPrefs[key];
-                    if (prefs) {
-                        const val = window.cleanNumGlobal(e.target.value);
-                        if (val !== 0 || e.target.value !== '') {
-                            let dec = prefs.decimals !== undefined ? parseInt(prefs.decimals) : 2;
-                            let opts = { minimumFractionDigits: dec, maximumFractionDigits: dec };
-                            if (prefs.thousands === false || e.target.type === 'number') opts.useGrouping = false;
-                            e.target.value = val.toLocaleString('en-US', opts);
-                        }
-                    }
-                }
-            }
-        });
-        
-        // Initial application
-        setTimeout(window.applySystemNumberFormatting, 500);
-        // Apply periodically for dynamic tables
-        setInterval(window.applySystemNumberFormatting, 2000);
-    }
-})();
 
 
 // ==========================================
@@ -3845,4 +3943,632 @@ window.printReportDirectly = function(title, targetSelector) {
         window.print();
     }, 150);
 };
+
+// ----------------------------------------------------------------------
+// 🛠️ CUSTOM NUMBER & CELL STYLING ENGINE (Right-Click Context Menu)
+// ----------------------------------------------------------------------
+(function() {
+    // 1. Dynamic premium fonts loading
+    if (!document.getElementById('premium-number-fonts')) {
+        const link = document.createElement('link');
+        link.id = 'premium-number-fonts';
+        link.rel = 'stylesheet';
+        link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Roboto+Mono:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Fira+Code:wght@400;700&family=Poppins:wght@400;600;700;800&display=swap';
+        document.head.appendChild(link);
+    }
+
+    const isNumericElement = (el) => {
+        if (!el) return false;
+        
+        // Check if it's an input or textarea
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+            const val = el.value.trim();
+            return /^-?\d*[\d,.\s%]+$/.test(val) || el.type === 'number';
+        }
+        
+        // Check if editable
+        if (el.isContentEditable) {
+            const val = el.innerText.trim();
+            return /^-?\d*[\d,.\s%]+$/.test(val);
+        }
+        
+        // Check ordinary element text
+        const text = el.textContent.trim();
+        if (!text) return false;
+        
+        const hasDigit = /\d/.test(text);
+        const hasLetters = /[a-zA-Z\u0600-\u06FF]/.test(text.replace(/[\d,.\s%$\-+/*=]/g, ''));
+        if (hasDigit && !hasLetters && text.length < 40) {
+            return true;
+        }
+        
+        return false;
+    };
+
+    const isTargetElement = (el) => {
+        if (!el) return false;
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'TD' || el.tagName === 'TH' || el.classList.contains('form-input') || el.classList.contains('ctrl-input')) {
+            return true;
+        }
+        return isNumericElement(el);
+    };
+
+    const formatElementNumber = (el, decimals, thousands) => {
+        const isInput = el.tagName === 'INPUT' || el.tagName === 'TEXTAREA';
+        const valStr = isInput ? el.value : el.textContent;
+        
+        const clean = valStr.replace(/,/g, '').trim();
+        const num = parseFloat(clean);
+        if (isNaN(num)) return;
+        
+        let formatted = num.toFixed(decimals);
+        if (thousands) {
+            const parts = formatted.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            formatted = parts.join('.');
+        }
+        
+        if (isInput) {
+            el.value = formatted;
+        } else {
+            el.textContent = formatted;
+        }
+    };
+
+    const NumberStyleManager = {
+        savedStyles: {},
+        currentElement: null,
+        menuEl: null,
+
+        init() {
+            try {
+                this.savedStyles = JSON.parse(localStorage.getItem('erp_custom_styles_v1')) || {};
+            } catch(e) {
+                this.savedStyles = {};
+            }
+
+            document.addEventListener('contextmenu', (e) => {
+                let target = e.target;
+                let depth = 0;
+                while (target && depth < 3) {
+                    if (isTargetElement(target)) {
+                        e.preventDefault();
+                        this.showMenu(target, e.clientX, e.clientY);
+                        return;
+                    }
+                    target = target.parentElement;
+                    depth++;
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (this.menuEl && !this.menuEl.contains(e.target)) {
+                    this.hideMenu();
+                }
+            });
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => this.applyAllSaved());
+            } else {
+                this.applyAllSaved();
+            }
+            
+            const observer = new MutationObserver(() => {
+                this.applyAllSaved();
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        },
+
+        getElementPath(el) {
+            if (!el || el.nodeType !== Node.ELEMENT_NODE) return null;
+            const parts = [];
+            let current = el;
+            while (current && current.nodeType === Node.ELEMENT_NODE) {
+                let name = current.nodeName.toLowerCase();
+                if (current.id) {
+                    name += '#' + current.id;
+                    parts.unshift(name);
+                    break;
+                } else {
+                    let sib = current;
+                    let nth = 1;
+                    while (sib = sib.previousElementSibling) {
+                        if (sib.nodeName.toLowerCase() === name) nth++;
+                    }
+                    name += `:nth-of-type(${nth})`;
+                }
+                parts.unshift(name);
+                current = current.parentNode;
+            }
+            return window.location.pathname + ' > ' + parts.join(' > ');
+        },
+
+        showMenu(el, x, y) {
+            this.currentElement = el;
+            this.createMenuDOM();
+
+            const menuWidth = 320;
+            const menuHeight = 440;
+            let left = x;
+            let top = y;
+
+            if (left + menuWidth > window.innerWidth) {
+                left = window.innerWidth - menuWidth - 10;
+            }
+            if (top + menuHeight > window.innerHeight) {
+                top = window.innerHeight - menuHeight - 10;
+            }
+            if (left < 0) left = 10;
+            if (top < 0) top = 10;
+
+            this.menuEl.style.left = left + 'px';
+            this.menuEl.style.top = top + 'px';
+            this.menuEl.style.display = 'block';
+
+            this.loadCurrentStylesToInputs(el);
+        },
+
+        hideMenu() {
+            if (this.menuEl) {
+                this.menuEl.style.display = 'none';
+            }
+        },
+
+        createMenuDOM() {
+            if (this.menuEl) return;
+
+            const menu = document.createElement('div');
+            menu.id = 'custom-number-style-menu';
+            menu.style.cssText = `
+                position: fixed;
+                z-index: 100000;
+                width: 320px;
+                background: rgba(15, 23, 42, 0.94);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                border-radius: 14px;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+                color: #f8fafc;
+                font-family: 'Cairo', 'Inter', sans-serif;
+                font-size: 13px;
+                padding: 18px;
+                direction: rtl;
+                text-align: right;
+                box-sizing: border-box;
+                display: none;
+                animation: menuFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            `;
+
+            const styleSheet = document.createElement("style");
+            styleSheet.innerText = `
+                @keyframes menuFadeIn {
+                    from { opacity: 0; transform: scale(0.95) translateY(-5px); }
+                    to { opacity: 1; transform: scale(1) translateY(0); }
+                }
+                .style-menu-label {
+                    font-size: 0.75rem;
+                    color: #94a3b8;
+                    margin-bottom: 5px;
+                    display: block;
+                    font-weight: 600;
+                }
+                .style-menu-row {
+                    margin-bottom: 12px;
+                }
+                .style-menu-flex {
+                    display: flex;
+                    gap: 8px;
+                    align-items: center;
+                }
+                .style-menu-input {
+                    background: rgba(30, 41, 59, 0.7);
+                    border: 1px solid rgba(255,255,255,0.1);
+                    color: #fff;
+                    border-radius: 6px;
+                    height: 32px;
+                    padding: 0 8px;
+                    font-size: 0.8rem;
+                    box-sizing: border-box;
+                    width: 100%;
+                    outline: none;
+                    transition: border 0.2s;
+                }
+                .style-menu-input:focus {
+                    border-color: #38bdf8;
+                }
+                .style-menu-color-btn {
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 6px;
+                    border: 1px solid rgba(255,255,255,0.1);
+                    cursor: pointer;
+                    padding: 0;
+                    overflow: hidden;
+                    background: none;
+                }
+                .style-menu-btn {
+                    height: 34px;
+                    border-radius: 6px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    border: none;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 5px;
+                    font-size: 0.8rem;
+                }
+            `;
+            document.head.appendChild(styleSheet);
+
+            menu.innerHTML = `
+                <div style="font-weight: 800; font-size: 0.95rem; color: #38bdf8; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                    <span>🛠️ تخصيص وتنسيق الخانة</span>
+                    <span id="menu-target-type" style="font-size: 0.7rem; background: rgba(56,189,248,0.15); color: #38bdf8; padding: 2px 6px; border-radius: 4px;">رقم</span>
+                </div>
+
+                <!-- Font Family -->
+                <div class="style-menu-row">
+                    <label class="style-menu-label">خط الأرقام الإنجليزي (أفضل 5 خطوط وضوحاً):</label>
+                    <select id="style-font-family" class="style-menu-input">
+                        <option value="" style="font-family: inherit;">-- افتراضي الصفحة --</option>
+                        <option value="'Inter', sans-serif" style="font-family: 'Inter'; font-weight: bold;">1. Inter (عصري وواضح جداً)</option>
+                        <option value="'Roboto Mono', monospace" style="font-family: 'Roboto Mono';">2. Roboto Mono (أرقام متساوية العرض)</option>
+                        <option value="'JetBrains Mono', monospace" style="font-family: 'JetBrains Mono';">3. JetBrains Mono (وضوح فائق للمطورين)</option>
+                        <option value="'Fira Code', monospace" style="font-family: 'Fira Code';">4. Fira Code (خط أرقام تقني مريح)</option>
+                        <option value="'Poppins', sans-serif" style="font-family: 'Poppins';">5. Poppins (خط هندسي واضح وناعم)</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <!-- Font Size -->
+                    <div class="style-menu-row" style="flex: 1.2;">
+                        <label class="style-menu-label">حجم الخط:</label>
+                        <div class="style-menu-flex">
+                            <input type="range" id="style-font-size-range" min="10" max="32" step="1" style="flex: 1; cursor: pointer; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; appearance: none; outline: none;">
+                            <span id="style-font-size-val" style="font-family: monospace; font-weight: bold; font-size: 0.8rem; width: 32px; text-align: center;">14px</span>
+                        </div>
+                    </div>
+
+                    <!-- Font Weight (Bold) -->
+                    <div class="style-menu-row" style="flex: 0.8; display: flex; flex-direction: column; justify-content: flex-end;">
+                        <button type="button" id="style-btn-bold" class="style-menu-btn" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #fff; width: 100%;">
+                            <span><b>B</b> عريض</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Colors -->
+                <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                    <div style="flex: 1;">
+                        <label class="style-menu-label">لون الرقم:</label>
+                        <div class="style-menu-flex">
+                            <input type="color" id="style-color-picker" class="style-menu-color-btn" value="#ffffff">
+                            <input type="text" id="style-color-hex" class="style-menu-input" placeholder="#FFFFFF" style="font-family: monospace; font-size: 0.75rem;">
+                        </div>
+                    </div>
+                    <div style="flex: 1;">
+                        <label class="style-menu-label">خلفية الخانة:</label>
+                        <div class="style-menu-flex">
+                            <input type="color" id="style-bg-picker" class="style-menu-color-btn" value="#0f172a">
+                            <input type="text" id="style-bg-hex" class="style-menu-input" placeholder="#0F172A" style="font-family: monospace; font-size: 0.75rem;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Number Formatting Options -->
+                <div id="number-formatting-section" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; margin-top: 12px;">
+                    <div style="font-weight: bold; color: #10b981; font-size: 0.8rem; margin-bottom: 10px;">🔢 خيارات تنسيق الرقم:</div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <!-- Decimals -->
+                        <div class="style-menu-row" style="flex: 1.2;">
+                            <label class="style-menu-label">المنازل العشرية (الكسور):</label>
+                            <select id="style-decimals" class="style-menu-input">
+                                <option value="none">-- بدون تقريب --</option>
+                                <option value="0">0 (رقم صحيح)</option>
+                                <option value="1">منزلة واحدة (0.0)</option>
+                                <option value="2">منزلتين (0.00)</option>
+                                <option value="3">3 منازل (0.000)</option>
+                                <option value="4">4 منازل (0.0000)</option>
+                                <option value="5">5 منازل (0.00000)</option>
+                                <option value="6">6 منازل (0.000000)</option>
+                            </select>
+                        </div>
+
+                        <!-- Thousands Separator -->
+                        <div class="style-menu-row" style="flex: 0.8; display: flex; flex-direction: column; justify-content: flex-end;">
+                            <button type="button" id="style-btn-thousands" class="style-menu-btn" style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #34d399; width: 100%;">
+                                <span>1,000 فاصلة</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; margin-top: 15px; display: flex; gap: 8px;">
+                    <button type="button" id="style-btn-apply" class="style-menu-btn" style="background: #38bdf8; color: #0f172a; flex: 1.5; font-size: 0.85rem;">💾 حفظ وتطبيق</button>
+                    <button type="button" id="style-btn-reset" class="style-menu-btn" style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; flex: 1;">✖ إزالة</button>
+                </div>
+            `;
+
+            document.body.appendChild(menu);
+            this.menuEl = menu;
+
+            this.bindMenuEvents();
+        },
+
+        bindMenuEvents() {
+            const sizeRange = document.getElementById('style-font-size-range');
+            const sizeVal = document.getElementById('style-font-size-val');
+            const btnBold = document.getElementById('style-btn-bold');
+            const colorPicker = document.getElementById('style-color-picker');
+            const colorHex = document.getElementById('style-color-hex');
+            const bgPicker = document.getElementById('style-bg-picker');
+            const bgHex = document.getElementById('style-bg-hex');
+            const btnThousands = document.getElementById('style-btn-thousands');
+
+            sizeRange.addEventListener('input', () => {
+                sizeVal.textContent = sizeRange.value + 'px';
+            });
+
+            btnBold.addEventListener('click', () => {
+                const isBold = btnBold.classList.toggle('active');
+                btnBold.style.background = isBold ? 'rgba(56,189,248,0.2)' : 'rgba(255,255,255,0.06)';
+                btnBold.style.borderColor = isBold ? '#38bdf8' : 'rgba(255,255,255,0.1)';
+                btnBold.style.color = isBold ? '#38bdf8' : '#fff';
+            });
+
+            btnThousands.addEventListener('click', () => {
+                const isThousands = btnThousands.classList.toggle('active');
+                btnThousands.style.background = isThousands ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)';
+                btnThousands.style.borderColor = isThousands ? '#10b981' : 'rgba(255,255,255,0.1)';
+                btnThousands.style.color = isThousands ? '#34d399' : '#fff';
+            });
+
+            colorPicker.addEventListener('input', () => {
+                colorHex.value = colorPicker.value.toUpperCase();
+            });
+            colorHex.addEventListener('input', () => {
+                if (/^#[0-9A-F]{6}$/i.test(colorHex.value)) {
+                    colorPicker.value = colorHex.value;
+                }
+            });
+
+            bgPicker.addEventListener('input', () => {
+                bgHex.value = bgPicker.value.toUpperCase();
+            });
+            bgHex.addEventListener('input', () => {
+                if (/^#[0-9A-F]{6}$/i.test(bgHex.value)) {
+                    bgPicker.value = bgHex.value;
+                }
+            });
+
+            document.getElementById('style-btn-apply').addEventListener('click', () => {
+                this.applyMenuSelection();
+            });
+
+            document.getElementById('style-btn-reset').addEventListener('click', () => {
+                this.resetElementStyles();
+            });
+        },
+
+        loadCurrentStylesToInputs(el) {
+            const sizeRange = document.getElementById('style-font-size-range');
+            const sizeVal = document.getElementById('style-font-size-val');
+            const btnBold = document.getElementById('style-btn-bold');
+            const colorPicker = document.getElementById('style-color-picker');
+            const colorHex = document.getElementById('style-color-hex');
+            const bgPicker = document.getElementById('style-bg-picker');
+            const bgHex = document.getElementById('style-bg-hex');
+            const fontFamily = document.getElementById('style-font-family');
+            const decimals = document.getElementById('style-decimals');
+            const btnThousands = document.getElementById('style-btn-thousands');
+            const formatSection = document.getElementById('number-formatting-section');
+            const targetType = document.getElementById('menu-target-type');
+
+            const computed = window.getComputedStyle(el);
+            
+            fontFamily.value = el.style.fontFamily || '';
+            
+            const currentSize = parseInt(el.style.fontSize || computed.fontSize) || 14;
+            sizeRange.value = currentSize;
+            sizeVal.textContent = currentSize + 'px';
+
+            const isBold = el.style.fontWeight === 'bold' || el.style.fontWeight === '800' || el.style.fontWeight === '900' || computed.fontWeight === '700' || computed.fontWeight === '800' || computed.fontWeight === '900';
+            btnBold.classList.toggle('active', isBold);
+            btnBold.style.background = isBold ? 'rgba(56,189,248,0.2)' : 'rgba(255,255,255,0.06)';
+            btnBold.style.borderColor = isBold ? '#38bdf8' : 'rgba(255,255,255,0.1)';
+            btnBold.style.color = isBold ? '#38bdf8' : '#fff';
+
+            const rgbToHex = (rgb) => {
+                if (!rgb || rgb === 'rgba(0, 0, 0, 0)' || rgb === 'transparent') return '#000000';
+                const m = rgb.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
+                if (m) {
+                    return "#" + ("0" + parseInt(m[1]).toString(16)).slice(-2) +
+                                 ("0" + parseInt(m[2]).toString(16)).slice(-2) +
+                                 ("0" + parseInt(m[3]).toString(16)).slice(-2);
+                }
+                return '#ffffff';
+            };
+
+            const currentColor = rgbToHex(el.style.color || computed.color);
+            colorPicker.value = currentColor;
+            colorHex.value = currentColor.toUpperCase();
+
+            const currentBg = rgbToHex(el.style.backgroundColor || computed.backgroundColor);
+            bgPicker.value = currentBg;
+            bgHex.value = currentBg.toUpperCase();
+
+            const savedDec = el.dataset.customDecimals || 'none';
+            decimals.value = savedDec;
+
+            const isThousands = el.dataset.customThousands !== 'false';
+            btnThousands.classList.toggle('active', isThousands);
+            btnThousands.style.background = isThousands ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)';
+            btnThousands.style.borderColor = isThousands ? '#10b981' : 'rgba(255,255,255,0.1)';
+            btnThousands.style.color = isThousands ? '#34d399' : '#fff';
+
+            const isNumeric = isNumericElement(el);
+            targetType.textContent = isNumeric ? 'رقم' : 'خانة';
+            targetType.style.background = isNumeric ? 'rgba(16,185,129,0.15)' : 'rgba(56,189,248,0.15)';
+            targetType.style.color = isNumeric ? '#34d399' : '#38bdf8';
+        },
+
+        applyMenuSelection() {
+            const el = this.currentElement;
+            if (!el) return;
+
+            const sizeRange = document.getElementById('style-font-size-range');
+            const btnBold = document.getElementById('style-btn-bold');
+            const colorPicker = document.getElementById('style-color-picker');
+            const bgPicker = document.getElementById('style-bg-picker');
+            const fontFamily = document.getElementById('style-font-family');
+            const decimals = document.getElementById('style-decimals');
+            const btnThousands = document.getElementById('style-btn-thousands');
+
+            const stylesObj = {
+                color: colorPicker.value,
+                backgroundColor: bgPicker.value,
+                fontSize: sizeRange.value + 'px',
+                fontWeight: btnBold.classList.contains('active') ? '800' : 'normal',
+                fontFamily: fontFamily.value,
+                decimals: decimals.value,
+                thousands: btnThousands.classList.contains('active')
+            };
+
+            el.style.setProperty('color', stylesObj.color, 'important');
+            el.style.setProperty('background-color', stylesObj.backgroundColor, 'important');
+            el.style.setProperty('font-size', stylesObj.fontSize, 'important');
+            el.style.setProperty('font-weight', stylesObj.fontWeight, 'important');
+            if (stylesObj.fontFamily) {
+                el.style.setProperty('font-family', stylesObj.fontFamily, 'important');
+            } else {
+                el.style.removeProperty('font-family');
+            }
+
+            if (stylesObj.decimals !== undefined) {
+                el.dataset.customDecimals = stylesObj.decimals;
+                el.dataset.customThousands = stylesObj.thousands;
+                if (stylesObj.decimals !== 'none') {
+                    formatElementNumber(el, parseInt(stylesObj.decimals), stylesObj.thousands);
+                }
+            }
+
+            const path = this.getElementPath(el);
+            if (path) {
+                this.savedStyles[path] = stylesObj;
+                localStorage.setItem('erp_custom_styles_v1', JSON.stringify(this.savedStyles));
+            }
+
+            if (typeof showToast === 'function') {
+                showToast('تم حفظ وتطبيق التنسيق بنجاح', 'success');
+            }
+            this.hideMenu();
+        },
+
+        resetElementStyles() {
+            const el = this.currentElement;
+            if (!el) return;
+
+            el.style.removeProperty('color');
+            el.style.removeProperty('background-color');
+            el.style.removeProperty('font-size');
+            el.style.removeProperty('font-weight');
+            el.style.removeProperty('font-family');
+            delete el.dataset.customDecimals;
+            delete el.dataset.customThousands;
+
+            const path = this.getElementPath(el);
+            if (path && this.savedStyles[path]) {
+                delete this.savedStyles[path];
+                localStorage.setItem('erp_custom_styles_v1', JSON.stringify(this.savedStyles));
+            }
+
+            if (typeof showToast === 'function') {
+                showToast('تمت إعادة تعيين التنسيق الأصلي للخانة', 'info');
+            }
+            this.hideMenu();
+            window.location.reload();
+        },
+
+        applyAllSaved() {
+            Object.keys(this.savedStyles).forEach(path => {
+                if (!path.startsWith(window.location.pathname + ' > ')) return;
+                const selector = path.substring((window.location.pathname + ' > ').length);
+                try {
+                    const el = document.querySelector(selector);
+                    if (el) {
+                        const styles = this.savedStyles[path];
+                        el.style.setProperty('color', styles.color, 'important');
+                        el.style.setProperty('background-color', styles.backgroundColor, 'important');
+                        el.style.setProperty('font-size', styles.fontSize, 'important');
+                        el.style.setProperty('font-weight', styles.fontWeight, 'important');
+                        if (styles.fontFamily) {
+                            el.style.setProperty('font-family', styles.fontFamily, 'important');
+                        }
+
+                        if (styles.decimals !== undefined && styles.decimals !== 'none') {
+                            el.dataset.customDecimals = styles.decimals;
+                            el.dataset.customThousands = styles.thousands;
+                            if (document.activeElement !== el) {
+                                formatElementNumber(el, parseInt(styles.decimals), styles.thousands);
+                            }
+                        }
+                    }
+                } catch(e) {}
+            });
+        },
+
+        init() {
+            try {
+                this.savedStyles = JSON.parse(localStorage.getItem('erp_custom_styles_v1')) || {};
+            } catch(e) {
+                this.savedStyles = {};
+            }
+
+            document.addEventListener('contextmenu', (e) => {
+                let target = e.target;
+                let depth = 0;
+                while (target && depth < 3) {
+                    if (isTargetElement(target)) {
+                        e.preventDefault();
+                        this.showMenu(target, e.clientX, e.clientY);
+                        return;
+                    }
+                    target = target.parentElement;
+                    depth++;
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (this.menuEl && !this.menuEl.contains(e.target)) {
+                    this.hideMenu();
+                }
+            });
+
+            document.addEventListener('focusout', (e) => {
+                const el = e.target;
+                if (el && el.dataset.customDecimals && el.dataset.customDecimals !== 'none') {
+                    formatElementNumber(el, parseInt(el.dataset.customDecimals), el.dataset.customThousands !== 'false');
+                }
+            });
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => this.applyAllSaved());
+            } else {
+                this.applyAllSaved();
+            }
+            
+            const observer = new MutationObserver(() => {
+                this.applyAllSaved();
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        }
+    };
+
+    NumberStyleManager.init();
+})();
 

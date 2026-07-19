@@ -76,18 +76,69 @@ function saveVoucher() {
     };
 
     if (currentType === 'check') {
-        voucher.checkNumber = document.getElementById('check-number').value;
+        const checkNumber = document.getElementById('check-number').value.trim();
+        const checkBank = document.getElementById('check-bank').value.trim();
+        
+        if (!checkBank) {
+            alert('الرجاء إدخال اسم البنك للشيك.');
+            return;
+        }
+        if (!checkNumber) {
+            alert('الرجاء إدخال رقم الشيك.');
+            return;
+        }
+        if (checkNumber.length < 6) {
+            alert('يجب أن يكون رقم الشيك 6 أرقام على الأقل.');
+            return;
+        }
+        const currentVoucherNo = document.getElementById('serial-number').innerText;
+        if (!window.isBankReferenceUnique(checkNumber, 'check', currentVoucherNo)) {
+            window.showDuplicateWarningModal(checkNumber, 'check');
+            return;
+        }
+        
+        voucher.checkNumber = checkNumber;
         voucher.checkDate = document.getElementById('check-date').value;
         voucher.checkDueDate = document.getElementById('check-due-date').value;
-        voucher.checkBank = document.getElementById('check-bank').value;
+        voucher.checkBank = checkBank;
     } else if (currentType === 'bank') {
-        voucher.bankRef = document.getElementById('bank-ref').value;
+        const bankRef = document.getElementById('bank-ref').value.trim();
+        if (!bankRef) {
+            alert('الرجاء إدخال رقم التحويلة البنكية.');
+            return;
+        }
+        if (bankRef.length < 6) {
+            alert('يجب أن يكون رقم التحويلة 6 أرقام على الأقل.');
+            return;
+        }
+        const currentVoucherNo = document.getElementById('serial-number').innerText;
+        if (!window.isBankReferenceUnique(bankRef, 'mobile', currentVoucherNo)) {
+            window.showDuplicateWarningModal(bankRef, 'mobile');
+            return;
+        }
+        
+        voucher.bankRef = bankRef;
         voucher.bankSourceName = document.getElementById('bank-source-name').value;
         voucher.bankDate = document.getElementById('bank-date').value;
     } else if (currentType === 'mobile') {
+        const mobileRef = document.getElementById('mobile-ref').value.trim();
+        if (!mobileRef) {
+            alert('الرجاء إدخال رقم المرجع للتحويل.');
+            return;
+        }
+        if (mobileRef.length < 6) {
+            alert('يجب أن يكون رقم المرجع للتحويل 6 أرقام على الأقل.');
+            return;
+        }
+        const currentVoucherNo = document.getElementById('serial-number').innerText;
+        if (!window.isBankReferenceUnique(mobileRef, 'mobile', currentVoucherNo)) {
+            window.showDuplicateWarningModal(mobileRef, 'mobile');
+            return;
+        }
+        
         voucher.mobileWallet = document.getElementById('mobile-wallet').value;
         voucher.mobileNumber = document.getElementById('mobile-number').value;
-        voucher.mobileRef = document.getElementById('mobile-ref').value;
+        voucher.mobileRef = mobileRef;
     }
 
     let existingVouchers = JSON.parse(localStorage.getItem('erp_comprehensive_receipts_v1')) || [];

@@ -367,14 +367,13 @@ function submitVoucher() {
         }
 
         if (transferNo.length < 6) {
-            showToast("يجب أن يكون رقم التحويل أكثر من 5 أرقام", "error");
+            showToast("رقم التحويل يجب أن يكون 6 أرقام على الأقل", "error");
             document.getElementById('mobile-transfer-no').focus();
             return;
         }
 
         if (!window.isBankReferenceUnique(transferNo, 'mobile', document.getElementById('voucher-number').innerText)) {
-            showToast("رقم التحويل مكرر. يجب أن لا يتكرر الرقم نهائياً في النظام.", "error");
-            showDuplicateModal(transferNo);
+            window.showDuplicateWarningModal(transferNo, 'mobile');
             return; // Prevent saving
         }
 
@@ -384,13 +383,13 @@ function submitVoucher() {
         voucherData.checkNo = document.getElementById('check-no').value.trim();
         
         if (!voucherData.checkNo || voucherData.checkNo.length < 6) {
-            showToast("يجب أن يكون رقم الشيك أكثر من 5 أرقام", "error");
+            showToast("رقم الشيك يجب أن يكون 6 أرقام على الأقل", "error");
             document.getElementById('check-no').focus();
             return;
         }
 
         if (!window.isBankReferenceUnique(voucherData.checkNo, 'check', document.getElementById('voucher-number').innerText)) {
-            showToast("رقم الشيك مكرر. يجب أن لا يتكرر الرقم نهائياً في النظام.", "error");
+            window.showDuplicateWarningModal(voucherData.checkNo, 'check');
             return; // Prevent saving
         }
 

@@ -816,6 +816,28 @@
             background: linear-gradient(135deg, rgba(148, 163, 184, 0.4), rgba(71, 85, 105, 0.6));
             box-shadow: 0 8px 25px rgba(148, 163, 184, 0.4), inset 0 2px 5px rgba(255,255,255,0.2);
         }
+        
+        /* ═══ High legibility white background for Amount/Value fields ═══ */
+        #amount-local {
+            background: #ffffff !important;
+            color: #b91c1c !important;
+            border: 2px solid #ef4444 !important;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+        #amount-local:focus {
+            background: #ffffff !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.3), inset 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+        .transfer-amount, .cheque-amount, .block-sub-amount, .block-cash-amount, .block-bank-amount, .block-cheque-amount, .block-total-amount, .total-val, .val, .value-field {
+            background: #ffffff !important;
+            color: #047857 !important; /* Rich readable dark green */
+            border: 1.5px solid #cbd5e1 !important;
+        }
+        .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
+        }
     </style>
 </head>
 <body>
@@ -1215,14 +1237,14 @@
                                     </div>
 
                                     <!-- Bank Transfer section -->
-                                    <div id="pay-bank-section" class="payment-method-box" style="background: rgba(59, 130, 246, 0.04); border: 1px solid rgba(59, 130, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px;">
+                                    <div id="pay-bank-section" class="payment-method-box" style="background: rgba(16, 185, 129, 0.09); border: 1.5px solid rgba(16, 185, 129, 0.45); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px; box-shadow: inset 0 0 15px rgba(16, 185, 129, 0.06);">
                                         <div id="transfers-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
                                             <!-- Dynamic rows -->
                                         </div>
                                     </div>
 
                                     <!-- Cheque section -->
-                                    <div id="pay-cheque-section" class="payment-method-box" style="background: rgba(139, 92, 246, 0.04); border: 1px solid rgba(139, 92, 246, 0.18); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px;">
+                                    <div id="pay-cheque-section" class="payment-method-box" style="background: rgba(168, 85, 247, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.55); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px; box-shadow: inset 0 0 15px rgba(168, 85, 247, 0.15);">
                                         <div id="cheques-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
                                             <!-- Dynamic rows -->
                                         </div>

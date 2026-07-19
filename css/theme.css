@@ -833,3 +833,329 @@ select option {
 .pos-wrapper, .dash-main, .hub-container, .settings-container, .audit-container, .alarm-main {
     padding-top: 0px !important;
 }
+
+/* ==========================================================================
+   6 SPECIAL STRATEGIC THEMES (Imperial, Emerald, Cyber, Crystal, Papyrus, Slate)
+   ========================================================================== */
+
+/* 1. Theme Imperial (Default Sovereign Dark) */
+:root.theme-imperial {
+  --bg-color:         #060913 !important;
+  --bg-secondary:     #0f1424 !important;
+  --surface-color:    rgba(15, 20, 36, 0.75) !important;
+  --surface-hover:    rgba(30, 41, 59, 0.9) !important;
+  --text-primary:     #f1f5f9 !important;
+  --text-secondary:   #94a3b8 !important;
+  --primary-accent:   #38bdf8 !important;
+  --primary-glow:     rgba(56, 189, 248, 0.3) !important;
+  --glass-bg:         rgba(15, 20, 36, 0.7) !important;
+  --glass-border:     rgba(56, 189, 248, 0.1) !important;
+  --sb-bg:            rgba(6, 9, 19, 0.98) !important;
+  --sb-border:        rgba(56, 189, 248, 0.15) !important;
+  --bg-grad-1:        rgba(56, 189, 248, 0.05) !important;
+  --bg-grad-2:        rgba(129, 140, 248, 0.05) !important;
+  --bg-grad-3:        rgba(15, 20, 36, 0.04) !important;
+}
+:root.theme-imperial .ambient-bg {
+  background: radial-gradient(circle at 50% 50%, #060913 0%, #030712 100%) !important;
+}
+
+/* 2. Theme Emerald (Accounting Shield) */
+:root.theme-emerald {
+  --bg-color:         #050c08 !important;
+  --bg-secondary:     #0c1a12 !important;
+  --surface-color:    rgba(12, 26, 18, 0.75) !important;
+  --surface-hover:    rgba(27, 56, 39, 0.9) !important;
+  --text-primary:     #e6f4ea !important;
+  --text-secondary:   #a3d9c9 !important;
+  --primary-accent:   #34d399 !important;
+  --primary-glow:     rgba(52, 211, 153, 0.3) !important;
+  --glass-bg:         rgba(12, 26, 18, 0.7) !important;
+  --glass-border:     rgba(52, 211, 153, 0.1) !important;
+  --sb-bg:            rgba(5, 12, 8, 0.98) !important;
+  --sb-border:        rgba(52, 211, 153, 0.15) !important;
+  --bg-grad-1:        rgba(52, 211, 153, 0.05) !important;
+  --bg-grad-2:        rgba(5, 150, 105, 0.05) !important;
+  --bg-grad-3:        rgba(12, 26, 18, 0.04) !important;
+}
+:root.theme-emerald .ambient-bg {
+  background: radial-gradient(circle at 50% 50%, #0c1a12 0%, #050c08 100%) !important;
+}
+
+/* 3. Theme Cyber (Cyber Obsidian) */
+:root.theme-cyber {
+  --bg-color:         #000000 !important;
+  --bg-secondary:     #080808 !important;
+  --surface-color:    rgba(8, 8, 8, 0.85) !important;
+  --surface-hover:    rgba(24, 24, 24, 0.9) !important;
+  --text-primary:     #00ffcc !important;
+  --text-secondary:   #ffffff !important;
+  --primary-accent:   #ff00ff !important;
+  --primary-glow:     rgba(255, 0, 255, 0.4) !important;
+  --glass-bg:         rgba(8, 8, 8, 0.8) !important;
+  --glass-border:     #00ffcc !important;
+  --glass-border-hover: #ff00ff !important;
+  --sb-bg:            #000000 !important;
+  --sb-border:        #00ffcc !important;
+  --bg-grad-1:        rgba(255, 0, 255, 0.05) !important;
+  --bg-grad-2:        rgba(0, 255, 204, 0.05) !important;
+  --bg-grad-3:        #000000 !important;
+}
+:root.theme-cyber .ambient-bg {
+  background: #000000 !important;
+}
+
+/* 4. Theme Crystal (Ice Crystal) */
+:root.theme-crystal {
+  --bg-color:         #f0f4f8 !important;
+  --bg-secondary:     #ffffff !important;
+  --surface-color:    rgba(255, 255, 255, 0.95) !important;
+  --surface-hover:    rgba(240, 244, 248, 0.95) !important;
+  --text-primary:     #1e293b !important;
+  --text-secondary:   #475569 !important;
+  --primary-accent:   #0284c7 !important;
+  --primary-glow:     rgba(2, 132, 199, 0.15) !important;
+  --glass-bg:         rgba(255, 255, 255, 0.85) !important;
+  --glass-border:     rgba(2, 132, 199, 0.15) !important;
+  --sb-bg:            #ffffff !important;
+  --sb-border:        rgba(2, 132, 199, 0.15) !important;
+  --bg-grad-1:        rgba(2, 132, 199, 0.04) !important;
+  --bg-grad-2:        rgba(14, 165, 233, 0.04) !important;
+  --bg-grad-3:        rgba(255, 255, 255, 0.3) !important;
+}
+:root.theme-crystal body,
+:root.theme-crystal p,
+:root.theme-crystal td,
+:root.theme-crystal th,
+:root.theme-crystal tr,
+:root.theme-crystal label,
+:root.theme-crystal h1,
+:root.theme-crystal h2,
+:root.theme-crystal h3,
+:root.theme-crystal h4,
+:root.theme-crystal h5,
+:root.theme-crystal h6,
+:root.theme-crystal .brand-text h1,
+:root.theme-crystal .brand-text p,
+:root.theme-crystal .sidebar-text,
+:root.theme-crystal .header-company-name-top,
+:root.theme-crystal .header-page-title,
+:root.theme-crystal #header-user-name,
+:root.theme-crystal #header-clock,
+:root.theme-crystal #header-user-role,
+:root.theme-crystal .kpi-val,
+:root.theme-crystal .kpi-title,
+:root.theme-crystal .list-sub,
+:root.theme-crystal .list-title,
+:root.theme-crystal .tot-lbl,
+:root.theme-crystal .tot-val,
+:root.theme-crystal .val,
+:root.theme-crystal .lbl {
+  color: #1e293b !important;
+  text-shadow: none !important;
+}
+
+/* 5. Theme Papyrus (Desert Papyrus) */
+:root.theme-papyrus {
+  --bg-color:         #f7f2e8 !important;
+  --bg-secondary:     #eee6d5 !important;
+  --surface-color:    rgba(238, 230, 213, 0.95) !important;
+  --surface-hover:    rgba(212, 197, 169, 0.95) !important;
+  --text-primary:     #2e1f10 !important;
+  --text-secondary:   #4a3728 !important;
+  --primary-accent:   #85581A !important;
+  --primary-glow:     rgba(133, 88, 26, 0.2) !important;
+  --glass-bg:         rgba(238, 230, 213, 0.9) !important;
+  --glass-border:     rgba(133, 88, 26, 0.15) !important;
+  --sb-bg:            #eee6d5 !important;
+  --sb-border:        rgba(133, 88, 26, 0.15) !important;
+  --bg-grad-1:        rgba(133, 88, 26, 0.04) !important;
+  --bg-grad-2:        rgba(74, 55, 40, 0.04) !important;
+  --bg-grad-3:        rgba(238, 230, 213, 0.3) !important;
+}
+:root.theme-papyrus .ambient-bg {
+  background: radial-gradient(circle at 50% 50%, #f7f2e8 0%, #e6dec3 100%) !important;
+}
+:root.theme-papyrus body,
+:root.theme-papyrus p,
+:root.theme-papyrus td,
+:root.theme-papyrus th,
+:root.theme-papyrus tr,
+:root.theme-papyrus label,
+:root.theme-papyrus h1,
+:root.theme-papyrus h2,
+:root.theme-papyrus h3,
+:root.theme-papyrus h4,
+:root.theme-papyrus h5,
+:root.theme-papyrus h6,
+:root.theme-papyrus .brand-text h1,
+:root.theme-papyrus .brand-text p,
+:root.theme-papyrus .sidebar-text,
+:root.theme-papyrus .header-company-name-top,
+:root.theme-papyrus .header-page-title,
+:root.theme-papyrus #header-user-name,
+:root.theme-papyrus #header-clock,
+:root.theme-papyrus #header-user-role,
+:root.theme-papyrus .kpi-val,
+:root.theme-papyrus .kpi-title,
+:root.theme-papyrus .list-sub,
+:root.theme-papyrus .list-title,
+:root.theme-papyrus .tot-lbl,
+:root.theme-papyrus .tot-val,
+:root.theme-papyrus .val,
+:root.theme-papyrus .lbl {
+  color: #2e1f10 !important;
+  text-shadow: none !important;
+}
+
+/* 6. Theme Slate (Muted Slate) */
+:root.theme-slate {
+  --bg-color:         #1e293b !important;
+  --bg-secondary:     #334155 !important;
+  --surface-color:    rgba(51, 65, 85, 0.85) !important;
+  --surface-hover:    rgba(71, 85, 105, 0.95) !important;
+  --text-primary:     #f8fafc !important;
+  --text-secondary:   #cbd5e1 !important;
+  --primary-accent:   #38bdf8 !important;
+  --primary-glow:     rgba(56, 189, 248, 0.3) !important;
+  --glass-bg:         rgba(51, 65, 85, 0.8) !important;
+  --glass-border:     rgba(71, 85, 105, 0.15) !important;
+  --sb-bg:            #1e293b !important;
+  --sb-border:        rgba(71, 85, 105, 0.15) !important;
+  --bg-grad-1:        rgba(56, 189, 248, 0.05) !important;
+  --bg-grad-2:        rgba(51, 65, 85, 0.05) !important;
+  --bg-grad-3:        rgba(51, 65, 85, 0.4) !important;
+}
+
+/* ==========================================================================
+   🔍 TYPOGRAPHY ENHANCEMENT FOR BETTER READABILITY (BUTTONS +2px, INNER REPORTS +4px)
+   ========================================================================== */
+
+/* 1. Enlarge all buttons by 2px (2 degrees) globally */
+button,
+.btn,
+.theme-btn,
+.btn-primary,
+.btn-secondary,
+.btn-success,
+.btn-filter,
+.btn-reset,
+.curr-btn,
+.action-card,
+.report-card,
+.numpad-btn,
+.quick-action-btn {
+    font-size: 16px !important;
+}
+
+/* 2. Specific button size overrides */
+.btn-primary, .btn-secondary {
+    font-size: 1.3rem !important; /* was 1.2rem */
+}
+.numpad-btn {
+    font-size: 2.0rem !important; /* was 1.8rem */
+}
+.theme-btn {
+    font-size: 13px !important; /* was 11px */
+}
+.action-card {
+    font-size: 0.92rem !important; /* was 0.8rem */
+}
+
+/* 3. Enlarge all fonts in inner report pages by 4px (4 degrees) */
+html.inner-report-page body {
+    font-size: 19px !important; /* was 15px */
+}
+html.inner-report-page td {
+    font-size: 17px !important; /* was 13px */
+}
+html.inner-report-page th {
+    font-size: 17px !important; /* was 13px */
+}
+html.inner-report-page p {
+    font-size: 19px !important; /* was 15px */
+}
+html.inner-report-page label {
+    font-size: 17px !important; /* was 13px */
+}
+html.inner-report-page input,
+html.inner-report-page select,
+html.inner-report-page textarea {
+    font-size: 18px !important; /* was 14px */
+}
+html.inner-report-page h1 { font-size: 30px !important; }
+html.inner-report-page h2 { font-size: 24px !important; }
+html.inner-report-page h3 { font-size: 20px !important; }
+html.inner-report-page h4 { font-size: 18px !important; }
+
+/* Scale metrics cards inside report pages */
+html.inner-report-page .kpi-val,
+html.inner-report-page .metric-value {
+    font-size: 32px !important;
+}
+
+/* Scale badges inside report pages */
+html.inner-report-page .badge-percent,
+html.inner-report-page .badge-negative {
+    font-size: 16px !important; /* was 12px */
+}
+html.inner-report-page .badge-category {
+    font-size: 15px !important; /* was 11px */
+}
+
+/* Buttons inside the inner report page get +4px instead of +2px */
+html.inner-report-page button,
+html.inner-report-page .btn,
+html.inner-report-page .theme-btn,
+html.inner-report-page .btn-primary,
+html.inner-report-page .btn-secondary,
+html.inner-report-page .btn-success,
+html.inner-report-page .btn-filter,
+html.inner-report-page .btn-reset,
+html.inner-report-page .curr-btn,
+html.inner-report-page .quick-action-btn {
+    font-size: 18px !important; /* standard button default 14px + 4px */
+}
+
+/* 4. Enlarge all fonts in inventory hub page (inventory-report.php) and general report portals (analytics.php) by 2px (2 degrees) */
+html.inventory-hub-page body, html.hub-report-page body {
+    font-size: 17px !important; /* was 15px */
+}
+html.inventory-hub-page td, html.hub-report-page td {
+    font-size: 15px !important; /* was 13px */
+}
+html.inventory-hub-page th, html.hub-report-page th {
+    font-size: 15px !important; /* was 13px */
+}
+html.inventory-hub-page p, html.hub-report-page p {
+    font-size: 17px !important; /* was 15px */
+}
+html.inventory-hub-page label, html.hub-report-page label {
+    font-size: 15px !important; /* was 13px */
+}
+html.inventory-hub-page input, html.hub-report-page input,
+html.inventory-hub-page select, html.hub-report-page select,
+html.inventory-hub-page textarea, html.hub-report-page textarea {
+    font-size: 16px !important; /* was 14px */
+}
+html.inventory-hub-page h1, html.hub-report-page h1 { font-size: 28px !important; }
+html.inventory-hub-page h2, html.hub-report-page h2 { font-size: 22px !important; }
+html.inventory-hub-page h3, html.hub-report-page h3 { font-size: 18px !important; }
+html.inventory-hub-page h4, html.hub-report-page h4 { font-size: 16px !important; }
+
+/* Scale metrics cards inside inventory hub page */
+html.inventory-hub-page .kpi-val, html.hub-report-page .kpi-val,
+html.inventory-hub-page .metric-value, html.hub-report-page .metric-value {
+    font-size: 30px !important;
+}
+
+/* Scale badges inside inventory hub page */
+html.inventory-hub-page .badge-percent, html.hub-report-page .badge-percent,
+html.inventory-hub-page .badge-negative, html.hub-report-page .badge-negative {
+    font-size: 14px !important; /* was 12px */
+}
+html.inventory-hub-page .badge-category, html.hub-report-page .badge-category {
+    font-size: 13px !important; /* was 11px */
+}
+
+
