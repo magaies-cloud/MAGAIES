@@ -157,18 +157,28 @@ $report_data = getWarehouseCapacities($pdo);
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <?php foreach ($report_data as $row): ?>
+        <?php foreach ($report_data as $row): 
+            $bar_color = 'from-cyan-500 to-emerald-500';
+            $text_color = 'text-emerald-400';
+            if ($row['utilization_pct'] >= 85) {
+                $bar_color = 'from-red-500 to-rose-500';
+                $text_color = 'text-red-400';
+            } elseif ($row['utilization_pct'] >= 60) {
+                $bar_color = 'from-amber-500 to-yellow-500';
+                $text_color = 'text-amber-400';
+            }
+        ?>
             <div class="bg-slate-900/40 p-5 rounded-2xl border border-slate-800">
                 <div class="flex justify-between items-center mb-3">
                     <span class="font-bold text-slate-200"><?php echo htmlspecialchars($row['warehouse_name']); ?></span>
                     <span class="text-xs text-slate-400 font-mono"><?php echo number_format($row['stock_qty']); ?> / <?php echo number_format($row['capacity']); ?> طن</span>
                 </div>
                 <div class="w-full bg-slate-950 rounded-full h-3 overflow-hidden border border-slate-800">
-                    <div class="bg-gradient-to-r from-cyan-500 to-emerald-500 h-full" style="width: <?php echo min($row['utilization_pct'], 100); ?>%"></div>
+                    <div class="bg-gradient-to-r <?php echo $bar_color; ?> h-full" style="width: <?php echo min($row['utilization_pct'], 100); ?>%"></div>
                 </div>
                 <div class="flex justify-between items-center mt-2 text-xs">
                     <span class="text-slate-500">نسبة الاستغلال</span>
-                    <span class="font-bold text-emerald-400"><?php echo $row['utilization_pct']; ?>%</span>
+                    <span class="font-bold <?php echo $text_color; ?>"><?php echo $row['utilization_pct']; ?>%</span>
                 </div>
             </div>
         <?php endforeach; ?>
