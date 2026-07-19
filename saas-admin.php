@@ -1767,9 +1767,13 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     const keys = await localforage.keys();
                     for (const key of keys) {
                         if (!key) continue;
-                        const match = key.match(/^([a-zA-Z0-9_-]+)_erp_users_v1$/);
+                        const match = key.match(/^(?:([a-zA-Z0-9_-]+)_)?erp_users_v1$/);
                         if (match) {
-                            const subdomain = match[1];
+                            let subdomain = match[1] || '';
+                            if (!subdomain) {
+                                const hostParts = window.location.hostname.split('.');
+                                if (hostParts.length > 2) subdomain = hostParts[0];
+                            }
                             const usersData = await localforage.getItem(key);
                             if (usersData) {
                                 let parsed = [];
@@ -1797,9 +1801,13 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
                     if (!key) continue;
-                    const match = key.match(/^([a-zA-Z0-9_-]+)_erp_users_v1$/);
+                    const match = key.match(/^(?:([a-zA-Z0-9_-]+)_)?erp_users_v1$/);
                     if (match) {
-                        const subdomain = match[1];
+                        let subdomain = match[1] || '';
+                        if (!subdomain) {
+                            const hostParts = window.location.hostname.split('.');
+                            if (hostParts.length > 2) subdomain = hostParts[0];
+                        }
                         const usersData = localStorage.getItem(key);
                         if (usersData) {
                             let parsed = [];
@@ -1834,10 +1842,12 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                         body: JSON.stringify({ users: usersToSync })
                     });
                     const data = await res.json();
-                    console.log('Auto password sync result:', data);
+                    alert("تشخيص التزامن: تم العثور على " + usersToSync.length + " مستخدمين محليين، وتم تحديث " + (data.updated_count || 0) + " في قاعدة البيانات.");
+                } else {
+                    alert("تشخيص التزامن: لم يتم العثور على أي مستخدمين لديهم كلمات مرور مخزنة في متصفحك الحالي.");
                 }
             } catch(err) {
-                console.warn('Auto password sync failed:', err);
+                alert("تشخيص التزامن: حدث خطأ أثناء المزامنة: " + err.message);
             }
         }
 
