@@ -34,4 +34,30 @@ jobs:
           chown -R www-data:www-data /var/www/magaees
           chmod -R 755 /var/www/magaees
           pkill -f "whatsapp-service\.(mjs|js)" || true
-          systemctl reload nginx
+
+          # ================================================
+          # PERMANENT FIX: Redirect www.c.elsajana.com -> c.elsajana.com
+          # This runs on EVERY deploy to guarantee the fix persists.
+          # ================================================
+          NGINX_WWW_CONF="/etc/nginx/sites-available/www-c-elsajana-redirect"
+          if [ ! -f "$NGINX_WWW_CONF" ]; then
+            cat > "$NGINX_WWW_CONF" << 'NGINX_BLOCK'
+          server {
+              listen 80;
+              server_name www.c.elsajana.com;
+              return 301 https://c.elsajana.com$request_uri;
+          }
+          server {
+              listen 443 ssl;
+              server_name www.c.elsajana.com;
+              ssl_certificate /etc/letsencrypt/live/c.elsajana.com/fullchain.pem;
+              ssl_certificate_key /etc/letsencrypt/live/c.elsajana.com/privkey.pem;
+              return 301 https://c.elsajana.com$request_uri;
+          }
+          NGINX_BLOCK
+            ln -sf "$NGINX_WWW_CONF" /etc/nginx/sites-enabled/www-c-elsajana-redirect
+            # Try to get SSL cert that covers www.c too (will not fail deploy if it errors)
+            certbot --nginx -d www.c.elsajana.com --non-interactive --agree-tos --redirect 2>/dev/null || true
+          fi
+
+          nginx -t && systemctl reload nginx
