@@ -845,7 +845,7 @@
 </div>
 
 <script defer src="js/localforage.min.js"></script>
-<script defer src="js/app.js?v=20260717"></script>
+<script defer src="js/app.js?v=20260719_update"></script>
 <script defer src="js/whatsapp-integration.js"></script>
 <script>
 // Language switcher logic for settings page

@@ -69,7 +69,7 @@ class TenantController {
         // GET all tenants (only when no sub-action like /delete)
         if ($method === 'GET' && $action === 'tenants' && !isset($requestUri[$base_index + 3])) {
             try {
-                $stmt = $this->pdo->query("SELECT t.id, t.company_name, t.subdomain, t.owner_name, t.owner_phone, t.phone2, t.owner_email, t.status, t.receipt_path, t.valid_until, t.max_users, t.max_storage, t.plan_id, t.created_at, (SELECT username FROM users WHERE tenant_id = t.id AND role = 'admin' LIMIT 1) AS admin_username FROM tenants t ORDER BY t.created_at DESC");
+                $stmt = $this->pdo->query("SELECT t.id, t.company_name, t.subdomain, t.owner_name, t.owner_phone, t.phone2, t.owner_email, t.status, t.receipt_path, t.valid_until, t.max_users, t.max_storage, t.plan_id, t.created_at, (SELECT username FROM users WHERE tenant_id = t.id AND role = 'admin' LIMIT 1) AS admin_username, (SELECT COUNT(*) FROM users WHERE tenant_id = t.id) AS users_count FROM tenants t ORDER BY t.created_at DESC");
                 $tenants = $stmt->fetchAll();
             } catch (PDOException $e) {
                 jsonResponse(['error' => 'DB Error in tenants GET: ' . $e->getMessage()], 500);
@@ -137,7 +137,7 @@ class TenantController {
         if ($method === 'GET' && $action === 'users') {
             $tenantId = intval($_GET['tenant_id'] ?? 0);
             if (!$tenantId) jsonResponse(['error' => 'معرّف الشركة مطلوب'], 400);
-            $stmt = $this->pdo->prepare("SELECT id, username, JSON_UNQUOTE(JSON_EXTRACT(data, '$.fullName')) as fullName, role FROM users WHERE tenant_id = ?");
+            $stmt = $this->pdo->prepare("SELECT id, username, password, JSON_UNQUOTE(JSON_EXTRACT(data, '$.fullName')) as fullName, JSON_UNQUOTE(JSON_EXTRACT(data, '$.phone')) as phone, JSON_UNQUOTE(JSON_EXTRACT(data, '$.email')) as email, role, status, last_active, created_at FROM users WHERE tenant_id = ? ORDER BY FIELD(role, 'admin', 'manager', 'employee', 'user'), username ASC");
             $stmt->execute([$tenantId]);
             jsonResponse($stmt->fetchAll());
         }

@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
     <script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ar.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js" onload="if(typeof initAnalyticsCharts === 'function') initAnalyticsCharts()"></script>
     <style>
         :root {
             --bg-color: #050505;
@@ -433,13 +433,14 @@
                                 <th>المالك</th>
                                 <th>الباقة</th>
                                 <th>المساحة المستهلكة</th>
+                                <th>عدد المستخدمين</th>
                                 <th>الحالة</th>
                                 <th>تاريخ الانتهاء</th>
                                 <th>إجراءات</th>
                             </tr>
                         </thead>
                         <tbody id="tenants-body">
-                            <tr><td colspan="8" style="text-align:center;">جاري التحميل...</td></tr>
+                            <tr><td colspan="9" style="text-align:center;">جاري التحميل...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -463,14 +464,18 @@
                     <table>
                         <thead>
                             <tr>
+                                <th>#</th>
                                 <th>المستخدم</th>
                                 <th>الاسم الكامل</th>
+                                <th>الهاتف</th>
                                 <th>الدور</th>
+                                <th>الحالة</th>
+                                <th>آخر نشاط</th>
                                 <th>إجراءات</th>
                             </tr>
                         </thead>
                         <tbody id="tenant-users-body">
-                            <tr><td colspan="4" style="text-align:center;">اختر شركة לעرض مستخدميها</td></tr>
+                            <tr><td colspan="8" style="text-align:center;">اختر شركة لعرض مستخدميها</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -753,10 +758,24 @@
     <!-- User Modal (Add User / Reset Pass) -->
     <div id="user-action-modal" class="modal-overlay">
         <div class="glass-panel modal-content">
-            <div class="modal-header"><h3 id="user-modal-title">تغيير كلمة المرور للمستخدم</h3><button class="close-btn" onclick="closeModal('user-action-modal')">&times;</button></div>
+            <div class="modal-header"><h3 id="user-modal-title">إعادة تعيين كلمة المرور</h3><button class="close-btn" onclick="closeModal('user-action-modal')">&times;</button></div>
             <input type="hidden" id="target-user-id">
-            <div class="form-group"><label>كلمة المرور الجديدة</label><input type="password" id="target-user-pass"></div>
-            <div class="modal-actions"><button class="btn-primary" style="flex:1;" onclick="saveUserPassword()">تغيير كلمة المرور</button></div>
+            <div class="form-group">
+                <label>اسم المستخدم</label>
+                <input type="text" id="target-username" readonly style="background: rgba(255,255,255,0.05); color: #aaa; cursor: not-allowed; padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border); width: 100%; box-sizing: border-box;">
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور الحالية (المشفرة)</label>
+                <input type="text" id="target-user-current-pass" readonly style="background: rgba(255,255,255,0.05); color: #aaa; cursor: not-allowed; font-family: monospace; font-size: 0.85rem; padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border); width: 100%; box-sizing: border-box;">
+                <small style="color: #94a3b8; display: block; margin-top: 5px; font-size: 0.75rem;">ملاحظة: كلمات المرور مشفرة حمايةً للمشترك ولا يمكن عرضها كنص مجرد.</small>
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور الجديدة</label>
+                <input type="password" id="target-user-pass" placeholder="أدخل كلمة المرور الجديدة هنا" style="padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border); width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.2); color: #fff;">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" style="flex:1;" onclick="saveUserPassword()">تغيير كلمة المرور</button>
+            </div>
         </div>
     </div>
     
@@ -1576,8 +1595,13 @@
 
         let chartRegistrations = null;
         let chartStorage = null;
+        let tenantUsersList = [];
 
         function initAnalyticsCharts() {
+            if (typeof Chart === 'undefined') {
+                console.warn('Chart.js is not loaded yet or offline.');
+                return;
+            }
             if (!allTenants || allTenants.length === 0) return;
 
             // 1. Group registrations by month
@@ -1854,6 +1878,7 @@
                             <td>${t.owner_name || '-'}<br><small>${t.owner_phone || ''}</small>${t.phone2 ? '<br><small>'+t.phone2+'</small>' : ''}</td>
                             <td><span class="badge badge-plan">${plan.name}</span><br><small style="color:var(--text-secondary)">الحد: ${maxUsers} مستخدم</small></td>
                             <td style="direction: ltr;">${storageStr} <br><small style="color:var(--text-secondary)">الحد: ${maxStorage} GB</small></td>
+                            <td style="text-align: center;"><span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 0.95rem; padding: 4px 12px; border-radius: 12px; font-weight: bold;">${t.users_count || 0}</span></td>
                             <td>${statusBadge}</td>
                             <td>${validStr}</td>
                             <td>
@@ -1888,37 +1913,49 @@
         async function loadTenantUsers() {
             const tenantId = document.getElementById('users-tenant-select').value;
             const tbody = document.getElementById('tenant-users-body');
-            if(!tenantId) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">اختر شركة לעرض مستخدميها</td></tr>'; return; }
+            if(!tenantId) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">اختر شركة لعرض مستخدميها</td></tr>'; return; }
             
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">جاري التحميل...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">جاري التحميل...</td></tr>';
             try {
                 const url = apiUrl('saas', 'users') + '&tenant_id=' + tenantId;
                 const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
                 const data = await res.json();
                 
                 if (data.error) {
-                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#ef4444;">${data.error}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#ef4444;">${data.error}</td></tr>`;
                     return;
                 }
                 
                 const users = Array.isArray(data) ? data : [];
+                tenantUsersList = users; // Store in global list for modal access
                 tbody.innerHTML = '';
                 if(users.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا يوجد مستخدمين</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">لا يوجد مستخدمين</td></tr>';
                 } else {
-                    users.forEach(u => {
+                    users.forEach((u, idx) => {
+                        const roleBadge = u.role === 'admin' ? 'badge-plan' : u.role === 'manager' ? 'badge-warning' : 'badge-active';
+                        const roleLabel = u.role === 'admin' ? 'مدير' : u.role === 'manager' ? 'مشرف' : u.role === 'employee' ? 'موظف' : u.role || 'مستخدم';
+                        const statusBadge = u.status === 'active' ? 'badge-active' : u.status === 'suspended' ? 'badge-danger' : 'badge-warning';
+                        const statusLabel = u.status === 'active' ? 'نشط' : u.status === 'suspended' ? 'معلّق' : u.status === 'inactive' ? 'غير نشط' : u.status || '-';
+                        const lastActive = u.last_active ? new Date(u.last_active).toLocaleString('ar-EG', {dateStyle:'short', timeStyle:'short'}) : '-';
+                        const phone = u.phone && u.phone !== 'null' ? u.phone : '-';
+                        
                         tbody.innerHTML += `
                             <tr>
+                                <td style="text-align:center; color:#888;">${idx + 1}</td>
                                 <td><strong>${u.username}</strong></td>
-                                <td>${u.fullName || ''}</td>
-                                <td><span class="badge ${u.role==='admin'?'badge-plan':'badge-active'}">${u.role}</span></td>
+                                <td>${u.fullName && u.fullName !== 'null' ? u.fullName : ''}</td>
+                                <td style="direction:ltr; text-align:center;">${phone}</td>
+                                <td><span class="badge ${roleBadge}">${roleLabel}</span></td>
+                                <td><span class="badge ${statusBadge}">${statusLabel}</span></td>
+                                <td style="font-size:0.85rem; color:#aaa;">${lastActive}</td>
                                 <td><button class="btn-primary" style="padding:5px 10px; font-size:0.8rem;" onclick="openResetPassModal(${tenantId}, ${u.id})">إعادة تعيين كلمة السر</button></td>
                             </tr>
                         `;
                     });
                 }
             } catch (e) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#ef4444;">حدث خطأ في جلب المستخدمين</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#ef4444;">حدث خطأ في جلب المستخدمين</td></tr>';
             }
         }
 
@@ -1958,7 +1995,12 @@
         }
 
         function openResetPassModal(tenantId, userId) {
+            const user = tenantUsersList.find(u => u.id == userId);
+            if (!user) return alert('المستخدم غير موجود');
+
             document.getElementById('target-user-id').value = userId;
+            document.getElementById('target-username').value = user.username || '';
+            document.getElementById('target-user-current-pass').value = user.password || '—';
             document.getElementById('target-user-pass').value = '';
             document.getElementById('user-action-modal').style.display = 'flex';
         }

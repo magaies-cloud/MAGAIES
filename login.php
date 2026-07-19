@@ -206,7 +206,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=1783054968.28612"></script>
+    <script defer src="js/app.js?v=20260719_update"></script>
     
     <script>
         // --- SSO Interceptor ---

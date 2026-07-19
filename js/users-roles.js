@@ -447,6 +447,9 @@ async function saveUser() {
     }
 
     localStorage.setItem('erp_users_v1', JSON.stringify(USERS));
+    if (typeof window.pushToCloud === 'function') {
+        window.pushToCloud().catch(err => console.error("Immediate sync failed:", err));
+    }
     
     if (window.logSystemAction) {
         window.logSystemAction(id ? 'تعديل مستخدم' : 'إضافة مستخدم', 'settings', `تم حفظ بيانات المستخدم: ${fullName} (${username})`);
@@ -503,6 +506,9 @@ function deleteUser(id) {
         const userToDelete = USERS.find(u => u.id === id);
         USERS = USERS.filter(u => u.id !== id);
         localStorage.setItem('erp_users_v1', JSON.stringify(USERS));
+        if (typeof window.pushToCloud === 'function') {
+            window.pushToCloud().catch(err => console.error("Immediate sync failed:", err));
+        }
         
         if (window.logSystemAction && userToDelete) {
             window.logSystemAction('حذف مستخدم', 'settings', `تم حذف المستخدم: ${userToDelete.fullName}`);
@@ -646,6 +652,9 @@ function saveRole() {
     }
 
     localStorage.setItem('erp_roles_v1', JSON.stringify(ROLES));
+    if (typeof window.pushToCloud === 'function') {
+        window.pushToCloud().catch(err => console.error("Immediate sync failed:", err));
+    }
     
     if (window.logSystemAction) {
         window.logSystemAction(id ? 'تعديل دور وظيفي' : 'إضافة دور وظيفي', 'settings', `تم حفظ بيانات الدور الوظيفي: ${name}`);
@@ -684,6 +693,9 @@ function deleteRole(id) {
         const roleToDelete = ROLES.find(r => r.id === id);
         ROLES = ROLES.filter(r => r.id !== id);
         localStorage.setItem('erp_roles_v1', JSON.stringify(ROLES));
+        if (typeof window.pushToCloud === 'function') {
+            window.pushToCloud().catch(err => console.error("Immediate sync failed:", err));
+        }
         
         if (window.logSystemAction && roleToDelete) {
             window.logSystemAction('حذف دور وظيفي', 'settings', `تم حذف الدور الوظيفي: ${roleToDelete.name}`);
@@ -742,6 +754,9 @@ window.forceLogoutUser = function(id) {
             USERS[userIndex].status = 'forced_logout';
             localStorage.setItem('force_logout_' + USERS[userIndex].username, 'true');
             localStorage.setItem('erp_users_v1', JSON.stringify(USERS));
+            if (typeof window.pushToCloud === 'function') {
+                window.pushToCloud().catch(err => console.error("Immediate sync failed:", err));
+            }
             renderUsersTable();
             showToast('تم إرسال أمر الخروج للمستخدم بنجاح', 'success');
         }

@@ -528,6 +528,7 @@ if (empty($token)) {
 }
 
 $tenant_id = null;
+$userId = null;
 
 // SAAS SUPER ADMIN BYPASS — رمز المشرف العام
 $saasSecret = defined('SAAS_ADMIN_TOKEN') ? SAAS_ADMIN_TOKEN : getenv('SAAS_ADMIN_TOKEN');
@@ -719,6 +720,7 @@ if ($token === $saasSecret) {
     }
 
     $tenant_id = $session['tenant_id'];
+    $userId = $session['user_id'] ?? null;
 }
 
 // ---------------------------------------------------------
