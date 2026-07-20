@@ -354,7 +354,7 @@ function loadData() {
         const paid = parseNum(inv.paidAmount || inv.paid);
         if(partner && partner !== 'walk-in') {
             let prefixedPartner = String(partner);
-            if (!prefixedPartner.includes('-')) {
+            if (!prefixedPartner.startsWith('cust-') && !prefixedPartner.startsWith('supp-') && !prefixedPartner.startsWith('bank-') && !prefixedPartner.startsWith('safe-') && !prefixedPartner.startsWith('exp-')) {
                 prefixedPartner = 'cust-' + prefixedPartner;
             }
             ALL_TXNS.push({ partner: prefixedPartner, debit: total, credit: 0, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
@@ -383,7 +383,7 @@ function loadData() {
         const paid = parseNum(inv.paidAmount || inv.paid);
         if(partner && partner !== 'walk-in') {
             let prefixedPartner = String(partner);
-            if (!prefixedPartner.includes('-')) {
+            if (!prefixedPartner.startsWith('cust-') && !prefixedPartner.startsWith('supp-') && !prefixedPartner.startsWith('bank-') && !prefixedPartner.startsWith('safe-') && !prefixedPartner.startsWith('exp-')) {
                 prefixedPartner = 'supp-' + prefixedPartner;
             }
             ALL_TXNS.push({ partner: prefixedPartner, debit: 0, credit: total, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
@@ -432,7 +432,7 @@ function runReport() {
         let runningBal = p.openingDebit - p.openingCredit;
         let runningBalForeign = (p.openingDebit / p.exRate) - (p.openingCredit / p.exRate);
         
-        // Filter transactions for this partner using type-prefixed IDs to avoid ID collisions between Customers/Suppliers/Banks
+        // Filter transactions for this partner using type-prefixed IDs to avoid ID collisions
         let pRef = String(p.id);
         if (!pRef.includes('-')) {
             if (p.type === 'CUST') pRef = 'cust-' + p.id;
