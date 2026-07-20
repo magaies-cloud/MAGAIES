@@ -39,7 +39,7 @@ function runAlertEngine($pdo) {
         
         // أ. فحص تجاوز الحد الائتماني للعميل (إذا كان مفعل)
         if (isset($settings['credit_limit_breach'])) {
-            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'credit_limit_breach'")->fetch(PDO::FETCH_ASSOC);
+            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'credit_limit_breach'")->fetch(PDO::FETCH_ASSOC);
             $customers = [];
             try {
                 $stmt = $pdo->query("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
@@ -55,11 +55,7 @@ function runAlertEngine($pdo) {
                 }
             } catch (Exception $ex) {}
 
-            if (empty($customers)) {
-                try {
-                    $customers = $pdo->query("SELECT customer_name AS name, current_balance, credit_limit FROM customer_credit_profiles WHERE credit_limit > 0")->fetchAll(PDO::FETCH_ASSOC);
-                } catch (Exception $ex) {}
-            }
+            
 
             foreach ($customers as $c) {
                 $usage_percent = ($c['current_balance'] / $c['credit_limit']) * 100;
@@ -80,7 +76,7 @@ function runAlertEngine($pdo) {
 
         // ب. فحص الشيكات المعلقة المتأخرة
         if (isset($settings['overdue_checks'])) {
-            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'overdue_checks'")->fetch(PDO::FETCH_ASSOC);
+            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'overdue_checks'")->fetch(PDO::FETCH_ASSOC);
             $overdue_count = $pdo->query("SELECT COUNT(*) FROM `checks` WHERE status = 'PENDING' AND due_date < CURRENT_DATE()")->fetchColumn();
             if ($overdue_count > $rule['critical_threshold']) {
                 $msg = "🚨 تنبيه شيكات متأخرة! \nهناك عدد [" . $overdue_count . "] شيك معلق تجاوز تاريخ استحقاقه دون تحصيل في النظام. يرجى المتابعة فوراً.";
@@ -91,7 +87,7 @@ function runAlertEngine($pdo) {
 
         // ج. فحص تجاوز زمن توريد البضائع
         if (isset($settings['factory_lead_time_breach'])) {
-            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'factory_lead_time_breach'")->fetch(PDO::FETCH_ASSOC);
+            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'factory_lead_time_breach'")->fetch(PDO::FETCH_ASSOC);
             $report_data = [
                 ['supplier_name' => 'مصنع الأسعد للحديد', 'avg_lead_time_days' => 8],
                 ['supplier_name' => 'شركة أسمنت عطبرة', 'avg_lead_time_days' => 15],
@@ -110,7 +106,7 @@ function runAlertEngine($pdo) {
 
         // د. فحص أيام تغطية المخزون
         if (isset($settings['days_coverage_danger'])) {
-            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'days_coverage_danger'")->fetch(PDO::FETCH_ASSOC);
+            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'days_coverage_danger'")->fetch(PDO::FETCH_ASSOC);
             $items = getInventoryReportData($pdo);
             foreach ($items as $row) {
                 $daily_sales = $row['sold_qty'] / 30;
@@ -130,7 +126,7 @@ function runAlertEngine($pdo) {
 
         // هـ. فحص ركود بضاعة العنابر
         if (isset($settings['deadstock_limit_breach'])) {
-            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'deadstock_limit_breach'")->fetch(PDO::FETCH_ASSOC);
+            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'deadstock_limit_breach'")->fetch(PDO::FETCH_ASSOC);
             $items = getInventoryReportData($pdo);
             foreach ($items as $row) {
                 if ($row['sold_qty'] == 0 && $row['stock_qty'] > 0) {

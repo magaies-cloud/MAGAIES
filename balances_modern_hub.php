@@ -59,20 +59,19 @@ if (empty($cash_balances)) {
 $netting_report = [];
 try {
     if (isset($pdo)) {
-        $netting_query = "
+                // Modern Netting Logic via JSON-in-SQL tables
+        $stmt = $pdo->query("
             WITH CustomerBalances AS (
-                SELECT a.name, SUM(t.total_amount) as debit_balance 
-                FROM accounts a
-                JOIN transactions t ON a.id = t.account_id 
-                WHERE a.type = 'CUSTOMER' AND t.total_amount > 0
-                GROUP BY a.name
+                SELECT JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) AS name, 
+                       CAST(JSON_UNQUOTE(JSON_EXTRACT(data, '$.currentBalance')) AS DECIMAL(15,2)) AS debit_balance
+                FROM customers 
+                WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)
             ),
             SupplierBalances AS (
-                SELECT a.name, SUM(t.total_amount) as credit_balance 
-                FROM accounts a
-                JOIN transactions t ON a.id = t.account_id 
-                WHERE a.type = 'SUPPLIER' AND t.total_amount > 0
-                GROUP BY a.name
+                SELECT JSON_UNQUOTE(JSON_EXTRACT(data, '$.name')) AS name, 
+                       CAST(JSON_UNQUOTE(JSON_EXTRACT(data, '$.currentBalance')) AS DECIMAL(15,2)) AS credit_balance
+                FROM suppliers 
+                WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)
             )
             SELECT 
                 c.name AS entity_name,
@@ -81,8 +80,8 @@ try {
                 (COALESCE(c.debit_balance, 0) - COALESCE(s.credit_balance, 0)) AS net_position
             FROM CustomerBalances c
             INNER JOIN SupplierBalances s ON c.name = s.name
-        ";
-        $stmt = $pdo->query($netting_query);
+            WHERE c.name IS NOT NULL AND c.name != ''
+        ");
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as $row) {
             $net = (float)$row['net_position'];
