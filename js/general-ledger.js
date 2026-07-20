@@ -150,22 +150,27 @@ function onAccountSearchKey(e) {
 }
 
 window.selectAccount = function selectAccount(id, name, icon) {
-    document.getElementById('filter-account').value = id;
-    const wrap = document.getElementById('account-search-wrap');
-    const chip = document.getElementById('selected-chip');
-    
-    if (wrap) wrap.style.display = 'none';
-    
-    if (chip) {
-        chip.style.display = 'flex';
-        document.getElementById('chip-icon').innerText = icon || '🏷️';
-        document.getElementById('chip-name').innerText = name;
+    try {
+        document.getElementById('filter-account').value = id;
+        const wrap = document.getElementById('account-search-wrap');
+        const chip = document.getElementById('selected-chip');
+        
+        if (wrap) wrap.style.display = 'none';
+        
+        if (chip) {
+            chip.style.display = 'flex';
+            document.getElementById('chip-icon').innerText = icon || '🏷️';
+            document.getElementById('chip-name').innerText = name;
+        }
+        
+        const list = document.getElementById('autocomplete-list');
+        if (list) list.style.display = 'none';
+        
+        runReport(); // Auto run report on selection
+    } catch(err) {
+        alert('🚨 خطأ في selectAccount:\n' + err.message + '\nStack: ' + err.stack);
+        console.error('selectAccount error:', err);
     }
-    
-    const list = document.getElementById('autocomplete-list');
-    if (list) list.style.display = 'none';
-    
-    runReport(); // Auto run report on selection
 }
 
 function clearAccountSearch() {
@@ -1462,7 +1467,12 @@ function runReport() {
     }
 
     setTimeout(() => {
-        executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, curFilter, postedFilter);
+        try {
+            executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, curFilter, postedFilter);
+        } catch(err) {
+            alert('🚨 خطأ في executeReportLogic:\n' + err.message + '\nStack: ' + err.stack);
+            console.error('executeReportLogic error:', err);
+        }
         if (btnIcon && btnSpinner) {
             btnIcon.style.display = 'inline-block';
             btnSpinner.style.display = 'none';
