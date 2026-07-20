@@ -80,8 +80,16 @@ document.addEventListener('DBReady', () => {
     localSafes.forEach(s => ACCOUNTS.push({ id: `safe-${s.id}`, name: s.name || s.safeName, type: 'خزنة', color: '#8b5cf6', balances: { checks: 0, debt: parseFloat(s.currentBalance) || 0, loan: 0 } }));
     localExp.forEach(e => ACCOUNTS.push({ id: `exp-${e.id}`, name: e.name || e.accountName, type: 'عام', color: '#64748b', balances: { checks: 0, debt: parseFloat(e.currentBalance) || 0, loan: 0 } }));
 
-    document.getElementById('hdr-date').valueAsDate = new Date();
-    // setNextVoucherNumber();
+    const dateInputEl = document.getElementById('hdr-date');
+    if (dateInputEl) {
+        dateInputEl.valueAsDate = new Date();
+        dateInputEl.addEventListener('change', () => {
+            if (typeof currentViewedIndex !== 'undefined' && currentViewedIndex === -1) {
+                setNextVoucherNumber();
+            }
+        });
+    }
+    setNextVoucherNumber();
 
     function buildOptions() {
         let html = '<option value="">-- اختر الحساب --</option>';
@@ -198,9 +206,12 @@ function setNextVoucherNumber() {
         spData = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem(getTenantKey('erp_single_payments_v1')) || localStorage.getItem('erp_single_payments_v1')) || []));
     } catch(e) {}
 
-    const now = new Date();
-    const yy = String(now.getFullYear()).substring(2, 4);
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    // Base prefix on selected voucher date, not current system date
+    const dateInput = document.getElementById('hdr-date');
+    const selectedDate = (dateInput && dateInput.value) ? new Date(dateInput.value) : new Date();
+    const validDate = isNaN(selectedDate.getTime()) ? new Date() : selectedDate;
+    const yy = String(validDate.getFullYear()).substring(2, 4);
+    const mm = String(validDate.getMonth() + 1).padStart(2, '0');
     const datePrefix = 'E' + yy + mm;
 
     let max = 0;
@@ -216,7 +227,10 @@ function setNextVoucherNumber() {
     });
 
     const nextNo = `${datePrefix}${String(max + 1).padStart(4, '0')}`;
-    document.getElementById('voucher-number').innerText = nextNo;
+    const vNumEl = document.getElementById('voucher-number');
+    if (vNumEl) {
+        vNumEl.innerText = nextNo;
+    }
 }
 
 window.adjustAmountFontSize = function(input) {

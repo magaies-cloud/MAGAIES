@@ -8,7 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set today's date
     const today = new Date().toISOString().split('T')[0];
     const dateEl = document.getElementById('voucher-date');
-    if (dateEl) dateEl.value = today;
+    if (dateEl) {
+        dateEl.value = today;
+        dateEl.addEventListener('change', () => {
+            if (currentVoucherIndex === -1) {
+                loadNextMultiVoucherNumber();
+            }
+        });
+    }
 
     // Live date display in header
     const dateMini = document.getElementById('header-date-mini');
@@ -1912,16 +1919,19 @@ async function loadNextMultiVoucherNumber() {
     } catch(e) {}
     if (!Array.isArray(existingData)) existingData = Object.values(existingData);
     
-    const now = new Date();
-    const yy = String(now.getFullYear()).substring(2, 4);
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    // Base prefix on selected voucher date, not current system date
+    const dateEl = document.getElementById('voucher-date');
+    const selectedDate = (dateEl && dateEl.value) ? new Date(dateEl.value) : new Date();
+    const validDate = isNaN(selectedDate.getTime()) ? new Date() : selectedDate;
+    const yy = String(validDate.getFullYear()).substring(2, 4);
+    const mm = String(validDate.getMonth() + 1).padStart(2, '0');
     const datePrefix = yy + mm;
     const prefix = 'M';
     
     let max = 0;
     const groupedVouchers = existingData.filter(v => v.isGrouped);
     groupedVouchers.forEach(v => {
-        const vNo = String(v.voucherNo || '');
+        const vNo = String(v.voucherNo || v.id || '');
         const matchPrefix = prefix + datePrefix;
         if (vNo.startsWith(matchPrefix)) {
             const seqStr = vNo.substring(matchPrefix.length);
