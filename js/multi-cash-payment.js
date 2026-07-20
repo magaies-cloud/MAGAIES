@@ -2160,6 +2160,9 @@ function loadVoucherIntoForm(v) {
 
 function getAccountName(id) {
     if (!id) return '';
+    if (!ACCOUNTS || ACCOUNTS.length === 0) {
+        if (typeof window.buildAccountsArray === 'function') window.buildAccountsArray();
+    }
     const cleanId = String(id).replace(/^(cust|supp|bank|safe|exp)-/, '');
     const matched = ACCOUNTS.find(a => String(a.id) === String(id) || String(a.rawId) === String(cleanId) || String(a.name) === String(id));
     return matched ? matched.name : id;

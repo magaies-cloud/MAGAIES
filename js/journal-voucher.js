@@ -476,6 +476,9 @@ if (!window.normalizeArabic) {
 
 function getAccountName(id) {
     if(!id) return '';
+    if (!ACCOUNTS || ACCOUNTS.length === 0) {
+        if (typeof window.buildAccountsArray === 'function') window.buildAccountsArray();
+    }
     let idStr = String(id).trim();
     let found = (ACCOUNTS || []).find(a => String(a.id).toLowerCase() === idStr.toLowerCase());
     if (found) return found.name;
