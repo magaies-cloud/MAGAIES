@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $rule_key = $_POST['rule_key'];
         $warn = $_POST['warning_threshold'];
         $crit = $_POST['critical_threshold'];
-        $stmt = $pdo->prepare("UPDATE alert_settings SET warning_threshold = ?, critical_threshold = ? WHERE rule_key = ?");
+        $stmt = $pdo->prepare("UPDATE alert_settings SET warning_threshold = ?, critical_threshold = ? WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = ?");
         $stmt->execute([$warn, $crit, $rule_key]);
     }
     // تحديث فوري وسلس للصفحة لتطبيق التغييرات
@@ -32,14 +32,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 function runAlertEngine($pdo) {
     try {
         // تصفير التنبيهات القديمة لإنتاج تنبيهات دقيقة محدثة
-        $pdo->query("TRUNCATE TABLE alert_logs");
+        global $GLOBAL_TENANT_ID; $pdo->prepare("DELETE FROM alert_logs WHERE tenant_id = ?")->execute([$GLOBAL_TENANT_ID]);
         
         // جلب الإعدادات المفعلة فقط
-        $settings = $pdo->query("SELECT rule_key, is_enabled FROM alert_settings WHERE is_enabled = 1")->fetchAll(PDO::FETCH_KEY_PAIR);
+        $settings = $pdo->query("SELECT rule_key, is_enabled FROM alert_settings WHERE is_enabled = 1 AND tenant_id = '{$GLOBAL_TENANT_ID}'")->fetchAll(PDO::FETCH_KEY_PAIR);
         
         // أ. فحص تجاوز الحد الائتماني للعميل (إذا كان مفعل)
         if (isset($settings['credit_limit_breach'])) {
-            $rule = $pdo->query("SELECT * FROM alert_settings WHERE rule_key = 'credit_limit_breach'")->fetch(PDO::FETCH_ASSOC);
+            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'credit_limit_breach'")->fetch(PDO::FETCH_ASSOC);
             $customers = [];
             try {
                 $stmt = $pdo->query("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
@@ -67,31 +67,31 @@ function runAlertEngine($pdo) {
                     $msg = "🚨 خطر ائتماني حرج! العميل [" . $c['name'] . "] تجاوز الحد الائتماني بنسبة " . round($usage_percent) . "% \n💰 الرصيد الحالي: " . number_format($c['current_balance']) . " \n🚧 الحد المسموح: " . number_format($c['credit_limit']);
                     
                     // حفظ التنبيه في قاعدة البيانات
-                    $pdo->prepare("INSERT INTO alert_logs (rule_key, severity, message) VALUES ('credit_limit_breach', 'RED', ?)")->execute([$msg]);
+                    $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message) VALUES ('{$GLOBAL_TENANT_ID}', 'credit_limit_breach', 'RED', ?)")->execute([$msg]);
                     
                     // إرسال فوري إلى الواتساب الخاص بك!
                     sendWhatsAppAlert($msg);
                 } elseif ($usage_percent >= $rule['warning_threshold']) {
                     $msg = "⚠️ العميل [" . $c['name'] . "] يقترب من الحد الائتماني بنسبة " . round($usage_percent) . "%";
-                    $pdo->prepare("INSERT INTO alert_logs (rule_key, severity, message) VALUES ('credit_limit_breach', 'YELLOW', ?)")->execute([$msg]);
+                    $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message) VALUES ('{$GLOBAL_TENANT_ID}', 'credit_limit_breach', 'YELLOW', ?)")->execute([$msg]);
                 }
             }
         }
 
         // ب. فحص الشيكات المعلقة المتأخرة
         if (isset($settings['overdue_checks'])) {
-            $rule = $pdo->query("SELECT * FROM alert_settings WHERE rule_key = 'overdue_checks'")->fetch(PDO::FETCH_ASSOC);
+            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'overdue_checks'")->fetch(PDO::FETCH_ASSOC);
             $overdue_count = $pdo->query("SELECT COUNT(*) FROM `checks` WHERE status = 'PENDING' AND due_date < CURRENT_DATE()")->fetchColumn();
             if ($overdue_count > $rule['critical_threshold']) {
                 $msg = "🚨 تنبيه شيكات متأخرة! \nهناك عدد [" . $overdue_count . "] شيك معلق تجاوز تاريخ استحقاقه دون تحصيل في النظام. يرجى المتابعة فوراً.";
-                $pdo->prepare("INSERT INTO alert_logs (rule_key, severity, message) VALUES ('overdue_checks', 'RED', ?)")->execute([$msg]);
+                $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message) VALUES ('{$GLOBAL_TENANT_ID}', 'overdue_checks', 'RED', ?)")->execute([$msg]);
                 sendWhatsAppAlert($msg);
             }
         }
 
         // ج. فحص تجاوز زمن توريد البضائع
         if (isset($settings['factory_lead_time_breach'])) {
-            $rule = $pdo->query("SELECT * FROM alert_settings WHERE rule_key = 'factory_lead_time_breach'")->fetch(PDO::FETCH_ASSOC);
+            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'factory_lead_time_breach'")->fetch(PDO::FETCH_ASSOC);
             $report_data = [
                 ['supplier_name' => 'مصنع الأسعد للحديد', 'avg_lead_time_days' => 8],
                 ['supplier_name' => 'شركة أسمنت عطبرة', 'avg_lead_time_days' => 15],
@@ -99,18 +99,18 @@ function runAlertEngine($pdo) {
             foreach ($report_data as $row) {
                 if ($row['avg_lead_time_days'] >= $rule['critical_threshold']) {
                     $msg = "🚨 تأخر لوجستي حرج! المصنع [" . $row['supplier_name'] . "] تجاوز زمن التوصيل المسموح به وبلغ " . $row['avg_lead_time_days'] . " يوماً (الحد الأقصى: " . $rule['critical_threshold'] . " يوم).";
-                    $pdo->prepare("INSERT INTO alert_logs (rule_key, severity, message) VALUES ('factory_lead_time_breach', 'RED', ?)")->execute([$msg]);
+                    $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message) VALUES ('{$GLOBAL_TENANT_ID}', 'factory_lead_time_breach', 'RED', ?)")->execute([$msg]);
                     sendWhatsAppAlert($msg);
                 } elseif ($row['avg_lead_time_days'] >= $rule['warning_threshold']) {
                     $msg = "⚠️ تباطؤ توريد! المصنع [" . $row['supplier_name'] . "] سجل متوسط زمن توريد " . $row['avg_lead_time_days'] . " يوماً (ينصح بالمتابعة).";
-                    $pdo->prepare("INSERT INTO alert_logs (rule_key, severity, message) VALUES ('factory_lead_time_breach', 'YELLOW', ?)")->execute([$msg]);
+                    $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message) VALUES ('{$GLOBAL_TENANT_ID}', 'factory_lead_time_breach', 'YELLOW', ?)")->execute([$msg]);
                 }
             }
         }
 
         // د. فحص أيام تغطية المخزون
         if (isset($settings['days_coverage_danger'])) {
-            $rule = $pdo->query("SELECT * FROM alert_settings WHERE rule_key = 'days_coverage_danger'")->fetch(PDO::FETCH_ASSOC);
+            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'days_coverage_danger'")->fetch(PDO::FETCH_ASSOC);
             $items = getInventoryReportData($pdo);
             foreach ($items as $row) {
                 $daily_sales = $row['sold_qty'] / 30;
@@ -118,11 +118,11 @@ function runAlertEngine($pdo) {
                      $coverage_days = $row['stock_qty'] / $daily_sales;
                      if ($coverage_days <= $rule['critical_threshold']) {
                          $msg = "🚨 نفاد مخزون وشيك! صنف [" . $row['item_name'] . "] لديه أيام تغطية حرجة تبلغ " . round($coverage_days) . " يوم فقط بناءً على معدل السحب اليومي.";
-                         $pdo->prepare("INSERT INTO alert_logs (rule_key, severity, message) VALUES ('days_coverage_danger', 'RED', ?)")->execute([$msg]);
+                         $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message) VALUES ('{$GLOBAL_TENANT_ID}', 'days_coverage_danger', 'RED', ?)")->execute([$msg]);
                          sendWhatsAppAlert($msg);
                      } elseif ($coverage_days <= $rule['warning_threshold']) {
                          $msg = "⚠️ مخزون منخفض! صنف [" . $row['item_name'] . "] لديه أيام تغطية تبلغ " . round($coverage_days) . " يوم.";
-                         $pdo->prepare("INSERT INTO alert_logs (rule_key, severity, message) VALUES ('days_coverage_danger', 'YELLOW', ?)")->execute([$msg]);
+                         $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message) VALUES ('{$GLOBAL_TENANT_ID}', 'days_coverage_danger', 'YELLOW', ?)")->execute([$msg]);
                      }
                 }
             }
@@ -130,14 +130,14 @@ function runAlertEngine($pdo) {
 
         // هـ. فحص ركود بضاعة العنابر
         if (isset($settings['deadstock_limit_breach'])) {
-            $rule = $pdo->query("SELECT * FROM alert_settings WHERE rule_key = 'deadstock_limit_breach'")->fetch(PDO::FETCH_ASSOC);
+            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'deadstock_limit_breach'")->fetch(PDO::FETCH_ASSOC);
             $items = getInventoryReportData($pdo);
             foreach ($items as $row) {
                 if ($row['sold_qty'] == 0 && $row['stock_qty'] > 0) {
                      $stagnant_days = 200;
                      if ($stagnant_days >= $rule['critical_threshold']) {
                          $msg = "🚨 جمود رأسمالي حرج! صنف [" . $row['item_name'] . "] راكد في العنابر منذ " . $stagnant_days . " يوماً دون حركة بيع (الحد الأقصى: " . $rule['critical_threshold'] . " يوم).";
-                         $pdo->prepare("INSERT INTO alert_logs (rule_key, severity, message) VALUES ('deadstock_limit_breach', 'RED', ?)")->execute([$msg]);
+                         $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message) VALUES ('{$GLOBAL_TENANT_ID}', 'deadstock_limit_breach', 'RED', ?)")->execute([$msg]);
                      }
                 }
             }
@@ -154,8 +154,8 @@ runAlertEngine($pdo);
 $rules = [];
 $logs = [];
 try {
-    $rules = $pdo->query("SELECT * FROM alert_settings")->fetchAll(PDO::FETCH_ASSOC);
-    $logs = $pdo->query("SELECT * FROM alert_logs ORDER BY severity DESC, created_at DESC")->fetchAll(PDO::FETCH_ASSOC);
+    $rules = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}'")->fetchAll(PDO::FETCH_ASSOC);
+    $logs = $pdo->query("SELECT * FROM alert_logs WHERE tenant_id = '{$GLOBAL_TENANT_ID}' ORDER BY severity DESC, created_at DESC")->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {}
 
 // دالة تحويل العملة الموحدة للتقارير
