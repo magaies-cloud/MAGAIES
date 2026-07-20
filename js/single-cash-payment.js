@@ -764,7 +764,8 @@ function submitVoucher() {
             let custs = loadEntity('erp_customers_v1');
             let idx = custs.findIndex(c => String(c.id) === String(id));
             if (idx > -1) {
-                custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtBeneficiary;
+                // When we pay a customer, their debt to us INCREASES (or our debt to them decreases). Customer balance is Debit.
+                custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amount * multiplier;
                 saveEntity('erp_customers_v1', custs);
             }
         } else if (toAccId.startsWith('supp-')) {

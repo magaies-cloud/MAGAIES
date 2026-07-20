@@ -410,75 +410,77 @@ function submitVoucher() {
     function applyVoucherEffect(fromAccId, toAccId, amount, isRevert = false) {
         if (!fromAccId || !toAccId) return;
         let multiplier = isRevert ? -1 : 1;
-        let amtFrom = -amount * multiplier; // debt decreases
+        let amtFrom = -amount * multiplier; // customer debt decreases
         let amtTo = amount * multiplier;    // safe increases
+
+        const getTenantKey = window.getTenantKey || ((k) => k);
+        const loadEntity = (key) => {
+            try { return JSON.parse(localStorage.getItem(getTenantKey(key)) || localStorage.getItem(key)) || []; } catch(e) { return []; }
+        };
+        const saveEntity = (key, data) => {
+            localStorage.setItem(getTenantKey(key), JSON.stringify(data));
+        };
 
         // 1. Update fromAccount (Payer: Customer/Supplier/Safe/Bank/Expense)
         if (fromAccId.startsWith('cust-')) {
             let id = fromAccId.substring(5);
-            let custs = [];
-            try { custs = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [])); } catch(e){}
+            let custs = loadEntity('erp_customers_v1');
             let idx = custs.findIndex(c => String(c.id) === String(id));
             if (idx > -1) {
                 custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtFrom;
-                localStorage.setItem('erp_customers_v1', JSON.stringify(custs));
+                saveEntity('erp_customers_v1', custs);
             }
         } else if (fromAccId.startsWith('supp-')) {
             let id = fromAccId.substring(5);
-            let sups = [];
-            try { sups = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [])); } catch(e){}
+            let sups = loadEntity('erp_suppliers_v1');
             let idx = sups.findIndex(s => String(s.id) === String(id));
             if (idx > -1) {
-                sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtFrom;
-                localStorage.setItem('erp_suppliers_v1', JSON.stringify(sups));
+                // When we receive money from a supplier, our debt to them INCREASES (because it's a refund or advance). Supplier balance is Credit.
+                sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amount * multiplier;
+                saveEntity('erp_suppliers_v1', sups);
             }
         } else if (fromAccId.startsWith('bank-')) {
             let id = fromAccId.substring(5);
-            let banks = [];
-            try { banks = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [])); } catch(e){}
+            let banks = loadEntity('erp_banks_v1');
             let idx = banks.findIndex(b => String(b.id) === String(id));
             if (idx > -1) {
                 banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtFrom;
-                localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+                saveEntity('erp_banks_v1', banks);
             }
         } else if (fromAccId.startsWith('safe-')) {
             let id = fromAccId.substring(5);
-            let safes = [];
-            try { safes = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [])); } catch(e){}
+            let safes = loadEntity('erp_safes_v1');
             let idx = safes.findIndex(s => String(s.id) === String(id));
             if (idx > -1) {
                 safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtFrom;
-                localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
+                saveEntity('erp_safes_v1', safes);
             }
         } else if (fromAccId.startsWith('exp-')) {
             let id = fromAccId.substring(4);
-            let accounts = [];
-            try { accounts = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [])); } catch(e){}
+            let accounts = loadEntity('erp_accounts_v1');
             let idx = accounts.findIndex(a => String(a.id) === String(id));
             if (idx > -1) {
                 accounts[idx].currentBalance = (parseFloat(accounts[idx].currentBalance) || 0) - amount * multiplier;
-                localStorage.setItem('erp_accounts_v1', JSON.stringify(accounts));
+                saveEntity('erp_accounts_v1', accounts);
             }
         }
 
         // 2. Update toAccount (Recipient Safe/Bank)
         if (toAccId.startsWith('safe-')) {
             let id = toAccId.substring(5);
-            let safes = [];
-            try { safes = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [])); } catch(e){}
+            let safes = loadEntity('erp_safes_v1');
             let idx = safes.findIndex(s => String(s.id) === String(id));
             if (idx > -1) {
                 safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtTo;
-                localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
+                saveEntity('erp_safes_v1', safes);
             }
         } else if (toAccId.startsWith('bank-')) {
             let id = toAccId.substring(5);
-            let banks = [];
-            try { banks = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [])); } catch(e){}
+            let banks = loadEntity('erp_banks_v1');
             let idx = banks.findIndex(b => String(b.id) === String(id));
             if (idx > -1) {
                 banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtTo;
-                localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+                saveEntity('erp_banks_v1', banks);
             }
         }
     }
