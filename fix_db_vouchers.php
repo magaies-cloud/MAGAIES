@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../api/db.php';
+require_once __DIR__ . '/api/db.php';
 
 try {
     $stmt = $pdo->query("SELECT id, data, tenant_id FROM single_payments ORDER BY tenant_id ASC, id ASC");
