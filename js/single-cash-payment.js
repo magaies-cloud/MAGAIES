@@ -9,7 +9,7 @@ let ACCOUNTS = [];
 
 let singlePaymentsData = [];
             try {
-                singlePaymentsData = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+                singlePaymentsData = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : ((window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []))));
                 if (!Array.isArray(singlePaymentsData)) singlePaymentsData = [];
             } catch(e) {
                 singlePaymentsData = [];
@@ -147,7 +147,7 @@ document.addEventListener('DBReady', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const voucherId = urlParams.get('id');
     if (voucherId) {
-        singlePaymentsData = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+        singlePaymentsData = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : ((window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []))));
         const idx = singlePaymentsData.findIndex(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId) || String(v.paymentNo) === String(voucherId));
         if (idx !== -1) {
             currentViewedIndex = idx;
@@ -195,7 +195,7 @@ function setNextVoucherNumber() {
     let spData = [];
     try {
         const getTenantKey = window.getTenantKey || ((k) => k);
-        spData = JSON.parse(localStorage.getItem(getTenantKey('erp_single_payments_v1')) || localStorage.getItem('erp_single_payments_v1')) || [];
+        spData = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem(getTenantKey('erp_single_payments_v1')) || localStorage.getItem('erp_single_payments_v1')) || []));
     } catch(e) {}
 
     const now = new Date();
@@ -413,7 +413,7 @@ function resetVoucherSilent() {
 }
 
 function loadPreviousVoucher() {
-    singlePaymentsData = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+    singlePaymentsData = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : ((window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []))));
     if (singlePaymentsData.length === 0) return showToast("لا توجد سندات سابقة", "warning");
     
     if (currentViewedIndex === -1) {
@@ -427,7 +427,7 @@ function loadPreviousVoucher() {
 }
 
 function loadNextVoucher() {
-    singlePaymentsData = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+    singlePaymentsData = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : ((window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []))));
     if (currentViewedIndex === -1) return; // already at new
     
     if (currentViewedIndex < singlePaymentsData.length - 1) {
@@ -723,7 +723,7 @@ function submitVoucher() {
     }
 
     const getTenantKey = window.getTenantKey || ((k) => k);
-    singlePaymentsData = JSON.parse(localStorage.getItem(getTenantKey('erp_single_payments_v1')) || localStorage.getItem('erp_single_payments_v1')) || [];
+    singlePaymentsData = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem(getTenantKey('erp_single_payments_v1')) || localStorage.getItem('erp_single_payments_v1')) || []));
     
     // Balance update logic
     function applyPaymentEffect(fromAccId, toAccId, amount, isRevert = false) {
@@ -1085,7 +1085,7 @@ function confirmDelete() {
 
             let custs = [];
             try {
-                custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+                custs = ((window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []))).filter(x => !x.deleted);
                 if (!Array.isArray(custs)) custs = [];
             } catch(e) {
                 custs = [];
@@ -1097,7 +1097,7 @@ function confirmDelete() {
             } else {
                 let sups = [];
             try {
-                sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
+                sups = ((window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []))).filter(x => !x.deleted);
                 if (!Array.isArray(sups)) sups = [];
             } catch(e) {
                 sups = [];
@@ -1111,7 +1111,7 @@ function confirmDelete() {
 
             let banks = [];
             try {
-                banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+                banks = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []));
                 if (!Array.isArray(banks)) banks = [];
             } catch(e) {
                 banks = [];
@@ -1952,7 +1952,7 @@ window.unifyVoucherSequences = function() {
     
     let spData = [];
     try {
-        spData = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+        spData = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : ((window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []))));
     } catch(e) {}
 
     if (spData.length === 0) {

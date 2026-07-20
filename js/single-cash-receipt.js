@@ -9,7 +9,7 @@ let ACCOUNTS = [];
 
 let singleReceiptsData = [];
             try {
-                singleReceiptsData = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+                singleReceiptsData = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : ((window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || []))));
                 if (!Array.isArray(singleReceiptsData)) singleReceiptsData = [];
             } catch(e) {
                 singleReceiptsData = [];
@@ -65,15 +65,15 @@ document.addEventListener('DBReady', () => {
     }
 
     let localCusts = [];
-    try { localCusts = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted); } catch(e) { localCusts = []; }
+    try { localCusts = ((window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || []))).filter(x => !x.deleted); } catch(e) { localCusts = []; }
     let localSups = [];
-    try { localSups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted); } catch(e) { localSups = []; }
+    try { localSups = ((window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || []))).filter(x => !x.deleted); } catch(e) { localSups = []; }
     let localBanks = [];
-    try { localBanks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e) { localBanks = []; }
+    try { localBanks = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [])); } catch(e) { localBanks = []; }
     let localSafes = [];
-    try { localSafes = JSON.parse(localStorage.getItem('erp_safes_v1')) || []; } catch(e) { localSafes = []; }
+    try { localSafes = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [])); } catch(e) { localSafes = []; }
     let localExp = [];
-    try { localExp = JSON.parse(localStorage.getItem('erp_accounts_v1')) || []; } catch(e) { localExp = []; }
+    try { localExp = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [])); } catch(e) { localExp = []; }
     
     ACCOUNTS = [];
     localCusts.forEach(c => ACCOUNTS.push({ id: c.id, name: c.name, balances: { checks: 0, debt: parseFloat(c.currentBalance) || 0, credit: 0 } }));
@@ -100,7 +100,7 @@ document.addEventListener('DBReady', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const voucherId = urlParams.get('id');
     if (voucherId) {
-        singleReceiptsData = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+        singleReceiptsData = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : ((window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || []))));
         const idx = singleReceiptsData.findIndex(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId) || String(v.receiptNo) === String(voucherId));
         if (idx !== -1) {
             currentViewedIndex = idx;
@@ -139,7 +139,7 @@ function togglePaymentMethod() {
 function setNextVoucherNumber() {
     let srData = [];
     try {
-        srData = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+        srData = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : ((window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || []))));
     } catch(e) {}
 
     const now = new Date();
@@ -241,7 +241,7 @@ function resetVoucherSilent() {
 }
 
 function loadPreviousVoucher() {
-    singleReceiptsData = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+    singleReceiptsData = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : ((window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || []))));
     if (singleReceiptsData.length === 0) return showToast("لا توجد سندات سابقة", "warning");
     
     if (currentViewedIndex === -1) {
@@ -255,7 +255,7 @@ function loadPreviousVoucher() {
 }
 
 function loadNextVoucher() {
-    singleReceiptsData = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+    singleReceiptsData = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : ((window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || []))));
     if (currentViewedIndex === -1) return; // already at new
     
     if (currentViewedIndex < singleReceiptsData.length - 1) {
@@ -404,7 +404,7 @@ function submitVoucher() {
         }
     }
 
-    singleReceiptsData = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+    singleReceiptsData = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : ((window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || []))));
     
     // Balance update logic
     function applyVoucherEffect(fromAccId, toAccId, amount, isRevert = false) {
@@ -417,7 +417,7 @@ function submitVoucher() {
         if (fromAccId.startsWith('cust-')) {
             let id = fromAccId.substring(5);
             let custs = [];
-            try { custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || []; } catch(e){}
+            try { custs = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [])); } catch(e){}
             let idx = custs.findIndex(c => String(c.id) === String(id));
             if (idx > -1) {
                 custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtFrom;
@@ -426,7 +426,7 @@ function submitVoucher() {
         } else if (fromAccId.startsWith('supp-')) {
             let id = fromAccId.substring(5);
             let sups = [];
-            try { sups = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []; } catch(e){}
+            try { sups = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [])); } catch(e){}
             let idx = sups.findIndex(s => String(s.id) === String(id));
             if (idx > -1) {
                 sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtFrom;
@@ -435,7 +435,7 @@ function submitVoucher() {
         } else if (fromAccId.startsWith('bank-')) {
             let id = fromAccId.substring(5);
             let banks = [];
-            try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e){}
+            try { banks = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [])); } catch(e){}
             let idx = banks.findIndex(b => String(b.id) === String(id));
             if (idx > -1) {
                 banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtFrom;
@@ -444,7 +444,7 @@ function submitVoucher() {
         } else if (fromAccId.startsWith('safe-')) {
             let id = fromAccId.substring(5);
             let safes = [];
-            try { safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || []; } catch(e){}
+            try { safes = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [])); } catch(e){}
             let idx = safes.findIndex(s => String(s.id) === String(id));
             if (idx > -1) {
                 safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtFrom;
@@ -453,7 +453,7 @@ function submitVoucher() {
         } else if (fromAccId.startsWith('exp-')) {
             let id = fromAccId.substring(4);
             let accounts = [];
-            try { accounts = JSON.parse(localStorage.getItem('erp_accounts_v1')) || []; } catch(e){}
+            try { accounts = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [])); } catch(e){}
             let idx = accounts.findIndex(a => String(a.id) === String(id));
             if (idx > -1) {
                 accounts[idx].currentBalance = (parseFloat(accounts[idx].currentBalance) || 0) - amount * multiplier;
@@ -465,7 +465,7 @@ function submitVoucher() {
         if (toAccId.startsWith('safe-')) {
             let id = toAccId.substring(5);
             let safes = [];
-            try { safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || []; } catch(e){}
+            try { safes = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [])); } catch(e){}
             let idx = safes.findIndex(s => String(s.id) === String(id));
             if (idx > -1) {
                 safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtTo;
@@ -474,7 +474,7 @@ function submitVoucher() {
         } else if (toAccId.startsWith('bank-')) {
             let id = toAccId.substring(5);
             let banks = [];
-            try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e){}
+            try { banks = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [])); } catch(e){}
             let idx = banks.findIndex(b => String(b.id) === String(id));
             if (idx > -1) {
                 banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtTo;
@@ -532,7 +532,7 @@ function confirmDelete() {
 
             let custs = [];
             try {
-                custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+                custs = ((window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || []))).filter(x => !x.deleted);
                 if (!Array.isArray(custs)) custs = [];
             } catch(e) {
                 custs = [];
@@ -544,7 +544,7 @@ function confirmDelete() {
             } else {
                 let sups = [];
             try {
-                sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
+                sups = ((window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || []))).filter(x => !x.deleted);
                 if (!Array.isArray(sups)) sups = [];
             } catch(e) {
                 sups = [];
@@ -558,7 +558,7 @@ function confirmDelete() {
 
             let banks = [];
             try {
-                banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+                banks = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || []));
                 if (!Array.isArray(banks)) banks = [];
             } catch(e) {
                 banks = [];

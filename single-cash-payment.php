@@ -20,7 +20,22 @@ try {
 }
 $voucher_no = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
 $page_title = 'حركة مالية';
+$SERVER_SINGLE_PAYMENTS_json = '[]';
+try {
+    $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? ORDER BY id ASC");
+    $stmt->execute([$GLOBAL_TENANT_ID]);
+    $arr = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $arr[] = json_decode($row['data'], true);
+    }
+    $SERVER_SINGLE_PAYMENTS_json = json_encode($arr);
+} catch (Exception $e) {}
 ?>
+<script>
+    window.SERVER_SINGLE_PAYMENTS = <?php echo $SERVER_SINGLE_PAYMENTS_json; ?>;
+</script>
+<?php
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

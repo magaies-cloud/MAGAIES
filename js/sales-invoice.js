@@ -74,7 +74,7 @@ const SALE_PREFIX = { direct:'', split:'', delivery:'', proforma:'', costcenter:
 
 // Peek: show the next number WITHOUT incrementing (safe for refresh)
 function peekNextInvoiceNumber(type) {
-    let list = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    let list = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
     const now = new Date();
     const yy = String(now.getFullYear()).substring(2, 4);
     const mm = String(now.getMonth() + 1).padStart(2, '0');
@@ -115,7 +115,7 @@ function commitInvoiceNumber(type) {
 document.addEventListener('DBReady', () => {
     window.refreshAllMasterData = function() {
         // Load real customer data from master-data
-        const localCusts = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+        const localCusts = ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))).filter(x => !x.deleted);
         if(localCusts.length > 0) {
             CUSTOMERS = localCusts.map(c => ({
                 id: c.id,
@@ -128,8 +128,8 @@ document.addEventListener('DBReady', () => {
             CUSTOMERS.unshift({ id:'walk-in', name:'زبون نقدي (Walk-in)', ledger:0, checks:0, creditLimit:0, status:'active' });
         }
 
-        const rawItems = (JSON.parse(localStorage.getItem('erp_items_v1')) || []).filter(x => !x.deleted);
-        const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+        const rawItems = ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))).filter(x => !x.deleted);
+        const invData = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []));
         
         if (rawItems.length === 0) {
             console.warn('تنبيه: لا توجد أصناف في النظام! يرجى إضافة الأصناف من شاشة (البيانات الأساسية) أولاً.');
@@ -203,7 +203,7 @@ document.addEventListener('DBReady', () => {
         const loaded = loadInvoiceFromStorage(invoiceId);
         if (!loaded) {
             // Sometimes id is the UUID, we need to find the invoiceNo
-            const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+            const sales = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
             const inv = sales.find(s => String(s.id) === String(invoiceId) || String(s.invoiceNo) === String(invoiceId));
             if (inv && inv.invoiceNo) {
                 loadInvoiceFromStorage(inv.invoiceNo);
@@ -249,7 +249,7 @@ function togglePaymentAccount() {
     
     let banks = [];
     try {
-        banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+        banks = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []));
     } catch(e) {}
     
     banks.forEach(b => {
@@ -359,7 +359,7 @@ function addNewCustomer() {
 
 function loadPreviousInvoice() {
     const currentNoStr = document.getElementById('hdr-inv-no').value;
-    let list = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    let list = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
     
     let previousInvoices = list
         .filter(inv => inv.invoiceNo && inv.invoiceNo < currentNoStr)
@@ -377,7 +377,7 @@ function loadPreviousInvoice() {
 
 function loadNextInvoice() {
     const currentNoStr = document.getElementById('hdr-inv-no').value;
-    let list = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    let list = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
     
     let nextInvoices = list
         .filter(inv => inv.invoiceNo && inv.invoiceNo > currentNoStr)
@@ -407,7 +407,7 @@ function loadInvoiceFromStorage(invNo) {
     }
     
     if (!data) {
-        let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+        let allSales = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
         data = allSales.find(inv => String(inv.invoiceNo) === String(invNo) || String(inv.id) === String(invNo));
     }
     
@@ -667,7 +667,7 @@ function loadInvoiceFromStorage(invNo) {
     }
     
     if (!data) {
-        let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+        let allSales = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
         data = allSales.find(inv => inv.invoiceNo === invNo || inv.id === invNo);
     }
     
@@ -1411,7 +1411,7 @@ function submitInvoice(ignoreWarnings = false) {
     if (paymentMethod === 'credit' && cust && cust.id !== 'walk-in') {
         const debt = cust.ledger || 0;
         if (debt > 0) {
-            let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+            let allSales = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
             const creditInvs = allSales.filter(inv => (inv.customer === cust.id || inv.customerId === cust.id) && inv.paymentMethod === 'credit');
             creditInvs.reverse(); // Newest first
 
@@ -1532,7 +1532,7 @@ function submitInvoice(ignoreWarnings = false) {
     
     if (paymentMethod !== 'credit' && paymentAccountId) {
         let banks = [];
-        try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e) {}
+        try { banks = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [])); } catch(e) {}
         const bIdx = banks.findIndex(b => b.id === paymentAccountId);
         if (bIdx > -1) {
             let currentBalance = parseFloat(banks[bIdx].currentBalance);
@@ -1550,7 +1550,7 @@ function submitInvoice(ignoreWarnings = false) {
     if (window.logSystemAction) window.logSystemAction(currentViewedInvoiceNo ? 'تعديل فاتورة' : 'إنشاء فاتورة', 'SALES', 'رقم الفاتورة: ' + committedNo);
 
     // Append or Update global sales invoices array for inventory calculation
-    let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    let allSales = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
     if (currentViewedInvoiceNo) {
         const idx = allSales.findIndex(inv => inv.invoiceNo === currentViewedInvoiceNo);
         if (idx !== -1) allSales[idx] = data;
@@ -1562,7 +1562,7 @@ function submitInvoice(ignoreWarnings = false) {
 
     // Update Customer Balance (Debt)
     if (paymentMethod === 'credit' && custId && custId !== 'walk-in') {
-        let customers = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+        let customers = ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))).filter(x => !x.deleted);
         const cIdx = customers.findIndex(c => c.id === custId);
         if (cIdx > -1) {
             let currentBalance = parseFloat(customers[cIdx].currentBalance);
@@ -1573,7 +1573,7 @@ function submitInvoice(ignoreWarnings = false) {
     }
 
     // Deduct from local inventory cache and live objects
-    let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+    let currentInvData = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []));
     const mainWh = document.getElementById('hdr-warehouse').value;
     for (const row of rows) {
         const item = ITEMS.find(i => String(i.id) === String(row.itemId));
@@ -1738,7 +1738,7 @@ function executeDeleteTransaction() {
     }
     
     if (!oldInv) {
-        let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+        let allSales = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
         oldInv = allSales.find(inv => inv.invoiceNo === currentInvNo || inv.id === currentInvNo);
     }
 
@@ -1752,7 +1752,7 @@ function executeDeleteTransaction() {
 
     // 1. Revert Customer Balance (if credit)
     if (oldInv.paymentMethod === 'credit' && oldInv.customer && oldInv.customer !== 'walk-in') {
-        let customers = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+        let customers = ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))).filter(x => !x.deleted);
         const cIdx = customers.findIndex(c => c.id === oldInv.customer);
         if (cIdx > -1) {
             let currentBalance = parseFloat(customers[cIdx].currentBalance) || 0;
@@ -1763,7 +1763,7 @@ function executeDeleteTransaction() {
 
     // 2. Revert Bank/Safe Balance (if cash)
     if (oldInv.paymentMethod !== 'credit' && oldInv.paymentAccountId) {
-        let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+        let banks = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []));
         const bIdx = banks.findIndex(b => b.id === oldInv.paymentAccountId);
         if (bIdx > -1) {
             let currentBalance = parseFloat(banks[bIdx].currentBalance) || 0;
@@ -1773,7 +1773,7 @@ function executeDeleteTransaction() {
     }
 
     // 3. Revert Inventory
-    let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+    let currentInvData = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []));
     const mainWh = oldInv.warehouse || 'wh-001';
     if (oldInv.items && Array.isArray(oldInv.items)) {
         for (const row of oldInv.items) {
@@ -1806,7 +1806,7 @@ function executeDeleteTransaction() {
     localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
 
     // 4. Remove from sales invoices list
-    let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    let allSales = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
     const salesIdx = allSales.findIndex(inv => inv.invoiceNo === currentInvNo);
     if(salesIdx > -1) { allSales[salesIdx].deleted = true; allSales[salesIdx].updatedAt = Date.now(); }
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
@@ -1936,7 +1936,7 @@ function showPriceHistory(rowId, type) {
     const custName = document.getElementById('hdr-customer-search').value || 'العميل';
 
     let historyKey = type === 'sales' ? 'erp_sales_invoices_v1' : 'erp_purchase_invoices_v1';
-    let invoices = JSON.parse(localStorage.getItem(historyKey)) || [];
+    let invoices = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []));
     
     // Filter invoices by this customer/vendor
     let customerInvoices = invoices.filter(inv => (inv.customer === custId || inv.customerId === custId) && inv.status === 'confirmed');
