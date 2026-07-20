@@ -138,16 +138,16 @@
                 if (typeof target.closest !== 'function') return;
 
                 // التقييد: تفعيل زر الرجوع للخلف عند الضغط في المساحات الفارغة داخل الترويسة والشريط الجانبي فقط
-                if (!target.closest('.global-sidebar') && !target.closest('.premium-header')) {
+                if (!target.closest('.global-sidebar') && !target.closest('header.premium-header')) {
                     return; // تجاهل النقرات في أي مكان آخر (مثل شاشة التقارير أو الحاويات الرئيسية)
                 }
 
                 // Protect ONLY interactive elements. We want background/empty areas to trigger 'back'
                 const interactiveSelectors = [
-                    'button', 'input', 'select', 'textarea', 'a', 'label', 'table', 'form',
+                    'button', 'input', 'select', 'textarea', 'a', 'label', 'table', 'form', 'li', 'ul',
                     '.modal-overlay', '.modal', '.custom-dropdown-list', '.toast-container', '.choices',
                     '.user-info', '#online-users-badge', '.clock-container', '.crystal-pill', '.bal-card',
-                    '[onclick]' // Any element with an onclick attribute
+                    '.autocomplete-list', '[onclick]' // Any element with an onclick attribute
                 ];
 
                 for (let i = 0; i < interactiveSelectors.length; i++) {
