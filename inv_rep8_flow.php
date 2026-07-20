@@ -14,7 +14,7 @@ try {
         $date = $d['date_val'];
         
         $in_qty = 0;
-        $pstmt = $pdo->prepare("SELECT data FROM purchase_invoices WHERE date_val = ? AND status_val = 'confirmed'");
+        $pstmt = $pdo->prepare("SELECT data FROM purchase_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (date_val = ? AND status_val = 'confirmed')");
         $pstmt->execute([$date]);
         while ($row = $pstmt->fetch()) {
             $data = json_decode($row['data'], true);
@@ -24,7 +24,7 @@ try {
         }
         
         $out_qty = 0;
-        $sstmt = $pdo->prepare("SELECT data FROM sales_invoices WHERE date_val = ? AND status_val = 'delivered'");
+        $sstmt = $pdo->prepare("SELECT data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (date_val = ? AND status_val = 'delivered')");
         $sstmt->execute([$date]);
         while ($row = $sstmt->fetch()) {
             $data = json_decode($row['data'], true);

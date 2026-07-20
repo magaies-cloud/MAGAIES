@@ -55,7 +55,7 @@ try {
         
         // --- جلب الشيكات المعلقة وربطها بالعملاء/الموردين ---
         try {
-            $chk_stmt = $pdo->query("SELECT data FROM `checks` WHERE is_deleted = 0 OR is_deleted IS NULL");
+            $chk_stmt = $pdo->query("SELECT data FROM `checks` WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)");
             while ($row = $chk_stmt->fetch()) {
                 $c = json_decode($row['data'], true);
                 if (!$c || ($c['status'] ?? '') !== 'PENDING') continue;

@@ -47,7 +47,7 @@ try {
         $db_connected = true;
         
         // 1. حساب الرصيد النقدي الحالي (safes + banks)
-        $safes_stmt = $pdo->query("SELECT data FROM safes WHERE is_deleted = 0 OR is_deleted IS NULL");
+        $safes_stmt = $pdo->query("SELECT data FROM safes WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)");
         while ($row = $safes_stmt->fetch()) {
             $data = json_decode($row['data'], true);
             if (!$data) continue;
@@ -57,7 +57,7 @@ try {
             $current_cash += convertCashflowAmount($amt, $curr, $ex_rate, $selected_currency);
         }
         
-        $banks_stmt = $pdo->query("SELECT data FROM banks WHERE is_deleted = 0 OR is_deleted IS NULL");
+        $banks_stmt = $pdo->query("SELECT data FROM banks WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)");
         while ($row = $banks_stmt->fetch()) {
             $data = json_decode($row['data'], true);
             if (!$data) continue;
@@ -153,7 +153,7 @@ try {
         
         // --- حساب التحصيل والدفع القادم من الشيكات المعلقة الحقيقية (30 يوم) ---
         try {
-            $checks_stmt = $pdo->query("SELECT data FROM `checks` WHERE is_deleted = 0 OR is_deleted IS NULL");
+            $checks_stmt = $pdo->query("SELECT data FROM `checks` WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)");
             while ($crow = $checks_stmt->fetch()) {
                 $cd = json_decode($crow['data'], true);
                 if (!$cd || ($cd['status'] ?? '') !== 'PENDING') continue;

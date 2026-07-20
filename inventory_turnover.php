@@ -29,7 +29,7 @@ $all_items = [];
 $categories = [];
 try {
     if (isset($pdo)) {
-        $stmt = $pdo->query("SELECT data FROM items");
+        $stmt = $pdo->query("SELECT data FROM items WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as $row) {
             $item = json_decode($row['data'], true);

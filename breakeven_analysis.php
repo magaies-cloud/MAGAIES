@@ -28,7 +28,7 @@ $manual_fixed = isset($_GET['fixed_costs']) ? floatval($_GET['fixed_costs']) : 0
 $categories = [];
 try {
     if (isset($pdo)) {
-        $stmt = $pdo->query("SELECT data FROM items WHERE is_deleted = 0 OR is_deleted IS NULL");
+        $stmt = $pdo->query("SELECT data FROM items WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)");
         $itemsRaw = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $catSet = [];
         foreach ($itemsRaw as $row) {
@@ -57,7 +57,7 @@ $avg_selling_price = 0;
 $total_sell_prices = [];
 try {
     if (isset($pdo)) {
-        $stmt = $pdo->query("SELECT data FROM sales_invoices WHERE is_deleted = 0");
+        $stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0)");
         $salesRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($salesRows as $row) {
             $inv = json_decode($row['data'], true);
@@ -99,7 +99,7 @@ $avg_purchase_cost = 0;
 $total_buy_prices = [];
 try {
     if (isset($pdo)) {
-        $stmt = $pdo->query("SELECT data FROM purchase_invoices WHERE is_deleted = 0");
+        $stmt = $pdo->query("SELECT data FROM purchase_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0)");
         $purchaseRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($purchaseRows as $row) {
             $inv = json_decode($row['data'], true);
@@ -140,18 +140,18 @@ if ($manual_fixed > 0) {
     try {
         if (isset($pdo)) {
             // جلب المدفوعات المفردة - المصاريف التشغيلية
-            $stmt = $pdo->query("SELECT data FROM single_payments WHERE is_deleted = 0");
+            $stmt = $pdo->query("SELECT data FROM single_payments WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0)");
             $payRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             // جلب أسماء العملاء والموردين لاستبعادهم
             $excludeAccounts = [];
             try {
-                $cstmt = $pdo->query("SELECT data FROM customers WHERE is_deleted = 0 OR is_deleted IS NULL");
+                $cstmt = $pdo->query("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)");
                 foreach ($cstmt->fetchAll(PDO::FETCH_ASSOC) as $cr) {
                     $cd = json_decode($cr['data'], true);
                     if ($cd && !empty($cd['name'])) $excludeAccounts[] = $cd['name'];
                 }
-                $sstmt = $pdo->query("SELECT data FROM suppliers WHERE is_deleted = 0 OR is_deleted IS NULL");
+                $sstmt = $pdo->query("SELECT data FROM suppliers WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)");
                 foreach ($sstmt->fetchAll(PDO::FETCH_ASSOC) as $sr) {
                     $sd = json_decode($sr['data'], true);
                     if ($sd && !empty($sd['name'])) $excludeAccounts[] = $sd['name'];

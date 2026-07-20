@@ -15,7 +15,7 @@ $totals = ['نقدية' => 0, 'بنك' => 0];
 try {
     @include_once __DIR__ . '/api/db.php';
     if (isset($pdo)) {
-        $safes_stmt = $pdo->query("SELECT data FROM safes");
+        $safes_stmt = $pdo->query("SELECT data FROM safes WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
         while ($row = $safes_stmt->fetch()) {
             $data = json_decode($row['data'], true);
             $bal = (float)($data['balance'] ?? 0);
@@ -26,7 +26,7 @@ try {
             ];
             $totals['نقدية'] += $bal;
         }
-        $banks_stmt = $pdo->query("SELECT data FROM banks");
+        $banks_stmt = $pdo->query("SELECT data FROM banks WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
         while ($row = $banks_stmt->fetch()) {
             $data = json_decode($row['data'], true);
             $bal = (float)($data['balance'] ?? 0);

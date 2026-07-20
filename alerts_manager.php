@@ -42,7 +42,7 @@ function runAlertEngine($pdo) {
             $rule = $pdo->query("SELECT * FROM alert_settings WHERE rule_key = 'credit_limit_breach'")->fetch(PDO::FETCH_ASSOC);
             $customers = [];
             try {
-                $stmt = $pdo->query("SELECT data FROM customers");
+                $stmt = $pdo->query("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
                 while ($row = $stmt->fetch()) {
                     $c = json_decode($row['data'], true);
                     if ($c && (float)($c['creditLimit'] ?? 0) > 0) {

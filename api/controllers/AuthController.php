@@ -179,6 +179,9 @@ class AuthController {
             $token = generateToken();
             $tokenExpiry = date('Y-m-d H:i:s', strtotime('+24 hours'));
             $this->pdo->prepare("UPDATE users SET token = ?, token_expires_at = ? WHERE id = ?")->execute([$token, $tokenExpiry, $user['id']]);
+            
+            // Set cookie for server-side reports to read
+            setcookie('saas_token', $token, time() + 86400, '/', '', isset($_SERVER['HTTPS']), true);
 
             $stmtTenantLimit = $this->pdo->prepare("SELECT max_users, plan_id FROM tenants WHERE id = ?");
             $stmtTenantLimit->execute([$user['tenant_id']]);

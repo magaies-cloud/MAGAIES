@@ -8,7 +8,7 @@ $pdo = getDBConnection();
 
 $report_data = [];
 try {
-    $stmt = $pdo->query("SELECT data FROM suppliers LIMIT 5");
+    $stmt = $pdo->query("SELECT data FROM suppliers WHERE tenant_id = '{$GLOBAL_TENANT_ID}' LIMIT 5");
     $sups = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach ($sups as $row) {
         $data = json_decode($row['data'], true);

@@ -31,19 +31,19 @@ try {
         $db_connected = true;
 
         // === حساب النقدية الحالية من الخزن والبنوك ===
-        $safes_rows = $pdo->query("SELECT data FROM safes WHERE is_deleted = 0 OR is_deleted IS NULL")->fetchAll(PDO::FETCH_ASSOC);
+        $safes_rows = $pdo->query("SELECT data FROM safes WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)")->fetchAll(PDO::FETCH_ASSOC);
         foreach ($safes_rows as $row) {
             $d = json_decode($row['data'], true);
             $total_cash += floatval($d['currentBalance'] ?? 0);
         }
-        $banks_rows = $pdo->query("SELECT data FROM banks WHERE is_deleted = 0 OR is_deleted IS NULL")->fetchAll(PDO::FETCH_ASSOC);
+        $banks_rows = $pdo->query("SELECT data FROM banks WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)")->fetchAll(PDO::FETCH_ASSOC);
         foreach ($banks_rows as $row) {
             $d = json_decode($row['data'], true);
             $total_cash += floatval($d['currentBalance'] ?? 0);
         }
 
         // === حساب ذمم العملاء المدينة (مستحقة على العملاء) ===
-        $cust_rows = $pdo->query("SELECT data FROM customers WHERE is_deleted = 0 OR is_deleted IS NULL")->fetchAll(PDO::FETCH_ASSOC);
+        $cust_rows = $pdo->query("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)")->fetchAll(PDO::FETCH_ASSOC);
         foreach ($cust_rows as $row) {
             $d = json_decode($row['data'], true);
             $bal = floatval($d['currentBalance'] ?? 0);
@@ -51,7 +51,7 @@ try {
         }
 
         // === حساب ذمم الموردين الدائنة (مستحقة للموردين) ===
-        $sup_rows = $pdo->query("SELECT data FROM suppliers WHERE is_deleted = 0 OR is_deleted IS NULL")->fetchAll(PDO::FETCH_ASSOC);
+        $sup_rows = $pdo->query("SELECT data FROM suppliers WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)")->fetchAll(PDO::FETCH_ASSOC);
         foreach ($sup_rows as $row) {
             $d = json_decode($row['data'], true);
             $bal = floatval($d['currentBalance'] ?? 0);

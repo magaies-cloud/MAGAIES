@@ -2786,6 +2786,7 @@ window.logout = function(force = false) {
     localStorage.removeItem('user');
     sessionStorage.removeItem('session_active');
     sessionStorage.removeItem('cloud_synced');
+    document.cookie = "saas_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     
     // 2. Remove ALL ERP tenant data securely
     // تم تعطيل الحذف المؤقت للبيانات المحلية للحفاظ عليها أثناء العمل بدون اتصال بالسيرفر الحي

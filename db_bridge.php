@@ -9,11 +9,28 @@ define('DB_NAME', 'magaees'); // تأكد من مطابقة اسم قاعدة ب
 define('DB_USER', 'root');     
 define('DB_PASS', '');         
 
+$GLOBAL_TENANT_ID = null;
+
 function getDBConnection() {
-    global $pdo;
+    global $pdo, $GLOBAL_TENANT_ID;
     if ($pdo === null) {
         require_once __DIR__ . '/api/db.php';
     }
+    
+    if ($GLOBAL_TENANT_ID === null) {
+        $token = $_COOKIE['saas_token'] ?? '';
+        if (empty($token)) {
+            die("<div style='text-align:center; padding:50px; font-family:sans-serif;'><h2>غير مصرح!</h2><p>يرجى تسجيل الدخول من البوابة أولاً.</p></div>");
+        }
+        $stmt = $pdo->prepare("SELECT tenant_id FROM users WHERE token = ? AND token_expires_at > NOW() AND status = 'active'");
+        $stmt->execute([$token]);
+        $tenantId = $stmt->fetchColumn();
+        if (!$tenantId) {
+            die("<div style='text-align:center; padding:50px; font-family:sans-serif;'><h2>جلسة منتهية!</h2><p>انتهت صلاحية الجلسة، يرجى تسجيل الدخول مجدداً.</p></div>");
+        }
+        $GLOBAL_TENANT_ID = (int)$tenantId;
+    }
+    
     return $pdo;
 }
 
@@ -78,7 +95,7 @@ function getCustomerChurnData($pdo, $days_threshold = 60) {
         
         // جلب آخر عمليات الشراء من جدول الفواتير sales_invoices الحقيقي
         try {
-            $stmt = $pdo->query("SELECT data FROM sales_invoices");
+            $stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
             while ($row = $stmt->fetch()) {
                 $inv = json_decode($row['data'], true);
                 if ($inv) {
@@ -94,7 +111,7 @@ function getCustomerChurnData($pdo, $days_threshold = 60) {
         } catch (Exception $e) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $e->getMessage()); }
 
         // جلب العملاء الحقيقيين وحساب المخاطر
-        $stmt = $pdo->query("SELECT data FROM customers");
+        $stmt = $pdo->query("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
         while ($row = $stmt->fetch()) {
             $c = json_decode($row['data'], true);
             if ($c) {
@@ -150,7 +167,7 @@ function getCustomerProfitabilityData($pdo) {
         
         // جلب الفواتير لحساب الأرباح الحقيقية
         try {
-            $stmt = $pdo->query("SELECT data FROM sales_invoices");
+            $stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
             while ($row = $stmt->fetch()) {
                 $inv = json_decode($row['data'], true);
                 if ($inv) {
@@ -232,7 +249,7 @@ function getCheckClearingVelocityData($pdo) {
         $velocity = [];
         
         try {
-            $stmt = $pdo->query("SELECT data FROM `checks`");
+            $stmt = $pdo->query("SELECT data FROM `checks` WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
             while ($row = $stmt->fetch()) {
                 $c = json_decode($row['data'], true);
                 if ($c && ($c['status'] ?? '') === 'PENDING') {
@@ -297,7 +314,7 @@ function getSeasonalTrendsData($pdo) {
         $trends = [];
         
         try {
-            $stmt = $pdo->query("SELECT data FROM sales_invoices");
+            $stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
             while ($row = $stmt->fetch()) {
                 $inv = json_decode($row['data'], true);
                 if ($inv) {
@@ -357,7 +374,8 @@ function getSeasonalTrends($pdo) {
 function getMultiDimensionalLedgerData($pdo, $customer_id) {
     try {
         // جلب معلومات العميل من جدول customers الحقيقي
-        $stmt = $pdo->prepare("SELECT data FROM customers WHERE id = ? OR JSON_EXTRACT(data, '$.id') = ?");
+        global $GLOBAL_TENANT_ID;
+        $stmt = $pdo->prepare("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (id = ? OR JSON_EXTRACT(data, '$.id') = ?)");
         $stmt->execute([$customer_id, $customer_id]);
         $row = $stmt->fetch();
         
@@ -365,7 +383,7 @@ function getMultiDimensionalLedgerData($pdo, $customer_id) {
         if ($row) {
             $customer = json_decode($row['data'], true);
         } else {
-            $customer = $pdo->query("SELECT data FROM customers LIMIT 1")->fetchColumn();
+            $customer = $pdo->query("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}' LIMIT 1")->fetchColumn();
             if ($customer) $customer = json_decode($customer, true);
         }
 
@@ -378,7 +396,7 @@ function getMultiDimensionalLedgerData($pdo, $customer_id) {
             $bounced = 0;
             $max_overdue = 0;
             try {
-                $cstmt = $pdo->query("SELECT data FROM `checks`");
+                $cstmt = $pdo->query("SELECT data FROM `checks` WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
                 while ($crow = $cstmt->fetch()) {
                     $c = json_decode($crow['data'], true);
                     if ($c && ($c['customerId'] ?? ($c['customer'] ?? '')) === $custId) {
@@ -399,7 +417,7 @@ function getMultiDimensionalLedgerData($pdo, $customer_id) {
             // حساب إجمالي ديون الشركة لتحديد نسبة العميل
             $total_debt = 0;
             try {
-                $cstmt = $pdo->query("SELECT data FROM customers");
+                $cstmt = $pdo->query("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
                 while ($crow = $cstmt->fetch()) {
                     $cdata = json_decode($crow['data'], true);
                     if ($cdata) {
@@ -443,7 +461,7 @@ function getPriceVarianceData($pdo) {
     try {
         $result = [];
         try {
-            $stmt = $pdo->query("SELECT data FROM sales_invoices");
+            $stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
             while ($row = $stmt->fetch()) {
                 $inv = json_decode($row['data'], true);
                 if ($inv) {
@@ -503,7 +521,7 @@ function getSupplierPerformanceData($pdo) {
         $suppliers_volume = [];
         
         try {
-            $stmt = $pdo->query("SELECT data FROM purchase_invoices");
+            $stmt = $pdo->query("SELECT data FROM purchase_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
             while ($row = $stmt->fetch()) {
                 $inv = json_decode($row['data'], true);
                 if ($inv) {
@@ -585,7 +603,7 @@ function getLiveCashFlowForecastData($pdo, $current_cash_on_hand) {
         $inflow = 0;
         $outflow = 0;
         try {
-            $stmt = $pdo->query("SELECT data FROM `checks`");
+            $stmt = $pdo->query("SELECT data FROM `checks` WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
             while ($row = $stmt->fetch()) {
                 $c = json_decode($row['data'], true);
                 if ($c && ($c['status'] ?? '') === 'PENDING') {
@@ -630,7 +648,7 @@ function getCustomerEngagementData($pdo) {
         $visits = [];
         
         try {
-            $stmt = $pdo->query("SELECT data FROM sales_invoices");
+            $stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
             while ($row = $stmt->fetch()) {
                 $inv = json_decode($row['data'], true);
                 if ($inv) {
@@ -699,7 +717,7 @@ function getRealTimeLiquidity($pdo) {
         
         // 1. جلب الخزن الحقيقية
         try {
-            $stmt = $pdo->query("SELECT data FROM safes");
+            $stmt = $pdo->query("SELECT data FROM safes WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
             while ($row = $stmt->fetch()) {
                 $data = json_decode($row['data'], true);
                 if ($data) {
@@ -714,7 +732,7 @@ function getRealTimeLiquidity($pdo) {
 
         // 2. جلب الحسابات البنكية الحقيقية
         try {
-            $stmt = $pdo->query("SELECT data FROM banks");
+            $stmt = $pdo->query("SELECT data FROM banks WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
             while ($row = $stmt->fetch()) {
                 $data = json_decode($row['data'], true);
                 if ($data) {
@@ -757,7 +775,7 @@ function getCustomerExposureData($pdo) {
         // 1. جلب الشيكات المعلقة لكل عميل
         $checks_by_cust = [];
         try {
-            $stmt = $pdo->query("SELECT data FROM `checks`");
+            $stmt = $pdo->query("SELECT data FROM `checks` WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
             while ($row = $stmt->fetch()) {
                 $c = json_decode($row['data'], true);
                 if ($c && ($c['status'] ?? '') === 'PENDING' && ($c['type'] ?? '') === 'INBOUND') {
@@ -771,7 +789,7 @@ function getCustomerExposureData($pdo) {
         } catch (Exception $e) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $e->getMessage()); }
 
         // 2. جلب العملاء الحقيقيين وأرصدتهم
-        $stmt = $pdo->query("SELECT data FROM customers");
+        $stmt = $pdo->query("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
         while ($row = $stmt->fetch()) {
             $c = json_decode($row['data'], true);
             if ($c) {
