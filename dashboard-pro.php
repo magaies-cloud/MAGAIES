@@ -711,14 +711,12 @@
             border-color: rgba(0, 0, 0, 0.18) !important;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06) !important;
         }
-
+    
 </style>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-
-    <?php include_once 'magaiees_splash.php'; ?>
 
     <!-- Ambient Animated Background -->
     <div class="ambient-bg">
@@ -1609,7 +1607,6 @@
                 document.getElementById('aiCFO-content').innerHTML = '<span style="color:#f43f5e">تعذر الاتصال بخادم الذكاء الاصطناعي.</span>';
             });
         }
-
         window.addEventListener('themeChanged', () => {
             // تطبيق الثيم بدون إعادة تحميل الصفحة - أسرع بكثير
             const isLight = document.documentElement.classList.contains('light-theme');

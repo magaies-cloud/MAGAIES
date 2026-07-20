@@ -165,9 +165,162 @@
             display: inline-block;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
+        /* 🎥 Live Video Background & Overlays */
+        .bg-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+            filter: brightness(0.55) contrast(1.1);
+            z-index: 1;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(3,5,8,0.1) 0%, rgba(2,4,6,0.8) 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* 👑 3D Logo Emerge Splash Overlay */
+        #splash-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            background: transparent;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease, visibility 1s ease;
+            visibility: hidden;
+        }
+        #splash-container.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        
+        .neon-ring {
+            position: absolute;
+            width: 440px;
+            height: 440px;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            border-top: 4px solid #00ffcc;
+            border-bottom: 4px solid #ff00ff;
+            border-left: 4px solid #fbbf24;
+            animation: spin 2.5s linear infinite;
+            filter: drop-shadow(0 0 25px rgba(0,255,204,0.75));
+            pointer-events: none;
+        }
+        
+        .logo-3d {
+            text-align: center;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            z-index: 100;
+        }
+        #splash-container.active .logo-3d {
+            animation: emerge 3.8s forwards cubic-bezier(0.1, 1, 0.1, 1);
+        }
+        
+        .logo-text {
+            font-size: 78px;
+            font-weight: 900;
+            font-family: 'Cairo', 'Inter', sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #ffffff 0%, #00ffcc 50%, #ff00ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.85)) drop-shadow(0 0 50px rgba(0, 255, 204, 0.45));
+            letter-spacing: 3px;
+        }
+        
+        .logo-sub {
+            font-size: 15px;
+            font-weight: bold;
+            color: #38bdf8;
+            letter-spacing: 6px;
+            margin-top: 15px;
+            text-transform: uppercase;
+            text-shadow: 0 2px 10px rgba(56, 189, 248, 0.5);
+        }
+
+        .splash-prayer {
+            margin-bottom: 40px;
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #fef08a;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.9), 0 0 25px rgba(217, 119, 6, 0.5);
+            line-height: 1.8;
+            z-index: 100;
+        }
+
+        .splash-progress-container {
+            width: 320px;
+            height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 50px;
+            z-index: 100;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+        }
+        .splash-progress-bar {
+            height: 100%;
+            width: 0%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #38bdf8, #c084fc, #38bdf8);
+            background-size: 200% auto;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+        }
+        #splash-container.active .splash-progress-bar {
+            animation: progressBarLoad 3.5s cubic-bezier(0.7, 0, 0.3, 1) forwards, bgGradientMove 2s linear infinite;
+        }
+
+        .hidden-box {
+            opacity: 0 !important;
+            transform: scale(0.85) !important;
+            pointer-events: none !important;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes emerge {
+            0% { transform: scale(0.2) translateZ(-600px); filter: blur(12px) brightness(0); opacity: 0; }
+            30% { transform: scale(1.1) translateZ(120px); filter: blur(0px) brightness(1.6); opacity: 1; }
+            45% { transform: scale(1) translateZ(0); }
+            100% { transform: scale(1.04) translateZ(30px); }
+        }
+        @keyframes progressBarLoad { 0% { width: 0%; } 100% { width: 100%; } }
+        @keyframes bgGradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     </style>
 </head>
-<body style="display:flex !important; align-items:center !important; justify-content:center !important; height:100vh !important; padding:0 !important; margin:0 !important; animation:none !important; transition:none !important; transform:none !important; background-color:#0c101b !important; background-image:url('assets/user_bg_fast.jpg') !important; background-size:cover !important; background-position:center center !important; background-repeat:no-repeat !important; background-attachment:fixed !important; overflow:hidden !important;">
+<body style="display:flex !important; align-items:center !important; justify-content:center !important; height:100vh !important; padding:0 !important; margin:0 !important; animation:none !important; transition:none !important; transform:none !important; background-color:#0c101b !important; overflow:hidden !important;">
+
+    <!-- 🎥 Live Video Background -->
+    <video autoplay loop muted playsinline class="bg-video">
+        <source src="271262.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
     <div class="login-card">
         <div class="logo-container" style="margin-bottom: 5px;">
             <img src="assets/logo.png" alt="Logo" loading="lazy" style="width: 130px; height: auto; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));">
@@ -203,6 +356,21 @@
         <button class="btn-login" onclick="handleLogin()">دخول آمن</button>
         
         <div class="device-info" id="device-id-display">جاري التحقق من الجهاز...</div>
+    </div>
+
+    <!-- 👑 3D Splash Screen Emerge (Phase 2) -->
+    <div id="splash-container">
+        <div class="splash-prayer">
+            "لا إلهَ إلاَّ اللَّهُ وحْدَهُ لا شَرِيكَ لهُ، لَهُ المُلْكُ ولَهُ الحَمْدُ، يُحْيِي ويُمِيتُ، وهُوَ حَيٌّ لا يَمُوتُ، بِيَدِهِ الخَيْرُ، وهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ"
+        </div>
+        <div class="neon-ring"></div>
+        <div class="logo-3d">
+            <h1 class="logo-text">مقاييس ERP</h1>
+            <div class="logo-sub">غرفة القيادة المركزية العالمية</div>
+        </div>
+        <div class="splash-progress-container">
+            <div class="splash-progress-bar"></div>
+        </div>
     </div>
 
     <script defer src="js/localforage.min.js"></script>
@@ -377,156 +545,24 @@
             setTimeout(() => {
                 const loginCard = document.querySelector('.login-card');
                 if (loginCard) {
-                    loginCard.style.transform = 'scale(0.9)';
-                    loginCard.style.opacity = '0';
+                    loginCard.classList.add('hidden-box');
                 }
                 
                 setTimeout(() => {
-                    const displayName = name || 'مدير النظام';
-                    const hour = new Date().getHours();
-                    const greeting = (hour >= 12 && hour < 24) ? 'مساء الخير يا ' : 'صباح الخير يا ';
-                    
-                    document.body.innerHTML = `
-                    <style>
-                    @keyframes introFadeIn { from { opacity: 0; transform: scale(1.05); } to { opacity: 1; transform: scale(1); } }
-                    @keyframes floatIntro { 0% { transform: translateY(0px); } 50% { transform: translateY(-12px); } 100% { transform: translateY(0px); } }
-                    @keyframes pulseGlowIntro { 0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.5); } 70% { box-shadow: 0 0 0 35px rgba(56, 189, 248, 0); } 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); } }
-                    @keyframes slideUpFadeIntro { from { opacity: 0; transform: translateY(40px); filter: blur(5px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
-                    @keyframes progressBarLoad { 0% { width: 0%; } 100% { width: 100%; } }
-                    @keyframes rotateDashIntro { 100% { transform: rotate(360deg); } }
-                    @keyframes bgGradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-                    @keyframes slideDownFadePrayer { from { opacity: 0; transform: translateY(-40px); filter: blur(5px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
-
-                    .market-prayer {
-                        position: absolute; top: 8vh; width: 90%; max-width: 800px; text-align: center;
-                        font-family: 'Tajawal', sans-serif; font-size: 1.4rem; font-weight: 800;
-                        color: #fef08a;
-                        text-shadow: 1px 1px 0px rgba(255,255,255,0.3), -1px -2px 3px rgba(0,0,0,0.9), 0 5px 20px rgba(217, 119, 6, 0.6);
-                        opacity: 0;
-                        animation: slideDownFadePrayer 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
-                        z-index: 10; line-height: 1.8;
-                    }
-
-                    .premium-intro-bg {
-                        position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-                        background: radial-gradient(circle at center, #1e1b4b 0%, #050308 100%);
-                        display: flex; flex-direction: column; align-items: center; justify-content: center;
-                        z-index: 99999; animation: introFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                    const splash = document.getElementById('splash-container');
+                    if (splash) {
+                        splash.classList.add('active');
                     }
                     
-                    .intro-particles {
-                        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-                        background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
-                        background-size: 40px 40px; opacity: 0.3; animation: introFadeIn 2s ease-in-out forwards;
-                    }
-
-                    .ai-brain-container {
-                        position: relative; width: 140px; height: 140px;
-                        margin-bottom: 30px; display: flex; align-items: center; justify-content: center;
-                        z-index: 2;
-                        animation: slideUpFadeIntro 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                    }
-
-                    .ai-ring {
-                        position: absolute; border-radius: 50%; border: 2px solid transparent;
-                        animation: rotateRing linear infinite;
-                    }
-                    .ai-ring.r1 { width: 140px; height: 140px; border-top-color: #38bdf8; border-bottom-color: #c084fc; animation-duration: 4s; }
-                    .ai-ring.r2 { width: 110px; height: 110px; border-left-color: #0ea5e9; border-right-color: #f472b6; animation-duration: 3s; animation-direction: reverse; }
-                    .ai-ring.r3 { width: 85px; height: 85px; border-top-color: rgba(255,255,255,0.8); border-bottom-color: rgba(56, 189, 248, 0.5); border-style: dashed; animation-duration: 8s; }
-
-                    @keyframes rotateRing { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-                    .ai-brain-svg {
-                        width: 60px; height: 60px; position: absolute; z-index: 3;
-                        animation: pulseBrain 2s infinite ease-in-out;
-                        filter: drop-shadow(0 0 10px rgba(192, 132, 252, 0.8));
-                    }
-
-                    @keyframes pulseBrain { 0% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(192,132,252,0.8)); } 50% { transform: scale(1.1); filter: drop-shadow(0 0 20px rgba(56,189,248,1)); } 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(192,132,252,0.8)); } }
-
-                    .ai-number {
-                        position: absolute; font-family: monospace; font-size: 16px; font-weight: bold;
-                        color: #38bdf8; text-shadow: 0 0 8px #38bdf8; opacity: 0;
-                        animation: floatNum 2.5s linear infinite; z-index: 4;
-                    }
-                    .ai-number:nth-child(5) { top: -10px; left: 30px; animation-delay: 0s; color: #c084fc; text-shadow: 0 0 8px #c084fc; }
-                    .ai-number:nth-child(6) { top: 20px; right: -15px; animation-delay: 0.5s; }
-                    .ai-number:nth-child(7) { bottom: -10px; left: 20px; animation-delay: 1s; color: #f472b6; text-shadow: 0 0 8px #f472b6; }
-                    .ai-number:nth-child(8) { bottom: 20px; right: -5px; animation-delay: 1.5s; font-size: 18px; color: #fff; text-shadow: 0 0 10px #fff; }
-                    .ai-number:nth-child(9) { top: 50px; left: -25px; animation-delay: 2s; color: #10b981; text-shadow: 0 0 8px #10b981; }
-                    .ai-number:nth-child(10) { bottom: 50px; right: -25px; animation-delay: 2.2s; }
-
-                    @keyframes floatNum {
-                        0% { transform: translateY(15px) scale(0.5); opacity: 0; }
-                        40% { opacity: 1; transform: translateY(-5px) scale(1.2); }
-                        100% { transform: translateY(-35px) scale(0.5); opacity: 0; }
-                    }
-
-                    .intro-title {
-                        font-family: 'Tajawal', sans-serif; font-weight: 900; font-size: 2.5rem;
-                        background: linear-gradient(to right, #fff, #38bdf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-                        background-size: 200% auto; animation: slideUpFadeIntro 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards, bgGradientMove 5s linear infinite;
-                        margin: 0 0 15px 0; opacity: 0; text-shadow: 0 10px 20px rgba(0,0,0,0.5); z-index: 2; text-align: center;
-                    }
-
-                    .intro-subtitle {
-                        font-family: 'Tajawal', sans-serif; font-weight: 600; font-size: 1.15rem; color: #94a3b8;
-                        margin: 0 0 40px 0; opacity: 0; animation: slideUpFadeIntro 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
-                        z-index: 2; text-align: center;
-                    }
-
-                    .intro-progress-container {
-                        width: 280px; height: 6px; background: rgba(255,255,255,0.05);
-                        border-radius: 10px; overflow: hidden; opacity: 0;
-                        animation: slideUpFadeIntro 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
-                        position: relative; z-index: 2; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
-                    }
-
-                    .intro-progress-bar {
-                        height: 100%; width: 0%; border-radius: 10px;
-                        background: linear-gradient(90deg, #38bdf8, #c084fc, #38bdf8);
-                        background-size: 200% auto;
-                        animation: progressBarLoad 2.5s cubic-bezier(0.7, 0, 0.3, 1) forwards, bgGradientMove 2s linear infinite;
-                        box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
-                    }
-                    </style>
-
-                    <div class="premium-intro-bg">
-                        <div class="intro-particles"></div>
-                        
-                        <div class="market-prayer">
-                            "لا إلهَ إلاَّ اللَّهُ وحْدَهُ لا شَرِيكَ لهُ، لَهُ المُلْكُ ولَهُ الحَمْدُ، يُحْيِي ويُمِيتُ، وهُوَ حَيٌّ لا يَمُوتُ، بِيَدِهِ الخَيْرُ، وهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ"
-                        </div>
-
-                        <div class="ai-brain-container">
-                            <div class="ai-ring r1"></div>
-                            <div class="ai-ring r2"></div>
-                            <div class="ai-ring r3"></div>
-                            <svg class="ai-brain-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z" stroke="#c084fc"></path>
-                                <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z" stroke="#38bdf8"></path>
-                                <path d="M12 4.5v15" stroke="#fff"></path>
-                            </svg>
-                            <span class="ai-number">1</span>
-                            <span class="ai-number">0</span>
-                            <span class="ai-number">10</span>
-                            <span class="ai-number">AI</span>
-                            <span class="ai-number">42</span>
-                            <span class="ai-number">01</span>
-                        </div>
-                        <h2 class="intro-title">${greeting}${displayName}</h2>
-                        <p class="intro-subtitle">جاري تجهيز بيئة العمل بأحدث التقنيات...</p>
-                        <div class="intro-progress-container">
-                            <div class="intro-progress-bar"></div>
-                        </div>
-                    </div>
-                    `;
-
                     setTimeout(() => {
-                        window.location.href = targetUrl;
-                    }, 2800);
-                }, 400);
+                        if (splash) {
+                            splash.style.opacity = '0';
+                        }
+                        setTimeout(() => {
+                            window.location.href = targetUrl;
+                        }, 1000);
+                    }, 4000);
+                }, 600);
             }, 800);
         }
 
