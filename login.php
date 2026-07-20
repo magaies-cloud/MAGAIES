@@ -168,6 +168,13 @@
     </style>
 </head>
 <body style="display:flex !important; align-items:center !important; justify-content:center !important; height:100vh !important; padding:0 !important; margin:0 !important; animation:none !important; transition:none !important; transform:none !important; background-color:#0c101b !important; background-image:url('assets/user_bg_fast.jpg') !important; background-size:cover !important; background-position:center center !important; background-repeat:no-repeat !important; background-attachment:fixed !important; overflow:hidden !important;">
+
+    <video autoplay loop muted playsinline style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
+        <source src="271262.mp4" type="video/mp4">
+        <h1 style="color: white; position: absolute; top: 20px; left: 20px; font-size: 14px; z-index: 10;">المتصفح لا يرى الفيديو، تأكد من اسم الملف ومكانه</h1>
+    </video>
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 2;"></div>
+
     <div class="login-card">
         <div class="logo-container" style="margin-bottom: 5px;">
             <img src="assets/logo.png" alt="Logo" loading="lazy" style="width: 130px; height: auto; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));">
