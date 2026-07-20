@@ -4009,10 +4009,11 @@ window.printReportDirectly = function(title, targetSelector) {
             formatted = parts.join('.');
         }
         
+        // Prevent infinite loop: only update if value actually changed
         if (isInput) {
-            el.value = formatted;
+            if (el.value !== formatted) el.value = formatted;
         } else {
-            el.textContent = formatted;
+            if (el.textContent !== formatted) el.textContent = formatted;
         }
     };
 
@@ -4054,8 +4055,14 @@ window.printReportDirectly = function(title, targetSelector) {
                 this.applyAllSaved();
             }
             
+            let _applyPending = false;
             const observer = new MutationObserver(() => {
-                this.applyAllSaved();
+                if (_applyPending) return;
+                _applyPending = true;
+                requestAnimationFrame(() => {
+                    this.applyAllSaved();
+                    _applyPending = false;
+                });
             });
             observer.observe(document.body, { childList: true, subtree: true });
         },
@@ -4563,8 +4570,14 @@ window.printReportDirectly = function(title, targetSelector) {
                 this.applyAllSaved();
             }
             
+            let _numApplyPending = false;
             const observer = new MutationObserver(() => {
-                this.applyAllSaved();
+                if (_numApplyPending) return;
+                _numApplyPending = true;
+                requestAnimationFrame(() => {
+                    this.applyAllSaved();
+                    _numApplyPending = false;
+                });
             });
             observer.observe(document.body, { childList: true, subtree: true });
         }
