@@ -12,7 +12,7 @@
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Cairo:wght@900&family=Inter:wght@900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>لوحة التحكم</title>
@@ -711,43 +711,45 @@
             border-color: rgba(0, 0, 0, 0.18) !important;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06) !important;
         }
-        
-        /* ═══ نظام MAGAIEES ERP 2026 - شاشة الدعاية الدائرية الكريستالية الفاخرة ═══ */
-        /* حاوية الدعاية الكريستالية فائقة الدقة 4K */
-        #splash-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; z-index: 99999; background: radial-gradient(circle, #090e17 0%, #020406 100%); transition: opacity 0.8s ease, visibility 0.8s ease; }
-        
-        /* المحرك البصري لتأثير الإنفجار السائل المحيط بالشعار */
-        .fluid-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.85; }
-        
-        /* مركز الثقل: شعار مقاييس الكريستالي المتوهج في المنتصف */
-        .logo-center { position: relative; z-index: 10; text-align: center; animation: pulseGlow 2s infinite ease-in-out; }
-        
-        .logo-text { font-size: 55px; font-weight: 900; letter-spacing: 2px; font-family: 'Inter', 'Cairo', sans-serif; background: linear-gradient(135deg, #00ffcc 0%, #ff00ff 50%, #fbbf24 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 30px rgba(0, 255, 204, 0.4)); margin: 0; text-shadow: 0 0 80px rgba(255,0,255,0.3); }
-        
-        .logo-sub { font-size: 14px; font-weight: bold; color: #38bdf8; letter-spacing: 6px; margin-top: 10px; opacity: 0.9; text-transform: uppercase; }
-        
-        /* مؤشر التحميل الدائري النيوني المحاكي للفيديو المرفق */
-        .neon-ring { position: absolute; width: 320px; height: 320px; border-radius: 50%; border: 4px solid transparent; border-top: 4px solid #00ffcc; border-bottom: 4px solid #ff00ff; border-left: 4px solid #fbbf24; animation: spinRing 1.5s linear infinite; filter: blur(1px) drop-shadow(0 0 15px rgba(0,255,204,0.6)); }
 
-        /* تجميعة حركات الهندسة النفسية والبصرية */
-        @keyframes spinRing { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulseGlow { 0%, 100% { transform: scale(0.98); filter: brightness(1); } 50% { transform: scale(1.02); filter: brightness(1.2); } }
+        /* =============================================================
+           🎬 تجميعة الحركات السينمائية (الشاشة الترحيبية)
+           ============================================================= */
+        #splash-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; z-index: 99999; background-color: #000; }
+        .bg-video-stream { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; filter: brightness(1.1) contrast(1.2); z-index: 1; }
+        .overlay-dim { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, rgba(3,5,8,0.2) 0%, rgba(2,4,6,0.8) 100%); z-index: 2; pointer-events: none; }
+        .neon-luminous-ring { position: absolute; width: 380px; height: 380px; border-radius: 50%; border: 4px solid transparent; border-top: 4px solid #00ffcc; border-bottom: 4px solid #ff00ff; border-left: 4px solid #fbbf24; z-index: 3; animation: spinRing 2s linear infinite; filter: drop-shadow(0 0 25px rgba(0,255,204,0.7)); }
+        .logo-3d-center { position: relative; z-index: 4; text-align: center; animation: emergeFromDepth 4s forwards cubic-bezier(0.1, 1, 0.1, 1); transform-style: preserve-3d; perspective: 1000px; }
+        .logo-text-epic { font-size: 70px; font-weight: 900; font-family: 'Inter', 'Cairo', sans-serif; margin: 0; background: linear-gradient(135deg, #ffffff 0%, #00ffcc 50%, #ff00ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8)) drop-shadow(0 0 40px rgba(255, 0, 255, 0.5)); letter-spacing: 3px; transform: translateZ(50px); text-shadow: 0 0 50px rgba(0,255,255,0.4); }
+        .logo-sub-epic { font-size: 14px; font-weight: bold; color: #38bdf8; letter-spacing: 8px; margin-top: 15px; text-transform: uppercase; opacity: 0.9; text-shadow: 0 0 10px rgba(56,189,248,0.5); }
         
-        /* إخفاء الشاشة الترحيبية بسلاسة ونقل الإدارة للوحة التحكم */
-        .splash-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-    </style>
+        @keyframes spinRing { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes emergeFromDepth {
+            0% { transform: scale(0.3) translateZ(-500px); filter: blur(10px) brightness(0); opacity: 0; }
+            30% { transform: scale(1.1) translateZ(100px); filter: blur(0px) brightness(1.5); opacity: 1; }
+            45% { transform: scale(1) translateZ(0); filter: brightness(1.2); }
+            100% { transform: scale(1.03) translateZ(20px); filter: brightness(1.2); }
+        }
+        .splash-fade-out { opacity: 0; visibility: hidden; transition: opacity 1s ease, visibility 1s ease; }
+    
+</style>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <!-- ═══ شاشة الدعاية الكريستالية الترحيبية الفاخرة ═══ -->
+    <!-- 🎥 محرك الشاشة الترحيبية السينمائية الخلفية الحية للشاشات الفائقة -->
     <div id="splash-container">
-        <div class="neon-ring"></div>
-        <canvas id="fluidCanvas" class="fluid-canvas"></canvas>
-        <div class="logo-center">
-            <h1 class="logo-text">MAGAIEES ERP</h1>
-            <div class="logo-sub">المستقبل الذكي لإدارة المخازن والأموال</div>
+        <video autoplay loop muted playsinline class="bg-video-stream">
+            <source src="271262.mp4" type="video/mp4">
+        </video>
+        
+        <div class="overlay-dim"></div>
+        <div class="neon-luminous-ring"></div>
+        
+        <div class="logo-3d-center">
+            <h1 class="logo-text-epic">مقاييس ERP</h1>
+            <div class="logo-sub-epic">MAGAIEES GLOBAL SYSTEM</div>
         </div>
     </div>
 
@@ -1640,96 +1642,24 @@
                 document.getElementById('aiCFO-content').innerHTML = '<span style="color:#f43f5e">تعذر الاتصال بخادم الذكاء الاصطناعي.</span>';
             });
         }
+        
+        // دقة المؤقت: 4 ثوانٍ (4000 مللي ثانية) لعرض الدعاية والجمالية بالكامل
+        setTimeout(() => {
+            const splashContainer = document.getElementById('splash-container');
+            if (splashContainer) {
+                splashContainer.classList.add('splash-fade-out');
+                // إزالة كاملة للشاشة من الذاكرة العشوائية بعد الاختفاء لتخفيف الجهاز
+                setTimeout(() => {
+                    splashContainer.remove();
+                }, 1000);
+            }
+        }, 4000);
+
         window.addEventListener('themeChanged', () => {
             // تطبيق الثيم بدون إعادة تحميل الصفحة - أسرع بكثير
             const isLight = document.documentElement.classList.contains('light-theme');
             document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
         });
-        </script>
-
-        <!-- ═══ سيناريو تشغيل الشاشة الترحيبية الدائرية الكريستالية الفاخرة ═══ -->
-        <script>
-            (function() {
-                const canvas = document.getElementById('fluidCanvas');
-                if (!canvas) return;
-                const ctx = canvas.getContext('2d');
-
-                // ضبط أبعاد الشاشة لتتوافق مع دقة 4K الفائقة ومقاومة التشوه
-                function resize() {
-                    canvas.width = window.innerWidth * 2;
-                    canvas.height = window.innerHeight * 2;
-                    canvas.style.width = window.innerWidth + 'px';
-                    canvas.style.height = window.innerHeight + 'px';
-                    ctx.scale(2, 2);
-                }
-                window.addEventListener('resize', resize);
-                resize();
-
-                // توليد جسيمات سائلة ملونة تحاكي حركة المياه المتفجرة في الفيديو المرفق
-                class FluidParticle {
-                    constructor() {
-                        this.reset();
-                    }
-                    reset() {
-                        this.x = window.innerWidth / 2;
-                        this.y = window.innerHeight / 2;
-                        this.radius = Math.random() * 4 + 2;
-                        const angle = Math.random() * Math.PI * 2;
-                        const speed = Math.random() * 5 + 2;
-                        this.vx = Math.cos(angle) * speed;
-                        this.vy = Math.sin(angle) * speed;
-                        // مصفوفة الألوان الكريستالية الفاخرة (سيان، أرجواني، ذهبي، أخضر نيون)
-                        const colors = ['#00ffcc', '#ff00ff', '#fbbf24', '#34d399', '#38bdf8'];
-                        this.color = colors[Math.floor(Math.random() * colors.length)];
-                        this.alpha = 1;
-                        this.decay = Math.random() * 0.015 + 0.005;
-                    }
-                    update() {
-                        this.x += this.vx;
-                        this.y += this.vy;
-                        // إضافة مقاومة وحركة لولبية لمحاكاة الدوامة المركزية في الفيديو
-                        this.vx += Math.sin(this.y * 0.05) * 0.1;
-                        this.vy += Math.cos(this.x * 0.05) * 0.1;
-                        this.alpha -= this.decay;
-                        if (this.alpha <= 0) this.reset();
-                    }
-                    draw() {
-                        ctx.save();
-                        ctx.globalAlpha = this.alpha;
-                        ctx.beginPath();
-                        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                        ctx.fillStyle = this.color;
-                        // إعطاء مظهر التوهج الكريستالي المشع للجسيمات
-                        ctx.shadowBlur = 15;
-                        ctx.shadowColor = this.color;
-                        ctx.fill();
-                        ctx.restore();
-                    }
-                }
-
-                const particles = Array.from({ length: 150 }, () => new FluidParticle());
-
-                function animate() {
-                    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-                    particles.forEach(p => {
-                        p.update();
-                        p.draw();
-                    });
-                    requestAnimationFrame(animate);
-                }
-                animate();
-
-                // ⏱️ التحكم الزمني الاستراتيجي: المؤقت الذكي لمدة 4 ثوانٍ (4000 مللي ثانية)
-                setTimeout(() => {
-                    const splash = document.getElementById('splash-container');
-                    if (splash) {
-                        splash.classList.add('splash-hidden');
-                        
-                        // بعد اختفاء الشاشة بسلاسة، يتم مسحها من الذاكرة لترك السيستم يعمل بأعلى خفة
-                        setTimeout(() => splash.remove(), 800);
-                    }
-                }, 4000);
-            })();
         </script>
     
 </body>
