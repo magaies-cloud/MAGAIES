@@ -467,7 +467,7 @@ function renderVoucher(v) {
 
     // Set Payment Method
     const method = v.paymentMethod || 'cash';
-    document.querySelector(`input[name="payment_method"][value="${method}"]`).checked = true;
+    const methodEl = document.querySelector(`input[name="payment_method"][value="${method}"]`); if (methodEl) { methodEl.checked = true; } else { /* Fallback */ const firstMethod = document.querySelector(`input[name="payment_method"]`); if(firstMethod) firstMethod.checked = true; }
     togglePaymentMethod();
 
     if (typeof loadVoucherPaymentDetails === 'function') {
