@@ -40,6 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (v.id) serverMap.set(v.id, v);
                 });
                 localData.forEach(v => {
+                    // Filter out old formats that were already fixed on the server
+                    const vid = String(v.id);
+                    if (vid && (vid.includes('MV-') || vid.startsWith('MVP-') || vid.startsWith('TEMP_') || vid.startsWith('C-'))) {
+                        return; // discard
+                    }
                     if (v.id && !serverMap.has(v.id)) {
                         serverMap.set(v.id, v);
                     }
