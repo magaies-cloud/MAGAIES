@@ -1,7 +1,7 @@
 <?php
 // =============================================================
-// نظام MAGAIEES ERP 2026 - شاشة الدخول الموحدة بالخلفية الحية
-// المرحلة 1: فيديو متحرك خلف الباسورد | المرحلة 2: انبثاق الشعار 3D من العمق
+// نظام MAGAIEES ERP 2026 - شاشة الدخول المدمجة ذرياً وعضوياً
+// الشعار ليس مركباً بل هو جزء من جزيئات السائل والإنفجار اللوني للفيديو
 // =============================================================
 
 $login_success = false;
@@ -11,7 +11,7 @@ if (isset($_POST['submit_password'])) {
         $login_success = true;
         setcookie("session_active", "true", time() + 3600 * 24, "/");
     } else {
-        echo "<script>alert('كلمة المرور غير صحيحة، حاول مجدداً يا باشمهندس');</script>";
+        echo "<script>alert('كلمة المرور غير صحيحة يا باشمهندس مهدي!');</script>";
     }
 }
 ?>
@@ -20,9 +20,8 @@ if (isset($_POST['submit_password'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>تسجيل الدخول - MAGAIEES ERP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Inter:wght@900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>بوابة مقاييس العالمية - Organic Splash 8K</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@900&family=Inter:wght@900&display=swap" rel="stylesheet">
     
     <style>
         html, body { 
@@ -31,7 +30,7 @@ if (isset($_POST['submit_password'])) {
             width: 100%; 
             height: 100%; 
             overflow: hidden; 
-            background-color: #0c101b; 
+            background-color: #010204; 
             background-image: url('assets/user_bg_fast.jpg'); 
             background-size: cover; 
             background-position: center center; 
@@ -39,85 +38,8 @@ if (isset($_POST['submit_password'])) {
             font-family: 'Cairo', sans-serif; 
         }
         
-        /* 🎥 محرك تشغيل الفيديو الأصلي كخلفية حية ممتدة */
-        .bg-video { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            pointer-events: none; 
-            filter: brightness(0.85) contrast(1.1); 
-            z-index: 1; 
-        }
-        
-        /* طبقة الحماية الداكنة لمنع تشتت العين وتوضيح خانة الكتابة */
-        .overlay { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: radial-gradient(circle, rgba(3,5,8,0.2) 0%, rgba(2,4,6,0.85) 100%); 
-            z-index: 2; 
-            pointer-events: none; 
-        }
-        
-        /* 🔒 صندوق الباسورد (المرحلة الأولى) */
-        .login-box { 
-            position: relative; 
-            z-index: 10; 
-            background: rgba(11, 15, 25, 0.7); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255, 255, 255, 0.12); 
-            padding: 40px; 
-            border-radius: 24px; 
-            width: 360px; 
-            text-align: center; 
-            box-shadow: 0 25px 60px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255, 255, 255, 0.15); 
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
-        
-        .login-box h2 { margin: 0 0 10px 0; font-size: 22px; color: #fff; font-weight: 900; }
-        .login-box p { margin: 0 0 25px 0; font-size: 12px; color: #94a3b8; font-weight: bold; }
-        
-        .input-group { position: relative; margin-bottom: 20px; }
-        .input-group i { position: absolute; right: 15px; top: 16px; color: #38bdf8; font-size: 1.1rem; }
-        .input-style { 
-            width: 100%; 
-            padding: 14px 45px 14px 15px; 
-            background: rgba(0, 0, 0, 0.5); 
-            border: 1px solid rgba(56, 189, 248, 0.3); 
-            border-radius: 12px; 
-            color: #fff; 
-            font-size: 18px; 
-            font-family: monospace; 
-            text-align: center; 
-            box-sizing: border-box; 
-            outline: none; 
-            transition: all 0.3s; 
-        }
-        .input-style:focus { border-color: #00ffcc; box-shadow: 0 0 15px rgba(0,255,204,0.4); }
-        
-        .btn-submit { 
-            width: 100%; 
-            padding: 14px; 
-            background: linear-gradient(90deg, #f59e0b, #10b981); 
-            color: #020617; 
-            border: none; 
-            border-radius: 12px; 
-            font-weight: 900; 
-            font-size: 15px; 
-            cursor: pointer; 
-            transition: transform 0.2s, box-shadow 0.2s; 
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
-        }
-        .btn-submit:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); }
-
-        /* 👑 كتلة الشعار ثلاثي الأبعاد (المرحلة الثانية) */
-        #splash-container { 
+        /* الحاوية المركزية الفاخرة */
+        .viewport-container { 
             position: fixed; 
             top: 0; 
             left: 0; 
@@ -127,149 +49,211 @@ if (isset($_POST['submit_password'])) {
             justify-content: center; 
             align-items: center; 
             z-index: 9999; 
-            background: transparent; 
-            display: none; 
         }
         
-        .neon-ring { 
+        /* 🎥 فيديو السوائل الكريستالية الأصلي (المحرك الأساسي للضوء) */
+        .liquid-stream { 
             position: absolute; 
-            width: 420px; 
-            height: 420px; 
-            border-radius: 50%; 
-            border: 4px solid transparent; 
-            border-top: 4px solid #00ffcc; 
-            border-bottom: 4px solid #ff00ff; 
-            border-left: 4px solid #fbbf24; 
-            animation: spin 2s linear infinite; 
-            filter: drop-shadow(0 0 30px rgba(0,255,204,0.8)); 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            pointer-events: none; 
+            filter: saturate(1.4) contrast(1.2) brightness(1.1); 
+            z-index: 1; 
         }
         
-        .logo-3d { 
-            text-align: center; 
-            animation: emerge 4s forwards cubic-bezier(0.1, 1, 0.1, 1); 
-            transform-style: preserve-3d; 
-            perspective: 1000px; 
+        /* طبقة حماية إضافية مدمجة */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(3,5,8,0.1) 0%, rgba(2,4,6,0.65) 100%);
+            z-index: 1;
+            pointer-events: none;
         }
-        .logo-text { 
-            font-size: 85px; 
+
+        /* 🔒 صندوق الباسورد الهولوغرافي الشفاف (المرحلة الأولى) */
+        .glass-auth-box { 
+            position: relative; 
+            z-index: 10; 
+            background: rgba(5, 8, 15, 0.45); 
+            border: 1px solid rgba(0, 255, 204, 0.2); 
+            padding: 40px; 
+            border-radius: 28px; 
+            width: 350px; 
+            text-align: center; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(25px); 
+            -webkit-backdrop-filter: blur(25px); 
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .glass-auth-box h2 { margin: 0 0 8px 0; font-size: 22px; color: #fff; font-weight: 900; letter-spacing: 1px; }
+        .glass-auth-box p { margin: 0 0 25px 0; font-size: 11px; color: #38bdf8; opacity: 0.8; letter-spacing: 1px; }
+        
+        .input-wrapper { position: relative; margin-bottom: 20px; }
+        .input-field { 
+            width: 100%; 
+            padding: 15px; 
+            background: rgba(0, 0, 0, 0.6); 
+            border: 1px solid rgba(56, 189, 248, 0.35); 
+            border-radius: 14px; 
+            color: #00ffcc; 
+            font-size: 18px; 
+            font-family: monospace; 
+            text-align: center; 
+            box-sizing: border-box; 
+            outline: none; 
+            transition: all 0.3s; 
+        }
+        .input-field:focus { border-color: #ff00ff; box-shadow: 0 0 20px rgba(255,0,255,0.4); }
+        
+        .action-btn { 
+            width: 100%; 
+            padding: 15px; 
+            background: linear-gradient(90deg, #00ffcc, #ff00ff); 
+            color: #000; 
+            border: none; 
+            border-radius: 14px; 
+            font-weight: 900; 
+            font-size: 14px; 
+            cursor: pointer; 
+            letter-spacing: 1px; 
+            transition: all 0.3s; 
+            box-shadow: 0 4px 15px rgba(0, 255, 204, 0.35);
+        }
+        .action-btn:hover { filter: brightness(1.25); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(255, 0, 255, 0.4); }
+
+        /* =============================================================
+           👑 الهندسة البصرية: جعل الشعار يذوب وينبثق كجزء عضوي من الفيديو 
+           ============================================================= */
+        .organic-logo-wrap { position: absolute; z-index: 2; display: none; text-align: center; pointer-events: none; width: 100%; }
+        
+        /* [السحر البرمجي]: mix-blend-mode يدمج أحرف الشعار مع طاقة السوائل الملونة تحته تماماً */
+        .organic-text { 
+            font-size: 100px; 
             font-weight: 900; 
             font-family: 'Inter', 'Cairo', sans-serif; 
             margin: 0; 
-            background: linear-gradient(135deg, #ffffff 0%, #00ffcc 50%, #ff00ff 100%); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8)) drop-shadow(0 0 50px rgba(255, 0, 255, 0.6)); 
-            letter-spacing: 4px; 
+            color: #ffffff;
+            /* التدميج الملوكي: يجعل ألوان السائل المتفجر تضيء وتتحرك من داخل وبنية حروف كلمة مقاييس */
+            mix-blend-mode: overlay; 
+            filter: drop-shadow(0 0 30px rgba(0,255,204,0.5));
+            letter-spacing: 6px;
+            animation: fluidExpansion 4s forwards cubic-bezier(0.1, 1, 0.1, 1);
         }
-        .logo-sub { 
-            font-size: 15px; 
+        
+        .organic-sub { 
+            font-size: 16px; 
             font-weight: bold; 
-            color: #38bdf8; 
-            letter-spacing: 8px; 
+            color: #ffffff; 
+            mix-blend-mode: color-dodge; 
+            letter-spacing: 12px; 
             margin-top: 15px; 
             text-transform: uppercase; 
-            text-shadow: 0 2px 10px rgba(56, 189, 248, 0.5);
+            opacity: 0.8; 
+            animation: textGlowPulse 2s infinite ease-in-out; 
         }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes emerge {
-            0% { transform: scale(0.2) translateZ(-600px); filter: blur(12px) brightness(0); opacity: 0; }
-            30% { transform: scale(1.1) translateZ(120px); filter: blur(0px) brightness(1.6); opacity: 1; }
-            45% { transform: scale(1) translateZ(0); }
-            100% { transform: scale(1.04) translateZ(30px); }
+        /* حركات التداخل الذري وتمدد السائل */
+        @keyframes fluidExpansion {
+            0% { transform: scale(0.6) rotate(-3deg); filter: blur(20px) contrast(2); opacity: 0; letter-spacing: -10px; }
+            40% { transform: scale(1.05) rotate(1deg); filter: blur(0px) contrast(1.2); opacity: 1; letter-spacing: 10px; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; letter-spacing: 6px; }
         }
+        @keyframes textGlowPulse { 0%, 100% { opacity: 0.6; filter: brightness(1); } 50% { opacity: 0.9; filter: brightness(1.4); } }
         
-        .fade-out { opacity: 0; visibility: hidden; transition: opacity 1s ease, visibility 1s ease; }
-        .hidden-box { opacity: 0; transform: scale(0.8); pointer-events: none; }
+        .hide-box { opacity: 0; transform: scale(0.8) rotate(2deg); pointer-events: none; }
+        .fade-out-all { opacity: 0; transition: opacity 1.2s ease; }
     </style>
 </head>
-<body style="display:flex; justify-content:center; align-items:center; height:100vh;">
+<body>
 
-    <!-- Live Background Video -->
-    <video autoplay loop muted playsinline class="bg-video">
-        <source src="271262.mp4" type="video/mp4">
-    </video>
-    <div class="overlay"></div>
-
-    <div class="login-box" id="loginBox">
-        <h2>نظام مقاييس المحاسبي</h2>
-        <p>MAGAIEES ERP — بوابة الدخول الآمنة</p>
+    <div class="viewport-container" id="viewport">
         
-        <form method="POST" action="" onsubmit="return handleLogin(event)">
-            <div class="input-group">
-                <i class="fa-solid fa-lock"></i>
-                <input type="password" name="password" id="passInput" class="input-style" placeholder="أدخل كلمة المرور السرية" required autocomplete="off">
-            </div>
-            <button type="submit" name="submit_password" class="btn-submit">موافق وتأثير الدخول</button>
-        </form>
-    </div>
+        <!-- Live Video stream -->
+        <video autoplay loop muted playsinline class="liquid-stream">
+            <source src="271262.mp4" type="video/mp4">
+        </video>
+        <div class="overlay"></div>
 
-    <div id="splash-container">
-        <div class="neon-ring"></div>
-        <div class="logo-3d">
-            <h1 class="logo-text">مقاييس ERP</h1>
-            <div class="logo-sub">غرفة القيادة المركزية العالمية</div>
+        <div class="glass-auth-box" id="authBox">
+            <h2>نظام مقاييس المحاسبي</h2>
+            <p>MAGAIEES ERP — الجيل الذكي الموحد</p>
+            
+            <form method="POST" action="" onsubmit="executeProfessionalTransition(event)">
+                <div class="input-wrapper">
+                    <input type="password" name="password" id="securePass" class="input-field" placeholder="أدخل كلمة المرور" required autocomplete="off">
+                </div>
+                <button type="submit" name="submit_password" class="action-btn">موافق وتأثير الـ 8K</button>
+            </form>
         </div>
+
+        <div class="organic-logo-wrap" id="organicLogo">
+            <h1 class="organic-text">مقاييس ERP</h1>
+            <div class="organic-sub">MANAGEMENT PLATFORM</div>
+        </div>
+        
     </div>
 
     <script>
-        // دالة التحكم الجمالي والانتقال بين المرحلتين
-        function handleLogin(e) {
-            const passInput = document.getElementById('passInput').value;
+        function executeProfessionalTransition(event) {
+            event.preventDefault();
+            const pass = document.getElementById('securePass').value;
             
-            if (passInput === "123") {
-                e.preventDefault(); // إيقاف التحديث اللحظي للمتصفح لتشغيل السينمائيات أولاً
-                
+            if (pass === "123") {
                 // حفظ التوكن وبيانات المستخدم في localStorage و cookies
                 localStorage.setItem('authToken', 'token_123');
                 localStorage.setItem('user', JSON.stringify({ username: 'admin', fullName: 'الباشمهندس' }));
                 document.cookie = "session_active=true; path=/";
                 sessionStorage.setItem('session_active', 'true');
 
-                // 1. إخفاء صندوق الباسورد بسلاسة
-                document.getElementById('loginBox').classList.add('hidden-box');
+                // 1. إخفاء صندوق الدخول بحركة تلاشي انسيابية دائرية
+                document.getElementById('authBox').classList.add('hide-box');
                 
-                // 2. إظهار شاشة انبثاق شعار مقاييس الفخم من عمق نفس الفيديو
+                // 2. تفعيل انبثاق الشعار العضوي المدمج
                 setTimeout(() => {
-                    const splash = document.getElementById('splash-container');
-                    splash.style.display = 'flex';
+                    document.getElementById('authBox').style.display = 'none';
+                    const logoWrap = document.getElementById('organicLogo');
+                    logoWrap.style.display = 'block';
                     
-                    // 3. مهلة 4 ثوانٍ للشعار وهو مشع وبارز، ثم الانتقال لصفحة الواجهة الموحدة
+                    // 3. استعراض الشعار وهو يمتص ألوان ودورانات الفيديو لمدة 4 ثوانٍ، ثم الانتقال للوحة التحكم
                     setTimeout(() => {
-                        splash.classList.add('fade-out');
+                        document.getElementById('viewport').classList.add('fade-out-all');
                         setTimeout(() => {
-                            // التوجيه التلقائي لغرفة القيادة الموحدة
                             window.location.href = 'dashboard-pro.php';
-                        }, 1000);
+                        }, 1200);
                     }, 4000);
-                }, 1000); // تقليل مهلة التجهيز لتكون أسرع وأكثر تفاعلية (1 ثانية بدلاً من 4 ثوانٍ فراغ)
-                
-                return false;
+                }, 600); 
             } else {
-                e.preventDefault();
-                alert('كلمة المرور غير صحيحة، حاول مجدداً يا باشمهندس');
-                return false;
+                alert('كلمة المرور غير صحيحة يا باشمهندس مهدي!');
             }
         }
     </script>
 
     <?php if ($login_success): ?>
     <script>
-        // معالجة دخول PHP المباشر الاحتياطي
+        // معالجة دخول PHP الاحتياطي في حال إرسال الفورم برمجياً
         localStorage.setItem('authToken', 'token_123');
         localStorage.setItem('user', JSON.stringify({ username: 'admin', fullName: 'الباشمهندس' }));
         sessionStorage.setItem('session_active', 'true');
         
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('loginBox').classList.add('hidden-box');
-            const splash = document.getElementById('splash-container');
-            splash.style.display = 'flex';
+            document.getElementById('authBox').classList.add('hide-box');
             setTimeout(() => {
-                splash.classList.add('fade-out');
+                document.getElementById('authBox').style.display = 'none';
+                const logoWrap = document.getElementById('organicLogo');
+                logoWrap.style.display = 'block';
                 setTimeout(() => {
-                    window.location.href = 'dashboard-pro.php';
-                }, 1000);
-            }, 4000);
+                    document.getElementById('viewport').classList.add('fade-out-all');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard-pro.php';
+                    }, 1200);
+                }, 4000);
+            }, 600);
         });
     </script>
     <?php endif; ?>
