@@ -353,15 +353,15 @@ function loadData() {
         
         const paid = parseNum(inv.paidAmount || inv.paid);
         if(partner && partner !== 'walk-in') {
-            let prefixedPartner = String(partner);
-            if (!prefixedPartner.startsWith('cust-') && !prefixedPartner.startsWith('supp-') && !prefixedPartner.startsWith('bank-') && !prefixedPartner.startsWith('safe-') && !prefixedPartner.startsWith('exp-')) {
-                prefixedPartner = 'cust-' + prefixedPartner;
+            let pRef = String(partner);
+            if (!pRef.startsWith('cust-') && !pRef.startsWith('supp-') && !pRef.startsWith('bank-') && !pRef.startsWith('safe-') && !pRef.startsWith('exp-')) {
+                pRef = 'cust-' + pRef;
             }
-            ALL_TXNS.push({ partner: prefixedPartner, debit: total, credit: 0, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
+            ALL_TXNS.push({ partner: pRef, debit: total, credit: 0, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
             if(inv.paymentMethod !== 'credit' && paid === 0) {
-                ALL_TXNS.push({ partner: prefixedPartner, debit: 0, credit: total, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
+                ALL_TXNS.push({ partner: pRef, debit: 0, credit: total, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
             } else if(paid > 0) {
-                ALL_TXNS.push({ partner: prefixedPartner, debit: 0, credit: paid, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
+                ALL_TXNS.push({ partner: pRef, debit: 0, credit: paid, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
             }
         }
     });
@@ -382,15 +382,15 @@ function loadData() {
         
         const paid = parseNum(inv.paidAmount || inv.paid);
         if(partner && partner !== 'walk-in') {
-            let prefixedPartner = String(partner);
-            if (!prefixedPartner.startsWith('cust-') && !prefixedPartner.startsWith('supp-') && !prefixedPartner.startsWith('bank-') && !prefixedPartner.startsWith('safe-') && !prefixedPartner.startsWith('exp-')) {
-                prefixedPartner = 'supp-' + prefixedPartner;
+            let pRef = String(partner);
+            if (!pRef.startsWith('cust-') && !pRef.startsWith('supp-') && !pRef.startsWith('bank-') && !pRef.startsWith('safe-') && !pRef.startsWith('exp-')) {
+                pRef = 'supp-' + pRef;
             }
-            ALL_TXNS.push({ partner: prefixedPartner, debit: 0, credit: total, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
+            ALL_TXNS.push({ partner: pRef, debit: 0, credit: total, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
             if(inv.paymentMethod !== 'credit' && paid === 0) {
-                ALL_TXNS.push({ partner: prefixedPartner, debit: total, credit: 0, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
+                ALL_TXNS.push({ partner: pRef, debit: total, credit: 0, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
             } else if(paid > 0) {
-                ALL_TXNS.push({ partner: prefixedPartner, debit: prefixedPartner.includes('supp-') ? paid : 0, credit: 0, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
+                ALL_TXNS.push({ partner: pRef, debit: paid, credit: 0, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
             }
         }
     });
