@@ -31,10 +31,7 @@ try {
     $SERVER_SINGLE_PAYMENTS_json = json_encode($arr);
 } catch (Exception $e) {}
 ?>
-<script>
-    window.SERVER_SINGLE_PAYMENTS = <?php echo $SERVER_SINGLE_PAYMENTS_json; ?>;
-</script>
-?>
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js?v=<?php echo time(); ?>"></script>
@@ -1365,7 +1362,10 @@ try {
           
       });
     </script>
-    <script defer src="js/single-cash-payment.js?v=20260625_3"></script>
+    <script>
+        window.SERVER_SINGLE_PAYMENTS = <?php echo $SERVER_SINGLE_PAYMENTS_json; ?>;
+    </script>
+    <script defer src="js/single-cash-payment.js?v=<?php echo time(); ?>"></script>
     <script>
         let lastEnterTime = 0;
         // Perfected Exact Path Enter Navigation

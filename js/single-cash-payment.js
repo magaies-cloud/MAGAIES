@@ -356,7 +356,6 @@ function calcEquiv(source) {
 function resetVoucher() {
     window.location.href = window.location.pathname;
 }
-}
 
 function resetVoucherSilent() {
     currentViewedIndex = -1;
