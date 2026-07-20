@@ -1418,5 +1418,19 @@ function runAISmartSearch() {
     });
 </script>
 
+<script>
+window.addEventListener('error', function(e) {
+    alert('🚨 خطأ برمجي: ' + e.message + '\nفي السطر: ' + e.lineno);
+    console.error('Uncaught error:', e);
+});
+
+window.addEventListener('beforeunload', function (e) {
+    // Only show if we didn't explicitly navigate via location.href
+    if (document.activeElement && document.activeElement.tagName === 'BUTTON' && document.activeElement.type !== 'button') {
+        alert('🚨 تحذير: زر قام بعمل Submit للصفحة!');
+    }
+});
+</script>
+
 </body>
 </html>
