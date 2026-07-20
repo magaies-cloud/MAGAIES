@@ -141,13 +141,7 @@ function getCustomerChurnData($pdo, $days_threshold = 60) {
             }
         }
 
-        if (empty($result)) {
-            $result = [
-                ['customer_name' => 'شركة النيل للتجارة والإنشاءات', 'last_purchase_date' => '2026-06-15', 'days_since_last_purchase' => 32, 'churn_risk_status' => 'MEDIUM RISK'],
-                ['customer_name' => 'محلات أولاد أم درمان لحديد التسليح', 'last_purchase_date' => '2026-04-10', 'days_since_last_purchase' => 98, 'churn_risk_status' => 'HIGH RISK'],
-                ['customer_name' => 'المقاولات السودانية الحديثة', 'last_purchase_date' => '2026-07-16', 'days_since_last_purchase' => 1, 'churn_risk_status' => 'ACTIVE']
-            ];
-        }
+        // Mock data fallback removed for SaaS environment
         return $result;
     } catch (Exception $e) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $e->getMessage());
         return [];
@@ -217,14 +211,7 @@ function getCustomerProfitabilityData($pdo) {
             ];
         }
 
-        if (empty($result)) {
-            $rate = 600000;
-            $result = [
-                ['customer_name' => 'شركة النيل للتجارة', 'gross_sales' => $rate * 10.8, 'net_profit' => $rate * 1.62, 'profit_margin_percentage' => 15.00],
-                ['customer_name' => 'محلات أولاد أم درمان', 'gross_sales' => $rate * 7.8, 'net_profit' => $rate * 1.17, 'profit_margin_percentage' => 15.00],
-                ['customer_name' => 'المقاولات السودانية', 'gross_sales' => $rate * 5.9, 'net_profit' => $rate * 0.88, 'profit_margin_percentage' => 15.00]
-            ];
-        }
+        // Mock data fallback removed for SaaS environment
 
         // ترتيب تنازلي حسب الربح الصافي
         usort($result, function($a, $b) {
@@ -491,12 +478,7 @@ function getPriceVarianceData($pdo) {
             }
         } catch (Exception $e) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $e->getMessage()); }
 
-        if (empty($result)) {
-            $result = [
-                ['transaction_id' => 'INV-2026-90', 'customer_name' => 'أعمال الخرطوم للأسمنت', 'item_name' => 'أسمنت عطبرة مقاوم', 'actual_selling_price' => 12000, 'stock_cost_price' => 11800, 'unit_margin' => 200, 'profit_margin_percentage' => 1.69],
-                ['transaction_id' => 'INV-2026-92', 'customer_name' => 'شركة النيل للتجارة', 'item_name' => 'حديد تسليح 4 لينيا', 'actual_selling_price' => 58000, 'stock_cost_price' => 57500, 'unit_margin' => 500, 'profit_margin_percentage' => 0.87]
-            ];
-        }
+        // Mock data fallback removed for SaaS environment
 
         // ترتيب تصاعدي حسب هامش الربح
         usort($result, function($a, $b) {
@@ -686,13 +668,7 @@ function getCustomerEngagementData($pdo) {
             ];
         }
 
-        if (empty($result)) {
-            $rate = 600000;
-            $result = [
-                ['customer_name' => 'شركة النيل للتجارة', 'total_visit_count' => 20, 'total_spend' => $rate * 15.0, 'engagement_tier' => 'VIP'],
-                ['customer_name' => 'محلات أولاد أم درمان', 'total_visit_count' => 8, 'total_spend' => $rate * 8.5, 'engagement_tier' => 'REGULAR']
-            ];
-        }
+        // Mock data fallback removed for SaaS environment
 
         // ترتيب تنازلي حسب عدد الزيارات
         usort($result, function($a, $b) {
@@ -745,14 +721,7 @@ function getRealTimeLiquidity($pdo) {
             }
         } catch (Exception $e) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $e->getMessage()); }
 
-        if (empty($vaults)) {
-            // بيانات افتراضية إذا كانت فارغة تماماً
-            $rate = 600000;
-            $vaults = [
-                ["vault_name" => "الخزنة الرئيسية - السجانة", "amount" => $rate * 14.1, "color" => "#10b981"],
-                ["vault_name" => "حساب بنك الخرطوم", "amount" => $rate * 20.0, "color" => "#3b82f6"]
-            ];
-        }
+        // Mock data fallback removed for SaaS environment
 
         // ترتيب تنازلي حسب الرصيد المتوفر
         usort($vaults, function($a, $b) {
@@ -807,14 +776,7 @@ function getCustomerExposureData($pdo) {
             }
         }
 
-        if (empty($report_data)) {
-            $rate = 600000;
-            $report_data = [
-                ["customer_name" => "شركة النيل للتجارة والإنشاءات", "ledger_balance" => $rate * 7.5, "pending_checks_total" => $rate * 3.3, "total_exposure" => $rate * 10.8],
-                ["customer_name" => "محلات أولاد أم درمان لحديد التسليح", "ledger_balance" => $rate * 2.0, "pending_checks_total" => $rate * 5.8, "total_exposure" => $rate * 7.8],
-                ["customer_name" => "المقاولات السودانية الحديثة", "ledger_balance" => $rate * 4.6, "pending_checks_total" => 0, "total_exposure" => $rate * 4.6]
-            ];
-        }
+        // Mock data fallback removed for SaaS environment
 
         // ترتيب تنازلي حسب الخطورة الإجمالية
         usort($report_data, function($a, $b) {
@@ -1092,12 +1054,7 @@ function getWarehouseCapacities($pdo) {
             ];
         }
         
-        if (empty($wh_data)) {
-            $wh_data = [
-                ['warehouse_name' => 'عنبر السجانة الرئيسي', 'stock_qty' => 1250, 'capacity' => 5000, 'utilization_pct' => 25.0],
-                ['warehouse_name' => 'مستودع اللاماب الفرعي', 'stock_qty' => 450, 'capacity' => 3000, 'utilization_pct' => 15.0]
-            ];
-        }
+        // Mock data fallback removed for SaaS environment
         return $wh_data;
     } catch (Exception $e) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $e->getMessage());
         return [];

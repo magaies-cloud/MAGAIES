@@ -10,7 +10,7 @@ $selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset
 $pdo = getDBConnection();
 
 $data = getSeasonalTrendsData($pdo);
-$is_mock_data = empty($data) || (isset($data[0]['item_name']) && $data[0]['item_name'] === 'حديد تسليح 5 لينيا الأسعد' && count($data) <= 2);
+$is_mock_data = false;
 
 // حساب المؤشرات
 $total_items = count($data);

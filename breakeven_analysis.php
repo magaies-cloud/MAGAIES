@@ -42,9 +42,7 @@ try {
 } catch (Exception $e) {
     // fallback - فئات افتراضية
 }
-if (empty($categories)) {
-    $categories = ['سيخ', 'أسمنت', 'صاج', 'حديد', 'مواد بناء'];
-}
+// Mock data fallback removed for SaaS environment
 // إذا لم يتم اختيار فئة، اختر أول فئة
 if (empty($selected_category)) {
     $selected_category = $categories[0];

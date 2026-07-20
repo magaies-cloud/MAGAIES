@@ -99,24 +99,7 @@ try {
 }
 
 // البديل لتقرير مقاصة الحسابات المشتركة
-if (empty($netting_report)) {
-    $netting_report = [
-        [
-            'name' => 'مقاولات السجانة الموحدة',
-            'our_money' => $rate * 11.0,
-            'their_money' => $rate * 4.5,
-            'net' => $rate * 6.5,
-            'action' => 'WE COLLECT (نحصل)'
-        ],
-        [
-            'name' => 'شركة النيل الأزرق للمقاولات',
-            'our_money' => $rate * 14.5,
-            'their_money' => $rate * 16.0,
-            'net' => -$rate * 1.5,
-            'action' => 'WE PAY (ندفع)'
-        ]
-    ];
-}
+// Mock data fallback removed for SaaS environment
 
 // دالة تحويل العملة الموحدة للتقارير
 if (!function_exists('convertReportAmount')) {

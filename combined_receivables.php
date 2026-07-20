@@ -79,51 +79,7 @@ try {
 }
 
 // البديل في حال خلو قاعدة البيانات
-if (empty($report_data)) {
-    $is_mock_data = true;
-    $report_data = [
-        [
-            'id' => 1,
-            'account_name' => 'مصنع الأسعد للحديد والصلب',
-            'account_type' => 'SUPPLIER',
-            'ledger_balance' => -15000000.00, // مديونية لصالح المورد
-            'pending_inbound' => 0.00,
-            'pending_outbound' => 5000000.00
-        ],
-        [
-            'id' => 2,
-            'account_name' => 'شركة النيل الأزرق للمقاولات',
-            'account_type' => 'CUSTOMER',
-            'ledger_balance' => 8500000.00, // مديونية على العميل
-            'pending_inbound' => 3000000.00,
-            'pending_outbound' => 0.00
-        ],
-        [
-            'id' => 3,
-            'account_name' => 'مقاولات السجانة الموحدة',
-            'account_type' => 'CUSTOMER',
-            'ledger_balance' => 12000000.00,
-            'pending_inbound' => 4500000.00,
-            'pending_outbound' => 0.00
-        ],
-        [
-            'id' => 4,
-            'account_name' => 'شركة ابتكار الهندسية',
-            'account_type' => 'CUSTOMER',
-            'ledger_balance' => 4500000.00,
-            'pending_inbound' => 1500000.00,
-            'pending_outbound' => 0.00
-        ],
-        [
-            'id' => 5,
-            'account_name' => 'مصنع إسمنت عطبرة',
-            'account_type' => 'SUPPLIER',
-            'ledger_balance' => -9000000.00,
-            'pending_inbound' => 0.00,
-            'pending_outbound' => 3000000.00
-        ]
-    ];
-}
+// Mock data fallback removed for SaaS environment
 
 // حساب المؤشرات الإجمالية
 $total_ledger_receivables = 0; // مدين (عملاء)

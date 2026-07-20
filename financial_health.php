@@ -177,40 +177,7 @@ try {
 }
 
 // البديل في حال خلو قاعدة البيانات
-if (empty($aging_report) && !$db_connected) {
-    $quick_ratio = 2.4;
-    $safety_rate = 85;
-    $dso_days = 28.5;
-    $aging_report = [
-        [
-            'customer_name' => 'شركة النيل الأزرق للمقاولات',
-            'current_0_30' => $rate * 10.0,
-            'overdue_31_60' => $rate * 4.5,
-            'overdue_61_90' => 0.0,
-            'critical_over_90' => 0.0,
-            'bad_debt_provision' => 0.0,
-            'total_outstanding' => $rate * 14.5
-        ],
-        [
-            'customer_name' => 'مقاولات السجانة الموحدة',
-            'current_0_30' => 0.0,
-            'overdue_31_60' => 0.0,
-            'overdue_61_90' => $rate * 3.0,
-            'critical_over_90' => $rate * 8.0,
-            'bad_debt_provision' => $rate * 4.0,
-            'total_outstanding' => $rate * 11.0
-        ],
-        [
-            'customer_name' => 'مجموعة البرج الهندسية',
-            'current_0_30' => $rate * 8.2,
-            'overdue_31_60' => 0.0,
-            'overdue_61_90' => 0.0,
-            'critical_over_90' => 0.0,
-            'bad_debt_provision' => 0.0,
-            'total_outstanding' => $rate * 8.2
-        ]
-    ];
-}
+// Mock data fallback removed for SaaS environment
 
 // في حال DSO لا يزال صفر بعد الحسابات الحقيقية
 if ($dso_days == 0 && $db_connected) {

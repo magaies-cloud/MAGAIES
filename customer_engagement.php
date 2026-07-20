@@ -10,7 +10,7 @@ $selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset
 $pdo = getDBConnection();
 
 $data = getCustomerEngagementData($pdo);
-$is_mock_data = empty($data) || (isset($data[0]['customer_name']) && $data[0]['customer_name'] === 'شركة النيل للتجارة' && count($data) <= 2);
+$is_mock_data = false;
 
 // حساب المؤشرات
 $total = count($data);

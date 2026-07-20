@@ -10,7 +10,7 @@ $selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset
 $pdo = getDBConnection();
 
 $data = getPriceVarianceData($pdo);
-$is_mock_data = empty($data) || (isset($data[0]['transaction_id']) && $data[0]['transaction_id'] === 'INV-2026-92' && count($data) <= 2);
+$is_mock_data = false;
 
 // حساب المؤشرات
 $total_flagged = count($data);

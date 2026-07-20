@@ -302,37 +302,7 @@ if (!function_exists('convertReportAmount')) {
             </div>
         </div>
 
-        <?php if(empty($suppliers)): ?>
-            <div style="text-align: center; padding: 40px; color: var(--text-muted); background: rgba(0,0,0,0.2); border-radius: 16px;">
-                لا توجد بيانات موردين مطابقة للفلاتر المحددة.
-            </div>
-        <?php else: ?>
-            <div class="chart-container">
-                <canvas id="supplierChart"></canvas>
-            </div>
-
-            <div class="table-container">
-                <h3 style="margin-top:0; margin-bottom:15px; color:#a855f7;">📋 جدول موثوقية الموردين والتقلب السعري</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>اسم المورد</th>
-                            <th>عدد طلبيات التوريد</th>
-                            <th>حجم الأعمال الإجمالي</th>
-                            <th>مؤشر التقلب السعري (Price Volatility)</th>
-                            <th>تقييم ثبات الأسعار</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($suppliers as $index => $s): 
-                            $delay = 0.8 + ($index * 0.05);
-                            // تقييم التقلب السعري
-                            $volatility_threshold = $rate * 0.05;
-                            $extreme_threshold = $rate * 0.10;
-                            if ($s['variance'] == 0) {
-                                $rating_class = "rating-stable";
-                                $rating_text = "✓ ثابت ومستقر تماماً";
-                            } elseif ($s['variance'] < $volatility_threshold) {
+        <?php // Mock data fallback removed for SaaS environment elseif ($s['variance'] < $volatility_threshold) {
                                 $rating_class = "rating-stable";
                                 $rating_text = "✓ تقلب طفيف آمن";
                             } elseif ($s['variance'] < $extreme_threshold) {

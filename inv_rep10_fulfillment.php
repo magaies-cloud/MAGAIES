@@ -28,12 +28,7 @@ try {
     }
 } catch (Exception $e) {}
 
-if (empty($report_data)) {
-    $report_data = [
-        ['invoice_no' => 'INV-2026-90', 'customer_name' => 'شركة النيل', 'status' => 'delivered', 'fulfillment_pct' => 100],
-        ['invoice_no' => 'INV-2026-92', 'customer_name' => 'مهدي عمار', 'status' => 'pending_delivery', 'fulfillment_pct' => 0]
-    ];
-}
+// Mock data fallback removed for SaaS environment
 
 // حساب معدلات التلبية الإجمالية
 $delivered_count = 0;

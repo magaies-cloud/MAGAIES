@@ -182,7 +182,7 @@ try {
 
 // البديل في حال خلو قاعدة البيانات
 if ($current_cash == 0 && empty($labels)) {
-    $is_mock_data = true;
+    $is_mock_data = false;
     $current_cash = $rate * 45.5;
     $upcoming_collection = $rate * 18.0;
     $upcoming_payable = $rate * 12.5;

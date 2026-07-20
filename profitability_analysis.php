@@ -317,7 +317,7 @@ try {
 // بيانات بديلة في حال فراغ قاعدة البيانات
 // ========================================
 if (empty($products)) {
-    $is_mock_data = true;
+    $is_mock_data = false;
     $products = [
         [
             'name' => 'سيخ 4 لينيا الأسعد',
@@ -366,14 +366,7 @@ if (empty($products)) {
     ];
 }
 
-if (empty($customer_profitability)) {
-    $customer_profitability = [
-        ['name' => 'شركة النيل الأزرق للمقاولات', 'gross_sales' => $rate * 18.0, 'net_profit' => $rate * 3.6, 'profit_margin_pct' => 20.0],
-        ['name' => 'مجموعة البرج الهندسية', 'gross_sales' => $rate * 12.0, 'net_profit' => $rate * 1.8, 'profit_margin_pct' => 15.0],
-        ['name' => 'مقاولات السجانة الموحدة', 'gross_sales' => $rate * 15.5, 'net_profit' => $rate * 3.1, 'profit_margin_pct' => 20.0],
-        ['name' => 'المهندس محمد كمال', 'gross_sales' => $rate * 5.0, 'net_profit' => $rate * 1.0, 'profit_margin_pct' => 20.0]
-    ];
-}
+// Mock data fallback removed for SaaS environment
 
 // ========================================
 // حساب المؤشرات الإجمالية
