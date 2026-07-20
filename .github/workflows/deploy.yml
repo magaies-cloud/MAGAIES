@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -15,12 +16,15 @@ jobs:
 
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v0.1.10
+      timeout-minutes: 10
       with:
         host: '147.182.214.194'
         username: 'root'
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         port: 22
+        command_timeout: 5m
+        debug: true
         script: |
           cd /var/www/magaees
           git remote set-url origin https://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@github.com/magaies-cloud/magaies.git
