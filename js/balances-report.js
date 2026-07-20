@@ -424,11 +424,18 @@ function runReport() {
         let runningBal = p.openingDebit - p.openingCredit;
         let runningBalForeign = (p.openingDebit / p.exRate) - (p.openingCredit / p.exRate);
         
-        // Filter transactions for this partner
-        const cleanPId = String(p.id).replace(/^(cust|supp|bank|safe|exp)-/, '');
+        // Filter transactions for this partner using type-prefixed IDs to avoid ID collisions between Customers/Suppliers/Banks
+        let pRef = String(p.id);
+        if (!pRef.includes('-')) {
+            if (p.type === 'CUST') pRef = 'cust-' + p.id;
+            else if (p.type === 'SUPP') pRef = 'supp-' + p.id;
+            else if (p.type === 'BANK') pRef = 'bank-' + p.id;
+            else if (p.type === 'SAFE') pRef = 'safe-' + p.id;
+            else if (p.type === 'EXP') pRef = 'exp-' + p.id;
+        }
+
         const partnerTxns = ALL_TXNS.filter(t => {
-            const cleanAcc = String(t.partner).replace(/^(cust|supp|bank|safe|exp)-/, '');
-            const matchesAcc = (cleanAcc === cleanPId);
+            const matchesAcc = (String(t.partner) === pRef);
             const matchesCC = (ccFilter === 'ALL' || t.costCenter === ccFilter);
             return matchesAcc && matchesCC;
         });
