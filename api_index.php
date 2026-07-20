@@ -877,7 +877,7 @@ if ($resource === 'sync') {
                 $key = "erp_" . $frontendKey . "_v1";
                 
                 $data_payload[$key] = $parsed_rows;
-            } catch (PDOException $e) {
+            } catch (PDOException $) { error_log('API Index Error: ' . $->getMessage());
                 // Skip if table doesn't exist or doesn't have 'data' column
                 continue;
             }
@@ -1162,7 +1162,7 @@ if ($resource === 'sync') {
                                         $pdo->exec("INSERT INTO `$table` (tenant_id, data) VALUES " . implode(", ", $insertValues));
                                     }
                                 }
-                            } catch (PDOException $e) {
+                            } catch (PDOException $) { error_log('API Index Error: ' . $->getMessage());
                                 // Skip table if it doesn't exist or schema is wrong
                                 continue;
                             }

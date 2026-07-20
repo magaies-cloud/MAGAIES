@@ -10,65 +10,9 @@ define('DB_USER', 'root');
 define('DB_PASS', '');         
 
 function getDBConnection() {
-    static $pdo = null;
+    global $pdo;
     if ($pdo === null) {
-        // محاولة جلب الإعدادات من الاتصال الرئيسي للنظام api/db.php أولاً لضمان التطابق التام
-        try {
-            if (file_exists(__DIR__ . '/api/db.php')) {
-                include_once __DIR__ . '/api/db.php';
-                if (isset($pdo) && $pdo instanceof PDO) {
-                    return $pdo;
-                }
-            }
-        } catch (Exception $ex) {}
-
-        // إذا فشل، نحاول قراءة ملف .env
-        $host = 'localhost';
-        $port = '3306';
-        $user = 'root';
-        $pass = '';
-        $db   = 'magaees';
-
-        try {
-            if (file_exists(__DIR__ . '/.env')) {
-                $lines = file(__DIR__ . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-                foreach ($lines as $line) {
-                    if (strpos(trim($line), '#') === 0) continue;
-                    if (strpos($line, '=') === false) continue;
-                    [$key, $value] = explode('=', $line, 2);
-                    $key = trim($key);
-                    $value = trim($value);
-                    if ($key === 'DB_HOST') $host = $value;
-                    if ($key === 'DB_PORT') $port = $value;
-                    if ($key === 'DB_USER') $user = $value;
-                    if ($key === 'DB_PASS') $pass = $value;
-                    if ($key === 'DB_NAME') $db = $value;
-                }
-            }
-        } catch (Exception $ex) {}
-
-        try {
-            $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4";
-            $pdo = new PDO($dsn, $user, $pass, [
-                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_EMULATE_PREPARES   => false,
-                PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true
-            ]);
-        } catch (PDOException $e) {
-            // المحاولة الأخيرة باستخدام الثوابت الافتراضية
-            try {
-                $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8", DB_USER, DB_PASS);
-                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-                $pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
-            } catch (PDOException $e2) {
-                error_log("خطأ في الاتصال بقاعدة البيانات: " . $e2->getMessage());
-                die("<div style='background:#7f1d1d; color:#fecaca; padding:20px; text-align:center; font-family:sans-serif; border-radius:10px; direction:rtl;'>
-                        <h3>⚠️ تنبيه: فشل الاتصال التلقائي بقاعدة البيانات الحقيقية</h3>
-                        <p>يرجى تشغيل خادم الـ MySQL وتسمية قاعدة البيانات باسم <strong>magaies</strong> ليعمل الربط فوراً.</p>
-                     </div>");
-            }
-        }
+        require_once __DIR__ . '/api/db.php';
     }
     return $pdo;
 }
@@ -80,7 +24,7 @@ function hasCurrentBalanceColumn($pdo) {
     try {
         $stmt = $pdo->query("SHOW COLUMNS FROM accounts LIKE 'current_balance'");
         $has_col = ($stmt->rowCount() > 0);
-    } catch (Exception $e) {
+    } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage());
         $has_col = false;
     }
     return $has_col;
@@ -116,7 +60,7 @@ function getDebtConcentrationData($pdo) {
             return $b['total_customer_debt'] <=> $a['total_customer_debt'];
         });
         return $result;
-    } catch (Exception $e) {
+    } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage());
         return [];
     }
 }
@@ -147,7 +91,7 @@ function getCustomerChurnData($pdo, $days_threshold = 60) {
                     }
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage()); }
 
         // جلب العملاء الحقيقيين وحساب المخاطر
         $stmt = $pdo->query("SELECT data FROM customers");
@@ -188,7 +132,7 @@ function getCustomerChurnData($pdo, $days_threshold = 60) {
             ];
         }
         return $result;
-    } catch (Exception $e) {
+    } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage());
         return [];
     }
 }
@@ -244,7 +188,7 @@ function getCustomerProfitabilityData($pdo) {
                     }
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage()); }
 
         foreach ($sales_by_cust as $custId => $c) {
             $margin = $c['gross'] > 0 ? round(($c['net'] / $c['gross']) * 100, 2) : 0;
@@ -271,7 +215,7 @@ function getCustomerProfitabilityData($pdo) {
         });
 
         return $result;
-    } catch (Exception $e) {
+    } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage());
         return [];
     }
 }
@@ -310,7 +254,7 @@ function getCheckClearingVelocityData($pdo) {
                     }
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage()); }
 
         foreach ($velocity as $v) {
             $result[] = [
@@ -337,7 +281,7 @@ function getCheckClearingVelocityData($pdo) {
         });
 
         return $result;
-    } catch (Exception $e) {
+    } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage());
         return [];
     }
 }
@@ -382,7 +326,7 @@ function getSeasonalTrendsData($pdo) {
                     }
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage()); }
 
         $result = array_values($trends);
 
@@ -399,7 +343,7 @@ function getSeasonalTrendsData($pdo) {
         });
 
         return $result;
-    } catch (Exception $e) {
+    } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage());
         return [];
     }
 }
@@ -450,7 +394,7 @@ function getMultiDimensionalLedgerData($pdo, $customer_id) {
                         }
                     }
                 }
-            } catch (Exception $ex) {}
+            } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage()); }
 
             // حساب إجمالي ديون الشركة لتحديد نسبة العميل
             $total_debt = 0;
@@ -463,7 +407,7 @@ function getMultiDimensionalLedgerData($pdo, $customer_id) {
                         if ($bal > 0) $total_debt += $bal;
                     }
                 }
-            } catch (Exception $ex) {}
+            } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage()); }
 
             $share = $total_debt > 0 ? round(($balance / $total_debt) * 100, 2) : 0;
 
@@ -484,7 +428,7 @@ function getMultiDimensionalLedgerData($pdo, $customer_id) {
             'max_days_overdue' => 12,
             'share_of_total_company_debt' => 28.5
         ];
-    } catch (Exception $e) {
+    } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage());
         return null;
     }
 }
@@ -527,7 +471,7 @@ function getPriceVarianceData($pdo) {
                     }
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage()); }
 
         if (empty($result)) {
             $result = [
@@ -542,7 +486,7 @@ function getPriceVarianceData($pdo) {
         });
 
         return $result;
-    } catch (Exception $e) {
+    } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage());
         return [];
     }
 }
@@ -589,7 +533,7 @@ function getSupplierPerformanceData($pdo) {
                     }
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage()); }
 
         foreach ($suppliers_volume as $supId => $s) {
             $prices = $s['prices'];
@@ -625,7 +569,7 @@ function getSupplierPerformanceData($pdo) {
         });
 
         return $result;
-    } catch (Exception $e) {
+    } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage());
         return [];
     }
 }
@@ -656,7 +600,7 @@ function getLiveCashFlowForecastData($pdo, $current_cash_on_hand) {
                     }
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage()); }
 
         return [
             'cash_now' => $current_cash_on_hand,
@@ -664,7 +608,7 @@ function getLiveCashFlowForecastData($pdo, $current_cash_on_hand) {
             'upcoming_payable_obligations' => $outflow,
             'projected_liquidity_30_days' => $current_cash_on_hand + $inflow - $outflow
         ];
-    } catch (Exception $e) {
+    } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage());
         return [
             'cash_now' => $current_cash_on_hand,
             'upcoming_cheques_collection' => 0,
@@ -707,7 +651,7 @@ function getCustomerEngagementData($pdo) {
                     }
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage()); }
 
         foreach ($visits as $v) {
             $tier = 'OCCASIONAL';
@@ -738,7 +682,7 @@ function getCustomerEngagementData($pdo) {
         });
 
         return $result;
-    } catch (Exception $e) {
+    } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage());
         return [];
     }
 }
@@ -766,7 +710,7 @@ function getRealTimeLiquidity($pdo) {
                     ];
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage()); }
 
         // 2. جلب الحسابات البنكية الحقيقية
         try {
@@ -781,7 +725,7 @@ function getRealTimeLiquidity($pdo) {
                     ];
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage()); }
 
         if (empty($vaults)) {
             // بيانات افتراضية إذا كانت فارغة تماماً
@@ -798,7 +742,7 @@ function getRealTimeLiquidity($pdo) {
         });
         
         return $vaults;
-    } catch (Exception $e) {
+    } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage());
         return [];
     }
 }
@@ -824,7 +768,7 @@ function getCustomerExposureData($pdo) {
                     }
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage()); }
 
         // 2. جلب العملاء الحقيقيين وأرصدتهم
         $stmt = $pdo->query("SELECT data FROM customers");
@@ -860,7 +804,7 @@ function getCustomerExposureData($pdo) {
         });
 
         return $report_data;
-    } catch (Exception $e) {
+    } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage());
         return [];
     }
 }
@@ -882,7 +826,7 @@ function sendWhatsAppAlert($message) {
             if (!empty($settings['whatsapp_token'])) $token = $settings['whatsapp_token'];
             if (!empty($settings['whatsapp_phone'])) $my_phone = $settings['whatsapp_phone'];
         }
-    } catch (Exception $e) {}
+    } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage()); }
 
     $params = array(
         'token' => $token,
@@ -1064,7 +1008,7 @@ function getInventoryReportData($pdo) {
             ];
         }
         return $report_data;
-    } catch (Exception $e) {
+    } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage());
         error_log("Error in getInventoryReportData: " . $e->getMessage());
         return [];
     }
@@ -1137,7 +1081,7 @@ function getWarehouseCapacities($pdo) {
             ];
         }
         return $wh_data;
-    } catch (Exception $e) {
+    } catch (Exception $) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $->getMessage());
         return [];
     }
 }

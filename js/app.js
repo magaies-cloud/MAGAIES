@@ -1408,7 +1408,7 @@ JSON.parse = function(val) {
                 console.error("Cloud Sync Push Failed:", err);
                 // Restore dirty keys on failure
                 currentDirty.forEach(k => dirtyKeys.add(k));
-                alert('فشل الاتصال بقاعدة البيانات! أعد المحاولة.');
+                // Removed annoying alert popup on transient sync failures
                 reject(err);
             }).finally(() => {
                 isPushing = false;

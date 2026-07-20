@@ -312,12 +312,14 @@ class TenantController {
                     if (in_array($table, $skipDataTables) && !empty($selectedTenantIds)) {
                         $rows = [];
                     } elseif ($hasTenantId && !empty($selectedTenantIds)) {
-                        $inClause = implode(', ', $selectedTenantIds);
-                        $rowsStmt = $this->pdo->query("SELECT * FROM `$table` WHERE tenant_id IN ($inClause)");
+                        $placeholders = implode(',', array_fill(0, count($selectedTenantIds), '?'));
+                        $rowsStmt = $this->pdo->prepare("SELECT * FROM `$table` WHERE tenant_id IN ($placeholders)");
+                        $rowsStmt->execute($selectedTenantIds);
                         $rows = $rowsStmt->fetchAll(PDO::FETCH_ASSOC);
                     } elseif ($table === 'tenants' && !empty($selectedTenantIds)) {
-                        $inClause = implode(', ', $selectedTenantIds);
-                        $rowsStmt = $this->pdo->query("SELECT * FROM `tenants` WHERE id IN ($inClause)");
+                        $placeholders = implode(',', array_fill(0, count($selectedTenantIds), '?'));
+                        $rowsStmt = $this->pdo->prepare("SELECT * FROM `tenants` WHERE id IN ($placeholders)");
+                        $rowsStmt->execute($selectedTenantIds);
                         $rows = $rowsStmt->fetchAll(PDO::FETCH_ASSOC);
                     } else {
                         $rowsStmt = $this->pdo->query("SELECT * FROM `$table`");
@@ -346,8 +348,9 @@ class TenantController {
                 
                 $filename = 'sajana_erp_backup_' . date('Y-m-d_H-i-s') . '.sql';
                 if (!empty($selectedTenantIds)) {
-                    $inClause = implode(', ', $selectedTenantIds);
-                    $subdomainsStmt = $this->pdo->query("SELECT subdomain FROM tenants WHERE id IN ($inClause)");
+                    $placeholders = implode(',', array_fill(0, count($selectedTenantIds), '?'));
+                    $subdomainsStmt = $this->pdo->prepare("SELECT subdomain FROM tenants WHERE id IN ($placeholders)");
+                    $subdomainsStmt->execute($selectedTenantIds);
                     $subdomains = $subdomainsStmt->fetchAll(PDO::FETCH_COLUMN);
                     $filename = 'sajana_backup_tenants_' . implode('_', $subdomains) . '_' . date('Y-m-d') . '.sql';
                 }
