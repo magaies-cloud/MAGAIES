@@ -884,7 +884,7 @@ try {
 
     <div class="toast-container" id="toast-container"></div>
 
-    <div class="pos-wrapper" style="width: 100%; max-width: 100%; margin: 0 auto; padding: 5px 5px 100px 5px;">
+    <div class="pos-wrapper" style="width: 100%; max-width: 100%; margin: 0 auto; padding: 5px 40px 100px 40px;">
 
 
         <!-- NEW ADVANCED HEADER -->
