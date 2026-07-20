@@ -83,7 +83,7 @@ document.addEventListener('DBReady', () => {
     localExp.forEach(e => ACCOUNTS.push({ id: e.id || e.code, name: e.name, balances: { checks: 0, debt: parseFloat(e.currentBalance) || 0, loan: 0 } }));
 
     document.getElementById('hdr-date').valueAsDate = new Date();
-    setNextVoucherNumber();
+    // setNextVoucherNumber();
 
     // Populate from-account (Payer) options
     const fromAccEl = document.getElementById('from-account');
@@ -195,10 +195,8 @@ function calcEquiv(source) {
 }
 
 function resetVoucher() {
-    if(confirm("هل أنت متأكد من مسح البيانات والبدء بسند جديد؟")) {
-        resetVoucherSilent();
-        showToast("تم فتح سند جديد", "success");
-    }
+    window.location.href = window.location.pathname;
+}
 }
 
 function resetVoucherSilent() {
@@ -237,7 +235,7 @@ function resetVoucherSilent() {
     document.getElementById('check-settle-local').checked = false;
 
     updateBalances();
-    setNextVoucherNumber();
+    // setNextVoucherNumber();
     updateLedgerButtons();
     if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
 }

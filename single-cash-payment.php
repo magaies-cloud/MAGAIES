@@ -1,4 +1,25 @@
-<?php $page_title = 'حركة مالية'; ?>
+<?php
+require_once 'api/db_bridge.php';
+global $pdo, $GLOBAL_TENANT_ID;
+$prefix = 'E' . date('ym');
+$maxSeq = 0;
+try {
+    $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ?");
+    $stmt->execute([$GLOBAL_TENANT_ID]);
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $d = json_decode($row['data'], true);
+        $id = isset($d['id']) ? (string)$d['id'] : '';
+        if (strpos($id, $prefix) === 0) {
+            $seq = (int)substr($id, strlen($prefix));
+            if ($seq > $maxSeq) $maxSeq = $seq;
+        }
+    }
+} catch (Exception $e) {
+    // fallback
+}
+$voucher_no = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
+$page_title = 'حركة مالية';
+?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -914,7 +935,7 @@
                                     </button>
                                     <div class="nav-badge">
                                         <span class="badge-label">رقم السند</span>
-                                        <span id="voucher-number" class="badge-val">000001</span>
+                                        <span id="voucher-number" class="badge-val"><?php echo $voucher_no; ?></span>
                                     </div>
                                     <button class="crystal-btn-sm btn-blue-glass crystal-btn-icon-only next-btn" onclick="loadNextVoucher()" title="السند التالي">
                                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>

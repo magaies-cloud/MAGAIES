@@ -81,7 +81,7 @@ document.addEventListener('DBReady', () => {
     localExp.forEach(e => ACCOUNTS.push({ id: `exp-${e.id}`, name: e.name || e.accountName, type: 'عام', color: '#64748b', balances: { checks: 0, debt: parseFloat(e.currentBalance) || 0, loan: 0 } }));
 
     document.getElementById('hdr-date').valueAsDate = new Date();
-    setNextVoucherNumber();
+    // setNextVoucherNumber();
 
     function buildOptions() {
         let html = '<option value="">-- اختر الحساب --</option>';
@@ -354,10 +354,8 @@ function calcEquiv(source) {
 }
 
 function resetVoucher() {
-    if(confirm("هل أنت متأكد من مسح البيانات والبدء بسند جديد؟")) {
-        resetVoucherSilent();
-        showToast("تم فتح سند جديد", "success");
-    }
+    window.location.href = window.location.pathname;
+}
 }
 
 function resetVoucherSilent() {
@@ -409,7 +407,7 @@ function resetVoucherSilent() {
     if (typeof initPaymentContainers === 'function') initPaymentContainers();
 
     updateBalances();
-    setNextVoucherNumber();
+    // setNextVoucherNumber();
     updateLedgerButtons();
     if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
 }
@@ -1986,7 +1984,7 @@ window.unifyVoucherSequences = function() {
     showToast('تم ترتيب وتوحيد تسلسل جميع السندات بنجاح!', 'success');
     
     setTimeout(() => {
-        window.location.reload();
+        window.location.href = window.location.pathname;
     }, 1500);
 };
 
