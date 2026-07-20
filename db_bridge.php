@@ -12,6 +12,7 @@ define('DB_PASS', '');
 $GLOBAL_TENANT_ID = null;
 
 function getDBConnection() {
+    global $GLOBAL_TENANT_ID;
     global $pdo, $GLOBAL_TENANT_ID;
     if ($pdo === null) {
         require_once __DIR__ . '/api/db.php';
@@ -36,6 +37,7 @@ function getDBConnection() {
 
 // دالة فحص وجود الحقل current_balance في جدول الحسابات لمنع الأخطاء البرمجية
 function hasCurrentBalanceColumn($pdo) {
+    global $GLOBAL_TENANT_ID;
     static $has_col = null;
     if ($has_col !== null) return $has_col;
     try {
@@ -51,6 +53,7 @@ function hasCurrentBalanceColumn($pdo) {
 // 1. تقرير "تحليل عمق الائتمان" (Debt Concentration)
 // -------------------------------------------------------------
 function getDebtConcentrationData($pdo) {
+    global $GLOBAL_TENANT_ID;
     try {
         $customers = getCustomerExposureData($pdo);
         $debts = [];
@@ -82,6 +85,7 @@ function getDebtConcentrationData($pdo) {
     }
 }
 function getDebtConcentration($pdo) {
+    global $GLOBAL_TENANT_ID;
     return getDebtConcentrationData($pdo);
 }
 
@@ -89,6 +93,7 @@ function getDebtConcentration($pdo) {
 // 2. مؤشر "معدل دوران الزبائن" (Customer Churn Rate)
 // -------------------------------------------------------------
 function getCustomerChurnData($pdo, $days_threshold = 60) {
+    global $GLOBAL_TENANT_ID;
     try {
         $result = [];
         $last_purchase = [];
@@ -148,6 +153,7 @@ function getCustomerChurnData($pdo, $days_threshold = 60) {
     }
 }
 function getCustomerChurn($pdo, $days_threshold = 60) {
+    global $GLOBAL_TENANT_ID;
     return getCustomerChurnData($pdo, $days_threshold);
 }
 
@@ -155,6 +161,7 @@ function getCustomerChurn($pdo, $days_threshold = 60) {
 // 3. تقرير "ربحية الصنف/العميل" (Customer Profitability Matrix)
 // -------------------------------------------------------------
 function getCustomerProfitabilityData($pdo) {
+    global $GLOBAL_TENANT_ID;
     try {
         $result = [];
         $sales_by_cust = [];
@@ -224,6 +231,7 @@ function getCustomerProfitabilityData($pdo) {
     }
 }
 function getCustomerProfitability($pdo) {
+    global $GLOBAL_TENANT_ID;
     return getCustomerProfitabilityData($pdo);
 }
 
@@ -231,6 +239,7 @@ function getCustomerProfitability($pdo) {
 // 4. لوحة "توازن الشيكات" (Check Clearing Velocity)
 // -------------------------------------------------------------
 function getCheckClearingVelocityData($pdo) {
+    global $GLOBAL_TENANT_ID;
     try {
         $result = [];
         $velocity = [];
@@ -290,6 +299,7 @@ function getCheckClearingVelocityData($pdo) {
     }
 }
 function getCheckClearingVelocity($pdo) {
+    global $GLOBAL_TENANT_ID;
     return getCheckClearingVelocityData($pdo);
 }
 
@@ -297,6 +307,7 @@ function getCheckClearingVelocity($pdo) {
 // 5. تقرير "استهلاك الأصناف الموسمية" (Seasonal Trend Analysis)
 // -------------------------------------------------------------
 function getSeasonalTrendsData($pdo) {
+    global $GLOBAL_TENANT_ID;
     try {
         $trends = [];
         
@@ -352,6 +363,7 @@ function getSeasonalTrendsData($pdo) {
     }
 }
 function getSeasonalTrends($pdo) {
+    global $GLOBAL_TENANT_ID;
     return getSeasonalTrendsData($pdo);
 }
 
@@ -359,6 +371,7 @@ function getSeasonalTrends($pdo) {
 // 6. دفتر الأستاذ العصري المطور (Multi-Dimensional Ledger)
 // -------------------------------------------------------------
 function getMultiDimensionalLedgerData($pdo, $customer_id) {
+    global $GLOBAL_TENANT_ID;
     try {
         // جلب معلومات العميل من جدول customers الحقيقي
         global $GLOBAL_TENANT_ID;
@@ -431,6 +444,7 @@ function getMultiDimensionalLedgerData($pdo, $customer_id) {
     }
 }
 function getMultiDimensionalLedger($pdo, $customer_id) {
+    global $GLOBAL_TENANT_ID;
     return getMultiDimensionalLedgerData($pdo, $customer_id);
 }
 
@@ -438,6 +452,7 @@ function getMultiDimensionalLedger($pdo, $customer_id) {
 // 7. تقرير "انحراف السعر" (Price Variance Report)
 // -------------------------------------------------------------
 function getPriceVarianceData($pdo) {
+    global $GLOBAL_TENANT_ID;
     try {
         $result = [];
         try {
@@ -484,6 +499,7 @@ function getPriceVarianceData($pdo) {
     }
 }
 function getPriceVariance($pdo) {
+    global $GLOBAL_TENANT_ID;
     return getPriceVarianceData($pdo);
 }
 
@@ -491,6 +507,7 @@ function getPriceVariance($pdo) {
 // 8. تقرير "أداء الموردين" (Supplier Reliability Index)
 // -------------------------------------------------------------
 function getSupplierPerformanceData($pdo) {
+    global $GLOBAL_TENANT_ID;
     try {
         $result = [];
         $suppliers_volume = [];
@@ -567,6 +584,7 @@ function getSupplierPerformanceData($pdo) {
     }
 }
 function getSupplierPerformance($pdo) {
+    global $GLOBAL_TENANT_ID;
     return getSupplierPerformanceData($pdo);
 }
 
@@ -574,6 +592,7 @@ function getSupplierPerformance($pdo) {
 // 9. تحليل "السيولة اللحظية المتوقعة" (Live Cash Flow Forecast)
 // -------------------------------------------------------------
 function getLiveCashFlowForecastData($pdo, $current_cash_on_hand) {
+    global $GLOBAL_TENANT_ID;
     try {
         $inflow = 0;
         $outflow = 0;
@@ -611,6 +630,7 @@ function getLiveCashFlowForecastData($pdo, $current_cash_on_hand) {
     }
 }
 function getLiveCashFlowForecast($pdo, $current_cash_on_hand) {
+    global $GLOBAL_TENANT_ID;
     return getLiveCashFlowForecastData($pdo, $current_cash_on_hand);
 }
 
@@ -618,6 +638,7 @@ function getLiveCashFlowForecast($pdo, $current_cash_on_hand) {
 // 10. تقرير "مصفوفة تكرار الزيارة والولاء" (Customer Engagement Grid)
 // -------------------------------------------------------------
 function getCustomerEngagementData($pdo) {
+    global $GLOBAL_TENANT_ID;
     try {
         $result = [];
         $visits = [];
@@ -674,6 +695,7 @@ function getCustomerEngagementData($pdo) {
     }
 }
 function getCustomerEngagement($pdo) {
+    global $GLOBAL_TENANT_ID;
     return getCustomerEngagementData($pdo);
 }
 
@@ -681,6 +703,7 @@ function getCustomerEngagement($pdo) {
 // ميزة متممة: جلب السيولة اللحظية للبنوك والخزن (حقيقي)
 // -------------------------------------------------------------
 function getRealTimeLiquidity($pdo) {
+    global $GLOBAL_TENANT_ID;
     try {
         $vaults = [];
         
@@ -731,6 +754,7 @@ function getRealTimeLiquidity($pdo) {
 // ميزة متممة: جلب تقرير مديونيات الأرصدة الشامل (دفتر + شيكات)
 // -------------------------------------------------------------
 function getCustomerExposureData($pdo) {
+    global $GLOBAL_TENANT_ID;
     try {
         $report_data = [];
         
@@ -786,6 +810,7 @@ function getCustomerExposureData($pdo) {
 // دالة إرسال التنبيهات مباشرة إلى رقمك على الواتساب
 // -------------------------------------------------------------
 function sendWhatsAppAlert($message) {
+    global $GLOBAL_TENANT_ID;
     $instance_id = 'instance99999'; 
     $token = 'your_token_here';     
     $my_phone = '+249912345678';    
@@ -840,6 +865,7 @@ function sendWhatsAppAlert($message) {
 // جلب بيانات تقارير المخازن الـ 20 اللحظية من الجداول الحقيقية
 // -------------------------------------------------------------
 function getInventoryReportData($pdo) {
+    global $GLOBAL_TENANT_ID;
     try {
         // جلب جميع الأصناف
         $stmt = $pdo->query("SELECT * FROM items WHERE is_deleted = 0");
@@ -991,6 +1017,7 @@ function getInventoryReportData($pdo) {
 // جلب استهلاك الطاقة الاستيعابية الفعلي لعنابر ومستودعات التخزين
 // -------------------------------------------------------------
 function getWarehouseCapacities($pdo) {
+    global $GLOBAL_TENANT_ID;
     try {
         // جلب المستودعات
         $stmt = $pdo->query("SELECT * FROM warehouses WHERE is_deleted = 0");
