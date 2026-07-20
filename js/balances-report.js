@@ -1,6 +1,7 @@
 /* ═══════════════════════════════════════════════════════
    balances-report.js — Global Balances & Aging Report
    ═══════════════════════════════════════════════════════ */
+console.log('%c[balances-report.js] FILE LOADED v2', 'color: lime; font-size: 16px; font-weight: bold;');
 
 window.colConfigs = [
     { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }, // 0: Name
@@ -206,6 +207,7 @@ function getCurrencyRates() {
 }
 
 function loadData() {
+    console.log('%c[balances-report.js] loadData() CALLED', 'color: cyan; font-size: 14px;');
     ALL_PARTNERS = [];
     const custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
     const sups  = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
@@ -408,12 +410,30 @@ function loadData() {
 }
 
 document.addEventListener('DBReady', () => {
+    console.log('%c[balances-report.js] DBReady event received!', 'color: yellow; font-size: 14px;');
     loadLayout();
     applyLayoutToDOM();
     loadData();
+    console.log('%c[balances-report.js] After loadData: Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: orange; font-size: 14px;');
 });
 
+// Fallback: if DBReady already fired before this script loaded
+if (window.APP_READY) {
+    console.log('%c[balances-report.js] APP_READY was already true! Calling loadData directly.', 'color: red; font-size: 16px; font-weight: bold;');
+    loadLayout();
+    applyLayoutToDOM();
+    loadData();
+    console.log('%c[balances-report.js] Fallback loadData: Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: orange; font-size: 14px;');
+}
+
 function runReport() {
+    console.log('%c[balances-report.js] runReport() CALLED. Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: #ff6b6b; font-size: 16px; font-weight: bold;');
+    if (ALL_PARTNERS.length === 0) {
+        console.warn('[balances-report.js] WARNING: ALL_PARTNERS is EMPTY. loadData may not have run.');
+        // Try loading data now as a last resort
+        loadData();
+        console.log('[balances-report.js] Re-ran loadData. Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length);
+    }
     const grpFilter = document.getElementById('filter-group').value;
     const sortFilter = document.getElementById('filter-sort').value;
     const ccFilter = document.getElementById('filter-costcenter').value;
