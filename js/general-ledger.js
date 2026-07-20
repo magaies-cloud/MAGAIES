@@ -1054,7 +1054,7 @@ if (window.APP_READY) {
 function getAccountName(id) {
     if(id === 'ALL') return 'جميع الحسابات';
     if(id === '-') return '-';
-    if (!ACCOUNTS || ACCOUNTS.length === 0) {
+    if (!ALL_ACCOUNTS || ALL_ACCOUNTS.length === 0) {
         if (typeof window.buildAccountsArray === 'function') window.buildAccountsArray();
     }
     
