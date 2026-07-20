@@ -39,17 +39,22 @@ JSON.parse = function(val) {
     // -------------------------------------------------------
     // TENANT ISOLATION — كل شركة لها بياناتها المنفصلة
     // -------------------------------------------------------
+    let _cachedTenantPrefix = null;
     function getTenantPrefix() {
+        if (_cachedTenantPrefix) return _cachedTenantPrefix;
         try {
             // Read directly from original storage to avoid infinite loops in proxy
             const userStr = localGetItem('user') || '{}';
             const user = JSON.parse(userStr);
             const tenantId = user.tenant_id || localGetItem('currentTenantId') || 'default';
-            return 'tenant_' + tenantId + '_';
+            _cachedTenantPrefix = 'tenant_' + tenantId + '_';
+            return _cachedTenantPrefix;
         } catch(e) {
             return 'tenant_default_';
         }
     }
+    // Allow cache invalidation on login/logout
+    window._clearTenantCache = function() { _cachedTenantPrefix = null; };
 
     // Convert a base key like "erp_customers_v1" to a tenant-specific key
     window.getTenantKey = function(baseKey) {
@@ -1669,11 +1674,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Use sessionStorage (cleared when browser closes, NOT on F5 refresh)
         if (!sessionStorage.getItem('session_active')) {
             if (localStorage.getItem('authToken') || localStorage.getItem('user')) {
-                // Browser was closed and reopened — but DO NOT wipe, just redirect to re-login
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('user');
-                window.location.href = 'login.php';
-                return;
+                // Browser was closed and reopened — restore session instead of forcing re-login
+                // This prevents logout after tab crash/restore
+                sessionStorage.setItem('session_active', 'true');
             }
         }
 
@@ -3330,31 +3333,37 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- Auto Logout Feature ---
 (function() {
     let activityTimer;
+    let _cachedAutoLogoutTime = null;
+    let _cacheTimestamp = 0;
     function resetActivityTimer() {
         if (activityTimer) clearTimeout(activityTimer);
         
-        let settings = {};
-        try {
-            const str = localStorage.getItem('erp_settings_v1');
-            if (str) settings = JSON.parse(str);
-        } catch(e) {}
-        
-        // Settings could be in DB_STORE proxy if offline
-        try {
-            if (window.DB_STORE && window.getTenantKey) {
-                const tk = window.getTenantKey('erp_settings_v1');
-                if (window.DB_STORE[tk]) settings = JSON.parse(window.DB_STORE[tk]);
-            }
-        } catch(e) {}
+        // Cache settings for 30 seconds to avoid parsing JSON on every mouse move
+        const now = Date.now();
+        if (_cachedAutoLogoutTime === null || (now - _cacheTimestamp) > 30000) {
+            let settings = {};
+            try {
+                const str = localStorage.getItem('erp_settings_v1');
+                if (str) settings = JSON.parse(str);
+            } catch(e) {}
+            
+            try {
+                if (window.DB_STORE && window.getTenantKey) {
+                    const tk = window.getTenantKey('erp_settings_v1');
+                    if (window.DB_STORE[tk]) settings = JSON.parse(window.DB_STORE[tk]);
+                }
+            } catch(e) {}
 
-        const autoLogoutTimeStr = settings.autoLogoutTime || "0";
-        const autoLogoutTime = parseInt(autoLogoutTimeStr, 10);
+            const autoLogoutTimeStr = settings.autoLogoutTime || "0";
+            _cachedAutoLogoutTime = parseInt(autoLogoutTimeStr, 10);
+            _cacheTimestamp = now;
+        }
         
-        if (autoLogoutTime > 0 && !window.location.pathname.includes('login.php')) {
+        if (_cachedAutoLogoutTime > 0 && !window.location.pathname.includes('login.php')) {
             activityTimer = setTimeout(() => {
                 alert('تم تسجيل الخروج التلقائي بسبب عدم النشاط للحفاظ على الأمان.');
                 if (window.logout) window.logout(true);
-            }, autoLogoutTime * 1000);
+            }, _cachedAutoLogoutTime * 1000);
         }
     }
 

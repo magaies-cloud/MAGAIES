@@ -24,6 +24,7 @@ function showToast(msg, type = 'success') {
 
 let ALL_ACCOUNTS = [{ id: 'ALL', name: 'جميع الحسابات', icon: '📊', type: 'عام' }];
 let ALL_TXNS = []; // Cache to extract cost centers and currencies
+let ACCOUNT_NAME_CACHE = new Map(); // O(1) lookup cache for getAccountName
 let currentDateMode = 'all'; // 'all' or 'range'
 
 let ledgerExchangeRate = 1.0;
@@ -92,6 +93,18 @@ function buildAccountsList() {
     custs.forEach(c => ALL_ACCOUNTS.push({ id: `cust-${c.id}`, name: c.name, icon: '👤', type: 'عميل' }));
     sups.forEach(s  => ALL_ACCOUNTS.push({ id: `supp-${s.id}`, name: s.name, icon: '🏭', type: 'مورد' }));
 
+    // Build O(1) lookup cache
+    ACCOUNT_NAME_CACHE = new Map();
+    ALL_ACCOUNTS.forEach(a => {
+        const idLower = String(a.id).toLowerCase();
+        ACCOUNT_NAME_CACHE.set(idLower, a.name);
+        // Also cache without prefix for fallback lookups
+        const cleanId = idLower.replace(/^[a-zA-Z]+\s*[-_:\/]\s*/, '').trim();
+        if (cleanId && !ACCOUNT_NAME_CACHE.has(cleanId)) {
+            ACCOUNT_NAME_CACHE.set(cleanId, a.name);
+        }
+    });
+
     const accountSelect = document.getElementById('filter-account');
     if (accountSelect) {
         accountSelect.innerHTML = '<option value="ALL">جميع الحسابات</option>';
@@ -150,27 +163,22 @@ function onAccountSearchKey(e) {
 }
 
 window.selectAccount = function selectAccount(id, name, icon) {
-    try {
-        document.getElementById('filter-account').value = id;
-        const wrap = document.getElementById('account-search-wrap');
-        const chip = document.getElementById('selected-chip');
-        
-        if (wrap) wrap.style.display = 'none';
-        
-        if (chip) {
-            chip.style.display = 'flex';
-            document.getElementById('chip-icon').innerText = icon || '🏷️';
-            document.getElementById('chip-name').innerText = name;
-        }
-        
-        const list = document.getElementById('autocomplete-list');
-        if (list) list.style.display = 'none';
-        
-        runReport(); // Auto run report on selection
-    } catch(err) {
-        alert('🚨 خطأ في selectAccount:\n' + err.message + '\nStack: ' + err.stack);
-        console.error('selectAccount error:', err);
+    document.getElementById('filter-account').value = id;
+    const wrap = document.getElementById('account-search-wrap');
+    const chip = document.getElementById('selected-chip');
+    
+    if (wrap) wrap.style.display = 'none';
+    
+    if (chip) {
+        chip.style.display = 'flex';
+        document.getElementById('chip-icon').innerText = icon || '🏷️';
+        document.getElementById('chip-name').innerText = name;
     }
+    
+    const list = document.getElementById('autocomplete-list');
+    if (list) list.style.display = 'none';
+    
+    runReport(); // Auto run report on selection
 }
 
 function clearAccountSearch() {
@@ -1058,47 +1066,19 @@ if (window.APP_READY) {
 
 function getAccountName(id) {
     if(id === 'ALL') return 'جميع الحسابات';
-    if(id === '-') return '-';
-    if (!ALL_ACCOUNTS || ALL_ACCOUNTS.length === 0) {
-        if (typeof window.buildAccountsArray === 'function') window.buildAccountsArray();
-    }
+    if(id === '-' || !id) return '-';
     
     let idStr = String(id).trim();
+    let idLower = idStr.toLowerCase();
     
-    // 1. Direct ID match (case-insensitive)
-    let found = ALL_ACCOUNTS.find(a => String(a.id).toLowerCase() === idStr.toLowerCase());
-    if (found) return found.name;
+    // 1. Fast O(1) cache lookup
+    if (ACCOUNT_NAME_CACHE.has(idLower)) return ACCOUNT_NAME_CACHE.get(idLower);
     
-    // 2. Clean prefix (any English letters followed by separator like -, _, :, /, or space)
-    let cleanId = idStr.replace(/^[a-zA-Z]+\s*[-_:/]\s*/, '').trim();
+    // 2. Try without prefix
+    let cleanId = idLower.replace(/^[a-zA-Z]+\s*[-_:/]\s*/, '').trim();
+    if (cleanId && ACCOUNT_NAME_CACHE.has(cleanId)) return ACCOUNT_NAME_CACHE.get(cleanId);
     
-    // 3. Search by clean ID or clean Name match
-    found = ALL_ACCOUNTS.find(a => {
-        const aId = String(a.id).toLowerCase();
-        const aName = String(a.name).toLowerCase();
-        const cleanAId = aId.replace(/^[a-zA-Z]+\s*[-_:/]\s*/, '').trim();
-        
-        return aId === cleanId.toLowerCase() || 
-               cleanAId === cleanId.toLowerCase() ||
-               aName === cleanId.toLowerCase();
-    });
-    
-    if (found) return found.name;
-    
-    // 4. Try matching if the cleanId is contained in the account name or ID (or vice versa)
-    if (cleanId.length > 1) {
-        found = ALL_ACCOUNTS.find(a => {
-            const aName = String(a.name).toLowerCase();
-            const aId = String(a.id).toLowerCase();
-            return aName.includes(cleanId.toLowerCase()) || 
-                   cleanId.toLowerCase().includes(aName) ||
-                   aId.includes(cleanId.toLowerCase()) ||
-                   cleanId.toLowerCase().includes(aId);
-        });
-        if (found) return found.name;
-    }
-    
-    // 5. If everything fails, return the cleaned ID instead of the raw ID if it contains non-English chars
+    // 3. Fallback: return cleaned ID
     return cleanId || idStr;
 }
 
@@ -1467,12 +1447,7 @@ function runReport() {
     }
 
     setTimeout(() => {
-        try {
-            executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, curFilter, postedFilter);
-        } catch(err) {
-            alert('🚨 خطأ في executeReportLogic:\n' + err.message + '\nStack: ' + err.stack);
-            console.error('executeReportLogic error:', err);
-        }
+        executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, curFilter, postedFilter);
         if (btnIcon && btnSpinner) {
             btnIcon.style.display = 'inline-block';
             btnSpinner.style.display = 'none';
