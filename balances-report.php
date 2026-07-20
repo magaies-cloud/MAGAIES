@@ -481,6 +481,6 @@
 
 <script defer src="js/localforage.min.js"></script>
 <script defer src="js/app.js?v=1783054966.35444"></script>
-<script defer src="js/balances-report.js"></script>
+<script defer src="js/balances-report.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>
