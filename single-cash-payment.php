@@ -1,6 +1,7 @@
 <?php
 require_once 'db_bridge.php';
-global $pdo, $GLOBAL_TENANT_ID;
+$pdo = getDBConnection();
+global $GLOBAL_TENANT_ID;
 $prefix = 'E' . date('ym');
 $maxSeq = 0;
 try {
