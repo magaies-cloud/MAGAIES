@@ -1,7 +1,7 @@
 <?php $page_title = 'سند قبض نقدية وشيك'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<script src="js/lang.js"></script>
+<script src="js/lang.js?v=<?php echo time(); ?>"></script>
 <script>
 (function(){
     var l = localStorage.getItem('erp_lang') || 'ar';
@@ -460,7 +460,7 @@
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=1783054970.13975"></script>
     <script defer src="js/html2pdf.bundle.min.js"></script>
-    <script defer src="js/whatsapp-integration.js"></script>
+    <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
     
     <script>
       document.addEventListener('DOMContentLoaded', () => {

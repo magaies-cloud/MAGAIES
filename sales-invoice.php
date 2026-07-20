@@ -1,7 +1,7 @@
 <?php $page_title = 'مرتجع مبيعات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<script src="js/lang.js"></script>
+<script src="js/lang.js?v=<?php echo time(); ?>"></script>
 <script>
 (function(){
     var l = localStorage.getItem('erp_lang') || 'ar';
@@ -477,7 +477,7 @@
 
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=1783054969.81822"></script>
-    <script defer src="js/print-engine.js"></script>
+    <script defer src="js/print-engine.js?v=<?php echo time(); ?>"></script>
     <script defer src="js/sales-invoice.js?v=2"></script>
 </body>
 </html>
