@@ -1,4 +1,32 @@
-<?php $page_title = 'حركة مالية مجمعة'; ?>
+<?php 
+require_once 'db_bridge.php';
+$pdo = getDBConnection();
+global $GLOBAL_TENANT_ID;
+
+$SERVER_PAYMENTS_json = '[]';
+$SERVER_RECEIPTS_json = '[]';
+try {
+    // Fetch payments
+    $stmt = $pdo->prepare("SELECT data FROM payments WHERE tenant_id = ? ORDER BY id ASC");
+    $stmt->execute([$GLOBAL_TENANT_ID]);
+    $arrPay = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $arrPay[] = json_decode($row['data'], true);
+    }
+    $SERVER_PAYMENTS_json = json_encode($arrPay, JSON_UNESCAPED_UNICODE);
+
+    // Fetch receipts
+    $stmt = $pdo->prepare("SELECT data FROM receipts WHERE tenant_id = ? ORDER BY id ASC");
+    $stmt->execute([$GLOBAL_TENANT_ID]);
+    $arrRec = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $arrRec[] = json_decode($row['data'], true);
+    }
+    $SERVER_RECEIPTS_json = json_encode($arrRec, JSON_UNESCAPED_UNICODE);
+} catch (Exception $e) {}
+
+$page_title = 'حركة مالية مجمعة'; 
+?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -10,6 +38,8 @@
         document.documentElement.setAttribute('lang','en');
     }
 })();
+window.SERVER_PAYMENTS = <?php echo $SERVER_PAYMENTS_json; ?>;
+window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 </script>
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">

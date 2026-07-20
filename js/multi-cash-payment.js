@@ -23,6 +23,42 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.APP_READY) {
         loadAllAccounts();
     }
+    
+    // Merge server data for offline navigation
+    try {
+        const getTenantKey = window.getTenantKey || ((k) => k);
+        const mergeData = (serverData, storageKey) => {
+            if (serverData && serverData.length > 0) {
+                const tKey = getTenantKey(storageKey);
+                let localData = [];
+                if (typeof localStorage !== 'undefined') {
+                    localData = JSON.parse(localStorage.getItem(tKey) || '[]');
+                }
+                const serverMap = new Map();
+                serverData.forEach(v => {
+                    // Only keep grouped vouchers for this screen to avoid polluting memory if needed, but actually we merge all to match single-cash logic
+                    if (v.id) serverMap.set(v.id, v);
+                });
+                localData.forEach(v => {
+                    if (v.id && !serverMap.has(v.id)) {
+                        serverMap.set(v.id, v);
+                    }
+                });
+                const merged = Array.from(serverMap.values());
+                localStorage.setItem(tKey, JSON.stringify(merged));
+                // Also update localforage if used
+                if (typeof localforage !== 'undefined') {
+                    localforage.setItem(tKey, merged);
+                }
+            }
+        };
+        
+        mergeData(window.SERVER_PAYMENTS, 'erp_payments_v1');
+        mergeData(window.SERVER_RECEIPTS, 'erp_receipts_v1');
+    } catch(e) {
+        console.error("Error merging server data:", e);
+    }
+
     loadNextMultiVoucherNumber();
     updateLabels();
     
@@ -2239,9 +2275,13 @@ function applyGroupedVoucherEffect(voucher, isRevert = false) {
             // 1. Process Destination (Supplier/Customer/Expense)
             let destEffect = 0;
             if (type === 'payment') {
-                destEffect = (itemAccId.startsWith('cust-') || itemAccId.startsWith('supp-')) ? -itemAmt : itemAmt;
+                if (itemAccId.startsWith('cust-')) destEffect = itemAmt; // Customer Debt Increases
+                else if (itemAccId.startsWith('supp-')) destEffect = -itemAmt; // Supplier Liability Decreases
+                else destEffect = itemAmt; // Expenses/Others Increase
             } else { // receipt
-                destEffect = (itemAccId.startsWith('cust-') || itemAccId.startsWith('supp-')) ? itemAmt : -itemAmt;
+                if (itemAccId.startsWith('cust-')) destEffect = -itemAmt; // Customer Debt Decreases
+                else if (itemAccId.startsWith('supp-')) destEffect = itemAmt; // Supplier Liability Increases
+                else destEffect = -itemAmt; // Others Decrease
             }
             applyBalanceChange(itemAccId, destEffect);
 
