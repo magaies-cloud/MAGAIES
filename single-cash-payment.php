@@ -34,8 +34,7 @@ try {
 <script>
     window.SERVER_SINGLE_PAYMENTS = <?php echo $SERVER_SINGLE_PAYMENTS_json; ?>;
 </script>
-<?php
-
+?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

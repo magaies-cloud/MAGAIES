@@ -1,20 +1,14 @@
 <?php
-// Fix db_bridge.php
-$c = file_get_contents('db_bridge.php');
-$c = preg_replace('/catch\s*\(\s*Exception\s+\$\s*\)\s*\{\s*error_log\s*\(\'DB Bridge Error in \' \. __FUNCTION__ \. \': \' \. \$\s*->getMessage\(\)\);\s*\}/', 'catch (Exception $e) { error_log(\'DB Bridge Error in \' . __FUNCTION__ . \': \' . $e->getMessage()); }', $c);
-$c = preg_replace('/catch\s*\(\s*Exception\s+\$\s*\)\s*\{\s*error_log\s*\(\'DB Bridge Error in \' \. __FUNCTION__ \. \': \' \. \$\s*->getMessage\(\)\);/', 'catch (Exception $e) { error_log(\'DB Bridge Error in \' . __FUNCTION__ . \': \' . $e->getMessage());', $c);
+function fixSyntax($file) {
+    if (!file_exists($file)) return;
+    $c = file_get_contents($file);
+    // Find <?php \n\n <!DOCTYPE html> and replace with ?> \n\n <!DOCTYPE html>
+    $c = preg_replace('/<\?php\s*<!DOCTYPE html>/s', "?>\n<!DOCTYPE html>", $c);
+    file_put_contents($file, $c);
+}
 
-// In case the quotes are double:
-$c = preg_replace('/catch\s*\(\s*Exception\s+\$\s*\)\s*\{\s*error_log\s*\("DB Bridge Error in " \. __FUNCTION__ \. ": " \. \$\s*->getMessage\(\)\);\s*\}/', 'catch (Exception $e) { error_log("DB Bridge Error in " . __FUNCTION__ . ": " . $e->getMessage()); }', $c);
-$c = preg_replace('/catch\s*\(\s*Exception\s+\$\s*\)\s*\{\s*error_log\s*\("DB Bridge Error in " \. __FUNCTION__ \. ": " \. \$\s*->getMessage\(\)\);/', 'catch (Exception $e) { error_log("DB Bridge Error in " . __FUNCTION__ . ": " . $e->getMessage());', $c);
+fixSyntax('single-cash-payment.php');
+fixSyntax('single-cash-receipt.php');
+fixSyntax('sales-invoice.php');
 
-file_put_contents('db_bridge.php', $c);
-
-// Fix api_index.php
-$c = file_get_contents('api_index.php');
-$c = preg_replace('/catch\s*\(\s*PDOException\s+\$\s*\)\s*\{\s*error_log\s*\(\'API Index Error: \' \. \$\s*->getMessage\(\)\);/', 'catch (PDOException $e) { error_log(\'API Index Error: \' . $e->getMessage());', $c);
-$c = preg_replace('/catch\s*\(\s*PDOException\s+\$\s*\)\s*\{\s*error_log\s*\("API Index Error: " \. \$\s*->getMessage\(\)\);/', 'catch (PDOException $e) { error_log("API Index Error: " . $e->getMessage());', $c);
-
-file_put_contents('api_index.php', $c);
-
-echo "Fixed syntax errors with regex!\n";
+echo "Syntax fixed.\n";

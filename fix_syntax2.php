@@ -1,11 +1,15 @@
 <?php
-$f = file_get_contents('api_index.php');
-$f = str_replace("catch (PDOException $ ) { error_log('API Index Error: ' . $ ->getMessage());", "catch (PDOException \$e) { error_log('API Index Error: ' . \$e->getMessage());", $f);
-file_put_contents('api_index.php', $f);
+function fixSyntax($file) {
+    if (!file_exists($file)) return;
+    $c = file_get_contents($file);
+    $c = str_replace("</script>\n<?php\n\n<!DOCTYPE html>", "</script>\n?>\n<!DOCTYPE html>", $c);
+    $c = str_replace("</script>\r\n<?php\r\n\r\n<!DOCTYPE html>", "</script>\r\n?>\r\n<!DOCTYPE html>", $c);
+    $c = preg_replace('/<\?php\s*<!DOCTYPE html>/', "?>\n<!DOCTYPE html>", $c);
+    file_put_contents($file, $c);
+}
 
-$f = file_get_contents('db_bridge.php');
-$f = str_replace("catch (Exception $ ) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $ ->getMessage());", "catch (Exception \$e) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . \$e->getMessage());", $f);
-// check if there is an empty catch block replaced earlier
-$f = str_replace("catch (Exception $ ) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $ ->getMessage()); }", "catch (Exception \$e) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . \$e->getMessage()); }", $f);
-file_put_contents('db_bridge.php', $f);
-echo "Fixed!\n";
+fixSyntax('single-cash-payment.php');
+fixSyntax('single-cash-receipt.php');
+fixSyntax('sales-invoice.php');
+
+echo "Syntax fixed.\n";
