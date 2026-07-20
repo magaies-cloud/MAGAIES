@@ -425,14 +425,7 @@ function getMultiDimensionalLedgerData($pdo, $customer_id) {
             ];
         }
 
-        $rate = 600000;
-        return [
-            'customer_name' => 'شركة النيل للتجارة والإنشاءات',
-            'current_balance' => $rate * 7.5,
-            'bounced_checks_count' => 1,
-            'max_days_overdue' => 12,
-            'share_of_total_company_debt' => 28.5
-        ];
+        return null;
     } catch (Exception $e) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $e->getMessage());
         return null;
     }

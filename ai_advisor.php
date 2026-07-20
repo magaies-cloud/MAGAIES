@@ -37,7 +37,7 @@ try {
     }
     $stock_summary = array_slice($stock_summary, 0, 5);
 } catch (Exception $e) {
-    $top_customers = [["customer_name" => "شركة النيل", "total_exposure" => 4500000]];
+    $top_customers = [];
     $stock_summary = [["name" => "حديد 4 لينيا أباذر", "stock" => 340, "min_limit" => 50, "sold_qty" => 120]];
 }
 

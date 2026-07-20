@@ -201,7 +201,7 @@ if (!$customer_profile && empty($date_from) && empty($date_to)) {
         'max_days_overdue' => '12 يوم',
         'share_of_total_company_debt' => 41.2
     ];
-    $selected_customer = 'شركة النيل الأزرق للمقاولات';
+    $selected_customer = '';
 }
 
 if (empty($ledger_entries) && empty($date_from) && empty($date_to) && (!$db_connected || empty($customers_list))) {

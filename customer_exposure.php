@@ -23,15 +23,7 @@ try {
     $mock_mode = true;
 }
 
-if ($mock_mode || empty($report_data)) {
-    // بيانات افتراضية لكي تعمل الشاشة فوراً
-    $report_data = [
-        ["customer_name" => "شركة النيل للتجارة والإنشاءات", "ledger_balance" => $rate * 7.5, "pending_checks_total" => $rate * 3.3, "total_exposure" => $rate * 10.8],
-        ["customer_name" => "محلات أولاد أم درمان لحديد التسليح", "ledger_balance" => $rate * 2.0, "pending_checks_total" => $rate * 5.8, "total_exposure" => $rate * 7.8],
-        ["customer_name" => "المقاولات السودانية الحديثة", "ledger_balance" => $rate * 4.6, "pending_checks_total" => 0, "total_exposure" => $rate * 4.6],
-        ["customer_name" => "أعمال الخرطوم للأسمنت ومواد البناء", "ledger_balance" => $rate * 0.8, "pending_checks_total" => $rate * 2.5, "total_exposure" => $rate * 3.3]
-    ];
-}
+
 
 // حساب المجاميع الكلية بشكل لحظي فائق السرعة
 $total_ledger_all = array_sum(array_column($report_data, 'ledger_balance'));
