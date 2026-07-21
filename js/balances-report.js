@@ -1393,24 +1393,38 @@ window.getBalancesPresets = function() {
         localStorage.setItem('balances_report_presets_v1', JSON.stringify(list));
     }
 
+    // Default 1 preset is permanently linked to the current design in Preset 4 (Slot 4)
+    let defaultConfigs = null;
+    let defaultOrder = null;
+
+    try {
+        const master = JSON.parse(localStorage.getItem('balances_report_master_default1'));
+        if (master && master.colConfigs && master.colOrder) {
+            defaultConfigs = master.colConfigs;
+            defaultOrder = master.colOrder;
+        }
+    } catch(e) {}
+
+    if (!defaultConfigs && list[3] && list[3].colConfigs && list[3].colOrder) {
+        defaultConfigs = JSON.parse(JSON.stringify(list[3].colConfigs));
+        defaultOrder = [...list[3].colOrder];
+        localStorage.setItem('balances_report_master_default1', JSON.stringify({ colConfigs: defaultConfigs, colOrder: defaultOrder }));
+    }
+
+    if (!defaultConfigs) {
+        defaultConfigs = window.colConfigs ? JSON.parse(JSON.stringify(window.colConfigs)) : Array.from({length: 9}, () => ({
+            visible: true, bold: false, fontWeight: 'normal', fs: 1.0, decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right'
+        }));
+        defaultOrder = window.colOrder ? [...window.colOrder] : [0, 1, 2, 3, 4, 5, 6, 7, 8];
+        localStorage.setItem('balances_report_master_default1', JSON.stringify({ colConfigs: defaultConfigs, colOrder: defaultOrder }));
+    }
+
     const defaultPreset = {
         id: 'default1',
         name: 'الافتراضي 1 ⭐',
         isDefault: true,
-        colOrder: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-        colConfigs: Array.from({length: 9}, () => ({
-            visible: true,
-            bold: false,
-            fontWeight: 'normal',
-            fs: 1.0,
-            decimals: 2,
-            showDecimals: true,
-            thousands: true,
-            color: '',
-            bg: '',
-            fontFamily: '',
-            textAlign: 'right'
-        }))
+        colOrder: defaultOrder,
+        colConfigs: defaultConfigs
     };
 
     return [defaultPreset, ...list];
@@ -1429,9 +1443,9 @@ window.renderBalancesPresets = function() {
         
         let isActive = false;
         if (p.isDefault) {
-            isActive = window.colConfigs && 
-                       window.colConfigs.every(c => c.fs === 1.0 && (!c.bold || c.fontWeight === 'normal') && c.visible !== false && c.showDecimals !== false && c.thousands !== false && !c.color && !c.bg && !c.fontFamily) &&
-                       JSON.stringify(window.colOrder) === JSON.stringify([0,1,2,3,4,5,6,7,8]);
+            isActive = p.colConfigs && window.colConfigs &&
+                       JSON.stringify(p.colConfigs) === JSON.stringify(window.colConfigs) && 
+                       JSON.stringify(p.colOrder) === JSON.stringify(window.colOrder);
         } else {
             isActive = p.colConfigs && 
                        JSON.stringify(p.colConfigs) === JSON.stringify(window.colConfigs) && 
@@ -1549,7 +1563,7 @@ function setupPresetButtonEvents(btn, p) {
 
 function savePresetLayout(id) {
     if (id === 'default1') {
-        showToast("الضبط (الافتراضي 1) ثابت ولا يمكن الحفظ فوقه", "warning");
+        showToast("الضبط (الافتراضي 1) ثابت، عدّل على (تخطيط 4) لتحديث الضبط الافتراضي.", "warning");
         return;
     }
 
@@ -1572,37 +1586,61 @@ function savePresetLayout(id) {
     if (name === null) return;
     name = name.trim() || ("تخطيط " + id);
 
+    const newConfigs = JSON.parse(JSON.stringify(window.colConfigs));
+    const newOrder = [...window.colOrder];
+
     list[slotIdx] = {
         id: parseInt(id),
         name: name,
-        colConfigs: JSON.parse(JSON.stringify(window.colConfigs)),
-        colOrder: [...window.colOrder]
+        colConfigs: newConfigs,
+        colOrder: newOrder
     };
     
     localStorage.setItem('balances_report_presets_v1', JSON.stringify(list));
+
+    // Update master default 1 if slot 4 is saved
+    if (parseInt(id) === 4) {
+        localStorage.setItem('balances_report_master_default1', JSON.stringify({
+            colConfigs: newConfigs,
+            colOrder: newOrder
+        }));
+    }
+
     showToast("تم حفظ التخطيط '" + name + "' بنجاح في السلوت " + id, "success");
     window.renderBalancesPresets();
 }
 
 function applyPresetLayout(id) {
     if (id === 'default1') {
-        const defaultConfigs = Array.from({length: 9}, () => ({
-            visible: true,
-            bold: false,
-            fontWeight: 'normal',
-            fs: 1.0,
-            decimals: 2,
-            showDecimals: true,
-            thousands: true,
-            color: '',
-            bg: '',
-            fontFamily: '',
-            textAlign: 'right'
-        }));
-        const defaultOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+        let masterConfigs = null;
+        let masterOrder = null;
 
-        window.colConfigs = defaultConfigs;
-        window.colOrder = defaultOrder;
+        try {
+            const master = JSON.parse(localStorage.getItem('balances_report_master_default1'));
+            if (master && master.colConfigs && master.colOrder) {
+                masterConfigs = master.colConfigs;
+                masterOrder = master.colOrder;
+            }
+        } catch(e) {}
+
+        if (!masterConfigs) {
+            let list = [];
+            try { list = JSON.parse(localStorage.getItem('balances_report_presets_v1')) || []; } catch(e){}
+            if (list[3] && list[3].colConfigs && list[3].colOrder) {
+                masterConfigs = list[3].colConfigs;
+                masterOrder = list[3].colOrder;
+            }
+        }
+
+        if (!masterConfigs) {
+            masterConfigs = window.colConfigs ? JSON.parse(JSON.stringify(window.colConfigs)) : Array.from({length: 9}, () => ({
+                visible: true, bold: false, fontWeight: 'normal', fs: 1.0, decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right'
+            }));
+            masterOrder = window.colOrder ? [...window.colOrder] : [0, 1, 2, 3, 4, 5, 6, 7, 8];
+        }
+
+        window.colConfigs = JSON.parse(JSON.stringify(masterConfigs));
+        window.colOrder = [...masterOrder];
 
         try {
             const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
@@ -1618,7 +1656,7 @@ function applyPresetLayout(id) {
         if (window.lastResults && window.lastResults.length > 0) {
             renderTable(window.lastResults);
         }
-        showToast("تم إرجاع وتطبيق التصميم الافتراضي (الافتراضي 1) بنجاح ⭐", "success");
+        showToast("تم إرجاع وتطبيق الضبط الافتراضي الأصلي (الافتراضي 1) المأخوذ من تخطيط 4 بنجاح ⭐", "success");
         window.renderBalancesPresets();
         return;
     }
