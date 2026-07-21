@@ -110,7 +110,7 @@ http.createServer((req, res) => {
     console.log(`⚠️  تحذير: خادم PHP المدمج (php -S) مصمم للتطوير المحلي فقط. في بيئة الإنتاج (Production) استخدم خوادم قوية مثل Nginx أو Apache.`);
     
     // تشغيل خادم PHP المدمج تلقائياً
-    const phpServer = spawn('php', ['-S', '127.0.0.1:8080'], { stdio: 'inherit', shell: true });
+    const phpServer = spawn('php', ['-S', '127.0.0.1:8080', 'router.php'], { stdio: 'inherit', shell: true });
     
     phpServer.on('error', (err) => {
         console.error('❌ فشل تشغيل خادم PHP:', err.message);
