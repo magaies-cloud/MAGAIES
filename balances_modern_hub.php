@@ -13,7 +13,8 @@ $cash_balances = [];
 $totals = ['نقدية' => 0, 'بنك' => 0];
 
 try {
-    @include_once __DIR__ . '/api/db.php';
+    require_once __DIR__ . '/db_bridge.php';
+    $pdo = getDBConnection();
     if (isset($pdo)) {
         $safes_stmt = $pdo->query("SELECT data FROM safes WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
         while ($row = $safes_stmt->fetch()) {

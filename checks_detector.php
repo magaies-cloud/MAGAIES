@@ -11,7 +11,8 @@ $net_checks_balance = 0;
 
 $checks_velocity = [];
 try {
-    @include_once __DIR__ . '/api/db.php';
+    require_once __DIR__ . '/db_bridge.php';
+    $pdo = getDBConnection();
     if (isset($pdo)) {
                 // Query to get totals of pending checks
         $tot_query = "

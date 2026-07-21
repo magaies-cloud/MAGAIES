@@ -1042,7 +1042,7 @@
 </div>
 
 <script defer src="js/localforage.min.js"></script>
-<script defer src="js/app.js?v=<?= time() ?>"></script>
+<script defer src="js/app.js?v=20260626_4"></script>
 <script>
     // Make Sidebar Draggable and Resizable, with Permanent Saving
     document.addEventListener('DOMContentLoaded', () => {
@@ -1416,34 +1416,6 @@ function runAISmartSearch() {
             }
         });
     });
-</script>
-
-<script>
-// === LOGOUT INTERCEPTOR (Temporary Debug) ===
-document.addEventListener('DOMContentLoaded', function() {
-    // Intercept window.logout
-    if (typeof window.logout === 'function') {
-        var _origLogout = window.logout;
-        window.logout = function(silent) {
-            var stack = new Error().stack;
-            alert('🚨 تم اعتراض تسجيل الخروج!\n\nSilent: ' + silent + '\n\nStack:\n' + stack);
-            console.error('LOGOUT INTERCEPTED:', stack);
-            // Prevent actual logout
-            return false;
-        };
-    }
-    
-    // Intercept navigation to login.php
-    if (window.navigation) {
-        window.navigation.addEventListener('navigate', function(e) {
-            if (e.destination && e.destination.url && e.destination.url.includes('login')) {
-                e.preventDefault();
-                alert('🚨 تم اعتراض التوجيه لصفحة الدخول!\n\nURL: ' + e.destination.url);
-                console.error('NAVIGATION TO LOGIN INTERCEPTED');
-            }
-        });
-    }
-});
 </script>
 
 </body>

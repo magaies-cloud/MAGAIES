@@ -15,7 +15,8 @@ $exchange_rate = 600.0;
 $report_data = [];
 $is_mock_data = false;
 try {
-    @include_once __DIR__ . '/api/db.php';
+    require_once __DIR__ . '/db_bridge.php';
+    $pdo = getDBConnection();
     if (isset($pdo)) {
         // --- جلب العملاء وأرصدتهم من جدول customers (بنية JSON) ---
         $customers = [];

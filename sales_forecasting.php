@@ -6,7 +6,8 @@ $header_theme_class = 'header-theme-reports';
 // نظام Al-Sajana Smart ERP 2026 - التنبؤ بالسيولة والمبيعات القادمة (AI)
 // ====================================================================
 // الاتصال بقاعدة البيانات بشكل آمن
-@include_once __DIR__ . '/api/db.php';
+require_once __DIR__ . '/db_bridge.php';
+$pdo = getDBConnection();
 
 $selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
 

@@ -42,7 +42,8 @@ function convertProfitabilityAmount($amount, $txCurrency, $txRate, $selectedCurr
 }
 
 try {
-    @include_once __DIR__ . '/api/db.php';
+    require_once __DIR__ . '/db_bridge.php';
+    $pdo = getDBConnection();
     if (isset($pdo)) {
         $db_connected = true;
 
