@@ -76,12 +76,15 @@ function applyLayoutToDOM() {
                 th.style.display = isVisible ? '' : 'none';
 
                 // Styles
-                th.style.fontWeight = conf.fontWeight || (conf.bold ? '900' : 'bold');
-                th.style.fontSize = (conf.fs || 1.0) + 'em';
-                th.style.color = conf.color || '';
-                th.style.backgroundColor = (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') ? conf.bg : '';
-                if (conf.fontFamily) th.style.fontFamily = conf.fontFamily; else th.style.fontFamily = '';
-                if (conf.textAlign) th.style.textAlign = conf.textAlign; else th.style.textAlign = '';
+                const fsVal = (conf.fs !== undefined ? conf.fs : 1.0) + 'em';
+                const fwVal = conf.fontWeight || (conf.bold ? '900' : 'bold');
+                
+                th.style.setProperty('font-weight', fwVal, 'important');
+                th.style.setProperty('font-size', fsVal, 'important');
+                if (conf.color) th.style.setProperty('color', conf.color, 'important'); else th.style.removeProperty('color');
+                if (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') th.style.setProperty('background-color', conf.bg, 'important'); else th.style.removeProperty('background-color');
+                if (conf.fontFamily) th.style.setProperty('font-family', conf.fontFamily, 'important'); else th.style.removeProperty('font-family');
+                if (conf.textAlign) th.style.setProperty('text-align', conf.textAlign, 'important'); else th.style.removeProperty('text-align');
             });
         }
 
@@ -101,12 +104,15 @@ function applyLayoutToDOM() {
                         cell.style.display = isVisible ? '' : 'none';
 
                         // Styles
-                        cell.style.fontWeight = conf.fontWeight || (conf.bold ? 'bold' : '');
-                        cell.style.fontSize = (conf.fs || 1.0) + 'em';
-                        cell.style.color = conf.color || '';
-                        cell.style.backgroundColor = (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') ? conf.bg : '';
-                        if (conf.fontFamily) cell.style.fontFamily = conf.fontFamily; else cell.style.fontFamily = '';
-                        if (conf.textAlign) cell.style.textAlign = conf.textAlign; else cell.style.textAlign = '';
+                        const fsVal = (conf.fs !== undefined ? conf.fs : 1.0) + 'em';
+                        const fwVal = conf.fontWeight || (conf.bold ? 'bold' : '');
+
+                        cell.style.setProperty('font-weight', fwVal, 'important');
+                        cell.style.setProperty('font-size', fsVal, 'important');
+                        if (conf.color) cell.style.setProperty('color', conf.color, 'important'); else cell.style.removeProperty('color');
+                        if (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') cell.style.setProperty('background-color', conf.bg, 'important'); else cell.style.removeProperty('background-color');
+                        if (conf.fontFamily) cell.style.setProperty('font-family', conf.fontFamily, 'important'); else cell.style.removeProperty('font-family');
+                        if (conf.textAlign) cell.style.setProperty('text-align', conf.textAlign, 'important'); else cell.style.removeProperty('text-align');
                     }
                 });
             });
@@ -1011,27 +1017,35 @@ function updateColDOM(visualIndex, origIdx) {
     const table = document.getElementById('balances-table');
     if (!table) return;
 
+    const fsVal = (conf.fs !== undefined ? conf.fs : 1.0) + 'em';
+    const fwValHeader = conf.fontWeight || (conf.bold ? '900' : 'bold');
+    const fwValCell = conf.fontWeight || (conf.bold ? 'bold' : '');
+    const colorVal = conf.color || '';
+    const bgVal = (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') ? conf.bg : '';
+    const fontVal = conf.fontFamily || '';
+    const alignVal = conf.textAlign || '';
+
     const ths = table.querySelectorAll('thead th');
     const th = ths[visualIndex];
     if (th) {
-        th.style.fontWeight = conf.fontWeight || (conf.bold ? '900' : 'bold');
-        th.style.fontSize = (conf.fs || 1.0) + 'em';
-        if (conf.color) th.style.color = conf.color; else th.style.color = '';
-        if (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') th.style.backgroundColor = conf.bg; else th.style.backgroundColor = '';
-        if (conf.fontFamily) th.style.fontFamily = conf.fontFamily; else th.style.fontFamily = '';
-        if (conf.textAlign) th.style.textAlign = conf.textAlign; else th.style.textAlign = '';
+        th.style.setProperty('font-weight', fwValHeader, 'important');
+        th.style.setProperty('font-size', fsVal, 'important');
+        if (colorVal) th.style.setProperty('color', colorVal, 'important'); else th.style.removeProperty('color');
+        if (bgVal) th.style.setProperty('background-color', bgVal, 'important'); else th.style.removeProperty('background-color');
+        if (fontVal) th.style.setProperty('font-family', fontVal, 'important'); else th.style.removeProperty('font-family');
+        if (alignVal) th.style.setProperty('text-align', alignVal, 'important'); else th.style.removeProperty('text-align');
     }
 
     const rows = table.querySelectorAll('tbody tr:not(.empty-state)');
     rows.forEach(row => {
         const cell = row.children[visualIndex];
         if (cell) {
-            cell.style.fontWeight = conf.fontWeight || (conf.bold ? 'bold' : '');
-            cell.style.fontSize = (conf.fs || 1.0) + 'em';
-            if (conf.color) cell.style.color = conf.color; else cell.style.color = '';
-            if (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') cell.style.backgroundColor = conf.bg; else cell.style.backgroundColor = '';
-            if (conf.fontFamily) cell.style.fontFamily = conf.fontFamily; else cell.style.fontFamily = '';
-            if (conf.textAlign) cell.style.textAlign = conf.textAlign; else cell.style.textAlign = '';
+            cell.style.setProperty('font-weight', fwValCell, 'important');
+            cell.style.setProperty('font-size', fsVal, 'important');
+            if (colorVal) cell.style.setProperty('color', colorVal, 'important'); else cell.style.removeProperty('color');
+            if (bgVal) cell.style.setProperty('background-color', bgVal, 'important'); else cell.style.removeProperty('background-color');
+            if (fontVal) cell.style.setProperty('font-family', fontVal, 'important'); else cell.style.removeProperty('font-family');
+            if (alignVal) cell.style.setProperty('text-align', alignVal, 'important'); else cell.style.removeProperty('text-align');
         }
     });
 }
@@ -1056,8 +1070,14 @@ window.setColFontWeight = function(origIdx, visualIndex, weightVal) {
 window.setColFsExact = function(origIdx, visualIndex, fsVal) {
     if (origIdx !== undefined && window.colConfigs[origIdx]) {
         const parsed = parseFloat(fsVal);
-        if (!isNaN(parsed) && parsed >= 0.3 && parsed <= 5.0) {
+        if (!isNaN(parsed) && parsed >= 0.2 && parsed <= 6.0) {
             window.colConfigs[origIdx].fs = parsed;
+            
+            const rangeEl = document.querySelector(`#config-panel-${visualIndex} input[type="range"]`);
+            const numEl = document.querySelector(`#config-panel-${visualIndex} input[type="number"]`);
+            if (rangeEl && parseFloat(rangeEl.value) !== parsed) rangeEl.value = parsed;
+            if (numEl && parseFloat(numEl.value) !== parsed) numEl.value = parsed.toFixed(1);
+
             updateColDOM(visualIndex, origIdx);
             saveLayout();
         }
