@@ -914,10 +914,10 @@ function submitVoucher() {
         }
     }
 
-        let fromSelect = document.getElementById('from-account');
-        let fromName = fromSelect.options[fromSelect.selectedIndex] ? fromSelect.options[fromSelect.selectedIndex].text : voucherData.fromAccount;
-        let toSelect = document.getElementById('to-account');
-        let toName = toSelect.options[toSelect.selectedIndex] ? toSelect.options[toSelect.selectedIndex].text : voucherData.toAccount;
+        let fromSearch = document.getElementById('from-account-search');
+        let fromName = fromSearch && fromSearch.value ? fromSearch.value : voucherData.fromAccount;
+        let toSearch = document.getElementById('to-account-search');
+        let toName = toSearch && toSearch.value ? toSearch.value : voucherData.toAccount;
         
         if (currentViewedIndex !== -1) {
             if (!window.canEditRecord(voucherData.date, 'finance')) return;
