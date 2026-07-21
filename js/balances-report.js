@@ -987,87 +987,6 @@ window.bindContextMenuList = function(keepOpenVisualIdx = null) {
     initTogglesSortable();
 };
 
-const SYSTEM_DEFAULT_1_CONFIG = {
-    colOrder: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-    colConfigs: [
-        { origIdx: 0, visible: true, fs: 1.0, bold: false, fontWeight: 'normal', decimals: 0, showDecimals: false, thousands: false, color: '', bg: '', fontFamily: '', textAlign: 'center' },
-        { origIdx: 1, visible: true, fs: 1.0, bold: false, fontWeight: 'normal', decimals: 0, showDecimals: false, thousands: false, color: '', bg: '', fontFamily: '', textAlign: 'center' },
-        { origIdx: 2, visible: true, fs: 1.0, bold: true, fontWeight: 'bold', decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right' },
-        { origIdx: 3, visible: true, fs: 1.0, bold: false, fontWeight: 'normal', decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right' },
-        { origIdx: 4, visible: true, fs: 1.0, bold: false, fontWeight: 'normal', decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right' },
-        { origIdx: 5, visible: true, fs: 1.0, bold: false, fontWeight: 'normal', decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right' },
-        { origIdx: 6, visible: true, fs: 1.0, bold: false, fontWeight: 'normal', decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right' },
-        { origIdx: 7, visible: true, fs: 1.0, bold: false, fontWeight: 'normal', decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right' },
-        { origIdx: 8, visible: true, fs: 1.0, bold: true, fontWeight: 'bold', decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right' }
-    ]
-};
-
-window.loadPreset = function(key) {
-    let targetData = null;
-
-    if (key === 'default1') {
-        targetData = SYSTEM_DEFAULT_1_CONFIG;
-        if (typeof showToast === 'function') {
-            showToast('تم تطبيق النمط (افتراضي 1) الخاص بالبرنامج الثابت بنجاح', 'info');
-        }
-    } else {
-        const storedStr = localStorage.getItem('balances_report_preset_' + key);
-        if (storedStr) {
-            try {
-                targetData = JSON.parse(storedStr);
-            } catch(e) {}
-        }
-        if (!targetData) {
-            const layoutName = (key === 'layout1' ? 'تخطيط 1' : key === 'layout2' ? 'تخطيط 2' : 'تخطيط 3');
-            if (typeof showToast === 'function') {
-                showToast(`عفواً، (${layoutName}) غير محفوظ بعد! اضبط الألوان والخطوط ثم اضغط (حفظ ${layoutName.replace('تخطيط ', 'تـ')}).`, 'warning');
-            }
-            return;
-        }
-        const layoutName = (key === 'layout1' ? 'تخطيط 1' : key === 'layout2' ? 'تخطيط 2' : 'تخطيط 3');
-        if (typeof showToast === 'function') {
-            showToast(`تم تطبيق (${layoutName}) بنجاح`, 'success');
-        }
-    }
-
-    if (targetData && targetData.colConfigs && targetData.colOrder) {
-        window.colConfigs = JSON.parse(JSON.stringify(targetData.colConfigs));
-        window.colOrder = [...targetData.colOrder];
-        window.activePresetKey = key;
-
-        saveLayout();
-        applyLayoutToDOM();
-        if (window.lastResults && window.lastResults.length > 0) {
-            renderTable(window.lastResults);
-        }
-        bindContextMenuList();
-    }
-};
-
-window.saveCustomPreset = function(key) {
-    if (key === 'default1') {
-        if (typeof showToast === 'function') {
-            showToast('نمط (افتراضي 1) هو الضبط الافتراضي المحمي للبرنامج ولا يمكن تعديله!', 'error');
-        }
-        return;
-    }
-
-    const presetData = {
-        colConfigs: JSON.parse(JSON.stringify(window.colConfigs)),
-        colOrder: [...window.colOrder],
-        savedAt: new Date().toISOString()
-    };
-
-    localStorage.setItem('balances_report_preset_' + key, JSON.stringify(presetData));
-    window.activePresetKey = key;
-
-    const layoutName = (key === 'layout1' ? 'تخطيط 1' : key === 'layout2' ? 'تخطيط 2' : 'تخطيط 3');
-    if (typeof showToast === 'function') {
-        showToast(`تم حفظ الضبط والتنسيقات الحالية بنجاح في (${layoutName})`, 'success');
-    }
-    bindContextMenuList();
-};
-
 window.saveLayoutAndStyles = function() {
     if (typeof saveLayout === 'function') {
         saveLayout();
@@ -1076,13 +995,21 @@ window.saveLayoutAndStyles = function() {
     if (ctxMenu) ctxMenu.style.display = 'none';
 
     if (typeof showToast === 'function') {
-        showToast('تم حفظ التنسيق والترتيب الحالي بنجاح', 'success');
+        showToast('تم حفظ الترتيب وتخصيص الأعمدة بنجاح', 'success');
     }
 };
 
 window.resetLayoutAndStyles = function() {
-    if (confirm("هل أنت متأكد من رغبتك في استعادة نمط (افتراضي 1) المحمي للبرنامج؟")) {
-        window.loadPreset('default1');
+    if (confirm("هل أنت متأكد من رغبتك في إعادة ضبط إعدادات وتنسيقات الأعمدة للافتراضي؟")) {
+        localStorage.removeItem('balances_report_col_configs_v2');
+        localStorage.removeItem('balances_report_global_styles_v1');
+        localStorage.removeItem('erp_custom_styles_v1');
+        localStorage.removeItem('erp_settings_v1');
+        
+        if (typeof showToast === 'function') {
+            showToast('تمت إعادة الضبط للافتراضي، جارِ إعادة التحميل...', 'info');
+        }
+        setTimeout(() => window.location.reload(), 500);
     }
 };
 
@@ -1456,7 +1383,7 @@ window.getBalancesPresets = function() {
     try {
         list = JSON.parse(localStorage.getItem('balances_report_presets_v1'));
     } catch(e) {}
-    if (!list || list.length !== 4) {
+    if (!list || !Array.isArray(list) || list.length !== 4) {
         list = [
             { id: 1, name: 'تخطيط 1', colConfigs: null, colOrder: null },
             { id: 2, name: 'تخطيط 2', colConfigs: null, colOrder: null },
@@ -1465,7 +1392,28 @@ window.getBalancesPresets = function() {
         ];
         localStorage.setItem('balances_report_presets_v1', JSON.stringify(list));
     }
-    return list;
+
+    const defaultPreset = {
+        id: 'default1',
+        name: 'الافتراضي 1 ⭐',
+        isDefault: true,
+        colOrder: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+        colConfigs: Array.from({length: 9}, () => ({
+            visible: true,
+            bold: false,
+            fontWeight: 'normal',
+            fs: 1.0,
+            decimals: 2,
+            showDecimals: true,
+            thousands: true,
+            color: '',
+            bg: '',
+            fontFamily: '',
+            textAlign: 'right'
+        }))
+    };
+
+    return [defaultPreset, ...list];
 };
 
 window.renderBalancesPresets = function() {
@@ -1479,12 +1427,24 @@ window.renderBalancesPresets = function() {
         const btn = document.createElement('div');
         btn.setAttribute('data-slot-id', p.id); // Color-coding preset slots
         
-        let isActive = p.colConfigs && 
+        let isActive = false;
+        if (p.isDefault) {
+            isActive = window.colConfigs && 
+                       window.colConfigs.every(c => c.fs === 1.0 && (!c.bold || c.fontWeight === 'normal') && c.visible !== false && c.showDecimals !== false && c.thousands !== false && !c.color && !c.bg && !c.fontFamily) &&
+                       JSON.stringify(window.colOrder) === JSON.stringify([0,1,2,3,4,5,6,7,8]);
+        } else {
+            isActive = p.colConfigs && 
                        JSON.stringify(p.colConfigs) === JSON.stringify(window.colConfigs) && 
                        JSON.stringify(p.colOrder) === JSON.stringify(window.colOrder);
+        }
                        
-        btn.className = `preset-btn ${p.colConfigs ? 'has-data' : ''} ${isActive ? 'active' : ''}`;
-        btn.title = p.colConfigs ? `نقرة لتطبيق [${p.name}]. اضغط مطولاً (8 ثوانٍ) للحفظ هنا. كليك يمين للحذف.` : `اضغط مطولاً (8 ثوانٍ) لحفظ التخطيط الحالي هنا.`;
+        btn.className = `preset-btn ${p.colConfigs || p.isDefault ? 'has-data' : ''} ${isActive ? 'active' : ''}`;
+        
+        if (p.isDefault) {
+            btn.title = `نقرة لاسترجاع الضبط الافتراضي الأساسي للتقرير [الافتراضي 1]. هذا الضبط مصنعي ثابت لا يتغير.`;
+        } else {
+            btn.title = p.colConfigs ? `نقرة لتطبيق [${p.name}]. اضغط مطولاً (8 ثوانٍ) للحفظ هنا. كليك يمين للحذف.` : `اضغط مطولاً (8 ثوانٍ) لحفظ التخطيط الحالي هنا.`;
+        }
         
         btn.innerHTML = `
             <svg class="preset-clock-svg" width="16" height="16" viewBox="0 0 24 24">
@@ -1500,6 +1460,18 @@ window.renderBalancesPresets = function() {
 };
 
 function setupPresetButtonEvents(btn, p) {
+    if (p.isDefault) {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            applyPresetLayout('default1');
+        });
+        btn.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            showToast("الضبط (الافتراضي 1) هو الضبط الأساسي للنظام ومحمي من التعديل أو الحذف", "info");
+        });
+        return;
+    }
+
     let holdTimer = null;
     let progressInterval = null;
     let holdStartTime = 0;
@@ -1562,23 +1534,46 @@ function setupPresetButtonEvents(btn, p) {
         e.preventDefault();
         if (!p.colConfigs) return;
         if (confirm("هل أنت متأكد من رغبتك في حذف هذا التخطيط المبرمج؟")) {
-            let list = window.getBalancesPresets();
-            list[p.id-1] = { id: p.id, name: 'تخطيط ' + p.id, colConfigs: null, colOrder: null };
-            localStorage.setItem('balances_report_presets_v1', JSON.stringify(list));
-            showToast("تم حذف برمجة التخطيط", "success");
-            window.renderBalancesPresets();
+            let list = [];
+            try { list = JSON.parse(localStorage.getItem('balances_report_presets_v1')) || []; } catch(e){}
+            let slotIdx = list.findIndex(x => String(x.id) === String(p.id));
+            if (slotIdx !== -1) {
+                list[slotIdx] = { id: p.id, name: 'تخطيط ' + p.id, colConfigs: null, colOrder: null };
+                localStorage.setItem('balances_report_presets_v1', JSON.stringify(list));
+                showToast("تم حذف برمجة التخطيط", "success");
+                window.renderBalancesPresets();
+            }
         }
     });
 }
 
 function savePresetLayout(id) {
-    let list = window.getBalancesPresets();
-    let name = prompt("أدخل اسماً لتسمية هذا التخطيط المخصص (سلوت " + id + "):", list[id-1].name || ("تخطيط " + id));
-    if (name === null) return; // cancelled
+    if (id === 'default1') {
+        showToast("الضبط (الافتراضي 1) ثابت ولا يمكن الحفظ فوقه", "warning");
+        return;
+    }
+
+    let list = [];
+    try { list = JSON.parse(localStorage.getItem('balances_report_presets_v1')) || []; } catch(e){}
+    if (!list || list.length !== 4) {
+        list = [
+            { id: 1, name: 'تخطيط 1', colConfigs: null, colOrder: null },
+            { id: 2, name: 'تخطيط 2', colConfigs: null, colOrder: null },
+            { id: 3, name: 'تخطيط 3', colConfigs: null, colOrder: null },
+            { id: 4, name: 'تخطيط 4', colConfigs: null, colOrder: null }
+        ];
+    }
+    
+    let slotIdx = list.findIndex(x => String(x.id) === String(id));
+    if (slotIdx === -1) slotIdx = parseInt(id) - 1;
+
+    let defaultName = list[slotIdx] ? list[slotIdx].name : ("تخطيط " + id);
+    let name = prompt("أدخل اسماً لتسمية هذا التخطيط المخصص (سلوت " + id + "):", defaultName);
+    if (name === null) return;
     name = name.trim() || ("تخطيط " + id);
 
-    list[id-1] = {
-        id: id,
+    list[slotIdx] = {
+        id: parseInt(id),
         name: name,
         colConfigs: JSON.parse(JSON.stringify(window.colConfigs)),
         colOrder: [...window.colOrder]
@@ -1590,8 +1585,47 @@ function savePresetLayout(id) {
 }
 
 function applyPresetLayout(id) {
-    let list = window.getBalancesPresets();
-    let p = list[id-1];
+    if (id === 'default1') {
+        const defaultConfigs = Array.from({length: 9}, () => ({
+            visible: true,
+            bold: false,
+            fontWeight: 'normal',
+            fs: 1.0,
+            decimals: 2,
+            showDecimals: true,
+            thousands: true,
+            color: '',
+            bg: '',
+            fontFamily: '',
+            textAlign: 'right'
+        }));
+        const defaultOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+
+        window.colConfigs = defaultConfigs;
+        window.colOrder = defaultOrder;
+
+        try {
+            const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
+            const settings = JSON.parse(settingsStr);
+            settings.balancesReportLayout = {
+                colConfigs: window.colConfigs,
+                colOrder: window.colOrder
+            };
+            localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
+        } catch(e) {}
+
+        applyLayoutToDOM();
+        if (window.lastResults && window.lastResults.length > 0) {
+            renderTable(window.lastResults);
+        }
+        showToast("تم إرجاع وتطبيق التصميم الافتراضي (الافتراضي 1) بنجاح ⭐", "success");
+        window.renderBalancesPresets();
+        return;
+    }
+
+    let list = [];
+    try { list = JSON.parse(localStorage.getItem('balances_report_presets_v1')) || []; } catch(e){}
+    let p = list.find(x => String(x.id) === String(id));
     if (!p || !p.colConfigs) {
         showToast("هذا التخطيط فارغ! اضغط مطولاً (8 ثوانٍ) لحفظ التخطيط الحالي هنا.", "warning");
         return;
@@ -1611,6 +1645,9 @@ function applyPresetLayout(id) {
     } catch(e) {}
 
     applyLayoutToDOM();
+    if (window.lastResults && window.lastResults.length > 0) {
+        renderTable(window.lastResults);
+    }
     
     showToast("تم تطبيق التخطيط المخصص: " + p.name, "success");
     window.renderBalancesPresets();
