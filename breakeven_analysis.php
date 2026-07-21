@@ -1,4 +1,13 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error !== NULL) {
+        $info = "[SHUTDOWN ERROR] " . $error['message'] . " in " . $error['file'] . " on line " . $error['line'];
+        echo "<pre style='background:#f00;color:#fff;padding:20px;font-size:16px;z-index:99999;position:relative;'>" . htmlspecialchars($info) . "</pre>";
+    }
+});
 $page_title = 'تحليل نقطة التعادل الفوري (Break-Even)';
 $header_theme_class = 'header-theme-reports';
 
