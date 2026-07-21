@@ -311,6 +311,16 @@ function getSeasonalTrendsData($pdo) {
     try {
         $trends = [];
         
+        $itemNames = [];
+        try {
+            $stmtItems = $pdo->query("SELECT frontend_id, search_name FROM items WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
+            while ($rowItem = $stmtItems->fetch()) {
+                if (!empty($rowItem['frontend_id'])) {
+                    $itemNames[$rowItem['frontend_id']] = $rowItem['search_name'];
+                }
+            }
+        } catch (Exception $e) { error_log('Items fetch error: ' . $e->getMessage()); }
+
         try {
             $stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
             while ($row = $stmt->fetch()) {
@@ -320,7 +330,12 @@ function getSeasonalTrendsData($pdo) {
                     $month = $date ? (int)date('m', strtotime($date)) : 0;
                     $items = $inv['items'] ?? [];
                     foreach ($items as $item) {
-                        $name = $item['itemName'] ?? ($item['name'] ?? 'صنف غير معروف');
+                        $name = $item['itemName'] ?? ($item['name'] ?? null);
+                        if (!$name && !empty($item['itemId']) && isset($itemNames[$item['itemId']])) {
+                            $name = $itemNames[$item['itemId']];
+                        }
+                        if (!$name) $name = 'صنف غير معروف';
+                        
                         $qty = (float)($item['quantity'] ?? ($item['qty'] ?? 0));
                         
                         if (!isset($trends[$name])) {
