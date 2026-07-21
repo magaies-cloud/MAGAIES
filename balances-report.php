@@ -154,18 +154,18 @@
         @keyframes toastIn { from { opacity:0; transform:translateY(-20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
 
         /* Report Header */
-        .report-header { background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(15,23,42,0.9)); border: 1px solid rgba(56,189,248,0.2); border-radius: 16px; padding: 25px; margin-bottom: 20px; }
-        .filter-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
-        .filter-group label { display: block; color: #94a3b8; font-size: 0.8rem; margin-bottom: 5px; font-weight: bold; }
-        .filter-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #f8fafc; padding: 10px 12px; border-radius: 8px; font-family: inherit; font-size: 0.95rem; transition: all 0.2s; }
+        .report-header { background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(15,23,42,0.9)); border: 1px solid rgba(56,189,248,0.2); border-radius: 14px; padding: 14px 18px; margin-bottom: 12px; }
+        .filter-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 10px; }
+        .filter-group label { display: block; color: #94a3b8; font-size: 0.78rem; margin-bottom: 3px; font-weight: bold; }
+        .filter-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #f8fafc; padding: 7px 10px; border-radius: 8px; font-family: inherit; font-size: 0.9rem; transition: all 0.2s; }
         .filter-input:focus { border-color: #38bdf8; outline: none; background: rgba(0,0,0,0.5); }
 
         .badge-sgl { background: #38bdf8; color: #0f172a; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; letter-spacing: 1px; }
         .badge-active { background: rgba(52,211,153,0.15); color: #34d399; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; border: 1px solid rgba(52,211,153,0.3); }
 
-        .btn-run { background: #38bdf8; color: #0f172a; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; font-family: inherit; font-size: 0.95rem; }
+        .btn-run { background: #38bdf8; color: #0f172a; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; font-family: inherit; font-size: 0.9rem; }
         .btn-run:hover { background: #0ea5e9; transform: translateY(-1px); }
-        .btn-action { background: rgba(255,255,255,0.05); color: #f8fafc; border: 1px solid rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; font-family: inherit; }
+        .btn-action { background: rgba(255,255,255,0.05); color: #f8fafc; border: 1px solid rgba(255,255,255,0.1); padding: 7px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; font-family: inherit; }
         .btn-action:hover { background: rgba(255,255,255,0.1); }
 
         .audit-stamp {
@@ -312,14 +312,14 @@
         .preset-slots-container {
             background: rgba(15, 23, 42, 0.45);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 10px 20px;
-            border-radius: 16px;
+            padding: 6px 14px;
+            border-radius: 12px;
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
             display: flex;
             align-items: center;
-            gap: 14px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            gap: 8px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
             transition: all 0.3s ease;
         }
         .preset-btn {
@@ -329,18 +329,18 @@
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.05);
             color: #cbd5e1;
-            padding: 10px 18px;
-            border-radius: 12px;
-            font-size: 0.85rem;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
             font-weight: 800;
             cursor: pointer;
             overflow: hidden;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             user-select: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
         }
         
         .preset-btn[data-slot-id="default1"] { --accent-color: 234, 179, 8; font-weight: 900; }
@@ -486,13 +486,13 @@
 </div>
 
 
-<div style="max-width: 1600px; margin: 0 auto; padding: 20px 30px; padding-bottom: 80px;">
+<div style="max-width: 1600px; margin: 0 auto; padding: 10px 20px; padding-bottom: 40px;">
     <!-- Premium Navigation Header -->
     <?php $header_theme_class = 'header-theme-reports'; ?>
     <?php include 'includes/header.php'; ?>
 
     <!-- FILTERS -->
-    <div class="report-header no-print" style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 25px; margin-bottom: 30px;">
+    <div class="report-header no-print" style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px 18px; margin-bottom: 12px;">
         <div class="filter-row">
             <div class="filter-group">
                 <label>نوع المجموعة (Group Type)</label>
@@ -521,17 +521,17 @@
                 </select>
             </div>
         </div>
-        <div style="display:flex; gap:12px; margin-top:10px; align-items:center; flex-wrap:wrap; width: 100%;">
+        <div style="display:flex; gap:10px; margin-top:8px; align-items:center; flex-wrap:wrap; width: 100%;">
             <button class="btn-run" onclick="runReport()">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 تشغيل التقرير
             </button>
 
-            <div style="height: 24px; width: 1px; background: rgba(255,255,255,0.15); margin: 0 10px;" class="no-print"></div>
+            <div style="height: 20px; width: 1px; background: rgba(255,255,255,0.15); margin: 0 6px;" class="no-print"></div>
 
-            <div class="preset-slots-container no-print" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                <span style="font-size:0.85rem; color:#94a3b8; font-weight:bold; margin-left: 5px;">💾 تخطيطات سريعة (اضغط مطولاً 8ث للحفظ):</span>
-                <div id="balances-presets-wrap" style="display:flex; gap:10px; flex-wrap:wrap;">
+            <div class="preset-slots-container no-print" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <span style="font-size:0.8rem; color:#94a3b8; font-weight:bold; margin-left: 4px;">💾 تخطيطات سريعة:</span>
+                <div id="balances-presets-wrap" style="display:flex; gap:8px; flex-wrap:wrap;">
                     <!-- Preset buttons will be generated by JS -->
                 </div>
             </div>
@@ -539,34 +539,34 @@
     </div>
 
     <!-- KPI Dashboard -->
-    <div id="analytics-dashboard" class="no-print" style="display:none; margin-bottom: 30px; padding: 25px; background: rgba(15, 23, 42, 0.6); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
-            <h3 style="margin: 0; color: #f8fafc; display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 1.5rem;">📈</span> لوحة أرصدة الحسابات الإجمالية
+    <div id="analytics-dashboard" class="no-print" style="display:none; margin-bottom: 12px; padding: 14px 18px; background: rgba(15, 23, 42, 0.6); border-radius: 14px; border: 1px solid rgba(255,255,255,0.05); box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px;">
+            <h3 style="margin: 0; color: #f8fafc; display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
+                <span style="font-size: 1.2rem;">📈</span> لوحة أرصدة الحسابات الإجمالية
             </h3>
         </div>
         
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
-            <div style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(0,0,0,0.3)); border-radius: 12px; padding: 15px; border: 1px solid rgba(16,185,129,0.2); text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">إجمالي رصيد العملاء (عليه)</div>
-                <div id="kpi-dr" class="num" style="color: #10b981; font-size: 1.4rem; font-weight: 900;">0.00</div>
-                <div id="kpi-dr-foreign" class="num" style="color: #34d399; font-size: 0.95rem; font-weight: bold; margin-top: 3px;">(0.00 USD)</div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+            <div style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(0,0,0,0.3)); border-radius: 10px; padding: 10px 12px; border: 1px solid rgba(16,185,129,0.2); text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <div style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 3px; font-weight: bold;">إجمالي رصيد العملاء (عليه)</div>
+                <div id="kpi-dr" class="num" style="color: #10b981; font-size: 1.25rem; font-weight: 900;">0.00</div>
+                <div id="kpi-dr-foreign" class="num" style="color: #34d399; font-size: 0.85rem; font-weight: bold; margin-top: 2px;">(0.00 USD)</div>
             </div>
-            <div style="background: linear-gradient(135deg, rgba(244,63,94,0.1), rgba(0,0,0,0.3)); border-radius: 12px; padding: 15px; border: 1px solid rgba(244,63,94,0.2); text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">إجمالي رصيد الموردين (له)</div>
-                <div id="kpi-cr" class="num" style="color: #f43f5e; font-size: 1.4rem; font-weight: 900;">0.00</div>
-                <div id="kpi-cr-foreign" class="num" style="color: #fb7185; font-size: 0.95rem; font-weight: bold; margin-top: 3px;">(0.00 USD)</div>
+            <div style="background: linear-gradient(135deg, rgba(244,63,94,0.1), rgba(0,0,0,0.3)); border-radius: 10px; padding: 10px 12px; border: 1px solid rgba(244,63,94,0.2); text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <div style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 3px; font-weight: bold;">إجمالي رصيد الموردين (له)</div>
+                <div id="kpi-cr" class="num" style="color: #f43f5e; font-size: 1.25rem; font-weight: 900;">0.00</div>
+                <div id="kpi-cr-foreign" class="num" style="color: #fb7185; font-size: 0.85rem; font-weight: bold; margin-top: 2px;">(0.00 USD)</div>
             </div>
-            <div style="background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(0,0,0,0.3)); border-radius: 12px; padding: 15px; border: 1px solid rgba(56,189,248,0.2); text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">إجمالي الحصيلة الصافية</div>
-                <div id="kpi-bal" class="num" style="color: #38bdf8; font-size: 1.4rem; font-weight: 900;">0.00</div>
-                <div id="kpi-bal-foreign" class="num" style="color: #7dd3fc; font-size: 0.95rem; font-weight: bold; margin-top: 3px;">(0.00 USD)</div>
+            <div style="background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(0,0,0,0.3)); border-radius: 10px; padding: 10px 12px; border: 1px solid rgba(56,189,248,0.2); text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <div style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 3px; font-weight: bold;">إجمالي الحصيلة الصافية</div>
+                <div id="kpi-bal" class="num" style="color: #38bdf8; font-size: 1.25rem; font-weight: 900;">0.00</div>
+                <div id="kpi-bal-foreign" class="num" style="color: #7dd3fc; font-size: 0.85rem; font-weight: bold; margin-top: 2px;">(0.00 USD)</div>
             </div>
         </div>
     </div>
 
     <!-- Actions Panel -->
-    <div class="actions-panel no-print" id="actions-panel" style="display:none; flex-wrap: wrap; margin-bottom: 20px;">
+    <div class="actions-panel no-print" id="actions-panel" style="display:none; flex-wrap: wrap; margin-bottom: 10px; gap: 8px;">
         <button class="btn-action btn-secondary" onclick="window.print()" title="طباعة">🖨️ طباعة وتوثيق</button>
         <button class="btn-action btn-primary" onclick="exportPDF()" title="تصدير PDF">📄 تصدير PDF</button>
         <button class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none;" onclick="exportExcel()" title="تصدير إكسل">📊 إكسل (Excel)</button>
@@ -575,7 +575,7 @@
     </div>
 
     <!-- TABLE -->
-    <div id="print-container" style="display:none; padding: 20px; border-radius: 16px; background: rgba(255,255,255,0.02);">
+    <div id="print-container" style="display:none; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.02);">
         
         <div id="v-classic-ent">
             
