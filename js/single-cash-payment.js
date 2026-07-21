@@ -510,10 +510,107 @@ function submitVoucher() {
     if (!fromAcc) {
         showToast("يرجى اختيار حساب الدفع (الدافع)", "error");
         return;
+    }function showProfessionalSuccess(voucherId, fromName, toName, amountLocal, currency, title) {
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0'; overlay.style.left = '0';
+    overlay.style.width = '100vw'; overlay.style.height = '100vh';
+    overlay.style.background = 'rgba(5, 3, 8, 0.7)';
+    overlay.style.backdropFilter = 'blur(12px)';
+    overlay.style.zIndex = '999999';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity 0.4s ease';
+
+    const box = document.createElement('div');
+    box.style.background = 'linear-gradient(145deg, #1e1b4b, #312e81)';
+    box.style.padding = '40px 50px';
+    box.style.borderRadius = '24px';
+    box.style.boxShadow = '0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(99, 102, 241, 0.5) inset';
+    box.style.border = '1px solid rgba(167, 139, 250, 0.3)';
+    box.style.textAlign = 'center';
+    box.style.transform = 'scale(0.8) translateY(30px)';
+    box.style.transition = 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    box.style.color = '#fff';
+    box.style.minWidth = '400px';
+
+    box.innerHTML = `
+        <style>
+            @keyframes drawCheck {
+                0% { stroke-dasharray: 0, 100; stroke-dashoffset: 0; opacity: 0; }
+                50% { opacity: 1; }
+                100% { stroke-dasharray: 100, 0; stroke-dashoffset: 0; opacity: 1; }
+            }
+            @keyframes pulseGlow {
+                0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+                70% { box-shadow: 0 0 0 25px rgba(16, 185, 129, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+            }
+            @keyframes slideRight {
+                0% { transform: translateX(-30px); opacity: 0; }
+                100% { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideLeft {
+                0% { transform: translateX(30px); opacity: 0; }
+                100% { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes arrowMove {
+                0% { transform: translateX(0); }
+                50% { transform: translateX(-15px); text-shadow: 0 0 15px rgba(99,102,241,1); }
+                100% { transform: translateX(0); }
+            }
+        </style>
+        <div style="width: 90px; height: 90px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; margin: 0 auto 25px auto; display: flex; align-items: center; justify-content: center; animation: pulseGlow 2s infinite; border: 4px solid #34d399;">
+            <svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray: 100; animation: drawCheck 0.8s ease-out forwards;">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </div>
+        <h2 style="margin: 0 0 10px 0; font-size: 2rem; font-weight: 800; color: #34d399; text-shadow: 0 2px 8px rgba(0,0,0,0.5);">${title}</h2>
+        <p style="margin: 0 0 30px 0; font-size: 1.2rem; color: #e2e8f0;">تم اعتماد السند المالي رقم <strong style="color: #fff; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 6px;">${voucherId}</strong></p>
+        
+        <div style="background: rgba(0,0,0,0.4); padding: 20px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 25px rgba(0,0,0,0.5) inset;">
+            <div style="flex: 1; text-align: right; animation: slideRight 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; animation-delay: 0.2s; opacity: 0;">
+                <div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 6px;">من حساب (الدافع)</div>
+                <div style="font-weight: 900; color: #38bdf8; font-size: 1.1rem; line-height: 1.4;">${fromName}</div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; align-items: center; animation: arrowMove 1.5s ease-in-out infinite;">
+                <div style="color: #34d399; font-weight: 900; font-size: 1.4rem; margin-bottom: 5px; text-shadow: 0 0 10px rgba(52,211,153,0.5);">${Number(amountLocal).toLocaleString()}</div>
+                <div style="font-size: 0.8rem; font-weight: bold; color: #059669; background: #d1fae5; padding: 2px 10px; border-radius: 6px;">${currency}</div>
+                <div style="font-size: 2rem; color: #818cf8; margin-top: 8px;">⬅️</div>
+            </div>
+            
+            <div style="flex: 1; text-align: left; animation: slideLeft 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; animation-delay: 0.4s; opacity: 0;">
+                <div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 6px;">إلى حساب (المستفيد)</div>
+                <div style="font-weight: 900; color: #f472b6; font-size: 1.1rem; line-height: 1.4;">${toName}</div>
+            </div>
+        </div>
+    `;
+
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+        box.style.transform = 'scale(1) translateY(0)';
+    });
+
+    if (window.PlaySound && window.PlaySound.success) {
+        window.PlaySound.success();
     }
 
-    
-    const _docDateStr = document.getElementById('hdr-date') ? document.getElementById('hdr-date').value : new Date().toISOString().split('T')[0];
+    setTimeout(() => {
+        overlay.style.opacity = '0';
+        box.style.transform = 'scale(0.8) translateY(-40px)';
+        setTimeout(() => {
+            if (document.body.contains(overlay)) {
+                document.body.removeChild(overlay);
+            }
+        }, 600);
+    }, 2500);
+}    const _docDateStr = document.getElementById('hdr-date') ? document.getElementById('hdr-date').value : new Date().toISOString().split('T')[0];
     if (!window.canCreateRecord(_docDateStr)) return;
 
     if (window.isSubmitting) return;
@@ -817,29 +914,34 @@ function submitVoucher() {
         }
     }
 
-    if (currentViewedIndex !== -1) {
-        if (!window.canEditRecord(voucherData.date, 'finance')) return;
+        let fromSelect = document.getElementById('from-account');
+        let fromName = fromSelect.options[fromSelect.selectedIndex] ? fromSelect.options[fromSelect.selectedIndex].text : voucherData.fromAccount;
+        let toSelect = document.getElementById('to-account');
+        let toName = toSelect.options[toSelect.selectedIndex] ? toSelect.options[toSelect.selectedIndex].text : voucherData.toAccount;
         
-        // Revert old payment effect
-        const oldVoucher = singlePaymentsData[currentViewedIndex];
-        applyPaymentEffect(oldVoucher.fromAccount, oldVoucher.toAccount, oldVoucher.amountLocal, true);
-        
-        // Apply new payment effect
-        applyPaymentEffect(voucherData.fromAccount, voucherData.toAccount, voucherData.amountLocal, false);
-        
-        singlePaymentsData[currentViewedIndex] = voucherData;
-        localStorage.setItem(getTenantKey('erp_single_payments_v1'), JSON.stringify(singlePaymentsData));
-        showToast(`تم تعديل السند رقم ${voucherData.id} بنجاح!`, "success");
-    } else {
-        applyPaymentEffect(voucherData.fromAccount, voucherData.toAccount, voucherData.amountLocal, false);
-        singlePaymentsData.push(voucherData);
-        localStorage.setItem(getTenantKey('erp_single_payments_v1'), JSON.stringify(singlePaymentsData));
-        const currentSeq = parseInt(localStorage.getItem(getTenantKey('erp_single_payment_seq')) || localStorage.getItem('erp_single_payment_seq') || '0');
-        localStorage.setItem(getTenantKey('erp_single_payment_seq'), currentSeq + 1);
-        showToast(`تم اعتماد السند رقم ${voucherData.id} بنجاح!`, "success");
-    }
+        if (currentViewedIndex !== -1) {
+            if (!window.canEditRecord(voucherData.date, 'finance')) return;
+            
+            // Revert old payment effect
+            const oldVoucher = singlePaymentsData[currentViewedIndex];
+            applyPaymentEffect(oldVoucher.fromAccount, oldVoucher.toAccount, oldVoucher.amountLocal, true);
+            
+            // Apply new payment effect
+            applyPaymentEffect(voucherData.fromAccount, voucherData.toAccount, voucherData.amountLocal, false);
+            
+            singlePaymentsData[currentViewedIndex] = voucherData;
+            localStorage.setItem(getTenantKey('erp_single_payments_v1'), JSON.stringify(singlePaymentsData));
+            showProfessionalSuccess(voucherData.id, fromName, toName, voucherData.amountLocal, voucherData.currency, 'تم التعديل بنجاح');
+        } else {
+            applyPaymentEffect(voucherData.fromAccount, voucherData.toAccount, voucherData.amountLocal, false);
+            singlePaymentsData.push(voucherData);
+            localStorage.setItem(getTenantKey('erp_single_payments_v1'), JSON.stringify(singlePaymentsData));
+            const currentSeq = parseInt(localStorage.getItem(getTenantKey('erp_single_payment_seq')) || localStorage.getItem('erp_single_payment_seq') || '0');
+            localStorage.setItem(getTenantKey('erp_single_payment_seq'), currentSeq + 1);
+            showProfessionalSuccess(voucherData.id, fromName, toName, voucherData.amountLocal, voucherData.currency, 'تم الحفظ بنجاح');
+        }
 
-    setTimeout(() => { resetVoucherSilent(); }, 1500);
+        setTimeout(() => { resetVoucherSilent(); }, 2500);
     } catch (err) {
         console.error(err);
         alert("حدث خطأ أثناء الحفظ: " + err.message + "في السطر: " + err.stack);
