@@ -19,6 +19,130 @@
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
     <link rel="stylesheet" href="css/sales-invoice.css">
     <link rel="stylesheet" href="css/table-themes.css">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        /* ─── Visual Intelligence Analytics Hub Styling ─── */
+        .visual-hub-container {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.65));
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            margin-top: 35px;
+            font-family: 'Tajawal', sans-serif;
+            color: #f8fafc;
+        }
+        :root.light-theme .visual-hub-container {
+            background: linear-gradient(135deg, #ffffff, #f1f5f9) !important;
+            border-color: rgba(15, 23, 42, 0.1) !important;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06) !important;
+            color: #0f172a !important;
+        }
+        .hub-tab-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            font-family: inherit;
+        }
+        .hub-tab-btn:hover {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: #38bdf8;
+            color: #38bdf8;
+            transform: translateY(-2px);
+        }
+        .hub-tab-btn.active {
+            background: #38bdf8;
+            border-color: #38bdf8;
+            color: #0f172a;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+        :root.light-theme .hub-tab-btn {
+            background: rgba(0, 0, 0, 0.04);
+            border-color: rgba(0, 0, 0, 0.1);
+            color: #475569;
+        }
+        :root.light-theme .hub-tab-btn.active {
+            background: #0284c7 !important;
+            color: #ffffff !important;
+        }
+        .v-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .v-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+        .glow-sky:hover { border-color: rgba(56, 189, 248, 0.4); box-shadow: 0 15px 35px rgba(56, 189, 248, 0.15); }
+        .glow-purple:hover { border-color: rgba(168, 85, 247, 0.4); box-shadow: 0 15px 35px rgba(168, 85, 247, 0.15); }
+        .glow-emerald:hover { border-color: rgba(16, 185, 129, 0.4); box-shadow: 0 15px 35px rgba(16, 185, 129, 0.15); }
+        .glow-amber:hover { border-color: rgba(245, 158, 11, 0.4); box-shadow: 0 15px 35px rgba(245, 158, 11, 0.15); }
+
+        :root.light-theme .v-card {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
+        }
+        .v-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .v-card-title { font-size: 0.8rem; font-weight: bold; color: #94a3b8; }
+        :root.light-theme .v-card-title { color: #64748b !important; }
+        .v-card-value { font-size: 1.35rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; color: #f8fafc; margin-bottom: 10px; }
+        :root.light-theme .v-card-value { color: #0f172a !important; }
+
+        .v-card-trend { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .v-badge { padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; }
+        .badge-success { background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); }
+        .badge-danger { background: rgba(244, 63, 94, 0.15); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.3); }
+        .badge-purple { background: rgba(192, 132, 252, 0.15); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3); }
+        .badge-emerald { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .badge-amber { background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+
+        :root.light-theme .badge-success { color: #059669 !important; background: rgba(5, 150, 105, 0.1) !important; }
+        :root.light-theme .badge-danger { color: #e11d48 !important; background: rgba(225, 29, 72, 0.1) !important; }
+        :root.light-theme .badge-purple { color: #7c3aed !important; background: rgba(124, 58, 237, 0.1) !important; }
+
+        .v-progress-bg { width: 100%; height: 6px; background: rgba(255, 255, 255, 0.08); border-radius: 10px; overflow: hidden; }
+        :root.light-theme .v-progress-bg { background: rgba(0, 0, 0, 0.08) !important; }
+        .v-progress-bar { height: 100%; border-radius: 10px; transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        .v-chart-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 22px;
+            transition: all 0.3s ease;
+        }
+        .v-chart-card:hover {
+            border-color: rgba(56, 189, 248, 0.3);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+        }
+        :root.light-theme .v-chart-card {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+        }
+        .v-chart-header { margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+        :root.light-theme .v-chart-header { border-bottom-color: rgba(0, 0, 0, 0.06) !important; }
+        :root.light-theme .v-chart-header h4 { color: #0f172a !important; }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+    </style>
     <style>
         .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
         .toast { padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:8px; pointer-events:auto; backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5); animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both; font-family:'Cairo',sans-serif; }
@@ -977,6 +1101,262 @@
             <span>✔️</span>
             <span>تدقيق معتمد: الأرصدة صحيحة ومطابقة وفق المعايير المحاسبية المعتمدة (Blockchain Ready).</span>
         </div>
+    </div>
+
+    <!-- Visual Intelligence Analytics Hub (المركز البصري التحليلي والرسوم البيانية) -->
+    <div id="visual-intelligence-hub" class="visual-hub-container" style="display: none;">
+        
+        <!-- Section Header -->
+        <div class="hub-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 14px; height: 14px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 15px #38bdf8; animation: pulse 2s infinite;"></div>
+                <h3 style="margin: 0; font-size: 1.35rem; font-weight: 900; color: #f8fafc; letter-spacing: -0.5px;">
+                    📈 التقرير البصري التحليلي للحركات وهيكل دفتر الأستاذ العام
+                </h3>
+                <span class="hub-badge" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 800;">
+                    ✨ visual intelligence 3.0
+                </span>
+            </div>
+            <div style="display: flex; gap: 8px;" class="no-print">
+                <button class="hub-tab-btn active" onclick="switchVisualTab('all')" id="tab-all">🚀 المشهد الكامل</button>
+                <button class="hub-tab-btn" onclick="switchVisualTab('partners')" id="tab-partners">👥 العملاء والموردين</button>
+                <button class="hub-tab-btn" onclick="switchVisualTab('treasury')" id="tab-treasury">🏦 الخزن والبنوك</button>
+            </div>
+        </div>
+
+        <!-- Visual Indicator Cards Row -->
+        <div class="visual-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-bottom: 30px;">
+            
+            <!-- Card 1: مؤشر الاتجاه والتغطية -->
+            <div class="v-card glow-sky">
+                <div class="v-card-header">
+                    <span class="v-card-title">مؤشر صافي تدفق الحركات</span>
+                    <span class="v-card-icon" id="ind-trend-arrow" style="font-size: 1.4rem; color: #34d399;">↗️</span>
+                </div>
+                <div class="v-card-value" id="ind-net-val">0.00 SDG</div>
+                <div class="v-card-trend">
+                    <span id="ind-trend-badge" class="v-badge badge-success">↑ رصيد صافي ممتاز</span>
+                    <span id="ind-coverage-pct" style="font-size: 0.8rem; color: #94a3b8; font-weight: bold;">تغطية: 0%</span>
+                </div>
+                <div class="v-progress-bg">
+                    <div class="v-progress-bar" id="ind-coverage-bar" style="width: 50%; background: linear-gradient(90deg, #10b981, #34d399);"></div>
+                </div>
+            </div>
+
+            <!-- Card 2: مؤشر تركز المخاطر -->
+            <div class="v-card glow-purple">
+                <div class="v-card-header">
+                    <span class="v-card-title">مؤشر التركّز المالي للحركات</span>
+                    <span class="v-card-icon">🎯</span>
+                </div>
+                <div class="v-card-value" id="ind-top3-pct">0.0%</div>
+                <div class="v-card-trend">
+                    <span id="ind-risk-badge" class="v-badge badge-purple">حجم أضخم 3 قيود</span>
+                    <span id="ind-top3-names" style="font-size: 0.75rem; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">-</span>
+                </div>
+                <div class="v-progress-bg">
+                    <div class="v-progress-bar" id="ind-risk-bar" style="width: 30%; background: linear-gradient(90deg, #a855f7, #c084fc);"></div>
+                </div>
+            </div>
+
+            <!-- Card 3: نسبة نشاط وأرجوحة الحسابات -->
+            <div class="v-card glow-emerald">
+                <div class="v-card-header">
+                    <span class="v-card-title">توازن الذمم المالي (المدين vs الدائن)</span>
+                    <span class="v-card-icon" id="ind-ratio-icon">⚖️</span>
+                </div>
+                <div class="v-card-value" id="ind-ratio-val">1.0 : 1</div>
+                <div class="v-card-trend">
+                    <span id="ind-ratio-status" class="v-badge badge-emerald">نسبة مدين/دائن</span>
+                    <span id="ind-active-count" style="font-size: 0.8rem; color: #94a3b8; font-weight: bold;">0 قيد نشط</span>
+                </div>
+                <div class="v-progress-bg">
+                    <div class="v-progress-bar" id="ind-ratio-bar" style="width: 50%; background: linear-gradient(90deg, #38bdf8, #818cf8);"></div>
+                </div>
+            </div>
+
+            <!-- Card 4: درجة الصحة المالية الكلية -->
+            <div class="v-card glow-amber">
+                <div class="v-card-header">
+                    <span class="v-card-title">مؤشر جودة كشف الحساب</span>
+                    <span class="v-card-icon">⭐</span>
+                </div>
+                <div class="v-card-value" id="ind-health-score">92/100</div>
+                <div class="v-card-trend">
+                    <span id="ind-health-badge" class="v-badge badge-amber">ممتاز</span>
+                    <span id="ind-health-desc" style="font-size: 0.75rem; color: #94a3b8;">توازن آمن</span>
+                </div>
+                <div class="v-progress-bg">
+                    <div class="v-progress-bar" id="ind-health-bar" style="width: 92%; background: linear-gradient(90deg, #f59e0b, #fbbf24);"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 11 Comprehensive ApexCharts Grid -->
+
+        <!-- Charts Row 1: Donut & Hollow Donut Charts -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
+            
+            <!-- Chart 1: Hollow Donut Chart - Document Types Distribution -->
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مجوفة: أين تتوزع أنواع المعاملات والمستندات؟</h4>
+                        <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">💡 هيكل المستندات</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يوضح لك الفئة الأكثر استخداماً (مبيعات، مشتريات، مقبوضات، مدفوعات)</span>
+                </div>
+                <div id="chart-hollow-donut-categories" style="min-height: 320px;"></div>
+            </div>
+
+            <!-- Chart 2: Hollow Donut Chart - Top Debit Transactions -->
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مفرغة: أضخم 5 قيود وتدفقات مدينة (عليها)</h4>
+                        <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">🎯 أعلى المدينات</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يظهر أكبر القيود المالية الصادرة والتي تشكل أضخم المبالغ</span>
+                </div>
+                <div id="chart-hollow-donut-top-debtors" style="min-height: 320px;"></div>
+            </div>
+
+        </div>
+
+        <!-- Charts Row 2: Line & Area Charts -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
+            
+            <!-- Chart 3: Smooth Curved Gradient Line Chart -->
+            <div class="v-chart-card" style="grid-column: span 1 / -1;">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📈 المنحنى المتدرج لحركة الأرصدة (Balance Spectrum Curve)</h4>
+                        <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">🌊 انسيابية الحركات</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: منحنى سلس يوضح صعود وهبوط الرصيد مع كل حركة مالية</span>
+                </div>
+                <div id="chart-curved-line-spectrum" style="min-height: 330px;"></div>
+            </div>
+
+        </div>
+
+        <!-- Charts Row 3: Bi-directional Comparative Bar & Semi-Donut Gauge -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
+            
+            <!-- Chart 4: Bi-Directional Comparative Column Chart -->
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📊 أعمدة المقارنة المزدوجة: المدين (🟢) ضد الدائن (🔴)</h4>
+                        <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">⚖️ مقارنة الأطراف</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يظهر بوضوح الفرق بين المقبوضات والمدفوعات لكل نوع مستند</span>
+                </div>
+                <div id="chart-bidirectional-bar" style="min-height: 320px;"></div>
+            </div>
+
+            <!-- Chart 5: Semi-Circle Donut Radial Gauge -->
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🧭 عدّاد ومقياس صحة ومأمونية السيولة (Liquidity Health Gauge)</h4>
+                        <span style="font-size: 0.72rem; background: rgba(244, 63, 94, 0.18); color: #fb7185; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(244, 63, 94, 0.3);">🛡️ مؤشر الأمان الكلي</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: نسبة مئوية مباشرة تعكس أمان الاستقرار المالي للحركات</span>
+                </div>
+                <div id="chart-semicircle-gauge" style="min-height: 320px;"></div>
+            </div>
+
+        </div>
+
+        <!-- Charts Row 4: Top Creditors Hollow Donut & Horizontal Bar Ranking -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
+            
+            <!-- Chart 6: Hollow Donut Chart - Top Creditor Transactions -->
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مجوفة: أضخم 5 قيود دائنة (عليها)</h4>
+                        <span style="font-size: 0.72rem; background: rgba(239, 68, 68, 0.18); color: #f87171; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(239, 68, 68, 0.3);">🔻 أعلى الدائنيات</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يوضح أضخم السندات والقيود الدائنة لتتبع المصروفات والالتزامات</span>
+                </div>
+                <div id="chart-hollow-donut-top-creditors" style="min-height: 320px;"></div>
+            </div>
+
+            <!-- Chart 7: Horizontal Bar Chart - Top 10 Transactions Ranking -->
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📊 أعمدة أفقية هرمية: ترتيب أضخم 10 قيود مالية</h4>
+                        <span style="font-size: 0.72rem; background: rgba(6, 182, 212, 0.18); color: #22d3ee; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(6, 182, 212, 0.3);">👑 ترتيب الحركات</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: شريط أفقي يُظهر أطول الأعمدة للمعاملات الأكثر حجماً في التقرير</span>
+                </div>
+                <div id="chart-horizontal-top-bar" style="min-height: 320px;"></div>
+            </div>
+
+        </div>
+
+        <!-- Charts Row 5: Filled Area Curve & Radar Equilibrium -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
+            
+            <!-- Chart 8: Filled Area Fluid Curve -->
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🌊 منحنى المساحة المتدرجة الممتلئة (Fluid Area Curve)</h4>
+                        <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">💧 المساحة التراكمية</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: مساحة ملونة انسيابية مريحة للعين تعكس التدفق التراكمي</span>
+                </div>
+                <div id="chart-cumulative-area-fluid" style="min-height: 320px;"></div>
+            </div>
+
+            <!-- Chart 9: Polygon Radar Equilibrium Chart -->
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🎯 مخطط الرادار الخماسي: التوازن المالي للأقسام</h4>
+                        <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">🕸️ خريطة الرادار</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: شبكة رادار خماسية تفاعلية توضح اتزان الحركات المالية بلمحة واحدة</span>
+                </div>
+                <div id="chart-radar-equilibrium" style="min-height: 320px;"></div>
+            </div>
+
+        </div>
+
+        <!-- Charts Row 6: Solid Pie & Multi-Radial Rings Gauge -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px;">
+            
+            <!-- Chart 10: Solid Pie Chart -->
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🥧 كعكة دائريّة مصمتة (Pie Chart): توزيع اتجاه القيود</h4>
+                        <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">🥧 دائرة مصمتة</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: دائرة كاملة مكسوة بالألوان تظهر نسبة القيود المدينة مقابل الدائنة</span>
+                </div>
+                <div id="chart-solid-pie-active-zero" style="min-height: 320px;"></div>
+            </div>
+
+            <!-- Chart 11: Multi-Radial Rings Gauge -->
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🔘 حلقات دوائر مضيئة متداخلة (Multi-Radial Rings)</h4>
+                        <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">💫 حلقات دائرية</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: ثلاث حلقات دائرية ملونة متداخلة تقارن حصة كل نوع بنسبة مئوية واضحة</span>
+                </div>
+                <div id="chart-multi-radial-rings" style="min-height: 320px;"></div>
+            </div>
+
+        </div>
+
     </div>
 
 </div>

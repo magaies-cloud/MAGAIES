@@ -1602,6 +1602,9 @@ function executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, 
     }
 
     renderTable(currentTxns, acctFilter, fromDate, toDate);
+    if (typeof renderVisualAnalytics === 'function') {
+        renderVisualAnalytics(currentTxns);
+    }
 }
 
 function renderTable(txns, acctFilter, fromDate, toDate) {
@@ -2707,5 +2710,354 @@ function clearPresetSlot(presetId) {
     window.renderQuickPresets();
     showToast(`🔄 تم حذف وتصفير موضع النمط ${presetId}`, 'success');
 }
+
+/* ═══════════════════════════════════════════════════════
+   Visual Intelligence Analytics Hub (ApexCharts & KPIs)
+   ═══════════════════════════════════════════════════════ */
+let chartHollowDonutCategories = null;
+let chartHollowDonutTopDebtors = null;
+let chartCurvedLineSpectrum = null;
+let chartBiDirectionalBar = null;
+let chartSemiCircleGauge = null;
+let chartHollowDonutCreditors = null;
+let chartHorizontalTopBar = null;
+let chartCumulativeAreaFluid = null;
+let chartRadarEquilibrium = null;
+let chartSolidPieActiveZero = null;
+let chartMultiRadialRings = null;
+
+function renderVisualAnalytics(results) {
+    const hub = document.getElementById('visual-intelligence-hub');
+    if (!hub) return;
+    if (!results || results.length === 0) {
+        hub.style.display = 'none';
+        return;
+    }
+    hub.style.display = 'block';
+
+    // 1. Calculate Aggregates for Ledger Transactions
+    let debtorsCount = 0, creditorsCount = 0, zeroCount = 0;
+    let categorySums = {
+        'invoice': { name: 'المبيعات', debit: 0, credit: 0, count: 0 },
+        'purchase': { name: 'المشتريات', debit: 0, credit: 0, count: 0 },
+        'receipt': { name: 'المقبوضات', debit: 0, credit: 0, count: 0 },
+        'payment': { name: 'المدفوعات', debit: 0, credit: 0, count: 0 },
+        'jv': { name: 'قيود اليومية', debit: 0, credit: 0, count: 0 }
+    };
+
+    results.forEach(t => {
+        const d = t.debit || 0;
+        const c = t.credit || 0;
+
+        if (d > 0) debtorsCount++;
+        else if (c > 0) creditorsCount++;
+        else zeroCount++;
+
+        let cat = t.type || 'jv';
+        if (!categorySums[cat]) cat = 'jv';
+        categorySums[cat].debit += d;
+        categorySums[cat].credit += c;
+        categorySums[cat].count++;
+    });
+
+    const totalDebit = results.reduce((acc, r) => acc + (r.debit || 0), 0);
+    const totalCredit = results.reduce((acc, r) => acc + (r.credit || 0), 0);
+    const netPosition = totalDebit - totalCredit;
+
+    // 2. Render Indicator Cards
+    const indNetVal = document.getElementById('ind-net-val');
+    const indTrendBadge = document.getElementById('ind-trend-badge');
+    const indTrendArrow = document.getElementById('ind-trend-arrow');
+    const indCoveragePct = document.getElementById('ind-coverage-pct');
+    const indCoverageBar = document.getElementById('ind-coverage-bar');
+
+    if (indNetVal) indNetVal.textContent = `${(netPosition < 0 ? '-' : '') + Math.abs(netPosition).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} SDG`;
+    
+    let coverageRatio = totalCredit > 0 ? ((totalDebit / totalCredit) * 100).toFixed(0) : '100';
+    if (indCoveragePct) indCoveragePct.textContent = `تغطية: ${coverageRatio}%`;
+    if (indCoverageBar) indCoverageBar.style.width = `${Math.min(parseFloat(coverageRatio), 100)}%`;
+
+    if (netPosition >= 0) {
+        if (indTrendBadge) { indTrendBadge.textContent = '↑ تدفق مدين متفوق'; indTrendBadge.className = 'v-badge badge-success'; }
+        if (indTrendArrow) { indTrendArrow.textContent = '↗️'; indTrendArrow.style.color = '#34d399'; }
+    } else {
+        if (indTrendBadge) { indTrendBadge.textContent = '↓ التزامات دائنة عالية'; indTrendBadge.className = 'v-badge badge-danger'; }
+        if (indTrendArrow) { indTrendArrow.textContent = '↘️'; indTrendArrow.style.color = '#f43f5e'; }
+    }
+
+    // Concentration Risk Card
+    const sortedByVolume = [...results].sort((a, b) => Math.max(b.debit, b.credit) - Math.max(a.debit, a.credit));
+    const top3Volume = sortedByVolume.slice(0, 3).reduce((sum, r) => sum + Math.max(r.debit, r.credit), 0);
+    const totalVolume = results.reduce((sum, r) => sum + Math.max(r.debit, r.credit), 0);
+    const top3Pct = totalVolume > 0 ? ((top3Volume / totalVolume) * 100).toFixed(1) : '0.0';
+
+    const indTop3Pct = document.getElementById('ind-top3-pct');
+    const indTop3Names = document.getElementById('ind-top3-names');
+    const indRiskBar = document.getElementById('ind-risk-bar');
+    if (indTop3Pct) indTop3Pct.textContent = `${top3Pct}%`;
+    if (indTop3Names) indTop3Names.textContent = sortedByVolume.slice(0, 3).map(x => x.typeLabel || x.ref).join('، ');
+    if (indRiskBar) indRiskBar.style.width = `${Math.min(parseFloat(top3Pct), 100)}%`;
+
+    // Ratio Card
+    const ratioVal = creditorsCount > 0 ? (debtorsCount / creditorsCount).toFixed(2) : (debtorsCount > 0 ? '1.0' : '0.0');
+    const indRatioVal = document.getElementById('ind-ratio-val');
+    const indActiveCount = document.getElementById('ind-active-count');
+    const indRatioBar = document.getElementById('ind-ratio-bar');
+
+    if (indRatioVal) indRatioVal.textContent = `${ratioVal} : 1`;
+    if (indActiveCount) indActiveCount.textContent = `${debtorsCount + creditorsCount} قيد نشط من أصل ${results.length}`;
+    if (indRatioBar) indRatioBar.style.width = `${Math.min((debtorsCount / (results.length || 1)) * 100, 100)}%`;
+
+    // Financial Health Score Card
+    let healthScore = 88;
+    if (totalCredit > 0) {
+        const cov = totalDebit / totalCredit;
+        if (cov >= 1.5) healthScore = 96;
+        else if (cov >= 1.0) healthScore = 88;
+        else if (cov >= 0.7) healthScore = 74;
+        else healthScore = 58;
+    }
+    const indHealthScore = document.getElementById('ind-health-score');
+    const indHealthBadge = document.getElementById('ind-health-badge');
+    const indHealthBar = document.getElementById('ind-health-bar');
+    if (indHealthScore) indHealthScore.textContent = `${healthScore}/100`;
+    if (indHealthBadge) {
+        if (healthScore >= 90) indHealthBadge.textContent = '🌟 ممتاز للغاية';
+        else if (healthScore >= 75) indHealthBadge.textContent = '✅ جيد جداً';
+        else indHealthBadge.textContent = '⚠️ يتطلب متابعة';
+    }
+    if (indHealthBar) indHealthBar.style.width = `${healthScore}%`;
+
+    // 3. Render ApexCharts
+    if (typeof ApexCharts === 'undefined') return;
+
+    const isLightTheme = document.documentElement.classList.contains('light-theme');
+    const chartThemeMode = isLightTheme ? 'light' : 'dark';
+
+    // Chart 1: Categories Donut
+    const catLabels = ['المبيعات', 'المشتريات', 'المقبوضات', 'المدفوعات', 'قيود اليومية'];
+    const catValues = [categorySums['invoice'].debit, categorySums['purchase'].credit, categorySums['receipt'].debit, categorySums['payment'].credit, categorySums['jv'].debit];
+    
+    const optionsCatDonut = {
+        series: catValues,
+        labels: catLabels,
+        chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#38bdf8', '#f43f5e', '#10b981', '#fbbf24', '#a855f7'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        plotOptions: {
+            pie: { donut: { size: '72%', labels: { show: true, name: { show: true, fontSize: '14px', fontWeight: 700 }, value: { show: true, fontSize: '16px', fontWeight: 900, formatter: v => parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' }, total: { show: true, label: 'إجمالي الحركات', formatter: w => w.globals.seriesTotals.reduce((a,b)=>a+b, 0).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' } } } }
+        },
+        dataLabels: { enabled: false },
+        legend: { position: 'bottom', fontSize: '13px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (chartHollowDonutCategories) chartHollowDonutCategories.destroy();
+    chartHollowDonutCategories = new ApexCharts(document.querySelector("#chart-hollow-donut-categories"), optionsCatDonut);
+    chartHollowDonutCategories.render();
+
+    // Chart 2: Top Debit Transactions Donut
+    const topDebtors = [...results].filter(x => x.debit > 0).sort((a,b) => b.debit - a.debit).slice(0, 5);
+    const optionsDebtorsDonut = {
+        series: topDebtors.length > 0 ? topDebtors.map(x => x.debit) : [1],
+        labels: topDebtors.length > 0 ? topDebtors.map(x => x.typeLabel + ' #' + x.ref) : ['لا يوجد بيانات'],
+        chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#38bdf8', '#818cf8', '#c084fc', '#34d399', '#fbbf24'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        plotOptions: { pie: { donut: { size: '68%', labels: { show: true, name: { show: true, fontSize: '13px' }, value: { show: true, fontSize: '15px', fontWeight: 900, formatter: v => parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' }, total: { show: true, label: 'إجمالي المدين', formatter: w => w.globals.seriesTotals.reduce((a,b)=>a+b, 0).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' } } } } },
+        dataLabels: { enabled: false },
+        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (chartHollowDonutTopDebtors) chartHollowDonutTopDebtors.destroy();
+    chartHollowDonutTopDebtors = new ApexCharts(document.querySelector("#chart-hollow-donut-top-debtors"), optionsDebtorsDonut);
+    chartHollowDonutTopDebtors.render();
+
+    // Chart 3: Curved Line Spectrum
+    const specNames = sortedByVolume.slice(0, 15).map(x => x.date);
+    const specValues = sortedByVolume.slice(0, 15).map(x => Math.max(x.debit, x.credit));
+    const optionsSpectrum = {
+        series: [{ name: 'حجم الحركة', data: specValues }],
+        chart: { type: 'area', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#38bdf8'],
+        stroke: { curve: 'smooth', width: 3 },
+        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.05, stops: [0, 95, 100] } },
+        dataLabels: { enabled: false },
+        xaxis: { categories: specNames, labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontSize: '11px' } } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
+        tooltip: { y: { formatter: v => v.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' SDG' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (chartCurvedLineSpectrum) chartCurvedLineSpectrum.destroy();
+    chartCurvedLineSpectrum = new ApexCharts(document.querySelector("#chart-curved-line-spectrum"), optionsSpectrum);
+    chartCurvedLineSpectrum.render();
+
+    // Chart 4: Bi-Directional Bar
+    const optionsBiBar = {
+        series: [
+            { name: 'المدين (ما لك)', data: [categorySums['invoice'].debit, categorySums['purchase'].debit, categorySums['receipt'].debit, categorySums['payment'].debit, categorySums['jv'].debit] },
+            { name: 'الدائن (ما عليك)', data: [categorySums['invoice'].credit, categorySums['purchase'].credit, categorySums['receipt'].credit, categorySums['payment'].credit, categorySums['jv'].credit] }
+        ],
+        chart: { type: 'bar', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 6 } },
+        colors: ['#10b981', '#f43f5e'],
+        dataLabels: { enabled: false },
+        xaxis: { categories: ['مبيعات', 'مشتريات', 'مقبوضات', 'مدفوعات', 'قيود'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '12px' } } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
+        legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (chartBiDirectionalBar) chartBiDirectionalBar.destroy();
+    chartBiDirectionalBar = new ApexCharts(document.querySelector("#chart-bidirectional-bar"), optionsBiBar);
+    chartBiDirectionalBar.render();
+
+    // Chart 5: Semi-Circle Gauge
+    const optionsGauge = {
+        series: [healthScore],
+        chart: { type: 'radialBar', height: 340, offsetY: -10, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        plotOptions: { radialBar: { startAngle: -90, endAngle: 90, track: { background: isLightTheme ? "#e2e8f0" : "#1e293b", strokeWidth: '97%' }, dataLabels: { name: { show: true, fontSize: '14px', color: isLightTheme ? '#64748b' : '#94a3b8' }, value: { offsetY: -50, fontSize: '24px', fontWeight: '900', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + "%" } } } },
+        fill: { type: 'gradient', gradient: { shade: 'dark', type: 'horizontal', gradientToColors: ['#34d399'], stops: [0, 100] } },
+        colors: ['#38bdf8'],
+        labels: ['مؤشر مأمونية الحركات'],
+        theme: { mode: chartThemeMode }
+    };
+    if (chartSemiCircleGauge) chartSemiCircleGauge.destroy();
+    chartSemiCircleGauge = new ApexCharts(document.querySelector("#chart-semicircle-gauge"), optionsGauge);
+    chartSemiCircleGauge.render();
+
+    // Chart 6: Hollow Donut Chart - Top Creditor Transactions
+    const topCreditors = [...results].filter(x => x.credit > 0).sort((a,b) => b.credit - a.credit).slice(0, 5);
+    const optionsCreditorsDonut = {
+        series: topCreditors.length > 0 ? topCreditors.map(x => x.credit) : [1],
+        labels: topCreditors.length > 0 ? topCreditors.map(x => x.typeLabel + ' #' + x.ref) : ['لا يوجد بيانات'],
+        chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#f43f5e', '#fb7185', '#a855f7', '#fbbf24', '#38bdf8'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        plotOptions: { pie: { donut: { size: '68%', labels: { show: true, name: { show: true, fontSize: '13px' }, value: { show: true, fontSize: '15px', fontWeight: 900, formatter: v => parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' }, total: { show: true, label: 'إجمالي الدائن', formatter: w => w.globals.seriesTotals.reduce((a,b)=>a+b, 0).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' } } } } },
+        dataLabels: { enabled: false },
+        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (chartHollowDonutCreditors) chartHollowDonutCreditors.destroy();
+    chartHollowDonutCreditors = new ApexCharts(document.querySelector("#chart-hollow-donut-creditors"), optionsCreditorsDonut);
+    chartHollowDonutCreditors.render();
+
+    // Chart 7: Horizontal Bar Chart - Top 10 Transactions Volume Ranking
+    const top10Overall = sortedByVolume.slice(0, 10);
+    const optionsHorizontalBar = {
+        series: [{ name: 'مبلغ الحركة', data: top10Overall.map(x => Math.max(x.debit, x.credit)) }],
+        chart: { type: 'bar', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        plotOptions: { bar: { horizontal: true, borderRadius: 6, barHeight: '55%', distributed: true } },
+        colors: ['#38bdf8', '#34d399', '#a855f7', '#fbbf24', '#f43f5e', '#22d3ee', '#818cf8', '#fb7185', '#10b981', '#f59e0b'],
+        dataLabels: { enabled: false },
+        xaxis: { categories: top10Overall.map(x => x.typeLabel + ' #' + x.ref), labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#1e293b' : '#cbd5e1', fontSize: '11px', fontFamily: 'Tajawal' } } },
+        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
+        legend: { show: false },
+        tooltip: { y: { formatter: v => v.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' SDG' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (chartHorizontalTopBar) chartHorizontalTopBar.destroy();
+    chartHorizontalTopBar = new ApexCharts(document.querySelector("#chart-horizontal-top-bar"), optionsHorizontalBar);
+    chartHorizontalTopBar.render();
+
+    // Chart 8: Filled Area Fluid Curve
+    const areaNames = sortedByVolume.slice(0, 12).map(x => x.date);
+    const optionsFluidArea = {
+        series: [
+            { name: 'المدين (عليها)', data: sortedByVolume.slice(0, 12).map(x => x.debit) },
+            { name: 'الدائن (لها)', data: sortedByVolume.slice(0, 12).map(x => x.credit) }
+        ],
+        chart: { type: 'area', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#10b981', '#f43f5e'],
+        stroke: { curve: 'smooth', width: 2.5 },
+        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.05, stops: [0, 95, 100] } },
+        dataLabels: { enabled: false },
+        xaxis: { categories: areaNames, labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontSize: '10px' }, rotate: -20 } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
+        legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: v => v.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' SDG' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (chartCumulativeAreaFluid) chartCumulativeAreaFluid.destroy();
+    chartCumulativeAreaFluid = new ApexCharts(document.querySelector("#chart-cumulative-area-fluid"), optionsFluidArea);
+    chartCumulativeAreaFluid.render();
+
+    // Chart 9: Polygon Radar Equilibrium Chart
+    const optionsRadar = {
+        series: [
+            { name: 'المدين (ما لك)', data: [categorySums['invoice'].debit, categorySums['purchase'].debit, categorySums['receipt'].debit, categorySums['payment'].debit, categorySums['jv'].debit] },
+            { name: 'الدائن (ما عليك)', data: [categorySums['invoice'].credit, categorySums['purchase'].credit, categorySums['receipt'].credit, categorySums['payment'].credit, categorySums['jv'].credit] }
+        ],
+        chart: { type: 'radar', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#38bdf8', '#c084fc'],
+        stroke: { width: 2 },
+        fill: { opacity: 0.25 },
+        markers: { size: 4 },
+        xaxis: { categories: ['مبيعات', 'مشتريات', 'مقبوضات', 'مدفوعات', 'قيود'], labels: { style: { colors: isLightTheme ? '#0f172a' : '#e2e8f0', fontSize: '12px' } } },
+        yaxis: { show: false },
+        legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (chartRadarEquilibrium) chartRadarEquilibrium.destroy();
+    chartRadarEquilibrium = new ApexCharts(document.querySelector("#chart-radar-equilibrium"), optionsRadar);
+    chartRadarEquilibrium.render();
+
+    // Chart 10: Solid Pie Chart
+    const optionsSolidPie = {
+        series: [debtorsCount, creditorsCount, zeroCount],
+        labels: [`قيود مدينة (${debtorsCount})`, `قيود دائنة (${creditorsCount})`, `قيود صفرية (${zeroCount})`],
+        chart: { type: 'pie', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#10b981', '#f43f5e', '#64748b'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        dataLabels: { enabled: true, style: { fontSize: '12px', fontFamily: 'Tajawal, sans-serif', fontWeight: 'bold' } },
+        tooltip: { y: { formatter: v => v + ' قيد' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (chartSolidPieActiveZero) chartSolidPieActiveZero.destroy();
+    chartSolidPieActiveZero = new ApexCharts(document.querySelector("#chart-solid-pie-active-zero"), optionsSolidPie);
+    chartSolidPieActiveZero.render();
+
+    // Chart 11: Multi-Radial Rings Gauge
+    const totalAccCount = results.length || 1;
+    const debtorsPct = Math.round((debtorsCount / totalAccCount) * 100);
+    const creditorsPct = Math.round((creditorsCount / totalAccCount) * 100);
+    const jvPct = Math.round((zeroCount / totalAccCount) * 100);
+
+    const optionsMultiRadial = {
+        series: [debtorsPct, creditorsPct, jvPct],
+        chart: { type: 'radialBar', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        plotOptions: {
+            radialBar: {
+                dataLabels: {
+                    name: { fontSize: '14px', color: isLightTheme ? '#64748b' : '#94a3b8' },
+                    value: { fontSize: '16px', fontWeight: '800', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + '%' },
+                    total: { show: true, label: 'نسب القيود', color: isLightTheme ? '#0f172a' : '#cbd5e1', formatter: () => debtorsPct + '%' }
+                },
+                track: { background: isLightTheme ? '#e2e8f0' : '#1e293b' }
+            }
+        },
+        colors: ['#10b981', '#f43f5e', '#38bdf8'],
+        labels: ['قيود مدينة', 'قيود دائنة', 'حركات أخرى'],
+        theme: { mode: chartThemeMode }
+    };
+    if (chartMultiRadialRings) chartMultiRadialRings.destroy();
+    chartMultiRadialRings = new ApexCharts(document.querySelector("#chart-multi-radial-rings"), optionsMultiRadial);
+    chartMultiRadialRings.render();
+}
+
+window.switchVisualTab = function(type) {
+    document.querySelectorAll('.hub-tab-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('tab-' + type);
+    if (btn) btn.classList.add('active');
+
+    if (typeof ALL_TXNS !== 'undefined' && ALL_TXNS.length > 0) {
+        renderVisualAnalytics(ALL_TXNS);
+    }
+};
+
 
 
