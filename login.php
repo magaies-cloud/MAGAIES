@@ -252,7 +252,6 @@
                 return;
             }
 
-            // --- 1. Online Login Attempt ---
             try {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 15000); // 15-second timeout
@@ -276,84 +275,25 @@
                 });
                 clearTimeout(timeoutId);
 
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.error || data.success === false) {
-                        alert(data.error || 'فشل تسجيل الدخول');
-                        return;
-                    }
+                const data = await res.json().catch(() => ({}));
+
+                if (res.ok && data && data.success !== false && data.token) {
                     document.cookie = "session_active=true; path=/";
                     sessionStorage.setItem('session_active', 'true');
+                    sessionStorage.setItem('cloud_synced', 'true');
                     localStorage.setItem('authToken', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
                     const userNameToDisplay = data.user.fullName || data.user.name || data.user.username || 'المستخدم';
                     showLoginSuccessAnimation(userNameToDisplay, data.user.subdomain, data.token, JSON.stringify(data.user));
                     return;
                 } else {
-                    const err = await res.json();
-                    if (res.status === 403 || res.status === 400 || res.status === 401) {
-                        alert(err.error || err.message);
-                        return;
-                    }
-                    console.log("Online login failed, trying offline. Error:", err.error || err.message);
-                    // Do not return here, let it fall through to offline check
+                    alert(data.error || data.message || 'بيانات الدخول غير صحيحة');
+                    return;
                 }
             } catch (error) {
-                console.log('Online login failed or unreachable, checking local credentials...', error);
+                console.error('Login error:', error);
+                alert('فشل الاتصال بالسيرفر، يرجى التأكد من تشغيل السيرفر والاتصال بالشبكة');
             }
-
-            // --- 2. Offline Login Attempt (Scan all tenants) ---
-            let foundOfflineUser = null;
-            // First check DB_STORE if available
-            if (window.DB_STORE) {
-                for (let key in window.DB_STORE) {
-                    if (key.includes('erp_users')) {
-                        try {
-                            const users = JSON.parse(window.DB_STORE[key]);
-                            const u = users.find(x => btoa(x.username.toLowerCase()) === btoa(username) && btoa(x.password) === btoa(password));
-                            if (u) {
-                                foundOfflineUser = u;
-                                break;
-                            }
-                        } catch(e) {}
-                    }
-                }
-            }
-            
-            // Fallback to basic getItem if not found
-            if (!foundOfflineUser) {
-                const usersJson = localStorage.getItem('erp_users_v1') || localStorage.getItem('erp_users');
-                if (usersJson) {
-                    try {
-                        const users = JSON.parse(usersJson);
-                        foundOfflineUser = users.find(u => btoa(u.username.toLowerCase()) === btoa(username) && btoa(u.password) === btoa(password));
-                    } catch(e) {}
-                }
-            }
-
-            if (foundOfflineUser) {
-                document.cookie = "session_active=true; path=/";
-                sessionStorage.setItem('session_active', 'true');
-                localStorage.setItem('authToken', 'offline_token_' + Date.now());
-                localStorage.setItem('user', JSON.stringify(foundOfflineUser));
-                
-                // If it was found in a specific tenant prefix, we should set currentTenantId
-                for (let key in window.DB_STORE) {
-                    if (key.includes('erp_users') && window.DB_STORE[key].includes(username)) {
-                        const match = key.match(/tenant_(.*?)_/);
-                        if (match && match[1]) {
-                            sessionStorage.setItem('currentTenantId', match[1]);
-                        }
-                    }
-                }
-
-                const offlineNameToDisplay = foundOfflineUser.fullName || foundOfflineUser.name || foundOfflineUser.username || 'المستخدم';
-                showLoginSuccessAnimation(offlineNameToDisplay + ' (وضع الأوفلاين)');
-                return;
-            }
-
-
-            alert('بيانات الدخول غير صحيحة أو السيرفر غير متاح');
         }
 
         function showLoginSuccessAnimation(name, userSubdomain, token = null, userStr = null) {

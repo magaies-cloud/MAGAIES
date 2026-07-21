@@ -3693,11 +3693,10 @@
         const menu = document.getElementById('col-context-menu');
         if (!gridTable || !menu) return;
 
+        // Contextmenu trigger disabled per user request
         gridTable.addEventListener('contextmenu', (e) => {
             e.preventDefault();
-            menu.style.display = 'block';
-            menu.style.left = `${e.clientX}px`;
-            menu.style.top = `${e.clientY}px`;
+            menu.style.display = 'none';
         });
 
         document.addEventListener('click', (e) => {

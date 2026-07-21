@@ -31,6 +31,7 @@ $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     PDO::ATTR_EMULATE_PREPARES   => false,
+    PDO::ATTR_PERSISTENT         => true,
     PDO::ATTR_TIMEOUT            => 5,
 ];
 
@@ -50,9 +51,21 @@ if ($ssl_ca && file_exists($ssl_ca)) {
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (\PDOException $e) {
-    header('Content-Type: application/json; charset=UTF-8');
-    // لا نكشف تفاصيل الخطأ للعميل
-    error_log('DB Connection Error: ' . $e->getMessage());
-    echo json_encode(['error' => 'فشل الاتصال بقاعدة البيانات']);
-    exit;
+    // إذا فشل الاتصال الدائم (Persistent Socket)، نعيد المحاولة عبر اتصال مباشر جديد بدون التأثير على المستخدم
+    if (isset($options[PDO::ATTR_PERSISTENT])) {
+        unset($options[PDO::ATTR_PERSISTENT]);
+        try {
+            $pdo = new PDO($dsn, $user, $pass, $options);
+        } catch (\PDOException $e2) {
+            header('Content-Type: application/json; charset=UTF-8');
+            error_log('DB Connection Error: ' . $e2->getMessage());
+            echo json_encode(['error' => 'فشل الاتصال بقاعدة البيانات']);
+            exit;
+        }
+    } else {
+        header('Content-Type: application/json; charset=UTF-8');
+        error_log('DB Connection Error: ' . $e->getMessage());
+        echo json_encode(['error' => 'فشل الاتصال بقاعدة البيانات']);
+        exit;
+    }
 }

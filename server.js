@@ -18,6 +18,8 @@ const MIME = {
     '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.woff2': 'font/woff2'
 };
 
+const keepAliveAgent = new http.Agent({ keepAlive: true, maxSockets: 50 });
+
 http.createServer((req, res) => {
     // ---- CORS Headers ----
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -57,7 +59,8 @@ http.createServer((req, res) => {
             port: 8080,
             path: reqUrl + (req.url.includes('?') ? '?' + req.url.split('?')[1] : ''),
             method: req.method,
-            headers: proxyHeaders
+            headers: proxyHeaders,
+            agent: keepAliveAgent
         };
 
         const proxy = http.request(options, (proxyRes) => {

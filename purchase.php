@@ -3104,25 +3104,10 @@ document.addEventListener('mouseup', () => {
         if (decimalsSelect && formatPrefs.decimals !== undefined) decimalsSelect.value = formatPrefs.decimals;
     };
 
+    // Context menu for number style customization disabled per user request
     document.addEventListener('contextmenu', function(e) {
-        const target = e.target;
-        const isNumberElement = target.classList.contains('amount') || 
-                                target.classList.contains('val') || 
-                                target.classList.contains('g-input') || 
-                                target.classList.contains('g-readonly') || 
-                                target.classList.contains('ctrl-input') || 
-                                target.classList.contains('tot-input') ||
-                                target.id.startsWith('t-') ||
-                                target.id.includes('grand') ||
-                                /^[0-9,.\s\-+]+$/.test(target.textContent.trim()) ||
-                                (target.value && /^[0-9,.\s\-+]+$/.test(target.value));
-
-        if (isNumberElement) {
-            openNumContextMenu(e);
-        } else {
-            const menu = document.getElementById('num-context-menu');
-            if (menu) menu.style.display = 'none';
-        }
+        const menu = document.getElementById('num-context-menu');
+        if (menu) menu.style.display = 'none';
     });
 
     document.addEventListener('click', function(e) {

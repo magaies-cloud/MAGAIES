@@ -768,35 +768,8 @@ function bindContextMenu() {
 
         if (partnerCtxMenu) partnerCtxMenu.style.display = 'none';
 
-        // Check if right click was on a header cell in the first row of table header
-        if (th && firstHeaderRow && firstHeaderRow.contains(th)) {
-            if (typeof window.initDraggableModal === 'function') {
-                window.initDraggableModal();
-            }
-            bindContextMenuList();
-
-            // Smart positioning with bounds checking
-            const menuWidth = 510;
-            const menuHeight = 550;
-            let left = e.clientX;
-            let top = e.clientY;
-
-            if (left + menuWidth > window.innerWidth) {
-                left = window.innerWidth - menuWidth - 15;
-            }
-            if (top + menuHeight > window.innerHeight) {
-                top = window.innerHeight - menuHeight - 15;
-            }
-            if (left < 10) left = 10;
-            if (top < 10) top = 10;
-
-            ctxMenu.style.left = left + 'px';
-            ctxMenu.style.top = top + 'px';
-            ctxMenu.style.display = 'block';
-        } else {
-            // Hide context menu when right clicking elsewhere in table
-            ctxMenu.style.display = 'none';
-        }
+        // Header context menu popup on right-click disabled per user request
+        if (ctxMenu) ctxMenu.style.display = 'none';
     });
 
     document.addEventListener('click', function(e) {

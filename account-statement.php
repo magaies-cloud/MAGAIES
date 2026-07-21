@@ -229,8 +229,6 @@
 
         #v-classic-ent thead th { transition: background 0.3s; }
         #v-classic-ent thead { position: relative; }
-        #v-classic-ent thead::before { content: '💡 اضغط (كليك يمين) هنا لتخصيص الأعمدة والخطوط والأسماء'; position: absolute; top: -30px; right: 0; font-size: 0.85rem; color: #6b7280; opacity: 0; transition: 0.3s; font-weight: bold; }
-        #v-classic-ent thead:hover::before { opacity: 1; }
 
         /* ==============================================================
            Views Base & All 25 Model Styles

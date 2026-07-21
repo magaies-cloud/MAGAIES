@@ -162,6 +162,15 @@ input, select, textarea, button, table, th, td, label, span, a, p, h1, h2, h3, h
   font-family: 'Tajawal', 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+/* ── إخفاء مؤشر الإدخال البصري (Caret Cursor) عن العناصر غير القابلة للتحرير ── */
+body, body *:not(input):not(textarea):not([contenteditable="true"]) {
+  caret-color: transparent !important;
+}
+
+input, textarea, [contenteditable="true"] {
+  caret-color: auto !important;
+}
+
 html {
   font-size: 16px;
   scroll-behavior: smooth;
