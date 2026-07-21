@@ -689,12 +689,19 @@
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #a855f7, #6d28d9); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 0 15px rgba(168,85,247,0.5);">🤖</div>
+                        <div style="width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #a855f7, #6d28d9); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 0 20px rgba(168,85,247,0.6); border: 1px solid rgba(255,255,255,0.2);">🤖</div>
                         <div>
-                            <h3 style="margin: 0; font-size: 1.3rem; font-weight: 900; color: #f8fafc; display: flex; align-items: center; gap: 8px;">
-                                مركز التنبؤ المالي لاتخاذ القرارات بالذكاء الاصطناعي (AI Decision Engine)
-                            </h3>
-                            <span style="font-size: 0.78rem; color: #c084fc; font-weight: 700;">تنبؤات خوارزمية مستقبلية لـ 30 يوماً القادمة + توصيات تنفيذية آلية</span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <h3 style="margin: 0; font-size: 1.35rem; font-weight: 900; color: #f8fafc;">
+                                    مركز التنبؤ المالي وصناعة القرار بالذكاء الاصطناعي
+                                </h3>
+                                <span style="font-size: 0.72rem; background: linear-gradient(135deg, #a855f7, #ec4899); color: #fff; padding: 3px 10px; border-radius: 20px; font-weight: 900; box-shadow: 0 4px 10px rgba(168,85,247,0.4);">
+                                    🤖 السجانة AI Oracle v4.5
+                                </span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #c084fc; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; margin-top: 3px;">
+                                <span>🔮 اسم المحرك المستشار: <b>نظام السجانة للتنبؤ المالي الذكي (Al-Sajana AI Predictive Agent)</b></span>
+                            </span>
                         </div>
                     </div>
                     
