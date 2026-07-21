@@ -681,94 +681,6 @@
                 <span>ENCRYPTED_DATA_LOCK: البيانات الواردة نهائية وتم استخراجها من السجلات المالية المشفرة للنظام.</span>
             </div>
 
-            <!-- AI Financial Forecasting & Executive Decision Engine (مركز التنبؤ المالي والتوصيات بالذكاء الاصطناعي 🤖🔮) -->
-            <div id="ai-forecasting-hub" class="ai-forecast-container" style="display: none; background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(15, 23, 42, 0.95)); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 20px; padding: 25px; margin-top: 25px; margin-bottom: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.15); backdrop-filter: blur(16px); position: relative; overflow: hidden;">
-                
-                <!-- AI Ambient Glow Ring -->
-                <div style="position: absolute; top: -50px; left: -50px; width: 180px; height: 180px; background: rgba(168, 85, 247, 0.25); filter: blur(50px); border-radius: 50%; pointer-events: none;"></div>
-
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #a855f7, #6d28d9); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 0 20px rgba(168,85,247,0.6); border: 1px solid rgba(255,255,255,0.2);">🤖</div>
-                        <div>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <h3 style="margin: 0; font-size: 1.35rem; font-weight: 900; color: #f8fafc;">
-                                    مركز التنبؤ المالي وصناعة القرار بالذكاء الاصطناعي
-                                </h3>
-                                <span style="font-size: 0.72rem; background: linear-gradient(135deg, #a855f7, #ec4899); color: #fff; padding: 3px 10px; border-radius: 20px; font-weight: 900; box-shadow: 0 4px 10px rgba(168,85,247,0.4);">
-                                    🤖 السجانة AI Oracle v4.5
-                                </span>
-                            </div>
-                            <span style="font-size: 0.78rem; color: #c084fc; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; margin-top: 3px;">
-                                <span>🔮 اسم المحرك المستشار: <b>نظام السجانة للتنبؤ المالي الذكي (Al-Sajana AI Predictive Agent)</b></span>
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <span style="font-size: 0.75rem; background: rgba(168, 85, 247, 0.2); color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.4); padding: 5px 12px; border-radius: 20px; font-weight: 800; display: flex; align-items: center; gap: 5px;">
-                            <span>⚡ دقة التنبؤ:</span> <b id="ai-confidence-score">98.6%</b>
-                        </span>
-                        <button type="button" onclick="generateAIDeepAnalysis()" class="btn-run" style="background: linear-gradient(135deg, #a855f7, #7e22ce); color: #fff; font-size: 0.85rem; padding: 7px 16px; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(168,85,247,0.35);">
-                            ✨ استشارة الذكاء الاصطناعي
-                        </button>
-                    </div>
-                </div>
-
-                <!-- AI Executive Recommendation Banner -->
-                <div style="background: rgba(30, 41, 59, 0.75); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 14px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px;">
-                    <span style="font-size: 2.2rem;">🔮</span>
-                    <div style="flex: 1;">
-                        <div style="font-size: 0.78rem; color: #a855f7; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px;">القرار التنفيذي الموصى به الآن:</div>
-                        <div id="ai-executive-recommendation" style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin-top: 2px; line-height: 1.4;">
-                            جاري استخراج القرار المالي الأمثل بواسطة خوارزميات الذكاء الاصطناعي...
-                        </div>
-                    </div>
-                </div>
-
-                <!-- AI Forecast 3-Grid Projection Cards -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 20px;">
-                    <!-- Card 1: Projected 30-Day Liquidity -->
-                    <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 14px; padding: 16px; text-align: right;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 800;">💧 السيولة المتوقعة (نهاية الشهر)</span>
-                            <span style="font-size: 1.1rem;">📈</span>
-                        </div>
-                        <div id="ai-projected-liquidity" style="font-size: 1.4rem; font-weight: 900; color: #38bdf8; font-family: 'JetBrains Mono', monospace;">0.00 SDG</div>
-                        <div id="ai-projected-liquidity-sub" style="font-size: 0.75rem; color: #34d399; margin-top: 6px; font-weight: bold;">+0.0% نمو متوقع في المحفظة</div>
-                    </div>
-
-                    <!-- Card 2: Risk Bottleneck Forecast -->
-                    <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(244, 63, 94, 0.25); border-radius: 14px; padding: 16px; text-align: right;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 800;">⚠️ مخاطر التعثر والتأخير المتوقعة</span>
-                            <span style="font-size: 1.1rem;">🛡️</span>
-                        </div>
-                        <div id="ai-risk-forecast" style="font-size: 1.4rem; font-weight: 900; color: #fb7185; font-family: 'JetBrains Mono', monospace;">منخفضة (Low Risk)</div>
-                        <div id="ai-risk-forecast-sub" style="font-size: 0.75rem; color: #cbd5e1; margin-top: 6px;">لا توجد مؤشرات اختناق في التدفق النقدي</div>
-                    </div>
-
-                    <!-- Card 3: Optimal Opportunity -->
-                    <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 14px; padding: 16px; text-align: right;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 800;">💡 الفرصة المالية الذهبية المتاحة</span>
-                            <span style="font-size: 1.1rem;">🚀</span>
-                        </div>
-                        <div id="ai-opportunity-title" style="font-size: 1.1rem; font-weight: 900; color: #34d399;">تحسين سرعة الدورة النقدية</div>
-                        <div id="ai-opportunity-desc" style="font-size: 0.75rem; color: #94a3b8; margin-top: 6px;">تحصيل 3 ديون رئيسية يزيد السيولة بـ +25%</div>
-                    </div>
-                </div>
-
-                <!-- AI 30-Day Forecast Trend ApexChart -->
-                <div style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 18px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1rem; font-weight: 900;">🔮 مسار التنبؤ المستقبلي لتدفق السيولة والأرصدة (30-Day Liquidity Forecast)</h4>
-                        <span style="font-size: 0.75rem; color: #c084fc; font-weight: 700;">📊 نموذج إسقاط محاكاة AI</span>
-                    </div>
-                    <div id="chart-ai-liquidity-forecast" style="min-height: 300px;"></div>
-                </div>
-            </div>
-
             <!-- Visual Intelligence Analytics Hub (المركز البصري التحليلي والرسوم البيانية) -->
             <div id="visual-intelligence-hub" class="visual-hub-container" style="display: none;">
                 
@@ -787,10 +699,32 @@
                         <button class="hub-tab-btn active" onclick="switchVisualTab('all')" id="tab-all">🚀 المشهد الكامل</button>
                         <button class="hub-tab-btn" onclick="switchVisualTab('partners')" id="tab-partners">👥 العملاء والموردين</button>
                         <button class="hub-tab-btn" onclick="switchVisualTab('treasury')" id="tab-treasury">🏦 الخزن والبنوك</button>
-                    </div>
                 </div>
 
-                <!-- Visual Indicator Cards Row (أسهم ومؤشرات بصرية) -->
+                <!-- AI Financial & Cash Flow Intelligence Advisor (مستشار التحليل المالي والسيولة بالذكاء الاصطناعي) -->
+                <div id="ai-intelligence-container" class="v-chart-card no-print" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.14), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(168, 85, 247, 0.4); margin-bottom: 25px; border-radius: 18px; padding: 24px; box-shadow: 0 12px 35px rgba(168, 85, 247, 0.18);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 14px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #a855f7, #6d28d9); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff; box-shadow: 0 0 18px rgba(168, 85, 247, 0.5); animation: pulse 2s infinite;">🤖</div>
+                            <div>
+                                <h3 style="margin: 0; color: #f8fafc; font-size: 1.25rem; font-weight: 900;">مستشار التحليل المالي والسيولة بالذكاء الاصطناعي (AI Analytics)</h3>
+                                <span style="font-size: 0.82rem; color: #c084fc; font-weight: 700;">قراءة استراتيجية فورية للتدفق المالي، ارتفاع ديون العملاء والموردين، والتوصيات المحاسبية</span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-run" onclick="generateAIBalancesAnalysis()" id="btn-run-ai" style="background: linear-gradient(135deg, #a855f7, #7c3aed); color: #fff; border: none; padding: 8px 22px; border-radius: 10px; font-weight: 900; font-size: 0.88rem; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s;">
+                            <span style="font-size: 1.1rem;">✨</span>
+                            <span id="btn-ai-text">تحديث تحليل الذكاء الاصطناعي AI</span>
+                        </button>
+                    </div>
+
+                    <!-- AI Output Content Grid -->
+                    <div id="ai-analysis-content">
+                        <div style="text-align: center; padding: 25px 15px; color: #94a3b8;">
+                            <span style="font-size: 2.2rem; display: block; margin-bottom: 8px;">🤖</span>
+                            <div>اضغط "تحديث تحليل الذكاء الاصطناعي" للحصول على قراءة استراتيجية كاملة للسيولة وديون العملاء والموردين.</div>
+                        </div>
+                    </div>
+                </div>
                 <div class="visual-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-bottom: 30px;">
                     
                     <!-- Card 1: مؤشر الاتجاه والتغطية -->

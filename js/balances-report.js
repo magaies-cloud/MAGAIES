@@ -1744,6 +1744,11 @@ function renderVisualAnalytics(results) {
     }
     hub.style.display = 'block';
 
+    window.lastResults = results;
+    if (typeof generateAIBalancesAnalysis === 'function') {
+        generateAIBalancesAnalysis();
+    }
+
     // 1. Calculate Aggregates
     let debtorsCount = 0, creditorsCount = 0, zeroCount = 0;
 
@@ -1767,9 +1772,8 @@ function renderVisualAnalytics(results) {
             categorySums[p.type].debit += d;
             categorySums[p.type].credit += c;
             categorySums[p.type].count++;
-    if (typeof renderAIForecastingEngine === 'function') {
-        renderAIForecastingEngine(results);
-    }
+        }
+    });
 
     const totalDebit = results.reduce((acc, r) => acc + (r.endingDebitLocal || 0), 0);
     const totalCredit = results.reduce((acc, r) => acc + (r.endingCreditLocal || 0), 0);
@@ -2316,127 +2320,130 @@ window.switchVisualTab = function(type) {
 };
 
 /* ═══════════════════════════════════════════════════════
-   AI Financial Forecasting & Executive Decision Engine
+   AI Financial & Cash Flow Intelligence Advisor Engine
    ═══════════════════════════════════════════════════════ */
-let chartAILiquidityForecast = null;
+window.generateAIBalancesAnalysis = function() {
+    const container = document.getElementById('ai-analysis-content');
+    const btnText = document.getElementById('btn-ai-text');
+    if (!container) return;
 
-function renderAIForecastingEngine(results) {
-    const aiHub = document.getElementById('ai-forecasting-hub');
-    if (!aiHub) return;
-    if (!results || results.length === 0) {
-        aiHub.style.display = 'none';
+    if (!window.lastResults || window.lastResults.length === 0) {
+        container.innerHTML = `<div style="text-align:center; color:#f87171; padding:15px; font-weight:bold;">⚠️ يرجى تشغيل التقرير أولاً لجلب البيانات المالية قبل التحليل.</div>`;
         return;
     }
-    aiHub.style.display = 'block';
 
-    // 1. Calculate Balances vs Transactions data
-    let totalDebtors = 0;
-    let totalCreditors = 0;
-    let currentNetBalance = 0;
+    if (btnText) btnText.textContent = '⏳ جاري التحليل بالذكاء الاصطناعي...';
 
-    // Check if results are from Balances Report or General Ledger
-    if (results[0] && ('endingDebitLocal' in results[0] || 'endingCreditLocal' in results[0])) {
-        totalDebtors = results.reduce((sum, r) => sum + (r.endingDebitLocal || 0), 0);
-        totalCreditors = results.reduce((sum, r) => sum + (r.endingCreditLocal || 0), 0);
-    } else {
-        totalDebtors = results.reduce((sum, r) => sum + (r.debit || 0), 0);
-        totalCreditors = results.reduce((sum, r) => sum + (r.credit || 0), 0);
-    }
-    currentNetBalance = totalDebtors - totalCreditors;
+    const results = window.lastResults;
+    let totalDebit = 0, totalCredit = 0;
+    let custDebit = 0, suppCredit = 0;
+    let bankBal = 0, safeBal = 0;
 
-    // 2. Executive Decision Engine (التنبؤ بالقرارات التنفيذية)
-    const recEl = document.getElementById('ai-executive-recommendation');
-    const projLiquidityEl = document.getElementById('ai-projected-liquidity');
-    const projLiquiditySub = document.getElementById('ai-projected-liquidity-sub');
-    const riskForecastEl = document.getElementById('ai-risk-forecast');
-    const riskForecastSub = document.getElementById('ai-risk-forecast-sub');
-    const oppTitleEl = document.getElementById('ai-opportunity-title');
-    const oppDescEl = document.getElementById('ai-opportunity-desc');
-    const confidenceEl = document.getElementById('ai-confidence-score');
+    const debtors = [], creditors = [];
 
-    const projectedLiquidity = currentNetBalance + (totalDebtors * 0.65) - (totalCreditors * 0.35);
-    const growthPct = totalDebtors > 0 ? (((projectedLiquidity - currentNetBalance) / Math.abs(currentNetBalance || 1)) * 100).toFixed(1) : '12.5';
+    results.forEach(r => {
+        const d = r.endingDebitLocal || 0;
+        const c = r.endingCreditLocal || 0;
+        totalDebit += d;
+        totalCredit += c;
 
-    if (projLiquidityEl) {
-        projLiquidityEl.textContent = `${(projectedLiquidity < 0 ? '-' : '') + Math.abs(projectedLiquidity).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} SDG`;
-    }
-    if (projLiquiditySub) {
-        projLiquiditySub.textContent = `${growthPct >= 0 ? '+' : ''}${growthPct}% نمو متوقع في صافي السيولة`;
-        projLiquiditySub.style.color = growthPct >= 0 ? '#34d399' : '#fb7185';
-    }
+        if (r.type === 'CUST') custDebit += d;
+        else if (r.type === 'SUPP') suppCredit += c;
+        else if (r.type === 'BANK') bankBal += (d - c);
+        else if (r.type === 'SAFE') safeBal += (d - c);
 
-    if (totalDebtors >= totalCreditors * 1.25) {
-        if (recEl) recEl.innerHTML = `⚡ <b>إجراء تنفيذي عاجل موصى به:</b> توجيه جهود التحصيل والمتابعة لأضخم 3 حسابات مدينة خلال الـ 14 يوماً القادمة لتأمين تدفق نقدي مباشر قدره <b>${(totalDebtors * 0.4).toLocaleString('en-US', {maximumFractionDigits: 0})} SDG</b> وتقليل مخاطر الائتمان.`;
-        if (riskForecastEl) { riskForecastEl.textContent = 'منخفضة جدًا (Low)'; riskForecastEl.style.color = '#34d399'; }
-        if (riskForecastSub) riskForecastSub.textContent = 'غطاء السيولة المستحقة ممتاز ويتجاوز الالتزامات';
-        if (oppTitleEl) oppTitleEl.textContent = 'تخصيص الفائض للاستثمار';
-        if (oppDescEl) oppDescEl.textContent = 'توجيه السيولة المتوفرة لخصم الشراء النقدي المبكر مع الموردين';
-        if (confidenceEl) confidenceEl.textContent = '98.8%';
-    } else if (totalCreditors > totalDebtors) {
-        if (recEl) recEl.innerHTML = `⚠️ <b>إجراء تنفيذي عاجل موصى به:</b> إعادة جدولة الدفعات المستحقة للموردين على مرحلتين، مع تعزيز التحصيل السريع للحسابات النقدية لتلافي ضغط السيولة المتوقع نهاية الشهر.`;
-        if (riskForecastEl) { riskForecastEl.textContent = 'متوسطة (Medium Alert)'; riskForecastEl.style.color = '#fbbf24'; }
-        if (riskForecastSub) riskForecastSub.textContent = 'يوصى بتأجيل الالتزامات غير العاجلة لضمان استقرار التدفق';
-        if (oppTitleEl) oppTitleEl.textContent = 'جدولة السداد الذكية';
-        if (oppDescEl) oppDescEl.textContent = 'توزيع دفعات الموردين وتطبيق خصم التعجيل النقدي للعملاء';
-        if (confidenceEl) confidenceEl.textContent = '96.4%';
-    } else {
-        if (recEl) recEl.innerHTML = `✨ <b>إجراء تنفيذي موصى به:</b> التقرير يظهر توازناً مالياً ممتازاً. يوصى بتفعيل الحوافز التشجيعية للعملاء ذوي الأرصدة القريبة من الاستحقاق لرفع معدل دوران النقدية.`;
-        if (riskForecastEl) { riskForecastEl.textContent = 'مستقرة (Balanced)'; riskForecastEl.style.color = '#38bdf8'; }
-        if (riskForecastSub) riskForecastSub.textContent = 'توازن متكافئ بين التدفقات الصادرة والواردة';
-        if (oppTitleEl) oppTitleEl.textContent = 'تسريع دورة تحويل النقد';
-        if (oppDescEl) oppDescEl.textContent = 'رفع كفاءة التحصيل بنسبة 15% لزيادة الأرباح الدورية';
-        if (confidenceEl) confidenceEl.textContent = '97.9%';
-    }
+        if (d > 0) debtors.push(r);
+        if (c > 0) creditors.push(r);
+    });
 
-    // 3. Render 30-Day Liquidity Forecast ApexChart
-    if (typeof ApexCharts === 'undefined') return;
+    debtors.sort((a, b) => b.endingDebitLocal - a.endingDebitLocal);
+    creditors.sort((a, b) => b.endingCreditLocal - a.endingCreditLocal);
 
-    const isLightTheme = document.documentElement.classList.contains('light-theme');
-    const chartThemeMode = isLightTheme ? 'light' : 'dark';
+    const netPosition = totalDebit - totalCredit;
+    const coverageRatio = totalCredit > 0 ? (totalDebit / totalCredit).toFixed(2) : '1.0';
+    const top3DebtorsSum = debtors.slice(0, 3).reduce((sum, x) => sum + x.endingDebitLocal, 0);
+    const top3DebtorsPct = totalDebit > 0 ? ((top3DebtorsSum / totalDebit) * 100).toFixed(1) : '0';
 
-    // Build 6 forecast time points (+0, +5, +10, +15, +20, +30 days)
-    const baseVal = Math.max(currentNetBalance, totalDebtors * 0.5);
-    const forecastDates = ['اليوم (الفعلي)', '+5 أيام', '+10 أيام', '+15 يوماً', '+20 يوماً', '+30 يوماً (المستقبلي)'];
-    const forecastTrend = [
-        baseVal,
-        baseVal + (totalDebtors * 0.12) - (totalCreditors * 0.05),
-        baseVal + (totalDebtors * 0.28) - (totalCreditors * 0.10),
-        baseVal + (totalDebtors * 0.45) - (totalCreditors * 0.20),
-        baseVal + (totalDebtors * 0.58) - (totalCreditors * 0.28),
-        projectedLiquidity
-    ];
-    const upperConfidence = forecastTrend.map(v => v * 1.08);
+    const top3CreditorsSum = creditors.slice(0, 3).reduce((sum, x) => sum + x.endingCreditLocal, 0);
+    const top3CreditorsPct = totalCredit > 0 ? ((top3CreditorsSum / totalCredit) * 100).toFixed(1) : '0';
 
-    const optionsAIForecast = {
-        series: [
-            { name: 'المسار المتوقع للسيولة (AI Trend)', data: forecastTrend.map(v => Math.round(v)) },
-            { name: 'حد الثقة الأعلى (Upper Bound)', data: upperConfidence.map(v => Math.round(v)) }
-        ],
-        chart: { type: 'area', height: 300, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        colors: ['#a855f7', '#38bdf8'],
-        stroke: { curve: 'smooth', width: [3, 1.5], dashArray: [0, 4] },
-        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: [0.4, 0.1], opacityTo: [0.05, 0.02], stops: [0, 90, 100] } },
-        dataLabels: { enabled: false },
-        xaxis: { categories: forecastDates, labels: { style: { colors: isLightTheme ? '#475569' : '#c084fc', fontSize: '11px', fontWeight: 'bold' } } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
-        tooltip: { y: { formatter: v => v.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' SDG' } },
-        legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        theme: { mode: chartThemeMode }
-    };
+    setTimeout(() => {
+        if (btnText) btnText.textContent = 'تحديث تحليل الذكاء الاصطناعي AI';
 
-    if (chartAILiquidityForecast) chartAILiquidityForecast.destroy();
-    chartAILiquidityForecast = new ApexCharts(document.querySelector("#chart-ai-liquidity-forecast"), optionsAIForecast);
-    chartAILiquidityForecast.render();
-}
+        let html = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px;">
+            
+            <!-- Block 1: Cash Flow & Liquidity Intelligence -->
+            <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 14px; padding: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: #38bdf8; font-weight: 900; font-size: 1.05rem;">
+                    <span>🌊</span>
+                    <span>تحليل التدفق المالي والسيولة النقدية</span>
+                </div>
+                <div style="font-size: 0.88rem; color: #e2e8f0; line-height: 1.6;">
+                    ${netPosition >= 0 ? 
+                        `تتمتع المؤسسة بـ <strong style="color:#34d399;">فائض سيولة إيجابي</strong> قدره <strong>${netPosition.toLocaleString('en-US', {maximumFractionDigits: 0})} SDG</strong>. نسبة تغطية المستحقات للالتزامات هي <strong>${coverageRatio} : 1</strong> مما يوفر هامش أمان ممتازاُ.` :
+                        `يوجد <strong style="color:#f87171;">ضغط سيولة وعجز مؤقت</strong> قدره <strong>${Math.abs(netPosition).toLocaleString('en-US', {maximumFractionDigits: 0})} SDG</strong> بسبب زيادة ديون الموردين والالتزامات المباشرة على الأرصدة المتوفرة.`
+                    }
+                    <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1); font-size: 0.82rem; color: #94a3b8;">
+                        • الأرصدة المتوفرة بالبنوك والخزن: <strong style="color:#38bdf8;">${(bankBal + safeBal).toLocaleString('en-US', {maximumFractionDigits: 0})} SDG</strong>
+                    </div>
+                </div>
+            </div>
 
-window.generateAIDeepAnalysis = function() {
-    if (typeof showToast === 'function') {
-        showToast('🔮 جاري تحليل محرك الذكاء الاصطناعي وصياغة التقرير الاستشاري...', 'info');
-        setTimeout(() => {
-            showToast('✨ تم تحديث التنبؤات والقرارات الموصى بها بنجاح!', 'success');
-        }, 800);
-    }
+            <!-- Block 2: Customer Debt & Growth Analysis -->
+            <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 14px; padding: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: #34d399; font-weight: 900; font-size: 1.05rem;">
+                    <span>📈</span>
+                    <span>تحليل نمو وارتفاع ديون العملاء</span>
+                </div>
+                <div style="font-size: 0.88rem; color: #e2e8f0; line-height: 1.6;">
+                    إجمالي ديون العملاء (المستحقات) يبلغ <strong style="color:#34d399;">${custDebit.toLocaleString('en-US', {maximumFractionDigits: 0})} SDG</strong> موزعة على <strong>${debtors.length} عميل</strong>.
+                    <div style="margin-top: 10px; padding: 8px 12px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.82rem; color: #a7f3d0;">
+                        ⚠️ تركز المستحقات: أضخم 3 عملاء يستحوذون على <strong>${top3DebtorsPct}%</strong> من إجمالي حقوقك المالية (${debtors.slice(0,3).map(x=>x.name).join('، ') || '-'}).
+                    </div>
+                </div>
+            </div>
+
+            <!-- Block 3: Supplier Payables & Growth Trend -->
+            <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: 14px; padding: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: #fb7185; font-weight: 900; font-size: 1.05rem;">
+                    <span>📉</span>
+                    <span>تحليل نمو ومستحقات الموردين</span>
+                </div>
+                <div style="font-size: 0.88rem; color: #e2e8f0; line-height: 1.6;">
+                    إجمالي التزامات الموردين المطلوبة يبلغ <strong style="color:#fb7185;">${suppCredit.toLocaleString('en-US', {maximumFractionDigits: 0})} SDG</strong> موزعة على <strong>${creditors.length} مورد</strong>.
+                    <div style="margin-top: 10px; padding: 8px 12px; background: rgba(244, 63, 94, 0.1); border-radius: 8px; border: 1px solid rgba(244, 63, 94, 0.2); font-size: 0.82rem; color: #fecdd3;">
+                        📌 أكبر الموردين دائنية: يستحوذ أضخم 3 موردين على <strong>${top3CreditorsPct}%</strong> من التزاماتك (${creditors.slice(0,3).map(x=>x.name).join('، ') || '-'}).
+                    </div>
+                </div>
+            </div>
+
+            <!-- Block 4: AI Actionable Executive Guidance -->
+            <div style="grid-column: span 1 / -1; background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(15, 23, 42, 0.85)); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 14px; padding: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: #c084fc; font-weight: 900; font-size: 1.05rem;">
+                    <span>💡</span>
+                    <span>التوصيات والقرارات الاستراتيجية المقترحة بالذكاء الاصطناعي AI</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 10px;">
+                    <div style="background: rgba(30, 41, 59, 0.6); padding: 12px; border-radius: 10px; border-right: 3px solid #34d399; font-size: 0.83rem; color: #e2e8f0;">
+                        <strong style="color:#34d399; display:block; margin-bottom:4px;">1. تسريع تحصيل المستحقات:</strong>
+                        البدء فوراً بمتابعة العميل (<strong>${debtors[0] ? debtors[0].name : '-'}</strong>) لتحصيل مستحقات بقيمة <strong>${debtors[0] ? debtors[0].endingDebitLocal.toLocaleString() : 0} SDG</strong>.
+                    </div>
+                    <div style="background: rgba(30, 41, 59, 0.6); padding: 12px; border-radius: 10px; border-right: 3px solid #fb7185; font-size: 0.83rem; color: #e2e8f0;">
+                        <strong style="color:#fb7185; display:block; margin-bottom:4px;">2. إعادة جدولة سداد الموردين:</strong>
+                        جدولة سداد التزامات المورد (<strong>${creditors[0] ? creditors[0].name : '-'}</strong>) البالغة <strong>${creditors[0] ? creditors[0].endingCreditLocal.toLocaleString() : 0} SDG</strong> وفق التدفق المالي المتاح.
+                    </div>
+                    <div style="background: rgba(30, 41, 59, 0.6); padding: 12px; border-radius: 10px; border-right: 3px solid #38bdf8; font-size: 0.83rem; color: #e2e8f0;">
+                        <strong style="color:#38bdf8; display:block; margin-bottom:4px;">3. توازن السيولة والأمان:</strong>
+                        ${netPosition >= 0 ? 'الحفاظ على حد أمان نقدي بالخزن والبنوك لتغطية أي مصروفات طارئة.' : 'تجنب فتح ائتمان جديد للعملاء المتأخرين لحين استرداد الديون الحالية.'}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        `;
+        container.innerHTML = html;
+    }, 250);
 };
 
 
