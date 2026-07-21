@@ -354,8 +354,94 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to) && (!$db_conn
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
                     <h3 style="margin:0; color:#00ffff;">👤 كشف حساب: <?php echo htmlspecialchars($selected_customer); ?></h3>
                 </div>
-                
-                <?php // Mock data fallback removed for SaaS environment ?>],
+                <?php if(empty($ledger_entries)): ?>
+                    <div style="text-align: center; padding: 40px; color: var(--text-muted); background: rgba(0,0,0,0.2); border-radius: 16px;">
+                        لا توجد حركات مسجلة لهذا العميل في الفترة المحددة.
+                    </div>
+                <?php else: ?>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>التاريخ</th>
+                                <th>البيان / الحركة</th>
+                                <th>مدين (له)</th>
+                                <th>دائن (عليه)</th>
+                                <th>الرصيد المستمر</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($ledger_entries as $index => $entry): 
+                                $delay = 0.6 + ($index * 0.05);
+                            ?>
+                                <tr style="animation: slideUp 0.4s ease-out <?php echo $delay; ?>s backwards;">
+                                    <td><?php echo $entry['date']; ?></td>
+                                    <td><strong><?php echo $entry['desc']; ?></strong></td>
+                                    <td style="color:#ff0055; font-weight:bold;"><?php echo $entry['debit'] > 0 ? number_format($entry['debit'], 2) : '-'; ?></td>
+                                    <td style="color:#00ff7f; font-weight:bold;"><?php echo $entry['credit'] > 0 ? number_format($entry['credit'], 2) : '-'; ?></td>
+                                    <td style="color:#00ffff; font-weight:bold;"><?php echo number_format($entry['balance'], 2); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+            </div>
+
+            <!-- كعكة توزيع الديون -->
+            <div class="chart-container">
+                <h3 style="margin-top:0; color:#9d4edd; margin-bottom:20px; width:100%;">🍩 التمركز الائتماني للسوق</h3>
+                <div style="width: 250px; height: 250px; margin-bottom: 20px;">
+                    <canvas id="debtDonutChart"></canvas>
+                </div>
+                <div style="width:100%; font-size:12px; display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <?php 
+                    $count = 0;
+                    foreach ($debt_distribution as $dd): 
+                        if ($count++ >= 8) break; // Top 8 only in legend
+                    ?>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="display:inline-block; width:10px; height:10px; background:<?php echo $dd['color']; ?>; border-radius:50%;"></span>
+                            <span style="color:var(--text-muted); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" title="<?php echo htmlspecialchars($dd['customer']); ?>">
+                                <?php echo htmlspecialchars($dd['customer']); ?> (<strong><?php echo $dd['percentage']; ?>%</strong>)
+                            </span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <!-- تحليل الجدارة الائتمانية والمخاطر للعميل -->
+                <?php if($customer_profile): ?>
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(0,255,255,0.1); border-radius: 20px; padding: 20px; margin-top: 25px; width: 100%; box-sizing: border-box;">
+                    <h3 style="margin-top:0; color:#ffa500; font-size:14px; margin-bottom:12px; font-weight:bold;">🛡️ ملف العميل (Credit Profile)</h3>
+                    <div style="display:flex; flex-direction:column; gap:10px; font-size:13px;">
+                        <div style="display:flex; justify-content:space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom:6px;">
+                            <span style="color:var(--text-muted);">الرصيد القائم:</span>
+                            <strong style="color:#ffffff;"><?php echo number_format($customer_profile['current_balance'], 2); ?> <?php echo $selected_currency; ?></strong>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom:6px;">
+                            <span style="color:var(--text-muted);">الشيكات المرتجعة:</span>
+                            <strong style="color:<?php echo $customer_profile['bounced_checks_count'] > 0 ? '#ff0055' : '#00ff7f'; ?>;"><?php echo $customer_profile['bounced_checks_count']; ?> شيك</strong>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom:6px;">
+                            <span style="color:var(--text-muted);">أقصى مدة تأخير سداد:</span>
+                            <strong style="color:<?php echo $customer_profile['max_days_overdue'] !== 'لا يوجد بيانات شيكات' ? '#ff0055' : '#00ff7f'; ?>;"><?php echo $customer_profile['max_days_overdue']; ?></strong>
+                        </div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span style="color:var(--text-muted);">حصة العميل من ديون السوق:</span>
+                            <strong style="color:#00ffff;"><?php echo number_format($customer_profile['share_of_total_company_debt'], 2); ?>%</strong>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('debtDonutChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: [<?php foreach ($debt_distribution as $dd) { echo "'" . addslashes($dd['customer']) . "',"; } ?>],
                 datasets: [{
                     data: [<?php foreach ($debt_distribution as $dd) { echo $dd['debt'] . ","; } ?>],
                     backgroundColor: [<?php foreach ($debt_distribution as $dd) { echo "'" . $dd['color'] . "',"; } ?>],
