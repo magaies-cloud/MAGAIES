@@ -177,11 +177,11 @@ class AuthController {
                 jsonResponse(['error' => 'انتهى اشتراكك، الرجاء التواصل مع الإدارة للتجديد'], 403);
             }
             $token = generateToken();
-            $tokenExpiry = date('Y-m-d H:i:s', strtotime('+24 hours'));
+            $tokenExpiry = date('Y-m-d H:i:s', strtotime('+30 days'));
             $this->pdo->prepare("UPDATE users SET token = ?, token_expires_at = ? WHERE id = ?")->execute([$token, $tokenExpiry, $user['id']]);
             
             // Set cookie for server-side reports to read
-            setcookie('saas_token', $token, time() + 86400, '/', '', isset($_SERVER['HTTPS']), true);
+            setcookie('saas_token', $token, time() + (86400 * 30), '/', '', isset($_SERVER['HTTPS']), true);
 
             $stmtTenantLimit = $this->pdo->prepare("SELECT max_users, plan_id FROM tenants WHERE id = ?");
             $stmtTenantLimit->execute([$user['tenant_id']]);

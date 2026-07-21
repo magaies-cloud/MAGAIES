@@ -1343,7 +1343,7 @@ JSON.parse = function(val) {
         }
     }
 
-    const pushToCloud = window.pushToCloud = function() {
+    const pushToCloud = window.pushToCloud = function(force = false) {
         return new Promise((resolve, reject) => {
             if (!navigator.onLine) {
                 alert('السيرفر غير متصل! لا يمكن حفظ البيانات في وضع Strict Sync.');
@@ -1359,6 +1359,11 @@ JSON.parse = function(val) {
             const prefix = getTenantPrefix();
             let payload = {};
             let hasData = false;
+            
+            if (dirtyKeys.size === 0 && !force) {
+                resolve();
+                return;
+            }
             
             // Sync only modified keys if available, otherwise fallback to all syncKeys (e.g. initial force sync)
             const keysToSync = dirtyKeys.size > 0 ? Array.from(dirtyKeys) : syncKeys;
@@ -1418,9 +1423,10 @@ JSON.parse = function(val) {
             }).finally(() => {
                 isPushing = false;
                 hideSyncOverlay();
+                pushTimeout = null;
                 if (pushQueue) {
                     pushQueue = false;
-                    pushToCloud();
+                    pushToCloud(force);
                 }
             });
         });

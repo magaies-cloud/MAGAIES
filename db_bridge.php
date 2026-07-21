@@ -21,13 +21,13 @@ function getDBConnection() {
     if ($GLOBAL_TENANT_ID === null) {
         $token = $_COOKIE['saas_token'] ?? '';
         if (empty($token)) {
-            die("<div style='text-align:center; padding:50px; font-family:sans-serif;'><h2>غير مصرح!</h2><p>يرجى تسجيل الدخول من البوابة أولاً.</p></div>");
+            die("<script>alert('غير مصرح! يرجى تسجيل الدخول من البوابة أولاً.'); window.location.href='login.php';</script>");
         }
-        $stmt = $pdo->prepare("SELECT tenant_id FROM users WHERE token = ? AND token_expires_at > NOW() AND status = 'active'");
+        $stmt = $pdo->prepare("SELECT tenant_id FROM users WHERE token = ? AND (token_expires_at IS NULL OR token_expires_at > NOW()) AND status = 'active'");
         $stmt->execute([$token]);
         $tenantId = $stmt->fetchColumn();
         if (!$tenantId) {
-            die("<div style='text-align:center; padding:50px; font-family:sans-serif;'><h2>جلسة منتهية!</h2><p>انتهت صلاحية الجلسة، يرجى تسجيل الدخول مجدداً.</p></div>");
+            die("<script>alert('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مجدداً.'); window.location.href='login.php';</script>");
         }
         $GLOBAL_TENANT_ID = (int)$tenantId;
     }
