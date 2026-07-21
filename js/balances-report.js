@@ -987,6 +987,66 @@ window.bindContextMenuList = function(keepOpenVisualIdx = null) {
     initTogglesSortable();
 };
 
+window.saveAsDefaultPreset1 = function() {
+    const presetData = {
+        colConfigs: JSON.parse(JSON.stringify(window.colConfigs)),
+        colOrder: [...window.colOrder],
+        savedAt: new Date().toISOString()
+    };
+    
+    // Save to permanent key in localStorage
+    localStorage.setItem('balances_report_default_preset_1', JSON.stringify(presetData));
+    
+    // Also save in erp_settings_v1 for global consistency
+    try {
+        const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
+        const settings = JSON.parse(settingsStr);
+        settings.defaultPreset1 = presetData;
+        localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
+    } catch(e) {}
+
+    if (typeof showToast === 'function') {
+        showToast('تم حفظ الضبط والتنسيق الحالي بنجاح كـ (الافتراضي 1)', 'success');
+    }
+};
+
+window.loadDefaultPreset1 = function() {
+    let presetDataStr = localStorage.getItem('balances_report_default_preset_1');
+    if (!presetDataStr) {
+        try {
+            const settings = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+            if (settings.defaultPreset1) presetDataStr = JSON.stringify(settings.defaultPreset1);
+        } catch(e) {}
+    }
+
+    if (presetDataStr) {
+        try {
+            const preset = JSON.parse(presetDataStr);
+            if (preset && preset.colConfigs && preset.colOrder) {
+                window.colConfigs = JSON.parse(JSON.stringify(preset.colConfigs));
+                window.colOrder = [...preset.colOrder];
+
+                saveLayout();
+                applyLayoutToDOM();
+                if (window.lastResults && window.lastResults.length > 0) {
+                    renderTable(window.lastResults);
+                }
+                bindContextMenuList();
+
+                if (typeof showToast === 'function') {
+                    showToast('تم تطبيق النمط (الافتراضي 1) بنجاح', 'success');
+                }
+                return;
+            }
+        } catch(e) {
+            console.error("Error loading default preset 1:", e);
+        }
+    }
+
+    // Fallback if not saved yet: save current as default 1
+    window.saveAsDefaultPreset1();
+};
+
 window.saveLayoutAndStyles = function() {
     if (typeof saveLayout === 'function') {
         saveLayout();
@@ -995,21 +1055,13 @@ window.saveLayoutAndStyles = function() {
     if (ctxMenu) ctxMenu.style.display = 'none';
 
     if (typeof showToast === 'function') {
-        showToast('تم حفظ الترتيب وتخصيص الأعمدة بنجاح', 'success');
+        showToast('تم حفظ التنسيق والترتيب الحالي بنجاح', 'success');
     }
 };
 
 window.resetLayoutAndStyles = function() {
-    if (confirm("هل أنت متأكد من رغبتك في إعادة ضبط إعدادات وتنسيقات الأعمدة للافتراضي؟")) {
-        localStorage.removeItem('balances_report_col_configs_v2');
-        localStorage.removeItem('balances_report_global_styles_v1');
-        localStorage.removeItem('erp_custom_styles_v1');
-        localStorage.removeItem('erp_settings_v1');
-        
-        if (typeof showToast === 'function') {
-            showToast('تمت إعادة الضبط للافتراضي، جارِ إعادة التحميل...', 'info');
-        }
-        setTimeout(() => window.location.reload(), 500);
+    if (confirm("هل أنت متأكد من رغبتك في استعادة نمط (الافتراضي 1) الثابت للبرنامج؟")) {
+        window.loadDefaultPreset1();
     }
 };
 

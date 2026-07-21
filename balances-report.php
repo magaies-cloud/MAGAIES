@@ -455,9 +455,26 @@
     <!-- Menu Content Container (Hidden when minimized) -->
     <div id="columnContextMenuBody">
         <!-- Info Banner -->
-        <div style="background:rgba(56, 189, 248, 0.1); border:1px solid rgba(56, 189, 248, 0.2); border-radius:10px; padding:10px 12px; margin-bottom:14px; font-size:0.8rem; color:#7dd3fc; line-height:1.5; display:flex; align-items:center; gap:8px;">
+        <div style="background:rgba(56, 189, 248, 0.1); border:1px solid rgba(56, 189, 248, 0.2); border-radius:10px; padding:10px 12px; margin-bottom:12px; font-size:0.8rem; color:#7dd3fc; line-height:1.5; display:flex; align-items:center; gap:8px;">
             <span style="font-size:1.1rem;">💡</span>
             <span>اسحب مقبض (<b>⣿</b>) لأعلى أو لأسفل لترتيب الأعمدة، وافتح ⚙️ لتخصيص خط ولون وكسور كل عمود بشكل مستقل!</span>
+        </div>
+
+        <!-- Permanent Default 1 Preset Section -->
+        <div style="background:rgba(30, 41, 59, 0.85); border:1px solid rgba(56, 189, 248, 0.3); border-radius:12px; padding:10px 14px; margin-bottom:14px; display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+                <span style="font-size:0.82rem; font-weight:800; color:#f8fafc; display:flex; align-items:center; gap:6px;">
+                    <span>⭐</span> نمط البرنامج الافتراضي الثابت:
+                </span>
+                <button type="button" onclick="saveAsDefaultPreset1()" title="حفظ الضبط والتنسيق الحالي كـ نمط (الافتراضي 1) الخاص بالبرنامج" style="padding:4px 10px; background:rgba(56,189,248,0.18); border:1px solid #38bdf8; color:#38bdf8; border-radius:6px; font-size:0.75rem; font-weight:bold; cursor:pointer; font-family:inherit; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.3)'" onmouseout="this.style.background='rgba(56,189,248,0.18)'">
+                    📌 حفظ النمط الحالي كـ "الافتراضي 1"
+                </button>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button type="button" onclick="loadDefaultPreset1()" style="flex:1; padding:9px; background:linear-gradient(135deg, #0284c7, #0369a1); color:white; border:none; border-radius:8px; font-weight:bold; font-size:0.88rem; font-family:inherit; cursor:pointer; box-shadow:0 3px 10px rgba(2,132,199,0.35); display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
+                    ⭐ استعادة نمط (الافتراضي 1)
+                </button>
+            </div>
         </div>
 
         <!-- Dynamic Column Items with drag & per-column settings -->
@@ -466,10 +483,10 @@
         <!-- Common Footer Buttons -->
         <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:15px; margin-top:16px; display:flex; gap:10px;">
             <button type="button" onclick="saveLayoutAndStyles()" style="flex:1.5; padding:11px; background:linear-gradient(135deg, #10b981, #059669); color:white; border:none; border-radius:8px; font-weight:bold; font-family:inherit; cursor:pointer; box-shadow:0 4px 14px rgba(16, 185, 129, 0.35); display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
-                💾 حفظ الترتيب والتخصيص
+                💾 حفظ التنسيق الحالي
             </button>
             <button type="button" onclick="resetLayoutAndStyles()" style="flex:1; padding:11px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:8px; font-weight:bold; font-family:inherit; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.25)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'">
-                🔄 إعادة الضبط
+                🔄 إرجاع للافتراضي 1
             </button>
         </div>
     </div>
