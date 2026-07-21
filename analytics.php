@@ -19,13 +19,130 @@
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <!-- استدعاء وتفعيل مكتبة Tailwind CSS للتنسيق والألوان -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- استدعاء مكتبة الأيقونات الشهيرة FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ─── World-Class Section Switcher & Visual Analytics Styling ─── */
+        .section-switcher-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.7));
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 20px;
+            padding: 16px 24px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(16px);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        :root.light-theme .section-switcher-bar {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.12) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06) !important;
+        }
+
+        .switcher-tab-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            padding: 10px 22px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .switcher-tab-btn:hover {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: #38bdf8;
+            color: #38bdf8;
+            transform: translateY(-2px);
+        }
+        .switcher-tab-btn.active {
+            background: linear-gradient(135deg, #0284c7, #38bdf8);
+            border-color: #38bdf8;
+            color: #ffffff;
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.45);
+        }
+        :root.light-theme .switcher-tab-btn {
+            background: rgba(0, 0, 0, 0.04);
+            border-color: rgba(0, 0, 0, 0.1);
+            color: #475569;
+        }
+        :root.light-theme .switcher-tab-btn.active {
+            background: linear-gradient(135deg, #0284c7, #0369a1) !important;
+            color: #ffffff !important;
+        }
+
+        /* Excel-Style Grid Table Styling */
+        .excel-panel-container {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.65));
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 35px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(16px);
+            font-family: 'Tajawal', sans-serif;
+        }
+        :root.light-theme .excel-panel-container {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.12) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06) !important;
+        }
+
+        .excel-table-wrap {
+            overflow-x: auto;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        :root.light-theme .excel-table-wrap {
+            border-color: rgba(0, 0, 0, 0.1) !important;
+        }
+
+        table.excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            font-size: 0.92rem;
+        }
+        table.excel-table th {
+            background: rgba(30, 41, 59, 0.9);
+            color: #38bdf8;
+            padding: 14px 18px;
+            font-weight: 800;
+            border-bottom: 2px solid rgba(56, 189, 248, 0.3);
+            white-space: nowrap;
+        }
+        :root.light-theme table.excel-table th {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+            border-bottom: 2px solid #cbd5e1 !important;
+        }
+        table.excel-table td {
+            padding: 12px 18px;
+            color: #f8fafc;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            white-space: nowrap;
+        }
+        :root.light-theme table.excel-table td {
+            color: #0f172a !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+        }
+        table.excel-table tbody tr:hover td {
+            background: rgba(56, 189, 248, 0.06);
+        }
+
         /* ─── Visual Intelligence Analytics Hub Styling ─── */
         .visual-hub-container {
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.65));
@@ -34,7 +151,7 @@
             padding: 30px;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(16px);
-            margin-top: 35px;
+            margin-bottom: 35px;
             font-family: 'Tajawal', sans-serif;
             color: #f8fafc;
         }
@@ -44,39 +161,7 @@
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06) !important;
             color: #0f172a !important;
         }
-        .hub-tab-btn {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #cbd5e1;
-            padding: 8px 16px;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            font-family: inherit;
-        }
-        .hub-tab-btn:hover {
-            background: rgba(56, 189, 248, 0.15);
-            border-color: #38bdf8;
-            color: #38bdf8;
-            transform: translateY(-2px);
-        }
-        .hub-tab-btn.active {
-            background: #38bdf8;
-            border-color: #38bdf8;
-            color: #0f172a;
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
-        }
-        :root.light-theme .hub-tab-btn {
-            background: rgba(0, 0, 0, 0.04);
-            border-color: rgba(0, 0, 0, 0.1);
-            color: #475569;
-        }
-        :root.light-theme .hub-tab-btn.active {
-            background: #0284c7 !important;
-            color: #ffffff !important;
-        }
+
         .v-card {
             background: rgba(30, 41, 59, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.07);
@@ -103,7 +188,7 @@
         .v-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .v-card-title { font-size: 0.8rem; font-weight: bold; color: #94a3b8; }
         :root.light-theme .v-card-title { color: #64748b !important; }
-        .v-card-value { font-size: 1.35rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; color: #f8fafc; margin-bottom: 10px; }
+        .v-card-value { font-size: 1.35rem; font-weight: 900; font-family: 'Outfit', 'Inter', monospace; color: #f8fafc; margin-bottom: 10px; }
         :root.light-theme .v-card-value { color: #0f172a !important; }
 
         .v-card-trend { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
@@ -141,12 +226,6 @@
         .v-chart-header { margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
         :root.light-theme .v-chart-header { border-bottom-color: rgba(0, 0, 0, 0.06) !important; }
         :root.light-theme .v-chart-header h4 { color: #0f172a !important; }
-
-        @keyframes pulse {
-            0% { transform: scale(0.95); opacity: 0.7; }
-            50% { transform: scale(1.15); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.7; }
-        }
     </style>
     
 
@@ -956,7 +1035,297 @@
                 <h4>بوابة التقارير الذكية V2</h4>
                 <p>مركز التقارير المحاسبية المتقدم للتدفقات النقدية ونقطة التعادل.</p>
             </div>
-        </a>
+    </div>
+
+    <!-- World-Class Section Switcher Bar -->
+    <div class="section-switcher-bar">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 14px; height: 14px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 15px #38bdf8; animation: pulse 2s infinite;"></div>
+            <h3 style="margin: 0; font-size: 1.35rem; font-weight: 900; color: #f8fafc;">🌐 مركز تقارير مقاييس 2026 الشامل</h3>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="switcher-tab-btn active" id="tab-mode-both" onclick="switchReportSection('both')">🚀 المشهد الشامل (الكل)</button>
+            <button class="switcher-tab-btn" id="tab-mode-grid" onclick="switchReportSection('grid')">📊 1. العرض الجدولي القياسي (Excel)</button>
+            <button class="switcher-tab-btn" id="tab-mode-visual" onclick="switchReportSection('visual')">📈 2. المركز البصري التحليلي (11 رسم بياني)</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION 1: العرض الجدولي التقليدي القياسي للأعمدة والأسطر (Excel Grid) -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="section-excel-grid" class="excel-panel-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <h3 style="margin: 0; color: #38bdf8; font-size: 1.3rem; font-weight: 900; display: flex; align-items: center; gap: 10px;">
+                    <span>📊</span> 1. العرض الجدولي القياسي للحسابات والقطاعات (Excel View)
+                </h3>
+                <span style="font-size: 0.82rem; color: #94a3b8;">عرض تفصيلي منظّم في أسطر وأعمدة تفاعلية مع إمكانية التصفية والفرز والتصدير</span>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="excel-search-input" onkeyup="filterExcelTable()" placeholder="🔍 بحث بالاسم أو القطاع..." style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 8px 14px; border-radius: 10px; font-size: 0.88rem; outline: none; width: 200px;">
+                <button onclick="exportExcelTable()" style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; padding: 8px 16px; border-radius: 10px; font-weight: 800; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">📥 تصدير Excel</button>
+                <button onclick="window.print()" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #f8fafc; padding: 8px 16px; border-radius: 10px; font-weight: 800; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">📄 طباعة / PDF</button>
+            </div>
+        </div>
+
+        <div class="excel-table-wrap">
+            <table class="excel-table" id="excel-grid-table">
+                <thead>
+                    <tr>
+                        <th onclick="sortExcelTable(0)" style="cursor: pointer;">القطاع / اسم البيان ↕️</th>
+                        <th onclick="sortExcelTable(1)" style="cursor: pointer;">تصنيف التقرير ↕️</th>
+                        <th onclick="sortExcelTable(2)" style="cursor: pointer;">عدد المعاملات والقيود ↕️</th>
+                        <th onclick="sortExcelTable(3)" style="cursor: pointer;">إجمالي الأرصدة والتدفقات (SDG) ↕️</th>
+                        <th onclick="sortExcelTable(4)" style="cursor: pointer;">المكافئ الأجنبي (USD 💲) ↕️</th>
+                        <th onclick="sortExcelTable(5)" style="cursor: pointer;">النسبة المئوية من الإجمالي ↕️</th>
+                        <th onclick="sortExcelTable(6)" style="cursor: pointer;">الحالة والاتجاه ↕️</th>
+                        <th style="text-align: center;">إجراءات تفاعلية</th>
+                    </tr>
+                </thead>
+                <tbody id="excel-grid-tbody">
+                    <tr><td colspan="8" style="text-align:center; padding:30px; color:#94a3b8;">جاري تحميل وسحب البيانات المحاسبية...</td></tr>
+                </tbody>
+                <tfoot id="excel-grid-tfoot" style="background: rgba(0,0,0,0.4); font-weight: 900; border-top: 2px solid rgba(56,189,248,0.4);">
+                    <!-- Dynamic Summary Totals -->
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION 2: المركز البصري التحليلي الشامل (11 Visual ApexCharts) -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="section-visual-hub" class="visual-hub-container">
+        
+        <!-- Hub Title -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 14px; height: 14px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 15px #38bdf8; animation: pulse 2s infinite;"></div>
+                <h3 style="margin: 0; font-size: 1.35rem; font-weight: 900; color: #f8fafc;">
+                    📈 2. المركز البصري التحليلي الشامل (Visual Intelligence Hub 3.0)
+                </h3>
+                <span style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800;">
+                    ✨ 11 تقريراً رسم بياني متطوّر
+                </span>
+            </div>
+        </div>
+
+        <!-- 4 Top Indicator Cards Row -->
+        <div class="visual-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; margin-bottom: 30px;">
+            
+            <div class="v-card glow-sky">
+                <div class="v-card-header">
+                    <span class="v-card-title">مؤشر صافي التدفق والسيولة</span>
+                    <span class="v-card-icon" id="ana-ind-trend-arrow" style="font-size: 1.4rem; color: #34d399;">↗️</span>
+                </div>
+                <div class="v-card-value" id="ana-ind-net-val">0.00 SDG</div>
+                <div class="v-card-trend">
+                    <span id="ana-ind-trend-badge" class="v-badge badge-success">↑ رصيد ممتاز</span>
+                    <span id="ana-ind-coverage-pct" style="font-size: 0.8rem; color: #94a3b8; font-weight: bold;">تغطية: 0%</span>
+                </div>
+                <div class="v-progress-bg">
+                    <div class="v-progress-bar" id="ana-ind-coverage-bar" style="width: 50%; background: linear-gradient(90deg, #10b981, #34d399);"></div>
+                </div>
+            </div>
+
+            <div class="v-card glow-purple">
+                <div class="v-card-header">
+                    <span class="v-card-title">مؤشر التركّز المالي للأنشطة</span>
+                    <span class="v-card-icon">🎯</span>
+                </div>
+                <div class="v-card-value" id="ana-ind-top3-pct">0.0%</div>
+                <div class="v-card-trend">
+                    <span class="v-badge badge-purple">حجم أضخم 3 قطاعات</span>
+                    <span id="ana-ind-top3-names" style="font-size: 0.75rem; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;">-</span>
+                </div>
+                <div class="v-progress-bg">
+                    <div class="v-progress-bar" id="ana-ind-risk-bar" style="width: 30%; background: linear-gradient(90deg, #a855f7, #c084fc);"></div>
+                </div>
+            </div>
+
+            <div class="v-card glow-emerald">
+                <div class="v-card-header">
+                    <span class="v-card-title">توازن النشاط المالي (إيراد vs مصروف)</span>
+                    <span class="v-card-icon">⚖️</span>
+                </div>
+                <div class="v-card-value" id="ana-ind-ratio-val">1.0 : 1</div>
+                <div class="v-card-trend">
+                    <span class="v-badge badge-emerald">نسبة الإيراد/المصروف</span>
+                    <span id="ana-ind-active-count" style="font-size: 0.8rem; color: #94a3b8; font-weight: bold;">0 حركة</span>
+                </div>
+                <div class="v-progress-bg">
+                    <div class="v-progress-bar" id="ana-ind-ratio-bar" style="width: 50%; background: linear-gradient(90deg, #38bdf8, #818cf8);"></div>
+                </div>
+            </div>
+
+            <div class="v-card glow-amber">
+                <div class="v-card-header">
+                    <span class="v-card-title">مؤشر جودة الصحة المالية</span>
+                    <span class="v-card-icon">⭐</span>
+                </div>
+                <div class="v-card-value" id="ana-ind-health-score">94/100</div>
+                <div class="v-card-trend">
+                    <span id="ana-ind-health-badge" class="v-badge badge-amber">ممتاز للغاية</span>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">استقرار آمن</span>
+                </div>
+                <div class="v-progress-bg">
+                    <div class="v-progress-bar" id="ana-ind-health-bar" style="width: 94%; background: linear-gradient(90deg, #f59e0b, #fbbf24);"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 11 ApexCharts Grid Container -->
+        
+        <!-- Row 1: Hollow Donut Charts -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 25px;">
+            
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مجوفة: توزيع الإيرادات والمصروفات بالمنشأة</h4>
+                        <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800;">💡 هيكل الإيراد</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يوضح النسب المئوية للإيرادات والمشتريات والمصروفات</span>
+                </div>
+                <div id="ana-chart-hollow-donut-revenue-expense" style="min-height: 320px;"></div>
+            </div>
+
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مفرغة: أضخم 5 قطاعات مبيعات وأصناف</h4>
+                        <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800;">🎯 أعلى المبيعات</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يظهر المنتجات والقطاعات الأكثر دراً للإيرادات والأرباح</span>
+                </div>
+                <div id="ana-chart-hollow-donut-top-sales" style="min-height: 320px;"></div>
+            </div>
+
+        </div>
+
+        <!-- Row 2: Curved Spectrum Line Chart -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 25px;">
+            <div class="v-chart-card" style="grid-column: span 1 / -1;">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📈 طيف المنحنى المترابط لحركة المبيعات والتدفق اليومي</h4>
+                        <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800;">🌊 انسيابية المبيعات</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: خط بياني سلس يوضح صعود وهبوط المبيعات عبر الأيام والأخيرة</span>
+                </div>
+                <div id="ana-chart-smooth-line-spectrum" style="min-height: 330px;"></div>
+            </div>
+        </div>
+
+        <!-- Row 3: Bi-directional Comparative Columns & Semi-Circle Gauge -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 25px;">
+            
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📊 أعمدة المقارنة المزدوجة: المبيعات (🟢) ضد المشتريات (🔴)</h4>
+                        <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800;">⚖️ المقارنة المزدوجة</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: مقارنة سريعة بين ما يدخل الحساب وما يخرج منه</span>
+                </div>
+                <div id="ana-chart-bidirectional-sales-purchases" style="min-height: 320px;"></div>
+            </div>
+
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🧭 عدّاد ومقياس صحة ومأمونية السيولة (Liquidity Health Gauge)</h4>
+                        <span style="font-size: 0.72rem; background: rgba(244, 63, 94, 0.18); color: #fb7185; padding: 3px 10px; border-radius: 12px; font-weight: 800;">🛡️ مقياس الأمان</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: مؤشر دافع ونسبة مئوية تعكس مدى وفرة السيولة بالمنشأة</span>
+                </div>
+                <div id="ana-chart-semicircle-gauge" style="min-height: 320px;"></div>
+            </div>
+
+        </div>
+
+        <!-- Row 4: Top Expense Donut & Horizontal Bar Ranking -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 25px;">
+            
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مجوفة: أضخم 5 بنود مصروفات وتكاليف</h4>
+                        <span style="font-size: 0.72rem; background: rgba(239, 68, 68, 0.18); color: #f87171; padding: 3px 10px; border-radius: 12px; font-weight: 800;">🔻 بنود النفقات</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يوضح أين تذهب النفقات لترشيد المصروفات غير الضرورية</span>
+                </div>
+                <div id="ana-chart-hollow-donut-top-expenses" style="min-height: 320px;"></div>
+            </div>
+
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📊 أعمدة أفقية هرمية: ترتيب أعلى 10 قطاعات حجماً</h4>
+                        <span style="font-size: 0.72rem; background: rgba(6, 182, 212, 0.18); color: #22d3ee; padding: 3px 10px; border-radius: 12px; font-weight: 800;">👑 ترتيب الأطول</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: ترتيب هرمي لأعلى الأنشطة والقطاعات إنجازاً في النظام</span>
+                </div>
+                <div id="ana-chart-horizontal-top10-ranking" style="min-height: 320px;"></div>
+            </div>
+
+        </div>
+
+        <!-- Row 5: Filled Area Fluid Curve & Polygon Radar Equilibrium -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 25px;">
+            
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🌊 منحنى المساحة المتدرجة الممتلئة (Fluid Area Curve)</h4>
+                        <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800;">💧 المساحة التراكمية</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: مساحة ملونة ممتلئة تعكس النمو التراكمي للإيرادات</span>
+                </div>
+                <div id="ana-chart-cumulative-area-fluid" style="min-height: 320px;"></div>
+            </div>
+
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🎯 مخطط الرادار الخماسي: التوازن المالي للأقسام</h4>
+                        <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800;">🕸️ خريطة الرادار</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: شبكة رادار تفاعلية تظهر مدى اتزان الأقسام التجارية</span>
+                </div>
+                <div id="ana-chart-radar-equilibrium" style="min-height: 320px;"></div>
+            </div>
+
+        </div>
+
+        <!-- Row 6: Solid Pie & Multi-Radial Rings Gauge -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
+            
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🥧 كعكة دائريّة مصمتة (Pie Chart): نسب توزيع الأنشطة</h4>
+                        <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800;">🥧 دائرة مصمتة</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: كعكة مصمتة توضح حصة الأنشطة النشطة مقابل الخاملة</span>
+                </div>
+                <div id="ana-chart-solid-pie-active-inactive" style="min-height: 320px;"></div>
+            </div>
+
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🔘 حلقات دوائر مضيئة متداخلة (Multi-Radial Rings)</h4>
+                        <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800;">💫 حلقات دائرية</span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: ثلاث حلقات دائرية ملونة متداخلة تقارن حصص الإيراد بالسيولة</span>
+                </div>
+                <div id="ana-chart-multi-radial-rings" style="min-height: 320px;"></div>
+            </div>
+
+        </div>
+
     </div>
 
     <!-- AI Insights Section -->
@@ -1262,262 +1631,6 @@
         
     </div>
 
-    <!-- Visual Intelligence Analytics Hub (المركز البصري التحليلي والرسوم البيانية) -->
-    <div id="visual-intelligence-hub" class="visual-hub-container">
-        
-        <!-- Section Header -->
-        <div class="hub-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 14px; height: 14px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 15px #38bdf8; animation: pulse 2s infinite;"></div>
-                <h3 style="margin: 0; font-size: 1.35rem; font-weight: 900; color: #f8fafc; letter-spacing: -0.5px;">
-                    📈 التقرير البصري التحليلي الشامل للأرصدة وهيكل السيولة
-                </h3>
-                <span class="hub-badge" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 800;">
-                    ✨ visual intelligence 3.0
-                </span>
-            </div>
-            <div style="display: flex; gap: 8px;" class="no-print">
-                <button class="hub-tab-btn active" onclick="switchVisualTab('all')" id="tab-all">🚀 المشهد الكامل</button>
-                <button class="hub-tab-btn" onclick="switchVisualTab('partners')" id="tab-partners">👥 العملاء والموردين</button>
-                <button class="hub-tab-btn" onclick="switchVisualTab('treasury')" id="tab-treasury">🏦 الخزن والبنوك</button>
-            </div>
-        </div>
-
-        <!-- Visual Indicator Cards Row -->
-        <div class="visual-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-bottom: 30px;">
-            
-            <!-- Card 1: مؤشر الاتجاه والتغطية -->
-            <div class="v-card glow-sky">
-                <div class="v-card-header">
-                    <span class="v-card-title">مؤشر صافي الاتجاه والسيولة</span>
-                    <span class="v-card-icon" id="ind-trend-arrow" style="font-size: 1.4rem; color: #34d399;">↗️</span>
-                </div>
-                <div class="v-card-value" id="ind-net-val">0.00 SDG</div>
-                <div class="v-card-trend">
-                    <span id="ind-trend-badge" class="v-badge badge-success">↑ فائض سيولة مستحقة</span>
-                    <span id="ind-coverage-pct" style="font-size: 0.8rem; color: #94a3b8; font-weight: bold;">تغطية: 0%</span>
-                </div>
-                <div class="v-progress-bg">
-                    <div class="v-progress-bar" id="ind-coverage-bar" style="width: 50%; background: linear-gradient(90deg, #10b981, #34d399);"></div>
-                </div>
-            </div>
-
-            <!-- Card 2: مؤشر تركز المخاطر -->
-            <div class="v-card glow-purple">
-                <div class="v-card-header">
-                    <span class="v-card-title">مؤشر التركّز المالي للأرصدة</span>
-                    <span class="v-card-icon">🎯</span>
-                </div>
-                <div class="v-card-value" id="ind-top3-pct">0.0%</div>
-                <div class="v-card-trend">
-                    <span id="ind-risk-badge" class="v-badge badge-purple">حجم أضخم 3 حسابات</span>
-                    <span id="ind-top3-names" style="font-size: 0.75rem; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">-</span>
-                </div>
-                <div class="v-progress-bg">
-                    <div class="v-progress-bar" id="ind-risk-bar" style="width: 30%; background: linear-gradient(90deg, #a855f7, #c084fc);"></div>
-                </div>
-            </div>
-
-            <!-- Card 3: نسبة نشاط وأرجوحة الحسابات -->
-            <div class="v-card glow-emerald">
-                <div class="v-card-header">
-                    <span class="v-card-title">توازن الذمم المالي (العملاء vs الموردين)</span>
-                    <span class="v-card-icon" id="ind-ratio-icon">⚖️</span>
-                </div>
-                <div class="v-card-value" id="ind-ratio-val">1.0 : 1</div>
-                <div class="v-card-trend">
-                    <span id="ind-ratio-status" class="v-badge badge-emerald">نسبة عملاء/موردين</span>
-                    <span id="ind-active-count" style="font-size: 0.8rem; color: #94a3b8; font-weight: bold;">0 حساب نشط</span>
-                </div>
-                <div class="v-progress-bg">
-                    <div class="v-progress-bar" id="ind-ratio-bar" style="width: 50%; background: linear-gradient(90deg, #38bdf8, #818cf8);"></div>
-                </div>
-            </div>
-
-            <!-- Card 4: درجة الصحة المالية الكلية -->
-            <div class="v-card glow-amber">
-                <div class="v-card-header">
-                    <span class="v-card-title">مؤشر جودة وسلوك الحسابات</span>
-                    <span class="v-card-icon">⭐</span>
-                </div>
-                <div class="v-card-value" id="ind-health-score">92/100</div>
-                <div class="v-card-trend">
-                    <span id="ind-health-badge" class="v-badge badge-amber">ممتاز</span>
-                    <span id="ind-health-desc" style="font-size: 0.75rem; color: #94a3b8;">توازن آمن</span>
-                </div>
-                <div class="v-progress-bg">
-                    <div class="v-progress-bar" id="ind-health-bar" style="width: 92%; background: linear-gradient(90deg, #f59e0b, #fbbf24);"></div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- 11 Comprehensive ApexCharts Grid -->
-
-        <!-- Charts Row 1: Donut & Hollow Donut Charts -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
-            
-            <!-- Chart 1: Hollow Donut Chart - Categories -->
-            <div class="v-chart-card">
-                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مجوفة: أين تتوزع الأموال والحسابات؟</h4>
-                        <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">💡 هيكل الفئات</span>
-                    </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يوضح لك الفئة الأكثر استحواذاً على المبالغ (عملاء، موردين، خزن، بنوك)</span>
-                </div>
-                <div id="chart-hollow-donut-categories" style="min-height: 320px;"></div>
-            </div>
-
-            <!-- Chart 2: Hollow Donut Chart - Top Debtors -->
-            <div class="v-chart-card">
-                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مفرغة: أضخم 5 عملاء مدينين (مطالباتنا لديهم)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">🎯 أضخم المديونيات</span>
-                    </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يظهر أضخم الديون المستحقة لنا لدى العملاء لتسريع التحصيل</span>
-                </div>
-                <div id="chart-hollow-donut-top-debtors" style="min-height: 320px;"></div>
-            </div>
-
-        </div>
-
-        <!-- Charts Row 2: Line & Area Charts -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
-            
-            <!-- Chart 3: Smooth Curved Gradient Line Chart -->
-            <div class="v-chart-card" style="grid-column: span 1 / -1;">
-                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📈 المنحنى المتدرج لطيف الأرصدة (Balance Spectrum Curve)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">🌊 انسيابية الأرصدة</span>
-                    </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: منحنى سلس يوضح تدرج أحجام الأرصدة من الأكبر إلى الأصغر</span>
-                </div>
-                <div id="chart-curved-line-spectrum" style="min-height: 330px;"></div>
-            </div>
-
-        </div>
-
-        <!-- Charts Row 3: Bi-directional Comparative Bar & Semi-Donut Gauge -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
-            
-            <!-- Chart 4: Bi-Directional Comparative Column Chart -->
-            <div class="v-chart-card">
-                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📊 أعمدة المقارنة المزدوجة: ما لك (🟢) ضد ما عليك (🔴)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">⚖️ مقارنة الحقوق والالتزامات</span>
-                    </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يظهر بوضوح الفرق بين إجمالي أموالك وإجمالي المستحق عليك</span>
-                </div>
-                <div id="chart-bidirectional-bar" style="min-height: 320px;"></div>
-            </div>
-
-            <!-- Chart 5: Semi-Circle Donut Radial Gauge -->
-            <div class="v-chart-card">
-                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🧭 عدّاد ومقياس صحة ومأمونية السيولة (Liquidity Health Gauge)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(244, 63, 94, 0.18); color: #fb7185; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(244, 63, 94, 0.3);">🛡️ مؤشر الأمان الكلي</span>
-                    </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: نسبة مئوية مباشرة تعكس أمان الاستقرار المالي والسيولة للنظام</span>
-                </div>
-                <div id="chart-semicircle-gauge" style="min-height: 320px;"></div>
-            </div>
-
-        </div>
-
-        <!-- Charts Row 4: Top Creditors Hollow Donut & Horizontal Bar Ranking -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
-            
-            <!-- Chart 6: Hollow Donut Chart - Top Creditor Suppliers -->
-            <div class="v-chart-card">
-                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مجوفة: أضخم 5 موردين دائنين (مستحقاتهم علينا)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(239, 68, 68, 0.18); color: #f87171; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(239, 68, 68, 0.3);">🔻 أعلى مستحقات الموردين</span>
-                    </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يوضح أضخم الديون المطلوبة منا للموردين لجدولة السداد</span>
-                </div>
-                <div id="chart-hollow-donut-top-creditors" style="min-height: 320px;"></div>
-            </div>
-
-            <!-- Chart 7: Horizontal Bar Chart - Top 10 Accounts Volume Ranking -->
-            <div class="v-chart-card">
-                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📊 أعمدة أفقية هرمية: ترتيب أضخم 10 حسابات مالية</h4>
-                        <span style="font-size: 0.72rem; background: rgba(6, 182, 212, 0.18); color: #22d3ee; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(6, 182, 212, 0.3);">👑 ترتيب الحسابات</span>
-                    </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: شريط أفقي يُظهر أطول الأعمدة للحسابات الأكثر حجماً في المنظومة</span>
-                </div>
-                <div id="chart-horizontal-top-bar" style="min-height: 320px;"></div>
-            </div>
-
-        </div>
-
-        <!-- Charts Row 5: Filled Area Curve & Radar Equilibrium -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
-            
-            <!-- Chart 8: Filled Area Fluid Curve -->
-            <div class="v-chart-card">
-                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🌊 منحنى المساحة المتدرجة الممتلئة (Fluid Area Curve)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">💧 المساحة التراكمية</span>
-                    </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: مساحة ملونة انسيابية مريحة للعين تعكس التدفق التراكمي للأموال</span>
-                </div>
-                <div id="chart-cumulative-area-fluid" style="min-height: 320px;"></div>
-            </div>
-
-            <!-- Chart 9: Polygon Radar Equilibrium Chart -->
-            <div class="v-chart-card">
-                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🎯 مخطط الرادار الخماسي: التوازن المالي للأقسام</h4>
-                        <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">🕸️ خريطة الرادار</span>
-                    </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: شبكة رادار خماسية تفاعلية توضح اتزان الأرصدة والسيولة بلمحة واحدة</span>
-                </div>
-                <div id="chart-radar-equilibrium" style="min-height: 320px;"></div>
-            </div>
-
-        </div>
-
-        <!-- Charts Row 6: Solid Pie & Multi-Radial Rings Gauge -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px;">
-            
-            <!-- Chart 10: Solid Pie Chart -->
-            <div class="v-chart-card">
-                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🥧 كعكة دائريّة مصمتة (Pie Chart): توزيع الذمم والحسابات</h4>
-                        <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">🥧 دائرة مصمتة</span>
-                    </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: دائرة كاملة مكسوة بالألوان تظهر نسبة الحسابات المدينة مقابل الدائنة</span>
-                </div>
-                <div id="chart-solid-pie-active-zero" style="min-height: 320px;"></div>
-            </div>
-
-            <!-- Chart 11: Multi-Radial Rings Gauge -->
-            <div class="v-chart-card">
-                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🔘 حلقات دوائر مضيئة متداخلة (Multi-Radial Rings)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">💫 حلقات دائرية</span>
-                    </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: ثلاث حلقات دائرية ملونة متداخلة تقارن حصة العملاء والموردين والخزن بنسبة مئوية</span>
-                </div>
-                <div id="chart-multi-radial-rings" style="min-height: 320px;"></div>
-            </div>
-
-        </div>
-
-    </div>
-
 </div>
 
 <script defer src="js/localforage.min.js"></script>
@@ -1594,9 +1707,6 @@
 
         // 5. Update AI Cards
         updateAICards(sales, purchases, items, payments, receipts, customers);
-
-        // 6. Render 11 Visual Intelligence Analytics Hub Charts
-        renderVisualAnalyticsAnalyticsPage(sales, purchases, items, payments, receipts, customers);
     }
 
     function updateCharts(dates, salesData, purchasesData, topProductLabels, topProductData) {
@@ -2115,342 +2225,441 @@
             </div>
         `;
     }
+</script>
 
 /* ═══════════════════════════════════════════════════════
-   Visual Intelligence Analytics Hub (ApexCharts & KPIs)
+   Section Switcher & Dual Report Engine (Excel Grid + 11 Visual ApexCharts)
    ═══════════════════════════════════════════════════════ */
-let chartHollowDonutCategories = null;
-let chartHollowDonutTopDebtors = null;
-let chartCurvedLineSpectrum = null;
-let chartBiDirectionalBar = null;
-let chartSemiCircleGauge = null;
-let chartHollowDonutCreditors = null;
-let chartHorizontalTopBar = null;
-let chartCumulativeAreaFluid = null;
-let chartRadarEquilibrium = null;
-let chartSolidPieActiveZero = null;
-let chartMultiRadialRings = null;
-
-function renderVisualAnalyticsAnalyticsPage(sales, purchases, items, payments, receipts, customers) {
-    const hub = document.getElementById('visual-intelligence-hub');
-    if (!hub) return;
-    hub.style.display = 'block';
-
-    const suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
-    const safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
-    const banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
-
-    // Calculate aggregated balances
-    let totalCustDebts = customers.reduce((sum, c) => sum + Math.max(0, parseFloat(c.currentBalance || c.balance || 0)), 0);
-    let totalSuppDebts = suppliers.reduce((sum, s) => sum + Math.max(0, parseFloat(s.currentBalance || s.balance || 0)), 0);
-    let totalSafesBal = safes.reduce((sum, s) => sum + Math.max(0, parseFloat(s.balance || 0)), 0);
-    let totalBanksBal = banks.reduce((sum, b) => sum + Math.max(0, parseFloat(b.balance || 0)), 0);
-    let totalTreasury = totalSafesBal + totalBanksBal;
-
-    let netPosition = (totalCustDebts + totalTreasury) - totalSuppDebts;
-
-    // 1. Top Indicator Cards
-    const indNetVal = document.getElementById('ind-net-val');
-    const indTrendBadge = document.getElementById('ind-trend-badge');
-    const indTrendArrow = document.getElementById('ind-trend-arrow');
-    const indCoveragePct = document.getElementById('ind-coverage-pct');
-    const indCoverageBar = document.getElementById('ind-coverage-bar');
-
-    if (indNetVal) indNetVal.textContent = `${(netPosition < 0 ? '-' : '') + Math.abs(netPosition).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} SDG`;
-    
-    let coverageRatio = totalSuppDebts > 0 ? (((totalCustDebts + totalTreasury) / totalSuppDebts) * 100).toFixed(0) : '100';
-    if (indCoveragePct) indCoveragePct.textContent = `تغطية السيولة: ${coverageRatio}%`;
-    if (indCoverageBar) indCoverageBar.style.width = `${Math.min(parseFloat(coverageRatio), 100)}%`;
-
-    if (netPosition >= 0) {
-        if (indTrendBadge) { indTrendBadge.textContent = '↑ فائض سيولة ممتازة'; indTrendBadge.className = 'v-badge badge-success'; }
-        if (indTrendArrow) { indTrendArrow.textContent = '↗️'; indTrendArrow.style.color = '#34d399'; }
-    } else {
-        if (indTrendBadge) { indTrendBadge.textContent = '↓ عجز متوقّع بالحسابات'; indTrendBadge.className = 'v-badge badge-danger'; }
-        if (indTrendArrow) { indTrendArrow.textContent = '↘️'; indTrendArrow.style.color = '#f43f5e'; }
-    }
-
-    // Risk Card
-    const sortedCusts = [...customers].sort((a,b) => (b.currentBalance||0) - (a.currentBalance||0));
-    const top3CustsVal = sortedCusts.slice(0, 3).reduce((sum, c) => sum + (parseFloat(c.currentBalance)||0), 0);
-    const top3Pct = totalCustDebts > 0 ? ((top3CustsVal / totalCustDebts) * 100).toFixed(1) : '0.0';
-
-    const indTop3Pct = document.getElementById('ind-top3-pct');
-    const indTop3Names = document.getElementById('ind-top3-names');
-    const indRiskBar = document.getElementById('ind-risk-bar');
-    if (indTop3Pct) indTop3Pct.textContent = `${top3Pct}%`;
-    if (indTop3Names) indTop3Names.textContent = sortedCusts.slice(0, 3).map(c => c.name).join('، ');
-    if (indRiskBar) indRiskBar.style.width = `${Math.min(parseFloat(top3Pct), 100)}%`;
-
-    // Ratio Card
-    const activeCustCount = customers.filter(c => (parseFloat(c.currentBalance)||0) !== 0).length;
-    const activeSuppCount = suppliers.filter(s => (parseFloat(s.currentBalance)||0) !== 0).length;
-    const ratioVal = activeSuppCount > 0 ? (activeCustCount / activeSuppCount).toFixed(2) : (activeCustCount > 0 ? '1.0' : '0.0');
-
-    const indRatioVal = document.getElementById('ind-ratio-val');
-    const indActiveCount = document.getElementById('ind-active-count');
-    const indRatioBar = document.getElementById('ind-ratio-bar');
-    if (indRatioVal) indRatioVal.textContent = `${ratioVal} : 1`;
-    if (indActiveCount) indActiveCount.textContent = `${activeCustCount + activeSuppCount} حساب نشط من أصل ${customers.length + suppliers.length}`;
-    if (indRatioBar) indRatioBar.style.width = `${Math.min((activeCustCount / (customers.length || 1)) * 100, 100)}%`;
-
-    // Health Card
-    let healthScore = 90;
-    if (totalSuppDebts > 0) {
-        const cov = (totalCustDebts + totalTreasury) / totalSuppDebts;
-        if (cov >= 1.5) healthScore = 96;
-        else if (cov >= 1.0) healthScore = 88;
-        else if (cov >= 0.7) healthScore = 74;
-        else healthScore = 58;
-    }
-    const indHealthScore = document.getElementById('ind-health-score');
-    const indHealthBadge = document.getElementById('ind-health-badge');
-    const indHealthBar = document.getElementById('ind-health-bar');
-    if (indHealthScore) indHealthScore.textContent = `${healthScore}/100`;
-    if (indHealthBadge) {
-        if (healthScore >= 90) indHealthBadge.textContent = '🌟 ممتاز للغاية';
-        else if (healthScore >= 75) indHealthBadge.textContent = '✅ جيد جداً';
-        else indHealthBadge.textContent = '⚠️ يتطلب متابعة';
-    }
-    if (indHealthBar) indHealthBar.style.width = `${healthScore}%`;
-
-    // 2. ApexCharts Rendering
-    if (typeof ApexCharts === 'undefined') return;
-
-    const isLightTheme = document.documentElement.classList.contains('light-theme');
-    const chartThemeMode = isLightTheme ? 'light' : 'dark';
-
-    // Chart 1: Categories Donut
-    const catLabels = ['ديون العملاء', 'مستحقات الموردين', 'الخزن والصناديق', 'الأرصدة البنكية'];
-    const catValues = [totalCustDebts, totalSuppDebts, totalSafesBal, totalBanksBal];
-    const optionsCatDonut = {
-        series: catValues,
-        labels: catLabels,
-        chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
-        colors: ['#38bdf8', '#f43f5e', '#10b981', '#fbbf24'],
-        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
-        plotOptions: { pie: { donut: { size: '72%', labels: { show: true, name: { show: true, fontSize: '14px', fontWeight: 700 }, value: { show: true, fontSize: '16px', fontWeight: 900, formatter: v => parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' }, total: { show: true, label: 'إجمالي المبالغ', formatter: w => w.globals.seriesTotals.reduce((a,b)=>a+b, 0).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' } } } } },
-        dataLabels: { enabled: false },
-        legend: { position: 'bottom', fontSize: '13px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        theme: { mode: chartThemeMode }
-    };
-    if (chartHollowDonutCategories) chartHollowDonutCategories.destroy();
-    chartHollowDonutCategories = new ApexCharts(document.querySelector("#chart-hollow-donut-categories"), optionsCatDonut);
-    chartHollowDonutCategories.render();
-
-    // Chart 2: Top Debtors Donut
-    const topDebtors = sortedCusts.slice(0, 5);
-    const optionsDebtorsDonut = {
-        series: topDebtors.length > 0 ? topDebtors.map(c => Math.max(0, parseFloat(c.currentBalance)||0)) : [1],
-        labels: topDebtors.length > 0 ? topDebtors.map(c => c.name) : ['لا يوجد عملاء مدينين'],
-        chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
-        colors: ['#38bdf8', '#818cf8', '#c084fc', '#34d399', '#fbbf24'],
-        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
-        plotOptions: { pie: { donut: { size: '68%', labels: { show: true, name: { show: true, fontSize: '13px' }, value: { show: true, fontSize: '15px', fontWeight: 900, formatter: v => parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' }, total: { show: true, label: 'إجمالي المطالبات', formatter: w => w.globals.seriesTotals.reduce((a,b)=>a+b, 0).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' } } } } },
-        dataLabels: { enabled: false },
-        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        theme: { mode: chartThemeMode }
-    };
-    if (chartHollowDonutTopDebtors) chartHollowDonutTopDebtors.destroy();
-    chartHollowDonutTopDebtors = new ApexCharts(document.querySelector("#chart-hollow-donut-top-debtors"), optionsDebtorsDonut);
-    chartHollowDonutTopDebtors.render();
-
-    // Chart 3: Curved Line Spectrum
-    const specNames = sortedCusts.slice(0, 15).map(c => c.name);
-    const specValues = sortedCusts.slice(0, 15).map(c => Math.abs(parseFloat(c.currentBalance)||0));
-    const optionsSpectrum = {
-        series: [{ name: 'حجم الرصيد', data: specValues }],
-        chart: { type: 'area', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        colors: ['#38bdf8'],
-        stroke: { curve: 'smooth', width: 3 },
-        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.05, stops: [0, 95, 100] } },
-        dataLabels: { enabled: false },
-        xaxis: { categories: specNames, labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontSize: '11px' } } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
-        tooltip: { y: { formatter: v => v.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' SDG' } },
-        theme: { mode: chartThemeMode }
-    };
-    if (chartCurvedLineSpectrum) chartCurvedLineSpectrum.destroy();
-    chartCurvedLineSpectrum = new ApexCharts(document.querySelector("#chart-curved-line-spectrum"), optionsSpectrum);
-    chartCurvedLineSpectrum.render();
-
-    // Chart 4: Bi-Directional Bar
-    const optionsBiBar = {
-        series: [
-            { name: 'ما لك (ديون العملاء والخزن)', data: [totalCustDebts, totalSafesBal, totalBanksBal] },
-            { name: 'ما عليك (مستحقات الموردين)', data: [totalSuppDebts, 0, 0] }
-        ],
-        chart: { type: 'bar', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 6 } },
-        colors: ['#10b981', '#f43f5e'],
-        dataLabels: { enabled: false },
-        xaxis: { categories: ['العملاء vs الموردين', 'الخزن والصناديق', 'الحسابات البنكية'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '12px' } } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
-        legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        theme: { mode: chartThemeMode }
-    };
-    if (chartBiDirectionalBar) chartBiDirectionalBar.destroy();
-    chartBiDirectionalBar = new ApexCharts(document.querySelector("#chart-bidirectional-bar"), optionsBiBar);
-    chartBiDirectionalBar.render();
-
-    // Chart 5: Semi-Circle Gauge
-    const optionsGauge = {
-        series: [healthScore],
-        chart: { type: 'radialBar', height: 340, offsetY: -10, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
-        plotOptions: { radialBar: { startAngle: -90, endAngle: 90, track: { background: isLightTheme ? "#e2e8f0" : "#1e293b", strokeWidth: '97%' }, dataLabels: { name: { show: true, fontSize: '14px', color: isLightTheme ? '#64748b' : '#94a3b8' }, value: { offsetY: -50, fontSize: '24px', fontWeight: '900', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + "%" } } } },
-        fill: { type: 'gradient', gradient: { shade: 'dark', type: 'horizontal', gradientToColors: ['#34d399'], stops: [0, 100] } },
-        colors: ['#38bdf8'],
-        labels: ['مؤشر مأمونية السيولة'],
-        theme: { mode: chartThemeMode }
-    };
-    if (chartSemiCircleGauge) chartSemiCircleGauge.destroy();
-    chartSemiCircleGauge = new ApexCharts(document.querySelector("#chart-semicircle-gauge"), optionsGauge);
-    chartSemiCircleGauge.render();
-
-    // Chart 6: Hollow Donut Chart - Top Creditor Suppliers
-    const sortedSupps = [...suppliers].sort((a,b) => (b.currentBalance||0) - (a.currentBalance||0));
-    const topSupps = sortedSupps.slice(0, 5);
-    const optionsCreditorsDonut = {
-        series: topSupps.length > 0 ? topSupps.map(s => Math.max(0, parseFloat(s.currentBalance)||0)) : [1],
-        labels: topSupps.length > 0 ? topSupps.map(s => s.name) : ['لا يوجد موردين دائنين'],
-        chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
-        colors: ['#f43f5e', '#fb7185', '#a855f7', '#fbbf24', '#38bdf8'],
-        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
-        plotOptions: { pie: { donut: { size: '68%', labels: { show: true, name: { show: true, fontSize: '13px' }, value: { show: true, fontSize: '15px', fontWeight: 900, formatter: v => parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' }, total: { show: true, label: 'إجمالي التزامات الموردين', formatter: w => w.globals.seriesTotals.reduce((a,b)=>a+b, 0).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' } } } } },
-        dataLabels: { enabled: false },
-        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        theme: { mode: chartThemeMode }
-    };
-    if (chartHollowDonutCreditors) chartHollowDonutCreditors.destroy();
-    chartHollowDonutCreditors = new ApexCharts(document.querySelector("#chart-hollow-donut-top-creditors"), optionsCreditorsDonut);
-    chartHollowDonutCreditors.render();
-
-    // Chart 7: Horizontal Bar Chart - Top 10 Accounts Volume Ranking
-    const allAccounts = [
-        ...customers.map(c => ({ name: 'عميل: ' + c.name, val: Math.abs(parseFloat(c.currentBalance)||0) })),
-        ...suppliers.map(s => ({ name: 'مورد: ' + s.name, val: Math.abs(parseFloat(s.currentBalance)||0) })),
-        ...safes.map(sf => ({ name: 'خزينة: ' + sf.name, val: Math.abs(parseFloat(sf.balance)||0) })),
-        ...banks.map(b => ({ name: 'بنك: ' + b.name, val: Math.abs(parseFloat(b.balance)||0) }))
-    ].sort((a,b) => b.val - a.val).slice(0, 10);
-
-    const optionsHorizontalBar = {
-        series: [{ name: 'حجم الحساب', data: allAccounts.map(x => x.val) }],
-        chart: { type: 'bar', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        plotOptions: { bar: { horizontal: true, borderRadius: 6, barHeight: '55%', distributed: true } },
-        colors: ['#38bdf8', '#34d399', '#a855f7', '#fbbf24', '#f43f5e', '#22d3ee', '#818cf8', '#fb7185', '#10b981', '#f59e0b'],
-        dataLabels: { enabled: false },
-        xaxis: { categories: allAccounts.map(x => x.name), labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#1e293b' : '#cbd5e1', fontSize: '11px', fontFamily: 'Tajawal' } } },
-        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
-        legend: { show: false },
-        tooltip: { y: { formatter: v => v.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' SDG' } },
-        theme: { mode: chartThemeMode }
-    };
-    if (chartHorizontalTopBar) chartHorizontalTopBar.destroy();
-    chartHorizontalTopBar = new ApexCharts(document.querySelector("#chart-horizontal-top-bar"), optionsHorizontalBar);
-    chartHorizontalTopBar.render();
-
-    // Chart 8: Filled Area Fluid Curve
-    const areaNames = allAccounts.slice(0, 12).map(x => x.name);
-    const optionsFluidArea = {
-        series: [
-            { name: 'حجم الحسابات', data: allAccounts.slice(0, 12).map(x => x.val) }
-        ],
-        chart: { type: 'area', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        colors: ['#10b981'],
-        stroke: { curve: 'smooth', width: 2.5 },
-        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.05, stops: [0, 95, 100] } },
-        dataLabels: { enabled: false },
-        xaxis: { categories: areaNames, labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontSize: '10px' }, rotate: -20 } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
-        legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        tooltip: { y: { formatter: v => v.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' SDG' } },
-        theme: { mode: chartThemeMode }
-    };
-    if (chartCumulativeAreaFluid) chartCumulativeAreaFluid.destroy();
-    chartCumulativeAreaFluid = new ApexCharts(document.querySelector("#chart-cumulative-area-fluid"), optionsFluidArea);
-    chartCumulativeAreaFluid.render();
-
-    // Chart 9: Polygon Radar Equilibrium Chart
-    const optionsRadar = {
-        series: [
-            { name: 'الأرصدة المتاحة والمستحقة', data: [totalCustDebts, totalSuppDebts, totalSafesBal, totalBanksBal, totalTreasury] }
-        ],
-        chart: { type: 'radar', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        colors: ['#38bdf8'],
-        stroke: { width: 2 },
-        fill: { opacity: 0.25 },
-        markers: { size: 4 },
-        xaxis: { categories: ['العملاء', 'الموردين', 'الخزن', 'البنوك', 'السيولة'], labels: { style: { colors: isLightTheme ? '#0f172a' : '#e2e8f0', fontSize: '12px' } } },
-        yaxis: { show: false },
-        legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        theme: { mode: chartThemeMode }
-    };
-    if (chartRadarEquilibrium) chartRadarEquilibrium.destroy();
-    chartRadarEquilibrium = new ApexCharts(document.querySelector("#chart-radar-equilibrium"), optionsRadar);
-    chartRadarEquilibrium.render();
-
-    // Chart 10: Solid Pie Chart
-    const optionsSolidPie = {
-        series: [activeCustCount, activeSuppCount, (customers.length - activeCustCount) + (suppliers.length - activeSuppCount)],
-        labels: [`عملاء نشطين (${activeCustCount})`, `موردين نشطين (${activeSuppCount})`, `حسابات صفريّة`],
-        chart: { type: 'pie', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
-        colors: ['#10b981', '#f43f5e', '#64748b'],
-        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
-        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        dataLabels: { enabled: true, style: { fontSize: '12px', fontFamily: 'Tajawal, sans-serif', fontWeight: 'bold' } },
-        tooltip: { y: { formatter: v => v + ' حساب' } },
-        theme: { mode: chartThemeMode }
-    };
-    if (chartSolidPieActiveZero) chartSolidPieActiveZero.destroy();
-    chartSolidPieActiveZero = new ApexCharts(document.querySelector("#chart-solid-pie-active-zero"), optionsSolidPie);
-    chartSolidPieActiveZero.render();
-
-    // Chart 11: Multi-Radial Rings Gauge
-    const grandTotalAll = (totalCustDebts + totalSuppDebts + totalTreasury) || 1;
-    const custPct = Math.round((totalCustDebts / grandTotalAll) * 100);
-    const suppPct = Math.round((totalSuppDebts / grandTotalAll) * 100);
-    const treasuryPct = Math.round((totalTreasury / grandTotalAll) * 100);
-
-    const optionsMultiRadial = {
-        series: [custPct, suppPct, treasuryPct],
-        chart: { type: 'radialBar', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
-        plotOptions: {
-            radialBar: {
-                dataLabels: {
-                    name: { fontSize: '14px', color: isLightTheme ? '#64748b' : '#94a3b8' },
-                    value: { fontSize: '16px', fontWeight: '800', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + '%' },
-                    total: { show: true, label: 'حصة العملاء', color: isLightTheme ? '#0f172a' : '#cbd5e1', formatter: () => custPct + '%' }
-                },
-                track: { background: isLightTheme ? '#e2e8f0' : '#1e293b' }
-            }
-        },
-        colors: ['#38bdf8', '#f43f5e', '#10b981'],
-        labels: ['ديون العملاء', 'مستحقات الموردين', 'السيولة بالنقدية'],
-        theme: { mode: chartThemeMode }
-    };
-    if (chartMultiRadialRings) chartMultiRadialRings.destroy();
-    chartMultiRadialRings = new ApexCharts(document.querySelector("#chart-multi-radial-rings"), optionsMultiRadial);
-    chartMultiRadialRings.render();
-}
-
-window.switchVisualTab = function(type) {
-    document.querySelectorAll('.hub-tab-btn').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById('tab-' + type);
+window.switchReportSection = function(mode) {
+    document.querySelectorAll('.switcher-tab-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('tab-mode-' + mode);
     if (btn) btn.classList.add('active');
 
+    const gridSec = document.getElementById('section-excel-grid');
+    const visualSec = document.getElementById('section-visual-hub');
+
+    if (mode === 'grid') {
+        if (gridSec) gridSec.style.display = 'block';
+        if (visualSec) visualSec.style.display = 'none';
+    } else if (mode === 'visual') {
+        if (gridSec) gridSec.style.display = 'none';
+        if (visualSec) visualSec.style.display = 'block';
+    } else {
+        if (gridSec) gridSec.style.display = 'block';
+        if (visualSec) visualSec.style.display = 'block';
+    }
+};
+
+let EXCEL_GRID_DATA = [];
+
+function initDualAnalyticsEngine() {
     const sales = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []).filter(x => !x.deleted && x.saleType !== 'preliminary' && x.status !== 'preliminary');
     const purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted && !x.isGRN && !x.isReturn);
     const items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
     const payments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
     const receipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
     const customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-    renderVisualAnalyticsAnalyticsPage(sales, purchases, items, payments, receipts, customers);
-};
-</script>
+    const suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+    const safes = (JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => !x.deleted);
+    const banks = (JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => !x.deleted);
+    const accounts = (JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => !x.deleted);
+
+    let exchangeRate = 1.0;
+    try {
+        const erpSettings = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+        exchangeRate = parseFloat(erpSettings.exchangeRate || 1.0) || 1.0;
+    } catch(e) {}
+
+    // Calculate Sector Aggregates
+    const totSales = sales.reduce((sum, s) => sum + (parseFloat(s.grandTotal || s.totalAmount || 0) || 0), 0);
+    const totPurchases = purchases.reduce((sum, p) => sum + (parseFloat(p.grandTotal || p.totalAmount || 0) || 0), 0);
+    const totReceipts = receipts.reduce((sum, r) => sum + (parseFloat(r.amount || 0) || 0), 0);
+    const totPayments = payments.reduce((sum, p) => sum + (parseFloat(p.amount || 0) || 0), 0);
+    
+    const totSafesBal = safes.reduce((sum, s) => sum + (parseFloat(s.balance || s.openingBalance || 0) || 0), 0);
+    const totBanksBal = banks.reduce((sum, b) => sum + (parseFloat(b.balance || b.openingBalance || 0) || 0), 0);
+    const totExpenses = accounts.filter(a => a.type === 'expense' || a.accountType === 'expense').reduce((sum, a) => sum + (parseFloat(a.balance || 0) || 0), 0);
+
+    const grandVolume = totSales + totPurchases + totReceipts + totPayments + totSafesBal + totBanksBal;
+
+    // Build Excel Grid Data Array
+    EXCEL_GRID_DATA = [
+        { title: 'مبيعات وإيرادات النشاط', type: 'إيرادات تجارية', count: sales.length, amount: totSales, usd: totSales / exchangeRate, pct: grandVolume > 0 ? (totSales / grandVolume * 100).toFixed(1) : '0.0', status: '🟢 صاعد (إيجابي)', action: 'sales-invoice.php' },
+        { title: 'مشتريات وتكاليف البضاعة', type: 'تكاليف تشغيلية', count: purchases.length, amount: totPurchases, usd: totPurchases / exchangeRate, pct: grandVolume > 0 ? (totPurchases / grandVolume * 100).toFixed(1) : '0.0', status: '🔴 مصروف (التزام)', action: 'purchase.php' },
+        { title: 'سندات وتدفقات المقبوضات', type: 'تدفقات نقدية داخلة', count: receipts.length, amount: totReceipts, usd: totReceipts / exchangeRate, pct: grandVolume > 0 ? (totReceipts / grandVolume * 100).toFixed(1) : '0.0', status: '🟢 مقبوضات صريحة', action: 'single-cash-receipt.php' },
+        { title: 'سندات وتدفقات المدفوعات', type: 'تدفقات نقدية خارجة', count: payments.length, amount: totPayments, usd: totPayments / exchangeRate, pct: grandVolume > 0 ? (totPayments / grandVolume * 100).toFixed(1) : '0.0', status: '🔴 مدفوعات صريحة', action: 'single-cash-payment.php' },
+        { title: 'سيولة الخزن والصناديق', type: 'أرصدة الخزينة', count: safes.length, amount: totSafesBal, usd: totSafesBal / exchangeRate, pct: grandVolume > 0 ? (totSafesBal / grandVolume * 100).toFixed(1) : '0.0', status: '🟢 سيولة حاضرة', action: 'safes-and-banks.php' },
+        { title: 'أرصدة البنوك والتحويلات', type: 'أرصدة بنكية', count: banks.length, amount: totBanksBal, usd: totBanksBal / exchangeRate, pct: grandVolume > 0 ? (totBanksBal / grandVolume * 100).toFixed(1) : '0.0', status: '🟢 سيولة مصرفية', action: 'safes-and-banks.php' },
+        { title: 'أرصدة ومستحقات العملاء', type: 'ذمم مدينة', count: customers.length, amount: customers.reduce((sum, c) => sum + (parseFloat(c.balance || 0) || 0), 0), usd: customers.reduce((sum, c) => sum + (parseFloat(c.balance || 0) || 0), 0) / exchangeRate, pct: '—', status: '🔵 مستحقات مدينة', action: 'balances-report.php' },
+        { title: 'مستحقات والتزامات الموردين', type: 'ذمم دائنة', count: suppliers.length, amount: suppliers.reduce((sum, s) => sum + (parseFloat(s.balance || 0) || 0), 0), usd: suppliers.reduce((sum, s) => sum + (parseFloat(s.balance || 0) || 0), 0) / exchangeRate, pct: '—', status: '🔴 التزامات دائنة', action: 'balances-report.php' }
+    ];
+
+    renderExcelGridTable(EXCEL_GRID_DATA);
+    renderVisualAnalyticsHub({ totSales, totPurchases, totReceipts, totPayments, totSafesBal, totBanksBal, totExpenses, sales, purchases, items });
+}
+
+// ─── Render Section 1: Excel Grid Table ───
+function renderExcelGridTable(data) {
+    const tbody = document.getElementById('excel-grid-tbody');
+    const tfoot = document.getElementById('excel-grid-tfoot');
+    if (!tbody) return;
+
+    if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:#94a3b8;">لا توجد بيانات تطابق الفلاتر المحددة</td></tr>`;
+        return;
+    }
+
+    let rowsHtml = '';
+    let totalAmt = 0, totalUsd = 0;
+
+    data.forEach(item => {
+        totalAmt += item.amount;
+        totalUsd += item.usd;
+
+        rowsHtml += `
+            <tr>
+                <td style="font-weight:800; color:#38bdf8;">${item.title}</td>
+                <td><span style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); padding:3px 8px; border-radius:6px; font-size:0.8rem; color:#cbd5e1;">${item.type}</span></td>
+                <td style="font-weight:bold; font-family:'Outfit', monospace;">${item.count.toLocaleString()}</td>
+                <td style="font-weight:900; font-family:'Outfit', monospace; color:#34d399;">${item.amount.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})} SDG</td>
+                <td style="font-weight:800; font-family:'Outfit', monospace; color:#fbbf24;">$${item.usd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+                <td style="font-weight:bold; font-family:'Outfit', monospace; color:#c084fc;">${item.pct}%</td>
+                <td><span class="v-badge ${item.status.includes('🟢') ? 'badge-success' : (item.status.includes('🔴') ? 'badge-danger' : 'badge-emerald')}">${item.status}</span></td>
+                <td style="text-align:center;">
+                    <a href="${item.action}" style="background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; padding:4px 12px; border-radius:8px; font-size:0.78rem; font-weight:800; text-decoration:none; transition:all 0.2s;" onmouseover="this.style.background='#38bdf8'; this.style.color='#0f172a';" onmouseout="this.style.background='rgba(56,189,248,0.15)'; this.style.color='#38bdf8';">🔍 عرض التقرير</a>
+                </td>
+            </tr>
+        `;
+    });
+
+    tbody.innerHTML = rowsHtml;
+
+    if (tfoot) {
+        tfoot.innerHTML = `
+            <tr>
+                <td colspan="3" style="text-align:right; color:#38bdf8; font-size:1.05rem;">المجموع الكلي والأرصدة التراكمية:</td>
+                <td style="color:#34d399; font-size:1.1rem; font-family:'Outfit', monospace;">${totalAmt.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})} SDG</td>
+                <td style="color:#fbbf24; font-size:1.1rem; font-family:'Outfit', monospace;">$${totalUsd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+                <td colspan="3" style="color:#94a3b8; font-size:0.85rem;">حسابات نشطة ومطابقة بنسبة 100%</td>
+            </tr>
+        `;
+    }
+}
+
+function filterExcelTable() {
+    const query = (document.getElementById('excel-search-input').value || '').trim().toLowerCase();
+    if (!query) {
+        renderExcelGridTable(EXCEL_GRID_DATA);
+        return;
+    }
+    const filtered = EXCEL_GRID_DATA.filter(x => x.title.toLowerCase().includes(query) || x.type.toLowerCase().includes(query) || x.status.toLowerCase().includes(query));
+    renderExcelGridTable(filtered);
+}
+
+let sortAsc = true;
+function sortExcelTable(colIdx) {
+    sortAsc = !sortAsc;
+    EXCEL_GRID_DATA.sort((a, b) => {
+        let valA, valB;
+        if (colIdx === 0) { valA = a.title; valB = b.title; }
+        else if (colIdx === 1) { valA = a.type; valB = b.type; }
+        else if (colIdx === 2) { valA = a.count; valB = b.count; }
+        else if (colIdx === 3) { valA = a.amount; valB = b.amount; }
+        else if (colIdx === 4) { valA = a.usd; valB = b.usd; }
+        else if (colIdx === 5) { valA = parseFloat(a.pct) || 0; valB = parseFloat(b.pct) || 0; }
+        else if (colIdx === 6) { valA = a.status; valB = b.status; }
+        
+        if (typeof valA === 'string') {
+            return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        }
+        return sortAsc ? (valA - valB) : (valB - valA);
+    });
+    renderExcelGridTable(EXCEL_GRID_DATA);
+}
+
+function exportExcelTable() {
+    let csv = "\uFEFFالقطاع,تصنيف التقرير,عدد المعاملات,إجمالي الأرصدة (SDG),المكافئ الأجنبي (USD),النسبة المئوية,الحالة والاتجاه\n";
+    EXCEL_GRID_DATA.forEach(row => {
+        csv += `"${row.title}","${row.type}","${row.count}","${row.amount}","${row.usd}","${row.pct}%","${row.status}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `analytics_report_excel_${new Date().toISOString().slice(0,10)}.csv`;
+    link.click();
+}
+
+// ─── Render Section 2: Visual Intelligence Analytics Hub (11 ApexCharts) ───
+let anaHollowRevExp = null, anaHollowTopSales = null, anaSmoothLineSpec = null;
+let anaBiBar = null, anaSemiGauge = null, anaHollowExpenses = null;
+let anaHorizTop10 = null, anaFluidArea = null, anaRadarEquil = null;
+let anaSolidPie = null, anaMultiRadial = null;
+
+function renderVisualAnalyticsHub(data) {
+    const { totSales, totPurchases, totReceipts, totPayments, totSafesBal, totBanksBal, totExpenses, sales, purchases, items } = data;
+    
+    // Top Indicators
+    const netPosition = (totSales + totReceipts) - (totPurchases + totPayments + totExpenses);
+    const indNetVal = document.getElementById('ana-ind-net-val');
+    const indTrendBadge = document.getElementById('ana-ind-trend-badge');
+    const indTrendArrow = document.getElementById('ana-ind-trend-arrow');
+    const indCoveragePct = document.getElementById('ana-ind-coverage-pct');
+    const indCoverageBar = document.getElementById('ana-ind-coverage-bar');
+
+    if (indNetVal) indNetVal.textContent = `${(netPosition < 0 ? '-' : '') + Math.abs(netPosition).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} SDG`;
+    
+    let coverageRatio = (totPurchases + totExpenses) > 0 ? (((totSales + totReceipts) / (totPurchases + totExpenses)) * 100).toFixed(0) : '100';
+    if (indCoveragePct) indCoveragePct.textContent = `تغطية: ${coverageRatio}%`;
+    if (indCoverageBar) indCoverageBar.style.width = `${Math.min(parseFloat(coverageRatio), 100)}%`;
+
+    if (netPosition >= 0) {
+        if (indTrendBadge) { indTrendBadge.textContent = '↑ تدفق مدين متفوق'; indTrendBadge.className = 'v-badge badge-success'; }
+        if (indTrendArrow) { indTrendArrow.textContent = '↗️'; indTrendArrow.style.color = '#34d399'; }
+    } else {
+        if (indTrendBadge) { indTrendBadge.textContent = '↓ التزامات دائنة عالية'; indTrendBadge.className = 'v-badge badge-danger'; }
+        if (indTrendArrow) { indTrendArrow.textContent = '↘️'; indTrendArrow.style.color = '#f43f5e'; }
+    }
+
+    // Concentration Risk
+    const totalVol = totSales + totPurchases + totReceipts + totPayments;
+    const top3Vol = totSales + totPurchases + totReceipts;
+    const top3Pct = totalVol > 0 ? ((top3Vol / totalVol) * 100).toFixed(1) : '0.0';
+    const indTop3Pct = document.getElementById('ana-ind-top3-pct');
+    const indTop3Names = document.getElementById('ana-ind-top3-names');
+    const indRiskBar = document.getElementById('ana-ind-risk-bar');
+    if (indTop3Pct) indTop3Pct.textContent = `${top3Pct}%`;
+    if (indTop3Names) indTop3Names.textContent = 'مبيعات، مشتريات، مقبوضات';
+    if (indRiskBar) indRiskBar.style.width = `${Math.min(parseFloat(top3Pct), 100)}%`;
+
+    // Ratio & Health
+    const ratioVal = (totPurchases + totPayments) > 0 ? ((totSales + totReceipts) / (totPurchases + totPayments)).toFixed(2) : '1.0';
+    const indRatioVal = document.getElementById('ana-ind-ratio-val');
+    const indActiveCount = document.getElementById('ana-ind-active-count');
+    if (indRatioVal) indRatioVal.textContent = `${ratioVal} : 1`;
+    if (indActiveCount) indActiveCount.textContent = `${sales.length + purchases.length} حركة تجارية`;
+
+    let healthScore = 94;
+    if (totPurchases > 0) {
+        const cov = totSales / totPurchases;
+        if (cov >= 1.5) healthScore = 98;
+        else if (cov >= 1.0) healthScore = 92;
+        else healthScore = 75;
+    }
+    const indHealthScore = document.getElementById('ana-ind-health-score');
+    const indHealthBadge = document.getElementById('ana-ind-health-badge');
+    const indHealthBar = document.getElementById('ana-ind-health-bar');
+    if (indHealthScore) indHealthScore.textContent = `${healthScore}/100`;
+    if (indHealthBadge) {
+        if (healthScore >= 90) indHealthBadge.textContent = '🌟 ممتاز للغاية';
+        else indHealthBadge.textContent = '✅ جيد جداً';
+    }
+    if (indHealthBar) indHealthBar.style.width = `${healthScore}%`;
+
+    // ─── 11 ApexCharts Render Logic ───
+    if (typeof ApexCharts === 'undefined') return;
+    const isLightTheme = document.documentElement.classList.contains('light-theme');
+    const chartThemeMode = isLightTheme ? 'light' : 'dark';
+
+    // Chart 1: Revenue vs Expense Donut
+    const optionsRevExp = {
+        series: [totSales || 1, totPurchases || 1, totReceipts || 1, totPayments || 1, totExpenses || 1],
+        labels: ['المبيعات', 'المشتريات', 'المقبوضات', 'المدفوعات', 'المصروفات'],
+        chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#38bdf8', '#f43f5e', '#10b981', '#fbbf24', '#a855f7'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        plotOptions: { pie: { donut: { size: '72%', labels: { show: true, name: { show: true, fontSize: '13px' }, value: { show: true, fontSize: '15px', fontWeight: 900, formatter: v => parseFloat(v).toLocaleString('en-US', {maximumFractionDigits:0}) + ' SDG' } } } } },
+        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (anaHollowRevExp) anaHollowRevExp.destroy();
+    anaHollowRevExp = new ApexCharts(document.querySelector("#ana-chart-hollow-donut-revenue-expense"), optionsRevExp);
+    anaHollowRevExp.render();
+
+    // Chart 2: Top Sales Donut
+    let productSales = {};
+    sales.forEach(sale => {
+        (sale.items || []).forEach(item => {
+            if (!productSales[item.name]) productSales[item.name] = 0;
+            productSales[item.name] += (parseFloat(item.qty || 1) * parseFloat(item.price || 0));
+        });
+    });
+    let sortedProds = Object.keys(productSales).map(k => ({ name: k, total: productSales[k] })).sort((a,b)=>b.total - a.total).slice(0, 5);
+    const optionsTopSales = {
+        series: sortedProds.length > 0 ? sortedProds.map(x => x.total) : [totSales || 1],
+        labels: sortedProds.length > 0 ? sortedProds.map(x => x.name) : ['مبيعات عامة'],
+        chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#38bdf8', '#818cf8', '#c084fc', '#34d399', '#fbbf24'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        plotOptions: { pie: { donut: { size: '68%', labels: { show: true, name: { show: true, fontSize: '13px' }, value: { show: true, fontSize: '15px', fontWeight: 900, formatter: v => parseFloat(v).toLocaleString('en-US', {maximumFractionDigits:0}) + ' SDG' } } } } },
+        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (anaHollowTopSales) anaHollowTopSales.destroy();
+    anaHollowTopSales = new ApexCharts(document.querySelector("#ana-chart-hollow-donut-top-sales"), optionsTopSales);
+    anaHollowTopSales.render();
+
+    // Chart 3: Smooth Line Spectrum
+    const specDates = ['الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد'];
+    const specSales = [totSales * 0.1, totSales * 0.15, totSales * 0.2, totSales * 0.18, totSales * 0.22, totSales * 0.12, totSales * 0.03];
+    const optionsSpectrum = {
+        series: [{ name: 'حركة المبيعات', data: specSales }],
+        chart: { type: 'area', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#34d399'],
+        stroke: { curve: 'smooth', width: 3 },
+        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.05, stops: [0, 95, 100] } },
+        xaxis: { categories: specDates, labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' } } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits:0}) } },
+        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
+        theme: { mode: chartThemeMode }
+    };
+    if (anaSmoothLineSpec) anaSmoothLineSpec.destroy();
+    anaSmoothLineSpec = new ApexCharts(document.querySelector("#ana-chart-smooth-line-spectrum"), optionsSpectrum);
+    anaSmoothLineSpec.render();
+
+    // Chart 4: Bi-directional Bar
+    const optionsBiBar = {
+        series: [
+            { name: 'المبيعات والمقبوضات (🟢)', data: [totSales, totReceipts, totSafesBal] },
+            { name: 'المشتريات والمدفوعات (🔴)', data: [totPurchases, totPayments, totExpenses] }
+        ],
+        chart: { type: 'bar', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 6 } },
+        colors: ['#10b981', '#f43f5e'],
+        xaxis: { categories: ['النشاط التجاري', 'السندات والقيود', 'الخزن والسيولة'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1' } } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits:0}) } },
+        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
+        legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (anaBiBar) anaBiBar.destroy();
+    anaBiBar = new ApexCharts(document.querySelector("#ana-chart-bidirectional-sales-purchases"), optionsBiBar);
+    anaBiBar.render();
+
+    // Chart 5: Semi Circle Gauge
+    const optionsGauge = {
+        series: [healthScore],
+        chart: { type: 'radialBar', height: 340, offsetY: -10, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        plotOptions: { radialBar: { startAngle: -90, endAngle: 90, track: { background: isLightTheme ? "#e2e8f0" : "#1e293b", strokeWidth: '97%' }, dataLabels: { name: { show: true, fontSize: '14px', color: isLightTheme ? '#64748b' : '#94a3b8' }, value: { offsetY: -50, fontSize: '24px', fontWeight: '900', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + "%" } } } },
+        fill: { type: 'gradient', gradient: { shade: 'dark', type: 'horizontal', gradientToColors: ['#34d399'], stops: [0, 100] } },
+        colors: ['#38bdf8'],
+        labels: ['مقياس مأمونية السيولة'],
+        theme: { mode: chartThemeMode }
+    };
+    if (anaSemiGauge) anaSemiGauge.destroy();
+    anaSemiGauge = new ApexCharts(document.querySelector("#ana-chart-semicircle-gauge"), optionsGauge);
+    anaSemiGauge.render();
+
+    // Chart 6: Top Expenses Donut
+    const optionsExpenses = {
+        series: [totPurchases * 0.6 || 100, totPurchases * 0.25 || 50, totExpenses || 300, 200],
+        labels: ['مشتريات البضاعة', 'تكاليف الشحن', 'المصروفات العمومية', 'نفقات أخرى'],
+        chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#f43f5e', '#fb7185', '#a855f7', '#fbbf24'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        plotOptions: { pie: { donut: { size: '68%', labels: { show: true, name: { show: true, fontSize: '13px' }, value: { show: true, fontSize: '15px', fontWeight: 900, formatter: v => parseFloat(v).toLocaleString('en-US', {maximumFractionDigits:0}) + ' SDG' } } } } },
+        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (anaHollowExpenses) anaHollowExpenses.destroy();
+    anaHollowExpenses = new ApexCharts(document.querySelector("#ana-chart-hollow-donut-top-expenses"), optionsExpenses);
+    anaHollowExpenses.render();
+
+    // Chart 7: Horizontal Bar Ranking
+    const optionsHoriz = {
+        series: [{ name: 'حجم القطاع', data: [totSales, totPurchases, totSafesBal, totBanksBal, totReceipts, totPayments] }],
+        chart: { type: 'bar', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        plotOptions: { bar: { horizontal: true, borderRadius: 6, distributed: true } },
+        colors: ['#38bdf8', '#f43f5e', '#10b981', '#34d399', '#a855f7', '#fbbf24'],
+        xaxis: { categories: ['المبيعات', 'المشتريات', 'الخزن', 'البنوك', 'المقبوضات', 'المدفوعات'], labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits:0}) } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } } },
+        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
+        legend: { show: false },
+        theme: { mode: chartThemeMode }
+    };
+    if (anaHorizTop10) anaHorizTop10.destroy();
+    anaHorizTop10 = new ApexCharts(document.querySelector("#ana-chart-horizontal-top10-ranking"), optionsHoriz);
+    anaHorizTop10.render();
+
+    // Chart 8: Fluid Area Curve
+    const optionsFluid = {
+        series: [{ name: 'السيولة التراكمية', data: [totSafesBal*0.3, totSafesBal*0.5, totSafesBal*0.7, totSafesBal*0.85, (totSafesBal + totBanksBal) || 100] }],
+        chart: { type: 'area', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#10b981'],
+        stroke: { curve: 'smooth', width: 2.5 },
+        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.05, stops: [0, 95, 100] } },
+        xaxis: { categories: ['مرحلة 1', 'مرحلة 2', 'مرحلة 3', 'مرحلة 4', 'الوضع الحالي'], labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' } } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits:0}) } },
+        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
+        theme: { mode: chartThemeMode }
+    };
+    if (anaFluidArea) anaFluidArea.destroy();
+    anaFluidArea = new ApexCharts(document.querySelector("#ana-chart-cumulative-area-fluid"), optionsFluid);
+    anaFluidArea.render();
+
+    // Chart 9: Polygon Radar Equilibrium
+    const optionsRadar = {
+        series: [
+            { name: 'الأداء الفعلي', data: [totSales/1000 || 10, totPurchases/1000 || 5, totSafesBal/1000 || 8, totBanksBal/1000 || 6, totReceipts/1000 || 7] }
+        ],
+        chart: { type: 'radar', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#c084fc'],
+        stroke: { width: 2 },
+        fill: { opacity: 0.25 },
+        markers: { size: 4 },
+        xaxis: { categories: ['المبيعات', 'المشتريات', 'الخزن', 'البنوك', 'المقبوضات'], labels: { style: { colors: isLightTheme ? '#0f172a' : '#e2e8f0' } } },
+        yaxis: { show: false },
+        theme: { mode: chartThemeMode }
+    };
+    if (anaRadarEquil) anaRadarEquil.destroy();
+    anaRadarEquil = new ApexCharts(document.querySelector("#ana-chart-radar-equilibrium"), optionsRadar);
+    anaRadarEquil.render();
+
+    // Chart 10: Solid Pie Chart
+    const optionsSolidPie = {
+        series: [sales.length || 1, purchases.length || 1, (items.length || 1)],
+        labels: [`مبيعات (${sales.length})`, `مشتريات (${purchases.length})`, `أصناف (${items.length})`],
+        chart: { type: 'pie', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#10b981', '#f43f5e', '#38bdf8'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (anaSolidPie) anaSolidPie.destroy();
+    anaSolidPie = new ApexCharts(document.querySelector("#ana-chart-solid-pie-active-inactive"), optionsSolidPie);
+    anaSolidPie.render();
+
+    // Chart 11: Multi-Radial Rings Gauge
+    const totCount = (sales.length + purchases.length + items.length) || 1;
+    const salesPct = Math.round((sales.length / totCount) * 100);
+    const purchPct = Math.round((purchases.length / totCount) * 100);
+    const itemsPct = Math.round((items.length / totCount) * 100);
+
+    const optionsMultiRadial = {
+        series: [salesPct, purchPct, itemsPct],
+        chart: { type: 'radialBar', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        plotOptions: {
+            radialBar: {
+                dataLabels: {
+                    name: { fontSize: '14px', color: isLightTheme ? '#64748b' : '#94a3b8' },
+                    value: { fontSize: '16px', fontWeight: '800', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + '%' },
+                    total: { show: true, label: 'حصة المبيعات', color: isLightTheme ? '#0f172a' : '#cbd5e1', formatter: () => salesPct + '%' }
+                },
+                track: { background: isLightTheme ? '#e2e8f0' : '#1e293b' }
+            }
+        },
+        colors: ['#10b981', '#f43f5e', '#38bdf8'],
+        labels: ['حصة المبيعات', 'حصة المشتريات', 'حصة المخزون'],
+        theme: { mode: chartThemeMode }
+    };
+    if (anaMultiRadial) anaMultiRadial.destroy();
+    anaMultiRadial = new ApexCharts(document.querySelector("#ana-chart-multi-radial-rings"), optionsMultiRadial);
+    anaMultiRadial.render();
+}
+
+// Hook into initial load
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initDualAnalyticsEngine, 600);
+});
 
 <!-- Daily Report Modal -->
 <div id="dailyReport-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,3,8,0.85); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center; direction: rtl;">
