@@ -1411,55 +1411,72 @@ function shareWhatsApp() {
 
 /* ─── Premium Glassmorphic Quick Presets (Hold 8s to Save, Click to Apply) ─── */
 window.getBalancesPresets = function() {
-    let list = [];
+    let userList = [];
     try {
-        list = JSON.parse(localStorage.getItem('balances_report_presets_v1'));
+        userList = JSON.parse(localStorage.getItem('balances_report_user_presets_v3'));
     } catch(e) {}
-    if (!list || !Array.isArray(list) || list.length !== 4) {
-        list = [
+    if (!userList || !Array.isArray(userList) || userList.length !== 3) {
+        userList = [
             { id: 1, name: 'تخطيط 1', colConfigs: null, colOrder: null },
             { id: 2, name: 'تخطيط 2', colConfigs: null, colOrder: null },
-            { id: 3, name: 'تخطيط 3', colConfigs: null, colOrder: null },
-            { id: 4, name: 'تخطيط 4', colConfigs: null, colOrder: null }
+            { id: 3, name: 'تخطيط 3', colConfigs: null, colOrder: null }
         ];
-        localStorage.setItem('balances_report_presets_v1', JSON.stringify(list));
+        localStorage.setItem('balances_report_user_presets_v3', JSON.stringify(userList));
     }
 
-    // Default 1 preset is permanently linked to the current design in Preset 4 (Slot 4)
-    let defaultConfigs = null;
-    let defaultOrder = null;
-
+    // Default 1 Master Configs (Standard Factory System Default)
+    let default1Configs = null;
+    let default1Order = null;
     try {
-        const master = JSON.parse(localStorage.getItem('balances_report_master_default1'));
-        if (master && master.colConfigs && master.colOrder) {
-            defaultConfigs = master.colConfigs;
-            defaultOrder = master.colOrder;
+        const master1 = JSON.parse(localStorage.getItem('balances_report_master_default1'));
+        if (master1 && master1.colConfigs && master1.colOrder) {
+            default1Configs = master1.colConfigs;
+            default1Order = master1.colOrder;
         }
     } catch(e) {}
 
-    if (!defaultConfigs && list[3] && list[3].colConfigs && list[3].colOrder) {
-        defaultConfigs = JSON.parse(JSON.stringify(list[3].colConfigs));
-        defaultOrder = [...list[3].colOrder];
-        localStorage.setItem('balances_report_master_default1', JSON.stringify({ colConfigs: defaultConfigs, colOrder: defaultOrder }));
-    }
-
-    if (!defaultConfigs) {
-        defaultConfigs = window.colConfigs ? JSON.parse(JSON.stringify(window.colConfigs)) : Array.from({length: 9}, () => ({
+    if (!default1Configs) {
+        default1Configs = Array.from({length: 9}, () => ({
             visible: true, bold: false, fontWeight: 'normal', fs: 1.0, decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right'
         }));
-        defaultOrder = window.colOrder ? [...window.colOrder] : [0, 1, 2, 3, 4, 5, 6, 7, 8];
-        localStorage.setItem('balances_report_master_default1', JSON.stringify({ colConfigs: defaultConfigs, colOrder: defaultOrder }));
+        default1Order = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+        localStorage.setItem('balances_report_master_default1', JSON.stringify({ colConfigs: default1Configs, colOrder: default1Order }));
     }
 
-    const defaultPreset = {
+    // Default 2 Master Configs (Frozen Current Report Setup with fonts, sizes, colors)
+    let default2Configs = null;
+    let default2Order = null;
+    try {
+        const master2 = JSON.parse(localStorage.getItem('balances_report_master_default2'));
+        if (master2 && master2.colConfigs && master2.colOrder) {
+            default2Configs = master2.colConfigs;
+            default2Order = master2.colOrder;
+        }
+    } catch(e) {}
+
+    if (!default2Configs) {
+        default2Configs = window.colConfigs ? JSON.parse(JSON.stringify(window.colConfigs)) : JSON.parse(JSON.stringify(default1Configs));
+        default2Order = window.colOrder ? [...window.colOrder] : [...default1Order];
+        localStorage.setItem('balances_report_master_default2', JSON.stringify({ colConfigs: default2Configs, colOrder: default2Order }));
+    }
+
+    const defaultPreset1 = {
         id: 'default1',
         name: 'الافتراضي 1 ⭐',
         isDefault: true,
-        colOrder: defaultOrder,
-        colConfigs: defaultConfigs
+        colOrder: default1Order,
+        colConfigs: default1Configs
     };
 
-    return [defaultPreset, ...list];
+    const defaultPreset2 = {
+        id: 'default2',
+        name: 'الافتراضي 2 🌟',
+        isDefault: true,
+        colOrder: default2Order,
+        colConfigs: default2Configs
+    };
+
+    return [defaultPreset1, defaultPreset2, ...userList];
 };
 
 window.renderBalancesPresets = function() {
@@ -1471,23 +1488,16 @@ window.renderBalancesPresets = function() {
     
     list.forEach(p => {
         const btn = document.createElement('div');
-        btn.setAttribute('data-slot-id', p.id); // Color-coding preset slots
+        btn.setAttribute('data-slot-id', p.id);
         
-        let isActive = false;
-        if (p.isDefault) {
-            isActive = p.colConfigs && window.colConfigs &&
+        let isActive = p.colConfigs && window.colConfigs &&
                        JSON.stringify(p.colConfigs) === JSON.stringify(window.colConfigs) && 
                        JSON.stringify(p.colOrder) === JSON.stringify(window.colOrder);
-        } else {
-            isActive = p.colConfigs && 
-                       JSON.stringify(p.colConfigs) === JSON.stringify(window.colConfigs) && 
-                       JSON.stringify(p.colOrder) === JSON.stringify(window.colOrder);
-        }
                        
         btn.className = `preset-btn ${p.colConfigs || p.isDefault ? 'has-data' : ''} ${isActive ? 'active' : ''}`;
         
         if (p.isDefault) {
-            btn.title = `نقرة لاسترجاع الضبط الافتراضي الأساسي للتقرير [الافتراضي 1]. هذا الضبط مصنعي ثابت لا يتغير.`;
+            btn.title = `نقرة لاسترجاع [${p.name}]. هذا الضبط مصنعي مثبت داخل السيستم ولا يمكن التعديل عليه.`;
         } else {
             btn.title = p.colConfigs ? `نقرة لتطبيق [${p.name}]. اضغط مطولاً (8 ثوانٍ) للحفظ هنا. كليك يمين للحذف.` : `اضغط مطولاً (8 ثوانٍ) لحفظ التخطيط الحالي هنا.`;
         }
@@ -1509,11 +1519,11 @@ function setupPresetButtonEvents(btn, p) {
     if (p.isDefault) {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
-            applyPresetLayout('default1');
+            applyPresetLayout(p.id);
         });
         btn.addEventListener('contextmenu', (e) => {
             e.preventDefault();
-            showToast("الضبط (الافتراضي 1) هو الضبط الأساسي للنظام ومحمي من التعديل أو الحذف", "info");
+            showToast(`الضبط [${p.name}] محمي ومثبت داخل النظام ولا يمكن التعديل عليه أو مسحه`, "info");
         });
         return;
     }
@@ -1580,12 +1590,12 @@ function setupPresetButtonEvents(btn, p) {
         e.preventDefault();
         if (!p.colConfigs) return;
         if (confirm("هل أنت متأكد من رغبتك في حذف هذا التخطيط المبرمج؟")) {
-            let list = [];
-            try { list = JSON.parse(localStorage.getItem('balances_report_presets_v1')) || []; } catch(e){}
-            let slotIdx = list.findIndex(x => String(x.id) === String(p.id));
+            let userList = [];
+            try { userList = JSON.parse(localStorage.getItem('balances_report_user_presets_v3')) || []; } catch(e){}
+            let slotIdx = userList.findIndex(x => String(x.id) === String(p.id));
             if (slotIdx !== -1) {
-                list[slotIdx] = { id: p.id, name: 'تخطيط ' + p.id, colConfigs: null, colOrder: null };
-                localStorage.setItem('balances_report_presets_v1', JSON.stringify(list));
+                userList[slotIdx] = { id: p.id, name: 'تخطيط ' + p.id, colConfigs: null, colOrder: null };
+                localStorage.setItem('balances_report_user_presets_v3', JSON.stringify(userList));
                 showToast("تم حذف برمجة التخطيط", "success");
                 window.renderBalancesPresets();
             }
@@ -1594,61 +1604,52 @@ function setupPresetButtonEvents(btn, p) {
 }
 
 function savePresetLayout(id) {
-    if (id === 'default1') {
-        showToast("الضبط (الافتراضي 1) ثابت، عدّل على (تخطيط 4) لتحديث الضبط الافتراضي.", "warning");
+    if (id === 'default1' || id === 'default2') {
+        showToast("الأزرار الافتراضية محمية داخل السيستم. يمكنك الحفظ في تخطيط 1 أو 2 أو 3.", "warning");
         return;
     }
 
-    let list = [];
-    try { list = JSON.parse(localStorage.getItem('balances_report_presets_v1')) || []; } catch(e){}
-    if (!list || list.length !== 4) {
-        list = [
+    let userList = [];
+    try { userList = JSON.parse(localStorage.getItem('balances_report_user_presets_v3')) || []; } catch(e){}
+    if (!userList || userList.length !== 3) {
+        userList = [
             { id: 1, name: 'تخطيط 1', colConfigs: null, colOrder: null },
             { id: 2, name: 'تخطيط 2', colConfigs: null, colOrder: null },
-            { id: 3, name: 'تخطيط 3', colConfigs: null, colOrder: null },
-            { id: 4, name: 'تخطيط 4', colConfigs: null, colOrder: null }
+            { id: 3, name: 'تخطيط 3', colConfigs: null, colOrder: null }
         ];
     }
     
-    let slotIdx = list.findIndex(x => String(x.id) === String(id));
+    let slotIdx = userList.findIndex(x => String(x.id) === String(id));
     if (slotIdx === -1) slotIdx = parseInt(id) - 1;
 
-    let defaultName = list[slotIdx] ? list[slotIdx].name : ("تخطيط " + id);
-    let name = prompt("أدخل اسماً لتسمية هذا التخطيط المخصص (سلوت " + id + "):", defaultName);
+    let defaultName = userList[slotIdx] ? userList[slotIdx].name : ("تخطيط " + id);
+    let name = prompt("أدخل اسماً لتسمية هذا التخطيط المخصص (تخطيط " + id + "):", defaultName);
     if (name === null) return;
     name = name.trim() || ("تخطيط " + id);
 
     const newConfigs = JSON.parse(JSON.stringify(window.colConfigs));
     const newOrder = [...window.colOrder];
 
-    list[slotIdx] = {
+    userList[slotIdx] = {
         id: parseInt(id),
         name: name,
         colConfigs: newConfigs,
         colOrder: newOrder
     };
     
-    localStorage.setItem('balances_report_presets_v1', JSON.stringify(list));
-
-    // Update master default 1 if slot 4 is saved
-    if (parseInt(id) === 4) {
-        localStorage.setItem('balances_report_master_default1', JSON.stringify({
-            colConfigs: newConfigs,
-            colOrder: newOrder
-        }));
-    }
-
-    showToast("تم حفظ التخطيط '" + name + "' بنجاح في السلوت " + id, "success");
+    localStorage.setItem('balances_report_user_presets_v3', JSON.stringify(userList));
+    showToast("تم حفظ التخطيط '" + name + "' بنجاح", "success");
     window.renderBalancesPresets();
 }
 
 function applyPresetLayout(id) {
-    if (id === 'default1') {
+    if (id === 'default1' || id === 'default2') {
         let masterConfigs = null;
         let masterOrder = null;
+        const key = (id === 'default1') ? 'balances_report_master_default1' : 'balances_report_master_default2';
 
         try {
-            const master = JSON.parse(localStorage.getItem('balances_report_master_default1'));
+            const master = JSON.parse(localStorage.getItem(key));
             if (master && master.colConfigs && master.colOrder) {
                 masterConfigs = master.colConfigs;
                 masterOrder = master.colOrder;
@@ -1656,23 +1657,18 @@ function applyPresetLayout(id) {
         } catch(e) {}
 
         if (!masterConfigs) {
-            let list = [];
-            try { list = JSON.parse(localStorage.getItem('balances_report_presets_v1')) || []; } catch(e){}
-            if (list[3] && list[3].colConfigs && list[3].colOrder) {
-                masterConfigs = list[3].colConfigs;
-                masterOrder = list[3].colOrder;
+            const presets = window.getBalancesPresets();
+            const target = presets.find(x => x.id === id);
+            if (target && target.colConfigs) {
+                masterConfigs = target.colConfigs;
+                masterOrder = target.colOrder;
             }
         }
 
-        if (!masterConfigs) {
-            masterConfigs = window.colConfigs ? JSON.parse(JSON.stringify(window.colConfigs)) : Array.from({length: 9}, () => ({
-                visible: true, bold: false, fontWeight: 'normal', fs: 1.0, decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right'
-            }));
-            masterOrder = window.colOrder ? [...window.colOrder] : [0, 1, 2, 3, 4, 5, 6, 7, 8];
+        if (masterConfigs) {
+            window.colConfigs = JSON.parse(JSON.stringify(masterConfigs));
+            window.colOrder = [...masterOrder];
         }
-
-        window.colConfigs = JSON.parse(JSON.stringify(masterConfigs));
-        window.colOrder = [...masterOrder];
 
         try {
             const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
@@ -1688,14 +1684,15 @@ function applyPresetLayout(id) {
         if (window.lastResults && window.lastResults.length > 0) {
             renderTable(window.lastResults);
         }
-        showToast("تم إرجاع وتطبيق الضبط الافتراضي الأصلي (الافتراضي 1) المأخوذ من تخطيط 4 بنجاح ⭐", "success");
+        const label = (id === 'default1') ? 'الافتراضي 1 ⭐' : 'الافتراضي 2 🌟';
+        showToast("تم تطبيق الضبط والتصميم الافتراضي (" + label + ") بنجاح ✨", "success");
         window.renderBalancesPresets();
         return;
     }
 
-    let list = [];
-    try { list = JSON.parse(localStorage.getItem('balances_report_presets_v1')) || []; } catch(e){}
-    let p = list.find(x => String(x.id) === String(id));
+    let userList = [];
+    try { userList = JSON.parse(localStorage.getItem('balances_report_user_presets_v3')) || []; } catch(e){}
+    let p = userList.find(x => String(x.id) === String(id));
     if (!p || !p.colConfigs) {
         showToast("هذا التخطيط فارغ! اضغط مطولاً (8 ثوانٍ) لحفظ التخطيط الحالي هنا.", "warning");
         return;

@@ -344,10 +344,10 @@
         }
         
         .preset-btn[data-slot-id="default1"] { --accent-color: 234, 179, 8; font-weight: 900; }
-        .preset-btn[data-slot-id="1"] { --accent-color: 168, 85, 247; }
-        .preset-btn[data-slot-id="2"] { --accent-color: 6, 182, 212; }
-        .preset-btn[data-slot-id="3"] { --accent-color: 16, 185, 129; }
-        .preset-btn[data-slot-id="4"] { --accent-color: 245, 158, 11; }
+        .preset-btn[data-slot-id="default2"] { --accent-color: 168, 85, 247; font-weight: 900; }
+        .preset-btn[data-slot-id="1"] { --accent-color: 6, 182, 212; }
+        .preset-btn[data-slot-id="2"] { --accent-color: 16, 185, 129; }
+        .preset-btn[data-slot-id="3"] { --accent-color: 245, 158, 11; }
         
         @keyframes pulse-glow {
             0% { box-shadow: 0 0 6px rgba(var(--accent-color), 0.6); }
