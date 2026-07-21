@@ -699,32 +699,10 @@
                         <button class="hub-tab-btn active" onclick="switchVisualTab('all')" id="tab-all">🚀 المشهد الكامل</button>
                         <button class="hub-tab-btn" onclick="switchVisualTab('partners')" id="tab-partners">👥 العملاء والموردين</button>
                         <button class="hub-tab-btn" onclick="switchVisualTab('treasury')" id="tab-treasury">🏦 الخزن والبنوك</button>
-                </div>
-
-                <!-- AI Financial & Cash Flow Intelligence Advisor (مستشار التحليل المالي والسيولة بالذكاء الاصطناعي) -->
-                <div id="ai-intelligence-container" class="v-chart-card no-print" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.14), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(168, 85, 247, 0.4); margin-bottom: 25px; border-radius: 18px; padding: 24px; box-shadow: 0 12px 35px rgba(168, 85, 247, 0.18);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 14px;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #a855f7, #6d28d9); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff; box-shadow: 0 0 18px rgba(168, 85, 247, 0.5); animation: pulse 2s infinite;">🤖</div>
-                            <div>
-                                <h3 style="margin: 0; color: #f8fafc; font-size: 1.25rem; font-weight: 900;">مستشار التحليل المالي والسيولة بالذكاء الاصطناعي (AI Analytics)</h3>
-                                <span style="font-size: 0.82rem; color: #c084fc; font-weight: 700;">قراءة استراتيجية فورية للتدفق المالي، ارتفاع ديون العملاء والموردين، والتوصيات المحاسبية</span>
-                            </div>
-                        </div>
-                        <button type="button" class="btn-run" onclick="generateAIBalancesAnalysis()" id="btn-run-ai" style="background: linear-gradient(135deg, #a855f7, #7c3aed); color: #fff; border: none; padding: 8px 22px; border-radius: 10px; font-weight: 900; font-size: 0.88rem; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s;">
-                            <span style="font-size: 1.1rem;">✨</span>
-                            <span id="btn-ai-text">تحديث تحليل الذكاء الاصطناعي AI</span>
-                        </button>
-                    </div>
-
-                    <!-- AI Output Content Grid -->
-                    <div id="ai-analysis-content">
-                        <div style="text-align: center; padding: 25px 15px; color: #94a3b8;">
-                            <span style="font-size: 2.2rem; display: block; margin-bottom: 8px;">🤖</span>
-                            <div>اضغط "تحديث تحليل الذكاء الاصطناعي" للحصول على قراءة استراتيجية كاملة للسيولة وديون العملاء والموردين.</div>
-                        </div>
                     </div>
                 </div>
+
+                <!-- Visual Indicator Cards Row (أسهم ومؤشرات بصرية) -->
                 <div class="visual-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-bottom: 30px;">
                     
                     <!-- Card 1: مؤشر الاتجاه والتغطية -->
