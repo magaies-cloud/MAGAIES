@@ -3075,10 +3075,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Initial ping
-    setTimeout(pingOnlineUsers, 1000);
+    setTimeout(pingOnlineUsers, 3000);
     
-    // Ping every 30 seconds
-    setInterval(pingOnlineUsers, 30000);
+    // Ping every 2 minutes (reduced from 30s to improve performance)
+    setInterval(pingOnlineUsers, 120000);
 });
 
 
@@ -4062,17 +4062,7 @@ window.printReportDirectly = function(title, targetSelector) {
             } else {
                 this.applyAllSaved();
             }
-            
-            let _applyPending = false;
-            const observer = new MutationObserver(() => {
-                if (_applyPending) return;
-                _applyPending = true;
-                requestAnimationFrame(() => {
-                    this.applyAllSaved();
-                    _applyPending = false;
-                });
-            });
-            observer.observe(document.body, { childList: true, subtree: true });
+            // MutationObserver removed — it was firing applyAllSaved() on every DOM change causing severe lag
         },
 
         getElementPath(el) {
@@ -4536,62 +4526,8 @@ window.printReportDirectly = function(title, targetSelector) {
                     }
                 } catch(e) {}
             });
-        },
-
-        init() {
-            try {
-                this.savedStyles = JSON.parse(localStorage.getItem('erp_custom_styles_v1')) || {};
-            } catch(e) {
-                this.savedStyles = {};
-            }
-
-            document.addEventListener('contextmenu', (e) => {
-                if (window.location.pathname.includes('balances-report.php')) return;
-                let target = e.target;
-                let depth = 0;
-                while (target && depth < 3) {
-                    if (isTargetElement(target)) {
-                        e.preventDefault();
-                        this.showMenu(target, e.clientX, e.clientY);
-                        return;
-                    }
-                    target = target.parentElement;
-                    depth++;
-                }
-            });
-
-            document.addEventListener('click', (e) => {
-                if (this.menuEl && !this.menuEl.contains(e.target)) {
-                    this.hideMenu();
-                }
-            });
-
-            document.addEventListener('focusout', (e) => {
-                const el = e.target;
-                if (el && el.dataset.customDecimals && el.dataset.customDecimals !== 'none') {
-                    formatElementNumber(el, parseInt(el.dataset.customDecimals), el.dataset.customThousands !== 'false');
-                }
-            });
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', () => this.applyAllSaved());
-            } else {
-                this.applyAllSaved();
-            }
-            
-            let _numApplyPending = false;
-            const observer = new MutationObserver(() => {
-                if (_numApplyPending) return;
-                _numApplyPending = true;
-                requestAnimationFrame(() => {
-                    this.applyAllSaved();
-                    _numApplyPending = false;
-                });
-            });
-            observer.observe(document.body, { childList: true, subtree: true });
         }
     };
 
     NumberStyleManager.init();
 })();
-
