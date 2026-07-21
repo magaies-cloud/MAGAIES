@@ -176,9 +176,20 @@ function saveLayout() {
 }
 
 function fmtColNum(n, origIdx) {
-    const d = window.colConfigs[origIdx].decimals;
-    const val = parseFloat(n) || 0;
-    return val.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+    const conf = (window.colConfigs && window.colConfigs[origIdx]) ? window.colConfigs[origIdx] : {};
+    const showDec = (conf.showDecimals !== false);
+    const d = showDec ? ((conf.decimals !== undefined) ? parseInt(conf.decimals) : 2) : 0;
+    const isThousands = (conf.thousands !== false);
+    const val = parseFloat(n);
+    if (isNaN(val)) return String(n || '');
+
+    let formatted = val.toFixed(d);
+    if (isThousands) {
+        const parts = formatted.split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        formatted = parts.join('.');
+    }
+    return formatted;
 }
 function parseNum(str) {
     return parseFloat(String(str || '0').replace(/,/g, '')) || 0;
@@ -853,7 +864,7 @@ window.bindContextMenuList = function(keepOpenVisualIdx = null) {
         if(!text) text = 'عمود ' + (visualIndex+1);
         
         const origIdx = parseInt(thEl.getAttribute('data-orig-idx'));
-        const conf = window.colConfigs[origIdx] || { fs: 1.0, bold: false, fontWeight: 'normal', decimals: 2, thousands: true, color: '', bg: '', visible: true, fontFamily: '', textAlign: 'right' };
+        const conf = window.colConfigs[origIdx] || { fs: 1.0, bold: false, fontWeight: 'normal', decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', visible: true, fontFamily: '', textAlign: 'right' };
 
         const isOpen = (keepOpenVisualIdx === visualIndex);
 
@@ -881,9 +892,9 @@ window.bindContextMenuList = function(keepOpenVisualIdx = null) {
             </div>
             <div id="config-panel-${visualIndex}" style="display:${isOpen ? 'block' : 'none'}; padding:14px; background:rgba(15, 23, 42, 0.94); border-top:1px solid rgba(255,255,255,0.08);">
                 
-                <!-- 1. Font Family & Weight -->
+                <!-- 1. Font Family & Font Weight Buttons (تخين / ضعيف) -->
                 <div style="display:flex; gap:10px; margin-bottom:12px;">
-                    <div style="flex:1.2;">
+                    <div style="flex:1;">
                         <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:5px;">خط العمود:</label>
                         <select onchange="setColFontFamily(${origIdx}, ${visualIndex}, this.value)" style="width:100%; background:rgba(30, 41, 59, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:6px 8px; border-radius:6px; font-size:0.8rem; outline:none;">
                             <option value="" ${!conf.fontFamily ? 'selected' : ''}>-- الخط الافتراضي --</option>
@@ -894,23 +905,22 @@ window.bindContextMenuList = function(keepOpenVisualIdx = null) {
                             <option value="'Poppins', sans-serif" ${conf.fontFamily === "'Poppins', sans-serif" ? 'selected' : ''}>5. Poppins (هندسي وواضح)</option>
                         </select>
                     </div>
-                    <div style="flex:0.8;">
-                        <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:5px;">سمك الخط:</label>
-                        <select onchange="setColFontWeight(${origIdx}, ${visualIndex}, this.value)" style="width:100%; background:rgba(30, 41, 59, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:6px 8px; border-radius:6px; font-size:0.8rem; outline:none;">
-                            <option value="normal" ${conf.fontWeight === 'normal' || (!conf.bold && !conf.fontWeight) ? 'selected' : ''}>عادي (Normal)</option>
-                            <option value="bold" ${conf.fontWeight === 'bold' || (conf.bold && conf.fontWeight !== '900') ? 'selected' : ''}>عريض (Bold)</option>
-                            <option value="900" ${conf.fontWeight === '900' ? 'selected' : ''}>ثقيل جداً (Extra Bold 900)</option>
-                        </select>
+                    <div style="flex:1;">
+                        <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:5px;">سمك الخط (تخين / ضعيف):</label>
+                        <div style="display:flex; gap:4px;">
+                            <button type="button" onclick="setColFontWeight(${origIdx}, ${visualIndex}, 'normal')" style="flex:1; padding:5px 6px; cursor:pointer; border-radius:6px; border:1px solid ${(!conf.bold && conf.fontWeight !== 'bold' && conf.fontWeight !== '900') ? '#38bdf8' : 'rgba(255,255,255,0.15)'}; background:${(!conf.bold && conf.fontWeight !== 'bold' && conf.fontWeight !== '900') ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${(!conf.bold && conf.fontWeight !== 'bold' && conf.fontWeight !== '900') ? '#0f172a' : '#fff'}; font-weight:bold; font-size:0.78rem;">ضعيف</button>
+                            <button type="button" onclick="setColFontWeight(${origIdx}, ${visualIndex}, 'bold')" style="flex:1; padding:5px 6px; cursor:pointer; border-radius:6px; border:1px solid ${(conf.bold || conf.fontWeight === 'bold' || conf.fontWeight === '900') ? '#38bdf8' : 'rgba(255,255,255,0.15)'}; background:${(conf.bold || conf.fontWeight === 'bold' || conf.fontWeight === '900') ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${(conf.bold || conf.fontWeight === 'bold' || conf.fontWeight === '900') ? '#0f172a' : '#fff'}; font-weight:bold; font-size:0.78rem;">تخين (B)</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- 2. Font Size Slider & Exact Input -->
                 <div style="margin-bottom:12px;">
-                    <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:5px;">حجم الخط (اختر أي درجة تريدها):</label>
+                    <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:5px;">حجم الخط (سحب أو كتابة أي مقاس من 0.3em إلى 5.0em):</label>
                     <div style="display:flex; align-items:center; gap:10px; background:rgba(30,41,59,0.5); padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">
-                        <input type="range" min="0.6" max="3.0" step="0.05" value="${conf.fs || 1.0}" oninput="setColFsExact(${origIdx}, ${visualIndex}, this.value)" style="flex:1; cursor:pointer; accent-color:#38bdf8;">
-                        <input type="number" min="0.5" max="4.0" step="0.1" value="${(conf.fs || 1.0).toFixed(1)}" onchange="setColFsExact(${origIdx}, ${visualIndex}, this.value)" style="width:55px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.15); color:#38bdf8; font-weight:bold; text-align:center; padding:3px; border-radius:4px; font-size:0.8rem;">
-                        <span style="font-size:0.75rem; color:#94a3b8;">em</span>
+                        <input type="range" min="0.3" max="4.0" step="0.05" value="${conf.fs || 1.0}" oninput="setColFsExact(${origIdx}, ${visualIndex}, this.value)" style="flex:1; cursor:pointer; accent-color:#38bdf8;">
+                        <input type="number" min="0.2" max="6.0" step="0.1" value="${(conf.fs || 1.0).toFixed(1)}" oninput="setColFsExact(${origIdx}, ${visualIndex}, this.value)" onchange="setColFsExact(${origIdx}, ${visualIndex}, this.value)" style="width:60px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.15); color:#38bdf8; font-weight:bold; text-align:center; padding:4px; border-radius:4px; font-size:0.82rem;">
+                        <span style="font-size:0.75rem; color:#94a3b8; font-weight:bold;">em</span>
                     </div>
                 </div>
 
@@ -924,29 +934,41 @@ window.bindContextMenuList = function(keepOpenVisualIdx = null) {
                     </div>
                 </div>
 
-                <!-- 4. Decimals Precision & Thousands Separator -->
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <div style="flex:1.1;">
-                        <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:4px;">خانة التقريب العشرية:</label>
-                        <select onchange="setColDecimals(${origIdx}, ${visualIndex}, this.value)" style="width:95%; background:rgba(30, 41, 59, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px 8px; border-radius:6px; font-size:0.8rem; outline:none;">
-                            <option value="0" ${conf.decimals === 0 ? 'selected' : ''}>0 (أرقام صحيحة)</option>
-                            <option value="1" ${conf.decimals === 1 ? 'selected' : ''}>1 (منزلة 0.0)</option>
-                            <option value="2" ${conf.decimals === 2 || conf.decimals === undefined ? 'selected' : ''}>2 (منزلتان 0.00)</option>
-                            <option value="3" ${conf.decimals === 3 ? 'selected' : ''}>3 (3 منازل 0.000)</option>
-                            <option value="4" ${conf.decimals === 4 ? 'selected' : ''}>4 (4 منازل 0.0000)</option>
-                            <option value="5" ${conf.decimals === 5 ? 'selected' : ''}>5 (5 منازل 0.00000)</option>
-                            <option value="6" ${conf.decimals === 6 ? 'selected' : ''}>6 (6 منازل 0.000000)</option>
-                        </select>
+                <!-- 4. Thousands Separator & Decimal Point Toggles -->
+                <div style="display:flex; gap:10px; margin-bottom:12px;">
+                    <!-- Thousands Toggle -->
+                    <div style="flex:1; display:flex; flex-direction:column; background:rgba(30,41,59,0.5); padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+                        <label style="font-size:0.75rem; font-weight:bold; color:#cbd5e1; margin-bottom:4px;">فاصلة الألفيات (1,000):</label>
+                        <button type="button" onclick="toggleColThousands(${origIdx}, ${visualIndex})" style="width:100%; padding:6px; cursor:pointer; border-radius:6px; border:1px solid ${conf.thousands !== false ? '#10b981' : 'rgba(239,68,68,0.4)'}; background:${conf.thousands !== false ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.15)'}; color:${conf.thousands !== false ? '#34d399' : '#f87171'}; font-weight:bold; font-size:0.8rem; transition:all 0.2s;">
+                            ${conf.thousands !== false ? 'مفعلة (1,000 ✔)' : 'ملغاة (1000 ✖)'}
+                        </button>
                     </div>
-                    <div style="flex:0.9; display:flex; flex-direction:column; justify-content:flex-end;">
-                        <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:4px;">فاصلة الألفيات (1,000):</label>
-                        <button type="button" onclick="toggleColThousands(${origIdx}, ${visualIndex})" style="padding:5px 8px; cursor:pointer; border-radius:6px; border:1px solid ${conf.thousands !== false ? '#10b981' : 'rgba(255,255,255,0.15)'}; background:${conf.thousands !== false ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.08)'}; color:${conf.thousands !== false ? '#34d399' : '#94a3b8'}; font-weight:bold; font-size:0.8rem;">
-                            ${conf.thousands !== false ? 'موجودة (1,000 ✔)' : 'غير موجودة ✖'}
+                    
+                    <!-- Decimals Toggle -->
+                    <div style="flex:1; display:flex; flex-direction:column; background:rgba(30,41,59,0.5); padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+                        <label style="font-size:0.75rem; font-weight:bold; color:#cbd5e1; margin-bottom:4px;">الكسور العشرية (.00):</label>
+                        <button type="button" onclick="toggleColShowDecimals(${origIdx}, ${visualIndex})" style="width:100%; padding:6px; cursor:pointer; border-radius:6px; border:1px solid ${conf.showDecimals !== false ? '#38bdf8' : 'rgba(239,68,68,0.4)'}; background:${conf.showDecimals !== false ? 'rgba(56,189,248,0.25)' : 'rgba(239,68,68,0.15)'}; color:${conf.showDecimals !== false ? '#38bdf8' : '#f87171'}; font-weight:bold; font-size:0.8rem; transition:all 0.2s;">
+                            ${conf.showDecimals !== false ? 'مفعلة (.00 ✔)' : 'ملغاة (أرقام صحيحة ✖)'}
                         </button>
                     </div>
                 </div>
 
-                <!-- 5. Colors -->
+                <!-- 5. Decimal Precision Selector (if decimals enabled) -->
+                ${conf.showDecimals !== false ? `
+                <div style="margin-bottom:12px;">
+                    <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:4px;">عدد منازل الكسور العشرية:</label>
+                    <select onchange="setColDecimals(${origIdx}, ${visualIndex}, this.value)" style="width:100%; background:rgba(30, 41, 59, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:6px 8px; border-radius:6px; font-size:0.8rem; outline:none;">
+                        <option value="1" ${conf.decimals === 1 ? 'selected' : ''}>منزلة واحدة (0.0)</option>
+                        <option value="2" ${conf.decimals === 2 || conf.decimals === undefined ? 'selected' : ''}>منزلتان (0.00)</option>
+                        <option value="3" ${conf.decimals === 3 ? 'selected' : ''}>3 منازل (0.000)</option>
+                        <option value="4" ${conf.decimals === 4 ? 'selected' : ''}>4 منازل (0.0000)</option>
+                        <option value="5" ${conf.decimals === 5 ? 'selected' : ''}>5 منازل (0.00000)</option>
+                        <option value="6" ${conf.decimals === 6 ? 'selected' : ''}>6 منازل (0.000000)</option>
+                    </select>
+                </div>
+                ` : ''}
+
+                <!-- 6. Colors -->
                 <div style="display:flex; gap:10px; align-items:center;">
                     <div style="flex:1; display:flex; justify-content:space-between; align-items:center; background:rgba(30,41,59,0.5); padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">
                         <span style="font-size:0.78rem; font-weight:bold; color:#cbd5e1;">لون النص:</span>
@@ -1064,6 +1086,7 @@ window.setColFontWeight = function(origIdx, visualIndex, weightVal) {
         window.colConfigs[origIdx].bold = (weightVal === 'bold' || weightVal === '900');
         updateColDOM(visualIndex, origIdx);
         saveLayout();
+        bindContextMenuList(visualIndex);
     }
 };
 
@@ -1096,6 +1119,19 @@ window.setColTextAlign = function(origIdx, visualIndex, alignVal) {
 window.setColDecimals = function(origIdx, visualIndex, d) {
     if (origIdx !== undefined && window.colConfigs[origIdx]) {
         window.colConfigs[origIdx].decimals = parseInt(d);
+        if (window.lastResults && window.lastResults.length > 0) {
+            renderTable(window.lastResults);
+        }
+        updateColDOM(visualIndex, origIdx);
+        saveLayout();
+        bindContextMenuList(visualIndex);
+    }
+};
+
+window.toggleColShowDecimals = function(origIdx, visualIndex) {
+    if (origIdx !== undefined && window.colConfigs[origIdx]) {
+        const cur = window.colConfigs[origIdx].showDecimals !== false;
+        window.colConfigs[origIdx].showDecimals = !cur;
         if (window.lastResults && window.lastResults.length > 0) {
             renderTable(window.lastResults);
         }
