@@ -491,12 +491,12 @@
     <?php $header_theme_class = 'header-theme-reports'; ?>
     <?php include 'includes/header.php'; ?>
 
-    <!-- FILTERS & PRESET CONTROLS PANEL (WIDER & ROOMY) -->
-    <div class="report-header no-print" style="background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 12px 20px; margin-bottom: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.35);">
-        <div class="filter-row" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-bottom: 10px; gap: 14px;">
+    <!-- FILTERS & PRESET CONTROLS PANEL (EXPANDED ~1CM) -->
+    <div class="report-header no-print" style="background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; padding: 18px 24px; margin-bottom: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.4);">
+        <div class="filter-row" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); margin-bottom: 12px; gap: 16px;">
             <div class="filter-group">
-                <label style="font-size:0.82rem; margin-bottom:4px; font-weight:bold; color:#cbd5e1;">نوع المجموعة</label>
-                <select class="filter-input" id="filter-group" style="padding:7px 14px; font-size:0.92rem; height:38px; border-radius:8px;">
+                <label style="font-size:0.88rem; margin-bottom:6px; font-weight:800; color:#e2e8f0;">نوع المجموعة</label>
+                <select class="filter-input" id="filter-group" style="padding:8px 16px; font-size:0.95rem; height:42px; border-radius:8px; font-weight:700;">
                     <option value="ALL">جميع الحسابات والأرصدة</option>
                     <option value="CUST">أرصدة العملاء</option>
                     <option value="SUPP">أرصدة الموردين</option>
@@ -506,8 +506,8 @@
                 </select>
             </div>
             <div class="filter-group">
-                <label style="font-size:0.82rem; margin-bottom:4px; font-weight:bold; color:#cbd5e1;">ترتيب الأرصدة</label>
-                <select class="filter-input" id="filter-sort" style="padding:7px 14px; font-size:0.92rem; height:38px; border-radius:8px;">
+                <label style="font-size:0.88rem; margin-bottom:6px; font-weight:800; color:#e2e8f0;">ترتيب الأرصدة</label>
+                <select class="filter-input" id="filter-sort" style="padding:8px 16px; font-size:0.95rem; height:42px; border-radius:8px; font-weight:700;">
                     <option value="BALANCE_DESC">حسب الرصيد (من الأعلى للأقل)</option>
                     <option value="BALANCE_ASC">حسب الرصيد (من الأقل للأعلى)</option>
                     <option value="NAME">حسب اسم الحساب (أبجدياً)</option>
@@ -515,22 +515,22 @@
                 </select>
             </div>
             <div class="filter-group">
-                <label style="font-size:0.82rem; margin-bottom:4px; font-weight:bold; color:#cbd5e1;">مركز التكلفة</label>
-                <select class="filter-input" id="filter-costcenter" style="padding:7px 14px; font-size:0.92rem; height:38px; border-radius:8px;">
+                <label style="font-size:0.88rem; margin-bottom:6px; font-weight:800; color:#e2e8f0;">مركز التكلفة</label>
+                <select class="filter-input" id="filter-costcenter" style="padding:8px 16px; font-size:0.95rem; height:42px; border-radius:8px; font-weight:700;">
                     <option value="ALL">جميع مراكز التكلفة (الكل)</option>
                 </select>
             </div>
         </div>
-        <div style="display:flex; gap:10px; margin-top:8px; align-items:center; flex-wrap:wrap; width: 100%;">
-            <button class="btn-run" onclick="runReport()" style="padding:7px 22px; font-size:0.92rem; height:36px; border-radius:8px; font-weight:900;">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <div style="display:flex; gap:12px; margin-top:10px; align-items:center; flex-wrap:wrap; width: 100%;">
+            <button class="btn-run" onclick="runReport()" style="padding:8px 24px; font-size:0.95rem; height:40px; border-radius:8px; font-weight:900;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 تشغيل التقرير
             </button>
 
-            <div style="height: 24px; width: 1px; background: rgba(255,255,255,0.15); margin: 0 4px;" class="no-print"></div>
+            <div style="height: 26px; width: 1px; background: rgba(255,255,255,0.2); margin: 0 6px;" class="no-print"></div>
 
-            <div class="preset-slots-container no-print" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; height:36px; padding:4px 12px; border-radius:8px;">
-                <span style="font-size:0.82rem; color:#94a3b8; font-weight:bold; margin-left: 2px;">💾 التخطيطات:</span>
+            <div class="preset-slots-container no-print" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; height:40px; padding:4px 14px; border-radius:8px;">
+                <span style="font-size:0.85rem; color:#cbd5e1; font-weight:bold; margin-left: 2px;">💾 التخطيطات:</span>
                 <div id="balances-presets-wrap" style="display:flex; gap:8px; flex-wrap:wrap;">
                     <!-- Preset buttons generated by JS -->
                 </div>
@@ -538,62 +538,62 @@
         </div>
     </div>
 
-    <!-- COMPACT KPI DASHBOARD (ENLARGED NUMBERS FONT ONLY) -->
-    <div id="analytics-dashboard" class="no-print" style="display:none; margin-bottom: 6px; padding: 4px 8px; background: rgba(15, 23, 42, 0.5); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+    <!-- HIGH CONTRAST COMPACT KPI DASHBOARD -->
+    <div id="analytics-dashboard" class="no-print" style="display:none; margin-bottom: 6px; padding: 4px 8px; background: rgba(15, 23, 42, 0.65); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
             <!-- KPI 1: Customers -->
-            <div style="background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(0,0,0,0.3)); border-radius: 6px; padding: 3px 6px; border: 1px solid rgba(16,185,129,0.25);">
-                <div style="color: #94a3b8; font-size: 0.72rem; font-weight: bold; text-align: center; margin-bottom: 1px;">إجمالي رصيد العملاء (عليه)</div>
-                <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 2px; gap: 4px;">
+            <div style="background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(15,23,42,0.9)); border-radius: 6px; padding: 4px 8px; border: 1px solid rgba(16,185,129,0.45); box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+                <div style="color: #ffffff; font-size: 0.85rem; font-weight: 900; text-align: center; margin-bottom: 2px; text-shadow: 0 1px 3px rgba(0,0,0,0.9);">إجمالي رصيد العملاء (عليه)</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 2px; gap: 4px;">
                     <!-- Right: Foreign Currency / USD -->
                     <div style="flex: 1; text-align: right;">
-                        <span style="color:#94a3b8; font-size:0.6rem; display:block;">بالدولار / أجنبي</span>
-                        <div id="kpi-dr-foreign" class="num" style="color: #34d399; font-size: 1.35rem; font-weight: 900; line-height: 1.1;">0.00 USD</div>
+                        <span style="color:#e2e8f0; font-size:0.68rem; font-weight:bold; display:block;">بالدولار / أجنبي</span>
+                        <div id="kpi-dr-foreign" class="num" style="color: #34d399; font-size: 1.55rem; font-weight: 900; line-height: 1.05; text-shadow: 0 2px 4px rgba(0,0,0,0.9);">0.00 USD</div>
                     </div>
                     <!-- Divider line -->
-                    <div style="width: 1px; height: 26px; background: rgba(255,255,255,0.15);"></div>
+                    <div style="width: 2px; height: 30px; background: rgba(255,255,255,0.25);"></div>
                     <!-- Left: Local Currency / SDG -->
                     <div style="flex: 1; text-align: left;">
-                        <span style="color:#94a3b8; font-size:0.6rem; display:block;">بالجنيه السوداني</span>
-                        <div id="kpi-dr" class="num" style="color: #10b981; font-size: 1.35rem; font-weight: 900; line-height: 1.1;">0.00 SDG</div>
+                        <span style="color:#e2e8f0; font-size:0.68rem; font-weight:bold; display:block;">بالجنيه السوداني</span>
+                        <div id="kpi-dr" class="num" style="color: #10b981; font-size: 1.55rem; font-weight: 900; line-height: 1.05; text-shadow: 0 2px 4px rgba(0,0,0,0.9);">0.00 SDG</div>
                     </div>
                 </div>
             </div>
 
             <!-- KPI 2: Suppliers -->
-            <div style="background: linear-gradient(135deg, rgba(244,63,94,0.12), rgba(0,0,0,0.3)); border-radius: 6px; padding: 3px 6px; border: 1px solid rgba(244,63,94,0.25);">
-                <div style="color: #94a3b8; font-size: 0.72rem; font-weight: bold; text-align: center; margin-bottom: 1px;">إجمالي رصيد الموردين (له)</div>
-                <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 2px; gap: 4px;">
+            <div style="background: linear-gradient(135deg, rgba(244,63,94,0.25), rgba(15,23,42,0.9)); border-radius: 6px; padding: 4px 8px; border: 1px solid rgba(244,63,94,0.45); box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+                <div style="color: #ffffff; font-size: 0.85rem; font-weight: 900; text-align: center; margin-bottom: 2px; text-shadow: 0 1px 3px rgba(0,0,0,0.9);">إجمالي رصيد الموردين (له)</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 2px; gap: 4px;">
                     <!-- Right: Foreign Currency / USD -->
                     <div style="flex: 1; text-align: right;">
-                        <span style="color:#94a3b8; font-size:0.6rem; display:block;">بالدولار / أجنبي</span>
-                        <div id="kpi-cr-foreign" class="num" style="color: #fb7185; font-size: 1.35rem; font-weight: 900; line-height: 1.1;">0.00 USD</div>
+                        <span style="color:#e2e8f0; font-size:0.68rem; font-weight:bold; display:block;">بالدولار / أجنبي</span>
+                        <div id="kpi-cr-foreign" class="num" style="color: #fb7185; font-size: 1.55rem; font-weight: 900; line-height: 1.05; text-shadow: 0 2px 4px rgba(0,0,0,0.9);">0.00 USD</div>
                     </div>
                     <!-- Divider line -->
-                    <div style="width: 1px; height: 26px; background: rgba(255,255,255,0.15);"></div>
+                    <div style="width: 2px; height: 30px; background: rgba(255,255,255,0.25);"></div>
                     <!-- Left: Local Currency / SDG -->
                     <div style="flex: 1; text-align: left;">
-                        <span style="color:#94a3b8; font-size:0.6rem; display:block;">بالجنيه السوداني</span>
-                        <div id="kpi-cr" class="num" style="color: #f43f5e; font-size: 1.35rem; font-weight: 900; line-height: 1.1;">0.00 SDG</div>
+                        <span style="color:#e2e8f0; font-size:0.68rem; font-weight:bold; display:block;">بالجنيه السوداني</span>
+                        <div id="kpi-cr" class="num" style="color: #f43f5e; font-size: 1.55rem; font-weight: 900; line-height: 1.05; text-shadow: 0 2px 4px rgba(0,0,0,0.9);">0.00 SDG</div>
                     </div>
                 </div>
             </div>
 
             <!-- KPI 3: Net Balance -->
-            <div style="background: linear-gradient(135deg, rgba(56,189,248,0.12), rgba(0,0,0,0.3)); border-radius: 6px; padding: 3px 6px; border: 1px solid rgba(56,189,248,0.25);">
-                <div style="color: #94a3b8; font-size: 0.72rem; font-weight: bold; text-align: center; margin-bottom: 1px;">إجمالي الحصيلة الصافية</div>
-                <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 2px; gap: 4px;">
+            <div style="background: linear-gradient(135deg, rgba(56,189,248,0.25), rgba(15,23,42,0.9)); border-radius: 6px; padding: 4px 8px; border: 1px solid rgba(56,189,248,0.45); box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+                <div style="color: #ffffff; font-size: 0.85rem; font-weight: 900; text-align: center; margin-bottom: 2px; text-shadow: 0 1px 3px rgba(0,0,0,0.9);">إجمالي الحصيلة الصافية</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 2px; gap: 4px;">
                     <!-- Right: Foreign Currency / USD -->
                     <div style="flex: 1; text-align: right;">
-                        <span style="color:#94a3b8; font-size:0.6rem; display:block;">بالدولار / أجنبي</span>
-                        <div id="kpi-bal-foreign" class="num" style="color: #7dd3fc; font-size: 1.35rem; font-weight: 900; line-height: 1.1;">0.00 USD</div>
+                        <span style="color:#e2e8f0; font-size:0.68rem; font-weight:bold; display:block;">بالدولار / أجنبي</span>
+                        <div id="kpi-bal-foreign" class="num" style="color: #7dd3fc; font-size: 1.55rem; font-weight: 900; line-height: 1.05; text-shadow: 0 2px 4px rgba(0,0,0,0.9);">0.00 USD</div>
                     </div>
                     <!-- Divider line -->
-                    <div style="width: 1px; height: 26px; background: rgba(255,255,255,0.15);"></div>
+                    <div style="width: 2px; height: 30px; background: rgba(255,255,255,0.25);"></div>
                     <!-- Left: Local Currency / SDG -->
                     <div style="flex: 1; text-align: left;">
-                        <span style="color:#94a3b8; font-size:0.6rem; display:block;">بالجنيه السوداني</span>
-                        <div id="kpi-bal" class="num" style="color: #38bdf8; font-size: 1.35rem; font-weight: 900; line-height: 1.1;">0.00 SDG</div>
+                        <span style="color:#e2e8f0; font-size:0.68rem; font-weight:bold; display:block;">بالجنيه السوداني</span>
+                        <div id="kpi-bal" class="num" style="color: #38bdf8; font-size: 1.55rem; font-weight: 900; line-height: 1.05; text-shadow: 0 2px 4px rgba(0,0,0,0.9);">0.00 SDG</div>
                     </div>
                 </div>
             </div>
