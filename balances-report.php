@@ -438,14 +438,25 @@
 <div class="toast-container" id="toast-container"></div>
 
 <!-- Unified Context Menu for Columns & Data Formatting -->
-<div id="columnContextMenu" style="display:none; position:fixed; z-index:100000; background:rgba(15, 23, 42, 0.96); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(56, 189, 248, 0.3); border-radius:16px; box-shadow:0 25px 60px rgba(0,0,0,0.6), 0 0 25px rgba(56, 189, 248, 0.2); padding:20px; width:480px; color:#f8fafc; font-family:'Tajawal', 'Inter', sans-serif; max-height:85vh; overflow-y:auto; direction:rtl; text-align:right;">
-    <!-- Header -->
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:12px; margin-bottom:15px;">
-        <div style="font-weight:900; font-size:1.1rem; color:#38bdf8; display:flex; align-items:center; gap:8px;">
-            <span style="font-size:1.2rem;">🛠️</span> قائمة إعدادات وتنسيق الجدول والبيانات
+<div id="columnContextMenu" style="display:none; position:fixed; z-index:100000; background:rgba(15, 23, 42, 0.96); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(56, 189, 248, 0.3); border-radius:16px; box-shadow:0 25px 60px rgba(0,0,0,0.6), 0 0 25px rgba(56, 189, 248, 0.2); padding:16px 20px 20px 20px; width:490px; color:#f8fafc; font-family:'Tajawal', 'Inter', sans-serif; max-height:88vh; overflow:auto; resize:both; min-width:340px; min-height:200px; direction:rtl; text-align:right;">
+    <!-- Draggable Header -->
+    <div id="columnContextMenuHeader" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); cursor:move; user-select:none; background:rgba(255,255,255,0.03); margin:-16px -20px 14px -20px; padding:12px 18px; border-top-left-radius:15px; border-top-right-radius:15px;">
+        <div style="font-weight:900; font-size:1.05rem; color:#38bdf8; display:flex; align-items:center; gap:8px;">
+            <span style="font-size:1.1rem; color:#94a3b8;" title="اضغط واسحب للتحريك في أي مكان">⠿</span>
+            <span>🛠️</span> قائمة إعدادات وتنسيق الجدول والبيانات
         </div>
-        <span onclick="document.getElementById('columnContextMenu').style.display='none'" style="cursor:pointer; font-weight:bold; font-size:1.2rem; color:#94a3b8; padding:2px 10px; border-radius:6px; background:rgba(255,255,255,0.08); transition:all 0.2s;" onmouseover="this.style.color='#fff';this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.color='#94a3b8';this.style.background='rgba(255,255,255,0.08)'">&times;</span>
+        <div style="display:flex; align-items:center; gap:6px;">
+            <!-- Minimize Button -->
+            <button type="button" title="تصغير / استعادة" onclick="toggleMinimizeCtxMenu()" style="cursor:pointer; font-weight:bold; font-size:0.9rem; color:#cbd5e1; border:none; padding:3px 8px; border-radius:6px; background:rgba(255,255,255,0.08); transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">🗕</button>
+            <!-- Maximize Button -->
+            <button type="button" title="تكبير / استعادة" onclick="toggleMaximizeCtxMenu()" style="cursor:pointer; font-weight:bold; font-size:0.9rem; color:#cbd5e1; border:none; padding:3px 8px; border-radius:6px; background:rgba(255,255,255,0.08); transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">🗖</button>
+            <!-- Close Button -->
+            <button type="button" title="إغلاق" onclick="document.getElementById('columnContextMenu').style.display='none'" style="cursor:pointer; font-weight:bold; font-size:1.1rem; color:#ef4444; border:none; padding:2px 8px; border-radius:6px; background:rgba(239,68,68,0.15); transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'">&times;</button>
+        </div>
     </div>
+
+    <!-- Menu Content Container (Hidden when minimized) -->
+    <div id="columnContextMenuBody">
 
     <!-- Navigation Tabs -->
     <div style="display:flex; gap:8px; margin-bottom:16px; background:rgba(30, 41, 59, 0.7); padding:5px; border-radius:10px; border:1px solid rgba(255,255,255,0.08);">
@@ -554,6 +565,7 @@
             🔄 إعادة الضبط
         </button>
     </div>
+</div>
 </div>
 
 <!-- Custom Context Menu for Partner Rows -->

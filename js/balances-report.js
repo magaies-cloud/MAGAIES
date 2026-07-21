@@ -636,6 +636,100 @@ window.switchCtxTab = function(tab) {
     }
 };
 
+window.initDraggableModal = function() {
+    const modal = document.getElementById('columnContextMenu');
+    const header = document.getElementById('columnContextMenuHeader');
+    if (!modal || !header || modal.dataset.draggableInit) return;
+    
+    modal.dataset.draggableInit = "true";
+
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    header.addEventListener('mousedown', function(e) {
+        if (e.target.closest('button')) return;
+        
+        isDragging = true;
+        const rect = modal.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+        header.style.cursor = 'grabbing';
+        modal.style.transition = 'none';
+        e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        
+        let newLeft = e.clientX - offsetX;
+        let newTop = e.clientY - offsetY;
+
+        const maxLeft = window.innerWidth - modal.offsetWidth;
+        const maxTop = window.innerHeight - modal.offsetHeight;
+
+        if (newLeft < 0) newLeft = 0;
+        if (newTop < 0) newTop = 0;
+        if (newLeft > maxLeft && maxLeft > 0) newLeft = maxLeft;
+        if (newTop > maxTop && maxTop > 0) newTop = maxTop;
+
+        modal.style.left = newLeft + 'px';
+        modal.style.top = newTop + 'px';
+    });
+
+    document.addEventListener('mouseup', function() {
+        if (isDragging) {
+            isDragging = false;
+            header.style.cursor = 'move';
+        }
+    });
+};
+
+window.toggleMinimizeCtxMenu = function() {
+    const modal = document.getElementById('columnContextMenu');
+    const body = document.getElementById('columnContextMenuBody');
+    if (!modal || !body) return;
+
+    if (body.style.display === 'none') {
+        body.style.display = 'block';
+        modal.style.height = '';
+        modal.style.minHeight = '200px';
+    } else {
+        body.style.display = 'none';
+        modal.style.height = 'auto';
+        modal.style.minHeight = '0px';
+    }
+};
+
+window.toggleMaximizeCtxMenu = function() {
+    const modal = document.getElementById('columnContextMenu');
+    if (!modal) return;
+
+    if (modal.dataset.isMaximized === 'true') {
+        modal.dataset.isMaximized = 'false';
+        modal.style.width = modal.dataset.origWidth || '490px';
+        modal.style.height = modal.dataset.origHeight || 'auto';
+        modal.style.left = modal.dataset.origLeft || '100px';
+        modal.style.top = modal.dataset.origTop || '100px';
+        modal.style.maxHeight = '88vh';
+    } else {
+        modal.dataset.isMaximized = 'true';
+        modal.dataset.origWidth = modal.style.width;
+        modal.dataset.origHeight = modal.style.height;
+        modal.dataset.origLeft = modal.style.left;
+        modal.dataset.origTop = modal.style.top;
+
+        modal.style.width = '90vw';
+        modal.style.height = '85vh';
+        modal.style.left = '5vw';
+        modal.style.top = '5vh';
+        modal.style.maxHeight = '95vh';
+
+        const body = document.getElementById('columnContextMenuBody');
+        if (body) body.style.display = 'block';
+    }
+};
+
 function bindContextMenu() {
     const table = document.getElementById('balances-table');
     if (!table) return;
@@ -656,6 +750,9 @@ function bindContextMenu() {
 
         // Check if right click was on a header cell in the first row of table header
         if (th && firstHeaderRow && firstHeaderRow.contains(th)) {
+            if (typeof window.initDraggableModal === 'function') {
+                window.initDraggableModal();
+            }
             const ths = table.querySelectorAll('thead th');
             togglesContainer.innerHTML = '';
             ths.forEach((thEl, visualIndex) => {
