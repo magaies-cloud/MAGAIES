@@ -312,14 +312,14 @@
         .preset-slots-container {
             background: rgba(15, 23, 42, 0.45);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 6px 14px;
-            border-radius: 12px;
+            padding: 3px 8px;
+            border-radius: 8px;
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
             display: flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            gap: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
         }
         .preset-btn {
@@ -329,18 +329,18 @@
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.05);
             color: #cbd5e1;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
             font-weight: 800;
             cursor: pointer;
             overflow: hidden;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 5px;
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             user-select: none;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
         }
         
         .preset-btn[data-slot-id="default1"] { --accent-color: 234, 179, 8; font-weight: 900; }
@@ -486,17 +486,17 @@
 </div>
 
 
-<div style="max-width: 1600px; margin: 0 auto; padding: 10px 20px; padding-bottom: 40px;">
+<div style="max-width: 1600px; margin: 0 auto; padding: 6px 14px; padding-bottom: 20px;">
     <!-- Premium Navigation Header -->
     <?php $header_theme_class = 'header-theme-reports'; ?>
     <?php include 'includes/header.php'; ?>
 
     <!-- FILTERS -->
-    <div class="report-header no-print" style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px 18px; margin-bottom: 12px;">
-        <div class="filter-row">
+    <div class="report-header no-print" style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 8px 12px; margin-bottom: 8px;">
+        <div class="filter-row" style="margin-bottom: 6px; gap: 8px;">
             <div class="filter-group">
-                <label>نوع المجموعة (Group Type)</label>
-                <select class="filter-input" id="filter-group">
+                <label style="font-size:0.72rem; margin-bottom:2px;">نوع المجموعة (Group Type)</label>
+                <select class="filter-input" id="filter-group" style="padding:4px 8px; font-size:0.82rem; height:32px;">
                     <option value="ALL">كل الأرصدة الإجمالية</option>
                     <option value="CUST">العملاء (مدين)</option>
                     <option value="SUPP">الموردين (دائن)</option>
@@ -506,8 +506,8 @@
                 </select>
             </div>
             <div class="filter-group">
-                <label>الترتيب (Sort By)</label>
-                <select class="filter-input" id="filter-sort">
+                <label style="font-size:0.72rem; margin-bottom:2px;">الترتيب (Sort By)</label>
+                <select class="filter-input" id="filter-sort" style="padding:4px 8px; font-size:0.82rem; height:32px;">
                     <option value="BALANCE_DESC">الرصيد (الأعلى للأسفل)</option>
                     <option value="BALANCE_ASC">الرصيد (الأدنى للأعلى)</option>
                     <option value="NAME">اسم الحساب (أبجدي)</option>
@@ -515,23 +515,23 @@
                 </select>
             </div>
             <div class="filter-group">
-                <label>مركز التكلفة (Cost Center)</label>
-                <select class="filter-input" id="filter-costcenter">
+                <label style="font-size:0.72rem; margin-bottom:2px;">مركز التكلفة (Cost Center)</label>
+                <select class="filter-input" id="filter-costcenter" style="padding:4px 8px; font-size:0.82rem; height:32px;">
                     <option value="ALL">جميع مراكز التكلفة (الكل)</option>
                 </select>
             </div>
         </div>
-        <div style="display:flex; gap:10px; margin-top:8px; align-items:center; flex-wrap:wrap; width: 100%;">
-            <button class="btn-run" onclick="runReport()">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <div style="display:flex; gap:6px; margin-top:4px; align-items:center; flex-wrap:wrap; width: 100%;">
+            <button class="btn-run" onclick="runReport()" style="padding:5px 14px; font-size:0.82rem; height:32px;">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 تشغيل التقرير
             </button>
 
-            <div style="height: 20px; width: 1px; background: rgba(255,255,255,0.15); margin: 0 6px;" class="no-print"></div>
+            <div style="height: 18px; width: 1px; background: rgba(255,255,255,0.15); margin: 0 4px;" class="no-print"></div>
 
-            <div class="preset-slots-container no-print" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-                <span style="font-size:0.8rem; color:#94a3b8; font-weight:bold; margin-left: 4px;">💾 تخطيطات سريعة:</span>
-                <div id="balances-presets-wrap" style="display:flex; gap:8px; flex-wrap:wrap;">
+            <div class="preset-slots-container no-print" style="display:flex; gap:5px; align-items:center; flex-wrap:wrap;">
+                <span style="font-size:0.75rem; color:#94a3b8; font-weight:bold; margin-left: 2px;">💾 تخطيطات:</span>
+                <div id="balances-presets-wrap" style="display:flex; gap:5px; flex-wrap:wrap;">
                     <!-- Preset buttons will be generated by JS -->
                 </div>
             </div>
@@ -539,47 +539,47 @@
     </div>
 
     <!-- KPI Dashboard -->
-    <div id="analytics-dashboard" class="no-print" style="display:none; margin-bottom: 12px; padding: 14px 18px; background: rgba(15, 23, 42, 0.6); border-radius: 14px; border: 1px solid rgba(255,255,255,0.05); box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px;">
-            <h3 style="margin: 0; color: #f8fafc; display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
-                <span style="font-size: 1.2rem;">📈</span> لوحة أرصدة الحسابات الإجمالية
+    <div id="analytics-dashboard" class="no-print" style="display:none; margin-bottom: 8px; padding: 8px 12px; background: rgba(15, 23, 42, 0.6); border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px;">
+            <h3 style="margin: 0; color: #f8fafc; display: flex; align-items: center; gap: 6px; font-size: 0.95rem;">
+                <span style="font-size: 1.05rem;">📈</span> لوحة أرصدة الحسابات الإجمالية
             </h3>
         </div>
         
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-            <div style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(0,0,0,0.3)); border-radius: 10px; padding: 10px 12px; border: 1px solid rgba(16,185,129,0.2); text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                <div style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 3px; font-weight: bold;">إجمالي رصيد العملاء (عليه)</div>
-                <div id="kpi-dr" class="num" style="color: #10b981; font-size: 1.25rem; font-weight: 900;">0.00</div>
-                <div id="kpi-dr-foreign" class="num" style="color: #34d399; font-size: 0.85rem; font-weight: bold; margin-top: 2px;">(0.00 USD)</div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+            <div style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(0,0,0,0.3)); border-radius: 8px; padding: 6px 10px; border: 1px solid rgba(16,185,129,0.2); text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <div style="color: #94a3b8; font-size: 0.75rem; margin-bottom: 2px; font-weight: bold;">إجمالي رصيد العملاء (عليه)</div>
+                <div id="kpi-dr" class="num" style="color: #10b981; font-size: 1.1rem; font-weight: 900;">0.00</div>
+                <div id="kpi-dr-foreign" class="num" style="color: #34d399; font-size: 0.78rem; font-weight: bold; margin-top: 1px;">(0.00 USD)</div>
             </div>
-            <div style="background: linear-gradient(135deg, rgba(244,63,94,0.1), rgba(0,0,0,0.3)); border-radius: 10px; padding: 10px 12px; border: 1px solid rgba(244,63,94,0.2); text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                <div style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 3px; font-weight: bold;">إجمالي رصيد الموردين (له)</div>
-                <div id="kpi-cr" class="num" style="color: #f43f5e; font-size: 1.25rem; font-weight: 900;">0.00</div>
-                <div id="kpi-cr-foreign" class="num" style="color: #fb7185; font-size: 0.85rem; font-weight: bold; margin-top: 2px;">(0.00 USD)</div>
+            <div style="background: linear-gradient(135deg, rgba(244,63,94,0.1), rgba(0,0,0,0.3)); border-radius: 8px; padding: 6px 10px; border: 1px solid rgba(244,63,94,0.2); text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <div style="color: #94a3b8; font-size: 0.75rem; margin-bottom: 2px; font-weight: bold;">إجمالي رصيد الموردين (له)</div>
+                <div id="kpi-cr" class="num" style="color: #f43f5e; font-size: 1.1rem; font-weight: 900;">0.00</div>
+                <div id="kpi-cr-foreign" class="num" style="color: #fb7185; font-size: 0.78rem; font-weight: bold; margin-top: 1px;">(0.00 USD)</div>
             </div>
-            <div style="background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(0,0,0,0.3)); border-radius: 10px; padding: 10px 12px; border: 1px solid rgba(56,189,248,0.2); text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                <div style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 3px; font-weight: bold;">إجمالي الحصيلة الصافية</div>
-                <div id="kpi-bal" class="num" style="color: #38bdf8; font-size: 1.25rem; font-weight: 900;">0.00</div>
-                <div id="kpi-bal-foreign" class="num" style="color: #7dd3fc; font-size: 0.85rem; font-weight: bold; margin-top: 2px;">(0.00 USD)</div>
+            <div style="background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(0,0,0,0.3)); border-radius: 8px; padding: 6px 10px; border: 1px solid rgba(56,189,248,0.2); text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <div style="color: #94a3b8; font-size: 0.75rem; margin-bottom: 2px; font-weight: bold;">إجمالي الحصيلة الصافية</div>
+                <div id="kpi-bal" class="num" style="color: #38bdf8; font-size: 1.1rem; font-weight: 900;">0.00</div>
+                <div id="kpi-bal-foreign" class="num" style="color: #7dd3fc; font-size: 0.78rem; font-weight: bold; margin-top: 1px;">(0.00 USD)</div>
             </div>
         </div>
     </div>
 
     <!-- Actions Panel -->
-    <div class="actions-panel no-print" id="actions-panel" style="display:none; flex-wrap: wrap; margin-bottom: 10px; gap: 8px;">
-        <button class="btn-action btn-secondary" onclick="window.print()" title="طباعة">🖨️ طباعة وتوثيق</button>
-        <button class="btn-action btn-primary" onclick="exportPDF()" title="تصدير PDF">📄 تصدير PDF</button>
-        <button class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none;" onclick="exportExcel()" title="تصدير إكسل">📊 إكسل (Excel)</button>
-        <button class="btn-action" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; border: none;" onclick="shareEmail()" title="مشاركة عبر الإيميل">📧 إيميل</button>
-        <button class="btn-action" style="background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; border: none;" onclick="shareWhatsApp()" title="مشاركة عبر واتساب">💬 واتساب</button>
+    <div class="actions-panel no-print" id="actions-panel" style="display:none; flex-wrap: wrap; margin-bottom: 6px; gap: 6px;">
+        <button class="btn-action btn-secondary" onclick="window.print()" title="طباعة" style="padding:4px 10px; font-size:0.8rem;">🖨️ طباعة وتوثيق</button>
+        <button class="btn-action btn-primary" onclick="exportPDF()" title="تصدير PDF" style="padding:4px 10px; font-size:0.8rem;">📄 تصدير PDF</button>
+        <button class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; padding:4px 10px; font-size:0.8rem;" onclick="exportExcel()" title="تصدير إكسل">📊 إكسل (Excel)</button>
+        <button class="btn-action" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; border: none; padding:4px 10px; font-size:0.8rem;" onclick="shareEmail()" title="مشاركة عبر الإيميل">📧 إيميل</button>
+        <button class="btn-action" style="background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; border: none; padding:4px 10px; font-size:0.8rem;" onclick="shareWhatsApp()" title="مشاركة عبر واتساب">💬 واتساب</button>
     </div>
 
     <!-- TABLE -->
-    <div id="print-container" style="display:none; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.02);">
+    <div id="print-container" style="display:none; padding: 6px; border-radius: 10px; background: rgba(255,255,255,0.02);">
         
         <div id="v-classic-ent">
             
-            <div class="report-header" style="display: flex; justify-content: space-between; align-items: flex-start; height: 4cm; border-bottom: 3px solid #111827; margin-bottom: 20px; padding-bottom: 15px; font-family: 'Tajawal', sans-serif;">
+            <div class="report-header" style="display: flex; justify-content: space-between; align-items: flex-start; min-height: 70px; border-bottom: 3px solid #111827; margin-bottom: 10px; padding-bottom: 8px; font-family: 'Tajawal', sans-serif;">
                 
                 <div style="flex: 1; text-align: right; color: #111827;">
                     <h2 style="margin: 0 0 5px 0; font-size: 1.6rem; font-weight: 900;">شركة الأفق للتجارة</h2>
