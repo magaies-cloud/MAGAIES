@@ -771,43 +771,46 @@
 
                 </div>
 
-                <!-- Charts Row 1: Donut & Hollow Donut Charts (الكعكات المفرغة والمجوفة) -->
+                <!-- Charts Row 1: Donut & Hollow Donut Charts -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
                     
                     <!-- Chart 1: Hollow Donut Chart - Account Categories Distribution -->
                     <div class="v-chart-card">
-                        <div class="v-chart-header">
-                            <div>
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1rem; font-weight: 800;">🍩 كعكة مجوفة مفرغة: هيكل الأرصدة حسب الفئات</h4>
-                                <span style="font-size: 0.75rem; color: #94a3b8;">توزيع الوزن المالي بين العملاء، الموردين، الخزن، البنوك والمصروفات</span>
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مجوفة: أين تتوزع أموالك وحساباتك؟</h4>
+                                <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">💡 خريطة الثقل المالي</span>
                             </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يوضح لك أي فئة تشغل الحجم الأكبر من أعمالك (العملاء أم الخزن أم الموردين)</span>
                         </div>
                         <div id="chart-hollow-donut-categories" style="min-height: 320px;"></div>
                     </div>
 
                     <!-- Chart 2: Hollow Donut Chart - Top Debtor Exposure -->
                     <div class="v-chart-card">
-                        <div class="v-chart-header">
-                            <div>
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1rem; font-weight: 800;">🍩 كعكة مفرغة: توزيع أعلى الحسابات مديناً (عليه)</h4>
-                                <span style="font-size: 0.75rem; color: #94a3b8;">الحسابات صاحبة أكبر أرصدة مدينة في التقرير</span>
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مفرغة: أين تتركز أكبر الديون لك؟ (أضخم العملاء)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">🎯 تركيز المستحقات</span>
                             </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: أكثر 5 حسابات مطالبة بالسداد لك، لمعرفة من يجب التواصل معه أولاً</span>
                         </div>
                         <div id="chart-hollow-donut-top-debtors" style="min-height: 320px;"></div>
                     </div>
 
                 </div>
 
-                <!-- Charts Row 2: Line & Area Charts (الخطوط البيانية ومنحنيات التدرج) -->
+                <!-- Charts Row 2: Line & Area Charts -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
                     
-                    <!-- Chart 3: Smooth Curved Gradient Line Chart - Balances Spectrum -->
+                    <!-- Chart 3: Smooth Curved Gradient Line Chart -->
                     <div class="v-chart-card" style="grid-column: span 1 / -1;">
-                        <div class="v-chart-header">
-                            <div>
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1rem; font-weight: 800;">📈 خط بياني منحني: طيف وتدرج حجم الأرصدة (Balance Spectrum Curve)</h4>
-                                <span style="font-size: 0.75rem; color: #94a3b8;">منحنى تدرج الأرصدة من الأعلى للأدنى يعكس الكثافة والتوازن المالي</span>
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📈 المنحنى المتدرج للأرصدة (Balance Spectrum Curve)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">🌊 تدفق وتدرج مريح للعين</span>
                             </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: انسيابية تدفق المبالغ المالية من الأكبر إلى الأصغر بدون ضغوط بصرية</span>
                         </div>
                         <div id="chart-curved-line-spectrum" style="min-height: 330px;"></div>
                     </div>
@@ -819,22 +822,24 @@
                     
                     <!-- Chart 4: Bi-Directional Comparative Column Chart -->
                     <div class="v-chart-card">
-                        <div class="v-chart-header">
-                            <div>
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1rem; font-weight: 800;">📊 أعمدة بيانية مزدوجة: مقارنة المدين والدائن لكل نوع</h4>
-                                <span style="font-size: 0.75rem; color: #94a3b8;">مقارنة مباشرة بين إجمالي (عليه) و إجمالي (له)</span>
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📊 أعمدة المقارنة المزدوجة: (ما لك 🟢) ضد (ما عليك 🔴)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">⚖️ مقارنة الحصيلة</span>
                             </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يظهر بوضوح ملخص حقوقك المالية مقارنةً بالتزاماتك في كل قطاع</span>
                         </div>
                         <div id="chart-bidirectional-bar" style="min-height: 320px;"></div>
                     </div>
 
                     <!-- Chart 5: Semi-Circle Donut Radial Gauge -->
                     <div class="v-chart-card">
-                        <div class="v-chart-header">
-                            <div>
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1rem; font-weight: 800;">🧭 كعكة مجوفة نصف دائرية: مقياس توازن السيولة (Semi-Donut Gauge)</h4>
-                                <span style="font-size: 0.75rem; color: #94a3b8;">مؤشر بصري تفاعلي لنسبة استرداد وصحة السيولة الكلية</span>
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🧭 عدّاد ومقياس صحة ومأمونية السيولة (Liquidity Health Gauge)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(244, 63, 94, 0.18); color: #fb7185; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(244, 63, 94, 0.3);">🛡️ مؤشر الأمان الكلي</span>
                             </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: نسبة مئوية مباشرة تعكس أمان وضعك المالي وسرعة التحرّك</span>
                         </div>
                         <div id="chart-semicircle-gauge" style="min-height: 320px;"></div>
                     </div>
