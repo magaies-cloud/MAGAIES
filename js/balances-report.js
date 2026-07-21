@@ -826,10 +826,17 @@ window.initTogglesSortable = function() {
     });
 };
 
-window.bindContextMenuList = function() {
+window.bindContextMenuList = function(keepOpenVisualIdx = null) {
     const table = document.getElementById('balances-table');
     const togglesContainer = document.getElementById('columnToggles');
     if (!table || !togglesContainer) return;
+
+    if (keepOpenVisualIdx === null) {
+        const openEl = togglesContainer.querySelector('[id^="config-panel-"]:not([style*="display: none"]):not([style*="display:none"])');
+        if (openEl) {
+            keepOpenVisualIdx = parseInt(openEl.id.replace('config-panel-', ''));
+        }
+    }
 
     const ths = table.querySelectorAll('thead th');
     togglesContainer.innerHTML = '';
@@ -841,6 +848,8 @@ window.bindContextMenuList = function() {
         
         const origIdx = parseInt(thEl.getAttribute('data-orig-idx'));
         const conf = window.colConfigs[origIdx] || { fs: 1.0, bold: false, fontWeight: 'normal', decimals: 2, thousands: true, color: '', bg: '', visible: true, fontFamily: '', textAlign: 'right' };
+
+        const isOpen = (keepOpenVisualIdx === visualIndex);
 
         const div = document.createElement('div');
         div.className = 'col-item-card';
@@ -864,7 +873,7 @@ window.bindContextMenuList = function() {
                     <span style="font-size:0.9rem; color:#38bdf8;">⚙️</span>
                 </div>
             </div>
-            <div id="config-panel-${visualIndex}" style="display:none; padding:14px; background:rgba(15, 23, 42, 0.94); border-top:1px solid rgba(255,255,255,0.08);">
+            <div id="config-panel-${visualIndex}" style="display:${isOpen ? 'block' : 'none'}; padding:14px; background:rgba(15, 23, 42, 0.94); border-top:1px solid rgba(255,255,255,0.08);">
                 
                 <!-- 1. Font Family & Weight -->
                 <div style="display:flex; gap:10px; margin-bottom:12px;">
@@ -1060,17 +1069,19 @@ window.setColTextAlign = function(origIdx, visualIndex, alignVal) {
         window.colConfigs[origIdx].textAlign = alignVal;
         updateColDOM(visualIndex, origIdx);
         saveLayout();
-        bindContextMenuList();
+        bindContextMenuList(visualIndex);
     }
 };
 
 window.setColDecimals = function(origIdx, visualIndex, d) {
     if (origIdx !== undefined && window.colConfigs[origIdx]) {
         window.colConfigs[origIdx].decimals = parseInt(d);
-        if (window.lastResults) renderTable(window.lastResults);
+        if (window.lastResults && window.lastResults.length > 0) {
+            renderTable(window.lastResults);
+        }
         updateColDOM(visualIndex, origIdx);
         saveLayout();
-        bindContextMenuList();
+        bindContextMenuList(visualIndex);
     }
 };
 
@@ -1078,10 +1089,12 @@ window.toggleColThousands = function(origIdx, visualIndex) {
     if (origIdx !== undefined && window.colConfigs[origIdx]) {
         const cur = window.colConfigs[origIdx].thousands !== false;
         window.colConfigs[origIdx].thousands = !cur;
-        if (window.lastResults) renderTable(window.lastResults);
+        if (window.lastResults && window.lastResults.length > 0) {
+            renderTable(window.lastResults);
+        }
         updateColDOM(visualIndex, origIdx);
         saveLayout();
-        bindContextMenuList();
+        bindContextMenuList(visualIndex);
     }
 };
 
