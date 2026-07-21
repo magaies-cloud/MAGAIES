@@ -308,39 +308,39 @@
         :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
         :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
 
-        /* ─── Premium Glassmorphic Layout Preset Buttons ─── */
+        /* ─── Premium Luminous Glassmorphic Layout Preset Buttons ─── */
         .preset-slots-container {
-            background: rgba(15, 23, 42, 0.45);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 3px 8px;
-            border-radius: 8px;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 4px 12px;
+            border-radius: 10px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             display: flex;
             align-items: center;
-            gap: 4px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            gap: 8px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
         }
         .preset-btn {
             position: relative;
-            background: rgba(30, 41, 59, 0.35);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            color: #cbd5e1;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(30, 41, 59, 0.6));
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(var(--accent-color), 0.35);
+            color: #e2e8f0;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.88rem;
             font-weight: 800;
             cursor: pointer;
             overflow: hidden;
             display: flex;
             align-items: center;
-            gap: 5px;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            gap: 7px;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
             user-select: none;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.15);
         }
         
         .preset-btn[data-slot-id="default1"] { --accent-color: 234, 179, 8; font-weight: 900; }
@@ -351,52 +351,70 @@
         
         @keyframes pulse-glow {
             0% { box-shadow: 0 0 6px rgba(var(--accent-color), 0.6); }
-            50% { box-shadow: 0 0 14px rgba(var(--accent-color), 0.9); }
+            50% { box-shadow: 0 0 16px rgba(var(--accent-color), 0.95); }
             100% { box-shadow: 0 0 6px rgba(var(--accent-color), 0.6); }
         }
         
+        /* Glass Sheen Light Reflection */
+        .preset-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -120%;
+            width: 70%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transform: skewX(-22deg);
+            transition: left 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+        .preset-btn:hover::after {
+            left: 140%;
+        }
+
         .preset-btn::before {
             content: '';
-            width: 8px;
-            height: 8px;
+            width: 9px;
+            height: 9px;
             border-radius: 50%;
             background: rgb(var(--accent-color));
-            box-shadow: 0 0 8px rgba(var(--accent-color), 0.8);
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 10px rgba(var(--accent-color), 0.9);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
             animation: pulse-glow 2s infinite ease-in-out;
         }
         .preset-btn:hover::before {
-            transform: scale(1.4);
+            transform: scale(1.5);
         }
         .preset-btn:hover {
-            background: rgba(30, 41, 59, 0.6);
-            border-color: rgba(var(--accent-color), 0.6);
+            background: linear-gradient(135deg, rgba(var(--accent-color), 0.25), rgba(15, 23, 42, 0.85));
+            border-color: rgba(var(--accent-color), 0.9);
             color: #ffffff;
-            box-shadow: 0 10px 25px rgba(var(--accent-color), 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-            transform: scale(1.06) translateY(-3px);
+            box-shadow: 0 0 22px rgba(var(--accent-color), 0.45), inset 0 0 10px rgba(var(--accent-color), 0.2);
+            transform: translateY(-2px) scale(1.06);
         }
         .preset-btn.active {
-            background: rgba(var(--accent-color), 0.15);
-            border-color: rgba(var(--accent-color), 0.85);
+            background: rgba(var(--accent-color), 0.22);
+            border-color: rgba(var(--accent-color), 0.95);
             color: #ffffff;
-            box-shadow: 0 0 25px rgba(var(--accent-color), 0.4), inset 0 1px 1px rgba(var(--accent-color), 0.2);
-            transform: scale(1.03);
+            box-shadow: 0 0 25px rgba(var(--accent-color), 0.5), inset 0 1px 1px rgba(var(--accent-color), 0.3);
+            transform: scale(1.04);
         }
         .preset-btn.holding {
-            background: rgba(var(--accent-color), 0.25) !important;
+            background: rgba(var(--accent-color), 0.35) !important;
             border-color: rgba(var(--accent-color), 1) !important;
-            box-shadow: 0 0 35px rgba(var(--accent-color), 0.6) !important;
+            box-shadow: 0 0 35px rgba(var(--accent-color), 0.7) !important;
             transform: scale(0.96) translateY(0);
         }
         .preset-clock-svg {
             flex-shrink: 0;
-            width: 16px;
-            height: 16px;
-            filter: drop-shadow(0 0 2px rgba(var(--accent-color), 0.5));
-            transition: transform 0.3s ease;
+            width: 17px;
+            height: 17px;
+            filter: drop-shadow(0 0 3px rgba(var(--accent-color), 0.6));
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease;
         }
         .preset-btn:hover .preset-clock-svg {
-            transform: rotate(15deg);
+            transform: scale(1.35) rotate(18deg);
+            filter: drop-shadow(0 0 8px rgba(var(--accent-color), 0.95));
         }
         .preset-clock-progress {
             stroke: rgb(var(--accent-color)) !important;
