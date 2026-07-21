@@ -495,27 +495,27 @@
     <div class="report-header no-print" style="background: rgba(30, 41, 59, 0.75); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 16px; margin-bottom: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
         <div class="filter-row" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 8px; gap: 12px;">
             <div class="filter-group">
-                <label style="font-size:0.78rem; margin-bottom:3px; font-weight:bold; color:#cbd5e1;">نوع المجموعة (Group Type)</label>
+                <label style="font-size:0.78rem; margin-bottom:3px; font-weight:bold; color:#cbd5e1;">نوع المجموعة</label>
                 <select class="filter-input" id="filter-group" style="padding:6px 12px; font-size:0.88rem; height:36px; border-radius:8px;">
-                    <option value="ALL">كل الأرصدة الإجمالية</option>
-                    <option value="CUST">العملاء (مدين)</option>
-                    <option value="SUPP">الموردين (دائن)</option>
-                    <option value="BANK">البنوك</option>
-                    <option value="SAFE">الخزن</option>
-                    <option value="EXP">المصروفات والحسابات</option>
+                    <option value="ALL">جميع الحسابات والأرصدة</option>
+                    <option value="CUST">أرصدة العملاء</option>
+                    <option value="SUPP">أرصدة الموردين</option>
+                    <option value="BANK">حسابات البنوك</option>
+                    <option value="SAFE">الخزن والصناديق</option>
+                    <option value="EXP">المصروفات والحسابات العامة</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label style="font-size:0.78rem; margin-bottom:3px; font-weight:bold; color:#cbd5e1;">الترتيب (Sort By)</label>
+                <label style="font-size:0.78rem; margin-bottom:3px; font-weight:bold; color:#cbd5e1;">ترتيب الأرصدة</label>
                 <select class="filter-input" id="filter-sort" style="padding:6px 12px; font-size:0.88rem; height:36px; border-radius:8px;">
-                    <option value="BALANCE_DESC">الرصيد (الأعلى للأسفل)</option>
-                    <option value="BALANCE_ASC">الرصيد (الأدنى للأعلى)</option>
-                    <option value="NAME">اسم الحساب (أبجدي)</option>
-                    <option value="LAST_DATE">تاريخ آخر حركة (الأحدث)</option>
+                    <option value="BALANCE_DESC">حسب الرصيد (من الأعلى للأقل)</option>
+                    <option value="BALANCE_ASC">حسب الرصيد (من الأقل للأعلى)</option>
+                    <option value="NAME">حسب اسم الحساب (أبجدياً)</option>
+                    <option value="LAST_DATE">حسب تاريخ آخر حركة (الأحدث)</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label style="font-size:0.78rem; margin-bottom:3px; font-weight:bold; color:#cbd5e1;">مركز التكلفة (Cost Center)</label>
+                <label style="font-size:0.78rem; margin-bottom:3px; font-weight:bold; color:#cbd5e1;">مركز التكلفة</label>
                 <select class="filter-input" id="filter-costcenter" style="padding:6px 12px; font-size:0.88rem; height:36px; border-radius:8px;">
                     <option value="ALL">جميع مراكز التكلفة (الكل)</option>
                 </select>
