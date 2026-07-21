@@ -734,7 +734,6 @@ function bindContextMenu() {
     const table = document.getElementById('balances-table');
     if (!table) return;
     const ctxMenu = document.getElementById('columnContextMenu');
-    const togglesContainer = document.getElementById('columnToggles');
     const partnerCtxMenu = document.getElementById('partnerContextMenu');
 
     // Prevent default right-click context menu inside the table except headers
@@ -753,64 +752,11 @@ function bindContextMenu() {
             if (typeof window.initDraggableModal === 'function') {
                 window.initDraggableModal();
             }
-            const ths = table.querySelectorAll('thead th');
-            togglesContainer.innerHTML = '';
-            ths.forEach((thEl, visualIndex) => {
-                const isHidden = thEl.style.display === 'none';
-                let text = thEl.innerText.replace('اسحب لتغيير عرض العمود (Double click للإرجاع)', '').trim();
-                if(!text) text = 'عمود ' + (visualIndex+1);
-                
-                const origIdx = parseInt(thEl.getAttribute('data-orig-idx'));
-                const conf = window.colConfigs[origIdx] || { fs: 1, bold: false, decimals: 2, color: '', bg: '' };
-
-                const div = document.createElement('div');
-                div.style.marginBottom = '8px';
-                div.style.border = '1px solid rgba(255,255,255,0.1)';
-                div.style.borderRadius = '8px';
-                div.style.background = 'rgba(30, 41, 59, 0.6)';
-                div.style.overflow = 'hidden';
-                
-                div.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:rgba(30, 41, 59, 0.8); cursor:pointer;" onclick="const p = document.getElementById('config-panel-${visualIndex}'); p.style.display = p.style.display === 'none' ? 'block' : 'none'">
-                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; font-size:0.9rem; margin:0; color:#f8fafc;" onclick="event.stopPropagation()">
-                            <input type="checkbox" style="width:16px; height:16px; cursor:pointer; accent-color:#38bdf8;" ${!isHidden ? 'checked' : ''} onchange="toggleColumn(${visualIndex}, this.checked)"> 
-                            ${text}
-                        </label>
-                        <span style="font-size:0.85rem; color:#38bdf8;">⚙️</span>
-                    </div>
-                    <div id="config-panel-${visualIndex}" style="display:none; padding:12px; background:rgba(15, 23, 42, 0.9); border-top:1px solid rgba(255,255,255,0.08);">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
-                            <span style="font-size:0.8rem; font-weight:bold; color:#94a3b8;">حجم الخط:</span>
-                            <div style="display:flex; gap:6px;">
-                                <button type="button" onclick="changeColFs(${origIdx}, ${visualIndex}, -0.1)" style="padding:4px 10px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:#fff;">-</button>
-                                <button type="button" onclick="changeColFs(${origIdx}, ${visualIndex}, 0.1)" style="padding:4px 10px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:#fff;">+</button>
-                                <button type="button" onclick="toggleColBold(${origIdx}, ${visualIndex})" style="padding:4px 10px; cursor:pointer; font-weight:bold; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.bold ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.bold ? '#0f172a' : '#fff'};">B</button>
-                            </div>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
-                            <span style="font-size:0.8rem; font-weight:bold; color:#94a3b8;">الكسور:</span>
-                            <div style="display:flex; gap:6px;">
-                                <button type="button" onclick="setColDecimals(${origIdx}, ${visualIndex}, 0)" style="padding:4px 10px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.decimals === 0 ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.decimals === 0 ? '#0f172a' : '#fff'};">0</button>
-                                <button type="button" onclick="setColDecimals(${origIdx}, ${visualIndex}, 2)" style="padding:4px 10px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.decimals === 2 ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.decimals === 2 ? '#0f172a' : '#fff'};">2</button>
-                                <button type="button" onclick="setColDecimals(${origIdx}, ${visualIndex}, 3)" style="padding:4px 10px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.decimals === 3 ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.decimals === 3 ? '#0f172a' : '#fff'};">3</button>
-                            </div>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                            <span style="font-size:0.8rem; font-weight:bold; color:#94a3b8;">لون النص:</span>
-                            <input type="color" value="${conf.color || '#ffffff'}" onchange="setColColor(${origIdx}, ${visualIndex}, 'color', this.value)" style="width:32px; height:28px; padding:0; border:none; background:transparent; cursor:pointer;">
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-size:0.8rem; font-weight:bold; color:#94a3b8;">لون الخلفية:</span>
-                            <input type="color" value="${conf.bg || '#0f172a'}" onchange="setColColor(${origIdx}, ${visualIndex}, 'bg', this.value)" style="width:32px; height:28px; padding:0; border:none; background:transparent; cursor:pointer;">
-                        </div>
-                    </div>
-                `;
-                togglesContainer.appendChild(div);
-            });
+            bindContextMenuList();
 
             // Smart positioning with bounds checking
-            const menuWidth = 480;
-            const menuHeight = 520;
+            const menuWidth = 510;
+            const menuHeight = 550;
             let left = e.clientX;
             let top = e.clientY;
 
@@ -845,75 +791,133 @@ function bindRowContextMenu() {
     if (partnerCtxMenu) partnerCtxMenu.style.display = 'none';
 }
 
-window.applyGlobalNumberFormatting = function() {
-    const fontFamilyEl = document.getElementById('ctx-font-family');
-    const fontSizeEl = document.getElementById('ctx-font-size-range');
-    const isBoldEl = document.getElementById('ctx-btn-bold');
-    const colorEl = document.getElementById('ctx-color-picker');
-    const bgEl = document.getElementById('ctx-bg-picker');
-    const decimalsEl = document.getElementById('ctx-decimals');
-    const thousandsEl = document.getElementById('ctx-btn-thousands');
+window.initTogglesSortable = function() {
+    const container = document.getElementById('columnToggles');
+    if (!container || !window.Sortable) return;
 
-    if (!fontFamilyEl || !fontSizeEl) return;
+    if (window.togglesSortableInstance) {
+        try { window.togglesSortableInstance.destroy(); } catch(e) {}
+    }
 
-    const fontFamily = fontFamilyEl.value;
-    const fontSize = fontSizeEl.value + 'px';
-    const isBold = isBoldEl.classList.contains('active');
-    const color = colorEl.value;
-    const bg = bgEl.value;
-    const decimalsVal = decimalsEl.value;
-    const isThousands = thousandsEl.classList.contains('active');
+    window.togglesSortableInstance = new Sortable(container, {
+        animation: 180,
+        handle: '.col-drag-handle',
+        ghostClass: 'sortable-ghost',
+        onEnd: function(evt) {
+            const oldIndex = evt.oldIndex;
+            const newIndex = evt.newIndex;
+            if (oldIndex === undefined || newIndex === undefined || oldIndex === newIndex) return;
 
-    const table = document.getElementById('balances-table');
-    if (!table) return;
+            // Reorder colOrder array
+            const movedOrigIdx = window.colOrder.splice(oldIndex, 1)[0];
+            window.colOrder.splice(newIndex, 0, movedOrigIdx);
 
-    const cells = table.querySelectorAll('tbody td');
-    cells.forEach(td => {
-        if (fontFamily) td.style.setProperty('font-family', fontFamily, 'important');
-        else td.style.removeProperty('font-family');
-
-        td.style.setProperty('font-size', fontSize, 'important');
-        td.style.setProperty('font-weight', isBold ? '800' : 'normal', 'important');
-        if (color) td.style.setProperty('color', color, 'important');
-        if (bg && bg !== '#0f172a' && bg !== '#ffffff') td.style.setProperty('background-color', bg, 'important');
-
-        if (decimalsVal !== 'none' && td.classList.contains('num')) {
-            const dec = parseInt(decimalsVal);
-            const text = td.textContent.replace(/,/g, '').trim();
-            const val = parseFloat(text);
-            if (!isNaN(val)) {
-                let formatted = val.toFixed(dec);
-                if (isThousands) {
-                    const parts = formatted.split('.');
-                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                    formatted = parts.join('.');
-                }
-                td.textContent = formatted;
-            }
+            saveLayout();
+            applyLayoutToDOM();
+            if (window.lastResults) renderTable(window.lastResults);
+            
+            // Re-bind list so visual indices match
+            bindContextMenuList();
         }
     });
+};
 
-    window.globalReportStyle = {
-        fontFamily, fontSize, bold: isBold, color, bg, decimals: decimalsVal, thousands: isThousands
-    };
-    localStorage.setItem('balances_report_global_styles_v1', JSON.stringify(window.globalReportStyle));
+window.bindContextMenuList = function() {
+    const table = document.getElementById('balances-table');
+    const togglesContainer = document.getElementById('columnToggles');
+    if (!table || !togglesContainer) return;
 
-    if (typeof showToast === 'function') {
-        showToast('تم تطبيق التنسيق العام بنجاح على أرقام وخلايا الجدول', 'success');
-    }
+    const ths = table.querySelectorAll('thead th');
+    togglesContainer.innerHTML = '';
+
+    ths.forEach((thEl, visualIndex) => {
+        const isHidden = thEl.style.display === 'none';
+        let text = thEl.innerText.replace('اسحب لتغيير عرض العمود (Double click للإرجاع)', '').trim();
+        if(!text) text = 'عمود ' + (visualIndex+1);
+        
+        const origIdx = parseInt(thEl.getAttribute('data-orig-idx'));
+        const conf = window.colConfigs[origIdx] || { fs: 1.0, bold: false, decimals: 2, color: '', bg: '', visible: true, fontFamily: '' };
+
+        const div = document.createElement('div');
+        div.className = 'col-item-card';
+        div.dataset.visualIdx = visualIndex;
+        div.dataset.origIdx = origIdx;
+        div.style.marginBottom = '10px';
+        div.style.border = '1px solid rgba(255,255,255,0.12)';
+        div.style.borderRadius = '10px';
+        div.style.background = 'rgba(30, 41, 59, 0.75)';
+        div.style.overflow = 'hidden';
+        
+        div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:rgba(30, 41, 59, 0.9); cursor:pointer;" onclick="const p = document.getElementById('config-panel-${visualIndex}'); p.style.display = p.style.display === 'none' ? 'block' : 'none'">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span class="col-drag-handle" style="cursor:grab; font-weight:bold; font-size:1.2rem; color:#38bdf8; padding:0 4px;" title="اسحب لأعلى أو لأسفل لترتيب العمود" onclick="event.stopPropagation()">⣿</span>
+                    <input type="checkbox" style="width:17px; height:17px; cursor:pointer; accent-color:#38bdf8;" ${!isHidden ? 'checked' : ''} onchange="toggleColumn(${visualIndex}, this.checked)" onclick="event.stopPropagation()"> 
+                    <span style="font-weight:800; font-size:0.92rem; color:#f8fafc;">${text}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:0.75rem; background:rgba(56,189,248,0.15); color:#38bdf8; padding:2px 8px; border-radius:6px; font-weight:bold;">تخصيص العمود</span>
+                    <span style="font-size:0.9rem; color:#38bdf8;">⚙️</span>
+                </div>
+            </div>
+            <div id="config-panel-${visualIndex}" style="display:none; padding:14px; background:rgba(15, 23, 42, 0.92); border-top:1px solid rgba(255,255,255,0.08);">
+                <div style="margin-bottom:12px;">
+                    <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:5px;">خط الأرقام والنص لهذا العمود:</label>
+                    <select onchange="setColFontFamily(${origIdx}, ${visualIndex}, this.value)" style="width:100%; background:rgba(30, 41, 59, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:7px 10px; border-radius:6px; font-size:0.82rem; outline:none;">
+                        <option value="" ${!conf.fontFamily ? 'selected' : ''}>-- الخط الافتراضي --</option>
+                        <option value="'Inter', sans-serif" ${conf.fontFamily === "'Inter', sans-serif" ? 'selected' : ''}>1. Inter (عصري وواضح)</option>
+                        <option value="'Roboto Mono', monospace" ${conf.fontFamily === "'Roboto Mono', monospace" ? 'selected' : ''}>2. Roboto Mono (أرقام متساوية)</option>
+                        <option value="'JetBrains Mono', monospace" ${conf.fontFamily === "'JetBrains Mono', monospace" ? 'selected' : ''}>3. JetBrains Mono (وضوح فائق)</option>
+                        <option value="'Fira Code', monospace" ${conf.fontFamily === "'Fira Code', monospace" ? 'selected' : ''}>4. Fira Code (تقني مريح)</option>
+                        <option value="'Poppins', sans-serif" ${conf.fontFamily === "'Poppins', sans-serif" ? 'selected' : ''}>5. Poppins (هندسي وواضح)</option>
+                    </select>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:12px; align-items:center;">
+                    <span style="font-size:0.78rem; font-weight:bold; color:#cbd5e1;">حجم وسمك الخط:</span>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <button type="button" onclick="changeColFs(${origIdx}, ${visualIndex}, -0.1)" style="padding:4px 10px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:#fff; font-weight:bold;">-</button>
+                        <span id="col-fs-val-${visualIndex}" style="font-size:0.8rem; font-family:monospace; font-weight:bold; color:#38bdf8; min-width:34px; text-align:center;">${(conf.fs || 1).toFixed(1)}em</span>
+                        <button type="button" onclick="changeColFs(${origIdx}, ${visualIndex}, 0.1)" style="padding:4px 10px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:#fff; font-weight:bold;">+</button>
+                        <button type="button" onclick="toggleColBold(${origIdx}, ${visualIndex})" style="padding:4px 10px; cursor:pointer; font-weight:bold; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.bold ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.bold ? '#0f172a' : '#fff'}; margin-right:4px;">B عريض</button>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:12px; align-items:center;">
+                    <span style="font-size:0.78rem; font-weight:bold; color:#cbd5e1;">الكسور العشرية لهذا العمود:</span>
+                    <div style="display:flex; gap:5px;">
+                        <button type="button" onclick="setColDecimals(${origIdx}, ${visualIndex}, 0)" style="padding:4px 9px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.decimals === 0 ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.decimals === 0 ? '#0f172a' : '#fff'}; font-weight:bold;">0</button>
+                        <button type="button" onclick="setColDecimals(${origIdx}, ${visualIndex}, 1)" style="padding:4px 9px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.decimals === 1 ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.decimals === 1 ? '#0f172a' : '#fff'}; font-weight:bold;">1</button>
+                        <button type="button" onclick="setColDecimals(${origIdx}, ${visualIndex}, 2)" style="padding:4px 9px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.decimals === 2 ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.decimals === 2 ? '#0f172a' : '#fff'}; font-weight:bold;">2</button>
+                        <button type="button" onclick="setColDecimals(${origIdx}, ${visualIndex}, 3)" style="padding:4px 9px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.decimals === 3 ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.decimals === 3 ? '#0f172a' : '#fff'}; font-weight:bold;">3</button>
+                        <button type="button" onclick="setColDecimals(${origIdx}, ${visualIndex}, 4)" style="padding:4px 9px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.decimals === 4 ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.decimals === 4 ? '#0f172a' : '#fff'}; font-weight:bold;">4</button>
+                    </div>
+                </div>
+                <div style="display:flex; gap:12px; align-items:center;">
+                    <div style="flex:1; display:flex; justify-content:space-between; align-items:center; background:rgba(30,41,59,0.5); padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">
+                        <span style="font-size:0.78rem; font-weight:bold; color:#cbd5e1;">لون النص:</span>
+                        <input type="color" value="${conf.color || '#ffffff'}" onchange="setColColor(${origIdx}, ${visualIndex}, 'color', this.value)" style="width:28px; height:26px; padding:0; border:none; background:transparent; cursor:pointer;">
+                    </div>
+                    <div style="flex:1; display:flex; justify-content:space-between; align-items:center; background:rgba(30,41,59,0.5); padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">
+                        <span style="font-size:0.78rem; font-weight:bold; color:#cbd5e1;">لون الخلفية:</span>
+                        <input type="color" value="${conf.bg || '#0f172a'}" onchange="setColColor(${origIdx}, ${visualIndex}, 'bg', this.value)" style="width:28px; height:26px; padding:0; border:none; background:transparent; cursor:pointer;">
+                    </div>
+                </div>
+            </div>
+        `;
+        togglesContainer.appendChild(div);
+    });
+
+    initTogglesSortable();
 };
 
 window.saveLayoutAndStyles = function() {
     if (typeof saveLayout === 'function') {
         saveLayout();
     }
-    applyGlobalNumberFormatting();
-
     const ctxMenu = document.getElementById('columnContextMenu');
     if (ctxMenu) ctxMenu.style.display = 'none';
 
     if (typeof showToast === 'function') {
-        showToast('تم حفظ التصميم والتنسيقات بنجاح', 'success');
+        showToast('تم حفظ الترتيب وتخصيص الأعمدة بنجاح', 'success');
     }
 };
 
@@ -922,6 +926,7 @@ window.resetLayoutAndStyles = function() {
         localStorage.removeItem('balances_report_col_configs_v2');
         localStorage.removeItem('balances_report_global_styles_v1');
         localStorage.removeItem('erp_custom_styles_v1');
+        localStorage.removeItem('erp_settings_v1');
         
         if (typeof showToast === 'function') {
             showToast('تمت إعادة الضبط للافتراضي، جارِ إعادة التحميل...', 'info');
@@ -947,50 +952,84 @@ window.toggleColumn = function(visualIndex, show) {
             cells[visualIndex].style.display = display;
         }
     });
-}
+    saveLayout();
+};
 
 function updateColDOM(visualIndex, origIdx) {
     const conf = window.colConfigs[origIdx];
+    if (!conf) return;
     const table = document.getElementById('balances-table');
-    const th = table.querySelectorAll('thead th')[visualIndex];
-    if(th) {
-        th.style.fontWeight = conf.bold ? '900' : 'bold'; // Headers are bold by default, 900 for thicker
-        th.style.fontSize = conf.fs + 'em';
-        if(conf.color) th.style.color = conf.color; else th.style.color = '';
-        if(conf.bg && conf.bg !== '#ffffff') th.style.backgroundColor = conf.bg; else th.style.backgroundColor = '';
+    if (!table) return;
+
+    const ths = table.querySelectorAll('thead th');
+    const th = ths[visualIndex];
+    if (th) {
+        th.style.fontWeight = conf.bold ? '900' : 'bold';
+        th.style.fontSize = (conf.fs || 1.0) + 'em';
+        if (conf.color) th.style.color = conf.color; else th.style.color = '';
+        if (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') th.style.backgroundColor = conf.bg; else th.style.backgroundColor = '';
+        if (conf.fontFamily) th.style.fontFamily = conf.fontFamily; else th.style.fontFamily = '';
     }
-    
+
     const rows = table.querySelectorAll('tbody tr:not(.empty-state)');
     rows.forEach(row => {
         const cell = row.children[visualIndex];
-        if(cell) {
+        if (cell) {
             cell.style.fontWeight = conf.bold ? 'bold' : '';
-            cell.style.fontSize = conf.fs + 'em';
-            if(conf.color) cell.style.color = conf.color; else cell.style.color = '';
-            if(conf.bg && conf.bg !== '#ffffff') cell.style.backgroundColor = conf.bg; else cell.style.backgroundColor = '';
+            cell.style.fontSize = (conf.fs || 1.0) + 'em';
+            if (conf.color) cell.style.color = conf.color; else cell.style.color = '';
+            if (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') cell.style.backgroundColor = conf.bg; else cell.style.backgroundColor = '';
+            if (conf.fontFamily) cell.style.fontFamily = conf.fontFamily; else cell.style.fontFamily = '';
         }
     });
 }
 
+window.setColFontFamily = function(origIdx, visualIndex, fontVal) {
+    if (origIdx !== undefined && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].fontFamily = fontVal;
+        updateColDOM(visualIndex, origIdx);
+        saveLayout();
+    }
+};
+
 window.changeColFs = function(origIdx, visualIndex, delta) {
-    window.colConfigs[origIdx].fs += delta;
-    if(window.colConfigs[origIdx].fs < 0.5) window.colConfigs[origIdx].fs = 0.5;
-    if(window.colConfigs[origIdx].fs > 2.5) window.colConfigs[origIdx].fs = 2.5;
-    updateColDOM(visualIndex, origIdx);
-}
+    if (origIdx !== undefined && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].fs = (window.colConfigs[origIdx].fs || 1.0) + delta;
+        if (window.colConfigs[origIdx].fs < 0.5) window.colConfigs[origIdx].fs = 0.5;
+        if (window.colConfigs[origIdx].fs > 2.5) window.colConfigs[origIdx].fs = 2.5;
+        const fsSpan = document.getElementById(`col-fs-val-${visualIndex}`);
+        if (fsSpan) fsSpan.textContent = window.colConfigs[origIdx].fs.toFixed(1) + 'em';
+        updateColDOM(visualIndex, origIdx);
+        saveLayout();
+    }
+};
+
 window.toggleColBold = function(origIdx, visualIndex) {
-    window.colConfigs[origIdx].bold = !window.colConfigs[origIdx].bold;
-    updateColDOM(visualIndex, origIdx);
-    document.getElementById('columnContextMenu').style.display = 'none'; // quick close to refresh UI
-}
+    if (origIdx !== undefined && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].bold = !window.colConfigs[origIdx].bold;
+        updateColDOM(visualIndex, origIdx);
+        saveLayout();
+        bindContextMenuList();
+    }
+};
+
 window.setColDecimals = function(origIdx, visualIndex, d) {
-    window.colConfigs[origIdx].decimals = d;
-    if (window.lastResults) renderTable(window.lastResults);
-}
+    if (origIdx !== undefined && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].decimals = parseInt(d);
+        if (window.lastResults) renderTable(window.lastResults);
+        updateColDOM(visualIndex, origIdx);
+        saveLayout();
+        bindContextMenuList();
+    }
+};
+
 window.setColColor = function(origIdx, visualIndex, type, val) {
-    window.colConfigs[origIdx][type] = val;
-    updateColDOM(visualIndex, origIdx);
-}
+    if (origIdx !== undefined && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx][type] = val;
+        updateColDOM(visualIndex, origIdx);
+        saveLayout();
+    }
+};
 
 function bindColumnReorder() {
     const table = document.getElementById('balances-table');
