@@ -1728,6 +1728,12 @@ let chartHollowDonutTopDebtors = null;
 let chartCurvedLineSpectrum = null;
 let chartBiDirectionalBar = null;
 let chartSemiCircleGauge = null;
+let chartHollowDonutCreditors = null;
+let chartHorizontalTopBar = null;
+let chartCumulativeAreaFluid = null;
+let chartRadarEquilibrium = null;
+let chartSolidPieActiveZero = null;
+let chartMultiRadialRings = null;
 
 function renderVisualAnalytics(results) {
     const hub = document.getElementById('visual-intelligence-hub');
@@ -2140,6 +2146,156 @@ function renderVisualAnalytics(results) {
     if (chartSemiCircleGauge) chartSemiCircleGauge.destroy();
     chartSemiCircleGauge = new ApexCharts(document.querySelector("#chart-semicircle-gauge"), optionsGauge);
     chartSemiCircleGauge.render();
+
+
+    // ─── Chart 6: Hollow Donut Chart - Top Creditor Suppliers ───
+    const topCreditors = [...results].filter(x => x.endingCreditLocal > 0)
+        .sort((a, b) => b.endingCreditLocal - a.endingCreditLocal).slice(0, 5);
+    const topCreditorNames = topCreditors.map(x => x.name);
+    const topCreditorValues = topCreditors.map(x => x.endingCreditLocal);
+
+    const optionsCreditorsDonut = {
+        series: topCreditorValues.length > 0 ? topCreditorValues : [1],
+        labels: topCreditorNames.length > 0 ? topCreditorNames : ['لا يوجد بيانات'],
+        chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#f43f5e', '#fb7185', '#a855f7', '#fbbf24', '#38bdf8'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '68%',
+                    labels: {
+                        show: true,
+                        name: { show: true, fontSize: '13px', color: isLightTheme ? '#0f172a' : '#cbd5e1' },
+                        value: { show: true, fontSize: '15px', fontWeight: 900, color: isLightTheme ? '#e11d48' : '#fb7185', formatter: v => parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' },
+                        total: { show: true, label: 'إجمالي الديون', color: isLightTheme ? '#64748b' : '#94a3b8', formatter: w => w.globals.seriesTotals.reduce((a,b)=>a+b, 0).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' }
+                    }
+                }
+            }
+        },
+        dataLabels: { enabled: false },
+        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (chartHollowDonutCreditors) chartHollowDonutCreditors.destroy();
+    chartHollowDonutCreditors = new ApexCharts(document.querySelector("#chart-hollow-donut-creditors"), optionsCreditorsDonut);
+    chartHollowDonutCreditors.render();
+
+
+    // ─── Chart 7: Horizontal Bar Chart - Top 10 Accounts Volume Ranking ───
+    const top10Overall = [...results].sort((a, b) => Math.max(b.endingDebitLocal, b.endingCreditLocal) - Math.max(a.endingDebitLocal, a.endingCreditLocal)).slice(0, 10);
+    const top10Names = top10Overall.map(x => x.name);
+    const top10Values = top10Overall.map(x => Math.max(x.endingDebitLocal, x.endingCreditLocal));
+
+    const optionsHorizontalBar = {
+        series: [{ name: 'رصيد الحساب', data: top10Values }],
+        chart: { type: 'bar', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        plotOptions: { bar: { horizontal: true, borderRadius: 6, barHeight: '55%', distributed: true } },
+        colors: ['#38bdf8', '#34d399', '#a855f7', '#fbbf24', '#f43f5e', '#22d3ee', '#818cf8', '#fb7185', '#10b981', '#f59e0b'],
+        dataLabels: { enabled: false },
+        xaxis: { categories: top10Names, labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#1e293b' : '#cbd5e1', fontSize: '11px', fontFamily: 'Tajawal' } } },
+        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
+        legend: { show: false },
+        tooltip: { y: { formatter: v => v.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' SDG' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (chartHorizontalTopBar) chartHorizontalTopBar.destroy();
+    chartHorizontalTopBar = new ApexCharts(document.querySelector("#chart-horizontal-top-bar"), optionsHorizontalBar);
+    chartHorizontalTopBar.render();
+
+
+    // ─── Chart 8: Filled Area Fluid Curve ───
+    const areaNames = sortedByVolume.slice(0, 12).map(x => x.name);
+    const areaDebits = sortedByVolume.slice(0, 12).map(x => x.endingDebitLocal);
+    const areaCredits = sortedByVolume.slice(0, 12).map(x => x.endingCreditLocal);
+
+    const optionsFluidArea = {
+        series: [
+            { name: 'مستحقات (مدين)', data: areaDebits },
+            { name: 'التزامات (دائن)', data: areaCredits }
+        ],
+        chart: { type: 'area', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#10b981', '#f43f5e'],
+        stroke: { curve: 'smooth', width: 2.5 },
+        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.05, stops: [0, 95, 100] } },
+        dataLabels: { enabled: false },
+        xaxis: { categories: areaNames, labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontSize: '10px' }, rotate: -20 } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
+        legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: v => v.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' SDG' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (chartCumulativeAreaFluid) chartCumulativeAreaFluid.destroy();
+    chartCumulativeAreaFluid = new ApexCharts(document.querySelector("#chart-cumulative-area-fluid"), optionsFluidArea);
+    chartCumulativeAreaFluid.render();
+
+
+    // ─── Chart 9: Polygon Radar Equilibrium Chart ───
+    const optionsRadar = {
+        series: [
+            { name: 'المدين (ما لك)', data: [categorySums['CUST'].debit, categorySums['SUPP'].debit, categorySums['BANK'].debit, categorySums['SAFE'].debit, categorySums['EXP'].debit] },
+            { name: 'الدائن (ما عليك)', data: [categorySums['CUST'].credit, categorySums['SUPP'].credit, categorySums['BANK'].credit, categorySums['SAFE'].credit, categorySums['EXP'].credit] }
+        ],
+        chart: { type: 'radar', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#38bdf8', '#c084fc'],
+        stroke: { width: 2 },
+        fill: { opacity: 0.25 },
+        markers: { size: 4 },
+        xaxis: { categories: ['العملاء', 'الموردين', 'البنوك', 'الخزن', 'المصروفات'], labels: { style: { colors: isLightTheme ? '#0f172a' : '#e2e8f0', fontSize: '12px' } } },
+        yaxis: { show: false },
+        legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (chartRadarEquilibrium) chartRadarEquilibrium.destroy();
+    chartRadarEquilibrium = new ApexCharts(document.querySelector("#chart-radar-equilibrium"), optionsRadar);
+    chartRadarEquilibrium.render();
+
+
+    // ─── Chart 10: Solid Pie Chart - Active vs Zero Accounts ───
+    const optionsSolidPie = {
+        series: [debtorsCount, creditorsCount, zeroCount],
+        labels: [`عملاء دائنون (${debtorsCount})`, `موردون دائنون (${creditorsCount})`, `حسابات صفريّة (${zeroCount})`],
+        chart: { type: 'pie', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#10b981', '#f43f5e', '#64748b'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        dataLabels: { enabled: true, style: { fontSize: '12px', fontFamily: 'Tajawal, sans-serif', fontWeight: 'bold' } },
+        tooltip: { y: { formatter: v => v + ' حساب' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (chartSolidPieActiveZero) chartSolidPieActiveZero.destroy();
+    chartSolidPieActiveZero = new ApexCharts(document.querySelector("#chart-solid-pie-active-zero"), optionsSolidPie);
+    chartSolidPieActiveZero.render();
+
+
+    // ─── Chart 11: Multi-Radial Rings Gauge ───
+    const totalAccCount = results.length || 1;
+    const debtorsPct = Math.round((debtorsCount / totalAccCount) * 100);
+    const creditorsPct = Math.round((creditorsCount / totalAccCount) * 100);
+    const treasuryPct = Math.round(((categorySums['BANK'].count + categorySums['SAFE'].count) / totalAccCount) * 100);
+
+    const optionsMultiRadial = {
+        series: [debtorsPct, creditorsPct, treasuryPct],
+        chart: { type: 'radialBar', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        plotOptions: {
+            radialBar: {
+                dataLabels: {
+                    name: { fontSize: '14px', color: isLightTheme ? '#64748b' : '#94a3b8' },
+                    value: { fontSize: '16px', fontWeight: '800', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + '%' },
+                    total: { show: true, label: 'نسب الأرصدة', color: isLightTheme ? '#0f172a' : '#cbd5e1', formatter: () => debtorsPct + '%' }
+                },
+                track: { background: isLightTheme ? '#e2e8f0' : '#1e293b' }
+            }
+        },
+        colors: ['#10b981', '#f43f5e', '#38bdf8'],
+        labels: ['حصة العملاء', 'حصة الموردين', 'حصة الخزينة والبنوك'],
+        theme: { mode: chartThemeMode }
+    };
+    if (chartMultiRadialRings) chartMultiRadialRings.destroy();
+    chartMultiRadialRings = new ApexCharts(document.querySelector("#chart-multi-radial-rings"), optionsMultiRadial);
+    chartMultiRadialRings.render();
 }
 
 window.switchVisualTab = function(type) {
