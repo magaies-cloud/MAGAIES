@@ -437,10 +437,123 @@
 
 <div class="toast-container" id="toast-container"></div>
 
-<div id="columnContextMenu" style="display:none; position:absolute; z-index:10000; background:#fff; border:2px solid #111827; border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.5); padding:15px; width:300px; color:#000; max-height: 85vh; overflow-y: auto;">
-    <div style="font-weight:900; border-bottom:2px solid #e2e8f0; padding-bottom:8px; margin-bottom:10px; text-align:center; font-size:1.05rem;">⚙️ إعدادات الأعمدة</div>
-    <div id="columnToggles"></div>
-    <button onclick="saveLayout()" style="width: 100%; margin-top: 15px; padding: 10px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 6px; font-weight: bold; font-family:'Tajawal', sans-serif; cursor: pointer; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);">💾 حفظ التصميم</button>
+<!-- Unified Context Menu for Columns & Data Formatting -->
+<div id="columnContextMenu" style="display:none; position:fixed; z-index:100000; background:rgba(15, 23, 42, 0.96); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(56, 189, 248, 0.3); border-radius:16px; box-shadow:0 25px 60px rgba(0,0,0,0.6), 0 0 25px rgba(56, 189, 248, 0.2); padding:20px; width:480px; color:#f8fafc; font-family:'Tajawal', 'Inter', sans-serif; max-height:85vh; overflow-y:auto; direction:rtl; text-align:right;">
+    <!-- Header -->
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:12px; margin-bottom:15px;">
+        <div style="font-weight:900; font-size:1.1rem; color:#38bdf8; display:flex; align-items:center; gap:8px;">
+            <span style="font-size:1.2rem;">🛠️</span> قائمة إعدادات وتنسيق الجدول والبيانات
+        </div>
+        <span onclick="document.getElementById('columnContextMenu').style.display='none'" style="cursor:pointer; font-weight:bold; font-size:1.2rem; color:#94a3b8; padding:2px 10px; border-radius:6px; background:rgba(255,255,255,0.08); transition:all 0.2s;" onmouseover="this.style.color='#fff';this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.color='#94a3b8';this.style.background='rgba(255,255,255,0.08)'">&times;</span>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div style="display:flex; gap:8px; margin-bottom:16px; background:rgba(30, 41, 59, 0.7); padding:5px; border-radius:10px; border:1px solid rgba(255,255,255,0.08);">
+        <button id="tab-btn-cols" type="button" onclick="switchCtxTab('cols')" style="flex:1; padding:9px 12px; border:none; border-radius:8px; background:#38bdf8; color:#0f172a; font-weight:900; cursor:pointer; font-family:inherit; transition:all 0.2s; box-shadow:0 2px 8px rgba(56,189,248,0.3);">⚙️ إعدادات الأعمدة</button>
+        <button id="tab-btn-formatting" type="button" onclick="switchCtxTab('formatting')" style="flex:1; padding:9px 12px; border:none; border-radius:8px; background:transparent; color:#94a3b8; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.2s;">🎨 تخصيص وتنسيق الأرقام</button>
+    </div>
+
+    <!-- Tab 1: Column Toggles & Individual Controls -->
+    <div id="ctx-tab-cols">
+        <div style="font-size:0.8rem; color:#94a3b8; margin-bottom:12px; font-weight:bold; display:flex; align-items:center; gap:6px;">
+            <span>👁️</span> الإظهار والإخفاء والتنسيق الخاص بكل عمود:
+        </div>
+        <div id="columnToggles" style="display:flex; flex-direction:column; gap:8px;"></div>
+    </div>
+
+    <!-- Tab 2: General & Number Formatting Controls -->
+    <div id="ctx-tab-formatting" style="display:none;">
+        <div style="font-size:0.8rem; color:#94a3b8; margin-bottom:12px; font-weight:bold; display:flex; align-items:center; gap:6px;">
+            <span>🔢</span> التنسيق العام للأرقام والخلايا بالجدول:
+        </div>
+        
+        <!-- English Number Font -->
+        <div style="margin-bottom:12px;">
+            <label style="font-size:0.8rem; color:#cbd5e1; display:block; margin-bottom:6px; font-weight:bold;">خط الأرقام الإنجليزي الوثيق:</label>
+            <select id="ctx-font-family" style="width:100%; background:rgba(30, 41, 59, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:9px 12px; border-radius:8px; font-size:0.85rem; outline:none; cursor:pointer; font-family:inherit;">
+                <option value="">-- خط الصفحة الافتراضي --</option>
+                <option value="'Inter', sans-serif">1. Inter (عصري وواضح جداً)</option>
+                <option value="'Roboto Mono', monospace">2. Roboto Mono (أرقام متساوية العرض)</option>
+                <option value="'JetBrains Mono', monospace">3. JetBrains Mono (وضوح فائق)</option>
+                <option value="'Fira Code', monospace">4. Fira Code (خط تقني مريح)</option>
+                <option value="'Poppins', sans-serif">5. Poppins (خط هندسي ممتاز)</option>
+            </select>
+        </div>
+
+        <!-- Font Size & Bold -->
+        <div style="display:flex; gap:12px; margin-bottom:14px;">
+            <div style="flex:1.2;">
+                <label style="font-size:0.8rem; color:#cbd5e1; display:block; margin-bottom:6px; font-weight:bold;">حجم خط البيانات:</label>
+                <div style="display:flex; align-items:center; gap:10px; background:rgba(30,41,59,0.5); padding:6px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+                    <input type="range" id="ctx-font-size-range" min="10" max="32" step="1" value="14" oninput="document.getElementById('ctx-font-size-val').textContent = this.value + 'px'" style="flex:1; cursor:pointer; accent-color:#38bdf8;">
+                    <span id="ctx-font-size-val" style="font-weight:bold; color:#38bdf8; min-width:38px; text-align:center; font-family:monospace; font-size:0.85rem;">14px</span>
+                </div>
+            </div>
+            <div style="flex:0.8; display:flex; flex-direction:column; justify-content:flex-end;">
+                <button type="button" id="ctx-btn-bold" onclick="this.classList.toggle('active'); this.style.background=this.classList.contains('active')?'rgba(56,189,248,0.25)':'rgba(255,255,255,0.06)'; this.style.borderColor=this.classList.contains('active')?'#38bdf8':'rgba(255,255,255,0.15)'; this.style.color=this.classList.contains('active')?'#38bdf8':'#fff';" style="height:38px; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.06); color:#fff; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s;">
+                    <span><b>B</b> خط عريض</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Color Pickers -->
+        <div style="display:flex; gap:12px; margin-bottom:14px;">
+            <div style="flex:1;">
+                <label style="font-size:0.8rem; color:#cbd5e1; display:block; margin-bottom:6px; font-weight:bold;">لون النص/الأرقام:</label>
+                <div style="display:flex; gap:6px; align-items:center; background:rgba(30,41,59,0.5); padding:4px 8px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+                    <input type="color" id="ctx-color-picker" value="#ffffff" oninput="document.getElementById('ctx-color-hex').value = this.value.toUpperCase()" style="width:32px; height:32px; border:none; border-radius:6px; cursor:pointer; background:none; padding:0;">
+                    <input type="text" id="ctx-color-hex" value="#FFFFFF" oninput="if(/^#[0-9A-F]{6}$/i.test(this.value)) document.getElementById('ctx-color-picker').value = this.value" style="width:100%; background:transparent; border:none; color:#fff; padding:4px; font-size:0.8rem; text-align:center; font-family:monospace; outline:none;">
+                </div>
+            </div>
+            <div style="flex:1;">
+                <label style="font-size:0.8rem; color:#cbd5e1; display:block; margin-bottom:6px; font-weight:bold;">خلفية الخلايا:</label>
+                <div style="display:flex; gap:6px; align-items:center; background:rgba(30,41,59,0.5); padding:4px 8px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+                    <input type="color" id="ctx-bg-picker" value="#0f172a" oninput="document.getElementById('ctx-bg-hex').value = this.value.toUpperCase()" style="width:32px; height:32px; border:none; border-radius:6px; cursor:pointer; background:none; padding:0;">
+                    <input type="text" id="ctx-bg-hex" value="#0F172A" oninput="if(/^#[0-9A-F]{6}$/i.test(this.value)) document.getElementById('ctx-bg-picker').value = this.value" style="width:100%; background:transparent; border:none; color:#fff; padding:4px; font-size:0.8rem; text-align:center; font-family:monospace; outline:none;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Decimals & Thousands -->
+        <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:12px; margin-top:12px;">
+            <div style="font-weight:bold; color:#10b981; font-size:0.85rem; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+                <span>🎯</span> تنسيق الخانات العشرية والفواصل:
+            </div>
+            <div style="display:flex; gap:12px; margin-bottom:12px;">
+                <div style="flex:1.2;">
+                    <label style="font-size:0.8rem; color:#cbd5e1; display:block; margin-bottom:6px; font-weight:bold;">المنازل العشرية (الكسور):</label>
+                    <select id="ctx-decimals" style="width:100%; background:rgba(30, 41, 59, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:8px 12px; border-radius:8px; font-size:0.85rem; outline:none; cursor:pointer; font-family:inherit;">
+                        <option value="none">-- التنسيق الحالي --</option>
+                        <option value="0">0 (أرقام صحيحة)</option>
+                        <option value="1">منزلة واحدة (0.0)</option>
+                        <option value="2" selected>منزلتان (0.00)</option>
+                        <option value="3">3 منازل (0.000)</option>
+                        <option value="4">4 منازل (0.0000)</option>
+                    </select>
+                </div>
+                <div style="flex:0.8; display:flex; flex-direction:column; justify-content:flex-end;">
+                    <button type="button" id="ctx-btn-thousands" class="active" onclick="this.classList.toggle('active'); this.style.background=this.classList.contains('active')?'rgba(16,185,129,0.25)':'rgba(255,255,255,0.06)'; this.style.borderColor=this.classList.contains('active')?'#10b981':'rgba(255,255,255,0.15)'; this.style.color=this.classList.contains('active')?'#34d399':'#fff';" style="height:38px; border-radius:8px; border:1px solid #10b981; background:rgba(16,185,129,0.2); color:#34d399; font-weight:bold; cursor:pointer; transition:all 0.2s;">
+                        1,000 فاصلة
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Apply Formatting Button -->
+        <button type="button" onclick="applyGlobalNumberFormatting()" style="width:100%; margin-top:8px; padding:10px; background:linear-gradient(135deg, #0284c7, #0369a1); color:white; border:none; border-radius:8px; font-weight:bold; font-family:inherit; cursor:pointer; box-shadow:0 4px 12px rgba(2, 132, 199, 0.3); transition:all 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+            ✨ تطبيق التنسيق على أرقام الجدول
+        </button>
+    </div>
+
+    <!-- Common Footer Buttons -->
+    <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:15px; margin-top:16px; display:flex; gap:10px;">
+        <button type="button" onclick="saveLayoutAndStyles()" style="flex:1.5; padding:11px; background:linear-gradient(135deg, #10b981, #059669); color:white; border:none; border-radius:8px; font-weight:bold; font-family:inherit; cursor:pointer; box-shadow:0 4px 14px rgba(16, 185, 129, 0.35); display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
+            💾 حفظ التصميم والتنسيق
+        </button>
+        <button type="button" onclick="resetLayoutAndStyles()" style="flex:1; padding:11px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:8px; font-weight:bold; font-family:inherit; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.25)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'">
+            🔄 إعادة الضبط
+        </button>
+    </div>
 </div>
 
 <!-- Custom Context Menu for Partner Rows -->

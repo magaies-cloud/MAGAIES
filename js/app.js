@@ -4039,6 +4039,7 @@ window.printReportDirectly = function(title, targetSelector) {
             }
 
             document.addEventListener('contextmenu', (e) => {
+                if (window.location.pathname.includes('balances-report.php')) return;
                 let target = e.target;
                 let depth = 0;
                 while (target && depth < 3) {
@@ -4547,6 +4548,7 @@ window.printReportDirectly = function(title, targetSelector) {
             }
 
             document.addEventListener('contextmenu', (e) => {
+                if (window.location.pathname.includes('balances-report.php')) return;
                 let target = e.target;
                 let depth = 0;
                 while (target && depth < 3) {
