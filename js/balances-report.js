@@ -2330,57 +2330,69 @@ function renderSidebarConfig() {
         li.dataset.index = index;
         li.dataset.origIdx = origIdx;
 
+        const currentFs = parseFloat(col.fs) || 1.0;
+
         li.innerHTML = `
             <div class="col-config-header">
                 <div class="col-title-wrap">
-                    <span class="col-drag-handle">☰</span>
+                    <span class="col-drag-handle" title="اسحب لأعلى أو لأسفل لإعادة ترتيب الأعمدة أفقيًا في الجداول">☰</span>
                     <span class="col-title">${col.alias || col.name}</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <button class="col-settings-btn" onclick="toggleColSettings(${index})">تخصيص</button>
-                    <div class="col-toggle ${col.visible !== false ? 'on' : ''}" onclick="toggleColVisibility(${origIdx}, this)"></div>
+                    <button class="col-settings-btn" onclick="toggleColSettings(${index})">⚙️ تخصيص</button>
+                    <div class="col-toggle ${col.visible !== false ? 'on' : ''}" onclick="toggleColVisibility(${origIdx}, this)" title="إظهار/إخفاء العمود"></div>
                 </div>
             </div>
             <div class="col-settings-panel" id="col-settings-${index}">
                 <div class="cfg-row">
-                    <span>مسمى بديل:</span>
+                    <span>مسمى العمود:</span>
                     <input type="text" class="cfg-input" value="${col.alias || col.name}" onchange="updateColField(${origIdx}, 'alias', this.value)" placeholder="${col.name}">
                 </div>
                 <div class="cfg-row">
-                    <span>الخط (حجم/سمك):</span>
-                    <div class="cfg-btns">
+                    <span>حجم الخط (تكبير/تصغير):</span>
+                    <div style="display:flex; align-items:center; gap:4px;">
                         <button class="cfg-btn" onclick="adjustFontSize(${origIdx}, -1)">A-</button>
+                        <input type="range" min="0.6" max="3.0" step="0.05" value="${currentFs}" oninput="updateColField(${origIdx}, 'fs', parseFloat(this.value)); document.getElementById('fs-lbl-${origIdx}').textContent = parseFloat(this.value).toFixed(2) + 'rem';" style="width:75px; cursor:pointer;">
+                        <span id="fs-lbl-${origIdx}" style="font-size:0.75rem; color:#38bdf8; font-weight:bold; width:45px; text-align:center;">${currentFs.toFixed(2)}rem</span>
                         <button class="cfg-btn" onclick="adjustFontSize(${origIdx}, 1)">A+</button>
-                        <button class="cfg-btn ${col.bold ? 'active' : ''}" onclick="toggleColBold(${origIdx}, this)">B</button>
+                        <button class="cfg-btn ${col.bold ? 'active' : ''}" onclick="toggleColBold(${origIdx}, this)" title="خط بولد عريض وتخين" style="font-weight:900;">B (تخين)</button>
                     </div>
                 </div>
                 <div class="cfg-row">
                     <span>محاذاة النص:</span>
-                    <select class="cfg-input" onchange="updateColField(${origIdx}, 'align', this.value)" style="width:120px;">
+                    <select class="cfg-input" onchange="updateColField(${origIdx}, 'align', this.value)" style="width:115px;">
                         <option value="center" ${col.align === 'center' ? 'selected' : ''}>الوسط ↔️</option>
                         <option value="right" ${col.align === 'right' ? 'selected' : ''}>اليمين ➡️</option>
                         <option value="left" ${col.align === 'left' ? 'selected' : ''}>اليسار ⬅️</option>
                     </select>
                 </div>
                 <div class="cfg-row">
-                    <span>الألوان (نص/خلفية):</span>
-                    <div style="display:flex; gap:5px;">
+                    <span>الألوان (النص / الخلفية):</span>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <span style="font-size:0.75rem; color:#94a3b8;">النص:</span>
                         <input type="color" class="cfg-input" value="${col.color || '#ffffff'}" onchange="updateColField(${origIdx}, 'color', this.value)" title="لون النص">
+                        <span style="font-size:0.75rem; color:#94a3b8; margin-right:4px;">الخلفية:</span>
                         <input type="color" class="cfg-input" value="${col.bg || '#000000'}" onchange="updateColField(${origIdx}, 'bg', this.value)" title="لون الخلفية">
                     </div>
                 </div>
                 ${['debit', 'credit', 'debitF', 'creditF'].includes(col.id) ? `
                 <div class="cfg-row">
-                    <span>التقريب (العشري):</span>
-                    <select class="cfg-input" onchange="updateColField(${origIdx}, 'dec', parseInt(this.value))" style="width:120px;">
-                        <option value="0" ${col.dec === 0 ? 'selected' : ''}>بدون خانات (0)</option>
-                        <option value="1" ${col.dec === 1 ? 'selected' : ''}>خانة واحدة (1)</option>
-                        <option value="2" ${col.dec === 2 ? 'selected' : ''}>خانتين (2)</option>
-                        <option value="3" ${col.dec === 3 ? 'selected' : ''}>3 خانات (3)</option>
-                        <option value="4" ${col.dec === 4 ? 'selected' : ''}>4 خانات (4)</option>
-                        <option value="5" ${col.dec === 5 ? 'selected' : ''}>5 خانات (5)</option>
-                        <option value="6" ${col.dec === 6 ? 'selected' : ''}>6 خانات (6)</option>
-                    </select>
+                    <span>التقريب والفاصلة الألفية:</span>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <select class="cfg-input" onchange="updateColField(${origIdx}, 'dec', parseInt(this.value))" style="width:115px;" title="عدد الخانات العشرية للتقريب">
+                            <option value="0" ${col.dec === 0 ? 'selected' : ''}>بدون خانات (0)</option>
+                            <option value="1" ${col.dec === 1 ? 'selected' : ''}>خانة واحدة (1)</option>
+                            <option value="2" ${col.dec === 2 ? 'selected' : ''}>خانتين (2)</option>
+                            <option value="3" ${col.dec === 3 ? 'selected' : ''}>3 خانات (3)</option>
+                            <option value="4" ${col.dec === 4 ? 'selected' : ''}>4 خانات (4)</option>
+                            <option value="5" ${col.dec === 5 ? 'selected' : ''}>5 خانات (5)</option>
+                            <option value="6" ${col.dec === 6 ? 'selected' : ''}>6 خانات (6)</option>
+                        </select>
+                        <label style="font-size:0.75rem; color:#cbd5e1; cursor:pointer; display:flex; align-items:center; gap:3px;">
+                            <input type="checkbox" ${col.thousands !== false ? 'checked' : ''} onchange="updateColField(${origIdx}, 'thousands', this.checked)">
+                            فاصلة (,)
+                        </label>
+                    </div>
                 </div>
                 ` : ''}
             </div>
@@ -2411,13 +2423,17 @@ function updateColField(origIdx, field, val) {
     if (window.colConfigs[origIdx]) {
         window.colConfigs[origIdx][field] = val;
         applyLayoutToDOM();
+        if (['dec', 'thousands'].includes(field) && typeof window.runReport === 'function' && window.lastResults) {
+            window.runReport();
+        }
     }
 }
 function adjustFontSize(origIdx, dir) {
     if (window.colConfigs[origIdx]) {
         let fs = parseFloat(window.colConfigs[origIdx].fs) || 1.0;
-        fs = Math.max(0.6, Math.min(2.0, fs + dir * 0.05));
+        fs = Math.max(0.6, Math.min(3.0, fs + dir * 0.1));
         window.colConfigs[origIdx].fs = parseFloat(fs.toFixed(2));
+        renderSidebarConfig();
         applyLayoutToDOM();
     }
 }
@@ -2453,6 +2469,9 @@ function handleDropBalances(e) {
 
         renderSidebarConfig();
         applyLayoutToDOM();
+        if (typeof window.runReport === 'function' && window.lastResults) {
+            window.runReport();
+        }
     }
     return false;
 }
@@ -2464,7 +2483,7 @@ function applyAndSaveConfig() {
         colOrder: [...window.colOrder]
     };
     applyLayoutToDOM();
-    if (typeof window.runReport === 'function') window.runReport();
+    if (typeof window.runReport === 'function' && window.lastResults) window.runReport();
     toggleSettingsSidebar();
     if (typeof showToast === 'function') showToast('💾 تم حفظ التخصيصات وتطبيقها بنجاح', 'success');
 }
@@ -2485,7 +2504,7 @@ function resetColumnConfig() {
     saveLayout();
     renderSidebarConfig();
     applyLayoutToDOM();
-    if (typeof window.runReport === 'function') window.runReport();
+    if (typeof window.runReport === 'function' && window.lastResults) window.runReport();
     if (typeof showToast === 'function') showToast('🔄 تم استعادة الوضع الافتراضي', 'success');
 }
 
@@ -2505,7 +2524,7 @@ function changeNumberFont(fontClass) {
     const table = document.getElementById('balances-table');
     if (!table) return;
     table.querySelectorAll('.num').forEach(el => {
-        el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains');
+        el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-firacode', 'num-font-poppins');
         el.classList.add(fontClass);
     });
     document.querySelectorAll('.font-chip').forEach(btn => btn.classList.remove('active'));
