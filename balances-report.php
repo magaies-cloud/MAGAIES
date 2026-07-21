@@ -460,20 +460,52 @@
             <span>اسحب مقبض (<b>⣿</b>) لأعلى أو لأسفل لترتيب الأعمدة، وافتح ⚙️ لتخصيص خط ولون وكسور كل عمود بشكل مستقل!</span>
         </div>
 
-        <!-- Permanent Default 1 Preset Section -->
-        <div style="background:rgba(30, 41, 59, 0.85); border:1px solid rgba(56, 189, 248, 0.3); border-radius:12px; padding:10px 14px; margin-bottom:14px; display:flex; flex-direction:column; gap:8px;">
-            <div style="display:flex; align-items:center; justify-content:space-between;">
-                <span style="font-size:0.82rem; font-weight:800; color:#f8fafc; display:flex; align-items:center; gap:6px;">
-                    <span>⭐</span> نمط البرنامج الافتراضي الثابت:
+        <!-- Permanent Default 1 & Customizable Layouts Bar -->
+        <div style="background:rgba(15, 23, 42, 0.95); border:1px solid rgba(56, 189, 248, 0.35); border-radius:12px; padding:12px 14px; margin-bottom:14px; box-shadow:0 8px 25px rgba(0,0,0,0.3);">
+            <div style="font-size:0.82rem; font-weight:800; color:#38bdf8; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between;">
+                <span style="display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:1.0rem;">🎨</span> أنماط وتخطيطات التقرير:
                 </span>
-                <button type="button" onclick="saveAsDefaultPreset1()" title="حفظ الضبط والتنسيق الحالي كـ نمط (الافتراضي 1) الخاص بالبرنامج" style="padding:4px 10px; background:rgba(56,189,248,0.18); border:1px solid #38bdf8; color:#38bdf8; border-radius:6px; font-size:0.75rem; font-weight:bold; cursor:pointer; font-family:inherit; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.3)'" onmouseout="this.style.background='rgba(56,189,248,0.18)'">
-                    📌 حفظ النمط الحالي كـ "الافتراضي 1"
+                <span style="font-size:0.75rem; color:#94a3b8; font-weight:normal;">(اضغط على النمط لتطبيقه)</span>
+            </div>
+
+            <!-- Row 1: Load Buttons (افتراضي 1 + تخطيط 1 + تخطيط 2 + تخطيط 3) -->
+            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px; margin-bottom:10px;">
+                <!-- 1. System Permanent Locked Default 1 -->
+                <button type="button" onclick="loadPreset('default1')" id="btn-preset-default1" style="padding:8px 4px; background:linear-gradient(135deg, #0284c7, #0369a1); color:white; border:1px solid #38bdf8; border-radius:8px; font-weight:bold; font-size:0.8rem; font-family:inherit; cursor:pointer; box-shadow:0 3px 10px rgba(2,132,199,0.3); text-align:center; transition:all 0.2s;" title="نمط افتراضي ثابت للبرنامج لا يمكن تغييره نهائياً">
+                    🔒 افتراضي 1
+                </button>
+
+                <!-- 2. Layout 1 -->
+                <button type="button" onclick="loadPreset('layout1')" id="btn-preset-layout1" style="padding:8px 4px; background:rgba(30,41,59,0.9); color:#f8fafc; border:1px solid rgba(255,255,255,0.15); border-radius:8px; font-weight:bold; font-size:0.8rem; font-family:inherit; cursor:pointer; text-align:center; transition:all 0.2s;" title="تحميل تخطيط 1 الخاص بك">
+                    📁 تخطيط 1
+                </button>
+
+                <!-- 3. Layout 2 -->
+                <button type="button" onclick="loadPreset('layout2')" id="btn-preset-layout2" style="padding:8px 4px; background:rgba(30,41,59,0.9); color:#f8fafc; border:1px solid rgba(255,255,255,0.15); border-radius:8px; font-weight:bold; font-size:0.8rem; font-family:inherit; cursor:pointer; text-align:center; transition:all 0.2s;" title="تحميل تخطيط 2 الخاص بك">
+                    📁 تخطيط 2
+                </button>
+
+                <!-- 4. Layout 3 -->
+                <button type="button" onclick="loadPreset('layout3')" id="btn-preset-layout3" style="padding:8px 4px; background:rgba(30,41,59,0.9); color:#f8fafc; border:1px solid rgba(255,255,255,0.15); border-radius:8px; font-weight:bold; font-size:0.8rem; font-family:inherit; cursor:pointer; text-align:center; transition:all 0.2s;" title="تحميل تخطيط 3 الخاص بك">
+                    📁 تخطيط 3
                 </button>
             </div>
-            <div style="display:flex; gap:8px;">
-                <button type="button" onclick="loadDefaultPreset1()" style="flex:1; padding:9px; background:linear-gradient(135deg, #0284c7, #0369a1); color:white; border:none; border-radius:8px; font-weight:bold; font-size:0.88rem; font-family:inherit; cursor:pointer; box-shadow:0 3px 10px rgba(2,132,199,0.35); display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
-                    ⭐ استعادة نمط (الافتراضي 1)
-                </button>
+
+            <!-- Row 2: Save Custom Layouts (تخفظ الضبط الحالي في تخطيط 1 أو 2 أو 3) -->
+            <div style="display:flex; align-items:center; gap:8px; background:rgba(30,41,59,0.6); padding:6px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+                <span style="font-size:0.75rem; color:#cbd5e1; font-weight:bold; white-space:nowrap;">حفظ ضبطك في:</span>
+                <div style="display:flex; gap:6px; flex:1; justify-content:flex-end;">
+                    <button type="button" onclick="saveCustomPreset('layout1')" style="flex:1; padding:4px 6px; background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#34d399; border-radius:6px; font-size:0.72rem; font-weight:bold; cursor:pointer; font-family:inherit;" title="حفظ الضبط والألوان والخطوط الحالية في تخطيط 1">
+                        💾 حفظ تـ1
+                    </button>
+                    <button type="button" onclick="saveCustomPreset('layout2')" style="flex:1; padding:4px 6px; background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#34d399; border-radius:6px; font-size:0.72rem; font-weight:bold; cursor:pointer; font-family:inherit;" title="حفظ الضبط والألوان والخطوط الحالية في تخطيط 2">
+                        💾 حفظ تـ2
+                    </button>
+                    <button type="button" onclick="saveCustomPreset('layout3')" style="flex:1; padding:4px 6px; background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#34d399; border-radius:6px; font-size:0.72rem; font-weight:bold; cursor:pointer; font-family:inherit;" title="حفظ الضبط والألوان والخطوط الحالية في تخطيط 3">
+                        💾 حفظ تـ3
+                    </button>
+                </div>
             </div>
         </div>
 

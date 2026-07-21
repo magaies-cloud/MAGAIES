@@ -987,64 +987,85 @@ window.bindContextMenuList = function(keepOpenVisualIdx = null) {
     initTogglesSortable();
 };
 
-window.saveAsDefaultPreset1 = function() {
+const SYSTEM_DEFAULT_1_CONFIG = {
+    colOrder: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+    colConfigs: [
+        { origIdx: 0, visible: true, fs: 1.0, bold: false, fontWeight: 'normal', decimals: 0, showDecimals: false, thousands: false, color: '', bg: '', fontFamily: '', textAlign: 'center' },
+        { origIdx: 1, visible: true, fs: 1.0, bold: false, fontWeight: 'normal', decimals: 0, showDecimals: false, thousands: false, color: '', bg: '', fontFamily: '', textAlign: 'center' },
+        { origIdx: 2, visible: true, fs: 1.0, bold: true, fontWeight: 'bold', decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right' },
+        { origIdx: 3, visible: true, fs: 1.0, bold: false, fontWeight: 'normal', decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right' },
+        { origIdx: 4, visible: true, fs: 1.0, bold: false, fontWeight: 'normal', decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right' },
+        { origIdx: 5, visible: true, fs: 1.0, bold: false, fontWeight: 'normal', decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right' },
+        { origIdx: 6, visible: true, fs: 1.0, bold: false, fontWeight: 'normal', decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right' },
+        { origIdx: 7, visible: true, fs: 1.0, bold: false, fontWeight: 'normal', decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right' },
+        { origIdx: 8, visible: true, fs: 1.0, bold: true, fontWeight: 'bold', decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right' }
+    ]
+};
+
+window.loadPreset = function(key) {
+    let targetData = null;
+
+    if (key === 'default1') {
+        targetData = SYSTEM_DEFAULT_1_CONFIG;
+        if (typeof showToast === 'function') {
+            showToast('تم تطبيق النمط (افتراضي 1) الخاص بالبرنامج الثابت بنجاح', 'info');
+        }
+    } else {
+        const storedStr = localStorage.getItem('balances_report_preset_' + key);
+        if (storedStr) {
+            try {
+                targetData = JSON.parse(storedStr);
+            } catch(e) {}
+        }
+        if (!targetData) {
+            const layoutName = (key === 'layout1' ? 'تخطيط 1' : key === 'layout2' ? 'تخطيط 2' : 'تخطيط 3');
+            if (typeof showToast === 'function') {
+                showToast(`عفواً، (${layoutName}) غير محفوظ بعد! اضبط الألوان والخطوط ثم اضغط (حفظ ${layoutName.replace('تخطيط ', 'تـ')}).`, 'warning');
+            }
+            return;
+        }
+        const layoutName = (key === 'layout1' ? 'تخطيط 1' : key === 'layout2' ? 'تخطيط 2' : 'تخطيط 3');
+        if (typeof showToast === 'function') {
+            showToast(`تم تطبيق (${layoutName}) بنجاح`, 'success');
+        }
+    }
+
+    if (targetData && targetData.colConfigs && targetData.colOrder) {
+        window.colConfigs = JSON.parse(JSON.stringify(targetData.colConfigs));
+        window.colOrder = [...targetData.colOrder];
+        window.activePresetKey = key;
+
+        saveLayout();
+        applyLayoutToDOM();
+        if (window.lastResults && window.lastResults.length > 0) {
+            renderTable(window.lastResults);
+        }
+        bindContextMenuList();
+    }
+};
+
+window.saveCustomPreset = function(key) {
+    if (key === 'default1') {
+        if (typeof showToast === 'function') {
+            showToast('نمط (افتراضي 1) هو الضبط الافتراضي المحمي للبرنامج ولا يمكن تعديله!', 'error');
+        }
+        return;
+    }
+
     const presetData = {
         colConfigs: JSON.parse(JSON.stringify(window.colConfigs)),
         colOrder: [...window.colOrder],
         savedAt: new Date().toISOString()
     };
-    
-    // Save to permanent key in localStorage
-    localStorage.setItem('balances_report_default_preset_1', JSON.stringify(presetData));
-    
-    // Also save in erp_settings_v1 for global consistency
-    try {
-        const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
-        const settings = JSON.parse(settingsStr);
-        settings.defaultPreset1 = presetData;
-        localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
-    } catch(e) {}
 
+    localStorage.setItem('balances_report_preset_' + key, JSON.stringify(presetData));
+    window.activePresetKey = key;
+
+    const layoutName = (key === 'layout1' ? 'تخطيط 1' : key === 'layout2' ? 'تخطيط 2' : 'تخطيط 3');
     if (typeof showToast === 'function') {
-        showToast('تم حفظ الضبط والتنسيق الحالي بنجاح كـ (الافتراضي 1)', 'success');
+        showToast(`تم حفظ الضبط والتنسيقات الحالية بنجاح في (${layoutName})`, 'success');
     }
-};
-
-window.loadDefaultPreset1 = function() {
-    let presetDataStr = localStorage.getItem('balances_report_default_preset_1');
-    if (!presetDataStr) {
-        try {
-            const settings = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
-            if (settings.defaultPreset1) presetDataStr = JSON.stringify(settings.defaultPreset1);
-        } catch(e) {}
-    }
-
-    if (presetDataStr) {
-        try {
-            const preset = JSON.parse(presetDataStr);
-            if (preset && preset.colConfigs && preset.colOrder) {
-                window.colConfigs = JSON.parse(JSON.stringify(preset.colConfigs));
-                window.colOrder = [...preset.colOrder];
-
-                saveLayout();
-                applyLayoutToDOM();
-                if (window.lastResults && window.lastResults.length > 0) {
-                    renderTable(window.lastResults);
-                }
-                bindContextMenuList();
-
-                if (typeof showToast === 'function') {
-                    showToast('تم تطبيق النمط (الافتراضي 1) بنجاح', 'success');
-                }
-                return;
-            }
-        } catch(e) {
-            console.error("Error loading default preset 1:", e);
-        }
-    }
-
-    // Fallback if not saved yet: save current as default 1
-    window.saveAsDefaultPreset1();
+    bindContextMenuList();
 };
 
 window.saveLayoutAndStyles = function() {
@@ -1060,8 +1081,8 @@ window.saveLayoutAndStyles = function() {
 };
 
 window.resetLayoutAndStyles = function() {
-    if (confirm("هل أنت متأكد من رغبتك في استعادة نمط (الافتراضي 1) الثابت للبرنامج؟")) {
-        window.loadDefaultPreset1();
+    if (confirm("هل أنت متأكد من رغبتك في استعادة نمط (افتراضي 1) المحمي للبرنامج؟")) {
+        window.loadPreset('default1');
     }
 };
 
