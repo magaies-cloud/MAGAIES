@@ -1,13 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-register_shutdown_function(function() {
-    $error = error_get_last();
-    if ($error !== NULL) {
-        $info = "[SHUTDOWN ERROR] " . $error['message'] . " in " . $error['file'] . " on line " . $error['line'];
-        echo "<pre style='background:#f00;color:#fff;padding:20px;font-size:16px;z-index:99999;position:relative;'>" . htmlspecialchars($info) . "</pre>";
-    }
-});
 $page_title = 'تحليل نقطة التعادل الفوري (Break-Even)';
 $header_theme_class = 'header-theme-reports';
 
@@ -81,7 +72,7 @@ try {
                 foreach ($inv['items'] as $itm) {
                     $itemName = isset($itm['itemName']) ? $itm['itemName'] : '';
                     // تحقق إذا اسم الصنف يحتوي على الفئة المختارة
-                    if (mb_strpos($itemName, $selected_category) !== false || empty($selected_category)) {
+                    if (strpos($itemName, $selected_category) !== false || empty($selected_category)) {
                         if (isset($itm['price']) && floatval($itm['price']) > 0) {
                             $total_sell_prices[] = floatval($itm['price']);
                         }
@@ -179,7 +170,7 @@ if ($manual_fixed > 0) {
                 $toAccount = isset($pay['toAccount']) ? $pay['toAccount'] : '';
                 $isOperational = true;
                 foreach ($excludeAccounts as $excl) {
-                    if (!empty($excl) && mb_strpos($toAccount, $excl) !== false) {
+                    if (!empty($excl) && strpos($toAccount, $excl) !== false) {
                         $isOperational = false;
                         break;
                     }

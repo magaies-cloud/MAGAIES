@@ -189,7 +189,7 @@ foreach ($all_items as $item) {
     if ($selected_category && $category !== $selected_category) continue;
 
     // فلتر البحث
-    if ($search_query && mb_strpos($name, $search_query) === false) continue;
+    if ($search_query && strpos($name, $search_query) === false) continue;
 
     // الكمية المباعة
     $sold = 0;
