@@ -76,10 +76,12 @@ function applyLayoutToDOM() {
                 th.style.display = isVisible ? '' : 'none';
 
                 // Styles
-                th.style.fontWeight = conf.bold ? '900' : 'bold';
-                th.style.fontSize = conf.fs + 'em';
+                th.style.fontWeight = conf.fontWeight || (conf.bold ? '900' : 'bold');
+                th.style.fontSize = (conf.fs || 1.0) + 'em';
                 th.style.color = conf.color || '';
-                th.style.backgroundColor = (conf.bg && conf.bg !== '#ffffff') ? conf.bg : '';
+                th.style.backgroundColor = (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') ? conf.bg : '';
+                if (conf.fontFamily) th.style.fontFamily = conf.fontFamily; else th.style.fontFamily = '';
+                if (conf.textAlign) th.style.textAlign = conf.textAlign; else th.style.textAlign = '';
             });
         }
 
@@ -99,10 +101,12 @@ function applyLayoutToDOM() {
                         cell.style.display = isVisible ? '' : 'none';
 
                         // Styles
-                        cell.style.fontWeight = conf.bold ? 'bold' : '';
-                        cell.style.fontSize = conf.fs + 'em';
+                        cell.style.fontWeight = conf.fontWeight || (conf.bold ? 'bold' : '');
+                        cell.style.fontSize = (conf.fs || 1.0) + 'em';
                         cell.style.color = conf.color || '';
-                        cell.style.backgroundColor = (conf.bg && conf.bg !== '#ffffff') ? conf.bg : '';
+                        cell.style.backgroundColor = (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') ? conf.bg : '';
+                        if (conf.fontFamily) cell.style.fontFamily = conf.fontFamily; else cell.style.fontFamily = '';
+                        if (conf.textAlign) cell.style.textAlign = conf.textAlign; else cell.style.textAlign = '';
                     }
                 });
             });
@@ -113,7 +117,7 @@ function applyLayoutToDOM() {
             bindResizers();
         }
     } catch(e) {
-        console.error('Error applying layout to DOM', e);
+        console.error('Error applying layout to DOM:', e);
     }
 }
 
@@ -836,7 +840,7 @@ window.bindContextMenuList = function() {
         if(!text) text = 'عمود ' + (visualIndex+1);
         
         const origIdx = parseInt(thEl.getAttribute('data-orig-idx'));
-        const conf = window.colConfigs[origIdx] || { fs: 1.0, bold: false, decimals: 2, color: '', bg: '', visible: true, fontFamily: '' };
+        const conf = window.colConfigs[origIdx] || { fs: 1.0, bold: false, fontWeight: 'normal', decimals: 2, thousands: true, color: '', bg: '', visible: true, fontFamily: '', textAlign: 'right' };
 
         const div = document.createElement('div');
         div.className = 'col-item-card';
@@ -860,38 +864,75 @@ window.bindContextMenuList = function() {
                     <span style="font-size:0.9rem; color:#38bdf8;">⚙️</span>
                 </div>
             </div>
-            <div id="config-panel-${visualIndex}" style="display:none; padding:14px; background:rgba(15, 23, 42, 0.92); border-top:1px solid rgba(255,255,255,0.08);">
+            <div id="config-panel-${visualIndex}" style="display:none; padding:14px; background:rgba(15, 23, 42, 0.94); border-top:1px solid rgba(255,255,255,0.08);">
+                
+                <!-- 1. Font Family & Weight -->
+                <div style="display:flex; gap:10px; margin-bottom:12px;">
+                    <div style="flex:1.2;">
+                        <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:5px;">خط العمود:</label>
+                        <select onchange="setColFontFamily(${origIdx}, ${visualIndex}, this.value)" style="width:100%; background:rgba(30, 41, 59, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:6px 8px; border-radius:6px; font-size:0.8rem; outline:none;">
+                            <option value="" ${!conf.fontFamily ? 'selected' : ''}>-- الخط الافتراضي --</option>
+                            <option value="'Inter', sans-serif" ${conf.fontFamily === "'Inter', sans-serif" ? 'selected' : ''}>1. Inter (عصري وواضح)</option>
+                            <option value="'Roboto Mono', monospace" ${conf.fontFamily === "'Roboto Mono', monospace" ? 'selected' : ''}>2. Roboto Mono (أرقام متساوية)</option>
+                            <option value="'JetBrains Mono', monospace" ${conf.fontFamily === "'JetBrains Mono', monospace" ? 'selected' : ''}>3. JetBrains Mono (وضوح فائق)</option>
+                            <option value="'Fira Code', monospace" ${conf.fontFamily === "'Fira Code', monospace" ? 'selected' : ''}>4. Fira Code (تقني مريح)</option>
+                            <option value="'Poppins', sans-serif" ${conf.fontFamily === "'Poppins', sans-serif" ? 'selected' : ''}>5. Poppins (هندسي وواضح)</option>
+                        </select>
+                    </div>
+                    <div style="flex:0.8;">
+                        <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:5px;">سمك الخط:</label>
+                        <select onchange="setColFontWeight(${origIdx}, ${visualIndex}, this.value)" style="width:100%; background:rgba(30, 41, 59, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:6px 8px; border-radius:6px; font-size:0.8rem; outline:none;">
+                            <option value="normal" ${conf.fontWeight === 'normal' || (!conf.bold && !conf.fontWeight) ? 'selected' : ''}>عادي (Normal)</option>
+                            <option value="bold" ${conf.fontWeight === 'bold' || (conf.bold && conf.fontWeight !== '900') ? 'selected' : ''}>عريض (Bold)</option>
+                            <option value="900" ${conf.fontWeight === '900' ? 'selected' : ''}>ثقيل جداً (Extra Bold 900)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 2. Font Size Slider & Exact Input -->
                 <div style="margin-bottom:12px;">
-                    <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:5px;">خط الأرقام والنص لهذا العمود:</label>
-                    <select onchange="setColFontFamily(${origIdx}, ${visualIndex}, this.value)" style="width:100%; background:rgba(30, 41, 59, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:7px 10px; border-radius:6px; font-size:0.82rem; outline:none;">
-                        <option value="" ${!conf.fontFamily ? 'selected' : ''}>-- الخط الافتراضي --</option>
-                        <option value="'Inter', sans-serif" ${conf.fontFamily === "'Inter', sans-serif" ? 'selected' : ''}>1. Inter (عصري وواضح)</option>
-                        <option value="'Roboto Mono', monospace" ${conf.fontFamily === "'Roboto Mono', monospace" ? 'selected' : ''}>2. Roboto Mono (أرقام متساوية)</option>
-                        <option value="'JetBrains Mono', monospace" ${conf.fontFamily === "'JetBrains Mono', monospace" ? 'selected' : ''}>3. JetBrains Mono (وضوح فائق)</option>
-                        <option value="'Fira Code', monospace" ${conf.fontFamily === "'Fira Code', monospace" ? 'selected' : ''}>4. Fira Code (تقني مريح)</option>
-                        <option value="'Poppins', sans-serif" ${conf.fontFamily === "'Poppins', sans-serif" ? 'selected' : ''}>5. Poppins (هندسي وواضح)</option>
-                    </select>
-                </div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:12px; align-items:center;">
-                    <span style="font-size:0.78rem; font-weight:bold; color:#cbd5e1;">حجم وسمك الخط:</span>
-                    <div style="display:flex; gap:6px; align-items:center;">
-                        <button type="button" onclick="changeColFs(${origIdx}, ${visualIndex}, -0.1)" style="padding:4px 10px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:#fff; font-weight:bold;">-</button>
-                        <span id="col-fs-val-${visualIndex}" style="font-size:0.8rem; font-family:monospace; font-weight:bold; color:#38bdf8; min-width:34px; text-align:center;">${(conf.fs || 1).toFixed(1)}em</span>
-                        <button type="button" onclick="changeColFs(${origIdx}, ${visualIndex}, 0.1)" style="padding:4px 10px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:#fff; font-weight:bold;">+</button>
-                        <button type="button" onclick="toggleColBold(${origIdx}, ${visualIndex})" style="padding:4px 10px; cursor:pointer; font-weight:bold; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.bold ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.bold ? '#0f172a' : '#fff'}; margin-right:4px;">B عريض</button>
+                    <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:5px;">حجم الخط (اختر أي درجة تريدها):</label>
+                    <div style="display:flex; align-items:center; gap:10px; background:rgba(30,41,59,0.5); padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">
+                        <input type="range" min="0.6" max="3.0" step="0.05" value="${conf.fs || 1.0}" oninput="setColFsExact(${origIdx}, ${visualIndex}, this.value)" style="flex:1; cursor:pointer; accent-color:#38bdf8;">
+                        <input type="number" min="0.5" max="4.0" step="0.1" value="${(conf.fs || 1.0).toFixed(1)}" onchange="setColFsExact(${origIdx}, ${visualIndex}, this.value)" style="width:55px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.15); color:#38bdf8; font-weight:bold; text-align:center; padding:3px; border-radius:4px; font-size:0.8rem;">
+                        <span style="font-size:0.75rem; color:#94a3b8;">em</span>
                     </div>
                 </div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:12px; align-items:center;">
-                    <span style="font-size:0.78rem; font-weight:bold; color:#cbd5e1;">الكسور العشرية لهذا العمود:</span>
-                    <div style="display:flex; gap:5px;">
-                        <button type="button" onclick="setColDecimals(${origIdx}, ${visualIndex}, 0)" style="padding:4px 9px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.decimals === 0 ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.decimals === 0 ? '#0f172a' : '#fff'}; font-weight:bold;">0</button>
-                        <button type="button" onclick="setColDecimals(${origIdx}, ${visualIndex}, 1)" style="padding:4px 9px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.decimals === 1 ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.decimals === 1 ? '#0f172a' : '#fff'}; font-weight:bold;">1</button>
-                        <button type="button" onclick="setColDecimals(${origIdx}, ${visualIndex}, 2)" style="padding:4px 9px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.decimals === 2 ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.decimals === 2 ? '#0f172a' : '#fff'}; font-weight:bold;">2</button>
-                        <button type="button" onclick="setColDecimals(${origIdx}, ${visualIndex}, 3)" style="padding:4px 9px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.decimals === 3 ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.decimals === 3 ? '#0f172a' : '#fff'}; font-weight:bold;">3</button>
-                        <button type="button" onclick="setColDecimals(${origIdx}, ${visualIndex}, 4)" style="padding:4px 9px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.decimals === 4 ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.decimals === 4 ? '#0f172a' : '#fff'}; font-weight:bold;">4</button>
+
+                <!-- 3. Text Alignment -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <span style="font-size:0.78rem; font-weight:bold; color:#cbd5e1;">محاذاة النص والبيانات:</span>
+                    <div style="display:flex; gap:6px;">
+                        <button type="button" onclick="setColTextAlign(${origIdx}, ${visualIndex}, 'right')" style="padding:4px 10px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${(conf.textAlign === 'right' || !conf.textAlign) ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${(conf.textAlign === 'right' || !conf.textAlign) ? '#0f172a' : '#fff'}; font-weight:bold;">يمين ➡</button>
+                        <button type="button" onclick="setColTextAlign(${origIdx}, ${visualIndex}, 'center')" style="padding:4px 10px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.textAlign === 'center' ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.textAlign === 'center' ? '#0f172a' : '#fff'}; font-weight:bold;">وسط ↔</button>
+                        <button type="button" onclick="setColTextAlign(${origIdx}, ${visualIndex}, 'left')" style="padding:4px 10px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.textAlign === 'left' ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.textAlign === 'left' ? '#0f172a' : '#fff'}; font-weight:bold;">شمال ⬅</button>
                     </div>
                 </div>
-                <div style="display:flex; gap:12px; align-items:center;">
+
+                <!-- 4. Decimals Precision & Thousands Separator -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <div style="flex:1.1;">
+                        <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:4px;">خانة التقريب العشرية:</label>
+                        <select onchange="setColDecimals(${origIdx}, ${visualIndex}, this.value)" style="width:95%; background:rgba(30, 41, 59, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px 8px; border-radius:6px; font-size:0.8rem; outline:none;">
+                            <option value="0" ${conf.decimals === 0 ? 'selected' : ''}>0 (أرقام صحيحة)</option>
+                            <option value="1" ${conf.decimals === 1 ? 'selected' : ''}>1 (منزلة 0.0)</option>
+                            <option value="2" ${conf.decimals === 2 || conf.decimals === undefined ? 'selected' : ''}>2 (منزلتان 0.00)</option>
+                            <option value="3" ${conf.decimals === 3 ? 'selected' : ''}>3 (3 منازل 0.000)</option>
+                            <option value="4" ${conf.decimals === 4 ? 'selected' : ''}>4 (4 منازل 0.0000)</option>
+                            <option value="5" ${conf.decimals === 5 ? 'selected' : ''}>5 (5 منازل 0.00000)</option>
+                            <option value="6" ${conf.decimals === 6 ? 'selected' : ''}>6 (6 منازل 0.000000)</option>
+                        </select>
+                    </div>
+                    <div style="flex:0.9; display:flex; flex-direction:column; justify-content:flex-end;">
+                        <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:4px;">فاصلة الألفيات (1,000):</label>
+                        <button type="button" onclick="toggleColThousands(${origIdx}, ${visualIndex})" style="padding:5px 8px; cursor:pointer; border-radius:6px; border:1px solid ${conf.thousands !== false ? '#10b981' : 'rgba(255,255,255,0.15)'}; background:${conf.thousands !== false ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.08)'}; color:${conf.thousands !== false ? '#34d399' : '#94a3b8'}; font-weight:bold; font-size:0.8rem;">
+                            ${conf.thousands !== false ? 'موجودة (1,000 ✔)' : 'غير موجودة ✖'}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 5. Colors -->
+                <div style="display:flex; gap:10px; align-items:center;">
                     <div style="flex:1; display:flex; justify-content:space-between; align-items:center; background:rgba(30,41,59,0.5); padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">
                         <span style="font-size:0.78rem; font-weight:bold; color:#cbd5e1;">لون النص:</span>
                         <input type="color" value="${conf.color || '#ffffff'}" onchange="setColColor(${origIdx}, ${visualIndex}, 'color', this.value)" style="width:28px; height:26px; padding:0; border:none; background:transparent; cursor:pointer;">
@@ -964,22 +1005,24 @@ function updateColDOM(visualIndex, origIdx) {
     const ths = table.querySelectorAll('thead th');
     const th = ths[visualIndex];
     if (th) {
-        th.style.fontWeight = conf.bold ? '900' : 'bold';
+        th.style.fontWeight = conf.fontWeight || (conf.bold ? '900' : 'bold');
         th.style.fontSize = (conf.fs || 1.0) + 'em';
         if (conf.color) th.style.color = conf.color; else th.style.color = '';
         if (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') th.style.backgroundColor = conf.bg; else th.style.backgroundColor = '';
         if (conf.fontFamily) th.style.fontFamily = conf.fontFamily; else th.style.fontFamily = '';
+        if (conf.textAlign) th.style.textAlign = conf.textAlign; else th.style.textAlign = '';
     }
 
     const rows = table.querySelectorAll('tbody tr:not(.empty-state)');
     rows.forEach(row => {
         const cell = row.children[visualIndex];
         if (cell) {
-            cell.style.fontWeight = conf.bold ? 'bold' : '';
+            cell.style.fontWeight = conf.fontWeight || (conf.bold ? 'bold' : '');
             cell.style.fontSize = (conf.fs || 1.0) + 'em';
             if (conf.color) cell.style.color = conf.color; else cell.style.color = '';
             if (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') cell.style.backgroundColor = conf.bg; else cell.style.backgroundColor = '';
             if (conf.fontFamily) cell.style.fontFamily = conf.fontFamily; else cell.style.fontFamily = '';
+            if (conf.textAlign) cell.style.textAlign = conf.textAlign; else cell.style.textAlign = '';
         }
     });
 }
@@ -992,21 +1035,29 @@ window.setColFontFamily = function(origIdx, visualIndex, fontVal) {
     }
 };
 
-window.changeColFs = function(origIdx, visualIndex, delta) {
+window.setColFontWeight = function(origIdx, visualIndex, weightVal) {
     if (origIdx !== undefined && window.colConfigs[origIdx]) {
-        window.colConfigs[origIdx].fs = (window.colConfigs[origIdx].fs || 1.0) + delta;
-        if (window.colConfigs[origIdx].fs < 0.5) window.colConfigs[origIdx].fs = 0.5;
-        if (window.colConfigs[origIdx].fs > 2.5) window.colConfigs[origIdx].fs = 2.5;
-        const fsSpan = document.getElementById(`col-fs-val-${visualIndex}`);
-        if (fsSpan) fsSpan.textContent = window.colConfigs[origIdx].fs.toFixed(1) + 'em';
+        window.colConfigs[origIdx].fontWeight = weightVal;
+        window.colConfigs[origIdx].bold = (weightVal === 'bold' || weightVal === '900');
         updateColDOM(visualIndex, origIdx);
         saveLayout();
     }
 };
 
-window.toggleColBold = function(origIdx, visualIndex) {
+window.setColFsExact = function(origIdx, visualIndex, fsVal) {
     if (origIdx !== undefined && window.colConfigs[origIdx]) {
-        window.colConfigs[origIdx].bold = !window.colConfigs[origIdx].bold;
+        const parsed = parseFloat(fsVal);
+        if (!isNaN(parsed) && parsed >= 0.3 && parsed <= 5.0) {
+            window.colConfigs[origIdx].fs = parsed;
+            updateColDOM(visualIndex, origIdx);
+            saveLayout();
+        }
+    }
+};
+
+window.setColTextAlign = function(origIdx, visualIndex, alignVal) {
+    if (origIdx !== undefined && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].textAlign = alignVal;
         updateColDOM(visualIndex, origIdx);
         saveLayout();
         bindContextMenuList();
@@ -1016,6 +1067,17 @@ window.toggleColBold = function(origIdx, visualIndex) {
 window.setColDecimals = function(origIdx, visualIndex, d) {
     if (origIdx !== undefined && window.colConfigs[origIdx]) {
         window.colConfigs[origIdx].decimals = parseInt(d);
+        if (window.lastResults) renderTable(window.lastResults);
+        updateColDOM(visualIndex, origIdx);
+        saveLayout();
+        bindContextMenuList();
+    }
+};
+
+window.toggleColThousands = function(origIdx, visualIndex) {
+    if (origIdx !== undefined && window.colConfigs[origIdx]) {
+        const cur = window.colConfigs[origIdx].thousands !== false;
+        window.colConfigs[origIdx].thousands = !cur;
         if (window.lastResults) renderTable(window.lastResults);
         updateColDOM(visualIndex, origIdx);
         saveLayout();
@@ -1107,12 +1169,15 @@ function renderTable(results) {
     let sumSupp = 0;
 
     function getCellStyle(origIdx) {
-        const conf = window.colConfigs[origIdx];
+        const conf = window.colConfigs[origIdx] || {};
         let style = '';
-        if(conf.bold) style += 'font-weight:bold;';
-        if(conf.fs !== 1.0) style += `font-size:${conf.fs}em;`;
-        if(conf.color) style += `color:${conf.color};`;
-        if(conf.bg && conf.bg !== '#ffffff') style += `background-color:${conf.bg};`;
+        if (conf.fontWeight) style += `font-weight:${conf.fontWeight};`;
+        else if (conf.bold) style += 'font-weight:bold;';
+        if (conf.fs !== undefined && conf.fs !== 1.0) style += `font-size:${conf.fs}em;`;
+        if (conf.color) style += `color:${conf.color};`;
+        if (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') style += `background-color:${conf.bg};`;
+        if (conf.fontFamily) style += `font-family:${conf.fontFamily};`;
+        if (conf.textAlign) style += `text-align:${conf.textAlign};`;
         return style;
     }
 
@@ -1125,11 +1190,13 @@ function renderTable(results) {
         sumCust += endingDebitLocal;
         sumSupp += endingCreditLocal;
 
+        const cleanPhone = String(p.phone || '').replace(/,/g, '').replace(/\.00$/, '').trim();
+
         let cells = [];
         cells[0] = `<td style="${getCellStyle(0)}">${p.name} <span style="color:#64748b;font-size:0.7rem;margin-right:5px;">(${p.type === 'CUST' ? 'عميل' : 'مورد'})</span></td>`;
-        cells[1] = `<td class="num" dir="ltr" style="${getCellStyle(1)}">${p.phone}</td>`;
-        cells[2] = `<td class="num" style="${getCellStyle(2)}">${p.taxNumber}</td>`;
-        cells[3] = `<td style="text-align:center; font-weight:bold; color:#38bdf8; ${getCellStyle(3)}">${p.currency || 'SDG'}</td>`;
+        cells[1] = `<td class="num" dir="ltr" style="${getCellStyle(1)}">${cleanPhone || '-'}</td>`;
+        cells[2] = `<td class="num" style="${getCellStyle(2)}">${p.taxNumber || '-'}</td>`;
+        cells[3] = `<td style="font-weight:bold; color:#38bdf8; ${getCellStyle(3)}">${p.currency || 'SDG'}</td>`;
         cells[4] = `<td class="num" style="${getCellStyle(4)}">${endingDebitForeign > 0 ? fmtColNum(endingDebitForeign, 4) : '-'}</td>`;
         cells[5] = `<td class="num" style="${getCellStyle(5)}">${endingCreditForeign > 0 ? fmtColNum(endingCreditForeign, 5) : '-'}</td>`;
         cells[6] = `<td class="num" style="${getCellStyle(6)}">${endingDebitLocal > 0 ? fmtColNum(endingDebitLocal, 6) : '-'}</td>`;
