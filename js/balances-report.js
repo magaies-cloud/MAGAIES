@@ -1312,17 +1312,17 @@ function renderTable(results) {
 
     document.getElementById('kpi-dr').textContent = fmtColNum(sumCust, 6) + ' SDG';
     const drForeign = ledgerExchangeRate > 0 ? (sumCust / ledgerExchangeRate) : 0;
-    document.getElementById('kpi-dr-foreign').textContent = `(${fmtColNum(drForeign, 4)} ${ledgerForeignCurrency})`;
+    document.getElementById('kpi-dr-foreign').textContent = `${fmtColNum(drForeign, 4)} ${ledgerForeignCurrency}`;
 
     document.getElementById('kpi-cr').textContent = fmtColNum(sumSupp, 7) + ' SDG';
     const crForeign = ledgerExchangeRate > 0 ? (sumSupp / ledgerExchangeRate) : 0;
-    document.getElementById('kpi-cr-foreign').textContent = `(${fmtColNum(crForeign, 5)} ${ledgerForeignCurrency})`;
+    document.getElementById('kpi-cr-foreign').textContent = `${fmtColNum(crForeign, 5)} ${ledgerForeignCurrency}`;
     
     const net = sumCust - sumSupp;
     const netSign = net >= 0 ? ' (لنا)' : ' (علينا)';
     document.getElementById('kpi-bal').textContent = fmtColNum(Math.abs(net), 6) + ' SDG' + netSign;
     const netForeign = ledgerExchangeRate > 0 ? (Math.abs(net) / ledgerExchangeRate) : 0;
-    document.getElementById('kpi-bal-foreign').textContent = `(${fmtColNum(netForeign, 4)} ${ledgerForeignCurrency})` + netSign;
+    document.getElementById('kpi-bal-foreign').textContent = `${fmtColNum(netForeign, 4)} ${ledgerForeignCurrency}` + netSign;
 
     document.getElementById('analytics-dashboard').style.display = 'block';
     document.getElementById('actions-panel').style.display = 'flex';
