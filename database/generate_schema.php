@@ -5,9 +5,7 @@
  * Run: php database/generate_schema.php > database/schema.sql
  */
 
-$pdo = new PDO('mysql:host=127.0.0.1;dbname=magaees', 'root', '', [
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-]);
+require_once __DIR__ . '/../api/db.php';
 
 $output = [];
 $output[] = "-- ======================================================================";
