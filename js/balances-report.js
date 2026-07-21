@@ -991,11 +991,43 @@ window.saveLayoutAndStyles = function() {
     if (typeof saveLayout === 'function') {
         saveLayout();
     }
+
+    try {
+        const curConfigs = JSON.parse(JSON.stringify(window.colConfigs));
+        const curOrder = [...window.colOrder];
+        
+        localStorage.setItem('balances_report_master_default1', JSON.stringify({
+            colConfigs: curConfigs,
+            colOrder: curOrder
+        }));
+
+        let list = [];
+        try { list = JSON.parse(localStorage.getItem('balances_report_presets_v1')) || []; } catch(e){}
+        if (!list || list.length !== 4) {
+            list = [
+                { id: 1, name: 'تخطيط 1', colConfigs: null, colOrder: null },
+                { id: 2, name: 'تخطيط 2', colConfigs: null, colOrder: null },
+                { id: 3, name: 'تخطيط 3', colConfigs: null, colOrder: null },
+                { id: 4, name: 'تخطيط 4', colConfigs: null, colOrder: null }
+            ];
+        }
+        list[3] = {
+            id: 4,
+            name: list[3]?.name || 'تخطيط 4',
+            colConfigs: curConfigs,
+            colOrder: curOrder
+        };
+        localStorage.setItem('balances_report_presets_v1', JSON.stringify(list));
+        if (typeof window.renderBalancesPresets === 'function') {
+            window.renderBalancesPresets();
+        }
+    } catch(e) {}
+
     const ctxMenu = document.getElementById('columnContextMenu');
     if (ctxMenu) ctxMenu.style.display = 'none';
 
     if (typeof showToast === 'function') {
-        showToast('تم حفظ الترتيب وتخصيص الأعمدة بنجاح', 'success');
+        showToast('تم حفظ الترتيب والتخصيص الأخير في (الافتراضي 1) و(تخطيط 4) بنجاح ⭐', 'success');
     }
 };
 
