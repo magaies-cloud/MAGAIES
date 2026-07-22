@@ -438,6 +438,191 @@
 
         @keyframes toastIn { from { opacity:0; transform:translateY(-20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
         @keyframes toastOut { from { opacity:1; transform:translateY(0) scale(1); } to { opacity:0; transform:translateY(-20px) scale(0.95); } }
+
+        /* Ultra-Premium Glassmorphic Screen Dropdown & Animated Micro-Interactions */
+        #screens-dropdown-menu {
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* 💎 Ultra-Premium Master Quick Action Buttons (15% Wider, 52px Height, Equal Size) */
+        .qa-master-btn {
+            position: relative;
+            overflow: hidden;
+            height: 52px !important;
+            min-height: 52px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 10px !important;
+            padding: 10px 18px !important; /* 15% wider padding */
+            border-radius: 14px !important;
+            font-size: 0.92rem !important;
+            font-weight: 900 !important;
+            color: #ffffff !important;
+            background: rgba(15, 23, 42, 0.78) !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(14px);
+            transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1) !important;
+            cursor: pointer !important;
+            white-space: nowrap !important;
+            text-decoration: none !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Animated Light Wave Shimmer Effect */
+        .qa-master-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -150%;
+            width: 70%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.38), transparent);
+            transform: skewX(-25deg);
+            pointer-events: none;
+            transition: none;
+        }
+
+        .qa-master-btn:hover::before {
+            left: 170%;
+            transition: all 0.75s ease-in-out;
+        }
+
+        /* Pulsing Light Wave Aura on Hover */
+        .qa-master-btn:hover {
+            transform: translateY(-5px) scale(1.04) !important;
+            background: rgba(30, 41, 59, 0.95) !important;
+            border-color: var(--btn-border-color, #a855f7) !important;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 25px var(--btn-glow-color, rgba(168, 85, 247, 0.6)), inset 0 0 12px var(--btn-glow-color, rgba(168, 85, 247, 0.2)) !important;
+            z-index: 10;
+        }
+
+        /* Icon Micro-Animations & Glow */
+        .qa-master-btn .qa-icon {
+            width: 30px !important;
+            height: 30px !important;
+            min-width: 30px !important;
+            font-size: 0.9rem !important;
+            border-radius: 8px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease !important;
+        }
+
+        .qa-master-btn:hover .qa-icon {
+            transform: scale(1.35) rotate(8deg) !important;
+            box-shadow: 0 0 16px var(--btn-glow-color, rgba(168, 85, 247, 0.8)) !important;
+        }
+
+        .qa-master-btn .btn-text {
+            font-size: 0.92rem !important;
+            font-weight: 900 !important;
+            color: #ffffff !important;
+            transition: text-shadow 0.3s ease, color 0.3s ease;
+        }
+
+        .qa-master-btn:hover .btn-text {
+            color: #ffffff !important;
+            text-shadow: 0 0 12px var(--btn-glow-color, rgba(255, 255, 255, 0.9)) !important;
+        }
+
+        #screens-dropdown-list {
+            scroll-behavior: smooth !important;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            padding-bottom: 30px !important;
+        }
+        #screens-dropdown-list::-webkit-scrollbar {
+            width: 7px;
+        }
+        #screens-dropdown-list::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 10px;
+        }
+        #screens-dropdown-list::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #a855f7, #6366f1);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        #screens-dropdown-list::-webkit-scrollbar-thumb:hover {
+            background: #c084fc;
+        }
+
+        .screen-popover-item {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 12px 16px !important;
+            min-height: 52px !important;
+            border-radius: 14px !important;
+            background: rgba(15, 23, 42, 0.88) !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
+            text-decoration: none !important;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        /* Glass Shimmer Overlay Sweep */
+        .screen-popover-item::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -150%;
+            width: 80%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transform: skewX(-20deg);
+            transition: none;
+            pointer-events: none;
+        }
+
+        .screen-popover-item:hover::after {
+            left: 150%;
+            transition: all 0.6s ease-in-out;
+        }
+
+        /* Hover Motion & Dynamic Glow */
+        .screen-popover-item:hover {
+            transform: translateX(-10px) translateY(-2px) scale(1.03) !important;
+            background: rgba(30, 41, 59, 0.98) !important;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7), 0 0 25px var(--item-glow-color, rgba(168, 85, 247, 0.6)), 0 0 40px var(--item-glow-color, rgba(168, 85, 247, 0.3)) !important;
+            border-color: var(--item-border-color, #c084fc) !important;
+            z-index: 5;
+        }
+
+        .screen-popover-item .qa-icon {
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease !important;
+        }
+
+        .screen-popover-item:hover .qa-icon {
+            transform: scale(1.4) rotate(8deg) !important;
+            box-shadow: 0 0 20px var(--item-glow-color, rgba(168, 85, 247, 0.8)), 0 0 35px var(--item-glow-color, rgba(168, 85, 247, 0.5)) !important;
+        }
+
+        .screen-popover-item .screen-title {
+            font-size: 1.0rem !important; /* Increased font by 1 step */
+            font-weight: 900 !important;
+            letter-spacing: 0.4px;
+            color: #ffffff !important;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        .screen-popover-item:hover .screen-title {
+            color: #ffffff !important;
+            text-shadow: 0 0 12px var(--item-glow-color, rgba(255, 255, 255, 0.9)) !important;
+        }
+
+        .screen-popover-item .screen-arrow {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .screen-popover-item:hover .screen-arrow {
+            transform: translateX(-6px) scale(1.3);
+            opacity: 1 !important;
+        }
     </style>
     <style>
         :root.light-theme {
@@ -735,22 +920,73 @@
 
 
 
-        <!-- Ultra Premium 7-Item Single Row Quick Actions Bar with Right-Click Customizer -->
-        <div class="glass-panel" id="qa-bar-container" style="padding: 10px 14px; border-radius: 16px; border: 1.5px solid rgba(255, 255, 255, 0.08); background: var(--surface); margin-bottom: 12px; position: relative;" oncontextmenu="openQACustomizer(event); return false;">
+        <!-- Ultra Premium Quick Actions Bar (Top Header Row for Controls + 7 Master Buttons Below) -->
+        <div class="glass-panel" id="qa-bar-container" style="padding: 14px 18px; border-radius: 18px; border: 1.5px solid rgba(255, 255, 255, 0.1); background: var(--surface); margin-bottom: 14px; position: relative;" oncontextmenu="openQACustomizer(event); return false;">
             
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <div style="font-weight: 800; font-size: 0.78rem; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
-                    <i class="fa-solid fa-bolt text-amber-400"></i> أزرار الوصول السريع المخصصة (7 أزرار)
-                    <span style="font-size: 0.68rem; font-weight: 600; color: #64748b; margin-right: 6px;">(انقر بالزر الأيمن 🖱️ لتخصيص الأزرار السبعة المجهزة)</span>
+            <!-- Top Sub-Row: Title on Right, Customize (7) & Screens Master Buttons on Left -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                <div style="font-weight: 900; font-size: 0.88rem; color: #cbd5e1; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-400" style="font-size: 1.05rem;"></i> أزرار الوصول السريع المخصصة (7 أزرار)
+                    <span style="font-size: 0.72rem; font-weight: 600; color: #94a3b8; margin-right: 6px;">(انقر بالزر الأيمن 🖱️ لتخصيص الأزرار السبعة)</span>
                 </div>
-                <button onclick="openQACustomizer(event)" style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; border-radius: 8px; padding: 3px 10px; font-size: 0.72rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s ease;">
-                    <i class="fa-solid fa-sliders"></i> تخصيص الأزرار (7)
-                </button>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <!-- Customize Button (Top Row Master Button) -->
+                    <button onclick="openQACustomizer(event)" class="qa-master-btn" style="--btn-border-color: #38bdf8; --btn-glow-color: rgba(56, 189, 248, 0.6); border-bottom: 3.5px solid #38bdf8 !important; min-width: 145px;" title="تخصيص الأزرار السبعة">
+                        <span class="qa-icon" style="background: rgba(56, 189, 248, 0.25); border: 1px solid #38bdf8; color: #38bdf8;">
+                            <i class="fa-solid fa-sliders"></i>
+                        </span>
+                        <span class="btn-text" style="color: #38bdf8;">تخصيص (7)</span>
+                    </button>
+
+                    <!-- Screens Button (Top Row Master Button) -->
+                    <button id="screens-dropdown-btn" onclick="toggleScreensDropdown(event)" class="qa-master-btn" style="--btn-border-color: #a855f7; --btn-glow-color: rgba(168, 85, 247, 0.6); background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(99, 102, 241, 0.25)) !important; border-bottom: 3.5px solid #a855f7 !important; min-width: 145px;">
+                        <span class="qa-icon" style="background: rgba(168, 85, 247, 0.35); border: 1px solid #c084fc; color: #fff;">
+                            <i class="fa-solid fa-desktop"></i>
+                        </span>
+                        <span class="btn-text" style="color: #fff;">الشاشات</span>
+                        <i class="fa-solid fa-chevron-down" id="screens-chevron" style="font-size: 0.75rem; transition: transform 0.3s ease; color: #c084fc;"></i>
+                    </button>
+                </div>
             </div>
 
-            <!-- Single Row 7-Column Grid Layout -->
-            <div id="qa-single-row-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; width: 100%;">
-                <!-- Dynamic 7 Items rendered via JS -->
+            <!-- Bottom Grid Row: 7 Custom Quick Action Master Buttons -->
+            <div id="qa-single-row-grid" style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px; width: 100%;">
+                <!-- Dynamic 7 Master Items rendered via JS -->
+            </div>
+        </div>
+
+        <!-- 100% OPAQUE Floating Popover Menu for Uncustomized Screens (Zero Transparency, Covers Top Bar) -->
+        <div id="screens-dropdown-menu" style="display: none; position: fixed; width: 500px; max-width: 96vw; background: #070a12 !important; border: 2px solid #a855f7; border-radius: 18px; box-shadow: 0 25px 95px rgba(0,0,0,0.99), 0 0 45px rgba(168, 85, 247, 0.55); z-index: 999999; padding: 14px; direction: rtl;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.12);">
+                <div style="font-size: 0.98rem; font-weight: 900; color: #c084fc; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-desktop" style="font-size: 1.1rem; color: #a855f7;"></i> بقية الشاشات (غير المخصصة)
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span id="screens-count-badge" style="background: rgba(168, 85, 247, 0.35); color: #e9d5ff; border: 1px solid #c084fc; font-size: 0.75rem; padding: 2px 10px; border-radius: 10px; font-weight: 900;">0</span>
+                    <button onclick="toggleScreensDropdown(event)" style="background: rgba(248, 113, 113, 0.25); border: 1.5px solid #f87171; color: #f87171; border-radius: 10px; padding: 5px 14px; font-size: 0.88rem; font-weight: 900; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(248,113,113,0.3); display: flex; align-items: center; gap: 6px;" title="إغلاق القائمة" onmouseover="this.style.background='rgba(248,113,113,0.4)'; this.style.transform='scale(1.05)';" onmouseout="this.style.background='rgba(248,113,113,0.25)'; this.style.transform='scale(1)';">
+                        <span>إغلاق</span>
+                        <i class="fa-solid fa-xmark" style="font-size: 1rem;"></i>
+                    </button>
+                </div>
+            </div>
+            <div style="margin-bottom: 8px;">
+                <input type="text" id="screens-search-input" oninput="filterScreensDropdown()" placeholder="🔍 ابحث عن أي شاشة..." style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.22); border-radius: 8px; padding: 6px 12px; color: #fff; font-size: 0.82rem; font-family: 'Tajawal', sans-serif; outline: none;">
+            </div>
+            
+            <!-- Compact Sorting Controls Bar -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 6px; background: rgba(255,255,255,0.03); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-size: 0.75rem; font-weight: 800; color: #c084fc; display: flex; align-items: center; gap: 5px;">
+                    <i class="fa-solid fa-arrow-down-short-wide"></i> ترتيب:
+                </div>
+                <div style="display: flex; gap: 4px;">
+                    <button onclick="sortScreensDropdown('default')" id="sort-btn-default" style="background: rgba(168, 85, 247, 0.35); border: 1px solid #c084fc; color: #ffffff; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">الافتراضي</button>
+                    <button onclick="sortScreensDropdown('alphabetical')" id="sort-btn-alphabetical" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #94a3b8; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">أبجديًا (أ-ي)</button>
+                    <button onclick="sortScreensDropdown('category')" id="sort-btn-category" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #94a3b8; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">حسب الفئة</button>
+                </div>
+            </div>
+
+            <div id="screens-dropdown-list" style="max-height: calc(100vh - 140px); overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
+                <!-- Rendered dynamically via JS -->
             </div>
         </div>
 
@@ -1714,24 +1950,57 @@
         //  SINGLE-ROW 7-ITEM QUICK ACTIONS ENGINE WITH RIGHT-CLICK CUSTOMIZER
         // ═════════════════════════════════════════════════════════════════════
         const ALL_QUICK_ACTIONS = [
-            { id: 'ai_goods', href: 'ai_goods_advisor.php', label: 'مستشار AI للبضائع', icon: 'fa-robot', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
-            { id: 'smart_inv_alerts', href: 'smart_inventory_report.php', label: 'تنبيهات المخازن', icon: 'fa-boxes-stacked', color: '#22d3ee', bg: 'rgba(6, 182, 212, 0.2)', border: '#06b6d4' },
-            { id: 'ai_money', href: 'ai_money_advisor.php', label: 'مستشار AI للأموال', icon: 'fa-lightbulb', color: '#c084fc', bg: 'rgba(168, 85, 247, 0.2)', border: '#a855f7' },
-            { id: 'alerts_mgr', href: 'alerts_manager.php', label: 'تنبيهات التقارير', icon: 'fa-triangle-exclamation', color: '#fb7185', bg: 'rgba(244, 63, 94, 0.2)', border: '#f43f5e' },
-            { id: 'settings', href: 'settings.php', label: 'الإعدادات والقواعد', icon: 'fa-gear', color: '#94a3b8', bg: 'rgba(100, 116, 139, 0.2)', border: '#64748b' },
-            { id: 'tools', href: 'engineering_tools.php', label: 'أدوات مساعدة', icon: 'fa-toolbox', color: '#f472b6', bg: 'rgba(236, 72, 153, 0.2)', border: '#ec4899' },
-            { id: 'smart_inv_rep', href: 'smart_inventory_report.php', label: 'تقارير الذكاء', icon: 'fa-chart-line', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
-            { id: 'sales', href: 'direct-sales.php', label: 'مبيعات', icon: 'fa-cart-shopping', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)', border: '#38bdf8' },
-            { id: 'purchase', href: 'purchase.php', label: 'مشتريات', icon: 'fa-bag-shopping', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)', border: '#fbbf24' },
-            { id: 'vouchers', href: 'vouchers-hub.php', label: 'المعاملات المالية', icon: 'fa-money-bill-transfer', color: '#f87171', bg: 'rgba(248, 113, 113, 0.2)', border: '#ef4444' },
-            { id: 'checks', href: 'checks-cycle.php', label: 'شيكات', icon: 'fa-money-check-dollar', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)', border: '#f59e0b' },
-            { id: 'analytics', href: 'analytics.php', label: 'تقارير مالية', icon: 'fa-chart-column', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.2)', border: '#c084fc' },
-            { id: 'smart_reports', href: 'smart_reports_hub.php', label: 'التقرير المالي الذكي', icon: 'fa-brain', color: '#c084fc', bg: 'rgba(168, 85, 247, 0.2)', border: '#a855f7' },
-            { id: 'master_data', href: 'master-data.php', label: 'البيانات الأساسية', icon: 'fa-database', color: '#60a5fa', bg: 'rgba(59, 130, 246, 0.2)', border: '#3b82f6' },
-            { id: 'jobs', href: 'jobs.php', label: 'المهام', icon: 'fa-list-check', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' }
+            { id: 'ai_goods', href: 'ai_goods_advisor.php', label: 'مستشار AI للبضائع', category: 'الذكاء الاصطناعي', icon: 'fa-robot', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
+            { id: 'smart_inv_alerts', href: 'smart_inventory_report.php', label: 'تنبيهات المخازن', category: 'المخزون والمستودعات', icon: 'fa-boxes-stacked', color: '#22d3ee', bg: 'rgba(6, 182, 212, 0.2)', border: '#06b6d4' },
+            { id: 'ai_money', href: 'ai_money_advisor.php', label: 'مستشار AI للأموال', category: 'الذكاء الاصطناعي', icon: 'fa-lightbulb', color: '#c084fc', bg: 'rgba(168, 85, 247, 0.2)', border: '#a855f7' },
+            { id: 'alerts_mgr', href: 'alerts_manager.php', label: 'تنبيهات التقارير', category: 'التقارير والتنبيهات', icon: 'fa-triangle-exclamation', color: '#fb7185', bg: 'rgba(244, 63, 94, 0.2)', border: '#f43f5e' },
+            { id: 'settings', href: 'settings.php', label: 'الإعدادات والقواعد', category: 'الإدارة والصلاحيات', icon: 'fa-gear', color: '#94a3b8', bg: 'rgba(100, 116, 139, 0.2)', border: '#64748b' },
+            { id: 'tools', href: 'engineering_tools.php', label: 'أدوات مساعدة', category: 'أدوات مساعدة', icon: 'fa-toolbox', color: '#f472b6', bg: 'rgba(236, 72, 153, 0.2)', border: '#ec4899' },
+            { id: 'smart_inv_rep', href: 'smart_inventory_report.php', label: 'تقارير الذكاء', category: 'التقارير والتنبيهات', icon: 'fa-chart-line', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
+            { id: 'sales', href: 'direct-sales.php', label: 'مبيعات', category: 'المبيعات والمشتريات', icon: 'fa-cart-shopping', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)', border: '#38bdf8' },
+            { id: 'purchase', href: 'purchase.php', label: 'مشتريات', category: 'المبيعات والمشتريات', icon: 'fa-bag-shopping', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)', border: '#fbbf24' },
+            { id: 'vouchers', href: 'vouchers-hub.php', label: 'المعاملات المالية', category: 'المالية والحسابات', icon: 'fa-money-bill-transfer', color: '#f87171', bg: 'rgba(248, 113, 113, 0.2)', border: '#ef4444' },
+            { id: 'checks', href: 'checks-cycle.php', label: 'شيكات', category: 'المالية والحسابات', icon: 'fa-money-check-dollar', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)', border: '#f59e0b' },
+            { id: 'analytics', href: 'analytics.php', label: 'تقارير مالية', category: 'المالية والحسابات', icon: 'fa-chart-column', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.2)', border: '#c084fc' },
+            { id: 'smart_reports', href: 'smart_reports_hub.php', label: 'التقرير المالي الذكي', category: 'المالية والحسابات', icon: 'fa-brain', color: '#c084fc', bg: 'rgba(168, 85, 247, 0.2)', border: '#a855f7' },
+            { id: 'master_data', href: 'master-data.php', label: 'البيانات الأساسية', category: 'البيانات الأساسية', icon: 'fa-database', color: '#60a5fa', bg: 'rgba(59, 130, 246, 0.2)', border: '#3b82f6' },
+            { id: 'jobs', href: 'jobs.php', label: 'المهام', category: 'الإدارة والصلاحيات', icon: 'fa-list-check', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
+            { id: 'account_stmt', href: 'account-statement.php', label: 'كشف حساب', category: 'المالية والحسابات', icon: 'fa-file-invoice-dollar', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)', border: '#38bdf8' },
+            { id: 'ledger', href: 'general-ledger.php', label: 'دفتر الأستاذ العام', category: 'المالية والحسابات', icon: 'fa-book-bookmark', color: '#60a5fa', bg: 'rgba(59, 130, 246, 0.2)', border: '#3b82f6' },
+            { id: 'customer_portfolio', href: 'customer-portfolio.php', label: 'محفظة العملاء', category: 'المبيعات والمشتريات', icon: 'fa-users', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
+            { id: 'inv_report', href: 'inventory-report.php', label: 'تقرير المخزون الشامل', category: 'المخزون والمستودعات', icon: 'fa-warehouse', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)', border: '#fbbf24' },
+            { id: 'sales_delivery', href: 'sales-delivery.php', label: 'تسليم المبيعات', category: 'المبيعات والمشتريات', icon: 'fa-truck-ramp-box', color: '#f87171', bg: 'rgba(248, 113, 113, 0.2)', border: '#ef4444' },
+            { id: 'users_roles', href: 'users-roles.php', label: 'المستخدمون والصلاحيات', category: 'الإدارة والصلاحيات', icon: 'fa-user-gear', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.2)', border: '#c084fc' },
+            { id: 'partners', href: 'partners_reports_hub.php', label: 'الشركاء والتقارير', category: 'التقارير والتنبيهات', icon: 'fa-handshake', color: '#22d3ee', bg: 'rgba(6, 182, 212, 0.2)', border: '#06b6d4' },
+            { id: 'backup', href: 'backup.php', label: 'النسخ الاحتياطي', category: 'الإدارة والصلاحيات', icon: 'fa-hard-drive', color: '#94a3b8', bg: 'rgba(100, 116, 139, 0.2)', border: '#64748b' }
         ];
 
         const DEFAULT_7_IDS = ['ai_goods', 'smart_inv_alerts', 'ai_money', 'alerts_mgr', 'settings', 'tools', 'smart_inv_rep'];
+        let currentScreenSortMode = 'default';
+
+        function sortScreensDropdown(mode) {
+            currentScreenSortMode = mode;
+            
+            const btnDefault = document.getElementById('sort-btn-default');
+            const btnAlphabetical = document.getElementById('sort-btn-alphabetical');
+            const btnCategory = document.getElementById('sort-btn-category');
+            
+            [btnDefault, btnAlphabetical, btnCategory].forEach(btn => {
+                if (!btn) return;
+                btn.style.background = 'rgba(255, 255, 255, 0.08)';
+                btn.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                btn.style.color = '#94a3b8';
+            });
+
+            const activeBtn = document.getElementById(`sort-btn-${mode}`);
+            if (activeBtn) {
+                activeBtn.style.background = 'rgba(168, 85, 247, 0.35)';
+                activeBtn.style.borderColor = '#c084fc';
+                activeBtn.style.color = '#ffffff';
+            }
+
+            renderScreensDropdown();
+        }
 
         function renderSingleRowQA() {
             let saved = localStorage.getItem('dashboard_quick_actions_7');
@@ -1749,14 +2018,138 @@
             const activeItems = selectedIds.map(id => ALL_QUICK_ACTIONS.find(a => a.id === id)).filter(Boolean);
             
             grid.innerHTML = activeItems.map(item => `
-                <a data-href="${item.href}" onclick="window.location.href='${item.href}'" class="quick-action-btn" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 10px; border-radius: 10px; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.08); border-bottom: 2px solid ${item.border}; transition: all 0.3s ease; text-decoration: none; cursor: pointer; min-width: 0;">
-                    <span class="qa-icon" style="width: 22px; height: 22px; min-width: 22px; font-size: 0.72rem; border-radius: 6px; background: ${item.bg}; border: 1px solid ${item.border}; color: ${item.color}; display: flex; align-items: center; justify-content: center;">
+                <a data-href="${item.href}" onclick="window.location.href='${item.href}'" class="qa-master-btn" style="--btn-border-color: ${item.border}; --btn-glow-color: ${item.bg}; border-bottom: 3.5px solid ${item.border} !important;">
+                    <span class="qa-icon" style="background: ${item.bg}; border: 1px solid ${item.border}; color: ${item.color};">
                         <i class="fa-solid ${item.icon}"></i>
                     </span>
-                    <span style="font-size: 0.76rem; font-weight: 800; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</span>
+                    <span class="btn-text">${item.label}</span>
+                </a>
+            `).join('');
+            
+            renderScreensDropdown();
+        }
+
+        function renderScreensDropdown() {
+            let saved = localStorage.getItem('dashboard_quick_actions_7');
+            let selectedIds = DEFAULT_7_IDS;
+            if (saved) {
+                try {
+                    let parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed) && parsed.length > 0) selectedIds = parsed.slice(0, 7);
+                } catch(e){}
+            }
+
+            let unselected = ALL_QUICK_ACTIONS.filter(item => !selectedIds.includes(item.id));
+
+            if (currentScreenSortMode === 'alphabetical') {
+                unselected.sort((a, b) => a.label.localeCompare(b.label, 'ar'));
+            } else if (currentScreenSortMode === 'category') {
+                unselected.sort((a, b) => (a.category || '').localeCompare((b.category || ''), 'ar') || a.label.localeCompare(b.label, 'ar'));
+            }
+            const badge = document.getElementById('screens-count-badge');
+            if (badge) badge.innerText = unselected.length;
+
+            const listContainer = document.getElementById('screens-dropdown-list');
+            if (!listContainer) return;
+
+            if (unselected.length === 0) {
+                listContainer.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; padding:20px; color:#94a3b8; font-size:0.85rem; font-weight: 700;">جميع الشاشات مخصصة في الأزرار السبعة 🎉</div>';
+                return;
+            }
+
+            listContainer.innerHTML = unselected.map(item => `
+                <a href="${item.href}" onclick="window.location.href='${item.href}'" class="screen-popover-item screen-dropdown-item" style="--item-border-color: ${item.border}; --item-glow-color: ${item.bg}; --item-color: ${item.color}; border-bottom: 2.5px solid ${item.border} !important;">
+                    <div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;">
+                        <span class="qa-icon" style="width: 28px; height: 28px; min-width: 28px; font-size: 0.8rem; border-radius: 8px; background: ${item.bg}; border: 1px solid ${item.border}; color: ${item.color}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="fa-solid ${item.icon}"></i>
+                        </span>
+                        <span class="screen-title" style="font-size: 0.88rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-left screen-arrow" style="font-size: 0.75rem; color: ${item.color}; opacity: 0.85;"></i>
                 </a>
             `).join('');
         }
+
+        function positionScreensDropdown() {
+            const menu = document.getElementById('screens-dropdown-menu');
+            const btn = document.getElementById('screens-dropdown-btn');
+            if (!menu || !btn) return;
+            
+            menu.style.position = 'fixed';
+            // Start at the very top of the screen (12px), covering top clock/user bar
+            menu.style.top = '12px';
+            
+            const menuWidth = Math.min(500, window.innerWidth - 24);
+            menu.style.width = `${menuWidth}px`;
+            
+            // Align right side near the button in RTL layout
+            const rect = btn.getBoundingClientRect();
+            let rightPos = window.innerWidth - rect.right;
+            if (rightPos + menuWidth > window.innerWidth - 12) {
+                rightPos = Math.max(12, window.innerWidth - menuWidth - 12);
+            }
+            menu.style.right = `${rightPos}px`;
+            menu.style.left = 'auto';
+            menu.style.zIndex = '999999';
+        }
+
+        function toggleScreensDropdown(e) {
+            if (e) e.stopPropagation();
+            const menu = document.getElementById('screens-dropdown-menu');
+            const chev = document.getElementById('screens-chevron');
+            if (!menu) return;
+
+            const isHidden = menu.style.display === 'none' || menu.style.display === '';
+            if (isHidden) {
+                renderScreensDropdown();
+                positionScreensDropdown();
+                menu.style.display = 'block';
+                if (chev) chev.style.transform = 'rotate(180deg)';
+                const searchInp = document.getElementById('screens-search-input');
+                if (searchInp) {
+                    searchInp.value = '';
+                    setTimeout(() => searchInp.focus(), 50);
+                }
+            } else {
+                menu.style.display = 'none';
+                if (chev) chev.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function filterScreensDropdown() {
+            const query = (document.getElementById('screens-search-input')?.value || '').toLowerCase().trim();
+            const items = document.querySelectorAll('#screens-dropdown-list .screen-dropdown-item');
+            items.forEach(el => {
+                const text = el.textContent.toLowerCase();
+                el.style.display = text.includes(query) ? 'flex' : 'none';
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('screens-dropdown-menu');
+            const btn = document.getElementById('screens-dropdown-btn');
+            if (menu && menu.style.display === 'block') {
+                if (!menu.contains(e.target) && !btn.contains(e.target)) {
+                    menu.style.display = 'none';
+                    const chev = document.getElementById('screens-chevron');
+                    if (chev) chev.style.transform = 'rotate(0deg)';
+                }
+            }
+        });
+
+        window.addEventListener('scroll', function() {
+            const menu = document.getElementById('screens-dropdown-menu');
+            if (menu && menu.style.display === 'block') {
+                positionScreensDropdown();
+            }
+        }, { passive: true });
+
+        window.addEventListener('resize', function() {
+            const menu = document.getElementById('screens-dropdown-menu');
+            if (menu && menu.style.display === 'block') {
+                positionScreensDropdown();
+            }
+        }, { passive: true });
 
         function openQACustomizer(e) {
             if (e && e.preventDefault) e.preventDefault();
@@ -1824,8 +2217,16 @@
             }
             localStorage.setItem('dashboard_quick_actions_7', JSON.stringify(checked.slice(0, 7)));
             renderSingleRowQA();
+            renderScreensDropdown();
             document.getElementById('qa-customizer-modal').style.display = 'none';
             if (typeof showToast === 'function') showToast('✅ تم حفظ التبديل وعرض الأزرار الـ 7 بنجاح', 'success');
+        }
+
+        // Initialize Quick Actions & Screens Dropdown immediately on DOM ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', renderSingleRowQA);
+        } else {
+            renderSingleRowQA();
         }
         </script>
     
