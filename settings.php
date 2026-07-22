@@ -1573,6 +1573,181 @@ document.addEventListener('DOMContentLoaded', function() {
             current += ch;
         }
         return vals;
+    // --- Backup & Restore Handlers ---
+    async function backupData() {
+        try {
+            const completeStore = {};
+
+            // 1. Gather all keys from localStorage
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k) {
+                    const val = localStorage.getItem(k);
+                    if (val !== null) completeStore[k] = val;
+                }
+            }
+
+            // 2. Gather all keys from localforage (async)
+            if (typeof localforage !== 'undefined') {
+                try {
+                    const lfKeys = await localforage.keys();
+                    for (let k of lfKeys) {
+                        const val = await localforage.getItem(k);
+                        if (val !== null) {
+                            completeStore[k] = typeof val === 'string' ? val : JSON.stringify(val);
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            // 3. Overlay DB_STORE memory proxy
+            if (window.DB_STORE) {
+                for (let [k, v] of Object.entries(window.DB_STORE)) {
+                    if (v !== null && v !== undefined) {
+                        completeStore[k] = typeof v === 'string' ? v : JSON.stringify(v);
+                    }
+                }
+            }
+
+            if (Object.keys(completeStore).length === 0) {
+                alert("⚠️ لا توجد بيانات مسجلة بالنظام للتصدير حالياً.");
+                return;
+            }
+
+            if (!confirm("سيتم تجميع كافة بيانات النظام وتنزيلها كملف احتياطي (.bak.json). هل ترغب بالاستمرار؟")) return;
+
+            const dateStr = new Date().toISOString().split('T')[0];
+            const fileName = `MAGAIEES_ERP_Backup_${dateStr}.bak.json`;
+            const backupDataStr = JSON.stringify(completeStore, null, 2);
+
+            const blob = new Blob([backupDataStr], { type: "application/json;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            if (typeof window.logSystemAction === 'function') {
+                window.logSystemAction('Database Export', 'system', 'تصدير نسخة احتياطية لقاعدة البيانات بالكامل');
+            }
+            alert("✅ تم تنزيل النسخة الاحتياطية بنجاح!");
+        } catch(e) {
+            console.error(e);
+            alert("❌ حدث خطأ أثناء تنزيل النسخة الاحتياطية: " + e.message);
+        }
+    }
+
+    function restoreData(elem) {
+        const file = elem.files ? elem.files[0] : null;
+        if (!file) return;
+
+        if (!confirm("⚠️ تحذير خطير: استعادة النسخة الاحتياطية ستمسح كافة البيانات الحالية وتستبدلها ببيانات الملف المرفوع. هل أنت متأكد 100% أنك تريد الاستمرار؟")) {
+            elem.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            let loader = null;
+            try {
+                const content = e.target.result;
+                
+                // Check if it's a SQL file or JSON file
+                if (content.trim().startsWith('--') || content.toUpperCase().includes('INSERT INTO')) {
+                    if (typeof handleSqlRestore === 'function') {
+                        handleSqlRestore(content);
+                        return;
+                    }
+                }
+
+                const data = JSON.parse(content);
+                if (typeof data !== 'object' || Array.isArray(data) || data === null) {
+                    throw new Error("تنسيق الملف غير صالح");
+                }
+
+                // Loader screen
+                loader = document.createElement('div');
+                loader.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.95); backdrop-filter:blur(15px); z-index:999999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-family:Tajawal; text-align:center; padding:20px;';
+                loader.innerHTML = `
+                    <div style="font-size:3.5rem; margin-bottom:15px; animation:spin 2s linear infinite;">🔄</div>
+                    <h2 style="font-size:1.8rem; font-weight:900; margin:0 0 10px 0; color:#38bdf8;">جاري استعادة البيانات والتهيأة...</h2>
+                    <p style="color:#94a3b8; font-size:1rem; margin:0;">يرجى عدم إغلاق المتصفح حتى إكتمال العملية.</p>
+                `;
+                document.body.appendChild(loader);
+
+                // 1. Preserve critical session tokens
+                const sessionKeys = ['authToken', 'saas_token', 'user', 'erp_lang', 'magaiees_global_theme'];
+                const preservedSession = {};
+                sessionKeys.forEach(k => {
+                    const val = localStorage.getItem(k);
+                    if (val !== null) preservedSession[k] = val;
+                });
+
+                // 2. Clear current localforage
+                const prefix = typeof getTenantPrefix === 'function' ? getTenantPrefix() : '';
+                try {
+                    if (typeof localforage !== 'undefined') {
+                        const keys = await localforage.keys();
+                        for (let k of keys) {
+                            if (k.startsWith(prefix) || prefix === '') {
+                                await localforage.removeItem(k);
+                            }
+                        }
+                    }
+                } catch(err) {}
+
+                // 3. Clear current localStorage erp_ & tenant_ keys
+                const lsKeys = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    lsKeys.push(localStorage.key(i));
+                }
+                for (let k of lsKeys) {
+                    if (k && !sessionKeys.includes(k) && (k.startsWith('erp_') || k.startsWith('tenant_') || k.startsWith(prefix))) {
+                        localStorage.removeItem(k);
+                    }
+                }
+
+                // 4. Populate imported backup
+                let restoredCount = 0;
+                for (let [key, val] of Object.entries(data)) {
+                    const valStr = typeof val === 'string' ? val : JSON.stringify(val);
+                    
+                    try { localStorage.setItem(key, valStr); } catch(err) {}
+                    try {
+                        if (typeof localforage !== 'undefined') {
+                            await localforage.setItem(key, valStr);
+                        }
+                    } catch(err) {}
+
+                    if (window.DB_STORE) {
+                        window.DB_STORE[key] = valStr;
+                    }
+                    restoredCount++;
+                }
+
+                // 5. Restore preserved session tokens
+                Object.entries(preservedSession).forEach(([k, v]) => {
+                    localStorage.setItem(k, v);
+                });
+
+                if (typeof window.logSystemAction === 'function') {
+                    window.logSystemAction('Database Import', 'system', 'استعادة نسخة احتياطية من ملف خارجي بنجاح');
+                }
+
+                alert(`🎉 تم استعادة كافة البيانات بنجاح (${restoredCount} سجل/جدول)! سيتم تحديث الصفحة الآن.`);
+                window.location.reload();
+            } catch(err) {
+                console.error(err);
+                alert("❌ خطأ: ملف النسخة الاحتياطية غير صالح أو تالف (" + err.message + ")");
+                elem.value = '';
+                if (loader) loader.remove();
+            }
+        };
+        reader.readAsText(file);
     }
 </script>
 </body>

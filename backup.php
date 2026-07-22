@@ -59,83 +59,18 @@
             margin-top: 30px; color: #fca5a5; display: flex; align-items: center; gap: 15px; font-weight: 600;
         }
         
-    
-        
-        /* Universal Light Theme Overrides for Internal Screens */
+        /* Universal Light Theme Overrides */
         :root.light-theme body,
-        :root.light-theme .ambient-bg {
-            background: #f8fafc !important;
-        }
+        :root.light-theme .ambient-bg { background: #f8fafc !important; }
         :root.light-theme .glass-panel,
         :root.light-theme .neo-card,
-        :root.light-theme .summary-card,
-        :root.light-theme .filter-panel,
-        :root.light-theme .chart-card,
-        :root.light-theme .kpi-card,
-        :root.light-theme .premium-header,
-        :root.light-theme .top-header,
-        :root.light-theme .header-area {
+        :root.light-theme .action-card {
             background: #ffffff !important;
             border-color: rgba(0, 0, 0, 0.08) !important;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
             color: #0f172a !important;
         }
-        :root.light-theme .glass-panel *,
-        :root.light-theme .neo-card *,
-        :root.light-theme .summary-card * {
-            text-shadow: none !important;
-        }
-        :root.light-theme table.pro-table th,
-        :root.light-theme .pos-grid thead th,
-        :root.light-theme .ledger-table th,
-        :root.light-theme .report-table th {
-            background: #f1f5f9 !important;
-            color: #0f172a !important;
-            border-bottom: 2px solid #cbd5e1 !important;
-        }
-        :root.light-theme table.pro-table td,
-        :root.light-theme .pos-grid tbody td,
-        :root.light-theme .ledger-table td,
-        :root.light-theme .report-table td {
-            color: #1e293b !important;
-            border-bottom: 1px solid rgba(0,0,0,0.08) !important;
-        }
-        :root.light-theme table.pro-table tbody tr:hover td,
-        :root.light-theme .pos-grid tbody tr:hover td,
-        :root.light-theme .ledger-table tbody tr:hover td,
-        :root.light-theme .report-table tbody tr:hover td {
-            background: rgba(0,0,0,0.02) !important;
-        }
-        :root.light-theme .h-label,
-        :root.light-theme .form-label,
-        :root.light-theme .tot-lbl,
-        :root.light-theme .lbl,
-        :root.light-theme label,
-        :root.light-theme .table-header {
-            color: #334155 !important;
-        }
-        :root.light-theme .tot-val,
-        :root.light-theme .val {
-            color: #0f172a !important;
-        }
-        :root.light-theme .h-form-group,
-        :root.light-theme .control-panel {
-            background: transparent !important;
-            border-color: rgba(0,0,0,0.08) !important;
-        }
-        :root.light-theme .modern-btn {
-            color: #1e293b !important;
-        }
-        :root.light-theme .modern-btn:hover {
-            color: #0f172a !important;
-        }
-        /* Neon text colors correction for light theme */
-        :root.light-theme .text-emerald-400, :root.light-theme span[style*="color: #34d399"], :root.light-theme span[style*="color:#34d399"] { color: #059669 !important; }
-        :root.light-theme .text-rose-400, :root.light-theme span[style*="color: #f87171"], :root.light-theme span[style*="color:#f87171"] { color: #e11d48 !important; }
-        :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
-        :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
-        :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
-\n</style>
+    </style>
 </head>
 <body>
 
@@ -146,11 +81,10 @@
         <div class="orb orb-3"></div>
     </div>
 
-
     <div class="backup-container">
         
         <div style="margin-bottom: 20px;">
-            <a data-href="settings.php" onclick="window.location.href='settings.php'" class="btn-action" style="background: rgba(255,255,255,0.1); text-decoration:none; padding:8px 15px; border-radius:8px; color:white;">↩ العودة للإعدادات</a>
+            <a data-href="settings.php" onclick="window.location.href='settings.php'" class="btn-action" style="background: rgba(255,255,255,0.1); text-decoration:none; padding:8px 15px; border-radius:8px; color:white; cursor:pointer;">↩ العودة للإعدادات</a>
         </div>
 
         <div class="premium-header">
@@ -218,83 +152,169 @@
             }
         });
 
-        function exportDatabase() {
-            if (Object.keys(window.DB_STORE).length === 0) {
-                alert("لا توجد بيانات للنسخ!");
-                return;
+        async function exportDatabase() {
+            try {
+                const completeStore = {};
+
+                // 1. Gather all keys from localStorage
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k) {
+                        const val = localStorage.getItem(k);
+                        if (val !== null) completeStore[k] = val;
+                    }
+                }
+
+                // 2. Gather all keys from localforage (async)
+                if (typeof localforage !== 'undefined') {
+                    try {
+                        const lfKeys = await localforage.keys();
+                        for (let k of lfKeys) {
+                            const val = await localforage.getItem(k);
+                            if (val !== null) {
+                                completeStore[k] = typeof val === 'string' ? val : JSON.stringify(val);
+                            }
+                        }
+                    } catch(e) {}
+                }
+
+                // 3. Overlay DB_STORE memory proxy
+                if (window.DB_STORE) {
+                    for (let [k, v] of Object.entries(window.DB_STORE)) {
+                        if (v !== null && v !== undefined) {
+                            completeStore[k] = typeof v === 'string' ? v : JSON.stringify(v);
+                        }
+                    }
+                }
+
+                if (Object.keys(completeStore).length === 0) {
+                    alert("⚠️ لا توجد بيانات مسجلة بالنظام للتصدير حالياً.");
+                    return;
+                }
+
+                if (!confirm("سيتم الآن تجميع كافة بيانات النظام وتنزيلها كملف احتياطي (.bak.json). هل ترغب بالاستمرار؟")) return;
+
+                const dateStr = new Date().toISOString().split('T')[0];
+                const fileName = `MAGAIEES_ERP_Backup_${dateStr}.bak.json`;
+                const backupDataStr = JSON.stringify(completeStore, null, 2);
+
+                const blob = new Blob([backupDataStr], { type: "application/json;charset=utf-8" });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                if (typeof window.logSystemAction === 'function') {
+                    window.logSystemAction('Database Export', 'system', 'تصدير نسخة احتياطية لقاعدة البيانات بالكامل');
+                }
+                alert("✅ تم تصدير النسخة الاحتياطية وتنزيلها بنجاح!");
+            } catch(e) {
+                console.error(e);
+                alert("❌ حدث خطأ أثناء تجميع وتنزيل النسخة الاحتياطية: " + e.message);
             }
-
-            // Confirm
-            if(!confirm("سيتم الآن تجميع قاعدة البيانات وتنزيلها كملف. هل ترغب بالاستمرار؟")) return;
-
-            const dateStr = new Date().toISOString().split('T')[0];
-            const fileName = `ERP_Backup_${dateStr}.bak.json`;
-
-            // Prepare Data from Memory Store
-            const backupData = JSON.stringify(window.DB_STORE);
-
-            // Create Blob and trigger download
-            const blob = new Blob([backupData], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            window.logSystemAction('Database Export', 'system', 'تصدير نسخة احتياطية لقاعدة البيانات بالكامل');
-            alert("✅ تم تصدير النسخة الاحتياطية بنجاح!");
         }
 
         function importDatabase(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            if(!confirm("⚠️ تحذير خطير: استعادة النسخة الاحتياطية ستمسح كافة البيانات الحالية التي أُدخلت بعد تاريخ النسخة. هل أنت متأكد 100% أنك تريد الاستمرار؟")) {
+            if (!confirm("⚠️ تحذير خطير: استعادة النسخة الاحتياطية ستمسح كافة البيانات الحالية وتستبدلها ببيانات الملف المرفوع. هل أنت متأكد 100% أنك تريد الاستمرار؟")) {
                 event.target.value = '';
                 return;
             }
 
             const reader = new FileReader();
             reader.onload = async function(e) {
+                let loader = null;
                 try {
-                    const data = JSON.parse(e.target.result);
+                    const content = e.target.result;
+                    const data = JSON.parse(content);
                     
-                    if (typeof data !== 'object' || Array.isArray(data)) {
+                    if (typeof data !== 'object' || Array.isArray(data) || data === null) {
                         throw new Error("ملف غير صالح");
                     }
 
                     // Show loader
-                    document.body.innerHTML += `<div id="loader" style="position:fixed; top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:99999;display:flex;align-items:center;justify-content:center;color:white;font-family:Tajawal;font-size:2rem;font-weight:bold;">جاري مسح القديم واستعادة البيانات... الرجاء الانتظار</div>`;
+                    loader = document.createElement('div');
+                    loader.id = 'import-loader';
+                    loader.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.95); backdrop-filter:blur(15px); z-index:999999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-family:Tajawal; text-align:center; padding:20px;';
+                    loader.innerHTML = `
+                        <div style="font-size:3.5rem; margin-bottom:15px; animation:spin 2s linear infinite;">🔄</div>
+                        <h2 style="font-size:1.8rem; font-weight:900; margin:0 0 10px 0; color:#38bdf8;">جاري استعادة البيانات والتهيأة...</h2>
+                        <p style="color:#94a3b8; font-size:1rem; margin:0;">يرجى عدم إغلاق المتصفح حتى إكتمال العملية.</p>
+                    `;
+                    document.body.appendChild(loader);
 
-                    // 1. Clear Current localforage completely for this tenant
+                    // 1. Preserve critical session tokens
+                    const sessionKeys = ['authToken', 'saas_token', 'user', 'erp_lang', 'magaiees_global_theme'];
+                    const preservedSession = {};
+                    sessionKeys.forEach(k => {
+                        const val = localStorage.getItem(k);
+                        if (val !== null) preservedSession[k] = val;
+                    });
+
+                    // 2. Clear current localforage
                     const prefix = typeof getTenantPrefix === 'function' ? getTenantPrefix() : '';
-                    const keys = await localforage.keys();
-                    for (let k of keys) {
-                        if (k.startsWith(prefix) || prefix === '') {
-                            await localforage.removeItem(k);
+                    try {
+                        if (typeof localforage !== 'undefined') {
+                            const keys = await localforage.keys();
+                            for (let k of keys) {
+                                if (k.startsWith(prefix) || prefix === '') {
+                                    await localforage.removeItem(k);
+                                }
+                            }
+                        }
+                    } catch(err) {}
+
+                    // 3. Clear current localStorage erp_ & tenant_ keys
+                    const lsKeys = [];
+                    for (let i = 0; i < localStorage.length; i++) {
+                        lsKeys.push(localStorage.key(i));
+                    }
+                    for (let k of lsKeys) {
+                        if (k && !sessionKeys.includes(k) && (k.startsWith('erp_') || k.startsWith('tenant_') || k.startsWith(prefix))) {
+                            localStorage.removeItem(k);
                         }
                     }
 
-                    // 2. Populate new data
+                    // 4. Populate new data into localStorage, localforage, & window.DB_STORE
+                    let restoredCount = 0;
                     for (let [key, val] of Object.entries(data)) {
-                        // val is already parsed if it was stored parsed? No, the system stores stringified JSON.
-                        // wait, DB_STORE contains stringified JSON.
-                        await localforage.setItem(key, val);
+                        const valStr = typeof val === 'string' ? val : JSON.stringify(val);
+                        
+                        try { localStorage.setItem(key, valStr); } catch(err) {}
+                        try {
+                            if (typeof localforage !== 'undefined') {
+                                await localforage.setItem(key, valStr);
+                            }
+                        } catch(err) {}
+
+                        if (window.DB_STORE) {
+                            window.DB_STORE[key] = valStr;
+                        }
+                        restoredCount++;
                     }
 
-                    window.logSystemAction('Database Import', 'system', 'استعادة نسخة احتياطية من ملف خارجي');
+                    // 5. Restore preserved session tokens
+                    Object.entries(preservedSession).forEach(([k, v]) => {
+                        localStorage.setItem(k, v);
+                    });
 
-                    alert("🎉 تم استعادة البيانات بنجاح! سيتم إعادة تحميل النظام الآن.");
+                    if (typeof window.logSystemAction === 'function') {
+                        window.logSystemAction('Database Import', 'system', 'استعادة نسخة احتياطية من ملف خارجي بنجاح');
+                    }
+
+                    alert(`🎉 تم استعادة البيانات بنجاح (${restoredCount} حقول/جداول)! سيتم إعادة تحميل النظام الآن.`);
                     window.location.href = 'dashboard-pro.php';
                 } catch (err) {
                     console.error(err);
-                    alert("❌ خطأ: ملف النسخة الاحتياطية تالف أو غير مدعوم.");
+                    alert("❌ خطأ: ملف النسخة الاحتياطية تالف أو غير مدعوم (" + err.message + ")");
                     event.target.value = '';
-                    const loader = document.getElementById('loader');
                     if(loader) loader.remove();
                 }
             };
@@ -363,7 +383,15 @@
                 }
 
                 // Show loader
-                document.body.innerHTML += `<div id="loader" style="position:fixed; top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:99999;display:flex;align-items:center;justify-content:center;color:white;font-family:Tajawal;font-size:2rem;font-weight:bold;">جاري مسح القديم واستعادة البيانات من السحاب... الرجاء الانتظار</div>`;
+                const loader = document.createElement('div');
+                loader.id = 'import-loader';
+                loader.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.95); backdrop-filter:blur(15px); z-index:999999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-family:Tajawal; text-align:center; padding:20px;';
+                loader.innerHTML = `
+                    <div style="font-size:3.5rem; margin-bottom:15px; animation:spin 2s linear infinite;">🔄</div>
+                    <h2 style="font-size:1.8rem; font-weight:900; margin:0 0 10px 0; color:#38bdf8;">جاري استعادة البيانات من السحاب...</h2>
+                    <p style="color:#94a3b8; font-size:1rem; margin:0;">يرجى عدم إغلاق المتصفح حتى إكتمال العملية.</p>
+                `;
+                document.body.appendChild(loader);
 
                 // 1. Clear Current localforage completely for this tenant
                 const prefix = typeof getTenantPrefix === 'function' ? getTenantPrefix() : '';
@@ -376,7 +404,10 @@
 
                 // 2. Populate new data
                 for (let [key, val] of Object.entries(data.backup)) {
-                    await localforage.setItem(key, val);
+                    const valStr = typeof val === 'string' ? val : JSON.stringify(val);
+                    try { localStorage.setItem(key, valStr); } catch(e) {}
+                    await localforage.setItem(key, valStr);
+                    if (window.DB_STORE) window.DB_STORE[key] = valStr;
                 }
 
                 window.logSystemAction('Cloud Database Import', 'system', 'استعادة نسخة احتياطية من السحاب');
@@ -388,7 +419,7 @@
                 alert("❌ خطأ: " + err.message);
                 btn.disabled = false;
                 btn.innerText = 'تحميل واستعادة من السحاب';
-                const loader = document.getElementById('loader');
+                const loader = document.getElementById('import-loader');
                 if(loader) loader.remove();
             }
         }
