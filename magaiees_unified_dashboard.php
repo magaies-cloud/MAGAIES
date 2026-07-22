@@ -437,6 +437,86 @@
 
         @keyframes toastIn { from { opacity:0; transform:translateY(-20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
         @keyframes toastOut { from { opacity:1; transform:translateY(0) scale(1); } to { opacity:0; transform:translateY(-20px) scale(0.95); } }
+
+        /* Ultra-Premium Glassmorphic Screen Dropdown & Animated Micro-Interactions */
+        #screens-dropdown-menu {
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .screen-popover-item {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 14px !important;
+            min-height: 48px !important;
+            border-radius: 14px !important;
+            background: rgba(15, 23, 42, 0.85) !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
+            text-decoration: none !important;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        /* Glass Shimmer Overlay Sweep */
+        .screen-popover-item::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -150%;
+            width: 80%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+            transform: skewX(-20deg);
+            transition: none;
+            pointer-events: none;
+        }
+
+        .screen-popover-item:hover::after {
+            left: 150%;
+            transition: all 0.6s ease-in-out;
+        }
+
+        /* Hover Motion & Dynamic Glow */
+        .screen-popover-item:hover {
+            transform: translateX(-8px) scale(1.025) !important;
+            background: rgba(30, 41, 59, 0.95) !important;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6), 0 0 20px var(--item-glow-color, rgba(168, 85, 247, 0.5)) !important;
+            border-color: var(--item-border-color, #c084fc) !important;
+            z-index: 5;
+        }
+
+        .screen-popover-item .qa-icon {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease !important;
+        }
+
+        .screen-popover-item:hover .qa-icon {
+            transform: scale(1.25) rotate(6deg) !important;
+            box-shadow: 0 0 14px var(--item-glow-color, rgba(168, 85, 247, 0.6)) !important;
+        }
+
+        .screen-popover-item .screen-title {
+            font-size: 0.9rem !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.3px;
+            color: #ffffff !important;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        .screen-popover-item:hover .screen-title {
+            color: #ffffff !important;
+            text-shadow: 0 0 10px var(--item-glow-color, rgba(255, 255, 255, 0.8)) !important;
+        }
+
+        .screen-popover-item .screen-arrow {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .screen-popover-item:hover .screen-arrow {
+            transform: translateX(-5px) scale(1.3);
+            opacity: 1 !important;
+        }
     </style>
     <style>
         :root.light-theme {
@@ -1821,14 +1901,14 @@
             }
 
             listContainer.innerHTML = unselected.map(item => `
-                <a href="${item.href}" onclick="window.location.href='${item.href}'" class="quick-action-btn screen-dropdown-item" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; border-radius: 12px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255,255,255,0.12); border-bottom: 2.5px solid ${item.border}; text-decoration: none; transition: all 0.25s ease; cursor: pointer; height: 38px; box-sizing: border-box;" onmouseover="this.style.background='rgba(30, 41, 59, 0.95)'; this.style.borderColor='${item.border}'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='rgba(15, 23, 42, 0.75)'; this.style.borderColor='rgba(255,255,255,0.12)'; this.style.transform='none';">
-                    <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
-                        <span class="qa-icon" style="width: 24px; height: 24px; min-width: 24px; font-size: 0.75rem; border-radius: 6px; background: ${item.bg}; border: 1px solid ${item.border}; color: ${item.color}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <a href="${item.href}" onclick="window.location.href='${item.href}'" class="screen-popover-item screen-dropdown-item" style="--item-border-color: ${item.border}; --item-glow-color: ${item.bg}; --item-color: ${item.color}; border-bottom: 2.5px solid ${item.border} !important;">
+                    <div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;">
+                        <span class="qa-icon" style="width: 28px; height: 28px; min-width: 28px; font-size: 0.8rem; border-radius: 8px; background: ${item.bg}; border: 1px solid ${item.border}; color: ${item.color}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                             <i class="fa-solid ${item.icon}"></i>
                         </span>
-                        <span class="screen-title" style="font-size: 0.82rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</span>
+                        <span class="screen-title" style="font-size: 0.88rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</span>
                     </div>
-                    <i class="fa-solid fa-arrow-left" style="font-size: 0.7rem; color: ${item.color}; opacity: 0.9;"></i>
+                    <i class="fa-solid fa-arrow-left screen-arrow" style="font-size: 0.75rem; color: ${item.color}; opacity: 0.85;"></i>
                 </a>
             `).join('');
         }
@@ -1840,15 +1920,15 @@
             
             const rect = btn.getBoundingClientRect();
             menu.style.position = 'fixed';
-            menu.style.top = `${rect.bottom + 6}px`;
+            menu.style.top = `${rect.bottom + 8}px`;
             
-            const menuWidth = Math.min(360, window.innerWidth - 20);
+            const menuWidth = Math.min(440, window.innerWidth - 24);
             menu.style.width = `${menuWidth}px`;
             
             // In RTL, align right edge of dropdown with right edge of button
             let rightPos = window.innerWidth - rect.right;
-            if (rightPos + menuWidth > window.innerWidth - 10) {
-                rightPos = Math.max(10, window.innerWidth - menuWidth - 10);
+            if (rightPos + menuWidth > window.innerWidth - 12) {
+                rightPos = Math.max(12, window.innerWidth - menuWidth - 12);
             }
             menu.style.right = `${rightPos}px`;
             menu.style.left = 'auto';
