@@ -436,15 +436,15 @@
 
     <!-- Tabs Navigation -->
     <div class="tabs-nav">
-        <button class="tab-btn active" onclick="switchTab('company')" data-i18n="settings.companyData">🏢 بيانات الشركة</button>
-        <button class="tab-btn" onclick="switchTab('finance')" data-i18n="settings.financeTax">💰 المالية والضرائب</button>
-        <button class="tab-btn" onclick="switchTab('inventory')" data-i18n="settings.warehouses">📦 المخازن</button>
-        <button class="tab-btn" onclick="switchTab('printing')" data-i18n="settings.printing">🖨️ إعدادات الطباعة</button>
-        <button class="tab-btn" onclick="switchTab('email')" data-i18n="settings.smtp">📧 إعدادات البريد SMTP</button>
+        <button class="tab-btn active" onclick="switchTab('company', this)" data-i18n="settings.companyData">🏢 بيانات الشركة</button>
+        <button class="tab-btn" onclick="switchTab('finance', this)" data-i18n="settings.financeTax">💰 المالية والضرائب</button>
+        <button class="tab-btn" onclick="switchTab('inventory', this)" data-i18n="settings.warehouses">📦 المخازن</button>
+        <button class="tab-btn" onclick="switchTab('printing', this)" data-i18n="settings.printing">🖨️ إعدادات الطباعة</button>
+        <button class="tab-btn" onclick="switchTab('email', this)" data-i18n="settings.smtp">📧 إعدادات البريد SMTP</button>
 
-        <button class="tab-btn" onclick="switchTab('users')" data-i18n="settings.users">🛡️ المستخدمين</button>
-        <button class="tab-btn" onclick="switchTab('ui')" data-i18n="settings.langUI">🎨 اللغة والواجهة</button>
-        <button class="tab-btn" onclick="switchTab('system')" data-i18n="settings.system">💾 النظام والنسخ</button>
+        <button class="tab-btn" onclick="switchTab('users', this)" data-i18n="settings.users">🛡️ المستخدمين</button>
+        <button class="tab-btn" onclick="switchTab('ui', this)" data-i18n="settings.langUI">🎨 اللغة والواجهة</button>
+        <button class="tab-btn" onclick="switchTab('system', this)" data-i18n="settings.system">💾 النظام والنسخ</button>
     </div>
 
     <div class="settings-layout">
@@ -895,18 +895,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         if (!hasSettings) {
-            document.querySelector('button[onclick="switchTab(\'company\')"]').style.display = 'none';
-            document.querySelector('button[onclick="switchTab(\'finance\')"]').style.display = 'none';
-            document.querySelector('button[onclick="switchTab(\'ui\')"]').style.display = 'none';
-            document.querySelector('button[onclick="switchTab(\'users\')"]').style.display = 'none';
-            document.querySelector('button[onclick="switchTab(\'system\')"]').style.display = 'none';
-            document.querySelector('button[onclick="switchTab(\'printing\')"]').style.display = 'none';
-            document.querySelector('button[onclick="switchTab(\'email\')"]').style.display = 'none';
-            document.querySelector('button[onclick="switchTab(\'whatsapp\')"]').style.display = 'none';
-            document.querySelector('.page-title').innerText = 'قواعد المخزون والعمليات';
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (!btn.getAttribute('onclick')?.includes('inventory')) {
+                    btn.style.display = 'none';
+                }
+            });
+            const pageTitle = document.querySelector('.page-title');
+            if (pageTitle) pageTitle.innerText = 'قواعد المخزون والعمليات';
         }
         if (!hasInvRules && !hasSettings) {
-            document.querySelector('button[onclick="switchTab(\'inventory\')"]').style.display = 'none';
+            const invBtn = document.querySelector('.tab-btn[onclick*="inventory"]');
+            if (invBtn) invBtn.style.display = 'none';
         }
 
         const canEditSettings = user.role === 'admin' || user.role === 'Admin' || user.role === 'مدير النظام' || (perms.settings && perms.settings.edit);
@@ -1004,20 +1003,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    function switchTab(tabId) {
+    function switchTab(tabId, btnElement) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
         
-        event.currentTarget.classList.add('active');
-        document.getElementById('tab-' + tabId).classList.add('active');
+        let targetBtn = btnElement || (typeof event !== 'undefined' && event && event.currentTarget ? event.currentTarget : null);
+        if (!targetBtn) {
+            targetBtn = document.querySelector(`.tab-btn[onclick*="'${tabId}'"]`) || document.querySelector(`.tab-btn[onclick*='"${tabId}"']`);
+        }
+        if (targetBtn) {
+            targetBtn.classList.add('active');
+        }
+        
+        const tabEl = document.getElementById('tab-' + tabId);
+        if (tabEl) {
+            tabEl.classList.add('active');
+        }
     }
 
-    function switchPrintTab(tabId, btn) {
+    function switchPrintTab(tabId, btnElement) {
         document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.sub-tab-content').forEach(content => content.classList.remove('active'));
         
-        btn.classList.add('active');
-        document.getElementById(tabId).classList.add('active');
+        let targetBtn = btnElement || (typeof event !== 'undefined' && event && event.currentTarget ? event.currentTarget : null);
+        if (!targetBtn) {
+            targetBtn = document.querySelector(`.sub-tab-btn[onclick*="'${tabId}'"]`);
+        }
+        if (targetBtn) {
+            targetBtn.classList.add('active');
+        }
+        
+        const contentEl = document.getElementById(tabId);
+        if (contentEl) {
+            contentEl.classList.add('active');
+        }
     }
 
     function loadSettings() {
