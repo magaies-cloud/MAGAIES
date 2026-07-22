@@ -12,7 +12,7 @@
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500;700&family=JetBrains+Mono:wght@400;600;800&family=Fira+Code:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تقرير الأرصدة الإجمالية | Al-Sajana ERP</title>
@@ -306,7 +306,82 @@
         :root.light-theme .text-rose-400, :root.light-theme span[style*="color: #f87171"], :root.light-theme span[style*="color:#f87171"] { color: #e11d48 !important; }
         :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
         :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
-        :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
+        /* ─── 5 Top English Fonts for Numbers ─── */
+        .num-font-jetbrains { font-family: 'JetBrains Mono', monospace !important; }
+        .num-font-roboto { font-family: 'Roboto Mono', monospace !important; }
+        .num-font-firacode { font-family: 'Fira Code', monospace !important; }
+        .num-font-inter { font-family: 'Inter', sans-serif !important; }
+        .num-font-poppins { font-family: 'Poppins', sans-serif !important; }
+
+        /* ─── SETTINGS SIDEBAR CSS (Copied from General Ledger) ─── */
+        .sidebar-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .sidebar-overlay.active { opacity: 1; pointer-events: all; }
+        
+        .settings-sidebar { position: fixed; top: 10%; left: 50%; transform: translateX(-50%); width:450px; height:80%; background: rgba(15,23,42,0.95); border: 1px solid rgba(168,85,247,0.5); box-shadow: 0 15px 50px rgba(0,0,0,0.7); z-index: 10001; display: none; flex-direction: column; backdrop-filter: blur(20px); border-radius: 12px; resize: both; overflow: hidden; min-width: 300px; min-height: 400px; }
+        .settings-sidebar.active { display: flex; animation: windowPop 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes windowPop { from { opacity:0; transform: translate(-50%, -40%) scale(0.95); } to { opacity:1; transform: translate(-50%, 0) scale(1); } }
+        
+        .sidebar-header { padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; cursor: move; background: rgba(0,0,0,0.2); }
+        .sidebar-header h3 { margin: 0; font-size: 1.2rem; background: linear-gradient(to right, #c084fc, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .close-sidebar { background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
+        .close-sidebar:hover { color: #f87171; transform: scale(1.1); }
+        .sidebar-content { padding: 20px; flex: 1; overflow-y: auto; }
+        .sidebar-desc { color: #94a3b8; font-size: 0.85rem; margin-top: 0; margin-bottom: 20px; }
+        .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.2); }
+        
+        .columns-config-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+        .col-config-item { background: rgba(30,41,59,0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; transition: 0.2s; display: flex; flex-direction: column; gap: 10px; }
+        .col-config-item.dragging { opacity: 0.5; background: rgba(168,85,247,0.2); border-color: #a855f7; transform: scale(0.98); }
+        .col-config-header { display: flex; align-items: center; justify-content: space-between; }
+        .col-drag-handle { cursor: grab; font-size: 1.2rem; color: #64748b; padding-left: 10px; }
+        .col-drag-handle:active { cursor: grabbing; }
+        .col-title-wrap { flex: 1; display: flex; align-items: center; gap: 10px; }
+        .col-title { font-weight: bold; color: #e2e8f0; font-size: 0.9rem; }
+        
+        .col-toggle { cursor: pointer; width: 40px; height: 22px; background: #334155; border-radius: 12px; position: relative; transition: 0.3s; }
+        .col-toggle::after { content: ''; position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: 0.3s; }
+        .col-toggle.on { background: #34d399; box-shadow: 0 0 10px rgba(52,211,153,0.3); }
+        .col-toggle.on::after { right: 20px; }
+        
+        .col-settings-btn { background: rgba(56,189,248,0.1); color: #38bdf8; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; transition: 0.2s; }
+        .col-settings-btn:hover { background: #38bdf8; color: #0f172a; }
+        
+        .col-settings-panel { display: none; background: rgba(15,23,42,0.8); padding: 15px; border-radius: 8px; border: 1px dashed rgba(168,85,247,0.4); gap: 10px; flex-direction: column; margin-top: 5px; }
+        .col-settings-panel.open { display: flex; animation: fadeInDown 0.3s; }
+        
+        .cfg-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; color: #cbd5e1; }
+        .cfg-input { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 6px 10px; border-radius: 6px; font-family: inherit; font-size: 0.85rem; outline: none; width: 120px; transition: 0.2s; }
+        .cfg-input:focus { border-color: #c084fc; box-shadow: 0 0 0 2px rgba(192,132,252,0.2); }
+        .cfg-input[type="color"] { width: 45px; padding: 0; height: 28px; border: none; border-radius: 6px; overflow: hidden; cursor: pointer; background: transparent; }
+        
+        .cfg-btns { display: flex; gap: 5px; background: rgba(0,0,0,0.3); padding: 3px; border-radius: 6px; }
+        .cfg-btn { background: transparent; border: none; color: #94a3b8; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: 0.2s; }
+        .cfg-btn:hover { color: #fff; }
+        .cfg-btn.active { background: #c084fc; color: #fff; }
+        
+        .modern-btn {
+            border: 1px solid transparent;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 38px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+            outline: none;
+        }
+        .modern-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+            filter: brightness(1.15);
+        }
 
         /* ─── Premium Luminous Glassmorphic Layout Preset Buttons ─── */
         .preset-slots-container {
@@ -553,6 +628,12 @@
                     <!-- Preset buttons generated by JS -->
                 </div>
             </div>
+
+            <!-- الزر المنسوخ من دفتر الأستاذ العام (تخصيص أعمدة الجداول) -->
+            <button class="btn-run modern-btn no-print" onclick="toggleSettingsSidebar()" style="background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%); box-shadow: 0 4px 15px rgba(236, 72, 153, 0.35); border: none; color: white; margin-right: auto; height: 40px; min-height: 40px; padding: 0 22px; font-size: 0.95rem; font-weight: 800; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.25s ease;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <span>تخصيص أعمدة الجداول</span>
+            </button>
         </div>
     </div>
 
@@ -980,8 +1061,58 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }, 10000);
-});
-</script>
+<!-- Customization Sidebar Modal (Copied from General Ledger) -->
+<div class="sidebar-overlay" id="settings-overlay" onclick="toggleSettingsSidebar()"></div>
+<div class="settings-sidebar" id="settings-sidebar" style="resize: both; overflow: auto;">
+    <div class="sidebar-header">
+        <h3>✨ تخصيص الجدول الديناميكي</h3>
+        <button class="close-sidebar" onclick="toggleSettingsSidebar()">✕</button>
+    </div>
+    <div class="sidebar-content" style="height: calc(100% - 130px); overflow-y: auto;">
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display:block; margin-bottom:10px; font-weight:800; color:#fbbf24; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">✨ أنماط العرض الفاخرة (Crystal Space)</label>
+            <div class="crystal-theme-container">
+                <button class="crystal-btn c-std active" onclick="changeTableTheme('')" id="btn-theme-">
+                    <span style="font-size:1.2rem;">⚪</span>
+                    <span>الأساسي</span>
+                </button>
+                <button class="crystal-btn c-blue" onclick="changeTableTheme('table-theme-blue')" id="btn-theme-table-theme-blue">
+                    <span style="font-size:1.2rem;">🔵</span>
+                    <span>الأزرق العميق</span>
+                </button>
+                <button class="crystal-btn c-black" onclick="changeTableTheme('table-theme-black')" id="btn-theme-table-theme-black">
+                    <span style="font-size:1.2rem;">⚫</span>
+                    <span>الأسود الفاخر</span>
+                </button>
+                <button class="crystal-btn c-emerald" onclick="changeTableTheme('table-theme-emerald')" id="btn-theme-table-theme-emerald">
+                    <span style="font-size:1.2rem;">🟢</span>
+                    <span>الزمردي المالي</span>
+                </button>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+            <label style="display:block; margin-bottom:10px; font-weight:800; color:#38bdf8;">📝 خطوط الأرقام الفائقة الوضوح (5 خطوط إنجليزية):</label>
+            <div class="font-chips-container" style="display:flex; flex-wrap:wrap; gap:6px;">
+                <button class="font-chip" onclick="changeNumberFont('num-font-jetbrains')" id="btn-font-num-font-jetbrains" style="font-family: 'JetBrains Mono', monospace;">1. JetBrains Mono</button>
+                <button class="font-chip" onclick="changeNumberFont('num-font-roboto')" id="btn-font-num-font-roboto" style="font-family: 'Roboto Mono', monospace;">2. Roboto Mono</button>
+                <button class="font-chip" onclick="changeNumberFont('num-font-firacode')" id="btn-font-num-font-firacode" style="font-family: 'Fira Code', monospace;">3. Fira Code</button>
+                <button class="font-chip" onclick="changeNumberFont('num-font-inter')" id="btn-font-num-font-inter" style="font-family: 'Inter', sans-serif;">4. Inter Font</button>
+                <button class="font-chip" onclick="changeNumberFont('num-font-poppins')" id="btn-font-num-font-poppins" style="font-family: 'Poppins', sans-serif;">5. Poppins Font</button>
+            </div>
+        </div>
+
+        <p class="sidebar-desc">رتب الأعمدة بالسحب والإفلات. اضغط "تخصيص" لتغيير المسمى، الألوان، وحجم الخط.</p>
+        <ul id="columns-config-list" class="columns-config-list">
+            <!-- Populated by JS -->
+        </ul>
+    </div>
+    <div class="sidebar-footer" style="position: sticky; bottom: 0; background: inherit; padding-top: 10px;">
+        <button class="btn-run" style="width:100%; justify-content:center; font-size:1.05rem;" onclick="applyAndSaveConfig()">💾 تطبيق وحفظ التعديلات</button>
+        <button class="btn-action" style="width:100%; justify-content:center; margin-top:10px; color:#f87171;" onclick="resetColumnConfig()">🔄 إعادة للوضع الافتراضي</button>
+    </div>
+</div>
 </body>
 </html>
 

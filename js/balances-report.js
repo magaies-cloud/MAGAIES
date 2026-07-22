@@ -4,17 +4,19 @@
 console.log('%c[balances-report.js] FILE LOADED v2', 'color: lime; font-size: 16px; font-weight: bold;');
 
 window.colConfigs = [
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }, // 0: Name
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }, // 1: Phone
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }, // 2: Tax Number
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }, // 3: Currency
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }, // 4: Debit Foreign
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }, // 5: Credit Foreign
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }, // 6: Debit Local
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }, // 7: Credit Local
-    { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true }  // 8: Note
+    { name: 'اسم الحساب', alias: 'اسم الحساب', id: 'name', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'right' },
+    { name: 'رقم الهاتف', alias: 'رقم الهاتف', id: 'phone', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'الرقم الضريبي', alias: 'الرقم الضريبي', id: 'taxNo', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'العملة', alias: 'العملة', id: 'currency', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'عليه عملة', alias: 'عليه عملة', id: 'debitF', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'له عملة', alias: 'له عملة', id: 'creditF', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'عليه', alias: 'عليه', id: 'debit', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'له', alias: 'له', id: 'credit', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'ملحوظة', alias: 'ملحوظة', id: 'note', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'right' }
 ];
 window.colOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+window.currentTableTheme = '';
+window.currentNumFont = 'num-font-jetbrains';
 
 let ledgerExchangeRate = 1.0;
 let ledgerForeignCurrency = 'USD';
@@ -2286,5 +2288,248 @@ window.switchVisualTab = function(type) {
     }
     renderVisualAnalytics(filtered);
 };
+
+/* ═══════════════════════════════════════════════════════
+   Sidebar Modal Column Customization Functions
+   ═══════════════════════════════════════════════════════ */
+function toggleSettingsSidebar() {
+    const sb = document.getElementById('settings-sidebar');
+    const ov = document.getElementById('settings-overlay');
+    if (!sb || !ov) return;
+
+    if (sb.classList.contains('active')) {
+        if (window.previewBackupConfigBalances) {
+            window.colConfigs = JSON.parse(JSON.stringify(window.previewBackupConfigBalances.colConfigs));
+            window.colOrder = [...window.previewBackupConfigBalances.colOrder];
+            applyLayoutToDOM();
+            if (typeof window.runReport === 'function') window.runReport();
+        }
+        sb.classList.remove('active');
+        ov.classList.remove('active');
+    } else {
+        window.previewBackupConfigBalances = {
+            colConfigs: JSON.parse(JSON.stringify(window.colConfigs)),
+            colOrder: [...window.colOrder]
+        };
+        renderSidebarConfig();
+        sb.classList.add('active');
+        ov.classList.add('active');
+    }
+}
+
+function renderSidebarConfig() {
+    const list = document.getElementById('columns-config-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    window.colOrder.forEach((origIdx, index) => {
+        const col = window.colConfigs[origIdx] || { name: 'عمود ' + origIdx, alias: 'عمود ' + origIdx, visible: true };
+        const li = document.createElement('li');
+        li.className = 'col-config-item';
+        li.draggable = true;
+        li.dataset.index = index;
+        li.dataset.origIdx = origIdx;
+
+        const currentFs = parseFloat(col.fs) || 1.0;
+
+        li.innerHTML = `
+            <div class="col-config-header">
+                <div class="col-title-wrap">
+                    <span class="col-drag-handle" title="اسحب لأعلى أو لأسفل لإعادة ترتيب الأعمدة أفقيًا في الجداول">☰</span>
+                    <span class="col-title">${col.alias || col.name}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button class="col-settings-btn" onclick="toggleColSettings(${index})">⚙️ تخصيص</button>
+                    <div class="col-toggle ${col.visible !== false ? 'on' : ''}" onclick="toggleColVisibility(${origIdx}, this)" title="إظهار/إخفاء العمود"></div>
+                </div>
+            </div>
+            <div class="col-settings-panel" id="col-settings-${index}">
+                <div class="cfg-row">
+                    <span>مسمى العمود:</span>
+                    <input type="text" class="cfg-input" value="${col.alias || col.name}" onchange="updateColField(${origIdx}, 'alias', this.value)" placeholder="${col.name}">
+                </div>
+                <div class="cfg-row">
+                    <span>حجم الخط (تكبير/تصغير):</span>
+                    <div style="display:flex; align-items:center; gap:4px;">
+                        <button class="cfg-btn" onclick="adjustFontSize(${origIdx}, -1)">A-</button>
+                        <input type="range" min="0.6" max="3.0" step="0.05" value="${currentFs}" oninput="updateColField(${origIdx}, 'fs', parseFloat(this.value)); document.getElementById('fs-lbl-${origIdx}').textContent = parseFloat(this.value).toFixed(2) + 'rem';" style="width:75px; cursor:pointer;">
+                        <span id="fs-lbl-${origIdx}" style="font-size:0.75rem; color:#38bdf8; font-weight:bold; width:45px; text-align:center;">${currentFs.toFixed(2)}rem</span>
+                        <button class="cfg-btn" onclick="adjustFontSize(${origIdx}, 1)">A+</button>
+                        <button class="cfg-btn ${col.bold ? 'active' : ''}" onclick="toggleColBold(${origIdx}, this)" title="خط بولد عريض وتخين" style="font-weight:900;">B (تخين)</button>
+                    </div>
+                </div>
+                <div class="cfg-row">
+                    <span>محاذاة النص:</span>
+                    <select class="cfg-input" onchange="updateColField(${origIdx}, 'align', this.value)" style="width:115px;">
+                        <option value="center" ${col.align === 'center' ? 'selected' : ''}>الوسط ↔️</option>
+                        <option value="right" ${col.align === 'right' ? 'selected' : ''}>اليمين ➡️</option>
+                        <option value="left" ${col.align === 'left' ? 'selected' : ''}>اليسار ⬅️</option>
+                    </select>
+                </div>
+                <div class="cfg-row">
+                    <span>الألوان (النص / الخلفية):</span>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <span style="font-size:0.75rem; color:#94a3b8;">النص:</span>
+                        <input type="color" class="cfg-input" value="${col.color || '#ffffff'}" onchange="updateColField(${origIdx}, 'color', this.value)" title="لون النص">
+                        <span style="font-size:0.75rem; color:#94a3b8; margin-right:4px;">الخلفية:</span>
+                        <input type="color" class="cfg-input" value="${col.bg || '#000000'}" onchange="updateColField(${origIdx}, 'bg', this.value)" title="لون الخلفية">
+                    </div>
+                </div>
+                ${['debit', 'credit', 'debitF', 'creditF'].includes(col.id) ? `
+                <div class="cfg-row">
+                    <span>التقريب والفاصلة الألفية:</span>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <select class="cfg-input" onchange="updateColField(${origIdx}, 'dec', parseInt(this.value))" style="width:115px;" title="عدد الخانات العشرية للتقريب">
+                            <option value="0" ${col.dec === 0 ? 'selected' : ''}>بدون خانات (0)</option>
+                            <option value="1" ${col.dec === 1 ? 'selected' : ''}>خانة واحدة (1)</option>
+                            <option value="2" ${col.dec === 2 ? 'selected' : ''}>خانتين (2)</option>
+                            <option value="3" ${col.dec === 3 ? 'selected' : ''}>3 خانات (3)</option>
+                            <option value="4" ${col.dec === 4 ? 'selected' : ''}>4 خانات (4)</option>
+                            <option value="5" ${col.dec === 5 ? 'selected' : ''}>5 خانات (5)</option>
+                            <option value="6" ${col.dec === 6 ? 'selected' : ''}>6 خانات (6)</option>
+                        </select>
+                        <label style="font-size:0.75rem; color:#cbd5e1; cursor:pointer; display:flex; align-items:center; gap:3px;">
+                            <input type="checkbox" ${col.thousands !== false ? 'checked' : ''} onchange="updateColField(${origIdx}, 'thousands', this.checked)">
+                            فاصلة (,)
+                        </label>
+                    </div>
+                </div>
+                ` : ''}
+            </div>
+        `;
+
+        li.addEventListener('dragstart', handleDragStartBalances);
+        li.addEventListener('dragover', handleDragOverBalances);
+        li.addEventListener('drop', handleDropBalances);
+        li.addEventListener('dragenter', handleDragEnterBalances);
+        li.addEventListener('dragleave', handleDragLeaveBalances);
+
+        list.appendChild(li);
+    });
+}
+
+function toggleColSettings(index) {
+    const p = document.getElementById('col-settings-' + index);
+    if (p) p.classList.toggle('open');
+}
+function toggleColVisibility(origIdx, el) {
+    if (window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].visible = !window.colConfigs[origIdx].visible;
+        if (el) el.classList.toggle('on');
+        applyLayoutToDOM();
+    }
+}
+function updateColField(origIdx, field, val) {
+    if (window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx][field] = val;
+        applyLayoutToDOM();
+        if (['dec', 'thousands'].includes(field) && typeof window.runReport === 'function' && window.lastResults) {
+            window.runReport();
+        }
+    }
+}
+function adjustFontSize(origIdx, dir) {
+    if (window.colConfigs[origIdx]) {
+        let fs = parseFloat(window.colConfigs[origIdx].fs) || 1.0;
+        fs = Math.max(0.6, Math.min(3.0, fs + dir * 0.1));
+        window.colConfigs[origIdx].fs = parseFloat(fs.toFixed(2));
+        renderSidebarConfig();
+        applyLayoutToDOM();
+    }
+}
+function toggleColBold(origIdx, el) {
+    if (window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].bold = !window.colConfigs[origIdx].bold;
+        if (el) el.classList.toggle('active');
+        applyLayoutToDOM();
+    }
+}
+
+let dragSrcElBalances = null;
+function handleDragStartBalances(e) {
+    dragSrcElBalances = this;
+    e.dataTransfer.effectAllowed = 'move';
+    this.classList.add('dragging');
+}
+function handleDragOverBalances(e) {
+    if (e.preventDefault) e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+}
+function handleDragEnterBalances(e) { this.classList.add('over'); }
+function handleDragLeaveBalances(e) { this.classList.remove('over'); }
+function handleDropBalances(e) {
+    if (e.stopPropagation) e.stopPropagation();
+    if (dragSrcElBalances !== this) {
+        let fromIdx = parseInt(dragSrcElBalances.dataset.index);
+        let toIdx = parseInt(this.dataset.index);
+
+        let moved = window.colOrder.splice(fromIdx, 1)[0];
+        window.colOrder.splice(toIdx, 0, moved);
+
+        renderSidebarConfig();
+        applyLayoutToDOM();
+        if (typeof window.runReport === 'function' && window.lastResults) {
+            window.runReport();
+        }
+    }
+    return false;
+}
+
+function applyAndSaveConfig() {
+    saveLayout();
+    window.previewBackupConfigBalances = {
+        colConfigs: JSON.parse(JSON.stringify(window.colConfigs)),
+        colOrder: [...window.colOrder]
+    };
+    applyLayoutToDOM();
+    if (typeof window.runReport === 'function' && window.lastResults) window.runReport();
+    toggleSettingsSidebar();
+    if (typeof showToast === 'function') showToast('💾 تم حفظ التخصيصات وتطبيقها بنجاح', 'success');
+}
+
+function resetColumnConfig() {
+    window.colConfigs = [
+        { name: 'اسم الحساب', alias: 'اسم الحساب', id: 'name', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'right' },
+        { name: 'رقم الهاتف', alias: 'رقم الهاتف', id: 'phone', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'الرقم الضريبي', alias: 'الرقم الضريبي', id: 'taxNo', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'العملة', alias: 'العملة', id: 'currency', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'عليه عملة', alias: 'عليه عملة', id: 'debitF', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'له عملة', alias: 'له عملة', id: 'creditF', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'عليه', alias: 'عليه', id: 'debit', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'له', alias: 'له', id: 'credit', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'ملحوظة', alias: 'ملحوظة', id: 'note', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'right' }
+    ];
+    window.colOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    saveLayout();
+    renderSidebarConfig();
+    applyLayoutToDOM();
+    if (typeof window.runReport === 'function' && window.lastResults) window.runReport();
+    if (typeof showToast === 'function') showToast('🔄 تم استعادة الوضع الافتراضي', 'success');
+}
+
+function changeTableTheme(themeClass) {
+    const table = document.getElementById('balances-table');
+    if (!table) return;
+    table.classList.remove('table-theme-blue', 'table-theme-black', 'table-theme-emerald');
+    if (themeClass) table.classList.add(themeClass);
+    window.currentTableTheme = themeClass;
+    document.querySelectorAll('.crystal-btn').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById('btn-theme-' + themeClass);
+    if (activeBtn) activeBtn.classList.add('active');
+}
+
+function changeNumberFont(fontClass) {
+    window.currentNumFont = fontClass;
+    const table = document.getElementById('balances-table');
+    if (!table) return;
+    table.querySelectorAll('.num').forEach(el => {
+        el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-firacode', 'num-font-poppins');
+        el.classList.add(fontClass);
+    });
+    document.querySelectorAll('.font-chip').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById('btn-font-' + fontClass);
+    if (activeBtn) activeBtn.classList.add('active');
+}
 
 
