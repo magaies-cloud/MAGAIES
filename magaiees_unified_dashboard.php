@@ -443,34 +443,88 @@
             transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* 100% Uniform Size & Increased Width for All Quick Action Bar Buttons */
-        .qa-unified-btn, #qa-bar-container .quick-action-btn, #qa-bar-container .admin-action-btn {
-            height: 42px !important;
-            min-height: 42px !important;
-            padding: 8px 16px !important;
-            border-radius: 12px !important;
-            font-size: 0.88rem !important;
-            font-weight: 800 !important;
+        /* 💎 Ultra-Premium 9 Master Quick Action Buttons (Aesthetic Masterpiece) */
+        .qa-master-btn {
+            position: relative;
+            overflow: hidden;
+            height: 48px !important;
+            min-height: 48px !important;
+            width: 100% !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
             gap: 8px !important;
-            box-sizing: border-box !important;
-            transition: all 0.25s ease !important;
+            padding: 8px 12px !important;
+            border-radius: 14px !important;
+            font-size: 0.88rem !important;
+            font-weight: 800 !important;
+            color: #ffffff !important;
+            background: rgba(15, 23, 42, 0.75) !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1) !important;
             cursor: pointer !important;
             white-space: nowrap !important;
+            text-decoration: none !important;
+            box-sizing: border-box !important;
         }
 
-        .qa-unified-btn .qa-icon, #qa-bar-container .quick-action-btn .qa-icon, #qa-bar-container .admin-action-btn .qa-icon {
-            width: 26px !important;
-            height: 26px !important;
-            min-width: 26px !important;
-            font-size: 0.8rem !important;
-            border-radius: 7px !important;
+        /* Animated Light Wave Shimmer Effect */
+        .qa-master-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -150%;
+            width: 70%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+            transform: skewX(-25deg);
+            pointer-events: none;
+            transition: none;
+        }
+
+        .qa-master-btn:hover::before {
+            left: 170%;
+            transition: all 0.75s ease-in-out;
+        }
+
+        /* Pulsing Light Wave Aura on Hover */
+        .qa-master-btn:hover {
+            transform: translateY(-5px) scale(1.04) !important;
+            background: rgba(30, 41, 59, 0.95) !important;
+            border-color: var(--btn-border-color, #a855f7) !important;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 25px var(--btn-glow-color, rgba(168, 85, 247, 0.6)), inset 0 0 12px var(--btn-glow-color, rgba(168, 85, 247, 0.2)) !important;
+            z-index: 10;
+        }
+
+        /* Icon Micro-Animations & Glow */
+        .qa-master-btn .qa-icon {
+            width: 28px !important;
+            height: 28px !important;
+            min-width: 28px !important;
+            font-size: 0.85rem !important;
+            border-radius: 8px !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
             flex-shrink: 0 !important;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease !important;
+        }
+
+        .qa-master-btn:hover .qa-icon {
+            transform: scale(1.35) rotate(8deg) !important;
+            box-shadow: 0 0 16px var(--btn-glow-color, rgba(168, 85, 247, 0.8)) !important;
+        }
+
+        .qa-master-btn .btn-text {
+            font-size: 0.88rem !important;
+            font-weight: 800 !important;
+            color: #ffffff !important;
+            transition: text-shadow 0.3s ease, color 0.3s ease;
+        }
+
+        .qa-master-btn:hover .btn-text {
+            color: #ffffff !important;
+            text-shadow: 0 0 12px var(--btn-glow-color, rgba(255, 255, 255, 0.9)) !important;
         }
 
         #screens-dropdown-list {
@@ -866,37 +920,19 @@
 
 
 
-        <!-- Ultra Premium 7-Item Single Row Quick Actions Bar with Right-Click Customizer -->
-        <div class="glass-panel" id="qa-bar-container" style="padding: 10px 14px; border-radius: 16px; border: 1.5px solid rgba(255, 255, 255, 0.08); background: var(--surface); margin-bottom: 12px; position: relative;" oncontextmenu="openQACustomizer(event); return false;">
+        <!-- Ultra Premium 9 Master Quick Actions Bar (Equal Width, Height & Modern Aesthetics) -->
+        <div class="glass-panel" id="qa-bar-container" style="padding: 14px 16px; border-radius: 18px; border: 1.5px solid rgba(255, 255, 255, 0.1); background: var(--surface); margin-bottom: 14px; position: relative;" oncontextmenu="openQACustomizer(event); return false;">
             
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <div style="font-weight: 800; font-size: 0.78rem; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
-                    <i class="fa-solid fa-bolt text-amber-400"></i> أزرار الوصول السريع المخصصة (7 أزرار)
-                    <span style="font-size: 0.68rem; font-weight: 600; color: #64748b; margin-right: 6px;">(انقر بالزر الأيمن 🖱️ لتخصيص الأزرار السبعة المجهزة)</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <!-- Customize Button -->
-                    <button onclick="openQACustomizer(event)" class="admin-action-btn admin-action-settings qa-unified-btn" style="background: rgba(56, 189, 248, 0.15); border: 1.5px solid rgba(56, 189, 248, 0.5); color: #38bdf8;" title="تخصيص الأزرار السبعة">
-                        <span class="qa-icon" style="background: rgba(56, 189, 248, 0.25); border: 1px solid #38bdf8; color: #38bdf8;">
-                            <i class="fa-solid fa-sliders"></i>
-                        </span>
-                        <span style="color: #38bdf8;">تخصيص (7)</span>
-                    </button>
-
-                    <!-- Screens Button -->
-                    <button id="screens-dropdown-btn" onclick="toggleScreensDropdown(event)" class="quick-action-btn qa-purple qa-unified-btn" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(99, 102, 241, 0.3)); border: 1.5px solid rgba(168, 85, 247, 0.7); color: #c084fc; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.35);">
-                        <span class="qa-icon" style="background: rgba(168, 85, 247, 0.4); border: 1px solid #c084fc; color: #fff;">
-                            <i class="fa-solid fa-desktop"></i>
-                        </span>
-                        <span style="color: #fff; font-weight: 900;">الشاشات</span>
-                        <i class="fa-solid fa-chevron-down" id="screens-chevron" style="font-size: 0.75rem; transition: transform 0.3s ease; color: #c084fc;"></i>
-                    </button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div style="font-weight: 900; font-size: 0.85rem; color: #cbd5e1; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-400" style="font-size: 1rem;"></i> أزرار الوصول السريع الرئيسية (9 أزرار متساوية الحجم بأعلى معايير الحداثة والجمال)
+                    <span style="font-size: 0.7rem; font-weight: 600; color: #94a3b8; margin-right: 6px;">(انقر بالزر الأيمن 🖱️ لتخصيص الأزرار)</span>
                 </div>
             </div>
 
-            <!-- Single Row 7-Column Grid Layout -->
-            <div id="qa-single-row-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; width: 100%;">
-                <!-- Dynamic 7 Items rendered via JS -->
+            <!-- Unified Single Row Grid Layout for All 9 Equal Buttons -->
+            <div id="qa-single-row-grid" style="display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 10px; width: 100%;">
+                <!-- Dynamic 9 Master Items rendered via JS -->
             </div>
         </div>
 
@@ -1962,14 +1998,59 @@
 
             const activeItems = selectedIds.map(id => ALL_QUICK_ACTIONS.find(a => a.id === id)).filter(Boolean);
             
-            grid.innerHTML = activeItems.map(item => `
-                <a data-href="${item.href}" onclick="window.location.href='${item.href}'" class="quick-action-btn qa-unified-btn" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border-radius: 12px; background: rgba(15, 23, 42, 0.65); border: 1.5px solid rgba(255,255,255,0.1); border-bottom: 3px solid ${item.border}; transition: all 0.25s ease; text-decoration: none; cursor: pointer; height: 42px; box-sizing: border-box;" onmouseover="this.style.background='rgba(30, 41, 59, 0.9)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='rgba(15, 23, 42, 0.65)'; this.style.transform='none';">
-                    <span class="qa-icon" style="width: 26px; height: 26px; min-width: 26px; font-size: 0.8rem; border-radius: 7px; background: ${item.bg}; border: 1px solid ${item.border}; color: ${item.color}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <i class="fa-solid ${item.icon}"></i>
-                    </span>
-                    <span style="font-size: 0.88rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</span>
-                </a>
-            `).join('');
+            // Build 9 Master Equal-Sized Items Array
+            const btnCustomize = {
+                isSpecial: 'customize',
+                label: 'تخصيص (7)',
+                icon: 'fa-sliders',
+                color: '#38bdf8',
+                bg: 'rgba(56, 189, 248, 0.25)',
+                border: '#38bdf8'
+            };
+
+            const btnScreens = {
+                isSpecial: 'screens',
+                label: 'الشاشات',
+                icon: 'fa-desktop',
+                color: '#c084fc',
+                bg: 'rgba(168, 85, 247, 0.3)',
+                border: '#a855f7'
+            };
+
+            const all9Items = [btnCustomize, btnScreens, ...activeItems];
+
+            grid.innerHTML = all9Items.map(item => {
+                if (item.isSpecial === 'customize') {
+                    return `
+                        <button onclick="openQACustomizer(event)" class="qa-master-btn" style="--btn-border-color: #38bdf8; --btn-glow-color: rgba(56, 189, 248, 0.6); border-bottom: 3px solid #38bdf8 !important;" title="تخصيص الأزرار السبعة">
+                            <span class="qa-icon" style="background: rgba(56, 189, 248, 0.25); border: 1px solid #38bdf8; color: #38bdf8;">
+                                <i class="fa-solid fa-sliders"></i>
+                            </span>
+                            <span class="btn-text" style="color: #38bdf8;">تخصيص (7)</span>
+                        </button>
+                    `;
+                }
+                if (item.isSpecial === 'screens') {
+                    return `
+                        <button id="screens-dropdown-btn" onclick="toggleScreensDropdown(event)" class="qa-master-btn" style="--btn-border-color: #a855f7; --btn-glow-color: rgba(168, 85, 247, 0.6); background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(99, 102, 241, 0.25)) !important; border-bottom: 3px solid #a855f7 !important;">
+                            <span class="qa-icon" style="background: rgba(168, 85, 247, 0.35); border: 1px solid #c084fc; color: #fff;">
+                                <i class="fa-solid fa-desktop"></i>
+                            </span>
+                            <span class="btn-text" style="color: #fff;">الشاشات</span>
+                            <i class="fa-solid fa-chevron-down" id="screens-chevron" style="font-size: 0.72rem; transition: transform 0.3s ease; color: #c084fc;"></i>
+                        </button>
+                    `;
+                }
+
+                return `
+                    <a data-href="${item.href}" onclick="window.location.href='${item.href}'" class="qa-master-btn" style="--btn-border-color: ${item.border}; --btn-glow-color: ${item.bg}; border-bottom: 3px solid ${item.border} !important;">
+                        <span class="qa-icon" style="background: ${item.bg}; border: 1px solid ${item.border}; color: ${item.color};">
+                            <i class="fa-solid ${item.icon}"></i>
+                        </span>
+                        <span class="btn-text">${item.label}</span>
+                    </a>
+                `;
+            }).join('');
             
             renderScreensDropdown();
         }
