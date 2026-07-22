@@ -73,6 +73,15 @@ function applyLayoutToDOM() {
                 const origIdx = window.colOrder[visualIndex];
                 const conf = window.colConfigs[origIdx] || { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true };
                 
+                // Update header title while retaining resizer
+                const displayTitle = (conf.alias && conf.alias.trim()) ? conf.alias.trim() : (conf.name || '');
+                const resizer = th.querySelector('.resizer');
+                if (resizer) {
+                    th.innerHTML = displayTitle + resizer.outerHTML;
+                } else {
+                    th.innerText = displayTitle;
+                }
+
                 // Visibility
                 const isVisible = conf.visible !== false;
                 th.style.display = isVisible ? '' : 'none';
@@ -2317,6 +2326,48 @@ function toggleSettingsSidebar() {
     }
 }
 
+window.moveColUp = function(index) {
+    if (index <= 0) return;
+    const moved = window.colOrder.splice(index, 1)[0];
+    window.colOrder.splice(index - 1, 0, moved);
+    saveLayout();
+    renderSidebarConfig();
+    applyLayoutToDOM();
+    if (typeof window.runReport === 'function' && window.lastResults) {
+        window.runReport();
+    }
+};
+
+window.moveColDown = function(index) {
+    if (index >= window.colOrder.length - 1) return;
+    const moved = window.colOrder.splice(index, 1)[0];
+    window.colOrder.splice(index + 1, 0, moved);
+    saveLayout();
+    renderSidebarConfig();
+    applyLayoutToDOM();
+    if (typeof window.runReport === 'function' && window.lastResults) {
+        window.runReport();
+    }
+};
+
+window.updateColAlias = function(origIdx, val) {
+    if (window.colConfigs[origIdx]) {
+        const trimmed = (val || '').trim();
+        window.colConfigs[origIdx].alias = trimmed ? trimmed : window.colConfigs[origIdx].name;
+        applyLayoutToDOM();
+        saveLayout();
+    }
+};
+
+window.resetColAlias = function(origIdx) {
+    if (window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].alias = window.colConfigs[origIdx].name;
+        renderSidebarConfig();
+        applyLayoutToDOM();
+        saveLayout();
+    }
+};
+
 function renderSidebarConfig() {
     const list = document.getElementById('columns-config-list');
     if (!list) return;
@@ -2331,12 +2382,17 @@ function renderSidebarConfig() {
         li.dataset.origIdx = origIdx;
 
         const currentFs = parseFloat(col.fs) || 1.0;
+        const displayName = (col.alias && col.alias.trim()) ? col.alias.trim() : col.name;
 
         li.innerHTML = `
-            <div class="col-config-header">
-                <div class="col-title-wrap">
-                    <span class="col-drag-handle" title="اسحب لأعلى أو لأسفل لإعادة ترتيب الأعمدة أفقيًا في الجداول">☰</span>
-                    <span class="col-title">${col.alias || col.name}</span>
+            <div class="col-config-header" style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+                <div class="col-title-wrap" style="display:flex; align-items:center; gap:8px; flex:1;">
+                    <span class="col-drag-handle" title="اسحب لأعلى أو لأسفل لإعادة ترتيب الأعمدة">☰</span>
+                    <div style="display:flex; gap:3px;">
+                        <button type="button" class="cfg-btn" onclick="moveColUp(${index})" title="تحريك للأعلى (يمين بالموقع)" ${index === 0 ? 'disabled style="opacity:0.3;cursor:not-allowed;"' : 'style="cursor:pointer;"'}>⬆️</button>
+                        <button type="button" class="cfg-btn" onclick="moveColDown(${index})" title="تحريك للأسفل (يسار بالموقع)" ${index === window.colOrder.length - 1 ? 'disabled style="opacity:0.3;cursor:not-allowed;"' : 'style="cursor:pointer;"'}>⬇️</button>
+                    </div>
+                    <span class="col-title" style="font-weight:bold; color:#e2e8f0; font-size:0.9rem;">${displayName}</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <button class="col-settings-btn" onclick="toggleColSettings(${index})">⚙️ تخصيص</button>
@@ -2344,28 +2400,87 @@ function renderSidebarConfig() {
                 </div>
             </div>
             <div class="col-settings-panel" id="col-settings-${index}">
-                <div class="cfg-row">
+                <!-- 1. Mismay / Rename Column + Revert Button -->
+                <div class="cfg-row" style="margin-bottom:8px;">
                     <span>مسمى العمود:</span>
-                    <input type="text" class="cfg-input" value="${col.alias || col.name}" onchange="updateColField(${origIdx}, 'alias', this.value)" placeholder="${col.name}">
-                </div>
-                <div class="cfg-row">
-                    <span>حجم الخط (تكبير/تصغير):</span>
-                    <div style="display:flex; align-items:center; gap:4px;">
-                        <button class="cfg-btn" onclick="adjustFontSize(${origIdx}, -1)">A-</button>
-                        <input type="range" min="0.6" max="3.0" step="0.05" value="${currentFs}" oninput="updateColField(${origIdx}, 'fs', parseFloat(this.value)); document.getElementById('fs-lbl-${origIdx}').textContent = parseFloat(this.value).toFixed(2) + 'rem';" style="width:75px; cursor:pointer;">
-                        <span id="fs-lbl-${origIdx}" style="font-size:0.75rem; color:#38bdf8; font-weight:bold; width:45px; text-align:center;">${currentFs.toFixed(2)}rem</span>
-                        <button class="cfg-btn" onclick="adjustFontSize(${origIdx}, 1)">A+</button>
-                        <button class="cfg-btn ${col.bold ? 'active' : ''}" onclick="toggleColBold(${origIdx}, this)" title="خط بولد عريض وتخين" style="font-weight:900;">B (تخين)</button>
+                    <div style="display:flex; gap:6px; flex:1; justify-content:flex-end;">
+                        <input type="text" class="cfg-input" value="${col.alias || col.name}" onchange="updateColAlias(${origIdx}, this.value)" placeholder="${col.name}" style="width:130px;">
+                        <button type="button" class="cfg-btn" onclick="resetColAlias(${origIdx})" title="إعادة للمسمى الأصلي (${col.name})">🔄 الأصلي</button>
                     </div>
                 </div>
-                <div class="cfg-row">
-                    <span>محاذاة النص:</span>
-                    <select class="cfg-input" onchange="updateColField(${origIdx}, 'align', this.value)" style="width:115px;">
-                        <option value="center" ${col.align === 'center' ? 'selected' : ''}>الوسط ↔️</option>
-                        <option value="right" ${col.align === 'right' ? 'selected' : ''}>اليمين ➡️</option>
-                        <option value="left" ${col.align === 'left' ? 'selected' : ''}>اليسار ⬅️</option>
+
+                <!-- 2. Font Family (Top 5 English Number Fonts) -->
+                <div class="cfg-row" style="margin-bottom:8px;">
+                    <span>خط أرقام العمود:</span>
+                    <select class="cfg-input" onchange="updateColField(${origIdx}, 'fontFamily', this.value)" style="width:150px;">
+                        <option value="" ${!col.fontFamily ? 'selected' : ''}>-- الخط الافتراضي --</option>
+                        <option value="'JetBrains Mono', monospace" ${col.fontFamily === "'JetBrains Mono', monospace" ? 'selected' : ''}>1. JetBrains Mono</option>
+                        <option value="'Roboto Mono', monospace" ${col.fontFamily === "'Roboto Mono', monospace" ? 'selected' : ''}>2. Roboto Mono</option>
+                        <option value="'Fira Code', monospace" ${col.fontFamily === "'Fira Code', monospace" ? 'selected' : ''}>3. Fira Code</option>
+                        <option value="'Inter', sans-serif" ${col.fontFamily === "'Inter', sans-serif" ? 'selected' : ''}>4. Inter Font</option>
+                        <option value="'Poppins', sans-serif" ${col.fontFamily === "'Poppins', sans-serif" ? 'selected' : ''}>5. Poppins Font</option>
                     </select>
                 </div>
+
+                <!-- 3. Font Size Slider + Number Input + A+/A- Buttons -->
+                <div class="cfg-row" style="margin-bottom:8px;">
+                    <span>حجم الخط (تكبير/تصغير):</span>
+                    <div style="display:flex; align-items:center; gap:4px;">
+                        <button type="button" class="cfg-btn" onclick="adjustFontSize(${origIdx}, -1)" title="تصغير الخط">A-</button>
+                        <input type="range" min="0.5" max="3.5" step="0.05" value="${currentFs}" oninput="updateColField(${origIdx}, 'fs', parseFloat(this.value)); document.getElementById('fs-lbl-${origIdx}').textContent = parseFloat(this.value).toFixed(2) + 'rem';" style="width:70px; cursor:pointer;">
+                        <span id="fs-lbl-${origIdx}" style="font-size:0.75rem; color:#38bdf8; font-weight:bold; width:45px; text-align:center;">${currentFs.toFixed(2)}rem</span>
+                        <button type="button" class="cfg-btn" onclick="adjustFontSize(${origIdx}, 1)" title="تكبير الخط">A+</button>
+                    </div>
+                </div>
+
+                <!-- 4. Font Weight (Bold / Light) -->
+                <div class="cfg-row" style="margin-bottom:8px;">
+                    <span>سمك الخط (تخين / رفيع):</span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="cfg-btn ${(!col.bold && col.fontWeight !== 'bold' && col.fontWeight !== '900') ? 'active' : ''}" onclick="setColFontWeight(${origIdx}, ${index}, 'normal')" style="padding:4px 8px; font-weight:bold;">رفيع (Regular)</button>
+                        <button type="button" class="cfg-btn ${(col.bold || col.fontWeight === 'bold' || col.fontWeight === '900') ? 'active' : ''}" onclick="setColFontWeight(${origIdx}, ${index}, 'bold')" style="padding:4px 8px; font-weight:900;">تخين (Bold B)</button>
+                    </div>
+                </div>
+
+                <!-- 5. Text Alignment (Right, Center, Left) -->
+                <div class="cfg-row" style="margin-bottom:8px;">
+                    <span>محاذاة النص والبيانات:</span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="cfg-btn ${(col.align === 'right') ? 'active' : ''}" onclick="setColTextAlign(${origIdx}, ${index}, 'right')">يمين ➡️</button>
+                        <button type="button" class="cfg-btn ${(col.align === 'center' || !col.align) ? 'active' : ''}" onclick="setColTextAlign(${origIdx}, ${index}, 'center')">وسط ↔️</button>
+                        <button type="button" class="cfg-btn ${(col.align === 'left') ? 'active' : ''}" onclick="setColTextAlign(${origIdx}, ${index}, 'left')">يسار ⬅️</button>
+                    </div>
+                </div>
+
+                <!-- 6. Number Formatting Controls (Thousands & Decimals) -->
+                <div class="cfg-row" style="margin-bottom:8px;">
+                    <span>الفاصلة الألفية والكسور:</span>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <button type="button" class="cfg-btn ${col.thousands !== false ? 'active' : ''}" onclick="toggleColThousands(${origIdx}, ${index})">
+                            ${col.thousands !== false ? 'فاصلة (1,000 ✔)' : 'بدون فاصلة (1000 ✖)'}
+                        </button>
+                        <button type="button" class="cfg-btn ${col.showDecimals !== false ? 'active' : ''}" onclick="toggleColShowDecimals(${origIdx}, ${index})">
+                            ${col.showDecimals !== false ? 'كسور (.00 ✔)' : 'صحيح (✖)'}
+                        </button>
+                    </div>
+                </div>
+
+                ${col.showDecimals !== false ? `
+                <div class="cfg-row" style="margin-bottom:8px;">
+                    <span>عدد الخانات العشرية والتقريب:</span>
+                    <select class="cfg-input" onchange="setColDecimals(${origIdx}, ${index}, this.value)" style="width:130px;">
+                        <option value="0" ${col.dec === 0 || col.decimals === 0 ? 'selected' : ''}>بدون خانات (0)</option>
+                        <option value="1" ${col.dec === 1 || col.decimals === 1 ? 'selected' : ''}>خانة واحدة (0.0)</option>
+                        <option value="2" ${col.dec === 2 || col.decimals === 2 || (col.dec === undefined && col.decimals === undefined) ? 'selected' : ''}>خانتان (0.00)</option>
+                        <option value="3" ${col.dec === 3 || col.decimals === 3 ? 'selected' : ''}>3 خانات (0.000)</option>
+                        <option value="4" ${col.dec === 4 || col.decimals === 4 ? 'selected' : ''}>4 خانات (0.0000)</option>
+                        <option value="5" ${col.dec === 5 || col.decimals === 5 ? 'selected' : ''}>5 خانات (0.00000)</option>
+                        <option value="6" ${col.dec === 6 || col.decimals === 6 ? 'selected' : ''}>6 خانات (0.000000)</option>
+                    </select>
+                </div>
+                ` : ''}
+
+                <!-- 7. Colors -->
                 <div class="cfg-row">
                     <span>الألوان (النص / الخلفية):</span>
                     <div style="display:flex; gap:6px; align-items:center;">
@@ -2375,26 +2490,6 @@ function renderSidebarConfig() {
                         <input type="color" class="cfg-input" value="${col.bg || '#000000'}" onchange="updateColField(${origIdx}, 'bg', this.value)" title="لون الخلفية">
                     </div>
                 </div>
-                ${['debit', 'credit', 'debitF', 'creditF'].includes(col.id) ? `
-                <div class="cfg-row">
-                    <span>التقريب والفاصلة الألفية:</span>
-                    <div style="display:flex; align-items:center; gap:6px;">
-                        <select class="cfg-input" onchange="updateColField(${origIdx}, 'dec', parseInt(this.value))" style="width:115px;" title="عدد الخانات العشرية للتقريب">
-                            <option value="0" ${col.dec === 0 ? 'selected' : ''}>بدون خانات (0)</option>
-                            <option value="1" ${col.dec === 1 ? 'selected' : ''}>خانة واحدة (1)</option>
-                            <option value="2" ${col.dec === 2 ? 'selected' : ''}>خانتين (2)</option>
-                            <option value="3" ${col.dec === 3 ? 'selected' : ''}>3 خانات (3)</option>
-                            <option value="4" ${col.dec === 4 ? 'selected' : ''}>4 خانات (4)</option>
-                            <option value="5" ${col.dec === 5 ? 'selected' : ''}>5 خانات (5)</option>
-                            <option value="6" ${col.dec === 6 ? 'selected' : ''}>6 خانات (6)</option>
-                        </select>
-                        <label style="font-size:0.75rem; color:#cbd5e1; cursor:pointer; display:flex; align-items:center; gap:3px;">
-                            <input type="checkbox" ${col.thousands !== false ? 'checked' : ''} onchange="updateColField(${origIdx}, 'thousands', this.checked)">
-                            فاصلة (,)
-                        </label>
-                    </div>
-                </div>
-                ` : ''}
             </div>
         `;
 
@@ -2423,7 +2518,7 @@ function updateColField(origIdx, field, val) {
     if (window.colConfigs[origIdx]) {
         window.colConfigs[origIdx][field] = val;
         applyLayoutToDOM();
-        if (['dec', 'thousands'].includes(field) && typeof window.runReport === 'function' && window.lastResults) {
+        if (['dec', 'thousands', 'showDecimals', 'fontFamily', 'align'].includes(field) && typeof window.runReport === 'function' && window.lastResults) {
             window.runReport();
         }
     }
@@ -2431,7 +2526,7 @@ function updateColField(origIdx, field, val) {
 function adjustFontSize(origIdx, dir) {
     if (window.colConfigs[origIdx]) {
         let fs = parseFloat(window.colConfigs[origIdx].fs) || 1.0;
-        fs = Math.max(0.6, Math.min(3.0, fs + dir * 0.1));
+        fs = Math.max(0.5, Math.min(3.5, fs + dir * 0.1));
         window.colConfigs[origIdx].fs = parseFloat(fs.toFixed(2));
         renderSidebarConfig();
         applyLayoutToDOM();
