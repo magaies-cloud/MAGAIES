@@ -930,8 +930,8 @@
 
 body.has-sidebar {
     margin-right: var(--sb-collapsed) !important;
-    padding-right: 20px !important;
-    padding-left: 20px !important; /* symmetrical balance */
+    padding-right: 0 !important;
+    padding-left: 0 !important;
     transition: margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     /* Ensure content never scrolls behind the sidebar */
     overflow-x: hidden;

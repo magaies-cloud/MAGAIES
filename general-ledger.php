@@ -540,51 +540,13 @@
             .hide-on-screen { display: none !important; }
         }
 
-        /* Global Glow & Smoothness */
-        header.premium-header {
-            background-image: linear-gradient(135deg, rgba(26,15,10,0.95), rgba(62,39,35,0.95), rgba(111,78,55,0.95), rgba(31,17,8,0.95)) !important;
-            background-size: 300% 300% !important;
-            animation: animateGradient 12s ease infinite !important;
-            border: 1px solid rgba(212, 175, 55, 0.3) !important;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5), inset 0 1px 1px rgba(212,175,55,0.2) !important;
-            position: relative;
-            overflow: hidden;
-        }
-        header.premium-header::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 40%; height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg);
-            animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
-            pointer-events: none;
-        }
-        @keyframes animateGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        @keyframes shimmer {
-            0% { left: -100%; }
-            25% { left: 200%; }
-            100% { left: 200%; }
-        }
-
         body {
-            background: radial-gradient(circle at top right, #1e1b4b, #0f172a 40%, #020617 100%) !important;
-            color: #e2e8f0;
+            background-color: var(--bg-dark, #0a0e17) !important;
+            color: var(--text-primary, #f8fafc);
         }
-
-        /* Animated Gradient Header */
-        .premium-header {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%) !important;
-            border: 1px solid rgba(168, 85, 247, 0.3) !important;
-            box-shadow: 0 10px 40px rgba(168, 85, 247, 0.1) !important;
-            position: relative;
-            overflow: visible; /* Changed from hidden so dropdown can overflow */
-            border-radius: 20px !important;
-            z-index: 10; /* Make sure it stays above other things if needed */
+        :root.light-theme body {
+            background-color: #f8fafc !important;
+            color: #000000 !important;
         }
         .premium-header-bg {
             position: absolute;
@@ -884,6 +846,24 @@
         :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
         :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
         :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
+        /* ── Ultra-Compact & Identical 8px Margins (Right & Left) ── */
+        body {
+            padding-right: 0 !important;
+        }
+        body.has-sidebar {
+            padding-right: 0 !important;
+        }
+        .sgl-master-container {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding-top: 10px !important;
+            padding-right: 8px !important;
+            padding-bottom: 60px !important;
+            padding-left: 8px !important;
+            box-sizing: border-box !important;
+            position: relative;
+        }
 \n</style>
     </head>
 <body>
@@ -899,7 +879,7 @@
     </div>
 </div>
 
-<div style="max-width: 98%; margin: 0 auto; padding: 15px 10px; padding-bottom: 80px;">
+<div class="sgl-master-container">
 
     <!-- Premium Navigation Header -->
     <?php $header_theme_class = 'header-theme-reports'; ?>

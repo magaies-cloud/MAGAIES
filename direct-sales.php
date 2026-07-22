@@ -320,7 +320,11 @@
 
         /* Remove default pos-wrapper bottom padding — footer handles it */
         .pos-wrapper {
-            padding-bottom: 72px !important;
+            padding: 8px 8px 72px 8px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 auto !important;
+            box-sizing: border-box !important;
         }
 
         /* Top bar — tighter */

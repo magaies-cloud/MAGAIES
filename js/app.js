@@ -591,170 +591,269 @@ JSON.parse = function(val) {
             console.error('Migration failed:', e);
         }
 
-        // ════════════════════════════════════════
-        //  RE-MIGRATION: CONVERT ALL OLD-FORMAT SALES INVOICES TO S+YYMM+SEQ
-        // ════════════════════════════════════════
-        if (localGetItem('erp_remig_v1_done') !== 'true') {
+        // ═════════════════════════════════════════════════════════════════════
+        //  COMPLETE RE-SEQUENCING: CONVERT ALL PURCHASES (P+YYMM+SEQ) & SALES (S+YYMM+SEQ)
+        // ═════════════════════════════════════════════════════════════════════
+        try {
+            const migPrefixSet = new Set(['tenant_default_', getTenantPrefix()]);
             try {
-                const migPrefixSet = new Set(['tenant_default_', getTenantPrefix()]);
-                try {
-                    const lsKeys2 = Object.keys(localStorage);
-                    lsKeys2.forEach(k => {
-                        if (k.endsWith('erp_sales_invoices_v1')) {
-                            migPrefixSet.add(k.substring(0, k.length - 'erp_sales_invoices_v1'.length));
+                const lsKeys2 = Object.keys(localStorage);
+                lsKeys2.forEach(k => {
+                    if (k.endsWith('erp_sales_invoices_v1') || k.endsWith('erp_purchase_invoices_v1')) {
+                        const baseName = k.endsWith('erp_sales_invoices_v1') ? 'erp_sales_invoices_v1' : 'erp_purchase_invoices_v1';
+                        migPrefixSet.add(k.substring(0, k.length - baseName.length));
+                    }
+                });
+            } catch(e) {}
+            try {
+                if (window.DB_STORE) {
+                    Object.keys(window.DB_STORE).forEach(k => {
+                        if (k.endsWith('erp_sales_invoices_v1') || k.endsWith('erp_purchase_invoices_v1')) {
+                            const baseName = k.endsWith('erp_sales_invoices_v1') ? 'erp_sales_invoices_v1' : 'erp_purchase_invoices_v1';
+                            migPrefixSet.add(k.substring(0, k.length - baseName.length));
                         }
                     });
-                } catch(e) {}
-                try {
-                    if (window.DB_STORE) {
-                        Object.keys(window.DB_STORE).forEach(k => {
-                            if (k.endsWith('erp_sales_invoices_v1')) {
-                                migPrefixSet.add(k.substring(0, k.length - 'erp_sales_invoices_v1'.length));
-                            }
+                }
+            } catch(e) {}
+
+            for (const pref of migPrefixSet) {
+                // ----------------------------------------------------
+                // 1. RE-SEQUENCE ALL PURCHASE INVOICES (P+YYMM+0001, 0002...)
+                // ----------------------------------------------------
+                const purKey = pref + 'erp_purchase_invoices_v1';
+                let purVal = window.DB_STORE[purKey] || localGetItem(purKey);
+                if (purVal) {
+                    let purchases = [];
+                    try { purchases = JSON.parse(purVal); } catch(e) {}
+                    if (Array.isArray(purchases) && purchases.length > 0) {
+                        const pFormatRegex = /^P\d{8}$/;
+                        let purNeedsMigration = purchases.some(inv => {
+                            const no = String(inv.invoiceNo || '');
+                            return !no || !pFormatRegex.test(no) || no.startsWith('C-') || no.startsWith('PUR-');
                         });
-                    }
-                } catch(e) {}
-                
-                for (const pref of migPrefixSet) {
-                    const salesKey = pref + 'erp_sales_invoices_v1';
-                    let salesVal = window.DB_STORE[salesKey] || localGetItem(salesKey);
-                    if (!salesVal) continue;
-                    
-                    let sales = [];
-                    try { sales = JSON.parse(salesVal); } catch(e) { continue; }
-                    if (!Array.isArray(sales) || sales.length === 0) continue;
-                    
-                    // Check if any invoice needs migration (not S+8digits and not PRE-)
-                    const sFormatRegex = /^S\d{8}$/;
-                    let needsMigration = false;
-                    for (const inv of sales) {
-                        const no = String(inv.invoiceNo || '');
-                        if (no && no !== 'preliminary' && !no.startsWith('PRE-') && !sFormatRegex.test(no)) {
-                            needsMigration = true;
-                            break;
-                        }
-                    }
-                    if (!needsMigration) continue;
-                    
-                    // Group all non-preliminary invoices by YYMM
-                    const migByMonth = {};
-                    sales.forEach(inv => {
-                        const no = String(inv.invoiceNo || '');
-                        if (no === 'preliminary' || no.startsWith('PRE-')) return;
-                        
-                        const d = (inv.date || inv.createdAt) ? new Date(inv.date || inv.createdAt) : new Date();
-                        const validD = isNaN(d.getTime()) ? new Date() : d;
-                        const yy = String(validD.getFullYear()).substring(2, 4);
-                        const mm = String(validD.getMonth() + 1).padStart(2, '0');
-                        const yymm = yy + mm;
-                        
-                        if (!migByMonth[yymm]) migByMonth[yymm] = { sExisting: [], oldFormat: [] };
-                        
-                        if (sFormatRegex.test(no)) {
-                            migByMonth[yymm].sExisting.push(inv);
-                        } else {
-                            migByMonth[yymm].oldFormat.push(inv);
-                        }
-                    });
-                    
-                    const idMap = {};
-                    for (const yymm of Object.keys(migByMonth)) {
-                        const { sExisting, oldFormat } = migByMonth[yymm];
-                        if (oldFormat.length === 0) continue;
-                        
-                        const datePrefix = 'S' + yymm;
-                        let maxSeq = 0;
-                        sExisting.forEach(inv => {
-                            const seq = parseInt(String(inv.invoiceNo).substring(5), 10);
-                            if (!isNaN(seq) && seq > maxSeq) maxSeq = seq;
-                        });
-                        
-                        // Sort old invoices by date/time to preserve order
-                        oldFormat.sort((a, b) => {
-                            const cmp = (a.date || a.createdAt || '').localeCompare(b.date || b.createdAt || '');
-                            if (cmp !== 0) return cmp;
-                            return (a.time || '').localeCompare(b.time || '');
-                        });
-                        
-                        oldFormat.forEach(inv => {
-                            maxSeq++;
-                            const oldNo = inv.invoiceNo;
-                            const newNo = datePrefix + String(maxSeq).padStart(4, '0');
-                            idMap[oldNo] = newNo;
-                            inv.invoiceNo = newNo;
-                            if (inv.id === oldNo) inv.id = newNo;
-                        });
-                    }
-                    
-                    if (Object.keys(idMap).length > 0) {
-                        // Save updated sales list
-                        const updatedVal = JSON.stringify(sales);
-                        window.DB_STORE[salesKey] = updatedVal;
-                        localSetItem(salesKey, updatedVal);
-                        await localforage.setItem(salesKey, updatedVal);
-                        dirtyKeys.add('erp_sales_invoices_v1');
-                        
-                        // Migrate detail keys (erp_inv_XXX and erp_draft_XXX)
-                        for (const oldNo of Object.keys(idMap)) {
-                            const newNo = idMap[oldNo];
-                            for (const dKey of ['erp_inv_', 'erp_draft_']) {
-                                const keyOld = pref + dKey + oldNo;
-                                const keyNew = pref + dKey + newNo;
-                                const detailData = window.DB_STORE[keyOld] || localGetItem(keyOld);
-                                if (detailData) {
-                                    try {
-                                        const parsed = JSON.parse(detailData);
-                                        parsed.invoiceNo = newNo;
-                                        if (parsed.id === oldNo) parsed.id = newNo;
-                                        const valStr = JSON.stringify(parsed);
-                                        window.DB_STORE[keyNew] = valStr;
-                                        localSetItem(keyNew, valStr);
-                                        await localforage.setItem(keyNew, valStr);
-                                        delete window.DB_STORE[keyOld];
-                                        localRemoveItem(keyOld);
-                                        await localforage.removeItem(keyOld);
-                                    } catch(e){}
-                                }
-                            }
-                        }
-                        
-                        // Update references in vouchers/ledger stores
-                        const storesToUpdate = [
-                            'erp_receipts_v1', 'erp_payments_v1', 
-                            'erp_single_receipts_v1', 'erp_single_payments_v1', 
-                            'erp_journal_vouchers_v1'
-                        ];
-                        for (const baseKey of storesToUpdate) {
-                            const targetKey = pref + baseKey;
-                            const storeVal = window.DB_STORE[targetKey] || localGetItem(targetKey);
-                            if (!storeVal) continue;
-                            let storeData = [];
-                            try { storeData = JSON.parse(storeVal); } catch(e) { continue; }
-                            let storeChanged = false;
-                            storeData.forEach(item => {
-                                ['invoiceNo','invoice_id','docId','reference','ref'].forEach(field => {
-                                    if (item[field] && idMap[item[field]]) {
-                                        item[field] = idMap[item[field]];
-                                        storeChanged = true;
+
+                        if (purNeedsMigration) {
+                            const purIdMap = {};
+                            const purByMonth = {};
+                            purchases.forEach((inv, idx) => {
+                                inv._origIdx = idx;
+                                const d = (inv.date || inv.createdAt) ? new Date(inv.date || inv.createdAt) : new Date();
+                                const validD = isNaN(d.getTime()) ? new Date() : d;
+                                const yy = String(validD.getFullYear()).substring(2, 4);
+                                const mm = String(validD.getMonth() + 1).padStart(2, '0');
+                                const yymm = yy + mm;
+                                if (!purByMonth[yymm]) purByMonth[yymm] = [];
+                                purByMonth[yymm].push(inv);
+                            });
+
+                            for (const yymm of Object.keys(purByMonth)) {
+                                purByMonth[yymm].sort((a, b) => {
+                                    const cmpDate = (a.date || a.createdAt || '').localeCompare(b.date || b.createdAt || '');
+                                    if (cmpDate !== 0) return cmpDate;
+                                    const cmpTime = (a.time || '').localeCompare(b.time || '');
+                                    if (cmpTime !== 0) return cmpTime;
+                                    return (a._origIdx || 0) - (b._origIdx || 0);
+                                });
+
+                                purByMonth[yymm].forEach((inv, index) => {
+                                    const oldNo = inv.invoiceNo;
+                                    const newNo = 'P' + yymm + String(index + 1).padStart(4, '0');
+                                    if (oldNo !== newNo) {
+                                        purIdMap[oldNo] = newNo;
+                                        inv.invoiceNo = newNo;
+                                        if (inv.id === oldNo || !inv.id) inv.id = newNo;
                                     }
                                 });
-                            });
-                            if (storeChanged) {
-                                const storeStr = JSON.stringify(storeData);
-                                window.DB_STORE[targetKey] = storeStr;
-                                localSetItem(targetKey, storeStr);
-                                await localforage.setItem(targetKey, storeStr);
-                                dirtyKeys.add(baseKey);
+                            }
+
+                            if (Object.keys(purIdMap).length > 0) {
+                                purchases.forEach(inv => delete inv._origIdx);
+                                const updatedPurVal = JSON.stringify(purchases);
+                                window.DB_STORE[purKey] = updatedPurVal;
+                                localSetItem(purKey, updatedPurVal);
+                                await localforage.setItem(purKey, updatedPurVal);
+                                dirtyKeys.add('erp_purchase_invoices_v1');
+
+                                // Migrate detail keys for purchases (erp_pur_C-000013 -> erp_pur_P26060001)
+                                for (const oldNo of Object.keys(purIdMap)) {
+                                    const newNo = purIdMap[oldNo];
+                                    for (const dKey of ['erp_pur_', 'erp_pur_draft_']) {
+                                        const keyOld = pref + dKey + oldNo;
+                                        const keyNew = pref + dKey + newNo;
+                                        const detailData = window.DB_STORE[keyOld] || localGetItem(keyOld);
+                                        if (detailData) {
+                                            try {
+                                                const parsed = JSON.parse(detailData);
+                                                parsed.invoiceNo = newNo;
+                                                if (parsed.id === oldNo) parsed.id = newNo;
+                                                const valStr = JSON.stringify(parsed);
+                                                window.DB_STORE[keyNew] = valStr;
+                                                localSetItem(keyNew, valStr);
+                                                await localforage.setItem(keyNew, valStr);
+                                                delete window.DB_STORE[keyOld];
+                                                localRemoveItem(keyOld);
+                                                await localforage.removeItem(keyOld);
+                                            } catch(e){}
+                                        }
+                                    }
+                                }
+
+                                // Update references in ledger/vouchers for purchases
+                                const purStoresToUpdate = [
+                                    'erp_receipts_v1', 'erp_payments_v1', 
+                                    'erp_single_receipts_v1', 'erp_single_payments_v1', 
+                                    'erp_journal_vouchers_v1', 'erp_inventory_v1'
+                                ];
+                                for (const baseKey of purStoresToUpdate) {
+                                    const targetKey = pref + baseKey;
+                                    const storeVal = window.DB_STORE[targetKey] || localGetItem(targetKey);
+                                    if (!storeVal) continue;
+                                    let storeData = [];
+                                    try { storeData = JSON.parse(storeVal); } catch(e) { continue; }
+                                    let storeChanged = false;
+                                    storeData.forEach(item => {
+                                        ['invoiceNo','invoice_id','docId','reference','ref'].forEach(field => {
+                                            if (item[field] && purIdMap[item[field]]) {
+                                                item[field] = purIdMap[item[field]];
+                                                storeChanged = true;
+                                            }
+                                        });
+                                    });
+                                    if (storeChanged) {
+                                        const storeStr = JSON.stringify(storeData);
+                                        window.DB_STORE[targetKey] = storeStr;
+                                        localSetItem(targetKey, storeStr);
+                                        await localforage.setItem(targetKey, storeStr);
+                                        dirtyKeys.add(baseKey);
+                                    }
+                                }
+                                console.log(`[Purchases P-Migration] Fully re-sequenced purchase invoices for prefix "${pref}":`, purIdMap);
                             }
                         }
-                        
-                        console.log(`[Sales S-Migration] Migrated invoices for prefix "${pref}":`, idMap);
                     }
                 }
-                localSetItem('erp_remig_v1_done', 'true');
-            } catch(e) {
-                console.error('[Sales S-Migration] failed:', e);
+
+                // ----------------------------------------------------
+                // 2. RE-SEQUENCE ALL SALES INVOICES (S+YYMM+0001, 0002...)
+                // ----------------------------------------------------
+                const salesKey = pref + 'erp_sales_invoices_v1';
+                let salesVal = window.DB_STORE[salesKey] || localGetItem(salesKey);
+                if (salesVal) {
+                    let sales = [];
+                    try { sales = JSON.parse(salesVal); } catch(e) {}
+                    if (Array.isArray(sales) && sales.length > 0) {
+                        const sFormatRegex = /^S\d{8}$/;
+                        let salesNeedsMigration = sales.some(inv => {
+                            const no = String(inv.invoiceNo || '');
+                            return no && no !== 'preliminary' && !no.startsWith('PRE-') && !sFormatRegex.test(no);
+                        });
+
+                        if (salesNeedsMigration) {
+                            const salesIdMap = {};
+                            const salesByMonth = {};
+                            sales.forEach((inv, idx) => {
+                                const no = String(inv.invoiceNo || '');
+                                if (no === 'preliminary' || no.startsWith('PRE-')) return;
+                                inv._origIdx = idx;
+
+                                const d = (inv.date || inv.createdAt) ? new Date(inv.date || inv.createdAt) : new Date();
+                                const validD = isNaN(d.getTime()) ? new Date() : d;
+                                const yy = String(validD.getFullYear()).substring(2, 4);
+                                const mm = String(validD.getMonth() + 1).padStart(2, '0');
+                                const yymm = yy + mm;
+                                if (!salesByMonth[yymm]) salesByMonth[yymm] = [];
+                                salesByMonth[yymm].push(inv);
+                            });
+
+                            for (const yymm of Object.keys(salesByMonth)) {
+                                salesByMonth[yymm].sort((a, b) => {
+                                    const cmpDate = (a.date || a.createdAt || '').localeCompare(b.date || b.createdAt || '');
+                                    if (cmpDate !== 0) return cmpDate;
+                                    const cmpTime = (a.time || '').localeCompare(b.time || '');
+                                    if (cmpTime !== 0) return cmpTime;
+                                    return (a._origIdx || 0) - (b._origIdx || 0);
+                                });
+
+                                salesByMonth[yymm].forEach((inv, index) => {
+                                    const oldNo = inv.invoiceNo;
+                                    const newNo = 'S' + yymm + String(index + 1).padStart(4, '0');
+                                    if (oldNo !== newNo) {
+                                        salesIdMap[oldNo] = newNo;
+                                        inv.invoiceNo = newNo;
+                                        if (inv.id === oldNo || !inv.id) inv.id = newNo;
+                                    }
+                                });
+                            }
+
+                            if (Object.keys(salesIdMap).length > 0) {
+                                sales.forEach(inv => delete inv._origIdx);
+                                const updatedSalesVal = JSON.stringify(sales);
+                                window.DB_STORE[salesKey] = updatedSalesVal;
+                                localSetItem(salesKey, updatedSalesVal);
+                                await localforage.setItem(salesKey, updatedSalesVal);
+                                dirtyKeys.add('erp_sales_invoices_v1');
+
+                                // Migrate detail keys for sales (erp_inv_...)
+                                for (const oldNo of Object.keys(salesIdMap)) {
+                                    const newNo = salesIdMap[oldNo];
+                                    for (const dKey of ['erp_inv_', 'erp_draft_']) {
+                                        const keyOld = pref + dKey + oldNo;
+                                        const keyNew = pref + dKey + newNo;
+                                        const detailData = window.DB_STORE[keyOld] || localGetItem(keyOld);
+                                        if (detailData) {
+                                            try {
+                                                const parsed = JSON.parse(detailData);
+                                                parsed.invoiceNo = newNo;
+                                                if (parsed.id === oldNo) parsed.id = newNo;
+                                                const valStr = JSON.stringify(parsed);
+                                                window.DB_STORE[keyNew] = valStr;
+                                                localSetItem(keyNew, valStr);
+                                                await localforage.setItem(keyNew, valStr);
+                                                delete window.DB_STORE[keyOld];
+                                                localRemoveItem(keyOld);
+                                                await localforage.removeItem(keyOld);
+                                            } catch(e){}
+                                        }
+                                    }
+                                }
+
+                                // Update references in ledger/vouchers for sales
+                                const salesStoresToUpdate = [
+                                    'erp_receipts_v1', 'erp_payments_v1', 
+                                    'erp_single_receipts_v1', 'erp_single_payments_v1', 
+                                    'erp_journal_vouchers_v1', 'erp_inventory_v1'
+                                ];
+                                for (const baseKey of salesStoresToUpdate) {
+                                    const targetKey = pref + baseKey;
+                                    const storeVal = window.DB_STORE[targetKey] || localGetItem(targetKey);
+                                    if (!storeVal) continue;
+                                    let storeData = [];
+                                    try { storeData = JSON.parse(storeVal); } catch(e) { continue; }
+                                    let storeChanged = false;
+                                    storeData.forEach(item => {
+                                        ['invoiceNo','invoice_id','docId','reference','ref'].forEach(field => {
+                                            if (item[field] && salesIdMap[item[field]]) {
+                                                item[field] = salesIdMap[item[field]];
+                                                storeChanged = true;
+                                            }
+                                        });
+                                    });
+                                    if (storeChanged) {
+                                        const storeStr = JSON.stringify(storeData);
+                                        window.DB_STORE[targetKey] = storeStr;
+                                        localSetItem(targetKey, storeStr);
+                                        await localforage.setItem(targetKey, storeStr);
+                                        dirtyKeys.add(baseKey);
+                                    }
+                                }
+                                console.log(`[Sales S-Migration] Fully re-sequenced sales invoices for prefix "${pref}":`, salesIdMap);
+                            }
+                        }
+                    }
+                }
             }
+        } catch(e) {
+            console.error('[Unified Invoices Re-sequencing] failed:', e);
         }
 
         window.APP_READY = true;
@@ -2147,6 +2246,10 @@ document.addEventListener('DOMContentLoaded', () => {
             {
                 href: 'alarm.php', label: _t('sidebar.alerts', 'التنبيهات'), color: '#f87171', badge: true, module: 'dashboard',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>'
+            },
+            {
+                href: 'engineering_tools.php', label: _t('sidebar.tools', 'أدوات مساعدة'), color: '#ec4899', module: 'dashboard',
+                icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/>'
             },
             {
                 href: 'settings.php', label: _t('sidebar.settings', 'الإعدادات'), color: '#a3e635', module: 'settings',
