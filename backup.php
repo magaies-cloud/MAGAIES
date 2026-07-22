@@ -152,68 +152,107 @@
             }
         });
 
-        async function exportDatabase() {
-            try {
-                const completeStore = {};
+    async function exportDatabase() {
+        try {
+            const completeStore = {};
 
-                // 1. Gather all keys from localStorage
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k) {
-                        const val = localStorage.getItem(k);
-                        if (val !== null) completeStore[k] = val;
-                    }
+            const parseIfJSON = (val) => {
+                if (typeof val === 'string') {
+                    try { return JSON.parse(val); } catch(e) { return val; }
                 }
+                return val;
+            };
 
-                // 2. Gather all keys from localforage (async)
-                if (typeof localforage !== 'undefined') {
-                    try {
-                        const lfKeys = await localforage.keys();
-                        for (let k of lfKeys) {
-                            const val = await localforage.getItem(k);
-                            if (val !== null) {
-                                completeStore[k] = typeof val === 'string' ? val : JSON.stringify(val);
-                            }
-                        }
-                    } catch(e) {}
-                }
-
-                // 3. Overlay DB_STORE memory proxy
-                if (window.DB_STORE) {
-                    for (let [k, v] of Object.entries(window.DB_STORE)) {
-                        if (v !== null && v !== undefined) {
-                            completeStore[k] = typeof v === 'string' ? v : JSON.stringify(v);
-                        }
-                    }
-                }
-
-                if (Object.keys(completeStore).length === 0) {
-                    alert("⚠️ لا توجد بيانات مسجلة بالنظام للتصدير حالياً.");
+            const mergeData = (key, val) => {
+                const parsedVal = parseIfJSON(val);
+                if (!completeStore[key]) {
+                    completeStore[key] = parsedVal;
                     return;
                 }
-
-                if (!confirm("سيتم الآن تجميع كافة بيانات النظام وتنزيلها كملف احتياطي (.bak.json). هل ترغب بالاستمرار؟")) return;
-
-                const dateStr = new Date().toISOString().split('T')[0];
-                const fileName = `MAGAIEES_ERP_Backup_${dateStr}.bak.json`;
-                const backupDataStr = JSON.stringify(completeStore, null, 2);
-
-                const blob = new Blob([backupDataStr], { type: "application/json;charset=utf-8" });
-                const url = URL.createObjectURL(blob);
-                
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-
-                if (typeof window.logSystemAction === 'function') {
-                    window.logSystemAction('Database Export', 'system', 'تصدير نسخة احتياطية لقاعدة البيانات بالكامل');
+                // If both are arrays, keep the one with more records to prevent data truncation
+                if (Array.isArray(completeStore[key]) && Array.isArray(parsedVal)) {
+                    if (parsedVal.length > completeStore[key].length) {
+                        completeStore[key] = parsedVal;
+                    }
+                } else if (typeof parsedVal === 'object' && parsedVal !== null && !Array.isArray(parsedVal)) {
+                    if (Object.keys(parsedVal).length >= Object.keys(completeStore[key]).length) {
+                        completeStore[key] = parsedVal;
+                    }
+                } else {
+                    completeStore[key] = parsedVal;
                 }
-                alert("✅ تم تصدير النسخة الاحتياطية وتنزيلها بنجاح!");
-            } catch(e) {
+            };
+
+            // 1. Gather all keys from localStorage
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k) {
+                    const val = localStorage.getItem(k);
+                    if (val !== null) mergeData(k, val);
+                }
+            }
+
+            // 2. Overlay DB_STORE memory proxy
+            if (window.DB_STORE) {
+                for (let [k, v] of Object.entries(window.DB_STORE)) {
+                    if (v !== null && v !== undefined) {
+                        mergeData(k, v);
+                    }
+                }
+            }
+
+            // 3. Gather all keys from localforage (async) - Highest priority for massive data
+            if (typeof localforage !== 'undefined') {
+                try {
+                    const lfKeys = await localforage.keys();
+                    for (let k of lfKeys) {
+                        const val = await localforage.getItem(k);
+                        if (val !== null) {
+                            mergeData(k, val);
+                        }
+                    }
+                } catch(e) {
+                    console.error("Error reading localforage:", e);
+                }
+            }
+
+            // Clean up empty data
+            const cleanStore = {};
+            let recordCount = 0;
+            for (let [k, v] of Object.entries(completeStore)) {
+                if (v && (Array.isArray(v) ? v.length > 0 : (typeof v === 'object' ? Object.keys(v).length > 0 : true))) {
+                    cleanStore[k] = v;
+                    if (Array.isArray(v)) recordCount += v.length;
+                }
+            }
+
+            if (Object.keys(cleanStore).length === 0) {
+                alert("⚠️ لا توجد بيانات مسجلة بالنظام للتصدير حالياً.");
+                return;
+            }
+
+            if (!confirm(`سيتم الآن تجميع كافة بيانات النظام وتنزيلها كملف احتياطي (يحتوي على ${recordCount} سجل). هل ترغب بالاستمرار؟`)) return;
+
+            const dateStr = new Date().toISOString().split('T')[0];
+            const fileName = `MAGAIEES_ERP_Backup_${dateStr}.bak.json`;
+            const backupDataStr = JSON.stringify(cleanStore, null, 2);
+
+            const blob = new Blob([backupDataStr], { type: "application/json;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            if (typeof window.logSystemAction === 'function') {
+                window.logSystemAction('Database Export', 'system', 'تصدير نسخة احتياطية لقاعدة البيانات بالكامل');
+            }
+            alert(`✅ تم تصدير النسخة الاحتياطية وتنزيلها بنجاح! (تم تصدير ${recordCount} سجل)`);
+        } catch(e) {
                 console.error(e);
                 alert("❌ حدث خطأ أثناء تجميع وتنزيل النسخة الاحتياطية: " + e.message);
             }
