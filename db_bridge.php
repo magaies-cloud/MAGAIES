@@ -1118,4 +1118,249 @@ function getWarehouseCapacities($pdo) {
         return [];
     }
 }
+
+// -------------------------------------------------------------
+// العقل الذكي الموحد: جمع بيانات جميع الأقسام في كائن واحد
+// -------------------------------------------------------------
+function getUnifiedBrainData($pdo) {
+    global $GLOBAL_TENANT_ID;
+    $data = [];
+    
+    // 1. Inventory data
+    try {
+        $raw_stock = getInventoryReportData($pdo);
+        $low_stock = [];
+        $deadstock = [];
+        $top_selling = [];
+        $total_items = count($raw_stock);
+        $total_below_safety = 0;
+        
+        foreach ($raw_stock as $item) {
+            if ($item['stock_qty'] <= $item['min_limit']) {
+                $total_below_safety++;
+                $low_stock[] = [
+                    'name' => $item['item_name'],
+                    'stock' => $item['stock_qty'],
+                    'min_limit' => $item['min_limit'],
+                    'deficit' => $item['min_limit'] - $item['stock_qty']
+                ];
+            }
+            if ($item['sold_qty'] <= 0 && $item['stock_qty'] > 0) {
+                $deadstock[] = [
+                    'name' => $item['item_name'],
+                    'stock' => $item['stock_qty']
+                ];
+            }
+            if ($item['sold_qty'] > 0) {
+                $top_selling[] = [
+                    'name' => $item['item_name'],
+                    'sold' => $item['sold_qty'],
+                    'stock' => $item['stock_qty']
+                ];
+            }
+        }
+        
+        // Sort top_selling by sold desc
+        usort($top_selling, function($a, $b) { return $b['sold'] <=> $a['sold']; });
+        
+        $data['inventory'] = [
+            'total_items' => $total_items,
+            'items_below_safety' => $total_below_safety,
+            'low_stock' => array_slice($low_stock, 0, 10),
+            'deadstock' => array_slice($deadstock, 0, 10),
+            'top_selling' => array_slice($top_selling, 0, 10)
+        ];
+    } catch (Exception $e) {
+        $data['inventory'] = ['error' => $e->getMessage()];
+    }
+    
+    // 2. Liquidity data (Cash + Banks)
+    try {
+        $liquidity = getRealTimeLiquidity($pdo);
+        $total_cash = 0;
+        $total_bank = 0;
+        $vaults_summary = [];
+        foreach ($liquidity as $v) {
+            $vaults_summary[] = ['name' => $v['vault_name'], 'amount' => $v['amount']];
+            if (strpos($v['vault_name'], 'بنك') !== false || $v['color'] === '#3b82f6') {
+                $total_bank += $v['amount'];
+            } else {
+                $total_cash += $v['amount'];
+            }
+        }
+        $data['treasury'] = [
+            'total_cash' => $total_cash,
+            'total_bank' => $total_bank,
+            'total_liquidity' => $total_cash + $total_bank,
+            'vaults' => array_slice($vaults_summary, 0, 10)
+        ];
+    } catch (Exception $e) {
+        $data['treasury'] = ['error' => $e->getMessage()];
+    }
+    
+    // 3. Customer debt/exposure data
+    try {
+        $customers = getCustomerExposureData($pdo);
+        $total_debt = 0;
+        $total_checks = 0;
+        foreach ($customers as $c) {
+            $total_debt += $c['ledger_balance'];
+            $total_checks += $c['pending_checks_total'];
+        }
+        $data['customers'] = [
+            'total_customers' => count($customers),
+            'total_debt' => $total_debt,
+            'total_pending_checks' => $total_checks,
+            'top_debtors' => array_slice($customers, 0, 10)
+        ];
+    } catch (Exception $e) {
+        $data['customers'] = ['error' => $e->getMessage()];
+    }
+    
+    // 4. Debt concentration
+    try {
+        $concentration = getDebtConcentrationData($pdo);
+        $top3_pct = 0;
+        foreach (array_slice($concentration, 0, 3) as $c) {
+            $top3_pct += $c['concentration_percentage'];
+        }
+        $data['debt_concentration'] = [
+            'top3_concentration_pct' => round($top3_pct, 1),
+            'top_concentrations' => array_slice($concentration, 0, 5)
+        ];
+    } catch (Exception $e) {
+        $data['debt_concentration'] = ['error' => $e->getMessage()];
+    }
+    
+    // 5. Check clearing velocity
+    try {
+        $checks = getCheckClearingVelocityData($pdo);
+        $data['checks'] = [
+            'clearing_data' => array_slice($checks, 0, 10)
+        ];
+    } catch (Exception $e) {
+        $data['checks'] = ['error' => $e->getMessage()];
+    }
+    
+    // 6. Warehouse capacities
+    try {
+        $warehouses = getWarehouseCapacities($pdo);
+        $data['warehouses'] = $warehouses;
+    } catch (Exception $e) {
+        $data['warehouses'] = ['error' => $e->getMessage()];
+    }
+    
+    // 7. Sales data (from sales_invoices)
+    try {
+        $stmt = $pdo->query("SELECT * FROM sales_invoices WHERE is_deleted = 0 ORDER BY date_val DESC LIMIT 100");
+        $sales_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $today_sales = 0;
+        $month_sales = 0;
+        $today = date('Y-m-d');
+        $month_start = date('Y-m-01');
+        $sales_count_today = 0;
+        $sales_count_month = 0;
+        
+        foreach ($sales_rows as $s) {
+            $s_data = json_decode($s['data'], true);
+            $total = (float)($s_data['total'] ?? ($s_data['totalAmount'] ?? 0));
+            $date = $s['date_val'] ?? '';
+            if ($date === $today) {
+                $today_sales += $total;
+                $sales_count_today++;
+            }
+            if ($date >= $month_start) {
+                $month_sales += $total;
+                $sales_count_month++;
+            }
+        }
+        
+        $data['sales'] = [
+            'today_total' => $today_sales,
+            'today_count' => $sales_count_today,
+            'month_total' => $month_sales,
+            'month_count' => $sales_count_month
+        ];
+    } catch (Exception $e) {
+        $data['sales'] = ['error' => $e->getMessage()];
+    }
+    
+    // 8. Purchase data (from purchase_invoices)
+    try {
+        $stmt = $pdo->query("SELECT * FROM purchase_invoices WHERE is_deleted = 0 AND status_val = 'confirmed' ORDER BY date_val DESC LIMIT 50");
+        $purchase_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $month_purchases = 0;
+        $purchase_count = 0;
+        $month_start = date('Y-m-01');
+        
+        foreach ($purchase_rows as $p) {
+            $p_data = json_decode($p['data'], true);
+            $total = (float)($p_data['total'] ?? ($p_data['totalAmount'] ?? 0));
+            $date = $p['date_val'] ?? '';
+            if ($date >= $month_start) {
+                $month_purchases += $total;
+                $purchase_count++;
+            }
+        }
+        
+        $data['purchases'] = [
+            'month_total' => $month_purchases,
+            'month_count' => $purchase_count
+        ];
+    } catch (Exception $e) {
+        $data['purchases'] = ['error' => $e->getMessage()];
+    }
+    
+    return $data;
+}
+
+function calculateBusinessHealthScore($data) {
+    $score = 100;
+    $factors = [];
+    
+    // Factor 1: Liquidity (25% weight)
+    $liquidity = $data['treasury']['total_liquidity'] ?? 0;
+    $total_debt = $data['customers']['total_debt'] ?? 0;
+    if ($total_debt > 0) {
+        $liquidity_ratio = $liquidity / $total_debt;
+        if ($liquidity_ratio < 0.1) { $score -= 25; $factors[] = 'سيولة حرجة جداً'; }
+        elseif ($liquidity_ratio < 0.3) { $score -= 15; $factors[] = 'سيولة منخفضة'; }
+        elseif ($liquidity_ratio < 0.5) { $score -= 8; $factors[] = 'سيولة متوسطة'; }
+    }
+    
+    // Factor 2: Inventory safety (20% weight)
+    $total_items = $data['inventory']['total_items'] ?? 1;
+    $below_safety = $data['inventory']['items_below_safety'] ?? 0;
+    if ($total_items > 0) {
+        $pct_below = ($below_safety / $total_items) * 100;
+        if ($pct_below > 50) { $score -= 20; $factors[] = 'أكثر من نصف الأصناف تحت حد الأمان'; }
+        elseif ($pct_below > 25) { $score -= 12; $factors[] = 'ربع الأصناف تحت حد الأمان'; }
+        elseif ($pct_below > 10) { $score -= 5; $factors[] = 'بعض الأصناف تحت حد الأمان'; }
+    }
+    
+    // Factor 3: Debt concentration (20% weight)
+    $top3_conc = $data['debt_concentration']['top3_concentration_pct'] ?? 0;
+    if ($top3_conc > 80) { $score -= 20; $factors[] = 'تركز المديونيات خطير'; }
+    elseif ($top3_conc > 60) { $score -= 12; $factors[] = 'تركز مديونيات مرتفع'; }
+    elseif ($top3_conc > 40) { $score -= 5; $factors[] = 'تركز مديونيات متوسط'; }
+    
+    // Factor 4: Deadstock (15% weight)
+    $deadstock_count = count($data['inventory']['deadstock'] ?? []);
+    if ($deadstock_count > 5) { $score -= 15; $factors[] = 'بضاعة راكدة كثيرة'; }
+    elseif ($deadstock_count > 2) { $score -= 8; $factors[] = 'بضاعة راكدة'; }
+    
+    // Factor 5: Sales momentum (20% weight)
+    $today_sales = $data['sales']['today_total'] ?? 0;
+    if ($today_sales <= 0) { $score -= 10; $factors[] = 'لا مبيعات اليوم'; }
+    
+    if ($score < 0) $score = 0;
+    
+    $label = 'ممتاز';
+    if ($score < 30) $label = 'حرج';
+    elseif ($score < 50) $label = 'ضعيف';
+    elseif ($score < 70) $label = 'متوسط';
+    elseif ($score < 85) $label = 'جيد';
+    
+    return ['score' => $score, 'label' => $label, 'factors' => $factors];
+}
 ?>

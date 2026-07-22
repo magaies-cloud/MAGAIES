@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="css/design-system.css?v=20260709_5">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
+    <link rel="stylesheet" href="css/unified-brain.css?v=20260722">
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         html {
@@ -1828,6 +1829,7 @@
         }
         </script>
     
+<script src="js/unified-brain.js?v=20260722"></script>
 </body>
 </html>
 
