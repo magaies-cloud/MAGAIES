@@ -867,37 +867,37 @@
             </div>
         </div>
 
-        <!-- 100% OPAQUE Floating Popover Menu for Uncustomized Screens (Zero Transparency, Floats on Top) -->
-        <div id="screens-dropdown-menu" style="display: none; position: fixed; width: 500px; max-width: 96vw; background: #070a12 !important; border: 2px solid #a855f7; border-radius: 20px; box-shadow: 0 25px 90px rgba(0,0,0,0.98), 0 0 40px rgba(168, 85, 247, 0.5); z-index: 999999; padding: 18px; direction: rtl;">
-            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.14);">
-                <div style="font-size: 1.05rem; font-weight: 900; color: #c084fc; display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-desktop" style="font-size: 1.2rem; color: #a855f7;"></i> بقية الشاشات (غير المخصصة)
+        <!-- 100% OPAQUE Floating Popover Menu for Uncustomized Screens (Zero Transparency, Covers Top Bar) -->
+        <div id="screens-dropdown-menu" style="display: none; position: fixed; width: 500px; max-width: 96vw; background: #070a12 !important; border: 2px solid #a855f7; border-radius: 18px; box-shadow: 0 25px 95px rgba(0,0,0,0.99), 0 0 45px rgba(168, 85, 247, 0.55); z-index: 999999; padding: 14px; direction: rtl;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.12);">
+                <div style="font-size: 0.98rem; font-weight: 900; color: #c084fc; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-desktop" style="font-size: 1.1rem; color: #a855f7;"></i> بقية الشاشات (غير المخصصة)
                 </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span id="screens-count-badge" style="background: rgba(168, 85, 247, 0.35); color: #e9d5ff; border: 1px solid #c084fc; font-size: 0.8rem; padding: 4px 12px; border-radius: 12px; font-weight: 900;">0</span>
-                    <button onclick="toggleScreensDropdown(event)" style="background: rgba(248, 113, 113, 0.25); border: 1.5px solid #f87171; color: #f87171; border-radius: 12px; padding: 6px 16px; font-size: 0.92rem; font-weight: 900; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(248,113,113,0.3); display: flex; align-items: center; gap: 6px;" title="إغلاق القائمة" onmouseover="this.style.background='rgba(248,113,113,0.4)'; this.style.transform='scale(1.05)';" onmouseout="this.style.background='rgba(248,113,113,0.25)'; this.style.transform='scale(1)';">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span id="screens-count-badge" style="background: rgba(168, 85, 247, 0.35); color: #e9d5ff; border: 1px solid #c084fc; font-size: 0.75rem; padding: 2px 10px; border-radius: 10px; font-weight: 900;">0</span>
+                    <button onclick="toggleScreensDropdown(event)" style="background: rgba(248, 113, 113, 0.25); border: 1.5px solid #f87171; color: #f87171; border-radius: 10px; padding: 5px 14px; font-size: 0.88rem; font-weight: 900; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(248,113,113,0.3); display: flex; align-items: center; gap: 6px;" title="إغلاق القائمة" onmouseover="this.style.background='rgba(248,113,113,0.4)'; this.style.transform='scale(1.05)';" onmouseout="this.style.background='rgba(248,113,113,0.25)'; this.style.transform='scale(1)';">
                         <span>إغلاق</span>
-                        <i class="fa-solid fa-xmark" style="font-size: 1.05rem;"></i>
+                        <i class="fa-solid fa-xmark" style="font-size: 1rem;"></i>
                     </button>
                 </div>
             </div>
-            <div style="margin-bottom: 10px;">
-                <input type="text" id="screens-search-input" oninput="filterScreensDropdown()" placeholder="🔍 ابحث عن أي شاشة..." style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.22); border-radius: 10px; padding: 8px 14px; color: #fff; font-size: 0.88rem; font-family: 'Tajawal', sans-serif; outline: none;">
+            <div style="margin-bottom: 8px;">
+                <input type="text" id="screens-search-input" oninput="filterScreensDropdown()" placeholder="🔍 ابحث عن أي شاشة..." style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.22); border-radius: 8px; padding: 6px 12px; color: #fff; font-size: 0.82rem; font-family: 'Tajawal', sans-serif; outline: none;">
             </div>
             
-            <!-- Sorting Controls Bar -->
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 8px; background: rgba(255,255,255,0.03); padding: 6px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
-                <div style="font-size: 0.8rem; font-weight: 800; color: #c084fc; display: flex; align-items: center; gap: 6px;">
-                    <i class="fa-solid fa-arrow-down-short-wide"></i> ترتيب الشاشات:
+            <!-- Compact Sorting Controls Bar -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 6px; background: rgba(255,255,255,0.03); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-size: 0.75rem; font-weight: 800; color: #c084fc; display: flex; align-items: center; gap: 5px;">
+                    <i class="fa-solid fa-arrow-down-short-wide"></i> ترتيب:
                 </div>
-                <div style="display: flex; gap: 6px;">
-                    <button onclick="sortScreensDropdown('default')" id="sort-btn-default" style="background: rgba(168, 85, 247, 0.35); border: 1px solid #c084fc; color: #ffffff; font-size: 0.76rem; font-weight: 800; padding: 4px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">الافتراضي</button>
-                    <button onclick="sortScreensDropdown('alphabetical')" id="sort-btn-alphabetical" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #94a3b8; font-size: 0.76rem; font-weight: 800; padding: 4px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">أبجديًا (أ-ي)</button>
-                    <button onclick="sortScreensDropdown('category')" id="sort-btn-category" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #94a3b8; font-size: 0.76rem; font-weight: 800; padding: 4px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">حسب الفئة</button>
+                <div style="display: flex; gap: 4px;">
+                    <button onclick="sortScreensDropdown('default')" id="sort-btn-default" style="background: rgba(168, 85, 247, 0.35); border: 1px solid #c084fc; color: #ffffff; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">الافتراضي</button>
+                    <button onclick="sortScreensDropdown('alphabetical')" id="sort-btn-alphabetical" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #94a3b8; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">أبجديًا (أ-ي)</button>
+                    <button onclick="sortScreensDropdown('category')" id="sort-btn-category" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #94a3b8; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">حسب الفئة</button>
                 </div>
             </div>
 
-            <div id="screens-dropdown-list" style="max-height: calc(100vh - 250px); overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
+            <div id="screens-dropdown-list" style="max-height: calc(100vh - 140px); overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
                 <!-- Rendered dynamically via JS -->
             </div>
         </div>
@@ -1988,8 +1988,8 @@
             if (!menu || !btn) return;
             
             menu.style.position = 'fixed';
-            // Start high at top clock/user header level (~65px from top)
-            menu.style.top = '65px';
+            // Start at the very top of the screen (12px), covering top clock/user bar
+            menu.style.top = '12px';
             
             const menuWidth = Math.min(500, window.innerWidth - 24);
             menu.style.width = `${menuWidth}px`;
