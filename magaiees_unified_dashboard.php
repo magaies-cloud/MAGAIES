@@ -443,6 +443,28 @@
             transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
+        #screens-dropdown-list {
+            scroll-behavior: smooth !important;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            padding-bottom: 30px !important;
+        }
+        #screens-dropdown-list::-webkit-scrollbar {
+            width: 7px;
+        }
+        #screens-dropdown-list::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 10px;
+        }
+        #screens-dropdown-list::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #a855f7, #6366f1);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        #screens-dropdown-list::-webkit-scrollbar-thumb:hover {
+            background: #c084fc;
+        }
+
         .screen-popover-item {
             position: relative;
             overflow: hidden;
@@ -859,10 +881,23 @@
                     </button>
                 </div>
             </div>
-            <div style="margin-bottom: 12px;">
+            <div style="margin-bottom: 10px;">
                 <input type="text" id="screens-search-input" oninput="filterScreensDropdown()" placeholder="🔍 ابحث عن أي شاشة..." style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.22); border-radius: 10px; padding: 8px 14px; color: #fff; font-size: 0.88rem; font-family: 'Tajawal', sans-serif; outline: none;">
             </div>
-            <div id="screens-dropdown-list" style="max-height: calc(100vh - 200px); overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
+            
+            <!-- Sorting Controls Bar -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 8px; background: rgba(255,255,255,0.03); padding: 6px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-size: 0.8rem; font-weight: 800; color: #c084fc; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-arrow-down-short-wide"></i> ترتيب الشاشات:
+                </div>
+                <div style="display: flex; gap: 6px;">
+                    <button onclick="sortScreensDropdown('default')" id="sort-btn-default" style="background: rgba(168, 85, 247, 0.35); border: 1px solid #c084fc; color: #ffffff; font-size: 0.76rem; font-weight: 800; padding: 4px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">الافتراضي</button>
+                    <button onclick="sortScreensDropdown('alphabetical')" id="sort-btn-alphabetical" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #94a3b8; font-size: 0.76rem; font-weight: 800; padding: 4px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">أبجديًا (أ-ي)</button>
+                    <button onclick="sortScreensDropdown('category')" id="sort-btn-category" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #94a3b8; font-size: 0.76rem; font-weight: 800; padding: 4px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">حسب الفئة</button>
+                </div>
+            </div>
+
+            <div id="screens-dropdown-list" style="max-height: calc(100vh - 250px); overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
                 <!-- Rendered dynamically via JS -->
             </div>
         </div>
@@ -1827,32 +1862,57 @@
         //  SINGLE-ROW 7-ITEM QUICK ACTIONS ENGINE WITH RIGHT-CLICK CUSTOMIZER
         // ═════════════════════════════════════════════════════════════════════
         const ALL_QUICK_ACTIONS = [
-            { id: 'ai_goods', href: 'ai_goods_advisor.php', label: 'مستشار AI للبضائع', icon: 'fa-robot', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
-            { id: 'smart_inv_alerts', href: 'smart_inventory_report.php', label: 'تنبيهات المخازن', icon: 'fa-boxes-stacked', color: '#22d3ee', bg: 'rgba(6, 182, 212, 0.2)', border: '#06b6d4' },
-            { id: 'ai_money', href: 'ai_money_advisor.php', label: 'مستشار AI للأموال', icon: 'fa-lightbulb', color: '#c084fc', bg: 'rgba(168, 85, 247, 0.2)', border: '#a855f7' },
-            { id: 'alerts_mgr', href: 'alerts_manager.php', label: 'تنبيهات التقارير', icon: 'fa-triangle-exclamation', color: '#fb7185', bg: 'rgba(244, 63, 94, 0.2)', border: '#f43f5e' },
-            { id: 'settings', href: 'settings.php', label: 'الإعدادات والقواعد', icon: 'fa-gear', color: '#94a3b8', bg: 'rgba(100, 116, 139, 0.2)', border: '#64748b' },
-            { id: 'tools', href: 'engineering_tools.php', label: 'أدوات مساعدة', icon: 'fa-toolbox', color: '#f472b6', bg: 'rgba(236, 72, 153, 0.2)', border: '#ec4899' },
-            { id: 'smart_inv_rep', href: 'smart_inventory_report.php', label: 'تقارير الذكاء', icon: 'fa-chart-line', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
-            { id: 'sales', href: 'direct-sales.php', label: 'مبيعات', icon: 'fa-cart-shopping', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)', border: '#38bdf8' },
-            { id: 'purchase', href: 'purchase.php', label: 'مشتريات', icon: 'fa-bag-shopping', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)', border: '#fbbf24' },
-            { id: 'vouchers', href: 'vouchers-hub.php', label: 'المعاملات المالية', icon: 'fa-money-bill-transfer', color: '#f87171', bg: 'rgba(248, 113, 113, 0.2)', border: '#ef4444' },
-            { id: 'checks', href: 'checks-cycle.php', label: 'شيكات', icon: 'fa-money-check-dollar', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)', border: '#f59e0b' },
-            { id: 'analytics', href: 'analytics.php', label: 'تقارير مالية', icon: 'fa-chart-column', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.2)', border: '#c084fc' },
-            { id: 'smart_reports', href: 'smart_reports_hub.php', label: 'التقرير المالي الذكي', icon: 'fa-brain', color: '#c084fc', bg: 'rgba(168, 85, 247, 0.2)', border: '#a855f7' },
-            { id: 'master_data', href: 'master-data.php', label: 'البيانات الأساسية', icon: 'fa-database', color: '#60a5fa', bg: 'rgba(59, 130, 246, 0.2)', border: '#3b82f6' },
-            { id: 'jobs', href: 'jobs.php', label: 'المهام', icon: 'fa-list-check', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
-            { id: 'account_stmt', href: 'account-statement.php', label: 'كشف حساب', icon: 'fa-file-invoice-dollar', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)', border: '#38bdf8' },
-            { id: 'ledger', href: 'general-ledger.php', label: 'دفتر الأستاذ العام', icon: 'fa-book-bookmark', color: '#60a5fa', bg: 'rgba(59, 130, 246, 0.2)', border: '#3b82f6' },
-            { id: 'customer_portfolio', href: 'customer-portfolio.php', label: 'محفظة العملاء', icon: 'fa-users', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
-            { id: 'inv_report', href: 'inventory-report.php', label: 'تقرير المخزون الشامل', icon: 'fa-warehouse', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)', border: '#fbbf24' },
-            { id: 'sales_delivery', href: 'sales-delivery.php', label: 'تسليم المبيعات', icon: 'fa-truck-ramp-box', color: '#f87171', bg: 'rgba(248, 113, 113, 0.2)', border: '#ef4444' },
-            { id: 'users_roles', href: 'users-roles.php', label: 'المستخدمون والصلاحيات', icon: 'fa-user-gear', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.2)', border: '#c084fc' },
-            { id: 'partners', href: 'partners_reports_hub.php', label: 'الشركاء والتقارير', icon: 'fa-handshake', color: '#22d3ee', bg: 'rgba(6, 182, 212, 0.2)', border: '#06b6d4' },
-            { id: 'backup', href: 'backup.php', label: 'النسخ الاحتياطي', icon: 'fa-hard-drive', color: '#94a3b8', bg: 'rgba(100, 116, 139, 0.2)', border: '#64748b' }
+            { id: 'ai_goods', href: 'ai_goods_advisor.php', label: 'مستشار AI للبضائع', category: 'الذكاء الاصطناعي', icon: 'fa-robot', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
+            { id: 'smart_inv_alerts', href: 'smart_inventory_report.php', label: 'تنبيهات المخازن', category: 'المخزون والمستودعات', icon: 'fa-boxes-stacked', color: '#22d3ee', bg: 'rgba(6, 182, 212, 0.2)', border: '#06b6d4' },
+            { id: 'ai_money', href: 'ai_money_advisor.php', label: 'مستشار AI للأموال', category: 'الذكاء الاصطناعي', icon: 'fa-lightbulb', color: '#c084fc', bg: 'rgba(168, 85, 247, 0.2)', border: '#a855f7' },
+            { id: 'alerts_mgr', href: 'alerts_manager.php', label: 'تنبيهات التقارير', category: 'التقارير والتنبيهات', icon: 'fa-triangle-exclamation', color: '#fb7185', bg: 'rgba(244, 63, 94, 0.2)', border: '#f43f5e' },
+            { id: 'settings', href: 'settings.php', label: 'الإعدادات والقواعد', category: 'الإدارة والصلاحيات', icon: 'fa-gear', color: '#94a3b8', bg: 'rgba(100, 116, 139, 0.2)', border: '#64748b' },
+            { id: 'tools', href: 'engineering_tools.php', label: 'أدوات مساعدة', category: 'أدوات مساعدة', icon: 'fa-toolbox', color: '#f472b6', bg: 'rgba(236, 72, 153, 0.2)', border: '#ec4899' },
+            { id: 'smart_inv_rep', href: 'smart_inventory_report.php', label: 'تقارير الذكاء', category: 'التقارير والتنبيهات', icon: 'fa-chart-line', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
+            { id: 'sales', href: 'direct-sales.php', label: 'مبيعات', category: 'المبيعات والمشتريات', icon: 'fa-cart-shopping', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)', border: '#38bdf8' },
+            { id: 'purchase', href: 'purchase.php', label: 'مشتريات', category: 'المبيعات والمشتريات', icon: 'fa-bag-shopping', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)', border: '#fbbf24' },
+            { id: 'vouchers', href: 'vouchers-hub.php', label: 'المعاملات المالية', category: 'المالية والحسابات', icon: 'fa-money-bill-transfer', color: '#f87171', bg: 'rgba(248, 113, 113, 0.2)', border: '#ef4444' },
+            { id: 'checks', href: 'checks-cycle.php', label: 'شيكات', category: 'المالية والحسابات', icon: 'fa-money-check-dollar', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)', border: '#f59e0b' },
+            { id: 'analytics', href: 'analytics.php', label: 'تقارير مالية', category: 'المالية والحسابات', icon: 'fa-chart-column', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.2)', border: '#c084fc' },
+            { id: 'smart_reports', href: 'smart_reports_hub.php', label: 'التقرير المالي الذكي', category: 'المالية والحسابات', icon: 'fa-brain', color: '#c084fc', bg: 'rgba(168, 85, 247, 0.2)', border: '#a855f7' },
+            { id: 'master_data', href: 'master-data.php', label: 'البيانات الأساسية', category: 'البيانات الأساسية', icon: 'fa-database', color: '#60a5fa', bg: 'rgba(59, 130, 246, 0.2)', border: '#3b82f6' },
+            { id: 'jobs', href: 'jobs.php', label: 'المهام', category: 'الإدارة والصلاحيات', icon: 'fa-list-check', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
+            { id: 'account_stmt', href: 'account-statement.php', label: 'كشف حساب', category: 'المالية والحسابات', icon: 'fa-file-invoice-dollar', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)', border: '#38bdf8' },
+            { id: 'ledger', href: 'general-ledger.php', label: 'دفتر الأستاذ العام', category: 'المالية والحسابات', icon: 'fa-book-bookmark', color: '#60a5fa', bg: 'rgba(59, 130, 246, 0.2)', border: '#3b82f6' },
+            { id: 'customer_portfolio', href: 'customer-portfolio.php', label: 'محفظة العملاء', category: 'المبيعات والمشتريات', icon: 'fa-users', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
+            { id: 'inv_report', href: 'inventory-report.php', label: 'تقرير المخزون الشامل', category: 'المخزون والمستودعات', icon: 'fa-warehouse', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)', border: '#fbbf24' },
+            { id: 'sales_delivery', href: 'sales-delivery.php', label: 'تسليم المبيعات', category: 'المبيعات والمشتريات', icon: 'fa-truck-ramp-box', color: '#f87171', bg: 'rgba(248, 113, 113, 0.2)', border: '#ef4444' },
+            { id: 'users_roles', href: 'users-roles.php', label: 'المستخدمون والصلاحيات', category: 'الإدارة والصلاحيات', icon: 'fa-user-gear', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.2)', border: '#c084fc' },
+            { id: 'partners', href: 'partners_reports_hub.php', label: 'الشركاء والتقارير', category: 'التقارير والتنبيهات', icon: 'fa-handshake', color: '#22d3ee', bg: 'rgba(6, 182, 212, 0.2)', border: '#06b6d4' },
+            { id: 'backup', href: 'backup.php', label: 'النسخ الاحتياطي', category: 'الإدارة والصلاحيات', icon: 'fa-hard-drive', color: '#94a3b8', bg: 'rgba(100, 116, 139, 0.2)', border: '#64748b' }
         ];
 
         const DEFAULT_7_IDS = ['ai_goods', 'smart_inv_alerts', 'ai_money', 'alerts_mgr', 'settings', 'tools', 'smart_inv_rep'];
+        let currentScreenSortMode = 'default';
+
+        function sortScreensDropdown(mode) {
+            currentScreenSortMode = mode;
+            
+            const btnDefault = document.getElementById('sort-btn-default');
+            const btnAlphabetical = document.getElementById('sort-btn-alphabetical');
+            const btnCategory = document.getElementById('sort-btn-category');
+            
+            [btnDefault, btnAlphabetical, btnCategory].forEach(btn => {
+                if (!btn) return;
+                btn.style.background = 'rgba(255, 255, 255, 0.08)';
+                btn.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                btn.style.color = '#94a3b8';
+            });
+
+            const activeBtn = document.getElementById(`sort-btn-${mode}`);
+            if (activeBtn) {
+                activeBtn.style.background = 'rgba(168, 85, 247, 0.35)';
+                activeBtn.style.borderColor = '#c084fc';
+                activeBtn.style.color = '#ffffff';
+            }
+
+            renderScreensDropdown();
+        }
 
         function renderSingleRowQA() {
             let saved = localStorage.getItem('dashboard_quick_actions_7');
@@ -1891,7 +1951,13 @@
                 } catch(e){}
             }
 
-            const unselected = ALL_QUICK_ACTIONS.filter(item => !selectedIds.includes(item.id));
+            let unselected = ALL_QUICK_ACTIONS.filter(item => !selectedIds.includes(item.id));
+
+            if (currentScreenSortMode === 'alphabetical') {
+                unselected.sort((a, b) => a.label.localeCompare(b.label, 'ar'));
+            } else if (currentScreenSortMode === 'category') {
+                unselected.sort((a, b) => (a.category || '').localeCompare((b.category || ''), 'ar') || a.label.localeCompare(b.label, 'ar'));
+            }
             const badge = document.getElementById('screens-count-badge');
             if (badge) badge.innerText = unselected.length;
 
