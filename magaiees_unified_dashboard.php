@@ -765,29 +765,22 @@
             </div>
         </div>
 
-        <!-- 100% OPAQUE Floating Top Overlay Popover Modal for Screens (Zero Transparency, Floating over page content) -->
-        <div id="screens-dropdown-menu" style="display: none; position: fixed; top: 90px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 680px; background: #0b0f19 !important; border: 2px solid #a855f7; border-radius: 18px; box-shadow: 0 25px 70px rgba(0,0,0,0.98), 0 0 30px rgba(168, 85, 247, 0.4); z-index: 999999; padding: 18px; direction: rtl;">
-            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.12);">
-                <div style="font-size: 0.95rem; font-weight: 900; color: #c084fc; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-desktop" style="font-size: 1.1rem; color: #a855f7;"></i> بقية الشاشات (غير المخصصة)
+        <!-- 100% OPAQUE Floating Popover Menu for Uncustomized Screens (Zero Transparency, Floats on Top) -->
+        <div id="screens-dropdown-menu" style="display: none; position: fixed; width: 360px; max-width: 92vw; background: #090d16 !important; border: 2px solid #a855f7; border-radius: 16px; box-shadow: 0 25px 70px rgba(0,0,0,0.98), 0 0 30px rgba(168, 85, 247, 0.4); z-index: 999999; padding: 14px; direction: rtl;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.12);">
+                <div style="font-size: 0.88rem; font-weight: 900; color: #c084fc; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-desktop" style="font-size: 1rem; color: #a855f7;"></i> بقية الشاشات (غير المخصصة)
                 </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span id="screens-count-badge" style="background: rgba(168, 85, 247, 0.3); color: #e9d5ff; border: 1px solid #c084fc; font-size: 0.75rem; padding: 3px 10px; border-radius: 12px; font-weight: 800;">0</span>
-                    <button onclick="toggleScreensDropdown(event)" style="background: rgba(248, 113, 113, 0.2); border: 1px solid #f87171; color: #f87171; border-radius: 8px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: pointer; transition: 0.2s;" title="إغلاق">&times;</button>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span id="screens-count-badge" style="background: rgba(168, 85, 247, 0.3); color: #e9d5ff; border: 1px solid #c084fc; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; font-weight: 800;">0</span>
+                    <button onclick="toggleScreensDropdown(event)" style="background: rgba(248, 113, 113, 0.2); border: 1px solid #f87171; color: #f87171; border-radius: 6px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; cursor: pointer; transition: 0.2s;" title="إغلاق">&times;</button>
                 </div>
             </div>
-            <div style="margin-bottom: 14px;">
-                <input type="text" id="screens-search-input" oninput="filterScreensDropdown()" placeholder="🔍 ابحث عن أي شاشة..." style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 8px 14px; color: #fff; font-size: 0.85rem; font-family: 'Tajawal', sans-serif; outline: none;">
+            <div style="margin-bottom: 10px;">
+                <input type="text" id="screens-search-input" oninput="filterScreensDropdown()" placeholder="🔍 ابحث عن أي شاشة..." style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 6px 12px; color: #fff; font-size: 0.8rem; font-family: 'Tajawal', sans-serif; outline: none;">
             </div>
-            <div id="screens-dropdown-list" style="max-height: 360px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; padding-left: 4px;">
+            <div id="screens-dropdown-list" style="max-height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-left: 2px;">
                 <!-- Rendered dynamically via JS -->
-            </div>
-        </div>
-            </div>
-
-            <!-- Single Row 7-Column Grid Layout -->
-            <div id="qa-single-row-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; width: 100%;">
-                <!-- Dynamic 7 Items rendered via JS -->
             </div>
         </div>
 
@@ -1840,6 +1833,28 @@
             `).join('');
         }
 
+        function positionScreensDropdown() {
+            const menu = document.getElementById('screens-dropdown-menu');
+            const btn = document.getElementById('screens-dropdown-btn');
+            if (!menu || !btn) return;
+            
+            const rect = btn.getBoundingClientRect();
+            menu.style.position = 'fixed';
+            menu.style.top = `${rect.bottom + 6}px`;
+            
+            const menuWidth = Math.min(360, window.innerWidth - 20);
+            menu.style.width = `${menuWidth}px`;
+            
+            // In RTL, align right edge of dropdown with right edge of button
+            let rightPos = window.innerWidth - rect.right;
+            if (rightPos + menuWidth > window.innerWidth - 10) {
+                rightPos = Math.max(10, window.innerWidth - menuWidth - 10);
+            }
+            menu.style.right = `${rightPos}px`;
+            menu.style.left = 'auto';
+            menu.style.zIndex = '999999';
+        }
+
         function toggleScreensDropdown(e) {
             if (e) e.stopPropagation();
             const menu = document.getElementById('screens-dropdown-menu');
@@ -1849,6 +1864,7 @@
             const isHidden = menu.style.display === 'none' || menu.style.display === '';
             if (isHidden) {
                 renderScreensDropdown();
+                positionScreensDropdown();
                 menu.style.display = 'block';
                 if (chev) chev.style.transform = 'rotate(180deg)';
                 const searchInp = document.getElementById('screens-search-input');
@@ -1882,6 +1898,20 @@
                 }
             }
         });
+
+        window.addEventListener('scroll', function() {
+            const menu = document.getElementById('screens-dropdown-menu');
+            if (menu && menu.style.display === 'block') {
+                positionScreensDropdown();
+            }
+        }, { passive: true });
+
+        window.addEventListener('resize', function() {
+            const menu = document.getElementById('screens-dropdown-menu');
+            if (menu && menu.style.display === 'block') {
+                positionScreensDropdown();
+            }
+        }, { passive: true });
 
         function openQACustomizer(e) {
             if (e && e.preventDefault) e.preventDefault();
