@@ -436,15 +436,15 @@
 
     <!-- Tabs Navigation -->
     <div class="tabs-nav">
-        <button class="tab-btn active" onclick="switchTab('company', this)" data-i18n="settings.companyData">🏢 بيانات الشركة</button>
-        <button class="tab-btn" onclick="switchTab('finance', this)" data-i18n="settings.financeTax">💰 المالية والضرائب</button>
-        <button class="tab-btn" onclick="switchTab('inventory', this)" data-i18n="settings.warehouses">📦 المخازن</button>
-        <button class="tab-btn" onclick="switchTab('printing', this)" data-i18n="settings.printing">🖨️ إعدادات الطباعة</button>
-        <button class="tab-btn" onclick="switchTab('email', this)" data-i18n="settings.smtp">📧 إعدادات البريد SMTP</button>
+        <button class="tab-btn active" onclick="switchTab('company')" data-i18n="settings.companyData">🏢 بيانات الشركة</button>
+        <button class="tab-btn" onclick="switchTab('finance')" data-i18n="settings.financeTax">💰 المالية والضرائب</button>
+        <button class="tab-btn" onclick="switchTab('inventory')" data-i18n="settings.warehouses">📦 المخازن</button>
+        <button class="tab-btn" onclick="switchTab('printing')" data-i18n="settings.printing">🖨️ إعدادات الطباعة</button>
+        <button class="tab-btn" onclick="switchTab('email')" data-i18n="settings.smtp">📧 إعدادات البريد SMTP</button>
 
-        <button class="tab-btn" onclick="switchTab('users', this)" data-i18n="settings.users">🛡️ المستخدمين</button>
-        <button class="tab-btn" onclick="switchTab('ui', this)" data-i18n="settings.langUI">🎨 اللغة والواجهة</button>
-        <button class="tab-btn" onclick="switchTab('system', this)" data-i18n="settings.system">💾 النظام والنسخ</button>
+        <button class="tab-btn" onclick="switchTab('users')" data-i18n="settings.users">🛡️ المستخدمين</button>
+        <button class="tab-btn" onclick="switchTab('ui')" data-i18n="settings.langUI">🎨 اللغة والواجهة</button>
+        <button class="tab-btn" onclick="switchTab('system')" data-i18n="settings.system">💾 النظام والنسخ</button>
     </div>
 
     <div class="settings-layout">
@@ -895,16 +895,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         if (!hasSettings) {
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                if (!btn.getAttribute('onclick')?.includes('inventory')) {
-                    btn.style.display = 'none';
-                }
+            const tabsToHide = ['company', 'finance', 'ui', 'users', 'system', 'printing', 'email', 'whatsapp'];
+            tabsToHide.forEach(t => {
+                const btn = document.querySelector(`button[onclick*="'${t}'"]`);
+                if (btn) btn.style.display = 'none';
             });
-            const pageTitle = document.querySelector('.page-title');
-            if (pageTitle) pageTitle.innerText = 'قواعد المخزون والعمليات';
+            const pTitle = document.querySelector('.page-title');
+            if (pTitle) pTitle.innerText = 'قواعد المخزون والعمليات';
         }
         if (!hasInvRules && !hasSettings) {
-            const invBtn = document.querySelector('.tab-btn[onclick*="inventory"]');
+            const invBtn = document.querySelector('button[onclick*="\'inventory\'"]');
             if (invBtn) invBtn.style.display = 'none';
         }
 
@@ -998,45 +998,44 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
+            // Auto open requested tab via URL query (?tab=system) or hash (#system)
+            const urlParams = new URLSearchParams(window.location.search);
+            const reqTab = urlParams.get('tab') || window.location.hash.replace('#', '');
+            if (reqTab && document.getElementById('tab-' + reqTab)) {
+                switchTab(reqTab);
+            }
+
             settingsContainer.addEventListener('input', showSaveAlert);
             settingsContainer.addEventListener('change', showSaveAlert);
         }
     });
 
-    function switchTab(tabId, btnElement) {
+    function switchTab(tabId, elem) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
         
-        let targetBtn = btnElement || (typeof event !== 'undefined' && event && event.currentTarget ? event.currentTarget : null);
-        if (!targetBtn) {
-            targetBtn = document.querySelector(`.tab-btn[onclick*="'${tabId}'"]`) || document.querySelector(`.tab-btn[onclick*='"${tabId}"']`);
+        let targetBtn = elem;
+        if (!targetBtn && typeof event !== 'undefined' && event && event.currentTarget) {
+            targetBtn = event.currentTarget;
         }
-        if (targetBtn) {
-            targetBtn.classList.add('active');
+        if (!targetBtn) {
+            targetBtn = document.querySelector(`.tab-btn[onclick*="'${tabId}'"]`);
         }
         
-        const tabEl = document.getElementById('tab-' + tabId);
-        if (tabEl) {
-            tabEl.classList.add('active');
+        if (targetBtn) targetBtn.classList.add('active');
+        
+        const targetTab = document.getElementById('tab-' + tabId);
+        if (targetTab) {
+            targetTab.classList.add('active');
         }
     }
 
-    function switchPrintTab(tabId, btnElement) {
+    function switchPrintTab(tabId, btn) {
         document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.sub-tab-content').forEach(content => content.classList.remove('active'));
         
-        let targetBtn = btnElement || (typeof event !== 'undefined' && event && event.currentTarget ? event.currentTarget : null);
-        if (!targetBtn) {
-            targetBtn = document.querySelector(`.sub-tab-btn[onclick*="'${tabId}'"]`);
-        }
-        if (targetBtn) {
-            targetBtn.classList.add('active');
-        }
-        
-        const contentEl = document.getElementById(tabId);
-        if (contentEl) {
-            contentEl.classList.add('active');
-        }
+        btn.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
     }
 
     function loadSettings() {
