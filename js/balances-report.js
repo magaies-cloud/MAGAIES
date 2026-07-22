@@ -2741,14 +2741,15 @@ function makeElementDraggable(elmnt, headerElmnt) {
 }
 
 function bindReportContextMenu() {
-    const targets = ['.report-header', '#balances-table', '#print-container', '.filter-row', '.preset-slots-container'];
-    targets.forEach(selector => {
-        const els = document.querySelectorAll(selector);
-        els.forEach(el => {
-            el.oncontextmenu = function(e) {
-                openColumnContextMenu(e);
-            };
-        });
+    document.addEventListener('contextmenu', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+            return;
+        }
+        if (e.target.closest('#partnerContextMenu') || e.target.closest('#columnContextMenu')) {
+            return;
+        }
+
+        openColumnContextMenu(e);
     });
 }
 
@@ -2759,6 +2760,7 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DBReady', () => {
     bindReportContextMenu();
 });
+
 
 
 

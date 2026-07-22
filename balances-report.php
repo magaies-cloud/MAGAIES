@@ -548,14 +548,60 @@
 
     <!-- Menu Content Container (Hidden when minimized) -->
     <div id="columnContextMenuBody">
-        <!-- Info Banner -->
-        <div style="background:rgba(56, 189, 248, 0.1); border:1px solid rgba(56, 189, 248, 0.2); border-radius:10px; padding:10px 12px; margin-bottom:14px; font-size:0.8rem; color:#7dd3fc; line-height:1.5; display:flex; align-items:center; gap:8px;">
-            <span style="font-size:1.1rem;">💡</span>
-            <span>اسحب مقبض (<b>⣿</b>) لأعلى أو لأسفل لترتيب الأعمدة، وافتح ⚙️ لتخصيص خط ولون وكسور كل عمود بشكل مستقل!</span>
+        <!-- Navigation Tabs inside Context Menu -->
+        <div style="display:flex; gap:6px; margin-bottom:14px; background:rgba(0,0,0,0.25); padding:4px; border-radius:10px; border:1px solid rgba(255,255,255,0.08);">
+            <button type="button" id="tab-btn-cols" onclick="switchCtxTab('cols')" style="flex:1; padding:8px; border:none; border-radius:8px; background:#38bdf8; color:#0f172a; font-weight:900; font-family:inherit; cursor:pointer; font-size:0.85rem; transition:all 0.2s;">
+                📊 ترتيب الأعمدة والإظهار
+            </button>
+            <button type="button" id="tab-btn-formatting" onclick="switchCtxTab('formatting')" style="flex:1; padding:8px; border:none; border-radius:8px; background:transparent; color:#94a3b8; font-weight:700; font-family:inherit; cursor:pointer; font-size:0.85rem; transition:all 0.2s;">
+                🎨 الثيمات والخطوط والألوان
+            </button>
         </div>
 
-        <!-- Dynamic Column Items with drag & per-column settings -->
-        <div id="columnToggles" style="display:flex; flex-direction:column; gap:10px;"></div>
+        <!-- Tab 1: Columns & Visibility -->
+        <div id="ctx-tab-cols">
+            <!-- Info Banner -->
+            <div style="background:rgba(56, 189, 248, 0.1); border:1px solid rgba(56, 189, 248, 0.2); border-radius:10px; padding:10px 12px; margin-bottom:14px; font-size:0.8rem; color:#7dd3fc; line-height:1.5; display:flex; align-items:center; gap:8px;">
+                <span style="font-size:1.1rem;">💡</span>
+                <span>اسحب مقبض (<b>⣿</b>) لأعلى أو لأسفل لترتيب الأعمدة، وافتح ⚙️ لتخصيص خط ولون وكسور كل عمود بشكل مستقل!</span>
+            </div>
+
+            <!-- Dynamic Column Items with drag & per-column settings -->
+            <div id="columnToggles" style="display:flex; flex-direction:column; gap:10px;"></div>
+        </div>
+
+        <!-- Tab 2: Formatting, Themes & Number Fonts -->
+        <div id="ctx-tab-formatting" style="display:none;">
+            <!-- Crystal Themes Selector -->
+            <div style="margin-bottom:16px; background:rgba(0,0,0,0.2); padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
+                <label style="display:block; margin-bottom:10px; font-weight:800; color:#fbbf24;">✨ أنماط العرض الفاخرة (Crystal Themes):</label>
+                <div class="crystal-theme-container" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;">
+                    <button class="crystal-btn c-std active" onclick="changeTableTheme('')" style="padding:8px; border-radius:8px; cursor:pointer;">⚪ الأساسي (Default)</button>
+                    <button class="crystal-btn c-blue" onclick="changeTableTheme('table-theme-blue')" style="padding:8px; border-radius:8px; cursor:pointer;">🔵 الأزرق العميق</button>
+                    <button class="crystal-btn c-black" onclick="changeTableTheme('table-theme-black')" style="padding:8px; border-radius:8px; cursor:pointer;">⚫ الأسود الفاخر</button>
+                    <button class="crystal-btn c-emerald" onclick="changeTableTheme('table-theme-emerald')" style="padding:8px; border-radius:8px; cursor:pointer;">🟢 الزمردي المالي</button>
+                </div>
+            </div>
+
+            <!-- 5 Number Fonts Selector -->
+            <div style="margin-bottom:16px; background:rgba(0,0,0,0.2); padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
+                <label style="display:block; margin-bottom:10px; font-weight:800; color:#38bdf8;">📝 خطوط الأرقام الإنجليزية الفائقة الوضوح:</label>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <button class="font-chip" onclick="changeNumberFont('num-font-jetbrains')" style="font-family: 'JetBrains Mono', monospace; padding:8px 12px; border-radius:8px; text-align:right;">1. JetBrains Mono (مونوسبيس عالي الدقة)</button>
+                    <button class="font-chip" onclick="changeNumberFont('num-font-roboto')" style="font-family: 'Roboto Mono', monospace; padding:8px 12px; border-radius:8px; text-align:right;">2. Roboto Mono (روبوتو المالي)</button>
+                    <button class="font-chip" onclick="changeNumberFont('num-font-firacode')" style="font-family: 'Fira Code', monospace; padding:8px 12px; border-radius:8px; text-align:right;">3. Fira Code (فيرا كود الحسابي)</button>
+                    <button class="font-chip" onclick="changeNumberFont('num-font-inter')" style="font-family: 'Inter', sans-serif; padding:8px 12px; border-radius:8px; text-align:right;">4. Inter Font (إنتر المريح للعين)</button>
+                    <button class="font-chip" onclick="changeNumberFont('num-font-poppins')" style="font-family: 'Poppins', sans-serif; padding:8px 12px; border-radius:8px; text-align:right;">5. Poppins Font (بوبينز الفاخر)</button>
+                </div>
+            </div>
+
+            <!-- Fast Action Shortcuts -->
+            <div style="background:rgba(56,189,248,0.05); padding:12px; border-radius:10px; border:1px dashed rgba(56,189,248,0.2); display:flex; gap:8px;">
+                <button type="button" onclick="window.print()" style="flex:1; padding:8px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px; font-weight:bold; cursor:pointer;">🖨️ طباعة</button>
+                <button type="button" onclick="exportPDF()" style="flex:1; padding:8px; background:rgba(56,189,248,0.2); border:1px solid #38bdf8; color:#38bdf8; border-radius:6px; font-weight:bold; cursor:pointer;">📄 تصدير PDF</button>
+                <button type="button" onclick="exportExcel()" style="flex:1; padding:8px; background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#34d399; border-radius:6px; font-weight:bold; cursor:pointer;">📊 إكسل</button>
+            </div>
+        </div>
 
         <!-- Common Footer Buttons -->
         <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:15px; margin-top:16px; display:flex; gap:10px;">
