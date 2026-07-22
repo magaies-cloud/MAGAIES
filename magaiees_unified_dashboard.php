@@ -742,9 +742,35 @@
                     <i class="fa-solid fa-bolt text-amber-400"></i> أزرار الوصول السريع المخصصة (7 أزرار)
                     <span style="font-size: 0.68rem; font-weight: 600; color: #64748b; margin-right: 6px;">(انقر بالزر الأيمن 🖱️ لتخصيص الأزرار السبعة المجهزة)</span>
                 </div>
-                <button onclick="openQACustomizer(event)" style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; border-radius: 8px; padding: 3px 10px; font-size: 0.72rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s ease;">
-                    <i class="fa-solid fa-sliders"></i> تخصيص الأزرار (7)
-                </button>
+                <div style="display: flex; align-items: center; gap: 8px; position: relative;">
+                    <!-- Customize Button (Moved slightly right) -->
+                    <button onclick="openQACustomizer(event)" style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; border-radius: 8px; padding: 4px 10px; font-size: 0.72rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s ease;" title="تخصيص الأزرار السبعة">
+                        <i class="fa-solid fa-sliders"></i> تخصيص الأزرار (7)
+                    </button>
+
+                    <!-- New Screens Button (placed in original spot) -->
+                    <button id="screens-dropdown-btn" onclick="toggleScreensDropdown(event)" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(99, 102, 241, 0.25)); border: 1px solid rgba(168, 85, 247, 0.45); color: #c084fc; border-radius: 8px; padding: 4px 12px; font-size: 0.72rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(168, 85, 247, 0.2);">
+                        <i class="fa-solid fa-desktop"></i>
+                        <span>الشاشات</span>
+                        <i class="fa-solid fa-chevron-down" id="screens-chevron" style="font-size: 0.65rem; transition: transform 0.3s ease;"></i>
+                    </button>
+
+                    <!-- Dropdown Menu for Uncustomized Screens -->
+                    <div id="screens-dropdown-menu" style="display: none; position: absolute; top: calc(100% + 8px); left: 0; width: 310px; background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid rgba(168, 85, 247, 0.4); border-radius: 14px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); z-index: 1000; padding: 12px; direction: rtl;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+                            <div style="font-size: 0.78rem; font-weight: 800; color: #c084fc; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-layer-group"></i> بقية الشاشات (غير المخصصة)
+                            </div>
+                            <span id="screens-count-badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; font-size: 0.65rem; padding: 2px 7px; border-radius: 10px; font-weight: 800;">0</span>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <input type="text" id="screens-search-input" oninput="filterScreensDropdown()" placeholder="🔍 ابحث في الشاشات..." style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 5px 10px; color: #fff; font-size: 0.75rem; font-family: 'Tajawal', sans-serif; outline: none;">
+                        </div>
+                        <div id="screens-dropdown-list" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px;">
+                            <!-- Rendered dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Single Row 7-Column Grid Layout -->
@@ -1727,7 +1753,15 @@
             { id: 'analytics', href: 'analytics.php', label: 'تقارير مالية', icon: 'fa-chart-column', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.2)', border: '#c084fc' },
             { id: 'smart_reports', href: 'smart_reports_hub.php', label: 'التقرير المالي الذكي', icon: 'fa-brain', color: '#c084fc', bg: 'rgba(168, 85, 247, 0.2)', border: '#a855f7' },
             { id: 'master_data', href: 'master-data.php', label: 'البيانات الأساسية', icon: 'fa-database', color: '#60a5fa', bg: 'rgba(59, 130, 246, 0.2)', border: '#3b82f6' },
-            { id: 'jobs', href: 'jobs.php', label: 'المهام', icon: 'fa-list-check', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' }
+            { id: 'jobs', href: 'jobs.php', label: 'المهام', icon: 'fa-list-check', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
+            { id: 'account_stmt', href: 'account-statement.php', label: 'كشف حساب', icon: 'fa-file-invoice-dollar', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)', border: '#38bdf8' },
+            { id: 'ledger', href: 'general-ledger.php', label: 'دفتر الأستاذ العام', icon: 'fa-book-bookmark', color: '#60a5fa', bg: 'rgba(59, 130, 246, 0.2)', border: '#3b82f6' },
+            { id: 'customer_portfolio', href: 'customer-portfolio.php', label: 'محفظة العملاء', icon: 'fa-users', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
+            { id: 'inv_report', href: 'inventory-report.php', label: 'تقرير المخزون الشامل', icon: 'fa-warehouse', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)', border: '#fbbf24' },
+            { id: 'sales_delivery', href: 'sales-delivery.php', label: 'تسليم المبيعات', icon: 'fa-truck-ramp-box', color: '#f87171', bg: 'rgba(248, 113, 113, 0.2)', border: '#ef4444' },
+            { id: 'users_roles', href: 'users-roles.php', label: 'المستخدمون والصلاحيات', icon: 'fa-user-gear', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.2)', border: '#c084fc' },
+            { id: 'partners', href: 'partners_reports_hub.php', label: 'الشركاء والتقارير', icon: 'fa-handshake', color: '#22d3ee', bg: 'rgba(6, 182, 212, 0.2)', border: '#06b6d4' },
+            { id: 'backup', href: 'backup.php', label: 'النسخ الاحتياطي', icon: 'fa-hard-drive', color: '#94a3b8', bg: 'rgba(100, 116, 139, 0.2)', border: '#64748b' }
         ];
 
         const DEFAULT_7_IDS = ['ai_goods', 'smart_inv_alerts', 'ai_money', 'alerts_mgr', 'settings', 'tools', 'smart_inv_rep'];
@@ -1755,7 +1789,85 @@
                     <span style="font-size: 0.76rem; font-weight: 800; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</span>
                 </a>
             `).join('');
+            
+            renderScreensDropdown();
         }
+
+        function renderScreensDropdown() {
+            let saved = localStorage.getItem('dashboard_quick_actions_7');
+            let selectedIds = DEFAULT_7_IDS;
+            if (saved) {
+                try {
+                    let parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed) && parsed.length > 0) selectedIds = parsed.slice(0, 7);
+                } catch(e){}
+            }
+
+            const unselected = ALL_QUICK_ACTIONS.filter(item => !selectedIds.includes(item.id));
+            const badge = document.getElementById('screens-count-badge');
+            if (badge) badge.innerText = unselected.length;
+
+            const listContainer = document.getElementById('screens-dropdown-list');
+            if (!listContainer) return;
+
+            if (unselected.length === 0) {
+                listContainer.innerHTML = '<div style="text-align:center; padding:12px; color:#94a3b8; font-size:0.75rem;">جميع الشاشات مخصصة في الأزرار السبعة 🎉</div>';
+                return;
+            }
+
+            listContainer.innerHTML = unselected.map(item => `
+                <a href="${item.href}" onclick="window.location.href='${item.href}'" class="screen-dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.05); text-decoration: none; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(168, 85, 247, 0.18)'; this.style.borderColor='rgba(168, 85, 247, 0.4)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255,255,255,0.05)'">
+                    <span style="width: 26px; height: 26px; border-radius: 6px; background: ${item.bg}; border: 1px solid ${item.border}; color: ${item.color}; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; flex-shrink: 0;">
+                        <i class="fa-solid ${item.icon}"></i>
+                    </span>
+                    <span class="screen-title" style="font-size: 0.78rem; font-weight: 700; color: #f8fafc; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</span>
+                    <i class="fa-solid fa-arrow-left" style="font-size: 0.65rem; color: #64748b;"></i>
+                </a>
+            `).join('');
+        }
+
+        function toggleScreensDropdown(e) {
+            if (e) e.stopPropagation();
+            const menu = document.getElementById('screens-dropdown-menu');
+            const chev = document.getElementById('screens-chevron');
+            if (!menu) return;
+
+            const isHidden = menu.style.display === 'none' || menu.style.display === '';
+            if (isHidden) {
+                renderScreensDropdown();
+                menu.style.display = 'block';
+                if (chev) chev.style.transform = 'rotate(180deg)';
+                const searchInp = document.getElementById('screens-search-input');
+                if (searchInp) {
+                    searchInp.value = '';
+                    setTimeout(() => searchInp.focus(), 50);
+                }
+            } else {
+                menu.style.display = 'none';
+                if (chev) chev.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function filterScreensDropdown() {
+            const query = (document.getElementById('screens-search-input')?.value || '').toLowerCase().trim();
+            const items = document.querySelectorAll('#screens-dropdown-list .screen-dropdown-item');
+            items.forEach(el => {
+                const text = el.textContent.toLowerCase();
+                el.style.display = text.includes(query) ? 'flex' : 'none';
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('screens-dropdown-menu');
+            const btn = document.getElementById('screens-dropdown-btn');
+            if (menu && menu.style.display === 'block') {
+                if (!menu.contains(e.target) && !btn.contains(e.target)) {
+                    menu.style.display = 'none';
+                    const chev = document.getElementById('screens-chevron');
+                    if (chev) chev.style.transform = 'rotate(0deg)';
+                }
+            }
+        });
 
         function openQACustomizer(e) {
             if (e && e.preventDefault) e.preventDefault();
@@ -1823,8 +1935,16 @@
             }
             localStorage.setItem('dashboard_quick_actions_7', JSON.stringify(checked.slice(0, 7)));
             renderSingleRowQA();
+            renderScreensDropdown();
             document.getElementById('qa-customizer-modal').style.display = 'none';
             if (typeof showToast === 'function') showToast('✅ تم حفظ التبديل وعرض الأزرار الـ 7 بنجاح', 'success');
+        }
+
+        // Initialize Quick Actions & Screens Dropdown immediately on DOM ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', renderSingleRowQA);
+        } else {
+            renderSingleRowQA();
         }
         </script>
     
