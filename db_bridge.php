@@ -470,24 +470,48 @@ function getPriceVarianceData($pdo) {
     global $GLOBAL_TENANT_ID;
     try {
         $result = [];
+        $item_costs = [];
+
+        // 1. جلب تكاليف الأصناف من جدول items/products
+        try {
+            $stmt = $pdo->query("SELECT data FROM items WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
+            while ($row = $stmt->fetch()) {
+                $item = json_decode($row['data'], true);
+                if ($item) {
+                    $id = $item['id'] ?? ($item['code'] ?? '');
+                    $name = $item['name'] ?? '';
+                    $cost = (float)($item['costPrice'] ?? ($item['buyPrice'] ?? ($item['cost'] ?? 0)));
+                    if ($id && $cost > 0) $item_costs[$id] = $cost;
+                    if ($name && $cost > 0) $item_costs[$name] = $cost;
+                }
+            }
+        } catch (Exception $e) { error_log('DB Bridge Error fetching item costs: ' . $e->getMessage()); }
+
+        // 2. تحليل فواتير المبيعات وانحرافات أسعار البيع والتكلفة
         try {
             $stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
             while ($row = $stmt->fetch()) {
                 $inv = json_decode($row['data'], true);
                 if ($inv) {
-                    $custName = $inv['customerName'] ?? 'عميل غير معروف';
+                    $custName = $inv['customerName'] ?? ($inv['customer'] ?? 'عميل عام');
                     $items = $inv['items'] ?? [];
                     foreach ($items as $item) {
                         $itemName = $item['itemName'] ?? ($item['name'] ?? 'صنف غير معروف');
-                        $qty = (float)($item['quantity'] ?? ($item['qty'] ?? 0));
+                        $itemId = $item['itemId'] ?? ($item['id'] ?? '');
+                        $qty = (float)($item['quantity'] ?? ($item['qty'] ?? 1));
                         $price = (float)($item['price'] ?? 0);
-                        $cost = (float)($item['cost'] ?? ($item['actualCost'] ?? 0));
                         
-                        if ($cost > 0 && $price <= ($cost * 1.05)) {
+                        // جلب التكلفة المحددة أو المرجعية
+                        $cost = (float)($item['cost'] ?? ($item['actualCost'] ?? 0));
+                        if ($cost <= 0 && isset($item_costs[$itemId])) $cost = $item_costs[$itemId];
+                        if ($cost <= 0 && isset($item_costs[$itemName])) $cost = $item_costs[$itemName];
+                        if ($cost <= 0 && $price > 0) $cost = $price * 0.75; // تقدير افتراضي 75% إذا لم تسجل تكلفة
+
+                        if ($price > 0 && $cost > 0) {
                             $margin = $price - $cost;
                             $margin_pct = round(($margin / $cost) * 100, 2);
                             $result[] = [
-                                'transaction_id' => $inv['invoiceNo'] ?? 'TRX',
+                                'transaction_id' => $inv['invoiceNo'] ?? ($inv['id'] ?? 'INV-TRX'),
                                 'customer_name' => $custName,
                                 'item_name' => $itemName,
                                 'actual_selling_price' => $price,
@@ -499,17 +523,16 @@ function getPriceVarianceData($pdo) {
                     }
                 }
             }
-        } catch (Exception $e) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $e->getMessage()); }
+        } catch (Exception $e) { error_log('DB Bridge Error fetching sales invoices: ' . $e->getMessage()); }
 
-        // Mock data fallback removed for SaaS environment
-
-        // ترتيب تصاعدي حسب هامش الربح
+        // ترتيب تصاعدي حسب هامش الربح لمراقبة الأخطر أولاً
         usort($result, function($a, $b) {
             return $a['profit_margin_percentage'] <=> $b['profit_margin_percentage'];
         });
 
         return $result;
-    } catch (Exception $e) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $e->getMessage());
+    } catch (Exception $e) { 
+        error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $e->getMessage());
         return [];
     }
 }

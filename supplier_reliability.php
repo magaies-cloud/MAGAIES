@@ -253,83 +253,112 @@ if (!function_exists('convertReportAmount')) {
         .rating-volatile { background: rgba(255, 0, 85, 0.15); color: #ff0055; }
         
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
     <div class="page-container">
         <?php include "includes/header.php"; ?>
-    <div class="glass-panel">
-        <div class="header">
-            
-            <a href="smart_reports_hub.php?currency=<?php echo $selected_currency; ?>" class="btn-back">⬅️ العودة للبوابة</a>
-        </div>
+        <div class="glass-panel">
+            <div class="header">
+                <h1 style="margin:0; font-size: 22px; color: #a855f7;">📊 تقرير مؤشر موثوقية وتذبذب الموردين</h1>
+                <a href="smart_reports_hub.php?currency=<?php echo $selected_currency; ?>" class="btn-back">⬅️ العودة للبوابة</a>
+            </div>
 
-        <form method="GET" class="filter-container">
-            <input type="hidden" name="currency" value="<?php echo htmlspecialchars($selected_currency); ?>">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <label style="color: var(--text-muted); font-size: 13px;">من:</label>
-                <input type="date" name="date_from" class="filter-input" value="<?php echo htmlspecialchars($date_from); ?>">
+            <form method="GET" class="filter-container">
+                <input type="hidden" name="currency" value="<?php echo htmlspecialchars($selected_currency); ?>">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label style="color: var(--text-muted); font-size: 13px;">من:</label>
+                    <input type="date" name="date_from" class="filter-input" value="<?php echo htmlspecialchars($date_from); ?>">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label style="color: var(--text-muted); font-size: 13px;">إلى:</label>
+                    <input type="date" name="date_to" class="filter-input" value="<?php echo htmlspecialchars($date_to); ?>">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label style="color: var(--text-muted); font-size: 13px;">بحث:</label>
+                    <input type="text" name="search" class="filter-input" placeholder="اسم المورد..." value="<?php echo htmlspecialchars($search_query); ?>">
+                </div>
+                <button type="submit" class="btn-filter">تطبيق الفرز</button>
+                <?php if(!empty($date_from) || !empty($date_to) || !empty($search_query)): ?>
+                    <a href="supplier_reliability.php?currency=<?php echo $selected_currency; ?>" style="color:#ff0055; text-decoration:none; font-size:13px; margin-right:10px;">إلغاء الفلتر</a>
+                <?php endif; ?>
+            </form>
+
+            <div class="grid-3">
+                <div class="metric-card">
+                    <span style="color: var(--text-muted); font-size: 13px;">👥 عدد الموردين النشطين</span>
+                    <h2 style="color: #a855f7; margin: 10px 0 5px 0; font-weight: 900;" class="counter" data-target="<?php echo count($suppliers); ?>">0</h2>
+                    <span style="font-size: 11px; color: #a855f7;">● هيكل توريد متعدد ومؤمّن</span>
+                </div>
+                <div class="metric-card" style="border-color: rgba(0, 255, 255, 0.2);">
+                    <span style="color: var(--text-muted); font-size: 13px;">💰 إجمالي حجم التوريد</span>
+                    <h2 style="color: #00ffff; margin: 10px 0 5px 0; font-weight: 900;"><span class="counter" data-target="<?php echo $total_volume; ?>">0</span> <span style="font-size:12px;"><?php echo $selected_currency; ?></span></h2>
+                    <span style="font-size: 11px; color: #00ffff;">● النفقات التشغيلية الإجمالية للتوريد</span>
+                </div>
+                <div class="metric-card" style="border-color: rgba(0, 255, 127, 0.2);">
+                    <span style="color: var(--text-muted); font-size: 13px;">📦 إجمالي الطلبيات المنجزة</span>
+                    <h2 style="color: #00ff7f; margin: 10px 0 5px 0; font-weight: 900;" class="counter" data-target="<?php echo $total_orders; ?>">0</h2>
+                    <span style="font-size: 11px; color: #00ff7f;">▲ إنجاز كامل وسلس للتوريد</span>
+                </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <label style="color: var(--text-muted); font-size: 13px;">إلى:</label>
-                <input type="date" name="date_to" class="filter-input" value="<?php echo htmlspecialchars($date_to); ?>">
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <label style="color: var(--text-muted); font-size: 13px;">بحث:</label>
-                <input type="text" name="search" class="filter-input" placeholder="اسم المورد..." value="<?php echo htmlspecialchars($search_query); ?>">
-            </div>
-            <button type="submit" class="btn-filter">تطبيق الفرز</button>
-            <?php if(!empty($date_from) || !empty($date_to) || !empty($search_query)): ?>
-                <a href="supplier_reliability.php?currency=<?php echo $selected_currency; ?>" style="color:#ff0055; text-decoration:none; font-size:13px; margin-right:10px;">إلغاء الفلتر</a>
+
+            <?php if(!empty($suppliers)): ?>
+                <div class="chart-container">
+                    <canvas id="supplierChart"></canvas>
+                </div>
             <?php endif; ?>
-        </form>
 
-        <div class="grid-3">
-            <div class="metric-card">
-                <span style="color: var(--text-muted); font-size: 13px;">👥 عدد الموردين النشطين</span>
-                <h2 style="color: #a855f7; margin: 10px 0 5px 0; font-weight: 900;" class="counter" data-target="<?php echo count($suppliers); ?>">0</h2>
-                <span style="font-size: 11px; color: #a855f7;">● هيكل توريد متعدد ومؤمّن</span>
-            </div>
-            <div class="metric-card" style="border-color: rgba(0, 255, 255, 0.2);">
-                <span style="color: var(--text-muted); font-size: 13px;">💰 إجمالي حجم التوريد</span>
-                <h2 style="color: #00ffff; margin: 10px 0 5px 0; font-weight: 900;"><span class="counter" data-target="<?php echo $total_volume; ?>">0</span> <span style="font-size:12px;"><?php echo $selected_currency; ?></span></h2>
-                <span style="font-size: 11px; color: #00ffff;">● النفقات التشغيلية الإجمالية للتوريد</span>
-            </div>
-            <div class="metric-card" style="border-color: rgba(0, 255, 127, 0.2);">
-                <span style="color: var(--text-muted); font-size: 13px;">📦 إجمالي الطلبيات المنجزة</span>
-                <h2 style="color: #00ff7f; margin: 10px 0 5px 0; font-weight: 900;" class="counter" data-target="<?php echo $total_orders; ?>">0</h2>
-                <span style="font-size: 11px; color: #00ff7f;">▲ إنجاز كامل وسلس للتوريد</span>
-            </div>
-        </div>
-
-        <?php // Mock data fallback removed for SaaS environment elseif ($s['variance'] < $volatility_threshold) {
+            <?php if(empty($suppliers)): ?>
+                <div style="text-align:center; padding: 40px; color: var(--text-muted);">
+                    ⚠️ لا تتوفر بيانات توريد مطابقة لخيارات الفلترة الحالية.
+                </div>
+            <?php else: ?>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>اسم المورد</th>
+                                <th>عدد الطلبيات</th>
+                                <th>إجمالي حجم التوريد</th>
+                                <th>مؤشر التذبذب/الانحراف</th>
+                                <th>مستوى موثوقية المورد</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php 
+                            $delay = 0.1;
+                            $volatility_threshold = 500;
+                            $extreme_threshold = 2000;
+                            foreach($suppliers as $s):
+                                $delay += 0.05;
                                 $rating_class = "rating-stable";
                                 $rating_text = "✓ تقلب طفيف آمن";
-                            } elseif ($s['variance'] < $extreme_threshold) {
-                                $rating_class = "rating-moderate";
-                                $rating_text = "⚠️ تقلب متوسط";
-                            } else {
-                                $rating_class = "rating-volatile";
-                                $rating_text = "🚨 تقلب عالٍ (عقد توريد حرج)";
-                            }
-                        ?>
-                            <tr style="animation: slideUp 0.4s ease-out <?php echo $delay; ?>s backwards;">
-                                <td><strong><?php echo htmlspecialchars($s['name']); ?></strong></td>
-                                <td><?php echo $s['orders']; ?> طلبيات</td>
-                                <td style="font-weight: bold; color: #ffffff;"><?php echo number_format($s['volume'], 2); ?> <span style="font-size:11px;"><?php echo $selected_currency; ?></span></td>
-                                <td style="color:#00ffff; font-weight:bold;"><?php echo number_format($s['variance'], 2); ?></td>
-                                <td>
-                                    <span class="badge-rating <?php echo $rating_class; ?>">
-                                        <?php echo $rating_text; ?>
-                                    </span>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endif; ?>
+                                if ($s['variance'] >= $extreme_threshold) {
+                                    $rating_class = "rating-volatile";
+                                    $rating_text = "🚨 تقلب عالٍ (عقد توريد حرج)";
+                                } elseif ($s['variance'] >= $volatility_threshold) {
+                                    $rating_class = "rating-moderate";
+                                    $rating_text = "⚠️ تقلب متوسط";
+                                }
+                            ?>
+                                <tr style="animation: slideUp 0.4s ease-out <?php echo $delay; ?>s backwards;">
+                                    <td><strong><?php echo htmlspecialchars($s['name']); ?></strong></td>
+                                    <td><?php echo $s['orders']; ?> طلبيات</td>
+                                    <td style="font-weight: bold; color: #ffffff;"><?php echo number_format($s['volume'], 2); ?> <span style="font-size:11px;"><?php echo $selected_currency; ?></span></td>
+                                    <td style="color:#00ffff; font-weight:bold;"><?php echo number_format($s['variance'], 2); ?></td>
+                                    <td>
+                                        <span class="badge-rating <?php echo $rating_class; ?>">
+                                            <?php echo $rating_text; ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
 
     <script>
@@ -392,7 +421,6 @@ if (!function_exists('convertReportAmount')) {
         });
         <?php endif; ?>
     </script>
-    </div>
     <script defer src="js/app.js"></script>
 </body>
 </html>

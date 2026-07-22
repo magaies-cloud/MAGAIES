@@ -790,43 +790,27 @@
 
     <!-- Desktop/Mobile Premium Reports Bento Grid (Rearranged under header) -->
     <div class="quick-reports-grid" style="animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1); display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-        <!-- 1. General Ledger -->
-        <a href="general-ledger.php" class="quick-report-card" style="--glow-color: rgba(251, 191, 36, 0.65); --glow-bg: rgba(251, 191, 36, 0.12);">
+        <!-- 1. General Accounts Reports Hub Button -->
+        <a href="general_accounts_hub.php" class="quick-report-card" style="--glow-color: rgba(251, 191, 36, 0.65); --glow-bg: rgba(251, 191, 36, 0.12);">
             <div class="icon-wrap">📓</div>
             <div class="card-info">
-                <h4>دفتر الأستاذ العام</h4>
-                <p>تفاصيل العمليات المالية المقيدة وحسابات الأستاذ التفصيلية.</p>
+                <h4>تقرير الحسابات العامة</h4>
+                <p>مركز الحسابات العامة: دفتر الأستاذ العام (GL) وحسابات الأرصدة المجمعة.</p>
             </div>
         </a>
 
-        <!-- Balances Report -->
-        <a href="balances-report.php" class="quick-report-card" style="--glow-color: rgba(244, 63, 94, 0.65); --glow-bg: rgba(244, 63, 94, 0.12);">
-            <div class="icon-wrap">💰</div>
+        <!-- 3. Final Statements & Accounting Reports Button -->
+        <a href="financial-reports.php" class="quick-report-card" style="--glow-color: rgba(251, 191, 36, 0.65); --glow-bg: rgba(251, 191, 36, 0.12);">
+            <div class="icon-wrap">🏛️</div>
             <div class="card-info">
-                <h4>حسابات الأرصدة</h4>
-                <p>مراجعة سريعة للأرصدة المجمعة والمديونيات للعملاء والموردين.</p>
+                <h4>القوائم الختامية والمحاسبية</h4>
+                <p>ميزان المراجعة، قائمة الأرباح والخسائر، قيود اليومية ودفتر الأستاذ العام.</p>
             </div>
         </a>
 
-        <!-- 3. Disclosures -->
-        <a href="financial-reports.php" class="quick-report-card" style="--glow-color: rgba(52, 211, 153, 0.65); --glow-bg: rgba(52, 211, 153, 0.12);">
-            <div class="icon-wrap">📊</div>
-            <div class="card-info">
-                <h4>التقارير والقوائم</h4>
-                <p>الحسابات الختامية، الأرباح والخسائر وميزان المراجعة الشامل.</p>
-            </div>
-        </a>
 
-        <!-- Daily Report -->
-        <a href="#" onclick="showDailyReportModal(); return false;" class="quick-report-card" style="--glow-color: rgba(168, 85, 247, 0.65); --glow-bg: rgba(168, 85, 247, 0.12);">
-            <div class="icon-wrap">📅</div>
-            <div class="card-info">
-                <h4>تقرير اليومية</h4>
-                <p>ملخص شامل للحركات المالية وحركة الأصناف في المستودعات اليوم.</p>
-            </div>
-        </a>
 
-        <!-- V2 Smart Reports Hub -->
+        <!-- 5. Smart Reports Hub V2 -->
         <a href="smart_reports_hub.php" class="quick-report-card" style="--glow-color: rgba(6, 182, 212, 0.65); --glow-bg: rgba(6, 182, 212, 0.12);">
             <div class="icon-wrap">🚀</div>
             <div class="card-info">
@@ -834,80 +818,31 @@
                 <p>مركز التقارير المحاسبية المتقدم للتدفقات النقدية ونقطة التعادل.</p>
             </div>
         </a>
+
+        <!-- 6. Inventory & Warehouses Report Button -->
+        <a href="inventory-report.php" class="quick-report-card" style="--glow-color: rgba(16, 185, 129, 0.65); --glow-bg: rgba(16, 185, 129, 0.12);">
+            <div class="icon-wrap">📦</div>
+            <div class="card-info">
+                <h4>تقارير المخازن والمستودعات</h4>
+                <p>جرد أرصدة المستودعات، حركة الأصناف والتسويات المخزنية.</p>
+            </div>
+        </a>
+
+        <!-- 7. Customers & Suppliers Report Hub Button -->
+        <a href="partners_reports_hub.php" class="quick-report-card" style="--glow-color: rgba(139, 92, 246, 0.65); --glow-bg: rgba(139, 92, 246, 0.12);">
+            <div class="icon-wrap">🤝</div>
+            <div class="card-info">
+                <h4>تقارير العملاء والموردين</h4>
+                <p>مركز التقارير الشامل: الموقف المالي، كشف الحساب، الأرصدة والتحليل الصحي.</p>
+            </div>
+        </a>
     </div>
 
-    <!-- AI Insights Section -->
-    <div class="ai-insights-section glass-panel" style="border-top: 3px solid #8b5cf6; padding: 25px; margin-top: 15px; margin-bottom: 30px;">
-        <h3 style="color: #c084fc; font-size: 1.4rem; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 1.8rem; animation: pulse 2s infinite;">🤖</span> 
-            المحلل المالي الذكي (AI Reports & Analytics)
-        </h3>
-        
-        <style>
-            @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); text-shadow: 0 0 15px #c084fc; } 100% { transform: scale(1); } }
-            .ai-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        </style>
 
-        <div class="ai-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-            
-            <!-- AI Cashflow -->
-            <div class="ai-card" style="background: rgba(15, 23, 42, 0.6); padding: 20px; border-radius: 16px; border: 1px solid rgba(139, 92, 246, 0.3); transition: all 0.3s; position: relative; overflow: hidden;">
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
-                    <div style="background: rgba(139, 92, 246, 0.2); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #a78bfa; box-shadow: 0 0 15px rgba(139,92,246,0.3);">🔮</div>
-                    <h4 style="margin: 0; color: #fff; font-size: 1.1rem; font-weight: 800;">التنبؤ بالتدفق النقدي</h4>
-                </div>
-                <p id="ai-cashflow-text" style="margin: 0 0 15px 0; color: #94a3b8; font-size: 0.85rem; line-height: 1.5; font-weight: 500;">جاري التحليل...</p>
-                <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px; font-size: 0.8rem; color: #34d399; display: flex; align-items: center; gap: 8px; border-left: 3px solid #34d399;">
-                    <span>💡</span> <strong style="color:#fff;">اقتراح الذكاء الاصطناعي:</strong> <span id="ai-cashflow-suggestion">...</span>
-                </div>
-            </div>
-
-            <!-- AI Inventory -->
-            <div class="ai-card" style="background: rgba(15, 23, 42, 0.6); padding: 20px; border-radius: 16px; border: 1px solid rgba(56, 189, 248, 0.3); transition: all 0.3s;">
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
-                    <div style="background: rgba(56, 189, 248, 0.2); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #38bdf8; box-shadow: 0 0 15px rgba(56,189,248,0.3);">🧠</div>
-                    <h4 style="margin: 0; color: #fff; font-size: 1.1rem; font-weight: 800;">تحسين المخزون الذكي</h4>
-                </div>
-                <p id="ai-inventory-text" style="margin: 0 0 15px 0; color: #94a3b8; font-size: 0.85rem; line-height: 1.5; font-weight: 500;">جاري التحليل...</p>
-                <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px; font-size: 0.8rem; color: #fbbf24; display: flex; align-items: center; gap: 8px; border-left: 3px solid #fbbf24;">
-                    <span>⚠️</span> <strong style="color:#fff;">تنبيه:</strong> <span id="ai-inventory-suggestion">...</span>
-                </div>
-            </div>
-
-            <!-- AI Anomaly Detection -->
-            <div class="ai-card" style="background: rgba(15, 23, 42, 0.6); padding: 20px; border-radius: 16px; border: 1px solid rgba(248, 113, 113, 0.3); transition: all 0.3s;">
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
-                    <div style="background: rgba(248, 113, 113, 0.2); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #f87171; box-shadow: 0 0 15px rgba(248,113,113,0.3);">🕵️‍♂️</div>
-                    <h4 style="margin: 0; color: #fff; font-size: 1.1rem; font-weight: 800;">مراقب الحركات الشاذة</h4>
-                </div>
-                <p id="ai-anomaly-text" style="margin: 0 0 15px 0; color: #94a3b8; font-size: 0.85rem; line-height: 1.5; font-weight: 500;">جاري التحليل...</p>
-                <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px; font-size: 0.8rem; color: #cbd5e1; display: flex; align-items: center; justify-content: space-between; border-left: 3px solid #f87171;">
-                    <span style="font-weight: 600;" id="ai-anomaly-suggestion">...</span>
-                </div>
-            </div>
-
-            <!-- AI Customer Risk -->
-            <div class="ai-card" style="background: rgba(15, 23, 42, 0.6); padding: 20px; border-radius: 16px; border: 1px solid rgba(52, 211, 153, 0.3); transition: all 0.3s;">
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
-                    <div style="background: rgba(52, 211, 153, 0.2); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #34d399; box-shadow: 0 0 15px rgba(52,211,153,0.3);">📊</div>
-                    <h4 style="margin: 0; color: #fff; font-size: 1.1rem; font-weight: 800;">تقييم مخاطر العملاء</h4>
-                </div>
-                <p id="ai-customer-risk-text" style="margin: 0 0 15px 0; color: #94a3b8; font-size: 0.85rem; line-height: 1.5; font-weight: 500;">جاري التحليل...</p>
-                <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px; font-size: 0.8rem; color: #34d399; display: flex; align-items: center; gap: 8px; border-left: 3px solid #34d399;">
-                    <span>✨</span> <strong style="color:#fff;">توصية:</strong> <span id="ai-customer-risk-suggestion">...</span>
-                </div>
-            </div>
-        </div>
-    </div>
 
     
     
-    <!-- Comprehensive Reports Hub -->
-    <div class="comprehensive-reports-section" style="margin-bottom: 40px; animation: fadeUpIn 0.5s ease-out both;">
-    <h3 style="color: #38bdf8; font-size: 1.4rem; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">
-        <span style="font-size: 1.8rem;">📂</span> 
-        دليل التقارير
-    </h3>
+
     
     <style>
         .reports-directory-grid {
@@ -1076,38 +1011,12 @@
         :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
 \n</style>
 
-    <div class="reports-directory-grid">
-        <div class="report-category-card cat-reports" style="grid-column: 1 / -1;">
-            <div class="report-category-header">
-                <div class="report-category-icon">📂</div>
-                <h4 class="report-category-title">التقارير المتاحة</h4>
-            </div>
-            <div class="report-links-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
-                <a href="aging-report.php" class="report-link-item"><span class="icon">⏳</span> أعمار الديون (مراقبة المتأخرات)</a>
-                <a href="checks-cycle.php" class="report-link-item"><span class="icon">💳</span> دورة الشيكات</a>
-            </div>
-        </div>
-    </div>
+
+
+
 </div>
 
-      <!-- KPI Indicators -->
 
-    <div class="kpi-grid">
-        <div class="kpi-card glass-panel kpi-revenue-card">
-            <div class="kpi-content">
-                <div class="kpi-label">إجمالي المبيعات (هذا الشهر)</div>
-                <div class="kpi-value" id="total-revenue">جاري التحميل...</div>
-            </div>
-            <div class="kpi-icon">💰</div>
-        </div>
-        <div class="kpi-card glass-panel kpi-expenses-card">
-            <div class="kpi-content">
-                <div class="kpi-label">إجمالي المشتريات (هذا الشهر)</div>
-                <div class="kpi-value" id="total-expenses">جاري التحميل...</div>
-            </div>
-            <div class="kpi-icon">📉</div>
-        </div>
-    </div>
 
     <!-- Charts Section -->
     <div class="charts-grid">
@@ -1212,9 +1121,6 @@
 
         // 4. Update Charts
         updateCharts(dates, salesData, purchasesData, topProductLabels, topProductData);
-
-        // 5. Update AI Cards
-        updateAICards(sales, purchases, items, payments, receipts, customers);
     }
 
     function updateCharts(dates, salesData, purchasesData, topProductLabels, topProductData) {
@@ -1315,73 +1221,6 @@
                 }
             }
         });
-    }
-
-    function updateAICards(sales, purchases, items, payments, receipts, customers) {
-        // AI Cashflow
-        let totalReceivables = customers.reduce((sum, c) => sum + Math.max(0, parseFloat(c.currentBalance) || 0), 0);
-        let cashflowText = document.getElementById('ai-cashflow-text');
-        let cashflowSugg = document.getElementById('ai-cashflow-suggestion');
-        if(totalReceivables > 10000) {
-            cashflowText.innerHTML = `يوجد مبلغ <strong style="color: #34d399;">${totalReceivables.toLocaleString()} SDG</strong> مديونيات لدى العملاء قابلة للتحصيل.`;
-            cashflowSugg.innerHTML = 'البدء في تحصيل المديونيات المتأخرة لتحسين السيولة.';
-        } else {
-            cashflowText.innerHTML = `التدفق النقدي الحالي مستقر بناءً على حركة اليوم.`;
-            cashflowSugg.innerHTML = 'مراقبة النفقات خلال الأسبوع القادم.';
-        }
-
-        // AI Inventory
-        let inventory = [];
-        try { inventory = JSON.parse(localStorage.getItem('erp_inventory_v1')) || []; } catch(e) {}
-        
-        let lowStockItem = items.find(item => {
-            let actualQty = inventory
-                .filter(inv => inv.itemId === item.id && inv.warehouse !== 'PENDING_RECEIPT')
-                .reduce((sum, inv) => sum + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0), 0);
-            return actualQty <= (parseFloat(item.minStock) || 0) && (parseFloat(item.minStock) || 0) > 0;
-        });
-
-        let invText = document.getElementById('ai-inventory-text');
-        let invSugg = document.getElementById('ai-inventory-suggestion');
-        if(lowStockItem) {
-            let actualQty = inventory
-                .filter(inv => inv.itemId === lowStockItem.id && inv.warehouse !== 'PENDING_RECEIPT')
-                .reduce((sum, inv) => sum + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0), 0);
-            invText.innerHTML = `رصد النظام نقصاً في <strong style="color: #38bdf8;">"${lowStockItem.name}"</strong> (الكمية الحالية: ${actualQty.toLocaleString()} مقابل حد آمن: ${lowStockItem.minStock}).`;
-            invSugg.innerHTML = 'المخزون الحالي قد لا يكفي، يرجى طلب كمية إضافية.';
-        } else {
-            invText.innerHTML = `جميع الأصناف بمستويات مخزون آمنة حسب التحليل الحالي.`;
-            invSugg.innerHTML = 'لا توجد إجراءات ملحة مطلوبة.';
-        }
-
-        // AI Anomaly
-        let totalPayments = payments.reduce((sum, p) => sum + (parseFloat(p.amountLocal) || 0), 0);
-        let avgPayment = payments.length ? (totalPayments / payments.length) : 0;
-        let anomaly = payments.find(p => parseFloat(p.amountLocal) > avgPayment * 2.5);
-        let anomalyText = document.getElementById('ai-anomaly-text');
-        let anomalySugg = document.getElementById('ai-anomaly-suggestion');
-        if(anomaly && payments.length > 3) {
-            anomalyText.innerHTML = `تم رصد <strong style="color: #f87171;">سند صرف غير معتاد</strong> بقيمة ${parseFloat(anomaly.amountLocal).toLocaleString()} SDG.`;
-            anomalySugg.innerHTML = `سند رقم: #${anomaly.id || '-'}`;
-        } else {
-            anomalyText.innerHTML = `لا توجد حركات مالية شاذة أو غير معتادة خلال الفترة الأخيرة.`;
-            anomalySugg.innerHTML = `مراجعة القيد غير مطلوبة حالياً.`;
-        }
-
-        // AI Customer Risk
-        let riskyCust = customers.sort((a, b) => (b.currentBalance || 0) - (a.currentBalance || 0))[0];
-        let riskText = document.getElementById('ai-customer-risk-text');
-        let riskSugg = document.getElementById('ai-customer-risk-suggestion');
-        if(riskyCust && riskyCust.currentBalance > (riskyCust.creditLimit || 0) && riskyCust.creditLimit > 0) {
-            riskText.innerHTML = `العميل <strong style="color: #f87171;">${riskyCust.name}</strong> تجاوز حد الائتمان المسموح.`;
-            riskSugg.innerHTML = `إيقاف البيع الآجل للعميل مؤقتاً.`;
-        } else if(riskyCust && riskyCust.currentBalance > 0) {
-            riskText.innerHTML = `العميل <strong style="color: #fbbf24;">${riskyCust.name}</strong> يمتلك أعلى مديونية حالياً.`;
-            riskSugg.innerHTML = `جدولة الدفعات مع العميل.`;
-        } else {
-            riskText.innerHTML = `مخاطر الائتمان للعملاء في مستويات منخفضة ومستقرة.`;
-            riskSugg.innerHTML = `الاستمرار بالسياسة الحالية.`;
-        }
     }
 </script>
 

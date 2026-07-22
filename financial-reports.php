@@ -1,4 +1,4 @@
-<?php $page_title = 'التقارير الشاملة'; ?>
+<?php $page_title = 'القوائم الختامية والمحاسبية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -17,7 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>التقارير الشاملة | Al-Sajana ERP</title>
+    <title>القوائم الختامية والمحاسبية | Al-Sajana ERP</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
@@ -342,121 +342,17 @@
         
         <?php $header_theme_class = 'header-theme-reports'; include 'includes/header.php'; ?>
 
-        <!-- 1. Treasury & Banks -->
-        <h2 class="section-heading section-1"><span class="heading-icon" style="color:#38bdf8; box-shadow:0 0 15px rgba(56,189,248,0.2);">🏦</span> تقارير الخزينة والبنوك</h2>
-        <div class="bento-grid grid-1">
-            <a data-href="cash-bank-statement.php" onclick="window.location.href='cash-bank-statement.php'" class="bento-card bento-large" style="--glow-color: rgba(56, 189, 248, 0.6);">
-                <span class="badge">مفعل</span>
-                <div class="card-icon-wrapper">📓</div>
-                <div class="card-content">
-                    <h3 class="card-title">كشف حساب الخزن والبنوك</h3>
-                    <p class="card-desc">دفتر الأستاذ التفصيلي للحسابات النقدية والبنكية مع مراقبة الأرصدة والتحويلات اللحظية بدقة متناهية.</p>
-                </div>
-            </a>
-            <a data-href="checks-cycle.php" onclick="window.location.href='checks-cycle.php'" class="bento-card" style="--glow-color: rgba(56, 189, 248, 0.6);">
-                <span class="badge">مفعل</span>
-                <div class="card-icon-wrapper">🧾</div>
-                <div class="card-content">
-                    <h3 class="card-title">دورة محفظة الشيكات</h3>
-                    <p class="card-desc">مراقبة دورة حياة الشيكات الواردة والصادرة وأوراق القبض والدفع.</p>
-                </div>
-            </a>
-            <a data-href="single-cash-receipt.php" onclick="window.location.href='single-cash-receipt.php'" class="bento-card" style="--glow-color: rgba(56, 189, 248, 0.6);">
-                <span class="badge">مفعل</span>
-                <div class="card-icon-wrapper">💸</div>
-                <div class="card-content">
-                    <h3 class="card-title">إيصالات وحركة الصندوق</h3>
-                    <p class="card-desc">مراجعة سريعة لسندات القبض النقدية وحركة الخزينة اليومية.</p>
-                </div>
+        <div style="margin-top: 15px; margin-bottom: 10px;">
+            <a href="analytics.php" onclick="window.location.href='analytics.php'; return false;" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(251, 191, 36, 0.1); border: 1.5px solid #fbbf24; color: #fbbf24; padding: 8px 20px; border-radius: 50px; text-decoration: none; font-weight: bold; font-size: 14px; transition: all 0.3s; box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);" onmouseover="this.style.background='#fbbf24'; this.style.color='#000';" onmouseout="this.style.background='rgba(251, 191, 36, 0.1)'; this.style.color='#fbbf24';">
+                <i class="fa-solid fa-arrow-right"></i> ↩️ رجوع للشاشة السابقة (التقارير الرئيسية)
             </a>
         </div>
 
-        <!-- 2. Partners -->
-        <h2 class="section-heading section-2"><span class="heading-icon" style="color:#c084fc; box-shadow:0 0 15px rgba(192,132,252,0.2);">🤝</span> تقارير العملاء والموردين</h2>
-        <div class="bento-grid grid-2">
-            <a data-href="statement.php" onclick="window.location.href='statement.php'" class="bento-card bento-large" style="--glow-color: rgba(192, 132, 252, 0.6);">
-                <span class="badge">مفعل</span>
-                <div class="card-icon-wrapper">📋</div>
-                <div class="card-content">
-                    <h3 class="card-title">كشف الحساب التفصيلي</h3>
-                    <p class="card-desc">تقرير شامل يوضح كل العمليات المالية والمطالبات للعميل أو المورد مع احتساب الرصيد التراكمي خطوة بخطوة.</p>
-                </div>
-            </a>
-            <a data-href="balances-report.php" onclick="window.location.href='balances-report.php'" class="bento-card" style="--glow-color: rgba(192, 132, 252, 0.6);">
-                <span class="badge">مفعل</span>
-                <div class="card-icon-wrapper">👥</div>
-                <div class="card-content">
-                    <h3 class="card-title">الأرصدة المجمعة</h3>
-                    <p class="card-desc">نظرة عامة على أرصدة جميع الشركاء التجاريين لتقييم المديونيات بشكل سريع.</p>
-                </div>
-            </a>
-            <a data-href="aging-report.php" onclick="window.location.href='aging-report.php'" class="bento-card" style="--glow-color: rgba(192, 132, 252, 0.6);">
-                <span class="badge badge-new">جديد احترافي</span>
-                <div class="card-icon-wrapper">⌛</div>
-                <div class="card-content">
-                    <h3 class="card-title">أعمار الديون (Aging)</h3>
-                    <p class="card-desc">تحليل المتأخرات وفترات الاستحقاق لمعرفة الديون المعدومة وقيد التحصيل.</p>
-                </div>
-            </a>
-            <a data-href="financial_health.php?currency=<?php echo $selected_currency; ?>" onclick="window.location.href='financial_health.php?currency=<?php echo $selected_currency; ?>'" class="bento-card" style="--glow-color: rgba(99, 102, 241, 0.6);">
-                <span class="badge badge-new" style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border-color: rgba(99, 102, 241, 0.3);">متصل لحظياً (Live)</span>
-                <div class="card-icon-wrapper">🛡️</div>
-                <div class="card-content">
-                    <h3 class="card-title">التقارير الصحية المالية ومعدلات الأمان</h3>
-                    <p class="card-desc">تحليل فترات التحصيل (DSO)، أعمار الديون ومخصصات حماية رأس المال لتوقع السيولة ومخاطر السوق.</p>
-                </div>
-            </a>
-            <a data-href="customer-portfolio.php" onclick="window.location.href='customer-portfolio.php'" class="bento-card" style="--glow-color: rgba(245, 158, 11, 0.6);">
-                <span class="badge badge-new" style="background:rgba(245,158,11,0.15); color:#f59e0b; border-color:rgba(245,158,11,0.3);">⭐ متقدم</span>
-                <div class="card-icon-wrapper">💼</div>
-                <div class="card-content">
-                    <h3 class="card-title">بطاقة الموقف المالي للعملاء</h3>
-                    <p class="card-desc">لوحة تحليل شاملة لرصد مواقف العملاء وأداء التحصيل والمديونيات مع مؤشرات الأداء الرئيسية (KPI).</p>
-                </div>
-            </a>
-        </div>
-
-        <!-- 3. Inventory -->
-        <h2 class="section-heading section-3"><span class="heading-icon" style="color:#34d399; box-shadow:0 0 15px rgba(52,211,153,0.2);">📦</span> تقارير المخزون والمستودعات</h2>
-        <div class="bento-grid grid-3">
-            <a data-href="inventory-report.php" onclick="window.location.href='inventory-report.php'" class="bento-card bento-large" style="--glow-color: rgba(52, 211, 153, 0.6);">
-                <span class="badge">مفعل</span>
-                <div class="card-icon-wrapper">🏭</div>
-                <div class="card-content">
-                    <h3 class="card-title">جرد أرصدة المستودعات</h3>
-                    <p class="card-desc">تقرير تفصيلي يوضح الكميات المتاحة، المحجوزة للطلبيات، والفعلية لكل صنف في كافة فروع المؤسسة.</p>
-                </div>
-            </a>
-            <a data-href="item-ledger.php" onclick="window.location.href='item-ledger.php'" class="bento-card" style="--glow-color: rgba(52, 211, 153, 0.6);">
-                <span class="badge">مفعل</span>
-                <div class="card-icon-wrapper">🏷️</div>
-                <div class="card-content">
-                    <h3 class="card-title">بطاقة الصنف (حركة مادة)</h3>
-                    <p class="card-desc">تتبع دقيق لحركات الإضافة والصرف لصنف معين داخل المستودع.</p>
-                </div>
-            </a>
-            <a data-href="warehouse-ledger.php" onclick="window.location.href='warehouse-ledger.php'" class="bento-card" style="--glow-color: rgba(52, 211, 153, 0.6);">
-                <span class="badge badge-new">شامل</span>
-                <div class="card-icon-wrapper">🔄</div>
-                <div class="card-content">
-                    <h3 class="card-title">حركة المستودعات</h3>
-                    <p class="card-desc">مراقبة أذونات الصرف والإضافة وتتبع مسارات النقل بين الفروع.</p>
-                </div>
-            </a>
-        </div>
-
-        <!-- 4. Final Statements -->
+        <!-- 4. Final Statements Grid -->
         <h2 class="section-heading section-4"><span class="heading-icon" style="color:#fbbf24; box-shadow:0 0 15px rgba(251,191,36,0.2);">🏛️</span> القوائم الختامية والمحاسبية</h2>
-        <div class="bento-grid grid-4">
-            <a data-href="general-ledger.php" onclick="window.location.href='general-ledger.php'" class="bento-card bento-large" style="--glow-color: rgba(251, 191, 36, 0.6);">
-                <span class="badge">مفعل</span>
-                <div class="card-icon-wrapper">📓</div>
-                <div class="card-content">
-                    <h3 class="card-title">دفتر الأستاذ العام (GL)</h3>
-                    <p class="card-desc">المركز الرئيسي لمراقبة الحسابات الرئيسية والفرعية وكافة العمليات المقيدة على شجرة الحسابات.</p>
-                </div>
-            </a>
-            <a data-href="trial-balance.php" onclick="window.location.href='trial-balance.php'" class="bento-card" style="--glow-color: rgba(251, 191, 36, 0.6);">
+        <div class="bento-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+            <!-- 1. ميزان المراجعة -->
+            <a data-href="trial-balance.php" onclick="window.location.href='trial-balance.php'" class="bento-card" style="--glow-color: rgba(251, 191, 36, 0.65);">
                 <span class="badge badge-new">متقدم</span>
                 <div class="card-icon-wrapper">⚖️</div>
                 <div class="card-content">
@@ -464,7 +360,9 @@
                     <p class="card-desc">كشف بأرصدة الحسابات ومجاميعها لضمان التوازن المحاسبي الكامل.</p>
                 </div>
             </a>
-            <a data-href="pl-statement.php" onclick="window.location.href='pl-statement.php'" class="bento-card" style="--glow-color: rgba(251, 191, 36, 0.6);">
+
+            <!-- 2. قائمة الأرباح والخسائر -->
+            <a data-href="pl-statement.php" onclick="window.location.href='pl-statement.php'" class="bento-card" style="--glow-color: rgba(251, 191, 36, 0.65);">
                 <span class="badge badge-new">متقدم</span>
                 <div class="card-icon-wrapper">📊</div>
                 <div class="card-content">
@@ -472,12 +370,24 @@
                     <p class="card-desc">تحليل دقيق للإيرادات والمصروفات لاستخراج صافي الدخل.</p>
                 </div>
             </a>
-            <a data-href="journal-voucher.php" onclick="window.location.href='journal-voucher.php'" class="bento-card" style="--glow-color: rgba(251, 191, 36, 0.6);">
+
+            <!-- 3. قيود اليومية -->
+            <a data-href="journal-voucher.php" onclick="window.location.href='journal-voucher.php'" class="bento-card" style="--glow-color: rgba(251, 191, 36, 0.65);">
                 <span class="badge">مفعل</span>
                 <div class="card-icon-wrapper">✍️</div>
                 <div class="card-content">
                     <h3 class="card-title">قيود اليومية</h3>
                     <p class="card-desc">مراجعة كافة قيود التسوية والقيود اليدوية والآلية (القيد المزدوج).</p>
+                </div>
+            </a>
+
+            <!-- 4. تقرير الجرد العام لنهاية السنة والأصول الثابتة وحساب الزكاة الشرعية (ممتد بعرض الشاشة طولياً) -->
+            <a data-href="annual_inventory_zakat_report.php" onclick="window.location.href='annual_inventory_zakat_report.php'" class="bento-card bento-large" style="grid-column: 1 / -1; width: 100%; --glow-color: rgba(16, 185, 129, 0.75); background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(2, 132, 199, 0.15)); border: 2.5px solid #10b981;">
+                <span class="badge badge-new" style="background: #10b981; color: #ffffff; border: none; font-weight: 900;"><i class="fa-solid fa-star"></i> التقرير الشامل والمحدث 2026</span>
+                <div class="card-icon-wrapper" style="background: rgba(16, 185, 129, 0.2); font-size: 2.2rem;">⚖️</div>
+                <div class="card-content" style="flex: 1;">
+                    <h3 class="card-title" style="font-size: 1.35rem; color: #10b981;">تقرير الجرد العام لنهاية السنة والأصول الثابتة وحساب الزكاة الشرعية</h3>
+                    <p class="card-desc" style="font-size: 0.95rem; opacity: 0.95;">يتضمن جرد وتقييم مخزون عروض التجارة، مديونيات العملاء والموردين المجمعة (له وعليه)، الأصول الثابتة والإهلاكات، وحاسبة الزكاة الإسلامية بنسبة 2.5%.</p>
                 </div>
             </a>
         </div>
