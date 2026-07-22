@@ -179,15 +179,6 @@ const UnifiedBrain = {
         const panel = document.createElement('div');
         panel.className = 'ub-panel';
         panel.id = 'ub-panel';
-    createPanel() {
-        const overlay = document.createElement('div');
-        overlay.className = 'ub-overlay';
-        overlay.id = 'ub-overlay';
-        overlay.onclick = () => this.close();
-        
-        const panel = document.createElement('div');
-        panel.className = 'ub-panel';
-        panel.id = 'ub-panel';
         panel.innerHTML = `
             <div class="ub-panel-header">
                 <div class="ub-panel-title">
@@ -253,10 +244,6 @@ const UnifiedBrain = {
                 </a>
             </div>
         `;
-        
-        document.body.appendChild(overlay);
-        document.body.appendChild(panel);
-    },
         
         document.body.appendChild(overlay);
         document.body.appendChild(panel);
