@@ -886,8 +886,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         const perms = window.resolveUserPermissions ? window.resolveUserPermissions(user) : {};
         
-        const hasSettings = user.role === 'admin' || user.role === 'Admin' || user.role === 'مدير النظام' || (perms.settings && perms.settings.view);
-        const hasInvRules = user.role === 'admin' || user.role === 'Admin' || user.role === 'مدير النظام' || (perms.inventory_rules && perms.inventory_rules.view);
+        const isAdmin = !user.role || user.username === 'admin' || user.role === 'admin' || user.role === 'Admin' || user.role === 'مدير النظام' || user.roleId === 'admin_fallback' || (user.securityLevel && user.securityLevel >= 5);
+        
+        const hasSettings = isAdmin || (perms.settings && perms.settings.view);
+        const hasInvRules = isAdmin || (perms.inventory_rules && perms.inventory_rules.view);
         
         if (!hasSettings && !hasInvRules) {
             window.location.href = 'dashboard-pro.php';
@@ -908,9 +910,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (invBtn) invBtn.style.display = 'none';
         }
 
-        const canEditSettings = user.role === 'admin' || user.role === 'Admin' || user.role === 'مدير النظام' || (perms.settings && perms.settings.edit);
-        const canEditInvRules = user.role === 'admin' || user.role === 'Admin' || user.role === 'مدير النظام' || (perms.inventory_rules && perms.inventory_rules.edit);
-        const canEditRates = user.role === 'admin' || user.role === 'Admin' || user.role === 'مدير النظام' || (perms.exchange_rates && perms.exchange_rates.edit);
+        const canEditSettings = isAdmin || (perms.settings && perms.settings.edit);
+        const canEditInvRules = isAdmin || (perms.inventory_rules && perms.inventory_rules.edit);
+        const canEditRates = isAdmin || (perms.exchange_rates && perms.exchange_rates.edit);
         
         if (!canEditSettings && !canEditInvRules) {
             document.querySelector('.save-btn-main').style.display = 'none';
@@ -1037,6 +1039,8 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.classList.add('active');
         document.getElementById(tabId).classList.add('active');
     }
+    window.switchTab = switchTab;
+    window.switchPrintTab = switchPrintTab;
 
     function loadSettings() {
         const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
