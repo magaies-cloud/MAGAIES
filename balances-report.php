@@ -1061,6 +1061,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }, 10000);
+});
+</script>
 <!-- Customization Sidebar Modal (Copied from General Ledger) -->
 <div class="sidebar-overlay" id="settings-overlay" onclick="toggleSettingsSidebar()"></div>
 <div class="settings-sidebar" id="settings-sidebar" style="resize: both; overflow: auto;">
