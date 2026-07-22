@@ -6,6 +6,7 @@ const UnifiedBrain = {
     lastData: null,
     
     init() {
+        if (document.getElementById('ub-fab')) return;
         this.createAIHub();
         this.createPanel();
         this.quickHealthCheck();
@@ -452,6 +453,8 @@ const UnifiedBrain = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => UnifiedBrain.init(), 1000);
-});
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(() => UnifiedBrain.init(), 200));
+} else {
+    setTimeout(() => UnifiedBrain.init(), 200);
+}
