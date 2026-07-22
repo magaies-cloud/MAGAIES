@@ -262,6 +262,9 @@
 
                 const getBaseUrl = () => {
                     const origin = window.location.origin;
+                    if (origin === 'https://elsajana.com' || origin === 'https://www.elsajana.com') {
+                        return 'https://c.elsajana.com/';
+                    }
                     const path = window.location.pathname;
                     const dir = path.substring(0, path.lastIndexOf('/'));
                     return origin + dir + "/";
