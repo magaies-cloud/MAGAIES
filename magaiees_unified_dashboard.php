@@ -443,6 +443,36 @@
             transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
+        /* 100% Uniform Size & Increased Width for All Quick Action Bar Buttons */
+        .qa-unified-btn, #qa-bar-container .quick-action-btn, #qa-bar-container .admin-action-btn {
+            height: 42px !important;
+            min-height: 42px !important;
+            padding: 8px 16px !important;
+            border-radius: 12px !important;
+            font-size: 0.88rem !important;
+            font-weight: 800 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 8px !important;
+            box-sizing: border-box !important;
+            transition: all 0.25s ease !important;
+            cursor: pointer !important;
+            white-space: nowrap !important;
+        }
+
+        .qa-unified-btn .qa-icon, #qa-bar-container .quick-action-btn .qa-icon, #qa-bar-container .admin-action-btn .qa-icon {
+            width: 26px !important;
+            height: 26px !important;
+            min-width: 26px !important;
+            font-size: 0.8rem !important;
+            border-radius: 7px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+        }
+
         #screens-dropdown-list {
             scroll-behavior: smooth !important;
             -webkit-overflow-scrolling: touch;
@@ -844,25 +874,28 @@
                     <i class="fa-solid fa-bolt text-amber-400"></i> أزرار الوصول السريع المخصصة (7 أزرار)
                     <span style="font-size: 0.68rem; font-weight: 600; color: #64748b; margin-right: 6px;">(انقر بالزر الأيمن 🖱️ لتخصيص الأزرار السبعة المجهزة)</span>
                 </div>
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <!-- Customize Button (Slightly larger, matching height) -->
-                    <button onclick="openQACustomizer(event)" class="admin-action-btn admin-action-settings" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 18px; border-radius: 12px; font-size: 0.92rem; font-weight: 800; cursor: pointer; transition: all 0.25s ease; height: 42px; box-sizing: border-box;" title="تخصيص الأزرار السبعة">
-                        <i class="fa-solid fa-sliders text-sky-400" style="font-size: 1rem;"></i> تخصيص (7)
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <!-- Customize Button -->
+                    <button onclick="openQACustomizer(event)" class="admin-action-btn admin-action-settings qa-unified-btn" style="background: rgba(56, 189, 248, 0.15); border: 1.5px solid rgba(56, 189, 248, 0.5); color: #38bdf8;" title="تخصيص الأزرار السبعة">
+                        <span class="qa-icon" style="background: rgba(56, 189, 248, 0.25); border: 1px solid #38bdf8; color: #38bdf8;">
+                            <i class="fa-solid fa-sliders"></i>
+                        </span>
+                        <span style="color: #38bdf8;">تخصيص (7)</span>
                     </button>
 
-                    <!-- Screens Button (Noticeably larger, matching exact quick action button presence) -->
-                    <button id="screens-dropdown-btn" onclick="toggleScreensDropdown(event)" class="quick-action-btn qa-purple" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 8px 20px; border-radius: 12px; background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(99, 102, 241, 0.3)); border: 2px solid rgba(168, 85, 247, 0.7); color: #c084fc; font-size: 0.95rem; font-weight: 900; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4); height: 42px; box-sizing: border-box;">
-                        <span class="qa-icon" style="width: 26px; height: 26px; min-width: 26px; font-size: 0.85rem; border-radius: 8px; background: rgba(168, 85, 247, 0.4); border: 1px solid #c084fc; color: #fff; display: flex; align-items: center; justify-content: center;">
+                    <!-- Screens Button -->
+                    <button id="screens-dropdown-btn" onclick="toggleScreensDropdown(event)" class="quick-action-btn qa-purple qa-unified-btn" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(99, 102, 241, 0.3)); border: 1.5px solid rgba(168, 85, 247, 0.7); color: #c084fc; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.35);">
+                        <span class="qa-icon" style="background: rgba(168, 85, 247, 0.4); border: 1px solid #c084fc; color: #fff;">
                             <i class="fa-solid fa-desktop"></i>
                         </span>
-                        <span style="color: #fff; font-size: 0.95rem; font-weight: 900;">الشاشات</span>
-                        <i class="fa-solid fa-chevron-down" id="screens-chevron" style="font-size: 0.78rem; transition: transform 0.3s ease; color: #c084fc;"></i>
+                        <span style="color: #fff; font-weight: 900;">الشاشات</span>
+                        <i class="fa-solid fa-chevron-down" id="screens-chevron" style="font-size: 0.75rem; transition: transform 0.3s ease; color: #c084fc;"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Single Row 7-Column Grid Layout -->
-            <div id="qa-single-row-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; width: 100%;">
+            <div id="qa-single-row-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; width: 100%;">
                 <!-- Dynamic 7 Items rendered via JS -->
             </div>
         </div>
@@ -1930,11 +1963,11 @@
             const activeItems = selectedIds.map(id => ALL_QUICK_ACTIONS.find(a => a.id === id)).filter(Boolean);
             
             grid.innerHTML = activeItems.map(item => `
-                <a data-href="${item.href}" onclick="window.location.href='${item.href}'" class="quick-action-btn" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 10px; border-radius: 10px; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.08); border-bottom: 2px solid ${item.border}; transition: all 0.3s ease; text-decoration: none; cursor: pointer; min-width: 0;">
-                    <span class="qa-icon" style="width: 22px; height: 22px; min-width: 22px; font-size: 0.72rem; border-radius: 6px; background: ${item.bg}; border: 1px solid ${item.border}; color: ${item.color}; display: flex; align-items: center; justify-content: center;">
+                <a data-href="${item.href}" onclick="window.location.href='${item.href}'" class="quick-action-btn qa-unified-btn" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border-radius: 12px; background: rgba(15, 23, 42, 0.65); border: 1.5px solid rgba(255,255,255,0.1); border-bottom: 3px solid ${item.border}; transition: all 0.25s ease; text-decoration: none; cursor: pointer; height: 42px; box-sizing: border-box;" onmouseover="this.style.background='rgba(30, 41, 59, 0.9)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='rgba(15, 23, 42, 0.65)'; this.style.transform='none';">
+                    <span class="qa-icon" style="width: 26px; height: 26px; min-width: 26px; font-size: 0.8rem; border-radius: 7px; background: ${item.bg}; border: 1px solid ${item.border}; color: ${item.color}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                         <i class="fa-solid ${item.icon}"></i>
                     </span>
-                    <span style="font-size: 0.76rem; font-weight: 800; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</span>
+                    <span style="font-size: 0.88rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</span>
                 </a>
             `).join('');
             
