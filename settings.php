@@ -1595,6 +1595,7 @@ document.addEventListener('DOMContentLoaded', function() {
             current += ch;
         }
         return vals;
+    }
     // --- Backup & Restore Handlers ---
     async function backupData() {
         try {
@@ -1680,8 +1681,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Check if it's a SQL file or JSON file
                 if (content.trim().startsWith('--') || content.toUpperCase().includes('INSERT INTO')) {
-                    if (typeof handleSqlRestore === 'function') {
-                        handleSqlRestore(content);
+                    if (typeof restoreFromSqlDump === 'function') {
+                        restoreFromSqlDump(content);
                         return;
                     }
                 }
