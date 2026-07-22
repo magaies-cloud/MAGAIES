@@ -742,37 +742,47 @@
                     <i class="fa-solid fa-bolt text-amber-400"></i> أزرار الوصول السريع المخصصة (7 أزرار)
                     <span style="font-size: 0.68rem; font-weight: 600; color: #64748b; margin-right: 6px;">(انقر بالزر الأيمن 🖱️ لتخصيص الأزرار السبعة المجهزة)</span>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px; position: relative;">
-                    <!-- Customize Button (Moved slightly right) -->
-                    <button onclick="openQACustomizer(event)" style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; border-radius: 10px; padding: 5px 12px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; height: 32px; box-sizing: border-box;" title="تخصيص الأزرار السبعة">
-                        <i class="fa-solid fa-sliders"></i> تخصيص (7)
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <!-- Customize Button (exact same dimensions as quick action buttons) -->
+                    <button onclick="openQACustomizer(event)" class="admin-action-btn admin-action-settings" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 14px; border-radius: 12px; font-size: 0.82rem; font-weight: 800; cursor: pointer; transition: all 0.25s ease; height: 36px; box-sizing: border-box;" title="تخصيص الأزرار السبعة">
+                        <i class="fa-solid fa-sliders text-sky-400"></i> تخصيص (7)
                     </button>
 
-                    <!-- New Screens Button (placed in original spot) -->
-                    <button id="screens-dropdown-btn" onclick="toggleScreensDropdown(event)" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(99, 102, 241, 0.25)); border: 1px solid rgba(168, 85, 247, 0.5); color: #c084fc; border-radius: 10px; padding: 5px 14px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; box-shadow: 0 3px 10px rgba(168, 85, 247, 0.25); height: 32px; box-sizing: border-box;">
-                        <span style="width: 20px; height: 20px; min-width: 20px; font-size: 0.7rem; border-radius: 5px; background: rgba(168, 85, 247, 0.3); border: 1px solid #c084fc; color: #c084fc; display: flex; align-items: center; justify-content: center;">
+                    <!-- Screens Button (exact same dimensions as quick action buttons) -->
+                    <button id="screens-dropdown-btn" onclick="toggleScreensDropdown(event)" class="quick-action-btn qa-purple" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 6px 16px; border-radius: 12px; background: rgba(168, 85, 247, 0.25); border: 1.5px solid rgba(168, 85, 247, 0.6); color: #c084fc; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3); height: 36px; box-sizing: border-box;">
+                        <span class="qa-icon" style="width: 22px; height: 22px; min-width: 22px; font-size: 0.75rem; border-radius: 6px; background: rgba(168, 85, 247, 0.35); border: 1px solid #c084fc; color: #fff; display: flex; align-items: center; justify-content: center;">
                             <i class="fa-solid fa-desktop"></i>
                         </span>
-                        <span>الشاشات</span>
-                        <i class="fa-solid fa-chevron-down" id="screens-chevron" style="font-size: 0.65rem; transition: transform 0.3s ease; margin-right: 2px;"></i>
+                        <span style="color: #fff; font-size: 0.85rem; font-weight: 800;">الشاشات</span>
+                        <i class="fa-solid fa-chevron-down" id="screens-chevron" style="font-size: 0.7rem; transition: transform 0.3s ease; color: #c084fc;"></i>
                     </button>
-
-                    <!-- Dropdown Menu for Uncustomized Screens (Floating high on top) -->
-                    <div id="screens-dropdown-menu" style="display: none; position: absolute; top: calc(100% + 6px); left: 0; width: 320px; background: rgba(15, 23, 42, 0.97); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1.5px solid rgba(168, 85, 247, 0.5); border-radius: 14px; box-shadow: 0 20px 50px rgba(0,0,0,0.85), 0 0 20px rgba(168, 85, 247, 0.25); z-index: 99999; padding: 12px; direction: rtl;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08);">
-                            <div style="font-size: 0.8rem; font-weight: 800; color: #c084fc; display: flex; align-items: center; gap: 6px;">
-                                <i class="fa-solid fa-layer-group"></i> بقية الشاشات (غير المخصصة)
-                            </div>
-                            <span id="screens-count-badge" style="background: rgba(168, 85, 247, 0.25); color: #c084fc; border: 1px solid rgba(168,85,247,0.4); font-size: 0.68rem; padding: 2px 8px; border-radius: 10px; font-weight: 800;">0</span>
-                        </div>
-                        <div style="margin-bottom: 8px;">
-                            <input type="text" id="screens-search-input" oninput="filterScreensDropdown()" placeholder="🔍 ابحث في الشاشات..." style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 0.78rem; font-family: 'Tajawal', sans-serif; outline: none;">
-                        </div>
-                        <div id="screens-dropdown-list" style="max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-left: 2px;">
-                            <!-- Rendered dynamically via JS -->
-                        </div>
-                    </div>
                 </div>
+            </div>
+
+            <!-- Single Row 7-Column Grid Layout -->
+            <div id="qa-single-row-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; width: 100%;">
+                <!-- Dynamic 7 Items rendered via JS -->
+            </div>
+        </div>
+
+        <!-- 100% OPAQUE Floating Top Overlay Popover Modal for Screens (Zero Transparency, Floating over page content) -->
+        <div id="screens-dropdown-menu" style="display: none; position: fixed; top: 90px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 680px; background: #0b0f19 !important; border: 2px solid #a855f7; border-radius: 18px; box-shadow: 0 25px 70px rgba(0,0,0,0.98), 0 0 30px rgba(168, 85, 247, 0.4); z-index: 999999; padding: 18px; direction: rtl;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.12);">
+                <div style="font-size: 0.95rem; font-weight: 900; color: #c084fc; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-desktop" style="font-size: 1.1rem; color: #a855f7;"></i> بقية الشاشات (غير المخصصة)
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span id="screens-count-badge" style="background: rgba(168, 85, 247, 0.3); color: #e9d5ff; border: 1px solid #c084fc; font-size: 0.75rem; padding: 3px 10px; border-radius: 12px; font-weight: 800;">0</span>
+                    <button onclick="toggleScreensDropdown(event)" style="background: rgba(248, 113, 113, 0.2); border: 1px solid #f87171; color: #f87171; border-radius: 8px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: pointer; transition: 0.2s;" title="إغلاق">&times;</button>
+                </div>
+            </div>
+            <div style="margin-bottom: 14px;">
+                <input type="text" id="screens-search-input" oninput="filterScreensDropdown()" placeholder="🔍 ابحث عن أي شاشة..." style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 8px 14px; color: #fff; font-size: 0.85rem; font-family: 'Tajawal', sans-serif; outline: none;">
+            </div>
+            <div id="screens-dropdown-list" style="max-height: 360px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; padding-left: 4px;">
+                <!-- Rendered dynamically via JS -->
+            </div>
+        </div>
             </div>
 
             <!-- Single Row 7-Column Grid Layout -->
@@ -1813,19 +1823,19 @@
             if (!listContainer) return;
 
             if (unselected.length === 0) {
-                listContainer.innerHTML = '<div style="text-align:center; padding:12px; color:#94a3b8; font-size:0.75rem;">جميع الشاشات مخصصة في الأزرار السبعة 🎉</div>';
+                listContainer.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; padding:20px; color:#94a3b8; font-size:0.85rem; font-weight: 700;">جميع الشاشات مخصصة في الأزرار السبعة 🎉</div>';
                 return;
             }
 
             listContainer.innerHTML = unselected.map(item => `
-                <a href="${item.href}" onclick="window.location.href='${item.href}'" class="screen-dropdown-item" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 10px; border-radius: 10px; background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.08); border-bottom: 2px solid ${item.border}; text-decoration: none; transition: all 0.2s ease; cursor: pointer;" onmouseover="this.style.background='rgba(30, 41, 59, 0.85)'; this.style.borderColor='${item.border}'; this.style.transform='translateY(-1px)';" onmouseout="this.style.background='rgba(15, 23, 42, 0.65)'; this.style.borderColor='rgba(255,255,255,0.08)'; this.style.transform='none';">
+                <a href="${item.href}" onclick="window.location.href='${item.href}'" class="quick-action-btn screen-dropdown-item" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; border-radius: 12px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255,255,255,0.12); border-bottom: 2.5px solid ${item.border}; text-decoration: none; transition: all 0.25s ease; cursor: pointer; height: 38px; box-sizing: border-box;" onmouseover="this.style.background='rgba(30, 41, 59, 0.95)'; this.style.borderColor='${item.border}'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='rgba(15, 23, 42, 0.75)'; this.style.borderColor='rgba(255,255,255,0.12)'; this.style.transform='none';">
                     <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
-                        <span class="qa-icon" style="width: 22px; height: 22px; min-width: 22px; font-size: 0.72rem; border-radius: 6px; background: ${item.bg}; border: 1px solid ${item.border}; color: ${item.color}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <span class="qa-icon" style="width: 24px; height: 24px; min-width: 24px; font-size: 0.75rem; border-radius: 6px; background: ${item.bg}; border: 1px solid ${item.border}; color: ${item.color}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                             <i class="fa-solid ${item.icon}"></i>
                         </span>
-                        <span class="screen-title" style="font-size: 0.76rem; font-weight: 800; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</span>
+                        <span class="screen-title" style="font-size: 0.82rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</span>
                     </div>
-                    <i class="fa-solid fa-arrow-left" style="font-size: 0.65rem; color: ${item.color}; opacity: 0.8;"></i>
+                    <i class="fa-solid fa-arrow-left" style="font-size: 0.7rem; color: ${item.color}; opacity: 0.9;"></i>
                 </a>
             `).join('');
         }
