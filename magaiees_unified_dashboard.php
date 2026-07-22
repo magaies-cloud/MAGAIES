@@ -846,20 +846,23 @@
         </div>
 
         <!-- 100% OPAQUE Floating Popover Menu for Uncustomized Screens (Zero Transparency, Floats on Top) -->
-        <div id="screens-dropdown-menu" style="display: none; position: fixed; width: 480px; max-width: 95vw; background: #070a12 !important; border: 2px solid #a855f7; border-radius: 18px; box-shadow: 0 25px 80px rgba(0,0,0,0.98), 0 0 35px rgba(168, 85, 247, 0.45); z-index: 999999; padding: 16px; direction: rtl;">
+        <div id="screens-dropdown-menu" style="display: none; position: fixed; width: 500px; max-width: 96vw; background: #070a12 !important; border: 2px solid #a855f7; border-radius: 20px; box-shadow: 0 25px 90px rgba(0,0,0,0.98), 0 0 40px rgba(168, 85, 247, 0.5); z-index: 999999; padding: 18px; direction: rtl;">
             <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.14);">
-                <div style="font-size: 1.0rem; font-weight: 900; color: #c084fc; display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-desktop" style="font-size: 1.15rem; color: #a855f7;"></i> بقية الشاشات (غير المخصصة)
+                <div style="font-size: 1.05rem; font-weight: 900; color: #c084fc; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-desktop" style="font-size: 1.2rem; color: #a855f7;"></i> بقية الشاشات (غير المخصصة)
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <span id="screens-count-badge" style="background: rgba(168, 85, 247, 0.35); color: #e9d5ff; border: 1px solid #c084fc; font-size: 0.78rem; padding: 3px 10px; border-radius: 12px; font-weight: 900;">0</span>
-                    <button onclick="toggleScreensDropdown(event)" style="background: rgba(248, 113, 113, 0.25); border: 1.5px solid #f87171; color: #f87171; border-radius: 10px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 800; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(248,113,113,0.3);" title="إغلاق القائمة">&times;</button>
+                    <span id="screens-count-badge" style="background: rgba(168, 85, 247, 0.35); color: #e9d5ff; border: 1px solid #c084fc; font-size: 0.8rem; padding: 4px 12px; border-radius: 12px; font-weight: 900;">0</span>
+                    <button onclick="toggleScreensDropdown(event)" style="background: rgba(248, 113, 113, 0.25); border: 1.5px solid #f87171; color: #f87171; border-radius: 12px; padding: 6px 16px; font-size: 0.92rem; font-weight: 900; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(248,113,113,0.3); display: flex; align-items: center; gap: 6px;" title="إغلاق القائمة" onmouseover="this.style.background='rgba(248,113,113,0.4)'; this.style.transform='scale(1.05)';" onmouseout="this.style.background='rgba(248,113,113,0.25)'; this.style.transform='scale(1)';">
+                        <span>إغلاق</span>
+                        <i class="fa-solid fa-xmark" style="font-size: 1.05rem;"></i>
+                    </button>
                 </div>
             </div>
             <div style="margin-bottom: 12px;">
                 <input type="text" id="screens-search-input" oninput="filterScreensDropdown()" placeholder="🔍 ابحث عن أي شاشة..." style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.22); border-radius: 10px; padding: 8px 14px; color: #fff; font-size: 0.88rem; font-family: 'Tajawal', sans-serif; outline: none;">
             </div>
-            <div id="screens-dropdown-list" style="max-height: 440px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-left: 2px;">
+            <div id="screens-dropdown-list" style="max-height: calc(100vh - 200px); overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
                 <!-- Rendered dynamically via JS -->
             </div>
         </div>
@@ -1918,14 +1921,15 @@
             const btn = document.getElementById('screens-dropdown-btn');
             if (!menu || !btn) return;
             
-            const rect = btn.getBoundingClientRect();
             menu.style.position = 'fixed';
-            menu.style.top = `${rect.bottom + 8}px`;
+            // Start high at top clock/user header level (~65px from top)
+            menu.style.top = '65px';
             
-            const menuWidth = Math.min(480, window.innerWidth - 24);
+            const menuWidth = Math.min(500, window.innerWidth - 24);
             menu.style.width = `${menuWidth}px`;
             
-            // In RTL, align right edge of dropdown with right edge of button
+            // Align right side near the button in RTL layout
+            const rect = btn.getBoundingClientRect();
             let rightPos = window.innerWidth - rect.right;
             if (rightPos + menuWidth > window.innerWidth - 12) {
                 rightPos = Math.max(12, window.innerWidth - menuWidth - 12);
