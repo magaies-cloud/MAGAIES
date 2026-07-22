@@ -2532,4 +2532,233 @@ function changeNumberFont(fontClass) {
     if (activeBtn) activeBtn.classList.add('active');
 }
 
+/* ═══════════════════════════════════════════════════════
+   Right-Click Header & Table Context Menu Handler (columnContextMenu)
+   ═══════════════════════════════════════════════════════ */
+
+function openColumnContextMenu(e) {
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    const menu = document.getElementById('columnContextMenu');
+    if (!menu) return;
+
+    let posX = e ? (e.clientX || e.pageX) : window.innerWidth / 2 - 250;
+    let posY = e ? (e.clientY || e.pageY) : 100;
+
+    const menuWidth = 520;
+    const menuHeight = 500;
+    if (posX + menuWidth > window.innerWidth) posX = Math.max(10, window.innerWidth - menuWidth - 20);
+    if (posY + menuHeight > window.innerHeight) posY = Math.max(10, window.innerHeight - menuHeight - 20);
+
+    menu.style.left = posX + 'px';
+    menu.style.top = posY + 'px';
+    menu.style.display = 'block';
+
+    renderColumnContextMenu();
+    makeElementDraggable(menu, document.getElementById('columnContextMenuHeader'));
+}
+
+function renderColumnContextMenu() {
+    const container = document.getElementById('columnToggles');
+    if (!container) return;
+    container.innerHTML = '';
+
+    window.colOrder.forEach((origIdx, index) => {
+        const col = window.colConfigs[origIdx] || { name: 'عمود ' + origIdx, alias: 'عمود ' + origIdx, visible: true };
+        const item = document.createElement('div');
+        item.className = 'col-config-item';
+        item.draggable = true;
+        item.dataset.index = index;
+        item.dataset.origIdx = origIdx;
+
+        const currentFs = parseFloat(col.fs) || 1.0;
+
+        item.innerHTML = `
+            <div class="col-config-header">
+                <div class="col-title-wrap">
+                    <span class="col-drag-handle" title="اسحب لأعلى أو لأسفل لترتيب الأهمية">⣿</span>
+                    <span class="col-title" style="color:#e2e8f0; font-weight:800;">${col.alias || col.name}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button class="col-settings-btn" onclick="toggleColSettingsCtx(${index})">⚙️ تخصيص</button>
+                    <div class="col-toggle ${col.visible !== false ? 'on' : ''}" onclick="toggleColVisibilityCtx(${origIdx}, this)" title="إظهار / إخفاء العمود"></div>
+                </div>
+            </div>
+            <div class="col-settings-panel" id="col-settings-ctx-${index}">
+                <div class="cfg-row">
+                    <span>مسمى العمود:</span>
+                    <input type="text" class="cfg-input" value="${col.alias || col.name}" onchange="updateColField(${origIdx}, 'alias', this.value)" placeholder="${col.name}">
+                </div>
+                <div class="cfg-row">
+                    <span>حجم الخط:</span>
+                    <div style="display:flex; align-items:center; gap:4px;">
+                        <button class="cfg-btn" onclick="adjustFontSize(${origIdx}, -1)">A-</button>
+                        <input type="range" min="0.6" max="3.0" step="0.05" value="${currentFs}" oninput="updateColField(${origIdx}, 'fs', parseFloat(this.value)); document.getElementById('fs-ctx-lbl-${origIdx}').textContent = parseFloat(this.value).toFixed(2) + 'rem';" style="width:75px; cursor:pointer;">
+                        <span id="fs-ctx-lbl-${origIdx}" style="font-size:0.75rem; color:#38bdf8; font-weight:bold; width:45px; text-align:center;">${currentFs.toFixed(2)}rem</span>
+                        <button class="cfg-btn" onclick="adjustFontSize(${origIdx}, 1)">A+</button>
+                        <button class="cfg-btn ${col.bold ? 'active' : ''}" onclick="toggleColBoldCtx(${origIdx}, this)" title="خط بولد عريض" style="font-weight:900;">B (تخين)</button>
+                    </div>
+                </div>
+                <div class="cfg-row">
+                    <span>المحاذاة:</span>
+                    <select class="cfg-input" onchange="updateColField(${origIdx}, 'align', this.value)" style="width:115px;">
+                        <option value="center" ${col.align === 'center' ? 'selected' : ''}>الوسط ↔️</option>
+                        <option value="right" ${col.align === 'right' ? 'selected' : ''}>اليمين ➡️</option>
+                        <option value="left" ${col.align === 'left' ? 'selected' : ''}>اليسار ⬅️</option>
+                    </select>
+                </div>
+                <div class="cfg-row">
+                    <span>ألوان الخط والخلفية:</span>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <span style="font-size:0.75rem; color:#94a3b8;">النص:</span>
+                        <input type="color" class="cfg-input" value="${col.color || '#ffffff'}" onchange="updateColField(${origIdx}, 'color', this.value)">
+                        <span style="font-size:0.75rem; color:#94a3b8; margin-right:4px;">الخلفية:</span>
+                        <input type="color" class="cfg-input" value="${col.bg || '#000000'}" onchange="updateColField(${origIdx}, 'bg', this.value)">
+                    </div>
+                </div>
+                ${['debit', 'credit', 'debitF', 'creditF'].includes(col.id) ? `
+                <div class="cfg-row">
+                    <span>التقريب والفاصلة:</span>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <select class="cfg-input" onchange="updateColField(${origIdx}, 'dec', parseInt(this.value))" style="width:100px;">
+                            <option value="0" ${col.dec === 0 ? 'selected' : ''}>0 خانة</option>
+                            <option value="1" ${col.dec === 1 ? 'selected' : ''}>1 خانة</option>
+                            <option value="2" ${col.dec === 2 ? 'selected' : ''}>2 خانة</option>
+                            <option value="3" ${col.dec === 3 ? 'selected' : ''}>3 خانات</option>
+                            <option value="4" ${col.dec === 4 ? 'selected' : ''}>4 خانات</option>
+                        </select>
+                        <label style="font-size:0.75rem; color:#cbd5e1; cursor:pointer; display:flex; align-items:center; gap:3px;">
+                            <input type="checkbox" ${col.thousands !== false ? 'checked' : ''} onchange="updateColField(${origIdx}, 'thousands', this.checked)">
+                            فاصلة (,)
+                        </label>
+                    </div>
+                </div>
+                ` : ''}
+            </div>
+        `;
+
+        item.addEventListener('dragstart', handleDragStartBalances);
+        item.addEventListener('dragover', handleDragOverBalances);
+        item.addEventListener('drop', handleDropBalances);
+        item.addEventListener('dragenter', handleDragEnterBalances);
+        item.addEventListener('dragleave', handleDragLeaveBalances);
+
+        container.appendChild(item);
+    });
+}
+
+function toggleColSettingsCtx(index) {
+    const p = document.getElementById('col-settings-ctx-' + index);
+    if (p) p.classList.toggle('open');
+}
+function toggleColVisibilityCtx(origIdx, el) {
+    if (window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].visible = !window.colConfigs[origIdx].visible;
+        if (el) el.classList.toggle('on');
+        applyLayoutToDOM();
+    }
+}
+function toggleColBoldCtx(origIdx, el) {
+    if (window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].bold = !window.colConfigs[origIdx].bold;
+        if (el) el.classList.toggle('active');
+        applyLayoutToDOM();
+    }
+}
+
+function saveLayoutAndStyles() {
+    saveLayout();
+    applyLayoutToDOM();
+    if (typeof window.runReport === 'function' && window.lastResults) window.runReport();
+    const menu = document.getElementById('columnContextMenu');
+    if (menu) menu.style.display = 'none';
+    if (typeof showToast === 'function') showToast('💾 تم حفظ التخصيصات والترتيب بنجاح', 'success');
+}
+
+function resetLayoutAndStyles() {
+    resetColumnConfig();
+    renderColumnContextMenu();
+}
+
+function toggleMinimizeCtxMenu() {
+    const body = document.getElementById('columnContextMenuBody');
+    if (body) {
+        body.style.display = (body.style.display === 'none') ? 'block' : 'none';
+    }
+}
+
+function toggleMaximizeCtxMenu() {
+    const menu = document.getElementById('columnContextMenu');
+    if (menu) {
+        if (menu.style.width === '90vw') {
+            menu.style.width = '510px';
+            menu.style.height = 'auto';
+            menu.style.top = '100px';
+            menu.style.left = '50%';
+            menu.style.transform = 'translateX(-50%)';
+        } else {
+            menu.style.width = '90vw';
+            menu.style.height = '85vh';
+            menu.style.top = '5vh';
+            menu.style.left = '5vw';
+            menu.style.transform = 'none';
+        }
+    }
+}
+
+function makeElementDraggable(elmnt, headerElmnt) {
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    const handle = headerElmnt || elmnt;
+    handle.onmousedown = dragMouseDown;
+
+    function dragMouseDown(e) {
+        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+        e = e || window.event;
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+        elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+    }
+
+    function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+    }
+}
+
+function bindReportContextMenu() {
+    const targets = ['.report-header', '#balances-table', '#print-container', '.filter-row', '.preset-slots-container'];
+    targets.forEach(selector => {
+        const els = document.querySelectorAll(selector);
+        els.forEach(el => {
+            el.oncontextmenu = function(e) {
+                openColumnContextMenu(e);
+            };
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    bindReportContextMenu();
+});
+
+document.addEventListener('DBReady', () => {
+    bindReportContextMenu();
+});
+
+
 
