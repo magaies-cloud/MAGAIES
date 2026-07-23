@@ -1360,11 +1360,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            if (!confirm(`سيتم تجميع كافة بيانات النظام الخاصة بالشركة الحالية وتنزيلها كملف احتياطي (يحتوي على ${recordCount} سجل). هل ترغب بالاستمرار؟`)) return;
+            let pin = prompt("🔒 لحماية النسخة الاحتياطية بكلمة سر، أدخل رقماً سرياً مكوناً من 6 أرقام:\n(أو اتركه فارغاً/اضغط إلغاء للتنزيل بدون رقم سري)");
+            let pinHash = null;
+            if (pin !== null && pin.trim() !== "") {
+                pin = pin.trim();
+                if (!/^\d{6}$/.test(pin)) {
+                    alert("⚠️ يجب أن يكون الرقم السري مكوناً من 6 أرقام فقط (مثال: 123456). تم إلغاء العملية.");
+                    return;
+                }
+                const msgBuffer = new TextEncoder().encode(pin);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                pinHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+
+            if (!confirm(`سيتم تجميع كافة بيانات النظام الخاصة بالشركة الحالية وتنزيلها كملف احتياطي (يحتوي على ${recordCount} سجل)${pinHash ? ' 🔒 محمي برقم سري' : ''}. هل ترغب بالاستمرار؟`)) return;
+
+            const exportPayload = {
+                magaiees_backup_v2: true,
+                isProtected: !!pinHash,
+                pinHash: pinHash,
+                store: cleanStore
+            };
 
             const dateStr = new Date().toISOString().split('T')[0];
             const fileName = `MAGAIEES_ERP_Backup_${dateStr}.bak.json`;
-            const backupDataStr = JSON.stringify(cleanStore, null, 2);
+            const backupDataStr = JSON.stringify(exportPayload, null, 2);
 
             const blob = new Blob([backupDataStr], { type: "application/json;charset=utf-8" });
             const url = URL.createObjectURL(blob);
@@ -1415,6 +1435,30 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error("تنسيق الملف غير صالح");
                 }
 
+                let payloadStore = data;
+                if (data.magaiees_backup_v2 || data.isProtected || data.pinHash) {
+                    if (data.isProtected && data.pinHash) {
+                        let enteredPin = prompt("🔒 هذه النسخة الاحتياطية محمية برقم سري.\n\nيرجى إدخال الرقم السري المكون من 6 أرقام لاستعادة البيانات:");
+                        if (enteredPin === null || enteredPin.trim() === "") {
+                            alert("❌ تم إلغاء عملية الاستعادة لحماية البيانات.");
+                            elem.value = '';
+                            return;
+                        }
+                        enteredPin = enteredPin.trim();
+                        const msgBuffer = new TextEncoder().encode(enteredPin);
+                        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                        const enteredHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+                        if (enteredHash !== data.pinHash) {
+                            alert("❌ الرقم السري غير صحيح! لا يمكن استعادة النسخة الاحتياطية.");
+                            elem.value = '';
+                            if (loader) loader.remove();
+                            return;
+                        }
+                    }
+                    payloadStore = data.store || {};
+                }
+
                 // Loader screen
                 loader = document.createElement('div');
                 loader.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.95); backdrop-filter:blur(15px); z-index:999999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-family:Tajawal; text-align:center; padding:20px;';
@@ -1462,7 +1506,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const currentPrefix = typeof getTenantPrefix === 'function' ? getTenantPrefix() : '';
                 const mergedStore = {};
 
-                for (let [key, val] of Object.entries(data)) {
+                for (let [key, val] of Object.entries(payloadStore)) {
                     let targetKey = key;
                     if (currentPrefix && key.startsWith('tenant_')) {
                         targetKey = key.replace(/^tenant_[^_]+_/, currentPrefix);
