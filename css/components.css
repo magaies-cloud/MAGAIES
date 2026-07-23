@@ -2118,3 +2118,52 @@ a[data-href], a[onclick] { cursor: pointer; }
     }
 }
 
+
+
+
+/* ====================================================================
+   🏰 MASTER SIDEBAR MARGIN & SAFE BOUNDS ENFORCEMENT PATCH v1.0
+   Guarantees all pages, containers, headers, and tables NEVER go
+   under the sidebar and always maintain a professional screen frame gap.
+   ==================================================================== */
+
+:root {
+    --sb-collapsed: 72px !important;
+    --sb-expanded:  260px !important;
+    --sb-safe-gap:  24px !important;
+}
+
+/* Enforce right margin & padding on body so content never slips under sidebar */
+body.has-sidebar {
+    margin-right: var(--sb-collapsed) !important;
+    padding-right: var(--sb-safe-gap) !important;
+    padding-left: 20px !important;
+    box-sizing: border-box !important;
+    transition: margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* When hover over sidebar, smoothly expand body margin so expanded sidebar NEVER covers content */
+body.has-sidebar:has(.global-sidebar:hover) {
+    margin-right: var(--sb-expanded) !important;
+}
+
+/* Prevent headers, containers, and cards from breaking out to right edge */
+body.has-sidebar header.premium-header,
+body.has-sidebar .container,
+body.has-sidebar .visual-hub-container,
+body.has-sidebar .main-content,
+body.has-sidebar .dashboard-container,
+body.has-sidebar .reports-grid,
+body.has-sidebar .table-container,
+body.has-sidebar .smart-grid,
+body.has-sidebar .crystal-pill {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Universal Fallback for any screen where body might miss has-sidebar class */
+body:not(.has-sidebar) {
+    padding-right: 88px !important;
+    padding-left: 20px !important;
+    box-sizing: border-box !important;
+}
