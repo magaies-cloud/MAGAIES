@@ -1396,6 +1396,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 let count = 0;
                 for (let [k, v] of entries) {
                     if (!k) continue;
+                    if (typeof v === 'string' && (v.startsWith('[') || v.startsWith('{'))) {
+                        try { v = JSON.parse(v); } catch(e) {}
+                    }
                     if (window.getTenantKey) {
                         const tk = k.startsWith('tenant_') ? k : window.getTenantKey(k);
                         await localforage.setItem(tk, v);
@@ -1423,79 +1426,46 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ─── SQL Dump Parser ──────────────────────────────────────
     async function restoreFromSqlDump(sql) {
-        // Map SQL table names → localforage keys (matching api_index.php sync engine)
         const tableToKey = {
-            'users': 'erp_users_v1',
-            'customers': 'erp_customers_v1',
-            'suppliers': 'erp_suppliers_v1',
-            'items': 'erp_items_v1',
-            'inventory': 'erp_inventory_v1',
-            'sales_invoices': 'erp_sales_invoices_v1',
-            'purchase_invoices': 'erp_purchase_invoices_v1',
-            'receipts': 'erp_receipts_v1',
-            'payments': 'erp_payments_v1',
-            'journal_vouchers': 'erp_journal_vouchers_v1',
-            'settings': 'erp_settings_v1',
-            'warehouses': 'erp_warehouses_v1',
-            'banks': 'erp_banks_v1',
-            'safes': 'erp_safes_v1',
-            'categories': 'erp_categories_v1',
-            'roles': 'erp_roles_v1',
-            'checks': 'erp_checks_v1',
-            'gl_entries': 'erp_gl_v1',
-            'single_receipts': 'erp_single_receipts_v1',
-            'single_payments': 'erp_single_payments_v1',
-            'partners': 'erp_partners_v1',
-            'employees': 'erp_employees_v1',
-            'payroll': 'erp_payroll_v1',
-            'reserved_sales': 'erp_reserved_sales_v1',
-            'delivery_notes': 'erp_delivery_notes_v1',
-            'accounts': 'erp_accounts_v1',
-            'audit_logs': 'erp_audit_logs',
-            'financial_periods': 'erp_financial_periods_v1'
+            'users': 'erp_users_v1', 'customers': 'erp_customers_v1', 'suppliers': 'erp_suppliers_v1',
+            'items': 'erp_items_v1', 'inventory': 'erp_inventory_v1', 'sales_invoices': 'erp_sales_invoices_v1',
+            'purchase_invoices': 'erp_purchase_invoices_v1', 'receipts': 'erp_receipts_v1', 'payments': 'erp_payments_v1',
+            'journal_vouchers': 'erp_journal_vouchers_v1', 'settings': 'erp_settings_v1', 'warehouses': 'erp_warehouses_v1',
+            'banks': 'erp_banks_v1', 'safes': 'erp_safes_v1', 'categories': 'erp_categories_v1', 'roles': 'erp_roles_v1',
+            'checks': 'erp_checks_v1', 'gl_entries': 'erp_gl_v1', 'single_receipts': 'erp_single_receipts_v1',
+            'single_payments': 'erp_single_payments_v1', 'partners': 'erp_partners_v1', 'employees': 'erp_employees_v1',
+            'payroll': 'erp_payroll_v1', 'reserved_sales': 'erp_reserved_sales_v1', 'delivery_notes': 'erp_delivery_notes_v1',
+            'accounts': 'erp_accounts_v1', 'audit_logs': 'erp_audit_logs', 'financial_periods': 'erp_financial_periods_v1'
         };
 
-        // Parse INSERT statements from SQL dump
-        const insertRegex = /INSERT\s+INTO\s+`(\w+)`\s*\(([^)]+)\)\s*VALUES\s*([\s\S]*?);\s*$/gm;
-        const collectedData = {}; // key → array of JSON objects
+        const insertRegex = /INSERT\s+INTO\s+`?(\w+)`?\s*\(([^)]+)\)\s*VALUES/gi;
+        const parts = sql.split(insertRegex);
+        const collectedData = {};
 
-        let match;
-        while ((match = insertRegex.exec(sql)) !== null) {
-            const tableName = match[1];
-            const colsPart = match[2];
-            const valuesPart = match[3];
-
+        for (let i = 1; i < parts.length; i += 3) {
+            const tableName = parts[i];
+            const colsPart = parts[i + 1];
+            const valuesPart = parts[i + 2];
             const erpKey = tableToKey[tableName];
-            if (!erpKey) continue; // Skip system tables (tenants, global_settings, etc.)
+            if (!erpKey) continue;
 
-            // Parse column names
             const columns = colsPart.split(',').map(c => c.trim().replace(/`/g, ''));
             const dataColIdx = columns.indexOf('data');
-
-            if (dataColIdx === -1) continue; // No 'data' column — skip
+            if (dataColIdx === -1) continue;
 
             if (!collectedData[erpKey]) collectedData[erpKey] = [];
 
-            // Parse each row from VALUES — handles multi-row INSERTs
             const rows = splitSqlValues(valuesPart);
             for (const rowStr of rows) {
                 try {
                     const vals = parseSqlRow(rowStr);
                     if (vals && vals[dataColIdx]) {
                         let jsonVal = vals[dataColIdx];
-                        // Unescape SQL string escaping
-                        jsonVal = jsonVal
-                            .replace(/\\'/g, "'")
-                            .replace(/\\"/g, '"')
-                            .replace(/\\\\/g, '\\')
-                            .replace(/\\n/g, '\n')
-                            .replace(/\\r/g, '\r')
-                            .replace(/\\0/g, '\0');
+                        jsonVal = jsonVal.replace(/\\'/g, "'");
                         const obj = JSON.parse(jsonVal);
                         if (obj) collectedData[erpKey].push(obj);
                     }
                 } catch (rowErr) {
-                    // Skip unparseable rows silently
                     console.warn('Skipped row in table ' + tableName + ':', rowErr.message);
                 }
             }
@@ -1522,12 +1492,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         alert('✅ تم استعادة نسخة SQL بنجاح!\n\n' +
               '📊 ' + totalKeys + ' جداول\n' +
-              '📝 ' + totalRecords + ' سجل\n\n' +
+              '🗂 ' + totalRecords + ' سجل\n\n' +
               'سيتم تحديث الصفحة الآن.');
         window.location.reload();
     }
 
-    // Split multi-row VALUES: (row1),(row2),(row3)
     function splitSqlValues(valuesStr) {
         const rows = [];
         let depth = 0, start = -1;
@@ -1552,26 +1521,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     start = -1;
                 }
             }
+            if (ch === ';' && depth === 0 && !inStr) break;
         }
         return rows;
     }
 
-    // Parse a single SQL row string into an array of values
     function parseSqlRow(rowStr) {
         const vals = [];
         let current = '';
         let inStr = false, strChar = '', escape = false;
-        let isNull = false;
 
         for (let i = 0; i <= rowStr.length; i++) {
-            const ch = i < rowStr.length ? rowStr[i] : ','; // Force flush at end
+            const ch = i < rowStr.length ? rowStr[i] : ',';
 
             if (escape) { current += ch; escape = false; continue; }
 
             if (inStr) {
                 if (ch === '\\') { escape = true; current += ch; continue; }
                 if (ch === strChar) {
-                    // Check for double-quote escape ('')
                     if (i + 1 < rowStr.length && rowStr[i + 1] === strChar) {
                         current += ch; i++; continue;
                     }
@@ -1617,7 +1584,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     for (let k of lfKeys) {
                         const val = await localforage.getItem(k);
                         if (val !== null) {
-                            completeStore[k] = typeof val === 'string' ? val : JSON.stringify(val);
+                            try { completeStore[k] = JSON.parse(val); } catch(e) { completeStore[k] = val; }
                         }
                     }
                 } catch(e) {}
