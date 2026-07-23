@@ -1459,7 +1459,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // 4. Populate imported backup
                 let restoredCount = 0;
+                const currentPrefix = typeof getTenantPrefix === 'function' ? getTenantPrefix() : '';
+
                 for (let [key, val] of Object.entries(data)) {
+                    let targetKey = key;
+                    if (currentPrefix && key.startsWith('tenant_')) {
+                        targetKey = key.replace(/^tenant_[^_]+_/, currentPrefix);
+                    } else if (currentPrefix && key.startsWith('erp_')) {
+                        targetKey = currentPrefix + key;
+                    }
                     // If the backup has double-stringified JSON (from older backups), parse it back to an object
                     if (typeof val === 'string' && (val.startsWith('[') || val.startsWith('{'))) {
                         try { val = JSON.parse(val); } catch(e) {}
@@ -1467,16 +1475,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     const valStr = typeof val === 'string' ? val : JSON.stringify(val);
                     
-                    try { localStorage.setItem(key, valStr); } catch(err) {}
+                    try { localStorage.setItem(targetKey, valStr); } catch(err) {}
                     
                     try {
                         if (typeof localforage !== 'undefined') {
-                            await localforage.setItem(key, val); // Must store as Object/Array, NOT string!
+                            await localforage.setItem(targetKey, val); // Must store as Object/Array, NOT string!
                         }
                     } catch(err) {}
 
                     if (window.DB_STORE) {
-                        window.DB_STORE[key] = val; // Must store as Object/Array, NOT string!
+                        window.DB_STORE[targetKey] = val; // Must store as Object/Array, NOT string!
                     }
                     restoredCount++;
                 }
