@@ -307,6 +307,15 @@ $header_theme_class = 'header-theme-reports';
                 <div class="ai-badge">● كاشف المتأخرات والديون المعدومة</div>
             </a>
 
+            <!-- 5. حسابات الأرصدة تجريبي 1 -->
+            <a href="balances-report-demo1.php" class="report-card" style="--accent-color: #10b981; --shadow-color: 16, 185, 129;">
+                <div class="live-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);"><span class="live-dot" style="background-color: #10b981;"></span>تجريبي 1 (Demo)</div>
+                <div class="card-icon">🧮</div>
+                <div class="card-title">حسابات الأرصدة تجريبي 1</div>
+                <div class="card-desc">نسخة استرشادية وتجريبية مخصصة لمراجعة وتقييم الأرصدة المالية بأسلوب وقوالب عرض معدلة.</div>
+                <div class="ai-badge" style="border-color: #10b981; color: #10b981;">● نموذج مخصص ومعدل v1</div>
+            </a>
+
         </div>
 
     </div>
