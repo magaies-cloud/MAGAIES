@@ -524,6 +524,7 @@
         }
         body.has-sidebar {
             padding-right: 0 !important;
+            margin-right: 64px !important;
         }
         .sgl-master-container {
             width: 100% !important;
