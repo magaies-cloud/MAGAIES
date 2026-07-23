@@ -779,25 +779,7 @@ $page_title = 'تقرير الأرصدة الإجمالية';
         
         <div id="v-classic-ent">
             
-            <div class="report-header" style="display: flex; justify-content: space-between; align-items: flex-start; min-height: 70px; border-bottom: 3px solid #111827; margin-bottom: 10px; padding-bottom: 8px; font-family: 'Tajawal', sans-serif;">
-                
-                <div style="flex: 1; text-align: right; color: #111827;">
-                    <h2 style="margin: 0 0 5px 0; font-size: 1.6rem; font-weight: 900;">شركة الأفق للتجارة</h2>
-                    <p style="margin: 0 0 3px 0; font-size: 0.95rem; font-weight: 600;">سجل تجاري: 1010101010</p>
-                    <p style="margin: 0 0 3px 0; font-size: 0.95rem; font-weight: 600;">الرقم الضريبي: 300000000000003</p>
-                    <p style="margin: 0 0 3px 0; font-size: 0.95rem; font-weight: 600;">الرياض، المملكة العربية السعودية</p>
-                </div>
 
-                <div style="flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-                    <h2 style="margin: 0; padding: 10px 20px; background: #f8fafc; border-radius: 8px; border: 2px solid #111827; font-size: 1.4rem; color: #111827;">تقرير الأرصدة الإجمالية</h2>
-                </div>
-
-                <div style="flex: 1; text-align: left; display: flex; align-items: center; justify-content: flex-end; height: 100%;">
-                    <div style="width: 4cm; height: 100%; border: 1px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #f8fafc; overflow: hidden; position: relative;" title="منطقة الشعار - يتم جلب الشعار من البيانات الأساسية">
-                        <img id="company-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgZmlsbD0iI2UydThmMCIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSIyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzY0NzQ4YiI+TE9HTzwvdGV4dD48L3N2Zz4=" alt="شعار الشركة" style="max-height: 100%; max-width: 100%; object-fit: contain;">
-                    </div>
-                </div>
-            </div>
 
             <table id="balances-table">
                 <thead>
