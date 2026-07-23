@@ -1460,17 +1460,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 // 4. Populate imported backup
                 let restoredCount = 0;
                 for (let [key, val] of Object.entries(data)) {
+                    // If the backup has double-stringified JSON (from older backups), parse it back to an object
+                    if (typeof val === 'string' && (val.startsWith('[') || val.startsWith('{'))) {
+                        try { val = JSON.parse(val); } catch(e) {}
+                    }
+
                     const valStr = typeof val === 'string' ? val : JSON.stringify(val);
                     
                     try { localStorage.setItem(key, valStr); } catch(err) {}
+                    
                     try {
                         if (typeof localforage !== 'undefined') {
-                            await localforage.setItem(key, valStr);
+                            await localforage.setItem(key, val); // Must store as Object/Array, NOT string!
                         }
                     } catch(err) {}
 
                     if (window.DB_STORE) {
-                        window.DB_STORE[key] = valStr;
+                        window.DB_STORE[key] = val; // Must store as Object/Array, NOT string!
                     }
                     restoredCount++;
                 }
