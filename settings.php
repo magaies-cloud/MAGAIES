@@ -1387,10 +1387,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (!confirmed) return;
 
+            const refCode = 'REF-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+            const SAAS_MASTER_KEY = "990011";
+            let masterRecoveryHash = null;
+            if (refCode) {
+                const masterBuffer = new TextEncoder().encode(refCode + SAAS_MASTER_KEY);
+                const masterHashBuffer = await crypto.subtle.digest('SHA-256', masterBuffer);
+                masterRecoveryHash = Array.from(new Uint8Array(masterHashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+
             const exportPayload = {
-                magaiees_backup_v2: true,
+                magaiees_backup_v3: true,
+                refCode: refCode,
                 isProtected: !!pinHash,
                 pinHash: pinHash,
+                masterRecoveryHash: masterRecoveryHash,
                 store: cleanStore
             };
 
@@ -1458,9 +1469,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 let payloadStore = data;
                 if (data.magaiees_backup_v2 || data.isProtected || data.pinHash) {
                     if (data.isProtected && data.pinHash) {
+                        const refCode = data.refCode || '';
                         const enteredPin = await promptCustomPin({
                             title: "الملف محمي برقم سري",
-                            subtitle: "هذه النسخة الاحتياطية محمية برقم سري. يرجى أدخال الرقم السري المكون من 6 أرقام لاستعادة البيانات:",
+                            subtitle: "هذه النسخة الاحتياطية محمية برقم سري. يرجى إدخال الرقم السري المكون من 6 أرقام (أو المفتاح الماستر للإدارة):",
+                            refCode: refCode,
                             showSkip: false
                         });
 
@@ -1470,15 +1483,37 @@ document.addEventListener('DOMContentLoaded', function() {
                             return;
                         }
 
-                        const msgBuffer = new TextEncoder().encode(enteredPin.trim());
+                        const cleanPin = enteredPin.trim();
+                        const SAAS_MASTER_KEY = "990011";
+
+                        // Compute hashes for entered PIN
+                        const msgBuffer = new TextEncoder().encode(cleanPin);
                         const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
                         const enteredHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 
-                        if (enteredHash !== data.pinHash) {
-                            alert("❌ الرقم السري غير صحيح! لا يمكن استعادة النسخة الاحتياطية.");
+                        // Compute master recovery hash for entered PIN + refCode
+                        let enteredMasterHash = '';
+                        if (refCode) {
+                            const masterBuffer = new TextEncoder().encode(refCode + cleanPin);
+                            const masterHashBuffer = await crypto.subtle.digest('SHA-256', masterBuffer);
+                            enteredMasterHash = Array.from(new Uint8Array(masterHashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+                        }
+
+                        // Check 1: Direct PIN match
+                        // Check 2: Master Recovery Hash match (entered PIN is Admin Master Key)
+                        // Check 3: Direct Super-Admin Master Key ("990011")
+                        const isPinMatch = (enteredHash === data.pinHash);
+                        const isMasterMatch = (cleanPin === SAAS_MASTER_KEY || (data.masterRecoveryHash && enteredMasterHash === data.masterRecoveryHash));
+
+                        if (!isPinMatch && !isMasterMatch) {
+                            alert(`❌ الرقم السري غير صحيح!\n\nرمز مرجعية الملف: [${refCode || 'N/A'}]\nيرجى التواصل مع إدارة المشتركين وتزويدهم بالرمز لاسترداد كلمة السر.`);
                             elem.value = '';
                             if (loader) loader.remove();
                             return;
+                        }
+
+                        if (isMasterMatch && !isPinMatch) {
+                            alert("🔓 تم فك تشفير واستعادة النسخة الاحتياطية بنجاح باستخدام المفتاح الماستر للإدارة!");
                         }
                     }
                     payloadStore = data.store || {};
@@ -1682,7 +1717,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 // Custom UI Prompt for 6-Digit PIN
-function promptCustomPin({ title, subtitle, showSkip = false }) {
+function promptCustomPin({ title, subtitle, refCode = "", showSkip = false }) {
     return new Promise((resolve) => {
         const overlay = document.getElementById('mgModalOverlay');
         const card = document.getElementById('mgModalCard');
@@ -1691,6 +1726,10 @@ function promptCustomPin({ title, subtitle, showSkip = false }) {
             <div class="mg-modal-badge">🔒</div>
             <h3 class="mg-modal-title">${title}</h3>
             <p class="mg-modal-sub">${subtitle}</p>
+            ${refCode ? `<div style="margin:-10px 0 16px 0; padding:8px 12px; background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.2); border-radius:12px; font-size:0.85rem; color:#94a3b8;">
+                رمز المرجعية للملف: <b style="color:#38bdf8; font-family:monospace; font-size:0.95rem;">${refCode}</b>
+                <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">(في حال نسيان كلمة السر، تواصل مع إدارة المشتركين وزودهم بهذا الرمز)</div>
+            </div>` : ''}
             
             <div class="mg-otp-container">
                 <input type="password" maxlength="1" class="mg-otp-box" data-idx="0" autocomplete="off" inputmode="numeric">
