@@ -2,7 +2,7 @@
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
-$page_title = 'حسابات الأرصدة تجريبي 1';
+$page_title = 'حسابات تجميعية متساوية';
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -20,7 +20,7 @@ $page_title = 'حسابات الأرصدة تجريبي 1';
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500;700&family=JetBrains+Mono:wght@400;600;800&family=Fira+Code:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حسابات الأرصدة تجريبي 1 | Al-Sajana ERP</title>
+    <title>حسابات تجميعية متساوية | Al-Sajana ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
