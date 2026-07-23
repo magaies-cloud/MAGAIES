@@ -3,8 +3,19 @@
     const currentTheme = localStorage.getItem('magaiees_global_theme') || 'theme-imperial';
     document.documentElement.className = currentTheme;
     
-    // رصد وتطبيق كلاس الصفحات الداخلية للتقارير لتكبير الخطوط 4 درجات تلقائياً
+    // رصد وتطبيق كلاس الشريط الجانبي فورا على HTML و Body لمنع اختفاء/تداخل الشاشة خلف الشريط الجانبي عند بداية الفتح
     const pageName = window.location.pathname.split('/').pop().toLowerCase();
+    if (pageName !== 'login.php' && pageName !== 'index.php' && pageName !== 'register.php') {
+        document.documentElement.classList.add('has-sidebar');
+        if (document.body) {
+            document.body.classList.add('has-sidebar');
+        } else {
+            document.addEventListener("DOMContentLoaded", function() {
+                if (document.body) document.body.classList.add('has-sidebar');
+            });
+        }
+    }
+
     const isReportPage = pageName && pageName !== 'smart_reports_hub.php' && pageName !== 'dashboard-pro.php' && pageName !== 'login.php' && pageName !== 'index.php' && pageName !== 'inventory-report.php' && pageName !== 'analytics.php';
     if (isReportPage) {
         document.documentElement.classList.add('inner-report-page');
@@ -15,7 +26,12 @@
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-        document.body.className = currentTheme;
+        if (document.body) {
+            document.body.classList.add(currentTheme);
+            if (document.documentElement.classList.contains('has-sidebar')) {
+                document.body.classList.add('has-sidebar');
+            }
+        }
     });
 </script>
 <header class="premium-header <?php echo isset($header_theme_class) ? $header_theme_class : ''; ?>" style="display:flex; justify-content:space-between; align-items:center; gap:15px;">

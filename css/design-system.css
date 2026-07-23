@@ -876,8 +876,10 @@ select.ctrl-input option {
   50%       { opacity: 0.7; }
 }
 
-body.has-sidebar .sticky-footer       { right: var(--sb-collapsed); }
-body.has-sidebar.sidebar-open .sticky-footer { right: var(--sb-expanded); }
+html.has-sidebar .sticky-footer,
+body.has-sidebar .sticky-footer       { right: var(--sb-collapsed, 62px); }
+html.has-sidebar.sidebar-open .sticky-footer,
+body.has-sidebar.sidebar-open .sticky-footer { right: var(--sb-expanded, 240px); }
 
 .footer-total {
   display: flex;

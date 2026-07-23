@@ -519,13 +519,16 @@ body {
 }
 
 /* ── Body when sidebar is present ── */
+html.has-sidebar body,
 body.has-sidebar {
-  padding-right: var(--sb-collapsed);
-  transition: padding-right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-right: var(--sb-collapsed, 62px);
+  padding-right: 0 !important;
+  transition: margin-right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+html.has-sidebar body.sidebar-open,
 body.has-sidebar.sidebar-open {
-  padding-right: var(--sb-expanded);
+  margin-right: var(--sb-expanded, 240px);
 }
 
 /* ── Page Wrapper for inner scrollable pages ── */

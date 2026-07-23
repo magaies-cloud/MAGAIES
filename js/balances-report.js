@@ -457,9 +457,12 @@ function runReport() {
         loadData();
         console.log('[balances-report.js] Re-ran loadData. Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length);
     }
-    const grpFilter = document.getElementById('filter-group').value;
-    const sortFilter = document.getElementById('filter-sort').value;
-    const ccFilter = document.getElementById('filter-costcenter').value;
+    const grpFilter = document.getElementById('filter-group') ? document.getElementById('filter-group').value : 'ALL';
+    const sortFilter = document.getElementById('filter-sort') ? document.getElementById('filter-sort').value : 'BALANCE_DESC';
+    const ccFilter = document.getElementById('filter-costcenter') ? document.getElementById('filter-costcenter').value : 'ALL';
+    const sectorFilter = document.getElementById('filter-sector') ? document.getElementById('filter-sector').value : 'ALL';
+    const currFilter = document.getElementById('filter-currency') ? document.getElementById('filter-currency').value : 'ALL';
+    const conditionFilter = document.getElementById('filter-condition') ? document.getElementById('filter-condition').value : 'ALL';
 
     // Reset balances
     ALL_PARTNERS.forEach(p => {
@@ -528,20 +531,43 @@ function runReport() {
         }
     });
 
-    // Filter partners by group
+    // Filter partners by group, sector, currency & condition
     let results = ALL_PARTNERS.filter(p => {
-        if(grpFilter === 'ALL') return true;
-        return p.type === grpFilter;
+        // Group Filter
+        if (grpFilter !== 'ALL' && p.type !== grpFilter) return false;
+
+        // Sector / Category Filter
+        if (sectorFilter !== 'ALL') {
+            const pSector = (p.sector || p.category || p.classification || '').toUpperCase();
+            if (sectorFilter === 'RETAIL' && !pSector.includes('RETAIL') && !pSector.includes('تجزئة')) return false;
+            if (sectorFilter === 'WHOLESALE' && !pSector.includes('WHOLESALE') && !pSector.includes('جملة')) return false;
+            if (sectorFilter === 'VIP' && !pSector.includes('VIP') && !pSector.includes('كبار') && !p.isVip) return false;
+            if (sectorFilter === 'EXTERNAL' && !pSector.includes('EXT') && !pSector.includes('خارجي')) return false;
+        }
+
+        // Currency Filter
+        if (currFilter === 'SDG' && p.currency && p.currency !== 'SDG') return false;
+        if (currFilter === 'USD' && p.currency && p.currency !== 'USD') return false;
+
+        // Condition Filter
+        if (conditionFilter === 'DEBTORS_ONLY' && p.endingDebitLocal <= 0) return false;
+        if (conditionFilter === 'CREDITORS_ONLY' && p.endingCreditLocal <= 0) return false;
+        if (conditionFilter === 'ACTIVE_ONLY' && !p.lastDate) return false;
+        if (conditionFilter === 'NON_ZERO' && p.endingDebitLocal === 0 && p.endingCreditLocal === 0 && p.endingDebitForeign === 0 && p.endingCreditForeign === 0) return false;
+
+        return true;
     });
 
     // Sort
     results.sort((a, b) => {
-        const balA = Math.max(a.endingDebitLocal, a.endingCreditLocal);
-        const balB = Math.max(b.endingDebitLocal, b.endingCreditLocal);
-        if(sortFilter === 'BALANCE_DESC') return balB - balA;
-        if(sortFilter === 'BALANCE_ASC') return balA - balB;
-        if(sortFilter === 'NAME') return a.name.localeCompare(b.name);
-        if(sortFilter === 'LAST_DATE') return (b.lastDate || '').localeCompare(a.lastDate || '');
+        const absBalA = Math.max(a.endingDebitLocal, a.endingCreditLocal);
+        const absBalB = Math.max(b.endingDebitLocal, b.endingCreditLocal);
+        if (sortFilter === 'BALANCE_DESC') return absBalB - absBalA;
+        if (sortFilter === 'BALANCE_ASC') return absBalA - absBalB;
+        if (sortFilter === 'DEBIT_DESC') return (b.endingDebitLocal || 0) - (a.endingDebitLocal || 0);
+        if (sortFilter === 'CREDIT_DESC') return (b.endingCreditLocal || 0) - (a.endingCreditLocal || 0);
+        if (sortFilter === 'NAME') return (a.name || '').localeCompare(b.name || '');
+        if (sortFilter === 'LAST_DATE') return (b.lastDate || '').localeCompare(a.lastDate || '');
         return 0;
     });
 

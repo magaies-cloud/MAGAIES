@@ -704,11 +704,13 @@ body {
     z-index: 900;
     transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
+html.has-sidebar .sticky-footer,
 body.has-sidebar .sticky-footer {
-    right: var(--sb-collapsed, 64px);
+    right: var(--sb-collapsed, 62px);
 }
+html.has-sidebar.sidebar-open .sticky-footer,
 body.has-sidebar.sidebar-open .sticky-footer {
-    right: var(--sb-expanded, 252px);
+    right: var(--sb-expanded, 240px);
 }
 .footer-total { display:flex; align-items:center; gap:8px; }
 .ft-label { font-size:0.82rem; font-weight:600; color:var(--text-muted); }

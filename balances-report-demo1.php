@@ -655,54 +655,103 @@ $page_title = 'حسابات الأرصدة تجريبي 1';
 
     <!-- FILTERS & PRESET CONTROLS PANEL (EXPANDED ~1CM) -->
     <div class="report-header no-print" style="background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; padding: 18px 24px; margin-bottom: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.4);">
-        <div class="filter-row" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); margin-bottom: 12px; gap: 16px;">
+        <div class="filter-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 12px; gap: 14px;">
+            <!-- 1. نوع المجموعة -->
             <div class="filter-group">
-                <label style="font-size:0.88rem; margin-bottom:6px; font-weight:800; color:#e2e8f0;">نوع المجموعة</label>
-                <select class="filter-input" id="filter-group" style="padding:8px 16px; font-size:0.95rem; height:42px; border-radius:8px; font-weight:700;">
-                    <option value="ALL">جميع الحسابات والأرصدة</option>
-                    <option value="CUST">أرصدة العملاء</option>
-                    <option value="SUPP">أرصدة الموردين</option>
-                    <option value="BANK">حسابات البنوك</option>
-                    <option value="SAFE">الخزن والصناديق</option>
-                    <option value="EXP">المصروفات والحسابات العامة</option>
+                <label style="font-size:0.85rem; margin-bottom:6px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:4px;">
+                    <span>📂 نوع المجموعة</span>
+                </label>
+                <select class="filter-input" id="filter-group" style="padding:6px 12px; font-size:0.9rem; height:40px; border-radius:8px; font-weight:700;" onchange="runReport()">
+                    <option value="ALL">جميع الحسابات والأرصدة (الكل)</option>
+                    <option value="CUST">👥 أرصدة العملاء</option>
+                    <option value="SUPP">🛍️ أرصدة الموردين</option>
+                    <option value="BANK">🏦 حسابات البنوك</option>
+                    <option value="SAFE">🔒 الخزن والصناديق</option>
+                    <option value="EXP">📊 المصروفات والحسابات العامة</option>
+                    <option value="PARTNER">🤝 حسابات الشركاء والمالكين</option>
+                    <option value="PAYROLL">👷 حسابات العمالة والرواتب</option>
                 </select>
             </div>
+
+            <!-- 2. ترتيب الأرصدة -->
             <div class="filter-group">
-                <label style="font-size:0.88rem; margin-bottom:6px; font-weight:800; color:#e2e8f0;">ترتيب الأرصدة</label>
-                <select class="filter-input" id="filter-sort" style="padding:8px 16px; font-size:0.95rem; height:42px; border-radius:8px; font-weight:700;">
+                <label style="font-size:0.85rem; margin-bottom:6px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:4px;">
+                    <span>🔃 ترتيب الأرصدة</span>
+                </label>
+                <select class="filter-input" id="filter-sort" style="padding:6px 12px; font-size:0.9rem; height:40px; border-radius:8px; font-weight:700;" onchange="runReport()">
                     <option value="BALANCE_DESC">حسب الرصيد (من الأعلى للأقل)</option>
                     <option value="BALANCE_ASC">حسب الرصيد (من الأقل للأعلى)</option>
-                    <option value="NAME">حسب اسم الحساب (أبجدياً)</option>
-                    <option value="LAST_DATE">حسب تاريخ آخر حركة (الأحدث)</option>
+                    <option value="DEBIT_DESC">🔴 الأعلى مديونية (عليه فقط)</option>
+                    <option value="CREDIT_DESC">🟢 الأعلى دائنية (له فقط)</option>
+                    <option value="NAME">🔤 حسب اسم الحساب (أبجدياً)</option>
+                    <option value="LAST_DATE">⏱️ حسب تاريخ آخر حركة (الأحدث)</option>
                 </select>
             </div>
+
+            <!-- 3. مركز التكلفة -->
             <div class="filter-group">
-                <label style="font-size:0.88rem; margin-bottom:6px; font-weight:800; color:#e2e8f0;">مركز التكلفة</label>
-                <select class="filter-input" id="filter-costcenter" style="padding:8px 16px; font-size:0.95rem; height:42px; border-radius:8px; font-weight:700;">
+                <label style="font-size:0.85rem; margin-bottom:6px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:4px;">
+                    <span>🏢 مركز التكلفة</span>
+                </label>
+                <select class="filter-input" id="filter-costcenter" style="padding:6px 12px; font-size:0.9rem; height:40px; border-radius:8px; font-weight:700;" onchange="runReport()">
                     <option value="ALL">جميع مراكز التكلفة (الكل)</option>
                 </select>
             </div>
+
+            <!-- 4. القطاعات والتصنيفات -->
+            <div class="filter-group">
+                <label style="font-size:0.85rem; margin-bottom:6px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:4px;">
+                    <span>🏷️ القطاع / التصنيف</span>
+                </label>
+                <select class="filter-input" id="filter-sector" style="padding:6px 12px; font-size:0.9rem; height:40px; border-radius:8px; font-weight:700;" onchange="runReport()">
+                    <option value="ALL">جميع القطاعات والتصنيفات</option>
+                    <option value="RETAIL">🛒 قطاع التجزئة</option>
+                    <option value="WHOLESALE">🏢 قطاع الجملة والشركات</option>
+                    <option value="VIP">⭐ كبار العملاء (Key Accounts)</option>
+                    <option value="EXTERNAL">🌐 جهات ومؤسسات خارجية</option>
+                </select>
+            </div>
+
+            <!-- 5. التحديد بالعملة -->
+            <div class="filter-group">
+                <label style="font-size:0.85rem; margin-bottom:6px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:4px;">
+                    <span>💱 العملة المستهدفة</span>
+                </label>
+                <select class="filter-input" id="filter-currency" style="padding:6px 12px; font-size:0.9rem; height:40px; border-radius:8px; font-weight:700;" onchange="runReport()">
+                    <option value="ALL">جميع العملات (محلي + أجنبي)</option>
+                    <option value="SDG">🇸🇩 الجنيه السوداني (SDG)</option>
+                    <option value="USD">💵 الدولار الأمريكي (USD)</option>
+                </select>
+            </div>
+
+            <!-- 6. حالة الرصيد والتصفية الذكية -->
+            <div class="filter-group">
+                <label style="font-size:0.85rem; margin-bottom:6px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:4px;">
+                    <span>🎯 حالة الرصيد</span>
+                </label>
+                <select class="filter-input" id="filter-condition" style="padding:6px 12px; font-size:0.9rem; height:40px; border-radius:8px; font-weight:700;" onchange="runReport()">
+                    <option value="ALL">جميع الأرصدة (بدون تصفية)</option>
+                    <option value="DEBTORS_ONLY">🔴 الأرصدة المدينة فقط (عليه)</option>
+                    <option value="CREDITORS_ONLY">🟢 الأرصدة الدائنة فقط (له)</option>
+                    <option value="ACTIVE_ONLY">⚡ الأرصدة المتحركة (ذات نشاط)</option>
+                    <option value="NON_ZERO">≠ الأرصدة غير الصفرية فقط</option>
+                </select>
+            </div>
         </div>
-        <div style="display:flex; gap:12px; margin-top:10px; align-items:center; flex-wrap:wrap; width: 100%;">
-            <button class="btn-run" onclick="runReport()" style="padding:8px 24px; font-size:0.95rem; height:40px; border-radius:8px; font-weight:900;">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                تشغيل التقرير
+        <div style="display:flex; gap:8px; margin-top:8px; align-items:center; flex-wrap:wrap; width: 100%;">
+            <button class="btn-run" onclick="runReport()" style="padding:6px 20px; font-size:0.92rem; height:36px; border-radius:8px; font-weight:900; display:inline-flex; align-items:center; gap:8px;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span>تشغيل التقرير</span>
             </button>
 
-            <div style="height: 26px; width: 1px; background: rgba(255,255,255,0.2); margin: 0 6px;" class="no-print"></div>
+            <div style="height: 22px; width: 1px; background: rgba(255,255,255,0.15); margin: 0 4px;" class="no-print"></div>
 
-            <div class="preset-slots-container no-print" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; height:40px; padding:4px 14px; border-radius:8px;">
-                <span style="font-size:0.85rem; color:#cbd5e1; font-weight:bold; margin-left: 2px;">💾 التخطيطات:</span>
-                <div id="balances-presets-wrap" style="display:flex; gap:8px; flex-wrap:wrap;">
+            <div class="preset-slots-container no-print" style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; height:36px; padding:2px 10px; border-radius:8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                <span style="font-size:0.8rem; color:#94a3b8; font-weight:700; margin-left: 2px;">💾 التخطيطات:</span>
+                <div id="balances-presets-wrap" style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
                     <!-- Preset buttons generated by JS -->
                 </div>
             </div>
-
-            <!-- الزر المنسوخ من دفتر الأستاذ العام (تخصيص أعمدة الجداول) -->
-            <button class="btn-run modern-btn no-print" onclick="toggleSettingsSidebar()" style="background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%); box-shadow: 0 4px 15px rgba(236, 72, 153, 0.35); border: none; color: white; margin-right: auto; height: 40px; min-height: 40px; padding: 0 22px; font-size: 0.95rem; font-weight: 800; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.25s ease;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                <span>تخصيص أعمدة الجداول</span>
-            </button>
         </div>
     </div>
 
@@ -808,10 +857,7 @@ $page_title = 'حسابات الأرصدة تجريبي 1';
                 </tbody>
             </table>
             
-            <div class="audit-stamp">
-                <span>✔️</span>
-                <span>ENCRYPTED_DATA_LOCK: البيانات الواردة نهائية وتم استخراجها من السجلات المالية المشفرة للنظام.</span>
-            </div>
+
 
             <!-- Visual Intelligence Analytics Hub (المركز البصري التحليلي والرسوم البيانية) -->
             <div id="visual-intelligence-hub" class="visual-hub-container" style="display: none;">

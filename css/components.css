@@ -928,18 +928,22 @@
     --sb-item-h:    52px;
 }
 
+html.has-sidebar body,
 body.has-sidebar {
-    margin-right: var(--sb-collapsed) !important;
+    margin-right: var(--sb-collapsed, 62px) !important;
     padding-right: 0 !important;
     padding-left: 0 !important;
+    transition: margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     /* Ensure content never scrolls behind the sidebar */
     overflow-x: hidden;
 }
+html.has-sidebar body.sidebar-open,
 body.has-sidebar.sidebar-open {
-    margin-right: var(--sb-expanded) !important;
+    margin-right: var(--sb-expanded, 240px) !important;
 }
 
 /* Prevent ANY element from accidentally going behind the sidebar */
+html.has-sidebar body > *:not(.global-sidebar),
 body.has-sidebar > *:not(.global-sidebar) {
     max-width: 100%;
     box-sizing: border-box;
