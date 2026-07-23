@@ -17,7 +17,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سند قبض نقدية وشيك | Al-Sajana ERP</title>
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
-    <link rel="stylesheet" href="css/components.css?v=20260626_4">
+    <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/sales-invoice.css">
     <style>
         .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
@@ -470,7 +470,7 @@
           }
       });
     </script>
-    <script defer src="js/single-cash-receipt.js?v=20260612_7"></script>
+    <script defer src="js/single-cash-receipt.js?v=20260723_v14"></script>
 </body>
 </html>
 

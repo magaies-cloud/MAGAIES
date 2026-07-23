@@ -32,9 +32,9 @@ foreach ($raw_data as $row) {
 <head>
     <meta charset="UTF-8">
     <title>تقييم المخزون المالي - MAGAIEES ERP</title>
-    <link rel="stylesheet" href="css/design-system.css?v=20260719_v1">
-    <link rel="stylesheet" href="css/theme.css?v=20260719_v1">
-    <link rel="stylesheet" href="css/components.css?v=20260719_v1">
+    <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
+    <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
+    <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -228,7 +228,7 @@ foreach ($raw_data as $row) {
     </script>
     </div> <!-- Close .dashboard-container -->
 
-    <script defer src="js/localforage.min.js?v=20260719_v1"></script>
-    <script defer src="js/app.js?v=20260719_v1"></script>
+    <script defer src="js/localforage.min.js?v=20260723_v14"></script>
+    <script defer src="js/app.js?v=20260723_v14"></script>
 </body>
 </html>

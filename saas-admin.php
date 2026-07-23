@@ -20,9 +20,9 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>SaaS Super Admin - مقاييس (MAGAIEES)</title>
-    <link rel="stylesheet" href="css/design-system.css?v=20260619_3">
-    <link rel="stylesheet" href="css/theme.css?v=20260619_3">
-    <link rel="stylesheet" href="css/components.css?v=20260619_3">
+    <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
+    <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
+    <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
     <script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>

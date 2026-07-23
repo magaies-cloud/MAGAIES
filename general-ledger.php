@@ -21,7 +21,7 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
-    <link rel="stylesheet" href="css/components.css?v=20260626_4">
+    <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/sales-invoice.css">
     <link rel="stylesheet" href="css/table-themes.css">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
@@ -1407,7 +1407,7 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
 </div>
 
 <script defer src="js/localforage.min.js"></script>
-<script defer src="js/app.js?v=20260626_4"></script>
+<script defer src="js/app.js?v=20260723_v14"></script>
 <script>
     // Make Sidebar Draggable and Resizable, with Permanent Saving
     document.addEventListener('DOMContentLoaded', () => {

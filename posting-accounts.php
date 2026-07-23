@@ -18,7 +18,7 @@
     <title>ترحيل الحسابات | مقاييس (MAGAIEES)</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
-    <link rel="stylesheet" href="css/components.css?v=20260626_4">
+    <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <style>
         *, *::before, *::after {
             box-sizing: border-box;

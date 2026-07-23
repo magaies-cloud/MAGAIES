@@ -18,8 +18,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="preload" as="image" href="assets/user_bg_fast.jpg">
     <title>مقاييس 2026 - تسجيل الدخول</title>
-    <link rel="stylesheet" href="css/design-system.css?v=20260709_5"><link rel="stylesheet" href="css/theme.css?v=20260709_5">
-    <link rel="stylesheet" href="css/components.css?v=20260626_4">
+    <link rel="stylesheet" href="css/design-system.css?v=20260723_v14"><link rel="stylesheet" href="css/theme.css?v=20260723_v14">
+    <link rel="stylesheet" href="css/components.css?v=20260723_v14">
         <style>
         body, body.has-sidebar, body.has-sidebar.sidebar-open {
             display: flex;
@@ -206,7 +206,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260719_update"></script>
+    <script defer src="js/app.js?v=20260723_v14"></script>
     
     <script>
         // --- SSO Interceptor ---

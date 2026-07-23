@@ -18,7 +18,7 @@
     <title>مقاييس 2026 - الإعدادات</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
-    <link rel="stylesheet" href="css/components.css?v=20260626_4">
+    <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <style>
         :root {
             --bg-color: #050308;
@@ -845,7 +845,7 @@
 </div>
 
 <script defer src="js/localforage.min.js"></script>
-<script defer src="js/app.js?v=20260719_update"></script>
+<script defer src="js/app.js?v=20260723_v14"></script>
 <script defer src="js/whatsapp-integration.js"></script>
 <script>
 // Language switcher logic for settings page
