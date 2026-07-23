@@ -538,7 +538,7 @@
         }
 </style>
 </head>
-<body>
+<body class="has-sidebar">
 
     <!-- Ambient Animated Background -->
     <div class="ambient-bg">

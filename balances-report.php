@@ -537,10 +537,7 @@
             position: relative;
         }
 </style>
-</head>
-<body>
-
-    <!-- Ambient Animated Background -->
+<body class="has-sidebar">
     <div class="ambient-bg">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
