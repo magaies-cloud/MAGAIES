@@ -21,10 +21,10 @@ $page_title = 'تقرير الأرصدة الإجمالية';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تقرير الأرصدة الإجمالية | Al-Sajana ERP</title>
-    <link rel="stylesheet" href="css/design-system.css?v=20260723_v11">
-    <link rel="stylesheet" href="css/theme.css?v=20260723_v11">
-    <link rel="stylesheet" href="css/components.css?v=20260723_v11">
-    <link rel="stylesheet" href="css/sales-invoice.css?v=20260723_v11">
+    <link rel="stylesheet" href="css/design-system.css?v=20260723_v12">
+    <link rel="stylesheet" href="css/theme.css?v=20260723_v12">
+    <link rel="stylesheet" href="css/components.css?v=20260723_v12">
+    <link rel="stylesheet" href="css/sales-invoice.css?v=20260723_v12">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
