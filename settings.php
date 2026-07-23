@@ -1457,9 +1457,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
 
-                // 4. Populate imported backup
+                // 4. Populate imported backup with Smart Deduplicated Merging
                 let restoredCount = 0;
                 const currentPrefix = typeof getTenantPrefix === 'function' ? getTenantPrefix() : '';
+                const mergedStore = {};
 
                 for (let [key, val] of Object.entries(data)) {
                     let targetKey = key;
@@ -1468,37 +1469,56 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else if (currentPrefix && key.startsWith('erp_')) {
                         targetKey = currentPrefix + key;
                     }
-                    // If the backup has double-stringified JSON (from older backups), parse it back to an object
+
+                    // Parse double-stringified JSON if present
                     if (typeof val === 'string' && (val.startsWith('[') || val.startsWith('{'))) {
                         try { val = JSON.parse(val); } catch(e) {}
                     }
 
+                    // Smart Merge to prevent smaller/empty company arrays from overwriting main company data
+                    if (mergedStore[targetKey]) {
+                        let existing = mergedStore[targetKey];
+                        if (Array.isArray(val) && Array.isArray(existing)) {
+                            const map = new Map();
+                            existing.forEach(item => {
+                                const id = item && (item.id || item.code || item.invoiceNo) ? (item.id || item.code || item.invoiceNo) : JSON.stringify(item);
+                                map.set(id, item);
+                            });
+                            val.forEach(item => {
+                                const id = item && (item.id || item.code || item.invoiceNo) ? (item.id || item.code || item.invoiceNo) : JSON.stringify(item);
+                                map.set(id, item);
+                            });
+                            mergedStore[targetKey] = Array.from(map.values());
+                        } else if (typeof val === 'object' && val !== null) {
+                            mergedStore[targetKey] = Object.assign({}, existing, val);
+                        } else {
+                            if (val) mergedStore[targetKey] = val;
+                        }
+                    } else {
+                        mergedStore[targetKey] = val;
+                    }
+                }
+
+                // Write mergedStore to localStorage, localforage, and DB_STORE
+                for (let [targetKey, val] of Object.entries(mergedStore)) {
                     const valStr = typeof val === 'string' ? val : JSON.stringify(val);
-                    
                     try { localStorage.setItem(targetKey, valStr); } catch(err) {}
-                    
                     try {
                         if (typeof localforage !== 'undefined') {
-                            await localforage.setItem(targetKey, val); // Must store as Object/Array, NOT string!
+                            await localforage.setItem(targetKey, val); // Store as native Object/Array
                         }
                     } catch(err) {}
-
                     if (window.DB_STORE) {
-                        window.DB_STORE[targetKey] = val; // Must store as Object/Array, NOT string!
+                        window.DB_STORE[targetKey] = val; // Store as native Object/Array
                     }
                     restoredCount++;
                 }
 
-                // 5. Restore preserved session tokens
-                Object.entries(preservedSession).forEach(([k, v]) => {
-                    localStorage.setItem(k, v);
-                });
-
                 if (typeof window.logSystemAction === 'function') {
-                    window.logSystemAction('Database Import', 'system', 'استعادة نسخة احتياطية من ملف خارجي بنجاح');
+                    window.logSystemAction('Database Import', 'system', 'استعادة نسخة احتياطية ومعالجة البيانات بنجاح');
                 }
 
-                alert(`🎉 تم استعادة كافة البيانات بنجاح (${restoredCount} سجل/جدول)! سيتم تحديث الصفحة الآن.`);
+                alert(`🎉 تم استعادة كافة البيانات بنجاح (${restoredCount} جدول/سجل معالَج بنجاح)! سيتم تحديث الصفحة الآن.`);
                 window.location.reload();
             } catch(err) {
                 console.error(err);
