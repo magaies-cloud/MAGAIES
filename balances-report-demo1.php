@@ -1,4 +1,9 @@
-<?php $page_title = 'حسابات الأرصدة تجريبي 1'; ?>
+<?php
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+$page_title = 'حسابات الأرصدة تجريبي 1';
+?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -524,7 +529,6 @@
         }
         body.has-sidebar {
             padding-right: 0 !important;
-            margin-right: 64px !important;
         }
         .sgl-master-container {
             width: 100% !important;
