@@ -1305,273 +1305,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ─── Backup Data ───────────────────────────────────────────
     async function backupData() {
-        if (typeof localforage !== 'undefined' && window.getTenantKey) {
-            const keys = [
-                'erp_users_v1', 'erp_customers_v1', 'erp_suppliers_v1', 'erp_items_v1',
-                'erp_inventory_v1', 'erp_sales_invoices_v1', 'erp_purchase_invoices_v1',
-                'erp_receipts_v1', 'erp_payments_v1', 'erp_journal_vouchers_v1',
-                'erp_settings_v1', 'erp_warehouses_v1', 'erp_banks_v1', 'erp_safes_v1', 'erp_categories_v1',
-                'erp_roles_v1', 'erp_checks_v1', 'erp_gl_v1', 'erp_single_receipts_v1',
-                'erp_single_payments_v1', 'erp_partners_v1', 'erp_employees_v1',
-                'erp_payroll_v1', 'erp_reserved_sales_v1', 'erp_delivery_notes_v1',
-                'erp_accounts_v1', 'erp_jobs_v1', 'erp_audit_logs'
-            ];
-            for (let k of keys) {
-                const tk = window.getTenantKey(k);
-                const val = await localforage.getItem(tk);
-                if (val) {
-                    window.DB_STORE[tk] = val;
-                }
-            }
-        }
-
-        if (!window.DB_STORE || Object.keys(window.DB_STORE).length === 0) {
-            alert('لا توجد بيانات للنسخ الاحتياطي!');
-            return;
-        }
-
-        const cleanStore = {};
-        for (let [k, v] of Object.entries(window.DB_STORE)) {
-            if (v && v !== '[]' && v !== '{}') {
-                cleanStore[k] = v;
-            }
-        }
-
-        const blob = new Blob([JSON.stringify(cleanStore, null, 2)], { type: 'application/json' });
-        const url  = URL.createObjectURL(blob);
-        const a    = document.createElement('a');
-        a.href     = url;
-        a.download = `magaees_backup_${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-    }
-
-    function restoreData(input) {
-        if (!input.files || input.files.length === 0) return;
-        const file = input.files[0];
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            try {
-                let raw = e.target.result;
-
-                // Strip UTF-8 BOM if present
-                if (raw.charCodeAt(0) === 0xFEFF) {
-                    raw = raw.substring(1);
-                }
-                raw = raw.replace(/^[\x00-\x08\x0B\x0C\x0E-\x1F]+/, '');
-                raw = raw.trim();
-
-                // ─── Detect SQL dump vs JSON ────────────────────────
-                const isSqlDump = raw.startsWith('--') || raw.startsWith('SET ') || raw.startsWith('DROP ');
-
-                if (isSqlDump) {
-                    await restoreFromSqlDump(raw);
-                    return;
-                }
-
-                // ─── JSON restore (existing logic) ──────────────────
-                let jsonStr = raw;
-                if (!raw.startsWith('{') && !raw.startsWith('[')) {
-                    const braceIdx = raw.indexOf('{');
-                    if (braceIdx !== -1) {
-                        jsonStr = raw.substring(braceIdx);
-                    } else {
-                        alert('ملف النسخ الاحتياطي لا يحتوي على بيانات JSON صالحة.\n\nتأكد من أنك تختار ملف النسخ الاحتياطي الصحيح (بصيغة .json أو .sql).');
-                        return;
-                    }
-                }
-
-                const data = JSON.parse(jsonStr);
-                if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
-                    alert('ملف النسخ الاحتياطي فارغ أو غير صالح.');
-                    return;
-                }
-
-                let entries = Array.isArray(data)
-                    ? (data.length > 0 && data[0] && data[0].key ? data.map(item => [item.key, item.value || item.data]) : null)
-                    : Object.entries(data);
-
-                if (!entries) { alert('صيغة ملف النسخ الاحتياطي غير معروفة.'); return; }
-
-                let count = 0;
-                for (let [k, v] of entries) {
-                    if (!k) continue;
-                    if (typeof v === 'string' && (v.startsWith('[') || v.startsWith('{'))) {
-                        try { v = JSON.parse(v); } catch(e) {}
-                    }
-                    if (window.getTenantKey) {
-                        const tk = k.startsWith('tenant_') ? k : window.getTenantKey(k);
-                        await localforage.setItem(tk, v);
-                        window.DB_STORE[tk] = v;
-                    } else {
-                        await localforage.setItem(k, v);
-                        window.DB_STORE[k] = v;
-                    }
-                    count++;
-                }
-                alert('تم استعادة ' + count + ' سجلات بنجاح. سيتم تحديث الصفحة.');
-                window.location.reload();
-            } catch (err) {
-                console.error('Restore error:', err);
-                let rawPreview = '';
-                try { rawPreview = (e.target.result || '').substring(0, 200).replace(/[\n\r]/g, ' '); } catch(ex) {}
-                alert('حدث خطأ أثناء قراءة ملف النسخ الاحتياطي.\n\nالتفاصيل: ' + err.message + '\n\nبداية الملف: ' + rawPreview);
-            }
-        };
-        reader.onerror = function() {
-            alert('حدث خطأ أثناء قراءة الملف. تأكد من أن الملف سليم.');
-        };
-        reader.readAsText(file, 'UTF-8');
-    }
-
-    // ─── SQL Dump Parser ──────────────────────────────────────
-    async function restoreFromSqlDump(sql) {
-        const tableToKey = {
-            'users': 'erp_users_v1', 'customers': 'erp_customers_v1', 'suppliers': 'erp_suppliers_v1',
-            'items': 'erp_items_v1', 'inventory': 'erp_inventory_v1', 'sales_invoices': 'erp_sales_invoices_v1',
-            'purchase_invoices': 'erp_purchase_invoices_v1', 'receipts': 'erp_receipts_v1', 'payments': 'erp_payments_v1',
-            'journal_vouchers': 'erp_journal_vouchers_v1', 'settings': 'erp_settings_v1', 'warehouses': 'erp_warehouses_v1',
-            'banks': 'erp_banks_v1', 'safes': 'erp_safes_v1', 'categories': 'erp_categories_v1', 'roles': 'erp_roles_v1',
-            'checks': 'erp_checks_v1', 'gl_entries': 'erp_gl_v1', 'single_receipts': 'erp_single_receipts_v1',
-            'single_payments': 'erp_single_payments_v1', 'partners': 'erp_partners_v1', 'employees': 'erp_employees_v1',
-            'payroll': 'erp_payroll_v1', 'reserved_sales': 'erp_reserved_sales_v1', 'delivery_notes': 'erp_delivery_notes_v1',
-            'accounts': 'erp_accounts_v1', 'audit_logs': 'erp_audit_logs', 'financial_periods': 'erp_financial_periods_v1'
-        };
-
-        const insertRegex = /INSERT\s+INTO\s+`?(\w+)`?\s*\(([^)]+)\)\s*VALUES/gi;
-        const parts = sql.split(insertRegex);
-        const collectedData = {};
-
-        for (let i = 1; i < parts.length; i += 3) {
-            const tableName = parts[i];
-            const colsPart = parts[i + 1];
-            const valuesPart = parts[i + 2];
-            const erpKey = tableToKey[tableName];
-            if (!erpKey) continue;
-
-            const columns = colsPart.split(',').map(c => c.trim().replace(/`/g, ''));
-            const dataColIdx = columns.indexOf('data');
-            if (dataColIdx === -1) continue;
-
-            if (!collectedData[erpKey]) collectedData[erpKey] = [];
-
-            const rows = splitSqlValues(valuesPart);
-            for (const rowStr of rows) {
-                try {
-                    const vals = parseSqlRow(rowStr);
-                    if (vals && vals[dataColIdx]) {
-                        let jsonVal = vals[dataColIdx];
-                        jsonVal = jsonVal.replace(/\\'/g, "'");
-                        const obj = JSON.parse(jsonVal);
-                        if (obj) collectedData[erpKey].push(obj);
-                    }
-                } catch (rowErr) {
-                    console.warn('Skipped row in table ' + tableName + ':', rowErr.message);
-                }
-            }
-        }
-
-        const totalKeys = Object.keys(collectedData).length;
-        if (totalKeys === 0) {
-            alert('لم يتم العثور على بيانات قابلة للاستعادة في ملف SQL.\n\nتأكد من أن الملف يحتوي على بيانات المشترك الصحيح.');
-            return;
-        }
-
-        let totalRecords = 0;
-        for (let [key, arr] of Object.entries(collectedData)) {
-            if (window.getTenantKey) {
-                const tk = key.startsWith('tenant_') ? key : window.getTenantKey(key);
-                await localforage.setItem(tk, arr);
-                window.DB_STORE[tk] = arr;
-            } else {
-                await localforage.setItem(key, arr);
-                window.DB_STORE[key] = arr;
-            }
-            totalRecords += arr.length;
-        }
-
-        alert('✅ تم استعادة نسخة SQL بنجاح!\n\n' +
-              '📊 ' + totalKeys + ' جداول\n' +
-              '🗂 ' + totalRecords + ' سجل\n\n' +
-              'سيتم تحديث الصفحة الآن.');
-        window.location.reload();
-    }
-
-    function splitSqlValues(valuesStr) {
-        const rows = [];
-        let depth = 0, start = -1;
-        let inStr = false, strChar = '', escape = false;
-
-        for (let i = 0; i < valuesStr.length; i++) {
-            const ch = valuesStr[i];
-            if (escape) { escape = false; continue; }
-            if (ch === '\\') { escape = true; continue; }
-
-            if (inStr) {
-                if (ch === strChar) inStr = false;
-                continue;
-            }
-
-            if (ch === "'" || ch === '"') { inStr = true; strChar = ch; continue; }
-            if (ch === '(') { if (depth === 0) start = i + 1; depth++; }
-            if (ch === ')') {
-                depth--;
-                if (depth === 0 && start !== -1) {
-                    rows.push(valuesStr.substring(start, i));
-                    start = -1;
-                }
-            }
-            if (ch === ';' && depth === 0 && !inStr) break;
-        }
-        return rows;
-    }
-
-    function parseSqlRow(rowStr) {
-        const vals = [];
-        let current = '';
-        let inStr = false, strChar = '', escape = false;
-
-        for (let i = 0; i <= rowStr.length; i++) {
-            const ch = i < rowStr.length ? rowStr[i] : ',';
-
-            if (escape) { current += ch; escape = false; continue; }
-
-            if (inStr) {
-                if (ch === '\\') { escape = true; current += ch; continue; }
-                if (ch === strChar) {
-                    if (i + 1 < rowStr.length && rowStr[i + 1] === strChar) {
-                        current += ch; i++; continue;
-                    }
-                    inStr = false; continue;
-                }
-                current += ch;
-                continue;
-            }
-
-            if (ch === "'" || ch === '"') { inStr = true; strChar = ch; continue; }
-            if (ch === ',' || i === rowStr.length) {
-                const trimmed = current.trim();
-                if (trimmed.toUpperCase() === 'NULL') {
-                    vals.push(null);
-                } else {
-                    vals.push(current);
-                }
-                current = '';
-                continue;
-            }
-            current += ch;
-        }
-        return vals;
-    }
-    // --- Backup & Restore Handlers ---
-    async function backupData() {
         try {
             const completeStore = {};
+            const prefix = typeof getTenantPrefix === 'function' ? getTenantPrefix() : '';
 
             // 1. Gather all keys from localStorage
+            const globalKeys = ['saas_token', 'user', 'erp_lang', 'magaiees_global_theme', 'authToken'];
             for (let i = 0; i < localStorage.length; i++) {
                 const k = localStorage.key(i);
-                if (k) {
+                if (k && (prefix === '' || k.startsWith(prefix) || globalKeys.includes(k))) {
                     const val = localStorage.getItem(k);
                     if (val !== null) completeStore[k] = val;
                 }
@@ -1582,33 +1324,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 try {
                     const lfKeys = await localforage.keys();
                     for (let k of lfKeys) {
-                        const val = await localforage.getItem(k);
-                        if (val !== null) {
-                            try { completeStore[k] = JSON.parse(val); } catch(e) { completeStore[k] = val; }
+                        if (prefix === '' || k.startsWith(prefix)) {
+                            const val = await localforage.getItem(k);
+                            if (val !== null) {
+                                try { completeStore[k] = JSON.parse(val); } catch(e) { completeStore[k] = val; }
+                            }
                         }
                     }
-                } catch(e) {}
+                } catch(e) { console.error("Error reading localforage:", e); }
             }
 
             // 3. Overlay DB_STORE memory proxy
             if (window.DB_STORE) {
                 for (let [k, v] of Object.entries(window.DB_STORE)) {
-                    if (v !== null && v !== undefined) {
-                        completeStore[k] = typeof v === 'string' ? v : JSON.stringify(v);
+                    if (prefix === '' || k.startsWith(prefix)) {
+                        if (v !== null && v !== undefined) {
+                            completeStore[k] = v;
+                        }
                     }
                 }
             }
 
-            if (Object.keys(completeStore).length === 0) {
+            // Clean up empty data
+            const cleanStore = {};
+            let recordCount = 0;
+            for (let [k, v] of Object.entries(completeStore)) {
+                if (v && (Array.isArray(v) ? v.length > 0 : (typeof v === 'object' ? Object.keys(v).length > 0 : true))) {
+                    cleanStore[k] = v;
+                    if (Array.isArray(v)) recordCount += v.length;
+                }
+            }
+
+            if (Object.keys(cleanStore).length === 0) {
                 alert("⚠️ لا توجد بيانات مسجلة بالنظام للتصدير حالياً.");
                 return;
             }
 
-            if (!confirm("سيتم تجميع كافة بيانات النظام وتنزيلها كملف احتياطي (.bak.json). هل ترغب بالاستمرار؟")) return;
+            if (!confirm(`سيتم تجميع كافة بيانات النظام الخاصة بالشركة الحالية وتنزيلها كملف احتياطي (يحتوي على ${recordCount} سجل). هل ترغب بالاستمرار؟`)) return;
 
             const dateStr = new Date().toISOString().split('T')[0];
             const fileName = `MAGAIEES_ERP_Backup_${dateStr}.bak.json`;
-            const backupDataStr = JSON.stringify(completeStore, null, 2);
+            const backupDataStr = JSON.stringify(cleanStore, null, 2);
 
             const blob = new Blob([backupDataStr], { type: "application/json;charset=utf-8" });
             const url = URL.createObjectURL(blob);
@@ -1622,9 +1378,9 @@ document.addEventListener('DOMContentLoaded', function() {
             URL.revokeObjectURL(url);
 
             if (typeof window.logSystemAction === 'function') {
-                window.logSystemAction('Database Export', 'system', 'تصدير نسخة احتياطية لقاعدة البيانات بالكامل');
+                window.logSystemAction('Database Export', 'system', 'تصدير نسخة احتياطية للشركة الحالية');
             }
-            alert("✅ تم تنزيل النسخة الاحتياطية بنجاح!");
+            alert(`✅ تم تنزيل النسخة الاحتياطية بنجاح! (تم تصدير ${recordCount} سجل خاص بهذه الشركة)`);
         } catch(e) {
             console.error(e);
             alert("❌ حدث خطأ أثناء تنزيل النسخة الاحتياطية: " + e.message);
