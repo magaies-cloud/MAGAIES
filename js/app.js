@@ -119,31 +119,36 @@ JSON.parse = function(val) {
         const originalLfSet = localforage.setItem.bind(localforage);
         const originalLfRemove = localforage.removeItem.bind(localforage);
 
-        localforage.getItem = function(key) {
-            return promiseTimeout(originalLfGet(key), 250)
-                .catch(err => {
-                    console.warn(`[localforage override] getItem failed/timeout for ${key}:`, err);
-                    return localStorage.getItem(key);
-                });
-        };
-
-        localforage.setItem = function(key, value) {
+        localforage.getItem = async function(key) {
             try {
-                originalSetItem.call(localStorage, key, value);
-            } catch(e) {}
-            return promiseTimeout(originalLfSet(key, value), 250)
-                .catch(err => {
-                    console.warn(`[localforage override] setItem failed/timeout for ${key}:`, err);
-                    return value;
-                });
+                const val = await originalLfGet(key);
+                return val !== null ? val : JSON.parse(localStorage.getItem(key) || 'null');
+            } catch (err) {
+                console.warn('[localforage override] getItem failed for ' + key + ':', err);
+                try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch(e) { return null; }
+            }
         };
 
-        localforage.removeItem = function(key) {
+        localforage.setItem = async function(key, value) {
+            try {
+                let strVal = typeof value === 'string' ? value : JSON.stringify(value);
+                originalSetItem.call(localStorage, key, strVal);
+            } catch(e) {}
+            try {
+                return await originalLfSet(key, value);
+            } catch (err) {
+                console.warn('[localforage override] setItem failed for ' + key + ':', err);
+                return value;
+            }
+        };
+
+        localforage.removeItem = async function(key) {
             try { originalRemoveItem.call(localStorage, key); } catch(e) {}
-            return promiseTimeout(originalLfRemove(key), 250)
-                .catch(err => {
-                    console.warn(`[localforage override] removeItem failed/timeout for ${key}:`, err);
-                });
+            try {
+                return await originalLfRemove(key);
+            } catch (err) {
+                console.warn('[localforage override] removeItem failed for ' + key + ':', err);
+            }
         };
     }
 
