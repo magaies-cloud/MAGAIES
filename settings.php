@@ -1360,20 +1360,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            let pin = prompt("🔒 لحماية النسخة الاحتياطية بكلمة سر، أدخل رقماً سرياً مكوناً من 6 أرقام:\n(أو اتركه فارغاً/اضغط إلغاء للتنزيل بدون رقم سري)");
+            // 4. Custom UI 6-Digit PIN Prompt
+            const pin = await promptCustomPin({
+                title: "حماية النسخة الاحتياطية",
+                subtitle: "أدخل رقماً سرياً مكوناً من 6 أرقام لحماية ملف النسخة الاحتياطية، أو اختر التنزيل بدون رقم سري:",
+                showSkip: true
+            });
+
+            if (pin === null) return; // User clicked Cancel
+
             let pinHash = null;
-            if (pin !== null && pin.trim() !== "") {
-                pin = pin.trim();
-                if (!/^\d{6}$/.test(pin)) {
-                    alert("⚠️ يجب أن يكون الرقم السري مكوناً من 6 أرقام فقط (مثال: 123456). تم إلغاء العملية.");
-                    return;
-                }
-                const msgBuffer = new TextEncoder().encode(pin);
+            if (pin && pin.trim() !== "") {
+                const msgBuffer = new TextEncoder().encode(pin.trim());
                 const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
                 pinHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
             }
 
-            if (!confirm(`سيتم تجميع كافة بيانات النظام الخاصة بالشركة الحالية وتنزيلها كملف احتياطي (يحتوي على ${recordCount} سجل)${pinHash ? ' 🔒 محمي برقم سري' : ''}. هل ترغب بالاستمرار؟`)) return;
+            // 5. Custom UI Confirmation
+            const confirmed = await confirmCustomModal({
+                title: "تأكيد تنزيل النسخة الاحتياطية",
+                subtitle: `سيتم تجميع كافة بيانات النظام الخاصة بالشركة الحالية وتنزيلها كملف احتياطي (يحتوي على ${recordCount} سجل)${pinHash ? ' 🔒 محمي برقم سري' : ''}. هل ترغب بالاستمرار؟`,
+                confirmText: "تنزيل الآن 🚀",
+                icon: "💾",
+                isDanger: false
+            });
+
+            if (!confirmed) return;
 
             const exportPayload = {
                 magaiees_backup_v2: true,
@@ -1407,11 +1419,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function restoreData(elem) {
+    async function restoreData(elem) {
         const file = elem.files ? elem.files[0] : null;
         if (!file) return;
 
-        if (!confirm("⚠️ تحذير خطير: استعادة النسخة الاحتياطية ستمسح كافة البيانات الحالية وتستبدلها ببيانات الملف المرفوع. هل أنت متأكد 100% أنك تريد الاستمرار؟")) {
+        const confirmed = await confirmCustomModal({
+            title: "تحذير استعادة البيانات",
+            subtitle: "استعادة النسخة الاحتياطية ستقوم بدمج وتحديث كافة البيانات الحالية ببيانات الملف المرفوع. هل أنت متأكد 100% أنك تريد الاستمرار؟",
+            confirmText: "تأكيد الاستعادة ⚠️",
+            icon: "⚠️",
+            isDanger: true
+        });
+
+        if (!confirmed) {
             elem.value = '';
             return;
         }
@@ -1438,14 +1458,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 let payloadStore = data;
                 if (data.magaiees_backup_v2 || data.isProtected || data.pinHash) {
                     if (data.isProtected && data.pinHash) {
-                        let enteredPin = prompt("🔒 هذه النسخة الاحتياطية محمية برقم سري.\n\nيرجى إدخال الرقم السري المكون من 6 أرقام لاستعادة البيانات:");
-                        if (enteredPin === null || enteredPin.trim() === "") {
+                        const enteredPin = await promptCustomPin({
+                            title: "الملف محمي برقم سري",
+                            subtitle: "هذه النسخة الاحتياطية محمية برقم سري. يرجى أدخال الرقم السري المكون من 6 أرقام لاستعادة البيانات:",
+                            showSkip: false
+                        });
+
+                        if (!enteredPin) {
                             alert("❌ تم إلغاء عملية الاستعادة لحماية البيانات.");
                             elem.value = '';
                             return;
                         }
-                        enteredPin = enteredPin.trim();
-                        const msgBuffer = new TextEncoder().encode(enteredPin);
+
+                        const msgBuffer = new TextEncoder().encode(enteredPin.trim());
                         const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
                         const enteredHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 
@@ -1574,5 +1599,198 @@ document.addEventListener('DOMContentLoaded', function() {
         reader.readAsText(file);
     }
 </script>
+
+<!-- ==================================================================== -->
+<!-- CUSTOM MAGAIEES PREMIUM GLASSMORPHISM MODALS (PIN & CONFIRMATION)      -->
+<!-- ==================================================================== -->
+<style>
+.mg-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(15, 23, 42, 0.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    z-index: 999999; display: flex; align-items: center; justify-content: center;
+    animation: mgFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1); direction: rtl; font-family: 'Tajawal', system-ui, sans-serif;
+}
+@keyframes mgFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes mgPopIn { from { opacity: 0; transform: scale(0.88) translateY(18px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+.mg-modal-card {
+    background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65), 0 0 35px rgba(56, 189, 248, 0.18);
+    padding: 32px 26px; text-align: center; max-width: 440px; width: 90%;
+    animation: mgPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); color: #f8fafc; position: relative; overflow: hidden;
+}
+.mg-modal-card::before {
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: radial-gradient(circle at center, rgba(56, 189, 248, 0.07) 0%, transparent 70%);
+    pointer-events: none;
+}
+.mg-modal-badge {
+    width: 64px; height: 64px; border-radius: 20px;
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(99, 102, 241, 0.2));
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 2.2rem; margin: 0 auto 16px auto; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+.mg-modal-title { font-size: 1.35rem; font-weight: 800; color: #f8fafc; margin: 0 0 8px 0; }
+.mg-modal-sub { font-size: 0.92rem; color: #94a3b8; margin: 0 0 20px 0; line-height: 1.6; }
+
+/* 6 OTP Input Boxes */
+.mg-otp-container { display: flex; gap: 8px; justify-content: center; margin: 20px 0; direction: ltr; }
+.mg-otp-box {
+    width: 48px; height: 56px; font-size: 1.6rem; font-weight: 800; text-align: center;
+    border-radius: 14px; border: 2px solid #334155; background: #0f172a; color: #38bdf8;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+}
+.mg-otp-box:focus {
+    border-color: #38bdf8; box-shadow: 0 0 18px rgba(56, 189, 248, 0.45), inset 0 2px 4px rgba(0,0,0,0.4);
+    transform: translateY(-3px); background: #1e293b;
+}
+
+.mg-modal-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 22px; }
+.mg-btn-primary {
+    background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%); color: #fff;
+    border: none; border-radius: 14px; padding: 14px; font-weight: 700; font-size: 1rem;
+    cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.38);
+    display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Tajawal';
+}
+.mg-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 99, 235, 0.55); filter: brightness(1.1); }
+
+.mg-btn-secondary {
+    background: rgba(51, 65, 85, 0.6); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px; padding: 12px; font-weight: 600; font-size: 0.95rem; cursor: pointer;
+    transition: all 0.2s ease; font-family: 'Tajawal';
+}
+.mg-btn-secondary:hover { background: rgba(51, 65, 85, 0.9); color: #fff; transform: translateY(-1px); }
+
+.mg-btn-danger {
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff;
+    border: none; border-radius: 14px; padding: 14px; font-weight: 700; font-size: 1rem;
+    cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 14px rgba(220, 38, 38, 0.38); font-family: 'Tajawal';
+}
+.mg-btn-danger:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(220, 38, 38, 0.55); }
+
+.mg-btn-ghost { background: transparent; color: #94a3b8; border: none; font-size: 0.9rem; cursor: pointer; padding: 8px; font-family: 'Tajawal'; }
+.mg-btn-ghost:hover { color: #f8fafc; }
+</style>
+
+<!-- Modal Container HTML -->
+<div id="mgModalOverlay" class="mg-modal-overlay" style="display:none;">
+    <div id="mgModalCard" class="mg-modal-card"></div>
+</div>
+
+<script>
+// Custom UI Prompt for 6-Digit PIN
+function promptCustomPin({ title, subtitle, showSkip = false }) {
+    return new Promise((resolve) => {
+        const overlay = document.getElementById('mgModalOverlay');
+        const card = document.getElementById('mgModalCard');
+
+        card.innerHTML = `
+            <div class="mg-modal-badge">🔒</div>
+            <h3 class="mg-modal-title">${title}</h3>
+            <p class="mg-modal-sub">${subtitle}</p>
+            
+            <div class="mg-otp-container">
+                <input type="password" maxlength="1" class="mg-otp-box" data-idx="0" autocomplete="off" inputmode="numeric">
+                <input type="password" maxlength="1" class="mg-otp-box" data-idx="1" autocomplete="off" inputmode="numeric">
+                <input type="password" maxlength="1" class="mg-otp-box" data-idx="2" autocomplete="off" inputmode="numeric">
+                <input type="password" maxlength="1" class="mg-otp-box" data-idx="3" autocomplete="off" inputmode="numeric">
+                <input type="password" maxlength="1" class="mg-otp-box" data-idx="4" autocomplete="off" inputmode="numeric">
+                <input type="password" maxlength="1" class="mg-otp-box" data-idx="5" autocomplete="off" inputmode="numeric">
+            </div>
+
+            <div style="margin-bottom: 15px; font-size: 0.85rem; color: #64748b;">
+                <label style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                    <input type="checkbox" id="chkShowPin"> إظهار الأرقام
+                </label>
+            </div>
+
+            <div class="mg-modal-actions">
+                <button id="btnConfirmPin" class="mg-btn-primary">تأكيد واستمرار 🚀</button>
+                ${showSkip ? '<button id="btnSkipPin" class="mg-btn-secondary">تنزيل بدون رقم سري ⚡</button>' : ''}
+                <button id="btnCancelPin" class="mg-btn-ghost">إلغاء</button>
+            </div>
+        `;
+
+        overlay.style.display = 'flex';
+        const boxes = Array.from(card.querySelectorAll('.mg-otp-box'));
+        setTimeout(() => boxes[0].focus(), 100);
+
+        // Auto-advance & Auto-backspace logic
+        boxes.forEach((box, i) => {
+            box.addEventListener('input', (e) => {
+                const val = e.target.value;
+                if (val && i < 5) boxes[i + 1].focus();
+            });
+            box.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !box.value && i > 0) {
+                    boxes[i - 1].focus();
+                }
+            });
+        });
+
+        // Toggle visibility
+        const chkShow = card.querySelector('#chkShowPin');
+        chkShow.addEventListener('change', (e) => {
+            boxes.forEach(b => b.type = e.target.checked ? 'text' : 'password');
+        });
+
+        const close = (val) => {
+            overlay.style.display = 'none';
+            card.innerHTML = '';
+            resolve(val);
+        };
+
+        card.querySelector('#btnConfirmPin').onclick = () => {
+            const pinStr = boxes.map(b => b.value).join('');
+            if (pinStr.length !== 6 || !/^\d{6}$/.test(pinStr)) {
+                alert("⚠️ يرجى إدخال 6 أرقام كاملة (مثال: 123456)");
+                boxes[0].focus();
+                return;
+            }
+            close(pinStr);
+        };
+
+        if (showSkip) {
+            card.querySelector('#btnSkipPin').onclick = () => close('');
+        }
+
+        card.querySelector('#btnCancelPin').onclick = () => close(null);
+    });
+}
+
+// Custom UI Confirm Modal
+function confirmCustomModal({ title, subtitle, confirmText = "استمرار", icon = "⚠️", isDanger = true }) {
+    return new Promise((resolve) => {
+        const overlay = document.getElementById('mgModalOverlay');
+        const card = document.getElementById('mgModalCard');
+
+        card.innerHTML = `
+            <div class="mg-modal-badge">${icon}</div>
+            <h3 class="mg-modal-title">${title}</h3>
+            <p class="mg-modal-sub">${subtitle}</p>
+
+            <div class="mg-modal-actions">
+                <button id="btnConfirmAction" class="${isDanger ? 'mg-btn-danger' : 'mg-btn-primary'}">${confirmText}</button>
+                <button id="btnCancelAction" class="mg-btn-secondary">إلغاء</button>
+            </div>
+        `;
+
+        overlay.style.display = 'flex';
+
+        const close = (val) => {
+            overlay.style.display = 'none';
+            card.innerHTML = '';
+            resolve(val);
+        };
+
+        card.querySelector('#btnConfirmAction').onclick = () => close(true);
+        card.querySelector('#btnCancelAction').onclick = () => close(false);
+    });
+}
+</script>
+
 </body>
 </html>
