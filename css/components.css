@@ -1746,424 +1746,55 @@ a[data-href], a[onclick] { cursor: pointer; }
     }
 }
 
-/* ==========================================================================
-   PWA & Responsive Layout Utilities
-   ========================================================================== */
-
-/* Mobile Only (Hidden on Desktop) */
-@media (min-width: 768px) {
-    .mobile-only {
-        display: none !important;
-    }
-}
-
-/* Desktop Only (Hidden on Mobile) */
-@media (max-width: 767px) {
-    .desktop-only {
-        display: none !important;
-    }
-}
-
-/* Base PWA Card styling */
-.pwa-card {
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.pwa-card:active {
-    transform: scale(0.98);
-}
-
-/* Color Coding for Mobile Cards */
-/* Emerald Green for Sales (المبيعات) */
-.pwa-sales-card {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.05) 100%);
-    border-left: 5px solid #10b981;
-}
-.pwa-sales-card .pwa-icon {
-    color: #34d399;
-    background: rgba(16, 185, 129, 0.2);
-}
-
-/* Crimson Red for Purchases (المشتريات) */
-.pwa-purchases-card {
-    background: linear-gradient(135deg, rgba(244, 63, 94, 0.15) 0%, rgba(225, 29, 72, 0.05) 100%);
-    border-left: 5px solid #f43f5e;
-}
-.pwa-purchases-card .pwa-icon {
-    color: #fb7185;
-    background: rgba(244, 63, 94, 0.2);
-}
-
-/* Indigo Blue for Reports (التقارير) */
-.pwa-reports-card {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.05) 100%);
-    border-left: 5px solid #3b82f6;
-}
-.pwa-reports-card .pwa-icon {
-    color: #60a5fa;
-    background: rgba(59, 130, 246, 0.2);
-}
-
-/* Amber/Orange for Inventory (المخزون) */
-.pwa-inventory-card {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.05) 100%);
-    border-left: 5px solid #f59e0b;
-}
-.pwa-inventory-card .pwa-icon {
-    color: #fbbf24;
-    background: rgba(245, 158, 11, 0.2);
-}
-
-.pwa-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-}
-
-.pwa-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-}
-
-.pwa-card-title {
-    font-family: 'Tajawal', sans-serif;
-    font-weight: 700;
-    font-size: 1rem;
-    color: var(--text-primary);
-}
-
-.pwa-card-value {
-    font-size: 1.5rem;
-    font-weight: 800;
-    margin-top: 5px;
-    font-family: 'Inter', sans-serif;
-}
-
-/* PWA Standalone Notch & Padding Adjustments for iOS/Android */
-@media (display-mode: standalone) {
-    body {
-        padding-top: env(safe-area-inset-top, 20px);
-        padding-bottom: env(safe-area-inset-bottom, 20px);
-    }
-}
-
-/* =======================================================
-   PREMIUM MOBILE DESIGN SYSTEM & LAYOUTS (iOS/Android Native Style)
-   ======================================================= */
-@media (max-width: 768px) {
-    /* Hide desktop headers and sidebars on mobile if necessary */
-    .premium-header {
-        padding: 8px 12px !important;
-        border-radius: 12px !important;
-        margin-bottom: 8px !important;
-    }
-    
-    .header-brand .brand-icon {
-        width: 32px !important;
-        height: 32px !important;
-        font-size: 1rem !important;
-    }
-    
-    .header-brand .brand-text h1 {
-        font-size: 0.95rem !important;
-    }
-
-    .header-controls .clock-container,
-    .header-controls .user-info,
-    .header-controls .header-center,
-    .header-center {
-        display: none !important;
-    }
-
-    /* Fixed Bottom Navigation Bar for Mobile */
-    .mobile-bottom-nav {
-        position: fixed;
-        bottom: 12px;
-        left: 3%;
-        width: 94%;
-        height: 60px;
-        background: rgba(10, 8, 16, 0.88);
-        backdrop-filter: blur(25px);
-        -webkit-backdrop-filter: blur(25px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 20px;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        z-index: 999999;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-        padding: 0 8px;
-        box-sizing: border-box;
-        direction: rtl;
-    }
-
-    .mobile-nav-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        color: #94a3b8;
-        text-decoration: none !important;
-        font-size: 0.65rem;
-        font-weight: 700;
-        gap: 3px;
-        transition: all 0.25s ease;
-        cursor: pointer;
-        flex: 1;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    .mobile-nav-item .icon {
-        font-size: 1.15rem;
-        transition: transform 0.25s ease, filter 0.25s ease;
-    }
-
-    .mobile-nav-item.active {
-        color: #38bdf8 !important;
-    }
-
-    .mobile-nav-item.active .icon {
-        transform: translateY(-3px) scale(1.1);
-        filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.5));
-    }
-
-    /* Padding body so content is not hidden behind the fixed bottom nav */
-    body {
-        padding-bottom: 85px !important;
-    }
-
-    /* Transform Tables into Clean Card Layouts on Mobile */
-    .table-container, .modern-table-container {
-        border: none !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-    }
-
-    table.modern-table, table.modern-table tbody, table.modern-table tr, table.modern-table td {
-        display: block !important;
-        width: 100% !important;
-        box-sizing: border-box;
-    }
-
-    table.modern-table thead {
-        display: none !important; /* Hide header columns on mobile */
-    }
-
-    table.modern-table tr {
-        background: rgba(20, 16, 28, 0.6) !important;
-        border: 1px solid rgba(255, 255, 255, 0.06) !important;
-        border-radius: 16px !important;
-        margin-bottom: 12px !important;
-        padding: 12px 15px !important;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
-        transition: all 0.25s ease !important;
-        position: relative !important;
-    }
-
-    table.modern-table tr:hover {
-        background: rgba(28, 24, 38, 0.8) !important;
-        border-color: rgba(56, 189, 248, 0.3) !important;
-        transform: translateY(-2px) !important;
-    }
-
-    table.modern-table td {
-        border: none !important;
-        padding: 6px 0 !important;
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        font-size: 0.85rem !important;
-    }
-
-    /* Force labels on right and value on left */
-    table.modern-table td::before {
-        content: attr(data-label);
-        font-weight: 700;
-        color: #94a3b8;
-        text-align: right;
-        display: block;
-        margin-left: 10px;
-    }
-
-    /* Custom Mobile Bottom Sheet Dialogs (iOS Style Modals) */
-    .modal-content, .premium-modal, .sweet-alert, .swal2-modal {
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        top: auto !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        border-radius: 24px 24px 0 0 !important;
-        transform: translateY(100%) !important;
-        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        margin: 0 !important;
-        max-height: 85vh !important;
-        overflow-y: auto !important;
-        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.6) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        border-bottom: none !important;
-        background: #0d0b13 !important;
-    }
-
-    .modal.show .modal-content, .modal.active .modal-content, .premium-modal.active {
-        transform: translateY(0) !important;
-    }
-
-    /* Drag handle indicator on bottom sheet */
-    .modal-content::before {
-        content: '';
-        display: block;
-        width: 36px;
-        height: 4px;
-        background: rgba(255, 255, 255, 0.18);
-        border-radius: 10px;
-        margin: 8px auto 12px auto;
-    }
-
-    /* Inputs optimization for mobile tapping */
-    .select-input, .text-input, input[type='text'], input[type='number'], input[type='password'], input[type='date'], textarea {
-        padding: 13px 15px !important;
-        font-size: 0.95rem !important;
-        border-radius: 12px !important;
-        min-height: 44px !important;
-    }
-
-    /* Larger interactive action buttons */
-    .btn, button, .action-btn {
-        padding: 11px 18px !important;
-        font-size: 0.9rem !important;
-        border-radius: 12px !important;
-        min-height: 44px !important; /* Ensure min touch target height */
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-}
-
-/* =======================================================
-   LANDSCAPE ORIENTATION OPTIMIZATION (Fills entire screen)
-   ======================================================= */
-@media (orientation: landscape) and (max-device-width: 950px) {
-    /* Hide mobile bottom navigation bar in landscape to maximize vertical space */
-    .mobile-bottom-nav {
-        display: none !important;
-    }
-    
-    body {
-        padding-bottom: 0 !important;
-    }
-
-    /* Expand main containers to cover the entire viewport width (no margins on right/left) */
-    .dash-main, .container, .main-content, .app-container {
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 !important;
-        padding: 8px !important;
-        box-sizing: border-box !important;
-    }
-
-    /* Revert table cards back to standard desktop tabular layout for wide screen usage */
-    table.modern-table {
-        display: table !important;
-    }
-    table.modern-table thead {
-        display: table-header-group !important;
-    }
-    table.modern-table tbody {
-        display: table-row-group !important;
-    }
-    table.modern-table tr {
-        display: table-row !important;
-        background: rgba(20, 16, 28, 0.4) !important;
-        border: none !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-        border-radius: 0 !important;
-        margin-bottom: 0 !important;
-        padding: 0 !important;
-        box-shadow: none !important;
-    }
-    table.modern-table td {
-        display: table-cell !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-        padding: 10px 12px !important;
-        text-align: right !important;
-    }
-    table.modern-table td::before {
-        display: none !important; /* Hide mobile cards label prefix */
-    }
-
-    /* Form rows should display side-by-side to save vertical scrolling */
-    .form-row, .row {
-        display: flex !important;
-        flex-direction: row !important;
-        gap: 10px !important;
-    }
-    .form-group, .col-md-6, .col-md-4, .col-xs-12 {
-        flex: 1 !important;
-        margin-bottom: 8px !important;
-    }
-}
-
-
-
-
 /* ====================================================================
-   🏰 MASTER SIDEBAR MARGIN & SAFE BOUNDS ENFORCEMENT PATCH v1.0
-   Guarantees all pages, containers, headers, and tables NEVER go
-   under the sidebar and always maintain a professional screen frame gap.
+   🏰 PERFECT SYMMETRICAL SCREEN FRAME MARGINS (RIGHT & LEFT EQUALIZED v2.0)
+   Applies to ALL screens, reports, invoices, hubs, vouchers & settings
    ==================================================================== */
 
 :root {
     --sb-collapsed: 72px !important;
     --sb-expanded:  260px !important;
-    --sb-safe-gap:  24px !important;
+    --page-margin-x: 28px !important;
 }
 
-/* Enforce right margin & padding on body so content never slips under sidebar */
+/* Enforce Symmetrical Screen Margins on Body for RTL & LTR */
 body.has-sidebar {
     margin-right: var(--sb-collapsed) !important;
-    padding-right: var(--sb-safe-gap) !important;
-    padding-left: 20px !important;
+    margin-left: var(--sb-collapsed) !important; /* Equal left margin matching right sidebar */
+    padding-right: var(--page-margin-x) !important;
+    padding-left: var(--page-margin-x) !important;
     box-sizing: border-box !important;
-    transition: margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-/* When hover over sidebar, smoothly expand body margin so expanded sidebar NEVER covers content */
+/* Smooth hover sidebar expansion without overlapping page content */
 body.has-sidebar:has(.global-sidebar:hover) {
     margin-right: var(--sb-expanded) !important;
 }
 
-/* Prevent headers, containers, and cards from breaking out to right edge */
-body.has-sidebar header.premium-header,
-body.has-sidebar .container,
-body.has-sidebar .visual-hub-container,
-body.has-sidebar .main-content,
-body.has-sidebar .dashboard-container,
-body.has-sidebar .reports-grid,
-body.has-sidebar .table-container,
-body.has-sidebar .smart-grid,
-body.has-sidebar .crystal-pill {
-    max-width: 100% !important;
+/* Universal Symmetrical Fallback for any screen where body might miss has-sidebar class */
+body:not(.has-sidebar) {
+    padding-right: 88px !important;
+    padding-left: 88px !important;
     box-sizing: border-box !important;
 }
 
-/* Universal Fallback for any screen where body might miss has-sidebar class */
-body:not(.has-sidebar) {
-    padding-right: 88px !important;
-    padding-left: 20px !important;
+/* Uniform Bounds for ALL Main Containers Across All Pages */
+header.premium-header,
+.container,
+.visual-hub-container,
+.main-content,
+.dash-main,
+.app-container,
+.dashboard-container,
+.reports-grid,
+.table-container,
+.smart-grid,
+.crystal-pill,
+.invoice-container,
+.voucher-container {
+    max-width: 100% !important;
     box-sizing: border-box !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
 }
