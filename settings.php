@@ -1677,6 +1677,7 @@ document.addEventListener('DOMContentLoaded', function() {
     width: 48px; height: 56px; font-size: 1.6rem; font-weight: 800; text-align: center;
     border-radius: 14px; border: 2px solid #334155; background: #0f172a; color: #38bdf8;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+    -webkit-text-security: disc; text-security: disc;
 }
 .mg-otp-box:focus {
     border-color: #38bdf8; box-shadow: 0 0 18px rgba(56, 189, 248, 0.45), inset 0 2px 4px rgba(0,0,0,0.4);
@@ -1732,12 +1733,12 @@ function promptCustomPin({ title, subtitle, refCode = "", showSkip = false }) {
             </div>` : ''}
             
             <div class="mg-otp-container">
-                <input type="password" maxlength="1" class="mg-otp-box" data-idx="0" autocomplete="off" inputmode="numeric">
-                <input type="password" maxlength="1" class="mg-otp-box" data-idx="1" autocomplete="off" inputmode="numeric">
-                <input type="password" maxlength="1" class="mg-otp-box" data-idx="2" autocomplete="off" inputmode="numeric">
-                <input type="password" maxlength="1" class="mg-otp-box" data-idx="3" autocomplete="off" inputmode="numeric">
-                <input type="password" maxlength="1" class="mg-otp-box" data-idx="4" autocomplete="off" inputmode="numeric">
-                <input type="password" maxlength="1" class="mg-otp-box" data-idx="5" autocomplete="off" inputmode="numeric">
+                <input type="text" value="" maxlength="1" class="mg-otp-box" data-idx="0" autocomplete="one-time-code" inputmode="numeric">
+                <input type="text" value="" maxlength="1" class="mg-otp-box" data-idx="1" autocomplete="one-time-code" inputmode="numeric">
+                <input type="text" value="" maxlength="1" class="mg-otp-box" data-idx="2" autocomplete="one-time-code" inputmode="numeric">
+                <input type="text" value="" maxlength="1" class="mg-otp-box" data-idx="3" autocomplete="one-time-code" inputmode="numeric">
+                <input type="text" value="" maxlength="1" class="mg-otp-box" data-idx="4" autocomplete="one-time-code" inputmode="numeric">
+                <input type="text" value="" maxlength="1" class="mg-otp-box" data-idx="5" autocomplete="one-time-code" inputmode="numeric">
             </div>
 
             <div style="margin-bottom: 15px; font-size: 0.85rem; color: #64748b;">
@@ -1755,7 +1756,11 @@ function promptCustomPin({ title, subtitle, refCode = "", showSkip = false }) {
 
         overlay.style.display = 'flex';
         const boxes = Array.from(card.querySelectorAll('.mg-otp-box'));
-        setTimeout(() => boxes[0].focus(), 100);
+        boxes.forEach(b => { b.value = ''; b.style.webkitTextSecurity = 'disc'; });
+        setTimeout(() => {
+            boxes.forEach(b => b.value = '');
+            boxes[0].focus();
+        }, 80);
 
         // Auto-advance & Auto-backspace logic
         boxes.forEach((box, i) => {
@@ -1773,7 +1778,10 @@ function promptCustomPin({ title, subtitle, refCode = "", showSkip = false }) {
         // Toggle visibility
         const chkShow = card.querySelector('#chkShowPin');
         chkShow.addEventListener('change', (e) => {
-            boxes.forEach(b => b.type = e.target.checked ? 'text' : 'password');
+            boxes.forEach(b => {
+                b.style.webkitTextSecurity = e.target.checked ? 'none' : 'disc';
+                b.style.textSecurity = e.target.checked ? 'none' : 'disc';
+            });
         });
 
         const close = (val) => {
