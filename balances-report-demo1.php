@@ -16,10 +16,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حسابات الأرصدة تجريبي 1 | Al-Sajana ERP</title>
-    <link rel="stylesheet" href="css/design-system.css">
-    <link rel="stylesheet" href="css/theme.css">
-    <link rel="stylesheet" href="css/components.css?v=20260626_4">
-    <link rel="stylesheet" href="css/sales-invoice.css">
+    <link rel="stylesheet" href="css/design-system.css?v=20260723_v11">
+    <link rel="stylesheet" href="css/theme.css?v=20260723_v11">
+    <link rel="stylesheet" href="css/components.css?v=20260723_v11">
+    <link rel="stylesheet" href="css/sales-invoice.css?v=20260723_v11">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
@@ -518,6 +518,24 @@
             color: #0f172a;
             box-shadow: 0 0 20px rgba(var(--accent-color), 0.28);
         }
+        /* ── Ultra-Compact & Identical 8px Margins (Right & Left) ── */
+        body {
+            padding-right: 0 !important;
+        }
+        body.has-sidebar {
+            padding-right: 0 !important;
+        }
+        .sgl-master-container {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding-top: 10px !important;
+            padding-right: 8px !important;
+            padding-bottom: 60px !important;
+            padding-left: 8px !important;
+            box-sizing: border-box !important;
+            position: relative;
+        }
 </style>
 </head>
 <body>
@@ -625,7 +643,7 @@
 </div>
 
 
-<div style="max-width: 1600px; margin: 0 auto; padding: 6px 14px; padding-bottom: 20px;">
+<div class="sgl-master-container">
     <!-- Premium Navigation Header -->
     <?php $header_theme_class = 'header-theme-reports'; ?>
     <?php include 'includes/header.php'; ?>
