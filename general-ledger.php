@@ -17,7 +17,7 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700;800&family=Roboto+Mono:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700;800&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
@@ -1183,13 +1183,13 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         .action-buttons-container {
             display: flex; 
             gap: 12px; 
-            margin-bottom: 0px; 
-            margin-top: -16px;
+            margin-bottom: 12px; 
+            margin-top: -4px;
             align-items: stretch; 
             width: 100%; 
             flex-wrap: nowrap;
             overflow-x: auto;
-            padding: 15px 5px; /* Extra padding top/bottom so scaled buttons don't get clipped */
+            padding: 2px 5px; /* Space for large hover scale */
             scrollbar-width: thin;
         }
         
@@ -1243,6 +1243,8 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         .magic-btn:hover { 
             transform: translateY(-6px) scale(1.08); 
             z-index: 10; 
+            border-color: rgba(255,255,255,0.8);
+            color: #ffffff;
         }
         .magic-btn:hover svg { transform: scale(1.25) rotate(8deg); }
         .magic-btn:active { transform: translateY(2px) scale(0.95); }
@@ -1268,67 +1270,54 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         /* ======================== Luminous Candy Colors ======================== */
         
         /* 1 & 8: تشغيل + تخصيص (identical premium gradient: Pink to Indigo) */
-        .magic-primary { background: linear-gradient(135deg, #ec4899, #6366f1); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 15px rgba(236,72,153,0.5); color: #fff; }
-        .magic-primary:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 15px 35px rgba(99,102,241,0.7), 0 0 25px rgba(236,72,153,0.8); border-color: rgba(255,255,255,0.8); color: #fff; }
+        .magic-primary { background: linear-gradient(135deg, #ec4899, #6366f1); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 15px rgba(236,72,153,0.5); }
+        .magic-primary:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 15px 35px rgba(99,102,241,0.7), 0 0 25px rgba(236,72,153,0.8); }
 
-        /* Premium Glass Button Base (for secondary buttons) */
-        .magic-preview, .magic-print, .magic-export, .magic-whatsapp, .magic-email,
-        .magic-preset-1, .magic-preset-2, .magic-preset-3, .magic-preset-4,
-        .magic-model-1, .magic-model-2 {
-            background: transparent;
-            border-style: solid;
-            border-width: 2px;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-        }
+        /* 3: المعاينة (Sky Blue) */
+        .magic-preview { background: linear-gradient(135deg, #38bdf8, #0284c7); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(56,189,248,0.5); }
+        .magic-preview:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(56,189,248,0.7), 0 0 20px rgba(56,189,248,0.8); }
 
-        /* 3: المعاينة (Sky Blue Glass) */
-        .magic-preview { border-color: #38bdf8; color: #38bdf8; box-shadow: 0 0 10px rgba(56,189,248,0.2), inset 0 0 10px rgba(56,189,248,0.1); }
-        .magic-preview:hover { background: rgba(56,189,248,0.15); box-shadow: 0 0 20px rgba(56,189,248,0.5), inset 0 0 15px rgba(56,189,248,0.4); border-color: #7dd3fc; color: #7dd3fc; }
+        /* 4: الطباعة (Emerald) */
+        .magic-print { background: linear-gradient(135deg, #34d399, #059669); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(52,211,153,0.5); }
+        .magic-print:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(52,211,153,0.7), 0 0 20px rgba(52,211,153,0.8); }
 
-        /* 4: الطباعة (Emerald Glass) */
-        .magic-print { border-color: #34d399; color: #34d399; box-shadow: 0 0 10px rgba(52,211,153,0.2), inset 0 0 10px rgba(52,211,153,0.1); }
-        .magic-print:hover { background: rgba(52,211,153,0.15); box-shadow: 0 0 20px rgba(52,211,153,0.5), inset 0 0 15px rgba(52,211,153,0.4); border-color: #6ee7b7; color: #6ee7b7; }
+        /* 5: التصدير (Amber/Gold) */
+        .magic-export { background: linear-gradient(135deg, #fbbf24, #d97706); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(251,191,36,0.5); }
+        .magic-export:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(251,191,36,0.7), 0 0 20px rgba(251,191,36,0.8); }
 
-        /* 5: التصدير (Amber/Gold Glass) */
-        .magic-export { border-color: #fbbf24; color: #fbbf24; box-shadow: 0 0 10px rgba(251,191,36,0.2), inset 0 0 10px rgba(251,191,36,0.1); }
-        .magic-export:hover { background: rgba(251,191,36,0.15); box-shadow: 0 0 20px rgba(251,191,36,0.5), inset 0 0 15px rgba(251,191,36,0.4); border-color: #fcd34d; color: #fcd34d; }
+        /* 6: واتساب (Green) */
+        .magic-whatsapp { background: linear-gradient(135deg, #4ade80, #16a34a); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(74,222,128,0.5); }
+        .magic-whatsapp:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(74,222,128,0.7), 0 0 20px rgba(74,222,128,0.8); }
 
-        /* 6: واتساب (Green Glass) */
-        .magic-whatsapp { border-color: #4ade80; color: #4ade80; box-shadow: 0 0 10px rgba(74,222,128,0.2), inset 0 0 10px rgba(74,222,128,0.1); }
-        .magic-whatsapp:hover { background: rgba(74,222,128,0.15); box-shadow: 0 0 20px rgba(74,222,128,0.5), inset 0 0 15px rgba(74,222,128,0.4); border-color: #86efac; color: #86efac; }
-
-        /* 7: إيميل (Orange Glass) */
-        .magic-email { border-color: #fb923c; color: #fb923c; box-shadow: 0 0 10px rgba(251,146,60,0.2), inset 0 0 10px rgba(251,146,60,0.1); }
-        .magic-email:hover { background: rgba(251,146,60,0.15); box-shadow: 0 0 20px rgba(251,146,60,0.5), inset 0 0 15px rgba(251,146,60,0.4); border-color: #fdba74; color: #fdba74; }
+        /* 7: إيميل (Orange) */
+        .magic-email { background: linear-gradient(135deg, #fb923c, #ea580c); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(251,146,60,0.5); }
+        .magic-email:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(251,146,60,0.7), 0 0 20px rgba(251,146,60,0.8); }
 
         /* افتراضي 1 (Rose) */
-        .magic-preset-1 { border-color: #fb7185; color: #fb7185; box-shadow: 0 0 10px rgba(251,113,133,0.2), inset 0 0 10px rgba(251,113,133,0.1); }
-        .magic-preset-1:hover, .magic-preset.active { background: rgba(251,113,133,0.15); box-shadow: 0 0 20px rgba(251,113,133,0.5), inset 0 0 15px rgba(251,113,133,0.4); border-color: #fda4af; color: #fda4af; }
+        .magic-preset-1 { background: linear-gradient(135deg, #fb7185, #e11d48); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(251,113,133,0.5); }
+        .magic-preset-1:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(251,113,133,0.7), 0 0 20px rgba(251,113,133,0.8); }
 
         /* افتراضي 2 (Lime) */
-        .magic-preset-2 { border-color: #a3e635; color: #a3e635; box-shadow: 0 0 10px rgba(163,230,53,0.2), inset 0 0 10px rgba(163,230,53,0.1); }
-        .magic-preset-2:hover, .magic-preset.active { background: rgba(163,230,53,0.15); box-shadow: 0 0 20px rgba(163,230,53,0.5), inset 0 0 15px rgba(163,230,53,0.4); border-color: #bef264; color: #bef264; }
+        .magic-preset-2 { background: linear-gradient(135deg, #a3e635, #65a30d); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(163,230,53,0.5); }
+        .magic-preset-2:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(163,230,53,0.7), 0 0 20px rgba(163,230,53,0.8); }
 
         /* افتراضي 3 (Indigo) */
-        .magic-preset-3 { border-color: #818cf8; color: #818cf8; box-shadow: 0 0 10px rgba(129,140,248,0.2), inset 0 0 10px rgba(129,140,248,0.1); }
-        .magic-preset-3:hover, .magic-preset.active { background: rgba(129,140,248,0.15); box-shadow: 0 0 20px rgba(129,140,248,0.5), inset 0 0 15px rgba(129,140,248,0.4); border-color: #a5b4fc; color: #a5b4fc; }
+        .magic-preset-3 { background: linear-gradient(135deg, #818cf8, #4f46e5); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(129,140,248,0.5); }
+        .magic-preset-3:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(129,140,248,0.7), 0 0 20px rgba(129,140,248,0.8); }
 
         /* افتراضي 4 (Fuchsia) */
-        .magic-preset-4 { border-color: #e879f9; color: #e879f9; box-shadow: 0 0 10px rgba(232,121,249,0.2), inset 0 0 10px rgba(232,121,249,0.1); }
-        .magic-preset-4:hover, .magic-preset.active { background: rgba(232,121,249,0.15); box-shadow: 0 0 20px rgba(232,121,249,0.5), inset 0 0 15px rgba(232,121,249,0.4); border-color: #f0abfc; color: #f0abfc; }
+        .magic-preset-4 { background: linear-gradient(135deg, #e879f9, #c026d3); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(232,121,249,0.5); }
+        .magic-preset-4:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(232,121,249,0.7), 0 0 20px rgba(232,121,249,0.8); }
 
         /* نموذج 1 (Teal) */
-        .magic-model-1 { border-color: #2dd4bf; color: #2dd4bf; box-shadow: 0 0 10px rgba(45,212,191,0.2), inset 0 0 10px rgba(45,212,191,0.1); }
-        .magic-model-1:hover, .magic-model.active { background: rgba(45,212,191,0.15); box-shadow: 0 0 20px rgba(45,212,191,0.5), inset 0 0 15px rgba(45,212,191,0.4); border-color: #5eead4; color: #5eead4; }
+        .magic-model-1 { background: linear-gradient(135deg, #2dd4bf, #0f766e); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(45,212,191,0.5); }
+        .magic-model-1:hover, .magic-model.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(45,212,191,0.7), 0 0 20px rgba(45,212,191,0.8); }
 
         /* نموذج 2 (Violet) */
-        .magic-model-2 { border-color: #a78bfa; color: #a78bfa; box-shadow: 0 0 10px rgba(167,139,250,0.2), inset 0 0 10px rgba(167,139,250,0.1); }
-        .magic-model-2:hover, .magic-model.active { background: rgba(167,139,250,0.15); box-shadow: 0 0 20px rgba(167,139,250,0.5), inset 0 0 15px rgba(167,139,250,0.4); border-color: #c4b5fd; color: #c4b5fd; }
+        .magic-model-2 { background: linear-gradient(135deg, #a78bfa, #7c3aed); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(167,139,250,0.5); }
+        .magic-model-2:hover, .magic-model.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(167,139,250,0.7), 0 0 20px rgba(167,139,250,0.8); }
 
         /* Hide text on very small screens to ensure fit if needed */
-
         @media (max-width: 1400px) {
             .magic-preset, .magic-model, .magic-preview, .magic-print, .magic-export, .magic-whatsapp, .magic-email { font-size: 0.75rem; min-width: 65px; gap: 4px; padding: 0 6px; }
             .magic-btn { height: 42px; }
@@ -1379,8 +1368,8 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         <button class="magic-btn magic-preset magic-preset-4" id="btn-preset-4" onclick="applyPresetGL(4)">افتراضي 4</button>
         
         <!-- النماذج المخصصة -->
-        <button class="magic-btn magic-model magic-model-1" id="btn-preset-m1" title="اضغط 8 ثوانٍ متواصلة لحفظ التنسيق الحالي">نموذج 1</button>
-        <button class="magic-btn magic-model magic-model-2" id="btn-preset-m2" title="اضغط 8 ثوانٍ متواصلة لحفظ التنسيق الحالي">نموذج 2</button>
+        <button class="magic-btn magic-model magic-model-1" id="btn-preset-m1" onclick="applyPresetGL('m1')" onmousedown="startModelSave('m1')" onmouseup="stopModelSave()" onmouseleave="stopModelSave()" oncontextmenu="return false;" title="اضغط 8 ثوانٍ لحفظ التنسيق الحالي">نموذج 1</button>
+        <button class="magic-btn magic-model magic-model-2" id="btn-preset-m2" onclick="applyPresetGL('m2')" onmousedown="startModelSave('m2')" onmouseup="stopModelSave()" onmouseleave="stopModelSave()" oncontextmenu="return false;" title="اضغط 8 ثوانٍ لحفظ التنسيق الحالي">نموذج 2</button>
 
         <!-- 8. تخصيص الجداول -->
         <button class="magic-btn magic-primary" onclick="toggleSettingsSidebar()">
