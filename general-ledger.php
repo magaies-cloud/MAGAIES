@@ -1183,13 +1183,14 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         .action-buttons-container {
             display: flex; 
             gap: 12px; 
-            margin-bottom: 12px; 
-            margin-top: -4px;
+            margin-bottom: 2px; 
+            margin-top: -12px; /* compensate for top padding */
             align-items: stretch; 
             width: 100%; 
             flex-wrap: nowrap;
             overflow-x: auto;
-            padding: 2px 5px; /* Space for large hover scale */
+            overflow-y: visible; /* Prevent vertical cutoff */
+            padding: 12px 5px; /* Give space for translateY hover scale */
             scrollbar-width: thin;
         }
         
@@ -1243,11 +1244,17 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         .magic-btn:hover { 
             transform: translateY(-6px) scale(1.08); 
             z-index: 10; 
-            border-color: rgba(255,255,255,0.8);
-            color: #ffffff;
         }
         .magic-btn:hover svg { transform: scale(1.25) rotate(8deg); }
         .magic-btn:active { transform: translateY(2px) scale(0.95); }
+
+        /* Super Bright Shine/Light beam effect */
+        .magic-btn::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg); transition: 0.7s ease-in-out; z-index: -1;
+        }
+        .magic-btn:hover::after { left: 200%; }
 
         /* Idle floating/pulsing animation for eye-catching effect */
         @keyframes float-glow {
@@ -1259,71 +1266,65 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         .magic-btn { animation: float-glow 3s infinite ease-in-out; }
         .magic-btn:hover { animation: none; filter: brightness(1.15); } 
 
-        /* Fix clipping issue when buttons scale up */
-        .ledger-header { overflow: visible !important; position: relative; z-index: 50; }
-        .action-buttons-container { padding: 5px; overflow: visible !important; }
-
-        /* ======================== Hollow Crystal Wave Buttons ======================== */
+        /* ======================== Luminous Candy Colors ======================== */
         
-        /* 1 & 8: تشغيل + تخصيص (Primary buttons remain solid gradient) */
-        .magic-primary { background: linear-gradient(135deg, #ec4899, #6366f1); border-color: transparent; box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 15px rgba(236,72,153,0.5); color: #fff; }
-        .magic-primary:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 15px 35px rgba(99,102,241,0.7), 0 0 25px rgba(236,72,153,0.8); color: #fff; }
+        /* 1 & 8: تشغيل + تخصيص (identical premium gradient: Pink to Indigo) */
+        .magic-primary { background: linear-gradient(135deg, #ec4899, #6366f1); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 15px rgba(236,72,153,0.5); color: #fff; }
+        .magic-primary:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 15px 35px rgba(99,102,241,0.7), 0 0 25px rgba(236,72,153,0.8); border-color: rgba(255,255,255,0.8); color: #fff; }
 
-        .magic-preview, .magic-print, .magic-export, .magic-whatsapp, .magic-email,
-        .magic-preset-1, .magic-preset-2, .magic-preset-3, .magic-preset-4,
-        .magic-model-1, .magic-model-2 {
-            background: var(--btn-bg-idle) !important;
-            color: var(--btn-text) !important;
-            border: 1px solid var(--btn-border-idle) !important; 
+        /* Premium Glass Button Base (for secondary buttons) */
+        .magic-preview, .magic-print, .magic-export, .magic-whatsapp, .magic-email, .magic-preset, .magic-model {
+            background: transparent;
+            border-style: solid;
+            border-width: 2px;
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            position: relative;
-            z-index: 1;
-            overflow: visible !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
         }
 
-        .magic-preview:hover, .magic-print:hover, .magic-export:hover, .magic-whatsapp:hover, .magic-email:hover,
-        .magic-preset-1:hover, .magic-preset-2:hover, .magic-preset-3:hover, .magic-preset-4:hover,
-        .magic-model-1:hover, .magic-model-2:hover {
-            background: var(--btn-bg-hover) !important;
-            border-color: var(--btn-border-hover) !important;
-            color: #ffffff !important;
-            /* لمحة من بعيد جدا (Ultra-distant soft ambient glow) */
-            box-shadow: 0 30px 60px -10px var(--btn-glow), inset 0 0 20px var(--btn-bg-idle) !important;
-            transform: translateY(-4px) scale(1.02);
-            text-shadow: 0 0 8px var(--btn-border-hover);
-        }
+        /* 3: المعاينة (Sky Blue Glass) */
+        .magic-preview { border-color: #38bdf8; color: #38bdf8; box-shadow: 0 0 10px rgba(56,189,248,0.2), inset 0 0 10px rgba(56,189,248,0.1); }
+        .magic-preview:hover { background: rgba(56,189,248,0.15); box-shadow: 0 0 20px rgba(56,189,248,0.5), inset 0 0 15px rgba(56,189,248,0.4); border-color: #7dd3fc; color: #7dd3fc; }
 
-        /* 
-         ألوان ساطعة جداً (Luminous) تبرز على الخلفية السوداء كلوحة فنية
-        */
-        .magic-preview { --btn-text: #7dd3fc; --btn-border-idle: rgba(56,189,248,0.4); --btn-border-hover: #38bdf8; --btn-bg-idle: rgba(56,189,248,0.08); --btn-bg-hover: rgba(56,189,248,0.15); --btn-glow: rgba(56,189,248,0.3); }
-        .magic-print   { --btn-text: #6ee7b7; --btn-border-idle: rgba(52,211,153,0.4); --btn-border-hover: #34d399; --btn-bg-idle: rgba(52,211,153,0.08); --btn-bg-hover: rgba(52,211,153,0.15); --btn-glow: rgba(52,211,153,0.3); }
-        .magic-export  { --btn-text: #fcd34d; --btn-border-idle: rgba(251,191,36,0.4); --btn-border-hover: #fbbf24; --btn-bg-idle: rgba(251,191,36,0.08); --btn-bg-hover: rgba(251,191,36,0.15); --btn-glow: rgba(251,191,36,0.3); }
-        .magic-whatsapp{ --btn-text: #86efac; --btn-border-idle: rgba(74,222,128,0.4); --btn-border-hover: #4ade80; --btn-bg-idle: rgba(74,222,128,0.08); --btn-bg-hover: rgba(74,222,128,0.15); --btn-glow: rgba(74,222,128,0.3); }
-        .magic-email   { --btn-text: #fdba74; --btn-border-idle: rgba(251,146,60,0.4); --btn-border-hover: #fb923c; --btn-bg-idle: rgba(251,146,60,0.08); --btn-bg-hover: rgba(251,146,60,0.15); --btn-glow: rgba(251,146,60,0.3); }
+        /* 4: الطباعة (Emerald Glass) */
+        .magic-print { border-color: #34d399; color: #34d399; box-shadow: 0 0 10px rgba(52,211,153,0.2), inset 0 0 10px rgba(52,211,153,0.1); }
+        .magic-print:hover { background: rgba(52,211,153,0.15); box-shadow: 0 0 20px rgba(52,211,153,0.5), inset 0 0 15px rgba(52,211,153,0.4); border-color: #6ee7b7; color: #6ee7b7; }
 
-        .magic-preset-1{ --btn-text: #fda4af; --btn-border-idle: rgba(251,113,133,0.4); --btn-border-hover: #fb7185; --btn-bg-idle: rgba(251,113,133,0.08); --btn-bg-hover: rgba(251,113,133,0.15); --btn-glow: rgba(251,113,133,0.3); }
-        .magic-preset-2{ --btn-text: #bef264; --btn-border-idle: rgba(163,230,53,0.4);  --btn-border-hover: #a3e635; --btn-bg-idle: rgba(163,230,53,0.08);  --btn-bg-hover: rgba(163,230,53,0.15);  --btn-glow: rgba(163,230,53,0.3); }
-        .magic-preset-3{ --btn-text: #c7d2fe; --btn-border-idle: rgba(129,140,248,0.4); --btn-border-hover: #818cf8; --btn-bg-idle: rgba(129,140,248,0.08); --btn-bg-hover: rgba(129,140,248,0.15); --btn-glow: rgba(129,140,248,0.3); }
-        .magic-preset-4{ --btn-text: #f0abfc; --btn-border-idle: rgba(232,121,249,0.4); --btn-border-hover: #e879f9; --btn-bg-idle: rgba(232,121,249,0.08); --btn-bg-hover: rgba(232,121,249,0.15); --btn-glow: rgba(232,121,249,0.3); }
+        /* 5: التصدير (Amber/Gold Glass) */
+        .magic-export { border-color: #fbbf24; color: #fbbf24; box-shadow: 0 0 10px rgba(251,191,36,0.2), inset 0 0 10px rgba(251,191,36,0.1); }
+        .magic-export:hover { background: rgba(251,191,36,0.15); box-shadow: 0 0 20px rgba(251,191,36,0.5), inset 0 0 15px rgba(251,191,36,0.4); border-color: #fcd34d; color: #fcd34d; }
 
-        .magic-model-1 { --btn-text: #5eead4; --btn-border-idle: rgba(45,212,191,0.4);  --btn-border-hover: #2dd4bf; --btn-bg-idle: rgba(45,212,191,0.08);  --btn-bg-hover: rgba(45,212,191,0.15);  --btn-glow: rgba(45,212,191,0.3); }
-        .magic-model-2 { --btn-text: #ddd6fe; --btn-border-idle: rgba(167,139,250,0.4); --btn-border-hover: #a78bfa; --btn-bg-idle: rgba(167,139,250,0.08); --btn-bg-hover: rgba(167,139,250,0.15); --btn-glow: rgba(167,139,250,0.3); }
+        /* 6: واتساب (Green Glass) */
+        .magic-whatsapp { border-color: #4ade80; color: #4ade80; box-shadow: 0 0 10px rgba(74,222,128,0.2), inset 0 0 10px rgba(74,222,128,0.1); }
+        .magic-whatsapp:hover { background: rgba(74,222,128,0.15); box-shadow: 0 0 20px rgba(74,222,128,0.5), inset 0 0 15px rgba(74,222,128,0.4); border-color: #86efac; color: #86efac; }
 
-        .magic-preset-1.active, .magic-preset-2.active, .magic-preset-3.active, .magic-preset-4.active,
-        .magic-model-1.active, .magic-model-2.active {
-            background: var(--btn-bg-hover) !important;
-            border-color: var(--btn-border-hover) !important;
-            color: #ffffff !important;
-            box-shadow: 0 0 30px var(--btn-glow), inset 0 0 15px var(--btn-bg-idle) !important;
-            text-shadow: 0 0 8px var(--btn-border-hover);
-        }
+        /* 7: إيميل (Orange Glass) */
+        .magic-email { border-color: #fb923c; color: #fb923c; box-shadow: 0 0 10px rgba(251,146,60,0.2), inset 0 0 10px rgba(251,146,60,0.1); }
+        .magic-email:hover { background: rgba(251,146,60,0.15); box-shadow: 0 0 20px rgba(251,146,60,0.5), inset 0 0 15px rgba(251,146,60,0.4); border-color: #fdba74; color: #fdba74; }
+
+        /* افتراضي 1 (Rose Glass) */
+        .magic-preset-1 { border-color: #fb7185; color: #fb7185; box-shadow: 0 0 10px rgba(251,113,133,0.2), inset 0 0 10px rgba(251,113,133,0.1); }
+        .magic-preset-1:hover, .magic-preset-1.active { background: rgba(251,113,133,0.15); box-shadow: 0 0 20px rgba(251,113,133,0.5), inset 0 0 15px rgba(251,113,133,0.4); border-color: #fda4af; color: #fda4af; }
+
+        /* افتراضي 2 (Lime Glass) */
+        .magic-preset-2 { border-color: #a3e635; color: #a3e635; box-shadow: 0 0 10px rgba(163,230,53,0.2), inset 0 0 10px rgba(163,230,53,0.1); }
+        .magic-preset-2:hover, .magic-preset-2.active { background: rgba(163,230,53,0.15); box-shadow: 0 0 20px rgba(163,230,53,0.5), inset 0 0 15px rgba(163,230,53,0.4); border-color: #bef264; color: #bef264; }
+
+        /* افتراضي 3 (Indigo Glass) */
+        .magic-preset-3 { border-color: #818cf8; color: #818cf8; box-shadow: 0 0 10px rgba(129,140,248,0.2), inset 0 0 10px rgba(129,140,248,0.1); }
+        .magic-preset-3:hover, .magic-preset-3.active { background: rgba(129,140,248,0.15); box-shadow: 0 0 20px rgba(129,140,248,0.5), inset 0 0 15px rgba(129,140,248,0.4); border-color: #a5b4fc; color: #a5b4fc; }
+
+        /* افتراضي 4 (Fuchsia Glass) */
+        .magic-preset-4 { border-color: #e879f9; color: #e879f9; box-shadow: 0 0 10px rgba(232,121,249,0.2), inset 0 0 10px rgba(232,121,249,0.1); }
+        .magic-preset-4:hover, .magic-preset-4.active { background: rgba(232,121,249,0.15); box-shadow: 0 0 20px rgba(232,121,249,0.5), inset 0 0 15px rgba(232,121,249,0.4); border-color: #f0abfc; color: #f0abfc; }
+
+        /* نموذج 1 (Teal Glass) */
+        .magic-model-1 { border-color: #2dd4bf; color: #2dd4bf; box-shadow: 0 0 10px rgba(45,212,191,0.2), inset 0 0 10px rgba(45,212,191,0.1); }
+        .magic-model-1:hover, .magic-model-1.active { background: rgba(45,212,191,0.15); box-shadow: 0 0 20px rgba(45,212,191,0.5), inset 0 0 15px rgba(45,212,191,0.4); border-color: #5eead4; color: #5eead4; }
+
+        /* نموذج 2 (Violet Glass) */
+        .magic-model-2 { border-color: #a78bfa; color: #a78bfa; box-shadow: 0 0 10px rgba(167,139,250,0.2), inset 0 0 10px rgba(167,139,250,0.1); }
+        .magic-model-2:hover, .magic-model-2.active { background: rgba(167,139,250,0.15); box-shadow: 0 0 20px rgba(167,139,250,0.5), inset 0 0 15px rgba(167,139,250,0.4); border-color: #c4b5fd; color: #c4b5fd; }
 
         /* Hide text on very small screens to ensure fit if needed */
         @media (max-width: 1400px) {

@@ -2788,5 +2788,169 @@ document.addEventListener('DBReady', () => {
 });
 
 
+// --- Presets Implementation ---
+window.renderBalancesPresets = function() {
+    const wrap = document.getElementById('balances-presets-wrap');
+    if (!wrap) return;
+    
+    wrap.innerHTML = '';
+    
+    const presets = [
+        { id: '1', name: 'نموذج 1', lsKey: 'erp_balances_preset_1' },
+        { id: '2', name: 'نموذج 2', lsKey: 'erp_balances_preset_2' }
+    ];
+    
+    presets.forEach(preset => {
+        const btn = document.createElement('button');
+        btn.className = 'preset-btn';
+        btn.setAttribute('data-slot-id', preset.id);
+        
+        const radius = 10;
+        const circumference = 2 * Math.PI * radius;
+        
+        btn.innerHTML = `
+            <svg class="preset-clock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transform: rotate(-90deg); z-index: 2;">
+                <circle cx="12" cy="12" r="${radius}" stroke="rgba(255,255,255,0.2)"></circle>
+                <circle class="preset-clock-progress" cx="12" cy="12" r="${radius}" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}"></circle>
+            </svg>
+            <span style="z-index: 2;">${preset.name}</span>
+            <div class="progress-bar-fill" style="position:absolute; bottom:0; left:0; height:100%; background:rgba(var(--accent-color), 0.25); width:0%; transition: width 0s linear; z-index: 1;"></div>
+            <div class="progress-bar-line" style="position:absolute; bottom:0; left:0; height:4px; background:rgb(var(--accent-color)); width:0%; transition: width 0s linear; z-index: 3; box-shadow: 0 0 10px rgb(var(--accent-color));"></div>
+        `;
+        
+        let startTime;
+        let isHolding = false;
+        let animationFrame;
+        
+        const startPress = (e) => {
+            if (e.type === 'mousedown' && e.button !== 0) return; // Only left click
+            // Don't prevent default on touchstart if we want scrolling, but for a button holding it might be needed.
+            // if (e.cancelable) e.preventDefault(); 
+            
+            isHolding = true;
+            startTime = Date.now();
+            btn.classList.add('holding');
+            
+            const progressCircle = btn.querySelector('.preset-clock-progress');
+            const progressFill = btn.querySelector('.progress-bar-fill');
+            const progressLine = btn.querySelector('.progress-bar-line');
+            
+            const updateProgress = () => {
+                if (!isHolding) return;
+                const elapsed = Date.now() - startTime;
+                let progress = elapsed / 8000; // 8 seconds
+                if (progress > 1) progress = 1;
+                
+                const offset = circumference - (progress * circumference);
+                if (progressCircle) progressCircle.style.strokeDashoffset = offset;
+                if (progressFill) progressFill.style.width = (progress * 100) + '%';
+                if (progressLine) progressLine.style.width = (progress * 100) + '%';
+                
+                if (progress < 1) {
+                    animationFrame = requestAnimationFrame(updateProgress);
+                } else {
+                    // 8 seconds completed!
+                    savePresetData(preset.lsKey);
+                    resetButton();
+                    if (typeof showToast === 'function') {
+                        showToast(\`تم حفظ التخصيصات في \${preset.name} حفظاً نهائياً!\`, 'success');
+                    } else {
+                        alert(\`تم حفظ التخصيصات في \${preset.name} حفظاً نهائياً!\`);
+                    }
+                }
+            };
+            
+            updateProgress();
+        };
+        
+        const endPress = (e) => {
+            if (!isHolding) return;
+            const duration = Date.now() - startTime;
+            
+            if (duration < 8000) {
+                // It was a click (not a long press)
+                loadPresetData(preset.lsKey);
+            }
+            
+            resetButton();
+        };
+        
+        const resetButton = () => {
+            isHolding = false;
+            startTime = null;
+            cancelAnimationFrame(animationFrame);
+            btn.classList.remove('holding');
+            
+            const progressCircle = btn.querySelector('.preset-clock-progress');
+            const progressFill = btn.querySelector('.progress-bar-fill');
+            const progressLine = btn.querySelector('.progress-bar-line');
+            
+            if (progressCircle) progressCircle.style.strokeDashoffset = circumference;
+            if (progressFill) progressFill.style.width = '0%';
+            if (progressLine) progressLine.style.width = '0%';
+        };
+        
+        // Listen on button for start
+        btn.addEventListener('mousedown', startPress);
+        btn.addEventListener('touchstart', startPress, {passive: true});
+        
+        // Listen on document for end to catch mouse leaving button
+        const handleGlobalEnd = (e) => {
+            if (isHolding) endPress(e);
+        };
+        
+        document.addEventListener('mouseup', handleGlobalEnd);
+        document.addEventListener('touchend', handleGlobalEnd);
+        document.addEventListener('touchcancel', handleGlobalEnd);
+        
+        wrap.appendChild(btn);
+    });
+};
 
+function savePresetData(lsKey) {
+    const dataToSave = {
+        colConfigs: window.colConfigs,
+        colOrder: window.colOrder,
+        currentTableTheme: window.currentTableTheme || '',
+        currentNumFont: window.currentNumFont || 'num-font-jetbrains'
+    };
+    localStorage.setItem(lsKey, JSON.stringify(dataToSave));
+}
+
+function loadPresetData(lsKey) {
+    const savedStr = localStorage.getItem(lsKey);
+    if (savedStr) {
+        try {
+            const data = JSON.parse(savedStr);
+            if (data.colConfigs && data.colOrder) {
+                window.colConfigs = data.colConfigs;
+                window.colOrder = data.colOrder;
+                if (data.currentTableTheme !== undefined) {
+                    if (typeof changeTableTheme === 'function') changeTableTheme(data.currentTableTheme);
+                }
+                if (data.currentNumFont !== undefined) {
+                    if (typeof changeNumberFont === 'function') changeNumberFont(data.currentNumFont);
+                }
+                if (typeof applyLayoutToDOM === 'function') applyLayoutToDOM();
+                if (typeof renderSidebarConfig === 'function') renderSidebarConfig();
+                if (typeof window.runReport === 'function') window.runReport();
+                
+                if (typeof showToast === 'function') {
+                    showToast('تم استرجاع النموذج بنجاح', 'success');
+                }
+            }
+        } catch(e) {
+            console.error('Error parsing preset', e);
+        }
+    } else {
+        if (typeof showToast === 'function') {
+            showToast('هذا النموذج فارغ، اضغط لمدة 8 ثوانٍ للحفظ عليه', 'warning');
+        } else {
+            alert('هذا النموذج فارغ، اضغط لمدة 8 ثوانٍ للحفظ عليه');
+        }
+    }
+}
+
+// Try to render presets immediately if wrap is available
+window.renderBalancesPresets();
 

@@ -1,11 +1,9 @@
 <?php
-$files = ['css/design-system.css', 'css/theme.css', 'css/components.css', 'css/sales-invoice.css', 'css/table-themes.css'];
-foreach($files as $file) {
-    if (!file_exists($file)) continue;
-    $lines = file($file);
-    foreach($lines as $i => $line) {
-        if (strpos($line, 'num-font-jetbrains') !== false || strpos($line, 'num-font-poppins') !== false) {
-            echo basename($file) . " Line " . ($i+1) . ": " . trim($line) . "\n";
-        }
+$content = file_get_contents(__DIR__ . '/balances-report.php');
+$lines = explode("\n", $content);
+foreach($lines as $i => $line) {
+    if(stripos($line, 'preset') !== false || strpos($line, 'نموذج') !== false) {
+        echo ($i+1) . ": " . htmlspecialchars($line) . "<br>\n";
     }
 }
+echo "Done";
