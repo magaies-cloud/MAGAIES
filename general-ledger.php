@@ -308,6 +308,200 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             width: 0%;
             border-bottom-left-radius: 9px;
             border-bottom-right-radius: 9px;
+        :root.light-theme .badge-success { color: #059669 !important; background: rgba(5, 150, 105, 0.1) !important; }
+        :root.light-theme .badge-danger { color: #e11d48 !important; background: rgba(225, 29, 72, 0.1) !important; }
+        :root.light-theme .badge-purple { color: #7c3aed !important; background: rgba(124, 58, 237, 0.1) !important; }
+
+        .v-progress-bg { width: 100%; height: 6px; background: rgba(255, 255, 255, 0.08); border-radius: 10px; overflow: hidden; }
+        :root.light-theme .v-progress-bg { background: rgba(0, 0, 0, 0.08) !important; }
+        .v-progress-bar { height: 100%; border-radius: 10px; transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        .v-chart-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 22px;
+            transition: all 0.3s ease;
+        }
+        .v-chart-card:hover {
+            border-color: rgba(56, 189, 248, 0.3);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+        }
+        :root.light-theme .v-chart-card {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+        }
+        .v-chart-header { margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+        :root.light-theme .v-chart-header { border-bottom-color: rgba(0, 0, 0, 0.06) !important; }
+        :root.light-theme .v-chart-header h4 { color: #0f172a !important; }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+    </style>
+    <style>
+        .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
+        .toast { padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:8px; pointer-events:auto; backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5); animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both; font-family:'Cairo',sans-serif; }
+        .toast.success { background:rgba(52,211,153,0.15); border:1px solid rgba(52,211,153,0.4); color:#34d399; }
+        .toast.error { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#f87171; }
+        .toast.warning { background:rgba(251,191,36,0.15); border:1px solid rgba(251,191,36,0.4); color:#fbbf24; }
+        @keyframes toastIn { from { opacity:0; transform:translateY(-20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+        /* Presets Slots Styles */
+        .no-print .modern-btn {
+            height: 38px !important;
+            font-size: 0.88rem !important;
+            padding: 0 16px !important;
+            border-radius: 10px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-weight: 700 !important;
+            font-family: 'Tajawal', sans-serif !important;
+            box-sizing: border-box !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .no-print .modern-btn:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+        }
+
+        .presets-slots-wrap {
+            flex-grow: 1;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .preset-slot-btn {
+            position: relative;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            height: 38px !important;
+            font-size: 0.85rem !important;
+            padding: 0 14px !important;
+            border-radius: 10px !important;
+            font-weight: 700 !important;
+            font-family: 'Tajawal', sans-serif !important;
+            cursor: pointer;
+            flex: 1 !important;
+            min-width: 80px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            user-select: none;
+            text-align: center;
+            box-sizing: border-box !important;
+        }
+
+        /* Glowing Breathing Keyframes */
+        @keyframes preset-glow-purple {
+            0%, 100% { box-shadow: 0 0 5px rgba(168, 85, 247, 0.15); }
+            50% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.35); }
+        }
+        @keyframes preset-glow-blue {
+            0%, 100% { box-shadow: 0 0 5px rgba(56, 189, 248, 0.15); }
+            50% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.35); }
+        }
+        @keyframes preset-glow-emerald {
+            0%, 100% { box-shadow: 0 0 5px rgba(52, 211, 153, 0.15); }
+            50% { box-shadow: 0 0 15px rgba(52, 211, 153, 0.35); }
+        }
+        @keyframes preset-glow-pink {
+            0%, 100% { box-shadow: 0 0 5px rgba(244, 114, 182, 0.15); }
+            50% { box-shadow: 0 0 15px rgba(244, 114, 182, 0.35); }
+        }
+
+        /* Slot 1: Purple */
+        .preset-slot-btn[data-id="1"] {
+            background: rgba(168, 85, 247, 0.03) !important;
+            border: 1px dashed rgba(168, 85, 247, 0.25) !important;
+            color: rgba(192, 132, 252, 0.75) !important;
+        }
+        .preset-slot-btn[data-id="1"]:hover,
+        .preset-slot-btn[data-id="1"].has-data {
+            background: rgba(168, 85, 247, 0.08) !important;
+            border: 1px solid rgba(168, 85, 247, 0.4) !important;
+            color: #c084fc !important;
+        }
+        .preset-slot-btn[data-id="1"].has-data {
+            animation: preset-glow-purple 3.5s infinite ease-in-out;
+        }
+        .preset-slot-btn[data-id="1"]:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 15px rgba(168, 85, 247, 0.35) !important;
+        }
+
+        /* Slot 2: Blue */
+        .preset-slot-btn[data-id="2"] {
+            background: rgba(56, 189, 248, 0.03) !important;
+            border: 1px dashed rgba(56, 189, 248, 0.25) !important;
+            color: rgba(56, 189, 248, 0.75) !important;
+        }
+        .preset-slot-btn[data-id="2"]:hover,
+        .preset-slot-btn[data-id="2"].has-data {
+            background: rgba(56, 189, 248, 0.08) !important;
+            border: 1px solid rgba(56, 189, 248, 0.4) !important;
+            color: #38bdf8 !important;
+        }
+        .preset-slot-btn[data-id="2"].has-data {
+            animation: preset-glow-blue 3.5s infinite ease-in-out;
+        }
+        .preset-slot-btn[data-id="2"]:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 15px rgba(56, 189, 248, 0.35) !important;
+        }
+
+        /* Slot 3: Emerald */
+        .preset-slot-btn[data-id="3"] {
+            background: rgba(52, 211, 153, 0.03) !important;
+            border: 1px dashed rgba(52, 211, 153, 0.25) !important;
+            color: rgba(52, 211, 153, 0.75) !important;
+        }
+        .preset-slot-btn[data-id="3"]:hover,
+        .preset-slot-btn[data-id="3"].has-data {
+            background: rgba(52, 211, 153, 0.08) !important;
+            border: 1px solid rgba(52, 211, 153, 0.4) !important;
+            color: #34d399 !important;
+        }
+        .preset-slot-btn[data-id="3"].has-data {
+            animation: preset-glow-emerald 3.5s infinite ease-in-out;
+        }
+        .preset-slot-btn[data-id="3"]:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 15px rgba(52, 211, 153, 0.35) !important;
+        }
+
+        /* Slot 4: Pink */
+        .preset-slot-btn[data-id="4"] {
+            background: rgba(244, 114, 182, 0.03) !important;
+            border: 1px dashed rgba(244, 114, 182, 0.25) !important;
+            color: rgba(244, 114, 182, 0.75) !important;
+        }
+        .preset-slot-btn[data-id="4"]:hover,
+        .preset-slot-btn[data-id="4"].has-data {
+            background: rgba(244, 114, 182, 0.08) !important;
+            border: 1px solid rgba(244, 114, 182, 0.4) !important;
+            color: #f472b6 !important;
+        }
+        .preset-slot-btn[data-id="4"].has-data {
+            animation: preset-glow-pink 3.5s infinite ease-in-out;
+        }
+        .preset-slot-btn[data-id="4"]:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 15px rgba(244, 114, 182, 0.35) !important;
+        }
+
+        .preset-slot-btn .hold-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 0%;
+            border-bottom-left-radius: 9px;
+            border-bottom-right-radius: 9px;
         }
         .preset-slot-btn[data-id="1"] .hold-bar { background: #a855f7; }
         .preset-slot-btn[data-id="2"] .hold-bar { background: #38bdf8; }
@@ -322,8 +516,9 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             background: linear-gradient(135deg, rgba(192,132,252,0.15), rgba(15,23,42,0.9)); 
             border: 1px solid rgba(192,132,252,0.2); 
             border-radius: 16px; 
-            padding: 32px 25px; 
-            margin-bottom: 20px; 
+            padding: 10px 20px 2px 20px; 
+            margin-top: -8px;
+            margin-bottom: 2px; 
             height: auto !important; 
             display: block !important; 
         }
@@ -368,7 +563,7 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         .sgl-filter-grid {
             display: grid;
             grid-template-columns: repeat(12, 1fr);
-            row-gap: 20px;
+            row-gap: 12px;
             column-gap: 15px;
             align-items: stretch;
             margin-bottom: 0;
@@ -983,17 +1178,18 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         </div>
     </div>
 
-                        <!-- ACTION BUTTONS SECTION -->
+    <!-- ACTION BUTTONS SECTION -->
     <style>
         .action-buttons-container {
             display: flex; 
             gap: 12px; 
-            margin-bottom: 25px; 
+            margin-bottom: 12px; 
+            margin-top: -4px;
             align-items: stretch; 
             width: 100%; 
             flex-wrap: nowrap;
             overflow-x: auto;
-            padding: 15px 5px; /* Space for large hover scale */
+            padding: 2px 5px; /* Space for large hover scale */
             scrollbar-width: thin;
         }
         
@@ -1186,15 +1382,16 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
     <style>
         .summary-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 12px;
+            width: 100%;
         }
         .crystal-card {
             position: relative;
             background: rgba(255, 255, 255, 0.03);
             border-radius: 16px;
-            padding: 20px 25px;
+            padding: 14px 25px;
             overflow: hidden;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -1203,7 +1400,7 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             cursor: default;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.2);
         }
         
@@ -1233,14 +1430,14 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         }
 
         /* Ambient glowing background specific to each card */
-        .card-debit { background: linear-gradient(135deg, rgba(6, 78, 59, 0.4), rgba(4, 120, 87, 0.5)); border-color: rgba(16, 185, 129, 0.3); }
-        .card-debit:hover { box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4), inset 0 2px 4px rgba(255,255,255,0.3); border-color: rgba(16, 185, 129, 0.6); }
+        .card-debit { background: linear-gradient(135deg, rgba(6, 78, 59, 0.5), rgba(4, 120, 87, 0.6)); border-color: rgba(16, 185, 129, 0.6); box-shadow: 0 0 15px rgba(16, 185, 129, 0.25); }
+        .card-debit:hover { box-shadow: 0 0 35px rgba(16, 185, 129, 0.7), inset 0 2px 4px rgba(255,255,255,0.4); border-color: rgba(16, 185, 129, 0.9); }
 
-        .card-credit { background: linear-gradient(135deg, rgba(127, 29, 29, 0.4), rgba(185, 28, 28, 0.5)); border-color: rgba(239, 68, 68, 0.3); }
-        .card-credit:hover { box-shadow: 0 15px 35px rgba(239, 68, 68, 0.4), inset 0 2px 4px rgba(255,255,255,0.3); border-color: rgba(239, 68, 68, 0.6); }
+        .card-credit { background: linear-gradient(135deg, rgba(127, 29, 29, 0.5), rgba(185, 28, 28, 0.6)); border-color: rgba(239, 68, 68, 0.6); box-shadow: 0 0 15px rgba(239, 68, 68, 0.25); }
+        .card-credit:hover { box-shadow: 0 0 35px rgba(239, 68, 68, 0.7), inset 0 2px 4px rgba(255,255,255,0.4); border-color: rgba(239, 68, 68, 0.9); }
 
-        .card-balance { background: linear-gradient(135deg, rgba(49, 46, 129, 0.4), rgba(79, 70, 229, 0.5)); border-color: rgba(99, 102, 241, 0.3); }
-        .card-balance:hover { box-shadow: 0 15px 35px rgba(99, 102, 241, 0.4), inset 0 2px 4px rgba(255,255,255,0.3); border-color: rgba(99, 102, 241, 0.6); }
+        .card-balance { background: linear-gradient(135deg, rgba(49, 46, 129, 0.5), rgba(79, 70, 229, 0.6)); border-color: rgba(99, 102, 241, 0.6); box-shadow: 0 0 15px rgba(99, 102, 241, 0.25); }
+        .card-balance:hover { box-shadow: 0 0 35px rgba(99, 102, 241, 0.7), inset 0 2px 4px rgba(255,255,255,0.4); border-color: rgba(99, 102, 241, 0.9); }
 
         .s-label {
             font-size: 1.05rem;
@@ -1291,6 +1488,7 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             font-size: 0.8rem;
             opacity: 0.7;
             font-weight: 600;
+            font-family: 'Tajawal', sans-serif;
         }
 
         .s-val {
@@ -1299,12 +1497,14 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             color: #ffffff;
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
             line-height: 1.1;
+            font-family: 'Tajawal', sans-serif;
         }
         
         .s-val-foreign {
             font-size: 1.3rem;
             font-weight: 800;
             line-height: 1.1;
+            font-family: 'Tajawal', sans-serif;
         }
 
         .card-debit .s-val-foreign { color: #a7f3d0; text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
@@ -1322,7 +1522,7 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="values-container">
                 <div class="val-local">
                     <span class="val-currency">الجنيه السوداني</span>
-                    <span class="s-val td-debit" id="sum-debit">0.00</span>
+                    <span class="s-val" id="sum-debit">0.00</span>
                 </div>
                 <div class="val-usd">
                     <span class="val-currency">الدولار الأمريكي</span>
@@ -1339,7 +1539,7 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="values-container">
                 <div class="val-local">
                     <span class="val-currency">الجنيه السوداني</span>
-                    <span class="s-val td-credit" id="sum-credit">0.00</span>
+                    <span class="s-val" id="sum-credit">0.00</span>
                 </div>
                 <div class="val-usd">
                     <span class="val-currency">الدولار الأمريكي</span>
