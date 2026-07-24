@@ -1,8 +1,8 @@
-<?php
+﻿<?php
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
-$page_title = 'دفتر الأستاذ العام الذكي (SGL)';
+$page_title = 'ط¯ظپطھط± ط§ظ„ط£ط³طھط§ط° ط§ظ„ط¹ط§ظ… ط§ظ„ط°ظƒظٹ (SGL)';
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -26,7 +26,7 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
     <link rel="stylesheet" href="css/table-themes.css">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <style>
-        /* ─── Visual Intelligence Analytics Hub Styling ─── */
+        /* â”€â”€â”€ Visual Intelligence Analytics Hub Styling â”€â”€â”€ */
         .visual-hub-container {
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.65));
             border: 1px solid rgba(56, 189, 248, 0.2);
@@ -221,81 +221,81 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         }
 
         /* Slot 1: Purple */
-        .preset-slot-btn[data-id="1"] {
+        .preset-slot-btn[data-id="default1"] {
             background: rgba(168, 85, 247, 0.03) !important;
             border: 1px dashed rgba(168, 85, 247, 0.25) !important;
             color: rgba(192, 132, 252, 0.75) !important;
         }
-        .preset-slot-btn[data-id="1"]:hover,
-        .preset-slot-btn[data-id="1"].has-data {
+        .preset-slot-btn[data-id="default1"]:hover,
+        .preset-slot-btn[data-id="default1"].has-data {
             background: rgba(168, 85, 247, 0.08) !important;
             border: 1px solid rgba(168, 85, 247, 0.4) !important;
             color: #c084fc !important;
         }
-        .preset-slot-btn[data-id="1"].has-data {
+        .preset-slot-btn[data-id="default1"].has-data {
             animation: preset-glow-purple 3.5s infinite ease-in-out;
         }
-        .preset-slot-btn[data-id="1"]:hover {
+        .preset-slot-btn[data-id="default1"]:hover {
             transform: translateY(-2px) scale(1.02);
             box-shadow: 0 6px 15px rgba(168, 85, 247, 0.35) !important;
         }
 
         /* Slot 2: Blue */
-        .preset-slot-btn[data-id="2"] {
+        .preset-slot-btn[data-id="default2"] {
             background: rgba(56, 189, 248, 0.03) !important;
             border: 1px dashed rgba(56, 189, 248, 0.25) !important;
             color: rgba(56, 189, 248, 0.75) !important;
         }
-        .preset-slot-btn[data-id="2"]:hover,
-        .preset-slot-btn[data-id="2"].has-data {
+        .preset-slot-btn[data-id="default2"]:hover,
+        .preset-slot-btn[data-id="default2"].has-data {
             background: rgba(56, 189, 248, 0.08) !important;
             border: 1px solid rgba(56, 189, 248, 0.4) !important;
             color: #38bdf8 !important;
         }
-        .preset-slot-btn[data-id="2"].has-data {
+        .preset-slot-btn[data-id="default2"].has-data {
             animation: preset-glow-blue 3.5s infinite ease-in-out;
         }
-        .preset-slot-btn[data-id="2"]:hover {
+        .preset-slot-btn[data-id="default2"]:hover {
             transform: translateY(-2px) scale(1.02);
             box-shadow: 0 6px 15px rgba(56, 189, 248, 0.35) !important;
         }
 
         /* Slot 3: Emerald */
-        .preset-slot-btn[data-id="3"] {
+        .preset-slot-btn[data-id="default3"] {
             background: rgba(52, 211, 153, 0.03) !important;
             border: 1px dashed rgba(52, 211, 153, 0.25) !important;
             color: rgba(52, 211, 153, 0.75) !important;
         }
-        .preset-slot-btn[data-id="3"]:hover,
-        .preset-slot-btn[data-id="3"].has-data {
+        .preset-slot-btn[data-id="default3"]:hover,
+        .preset-slot-btn[data-id="default3"].has-data {
             background: rgba(52, 211, 153, 0.08) !important;
             border: 1px solid rgba(52, 211, 153, 0.4) !important;
             color: #34d399 !important;
         }
-        .preset-slot-btn[data-id="3"].has-data {
+        .preset-slot-btn[data-id="default3"].has-data {
             animation: preset-glow-emerald 3.5s infinite ease-in-out;
         }
-        .preset-slot-btn[data-id="3"]:hover {
+        .preset-slot-btn[data-id="default3"]:hover {
             transform: translateY(-2px) scale(1.02);
             box-shadow: 0 6px 15px rgba(52, 211, 153, 0.35) !important;
         }
 
         /* Slot 4: Pink */
-        .preset-slot-btn[data-id="4"] {
+        .preset-slot-btn[data-id="default4"] {
             background: rgba(244, 114, 182, 0.03) !important;
             border: 1px dashed rgba(244, 114, 182, 0.25) !important;
             color: rgba(244, 114, 182, 0.75) !important;
         }
-        .preset-slot-btn[data-id="4"]:hover,
-        .preset-slot-btn[data-id="4"].has-data {
+        .preset-slot-btn[data-id="default4"]:hover,
+        .preset-slot-btn[data-id="default4"].has-data {
             background: rgba(244, 114, 182, 0.08) !important;
             border: 1px solid rgba(244, 114, 182, 0.4) !important;
             color: #f472b6 !important;
         }
-        .preset-slot-btn[data-id="4"].has-data {
+        .preset-slot-btn[data-id="default4"].has-data {
             animation: preset-glow-pink 3.5s infinite ease-in-out;
         }
-        .preset-slot-btn[data-id="4"]:hover {
+        .preset-slot-btn[data-id="default4"]:hover {
             transform: translateY(-2px) scale(1.02);
             box-shadow: 0 6px 15px rgba(244, 114, 182, 0.35) !important;
         }
@@ -309,10 +309,21 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             border-bottom-left-radius: 9px;
             border-bottom-right-radius: 9px;
         }
-        .preset-slot-btn[data-id="1"] .hold-bar { background: #a855f7; }
-        .preset-slot-btn[data-id="2"] .hold-bar { background: #38bdf8; }
-        .preset-slot-btn[data-id="3"] .hold-bar { background: #34d399; }
-        .preset-slot-btn[data-id="4"] .hold-bar { background: #f472b6; }
+        .preset-slot-btn[data-id="default1"] .hold-bar { background: #a855f7; }
+        .preset-slot-btn[data-id="default2"] .hold-bar { background: #38bdf8; }
+        .preset-slot-btn[data-id="default3"] .hold-bar { background: #34d399; }
+        .preset-slot-btn[data-id="default4"] .hold-bar { background: #f472b6; }
+
+        .preset-slot-btn[data-id^=""model""] {
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, 0.3);
+        }
+        .preset-slot-btn[data-id^=""model""]:hover,
+        .preset-slot-btn[data-id^=""model""].has-data {
+            background: rgba(251, 191, 36, 0.15);
+            border-color: #fbbf24;
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
+        }
 
 
 
@@ -851,7 +862,7 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
         :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
         :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
-        /* ── Ultra-Compact & Identical 8px Margins (Right & Left) ── */
+        /* â”€â”€ Ultra-Compact & Identical 8px Margins (Right & Left) â”€â”€ */
         body {
             padding-right: 0 !important;
         }
@@ -877,10 +888,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
 <!-- Modal -->
 <div class="modal-overlay" id="attach-modal">
     <div class="modal-content">
-        <div style="font-size:3rem; margin-bottom:10px;">📎</div>
-        <div class="modal-title">المرفقات الحالية</div>
-        <p style="color:#94a3b8; font-size:0.9rem;">هنا تظهر جميع المرفقات المرتبطة بالقيد، يمكنك عرض أي منها أو إزالتها.</p>
-        <button class="modal-btn" onclick="document.getElementById('attach-modal').style.display='none'">إغلاق</button>
+        <div style="font-size:3rem; margin-bottom:10px;">ًں“ژ</div>
+        <div class="modal-title">ط§ظ„ظ…ط±ظپظ‚ط§طھ ط§ظ„ط­ط§ظ„ظٹط©</div>
+        <p style="color:#94a3b8; font-size:0.9rem;">ظ‡ظ†ط§ طھط¸ظ‡ط± ط¬ظ…ظٹط¹ ط§ظ„ظ…ط±ظپظ‚ط§طھ ط§ظ„ظ…ط±طھط¨ط·ط© ط¨ط§ظ„ظ‚ظٹط¯طŒ ظٹظ…ظƒظ†ظƒ ط¹ط±ط¶ ط£ظٹ ظ…ظ†ظ‡ط§ ط£ظˆ ط¥ط²ط§ظ„طھظ‡ط§.</p>
+        <button class="modal-btn" onclick="document.getElementById('attach-modal').style.display='none'">ط¥ط؛ظ„ط§ظ‚</button>
     </div>
 </div>
 
@@ -894,22 +905,22 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
     <div class="ledger-header no-print premium-header">
         <div class="premium-header-bg"></div>
         <div class="sgl-filter-grid">
-            <!-- السطر الأول -->
-            <!-- الحساب الرئيسي (Label and input on the same line) -->
+            <!-- ط§ظ„ط³ط·ط± ط§ظ„ط£ظˆظ„ -->
+            <!-- ط§ظ„ط­ط³ط§ط¨ ط§ظ„ط±ط¦ظٹط³ظٹ (Label and input on the same line) -->
             <div class="filter-group-row sgl-main-account">
-                <label>الحساب الرئيسي</label>
+                <label>ط§ظ„ط­ط³ط§ط¨ ط§ظ„ط±ط¦ظٹط³ظٹ</label>
                 <div style="flex: 1; display: flex; align-items: center; position: relative;">
                     <!-- Input search container -->
                     <div class="search-wrap" id="account-search-wrap" style="display:flex; flex:1; align-items: center; position: relative; width: 100%;">
-                        <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث باسم أو رقم الحساب..." autocomplete="off" oninput="onAccountSearch()" onkeyup="onAccountSearchKey(event)" style="width:100%;">
-                        <button class="search-clear-btn" id="search-clear-btn">✕</button>
+                        <input type="text" class="filter-input" id="account-search-input" placeholder="ط§ط¨ط­ط« ط¨ط§ط³ظ… ط£ظˆ ط±ظ‚ظ… ط§ظ„ط­ط³ط§ط¨..." autocomplete="off" oninput="onAccountSearch()" onkeyup="onAccountSearchKey(event)" style="width:100%;">
+                        <button class="search-clear-btn" id="search-clear-btn">âœ•</button>
                         <ul class="autocomplete-list" id="autocomplete-list"></ul>
                     </div>
                     <!-- Selected Account Chip (Styled cleanly like the input to keep height matching) -->
                     <div class="selected-account-chip" id="selected-chip" style="display: none; align-items: center; gap: 8px; width: 100%; border: none; background: transparent; padding: 0; margin: 0; box-shadow: none;">
-                        <span id="chip-icon" style="font-size: 1.15rem; line-height: 1;">🏷️</span>
+                        <span id="chip-icon" style="font-size: 1.15rem; line-height: 1;">ًںڈ·ï¸ڈ</span>
                         <span id="chip-name" style="flex:1; font-size: 0.95rem; color: #f8fafc; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
-                        <button class="chip-remove" onclick="clearAccountSearch()" title="إلغاء" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.1rem; padding: 0 5px; line-height: 1;">✕</button>
+                        <button class="chip-remove" onclick="clearAccountSearch()" title="ط¥ظ„ط؛ط§ط،" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.1rem; padding: 0 5px; line-height: 1;">âœ•</button>
                     </div>
                 </div>
                 <input type="hidden" id="filter-account" value="ALL">
@@ -917,110 +928,110 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
 
             <!-- Date Filter Section -->
             <div class="filter-group-inline sgl-period-all" id="date-all-period-btn" style="cursor: pointer; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 8px; background: rgba(168, 85, 247, 0.1); border: 1px dashed rgba(168, 85, 247, 0.4); min-height: 48px; box-sizing: border-box;" onclick="setDateMode('range')">
-                <span style="font-size: 1.2rem;">📅</span>
-                <span style="color: #c084fc; font-weight: bold;">الفترة: كل الفترة</span>
-                <span style="font-size: 0.75rem; background: rgba(168, 85, 247, 0.2); padding: 2px 6px; border-radius: 6px; color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.3);">تخصيص ⚡</span>
+                <span style="font-size: 1.2rem;">ًں“…</span>
+                <span style="color: #c084fc; font-weight: bold;">ط§ظ„ظپطھط±ط©: ظƒظ„ ط§ظ„ظپطھط±ط©</span>
+                <span style="font-size: 0.75rem; background: rgba(168, 85, 247, 0.2); padding: 2px 6px; border-radius: 6px; color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.3);">طھط®طµظٹطµ âڑ،</span>
             </div>
 
             <div class="filter-group-row sgl-period-from" id="date-from-container" style="display: none;">
-                <label style="white-space: nowrap;">من تاريخ</label>
+                <label style="white-space: nowrap;">ظ…ظ† طھط§ط±ظٹط®</label>
                 <input type="date" class="filter-input" id="filter-from" onchange="runReport()" style="flex: 1;">
-                <span onclick="setDateMode('all'); event.stopPropagation();" style="color: #f87171; font-size: 0.75rem; cursor: pointer; font-weight: bold; padding: 0 4px; white-space: nowrap;" title="إلغاء وتعيين كل الفترة">✕ إلغاء</span>
+                <span onclick="setDateMode('all'); event.stopPropagation();" style="color: #f87171; font-size: 0.75rem; cursor: pointer; font-weight: bold; padding: 0 4px; white-space: nowrap;" title="ط¥ظ„ط؛ط§ط، ظˆطھط¹ظٹظٹظ† ظƒظ„ ط§ظ„ظپطھط±ط©">âœ• ط¥ظ„ط؛ط§ط،</span>
             </div>
 
             <div class="filter-group-row sgl-period-to" id="date-to-container" style="display: none;">
-                <label style="white-space: nowrap;">إلى تاريخ</label>
+                <label style="white-space: nowrap;">ط¥ظ„ظ‰ طھط§ط±ظٹط®</label>
                 <input type="date" class="filter-input" id="filter-to" onchange="runReport()" style="flex: 1;">
             </div>
 
-            <!-- العملة -->
+            <!-- ط§ظ„ط¹ظ…ظ„ط© -->
             <div class="filter-group-row sgl-currency">
-                <label>العملة</label>
+                <label>ط§ظ„ط¹ظ…ظ„ط©</label>
                 <select class="filter-input" id="filter-currency" style="flex: 1;">
-                    <option value="ALL">جميع العملات</option>
+                    <option value="ALL">ط¬ظ…ظٹط¹ ط§ظ„ط¹ظ…ظ„ط§طھ</option>
                     <!-- Will be populated dynamically -->
                 </select>
             </div>
 
-            <!-- السطر الثاني -->
-            <!-- نوع الحركة -->
+            <!-- ط§ظ„ط³ط·ط± ط§ظ„ط«ط§ظ†ظٹ -->
+            <!-- ظ†ظˆط¹ ط§ظ„ط­ط±ظƒط© -->
             <div class="filter-group-row sgl-type">
-                <label>نوع الحركة</label>
+                <label>ظ†ظˆط¹ ط§ظ„ط­ط±ظƒط©</label>
                 <select class="filter-input" id="filter-type" style="flex: 1;">
-                    <option value="ALL">جميع الحركات</option>
-                    <option value="receipt">سند قبض</option>
-                    <option value="payment">سند صرف</option>
-                    <option value="jv">قيد يومية</option>
-                    <option value="invoice">فاتورة مبيعات</option>
-                    <option value="purchase">فاتورة مشتريات</option>
+                    <option value="ALL">ط¬ظ…ظٹط¹ ط§ظ„ط­ط±ظƒط§طھ</option>
+                    <option value="receipt">ط³ظ†ط¯ ظ‚ط¨ط¶</option>
+                    <option value="payment">ط³ظ†ط¯ طµط±ظپ</option>
+                    <option value="jv">ظ‚ظٹط¯ ظٹظˆظ…ظٹط©</option>
+                    <option value="invoice">ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ</option>
+                    <option value="purchase">ظپط§طھظˆط±ط© ظ…ط´طھط±ظٹط§طھ</option>
                 </select>
             </div>
 
-            <!-- مركز التكلفة -->
+            <!-- ظ…ط±ظƒط² ط§ظ„طھظƒظ„ظپط© -->
             <div class="filter-group-row sgl-costcenter">
-                <label>مركز التكلفة</label>
+                <label>ظ…ط±ظƒط² ط§ظ„طھظƒظ„ظپط©</label>
                 <select class="filter-input" id="filter-costcenter" style="flex: 1;">
-                    <option value="ALL">الكل</option>
+                    <option value="ALL">ط§ظ„ظƒظ„</option>
                     <!-- Will be populated dynamically -->
                 </select>
             </div>
 
-            <!-- حالة الترحيل -->
+            <!-- ط­ط§ظ„ط© ط§ظ„طھط±ط­ظٹظ„ -->
             <div class="filter-group-row sgl-posted">
-                <label>حالة الترحيل</label>
+                <label>ط­ط§ظ„ط© ط§ظ„طھط±ط­ظٹظ„</label>
                 <select class="filter-input" id="filter-posted" onchange="runReport()" style="flex: 1;">
-                    <option value="ALL">الكل (مرحل وغير مرحل)</option>
-                    <option value="posted">مرحلة فقط</option>
-                    <option value="unposted">غير مرحلة فقط</option>
+                    <option value="ALL">ط§ظ„ظƒظ„ (ظ…ط±ط­ظ„ ظˆط؛ظٹط± ظ…ط±ط­ظ„)</option>
+                    <option value="posted">ظ…ط±ط­ظ„ط© ظپظ‚ط·</option>
+                    <option value="unposted">ط؛ظٹط± ظ…ط±ط­ظ„ط© ظپظ‚ط·</option>
                 </select>
             </div>
 
-            <!-- البحث النصي (Label and input on the same line) -->
+            <!-- ط§ظ„ط¨ط­ط« ط§ظ„ظ†طµظٹ (Label and input on the same line) -->
             <div class="filter-group-row sgl-search">
-                <label title="بحث سريع برقم المرجع أو كلمة في البيان">بحث نصي (مرجع/بيان)</label>
-                <input type="text" class="filter-input" id="filter-search" placeholder="اكتب للبحث..." autocomplete="off" onkeyup="if(event.key === 'Enter') runReport()">
+                <label title="ط¨ط­ط« ط³ط±ظٹط¹ ط¨ط±ظ‚ظ… ط§ظ„ظ…ط±ط¬ط¹ ط£ظˆ ظƒظ„ظ…ط© ظپظٹ ط§ظ„ط¨ظٹط§ظ†">ط¨ط­ط« ظ†طµظٹ (ظ…ط±ط¬ط¹/ط¨ظٹط§ظ†)</label>
+                <input type="text" class="filter-input" id="filter-search" placeholder="ط§ظƒطھط¨ ظ„ظ„ط¨ط­ط«..." autocomplete="off" onkeyup="if(event.key === 'Enter') runReport()">
             </div>
         </div>
     </div>
 
     <!-- ACTION BUTTONS SECTION -->
     <div style="display:flex; gap:10px; margin-bottom:20px; align-items:center; flex-wrap:wrap; width: 100%;" class="no-print">
-        <!-- 1. تشغيل التقرير -->
+        <!-- 1. طھط´ط؛ظٹظ„ ط§ظ„طھظ‚ط±ظٹط± -->
         <button class="btn-run modern-btn" onclick="runReport()" id="btn-run-report" style="background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35); border: none; color: white; margin: 0;">
             <svg id="btn-run-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="transition:0.3s;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <svg id="btn-run-spinner" style="display:none; animation: rotate 1s linear infinite;" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"></path></svg>
-            <span id="btn-run-text" style="font-weight: bold;">تشغيل التقرير</span>
+            <span id="btn-run-text" style="font-weight: bold;">طھط´ط؛ظٹظ„ ط§ظ„طھظ‚ط±ظٹط±</span>
         </button>
         
 
-        <!-- 3. المعاينة -->
+        <!-- 3. ط§ظ„ظ…ط¹ط§ظٹظ†ط© -->
         <button class="modern-btn" onclick="previewGL()" style="background: rgba(56, 189, 248, 0.08); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.25);">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            معاينة
+            ظ…ط¹ط§ظٹظ†ط©
         </button>
 
-        <!-- 4. طباعة مباشرة -->
+        <!-- 4. ط·ط¨ط§ط¹ط© ظ…ط¨ط§ط´ط±ط© -->
         <button class="modern-btn" onclick="printDirectly()" style="background: rgba(16, 185, 129, 0.08); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.25);">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            طباعة
+            ط·ط¨ط§ط¹ط©
         </button>
 
-        <!-- 5. تصدير PDF/Excel -->
+        <!-- 5. طھطµط¯ظٹط± PDF/Excel -->
         <button class="modern-btn" onclick="window.openExportModal(exportCSV, exportGLPDF)" style="background: rgba(251, 191, 36, 0.08); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.25);">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-            تصدير
+            طھطµط¯ظٹط±
         </button>
 
-        <!-- 6. مشاركة واتساب -->
-        <button class="modern-btn" onclick="shareViaWhatsApp()" style="background: rgba(37, 211, 102, 0.08); color: #25d366; border: 1px solid rgba(37, 211, 102, 0.25);" title="مشاركة كشف الحساب عبر الواتساب">
+        <!-- 6. ظ…ط´ط§ط±ظƒط© ظˆط§طھط³ط§ط¨ -->
+        <button class="modern-btn" onclick="shareViaWhatsApp()" style="background: rgba(37, 211, 102, 0.08); color: #25d366; border: 1px solid rgba(37, 211, 102, 0.25);" title="ظ…ط´ط§ط±ظƒط© ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨ ط¹ط¨ط± ط§ظ„ظˆط§طھط³ط§ط¨">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.487-1.761-1.66-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-            واتساب
+            ظˆط§طھط³ط§ط¨
         </button>
 
-        <!-- 7. مشاركة إيميل -->
-        <button class="modern-btn" onclick="shareViaEmail()" style="background: rgba(249, 115, 22, 0.08); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.25);" title="إرسال كشف الحساب عبر البريد الإلكتروني">
+        <!-- 7. ظ…ط´ط§ط±ظƒط© ط¥ظٹظ…ظٹظ„ -->
+        <button class="modern-btn" onclick="shareViaEmail()" style="background: rgba(249, 115, 22, 0.08); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.25);" title="ط¥ط±ط³ط§ظ„ ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨ ط¹ط¨ط± ط§ظ„ط¨ط±ظٹط¯ ط§ظ„ط¥ظ„ظƒطھط±ظˆظ†ظٹ">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-            إيميل
+            ط¥ظٹظ…ظٹظ„
         </button>
 
         <!-- Presets Slots Container -->
@@ -1030,21 +1041,21 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
     <!-- SUMMARY CARDS -->
     <div class="summary-cards" id="summary-cards" style="display:none;">
         <div class="summary-card" style="background: linear-gradient(135deg, #064e3b, #047857); border: 1px solid #10b981; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px; padding: 15px 20px;">
-            <div class="s-label" style="color:#a7f3d0;">إجمالي المدين</div>
+            <div class="s-label" style="color:#a7f3d0;">ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ…ط¯ظٹظ†</div>
             <div style="display: flex; flex-direction: column; gap: 2px; width: 100%;">
                 <div class="s-val td-debit" id="sum-debit" style="color:#ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-weight: 800;">0.00</div>
                 <div class="s-val-foreign" id="sum-debit-foreign" style="font-size: 0.95rem; font-weight: 600; color: #a7f3d0; opacity: 0.9;">(0.00 USD)</div>
             </div>
         </div>
         <div class="summary-card" style="background: linear-gradient(135deg, #7f1d1d, #b91c1c); border: 1px solid #ef4444; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px; padding: 15px 20px;">
-            <div class="s-label" style="color:#fecaca;">إجمالي الدائن</div>
+            <div class="s-label" style="color:#fecaca;">ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ط¯ط§ط¦ظ†</div>
             <div style="display: flex; flex-direction: column; gap: 2px; width: 100%;">
                 <div class="s-val td-credit" id="sum-credit" style="color:#ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-weight: 800;">0.00</div>
                 <div class="s-val-foreign" id="sum-credit-foreign" style="font-size: 0.95rem; font-weight: 600; color: #fecaca; opacity: 0.9;">(0.00 USD)</div>
             </div>
         </div>
         <div class="summary-card" style="background: linear-gradient(135deg, #312e81, #4f46e5); border: 1px solid #6366f1; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px; padding: 15px 20px;">
-            <div class="s-label" style="color:#c7d2fe;">الرصيد محلي</div>
+            <div class="s-label" style="color:#c7d2fe;">ط§ظ„ط±طµظٹط¯ ظ…ط­ظ„ظٹ</div>
             <div style="display: flex; flex-direction: column; gap: 2px; width: 100%;">
                 <div class="s-val" id="sum-balance" style="color:#ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-weight: 800;">0.00</div>
                 <div class="s-val-foreign" id="sum-balance-foreign" style="font-size: 0.95rem; font-weight: 600; color: #c7d2fe; opacity: 0.9;">(0.00 USD)</div>
@@ -1067,8 +1078,8 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
                 <tbody id="ledger-tbody">
                     <tr>
                         <td colspan="14" class="empty-state">
-                            <span style="font-size:3rem; display:block; margin-bottom:15px;">🔍</span>
-                            <div>يرجى تحديد الحساب والفترة ثم الضغط على "تشغيل التقرير الذكي"</div>
+                            <span style="font-size:3rem; display:block; margin-bottom:15px;">ًں”چ</span>
+                            <div>ظٹط±ط¬ظ‰ طھط­ط¯ظٹط¯ ط§ظ„ط­ط³ط§ط¨ ظˆط§ظ„ظپطھط±ط© ط«ظ… ط§ظ„ط¶ط؛ط· ط¹ظ„ظ‰ "طھط´ط؛ظٹظ„ ط§ظ„طھظ‚ط±ظٹط± ط§ظ„ط°ظƒظٹ"</div>
                         </td>
                     </tr>
                 </tbody>
@@ -1077,12 +1088,12 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
 
         <!-- Audit Stamp -->
         <div class="audit-stamp" id="audit-stamp" style="display:none;">
-            <span>✔️</span>
-            <span>تدقيق معتمد: الأرصدة صحيحة ومطابقة وفق المعايير المحاسبية المعتمدة (Blockchain Ready).</span>
+            <span>âœ”ï¸ڈ</span>
+            <span>طھط¯ظ‚ظٹظ‚ ظ…ط¹طھظ…ط¯: ط§ظ„ط£ط±طµط¯ط© طµط­ظٹط­ط© ظˆظ…ط·ط§ط¨ظ‚ط© ظˆظپظ‚ ط§ظ„ظ…ط¹ط§ظٹظٹط± ط§ظ„ظ…ط­ط§ط³ط¨ظٹط© ط§ظ„ظ…ط¹طھظ…ط¯ط© (Blockchain Ready).</span>
         </div>
     </div>
 
-    <!-- Visual Intelligence Analytics Hub (المركز البصري التحليلي والرسوم البيانية) -->
+    <!-- Visual Intelligence Analytics Hub (ط§ظ„ظ…ط±ظƒط² ط§ظ„ط¨طµط±ظٹ ط§ظ„طھط­ظ„ظٹظ„ظٹ ظˆط§ظ„ط±ط³ظˆظ… ط§ظ„ط¨ظٹط§ظ†ظٹط©) -->
     <div id="visual-intelligence-hub" class="visual-hub-container" style="display: none;">
         
         <!-- Section Header -->
@@ -1090,47 +1101,47 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div style="display: flex; align-items: center; gap: 12px;">
                 <div style="width: 14px; height: 14px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 15px #38bdf8; animation: pulse 2s infinite;"></div>
                 <h3 style="margin: 0; font-size: 1.35rem; font-weight: 900; color: #f8fafc; letter-spacing: -0.5px;">
-                    📈 التقرير البصري التحليلي للحركات وهيكل دفتر الأستاذ العام
+                    ًں“ˆ ط§ظ„طھظ‚ط±ظٹط± ط§ظ„ط¨طµط±ظٹ ط§ظ„طھط­ظ„ظٹظ„ظٹ ظ„ظ„ط­ط±ظƒط§طھ ظˆظ‡ظٹظƒظ„ ط¯ظپطھط± ط§ظ„ط£ط³طھط§ط° ط§ظ„ط¹ط§ظ…
                 </h3>
                 <span class="hub-badge" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 800;">
-                    ✨ visual intelligence 3.0
+                    âœ¨ visual intelligence 3.0
                 </span>
             </div>
             <div style="display: flex; gap: 8px;" class="no-print">
-                <button class="hub-tab-btn active" onclick="switchVisualTab('all')" id="tab-all">🚀 المشهد الكامل</button>
-                <button class="hub-tab-btn" onclick="switchVisualTab('partners')" id="tab-partners">👥 العملاء والموردين</button>
-                <button class="hub-tab-btn" onclick="switchVisualTab('treasury')" id="tab-treasury">🏦 الخزن والبنوك</button>
+                <button class="hub-tab-btn active" onclick="switchVisualTab('all')" id="tab-all">ًںڑ€ ط§ظ„ظ…ط´ظ‡ط¯ ط§ظ„ظƒط§ظ…ظ„</button>
+                <button class="hub-tab-btn" onclick="switchVisualTab('partners')" id="tab-partners">ًں‘¥ ط§ظ„ط¹ظ…ظ„ط§ط، ظˆط§ظ„ظ…ظˆط±ط¯ظٹظ†</button>
+                <button class="hub-tab-btn" onclick="switchVisualTab('treasury')" id="tab-treasury">ًںڈ¦ ط§ظ„ط®ط²ظ† ظˆط§ظ„ط¨ظ†ظˆظƒ</button>
             </div>
         </div>
 
         <!-- Visual Indicator Cards Row -->
         <div class="visual-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-bottom: 30px;">
             
-            <!-- Card 1: مؤشر الاتجاه والتغطية -->
+            <!-- Card 1: ظ…ط¤ط´ط± ط§ظ„ط§طھط¬ط§ظ‡ ظˆط§ظ„طھط؛ط·ظٹط© -->
             <div class="v-card glow-sky">
                 <div class="v-card-header">
-                    <span class="v-card-title">مؤشر صافي تدفق الحركات</span>
-                    <span class="v-card-icon" id="ind-trend-arrow" style="font-size: 1.4rem; color: #34d399;">↗️</span>
+                    <span class="v-card-title">ظ…ط¤ط´ط± طµط§ظپظٹ طھط¯ظپظ‚ ط§ظ„ط­ط±ظƒط§طھ</span>
+                    <span class="v-card-icon" id="ind-trend-arrow" style="font-size: 1.4rem; color: #34d399;">â†—ï¸ڈ</span>
                 </div>
                 <div class="v-card-value" id="ind-net-val">0.00 SDG</div>
                 <div class="v-card-trend">
-                    <span id="ind-trend-badge" class="v-badge badge-success">↑ رصيد صافي ممتاز</span>
-                    <span id="ind-coverage-pct" style="font-size: 0.8rem; color: #94a3b8; font-weight: bold;">تغطية: 0%</span>
+                    <span id="ind-trend-badge" class="v-badge badge-success">â†‘ ط±طµظٹط¯ طµط§ظپظٹ ظ…ظ…طھط§ط²</span>
+                    <span id="ind-coverage-pct" style="font-size: 0.8rem; color: #94a3b8; font-weight: bold;">طھط؛ط·ظٹط©: 0%</span>
                 </div>
                 <div class="v-progress-bg">
                     <div class="v-progress-bar" id="ind-coverage-bar" style="width: 50%; background: linear-gradient(90deg, #10b981, #34d399);"></div>
                 </div>
             </div>
 
-            <!-- Card 2: مؤشر تركز المخاطر -->
+            <!-- Card 2: ظ…ط¤ط´ط± طھط±ظƒط² ط§ظ„ظ…ط®ط§ط·ط± -->
             <div class="v-card glow-purple">
                 <div class="v-card-header">
-                    <span class="v-card-title">مؤشر التركّز المالي للحركات</span>
-                    <span class="v-card-icon">🎯</span>
+                    <span class="v-card-title">ظ…ط¤ط´ط± ط§ظ„طھط±ظƒظ‘ط² ط§ظ„ظ…ط§ظ„ظٹ ظ„ظ„ط­ط±ظƒط§طھ</span>
+                    <span class="v-card-icon">ًںژ¯</span>
                 </div>
                 <div class="v-card-value" id="ind-top3-pct">0.0%</div>
                 <div class="v-card-trend">
-                    <span id="ind-risk-badge" class="v-badge badge-purple">حجم أضخم 3 قيود</span>
+                    <span id="ind-risk-badge" class="v-badge badge-purple">ط­ط¬ظ… ط£ط¶ط®ظ… 3 ظ‚ظٹظˆط¯</span>
                     <span id="ind-top3-names" style="font-size: 0.75rem; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">-</span>
                 </div>
                 <div class="v-progress-bg">
@@ -1138,32 +1149,32 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
                 </div>
             </div>
 
-            <!-- Card 3: نسبة نشاط وأرجوحة الحسابات -->
+            <!-- Card 3: ظ†ط³ط¨ط© ظ†ط´ط§ط· ظˆط£ط±ط¬ظˆط­ط© ط§ظ„ط­ط³ط§ط¨ط§طھ -->
             <div class="v-card glow-emerald">
                 <div class="v-card-header">
-                    <span class="v-card-title">توازن الذمم المالي (المدين vs الدائن)</span>
-                    <span class="v-card-icon" id="ind-ratio-icon">⚖️</span>
+                    <span class="v-card-title">طھظˆط§ط²ظ† ط§ظ„ط°ظ…ظ… ط§ظ„ظ…ط§ظ„ظٹ (ط§ظ„ظ…ط¯ظٹظ† vs ط§ظ„ط¯ط§ط¦ظ†)</span>
+                    <span class="v-card-icon" id="ind-ratio-icon">âڑ–ï¸ڈ</span>
                 </div>
                 <div class="v-card-value" id="ind-ratio-val">1.0 : 1</div>
                 <div class="v-card-trend">
-                    <span id="ind-ratio-status" class="v-badge badge-emerald">نسبة مدين/دائن</span>
-                    <span id="ind-active-count" style="font-size: 0.8rem; color: #94a3b8; font-weight: bold;">0 قيد نشط</span>
+                    <span id="ind-ratio-status" class="v-badge badge-emerald">ظ†ط³ط¨ط© ظ…ط¯ظٹظ†/ط¯ط§ط¦ظ†</span>
+                    <span id="ind-active-count" style="font-size: 0.8rem; color: #94a3b8; font-weight: bold;">0 ظ‚ظٹط¯ ظ†ط´ط·</span>
                 </div>
                 <div class="v-progress-bg">
                     <div class="v-progress-bar" id="ind-ratio-bar" style="width: 50%; background: linear-gradient(90deg, #38bdf8, #818cf8);"></div>
                 </div>
             </div>
 
-            <!-- Card 4: درجة الصحة المالية الكلية -->
+            <!-- Card 4: ط¯ط±ط¬ط© ط§ظ„طµط­ط© ط§ظ„ظ…ط§ظ„ظٹط© ط§ظ„ظƒظ„ظٹط© -->
             <div class="v-card glow-amber">
                 <div class="v-card-header">
-                    <span class="v-card-title">مؤشر جودة كشف الحساب</span>
-                    <span class="v-card-icon">⭐</span>
+                    <span class="v-card-title">ظ…ط¤ط´ط± ط¬ظˆط¯ط© ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨</span>
+                    <span class="v-card-icon">â­گ</span>
                 </div>
                 <div class="v-card-value" id="ind-health-score">92/100</div>
                 <div class="v-card-trend">
-                    <span id="ind-health-badge" class="v-badge badge-amber">ممتاز</span>
-                    <span id="ind-health-desc" style="font-size: 0.75rem; color: #94a3b8;">توازن آمن</span>
+                    <span id="ind-health-badge" class="v-badge badge-amber">ظ…ظ…طھط§ط²</span>
+                    <span id="ind-health-desc" style="font-size: 0.75rem; color: #94a3b8;">طھظˆط§ط²ظ† ط¢ظ…ظ†</span>
                 </div>
                 <div class="v-progress-bg">
                     <div class="v-progress-bar" id="ind-health-bar" style="width: 92%; background: linear-gradient(90deg, #f59e0b, #fbbf24);"></div>
@@ -1181,10 +1192,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مجوفة: أين تتوزع أنواع المعاملات والمستندات؟</h4>
-                        <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">💡 هيكل المستندات</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">ًںچ© ظƒط¹ظƒط© ظ…ط¬ظˆظپط©: ط£ظٹظ† طھطھظˆط²ط¹ ط£ظ†ظˆط§ط¹ ط§ظ„ظ…ط¹ط§ظ…ظ„ط§طھ ظˆط§ظ„ظ…ط³طھظ†ط¯ط§طھطں</h4>
+                        <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">ًں’، ظ‡ظٹظƒظ„ ط§ظ„ظ…ط³طھظ†ط¯ط§طھ</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يوضح لك الفئة الأكثر استخداماً (مبيعات، مشتريات، مقبوضات، مدفوعات)</span>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">طھظˆط¶ظٹط­ ط¨ط³ظٹط·: ظٹظˆط¶ط­ ظ„ظƒ ط§ظ„ظپط¦ط© ط§ظ„ط£ظƒط«ط± ط§ط³طھط®ط¯ط§ظ…ط§ظ‹ (ظ…ط¨ظٹط¹ط§طھطŒ ظ…ط´طھط±ظٹط§طھطŒ ظ…ظ‚ط¨ظˆط¶ط§طھطŒ ظ…ط¯ظپظˆط¹ط§طھ)</span>
                 </div>
                 <div id="chart-hollow-donut-categories" style="min-height: 320px;"></div>
             </div>
@@ -1193,10 +1204,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مفرغة: أضخم 5 قيود وتدفقات مدينة (عليها)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">🎯 أعلى المدينات</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">ًںچ© ظƒط¹ظƒط© ظ…ظپط±ط؛ط©: ط£ط¶ط®ظ… 5 ظ‚ظٹظˆط¯ ظˆطھط¯ظپظ‚ط§طھ ظ…ط¯ظٹظ†ط© (ط¹ظ„ظٹظ‡ط§)</h4>
+                        <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">ًںژ¯ ط£ط¹ظ„ظ‰ ط§ظ„ظ…ط¯ظٹظ†ط§طھ</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يظهر أكبر القيود المالية الصادرة والتي تشكل أضخم المبالغ</span>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">طھظˆط¶ظٹط­ ط¨ط³ظٹط·: ظٹط¸ظ‡ط± ط£ظƒط¨ط± ط§ظ„ظ‚ظٹظˆط¯ ط§ظ„ظ…ط§ظ„ظٹط© ط§ظ„طµط§ط¯ط±ط© ظˆط§ظ„طھظٹ طھط´ظƒظ„ ط£ط¶ط®ظ… ط§ظ„ظ…ط¨ط§ظ„ط؛</span>
                 </div>
                 <div id="chart-hollow-donut-top-debtors" style="min-height: 320px;"></div>
             </div>
@@ -1210,10 +1221,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card" style="grid-column: span 1 / -1;">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📈 المنحنى المتدرج لحركة الأرصدة (Balance Spectrum Curve)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">🌊 انسيابية الحركات</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">ًں“ˆ ط§ظ„ظ…ظ†ط­ظ†ظ‰ ط§ظ„ظ…طھط¯ط±ط¬ ظ„ط­ط±ظƒط© ط§ظ„ط£ط±طµط¯ط© (Balance Spectrum Curve)</h4>
+                        <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">ًںŒٹ ط§ظ†ط³ظٹط§ط¨ظٹط© ط§ظ„ط­ط±ظƒط§طھ</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: منحنى سلس يوضح صعود وهبوط الرصيد مع كل حركة مالية</span>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">طھظˆط¶ظٹط­ ط¨ط³ظٹط·: ظ…ظ†ط­ظ†ظ‰ ط³ظ„ط³ ظٹظˆط¶ط­ طµط¹ظˆط¯ ظˆظ‡ط¨ظˆط· ط§ظ„ط±طµظٹط¯ ظ…ط¹ ظƒظ„ ط­ط±ظƒط© ظ…ط§ظ„ظٹط©</span>
                 </div>
                 <div id="chart-curved-line-spectrum" style="min-height: 330px;"></div>
             </div>
@@ -1227,10 +1238,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📊 أعمدة المقارنة المزدوجة: المدين (🟢) ضد الدائن (🔴)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">⚖️ مقارنة الأطراف</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">ًں“ٹ ط£ط¹ظ…ط¯ط© ط§ظ„ظ…ظ‚ط§ط±ظ†ط© ط§ظ„ظ…ط²ط¯ظˆط¬ط©: ط§ظ„ظ…ط¯ظٹظ† (ًںں¢) ط¶ط¯ ط§ظ„ط¯ط§ط¦ظ† (ًں”´)</h4>
+                        <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">âڑ–ï¸ڈ ظ…ظ‚ط§ط±ظ†ط© ط§ظ„ط£ط·ط±ط§ظپ</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يظهر بوضوح الفرق بين المقبوضات والمدفوعات لكل نوع مستند</span>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">طھظˆط¶ظٹط­ ط¨ط³ظٹط·: ظٹط¸ظ‡ط± ط¨ظˆط¶ظˆط­ ط§ظ„ظپط±ظ‚ ط¨ظٹظ† ط§ظ„ظ…ظ‚ط¨ظˆط¶ط§طھ ظˆط§ظ„ظ…ط¯ظپظˆط¹ط§طھ ظ„ظƒظ„ ظ†ظˆط¹ ظ…ط³طھظ†ط¯</span>
                 </div>
                 <div id="chart-bidirectional-bar" style="min-height: 320px;"></div>
             </div>
@@ -1239,10 +1250,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🧭 عدّاد ومقياس صحة ومأمونية السيولة (Liquidity Health Gauge)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(244, 63, 94, 0.18); color: #fb7185; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(244, 63, 94, 0.3);">🛡️ مؤشر الأمان الكلي</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">ًں§­ ط¹ط¯ظ‘ط§ط¯ ظˆظ…ظ‚ظٹط§ط³ طµط­ط© ظˆظ…ط£ظ…ظˆظ†ظٹط© ط§ظ„ط³ظٹظˆظ„ط© (Liquidity Health Gauge)</h4>
+                        <span style="font-size: 0.72rem; background: rgba(244, 63, 94, 0.18); color: #fb7185; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(244, 63, 94, 0.3);">ًں›،ï¸ڈ ظ…ط¤ط´ط± ط§ظ„ط£ظ…ط§ظ† ط§ظ„ظƒظ„ظٹ</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: نسبة مئوية مباشرة تعكس أمان الاستقرار المالي للحركات</span>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">طھظˆط¶ظٹط­ ط¨ط³ظٹط·: ظ†ط³ط¨ط© ظ…ط¦ظˆظٹط© ظ…ط¨ط§ط´ط±ط© طھط¹ظƒط³ ط£ظ…ط§ظ† ط§ظ„ط§ط³طھظ‚ط±ط§ط± ط§ظ„ظ…ط§ظ„ظٹ ظ„ظ„ط­ط±ظƒط§طھ</span>
                 </div>
                 <div id="chart-semicircle-gauge" style="min-height: 320px;"></div>
             </div>
@@ -1256,10 +1267,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مجوفة: أضخم 5 قيود دائنة (عليها)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(239, 68, 68, 0.18); color: #f87171; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(239, 68, 68, 0.3);">🔻 أعلى الدائنيات</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">ًںچ© ظƒط¹ظƒط© ظ…ط¬ظˆظپط©: ط£ط¶ط®ظ… 5 ظ‚ظٹظˆط¯ ط¯ط§ط¦ظ†ط© (ط¹ظ„ظٹظ‡ط§)</h4>
+                        <span style="font-size: 0.72rem; background: rgba(239, 68, 68, 0.18); color: #f87171; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(239, 68, 68, 0.3);">ًں”» ط£ط¹ظ„ظ‰ ط§ظ„ط¯ط§ط¦ظ†ظٹط§طھ</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يوضح أضخم السندات والقيود الدائنة لتتبع المصروفات والالتزامات</span>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">طھظˆط¶ظٹط­ ط¨ط³ظٹط·: ظٹظˆط¶ط­ ط£ط¶ط®ظ… ط§ظ„ط³ظ†ط¯ط§طھ ظˆط§ظ„ظ‚ظٹظˆط¯ ط§ظ„ط¯ط§ط¦ظ†ط© ظ„طھطھط¨ط¹ ط§ظ„ظ…طµط±ظˆظپط§طھ ظˆط§ظ„ط§ظ„طھط²ط§ظ…ط§طھ</span>
                 </div>
                 <div id="chart-hollow-donut-top-creditors" style="min-height: 320px;"></div>
             </div>
@@ -1268,10 +1279,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📊 أعمدة أفقية هرمية: ترتيب أضخم 10 قيود مالية</h4>
-                        <span style="font-size: 0.72rem; background: rgba(6, 182, 212, 0.18); color: #22d3ee; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(6, 182, 212, 0.3);">👑 ترتيب الحركات</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">ًں“ٹ ط£ط¹ظ…ط¯ط© ط£ظپظ‚ظٹط© ظ‡ط±ظ…ظٹط©: طھط±طھظٹط¨ ط£ط¶ط®ظ… 10 ظ‚ظٹظˆط¯ ظ…ط§ظ„ظٹط©</h4>
+                        <span style="font-size: 0.72rem; background: rgba(6, 182, 212, 0.18); color: #22d3ee; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(6, 182, 212, 0.3);">ًں‘‘ طھط±طھظٹط¨ ط§ظ„ط­ط±ظƒط§طھ</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: شريط أفقي يُظهر أطول الأعمدة للمعاملات الأكثر حجماً في التقرير</span>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">طھظˆط¶ظٹط­ ط¨ط³ظٹط·: ط´ط±ظٹط· ط£ظپظ‚ظٹ ظٹظڈط¸ظ‡ط± ط£ط·ظˆظ„ ط§ظ„ط£ط¹ظ…ط¯ط© ظ„ظ„ظ…ط¹ط§ظ…ظ„ط§طھ ط§ظ„ط£ظƒط«ط± ط­ط¬ظ…ط§ظ‹ ظپظٹ ط§ظ„طھظ‚ط±ظٹط±</span>
                 </div>
                 <div id="chart-horizontal-top-bar" style="min-height: 320px;"></div>
             </div>
@@ -1285,10 +1296,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🌊 منحنى المساحة المتدرجة الممتلئة (Fluid Area Curve)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">💧 المساحة التراكمية</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">ًںŒٹ ظ…ظ†ط­ظ†ظ‰ ط§ظ„ظ…ط³ط§ط­ط© ط§ظ„ظ…طھط¯ط±ط¬ط© ط§ظ„ظ…ظ…طھظ„ط¦ط© (Fluid Area Curve)</h4>
+                        <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">ًں’§ ط§ظ„ظ…ط³ط§ط­ط© ط§ظ„طھط±ط§ظƒظ…ظٹط©</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: مساحة ملونة انسيابية مريحة للعين تعكس التدفق التراكمي</span>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">طھظˆط¶ظٹط­ ط¨ط³ظٹط·: ظ…ط³ط§ط­ط© ظ…ظ„ظˆظ†ط© ط§ظ†ط³ظٹط§ط¨ظٹط© ظ…ط±ظٹط­ط© ظ„ظ„ط¹ظٹظ† طھط¹ظƒط³ ط§ظ„طھط¯ظپظ‚ ط§ظ„طھط±ط§ظƒظ…ظٹ</span>
                 </div>
                 <div id="chart-cumulative-area-fluid" style="min-height: 320px;"></div>
             </div>
@@ -1297,10 +1308,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🎯 مخطط الرادار الخماسي: التوازن المالي للأقسام</h4>
-                        <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">🕸️ خريطة الرادار</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">ًںژ¯ ظ…ط®ط·ط· ط§ظ„ط±ط§ط¯ط§ط± ط§ظ„ط®ظ…ط§ط³ظٹ: ط§ظ„طھظˆط§ط²ظ† ط§ظ„ظ…ط§ظ„ظٹ ظ„ظ„ط£ظ‚ط³ط§ظ…</h4>
+                        <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">ًں•¸ï¸ڈ ط®ط±ظٹط·ط© ط§ظ„ط±ط§ط¯ط§ط±</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: شبكة رادار خماسية تفاعلية توضح اتزان الحركات المالية بلمحة واحدة</span>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">طھظˆط¶ظٹط­ ط¨ط³ظٹط·: ط´ط¨ظƒط© ط±ط§ط¯ط§ط± ط®ظ…ط§ط³ظٹط© طھظپط§ط¹ظ„ظٹط© طھظˆط¶ط­ ط§طھط²ط§ظ† ط§ظ„ط­ط±ظƒط§طھ ط§ظ„ظ…ط§ظ„ظٹط© ط¨ظ„ظ…ط­ط© ظˆط§ط­ط¯ط©</span>
                 </div>
                 <div id="chart-radar-equilibrium" style="min-height: 320px;"></div>
             </div>
@@ -1314,10 +1325,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🥧 كعكة دائريّة مصمتة (Pie Chart): توزيع اتجاه القيود</h4>
-                        <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">🥧 دائرة مصمتة</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">ًں¥§ ظƒط¹ظƒط© ط¯ط§ط¦ط±ظٹظ‘ط© ظ…طµظ…طھط© (Pie Chart): طھظˆط²ظٹط¹ ط§طھط¬ط§ظ‡ ط§ظ„ظ‚ظٹظˆط¯</h4>
+                        <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">ًں¥§ ط¯ط§ط¦ط±ط© ظ…طµظ…طھط©</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: دائرة كاملة مكسوة بالألوان تظهر نسبة القيود المدينة مقابل الدائنة</span>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">طھظˆط¶ظٹط­ ط¨ط³ظٹط·: ط¯ط§ط¦ط±ط© ظƒط§ظ…ظ„ط© ظ…ظƒط³ظˆط© ط¨ط§ظ„ط£ظ„ظˆط§ظ† طھط¸ظ‡ط± ظ†ط³ط¨ط© ط§ظ„ظ‚ظٹظˆط¯ ط§ظ„ظ…ط¯ظٹظ†ط© ظ…ظ‚ط§ط¨ظ„ ط§ظ„ط¯ط§ط¦ظ†ط©</span>
                 </div>
                 <div id="chart-solid-pie-active-zero" style="min-height: 320px;"></div>
             </div>
@@ -1326,10 +1337,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🔘 حلقات دوائر مضيئة متداخلة (Multi-Radial Rings)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">💫 حلقات دائرية</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">ًں”ک ط­ظ„ظ‚ط§طھ ط¯ظˆط§ط¦ط± ظ…ط¶ظٹط¦ط© ظ…طھط¯ط§ط®ظ„ط© (Multi-Radial Rings)</h4>
+                        <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">ًں’« ط­ظ„ظ‚ط§طھ ط¯ط§ط¦ط±ظٹط©</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: ثلاث حلقات دائرية ملونة متداخلة تقارن حصة كل نوع بنسبة مئوية واضحة</span>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">طھظˆط¶ظٹط­ ط¨ط³ظٹط·: ط«ظ„ط§ط« ط­ظ„ظ‚ط§طھ ط¯ط§ط¦ط±ظٹط© ظ…ظ„ظˆظ†ط© ظ…طھط¯ط§ط®ظ„ط© طھظ‚ط§ط±ظ† ط­طµط© ظƒظ„ ظ†ظˆط¹ ط¨ظ†ط³ط¨ط© ظ…ط¦ظˆظٹط© ظˆط§ط¶ط­ط©</span>
                 </div>
                 <div id="chart-multi-radial-rings" style="min-height: 320px;"></div>
             </div>
@@ -1344,35 +1355,35 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
 <div class="sidebar-overlay" id="settings-overlay" onclick="toggleSettingsSidebar()"></div>
 <div class="settings-sidebar" id="settings-sidebar" style="resize: both; overflow: auto;">
     <div class="sidebar-header">
-        <h3>✨ تخصيص الجدول الديناميكي</h3>
-        <button class="close-sidebar" onclick="toggleSettingsSidebar()">✕</button>
+        <h3>âœ¨ طھط®طµظٹطµ ط§ظ„ط¬ط¯ظˆظ„ ط§ظ„ط¯ظٹظ†ط§ظ…ظٹظƒظٹ</h3>
+        <button class="close-sidebar" onclick="toggleSettingsSidebar()">âœ•</button>
     </div>
     <div class="sidebar-content" style="height: calc(100% - 130px); overflow-y: auto;">
         
         <div style="margin-bottom: 20px;">
-            <label style="display:block; margin-bottom:10px; font-weight:800; color:#fbbf24; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">✨ أنماط العرض الفاخرة (Crystal Space)</label>
+            <label style="display:block; margin-bottom:10px; font-weight:800; color:#fbbf24; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">âœ¨ ط£ظ†ظ…ط§ط· ط§ظ„ط¹ط±ط¶ ط§ظ„ظپط§ط®ط±ط© (Crystal Space)</label>
             <div class="crystal-theme-container">
                 <button class="crystal-btn c-std active" onclick="changeTableTheme('')" id="btn-theme-">
-                    <span style="font-size:1.2rem;">⚪</span>
-                    <span>الأساسي</span>
+                    <span style="font-size:1.2rem;">âڑھ</span>
+                    <span>ط§ظ„ط£ط³ط§ط³ظٹ</span>
                 </button>
                 <button class="crystal-btn c-blue" onclick="changeTableTheme('table-theme-blue')" id="btn-theme-table-theme-blue">
-                    <span style="font-size:1.2rem;">🔵</span>
-                    <span>الأزرق العميق</span>
+                    <span style="font-size:1.2rem;">ًں”µ</span>
+                    <span>ط§ظ„ط£ط²ط±ظ‚ ط§ظ„ط¹ظ…ظٹظ‚</span>
                 </button>
                 <button class="crystal-btn c-black" onclick="changeTableTheme('table-theme-black')" id="btn-theme-table-theme-black">
-                    <span style="font-size:1.2rem;">⚫</span>
-                    <span>الأسود الفاخر</span>
+                    <span style="font-size:1.2rem;">âڑ«</span>
+                    <span>ط§ظ„ط£ط³ظˆط¯ ط§ظ„ظپط§ط®ط±</span>
                 </button>
                 <button class="crystal-btn c-emerald" onclick="changeTableTheme('table-theme-emerald')" id="btn-theme-table-theme-emerald">
-                    <span style="font-size:1.2rem;">🟢</span>
-                    <span>الزمردي المالي</span>
+                    <span style="font-size:1.2rem;">ًںں¢</span>
+                    <span>ط§ظ„ط²ظ…ط±ط¯ظٹ ط§ظ„ظ…ط§ظ„ظٹ</span>
                 </button>
             </div>
         </div>
 
         <div style="margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-            <label style="display:block; margin-bottom:10px; font-weight:800; color:#38bdf8;">📝 خط الأرقام المحاسبية:</label>
+            <label style="display:block; margin-bottom:10px; font-weight:800; color:#38bdf8;">ًں“‌ ط®ط· ط§ظ„ط£ط±ظ‚ط§ظ… ط§ظ„ظ…ط­ط§ط³ط¨ظٹط©:</label>
             <div class="font-chips-container" style="display: flex; flex-wrap: wrap; gap: 8px;">
                 <button class="font-chip" onclick="changeNumberFont('num-font-jetbrains')" id="btn-font-num-font-jetbrains" style="font-family: 'JetBrains Mono', monospace;">JetBrains Mono</button>
                 <button class="font-chip" onclick="changeNumberFont('num-font-roboto')" id="btn-font-num-font-roboto" style="font-family: 'Roboto Mono', monospace;">Roboto Mono</button>
@@ -1383,29 +1394,29 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             
             <div style="margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 15px; display: flex; align-items: center; justify-content: space-between;">
                 <label style="font-weight: 800; color: #f8fafc; cursor: pointer; display: flex; align-items: center; gap: 8px;" for="toggle-thousands">
-                    <span style="font-size: 1.2rem;">💰</span> الفاصلة الألفية (1,000)
+                    <span style="font-size: 1.2rem;">ًں’°</span> ط§ظ„ظپط§طµظ„ط© ط§ظ„ط£ظ„ظپظٹط© (1,000)
                 </label>
                 <input type="checkbox" id="toggle-thousands" onchange="toggleThousandsSeparator(this.checked)" style="width: 20px; height: 20px; cursor: pointer; accent-color: #38bdf8;">
             </div>
         </div>
 
 
-        <p class="sidebar-desc">رتب الأعمدة بالسحب والإفلات. اضغط "تخصيص" لتغيير المسمى، الألوان، وحجم الخط.</p>
+        <p class="sidebar-desc">ط±طھط¨ ط§ظ„ط£ط¹ظ…ط¯ط© ط¨ط§ظ„ط³ط­ط¨ ظˆط§ظ„ط¥ظپظ„ط§طھ. ط§ط¶ط؛ط· "طھط®طµظٹطµ" ظ„طھط؛ظٹظٹط± ط§ظ„ظ…ط³ظ…ظ‰طŒ ط§ظ„ط£ظ„ظˆط§ظ†طŒ ظˆط­ط¬ظ… ط§ظ„ط®ط·.</p>
         <ul id="columns-config-list" class="columns-config-list">
             <!-- Populated by JS -->
         </ul>
     </div>
     <div class="sidebar-footer" style="position: sticky; bottom: 0; background: inherit; padding-top: 10px;">
-        <button class="btn-run" style="width:100%; justify-content:center; font-size:1.05rem;" onclick="applyAndSaveConfig()">💾 تطبيق وحفظ التعديلات</button>
-        <button class="btn-action" style="width:100%; justify-content:center; margin-top:10px; color:#f87171;" onclick="resetColumnConfig()">🔄 إعادة للوضع الافتراضي</button>
+        <button class="btn-run" style="width:100%; justify-content:center; font-size:1.05rem;" onclick="applyAndSaveConfig()">ًں’¾ طھط·ط¨ظٹظ‚ ظˆط­ظپط¸ ط§ظ„طھط¹ط¯ظٹظ„ط§طھ</button>
+        <button class="btn-action" style="width:100%; justify-content:center; margin-top:10px; color:#f87171;" onclick="resetColumnConfig()">ًں”„ ط¥ط¹ط§ط¯ط© ظ„ظ„ظˆط¶ط¹ ط§ظ„ط§ظپطھط±ط§ط¶ظٹ</button>
     </div>
 </div>
 
 <!-- Custom Context Menu for Drill Down -->
 <div id="drilldown-context-menu" class="custom-context-menu">
     <div class="context-menu-item" id="ctx-drilldown-btn">
-        <span>📄</span>
-        <span>الذهاب لأصل المستند (Drill-down)</span>
+        <span>ًں“„</span>
+        <span>ط§ظ„ط°ظ‡ط§ط¨ ظ„ط£طµظ„ ط§ظ„ظ…ط³طھظ†ط¯ (Drill-down)</span>
     </div>
 </div>
 
@@ -1517,22 +1528,22 @@ function runAISmartSearch() {
     const btn = document.getElementById('btn-smart-search');
     
     if (!q) {
-        showToast('الرجاء كتابة وصف للحساب أولاً', 'warning');
+        showToast('ط§ظ„ط±ط¬ط§ط، ظƒطھط§ط¨ط© ظˆطµظپ ظ„ظ„ط­ط³ط§ط¨ ط£ظˆظ„ط§ظ‹', 'warning');
         input.focus();
         return;
     }
 
     if (typeof ALL_ACCOUNTS === 'undefined' || ALL_ACCOUNTS.length <= 1) {
-        showToast('قائمة الحسابات غير متوفرة بعد', 'error');
+        showToast('ظ‚ط§ط¦ظ…ط© ط§ظ„ط­ط³ط§ط¨ط§طھ ط؛ظٹط± ظ…طھظˆظپط±ط© ط¨ط¹ط¯', 'error');
         return;
     }
 
-    btn.innerHTML = '⏳...';
+    btn.innerHTML = 'âڈ³...';
     btn.disabled = true;
 
     let accountsList = ALL_ACCOUNTS.filter(a => a.id !== 'ALL').map(a => `${a.id} - ${a.name} (${a.type})`).join('\n');
     
-    let promptMsg = "أنت مساعد بحث ذكي في نظام محاسبي. المستخدم يبحث عن الحساب الأقرب للمعنى التالي: '" + q + "'.\nإليك قائمة الحسابات المتاحة:\n" + accountsList + "\n\nاستخرج فقط وفقط 'ID' (الكود) الخاص بأقرب حساب يطابق نية المستخدم. لا تكتب أي كلمة أخرى، فقط الـ ID.";
+    let promptMsg = "ط£ظ†طھ ظ…ط³ط§ط¹ط¯ ط¨ط­ط« ط°ظƒظٹ ظپظٹ ظ†ط¸ط§ظ… ظ…ط­ط§ط³ط¨ظٹ. ط§ظ„ظ…ط³طھط®ط¯ظ… ظٹط¨ط­ط« ط¹ظ† ط§ظ„ط­ط³ط§ط¨ ط§ظ„ط£ظ‚ط±ط¨ ظ„ظ„ظ…ط¹ظ†ظ‰ ط§ظ„طھط§ظ„ظٹ: '" + q + "'.\nط¥ظ„ظٹظƒ ظ‚ط§ط¦ظ…ط© ط§ظ„ط­ط³ط§ط¨ط§طھ ط§ظ„ظ…طھط§ط­ط©:\n" + accountsList + "\n\nط§ط³طھط®ط±ط¬ ظپظ‚ط· ظˆظپظ‚ط· 'ID' (ط§ظ„ظƒظˆط¯) ط§ظ„ط®ط§طµ ط¨ط£ظ‚ط±ط¨ ط­ط³ط§ط¨ ظٹط·ط§ط¨ظ‚ ظ†ظٹط© ط§ظ„ظ…ط³طھط®ط¯ظ…. ظ„ط§ طھظƒطھط¨ ط£ظٹ ظƒظ„ظ…ط© ط£ط®ط±ظ‰طŒ ظپظ‚ط· ط§ظ„ظ€ ID.";
 
     fetch('api/ai-assistant.php', {
         method: 'POST',
@@ -1541,7 +1552,7 @@ function runAISmartSearch() {
     })
     .then(res => res.json())
     .then(data => {
-        btn.innerHTML = '🤖 ذكي';
+        btn.innerHTML = 'ًں¤– ط°ظƒظٹ';
         btn.disabled = false;
         
         if (data.reply) {
@@ -1550,20 +1561,20 @@ function runAISmartSearch() {
             
             if (matchedAccount) {
                 if (typeof selectAccount === 'function') {
-                    selectAccount(matchedAccount.id, matchedAccount.name, matchedAccount.icon || '🏷️');
-                    showToast('تم إيجاد الحساب الذكي: ' + matchedAccount.name);
+                    selectAccount(matchedAccount.id, matchedAccount.name, matchedAccount.icon || 'ًںڈ·ï¸ڈ');
+                    showToast('طھظ… ط¥ظٹط¬ط§ط¯ ط§ظ„ط­ط³ط§ط¨ ط§ظ„ط°ظƒظٹ: ' + matchedAccount.name);
                 }
             } else {
-                showToast('لم يتم العثور على حساب مطابق بدقة.', 'warning');
+                showToast('ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط­ط³ط§ط¨ ظ…ط·ط§ط¨ظ‚ ط¨ط¯ظ‚ط©.', 'warning');
             }
         } else {
-            showToast('حدث خطأ في البحث الذكي.', 'error');
+            showToast('ط­ط¯ط« ط®ط·ط£ ظپظٹ ط§ظ„ط¨ط­ط« ط§ظ„ط°ظƒظٹ.', 'error');
         }
     })
     .catch(err => {
-        btn.innerHTML = '🤖 ذكي';
+        btn.innerHTML = 'ًں¤– ط°ظƒظٹ';
         btn.disabled = false;
-        showToast('تعذر الاتصال بالخادم.', 'error');
+        showToast('طھط¹ط°ط± ط§ظ„ط§طھطµط§ظ„ ط¨ط§ظ„ط®ط§ط¯ظ….', 'error');
     });
 }
 </script>
@@ -1600,8 +1611,8 @@ function runAISmartSearch() {
         transition: all 0.2s;
         outline: none;
     " onmouseover="this.style.background='rgba(56, 189, 248, 0.15)'; this.style.color='#38bdf8';" onmouseout="this.style.background='none'; this.style.color='#e2e8f0';">
-        <span>🔍</span>
-        <span id="doc-action-text">عرض أصل المستند</span>
+        <span>ًں”چ</span>
+        <span id="doc-action-text">ط¹ط±ط¶ ط£طµظ„ ط§ظ„ظ…ط³طھظ†ط¯</span>
     </button>
 
     <!-- Option 2: Toggle Review Mode -->
@@ -1624,8 +1635,8 @@ function runAISmartSearch() {
         margin-top: 4px;
         padding-top: 10px;
     " onmouseover="this.style.background='rgba(16, 185, 129, 0.15)'; this.style.color='#10b981';" onmouseout="this.style.background='none'; this.style.color='#e2e8f0';">
-        <span>✅</span>
-        <span>تعليم كـ مراجع (مراجعة)</span>
+        <span>âœ…</span>
+        <span>طھط¹ظ„ظٹظ… ظƒظ€ ظ…ط±ط§ط¬ط¹ (ظ…ط±ط§ط¬ط¹ط©)</span>
     </button>
 
     <!-- Option 3: Go to Counter Account Ledger -->
@@ -1648,8 +1659,8 @@ function runAISmartSearch() {
         margin-top: 4px;
         padding-top: 10px;
     " onmouseover="this.style.background='rgba(168, 85, 247, 0.15)'; this.style.color='#a855f7';" onmouseout="this.style.background='none'; this.style.color='#e2e8f0';">
-        <span>📖</span>
-        <span id="ledger-action-text">الذهاب لدفتر الأستاذ</span>
+        <span>ًں“–</span>
+        <span id="ledger-action-text">ط§ظ„ط°ظ‡ط§ط¨ ظ„ط¯ظپطھط± ط§ظ„ط£ط³طھط§ط°</span>
     </button>
 </div>
 
@@ -1684,14 +1695,14 @@ function runAISmartSearch() {
             currentCell = cellEl;
 
             // Map type to localized name
-            let typeName = 'المستند';
-            if (type === 'invoice') typeName = 'فاتورة المبيعات';
-            else if (type === 'purchase') typeName = 'فاتورة المشتريات';
-            else if (type === 'jv') typeName = 'قيد اليومية';
-            else if (type === 'receipt') typeName = 'سند القبض';
-            else if (type === 'payment') typeName = 'سند الصرف';
+            let typeName = 'ط§ظ„ظ…ط³طھظ†ط¯';
+            if (type === 'invoice') typeName = 'ظپط§طھظˆط±ط© ط§ظ„ظ…ط¨ظٹط¹ط§طھ';
+            else if (type === 'purchase') typeName = 'ظپط§طھظˆط±ط© ط§ظ„ظ…ط´طھط±ظٹط§طھ';
+            else if (type === 'jv') typeName = 'ظ‚ظٹط¯ ط§ظ„ظٹظˆظ…ظٹط©';
+            else if (type === 'receipt') typeName = 'ط³ظ†ط¯ ط§ظ„ظ‚ط¨ط¶';
+            else if (type === 'payment') typeName = 'ط³ظ†ط¯ ط§ظ„طµط±ظپ';
 
-            actionText.textContent = `عرض ${typeName} (#${ref})`;
+            actionText.textContent = `ط¹ط±ط¶ ${typeName} (#${ref})`;
 
             // Show/hide toggle review button
             if (btnToggleReview) {
@@ -1737,9 +1748,9 @@ function runAISmartSearch() {
                         if (btnGoTo) {
                             btnGoTo.style.display = 'flex';
                             const actionTxt = document.getElementById('ledger-action-text');
-                            if (actionTxt) actionTxt.textContent = `دفتر أستاذ: ${accName}`;
+                            if (actionTxt) actionTxt.textContent = `ط¯ظپطھط± ط£ط³طھط§ط°: ${accName}`;
                             btnGoTo.onclick = () => {
-                                window.selectAccount(accId, accName, '🏷️');
+                                window.selectAccount(accId, accName, 'ًںڈ·ï¸ڈ');
                                 if (menu) menu.style.display = 'none';
                             };
                         }
@@ -1788,4 +1799,6 @@ function runAISmartSearch() {
 
 </body>
 </html>
+
+
 
