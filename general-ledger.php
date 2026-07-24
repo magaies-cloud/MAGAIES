@@ -1023,8 +1023,28 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             إيميل
         </button>
 
-        <!-- Presets Slots Container -->
-        <div class="presets-slots-wrap" id="presets-slots-wrap"></div>
+        <!-- النماذج الافتراضية -->
+        <style>
+            .preset-btn {
+                background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #ccc;
+                transition: all 0.2s; font-size: 0.85rem; padding: 0 12px; height: 44px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: inherit;
+            }
+            .preset-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+            .preset-btn.active { background: rgba(56,189,248,0.2); border-color: #38bdf8; color: #38bdf8; }
+            .model-btn {
+                background: rgba(168,85,247,0.05); border: 1px solid rgba(168,85,247,0.2); color: #c084fc;
+            }
+            .model-btn:hover { background: rgba(168,85,247,0.15); color: #d8b4fe; }
+            .model-btn.active { background: rgba(168,85,247,0.3); border-color: #d8b4fe; color: #fff; }
+        </style>
+        
+        <button class="preset-btn" id="btn-preset-1" onclick="applyPresetGL(1)">افتراضي 1</button>
+        <button class="preset-btn" id="btn-preset-2" onclick="applyPresetGL(2)">افتراضي 2</button>
+        <button class="preset-btn" id="btn-preset-3" onclick="applyPresetGL(3)">افتراضي 3</button>
+        <button class="preset-btn" id="btn-preset-4" onclick="applyPresetGL(4)">افتراضي 4</button>
+        <button class="preset-btn model-btn" id="btn-preset-m1" onclick="applyPresetGL('m1')" onmousedown="startModelSave('m1')" onmouseup="stopModelSave()" onmouseleave="stopModelSave()" oncontextmenu="return false;" title="اضغط 8 ثوانٍ لحفظ التنسيق الحالي">نموذج 1</button>
+        <button class="preset-btn model-btn" id="btn-preset-m2" onclick="applyPresetGL('m2')" onmousedown="startModelSave('m2')" onmouseup="stopModelSave()" onmouseleave="stopModelSave()" oncontextmenu="return false;" title="اضغط 8 ثوانٍ لحفظ التنسيق الحالي">نموذج 2</button>
+
 
         <!-- 8. تخصيص العرض والجدول -->
         <button class="btn-run modern-btn" onclick="toggleSettingsSidebar()" style="background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%); box-shadow: 0 4px 15px rgba(236, 72, 153, 0.35); border: none; color: white; margin-right: auto; height: 44px; min-height: 44px; padding: 0 22px; font-size: 0.95rem; font-weight: 800; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.25s ease;">
