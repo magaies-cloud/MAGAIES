@@ -506,6 +506,46 @@ if ($resource === 'auth') {
 }
 
 // ---------------------------------------------------------
+// REPORT LAYOUT PERMANENT STORAGE
+// ---------------------------------------------------------
+if ($resource === 'report-layout' || $resource === 'report_layout') {
+    $reportKey = $input['reportKey'] ?? $_GET['reportKey'] ?? 'balances_report_layout_default1';
+    $dbKey = 'layout_' . $reportKey;
+
+    if ($method === 'POST') {
+        $lockedKeys = [
+            'layout_balances_report_layout_default1',
+            'layout_balances_report_layout_default2',
+            'layout_balances_report_layout_default3',
+            'layout_balances_report_layout_default4',
+            'layout_balances_report_user_presets_locked',
+            'layout_balances_report_layout_basic'
+        ];
+
+        if (in_array($dbKey, $lockedKeys)) {
+            // Check if record already exists in DB (permanent lock)
+            $chkStmt = $pdo->prepare("SELECT COUNT(*) FROM global_settings WHERE setting_key = ?");
+            $chkStmt->execute([$dbKey]);
+            if ($chkStmt->fetchColumn() > 0 && !isset($_GET['force_unlock'])) {
+                jsonResponse(['success' => false, 'error' => '🔒 هذا الضبط محمي ومثبت نهائياً في قاعدة البيانات ولا يمكن تغييره إطلاقاً.'], 403);
+            }
+        }
+        $layoutData = json_encode($input['layout'] ?? [], JSON_UNESCAPED_UNICODE);
+        $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+        $stmt->execute([$dbKey, $layoutData]);
+        jsonResponse(['success' => true, 'message' => 'تم حفظ التخطيط في قاعدة البيانات بنجاح']);
+    }
+
+    if ($method === 'GET') {
+        $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
+        $stmt->execute([$dbKey]);
+        $val = $stmt->fetchColumn();
+        jsonResponse(['success' => true, 'layout' => $val ? json_decode($val, true) : null]);
+    }
+    exit;
+}
+
+// ---------------------------------------------------------
 // SECURE ROUTES (Require Token)
 // ---------------------------------------------------------
 $authHeader = '';
