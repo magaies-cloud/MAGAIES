@@ -189,19 +189,13 @@
 }
 .num-font-inter {
     font-family: 'Inter', sans-serif;
-    font-size: 1.15rem !important; /* Big size */
-    font-weight: 700 !important;
     font-variant-numeric: tabular-nums;
 }
 .num-font-jetbrains {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 1.15rem !important;
-    font-weight: 800 !important; /* Very thick and clear */
 }
 .num-font-poppins {
     font-family: 'Poppins', sans-serif;
-    font-size: 1.15rem !important;
-    font-weight: 700 !important;
     font-variant-numeric: tabular-nums;
 }
 

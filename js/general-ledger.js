@@ -2402,6 +2402,14 @@ function applyAndSaveConfig() {
             let settings = settingsStr ? JSON.parse(settingsStr) : {};
             settings.sgl_table_theme = currentTableTheme;
             settings.sgl_num_font = currentNumFont;
+            let chk = document.getElementById('global-thousand-sep');
+            let sel = document.getElementById('global-decimal-places');
+            if(chk) settings.sgl_thousand_sep = chk.checked;
+            if(sel) settings.sgl_global_dec = sel.value;
+            let chk = document.getElementById('global-thousand-sep');
+            let sel = document.getElementById('global-decimal-places');
+            if(chk) settings.sgl_thousand_sep = chk.checked;
+            if(sel) settings.sgl_global_dec = sel.value;
             localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
         }
     } catch(e) {}
@@ -3293,6 +3301,14 @@ function applyPresetGL(id) {
             let settingsStr = localStorage.getItem('erp_settings_v1');
             let settings = settingsStr ? JSON.parse(settingsStr) : {};
             settings.sgl_num_font = currentNumFont;
+            let chk = document.getElementById('global-thousand-sep');
+            let sel = document.getElementById('global-decimal-places');
+            if(chk) settings.sgl_thousand_sep = chk.checked;
+            if(sel) settings.sgl_global_dec = sel.value;
+            let chk = document.getElementById('global-thousand-sep');
+            let sel = document.getElementById('global-decimal-places');
+            if(chk) settings.sgl_thousand_sep = chk.checked;
+            if(sel) settings.sgl_global_dec = sel.value;
             localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
         }
 
