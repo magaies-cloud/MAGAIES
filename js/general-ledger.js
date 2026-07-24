@@ -3113,15 +3113,40 @@ function applyPresetGL(id) {
     if(btn) btn.classList.add('active');
 
     let layout = null;
+    let loadedSettings = null;
+
     if (['1','2','3','4'].includes(String(id))) {
         layout = DEFAULT_PRESETS_GL[id];
     } else {
         let saved = JSON.parse(localStorage.getItem('sgl_models_v1') || '{}');
-        layout = saved[id];
+        let modelData = saved[id];
+        
+        if (Array.isArray(modelData)) {
+            layout = modelData;
+        } else if (modelData && modelData.colConfig) {
+            layout = modelData.colConfig;
+            loadedSettings = modelData.settings;
+        }
+
         if (!layout) {
-            showToast('هذا النموذج فارغ، اضغط عليه 8 ثوانٍ لحفظ التنسيق الحالي كنموذج.', 'error');
+            showToast('هذا النموذج فارغ، اضغط عليه 8 ثوانٍ لحفظ التنسيق والضبط الحالي كنموذج.', 'error');
             return;
         }
+    }
+
+    // Restore Global Visual Settings
+    if (loadedSettings) {
+        let currentSettings = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+        Object.keys(loadedSettings).forEach(k => {
+             if (k.includes('theme') || k.includes('Theme') || k.includes('font') || k.includes('Font') || k.includes('decimal') || k.includes('sgl_')) {
+                  currentSettings[k] = loadedSettings[k];
+             }
+        });
+        localStorage.setItem('erp_settings_v1', JSON.stringify(currentSettings));
+        
+        if (typeof loadTableTheme === 'function') loadTableTheme();
+        if (typeof loadNumberFont === 'function') loadNumberFont();
+        if (typeof initializeLedgerSettings === 'function') initializeLedgerSettings();
     }
 
     if (layout && layout.length > 0) {
@@ -3136,21 +3161,32 @@ function applyPresetGL(id) {
             }
         });
         localStorage.setItem('sgl_col_config_v1', JSON.stringify(colConfig));
+        
+        let currentSettings = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+        currentSettings.sgl_col_config_v2 = colConfig;
+        localStorage.setItem('erp_settings_v1', JSON.stringify(currentSettings));
+
         if (typeof previewColSettingsGL === 'function') previewColSettingsGL();
         else {
-            applyConfigToHeaders();
-            runReport();
+            if (typeof applyConfigToHeaders === 'function') applyConfigToHeaders();
+            if (typeof runReport === 'function') runReport();
         }
-        showToast('تم تطبيق التنسيق بنجاح', 'success');
+        showToast('تم تطبيق التنسيق والضبط بنجاح', 'success');
     }
 }
 
 function startModelSave(id) {
     modelSaveTimer = setTimeout(() => {
         let saved = JSON.parse(localStorage.getItem('sgl_models_v1') || '{}');
-        saved[id] = JSON.parse(JSON.stringify(colConfig));
+        let erpSettings = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+        
+        saved[id] = {
+            colConfig: JSON.parse(JSON.stringify(colConfig)),
+            settings: JSON.parse(JSON.stringify(erpSettings))
+        };
+        
         localStorage.setItem('sgl_models_v1', JSON.stringify(saved));
-        showToast('تم حفظ التنسيق الحالي في هذا النموذج بنجاح!', 'success');
+        showToast('تم حفظ التنسيق والضبط الحالي في هذا النموذج بنجاح!', 'success');
         
         let btn = document.getElementById('btn-preset-' + id);
         if(btn) {
