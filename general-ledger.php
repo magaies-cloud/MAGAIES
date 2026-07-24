@@ -983,142 +983,143 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         </div>
     </div>
 
-                    <!-- ACTION BUTTONS SECTION -->
+                        <!-- ACTION BUTTONS SECTION -->
     <style>
         .action-buttons-container {
             display: flex; 
-            gap: 10px; 
+            gap: 12px; 
             margin-bottom: 25px; 
             align-items: stretch; 
             width: 100%; 
             flex-wrap: nowrap;
             overflow-x: auto;
             padding: 15px 5px; /* Space for large hover scale */
-            scrollbar-width: thin; /* Firefox */
+            scrollbar-width: thin;
         }
         
         .action-buttons-container::-webkit-scrollbar {
             height: 6px;
         }
         .action-buttons-container::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.2);
             border-radius: 10px;
         }
 
         .magic-btn {
             /* Default for middle buttons */
             flex: 1 1 auto; 
-            min-width: 80px; /* Make them wider */
+            min-width: 85px; 
             white-space: nowrap; 
             justify-content: center;
             position: relative; 
             overflow: hidden; 
             border-radius: 12px; 
             font-weight: 800; 
-            font-size: 0.82rem; 
+            font-size: 0.85rem; 
             height: 45px; 
             display: inline-flex; 
             align-items: center; 
             gap: 6px; 
             cursor: pointer;
-            transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+            transition: all 0.4s cubic-bezier(0.2, 1, 0.3, 1);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             z-index: 1;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.5); /* Brighter border */
             padding: 0 12px; 
-            color: #fff;
-            /* 3D Glass feel */
-            box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), inset 0 -2px 5px rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.1);
+            color: #ffffff; /* Bright white text for contrast */
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); /* Ensure text is readable */
+            /* 3D Glass feel with glowing base */
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1);
         }
 
         /* Make outer buttons distinct and identical in size */
         .magic-btn.magic-primary {
             flex: 1.5 1 auto; 
-            font-size: 0.9rem;
-            padding: 0 14px;
+            font-size: 0.95rem;
+            padding: 0 16px;
             min-width: 130px;
         }
 
-        .magic-btn svg { flex-shrink: 0; width: 16px; height: 16px; transition: transform 0.5s cubic-bezier(0.2, 1, 0.3, 1); filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2)); }
+        .magic-btn svg { flex-shrink: 0; width: 16px; height: 16px; transition: transform 0.5s cubic-bezier(0.2, 1, 0.3, 1); filter: drop-shadow(0 2px 3px rgba(0,0,0,0.25)); }
         .magic-btn.magic-primary svg { width: 18px; height: 18px; }
         
         .magic-btn:hover { 
             transform: translateY(-6px) scale(1.08); 
             z-index: 10; 
-            border-color: rgba(255,255,255,0.4);
+            border-color: rgba(255,255,255,0.8);
+            color: #ffffff;
         }
         .magic-btn:hover svg { transform: scale(1.25) rotate(8deg); }
         .magic-btn:active { transform: translateY(2px) scale(0.95); }
 
-        /* Shine/Light beam effect */
+        /* Super Bright Shine/Light beam effect */
         .magic-btn::after {
             content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg); transition: 0.8s ease-in-out; z-index: -1;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg); transition: 0.7s ease-in-out; z-index: -1;
         }
         .magic-btn:hover::after { left: 200%; }
 
         /* Idle floating/pulsing animation for eye-catching effect */
         @keyframes float-glow {
-            0% { transform: translateY(0px); box-shadow: 0 4px 15px rgba(255,255,255,0.1); }
-            50% { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255,255,255,0.2); }
-            100% { transform: translateY(0px); box-shadow: 0 4px 15px rgba(255,255,255,0.1); }
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); filter: brightness(1.1); }
+            100% { transform: translateY(0px); }
         }
         
-        .magic-btn { animation: float-glow 4s infinite ease-in-out; }
-        .magic-btn:hover { animation: none; } 
+        .magic-btn { animation: float-glow 3s infinite ease-in-out; }
+        .magic-btn:hover { animation: none; filter: brightness(1.15); } 
 
-        /* ======================== Breathtaking Colors ======================== */
+        /* ======================== Luminous Candy Colors ======================== */
         
         /* 1 & 8: تشغيل + تخصيص (identical premium gradient: Pink to Indigo) */
-        .magic-primary { background: linear-gradient(135deg, rgba(236,72,153,0.95), rgba(99,102,241,1)); }
-        .magic-primary:hover { box-shadow: 0 15px 35px rgba(99,102,241,0.8), 0 0 25px rgba(236,72,153,0.8); }
+        .magic-primary { background: linear-gradient(135deg, #ec4899, #6366f1); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 15px rgba(236,72,153,0.5); }
+        .magic-primary:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 15px 35px rgba(99,102,241,0.7), 0 0 25px rgba(236,72,153,0.8); }
 
         /* 3: المعاينة (Sky Blue) */
-        .magic-preview { background: linear-gradient(135deg, rgba(56,189,248,0.3), rgba(14,165,233,0.4)); color: #bae6fd; border-color: rgba(56,189,248,0.4); }
-        .magic-preview:hover { background: linear-gradient(135deg, rgba(56,189,248,0.5), rgba(14,165,233,0.7)); box-shadow: 0 12px 30px rgba(56,189,248,0.6), 0 0 20px rgba(56,189,248,0.5); color: #fff; }
+        .magic-preview { background: linear-gradient(135deg, #38bdf8, #0284c7); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(56,189,248,0.5); }
+        .magic-preview:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(56,189,248,0.7), 0 0 20px rgba(56,189,248,0.8); }
 
         /* 4: الطباعة (Emerald) */
-        .magic-print { background: linear-gradient(135deg, rgba(16,185,129,0.3), rgba(5,150,105,0.4)); color: #a7f3d0; border-color: rgba(16,185,129,0.4); }
-        .magic-print:hover { background: linear-gradient(135deg, rgba(16,185,129,0.5), rgba(5,150,105,0.7)); box-shadow: 0 12px 30px rgba(16,185,129,0.6), 0 0 20px rgba(16,185,129,0.5); color:#fff; }
+        .magic-print { background: linear-gradient(135deg, #34d399, #059669); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(52,211,153,0.5); }
+        .magic-print:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(52,211,153,0.7), 0 0 20px rgba(52,211,153,0.8); }
 
         /* 5: التصدير (Amber/Gold) */
-        .magic-export { background: linear-gradient(135deg, rgba(251,191,36,0.3), rgba(217,119,6,0.4)); color: #fde68a; border-color: rgba(251,191,36,0.4); }
-        .magic-export:hover { background: linear-gradient(135deg, rgba(251,191,36,0.5), rgba(217,119,6,0.7)); box-shadow: 0 12px 30px rgba(251,191,36,0.6), 0 0 20px rgba(251,191,36,0.5); color:#fff; }
+        .magic-export { background: linear-gradient(135deg, #fbbf24, #d97706); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(251,191,36,0.5); }
+        .magic-export:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(251,191,36,0.7), 0 0 20px rgba(251,191,36,0.8); }
 
         /* 6: واتساب (Green) */
-        .magic-whatsapp { background: linear-gradient(135deg, rgba(37,211,102,0.3), rgba(22,163,74,0.4)); color: #bbf7d0; border-color: rgba(37,211,102,0.4); }
-        .magic-whatsapp:hover { background: linear-gradient(135deg, rgba(37,211,102,0.5), rgba(22,163,74,0.7)); box-shadow: 0 12px 30px rgba(37,211,102,0.6), 0 0 20px rgba(37,211,102,0.5); color:#fff; }
+        .magic-whatsapp { background: linear-gradient(135deg, #4ade80, #16a34a); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(74,222,128,0.5); }
+        .magic-whatsapp:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(74,222,128,0.7), 0 0 20px rgba(74,222,128,0.8); }
 
         /* 7: إيميل (Orange) */
-        .magic-email { background: linear-gradient(135deg, rgba(249,115,22,0.3), rgba(234,88,12,0.4)); color: #fed7aa; border-color: rgba(249,115,22,0.4); }
-        .magic-email:hover { background: linear-gradient(135deg, rgba(249,115,22,0.5), rgba(234,88,12,0.7)); box-shadow: 0 12px 30px rgba(249,115,22,0.6), 0 0 20px rgba(249,115,22,0.5); color:#fff; }
+        .magic-email { background: linear-gradient(135deg, #fb923c, #ea580c); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(251,146,60,0.5); }
+        .magic-email:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(251,146,60,0.7), 0 0 20px rgba(251,146,60,0.8); }
 
-        /* افتراضي 1 (Rose/Crimson) */
-        .magic-preset-1 { background: linear-gradient(135deg, rgba(244,63,94,0.3), rgba(225,29,72,0.4)); color: #fecdd3; border-color: rgba(244,63,94,0.4); }
-        .magic-preset-1:hover, .magic-preset.active { background: linear-gradient(135deg, rgba(244,63,94,0.5), rgba(225,29,72,0.7)); box-shadow: 0 12px 30px rgba(244,63,94,0.6), 0 0 20px rgba(244,63,94,0.5); color:#fff; }
+        /* افتراضي 1 (Rose) */
+        .magic-preset-1 { background: linear-gradient(135deg, #fb7185, #e11d48); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(251,113,133,0.5); }
+        .magic-preset-1:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(251,113,133,0.7), 0 0 20px rgba(251,113,133,0.8); }
 
-        /* افتراضي 2 (Lime/Chartreuse) */
-        .magic-preset-2 { background: linear-gradient(135deg, rgba(132,204,22,0.3), rgba(101,163,13,0.4)); color: #d9f99d; border-color: rgba(132,204,22,0.4); }
-        .magic-preset-2:hover, .magic-preset.active { background: linear-gradient(135deg, rgba(132,204,22,0.5), rgba(101,163,13,0.7)); box-shadow: 0 12px 30px rgba(132,204,22,0.6), 0 0 20px rgba(132,204,22,0.5); color:#fff; }
+        /* افتراضي 2 (Lime) */
+        .magic-preset-2 { background: linear-gradient(135deg, #a3e635, #65a30d); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(163,230,53,0.5); }
+        .magic-preset-2:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(163,230,53,0.7), 0 0 20px rgba(163,230,53,0.8); }
 
-        /* افتراضي 3 (Indigo/Blue) */
-        .magic-preset-3 { background: linear-gradient(135deg, rgba(99,102,241,0.3), rgba(79,70,229,0.4)); color: #c7d2fe; border-color: rgba(99,102,241,0.4); }
-        .magic-preset-3:hover, .magic-preset.active { background: linear-gradient(135deg, rgba(99,102,241,0.5), rgba(79,70,229,0.7)); box-shadow: 0 12px 30px rgba(99,102,241,0.6), 0 0 20px rgba(99,102,241,0.5); color:#fff; }
+        /* افتراضي 3 (Indigo) */
+        .magic-preset-3 { background: linear-gradient(135deg, #818cf8, #4f46e5); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(129,140,248,0.5); }
+        .magic-preset-3:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(129,140,248,0.7), 0 0 20px rgba(129,140,248,0.8); }
 
-        /* افتراضي 4 (Fuchsia/Pink) */
-        .magic-preset-4 { background: linear-gradient(135deg, rgba(217,70,239,0.3), rgba(192,38,211,0.4)); color: #f5d0fe; border-color: rgba(217,70,239,0.4); }
-        .magic-preset-4:hover, .magic-preset.active { background: linear-gradient(135deg, rgba(217,70,239,0.5), rgba(192,38,211,0.7)); box-shadow: 0 12px 30px rgba(217,70,239,0.6), 0 0 20px rgba(217,70,239,0.5); color:#fff; }
+        /* افتراضي 4 (Fuchsia) */
+        .magic-preset-4 { background: linear-gradient(135deg, #e879f9, #c026d3); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(232,121,249,0.5); }
+        .magic-preset-4:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(232,121,249,0.7), 0 0 20px rgba(232,121,249,0.8); }
 
-        /* نموذج 1 (Cyan/Teal) */
-        .magic-model-1 { background: linear-gradient(135deg, rgba(20,184,166,0.3), rgba(15,118,110,0.4)); color: #ccfbf1; border-color: rgba(20,184,166,0.4); }
-        .magic-model-1:hover, .magic-model.active { background: linear-gradient(135deg, rgba(20,184,166,0.5), rgba(15,118,110,0.7)); box-shadow: 0 12px 30px rgba(20,184,166,0.6), 0 0 20px rgba(20,184,166,0.5); color:#fff; }
+        /* نموذج 1 (Teal) */
+        .magic-model-1 { background: linear-gradient(135deg, #2dd4bf, #0f766e); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(45,212,191,0.5); }
+        .magic-model-1:hover, .magic-model.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(45,212,191,0.7), 0 0 20px rgba(45,212,191,0.8); }
 
-        /* نموذج 2 (Violet/Purple) */
-        .magic-model-2 { background: linear-gradient(135deg, rgba(139,92,246,0.3), rgba(124,58,237,0.4)); color: #ede9fe; border-color: rgba(139,92,246,0.4); }
-        .magic-model-2:hover, .magic-model.active { background: linear-gradient(135deg, rgba(139,92,246,0.5), rgba(124,58,237,0.7)); box-shadow: 0 12px 30px rgba(139,92,246,0.6), 0 0 20px rgba(139,92,246,0.5); color:#fff; }
-
+        /* نموذج 2 (Violet) */
+        .magic-model-2 { background: linear-gradient(135deg, #a78bfa, #7c3aed); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(167,139,250,0.5); }
+        .magic-model-2:hover, .magic-model.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(167,139,250,0.7), 0 0 20px rgba(167,139,250,0.8); }
 
         /* Hide text on very small screens to ensure fit if needed */
         @media (max-width: 1400px) {
