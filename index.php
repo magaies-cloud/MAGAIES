@@ -222,7 +222,7 @@
         /* Ads Banner */
         .ads-banner {
             width: 100%;
-            height: 180px;
+            height: 120px;
             margin-top: 80px; 
             position: relative;
             overflow: hidden;
