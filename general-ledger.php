@@ -1288,65 +1288,48 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         .magic-preset-1, .magic-preset-2, .magic-preset-3, .magic-preset-4,
         .magic-model-1, .magic-model-2 {
             background: transparent !important;
-            color: inherit;
-            border: 2px solid transparent !important; 
+            color: var(--wave-c2) !important;
+            border: 1px solid var(--wave-c1) !important; 
             position: relative;
             z-index: 1;
             overflow: visible !important;
-            box-shadow: none !important;
-        }
-
-        .magic-preview::before, .magic-print::before, .magic-export::before, .magic-whatsapp::before, .magic-email::before,
-        .magic-preset-1::before, .magic-preset-2::before, .magic-preset-3::before, .magic-preset-4::before,
-        .magic-model-1::before, .magic-model-2::before {
-            content: '';
-            position: absolute;
-            inset: -2px; /* Pulls it out to cover the border box exactly */
-            border-radius: inherit;
-            padding: 2px; /* Thickness of the glowing border */
-            background: linear-gradient(60deg, var(--wave-c1), var(--wave-c2), var(--wave-c3), var(--wave-c1));
-            background-size: 300% 300%;
-            animation: crystalWave 4s ease infinite alternate;
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            z-index: -1;
-        }
-
-        .magic-preview:hover::before, .magic-print:hover::before, .magic-export:hover::before, .magic-whatsapp:hover::before, .magic-email:hover::before,
-        .magic-preset-1:hover::before, .magic-preset-2:hover::before, .magic-preset-3:hover::before, .magic-preset-4:hover::before,
-        .magic-model-1:hover::before, .magic-model-2:hover::before {
-            animation-duration: 1.5s; 
-            filter: drop-shadow(0 0 8px var(--wave-c2)) brightness(1.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: bold;
         }
 
         .magic-preview:hover, .magic-print:hover, .magic-export:hover, .magic-whatsapp:hover, .magic-email:hover,
         .magic-preset-1:hover, .magic-preset-2:hover, .magic-preset-3:hover, .magic-preset-4:hover,
         .magic-model-1:hover, .magic-model-2:hover {
-            background: rgba(255,255,255,0.05) !important;
-            color: var(--wave-c2);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.25), inset 0 0 15px rgba(255,255,255,0.05) !important;
+            background: rgba(255,255,255,0.03) !important;
+            color: #ffffff !important;
+            border-color: var(--wave-c2) !important;
+            /* لمحة من بعيد (Distant soft glow) */
+            box-shadow: 0 20px 45px var(--wave-c-glow), inset 0 0 10px rgba(255,255,255,0.02) !important;
+            transform: translateY(-2px);
         }
 
-        /* Base colors for hollow buttons */
-        .magic-preview { --wave-c1: #38bdf8; --wave-c2: #818cf8; --wave-c3: #0ea5e9; color: #38bdf8; }
-        .magic-print   { --wave-c1: #34d399; --wave-c2: #10b981; --wave-c3: #059669; color: #34d399; }
-        .magic-export  { --wave-c1: #fbbf24; --wave-c2: #f59e0b; --wave-c3: #d97706; color: #fbbf24; }
-        .magic-whatsapp{ --wave-c1: #4ade80; --wave-c2: #22c55e; --wave-c3: #16a34a; color: #4ade80; }
-        .magic-email   { --wave-c1: #fb923c; --wave-c2: #f97316; --wave-c3: #ea580c; color: #fb923c; }
+        /* ألوان واضحة ومتباينة مع الخلفية السوداء */
+        .magic-preview { --wave-c1: #0284c7; --wave-c2: #38bdf8; --wave-c-glow: rgba(56,189,248,0.2); }
+        .magic-print   { --wave-c1: #059669; --wave-c2: #34d399; --wave-c-glow: rgba(52,211,153,0.2); }
+        .magic-export  { --wave-c1: #d97706; --wave-c2: #fbbf24; --wave-c-glow: rgba(251,191,36,0.2); }
+        .magic-whatsapp{ --wave-c1: #16a34a; --wave-c2: #4ade80; --wave-c-glow: rgba(74,222,128,0.2); }
+        .magic-email   { --wave-c1: #ea580c; --wave-c2: #fb923c; --wave-c-glow: rgba(251,146,60,0.2); }
 
-        .magic-preset-1{ --wave-c1: #fb7185; --wave-c2: #f43f5e; --wave-c3: #e11d48; color: #fb7185; }
-        .magic-preset-2{ --wave-c1: #a3e635; --wave-c2: #84cc16; --wave-c3: #65a30d; color: #a3e635; }
-        .magic-preset-3{ --wave-c1: #818cf8; --wave-c2: #6366f1; --wave-c3: #4f46e5; color: #818cf8; }
-        .magic-preset-4{ --wave-c1: #e879f9; --wave-c2: #d946ef; --wave-c3: #c026d3; color: #e879f9; }
+        .magic-preset-1{ --wave-c1: #e11d48; --wave-c2: #fb7185; --wave-c-glow: rgba(251,113,133,0.2); }
+        .magic-preset-2{ --wave-c1: #65a30d; --wave-c2: #a3e635; --wave-c-glow: rgba(163,230,53,0.2); }
+        .magic-preset-3{ --wave-c1: #4f46e5; --wave-c2: #a5b4fc; --wave-c-glow: rgba(165,180,252,0.2); } /* أزرق فاتح جدا للوضوح */
+        .magic-preset-4{ --wave-c1: #c026d3; --wave-c2: #e879f9; --wave-c-glow: rgba(232,121,249,0.2); }
 
-        .magic-model-1 { --wave-c1: #2dd4bf; --wave-c2: #14b8a6; --wave-c3: #0d9488; color: #2dd4bf; }
-        .magic-model-2 { --wave-c1: #a78bfa; --wave-c2: #8b5cf6; --wave-c3: #7c3aed; color: #a78bfa; }
+        .magic-model-1 { --wave-c1: #0d9488; --wave-c2: #2dd4bf; --wave-c-glow: rgba(45,212,191,0.2); }
+        .magic-model-2 { --wave-c1: #7c3aed; --wave-c2: #c4b5fd; --wave-c-glow: rgba(196,181,253,0.2); } /* بنفسجي فاتح جدا للوضوح */
 
         .magic-preset-1.active, .magic-preset-2.active, .magic-preset-3.active, .magic-preset-4.active,
         .magic-model-1.active, .magic-model-2.active {
-            background: rgba(255,255,255,0.1) !important;
-            box-shadow: inset 0 0 10px var(--wave-c2) !important;
+            background: rgba(255,255,255,0.08) !important;
+            border-color: var(--wave-c2) !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 15px var(--wave-c-glow) !important;
         }
 
         /* Hide text on very small screens to ensure fit if needed */
