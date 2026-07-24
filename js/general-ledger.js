@@ -2,25 +2,12 @@
    general-ledger.js — Smart General Ledger (SGL)
    ═══════════════════════════════════════════════════════ */
 
-window.useThousandsSeparator = true;
-let sglThousands = localStorage.getItem('sgl_thousands_separator');
-if (sglThousands !== null) {
-    window.useThousandsSeparator = (sglThousands === 'true');
-}
-
-window.toggleThousandsSeparator = function(enabled) {
-    window.useThousandsSeparator = enabled;
-    localStorage.setItem('sgl_thousands_separator', enabled);
-    runReport();
-};
-
 function fmtNum(n) {
     const val = parseFloat(n) || 0;
-    const opts = { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: window.useThousandsSeparator };
     if (val < 0) {
-        return `-(${Math.abs(val).toLocaleString('en-US', opts)})`;
+        return `-(${Math.abs(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`;
     }
-    return val.toLocaleString('en-US', opts);
+    return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 function parseNum(str) {
     return parseFloat(String(str || '0').replace(/,/g, '')) || 0;
@@ -1714,11 +1701,7 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
                     val = '<span class="td-empty">—</span>';
                 } else {
                     let formatted = fmtNumDec(val, c.dec);
-                    let innerStyle = [];
-                    if (c.bold) innerStyle.push('font-weight:bold !important');
-                    if (c.size) innerStyle.push(`font-size:${c.size} !important`);
-                    let styleStr = innerStyle.length > 0 ? ` style="${innerStyle.join('; ')}"` : '';
-                    val = `<div class="num-cell-wrapper ${currentNumFont}"${styleStr} onclick="showContextMenu(event, '${t.type}', '${t.ref}')" oncontextmenu="showContextMenu(event, '${t.type}', '${t.ref}')">${formatted}</div>`;
+                    val = `<div class="num-cell-wrapper ${currentNumFont}" onclick="showContextMenu(event, '${t.type}', '${t.ref}')" oncontextmenu="showContextMenu(event, '${t.type}', '${t.ref}')">${formatted}</div>`;
                 }
             }
 
@@ -2166,7 +2149,7 @@ function loadNumberFont() {
 window.changeNumberFont = function(fontClass) {
     currentNumFont = fontClass;
     document.querySelectorAll('.num-cell-wrapper').forEach(el => {
-        el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins', 'num-font-space', 'num-font-montserrat');
+        el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins');
         el.classList.add(fontClass);
     });
     
@@ -2201,9 +2184,6 @@ function initializeLedgerSettings() {
     applyConfigToHeaders();
     loadTableTheme();
     loadNumberFont();
-    
-    const tglThous = document.getElementById('toggle-thousands');
-    if (tglThous) tglThous.checked = window.useThousandsSeparator;
 }
 
 if (window.APP_READY) {
@@ -2244,7 +2224,7 @@ function toggleSettingsSidebar() {
         if (window.previewBackupFontGL !== undefined) {
             currentNumFont = window.previewBackupFontGL;
             document.querySelectorAll('.num-cell-wrapper').forEach(el => {
-                el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins', 'num-font-space', 'num-font-montserrat');
+                el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins');
                 el.classList.add(currentNumFont);
             });
             document.querySelectorAll('.font-chip').forEach(el => el.classList.remove('active'));
@@ -2442,11 +2422,10 @@ function resetColumnConfig() {
 }
 function fmtNumDec(n, decimals) {
     const val = parseFloat(n) || 0;
-    const opts = { minimumFractionDigits: decimals, maximumFractionDigits: decimals, useGrouping: window.useThousandsSeparator };
     if (val < 0) {
-        return `-(${Math.abs(val).toLocaleString('en-US', opts)})`;
+        return `-(${Math.abs(val).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })})`;
     }
-    return val.toLocaleString('en-US', opts);
+    return val.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
 function applyConfigToHeaders() {
@@ -2510,26 +2489,23 @@ document.addEventListener('mouseup', function(e) {
 });
 
 /* ─── Sleek & Tactile Quick Presets (Hold to Save, Click to Apply) ─── */
-const HOLD_TIME_MS = 8000; // Hold for 8s to trigger save
+const HOLD_TIME_MS = 1500; // Hold for 1.5s to trigger save
 
 window.getQuickPresets = function() {
     let list = [];
     try {
-        list = JSON.parse(localStorage.getItem('sgl_quick_presets_v4')) || [];
+        list = JSON.parse(localStorage.getItem('sgl_quick_presets_v3'));
     } catch(e) {}
-    
-    // Create locked defaults based on defaultColConfig
-    const p1 = { id: 'default1', name: 'افتراضي 1', isDefault: true, colConfig: JSON.parse(JSON.stringify(defaultColConfig)) };
-    const p2 = { id: 'default2', name: 'افتراضي 2', isDefault: true, colConfig: JSON.parse(JSON.stringify(defaultColConfig)) };
-    const p3 = { id: 'default3', name: 'افتراضي 3', isDefault: true, colConfig: JSON.parse(JSON.stringify(defaultColConfig)) };
-    const p4 = { id: 'default4', name: 'افتراضي 4', isDefault: true, colConfig: JSON.parse(JSON.stringify(defaultColConfig)) };
-
-    const u1 = list.find(x => x.id === 'model1') || { id: 'model1', name: 'نموذج 1', active: false, colConfig: null };
-    const u2 = list.find(x => x.id === 'model2') || { id: 'model2', name: 'نموذج 2', active: false, colConfig: null };
-    const u3 = list.find(x => x.id === 'model3') || { id: 'model3', name: 'نموذج 3', active: false, colConfig: null };
-    const u4 = list.find(x => x.id === 'model4') || { id: 'model4', name: 'نموذج 4', active: false, colConfig: null };
-
-    return [p1, p2, p3, p4, u1, u2, u3, u4];
+    if (!list || list.length !== 4) {
+        list = [
+            { id: 1, name: 'النمط 1', active: false, colConfig: null },
+            { id: 2, name: 'النمط 2', active: false, colConfig: null },
+            { id: 3, name: 'النمط 3', active: false, colConfig: null },
+            { id: 4, name: 'النمط 4', active: false, colConfig: null }
+        ];
+        localStorage.setItem('sgl_quick_presets_v3', JSON.stringify(list));
+    }
+    return list;
 }
 
 window.renderQuickPresets = function() {
@@ -2541,20 +2517,15 @@ window.renderQuickPresets = function() {
     
     list.forEach((p) => {
         const btn = document.createElement('div');
-        const isLocked = p.isDefault;
-        btn.className = `preset-slot-btn ${p.colConfig || isLocked ? 'has-data' : ''}`;
+        btn.className = `preset-slot-btn ${p.colConfig ? 'has-data' : ''}`;
         btn.setAttribute('data-id', p.id);
         
-        if (isLocked) {
-            btn.title = `نقرة لاسترجاع [${p.name}]. هذا الضبط مثبت ومحفوظ داخل النظام.`;
-            btn.innerHTML = `<span>${p.name}</span>`;
-        } else {
-            btn.title = p.colConfig ? `نقرة واحدة للتطبيق. اضغط مطولاً (8 ثوانٍ) للحفظ هنا. كليك يمين للحذف.` : `اضغط مطولاً (8 ثوانٍ) لحفظ التخطيط الحالي في هذا الموضع.`;
-            btn.innerHTML = `
-                <span>${p.name}</span>
-                <div class="hold-bar" id="hold-bar-${p.id}"></div>
-            `;
-        }
+        btn.title = p.colConfig ? 'نقرة واحدة للتطبيق. اضغط مطولاً (ثانية ونصف) لحفظ التخطيط الحالي هنا. انقر بالزر الأيمن للحذف.' : 'اضغط مطولاً (ثانية ونصف) لحفظ التخطيط الحالي في هذا الموضع.';
+        
+        btn.innerHTML = `
+            <span>${p.name}</span>
+            <div class="hold-bar" id="hold-bar-${p.id}"></div>
+        `;
         
         setupLongPress(btn, p);
         wrap.appendChild(btn);
@@ -2562,18 +2533,6 @@ window.renderQuickPresets = function() {
 }
 
 function setupLongPress(element, preset) {
-    if (preset.isDefault) {
-        element.addEventListener('click', (e) => {
-            e.preventDefault();
-            triggerApply(preset);
-        });
-        element.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            showToast(`🔒 الضبط [${preset.name}] محمي ومثبت نهائياً داخل النظام ولا يمكن التعديل عليه أو مسحه`, "info");
-        });
-        return;
-    }
-
     let pressTimer = null;
     let progressTimer = null;
     let holdStartTime = 0;
@@ -2716,7 +2675,7 @@ function saveCurrentConfigToPreset(presetId, name) {
         colConfig: savedConfig
     };
     
-    localStorage.setItem('sgl_quick_presets_v4', JSON.stringify(list));
+    localStorage.setItem('sgl_quick_presets_v3', JSON.stringify(list));
     window.renderQuickPresets();
     showToast(`💾 تم حفظ التخطيط باسم: ${name}`, 'success');
 }
@@ -2747,7 +2706,7 @@ function clearPresetSlot(presetId) {
         colConfig: null
     };
     
-    localStorage.setItem('sgl_quick_presets_v4', JSON.stringify(list));
+    localStorage.setItem('sgl_quick_presets_v3', JSON.stringify(list));
     window.renderQuickPresets();
     showToast(`🔄 تم حذف وتصفير موضع النمط ${presetId}`, 'success');
 }
@@ -3100,20 +3059,5 @@ window.switchVisualTab = function(type) {
     }
 };
 
-// Bind right-click on the table header to open the settings sidebar
-document.addEventListener('DOMContentLoaded', function() {
-    document.addEventListener('contextmenu', function(e) {
-        const table = document.querySelector('.ledger-table');
-        if (!table) return;
-        const th = e.target.closest('th');
-        const thead = table.querySelector('thead');
-        
-        // If the right-click happened inside a TH inside the table's THEAD
-        if (th && thead && thead.contains(th)) {
-            e.preventDefault();
-            if (typeof toggleSettingsSidebar === 'function') {
-                toggleSettingsSidebar();
-            }
-        }
-    });
-});
+
+

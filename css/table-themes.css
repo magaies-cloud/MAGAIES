@@ -204,18 +204,6 @@
     font-weight: 700 !important;
     font-variant-numeric: tabular-nums;
 }
-.num-font-space {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.15rem !important;
-    font-weight: 700 !important;
-    font-variant-numeric: tabular-nums;
-}
-.num-font-montserrat {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.15rem !important;
-    font-weight: 700 !important;
-    font-variant-numeric: tabular-nums;
-}
 
 /* ─── ELEGANT FONT CHIPS (UI) ─── */
 .font-chips-container {
