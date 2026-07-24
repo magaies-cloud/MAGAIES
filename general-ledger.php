@@ -983,99 +983,126 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         </div>
     </div>
 
-            <!-- ACTION BUTTONS SECTION -->
+                <!-- ACTION BUTTONS SECTION -->
     <style>
         .action-buttons-container {
             display: flex; 
-            gap: 6px; /* Reduced gap to fit all buttons */
+            gap: 10px; 
             margin-bottom: 25px; 
             align-items: stretch; 
             width: 100%; 
             flex-wrap: nowrap;
             overflow-x: auto;
-            padding: 10px 0; /* Space for hover scale */
+            padding: 15px 5px; /* Space for large hover scale */
+            scrollbar-width: thin; /* Firefox */
         }
         
+        .action-buttons-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        .action-buttons-container::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+        }
+
         .magic-btn {
-            /* Default for middle buttons: equal width */
-            flex: 1 1 0; 
-            min-width: 0; /* Allow shrinking */
+            /* Default for middle buttons */
+            flex: 1 1 auto; 
+            min-width: 80px; /* Make them wider */
             white-space: nowrap; 
             justify-content: center;
             position: relative; 
             overflow: hidden; 
-            border-radius: 10px; /* Slightly smaller radius */
-            font-weight: 700; 
-            font-size: 0.82rem; /* Smaller font */
-            height: 40px; /* Smaller height */
+            border-radius: 12px; 
+            font-weight: 800; 
+            font-size: 0.82rem; 
+            height: 45px; 
             display: inline-flex; 
             align-items: center; 
-            gap: 5px; /* Smaller gap */
+            gap: 6px; 
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             z-index: 1;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 0 4px; /* Minimal padding */
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 0 12px; 
+            color: #fff;
+            /* 3D Glass feel */
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), inset 0 -2px 5px rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.1);
         }
-        /* Make outer buttons larger */
+
+        /* Make outer buttons distinct */
         .magic-btn.magic-run, .magic-btn.magic-custom {
-            flex: 1.8 1 0; 
-            font-size: 0.88rem;
-            padding: 0 8px;
+            flex: 1.5 1 auto; 
+            font-size: 0.9rem;
+            padding: 0 14px;
+            min-width: 130px;
         }
 
-        .magic-btn svg { flex-shrink: 0; width: 14px; height: 14px; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .magic-btn.magic-run svg, .magic-btn.magic-custom svg { width: 16px; height: 16px; }
+        .magic-btn svg { flex-shrink: 0; width: 16px; height: 16px; transition: transform 0.5s cubic-bezier(0.2, 1, 0.3, 1); filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2)); }
+        .magic-btn.magic-run svg, .magic-btn.magic-custom svg { width: 18px; height: 18px; }
         
-        .magic-btn:hover { transform: translateY(-4px) scale(1.04); z-index: 10; }
-        .magic-btn:hover svg { transform: scale(1.2) rotate(5deg); }
-        .magic-btn:active { transform: translateY(2px) scale(0.96); }
+        .magic-btn:hover { 
+            transform: translateY(-6px) scale(1.08); 
+            z-index: 10; 
+            border-color: rgba(255,255,255,0.4);
+        }
+        .magic-btn:hover svg { transform: scale(1.25) rotate(8deg); }
+        .magic-btn:active { transform: translateY(2px) scale(0.95); }
 
-        /* Shine effect */
+        /* Shine/Light beam effect */
         .magic-btn::after {
             content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg); transition: 0.7s ease-in-out; z-index: -1;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg); transition: 0.8s ease-in-out; z-index: -1;
         }
         .magic-btn:hover::after { left: 200%; }
 
-        /* Specific Colors */
-        .magic-run { background: linear-gradient(135deg, rgba(168,85,247,0.9), rgba(124,58,237,1)); color: #fff; border-color: rgba(168,85,247,0.6); box-shadow: 0 4px 15px rgba(124,58,237,0.5); }
-        .magic-run:hover { box-shadow: 0 8px 25px rgba(124,58,237,0.7), 0 0 15px rgba(168,85,247,0.6); }
+        /* Idle floating/pulsing animation for eye-catching effect */
+        @keyframes float-glow {
+            0% { transform: translateY(0px); box-shadow: 0 4px 15px rgba(255,255,255,0.1); }
+            50% { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255,255,255,0.2); }
+            100% { transform: translateY(0px); box-shadow: 0 4px 15px rgba(255,255,255,0.1); }
+        }
+        
+        .magic-btn { animation: float-glow 4s infinite ease-in-out; }
+        .magic-btn:hover { animation: none; } /* Stop floating when hovered, let the hover transform take over */
 
-        .magic-preview { background: rgba(56,189,248,0.12); color: #38bdf8; border-color: rgba(56,189,248,0.3); }
-        .magic-preview:hover { background: rgba(56,189,248,0.25); box-shadow: 0 6px 20px rgba(56,189,248,0.4), 0 0 10px rgba(56,189,248,0.3); color: #fff;}
+        /* Breathtaking Colors */
+        .magic-run { background: linear-gradient(135deg, rgba(168,85,247,0.95), rgba(124,58,237,1)); }
+        .magic-run:hover { box-shadow: 0 15px 35px rgba(124,58,237,0.8), 0 0 25px rgba(168,85,247,0.8); }
 
-        .magic-print { background: rgba(16,185,129,0.12); color: #10b981; border-color: rgba(16,185,129,0.3); }
-        .magic-print:hover { background: rgba(16,185,129,0.25); box-shadow: 0 6px 20px rgba(16,185,129,0.4), 0 0 10px rgba(16,185,129,0.3); color:#fff; }
+        .magic-preview { background: linear-gradient(135deg, rgba(56,189,248,0.3), rgba(14,165,233,0.4)); color: #bae6fd; border-color: rgba(56,189,248,0.4); }
+        .magic-preview:hover { background: linear-gradient(135deg, rgba(56,189,248,0.5), rgba(14,165,233,0.7)); box-shadow: 0 12px 30px rgba(56,189,248,0.6), 0 0 20px rgba(56,189,248,0.5); color: #fff; }
 
-        .magic-export { background: rgba(251,191,36,0.12); color: #fbbf24; border-color: rgba(251,191,36,0.3); }
-        .magic-export:hover { background: rgba(251,191,36,0.25); box-shadow: 0 6px 20px rgba(251,191,36,0.4), 0 0 10px rgba(251,191,36,0.3); color:#fff;}
+        .magic-print { background: linear-gradient(135deg, rgba(16,185,129,0.3), rgba(5,150,105,0.4)); color: #a7f3d0; border-color: rgba(16,185,129,0.4); }
+        .magic-print:hover { background: linear-gradient(135deg, rgba(16,185,129,0.5), rgba(5,150,105,0.7)); box-shadow: 0 12px 30px rgba(16,185,129,0.6), 0 0 20px rgba(16,185,129,0.5); color:#fff; }
 
-        .magic-whatsapp { background: rgba(37,211,102,0.12); color: #25d366; border-color: rgba(37,211,102,0.3); }
-        .magic-whatsapp:hover { background: rgba(37,211,102,0.25); box-shadow: 0 6px 20px rgba(37,211,102,0.4), 0 0 10px rgba(37,211,102,0.3); color:#fff;}
+        .magic-export { background: linear-gradient(135deg, rgba(251,191,36,0.3), rgba(217,119,6,0.4)); color: #fde68a; border-color: rgba(251,191,36,0.4); }
+        .magic-export:hover { background: linear-gradient(135deg, rgba(251,191,36,0.5), rgba(217,119,6,0.7)); box-shadow: 0 12px 30px rgba(251,191,36,0.6), 0 0 20px rgba(251,191,36,0.5); color:#fff; }
 
-        .magic-email { background: rgba(249,115,22,0.12); color: #f97316; border-color: rgba(249,115,22,0.3); }
-        .magic-email:hover { background: rgba(249,115,22,0.25); box-shadow: 0 6px 20px rgba(249,115,22,0.4), 0 0 10px rgba(249,115,22,0.3); color:#fff;}
+        .magic-whatsapp { background: linear-gradient(135deg, rgba(37,211,102,0.3), rgba(22,163,74,0.4)); color: #bbf7d0; border-color: rgba(37,211,102,0.4); }
+        .magic-whatsapp:hover { background: linear-gradient(135deg, rgba(37,211,102,0.5), rgba(22,163,74,0.7)); box-shadow: 0 12px 30px rgba(37,211,102,0.6), 0 0 20px rgba(37,211,102,0.5); color:#fff; }
 
-        .magic-preset { background: rgba(255,255,255,0.04); color: #e2e8f0; border-color: rgba(255,255,255,0.15); font-size: 0.78rem;}
-        .magic-preset:hover { background: rgba(255,255,255,0.15); color: #fff; box-shadow: 0 6px 20px rgba(255,255,255,0.15); }
-        .magic-preset.active { background: linear-gradient(135deg, rgba(56,189,248,0.6), rgba(59,130,246,0.8)); color: #fff; border-color: #38bdf8; box-shadow: 0 0 15px rgba(56,189,248,0.6); transform: scale(1.02); }
+        .magic-email { background: linear-gradient(135deg, rgba(249,115,22,0.3), rgba(234,88,12,0.4)); color: #fed7aa; border-color: rgba(249,115,22,0.4); }
+        .magic-email:hover { background: linear-gradient(135deg, rgba(249,115,22,0.5), rgba(234,88,12,0.7)); box-shadow: 0 12px 30px rgba(249,115,22,0.6), 0 0 20px rgba(249,115,22,0.5); color:#fff; }
 
-        .magic-model { background: rgba(168,85,247,0.12); color: #d8b4fe; border-color: rgba(168,85,247,0.3); font-size: 0.78rem;}
-        .magic-model:hover { background: rgba(168,85,247,0.25); color: #fff; box-shadow: 0 6px 20px rgba(168,85,247,0.4); }
-        .magic-model.active { background: linear-gradient(135deg, rgba(217,70,239,0.7), rgba(168,85,247,0.9)); color: #fff; border-color: #d946ef; box-shadow: 0 0 15px rgba(217,70,239,0.7); transform: scale(1.02); }
+        .magic-preset { background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.1)); color: #e2e8f0; border-color: rgba(255,255,255,0.2); }
+        .magic-preset:hover { background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.25)); color: #fff; box-shadow: 0 12px 30px rgba(255,255,255,0.2); border-color: #fff; }
+        .magic-preset.active { background: linear-gradient(135deg, rgba(56,189,248,0.7), rgba(59,130,246,0.9)); color: #fff; border-color: #38bdf8; box-shadow: 0 0 25px rgba(56,189,248,0.8); transform: scale(1.05); }
 
-        .magic-custom { background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%); color: #fff; border-color: rgba(236,72,153,0.6); box-shadow: 0 4px 15px rgba(236,72,153,0.5); }
-        .magic-custom:hover { box-shadow: 0 8px 25px rgba(236,72,153,0.7), 0 0 15px rgba(217,70,239,0.6); }
+        .magic-model { background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(147,51,234,0.3)); color: #e9d5ff; border-color: rgba(168,85,247,0.4); }
+        .magic-model:hover { background: linear-gradient(135deg, rgba(168,85,247,0.4), rgba(147,51,234,0.6)); color: #fff; box-shadow: 0 12px 30px rgba(168,85,247,0.5); border-color: #d8b4fe; }
+        .magic-model.active { background: linear-gradient(135deg, rgba(217,70,239,0.8), rgba(168,85,247,1)); color: #fff; border-color: #d946ef; box-shadow: 0 0 25px rgba(217,70,239,0.8); transform: scale(1.05); }
 
-        /* Hide text on very small screens to ensure fit */
+        .magic-custom { background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%); }
+        .magic-custom:hover { box-shadow: 0 15px 35px rgba(236,72,153,0.8), 0 0 25px rgba(217,70,239,0.7); }
+
+        /* Hide text on very small screens to ensure fit if needed */
         @media (max-width: 1400px) {
-            .magic-preset { font-size: 0.75rem; letter-spacing: -0.5px; }
-            .magic-model { font-size: 0.75rem; letter-spacing: -0.5px; }
-            .magic-btn { font-size: 0.78rem; }
+            .magic-preset, .magic-model, .magic-preview, .magic-print, .magic-export, .magic-whatsapp, .magic-email { font-size: 0.75rem; min-width: 65px; gap: 4px; padding: 0 6px; }
+            .magic-btn { height: 42px; }
         }
     </style>
     <div class="no-print action-buttons-container">
