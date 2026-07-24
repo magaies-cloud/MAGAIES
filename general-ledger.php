@@ -1183,13 +1183,13 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         .action-buttons-container {
             display: flex; 
             gap: 12px; 
-            margin-bottom: 12px; 
-            margin-top: -4px;
+            margin-bottom: 0px; 
+            margin-top: -16px;
             align-items: stretch; 
             width: 100%; 
             flex-wrap: nowrap;
             overflow-x: auto;
-            padding: 2px 5px; /* Space for large hover scale */
+            padding: 15px 5px; /* Extra padding top/bottom so scaled buttons don't get clipped */
             scrollbar-width: thin;
         }
         
@@ -1272,7 +1272,9 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         .magic-primary:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 15px 35px rgba(99,102,241,0.7), 0 0 25px rgba(236,72,153,0.8); border-color: rgba(255,255,255,0.8); color: #fff; }
 
         /* Premium Glass Button Base (for secondary buttons) */
-        .magic-preview, .magic-print, .magic-export, .magic-whatsapp, .magic-email {
+        .magic-preview, .magic-print, .magic-export, .magic-whatsapp, .magic-email,
+        .magic-preset-1, .magic-preset-2, .magic-preset-3, .magic-preset-4,
+        .magic-model-1, .magic-model-2 {
             background: transparent;
             border-style: solid;
             border-width: 2px;
@@ -1302,30 +1304,31 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         .magic-email:hover { background: rgba(251,146,60,0.15); box-shadow: 0 0 20px rgba(251,146,60,0.5), inset 0 0 15px rgba(251,146,60,0.4); border-color: #fdba74; color: #fdba74; }
 
         /* افتراضي 1 (Rose) */
-        .magic-preset-1 { background: linear-gradient(135deg, #fb7185, #e11d48); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(251,113,133,0.5); }
-        .magic-preset-1:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(251,113,133,0.7), 0 0 20px rgba(251,113,133,0.8); }
+        .magic-preset-1 { border-color: #fb7185; color: #fb7185; box-shadow: 0 0 10px rgba(251,113,133,0.2), inset 0 0 10px rgba(251,113,133,0.1); }
+        .magic-preset-1:hover, .magic-preset.active { background: rgba(251,113,133,0.15); box-shadow: 0 0 20px rgba(251,113,133,0.5), inset 0 0 15px rgba(251,113,133,0.4); border-color: #fda4af; color: #fda4af; }
 
         /* افتراضي 2 (Lime) */
-        .magic-preset-2 { background: linear-gradient(135deg, #a3e635, #65a30d); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(163,230,53,0.5); }
-        .magic-preset-2:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(163,230,53,0.7), 0 0 20px rgba(163,230,53,0.8); }
+        .magic-preset-2 { border-color: #a3e635; color: #a3e635; box-shadow: 0 0 10px rgba(163,230,53,0.2), inset 0 0 10px rgba(163,230,53,0.1); }
+        .magic-preset-2:hover, .magic-preset.active { background: rgba(163,230,53,0.15); box-shadow: 0 0 20px rgba(163,230,53,0.5), inset 0 0 15px rgba(163,230,53,0.4); border-color: #bef264; color: #bef264; }
 
         /* افتراضي 3 (Indigo) */
-        .magic-preset-3 { background: linear-gradient(135deg, #818cf8, #4f46e5); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(129,140,248,0.5); }
-        .magic-preset-3:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(129,140,248,0.7), 0 0 20px rgba(129,140,248,0.8); }
+        .magic-preset-3 { border-color: #818cf8; color: #818cf8; box-shadow: 0 0 10px rgba(129,140,248,0.2), inset 0 0 10px rgba(129,140,248,0.1); }
+        .magic-preset-3:hover, .magic-preset.active { background: rgba(129,140,248,0.15); box-shadow: 0 0 20px rgba(129,140,248,0.5), inset 0 0 15px rgba(129,140,248,0.4); border-color: #a5b4fc; color: #a5b4fc; }
 
         /* افتراضي 4 (Fuchsia) */
-        .magic-preset-4 { background: linear-gradient(135deg, #e879f9, #c026d3); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(232,121,249,0.5); }
-        .magic-preset-4:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(232,121,249,0.7), 0 0 20px rgba(232,121,249,0.8); }
+        .magic-preset-4 { border-color: #e879f9; color: #e879f9; box-shadow: 0 0 10px rgba(232,121,249,0.2), inset 0 0 10px rgba(232,121,249,0.1); }
+        .magic-preset-4:hover, .magic-preset.active { background: rgba(232,121,249,0.15); box-shadow: 0 0 20px rgba(232,121,249,0.5), inset 0 0 15px rgba(232,121,249,0.4); border-color: #f0abfc; color: #f0abfc; }
 
         /* نموذج 1 (Teal) */
-        .magic-model-1 { background: linear-gradient(135deg, #2dd4bf, #0f766e); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(45,212,191,0.5); }
-        .magic-model-1:hover, .magic-model.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(45,212,191,0.7), 0 0 20px rgba(45,212,191,0.8); }
+        .magic-model-1 { border-color: #2dd4bf; color: #2dd4bf; box-shadow: 0 0 10px rgba(45,212,191,0.2), inset 0 0 10px rgba(45,212,191,0.1); }
+        .magic-model-1:hover, .magic-model.active { background: rgba(45,212,191,0.15); box-shadow: 0 0 20px rgba(45,212,191,0.5), inset 0 0 15px rgba(45,212,191,0.4); border-color: #5eead4; color: #5eead4; }
 
         /* نموذج 2 (Violet) */
-        .magic-model-2 { background: linear-gradient(135deg, #a78bfa, #7c3aed); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(167,139,250,0.5); }
-        .magic-model-2:hover, .magic-model.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(167,139,250,0.7), 0 0 20px rgba(167,139,250,0.8); }
+        .magic-model-2 { border-color: #a78bfa; color: #a78bfa; box-shadow: 0 0 10px rgba(167,139,250,0.2), inset 0 0 10px rgba(167,139,250,0.1); }
+        .magic-model-2:hover, .magic-model.active { background: rgba(167,139,250,0.15); box-shadow: 0 0 20px rgba(167,139,250,0.5), inset 0 0 15px rgba(167,139,250,0.4); border-color: #c4b5fd; color: #c4b5fd; }
 
         /* Hide text on very small screens to ensure fit if needed */
+
         @media (max-width: 1400px) {
             .magic-preset, .magic-model, .magic-preview, .magic-print, .magic-export, .magic-whatsapp, .magic-email { font-size: 0.75rem; min-width: 65px; gap: 4px; padding: 0 6px; }
             .magic-btn { height: 42px; }

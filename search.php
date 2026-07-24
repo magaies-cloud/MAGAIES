@@ -1,7 +1,9 @@
 <?php
-$content = file_get_contents('general-ledger.php');
-if (strpos($content, 'presets.js') !== false) {
-    echo "presets.js is loaded\n";
-} else {
-    echo "presets.js is NOT loaded\n";
+$lines = file('general-ledger.php');
+foreach($lines as $i => $line) {
+    if (strpos($line, 'magic-preview') !== false || strpos($line, 'magic-btn') !== false) {
+        if ($i > 1250 && $i < 1300) {
+            echo ($i + 1) . ": " . htmlspecialchars($line) . "\n";
+        }
+    }
 }
