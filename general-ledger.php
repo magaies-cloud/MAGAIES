@@ -984,9 +984,32 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
     </div>
 
     <!-- ACTION BUTTONS SECTION -->
-    <div style="display:flex; gap:10px; margin-bottom:20px; align-items:center; flex-wrap:wrap; width: 100%;" class="no-print">
+    <style>
+        .action-buttons-container {
+            display: flex; 
+            gap: 8px; 
+            margin-bottom: 20px; 
+            align-items: center; 
+            width: 100%; 
+            flex-wrap: nowrap;
+            overflow-x: auto;
+        }
+        .action-buttons-container > button {
+            flex: 1 1 0;
+            min-width: fit-content;
+            white-space: nowrap;
+            justify-content: center;
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+        /* Make sure SVG icons stay with text */
+        .action-buttons-container > button svg {
+            flex-shrink: 0;
+        }
+    </style>
+    <div class="no-print action-buttons-container">
         <!-- 1. تشغيل التقرير -->
-        <button class="btn-run modern-btn" onclick="runReport()" id="btn-run-report" style="background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35); border: none; color: white; margin: 0;">
+        <button class="btn-run modern-btn" onclick="runReport()" id="btn-run-report" style="background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35); border: none; color: white;">
             <svg id="btn-run-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="transition:0.3s;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <svg id="btn-run-spinner" style="display:none; animation: rotate 1s linear infinite;" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"></path></svg>
             <span id="btn-run-text" style="font-weight: bold;">تشغيل التقرير</span>
@@ -1047,7 +1070,7 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
 
 
         <!-- 8. تخصيص الجداول -->
-        <button class="btn-run modern-btn" onclick="toggleSettingsSidebar()" style="background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%); box-shadow: 0 4px 15px rgba(236, 72, 153, 0.35); border: none; color: white; margin-right: auto; height: 44px; min-height: 44px; padding: 0 22px; font-size: 0.95rem; font-weight: 800; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.25s ease;">
+        <button class="btn-run modern-btn" onclick="toggleSettingsSidebar()" style="background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%); box-shadow: 0 4px 15px rgba(236, 72, 153, 0.35); border: none; color: white; height: 44px; font-size: 0.95rem; font-weight: 800; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.25s ease;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             <span>تخصيص الجداول</span>
         </button>
