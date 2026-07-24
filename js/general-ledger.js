@@ -2526,8 +2526,9 @@ window.getQuickPresets = function() {
 
     const u1 = list.find(x => x.id === 'model1') || { id: 'model1', name: 'نموذج 1', active: false, colConfig: null };
     const u2 = list.find(x => x.id === 'model2') || { id: 'model2', name: 'نموذج 2', active: false, colConfig: null };
+    const u3 = list.find(x => x.id === 'model3') || { id: 'model3', name: 'نموذج 3', active: false, colConfig: null };
 
-    return [p1, p2, p3, p4, u1, u2];
+    return [p1, p2, p3, p4, u1, u2, u3];
 }
 
 window.renderQuickPresets = function() {
