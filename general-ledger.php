@@ -1267,55 +1267,87 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         .magic-btn { animation: float-glow 3s infinite ease-in-out; }
         .magic-btn:hover { animation: none; filter: brightness(1.15); } 
 
-        /* ======================== Luminous Candy Colors ======================== */
+        /* Fix clipping issue when buttons scale up */
+        .ledger-header { overflow: visible !important; position: relative; z-index: 50; }
+        .action-buttons-container { padding: 5px; overflow: visible !important; }
+
+        /* ======================== Hollow Crystal Wave Buttons ======================== */
         
-        /* 1 & 8: تشغيل + تخصيص (identical premium gradient: Pink to Indigo) */
-        .magic-primary { background: linear-gradient(135deg, #ec4899, #6366f1); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 15px rgba(236,72,153,0.5); }
-        .magic-primary:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 15px 35px rgba(99,102,241,0.7), 0 0 25px rgba(236,72,153,0.8); }
+        /* 1 & 8: تشغيل + تخصيص (Primary buttons remain solid gradient) */
+        .magic-primary { background: linear-gradient(135deg, #ec4899, #6366f1); border-color: transparent; box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 15px rgba(236,72,153,0.5); color: #fff; }
+        .magic-primary:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 15px 35px rgba(99,102,241,0.7), 0 0 25px rgba(236,72,153,0.8); color: #fff; }
 
-        /* 3: المعاينة (Sky Blue) */
-        .magic-preview { background: linear-gradient(135deg, #38bdf8, #0284c7); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(56,189,248,0.5); }
-        .magic-preview:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(56,189,248,0.7), 0 0 20px rgba(56,189,248,0.8); }
+        /* Animated Crystal Glowing Border */
+        @keyframes crystalWave {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
-        /* 4: الطباعة (Emerald) */
-        .magic-print { background: linear-gradient(135deg, #34d399, #059669); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(52,211,153,0.5); }
-        .magic-print:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(52,211,153,0.7), 0 0 20px rgba(52,211,153,0.8); }
+        .magic-preview, .magic-print, .magic-export, .magic-whatsapp, .magic-email,
+        .magic-preset-1, .magic-preset-2, .magic-preset-3, .magic-preset-4,
+        .magic-model-1, .magic-model-2 {
+            background: transparent !important;
+            color: inherit;
+            border: 2px solid transparent !important; 
+            position: relative;
+            z-index: 1;
+            overflow: visible !important;
+            box-shadow: none !important;
+        }
 
-        /* 5: التصدير (Amber/Gold) */
-        .magic-export { background: linear-gradient(135deg, #fbbf24, #d97706); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(251,191,36,0.5); }
-        .magic-export:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(251,191,36,0.7), 0 0 20px rgba(251,191,36,0.8); }
+        .magic-preview::before, .magic-print::before, .magic-export::before, .magic-whatsapp::before, .magic-email::before,
+        .magic-preset-1::before, .magic-preset-2::before, .magic-preset-3::before, .magic-preset-4::before,
+        .magic-model-1::before, .magic-model-2::before {
+            content: '';
+            position: absolute;
+            inset: -2px; /* Pulls it out to cover the border box exactly */
+            border-radius: inherit;
+            padding: 2px; /* Thickness of the glowing border */
+            background: linear-gradient(60deg, var(--wave-c1), var(--wave-c2), var(--wave-c3), var(--wave-c1));
+            background-size: 300% 300%;
+            animation: crystalWave 4s ease infinite alternate;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: -1;
+        }
 
-        /* 6: واتساب (Green) */
-        .magic-whatsapp { background: linear-gradient(135deg, #4ade80, #16a34a); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(74,222,128,0.5); }
-        .magic-whatsapp:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(74,222,128,0.7), 0 0 20px rgba(74,222,128,0.8); }
+        .magic-preview:hover::before, .magic-print:hover::before, .magic-export:hover::before, .magic-whatsapp:hover::before, .magic-email:hover::before,
+        .magic-preset-1:hover::before, .magic-preset-2:hover::before, .magic-preset-3:hover::before, .magic-preset-4:hover::before,
+        .magic-model-1:hover::before, .magic-model-2:hover::before {
+            animation-duration: 1.5s; 
+            filter: drop-shadow(0 0 8px var(--wave-c2)) brightness(1.2);
+        }
 
-        /* 7: إيميل (Orange) */
-        .magic-email { background: linear-gradient(135deg, #fb923c, #ea580c); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(251,146,60,0.5); }
-        .magic-email:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(251,146,60,0.7), 0 0 20px rgba(251,146,60,0.8); }
+        .magic-preview:hover, .magic-print:hover, .magic-export:hover, .magic-whatsapp:hover, .magic-email:hover,
+        .magic-preset-1:hover, .magic-preset-2:hover, .magic-preset-3:hover, .magic-preset-4:hover,
+        .magic-model-1:hover, .magic-model-2:hover {
+            background: rgba(255,255,255,0.05) !important;
+            color: var(--wave-c2);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25), inset 0 0 15px rgba(255,255,255,0.05) !important;
+        }
 
-        /* افتراضي 1 (Rose) */
-        .magic-preset-1 { background: linear-gradient(135deg, #fb7185, #e11d48); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(251,113,133,0.5); }
-        .magic-preset-1:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(251,113,133,0.7), 0 0 20px rgba(251,113,133,0.8); }
+        /* Base colors for hollow buttons */
+        .magic-preview { --wave-c1: #38bdf8; --wave-c2: #818cf8; --wave-c3: #0ea5e9; color: #38bdf8; }
+        .magic-print   { --wave-c1: #34d399; --wave-c2: #10b981; --wave-c3: #059669; color: #34d399; }
+        .magic-export  { --wave-c1: #fbbf24; --wave-c2: #f59e0b; --wave-c3: #d97706; color: #fbbf24; }
+        .magic-whatsapp{ --wave-c1: #4ade80; --wave-c2: #22c55e; --wave-c3: #16a34a; color: #4ade80; }
+        .magic-email   { --wave-c1: #fb923c; --wave-c2: #f97316; --wave-c3: #ea580c; color: #fb923c; }
 
-        /* افتراضي 2 (Lime) */
-        .magic-preset-2 { background: linear-gradient(135deg, #a3e635, #65a30d); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(163,230,53,0.5); }
-        .magic-preset-2:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(163,230,53,0.7), 0 0 20px rgba(163,230,53,0.8); }
+        .magic-preset-1{ --wave-c1: #fb7185; --wave-c2: #f43f5e; --wave-c3: #e11d48; color: #fb7185; }
+        .magic-preset-2{ --wave-c1: #a3e635; --wave-c2: #84cc16; --wave-c3: #65a30d; color: #a3e635; }
+        .magic-preset-3{ --wave-c1: #818cf8; --wave-c2: #6366f1; --wave-c3: #4f46e5; color: #818cf8; }
+        .magic-preset-4{ --wave-c1: #e879f9; --wave-c2: #d946ef; --wave-c3: #c026d3; color: #e879f9; }
 
-        /* افتراضي 3 (Indigo) */
-        .magic-preset-3 { background: linear-gradient(135deg, #818cf8, #4f46e5); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(129,140,248,0.5); }
-        .magic-preset-3:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(129,140,248,0.7), 0 0 20px rgba(129,140,248,0.8); }
+        .magic-model-1 { --wave-c1: #2dd4bf; --wave-c2: #14b8a6; --wave-c3: #0d9488; color: #2dd4bf; }
+        .magic-model-2 { --wave-c1: #a78bfa; --wave-c2: #8b5cf6; --wave-c3: #7c3aed; color: #a78bfa; }
 
-        /* افتراضي 4 (Fuchsia) */
-        .magic-preset-4 { background: linear-gradient(135deg, #e879f9, #c026d3); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(232,121,249,0.5); }
-        .magic-preset-4:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(232,121,249,0.7), 0 0 20px rgba(232,121,249,0.8); }
-
-        /* نموذج 1 (Teal) */
-        .magic-model-1 { background: linear-gradient(135deg, #2dd4bf, #0f766e); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(45,212,191,0.5); }
-        .magic-model-1:hover, .magic-model.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(45,212,191,0.7), 0 0 20px rgba(45,212,191,0.8); }
-
-        /* نموذج 2 (Violet) */
-        .magic-model-2 { background: linear-gradient(135deg, #a78bfa, #7c3aed); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(167,139,250,0.5); }
-        .magic-model-2:hover, .magic-model.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(167,139,250,0.7), 0 0 20px rgba(167,139,250,0.8); }
+        .magic-preset-1.active, .magic-preset-2.active, .magic-preset-3.active, .magic-preset-4.active,
+        .magic-model-1.active, .magic-model-2.active {
+            background: rgba(255,255,255,0.1) !important;
+            box-shadow: inset 0 0 10px var(--wave-c2) !important;
+        }
 
         /* Hide text on very small screens to ensure fit if needed */
         @media (max-width: 1400px) {
