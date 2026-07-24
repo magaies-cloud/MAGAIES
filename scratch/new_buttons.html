@@ -1,0 +1,198 @@
+    <!-- ACTION BUTTONS SECTION -->
+    <style>
+        .action-buttons-container {
+            display: flex; 
+            gap: 12px; 
+            margin-bottom: 25px; 
+            align-items: stretch; 
+            width: 100%; 
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding: 15px 5px; /* Space for large hover scale */
+            scrollbar-width: thin;
+        }
+        
+        .action-buttons-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        .action-buttons-container::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+
+        .magic-btn {
+            /* Default for middle buttons */
+            flex: 1 1 auto; 
+            min-width: 85px; 
+            white-space: nowrap; 
+            justify-content: center;
+            position: relative; 
+            overflow: hidden; 
+            border-radius: 12px; 
+            font-weight: 800; 
+            font-size: 0.85rem; 
+            height: 45px; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 6px; 
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.5); /* Brighter border */
+            padding: 0 12px; 
+            color: #ffffff; /* Bright white text for contrast */
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); /* Ensure text is readable */
+            /* 3D Glass feel with glowing base */
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Make outer buttons distinct and identical in size */
+        .magic-btn.magic-primary {
+            flex: 1.5 1 auto; 
+            font-size: 0.95rem;
+            padding: 0 16px;
+            min-width: 130px;
+        }
+
+        .magic-btn svg { flex-shrink: 0; width: 16px; height: 16px; transition: transform 0.5s cubic-bezier(0.2, 1, 0.3, 1); filter: drop-shadow(0 2px 3px rgba(0,0,0,0.25)); }
+        .magic-btn.magic-primary svg { width: 18px; height: 18px; }
+        
+        .magic-btn:hover { 
+            transform: translateY(-6px) scale(1.08); 
+            z-index: 10; 
+            border-color: rgba(255,255,255,0.8);
+            color: #ffffff;
+        }
+        .magic-btn:hover svg { transform: scale(1.25) rotate(8deg); }
+        .magic-btn:active { transform: translateY(2px) scale(0.95); }
+
+        /* Super Bright Shine/Light beam effect */
+        .magic-btn::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg); transition: 0.7s ease-in-out; z-index: -1;
+        }
+        .magic-btn:hover::after { left: 200%; }
+
+        /* Idle floating/pulsing animation for eye-catching effect */
+        @keyframes float-glow {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); filter: brightness(1.1); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .magic-btn { animation: float-glow 3s infinite ease-in-out; }
+        .magic-btn:hover { animation: none; filter: brightness(1.15); } 
+
+        /* ======================== Luminous Candy Colors ======================== */
+        
+        /* 1 & 8: تشغيل + تخصيص (identical premium gradient: Pink to Indigo) */
+        .magic-primary { background: linear-gradient(135deg, #ec4899, #6366f1); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 15px rgba(236,72,153,0.5); }
+        .magic-primary:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 15px 35px rgba(99,102,241,0.7), 0 0 25px rgba(236,72,153,0.8); }
+
+        /* 3: المعاينة (Sky Blue) */
+        .magic-preview { background: linear-gradient(135deg, #38bdf8, #0284c7); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(56,189,248,0.5); }
+        .magic-preview:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(56,189,248,0.7), 0 0 20px rgba(56,189,248,0.8); }
+
+        /* 4: الطباعة (Emerald) */
+        .magic-print { background: linear-gradient(135deg, #34d399, #059669); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(52,211,153,0.5); }
+        .magic-print:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(52,211,153,0.7), 0 0 20px rgba(52,211,153,0.8); }
+
+        /* 5: التصدير (Amber/Gold) */
+        .magic-export { background: linear-gradient(135deg, #fbbf24, #d97706); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(251,191,36,0.5); }
+        .magic-export:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(251,191,36,0.7), 0 0 20px rgba(251,191,36,0.8); }
+
+        /* 6: واتساب (Green) */
+        .magic-whatsapp { background: linear-gradient(135deg, #4ade80, #16a34a); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(74,222,128,0.5); }
+        .magic-whatsapp:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(74,222,128,0.7), 0 0 20px rgba(74,222,128,0.8); }
+
+        /* 7: إيميل (Orange) */
+        .magic-email { background: linear-gradient(135deg, #fb923c, #ea580c); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(251,146,60,0.5); }
+        .magic-email:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(251,146,60,0.7), 0 0 20px rgba(251,146,60,0.8); }
+
+        /* افتراضي 1 (Rose) */
+        .magic-preset-1 { background: linear-gradient(135deg, #fb7185, #e11d48); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(251,113,133,0.5); }
+        .magic-preset-1:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(251,113,133,0.7), 0 0 20px rgba(251,113,133,0.8); }
+
+        /* افتراضي 2 (Lime) */
+        .magic-preset-2 { background: linear-gradient(135deg, #a3e635, #65a30d); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(163,230,53,0.5); }
+        .magic-preset-2:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(163,230,53,0.7), 0 0 20px rgba(163,230,53,0.8); }
+
+        /* افتراضي 3 (Indigo) */
+        .magic-preset-3 { background: linear-gradient(135deg, #818cf8, #4f46e5); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(129,140,248,0.5); }
+        .magic-preset-3:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(129,140,248,0.7), 0 0 20px rgba(129,140,248,0.8); }
+
+        /* افتراضي 4 (Fuchsia) */
+        .magic-preset-4 { background: linear-gradient(135deg, #e879f9, #c026d3); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(232,121,249,0.5); }
+        .magic-preset-4:hover, .magic-preset.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(232,121,249,0.7), 0 0 20px rgba(232,121,249,0.8); }
+
+        /* نموذج 1 (Teal) */
+        .magic-model-1 { background: linear-gradient(135deg, #2dd4bf, #0f766e); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(45,212,191,0.5); }
+        .magic-model-1:hover, .magic-model.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(45,212,191,0.7), 0 0 20px rgba(45,212,191,0.8); }
+
+        /* نموذج 2 (Violet) */
+        .magic-model-2 { background: linear-gradient(135deg, #a78bfa, #7c3aed); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(167,139,250,0.5); }
+        .magic-model-2:hover, .magic-model.active { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(167,139,250,0.7), 0 0 20px rgba(167,139,250,0.8); }
+
+        /* Hide text on very small screens to ensure fit if needed */
+        @media (max-width: 1400px) {
+            .magic-preset, .magic-model, .magic-preview, .magic-print, .magic-export, .magic-whatsapp, .magic-email { font-size: 0.75rem; min-width: 65px; gap: 4px; padding: 0 6px; }
+            .magic-btn { height: 42px; }
+        }
+    </style>
+    <div class="no-print action-buttons-container">
+        <!-- 1. تشغيل التقرير -->
+        <button class="magic-btn magic-primary" onclick="runReport()" id="btn-run-report">
+            <svg id="btn-run-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <svg id="btn-run-spinner" style="display:none; animation: rotate 1s linear infinite;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"></path></svg>
+            <span id="btn-run-text">تشغيل التقرير</span>
+        </button>
+        
+        <!-- 3. المعاينة -->
+        <button class="magic-btn magic-preview" onclick="previewGL()">
+            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            معاينة
+        </button>
+
+        <!-- 4. طباعة مباشرة -->
+        <button class="magic-btn magic-print" onclick="printDirectly()">
+            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            طباعة
+        </button>
+
+        <!-- 5. تصدير PDF/Excel -->
+        <button class="magic-btn magic-export" onclick="window.openExportModal(exportCSV, exportGLPDF)">
+            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            تصدير
+        </button>
+
+        <!-- 6. مشاركة واتساب -->
+        <button class="magic-btn magic-whatsapp" onclick="shareViaWhatsApp()" title="مشاركة كشف الحساب عبر الواتساب">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.487-1.761-1.66-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            واتساب
+        </button>
+
+        <!-- 7. مشاركة إيميل -->
+        <button class="magic-btn magic-email" onclick="shareViaEmail()" title="إرسال كشف الحساب عبر البريد الإلكتروني">
+            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            إيميل
+        </button>
+
+        <!-- النماذج الافتراضية -->
+        <button class="magic-btn magic-preset magic-preset-1" id="btn-preset-1" onclick="applyPresetGL(1)">افتراضي 1</button>
+        <button class="magic-btn magic-preset magic-preset-2" id="btn-preset-2" onclick="applyPresetGL(2)">افتراضي 2</button>
+        <button class="magic-btn magic-preset magic-preset-3" id="btn-preset-3" onclick="applyPresetGL(3)">افتراضي 3</button>
+        <button class="magic-btn magic-preset magic-preset-4" id="btn-preset-4" onclick="applyPresetGL(4)">افتراضي 4</button>
+        
+        <!-- النماذج المخصصة -->
+        <button class="magic-btn magic-model magic-model-1" id="btn-preset-m1" onclick="applyPresetGL('m1')" onmousedown="startModelSave('m1')" onmouseup="stopModelSave()" onmouseleave="stopModelSave()" oncontextmenu="return false;" title="اضغط 8 ثوانٍ لحفظ التنسيق الحالي">نموذج 1</button>
+        <button class="magic-btn magic-model magic-model-2" id="btn-preset-m2" onclick="applyPresetGL('m2')" onmousedown="startModelSave('m2')" onmouseup="stopModelSave()" onmouseleave="stopModelSave()" oncontextmenu="return false;" title="اضغط 8 ثوانٍ لحفظ التنسيق الحالي">نموذج 2</button>
+
+        <!-- 8. تخصيص الجداول -->
+        <button class="magic-btn magic-primary" onclick="toggleSettingsSidebar()">
+            <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>تخصيص الجداول</span>
+        </button>
+    </div>

@@ -1243,8 +1243,6 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         .magic-btn:hover { 
             transform: translateY(-6px) scale(1.08); 
             z-index: 10; 
-            border-color: rgba(255,255,255,0.8);
-            color: #ffffff;
         }
         .magic-btn:hover svg { transform: scale(1.25) rotate(8deg); }
         .magic-btn:active { transform: translateY(2px) scale(0.95); }
@@ -1270,28 +1268,38 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         /* ======================== Luminous Candy Colors ======================== */
         
         /* 1 & 8: تشغيل + تخصيص (identical premium gradient: Pink to Indigo) */
-        .magic-primary { background: linear-gradient(135deg, #ec4899, #6366f1); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 15px rgba(236,72,153,0.5); }
-        .magic-primary:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 15px 35px rgba(99,102,241,0.7), 0 0 25px rgba(236,72,153,0.8); }
+        .magic-primary { background: linear-gradient(135deg, #ec4899, #6366f1); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 15px rgba(236,72,153,0.5); color: #fff; }
+        .magic-primary:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 15px 35px rgba(99,102,241,0.7), 0 0 25px rgba(236,72,153,0.8); border-color: rgba(255,255,255,0.8); color: #fff; }
 
-        /* 3: المعاينة (Sky Blue) */
-        .magic-preview { background: linear-gradient(135deg, #38bdf8, #0284c7); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(56,189,248,0.5); }
-        .magic-preview:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(56,189,248,0.7), 0 0 20px rgba(56,189,248,0.8); }
+        /* Premium Glass Button Base (for secondary buttons) */
+        .magic-preview, .magic-print, .magic-export, .magic-whatsapp, .magic-email {
+            background: transparent;
+            border-style: solid;
+            border-width: 2px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
 
-        /* 4: الطباعة (Emerald) */
-        .magic-print { background: linear-gradient(135deg, #34d399, #059669); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(52,211,153,0.5); }
-        .magic-print:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(52,211,153,0.7), 0 0 20px rgba(52,211,153,0.8); }
+        /* 3: المعاينة (Sky Blue Glass) */
+        .magic-preview { border-color: #38bdf8; color: #38bdf8; box-shadow: 0 0 10px rgba(56,189,248,0.2), inset 0 0 10px rgba(56,189,248,0.1); }
+        .magic-preview:hover { background: rgba(56,189,248,0.15); box-shadow: 0 0 20px rgba(56,189,248,0.5), inset 0 0 15px rgba(56,189,248,0.4); border-color: #7dd3fc; color: #7dd3fc; }
 
-        /* 5: التصدير (Amber/Gold) */
-        .magic-export { background: linear-gradient(135deg, #fbbf24, #d97706); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(251,191,36,0.5); }
-        .magic-export:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(251,191,36,0.7), 0 0 20px rgba(251,191,36,0.8); }
+        /* 4: الطباعة (Emerald Glass) */
+        .magic-print { border-color: #34d399; color: #34d399; box-shadow: 0 0 10px rgba(52,211,153,0.2), inset 0 0 10px rgba(52,211,153,0.1); }
+        .magic-print:hover { background: rgba(52,211,153,0.15); box-shadow: 0 0 20px rgba(52,211,153,0.5), inset 0 0 15px rgba(52,211,153,0.4); border-color: #6ee7b7; color: #6ee7b7; }
 
-        /* 6: واتساب (Green) */
-        .magic-whatsapp { background: linear-gradient(135deg, #4ade80, #16a34a); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(74,222,128,0.5); }
-        .magic-whatsapp:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(74,222,128,0.7), 0 0 20px rgba(74,222,128,0.8); }
+        /* 5: التصدير (Amber/Gold Glass) */
+        .magic-export { border-color: #fbbf24; color: #fbbf24; box-shadow: 0 0 10px rgba(251,191,36,0.2), inset 0 0 10px rgba(251,191,36,0.1); }
+        .magic-export:hover { background: rgba(251,191,36,0.15); box-shadow: 0 0 20px rgba(251,191,36,0.5), inset 0 0 15px rgba(251,191,36,0.4); border-color: #fcd34d; color: #fcd34d; }
 
-        /* 7: إيميل (Orange) */
-        .magic-email { background: linear-gradient(135deg, #fb923c, #ea580c); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(251,146,60,0.5); }
-        .magic-email:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 12px 30px rgba(251,146,60,0.7), 0 0 20px rgba(251,146,60,0.8); }
+        /* 6: واتساب (Green Glass) */
+        .magic-whatsapp { border-color: #4ade80; color: #4ade80; box-shadow: 0 0 10px rgba(74,222,128,0.2), inset 0 0 10px rgba(74,222,128,0.1); }
+        .magic-whatsapp:hover { background: rgba(74,222,128,0.15); box-shadow: 0 0 20px rgba(74,222,128,0.5), inset 0 0 15px rgba(74,222,128,0.4); border-color: #86efac; color: #86efac; }
+
+        /* 7: إيميل (Orange Glass) */
+        .magic-email { border-color: #fb923c; color: #fb923c; box-shadow: 0 0 10px rgba(251,146,60,0.2), inset 0 0 10px rgba(251,146,60,0.1); }
+        .magic-email:hover { background: rgba(251,146,60,0.15); box-shadow: 0 0 20px rgba(251,146,60,0.5), inset 0 0 15px rgba(251,146,60,0.4); border-color: #fdba74; color: #fdba74; }
 
         /* افتراضي 1 (Rose) */
         .magic-preset-1 { background: linear-gradient(135deg, #fb7185, #e11d48); box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 12px rgba(251,113,133,0.5); }
@@ -1368,8 +1376,8 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         <button class="magic-btn magic-preset magic-preset-4" id="btn-preset-4" onclick="applyPresetGL(4)">افتراضي 4</button>
         
         <!-- النماذج المخصصة -->
-        <button class="magic-btn magic-model magic-model-1" id="btn-preset-m1" onclick="applyPresetGL('m1')" onmousedown="startModelSave('m1')" onmouseup="stopModelSave()" onmouseleave="stopModelSave()" oncontextmenu="return false;" title="اضغط 8 ثوانٍ لحفظ التنسيق الحالي">نموذج 1</button>
-        <button class="magic-btn magic-model magic-model-2" id="btn-preset-m2" onclick="applyPresetGL('m2')" onmousedown="startModelSave('m2')" onmouseup="stopModelSave()" onmouseleave="stopModelSave()" oncontextmenu="return false;" title="اضغط 8 ثوانٍ لحفظ التنسيق الحالي">نموذج 2</button>
+        <button class="magic-btn magic-model magic-model-1" id="btn-preset-m1" title="اضغط 8 ثوانٍ متواصلة لحفظ التنسيق الحالي">نموذج 1</button>
+        <button class="magic-btn magic-model magic-model-2" id="btn-preset-m2" title="اضغط 8 ثوانٍ متواصلة لحفظ التنسيق الحالي">نموذج 2</button>
 
         <!-- 8. تخصيص الجداول -->
         <button class="magic-btn magic-primary" onclick="toggleSettingsSidebar()">

@@ -3107,20 +3107,151 @@ const DEFAULT_PRESETS_GL = {
 
 let modelSaveTimer = null;
 
+function setupModelButton(btnId, modelId) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    
+    // Remove old inline listeners if any
+    btn.removeAttribute('onclick');
+    btn.removeAttribute('onmousedown');
+    btn.removeAttribute('onmouseup');
+    btn.removeAttribute('onmouseleave');
+    
+    let pressTimer = null;
+    let progressTimer = null;
+    let holdStartTime = 0;
+    let isHolding = false;
+    let justSaved = false;
+    const HOLD_TIME = 8000;
+
+    // Create progress bar element inside button
+    let bar = btn.querySelector('.model-hold-bar');
+    if (!bar) {
+        bar = document.createElement('div');
+        bar.className = 'model-hold-bar';
+        bar.style.cssText = 'position: absolute; bottom: 0; left: 0; height: 3px; background: #fff; width: 0%; opacity: 0.7; transition: none; border-radius: 0 0 4px 4px; pointer-events: none;';
+        btn.style.position = 'relative';
+        btn.style.overflow = 'hidden';
+        btn.appendChild(bar);
+    }
+
+    function startPress(e) {
+        if (e.type === 'touchstart') {
+            // allow passive true if needed, but we prevent default to stop mouse emulation
+            // wait, we can't e.preventDefault() here easily if it's passive, so we just set state
+        }
+        if (e.button === 2) return; // ignore right click
+        
+        isHolding = true;
+        justSaved = false;
+        holdStartTime = Date.now();
+        
+        btn.style.transform = 'scale(0.95)';
+        bar.style.transition = 'none';
+        bar.style.width = '0%';
+        
+        progressTimer = setInterval(() => {
+            const elapsed = Date.now() - holdStartTime;
+            const pct = Math.min(100, (elapsed / HOLD_TIME) * 100);
+            bar.style.width = pct + '%';
+            if (pct >= 100) clearInterval(progressTimer);
+        }, 30);
+        
+        pressTimer = setTimeout(() => {
+            if (!isHolding) return;
+            justSaved = true;
+            clearInterval(progressTimer);
+            
+            let saved = JSON.parse(localStorage.getItem('sgl_models_v1') || '{}');
+            saved[modelId] = {
+                colConfig: JSON.parse(JSON.stringify(colConfig)),
+                theme: typeof currentTableTheme !== 'undefined' ? currentTableTheme : 'default',
+                font: typeof currentNumFont !== 'undefined' ? currentNumFont : 'num-font-roboto'
+            };
+            localStorage.setItem('sgl_models_v1', JSON.stringify(saved));
+            
+            showToast('تم حفظ التنسيق (أعمدة، ألوان، وخطوط) في ' + btn.innerText + ' بنجاح! 💾', 'success');
+            
+            let oldBg = btn.style.background;
+            btn.style.background = '#22c55e';
+            btn.style.color = '#fff';
+            setTimeout(() => {
+                btn.style.background = oldBg;
+                btn.style.color = '';
+                bar.style.width = '0%';
+            }, 1500);
+            
+            if (navigator.vibrate) navigator.vibrate(200);
+        }, HOLD_TIME);
+    }
+
+    function endPress(e) {
+        if (!isHolding) return;
+        isHolding = false;
+        clearTimeout(pressTimer);
+        clearInterval(progressTimer);
+        btn.style.transform = '';
+        bar.style.transition = 'width 0.2s ease-out';
+        bar.style.width = '0%';
+        
+        if (!justSaved) {
+            const elapsed = Date.now() - holdStartTime;
+            if (elapsed < HOLD_TIME) {
+                applyPresetGL(modelId);
+            }
+        }
+    }
+
+    function cancelPress() {
+        if (!isHolding) return;
+        isHolding = false;
+        clearTimeout(pressTimer);
+        clearInterval(progressTimer);
+        btn.style.transform = '';
+        bar.style.transition = 'width 0.2s ease-out';
+        bar.style.width = '0%';
+    }
+
+    btn.addEventListener('mousedown', startPress);
+    btn.addEventListener('mouseup', endPress);
+    btn.addEventListener('mouseleave', cancelPress);
+
+    btn.addEventListener('touchstart', startPress, { passive: true });
+    btn.addEventListener('touchend', endPress);
+    btn.addEventListener('touchcancel', cancelPress);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setupModelButton('btn-preset-m1', 'm1');
+    setupModelButton('btn-preset-m2', 'm2');
+});
+
 function applyPresetGL(id) {
-    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-    let btn = document.getElementById('btn-preset-' + id);
+    document.querySelectorAll('.preset-btn, .magic-model').forEach(b => b.classList.remove('active'));
+    let btn = document.getElementById('btn-preset-' + id) || document.getElementById(id === 'm1' ? 'btn-preset-m1' : 'btn-preset-m2');
     if(btn) btn.classList.add('active');
 
     let layout = null;
+    let savedTheme = null;
+    let savedFont = null;
+
     if (['1','2','3','4'].includes(String(id))) {
         layout = DEFAULT_PRESETS_GL[id];
     } else {
         let saved = JSON.parse(localStorage.getItem('sgl_models_v1') || '{}');
-        layout = saved[id];
-        if (!layout) {
-            showToast('هذا النموذج فارغ، اضغط عليه 8 ثوانٍ لحفظ التنسيق الحالي كنموذج.', 'error');
+        let modelData = saved[id];
+        
+        if (!modelData) {
+            showToast('هذا النموذج فارغ، اضغط عليه 8 ثوانٍ متواصلة لحفظ التنسيق الحالي كنموذج.', 'error');
             return;
+        }
+
+        if (Array.isArray(modelData)) {
+            layout = modelData;
+        } else {
+            layout = modelData.colConfig;
+            savedTheme = modelData.theme;
+            savedFont = modelData.font;
         }
     }
 
@@ -3131,42 +3262,46 @@ function applyPresetGL(id) {
                 c.visible = found.visible !== false;
                 if(found.size) c.size = found.size;
                 if(found.bold !== undefined) c.bold = found.bold;
+                if(found.alias !== undefined) c.alias = found.alias;
+                if(found.align !== undefined) c.align = found.align;
+                if(found.color !== undefined) c.color = found.color;
+                if(found.bg !== undefined) c.bg = found.bg;
+                if(found.dec !== undefined) c.dec = found.dec;
+                if(found.width !== undefined) c.width = found.width;
             } else {
                 c.visible = false;
             }
         });
         localStorage.setItem('sgl_col_config_v1', JSON.stringify(colConfig));
-        if (typeof previewColSettingsGL === 'function') previewColSettingsGL();
-        else {
-            applyConfigToHeaders();
-            runReport();
-        }
-        showToast('تم تطبيق التنسيق بنجاح', 'success');
-    }
-}
-
-function startModelSave(id) {
-    modelSaveTimer = setTimeout(() => {
-        let saved = JSON.parse(localStorage.getItem('sgl_models_v1') || '{}');
-        saved[id] = JSON.parse(JSON.stringify(colConfig));
-        localStorage.setItem('sgl_models_v1', JSON.stringify(saved));
-        showToast('تم حفظ التنسيق الحالي في هذا النموذج بنجاح!', 'success');
         
-        let btn = document.getElementById('btn-preset-' + id);
-        if(btn) {
-            btn.style.background = '#22c55e';
-            btn.style.color = '#fff';
-            setTimeout(() => {
-                btn.style.background = '';
-                btn.style.color = '';
-            }, 1000);
+        if (savedTheme && typeof applyTableTheme === 'function') {
+            currentTableTheme = savedTheme;
+            applyTableTheme(currentTableTheme);
+            if (typeof updateCrystalButtons === 'function') updateCrystalButtons(currentTableTheme);
+            let settingsStr = localStorage.getItem('erp_settings_v1');
+            let settings = settingsStr ? JSON.parse(settingsStr) : {};
+            settings.sgl_table_theme = currentTableTheme;
+            localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
         }
-    }, 8000);
-}
+        
+        if (savedFont) {
+            currentNumFont = savedFont;
+            document.querySelectorAll('.num-cell-wrapper').forEach(el => {
+                el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins');
+                el.classList.add(currentNumFont);
+            });
+            let settingsStr = localStorage.getItem('erp_settings_v1');
+            let settings = settingsStr ? JSON.parse(settingsStr) : {};
+            settings.sgl_num_font = currentNumFont;
+            localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
+        }
 
-function stopModelSave() {
-    if (modelSaveTimer) {
-        clearTimeout(modelSaveTimer);
-        modelSaveTimer = null;
+        if (typeof previewColSettingsGL === 'function') {
+            previewColSettingsGL();
+        } else {
+            if (typeof applyConfigToHeaders === 'function') applyConfigToHeaders();
+            if (typeof runReport === 'function') runReport();
+        }
+        showToast('تم تطبيق النموذج بنجاح', 'success');
     }
 }
