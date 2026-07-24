@@ -1249,14 +1249,6 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         .magic-btn:hover svg { transform: scale(1.25) rotate(8deg); }
         .magic-btn:active { transform: translateY(2px) scale(0.95); }
 
-        /* Super Bright Shine/Light beam effect */
-        .magic-btn::after {
-            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg); transition: 0.7s ease-in-out; z-index: -1;
-        }
-        .magic-btn:hover::after { left: 200%; }
-
         /* Idle floating/pulsing animation for eye-catching effect */
         @keyframes float-glow {
             0% { transform: translateY(0px); }
@@ -1277,59 +1269,60 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         .magic-primary { background: linear-gradient(135deg, #ec4899, #6366f1); border-color: transparent; box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.1), 0 4px 15px rgba(236,72,153,0.5); color: #fff; }
         .magic-primary:hover { box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.1), 0 15px 35px rgba(99,102,241,0.7), 0 0 25px rgba(236,72,153,0.8); color: #fff; }
 
-        /* Animated Crystal Glowing Border */
-        @keyframes crystalWave {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
         .magic-preview, .magic-print, .magic-export, .magic-whatsapp, .magic-email,
         .magic-preset-1, .magic-preset-2, .magic-preset-3, .magic-preset-4,
         .magic-model-1, .magic-model-2 {
-            background: transparent !important;
-            color: var(--wave-c2) !important;
-            border: 1px solid var(--wave-c1) !important; 
+            background: var(--btn-bg-idle) !important;
+            color: var(--btn-text) !important;
+            border: 1px solid var(--btn-border-idle) !important; 
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             position: relative;
             z-index: 1;
             overflow: visible !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
 
         .magic-preview:hover, .magic-print:hover, .magic-export:hover, .magic-whatsapp:hover, .magic-email:hover,
         .magic-preset-1:hover, .magic-preset-2:hover, .magic-preset-3:hover, .magic-preset-4:hover,
         .magic-model-1:hover, .magic-model-2:hover {
-            background: rgba(255,255,255,0.03) !important;
+            background: var(--btn-bg-hover) !important;
+            border-color: var(--btn-border-hover) !important;
             color: #ffffff !important;
-            border-color: var(--wave-c2) !important;
-            /* لمحة من بعيد (Distant soft glow) */
-            box-shadow: 0 20px 45px var(--wave-c-glow), inset 0 0 10px rgba(255,255,255,0.02) !important;
-            transform: translateY(-2px);
+            /* لمحة من بعيد جدا (Ultra-distant soft ambient glow) */
+            box-shadow: 0 30px 60px -10px var(--btn-glow), inset 0 0 20px var(--btn-bg-idle) !important;
+            transform: translateY(-4px) scale(1.02);
+            text-shadow: 0 0 8px var(--btn-border-hover);
         }
 
-        /* ألوان واضحة ومتباينة مع الخلفية السوداء */
-        .magic-preview { --wave-c1: #0284c7; --wave-c2: #38bdf8; --wave-c-glow: rgba(56,189,248,0.2); }
-        .magic-print   { --wave-c1: #059669; --wave-c2: #34d399; --wave-c-glow: rgba(52,211,153,0.2); }
-        .magic-export  { --wave-c1: #d97706; --wave-c2: #fbbf24; --wave-c-glow: rgba(251,191,36,0.2); }
-        .magic-whatsapp{ --wave-c1: #16a34a; --wave-c2: #4ade80; --wave-c-glow: rgba(74,222,128,0.2); }
-        .magic-email   { --wave-c1: #ea580c; --wave-c2: #fb923c; --wave-c-glow: rgba(251,146,60,0.2); }
+        /* 
+         ألوان ساطعة جداً (Luminous) تبرز على الخلفية السوداء كلوحة فنية
+        */
+        .magic-preview { --btn-text: #7dd3fc; --btn-border-idle: rgba(56,189,248,0.4); --btn-border-hover: #38bdf8; --btn-bg-idle: rgba(56,189,248,0.08); --btn-bg-hover: rgba(56,189,248,0.15); --btn-glow: rgba(56,189,248,0.3); }
+        .magic-print   { --btn-text: #6ee7b7; --btn-border-idle: rgba(52,211,153,0.4); --btn-border-hover: #34d399; --btn-bg-idle: rgba(52,211,153,0.08); --btn-bg-hover: rgba(52,211,153,0.15); --btn-glow: rgba(52,211,153,0.3); }
+        .magic-export  { --btn-text: #fcd34d; --btn-border-idle: rgba(251,191,36,0.4); --btn-border-hover: #fbbf24; --btn-bg-idle: rgba(251,191,36,0.08); --btn-bg-hover: rgba(251,191,36,0.15); --btn-glow: rgba(251,191,36,0.3); }
+        .magic-whatsapp{ --btn-text: #86efac; --btn-border-idle: rgba(74,222,128,0.4); --btn-border-hover: #4ade80; --btn-bg-idle: rgba(74,222,128,0.08); --btn-bg-hover: rgba(74,222,128,0.15); --btn-glow: rgba(74,222,128,0.3); }
+        .magic-email   { --btn-text: #fdba74; --btn-border-idle: rgba(251,146,60,0.4); --btn-border-hover: #fb923c; --btn-bg-idle: rgba(251,146,60,0.08); --btn-bg-hover: rgba(251,146,60,0.15); --btn-glow: rgba(251,146,60,0.3); }
 
-        .magic-preset-1{ --wave-c1: #e11d48; --wave-c2: #fb7185; --wave-c-glow: rgba(251,113,133,0.2); }
-        .magic-preset-2{ --wave-c1: #65a30d; --wave-c2: #a3e635; --wave-c-glow: rgba(163,230,53,0.2); }
-        .magic-preset-3{ --wave-c1: #4f46e5; --wave-c2: #a5b4fc; --wave-c-glow: rgba(165,180,252,0.2); } /* أزرق فاتح جدا للوضوح */
-        .magic-preset-4{ --wave-c1: #c026d3; --wave-c2: #e879f9; --wave-c-glow: rgba(232,121,249,0.2); }
+        .magic-preset-1{ --btn-text: #fda4af; --btn-border-idle: rgba(251,113,133,0.4); --btn-border-hover: #fb7185; --btn-bg-idle: rgba(251,113,133,0.08); --btn-bg-hover: rgba(251,113,133,0.15); --btn-glow: rgba(251,113,133,0.3); }
+        .magic-preset-2{ --btn-text: #bef264; --btn-border-idle: rgba(163,230,53,0.4);  --btn-border-hover: #a3e635; --btn-bg-idle: rgba(163,230,53,0.08);  --btn-bg-hover: rgba(163,230,53,0.15);  --btn-glow: rgba(163,230,53,0.3); }
+        .magic-preset-3{ --btn-text: #c7d2fe; --btn-border-idle: rgba(129,140,248,0.4); --btn-border-hover: #818cf8; --btn-bg-idle: rgba(129,140,248,0.08); --btn-bg-hover: rgba(129,140,248,0.15); --btn-glow: rgba(129,140,248,0.3); }
+        .magic-preset-4{ --btn-text: #f0abfc; --btn-border-idle: rgba(232,121,249,0.4); --btn-border-hover: #e879f9; --btn-bg-idle: rgba(232,121,249,0.08); --btn-bg-hover: rgba(232,121,249,0.15); --btn-glow: rgba(232,121,249,0.3); }
 
-        .magic-model-1 { --wave-c1: #0d9488; --wave-c2: #2dd4bf; --wave-c-glow: rgba(45,212,191,0.2); }
-        .magic-model-2 { --wave-c1: #7c3aed; --wave-c2: #c4b5fd; --wave-c-glow: rgba(196,181,253,0.2); } /* بنفسجي فاتح جدا للوضوح */
+        .magic-model-1 { --btn-text: #5eead4; --btn-border-idle: rgba(45,212,191,0.4);  --btn-border-hover: #2dd4bf; --btn-bg-idle: rgba(45,212,191,0.08);  --btn-bg-hover: rgba(45,212,191,0.15);  --btn-glow: rgba(45,212,191,0.3); }
+        .magic-model-2 { --btn-text: #ddd6fe; --btn-border-idle: rgba(167,139,250,0.4); --btn-border-hover: #a78bfa; --btn-bg-idle: rgba(167,139,250,0.08); --btn-bg-hover: rgba(167,139,250,0.15); --btn-glow: rgba(167,139,250,0.3); }
 
         .magic-preset-1.active, .magic-preset-2.active, .magic-preset-3.active, .magic-preset-4.active,
         .magic-model-1.active, .magic-model-2.active {
-            background: rgba(255,255,255,0.08) !important;
-            border-color: var(--wave-c2) !important;
+            background: var(--btn-bg-hover) !important;
+            border-color: var(--btn-border-hover) !important;
             color: #ffffff !important;
-            box-shadow: 0 0 15px var(--wave-c-glow) !important;
+            box-shadow: 0 0 30px var(--btn-glow), inset 0 0 15px var(--btn-bg-idle) !important;
+            text-shadow: 0 0 8px var(--btn-border-hover);
         }
 
         /* Hide text on very small screens to ensure fit if needed */
