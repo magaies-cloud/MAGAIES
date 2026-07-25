@@ -2533,14 +2533,14 @@ function renderVisualAnalytics(results) {
 
     if (indNetVal) {
         const absVal = Math.abs(netPosition);
-        const sdgText = absVal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
-        let usdText = '';
+        const sdgStr = absVal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+        let usdHtml = '';
         if (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0) {
             const usdVal = (absVal / ledgerExchangeRate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            usdText = `  |  $${usdVal} ${ledgerForeignCurrency || 'USD'}`;
+            usdHtml = `<span style="color: #fbbf24; font-weight: 900; background: rgba(245, 158, 11, 0.22); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 0.95rem; box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); font-family: 'JetBrains Mono', monospace;">$${usdVal} ${ledgerForeignCurrency || 'USD'}</span>`;
         }
-        indNetVal.textContent = sdgText + usdText;
-        indNetVal.style.fontSize = '1.02rem';
+        const sdgHtml = `<span style="color: #34d399; font-weight: 900; background: rgba(16, 185, 129, 0.22); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.4); font-size: 0.95rem; box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); font-family: 'JetBrains Mono', monospace;">${sdgStr}</span>`;
+        indNetVal.innerHTML = `<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px;">${sdgHtml} <span style="color: #94a3b8; font-weight: bold;">|</span> ${usdHtml}</div>`;
         if (netPosition >= 0) {
             if (indTrendArrow) indTrendArrow.textContent = '↗️';
             if (indTrendBadge) {
@@ -3556,6 +3556,80 @@ function renderVisualAnalytics(results) {
     try { if (window.chartDebtAgingSpectrum) window.chartDebtAgingSpectrum.destroy(); } catch(e){}
     window.chartDebtAgingSpectrum = new ApexCharts(document.querySelector("#chart-debt-aging-spectrum"), optionsDebtAgingSpectrum);
     window.chartDebtAgingSpectrum.render();
+
+
+    // ─── Chart 25: Donut Credit Limit Utilization Chart ───
+    const totalCreditCap = results.reduce((sum, r) => sum + (r.creditLimit && r.creditLimit > 0 ? r.creditLimit : Math.max((r.endingDebitLocal || 0) * 1.5, 5000000)), 0);
+    const totalDebtUsed = results.reduce((sum, r) => sum + (r.endingDebitLocal || 0), 0);
+    const totalCreditRemaining = Math.max(0, totalCreditCap - totalDebtUsed);
+
+    const optionsCreditDonut = {
+        series: [totalDebtUsed, totalCreditRemaining],
+        labels: ['المديونية المستهلكة', 'المتبقي المتاح من الائتمان'],
+        chart: { type: 'donut', height: 340, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#f43f5e', '#34d399'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '70%',
+                    labels: {
+                        show: true,
+                        name: { show: true, fontSize: '13px', color: isLightTheme ? '#0f172a' : '#cbd5e1' },
+                        value: { show: true, fontSize: '15px', fontWeight: '900', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: formatDualCurrencyArray },
+                        total: { show: true, label: 'إجمالي التسهيلات', color: isLightTheme ? '#64748b' : '#94a3b8', formatter: () => formatDualCurrencyArray(totalCreditCap) }
+                    }
+                }
+            }
+        },
+        dataLabels: { enabled: false },
+        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartCreditUtilizationDonut) window.chartCreditUtilizationDonut.destroy(); } catch(e){}
+    window.chartCreditUtilizationDonut = new ApexCharts(document.querySelector("#chart-credit-utilization-donut"), optionsCreditDonut);
+    window.chartCreditUtilizationDonut.render();
+
+
+    // ─── Chart 26: Treemap Debt Aging Risk Matrix ───
+    const agingTreemapData = [
+        { x: 'حديثة (0-30 يوم)', y: age0_30 },
+        { x: 'متوسطة (31-60 يوم)', y: age31_60 },
+        { x: 'حرجة (61-90 يوم)', y: age61_90 },
+        { x: 'متعثرة (+90 يوم)', y: age90_plus }
+    ];
+
+    const optionsAgingTreemap = {
+        series: [{ data: agingTreemapData }],
+        chart: { type: 'treemap', height: 340, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#34d399', '#38bdf8', '#fbbf24', '#f43f5e'],
+        plotOptions: { treemap: { distributed: true, enableShades: true } },
+        dataLabels: { enabled: true, style: { fontSize: '12px', fontFamily: 'Tajawal' }, formatter: (text, op) => [text, formatDualCurrencyLine(op.value)] },
+        legend: { show: false },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartAgingRiskTreemap) window.chartAgingRiskTreemap.destroy(); } catch(e){}
+    window.chartAgingRiskTreemap = new ApexCharts(document.querySelector("#chart-aging-risk-treemap"), optionsAgingTreemap);
+    window.chartAgingRiskTreemap.render();
+
+
+    // ─── Chart 27: Polar Area Credit vs Aging Matrix ───
+    const optionsAgingCreditPolar = {
+        series: [age0_30, age31_60, age61_90, age90_plus],
+        labels: ['ديون 0-30 يوم', 'ديون 31-60 يوم', 'ديون 61-90 يوم', 'ديون +90 يوم'],
+        chart: { type: 'polarArea', height: 340, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#34d399', '#38bdf8', '#fbbf24', '#f43f5e'],
+        stroke: { colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        fill: { opacity: 0.8 },
+        legend: { position: 'bottom', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartAgingCreditRadar) window.chartAgingCreditRadar.destroy(); } catch(e){}
+    window.chartAgingCreditRadar = new ApexCharts(document.querySelector("#chart-aging-credit-radar"), optionsAgingCreditPolar);
+    window.chartAgingCreditRadar.render();
 }
 
 window.switchVisualTab = function(type) {

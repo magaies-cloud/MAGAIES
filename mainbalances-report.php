@@ -1386,6 +1386,47 @@ $page_title = 'حساب الارصده الاساسية';
 
                 </div>
 
+                <!-- Charts Row 12: ADVANCED CREDIT UTILIZATION & DEBT AGING TREEMAP & POLAR (نماذج إضافية أكثر شمولية) -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; margin-top: 25px;">
+                    
+                    <!-- Chart 25: Donut Credit Limit Utilization -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة نسبة استنفاذ سقف الائتمان (Portfolio Credit Utilization Donut)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(244, 63, 94, 0.2); color: #fb7185; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(244, 63, 94, 0.4);">🎯 نسبة استهلاك الائتمان</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: نسبة المستهلك حالياً من إجمالي التسهيلات والائتمان مقابل المتبقي بالعملتين</span>
+                        </div>
+                        <div id="chart-credit-utilization-donut" style="min-height: 340px;"></div>
+                    </div>
+
+                    <!-- Chart 26: Treemap Debt Aging Risk Matrix -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🗺️ خريطة مسافات ومساحات مخاطر أعمار الديون (Aging Risk Treemap Matrix)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.2); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.4);">🗺️ مساحات الخطورة</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: مربعات ملونة تتوزع مساحاتها بحسب حجم الديون المتأخرة وحرجة الأقدمية</span>
+                        </div>
+                        <div id="chart-aging-risk-treemap" style="min-height: 340px;"></div>
+                    </div>
+
+                    <!-- Chart 27: Polar Area Credit vs Aging Matrix -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🧭 المخطط القطبي لرادار السقوف المالية وأعمار الذمم (Aging & Credit Polar Radar)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.4);">🧭 قطب السقوف والأعمار</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: قطاعات مرسومة من المركز توضح اتساع نطاق كل فئة عمرية للديون بالعملتين</span>
+                        </div>
+                        <div id="chart-aging-credit-radar" style="min-height: 340px;"></div>
+                    </div>
+
+                </div>
+
             </div>
 
         </div>
