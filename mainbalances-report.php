@@ -86,6 +86,45 @@ $page_title = 'حساب الارصده الاساسية';
             left: 0;
             bottom: 0;
         }
+
+        /* ─── Table Header Drag & Drop Cues ─── */
+        th.header-dragging {
+            opacity: 0.55 !important;
+            background: rgba(56, 189, 248, 0.35) !important;
+            border: 2px dashed #38bdf8 !important;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.6) !important;
+        }
+        th.header-drag-over {
+            border-right: 4px solid #10b981 !important;
+            background: rgba(16, 185, 129, 0.25) !important;
+        }
+
+        /* ─── High Contrast Numbers & Thicker Currency Fonts ─── */
+        #balances-table td.num, 
+        #balances-table td.num-cell {
+            font-weight: 800 !important;
+            font-size: 1.05rem;
+            letter-spacing: 0.3px;
+            color: #f8fafc !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+        }
+        :root.light-theme #balances-table td.num,
+        :root.light-theme #balances-table td.num-cell {
+            color: #0f172a !important;
+            text-shadow: none !important;
+        }
+
+        /* Thicker & Larger Currency Columns */
+        #balances-table th[data-orig-idx="3"],
+        #balances-table th[data-orig-idx="4"],
+        #balances-table th[data-orig-idx="5"],
+        #balances-table td:nth-child(4),
+        #balances-table td:nth-child(5),
+        #balances-table td:nth-child(6) {
+            font-size: 1.15rem !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.3px;
+        }
         /* ─── Visual Intelligence Analytics Hub Styling ─── */
         .visual-hub-container {
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.65));
@@ -1195,8 +1234,8 @@ $page_title = 'حساب الارصده الاساسية';
 
                 </div>
 
-                <!-- Charts Row 8: Treemap, Waterfall & Polar Area Spectrum (مستويات إضافية متقدمة) -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px;">
+                <!-- Charts Row 8: Treemap, Waterfall & Polar Area Spectrum -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; margin-bottom: 25px;">
                     
                     <!-- Chart 14: Treemap Accounts -->
                     <div class="v-chart-card">
@@ -1232,6 +1271,47 @@ $page_title = 'حساب الارصده الاساسية';
                             <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: قطاعات مرسومة من المركز توضح اتساع نطاق كل قسم</span>
                         </div>
                         <div id="chart-polar-categories" style="min-height: 340px;"></div>
+                    </div>
+
+                </div>
+
+                <!-- Charts Row 9: 3 NEW HIGHLY COMPREHENSIVE CHARTS (3 تقارير بصرية جديدة أكثر شمولية) -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px;">
+                    
+                    <!-- Chart 17: Currency Share Donut -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة توزيع الأرصدة حسب العملات (Currency Volume Share)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">🔱 وزن العملات</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: ثقل وحصة كل عملة (سوداني / دولار أجنبي / غيرها) بالعملتين فوراً</span>
+                        </div>
+                        <div id="chart-currency-share-donut" style="min-height: 330px;"></div>
+                    </div>
+
+                    <!-- Chart 18: Treasury & Cash Accounts Column Chart -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🏛️ مدرّج النقدية السائلة بالخزن والبنوك (Treasury & Cash Columns)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">🏦 السيولة السائلة</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: ارتفاع أعمدة الخزن والبنوك بحسب الرصيد الفعلي المتاح بالعملتين</span>
+                        </div>
+                        <div id="chart-treasury-cash-columns" style="min-height: 330px;"></div>
+                    </div>
+
+                    <!-- Chart 19: Dual Currency Cumulative Flow Spectrum Curve -->
+                    <div class="v-chart-card" style="grid-column: span 1 / -1;">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.1rem; font-weight: 900;">📈 منحنى التراكم والترافق المزدوج للعملتين (SDG vs USD Cumulative Spectrum)</h4>
+                                <span style="font-size: 0.75rem; background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 4px 12px; border-radius: 12px; font-weight: 900; border: 1px solid rgba(245, 158, 11, 0.4);">🌊 تراكم العملتين</span>
+                            </div>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">توضيح بسيط: منحنيات متدرجة ملونة تقارن تراكم مبالغ الجنيه السوداني مقابل المعادل بالدولار الأجنبي</span>
+                        </div>
+                        <div id="chart-cumulative-dual-currency-flow" style="min-height: 350px;"></div>
                     </div>
 
                 </div>

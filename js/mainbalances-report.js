@@ -124,14 +124,80 @@ function applyLayoutToDOM() {
             });
         }
 
-        // Re-bind resizers because headers were reordered
+        // Re-bind resizers and drag & drop handlers for table headers
         if (typeof bindResizers === 'function') {
             bindResizers();
+        }
+        if (typeof initTableHeaderDragAndDrop === 'function') {
+            initTableHeaderDragAndDrop();
         }
     } catch(e) {
         console.error('Error applying layout to DOM:', e);
     }
 }
+
+window.initTableHeaderDragAndDrop = function() {
+    const table = document.getElementById('balances-table');
+    if (!table) return;
+    const theadTr = table.querySelector('thead tr#balances-header-row');
+    if (!theadTr) return;
+
+    const ths = Array.from(theadTr.querySelectorAll('th'));
+    let draggedVisualIdx = -1;
+
+    ths.forEach((th, visualIdx) => {
+        th.setAttribute('draggable', 'true');
+        th.title = 'اسحب يميناً أو شمالاً لترتيب الخانة وإعادة موضعها تلقائياً';
+        if (!th.style.cursor || th.style.cursor === 'auto') {
+            th.style.cursor = 'grab';
+        }
+
+        th.ondragstart = (e) => {
+            if (e.target.classList.contains('resizer')) {
+                e.preventDefault();
+                return false;
+            }
+            draggedVisualIdx = visualIdx;
+            th.classList.add('header-dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', visualIdx);
+        };
+
+        th.ondragend = () => {
+            th.classList.remove('header-dragging');
+            ths.forEach(t => t.classList.remove('header-drag-over'));
+        };
+
+        th.ondragover = (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            th.classList.add('header-drag-over');
+        };
+
+        th.ondragleave = () => {
+            th.classList.remove('header-drag-over');
+        };
+
+        th.ondrop = (e) => {
+            e.preventDefault();
+            th.classList.remove('header-drag-over');
+            const targetVisualIdx = visualIdx;
+
+            if (draggedVisualIdx >= 0 && draggedVisualIdx !== targetVisualIdx) {
+                // Reorder window.colOrder
+                const movedOrigIdx = window.colOrder.splice(draggedVisualIdx, 1)[0];
+                window.colOrder.splice(targetVisualIdx, 0, movedOrigIdx);
+
+                // Auto-save layout automatically without any button!
+                saveLayout();
+                applyLayoutToDOM();
+                if (window.lastResults) renderTable(window.lastResults);
+                if (typeof bindContextMenuList === 'function') bindContextMenuList();
+                showToast('✨ تم إعادة ترتيب الخانات وحفظ الترتيب تلقائياً!', 'success');
+            }
+        };
+    });
+};
 
 function loadLayout() {
     try {
@@ -3165,7 +3231,7 @@ function renderVisualAnalytics(results) {
     window.chartWaterfallNet.render();
 
 
-    // ─── Chart 14: Polar Area ───
+    // ─── Chart 16: Polar Area ───
     const optionsPolar = {
         series: catValues,
         labels: catLabels,
@@ -3180,6 +3246,101 @@ function renderVisualAnalytics(results) {
     try { if (window.chartPolarCategories) window.chartPolarCategories.destroy(); } catch(e){}
     window.chartPolarCategories = new ApexCharts(document.querySelector("#chart-polar-categories"), optionsPolar);
     window.chartPolarCategories.render();
+
+
+    // ─── Chart 17: Currency Volume Share Donut ───
+    const currMap = {};
+    results.forEach(r => {
+        const cur = r.currency || 'SDG';
+        const bal = Math.max(r.endingDebitLocal, r.endingCreditLocal);
+        currMap[cur] = (currMap[cur] || 0) + bal;
+    });
+
+    const currLabels = Object.keys(currMap).length > 0 ? Object.keys(currMap) : ['SDG'];
+    const currValues = Object.keys(currMap).length > 0 ? Object.values(currMap) : [1];
+
+    const optionsCurrencyShareDonut = {
+        series: currValues,
+        labels: currLabels.map(c => 'عملة ' + c),
+        chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#34d399', '#38bdf8', '#fbbf24', '#c084fc', '#fb7185'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '68%',
+                    labels: {
+                        show: true,
+                        value: { show: true, fontSize: '15px', fontWeight: 'bold', formatter: formatDualCurrencyArray }
+                    }
+                }
+            }
+        },
+        legend: { position: 'bottom', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartCurrencyShareDonut) window.chartCurrencyShareDonut.destroy(); } catch(e){}
+    window.chartCurrencyShareDonut = new ApexCharts(document.querySelector("#chart-currency-share-donut"), optionsCurrencyShareDonut);
+    window.chartCurrencyShareDonut.render();
+
+
+    // ─── Chart 18: Treasury & Cash Accounts Column Chart ───
+    const treasuryAccounts = [...results].filter(x => x.type === 'BANK' || x.type === 'SAFE')
+        .sort((a, b) => Math.max(b.endingDebitLocal, b.endingCreditLocal) - Math.max(a.endingDebitLocal, a.endingCreditLocal));
+    
+    const treasNames = treasuryAccounts.map(x => x.name);
+    const treasDebits = treasuryAccounts.map(x => x.endingDebitLocal);
+    const treasCredits = treasuryAccounts.map(x => x.endingCreditLocal);
+
+    const optionsTreasuryColumns = {
+        series: [
+            { name: 'سيولة سائلة متاحة (مدين)', data: treasDebits },
+            { name: 'التزامات الخزينة (دائن)', data: treasCredits }
+        ],
+        chart: { type: 'bar', height: 350, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: true } },
+        colors: ['#38bdf8', '#fb7185'],
+        plotOptions: { bar: { horizontal: false, columnWidth: '50%', borderRadius: 6 } },
+        dataLabels: { enabled: false },
+        xaxis: { categories: treasNames.length > 0 ? treasNames : ['لا يوجد خزن/بنوك'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '11px', fontWeight: 'bold' } } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartTreasuryCashColumns) window.chartTreasuryCashColumns.destroy(); } catch(e){}
+    window.chartTreasuryCashColumns = new ApexCharts(document.querySelector("#chart-treasury-cash-columns"), optionsTreasuryColumns);
+    window.chartTreasuryCashColumns.render();
+
+
+    // ─── Chart 19: Dual Currency Cumulative Flow Spectrum Curve ───
+    const cumAccounts = sortedByVolume.slice(0, 15);
+    const cumNames = cumAccounts.map(x => x.name);
+    const cumLocalValues = cumAccounts.map(x => Math.max(x.endingDebitLocal, x.endingCreditLocal));
+    const cumForeignValues = cumAccounts.map(x => {
+        const localVal = Math.max(x.endingDebitLocal, x.endingCreditLocal);
+        return (ledgerExchangeRate > 0) ? (localVal / ledgerExchangeRate) : localVal;
+    });
+
+    const optionsCumulativeDualFlow = {
+        series: [
+            { name: 'إجمالي القيمة بالجنيه السوداني (SDG)', data: cumLocalValues },
+            { name: `إجمالي المعادل بالـ (${ledgerForeignCurrency})`, data: cumForeignValues }
+        ],
+        chart: { type: 'area', height: 360, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: true } },
+        colors: ['#38bdf8', '#fbbf24'],
+        stroke: { curve: 'smooth', width: 3 },
+        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 90, 100] } },
+        xaxis: { categories: cumNames, labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '11px', fontWeight: 'bold' }, rotate: -30 } },
+        yaxis: [
+            { title: { text: 'بالجنيه السوداني SDG', style: { color: '#38bdf8' } }, labels: { style: { colors: '#38bdf8' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+            { opposite: true, title: { text: `بالعملة الأجنبية ${ledgerForeignCurrency}`, style: { color: '#fbbf24' } }, labels: { style: { colors: '#fbbf24' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } }
+        ],
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartCumulativeDualCurrencyFlow) window.chartCumulativeDualCurrencyFlow.destroy(); } catch(e){}
+    window.chartCumulativeDualCurrencyFlow = new ApexCharts(document.querySelector("#chart-cumulative-dual-currency-flow"), optionsCumulativeDualFlow);
+    window.chartCumulativeDualCurrencyFlow.render();
 }
 
 window.switchVisualTab = function(type) {
