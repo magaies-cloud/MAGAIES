@@ -1254,6 +1254,30 @@ function updateColDOMByOrigIdx(origIdx) {
     }
 }
 
+window.updateColAliasCtx = function(origIdx, newAlias) {
+    if (origIdx === undefined || !window.colConfigs || !window.colConfigs[origIdx]) return;
+    const val = String(newAlias || '').trim();
+    if (!val) return;
+    
+    window.colConfigs[origIdx].alias = val;
+    window.colConfigs[origIdx].name = val;
+    
+    const titleSpan = document.querySelector(`.col-config-item[data-orig-idx="${origIdx}"] .col-title`);
+    if (titleSpan) titleSpan.textContent = val;
+
+    if (typeof updateColDOMByOrigIdx === 'function') {
+        updateColDOMByOrigIdx(origIdx);
+    } else if (typeof applyLayoutToDOM === 'function') {
+        applyLayoutToDOM();
+    }
+    
+    saveLayout();
+    
+    if (typeof showToast === 'function') {
+        showToast(`✨ تم تغيير مسمى العمود إلى "${val}" وحفظه نهائياً`, "success");
+    }
+};
+
 function updateColDOM(visualIndex, origIdx) {
     const conf = window.colConfigs[origIdx];
     if (!conf) return;
@@ -1272,6 +1296,21 @@ function updateColDOM(visualIndex, origIdx) {
     const ths = table.querySelectorAll('thead th');
     const th = ths[visualIndex];
     if (th) {
+        const labelText = conf.alias || conf.name;
+        if (labelText) {
+            const resizer = th.querySelector('.resizer');
+            let textUpdated = false;
+            th.childNodes.forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    node.textContent = labelText;
+                    textUpdated = true;
+                }
+            });
+            if (!textUpdated) {
+                th.innerText = labelText;
+                if (resizer) th.appendChild(resizer);
+            }
+        }
         th.style.setProperty('font-weight', fwValHeader, 'important');
         th.style.setProperty('font-size', fsVal, 'important');
         if (colorVal) th.style.setProperty('color', colorVal, 'important'); else th.style.removeProperty('color');
@@ -1777,6 +1816,32 @@ window.getBalancesPresets = function() {
     return [preset1, defaultPreset2, defaultPreset3, defaultPreset4, presetLayout1, presetLayout2, basicPreset];
 };
 
+function ensureLongPressHudExists() {
+    let hud = document.getElementById('long-press-hud');
+    if (!hud) {
+        hud = document.createElement('div');
+        hud.id = 'long-press-hud';
+        hud.style.cssText = `
+            display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+            z-index:9999999; background:rgba(15,23,42,0.96); border:3px solid #eab308;
+            color:#fff; padding:25px 35px; border-radius:24px; box-shadow:0 25px 60px rgba(0,0,0,0.8);
+            text-align:center; min-width:320px; max-width:90%; backdrop-filter:blur(12px);
+            font-family:'Tajawal', sans-serif;
+        `;
+        hud.innerHTML = `
+            <div id="hud-icon" style="font-size:3.5rem; margin-bottom:10px;">⏳</div>
+            <div id="hud-title" style="font-size:1.25rem; font-weight:900; color:#fef08a; margin-bottom:6px;">جاري الحفظ والتثبيت...</div>
+            <div id="hud-desc" style="font-size:0.9rem; opacity:0.9; margin-bottom:18px; line-height:1.4;">استمر بالضغط المتواصل لمدة 8 ثوانٍ لحفظ تصميم التقرير النهائي</div>
+            <div style="background:rgba(255,255,255,0.12); height:14px; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.25); margin-bottom:12px;">
+                <div id="hud-progress-bar" style="background:linear-gradient(90deg, #eab308, #10b981); height:100%; width:0%;"></div>
+            </div>
+            <div id="hud-timer" style="font-weight:900; font-size:1.15rem; color:#38bdf8;">8.0 ثانية متبقية</div>
+        `;
+        document.body.appendChild(hud);
+    }
+    return hud;
+}
+
 window.renderBalancesPresets = function() {
     const container = document.getElementById('main-presets-container');
     if (!container) return;
@@ -1787,8 +1852,20 @@ window.renderBalancesPresets = function() {
     try { presets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
 
     if (!Array.isArray(presets) || presets.length === 0) {
-        const defaultIcons = ['💎 تجريبي', '⭐ تصميم 2', '🎨 تصميم 3', '🔥 تصميم 4', '✨ تصميم 5', '🚀 تصميم 6', '🌟 تصميم 7'];
-        presets = defaultIcons.map(name => ({ name, showInRibbon: true }));
+        const defaultIcons = [
+            '💎 افتراضي 1', 
+            '⭐ افتراضي 2', 
+            '🎨 افتراضي 3', 
+            '🔥 افتراضي 4', 
+            '✨ نموذج 1', 
+            '🚀 نموذج 2', 
+            '🌟 نموذج 3'
+        ];
+        presets = defaultIcons.map((name, i) => ({ 
+            name, 
+            showInRibbon: true,
+            isLocked: i < 4 ? false : false
+        }));
     }
 
     presets.forEach((p, idx) => {
@@ -1802,22 +1879,148 @@ window.renderBalancesPresets = function() {
             color: #f1f5f9; padding: 5px 14px; border-radius: 18px;
             font-family: inherit; font-size: 0.85rem; font-weight: 800;
             cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.18); user-select: none;
         `;
-        btn.innerHTML = p.name;
-        btn.onmouseover = () => {
-            btn.style.background = 'linear-gradient(135deg, rgba(56,189,248,0.3), rgba(2,132,199,0.4))';
-            btn.style.borderColor = '#38bdf8';
-            btn.style.transform = 'translateY(-2px) scale(1.03)';
-            btn.style.boxShadow = '0 6px 16px rgba(56,189,248,0.4)';
+
+        const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
+        let badge = '';
+        if (isDefaultGroup && p.isLocked) {
+            badge = ' 🔒';
+        } else if (!isDefaultGroup) {
+            badge = ' 🔄';
+        }
+
+        btn.innerHTML = p.name + badge;
+        btn.title = isDefaultGroup 
+            ? (p.isLocked ? 'ضبط مصنع نهائي محمي 🔒' : 'اضغط مطولاً (8 ثوانٍ) للحفظ كضبط مصنع نهائي 🔒')
+            : 'اضغط مطولاً (8 ثوانٍ) لحفظ وتحديث النموذج 🔄';
+
+        // 8-second Long Press Handler
+        let pressStartTime = 0;
+        let mainInterval = null;
+        let isTriggered = false;
+
+        const startPress = (e) => {
+            if (e.type === 'mousedown' && e.button !== 0) return;
+            pressStartTime = Date.now();
+            isTriggered = false;
+            ensureLongPressHudExists();
+
+            const isLockedDefault = isDefaultGroup && p.isLocked === true;
+            const hud = document.getElementById('long-press-hud');
+            const hudTitle = document.getElementById('hud-title');
+            const hudDesc = document.getElementById('hud-desc');
+            const hudProgress = document.getElementById('hud-progress-bar');
+            const hudTimer = document.getElementById('hud-timer');
+            const hudIcon = document.getElementById('hud-icon');
+
+            if (hud) {
+                hud.style.display = 'block';
+                if (isLockedDefault) {
+                    hudIcon.innerText = '🛑';
+                    hudTitle.innerText = `ضبط مصنع محمي نهائياً (${p.name})`;
+                    hudDesc.innerText = 'هذا الخيار محمي كـ "ضبط مصنع نهائي" ولا يمكن تغييره أو تعديله نهائياً!';
+                    if (hudProgress) { hudProgress.style.width = '100%'; hudProgress.style.background = '#ef4444'; }
+                    if (hudTimer) hudTimer.innerText = 'محمي من التعديل 🔒';
+                } else if (isDefaultGroup) {
+                    hudIcon.innerText = '🔒';
+                    hudTitle.innerText = `حفظ وقفل (${p.name}) كـ "ضبط مصنع نهائي"`;
+                    hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) حتى يمتلئ الشريط، وسيطلب منك النظام تأكيد الحفظ النهائى المحمي.';
+                    if (hudProgress) { hudProgress.style.width = '0%'; hudProgress.style.background = 'linear-gradient(90deg, #eab308, #10b981)'; }
+                    if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
+                } else {
+                    hudIcon.innerText = '✨';
+                    hudTitle.innerText = `حفظ وتحديث (${p.name})`;
+                    hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) حتى يمتلئ الشريط، وسيطلب منك النظام تأكيد الحفظ والتحديث (يمكن تجديده لاحقاً).';
+                    if (hudProgress) { hudProgress.style.width = '0%'; hudProgress.style.background = 'linear-gradient(90deg, #3b82f6, #10b981)'; }
+                    if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
+                }
+            }
+
+            if (isLockedDefault) {
+                mainInterval = setTimeout(() => {
+                    isTriggered = true;
+                    if (hud) hud.style.display = 'none';
+                    alert(`🛑 الخيار "${p.name}" محمي ومقفل كـ "ضبط مصنع نهائي".\n\nلقد تم حفظ وتثبيت شكل التقرير وتصميمه سابقاً بشكل دائم، ولا يمكن تغييره أو إعادة كتابته نهائياً!`);
+                }, 1000);
+                return;
+            }
+
+            const duration = 8000;
+            const startTime = Date.now();
+
+            mainInterval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const remainingMs = Math.max(0, duration - elapsed);
+                const remainingSec = (remainingMs / 1000).toFixed(1);
+                const percent = Math.min(100, (elapsed / duration) * 100);
+
+                if (hudProgress) hudProgress.style.width = percent + '%';
+                if (hudTimer) hudTimer.innerText = remainingSec + ' ثانية متبقية';
+
+                btn.style.boxShadow = `0 0 15px rgba(16,185,129,0.8)`;
+                btn.style.borderColor = '#10b981';
+                btn.style.background = `linear-gradient(90deg, rgba(16,185,129,0.45) ${percent}%, rgba(255,255,255,0.08) ${percent}%)`;
+
+                if (elapsed >= duration) {
+                    clearInterval(mainInterval);
+                    mainInterval = null;
+                    isTriggered = true;
+                    if (hud) hud.style.display = 'none';
+                    btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
+
+                    setTimeout(() => {
+                        if (isDefaultGroup) {
+                            const confirmSave = confirm(`🔒 اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتثبيت شكل وتصميم التقرير الحالي كـ "ضبط مصنع نهائي" في (${p.name})؟\n\n⚠️ تنبيه هام: بعد التأكيد سيتم قفل وتثبيت هذا التصميم نهائياً ولن يمكن تغييره أو تعديله لاحقاً مهما حصل.`);
+                            if (confirmSave) {
+                                p.isLocked = true;
+                                p.isFactoryDefault = true;
+                                localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
+                                alert(`🔒 تم حفظ وتثبيت شكل وتصميم التقرير في "${p.name}" كـ "ضبط المصنع النهائي" بنجاح!`);
+                                window.renderBalancesPresets();
+                            }
+                        } else {
+                            const confirmSave = confirm(`✨ اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتحديث تصميم التقرير الحالي في (${p.name})؟\n\n(ملاحظة: يمكنك إعادة تعديله وتجديده لاحقاً في أي وقت بالضغط المطول 8 ثوانٍ مجدداً).`);
+                            if (confirmSave) {
+                                p.isLocked = false;
+                                p.updatedAt = new Date().toISOString();
+                                localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
+                                alert(`✨ تم حفظ وتحديث تصميم التقرير في "${p.name}" بنجاح!`);
+                                window.renderBalancesPresets();
+                            }
+                        }
+                    }, 50);
+                }
+            }, 50);
         };
-        btn.onmouseout = () => {
-            btn.style.background = 'rgba(255,255,255,0.08)';
-            btn.style.borderColor = 'rgba(255,255,255,0.25)';
-            btn.style.transform = 'translateY(0) scale(1)';
-            btn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.18)';
+
+        const endPress = (e) => {
+            const duration = Date.now() - pressStartTime;
+            if (mainInterval) {
+                clearInterval(mainInterval);
+                clearTimeout(mainInterval);
+                mainInterval = null;
+            }
+            const hud = document.getElementById('long-press-hud');
+            if (hud) hud.style.display = 'none';
+            btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
+
+            if (isTriggered) {
+                if (e) { e.preventDefault(); e.stopPropagation(); }
+                return false;
+            }
+
+            if (pressStartTime > 0 && duration < 1000) {
+                window.openPresetModal(idx, p.name);
+            }
         };
-        btn.onclick = () => window.openPresetModal(idx, p.name);
+
+        btn.addEventListener('mousedown', startPress);
+        btn.addEventListener('mouseup', endPress);
+        btn.addEventListener('touchstart', startPress, { passive: true });
+        btn.addEventListener('touchend', endPress);
+
+        btn.oncontextmenu = (e) => { e.preventDefault(); return false; };
         container.appendChild(btn);
     });
 
@@ -2941,11 +3144,9 @@ function renderSidebarConfig() {
                 </div>
             </div>
             <div class="col-settings-panel" id="col-settings-${index}">
-                <div class="cfg-row">
-                    <span>مسمى العمود:</span>
-                    <span style="font-weight:bold; color:#38bdf8; font-size:0.85rem; display:flex; align-items:center; gap:4px;">
-                        🔒 ${col.name} (ثابت بالنظام)
-                    </span>
+                <div class="cfg-row" style="margin-bottom:6px; background:rgba(0,0,0,0.25); padding:8px 10px; border-radius:8px; border:1px solid rgba(56,189,248,0.3);">
+                    <span style="font-weight:bold; color:#38bdf8; font-size:0.82rem;">🏷️ مسمى العمود (تعديل باللغة العربية):</span>
+                    <input type="text" class="cfg-input" value="${col.alias || col.name || ''}" placeholder="أدخل مسمى العمود باللغة العربية..." onchange="window.updateColAliasCtx(${origIdx}, this.value)" style="width:200px; font-weight:800; color:#38bdf8; background:rgba(30,41,59,0.95); border:1px solid #38bdf8; border-radius:6px; padding:4px 8px; font-family:inherit; outline:none;" title="اكتب أي اسم تريد تسمية هذا العمود به باللغة العربية">
                 </div>
                 <div class="cfg-row">
                     <span>حجم الخط (تكبير/تصغير):</span>

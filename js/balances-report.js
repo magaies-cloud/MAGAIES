@@ -1263,6 +1263,30 @@ function updateColDOMByOrigIdx(origIdx) {
     }
 }
 
+window.updateColAliasCtx = function(origIdx, newAlias) {
+    if (origIdx === undefined || !window.colConfigs || !window.colConfigs[origIdx]) return;
+    const val = String(newAlias || '').trim();
+    if (!val) return;
+    
+    window.colConfigs[origIdx].alias = val;
+    window.colConfigs[origIdx].name = val;
+    
+    const titleSpan = document.querySelector(`.col-config-item[data-orig-idx="${origIdx}"] .col-title`);
+    if (titleSpan) titleSpan.textContent = val;
+
+    if (typeof updateColDOMByOrigIdx === 'function') {
+        updateColDOMByOrigIdx(origIdx);
+    } else if (typeof applyLayoutToDOM === 'function') {
+        applyLayoutToDOM();
+    }
+    
+    saveLayout();
+    
+    if (typeof showToast === 'function') {
+        showToast(`✨ تم تغيير مسمى العمود إلى "${val}" وحفظه نهائياً`, "success");
+    }
+};
+
 function updateColDOM(visualIndex, origIdx) {
     const conf = window.colConfigs[origIdx];
     if (!conf) return;
@@ -1281,6 +1305,21 @@ function updateColDOM(visualIndex, origIdx) {
     const ths = table.querySelectorAll('thead th');
     const th = ths[visualIndex];
     if (th) {
+        const labelText = conf.alias || conf.name;
+        if (labelText) {
+            const resizer = th.querySelector('.resizer');
+            let textUpdated = false;
+            th.childNodes.forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    node.textContent = labelText;
+                    textUpdated = true;
+                }
+            });
+            if (!textUpdated) {
+                th.innerText = labelText;
+                if (resizer) th.appendChild(resizer);
+            }
+        }
         th.style.setProperty('font-weight', fwValHeader, 'important');
         th.style.setProperty('font-size', fsVal, 'important');
         if (colorVal) th.style.setProperty('color', colorVal, 'important'); else th.style.removeProperty('color');
@@ -3076,11 +3115,9 @@ function renderColumnContextMenu() {
                 </div>
             </div>
             <div class="col-settings-panel" id="col-settings-ctx-${index}">
-                <div class="cfg-row">
-                    <span>مسمى العمود:</span>
-                    <span style="font-weight:bold; color:#38bdf8; font-size:0.85rem; display:flex; align-items:center; gap:4px;">
-                        🔒 ${col.name} (ثابت بالنظام)
-                    </span>
+                <div class="cfg-row" style="margin-bottom:6px; background:rgba(0,0,0,0.25); padding:8px 10px; border-radius:8px; border:1px solid rgba(56,189,248,0.3);">
+                    <span style="font-weight:bold; color:#38bdf8; font-size:0.82rem;">🏷️ مسمى العمود (تعديل باللغة العربية):</span>
+                    <input type="text" class="cfg-input" value="${col.alias || col.name || ''}" placeholder="أدخل مسمى العمود باللغة العربية..." onchange="window.updateColAliasCtx(${origIdx}, this.value)" style="width:200px; font-weight:800; color:#38bdf8; background:rgba(30,41,59,0.95); border:1px solid #38bdf8; border-radius:6px; padding:4px 8px; font-family:inherit; outline:none;" title="اكتب أي اسم تريد تسمية هذا العمود به باللغة العربية">
                 </div>
                 <div class="cfg-row">
                     <span>حجم الخط:</span>

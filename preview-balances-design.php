@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>معاينة وتصميم الأرصدة | Al-Sajana ERP</title>
     <!-- Professional Arabic & Number Fonts Suite -->
-    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;600;800&family=Almarai:wght@400;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;800;900&family=Changa:wght@400;600;800&family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600;800&family=Roboto+Mono:wght@400;600;800&family=Fira+Code:wght@400;600;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;600;800&family=Almarai:wght@400;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;800;900&family=Changa:wght@400;600;800&family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600;800&family=Roboto+Mono:wght@400;600;800&family=Fira+Code:wght@400;600;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style id="dynamic-paper-style">
         @page { size: A4 landscape; margin: 10mm; }
@@ -24,7 +24,7 @@
             --table-border: #cbd5e1;
             --table-header-bg: #e2e8f0;
             --table-bg: #ffffff;
-            --num-font-family: 'JetBrains Mono', monospace;
+            --num-font-family: 'Inter', sans-serif;
         }
         body.dark-mode {
             --bg-page: #0b0f19;
@@ -50,8 +50,10 @@
         .font-newsons { font-family: 'JetBrains Mono', monospace !important; }
         .font-ribot { font-family: 'Roboto Mono', monospace !important; }
         .font-firacode { font-family: 'Fira Code', monospace !important; }
-        .font-ultra { font-family: 'Inter', sans-serif !important; }
-        .font-bolt { font-family: 'Poppins', sans-serif !important; }
+        .font-ultra { font-family: 'Inter', sans-serif !important; font-weight: 400 !important; font-variant-numeric: tabular-nums !important; }
+        .font-jakarta { font-family: 'Plus Jakarta Sans', sans-serif !important; font-variant-numeric: tabular-nums !important; }
+        .font-roboto { font-family: 'Roboto', sans-serif !important; font-variant-numeric: tabular-nums !important; }
+        .font-outfit { font-family: 'Outfit', sans-serif !important; font-variant-numeric: tabular-nums !important; }
 
         /* Hide injected global navigation sidebar/header on preview page */
         .global-sidebar, header.premium-header, .global-header, .navbar {
@@ -102,6 +104,13 @@
         .preset-btn:hover:not(.active) {
             background: rgba(56,189,248,0.25); border-color: #38bdf8; color: #ffffff !important; transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(56,189,248,0.3);
+        }
+        .preset-btn.is-pressing {
+            transform: scale(0.96) translateY(1px) !important;
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.9) !important;
+            border-color: #10b981 !important;
+            user-select: none !important;
+            -webkit-user-select: none !important;
         }
 
         /* Studio Tabs Dark-Gold Header Bar */
@@ -374,6 +383,10 @@
                 <span>نوع الخط:</span>
                 <select id="col-font-select" class="panel-input" onchange="updateSelectedCol('fontFamily', this.value)">
                     <option value="inherit">الافتراضي (افتراضي المستند)</option>
+                    <option value="'Inter', sans-serif">Inter (إنتـر المريح - Normal 400)</option>
+                    <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans (جاكارتا للأرقام)</option>
+                    <option value="'Roboto', sans-serif">Roboto (روبوتو وضوح فائق للأرقام)</option>
+                    <option value="'Outfit', sans-serif">Outfit (أوتفيت العصري)</option>
                     <option value="'Tajawal', sans-serif">Tajawal (تجوال العصري)</option>
                     <option value="'Cairo', sans-serif">Cairo (القاهرة الفاخر)</option>
                     <option value="'Almarai', sans-serif">Almarai (المراعي النظيف)</option>
@@ -381,6 +394,8 @@
                     <option value="'Changa', sans-serif">Changa (شانغا الهندسي)</option>
                     <option value="'Amiri', serif">Amiri (الأميري الكلاسيكي)</option>
                     <option value="'JetBrains Mono', monospace">JetBrains Mono (رقمي برمجيات)</option>
+                    <option value="'Roboto Mono', monospace">Roboto Mono (روبوتو أحادي)</option>
+                    <option value="'Fira Code', monospace">Fira Code (فيرا كود الحسابي)</option>
                 </select>
 
                 <span>لون الخط:</span>
@@ -439,11 +454,13 @@
 
                 <span>خط الأرقام:</span>
                 <select id="num-font-select" class="panel-input" onchange="setNumberFont(this.value)">
-                    <option value="font-newsons" selected>1. New Sons (JetBrains Mono)</option>
-                    <option value="font-ribot">2. Ribot (Roboto Mono)</option>
-                    <option value="font-firacode">3. Fira Code (الحسابي)</option>
-                    <option value="font-ultra">4. Ultra (Inter المريح)</option>
-                    <option value="font-bolt">5. Bolt (Poppins الفاخر)</option>
+                    <option value="font-ultra" selected>1. Inter (إنتـر المريح - Normal 400)</option>
+                    <option value="font-jakarta">2. Plus Jakarta Sans (أفضل خط مالي للأرقام)</option>
+                    <option value="font-roboto">3. Roboto (روبوتو القياسي الأوضح للأرقام)</option>
+                    <option value="font-outfit">4. Outfit (أوتفيت العصري للأرقام)</option>
+                    <option value="font-newsons">5. JetBrains Mono (رقمي برمجيات)</option>
+                    <option value="font-ribot">6. Roboto Mono (روبوتو أحادي)</option>
+                    <option value="font-firacode">7. Fira Code (فيرا كود الحسابي)</option>
                 </select>
             </div>
         </div>
@@ -543,6 +560,34 @@
             <!-- Summary totals row rendered via JS -->
         </tfoot>
     </table>
+</div>
+
+<!-- Long Press HUD Overlay for 8-second Save & Lock -->
+<div id="long-press-hud" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:999999; pointer-events:none; background:rgba(15,23,42,0.96); border:3px solid #eab308; color:#fff; padding:25px 35px; border-radius:24px; box-shadow:0 25px 60px rgba(0,0,0,0.8); text-align:center; min-width:320px; max-width:90%; backdrop-filter:blur(12px);">
+    <div id="hud-icon" style="font-size:3.5rem; margin-bottom:10px;">⏳</div>
+    <div id="hud-title" style="font-size:1.25rem; font-weight:900; color:#fef08a; margin-bottom:6px;">جاري الحفظ والتثبيت...</div>
+    <div id="hud-desc" style="font-size:0.9rem; opacity:0.9; margin-bottom:18px; line-height:1.4;">استمر بالضغط المتواصل لمدة 8 ثوانٍ لحفظ تصميم التقرير النهائي</div>
+    <div style="background:rgba(255,255,255,0.12); height:14px; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.25); margin-bottom:12px;">
+        <div id="hud-progress-bar" style="background:linear-gradient(90deg, #eab308, #10b981); height:100%; width:0%;"></div>
+    </div>
+    <div id="hud-timer" style="font-weight:900; font-size:1.15rem; color:#38bdf8;">8.0 ثانية متبقية</div>
+</div>
+
+<!-- Custom In-Page Save Confirmation Modal -->
+<div id="save-confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(11,15,25,0.85); backdrop-filter:blur(10px); z-index:9999999; align-items:center; justify-content:center; direction:rtl;">
+    <div style="background:#1e293b; border:2px solid #ca8a04; border-radius:20px; padding:26px 30px; width:460px; max-width:90%; text-align:center; color:#fff; box-shadow:0 25px 60px rgba(0,0,0,0.8);">
+        <div id="confirm-modal-icon" style="font-size:3.5rem; margin-bottom:10px;">🔒</div>
+        <h3 id="confirm-modal-title" style="margin:0 0 10px 0; font-size:1.3rem; color:#fef08a; font-weight:900;">تأكيد حفظ تصميم التقرير</h3>
+        <p id="confirm-modal-body" style="font-size:0.95rem; opacity:0.9; line-height:1.6; margin-bottom:24px; color:#cbd5e1;">هل تريد حفظ وتثبيت هذا التصميم؟</p>
+        <div style="display:flex; gap:12px; justify-content:center;">
+            <button type="button" id="confirm-modal-ok-btn" style="flex:1; padding:12px 20px; background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; border-radius:12px; font-weight:900; font-size:1rem; cursor:pointer; box-shadow:0 4px 15px rgba(16,185,129,0.4);">
+                🟢 موافق، حفظ الآن
+            </button>
+            <button type="button" id="confirm-modal-cancel-btn" style="flex:1; padding:12px 20px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#f87171; border-radius:12px; font-weight:900; font-size:1rem; cursor:pointer;">
+                🔴 إلغاء
+            </button>
+        </div>
+    </div>
 </div>
 
 <script src="js/localforage.min.js"></script>

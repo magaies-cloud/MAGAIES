@@ -7,7 +7,7 @@ let filteredData = [];
 let currentPresetIndex = 0;
 let selectedColIndex = null;
 let currentTheme = '';
-let currentFont = 'font-newsons';
+let currentFont = 'font-ultra';
 let currentPaperSize = 'A4';
 let currentOrientation = 'landscape';
 let showHeaderLogo = true;
@@ -311,13 +311,13 @@ function initPresets() {
     // Populate 7 defaults if completely empty
     if (list.length === 0) {
         const presetIcons = [
-            '💎 تجريبي', 
-            '⭐ تصميم 2', 
-            '🎨 تصميم 3', 
-            '🔥 تصميم 4', 
-            '✨ تصميم 5', 
-            '🚀 تصميم 6', 
-            '🌟 تصميم 7'
+            '💎 افتراضي 1', 
+            '⭐ افتراضي 2', 
+            '🎨 افتراضي 3', 
+            '🔥 افتراضي 4', 
+            '✨ نموذج 1', 
+            '🚀 نموذج 2', 
+            '🌟 نموذج 3'
         ];
         for (let i = 0; i < 7; i++) {
             list.push({
@@ -325,13 +325,44 @@ function initPresets() {
                 configs: getDefaultConfigs(),
                 order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 theme: '',
-                font: 'font-newsons',
+                font: 'font-ultra',
                 paperSize: 'A4',
                 orientation: 'landscape',
                 showLogo: true,
                 showInfo: true,
                 showInRibbon: true
             });
+        }
+    } else {
+        // Automatically migrate existing default preset names to the new names requested by user
+        const oldToNewNameMap = {
+            '💎 تجريبي': '💎 افتراضي 1',
+            'تجريبي': '💎 افتراضي 1',
+            'تجربة': '💎 افتراضي 1',
+            '⭐ تصميم 2': '⭐ افتراضي 2',
+            'تصميم 2': '⭐ افتراضي 2',
+            '🎨 تصميم 3': '🎨 افتراضي 3',
+            'تصميم 3': '🎨 افتراضي 3',
+            '🔥 تصميم 4': '🔥 افتراضي 4',
+            'تصميم 4': '🔥 افتراضي 4',
+            '✨ تصميم 5': '✨ نموذج 1',
+            'تصميم 5': '✨ نموذج 1',
+            '🚀 تصميم 6': '🚀 نموذج 2',
+            'تصميم 6': '🚀 نموذج 2',
+            '🌟 تصميم 7': '🌟 نموذج 3',
+            'تصميم 7': '🌟 نموذج 3'
+        };
+
+        let updatedAny = false;
+        list.forEach(p => {
+            if (p && p.name && oldToNewNameMap[p.name.trim()]) {
+                p.name = oldToNewNameMap[p.name.trim()];
+                updatedAny = true;
+            }
+        });
+
+        if (updatedAny) {
+            savePresets(list);
         }
     }
 
@@ -374,10 +405,303 @@ function renderPresetButtons() {
         if (p.showInRibbon === false) return; // Skip if hidden by user
         const btn = document.createElement('button');
         btn.className = 'preset-btn' + (idx === currentPresetIndex ? ' active' : '');
-        btn.innerText = p.name;
-        btn.onclick = () => loadPreset(idx);
+        
+        const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
+        let badge = '';
+        if (isDefaultGroup && p.isLocked) {
+            badge = ' 🔒';
+        } else if (!isDefaultGroup) {
+            badge = ' 🔄';
+        }
+
+        btn.innerText = p.name + badge;
+        btn.title = isDefaultGroup 
+            ? (p.isLocked ? 'ضبط مصنع نهائي محمي 🔒' : 'اضغط مطولاً (8 ثوانٍ) للحفظ كضبط مصنع نهائي 🔒')
+            : 'اضغط مطولاً (8 ثوانٍ) لحفظ وتحديث النموذج 🔄';
+
+        bindPresetButtonLongPress(btn, idx);
         container.appendChild(btn);
     });
+}
+
+let currentPressingBtn = null;
+
+function bindPresetButtonLongPress(btn, idx) {
+    let pressStartTime = 0;
+
+    const startPress = (e) => {
+        if (e.type === 'mousedown' && e.button !== 0) return;
+        pressStartTime = Date.now();
+        isLongPressTriggered = false;
+        currentPressingBtn = btn;
+        btn.classList.add('is-pressing');
+        startLongPressCount(idx, btn);
+    };
+
+    const cancelPress = () => {
+        btn.classList.remove('is-pressing');
+        cancelLongPressCount();
+    };
+
+    const endPress = (e) => {
+        btn.classList.remove('is-pressing');
+        const duration = Date.now() - pressStartTime;
+        const wasTriggered = isLongPressTriggered;
+        cancelLongPressCount();
+
+        if (wasTriggered) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            return false;
+        }
+
+        if (pressStartTime > 0 && duration < 7800) {
+            loadPreset(idx);
+        }
+    };
+
+    btn.addEventListener('mousedown', startPress);
+    btn.addEventListener('mouseup', endPress);
+    btn.addEventListener('mouseleave', cancelPress);
+
+    btn.addEventListener('touchstart', startPress, { passive: true });
+    btn.addEventListener('touchend', endPress);
+    btn.addEventListener('touchcancel', cancelPress);
+
+    btn.oncontextmenu = (e) => {
+        e.preventDefault();
+        return false;
+    };
+}
+
+function startLongPressCount(idx, btn) {
+    cancelLongPressCount();
+    isLongPressTriggered = false;
+    currentPressingBtn = btn;
+
+    const presets = getSavedPresets();
+    const p = presets[idx];
+    if (!p) return;
+
+    const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
+    const isLockedDefault = isDefaultGroup && p.isLocked === true;
+
+    const hud = document.getElementById('long-press-hud');
+    const hudTitle = document.getElementById('hud-title');
+    const hudDesc = document.getElementById('hud-desc');
+    const hudProgress = document.getElementById('hud-progress-bar');
+    const hudTimer = document.getElementById('hud-timer');
+    const hudIcon = document.getElementById('hud-icon');
+
+    if (hud) {
+        hud.style.display = 'block';
+        if (isLockedDefault) {
+            hudIcon.innerText = '🛑';
+            hudTitle.innerText = `ضبط مصنع محمي نهائياً (${p.name})`;
+            hudDesc.innerText = 'هذا الخيار محمي كـ "ضبط مصنع نهائي" ولا يمكن تغييره أو تعديله نهائياً!';
+            if (hudProgress) {
+                hudProgress.style.width = '100%';
+                hudProgress.style.background = '#ef4444';
+            }
+            if (hudTimer) hudTimer.innerText = 'محمي من التعديل 🔒';
+        } else if (isDefaultGroup) {
+            hudIcon.innerText = '🔒';
+            hudTitle.innerText = `حفظ وقفل (${p.name}) كـ "ضبط مصنع نهائي"`;
+            hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) حتى يمتلئ الشريط، وسيطلب منك النظام تأكيد الحفظ النهائى المحمي.';
+            if (hudProgress) {
+                hudProgress.style.width = '0%';
+                hudProgress.style.background = 'linear-gradient(90deg, #eab308, #10b981)';
+            }
+            if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
+        } else {
+            hudIcon.innerText = '✨';
+            hudTitle.innerText = `حفظ وتحديث (${p.name})`;
+            hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) حتى يمتلئ الشريط، وسيطلب منك النظام تأكيد الحفظ والتحديث (يمكن تجديده لاحقاً).';
+            if (hudProgress) {
+                hudProgress.style.width = '0%';
+                hudProgress.style.background = 'linear-gradient(90deg, #3b82f6, #10b981)';
+            }
+            if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
+        }
+    }
+
+    if (isLockedDefault) {
+        longPressInterval = setTimeout(() => {
+            isLongPressTriggered = true;
+            cancelLongPressCount();
+            alert(`🛑 الخيار "${p.name}" محمي ومقفل كـ "ضبط مصنع نهائي".\n\nلقد تم حفظ وتثبيت شكل التقرير وتصميمه سابقاً بشكل دائم، ولا يمكن تغييره أو إعادة كتابته نهائياً!`);
+        }, 1000);
+        return;
+    }
+
+    const duration = 8000;
+    const startTime = Date.now();
+
+    longPressInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const remainingMs = Math.max(0, duration - elapsed);
+        const remainingSec = (remainingMs / 1000).toFixed(1);
+        const percent = Math.min(100, (elapsed / duration) * 100);
+
+        if (hudProgress) hudProgress.style.width = percent + '%';
+        if (hudTimer) hudTimer.innerText = remainingSec + ' ثانية متبقية';
+
+        if (btn) {
+            btn.style.boxShadow = `0 0 15px rgba(16,185,129,0.8)`;
+            btn.style.borderColor = '#10b981';
+            btn.style.background = `linear-gradient(90deg, rgba(16,185,129,0.45) ${percent}%, rgba(255,255,255,0.08) ${percent}%)`;
+        }
+
+        if (elapsed >= duration) {
+            cancelLongPressCount();
+            isLongPressTriggered = true;
+            
+            setTimeout(() => {
+                promptConfirmationAndSave(idx);
+            }, 50);
+        }
+    }, 50);
+}
+
+function cancelLongPressCount() {
+    if (longPressInterval) {
+        clearInterval(longPressInterval);
+        clearTimeout(longPressInterval);
+        longPressInterval = null;
+    }
+    const hud = document.getElementById('long-press-hud');
+    if (hud) hud.style.display = 'none';
+
+    if (currentPressingBtn) {
+        currentPressingBtn.style.boxShadow = '';
+        currentPressingBtn.style.borderColor = '';
+        currentPressingBtn.style.background = '';
+        currentPressingBtn = null;
+    }
+}
+
+function promptConfirmationAndSave(idx) {
+    const presets = getSavedPresets();
+    const p = presets[idx];
+    if (!p) return;
+
+    const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
+
+    if (isDefaultGroup && p.isLocked) {
+        alert(`🛑 الخيار "${p.name}" محمي ومقفل كـ "ضبط مصنع نهائي".\n\nلقد تم حفظ وتثبيت شكل التقرير وتصميمه سابقاً بشكل دائم، ولا يمكن تغييره أو إعادة كتابته نهائياً!`);
+        return;
+    }
+
+    const modal = document.getElementById('save-confirm-modal');
+    const title = document.getElementById('confirm-modal-title');
+    const body = document.getElementById('confirm-modal-body');
+    const icon = document.getElementById('confirm-modal-icon');
+    const okBtn = document.getElementById('confirm-modal-ok-btn');
+    const cancelBtn = document.getElementById('confirm-modal-cancel-btn');
+
+    if (modal && title && body && okBtn && cancelBtn) {
+        modal.style.display = 'flex';
+
+        if (isDefaultGroup) {
+            if (icon) icon.innerText = '🔒';
+            title.innerText = `حفظ وتثبيت ضبط المصنع (${p.name})`;
+            body.innerHTML = `اكتملت الـ 8 ثوانٍ بنجاح! <br><br>هل تريد حفظ وتثبيت شكل وتصميم التقرير الحالي كـ <b>"ضبط مصنع نهائي"</b> في (<b>${p.name}</b>)؟<br><br><span style="color:#ef4444; font-size:0.85rem;">⚠️ تنبيه هام: بعد التثبيت سيتم قفل هذا التصميم نهائياً ولن يمكن تغييره أو تعديله لاحقاً.</span>`;
+        } else {
+            if (icon) icon.innerText = '✨';
+            title.innerText = `حفظ وتحديث التقرير (${p.name})`;
+            body.innerHTML = `اكتملت الـ 8 ثوانٍ بنجاح! <br><br>هل تريد حفظ وتحديث تصميم التقرير الحالي في (<b>${p.name}</b>)؟<br><br><span style="color:#38bdf8; font-size:0.85rem;">(ملاحظة: يمكنك إعادة تعديله وتجديده لاحقاً في أي وقت بالضغط المطول 8 ثوانٍ مجدداً).</span>`;
+        }
+
+        okBtn.onclick = () => {
+            modal.style.display = 'none';
+            executeLongPressSave(idx);
+        };
+
+        cancelBtn.onclick = () => {
+            modal.style.display = 'none';
+        };
+    } else {
+        if (isDefaultGroup) {
+            const confirmSave = confirm(`🔒 اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتثبيت شكل وتصميم التقرير الحالي كـ "ضبط مصنع نهائي" في (${p.name})؟\n\n⚠️ تنبيه هام: بعد التأكيد سيتم قفل وتثبيت هذا التصميم نهائياً ولن يمكن تغييره لاحقاً.`);
+            if (confirmSave) executeLongPressSave(idx);
+        } else {
+            const confirmSave = confirm(`✨ اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتحديث تصميم التقرير الحالي في (${p.name})؟\n\n(ملاحظة: يمكنك إعادة تعديله وتجديده لاحقاً في أي وقت بالضغط 8 ثوانٍ مجدداً).`);
+            if (confirmSave) executeLongPressSave(idx);
+        }
+    }
+}
+
+function executeLongPressSave(idx) {
+    const presets = getSavedPresets();
+    const p = presets[idx];
+    if (!p) return;
+
+    const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
+
+    if (isDefaultGroup) {
+        if (p.isLocked) {
+            alert(`🛑 الزر "${p.name}" محمي ومقفل كـ "ضبط مصنع نهائي".\n\nلقد تم حفظ هذا التصميم وتثبيته سابقاً بشكل دائم ولا يمكن تغييره أو الكتابة عليه نهائياً.`);
+            return;
+        }
+
+        // Lock as Permanent Factory Reset
+        p.configs = JSON.parse(JSON.stringify(columnConfigs));
+        p.order = [...columnOrder];
+        p.theme = currentTheme;
+        p.font = currentFont;
+        p.paperSize = currentPaperSize;
+        p.orientation = currentOrientation;
+        p.showLogo = showHeaderLogo;
+        p.showInfo = showHeaderInfo;
+        p.isLocked = true;
+        p.isFactoryDefault = true;
+
+        savePresets(presets);
+        renderPresetButtons();
+        renderPresetsManagementList();
+
+        try {
+            if (window.DB_STORE && window.getTenantKey) {
+                const tk = window.getTenantKey(PRESETS_STORAGE_KEY);
+                window.DB_STORE[tk] = JSON.stringify(presets);
+            }
+            if (typeof localforage !== 'undefined') {
+                localforage.setItem(PRESETS_STORAGE_KEY, presets);
+            }
+        } catch(e){}
+
+        alert(`🔒 تم حفظ وتثبيت شكل وتصميم التقرير في "${p.name}" كـ "ضبط المصنع النهائي" بنجاح!\n\nيحتفظ هذا الخيار الآن بجميع الأعمدة والخطوط والألوان وخصائص الأرقام والتنسيقات بشكل دائم ومحمي ولا يتغير نهائياً.`);
+    } else {
+        // Model preset (نموذج 1, 2, 3) - Overwritable
+        p.configs = JSON.parse(JSON.stringify(columnConfigs));
+        p.order = [...columnOrder];
+        p.theme = currentTheme;
+        p.font = currentFont;
+        p.paperSize = currentPaperSize;
+        p.orientation = currentOrientation;
+        p.showLogo = showHeaderLogo;
+        p.showInfo = showHeaderInfo;
+        p.isLocked = false;
+        p.updatedAt = new Date().toISOString();
+
+        savePresets(presets);
+        renderPresetButtons();
+        renderPresetsManagementList();
+
+        try {
+            if (window.DB_STORE && window.getTenantKey) {
+                const tk = window.getTenantKey(PRESETS_STORAGE_KEY);
+                window.DB_STORE[tk] = JSON.stringify(presets);
+            }
+            if (typeof localforage !== 'undefined') {
+                localforage.setItem(PRESETS_STORAGE_KEY, presets);
+            }
+        } catch(e){}
+
+        alert(`✨ تم حفظ وتحديث تصميم التقرير في "${p.name}" بنجاح!\n\nتمت أرشفة ونقل التعديلات الحالية إلى هذا النموذج، ويمكنك إعادة تعديله وتحديثه مرة أخرى في أي وقت عن طريق الضغط المطول (8 ثوانٍ).`);
+    }
 }
 
 function renderPresetsManagementList() {
@@ -404,11 +728,22 @@ function renderPresetsManagementList() {
         
         const isCurrent = idx === currentPresetIndex;
         const isVisible = p.showInRibbon !== false;
+        const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
+        
+        let statusBadge = '';
+        if (isDefaultGroup && p.isLocked) {
+            statusBadge = '<span style="color:#eab308; font-weight:900; background:rgba(234,179,8,0.15); padding:3px 10px; border-radius:12px; font-size:0.85rem; border:1px solid rgba(234,179,8,0.4);">🔒 ضبط مصنع نهائي محمي</span>';
+        } else if (isDefaultGroup) {
+            statusBadge = '<span style="color:#64748b; font-weight:800; background:rgba(100,116,139,0.15); padding:3px 10px; border-radius:12px; font-size:0.85rem;">⏳ افتراضي (اضغط 8 ثوانٍ للقفل)</span>';
+        } else {
+            statusBadge = '<span style="color:#38bdf8; font-weight:900; background:rgba(56,189,248,0.15); padding:3px 10px; border-radius:12px; font-size:0.85rem; border:1px solid rgba(56,189,248,0.3);">🔄 نموذج قابل للتحديث</span>';
+        }
 
         card.innerHTML = `
             <div class="panel-group" style="gap:10px;">
                 <span style="font-weight:900; font-size:1rem; background:${isCurrent ? 'linear-gradient(135deg,#10b981,#059669)' : '#ca8a04'}; color:#fff; padding:3px 10px; border-radius:10px; min-width:28px; text-align:center;">${idx + 1}</span>
-                <input type="text" class="panel-input" value="${p.name}" onchange="renamePreset(${idx}, this.value)" style="width:180px; font-weight:800; font-size:0.95rem;">
+                <input type="text" class="panel-input" value="${p.name}" ${p.isLocked ? 'disabled style="opacity:0.8;"' : ''} onchange="renamePreset(${idx}, this.value)" style="width:180px; font-weight:800; font-size:0.95rem;">
+                ${statusBadge}
                 ${isCurrent ? '<span style="color:#10b981; font-weight:900; background:rgba(16,185,129,0.15); padding:3px 10px; border-radius:12px; font-size:0.88rem;">🟢 النشط حالياً</span>' : ''}
             </div>
 
@@ -443,7 +778,13 @@ function togglePresetRibbonVisibility(idx, isChecked) {
 
 function renamePreset(idx, newName) {
     const presets = getSavedPresets();
-    if (presets[idx] && newName.trim()) {
+    if (!presets[idx]) return;
+    if (presets[idx].isLocked) {
+        alert(`🛑 الخيار "${presets[idx].name}" محمي ومقفل كـ "ضبط مصنع نهائي"، ولا يمكن تغيير اسمه نهائياً 🔒.`);
+        renderPresetsManagementList();
+        return;
+    }
+    if (newName.trim()) {
         presets[idx].name = newName.trim();
         savePresets(presets);
         renderPresetButtons();
@@ -454,6 +795,10 @@ function renamePreset(idx, newName) {
 function deletePreset(idx) {
     const presets = getSavedPresets();
     if (!presets[idx]) return;
+    if (presets[idx].isLocked) {
+        alert(`🛑 الخيار "${presets[idx].name}" محمي ومقفل كـ "ضبط مصنع نهائي"، ولا يمكن حذفه نهائياً 🔒.`);
+        return;
+    }
     
     if (confirm(`⚠️ هل أنت تأكد من رغبتك في حذف التخصيص "${presets[idx].name}"؟`)) {
         presets.splice(idx, 1);
@@ -547,28 +892,7 @@ function loadPreset(idx) {
 }
 
 function saveCurrentPreset() {
-    const presets = getSavedPresets();
-    const currentName = presets[currentPresetIndex] ? presets[currentPresetIndex].name : ('تصميم ' + (currentPresetIndex + 1));
-    const newName = prompt("أدخل اسماً لهذا التصميم:", currentName);
-    
-    if (newName !== null) {
-        presets[currentPresetIndex] = {
-            name: newName || currentName,
-            configs: JSON.parse(JSON.stringify(columnConfigs)),
-            order: [...columnOrder],
-            theme: currentTheme,
-            font: currentFont,
-            paperSize: currentPaperSize,
-            orientation: currentOrientation,
-            showLogo: showHeaderLogo,
-            showInfo: showHeaderInfo,
-            showInRibbon: true
-        };
-        savePresets(presets);
-        renderPresetButtons();
-        renderPresetsManagementList();
-        alert('تم حفظ التصميم بنجاح!');
-    }
+    promptConfirmationAndSave(currentPresetIndex);
 }
 
 function toggleSettingsPanel() {
@@ -632,7 +956,7 @@ function setNumberFont(fontClass) {
     const select = document.getElementById('num-font-select');
     if (select) select.value = fontClass;
     if (tbl) {
-        tbl.classList.remove('font-newsons', 'font-ribot', 'font-firacode', 'font-ultra', 'font-bolt');
+        tbl.classList.remove('font-newsons', 'font-ribot', 'font-firacode', 'font-ultra', 'font-bolt', 'font-jakarta', 'font-roboto', 'font-outfit');
         if (fontClass) tbl.classList.add(fontClass);
     }
 }
