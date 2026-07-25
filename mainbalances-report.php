@@ -1357,6 +1357,35 @@ $page_title = 'حساب الارصده الاساسية';
 
                 </div>
 
+                <!-- Charts Row 11: CREDIT LIMITS & DEBT AGING MODELS (مخططات حد الائتمان وأعمار الديون) -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-top: 25px;">
+                    
+                    <!-- Chart 23: Credit Limit vs Debt Used vs Remaining Credit Allowance -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">💳 مقارنة حد الائتمان وسقف المديونية مع المتبقي المتاح (Credit Limit vs Debt Allowance)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.4);">🛡️ سقف الائتمان</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: مقارنة بصرية سريعة لكل عميل بين المديونية الحالية المستهلكة والمتبقي من حد الائتمان</span>
+                        </div>
+                        <div id="chart-credit-limit-vs-debt" style="min-height: 360px;"></div>
+                    </div>
+
+                    <!-- Chart 24: Debt Aging Spectrum Brackets -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">⏳ التوزيع البصري لأعمار الديون والمديونية (Debt Aging Spectrum Brackets)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.4);">⌛ أعمار المديونية</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: تصنيف الديون حسب الأقدمية (0-30 يوم، 31-60 يوم، 61-90 يوم، +90 يوم) بالعملتين</span>
+                        </div>
+                        <div id="chart-debt-aging-spectrum" style="min-height: 360px;"></div>
+                    </div>
+
+                </div>
+
             </div>
 
         </div>

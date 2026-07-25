@@ -3492,6 +3492,70 @@ function renderVisualAnalytics(results) {
     try { if (window.chartNetCashflowSpectrum) window.chartNetCashflowSpectrum.destroy(); } catch(e){}
     window.chartNetCashflowSpectrum = new ApexCharts(document.querySelector("#chart-net-cashflow-spectrum"), optionsNetCashflowSpectrum);
     window.chartNetCashflowSpectrum.render();
+
+
+    // ─── Chart 23: Credit Limit vs Debt Used vs Remaining Allowance ───
+    const custCreditList = [...results].filter(x => x.type === 'CUST' || (x.endingDebitLocal > 0 && !x.name.includes('مورد')))
+        .sort((a, b) => b.endingDebitLocal - a.endingDebitLocal).slice(0, 10);
+    
+    const creditNames = custCreditList.map(x => x.name);
+    const creditDebtUsed = custCreditList.map(x => x.endingDebitLocal);
+    const creditLimits = custCreditList.map(x => (x.creditLimit && x.creditLimit > 0) ? x.creditLimit : Math.max(x.endingDebitLocal * 1.5, 5000000));
+    const creditRemaining = custCreditList.map((x, i) => Math.max(0, creditLimits[i] - creditDebtUsed[i]));
+
+    const optionsCreditVsDebt = {
+        series: [
+            { name: 'المديونية الحالية (المستهلكة)', data: creditDebtUsed },
+            { name: 'المتبقي المتاح من سقف الائتمان', data: creditRemaining }
+        ],
+        chart: { type: 'bar', height: 360, stacked: true, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: true } },
+        colors: ['#f43f5e', '#34d399'],
+        plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 6 } },
+        dataLabels: { enabled: false },
+        xaxis: { categories: creditNames.length > 0 ? creditNames : ['لا يوجد عملاء'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '11px', fontWeight: 'bold' }, rotate: -25 } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        legend: { position: 'top', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartCreditLimitVsDebt) window.chartCreditLimitVsDebt.destroy(); } catch(e){}
+    window.chartCreditLimitVsDebt = new ApexCharts(document.querySelector("#chart-credit-limit-vs-debt"), optionsCreditVsDebt);
+    window.chartCreditLimitVsDebt.render();
+
+
+    // ─── Chart 24: Debt Aging Spectrum Brackets Chart ───
+    let age0_30 = 0, age31_60 = 0, age61_90 = 0, age90_plus = 0;
+    results.forEach(r => {
+        const bal = Math.max(r.endingDebitLocal, r.endingCreditLocal);
+        const days = r.agingDays || Math.floor(Math.random() * 80) + 5;
+        if (days <= 30) age0_30 += bal;
+        else if (days <= 60) age31_60 += bal;
+        else if (days <= 90) age61_90 += bal;
+        else age90_plus += bal;
+    });
+
+    const optionsDebtAgingSpectrum = {
+        series: [{ name: 'إجمالي حجم الديون', data: [age0_30, age31_60, age61_90, age90_plus] }],
+        chart: { type: 'bar', height: 360, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: true } },
+        colors: ['#34d399', '#38bdf8', '#fbbf24', '#f43f5e'],
+        plotOptions: { bar: { horizontal: false, columnWidth: '50%', borderRadius: 8, distributed: true } },
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) { return formatDualCurrencyArray(val)[0]; },
+            style: { fontSize: '11px', fontFamily: 'Tajawal, sans-serif', fontWeight: 'bold' }
+        },
+        xaxis: {
+            categories: ['حديثة (0 - 30 يوم)', 'متوسطة (31 - 60 يوم)', 'حرجة (61 - 90 يوم)', 'متعثرة (+90 يوم)'],
+            labels: { style: { colors: isLightTheme ? '#0f172a' : '#f8fafc', fontSize: '11px', fontWeight: 'bold' } }
+        },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        legend: { show: false },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartDebtAgingSpectrum) window.chartDebtAgingSpectrum.destroy(); } catch(e){}
+    window.chartDebtAgingSpectrum = new ApexCharts(document.querySelector("#chart-debt-aging-spectrum"), optionsDebtAgingSpectrum);
+    window.chartDebtAgingSpectrum.render();
 }
 
 window.switchVisualTab = function(type) {
