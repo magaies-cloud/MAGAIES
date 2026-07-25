@@ -1276,7 +1276,7 @@ $page_title = 'حساب الارصده الاساسية';
                 </div>
 
                 <!-- Charts Row 9: 3 NEW HIGHLY COMPREHENSIVE CHARTS (3 تقارير بصرية جديدة أكثر شمولية) -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
                     
                     <!-- Chart 17: Currency Share Donut -->
                     <div class="v-chart-card">
@@ -1312,6 +1312,47 @@ $page_title = 'حساب الارصده الاساسية';
                             <span style="font-size: 0.8rem; color: #94a3b8;">توضيح بسيط: منحنيات متدرجة ملونة تقارن تراكم مبالغ الجنيه السوداني مقابل المعادل بالدولار الأجنبي</span>
                         </div>
                         <div id="chart-cumulative-dual-currency-flow" style="min-height: 350px;"></div>
+                    </div>
+
+                </div>
+
+                <!-- Charts Row 10: 3 ADDITIONAL COMPREHENSIVE ADVANCED MODELS (3 نماذج إضافية شاملة) -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px;">
+                    
+                    <!-- Chart 20: Pyramidal Distribution of Debts and Credits -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🔺 الهرم المزدوج لتركز الحقوق والالتزامات (Debts Pyramidal Distribution)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.2); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.4);">🔺 الهرم المزدوج</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: توزيع هرمي متقابل لأكبر الذمم المدينة والدائنة بالعملتين</span>
+                        </div>
+                        <div id="chart-pyramid-debt-credit" style="min-height: 340px;"></div>
+                    </div>
+
+                    <!-- Chart 21: Category Average Balance Bar Chart -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📊 متوسط رصيد الحساب الواحدة في كل فئة (Category Average Balance)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.4);">📐 متوسطات الفئات</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يُظهر متوسط الحجم المالي للحساب الواحد لدى العملاء والموردين والخزن</span>
+                        </div>
+                        <div id="chart-category-avg-balance" style="min-height: 340px;"></div>
+                    </div>
+
+                    <!-- Chart 22: Net Cashflow Spectrum Curve -->
+                    <div class="v-chart-card" style="grid-column: span 1 / -1;">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.1rem; font-weight: 900;">🌊 منحنى التوازن وتدفق الصافي التراكمي الشامل (Net Cashflow Spectrum Curve)</h4>
+                                <span style="font-size: 0.75rem; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 4px 12px; border-radius: 12px; font-weight: 900; border: 1px solid rgba(56, 189, 248, 0.4);">🌊 التوازن الصافي</span>
+                            </div>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">توضيح بسيط: منحنى انسيابي متدرج يعكس الصافي الكلي المتبقي في المؤسسة بالعملتين فوراً</span>
+                        </div>
+                        <div id="chart-net-cashflow-spectrum" style="min-height: 360px;"></div>
                     </div>
 
                 </div>

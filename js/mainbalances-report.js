@@ -2939,9 +2939,9 @@ function renderVisualAnalytics(results) {
         legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
         theme: { mode: chartThemeMode }
     };
-    try { if (chartHollowDonutCreditors) chartHollowDonutCreditors.destroy(); } catch(e){}
-    chartHollowDonutCreditors = new ApexCharts(document.querySelector("#chart-hollow-donut-creditors"), optionsCreditorsDonut);
-    chartHollowDonutCreditors.render();
+    try { if (window.chartHollowDonutCreditors) window.chartHollowDonutCreditors.destroy(); } catch(e){}
+    window.chartHollowDonutCreditors = new ApexCharts(document.querySelector("#chart-hollow-donut-top-creditors"), optionsCreditorsDonut);
+    window.chartHollowDonutCreditors.render();
 
 
     // ─── Chart 7: Horizontal Bar Chart - Top 10 Accounts Volume Ranking ───
@@ -3209,20 +3209,40 @@ function renderVisualAnalytics(results) {
     window.chartTreemapAccounts.render();
 
 
-    // ─── Chart 13: Waterfall Net Balance ───
+    // ─── Chart 15: Waterfall Net Balance Impact ───
     const topDebtorsWaterfall = [...results].filter(x => x.endingDebitLocal > 0).sort((a, b) => b.endingDebitLocal - a.endingDebitLocal).slice(0, 7);
     const topCreditorsWaterfall = [...results].filter(x => x.endingCreditLocal > 0).sort((a, b) => b.endingCreditLocal - a.endingCreditLocal).slice(0, 7);
     
-    let waterfallData = [];
-    topDebtorsWaterfall.forEach(d => waterfallData.push({ x: d.name, y: d.endingDebitLocal }));
-    topCreditorsWaterfall.forEach(c => waterfallData.push({ x: c.name, y: -c.endingCreditLocal }));
+    let waterfallNames = [];
+    let waterfallValues = [];
+    topDebtorsWaterfall.forEach(d => {
+        waterfallNames.push(d.name + ' (حق لك)');
+        waterfallValues.push(d.endingDebitLocal);
+    });
+    topCreditorsWaterfall.forEach(c => {
+        waterfallNames.push(c.name + ' (التزام عليك)');
+        waterfallValues.push(-c.endingCreditLocal);
+    });
     
     const optionsWaterfall = {
-        series: [{ name: 'التأثير على الصافي', data: waterfallData }],
-        chart: { type: 'waterfall', height: 380, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        dataLabels: { enabled: true, formatter: function(val) { return (val / 1000).toFixed(0) + 'K'; }, style: { fontSize: '10px' } },
-        xaxis: { type: 'category', labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'Tajawal' }, rotate: -45 } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        series: [{ name: 'التأثير المالي على الصافي', data: waterfallValues }],
+        chart: { type: 'bar', height: 380, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#10b981'],
+        plotOptions: {
+            bar: {
+                colors: {
+                    ranges: [
+                        { from: -9999999999, to: -1, color: '#f43f5e' },
+                        { from: 0, to: 9999999999, color: '#10b981' }
+                    ]
+                },
+                columnWidth: '60%',
+                borderRadius: 6
+            }
+        },
+        dataLabels: { enabled: true, formatter: function(val) { return (val / 1000).toFixed(0) + 'K'; }, style: { fontSize: '10px', colors: ['#ffffff'] } },
+        xaxis: { categories: waterfallNames, labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontFamily: 'Tajawal, sans-serif' }, rotate: -35 } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono, monospace' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
         tooltip: { y: { formatter: function(val) { return formatDualCurrencyLine(Math.abs(val)); } } },
         theme: { mode: chartThemeMode }
     };
@@ -3341,6 +3361,101 @@ function renderVisualAnalytics(results) {
     try { if (window.chartCumulativeDualCurrencyFlow) window.chartCumulativeDualCurrencyFlow.destroy(); } catch(e){}
     window.chartCumulativeDualCurrencyFlow = new ApexCharts(document.querySelector("#chart-cumulative-dual-currency-flow"), optionsCumulativeDualFlow);
     window.chartCumulativeDualCurrencyFlow.render();
+
+
+    // ─── Chart 20: Pyramidal Distribution of Debts & Credits ───
+    const topDebtorsPyr = [...results].filter(x => x.endingDebitLocal > 0).sort((a, b) => b.endingDebitLocal - a.endingDebitLocal).slice(0, 8);
+    const topCreditorsPyr = [...results].filter(x => x.endingCreditLocal > 0).sort((a, b) => b.endingCreditLocal - a.endingCreditLocal).slice(0, 8);
+    
+    const pyrCategories = [];
+    const pyrDebits = [];
+    const pyrCredits = [];
+    const maxPyrCount = Math.max(topDebtorsPyr.length, topCreditorsPyr.length);
+    for (let i = 0; i < maxPyrCount; i++) {
+        const d = topDebtorsPyr[i];
+        const c = topCreditorsPyr[i];
+        pyrCategories.push(d ? d.name : (c ? c.name : `مستوى ${i+1}`));
+        pyrDebits.push(d ? d.endingDebitLocal : 0);
+        pyrCredits.push(c ? -c.endingCreditLocal : 0);
+    }
+
+    const optionsPyramid = {
+        series: [
+            { name: 'حقوق مدينة (لك)', data: pyrDebits },
+            { name: 'التزامات دائنة (عليك)', data: pyrCredits }
+        ],
+        chart: { type: 'bar', height: 350, stacked: true, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#34d399', '#fb7185'],
+        plotOptions: { bar: { horizontal: true, barHeight: '60%' } },
+        dataLabels: { enabled: false },
+        stroke: { width: 1, colors: ['#fff'] },
+        grid: { xaxis: { lines: { show: true } } },
+        xaxis: { categories: pyrCategories, labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' }, formatter: val => Math.abs(val).toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#1e293b' : '#cbd5e1', fontSize: '11px' } } },
+        tooltip: { y: { formatter: val => formatDualCurrencyLine(Math.abs(val)) } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartPyramidDebtCredit) window.chartPyramidDebtCredit.destroy(); } catch(e){}
+    window.chartPyramidDebtCredit = new ApexCharts(document.querySelector("#chart-pyramid-debt-credit"), optionsPyramid);
+    window.chartPyramidDebtCredit.render();
+
+
+    // ─── Chart 21: Category Average Balance Bar Chart ───
+    const catAvgDebits = [
+        categorySums['CUST'].count > 0 ? categorySums['CUST'].debit / categorySums['CUST'].count : 0,
+        categorySums['SUPP'].count > 0 ? categorySums['SUPP'].debit / categorySums['SUPP'].count : 0,
+        categorySums['BANK'].count > 0 ? categorySums['BANK'].debit / categorySums['BANK'].count : 0,
+        categorySums['SAFE'].count > 0 ? categorySums['SAFE'].debit / categorySums['SAFE'].count : 0,
+        categorySums['EXP'].count > 0 ? categorySums['EXP'].debit / categorySums['EXP'].count : 0
+    ];
+    const catAvgCredits = [
+        categorySums['CUST'].count > 0 ? categorySums['CUST'].credit / categorySums['CUST'].count : 0,
+        categorySums['SUPP'].count > 0 ? categorySums['SUPP'].credit / categorySums['SUPP'].count : 0,
+        categorySums['BANK'].count > 0 ? categorySums['BANK'].credit / categorySums['BANK'].count : 0,
+        categorySums['SAFE'].count > 0 ? categorySums['SAFE'].credit / categorySums['SAFE'].count : 0,
+        categorySums['EXP'].count > 0 ? categorySums['EXP'].credit / categorySums['EXP'].count : 0
+    ];
+
+    const optionsCategoryAvg = {
+        series: [
+            { name: 'متوسط رصيد المدين', data: catAvgDebits },
+            { name: 'متوسط رصيد الدائن', data: catAvgCredits }
+        ],
+        chart: { type: 'bar', height: 350, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#10b981', '#f43f5e'],
+        plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 6 } },
+        dataLabels: { enabled: false },
+        xaxis: { categories: ['العملاء', 'الموردين', 'البنوك', 'الخزن', 'المصروفات'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '11px', fontWeight: 'bold' } } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartCategoryAvgBalance) window.chartCategoryAvgBalance.destroy(); } catch(e){}
+    window.chartCategoryAvgBalance = new ApexCharts(document.querySelector("#chart-category-avg-balance"), optionsCategoryAvg);
+    window.chartCategoryAvgBalance.render();
+
+
+    // ─── Chart 22: Net Cashflow Spectrum Curve ───
+    let cumNetBalance = 0;
+    const cumNetSeries = sortedByVolume.slice(0, 15).map(x => {
+        cumNetBalance += (x.endingDebitLocal - x.endingCreditLocal);
+        return cumNetBalance;
+    });
+
+    const optionsNetCashflowSpectrum = {
+        series: [{ name: 'التوازن التراكمي الصافي', data: cumNetSeries }],
+        chart: { type: 'area', height: 370, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: true } },
+        colors: ['#38bdf8'],
+        stroke: { curve: 'smooth', width: 3 },
+        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.05, stops: [0, 90, 100] } },
+        xaxis: { categories: sortedByVolume.slice(0, 15).map(x => x.name), labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '11px', fontWeight: 'bold' }, rotate: -30 } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartNetCashflowSpectrum) window.chartNetCashflowSpectrum.destroy(); } catch(e){}
+    window.chartNetCashflowSpectrum = new ApexCharts(document.querySelector("#chart-net-cashflow-spectrum"), optionsNetCashflowSpectrum);
+    window.chartNetCashflowSpectrum.render();
 }
 
 window.switchVisualTab = function(type) {
