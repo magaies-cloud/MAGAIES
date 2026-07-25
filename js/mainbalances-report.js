@@ -1883,16 +1883,11 @@ window.renderBalancesPresets = function() {
         `;
 
         const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
-        let badge = '';
-        if (isDefaultGroup && p.isLocked) {
-            badge = ' 🔒';
-        } else if (!isDefaultGroup) {
-            badge = ' 🔄';
-        }
+        let badge = isDefaultGroup ? ' ⭐' : ' 🔄';
 
         btn.innerHTML = p.name + badge;
         btn.title = isDefaultGroup 
-            ? (p.isLocked ? 'ضبط مصنع نهائي محمي 🔒' : 'اضغط مطولاً (8 ثوانٍ) للحفظ كضبط مصنع نهائي 🔒')
+            ? 'اضغط مطولاً (8 ثوانٍ) لحفظ وتحديث ضبط المصنع ⭐'
             : 'اضغط مطولاً (8 ثوانٍ) لحفظ وتحديث النموذج 🔄';
 
         // 8-second Long Press Handler

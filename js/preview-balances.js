@@ -428,6 +428,18 @@ function initPresets() {
         }
     }
 
+    // Unlock all presets so they remain 100% editable & re-savable at any time without restriction
+    let unlockCount = 0;
+    list.forEach(p => {
+        if (p && p.isLocked) {
+            p.isLocked = false;
+            unlockCount++;
+        }
+    });
+    if (unlockCount > 0) {
+        savePresets(list);
+    }
+
     // Enforce max limit of 7
     if (list.length > MAX_PRESETS_LIMIT) {
         list = list.slice(0, MAX_PRESETS_LIMIT);
@@ -680,7 +692,7 @@ function executeLongPressSave(idx) {
     const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
 
     if (isDefaultGroup) {
-        // Lock as Permanent Factory Reset with updated settings
+        // Save updated Factory Reset settings without hard-locking future edits
         p.configs = JSON.parse(JSON.stringify(columnConfigs));
         p.order = [...columnOrder];
         p.theme = currentTheme;
@@ -689,8 +701,9 @@ function executeLongPressSave(idx) {
         p.orientation = currentOrientation;
         p.showLogo = showHeaderLogo;
         p.showInfo = showHeaderInfo;
-        p.isLocked = true;
+        p.isLocked = false;
         p.isFactoryDefault = true;
+        p.updatedAt = new Date().toISOString();
 
         savePresets(presets);
         renderPresetButtons();
@@ -706,7 +719,7 @@ function executeLongPressSave(idx) {
             }
         } catch(e){}
 
-        alert(`🔒 تم حفظ وتثبيت شكل وتصميم التقرير في "${p.name}" كـ "ضبط المصنع النهائي" بنجاح!\n\nيحتفظ هذا الخيار الآن بجميع الأعمدة والخطوط والألوان وخصائص الأرقام والتنسيقات بشكل دائم ومحمي ولا يتغير نهائياً.`);
+        alert(`⭐ تم حفظ وتثبيت التعديلات الجديدة في "${p.name}" كـ "ضبط المصنع" بنجاح!\n\n(ملاحظة: جميع التنسيقات الجديدة محفوظة الآن، وتظل مجهزة لإعادة التعديل والتحديث مجدداً في أي وقت تعود فيه إلي هذا الخيار).`);
     } else {
         // Model preset (نموذج 1, 2, 3) - Overwritable
         p.configs = JSON.parse(JSON.stringify(columnConfigs));
