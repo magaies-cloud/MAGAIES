@@ -460,7 +460,11 @@ function initHeader() {
     document.getElementById('hdr-inv-no').value = invNo;
 
     // Date
-    const today = new Date().toISOString().split('T')[0];
+    const __d = new Date();
+    const __y = __d.getFullYear();
+    const __m = String(__d.getMonth() + 1).padStart(2, '0');
+    const __day = String(__d.getDate()).padStart(2, '0');
+    const today = `${__y}-${__m}-${__day}`;
     document.getElementById('hdr-date').value = today;
 }
 
@@ -2319,6 +2323,7 @@ function submitInvoice(ignoreWarnings = false) {
         invoiceNo: committedNo,
         timestamp: new Date().toISOString(),
         date: document.getElementById('hdr-date').value,
+        time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
         customer: document.getElementById('hdr-customer').value,
         supplierName: supplierSearchEl ? supplierSearchEl.value : '',
         saleType: currentSaleType,

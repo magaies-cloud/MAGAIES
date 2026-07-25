@@ -1,9 +1,11 @@
 <?php
-$content = file_get_contents(__DIR__ . '/balances-report.php');
-$lines = explode("\n", $content);
-foreach($lines as $i => $line) {
-    if(stripos($line, 'preset') !== false || strpos($line, 'نموذج') !== false) {
-        echo ($i+1) . ": " . htmlspecialchars($line) . "<br>\n";
+$files = glob("c:/xampp/htdocs/ELSAJANA2/magaies/js/*.js");
+foreach($files as $file) {
+    $lines = file($file);
+    foreach($lines as $num => $line) {
+        if(stripos($line, 'applyPresetGL') !== false) {
+            echo basename($file) . ":" . ($num+1) . ":" . trim($line) . "\n";
+        }
     }
 }
-echo "Done";
+?>

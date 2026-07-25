@@ -61,6 +61,7 @@ function saveVoucher() {
     const voucher = {
         id: document.getElementById('serial-number').innerText,
         date: document.getElementById('current-date').innerText,
+        time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
         accountId: accountId,
         accountName: document.getElementById('from-account-search').value,
         costCenter: document.getElementById('cost-center').value,

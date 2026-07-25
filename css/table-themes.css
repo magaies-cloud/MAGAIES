@@ -204,6 +204,18 @@
     font-weight: 700 !important;
     font-variant-numeric: tabular-nums;
 }
+.num-font-tahoma {
+    font-family: 'Tahoma', 'Segoe UI', sans-serif;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    font-variant-numeric: tabular-nums;
+}
+.num-font-arial {
+    font-family: 'Arial', 'Helvetica', sans-serif;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    font-variant-numeric: tabular-nums;
+}
 
 /* ─── ELEGANT FONT CHIPS (UI) ─── */
 .font-chips-container {

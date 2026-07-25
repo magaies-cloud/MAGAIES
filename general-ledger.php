@@ -103,7 +103,7 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         .v-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .v-card-title { font-size: 0.8rem; font-weight: bold; color: #94a3b8; }
         :root.light-theme .v-card-title { color: #64748b !important; }
-        .v-card-value { font-size: 1.35rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; color: #f8fafc; margin-bottom: 10px; }
+        .v-card-value { font-size: 1.50rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; color: #f8fafc; margin-bottom: 10px; }
         :root.light-theme .v-card-value { color: #0f172a !important; }
 
         .v-card-trend { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
@@ -703,7 +703,7 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             color: #e2e8f0; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 8px; transition: background 0.15s;
         }
         .autocomplete-list li:hover, .autocomplete-list li.active { background: rgba(192,132,252,0.15); color: #c084fc; }
-        .autocomplete-list li .ac-badge { font-size: 0.72rem; padding: 2px 6px; border-radius: 6px; background: rgba(255,255,255,0.08); }
+        .autocomplete-list li .ac-badge { font-size: 0.85rem; padding: 2px 6px; border-radius: 6px; background: rgba(255,255,255,0.08); }
         .selected-account-chip {
             display: none; align-items: center; gap: 10px; 
             background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(109, 40, 217, 0.2));
@@ -893,7 +893,7 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         }
 
         /* SETTINGS SIDEBAR CSS */
-        .sidebar-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .sidebar-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:transparent; z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .sidebar-overlay.active { opacity: 1; pointer-events: all; }
         
         .settings-sidebar { position: fixed; top: 10%; left: 50%; transform: translateX(-50%); width:450px; height:80%; background: rgba(15,23,42,0.95); border: 1px solid rgba(168,85,247,0.5); box-shadow: 0 15px 50px rgba(0,0,0,0.7); z-index: 10001; display: none; flex-direction: column; backdrop-filter: blur(20px); border-radius: 12px; resize: both; overflow: hidden; min-width: 300px; min-height: 400px; }
@@ -1371,10 +1371,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         </button>
 
         <!-- النماذج الافتراضية -->
-        <button class="magic-btn magic-preset magic-preset-1" id="btn-preset-1" onclick="applyPresetGL(1)">افتراضي 1</button>
-        <button class="magic-btn magic-preset magic-preset-2" id="btn-preset-2" onclick="applyPresetGL(2)">افتراضي 2</button>
-        <button class="magic-btn magic-preset magic-preset-3" id="btn-preset-3" onclick="applyPresetGL(3)">افتراضي 3</button>
-        <button class="magic-btn magic-preset magic-preset-4" id="btn-preset-4" onclick="applyPresetGL(4)">افتراضي 4</button>
+        <button class="magic-btn magic-preset magic-preset-1" id="btn-preset-1" onclick="applyPresetGL(1)" onmousedown="startPresetSave(1)" onmouseup="stopPresetSave(1)" onmouseleave="stopPresetSave(1)" oncontextmenu="return false;" title="اضغط مطولاً لحفظ التصميم الحالي بشكل نهائي في قاعدة البيانات">افتراضي 1</button>
+        <button class="magic-btn magic-preset magic-preset-2" id="btn-preset-2" onclick="applyPresetGL(2)" onmousedown="startPresetSave(2)" onmouseup="stopPresetSave(2)" onmouseleave="stopPresetSave(2)" oncontextmenu="return false;" title="اضغط مطولاً لحفظ التصميم الحالي بشكل نهائي في قاعدة البيانات">افتراضي 2</button>
+        <button class="magic-btn magic-preset magic-preset-3" id="btn-preset-3" onclick="applyPresetGL(3)" onmousedown="startPresetSave(3)" onmouseup="stopPresetSave(3)" onmouseleave="stopPresetSave(3)" oncontextmenu="return false;" title="اضغط مطولاً لحفظ التصميم الحالي بشكل نهائي في قاعدة البيانات">افتراضي 3</button>
+        <button class="magic-btn magic-preset magic-preset-4" id="btn-preset-4" onclick="applyPresetGL(4)" onmousedown="startPresetSave(4)" onmouseup="stopPresetSave(4)" onmouseleave="stopPresetSave(4)" oncontextmenu="return false;" title="اضغط مطولاً لحفظ التصميم الحالي بشكل نهائي في قاعدة البيانات">افتراضي 4</button>
         
         <!-- النماذج المخصصة -->
         <button class="magic-btn magic-model magic-model-1" id="btn-preset-m1" onclick="applyPresetGL('m1')" onmousedown="startModelSave('m1')" onmouseup="stopModelSave()" onmouseleave="stopModelSave()" oncontextmenu="return false;" title="اضغط 8 ثوانٍ لحفظ التنسيق الحالي">نموذج 1</button>
@@ -1449,7 +1449,7 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         .card-balance:hover { box-shadow: 0 0 35px rgba(99, 102, 241, 0.7), inset 0 2px 4px rgba(255,255,255,0.4); border-color: rgba(99, 102, 241, 0.9); }
 
         .s-label {
-            font-size: 1.05rem;
+            font-size: 1.25rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -1612,7 +1612,7 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
         <div class="hub-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
             <div style="display: flex; align-items: center; gap: 12px;">
                 <div style="width: 14px; height: 14px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 15px #38bdf8; animation: pulse 2s infinite;"></div>
-                <h3 style="margin: 0; font-size: 1.35rem; font-weight: 900; color: #f8fafc; letter-spacing: -0.5px;">
+                <h3 style="margin: 0; font-size: 1.50rem; font-weight: 900; color: #f8fafc; letter-spacing: -0.5px;">
                     📈 التقرير البصري التحليلي للحركات وهيكل دفتر الأستاذ العام
                 </h3>
                 <span class="hub-badge" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 800;">
@@ -1704,10 +1704,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مجوفة: أين تتوزع أنواع المعاملات والمستندات؟</h4>
-                        <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">💡 هيكل المستندات</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.25rem; font-weight: 900;">🍩 كعكة مجوفة: أين تتوزع أنواع المعاملات والمستندات؟</h4>
+                        <span style="font-size: 0.85rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">💡 هيكل المستندات</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يوضح لك الفئة الأكثر استخداماً (مبيعات، مشتريات، مقبوضات، مدفوعات)</span>
+                    <span style="font-size: 0.90rem; color: #94a3b8;">توضيح بسيط: يوضح لك الفئة الأكثر استخداماً (مبيعات، مشتريات، مقبوضات، مدفوعات)</span>
                 </div>
                 <div id="chart-hollow-donut-categories" style="min-height: 320px;"></div>
             </div>
@@ -1716,10 +1716,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مفرغة: أضخم 5 قيود وتدفقات مدينة (عليها)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">🎯 أعلى المدينات</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.25rem; font-weight: 900;">🍩 كعكة مفرغة: أضخم 5 قيود وتدفقات مدينة (عليها)</h4>
+                        <span style="font-size: 0.85rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">🎯 أعلى المدينات</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يظهر أكبر القيود المالية الصادرة والتي تشكل أضخم المبالغ</span>
+                    <span style="font-size: 0.90rem; color: #94a3b8;">توضيح بسيط: يظهر أكبر القيود المالية الصادرة والتي تشكل أضخم المبالغ</span>
                 </div>
                 <div id="chart-hollow-donut-top-debtors" style="min-height: 320px;"></div>
             </div>
@@ -1733,10 +1733,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card" style="grid-column: span 1 / -1;">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📈 المنحنى المتدرج لحركة الأرصدة (Balance Spectrum Curve)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">🌊 انسيابية الحركات</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.25rem; font-weight: 900;">📈 المنحنى المتدرج لحركة الأرصدة (Balance Spectrum Curve)</h4>
+                        <span style="font-size: 0.85rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">🌊 انسيابية الحركات</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: منحنى سلس يوضح صعود وهبوط الرصيد مع كل حركة مالية</span>
+                    <span style="font-size: 0.90rem; color: #94a3b8;">توضيح بسيط: منحنى سلس يوضح صعود وهبوط الرصيد مع كل حركة مالية</span>
                 </div>
                 <div id="chart-curved-line-spectrum" style="min-height: 330px;"></div>
             </div>
@@ -1750,10 +1750,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📊 أعمدة المقارنة المزدوجة: المدين (🟢) ضد الدائن (🔴)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">⚖️ مقارنة الأطراف</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.25rem; font-weight: 900;">📊 أعمدة المقارنة المزدوجة: المدين (🟢) ضد الدائن (🔴)</h4>
+                        <span style="font-size: 0.85rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">⚖️ مقارنة الأطراف</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يظهر بوضوح الفرق بين المقبوضات والمدفوعات لكل نوع مستند</span>
+                    <span style="font-size: 0.90rem; color: #94a3b8;">توضيح بسيط: يظهر بوضوح الفرق بين المقبوضات والمدفوعات لكل نوع مستند</span>
                 </div>
                 <div id="chart-bidirectional-bar" style="min-height: 320px;"></div>
             </div>
@@ -1762,10 +1762,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🧭 عدّاد ومقياس صحة ومأمونية السيولة (Liquidity Health Gauge)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(244, 63, 94, 0.18); color: #fb7185; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(244, 63, 94, 0.3);">🛡️ مؤشر الأمان الكلي</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.25rem; font-weight: 900;">🧭 عدّاد ومقياس صحة ومأمونية السيولة (Liquidity Health Gauge)</h4>
+                        <span style="font-size: 0.85rem; background: rgba(244, 63, 94, 0.18); color: #fb7185; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(244, 63, 94, 0.3);">🛡️ مؤشر الأمان الكلي</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: نسبة مئوية مباشرة تعكس أمان الاستقرار المالي للحركات</span>
+                    <span style="font-size: 0.90rem; color: #94a3b8;">توضيح بسيط: نسبة مئوية مباشرة تعكس أمان الاستقرار المالي للحركات</span>
                 </div>
                 <div id="chart-semicircle-gauge" style="min-height: 320px;"></div>
             </div>
@@ -1779,10 +1779,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مجوفة: أضخم 5 قيود دائنة (عليها)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(239, 68, 68, 0.18); color: #f87171; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(239, 68, 68, 0.3);">🔻 أعلى الدائنيات</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.25rem; font-weight: 900;">🍩 كعكة مجوفة: أضخم 5 قيود دائنة (عليها)</h4>
+                        <span style="font-size: 0.85rem; background: rgba(239, 68, 68, 0.18); color: #f87171; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(239, 68, 68, 0.3);">🔻 أعلى الدائنيات</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يوضح أضخم السندات والقيود الدائنة لتتبع المصروفات والالتزامات</span>
+                    <span style="font-size: 0.90rem; color: #94a3b8;">توضيح بسيط: يوضح أضخم السندات والقيود الدائنة لتتبع المصروفات والالتزامات</span>
                 </div>
                 <div id="chart-hollow-donut-top-creditors" style="min-height: 320px;"></div>
             </div>
@@ -1791,10 +1791,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📊 أعمدة أفقية هرمية: ترتيب أضخم 10 قيود مالية</h4>
-                        <span style="font-size: 0.72rem; background: rgba(6, 182, 212, 0.18); color: #22d3ee; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(6, 182, 212, 0.3);">👑 ترتيب الحركات</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.25rem; font-weight: 900;">📊 أعمدة أفقية هرمية: ترتيب أضخم 10 قيود مالية</h4>
+                        <span style="font-size: 0.85rem; background: rgba(6, 182, 212, 0.18); color: #22d3ee; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(6, 182, 212, 0.3);">👑 ترتيب الحركات</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: شريط أفقي يُظهر أطول الأعمدة للمعاملات الأكثر حجماً في التقرير</span>
+                    <span style="font-size: 0.90rem; color: #94a3b8;">توضيح بسيط: شريط أفقي يُظهر أطول الأعمدة للمعاملات الأكثر حجماً في التقرير</span>
                 </div>
                 <div id="chart-horizontal-top-bar" style="min-height: 320px;"></div>
             </div>
@@ -1808,10 +1808,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🌊 منحنى المساحة المتدرجة الممتلئة (Fluid Area Curve)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">💧 المساحة التراكمية</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.25rem; font-weight: 900;">🌊 منحنى المساحة المتدرجة الممتلئة (Fluid Area Curve)</h4>
+                        <span style="font-size: 0.85rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">💧 المساحة التراكمية</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: مساحة ملونة انسيابية مريحة للعين تعكس التدفق التراكمي</span>
+                    <span style="font-size: 0.90rem; color: #94a3b8;">توضيح بسيط: مساحة ملونة انسيابية مريحة للعين تعكس التدفق التراكمي</span>
                 </div>
                 <div id="chart-cumulative-area-fluid" style="min-height: 320px;"></div>
             </div>
@@ -1820,10 +1820,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🎯 مخطط الرادار الخماسي: التوازن المالي للأقسام</h4>
-                        <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">🕸️ خريطة الرادار</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.25rem; font-weight: 900;">🎯 مخطط الرادار الخماسي: التوازن المالي للأقسام</h4>
+                        <span style="font-size: 0.85rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">🕸️ خريطة الرادار</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: شبكة رادار خماسية تفاعلية توضح اتزان الحركات المالية بلمحة واحدة</span>
+                    <span style="font-size: 0.90rem; color: #94a3b8;">توضيح بسيط: شبكة رادار خماسية تفاعلية توضح اتزان الحركات المالية بلمحة واحدة</span>
                 </div>
                 <div id="chart-radar-equilibrium" style="min-height: 320px;"></div>
             </div>
@@ -1837,10 +1837,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🥧 كعكة دائريّة مصمتة (Pie Chart): توزيع اتجاه القيود</h4>
-                        <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">🥧 دائرة مصمتة</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.25rem; font-weight: 900;">🥧 كعكة دائريّة مصمتة (Pie Chart): توزيع اتجاه القيود</h4>
+                        <span style="font-size: 0.85rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">🥧 دائرة مصمتة</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: دائرة كاملة مكسوة بالألوان تظهر نسبة القيود المدينة مقابل الدائنة</span>
+                    <span style="font-size: 0.90rem; color: #94a3b8;">توضيح بسيط: دائرة كاملة مكسوة بالألوان تظهر نسبة القيود المدينة مقابل الدائنة</span>
                 </div>
                 <div id="chart-solid-pie-active-zero" style="min-height: 320px;"></div>
             </div>
@@ -1849,12 +1849,55 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
             <div class="v-chart-card">
                 <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                     <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🔘 حلقات دوائر مضيئة متداخلة (Multi-Radial Rings)</h4>
-                        <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">💫 حلقات دائرية</span>
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.25rem; font-weight: 900;">🔘 حلقات دوائر مضيئة متداخلة (Multi-Radial Rings)</h4>
+                        <span style="font-size: 0.85rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">💫 حلقات دائرية</span>
                     </div>
-                    <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: ثلاث حلقات دائرية ملونة متداخلة تقارن حصة كل نوع بنسبة مئوية واضحة</span>
+                    <span style="font-size: 0.90rem; color: #94a3b8;">توضيح بسيط: ثلاث حلقات دائرية ملونة متداخلة تقارن حصة كل نوع بنسبة مئوية واضحة</span>
                 </div>
                 <div id="chart-multi-radial-rings" style="min-height: 320px;"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+        <!-- Charts Row 7: New Additions (Waterfall, Currency Composition, Heatmap) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-top: 25px;">
+            
+            <!-- Chart 12: Waterfall Balance -->
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.25rem; font-weight: 900;">🌊 ميزان المدفوعات التراكمي (Waterfall Chart)</h4>
+                        <span style="font-size: 0.85rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">💧 رسم الشلال</span>
+                    </div>
+                    <span style="font-size: 0.90rem; color: #94a3b8;">توضيح بسيط: كيف يتغير الرصيد مع كل حركة مالية (المدين يزيد، الدائن ينقص)</span>
+                </div>
+                <div id="chart-waterfall-balance" style="min-height: 320px;"></div>
+            </div>
+
+            <!-- Chart 13: Currency Composition -->
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.25rem; font-weight: 900;">💱 التوزيع السلوكي للعملات (Currency Composition)</h4>
+                        <span style="font-size: 0.85rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">💵 تنوع السيولة</span>
+                    </div>
+                    <span style="font-size: 0.90rem; color: #94a3b8;">توضيح بسيط: يوضح حجم المعاملات بالجنيه السوداني مقابل الدولار الأمريكي</span>
+                </div>
+                <div id="chart-currency-composition" style="min-height: 320px;"></div>
+            </div>
+
+            <!-- Chart 14: Heatmap -->
+            <div class="v-chart-card">
+                <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin: 0; color: #f8fafc; font-size: 1.25rem; font-weight: 900;">🔥 الخريطة الحرارية لنشاط الحساب (Heatmap)</h4>
+                        <span style="font-size: 0.85rem; background: rgba(244, 63, 94, 0.18); color: #fb7185; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(244, 63, 94, 0.3);">🌡️ كثافة العمليات</span>
+                    </div>
+                    <span style="font-size: 0.90rem; color: #94a3b8;">توضيح بسيط: يوضح الأيام الأكثر نشاطاً في العمليات المالية للمشاهدة السريعة</span>
+                </div>
+                <div id="chart-liquidity-heatmap" style="min-height: 320px;"></div>
             </div>
 
         </div>
@@ -1864,6 +1907,10 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
 </div>
 
 <!-- Settings Sidebar -->
+<style>
+    .sidebar-overlay { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: rgba(0,0,0,0.1) !important; }
+    .settings-sidebar { background: rgba(15, 23, 42, 0.98) !important; box-shadow: -10px 0 50px rgba(0,0,0,0.6) !important; }
+</style>
 <div class="sidebar-overlay" id="settings-overlay" onclick="toggleSettingsSidebar()"></div>
 <div class="settings-sidebar" id="settings-sidebar" style="resize: both; overflow: auto;">
     <div class="sidebar-header">
@@ -1900,9 +1947,19 @@ $page_title = 'دفتر الأستاذ العام الذكي (SGL)';
                 <button class="font-chip" onclick="changeNumberFont('num-font-jetbrains')" id="btn-font-num-font-jetbrains" style="font-family: 'JetBrains Mono', monospace;">JetBrains Mono</button>
                 <button class="font-chip" onclick="changeNumberFont('num-font-roboto')" id="btn-font-num-font-roboto" style="font-family: 'Roboto Mono', monospace;">Roboto Mono</button>
                 <button class="font-chip" onclick="changeNumberFont('num-font-inter')" id="btn-font-num-font-inter" style="font-family: 'Inter', sans-serif;">Inter Font</button>
+                <button class="font-chip" onclick="changeNumberFont('num-font-tahoma')" id="btn-font-num-font-tahoma" style="font-family: 'Tahoma', 'Segoe UI', sans-serif;">Tahoma (واضح)</button>
+                <button class="font-chip" onclick="changeNumberFont('num-font-arial')" id="btn-font-num-font-arial" style="font-family: 'Arial', sans-serif; font-weight: bold;">Arial (إنجليزي)</button>
+                <button class="font-chip" onclick="changeNumberFont('num-font-consolas')" id="btn-font-num-font-consolas" style="font-family: 'Consolas', 'Courier New', monospace; font-weight: bold; color: #fbbf24;">Consolas (أرقام إنجليزية واضحة)</button>
             </div>
         </div>
 
+        <div style="margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+            <label style="display:block; margin-bottom:10px; font-weight:800; color:#10b981;">📏 توحيد مقاس الخط لكل الأعمدة:</label>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <input type="number" id="global-font-size" value="14" style="width: 80px; text-align: center; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 8px; padding: 8px; font-size: 1.1rem; font-weight: bold;" title="اكتب مقاس الخط هنا لجميع الأعمدة">
+                <button onclick="if(typeof applyGlobalFontSize==='function') applyGlobalFontSize(document.getElementById('global-font-size').value);" style="background: #10b981; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; flex-grow: 1;">تطبيق المقاس على الكل</button>
+            </div>
+        </div>
 
         <p class="sidebar-desc">رتب الأعمدة بالسحب والإفلات. اضغط "تخصيص" لتغيير المسمى، الألوان، وحجم الخط.</p>
         <ul id="columns-config-list" class="columns-config-list">

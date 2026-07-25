@@ -6,7 +6,10 @@ buildAccountsArray();
 document.addEventListener('DBReady', () => {
     // Initialize date and serial
     const now = new Date();
-    document.getElementById('current-date').innerText = now.toISOString().split('T')[0];
+    const __y = now.getFullYear();
+    const __m = String(now.getMonth() + 1).padStart(2, '0');
+    const __day = String(now.getDate()).padStart(2, '0');
+    document.getElementById('current-date').innerText = `${__y}-${__m}-${__day}`;
     
     // Auto Generate Serial
     const existingVouchers = JSON.parse(localStorage.getItem('erp_comprehensive_receipts_v1')) || [];
@@ -61,6 +64,7 @@ function saveVoucher() {
     const voucher = {
         id: document.getElementById('serial-number').innerText,
         date: document.getElementById('current-date').innerText,
+        time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
         accountId: accountId,
         accountName: document.getElementById('from-account-search').value,
         costCenter: document.getElementById('cost-center').value,

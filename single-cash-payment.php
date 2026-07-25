@@ -906,7 +906,7 @@ try {
                             <div class="header-group group-primary">
                                 <div class="crystal-pill date-crystal hover-scale">
                                     <div class="icon-box bg-gradient-blue">📅</div>
-                                    <input type="date" id="hdr-date" class="date-input">
+                                    <input type="date" id="hdr-date" class="date-input" value="<?php echo date('Y-m-d'); ?>">
                                 </div>
                             </div>
                             

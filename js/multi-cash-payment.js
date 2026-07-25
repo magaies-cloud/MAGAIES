@@ -6,7 +6,11 @@ let blockCounter = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
     // Set today's date
-    const today = new Date().toISOString().split('T')[0];
+    const __d = new Date();
+    const __y = __d.getFullYear();
+    const __m = String(__d.getMonth() + 1).padStart(2, '0');
+    const __day = String(__d.getDate()).padStart(2, '0');
+    const today = `${__y}-${__m}-${__day}`;
     const dateEl = document.getElementById('voucher-date');
     if (dateEl) {
         dateEl.value = today;
@@ -1566,6 +1570,7 @@ async function saveVoucher() {
         isGrouped: true,
         mainAccount: mainAccount,
         date: date,
+        time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
         description: desc,
         totalAmount: finalTotal,
         currency: currency,

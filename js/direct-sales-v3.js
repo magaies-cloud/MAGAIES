@@ -3056,6 +3056,7 @@ function submitInvoice(ignoreWarnings = false) {
     const data = {
         invoiceNo: committedNo,
         date: document.getElementById('hdr-date').value,
+        time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
         dueDate: dueDateValue,
         customer: custId,
         costCenter: document.getElementById('hdr-cost-center').value,

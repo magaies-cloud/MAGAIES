@@ -973,6 +973,71 @@ function collectAllTransactions() {
         }
     });
 
+    // 6. Map source data for checkNo and transferNo extraction
+    const allData = [
+        ...receipts, ...payments, ...multiReceipts, ...multiPayments, ...jvs, ...sales, ...purchases
+    ];
+    const dataMap = new Map();
+    allData.forEach(d => {
+        if(d.id) dataMap.set(d.id, d);
+        if(d.invoiceNo) dataMap.set(d.invoiceNo, d);
+        if(d.voucherNo) dataMap.set(d.voucherNo, d);
+    });
+
+    txns.forEach(t => {
+        let baseRef = String(t.ref).replace(/-PAID$/, '').replace(/-BT\d+$/, '').replace(/-CH\d+$/, '');
+        let source = dataMap.get(baseRef);
+        if (source) {
+            t._source = source;
+            const isBaseSDG = (t.currency === 'SDG');
+            const amt = t.debit || t.credit || 0;
+            const matchAmt = (val) => {
+                let v = parseFloat(val) || 0;
+                return Math.abs(v - amt) < 0.1 || Math.abs((isBaseSDG ? v : v * (t.exchangeRate || 1)) - amt) < 0.1;
+            };
+
+            // Process cheques
+            if (source.cheques && source.cheques.length > 0) {
+                let ch = source.cheques.find(c => matchAmt(c.amount)) || source.cheques[0];
+                if (ch) t.checkNo = (ch.checkNo || ch.chequeNo || '') + (ch.checkBranch || ch.chequeBank ? ` (${ch.checkBranch || ch.chequeBank})` : '');
+            } else if (source.checkNo || source.checkNumber || source.chequeNo) {
+                let cNo = source.checkNo || source.checkNumber || source.chequeNo;
+                let cBank = source.checkBranch || source.chequeBank || '';
+                t.checkNo = cBank ? `${cNo} (${cBank})` : cNo;
+            }
+
+            // Process bank transfers
+            if (source.bankTransfers && source.bankTransfers.length > 0) {
+                let bt = source.bankTransfers.find(b => matchAmt(b.amount)) || source.bankTransfers[0];
+                if (bt) t.transferNo = (bt.transferNo || '') + (bt.bankName ? ` (${bt.bankName})` : (bt.note ? ` (${bt.note})` : ''));
+            } else if (source.transferNo || source.mobileTransferNo) {
+                let tr = source.transferNo || source.mobileTransferNo;
+                let note = source.mobileNote || source.bankName || '';
+                t.transferNo = note ? `${tr} (${note})` : tr;
+            }
+
+            // Process multi-items
+            if (source.items && source.items.length > 0) {
+                let item = source.items.find(it => it.account === t.account || it.account === t.counterAccount);
+                if (item) {
+                    if (item.cheques && item.cheques.length > 0) {
+                        let ch = item.cheques.find(c => matchAmt(c.amount)) || item.cheques[0];
+                        if (ch) t.checkNo = (ch.chequeNo || ch.checkNo || '') + (ch.chequeBank || ch.checkBranch ? ` (${ch.chequeBank || ch.checkBranch})` : '');
+                    } else if (item.checkNo || item.chequeNo) {
+                        t.checkNo = (item.checkNo || item.chequeNo) + (item.chequeBank || item.checkBranch ? ` (${item.chequeBank || item.checkBranch})` : '');
+                    }
+
+                    if (item.bankTransfers && item.bankTransfers.length > 0) {
+                        let bt = item.bankTransfers.find(b => matchAmt(b.amount)) || item.bankTransfers[0];
+                        if (bt) t.transferNo = (bt.transferNo || '') + (bt.bankName ? ` (${bt.bankName})` : (bt.note ? ` (${bt.note})` : ''));
+                    } else if (item.transferNo) {
+                        t.transferNo = item.transferNo + (item.bankName || item.note ? ` (${item.bankName || item.note})` : '');
+                    }
+                }
+            }
+        }
+    });
+
     return txns;
 }
 
@@ -1620,8 +1685,19 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
         if (!c.visible) return;
         activeColsCount++;
         let displayName = c.alias ? c.alias : c.name;
+        
+        let sizeVal = c.size;
+        if (sizeVal && !String(sizeVal).includes('px') && !String(sizeVal).includes('rem')) {
+            sizeVal = sizeVal + 'px';
+        }
+        
         let thAlign = c.align ? `text-align:${c.align} !important;` : '';
-        ths += `<th style="width:${c.width}; ${thAlign}">${displayName}<div class="resize-handle"></div></th>`;
+        let thSize = sizeVal ? `font-size:${sizeVal} !important;` : '';
+        let thColor = c.color ? `color:${c.color} !important;` : '';
+        let thBg = c.bg ? `background-color:${c.bg} !important;` : '';
+        let thBold = c.bold ? `font-weight:bold !important;` : '';
+        
+        ths += `<th style="width:${c.width}; ${thAlign} ${thSize} ${thColor} ${thBg} ${thBold}">${displayName}<div class="resize-handle"></div></th>`;
     });
     thead.innerHTML = `<tr>${ths}</tr>`;
 
@@ -1674,11 +1750,13 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
         // Map values to IDs
         const colValues = {
             'idx': i + 1,
-            'date': t.date,
+            'date': `<div title="وقت العملية: ${t.time || 'غير محدد'}" ondblclick="alert('وقت العملية: ' + '${t.time || 'غير محدد'}')" style="cursor: pointer;">${t.date || '-'}</div>`,
             'account': getAccountName(t.account) || '-',
             'counterAcc': counterAccName,
             'statement': t.statement,
             'note': addNote,
+            'checkNo': t.checkNo || '-',
+            'transferNo': t.transferNo || '-',
             'costCenter': t.costCenter || '-',
             'debit': t.debit > 0 ? t.debit : null,
             'credit': t.credit > 0 ? t.credit : null,
@@ -1696,26 +1774,42 @@ function renderTable(txns, acctFilter, fromDate, toDate) {
             
             let val = colValues[c.id];
             
+            // Format size properly
+            let sizeVal = c.size;
+            if (sizeVal && !String(sizeVal).includes('px') && !String(sizeVal).includes('rem')) {
+                sizeVal = sizeVal + 'px';
+            }
+
+            let innerStyle = 'width: 100%; display: flex; align-items: center; ';
+            if (sizeVal) innerStyle += `font-size:${sizeVal} !important; `;
+            if (c.bold || t.isOpening) innerStyle += `font-weight:900 !important; `;
+            if (c.color) innerStyle += `color:${c.color} !important; `;
+            
+            let jc = 'center';
+            if (c.align === 'right') jc = 'flex-start';
+            if (c.align === 'left') jc = 'flex-end';
+            innerStyle += `justify-content:${jc} !important; text-align:${c.align} !important;`;
+            
+            if (['statement', 'note'].includes(c.id)) {
+                innerStyle += ' white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;';
+            }
+
             if (['debit', 'credit', 'total', 'balance', 'exRate', 'debitF', 'creditF', 'balanceF'].includes(c.id)) {
+                innerStyle += ' white-space:nowrap; padding: 0 4px;';
                 if (val === null) {
                     val = '<span class="td-empty">—</span>';
                 } else {
-                    let formatted = fmtNumDec(val, c.dec);
-                    val = `<div class="num-cell-wrapper ${currentNumFont}" onclick="showContextMenu(event, '${t.type}', '${t.ref}')" oncontextmenu="showContextMenu(event, '${t.type}', '${t.ref}')">${formatted}</div>`;
+                    let formatted = fmtNumDec(val, c.dec, c.thousandSep !== false);
+                    val = `<div class="num-cell-wrapper ${currentNumFont}" style="${innerStyle}" onclick="showContextMenu(event, '${t.type}', '${t.ref}')" oncontextmenu="showContextMenu(event, '${t.type}', '${t.ref}')">${formatted}</div>`;
                 }
+            } else {
+                // Wrap text columns in a consistent div to ensure styles are applied
+                innerStyle += ' padding: 0 4px;';
+                val = `<div style="${innerStyle}">${val}</div>`;
             }
 
             let style = [];
             if (c.bg) style.push(`background-color:${c.bg} !important`);
-            if (c.color) style.push(`color:${c.color} !important`);
-            if (c.bold || t.isOpening) style.push(`font-weight:bold`);
-            if (c.size) style.push(`font-size:${c.size}`);
-            if (c.align) style.push(`text-align:${c.align} !important`);
-            
-            if (['statement', 'note'].includes(c.id)) {
-                style.push('max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;');
-            }
-            if (['debit', 'debitF', 'credit', 'creditF'].includes(c.id) && (typeof val === 'string' && val.indexOf('<div') === -1)) style.push('font-family:monospace');
 
             let extraAttrs = '';
             if (c.id === 'counterAcc') {
@@ -2021,21 +2115,23 @@ function printDirectly() {
 
 /* ─── Dynamic Column Configuration & Sidebar ─── */
 const defaultColConfig = [
-    { id: 'idx', name: '#', alias: '', visible: true, width: '50px', bg: '', color: '#64748b', bold: false, size: '0.8rem', dec: 0, align: 'center' },
-    { id: 'date', name: 'التاريخ', alias: '', visible: true, width: 'auto', bg: '', color: '', bold: false, size: '0.85rem', dec: 0, align: 'center' },
-    { id: 'account', name: 'الحساب الرئيسي', alias: '', visible: true, width: 'auto', bg: '', color: '#cbd5e1', bold: false, size: '0.85rem', dec: 0, align: 'center' },
-    { id: 'counterAcc', name: 'الحساب المقابل', alias: '', visible: true, width: 'auto', bg: '', color: '#e2e8f0', bold: false, size: '0.85rem', dec: 0, align: 'center' },
-    { id: 'statement', name: 'حالة السند', alias: '', visible: true, width: '150px', bg: '', color: '#e2e8f0', bold: false, size: '0.85rem', dec: 0, align: 'center' },
-    { id: 'note', name: 'ملحوظة إضافية', alias: '', visible: true, width: '150px', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 0, align: 'center' },
-    { id: 'costCenter', name: 'مركز التكلفة', alias: '', visible: true, width: 'auto', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 0, align: 'center' },
-    { id: 'debit', name: 'مدين محلي (عليه)', alias: '', visible: true, width: 'auto', bg: '', color: '#34d399', bold: true, size: '0.9rem', dec: 2, align: 'center' },
-    { id: 'credit', name: 'دائن محلي (له)', alias: '', visible: true, width: 'auto', bg: '', color: '#f87171', bold: true, size: '0.9rem', dec: 2, align: 'center' },
-    { id: 'balance', name: 'الرصيد محلي', alias: '', visible: true, width: 'auto', bg: '', color: '#c084fc', bold: true, size: '0.9rem', dec: 2, align: 'center' },
-    { id: 'currency', name: 'العملة', alias: '', visible: true, width: 'auto', bg: '', color: '#c084fc', bold: false, size: '0.85rem', dec: 0, align: 'center' },
-    { id: 'exRate', name: 'سعر الصرف', alias: '', visible: true, width: 'auto', bg: '', color: '#94a3b8', bold: false, size: '0.8rem', dec: 2, align: 'center' },
-    { id: 'debitF', name: 'مدين أجنبي (عليه)', alias: '', visible: true, width: 'auto', bg: '', color: '#34d399', bold: true, size: '0.9rem', dec: 2, align: 'center' },
-    { id: 'creditF', name: 'دائن أجنبي (له)', alias: '', visible: true, width: 'auto', bg: '', color: '#f87171', bold: true, size: '0.9rem', dec: 2, align: 'center' },
-    { id: 'balanceF', name: 'رصيد أجنبي', alias: '', visible: true, width: 'auto', bg: '', color: '#c084fc', bold: true, size: '0.9rem', dec: 2, align: 'center' }
+    { id: 'idx', name: '#', alias: '', visible: true, width: '40px', bg: '', color: '#64748b', bold: false, size: 13, dec: 0, align: 'center' },
+    { id: 'date', name: 'التاريخ', alias: '', visible: true, width: '90px', bg: '', color: '', bold: false, size: 14, dec: 0, align: 'center' },
+    { id: 'account', name: 'الحساب الرئيسي', alias: '', visible: true, width: 'auto', bg: '', color: '#cbd5e1', bold: false, size: 14, dec: 0, align: 'center' },
+    { id: 'counterAcc', name: 'الحساب المقابل', alias: '', visible: true, width: 'auto', bg: '', color: '#e2e8f0', bold: false, size: 14, dec: 0, align: 'center' },
+    { id: 'statement', name: 'حالة السند', alias: '', visible: true, width: '130px', bg: '', color: '#e2e8f0', bold: false, size: 14, dec: 0, align: 'center' },
+    { id: 'note', name: 'ملحوظة إضافية', alias: '', visible: true, width: '130px', bg: '', color: '#94a3b8', bold: false, size: 13, dec: 0, align: 'center' },
+    { id: 'checkNo', name: 'رقم الشيك', alias: '', visible: true, width: '100px', bg: '', color: '#cbd5e1', bold: false, size: 13, dec: 0, align: 'center' },
+    { id: 'transferNo', name: 'رقم التحويلة البنكية', alias: '', visible: true, width: '110px', bg: '', color: '#cbd5e1', bold: false, size: 13, dec: 0, align: 'center' },
+    { id: 'costCenter', name: 'مركز التكلفة', alias: '', visible: true, width: '100px', bg: '', color: '#94a3b8', bold: false, size: 13, dec: 0, align: 'center' },
+    { id: 'debit', name: 'مدين محلي (عليه)', alias: '', visible: true, width: '140px', bg: '', color: '#34d399', bold: true, size: 15, dec: 2, align: 'center' },
+    { id: 'credit', name: 'دائن محلي (له)', alias: '', visible: true, width: '140px', bg: '', color: '#f87171', bold: true, size: 15, dec: 2, align: 'center' },
+    { id: 'balance', name: 'الرصيد محلي', alias: '', visible: true, width: '140px', bg: '', color: '#c084fc', bold: true, size: 15, dec: 2, align: 'center' },
+    { id: 'currency', name: 'العملة', alias: '', visible: true, width: '70px', bg: '', color: '#c084fc', bold: false, size: 14, dec: 0, align: 'center' },
+    { id: 'exRate', name: 'سعر الصرف', alias: '', visible: true, width: '90px', bg: '', color: '#94a3b8', bold: false, size: 13, dec: 2, align: 'center' },
+    { id: 'debitF', name: 'مدين أجنبي (عليه)', alias: '', visible: true, width: '120px', bg: '', color: '#34d399', bold: true, size: 15, dec: 2, align: 'center' },
+    { id: 'creditF', name: 'دائن أجنبي (له)', alias: '', visible: true, width: '120px', bg: '', color: '#f87171', bold: true, size: 15, dec: 2, align: 'center' },
+    { id: 'balanceF', name: 'رصيد أجنبي', alias: '', visible: true, width: '120px', bg: '', color: '#c084fc', bold: true, size: 15, dec: 2, align: 'center' }
 ];
 
 let colConfig = [];
@@ -2063,6 +2159,18 @@ function loadColumnConfig() {
                 if (found) {
                     found.name = defCol.name; // Keep name aligned with the new default name
                     if (!found.align) found.align = defCol.align || 'center'; // Set default alignment
+                    if (found.width === 'auto' && defCol.width !== 'auto') found.width = defCol.width; // Update to new fixed widths
+                    
+                    // Migrate size format
+                    if (found.size && typeof found.size === 'string') {
+                        if (found.size.includes('rem')) {
+                            found.size = Math.round(parseFloat(found.size) * 16);
+                        } else if (found.size.includes('px')) {
+                            found.size = parseInt(found.size, 10);
+                        }
+                    }
+                    if (!found.size || isNaN(found.size)) found.size = defCol.size;
+
                     merged.push(found);
                 } else {
                     merged.push(defCol);
@@ -2141,7 +2249,7 @@ function loadNumberFont() {
     if (btn) btn.classList.add('active');
 
     document.querySelectorAll('.num-cell-wrapper').forEach(el => {
-        el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins');
+        el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins', 'num-font-tahoma', 'num-font-arial', 'num-font-consolas');
         el.classList.add(currentNumFont);
     });
 }
@@ -2149,7 +2257,7 @@ function loadNumberFont() {
 window.changeNumberFont = function(fontClass) {
     currentNumFont = fontClass;
     document.querySelectorAll('.num-cell-wrapper').forEach(el => {
-        el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins');
+        el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins', 'num-font-tahoma', 'num-font-arial', 'num-font-consolas');
         el.classList.add(fontClass);
     });
     
@@ -2224,7 +2332,7 @@ function toggleSettingsSidebar() {
         if (window.previewBackupFontGL !== undefined) {
             currentNumFont = window.previewBackupFontGL;
             document.querySelectorAll('.num-cell-wrapper').forEach(el => {
-                el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins');
+                el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins', 'num-font-tahoma', 'num-font-arial', 'num-font-consolas');
                 el.classList.add(currentNumFont);
             });
             document.querySelectorAll('.font-chip').forEach(el => el.classList.remove('active'));
@@ -2287,10 +2395,11 @@ function renderSidebarConfig() {
                 </div>
                 <div class="cfg-row">
                     <span>الخط (حجم/سمك):</span>
-                    <div class="cfg-btns">
+                    <div class="cfg-btns" style="display: flex; align-items: center; gap: 5px;">
                         <button class="cfg-btn" onclick="adjustFontSize(${index}, -1)">A-</button>
+                        <input type="number" id="col-font-size-${index}" value="${col.size || 14}" onchange="setColFontSize(${index}, this.value)" style="width: 50px; text-align: center; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 4px; padding: 2px;" title="اكتب مقاس الخط هنا">
                         <button class="cfg-btn" onclick="adjustFontSize(${index}, 1)">A+</button>
-                        <button class="cfg-btn ${col.bold ? 'active' : ''}" onclick="toggleColBold(${index}, this)">B</button>
+                        <button class="cfg-btn ${col.bold ? 'active' : ''}" style="margin-right: 5px;" onclick="toggleColBold(${index}, this)">B</button>
                     </div>
                 </div>
                 <div class="cfg-row">
@@ -2300,6 +2409,10 @@ function renderSidebarConfig() {
                         <option value="right" ${col.align === 'right' ? 'selected' : ''}>اليمين ➡️</option>
                         <option value="left" ${col.align === 'left' ? 'selected' : ''}>اليسار ⬅️</option>
                     </select>
+                </div>
+                <div class="cfg-row">
+                    <span>عرض العمود:</span>
+                    <input type="text" class="cfg-input" value="${col.width || 'auto'}" onchange="updateColField(${index}, 'width', this.value)" placeholder="مثلاً: 110px أو auto" style="width:120px; text-align: left;" dir="ltr">
                 </div>
                 <div class="cfg-row">
                     <span>الألوان (نص/خلفية):</span>
@@ -2319,6 +2432,13 @@ function renderSidebarConfig() {
                         <option value="4" ${col.dec === 4 ? 'selected' : ''}>4 خانات (4)</option>
                         <option value="5" ${col.dec === 5 ? 'selected' : ''}>5 خانات (5)</option>
                         <option value="6" ${col.dec === 6 ? 'selected' : ''}>6 خانات (6)</option>
+                    </select>
+                </div>
+                <div class="cfg-row">
+                    <span>الفاصلة الألفية (,) :</span>
+                    <select class="cfg-input" onchange="updateColField(${index}, 'thousandSep', this.value === 'true')" style="width:120px;">
+                        <option value="true" ${col.thousandSep !== false ? 'selected' : ''}>إظهار (1,000)</option>
+                        <option value="false" ${col.thousandSep === false ? 'selected' : ''}>إخفاء (1000)</option>
                     </select>
                 </div>
                 ` : ''}
@@ -2354,14 +2474,44 @@ function updateColField(index, field, val) {
     previewColSettingsGL();
 }
 function adjustFontSize(index, dir) {
-    let size = parseFloat(colConfig[index].size) || 0.9;
-    size += dir * 0.05;
-    colConfig[index].size = size + 'rem';
+    let size = colConfig[index].size || 14;
+    if (typeof size === 'string') {
+        if (size.includes('rem')) {
+            size = Math.round(parseFloat(size) * 16);
+        } else {
+            size = parseInt(size, 10);
+        }
+    }
+    if (isNaN(size)) size = 14;
+    size += dir;
+    if (size < 8) size = 8;
+    if (size > 36) size = 36;
+    setColFontSize(index, size);
+}
+function setColFontSize(index, val) {
+    let size = parseInt(val, 10);
+    if (isNaN(size) || size < 8) size = 8;
+    if (size > 36) size = 36;
+    colConfig[index].size = size;
+    const input = document.getElementById(`col-font-size-${index}`);
+    if (input) input.value = size;
     previewColSettingsGL();
 }
 function toggleColBold(index, el) {
     colConfig[index].bold = !colConfig[index].bold;
     el.classList.toggle('active');
+    previewColSettingsGL();
+}
+
+function applyGlobalFontSize(size) {
+    let s = parseInt(size, 10);
+    if (isNaN(s) || s < 8) s = 8;
+    if (s > 36) s = 36;
+    colConfig.forEach((c, idx) => {
+        c.size = s;
+        const input = document.getElementById(`col-font-size-${idx}`);
+        if (input) input.value = s;
+    });
     previewColSettingsGL();
 }
 
@@ -2420,12 +2570,17 @@ function resetColumnConfig() {
     runReport();
     showToast('🔄 تم استعادة الوضع الافتراضي', 'success');
 }
-function fmtNumDec(n, decimals) {
+function fmtNumDec(n, decimals, useThousandSep = true) {
     const val = parseFloat(n) || 0;
+    const opts = { 
+        minimumFractionDigits: decimals, 
+        maximumFractionDigits: decimals,
+        useGrouping: useThousandSep
+    };
     if (val < 0) {
-        return `-(${Math.abs(val).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })})`;
+        return `-(${Math.abs(val).toLocaleString('en-US', opts)})`;
     }
-    return val.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+    return val.toLocaleString('en-US', opts);
 }
 
 function applyConfigToHeaders() {
@@ -2435,8 +2590,19 @@ function applyConfigToHeaders() {
     colConfig.forEach(c => {
         if (!c.visible) return;
         let displayName = c.alias ? c.alias : c.name;
+        
+        let sizeVal = c.size;
+        if (sizeVal && !String(sizeVal).includes('px') && !String(sizeVal).includes('rem')) {
+            sizeVal = sizeVal + 'px';
+        }
+        
         let thAlign = c.align ? `text-align:${c.align} !important;` : '';
-        ths += `<th style="width:${c.width}; ${thAlign}">${displayName}<div class="resize-handle"></div></th>`;
+        let thSize = sizeVal ? `font-size:${sizeVal} !important;` : '';
+        let thColor = c.color ? `color:${c.color} !important;` : '';
+        let thBg = c.bg ? `background-color:${c.bg} !important;` : '';
+        let thBold = c.bold ? `font-weight:bold !important;` : '';
+        
+        ths += `<th style="width:${c.width}; ${thAlign} ${thSize} ${thColor} ${thBg} ${thBold}">${displayName}<div class="resize-handle"></div></th>`;
     });
     thead.innerHTML = `<tr>${ths}</tr>`;
 }
@@ -2738,16 +2904,27 @@ function renderVisualAnalytics(results) {
     // 1. Calculate Aggregates for Ledger Transactions
     let debtorsCount = 0, creditorsCount = 0, zeroCount = 0;
     let categorySums = {
-        'invoice': { name: 'المبيعات', debit: 0, credit: 0, count: 0 },
-        'purchase': { name: 'المشتريات', debit: 0, credit: 0, count: 0 },
-        'receipt': { name: 'المقبوضات', debit: 0, credit: 0, count: 0 },
-        'payment': { name: 'المدفوعات', debit: 0, credit: 0, count: 0 },
-        'jv': { name: 'قيود اليومية', debit: 0, credit: 0, count: 0 }
+        'invoice': { name: 'المبيعات', debit: 0, credit: 0, debitF: 0, creditF: 0, count: 0 },
+        'purchase': { name: 'المشتريات', debit: 0, credit: 0, debitF: 0, creditF: 0, count: 0 },
+        'receipt': { name: 'المقبوضات', debit: 0, credit: 0, debitF: 0, creditF: 0, count: 0 },
+        'payment': { name: 'المدفوعات', debit: 0, credit: 0, debitF: 0, creditF: 0, count: 0 },
+        'jv': { name: 'قيود اليومية', debit: 0, credit: 0, debitF: 0, creditF: 0, count: 0 }
     };
 
     results.forEach(t => {
         const d = t.debit || 0;
         const c = t.credit || 0;
+        const exRate = t.exchangeRate || 1;
+        
+        let debF = 0, credF = 0;
+        if (t.currency && t.currency !== 'SDG' && t.currency !== '-') {
+            debF = t.debitForeign || (d / exRate);
+            credF = t.creditForeign || (c / exRate);
+        } else {
+            const rate = (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0) ? ledgerExchangeRate : (exRate > 1 ? exRate : 1.0);
+            debF = d / rate;
+            credF = c / rate;
+        }
 
         if (d > 0) debtorsCount++;
         else if (c > 0) creditorsCount++;
@@ -2757,12 +2934,18 @@ function renderVisualAnalytics(results) {
         if (!categorySums[cat]) cat = 'jv';
         categorySums[cat].debit += d;
         categorySums[cat].credit += c;
+        categorySums[cat].debitF += debF;
+        categorySums[cat].creditF += credF;
         categorySums[cat].count++;
     });
 
     const totalDebit = results.reduce((acc, r) => acc + (r.debit || 0), 0);
     const totalCredit = results.reduce((acc, r) => acc + (r.credit || 0), 0);
     const netPosition = totalDebit - totalCredit;
+    
+    const totalDebitF = categorySums['invoice'].debitF + categorySums['purchase'].debitF + categorySums['receipt'].debitF + categorySums['payment'].debitF + categorySums['jv'].debitF;
+    const totalCreditF = categorySums['invoice'].creditF + categorySums['purchase'].creditF + categorySums['receipt'].creditF + categorySums['payment'].creditF + categorySums['jv'].creditF;
+    const netPositionF = totalDebitF - totalCreditF;
 
     // 2. Render Indicator Cards
     const indNetVal = document.getElementById('ind-net-val');
@@ -2771,7 +2954,7 @@ function renderVisualAnalytics(results) {
     const indCoveragePct = document.getElementById('ind-coverage-pct');
     const indCoverageBar = document.getElementById('ind-coverage-bar');
 
-    if (indNetVal) indNetVal.textContent = `${(netPosition < 0 ? '-' : '') + Math.abs(netPosition).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} SDG`;
+    if (indNetVal) indNetVal.innerHTML = `${(netPosition < 0 ? '-' : '') + Math.abs(netPosition).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} SDG<br><span style="font-size:0.8em; color:#94a3b8;">${(netPositionF < 0 ? '-' : '') + Math.abs(netPositionF).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD</span>`;
     
     let coverageRatio = totalCredit > 0 ? ((totalDebit / totalCredit) * 100).toFixed(0) : '100';
     if (indCoveragePct) indCoveragePct.textContent = `تغطية: ${coverageRatio}%`;
@@ -2837,6 +3020,7 @@ function renderVisualAnalytics(results) {
     // Chart 1: Categories Donut
     const catLabels = ['المبيعات', 'المشتريات', 'المقبوضات', 'المدفوعات', 'قيود اليومية'];
     const catValues = [categorySums['invoice'].debit, categorySums['purchase'].credit, categorySums['receipt'].debit, categorySums['payment'].credit, categorySums['jv'].debit];
+    const catValuesF = [categorySums['invoice'].debitF, categorySums['purchase'].creditF, categorySums['receipt'].debitF, categorySums['payment'].creditF, categorySums['jv'].debitF];
     
     const optionsCatDonut = {
         series: catValues,
@@ -2845,10 +3029,11 @@ function renderVisualAnalytics(results) {
         colors: ['#38bdf8', '#f43f5e', '#10b981', '#fbbf24', '#a855f7'],
         stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
         plotOptions: {
-            pie: { donut: { size: '72%', labels: { show: true, name: { show: true, fontSize: '14px', fontWeight: 700 }, value: { show: true, fontSize: '16px', fontWeight: 900, formatter: v => parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' }, total: { show: true, label: 'إجمالي الحركات', formatter: w => w.globals.seriesTotals.reduce((a,b)=>a+b, 0).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' } } } }
+            pie: { donut: { size: '72%', labels: { show: true, name: { show: true, fontSize: '20px', fontWeight: 700 }, value: { show: true, fontSize: '21px', fontWeight: 900, formatter: (v, opts) => { const idx = opts?.seriesIndex; const usd = idx !== undefined ? catValuesF[idx] : 0; return parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG | ' + parseFloat(usd).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' USD'; } }, total: { show: true, label: 'إجمالي الحركات', fontSize: '19px', formatter: w => { const totSDG = w.globals.seriesTotals.reduce((a,b)=>a+b, 0); const totUSD = catValuesF.reduce((a,b)=>a+b,0); return totSDG.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG'; } } } } }
         },
         dataLabels: { enabled: false },
-        legend: { position: 'bottom', fontSize: '13px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: (v, opts) => { const idx = opts?.seriesIndex; const usd = idx !== undefined ? catValuesF[idx] : 0; return v.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG | ' + usd.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' USD'; } } },
+        legend: { position: 'bottom', fontSize: '19px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
         theme: { mode: chartThemeMode }
     };
     if (chartHollowDonutCategories) chartHollowDonutCategories.destroy();
@@ -2857,17 +3042,23 @@ function renderVisualAnalytics(results) {
 
     // Chart 2: Top Debit Transactions Donut
     const topDebtors = [...results].filter(x => x.debit > 0).sort((a,b) => b.debit - a.debit).slice(0, 5);
+    const topDebtorsVals = topDebtors.length > 0 ? topDebtors.map(x => x.debit) : [1];
+    const topDebtorsValsF = topDebtors.length > 0 ? topDebtors.map(x => { const r = x.exchangeRate || 1; return x.debitForeign || (x.debit / r); }) : [0];
     const optionsDebtorsDonut = {
-        series: topDebtors.length > 0 ? topDebtors.map(x => x.debit) : [1],
+        series: topDebtorsVals,
         labels: topDebtors.length > 0 ? topDebtors.map(x => x.typeLabel + ' #' + x.ref) : ['لا يوجد بيانات'],
         chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
         colors: ['#38bdf8', '#818cf8', '#c084fc', '#34d399', '#fbbf24'],
         stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
-        plotOptions: { pie: { donut: { size: '68%', labels: { show: true, name: { show: true, fontSize: '13px' }, value: { show: true, fontSize: '15px', fontWeight: 900, formatter: v => parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' }, total: { show: true, label: 'إجمالي المدين', formatter: w => w.globals.seriesTotals.reduce((a,b)=>a+b, 0).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' } } } } },
+        plotOptions: { pie: { donut: { size: '68%', labels: { show: true, name: { show: true, fontSize: '19px' }, value: { show: true, fontSize: '20px', fontWeight: 900, formatter: (v, opts) => { const idx = opts?.seriesIndex; const usd = idx !== undefined ? topDebtorsValsF[idx] : 0; return parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG | ' + parseFloat(usd).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' USD'; } }, total: { show: true, label: 'إجمالي المدين', fontSize: '19px', formatter: w => w.globals.seriesTotals.reduce((a,b)=>a+b, 0).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' } } } } },
         dataLabels: { enabled: false },
-        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: (v, opts) => { const idx = opts?.seriesIndex; const usd = idx !== undefined ? topDebtorsValsF[idx] : 0; return v.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG | ' + usd.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' USD'; } } },
+        legend: { position: 'bottom', fontSize: '18px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
         theme: { mode: chartThemeMode }
     };
+    if (chartHollowDonutTopDebtors) chartHollowDonutTopDebtors.destroy();
+    chartHollowDonutTopDebtors = new ApexCharts(document.querySelector("#chart-hollow-donut-top-debtors"), optionsDebtorsDonut);
+    chartHollowDonutTopDebtors.render();
     if (chartHollowDonutTopDebtors) chartHollowDonutTopDebtors.destroy();
     chartHollowDonutTopDebtors = new ApexCharts(document.querySelector("#chart-hollow-donut-top-debtors"), optionsDebtorsDonut);
     chartHollowDonutTopDebtors.render();
@@ -2875,17 +3066,24 @@ function renderVisualAnalytics(results) {
     // Chart 3: Curved Line Spectrum
     const specNames = sortedByVolume.slice(0, 15).map(x => x.date);
     const specValues = sortedByVolume.slice(0, 15).map(x => Math.max(x.debit, x.credit));
+    const specValuesF = sortedByVolume.slice(0, 15).map(x => {
+        const r = x.exchangeRate || 1;
+        let v = Math.max(x.debit, x.credit);
+        if (x.debit > 0) return x.debitForeign || (v/r);
+        return x.creditForeign || (v/r);
+    });
+    
     const optionsSpectrum = {
-        series: [{ name: 'حجم الحركة', data: specValues }],
+        series: [{ name: 'حجم الحركة (SDG)', data: specValues }, { name: 'حجم الحركة (USD)', data: specValuesF }],
         chart: { type: 'area', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        colors: ['#38bdf8'],
-        stroke: { curve: 'smooth', width: 3 },
+        colors: ['#38bdf8', '#10b981'],
+        stroke: { curve: 'smooth', width: 2 },
         fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.05, stops: [0, 95, 100] } },
         dataLabels: { enabled: false },
-        xaxis: { categories: specNames, labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontSize: '11px' } } },
+        xaxis: { categories: specNames, labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontSize: '17px' } } },
         yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
         grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
-        tooltip: { y: { formatter: v => v.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' SDG' } },
+        tooltip: { y: { formatter: (v, opts) => { const idx = opts?.seriesIndex; return v.toLocaleString('en-US', {minimumFractionDigits: 2}) + (idx === 0 ? ' SDG' : ' USD'); } } },
         theme: { mode: chartThemeMode }
     };
     if (chartCurvedLineSpectrum) chartCurvedLineSpectrum.destroy();
@@ -2902,10 +3100,24 @@ function renderVisualAnalytics(results) {
         plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 6 } },
         colors: ['#10b981', '#f43f5e'],
         dataLabels: { enabled: false },
-        xaxis: { categories: ['مبيعات', 'مشتريات', 'مقبوضات', 'مدفوعات', 'قيود'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '12px' } } },
+        xaxis: { categories: ['مبيعات', 'مشتريات', 'مقبوضات', 'مدفوعات', 'قيود'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '18px' } } },
         yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
         grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
         legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: {
+            custom: function({series, seriesIndex, dataPointIndex, w}) {
+                const cat = ['invoice', 'purchase', 'receipt', 'payment', 'jv'][dataPointIndex];
+                const deb = categorySums[cat].debit;
+                const cred = categorySums[cat].credit;
+                const debF = categorySums[cat].debitF;
+                const credF = categorySums[cat].creditF;
+                return '<div style="padding:10px; background:rgba(15,23,42,0.9); border:1px solid rgba(255,255,255,0.1); border-radius:8px;">' +
+                       '<div style="font-weight:bold; margin-bottom:5px; color:#38bdf8;">' + w.globals.labels[dataPointIndex] + '</div>' +
+                       '<div style="color:#10b981;">المدين: ' + deb.toLocaleString('en-US', {maximumFractionDigits:0}) + ' SDG | ' + debF.toLocaleString('en-US', {maximumFractionDigits:2}) + ' USD</div>' +
+                       '<div style="color:#f43f5e;">الدائن: ' + cred.toLocaleString('en-US', {maximumFractionDigits:0}) + ' SDG | ' + credF.toLocaleString('en-US', {maximumFractionDigits:2}) + ' USD</div>' +
+                       '</div>';
+            }
+        },
         theme: { mode: chartThemeMode }
     };
     if (chartBiDirectionalBar) chartBiDirectionalBar.destroy();
@@ -2916,7 +3128,7 @@ function renderVisualAnalytics(results) {
     const optionsGauge = {
         series: [healthScore],
         chart: { type: 'radialBar', height: 340, offsetY: -10, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
-        plotOptions: { radialBar: { startAngle: -90, endAngle: 90, track: { background: isLightTheme ? "#e2e8f0" : "#1e293b", strokeWidth: '97%' }, dataLabels: { name: { show: true, fontSize: '14px', color: isLightTheme ? '#64748b' : '#94a3b8' }, value: { offsetY: -50, fontSize: '24px', fontWeight: '900', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + "%" } } } },
+        plotOptions: { radialBar: { startAngle: -90, endAngle: 90, track: { background: isLightTheme ? "#e2e8f0" : "#1e293b", strokeWidth: '97%' }, dataLabels: { name: { show: true, fontSize: '20px', color: isLightTheme ? '#64748b' : '#94a3b8' }, value: { offsetY: -50, fontSize: '30px', fontWeight: '900', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + "%" } } } },
         fill: { type: 'gradient', gradient: { shade: 'dark', type: 'horizontal', gradientToColors: ['#34d399'], stops: [0, 100] } },
         colors: ['#38bdf8'],
         labels: ['مؤشر مأمونية الحركات'],
@@ -2928,15 +3140,18 @@ function renderVisualAnalytics(results) {
 
     // Chart 6: Hollow Donut Chart - Top Creditor Transactions
     const topCreditors = [...results].filter(x => x.credit > 0).sort((a,b) => b.credit - a.credit).slice(0, 5);
+    const topCreditorsVals = topCreditors.length > 0 ? topCreditors.map(x => x.credit) : [1];
+    const topCreditorsValsF = topCreditors.length > 0 ? topCreditors.map(x => { const r = x.exchangeRate || 1; return x.creditForeign || (x.credit / r); }) : [0];
     const optionsCreditorsDonut = {
-        series: topCreditors.length > 0 ? topCreditors.map(x => x.credit) : [1],
+        series: topCreditorsVals,
         labels: topCreditors.length > 0 ? topCreditors.map(x => x.typeLabel + ' #' + x.ref) : ['لا يوجد بيانات'],
         chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
         colors: ['#f43f5e', '#fb7185', '#a855f7', '#fbbf24', '#38bdf8'],
         stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
-        plotOptions: { pie: { donut: { size: '68%', labels: { show: true, name: { show: true, fontSize: '13px' }, value: { show: true, fontSize: '15px', fontWeight: 900, formatter: v => parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' }, total: { show: true, label: 'إجمالي الدائن', formatter: w => w.globals.seriesTotals.reduce((a,b)=>a+b, 0).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' } } } } },
+        plotOptions: { pie: { donut: { size: '68%', labels: { show: true, name: { show: true, fontSize: '19px' }, value: { show: true, fontSize: '20px', fontWeight: 900, formatter: (v, opts) => { const idx = opts?.seriesIndex; const usd = idx !== undefined ? topCreditorsValsF[idx] : 0; return parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG | ' + parseFloat(usd).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' USD'; } }, total: { show: true, label: 'إجمالي الدائن', fontSize: '19px', formatter: w => w.globals.seriesTotals.reduce((a,b)=>a+b, 0).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' } } } } },
         dataLabels: { enabled: false },
-        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: (v, opts) => { const idx = opts?.seriesIndex; const usd = idx !== undefined ? topCreditorsValsF[idx] : 0; return v.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG | ' + usd.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' USD'; } } },
+        legend: { position: 'bottom', fontSize: '18px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
         theme: { mode: chartThemeMode }
     };
     if (chartHollowDonutCreditors) chartHollowDonutCreditors.destroy();
@@ -2945,17 +3160,31 @@ function renderVisualAnalytics(results) {
 
     // Chart 7: Horizontal Bar Chart - Top 10 Transactions Volume Ranking
     const top10Overall = sortedByVolume.slice(0, 10);
+    const top10Vals = top10Overall.map(x => Math.max(x.debit, x.credit));
+    const top10ValsF = top10Overall.map(x => {
+        const r = x.exchangeRate || 1;
+        let v = Math.max(x.debit, x.credit);
+        if (x.debit > 0) return x.debitForeign || (v/r);
+        return x.creditForeign || (v/r);
+    });
     const optionsHorizontalBar = {
-        series: [{ name: 'مبلغ الحركة', data: top10Overall.map(x => Math.max(x.debit, x.credit)) }],
+        series: [{ name: 'مبلغ الحركة (SDG)', data: top10Vals }, { name: 'مبلغ الحركة (USD)', data: top10ValsF }],
         chart: { type: 'bar', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        plotOptions: { bar: { horizontal: true, borderRadius: 6, barHeight: '55%', distributed: true } },
-        colors: ['#38bdf8', '#34d399', '#a855f7', '#fbbf24', '#f43f5e', '#22d3ee', '#818cf8', '#fb7185', '#10b981', '#f59e0b'],
-        dataLabels: { enabled: false },
+        plotOptions: { bar: { horizontal: true, borderRadius: 6, barHeight: '55%', distributed: false } },
+        colors: ['#38bdf8', '#10b981'],
+        dataLabels: { 
+            enabled: true,
+            style: { fontSize: '11px', colors: ['#fff'] },
+            formatter: function(val, opts) {
+                if(val === 0) return '';
+                return val.toLocaleString('en-US',{maximumFractionDigits:0});
+            }
+        },
         xaxis: { categories: top10Overall.map(x => x.typeLabel + ' #' + x.ref), labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#1e293b' : '#cbd5e1', fontSize: '11px', fontFamily: 'Tajawal' } } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#1e293b' : '#cbd5e1', fontSize: '17px', fontFamily: 'Tajawal' } } },
         grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
-        legend: { show: false },
-        tooltip: { y: { formatter: v => v.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' SDG' } },
+        legend: { position: 'bottom', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: (v, opts) => { const idx = opts?.seriesIndex; return v.toLocaleString('en-US', {minimumFractionDigits: 2}) + (idx === 0 ? ' SDG' : ' USD'); } } },
         theme: { mode: chartThemeMode }
     };
     if (chartHorizontalTopBar) chartHorizontalTopBar.destroy();
@@ -2964,21 +3193,35 @@ function renderVisualAnalytics(results) {
 
     // Chart 8: Filled Area Fluid Curve
     const areaNames = sortedByVolume.slice(0, 12).map(x => x.date);
+    const areaDebF = sortedByVolume.slice(0, 12).map(x => { const r = x.exchangeRate || 1; return x.debitForeign || (x.debit / r); });
+    const areaCredF = sortedByVolume.slice(0, 12).map(x => { const r = x.exchangeRate || 1; return x.creditForeign || (x.credit / r); });
+    
     const optionsFluidArea = {
         series: [
-            { name: 'المدين (عليها)', data: sortedByVolume.slice(0, 12).map(x => x.debit) },
-            { name: 'الدائن (لها)', data: sortedByVolume.slice(0, 12).map(x => x.credit) }
+            { name: 'المدين (SDG)', data: sortedByVolume.slice(0, 12).map(x => x.debit) },
+            { name: 'الدائن (SDG)', data: sortedByVolume.slice(0, 12).map(x => x.credit) }
         ],
         chart: { type: 'area', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
         colors: ['#10b981', '#f43f5e'],
         stroke: { curve: 'smooth', width: 2.5 },
         fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.05, stops: [0, 95, 100] } },
         dataLabels: { enabled: false },
-        xaxis: { categories: areaNames, labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontSize: '10px' }, rotate: -20 } },
+        xaxis: { categories: areaNames, labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontSize: '16px' }, rotate: -20 } },
         yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
         grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
         legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        tooltip: { y: { formatter: v => v.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' SDG' } },
+        tooltip: { custom: function({series, seriesIndex, dataPointIndex, w}) {
+            const isDebit = seriesIndex === 0;
+            const valSDG = w.globals.series[seriesIndex][dataPointIndex];
+            const valUSD = isDebit ? areaDebF[dataPointIndex] : areaCredF[dataPointIndex];
+            const color = w.globals.colors[seriesIndex];
+            const name = w.globals.seriesNames[seriesIndex];
+            return '<div style="padding:8px; background:rgba(15,23,42,0.9); border:1px solid '+color+'; border-radius:6px; color:'+color+';">' +
+                   '<b>' + name + '</b><br>' +
+                   valSDG.toLocaleString('en-US', {maximumFractionDigits:0}) + ' SDG<br>' +
+                   valUSD.toLocaleString('en-US', {maximumFractionDigits:2}) + ' USD' +
+                   '</div>';
+        } },
         theme: { mode: chartThemeMode }
     };
     if (chartCumulativeAreaFluid) chartCumulativeAreaFluid.destroy();
@@ -2988,17 +3231,30 @@ function renderVisualAnalytics(results) {
     // Chart 9: Polygon Radar Equilibrium Chart
     const optionsRadar = {
         series: [
-            { name: 'المدين (ما لك)', data: [categorySums['invoice'].debit, categorySums['purchase'].debit, categorySums['receipt'].debit, categorySums['payment'].debit, categorySums['jv'].debit] },
-            { name: 'الدائن (ما عليك)', data: [categorySums['invoice'].credit, categorySums['purchase'].credit, categorySums['receipt'].credit, categorySums['payment'].credit, categorySums['jv'].credit] }
+            { name: 'المدين (SDG)', data: [categorySums['invoice'].debit, categorySums['purchase'].debit, categorySums['receipt'].debit, categorySums['payment'].debit, categorySums['jv'].debit] },
+            { name: 'الدائن (SDG)', data: [categorySums['invoice'].credit, categorySums['purchase'].credit, categorySums['receipt'].credit, categorySums['payment'].credit, categorySums['jv'].credit] }
         ],
         chart: { type: 'radar', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
         colors: ['#38bdf8', '#c084fc'],
         stroke: { width: 2 },
         fill: { opacity: 0.25 },
         markers: { size: 4 },
-        xaxis: { categories: ['مبيعات', 'مشتريات', 'مقبوضات', 'مدفوعات', 'قيود'], labels: { style: { colors: isLightTheme ? '#0f172a' : '#e2e8f0', fontSize: '12px' } } },
+        xaxis: { categories: ['مبيعات', 'مشتريات', 'مقبوضات', 'مدفوعات', 'قيود'], labels: { style: { colors: isLightTheme ? '#0f172a' : '#e2e8f0', fontSize: '18px' } } },
         yaxis: { show: false },
         legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { custom: function({series, seriesIndex, dataPointIndex, w}) {
+            const isDebit = seriesIndex === 0;
+            const cat = ['invoice', 'purchase', 'receipt', 'payment', 'jv'][dataPointIndex];
+            const valSDG = w.globals.series[seriesIndex][dataPointIndex];
+            const valUSD = isDebit ? categorySums[cat].debitF : categorySums[cat].creditF;
+            const color = w.globals.colors[seriesIndex];
+            const name = w.globals.seriesNames[seriesIndex];
+            return '<div style="padding:8px; background:rgba(15,23,42,0.9); border:1px solid '+color+'; border-radius:6px; color:'+color+';">' +
+                   '<b>' + w.globals.labels[dataPointIndex] + ' (' + name + ')</b><br>' +
+                   valSDG.toLocaleString('en-US', {maximumFractionDigits:0}) + ' SDG<br>' +
+                   valUSD.toLocaleString('en-US', {maximumFractionDigits:2}) + ' USD' +
+                   '</div>';
+        } },
         theme: { mode: chartThemeMode }
     };
     if (chartRadarEquilibrium) chartRadarEquilibrium.destroy();
@@ -3012,9 +3268,14 @@ function renderVisualAnalytics(results) {
         chart: { type: 'pie', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
         colors: ['#10b981', '#f43f5e', '#64748b'],
         stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
-        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        dataLabels: { enabled: true, style: { fontSize: '12px', fontFamily: 'Tajawal, sans-serif', fontWeight: 'bold' } },
-        tooltip: { y: { formatter: v => v + ' قيد' } },
+        legend: { position: 'bottom', fontSize: '18px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        dataLabels: { enabled: true, style: { fontSize: '18px', fontFamily: 'Tajawal, sans-serif', fontWeight: 'bold' } },
+        tooltip: { y: { formatter: (v, opts) => {
+            const idx = opts?.seriesIndex;
+            if (idx === 0) return v + ' قيد (حجم: ' + totalDebit.toLocaleString() + ' SDG | ' + totalDebitF.toLocaleString(undefined, {maximumFractionDigits:2}) + ' USD)';
+            if (idx === 1) return v + ' قيد (حجم: ' + totalCredit.toLocaleString() + ' SDG | ' + totalCreditF.toLocaleString(undefined, {maximumFractionDigits:2}) + ' USD)';
+            return v + ' قيد';
+        } } },
         theme: { mode: chartThemeMode }
     };
     if (chartSolidPieActiveZero) chartSolidPieActiveZero.destroy();
@@ -3033,8 +3294,8 @@ function renderVisualAnalytics(results) {
         plotOptions: {
             radialBar: {
                 dataLabels: {
-                    name: { fontSize: '14px', color: isLightTheme ? '#64748b' : '#94a3b8' },
-                    value: { fontSize: '16px', fontWeight: '800', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + '%' },
+                    name: { fontSize: '20px', color: isLightTheme ? '#64748b' : '#94a3b8' },
+                    value: { fontSize: '22px', fontWeight: '800', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + '%' },
                     total: { show: true, label: 'نسب القيود', color: isLightTheme ? '#0f172a' : '#cbd5e1', formatter: () => debtorsPct + '%' }
                 },
                 track: { background: isLightTheme ? '#e2e8f0' : '#1e293b' }
@@ -3047,6 +3308,119 @@ function renderVisualAnalytics(results) {
     if (chartMultiRadialRings) chartMultiRadialRings.destroy();
     chartMultiRadialRings = new ApexCharts(document.querySelector("#chart-multi-radial-rings"), optionsMultiRadial);
     chartMultiRadialRings.render();
+
+    // Chart 12: Waterfall Balance
+    let runningSDG = 0;
+    let runningUSD = 0;
+    const waterfallDataSDG = [];
+    const waterfallDataUSD = [];
+    
+    // Limit to first 15 for waterfall to avoid clutter
+    const waterfallTxns = results.slice(0, 15);
+    waterfallTxns.forEach(t => {
+        let diffSDG = (t.debit || 0) - (t.credit || 0);
+        const exRate = t.exchangeRate || 1;
+        let diffUSD = 0;
+        if (t.currency && t.currency !== 'SDG' && t.currency !== '-') {
+            diffUSD = (t.debitForeign || (t.debit / exRate)) - (t.creditForeign || (t.credit / exRate));
+        } else {
+            const rate = (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0) ? ledgerExchangeRate : (exRate > 1 ? exRate : 1.0);
+            diffUSD = (t.debit / rate) - (t.credit / rate);
+        }
+        
+        waterfallDataSDG.push({
+            x: t.date + ' #' + t.ref,
+            y: diffSDG
+        });
+        waterfallDataUSD.push(diffUSD);
+    });
+
+    const optionsWaterfall = {
+        series: [{ name: 'التغير في الرصيد', data: waterfallDataSDG }],
+        chart: { type: 'bar', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        plotOptions: {
+            bar: {
+                colors: {
+                    ranges: [
+                        { from: -99999999999, to: -0.01, color: '#f43f5e' },
+                        { from: 0, to: 99999999999, color: '#10b981' }
+                    ]
+                },
+                columnWidth: '80%'
+            }
+        },
+        dataLabels: { enabled: false },
+        xaxis: { type: 'category', labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontSize: '16px' }, rotate: -45 } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
+        tooltip: {
+            custom: function({series, seriesIndex, dataPointIndex, w}) {
+                const valSDG = w.globals.series[seriesIndex][dataPointIndex];
+                const valUSD = waterfallDataUSD[dataPointIndex];
+                const color = valSDG < 0 ? '#f43f5e' : '#10b981';
+                return '<div style="padding:8px; background:rgba(15,23,42,0.9); border:1px solid '+color+'; border-radius:6px; color:'+color+';">' +
+                       '<b>' + w.globals.labels[dataPointIndex] + '</b><br>' +
+                       valSDG.toLocaleString('en-US', {maximumFractionDigits:0}) + ' SDG<br>' +
+                       valUSD.toLocaleString('en-US', {maximumFractionDigits:2}) + ' USD' +
+                       '</div>';
+            }
+        },
+        theme: { mode: chartThemeMode }
+    };
+    if (window.chartWaterfall) window.chartWaterfall.destroy();
+    window.chartWaterfall = new ApexCharts(document.querySelector("#chart-waterfall-balance"), optionsWaterfall);
+    window.chartWaterfall.render();
+
+    // Chart 13: Currency Composition
+    const totalLocalTxns = results.filter(t => !t.currency || t.currency === 'SDG' || t.currency === '-').reduce((acc, t) => acc + Math.max(t.debit, t.credit), 0);
+    const totalForeignTxns = results.filter(t => t.currency && t.currency !== 'SDG' && t.currency !== '-').reduce((acc, t) => acc + Math.max(t.debit, t.credit), 0);
+    
+    // We convert the foreign volume to local equivalent for ratio comparison
+    let totalForeignTxnsConverted = 0;
+    results.filter(t => t.currency && t.currency !== 'SDG' && t.currency !== '-').forEach(t => {
+         const exRate = t.exchangeRate || 1;
+         totalForeignTxnsConverted += (t.debitForeign || (t.debit/exRate)) * exRate + (t.creditForeign || (t.credit/exRate)) * exRate;
+    });
+
+    const optionsCurrency = {
+        series: [totalLocalTxns, totalForeignTxnsConverted],
+        labels: ['عمليات بالجنيه', 'عمليات بالدولار (مُقيّمة بالجنيه)'],
+        chart: { type: 'pie', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#38bdf8', '#10b981'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        legend: { position: 'bottom', fontSize: '19px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (window.chartCurrencyComp) window.chartCurrencyComp.destroy();
+    window.chartCurrencyComp = new ApexCharts(document.querySelector("#chart-currency-composition"), optionsCurrency);
+    window.chartCurrencyComp.render();
+
+    // Chart 14: Heatmap
+    // Group transactions by date
+    let dateGroups = {};
+    results.forEach(t => {
+        if (!dateGroups[t.date]) dateGroups[t.date] = 0;
+        dateGroups[t.date] += Math.max(t.debit, t.credit);
+    });
+    
+    let heatmapData = [];
+    Object.keys(dateGroups).slice(0, 30).forEach(d => {
+        heatmapData.push({ x: d, y: dateGroups[d] });
+    });
+
+    const optionsHeatmap = {
+        series: [{ name: 'حجم المعاملات (SDG)', data: heatmapData }],
+        chart: { type: 'treemap', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#a855f7'],
+        plotOptions: { treemap: { enableShades: true, shadeIntensity: 0.5, distributed: true, colorScale: { ranges: [{ from: 0, to: 99999999999, color: '#a855f7' }] } } },
+        dataLabels: { enabled: true, style: { fontSize: '18px', fontFamily: 'JetBrains Mono' }, formatter: (text, op) => op.value.toLocaleString('en-US', {maximumFractionDigits:0}) },
+        tooltip: { y: { formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' } },
+        theme: { mode: chartThemeMode }
+    };
+    if (window.chartLiquidityHeatmap) window.chartLiquidityHeatmap.destroy();
+    window.chartLiquidityHeatmap = new ApexCharts(document.querySelector("#chart-liquidity-heatmap"), optionsHeatmap);
+    window.chartLiquidityHeatmap.render();
 }
 
 window.switchVisualTab = function(type) {
@@ -3061,106 +3435,162 @@ window.switchVisualTab = function(type) {
 
 
 
-const DEFAULT_PRESETS_GL = {
-    1: [
-        { id: 'date', visible: true, size: '0.85rem', bold: false },
-        { id: 'docNo', visible: true, size: '0.85rem', bold: true },
-        { id: 'account', visible: true, size: '0.9rem', bold: true },
-        { id: 'statement', visible: true, size: '0.85rem', bold: false },
-        { id: 'debit', visible: true, size: '1rem', bold: true },
-        { id: 'credit', visible: true, size: '1rem', bold: true },
-        { id: 'balance', visible: true, size: '1rem', bold: true }
-    ],
-    2: [
-        { id: 'date', visible: true, size: '0.8rem', bold: false },
-        { id: 'docNo', visible: true, size: '0.8rem', bold: false },
-        { id: 'account', visible: true, size: '0.85rem', bold: false },
-        { id: 'statement', visible: true, size: '0.85rem', bold: false },
-        { id: 'debit', visible: true, size: '0.9rem', bold: false },
-        { id: 'credit', visible: true, size: '0.9rem', bold: false },
-        { id: 'balance', visible: true, size: '0.9rem', bold: false }
-    ],
-    3: [
-        { id: 'date', visible: true, size: '0.95rem', bold: true },
-        { id: 'docNo', visible: true, size: '0.95rem', bold: true },
-        { id: 'account', visible: true, size: '1.1rem', bold: true },
-        { id: 'statement', visible: true, size: '1rem', bold: false },
-        { id: 'debit', visible: true, size: '1.25rem', bold: true },
-        { id: 'credit', visible: true, size: '1.25rem', bold: true },
-        { id: 'balance', visible: true, size: '1.25rem', bold: true }
-    ],
-    4: [
-        { id: 'date', visible: true },
-        { id: 'docNo', visible: true },
-        { id: 'account', visible: true },
-        { id: 'statement', visible: true },
-        { id: 'debit', visible: true },
-        { id: 'credit', visible: true },
-        { id: 'balance', visible: true },
-        { id: 'currency', visible: true },
-        { id: 'exRate', visible: true },
-        { id: 'debitF', visible: true },
-        { id: 'creditF', visible: true },
-        { id: 'balanceF', visible: true }
-    ]
-};
+const DEFAULT_PRESETS_GL = { 1: [], 2: [], 3: [], 4: [] };
 
 let modelSaveTimer = null;
 
+let presetSaveTimers = {};
+
+function startPresetSave(id) {
+    presetSaveTimers[id] = setTimeout(() => {
+        let presetKey = 'gl_preset_' + id;
+        if (window.LOADED_GL_PRESETS && window.LOADED_GL_PRESETS[presetKey + '_locked']) {
+            showToast('عفواً، لا يمكن تعديل افتراضي ' + id + ' لأنه محفوظ نهائياً في قاعدة البيانات!', 'error');
+            return;
+        }
+
+        if(confirm('هل أنت متأكد أنك تريد حفظ التصميم الحالي في "افتراضي ' + id + '"؟ هذا الإجراء نهائي ولا يمكن تغييره لاحقاً وسيتم حفظه في قاعدة البيانات.')) {
+            
+            let config = {
+                colConfig: JSON.parse(JSON.stringify(colConfig)),
+                theme: currentTableTheme,
+                font: currentNumFont
+            };
+
+            fetch('api/save_gl_preset.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id, config: config })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    showToast('تم حفظ التصميم في افتراضي ' + id + ' بشكل نهائي من الألف إلى الياء!', 'success');
+                    if(!window.LOADED_GL_PRESETS) window.LOADED_GL_PRESETS = {};
+                    window.LOADED_GL_PRESETS[presetKey] = config;
+                    window.LOADED_GL_PRESETS[presetKey + '_locked'] = true;
+                    
+                    let btn = document.getElementById('btn-preset-' + id);
+                    if(btn) {
+                        btn.style.background = '#10b981';
+                        btn.style.color = '#fff';
+                        setTimeout(() => {
+                            btn.style.background = '';
+                            btn.style.color = '';
+                        }, 1500);
+                    }
+                } else {
+                    showToast(data.error || 'حدث خطأ أثناء الحفظ', 'error');
+                }
+            })
+            .catch(err => showToast('خطأ في الاتصال بالخادم', 'error'));
+        }
+    }, 8000); // 8 seconds hold
+}
+
+function stopPresetSave(id) {
+    if (presetSaveTimers[id]) {
+        clearTimeout(presetSaveTimers[id]);
+        presetSaveTimers[id] = null;
+    }
+}
+
 function applyPresetGL(id) {
-    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.preset-btn, .magic-btn').forEach(b => b.classList.remove('active'));
     let btn = document.getElementById('btn-preset-' + id);
+    if (!btn) btn = document.getElementById('btn-preset-m' + String(id).replace('m', ''));
     if(btn) btn.classList.add('active');
 
+    let pConfig = null;
     let layout = null;
-    if (['1','2','3','4'].includes(String(id))) {
-        layout = DEFAULT_PRESETS_GL[id];
+
+    if (['1', '2', '3', '4', 1, 2, 3, 4].includes(id)) {
+        let presetKey = 'gl_preset_' + id;
+        if (window.LOADED_GL_PRESETS && window.LOADED_GL_PRESETS[presetKey]) {
+            pConfig = window.LOADED_GL_PRESETS[presetKey];
+        } else {
+            showToast('هذا الافتراضي فارغ حالياً. اضغط مطولاً لمدة 8 ثوانٍ للحفظ.', 'warning');
+            return;
+        }
     } else {
-        let saved = JSON.parse(localStorage.getItem('sgl_models_v1') || '{}');
-        layout = saved[id];
-        if (!layout) {
+        // Models m1, m2
+        let modelKey = 'gl_model_' + String(id).replace('m', '');
+        if (window.LOADED_GL_PRESETS && window.LOADED_GL_PRESETS[modelKey]) {
+            pConfig = window.LOADED_GL_PRESETS[modelKey];
+        } else {
             showToast('هذا النموذج فارغ، اضغط عليه 8 ثوانٍ لحفظ التنسيق الحالي كنموذج.', 'error');
             return;
         }
     }
 
-    if (layout && layout.length > 0) {
-        colConfig.forEach(c => {
-            let found = layout.find(x => x.id === c.id);
-            if (found) {
-                c.visible = found.visible !== false;
-                if(found.size) c.size = found.size;
-                if(found.bold !== undefined) c.bold = found.bold;
-            } else {
-                c.visible = false;
+    if (pConfig) {
+        if (pConfig.colConfig) {
+            colConfig = JSON.parse(JSON.stringify(pConfig.colConfig));
+        }
+
+        if (pConfig.theme !== undefined) {
+            currentTableTheme = pConfig.theme;
+            if (typeof applyTableTheme === 'function') applyTableTheme(currentTableTheme);
+            if (typeof updateCrystalButtons === 'function') updateCrystalButtons(currentTableTheme);
+        }
+
+        if (pConfig.font !== undefined) {
+            currentNumFont = pConfig.font;
+            if (typeof changeNumberFont === 'function') changeNumberFont(currentNumFont);
+            else {
+                document.querySelectorAll('.num-cell-wrapper').forEach(el => {
+                    el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins', 'num-font-tahoma', 'num-font-arial', 'num-font-consolas');
+                    el.classList.add(currentNumFont);
+                });
             }
-        });
-        localStorage.setItem('sgl_col_config_v1', JSON.stringify(colConfig));
+        }
+
+        saveColumnConfig(); // Ensure SaaS sync picks up the loaded config
+
         if (typeof previewColSettingsGL === 'function') previewColSettingsGL();
         else {
             applyConfigToHeaders();
             runReport();
         }
-        showToast('تم تطبيق التنسيق بنجاح', 'success');
+        showToast('تم تطبيق التصميم المحفوظ بنجاح', 'success');
     }
 }
 
 function startModelSave(id) {
     modelSaveTimer = setTimeout(() => {
-        let saved = JSON.parse(localStorage.getItem('sgl_models_v1') || '{}');
-        saved[id] = JSON.parse(JSON.stringify(colConfig));
-        localStorage.setItem('sgl_models_v1', JSON.stringify(saved));
-        showToast('تم حفظ التنسيق الحالي في هذا النموذج بنجاح!', 'success');
-        
-        let btn = document.getElementById('btn-preset-' + id);
-        if(btn) {
-            btn.style.background = '#22c55e';
-            btn.style.color = '#fff';
-            setTimeout(() => {
-                btn.style.background = '';
-                btn.style.color = '';
-            }, 1000);
-        }
+        let config = {
+            colConfig: JSON.parse(JSON.stringify(colConfig)),
+            theme: currentTableTheme,
+            font: currentNumFont
+        };
+
+        fetch('api/save_gl_preset.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, config: config })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                let modelKey = 'gl_model_' + String(id).replace('m', '');
+                if(!window.LOADED_GL_PRESETS) window.LOADED_GL_PRESETS = {};
+                window.LOADED_GL_PRESETS[modelKey] = config;
+                
+                showToast('تم حفظ التنسيق الحالي في هذا النموذج بنجاح!', 'success');
+                let btn = document.getElementById('btn-preset-' + id);
+                if(btn) {
+                    btn.style.background = '#22c55e';
+                    btn.style.color = '#fff';
+                    setTimeout(() => {
+                        btn.style.background = '';
+                        btn.style.color = '';
+                    }, 1000);
+                }
+            } else {
+                showToast(data.error || 'حدث خطأ أثناء الحفظ', 'error');
+            }
+        })
+        .catch(err => showToast('خطأ في الاتصال بالخادم', 'error'));
     }, 8000);
 }
 
@@ -3170,3 +3600,18 @@ function stopModelSave() {
         modelSaveTimer = null;
     }
 }
+
+
+
+window.LOADED_GL_PRESETS = {};
+function fetchGLPresets() {
+    fetch('api/get_gl_presets.php')
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                window.LOADED_GL_PRESETS = data.presets || {};
+            }
+        })
+        .catch(err => console.error('Error fetching presets:', err));
+}
+document.addEventListener('DOMContentLoaded', fetchGLPresets);

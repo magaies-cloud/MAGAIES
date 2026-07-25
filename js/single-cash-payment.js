@@ -82,7 +82,11 @@ document.addEventListener('DBReady', () => {
 
     const dateInputEl = document.getElementById('hdr-date');
     if (dateInputEl) {
-        dateInputEl.valueAsDate = new Date();
+        const __d = new Date();
+        const __y = __d.getFullYear();
+        const __m = String(__d.getMonth() + 1).padStart(2, '0');
+        const __day = String(__d.getDate()).padStart(2, '0');
+        dateInputEl.value = `${__y}-${__m}-${__day}`;
         dateInputEl.addEventListener('change', () => {
             if (typeof currentViewedIndex !== 'undefined' && currentViewedIndex === -1) {
                 setNextVoucherNumber();
@@ -623,6 +627,7 @@ function submitVoucher() {
         createdBy: (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown',
         id: document.getElementById('voucher-number').innerText,
         date: document.getElementById('hdr-date').value,
+        time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
         type: 'single_payment',
         
         toAccount: toAcc,
@@ -847,7 +852,7 @@ function submitVoucher() {
             try { return JSON.parse(localStorage.getItem(getTenantKey(key)) || localStorage.getItem(key)) || []; } catch(e) { return []; }
         };
         const saveEntity = (key, data) => {
-            localStorage.setItem(getTenantKey(key), JSON.stringify(data));
+            localStorage.setItem(key, JSON.stringify(data));
         };
 
         // 1. Update fromAccount (Safe/Bank)
@@ -930,18 +935,21 @@ function submitVoucher() {
             applyPaymentEffect(voucherData.fromAccount, voucherData.toAccount, voucherData.amountLocal, false);
             
             singlePaymentsData[currentViewedIndex] = voucherData;
-            localStorage.setItem(getTenantKey('erp_single_payments_v1'), JSON.stringify(singlePaymentsData));
+            localStorage.setItem('erp_single_payments_v1', JSON.stringify(singlePaymentsData));
+            window.SERVER_SINGLE_PAYMENTS = singlePaymentsData;
             showProfessionalSuccess(voucherData.id, fromName, toName, voucherData.amountLocal, voucherData.currency, 'تم التعديل بنجاح');
         } else {
             applyPaymentEffect(voucherData.fromAccount, voucherData.toAccount, voucherData.amountLocal, false);
             singlePaymentsData.push(voucherData);
-            localStorage.setItem(getTenantKey('erp_single_payments_v1'), JSON.stringify(singlePaymentsData));
+            currentViewedIndex = singlePaymentsData.length - 1; // Keep the saved voucher on screen
+            localStorage.setItem('erp_single_payments_v1', JSON.stringify(singlePaymentsData));
+            window.SERVER_SINGLE_PAYMENTS = singlePaymentsData;
             const currentSeq = parseInt(localStorage.getItem(getTenantKey('erp_single_payment_seq')) || localStorage.getItem('erp_single_payment_seq') || '0');
-            localStorage.setItem(getTenantKey('erp_single_payment_seq'), currentSeq + 1);
+            localStorage.setItem('erp_single_payment_seq', currentSeq + 1);
             showProfessionalSuccess(voucherData.id, fromName, toName, voucherData.amountLocal, voucherData.currency, 'تم الحفظ بنجاح');
         }
 
-        setTimeout(() => { resetVoucherSilent(); }, 2500);
+        // setTimeout(() => { resetVoucherSilent(); }, 2500); // Do not erase the form after saving based on user feedback
     } catch (err) {
         console.error(err);
         alert("حدث خطأ أثناء الحفظ: " + err.message + "في السطر: " + err.stack);
@@ -1194,55 +1202,70 @@ function confirmDelete() {
         const oldVoucher = singlePaymentsData[currentViewedIndex];
         
         // Revert old payment effect
-        function applyPaymentEffect(fromAccId, toAccId, amount, isRevert = false) {
+        function applyPaymentEffectDel(fromAccId, toAccId, amount, isRevert = false) {
             let multiplier = isRevert ? -1 : 1;
             let amtSafe = -amount * multiplier;
             let amtBeneficiary = -amount * multiplier;
 
-            let custs = [];
-            try {
-                custs = ((window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []))).filter(x => !x.deleted);
-                if (!Array.isArray(custs)) custs = [];
-            } catch(e) {
-                custs = [];
-            }
-            let cIdx = custs.findIndex(c => c.id === toAccId);
-            if (cIdx > -1) {
-                custs[cIdx].currentBalance = (custs[cIdx].currentBalance || 0) + amtBeneficiary;
-                localStorage.setItem('erp_customers_v1', JSON.stringify(custs));
-            } else {
-                let sups = [];
-            try {
-                sups = ((window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []))).filter(x => !x.deleted);
-                if (!Array.isArray(sups)) sups = [];
-            } catch(e) {
-                sups = [];
-            }
-                let sIdx = sups.findIndex(s => s.id === toAccId);
-                if (sIdx > -1) {
-                    sups[sIdx].currentBalance = (sups[sIdx].currentBalance || 0) + amtBeneficiary;
-                    localStorage.setItem('erp_suppliers_v1', JSON.stringify(sups));
+            const getTenantKey = window.getTenantKey || ((k) => k);
+            const loadEntity = (key) => {
+                try { return JSON.parse(localStorage.getItem(getTenantKey(key)) || localStorage.getItem(key)) || []; } catch(e) { return []; }
+            };
+            const saveEntity = (key, data) => {
+                localStorage.setItem(key, JSON.stringify(data));
+            };
+
+            if (fromAccId.startsWith('safe-')) {
+                let id = fromAccId.substring(5);
+                let safes = loadEntity('erp_safes_v1');
+                let idx = safes.findIndex(s => String(s.id) === String(id));
+                if (idx > -1) {
+                    safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtSafe;
+                    saveEntity('erp_safes_v1', safes);
+                }
+            } else if (fromAccId.startsWith('bank-')) {
+                let id = fromAccId.substring(5);
+                let banks = loadEntity('erp_banks_v1');
+                let idx = banks.findIndex(b => String(b.id) === String(id));
+                if (idx > -1) {
+                    banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtSafe;
+                    saveEntity('erp_banks_v1', banks);
                 }
             }
 
-            let banks = [];
-            try {
-                banks = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []));
-                if (!Array.isArray(banks)) banks = [];
-            } catch(e) {
-                banks = [];
-            }
-            let bIdx = banks.findIndex(b => b.id === fromAccId);
-            if (bIdx > -1) {
-                banks[bIdx].currentBalance = (banks[bIdx].currentBalance || 0) + amtSafe;
-                localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+            if (toAccId.startsWith('cust-')) {
+                let id = toAccId.substring(5);
+                let custs = loadEntity('erp_customers_v1');
+                let idx = custs.findIndex(c => String(c.id) === String(id));
+                if (idx > -1) {
+                    custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amount * multiplier;
+                    saveEntity('erp_customers_v1', custs);
+                }
+            } else if (toAccId.startsWith('supp-')) {
+                let id = toAccId.substring(5);
+                let sups = loadEntity('erp_suppliers_v1');
+                let idx = sups.findIndex(s => String(s.id) === String(id));
+                if (idx > -1) {
+                    sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtBeneficiary;
+                    saveEntity('erp_suppliers_v1', sups);
+                }
+            } else if (toAccId.startsWith('exp-')) {
+                let id = toAccId.substring(4);
+                let accounts = loadEntity('erp_accounts_v1');
+                let idx = accounts.findIndex(a => String(a.id) === String(id));
+                if (idx > -1) {
+                    accounts[idx].currentBalance = (parseFloat(accounts[idx].currentBalance) || 0) + amount * multiplier;
+                    saveEntity('erp_accounts_v1', accounts);
+                }
             }
         }
         
-        applyPaymentEffect(oldVoucher.fromAccount, oldVoucher.toAccount, oldVoucher.amountLocal, true);
+        applyPaymentEffectDel(oldVoucher.fromAccount, oldVoucher.toAccount, oldVoucher.amountLocal, true);
 
         singlePaymentsData.splice(currentViewedIndex, 1);
+        const getTenantKey = window.getTenantKey || ((k) => k);
         localStorage.setItem('erp_single_payments_v1', JSON.stringify(singlePaymentsData));
+        window.SERVER_SINGLE_PAYMENTS = singlePaymentsData;
         showToast("تم حذف السند بنجاح", "success");
         resetVoucherSilent();
     }

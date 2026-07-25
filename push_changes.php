@@ -1,7 +1,7 @@
 <?php
 $output = shell_exec('git add . 2>&1');
 echo "ADD: " . $output . "\n";
-$output = shell_exec('git commit -m "UI: Adjust General Ledger spacing" 2>&1');
+$output = shell_exec('git commit -m "Update visual analytics: add waterfall, heatmap, currency formats, and increase font size" 2>&1');
 echo "COMMIT: " . $output . "\n";
 $output = shell_exec('git push origin main 2>&1');
 echo "PUSH MAIN: " . $output . "\n";

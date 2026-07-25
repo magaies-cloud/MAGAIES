@@ -39,7 +39,11 @@ document.addEventListener('DBReady', () => {
     localSafes.forEach(s => ACCOUNTS.push({ id: s.id, name: s.name }));
     localExp.forEach(e => ACCOUNTS.push({ id: e.id || e.code, name: e.name }));
 
-    document.getElementById('hdr-date').valueAsDate = new Date();
+    const __d = new Date();
+    const __y = __d.getFullYear();
+    const __m = String(__d.getMonth() + 1).padStart(2, '0');
+    const __day = String(__d.getDate()).padStart(2, '0');
+    document.getElementById('hdr-date').value = `${__y}-${__m}-${__day}`;
     setNextVoucherNumber();
     
     // Initialize with 2 empty rows by default
@@ -307,6 +311,7 @@ function submitVoucher() {
         createdBy: (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown',
         id: document.getElementById('voucher-number').innerText,
         date: document.getElementById('hdr-date').value,
+        time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
         ref: document.getElementById('hdr-ref').value,
         statement: document.getElementById('hdr-statement').value,
         totalAmount: totalDebit,
