@@ -1,6 +1,6 @@
 // js/preview-balances.js - Pro Studio Edition
 
-const PRESETS_STORAGE_KEY = 'balances_preview_presets_v5';
+const PRESETS_STORAGE_KEY = 'balances_preview_presets_v7';
 const MAX_PRESETS_LIMIT = 7;
 let currentData = [];
 let filteredData = [];
@@ -308,20 +308,67 @@ function initPresets() {
         });
     }
 
-    // Populate 7 defaults if completely empty
+    // Populate 7 defaults with pre-configured themes & fonts if completely empty
     if (list.length === 0) {
-        const presetIcons = [
-            '💎 افتراضي 1', 
-            '⭐ افتراضي 2', 
-            '🎨 افتراضي 3', 
-            '🔥 افتراضي 4', 
-            '✨ نموذج 1', 
-            '🚀 نموذج 2', 
-            '🌟 نموذج 3'
-        ];
-        for (let i = 0; i < 7; i++) {
-            list.push({
-                name: presetIcons[i],
+        list = [
+            {
+                name: '💎 افتراضي 1',
+                configs: getDefaultConfigs(),
+                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                theme: 'theme-classic-navy',
+                font: 'font-ultra',
+                paperSize: 'A4',
+                orientation: 'landscape',
+                showLogo: true,
+                showInfo: true,
+                showInRibbon: true,
+                isLocked: false,
+                isFactoryDefault: true
+            },
+            {
+                name: '⭐ افتراضي 2',
+                configs: getDefaultConfigs(),
+                order: [0, 1, 2, 3, 6, 7, 8, 9, 4, 5, 10],
+                theme: 'theme-emerald-pro',
+                font: 'font-newsons',
+                paperSize: 'A4',
+                orientation: 'landscape',
+                showLogo: true,
+                showInfo: true,
+                showInRibbon: true,
+                isLocked: false,
+                isFactoryDefault: true
+            },
+            {
+                name: '🎨 افتراضي 3',
+                configs: getDefaultConfigs(),
+                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                theme: 'theme-modern-slate',
+                font: 'font-tajawal',
+                paperSize: 'A4',
+                orientation: 'landscape',
+                showLogo: true,
+                showInfo: true,
+                showInRibbon: true,
+                isLocked: false,
+                isFactoryDefault: true
+            },
+            {
+                name: '🔥 افتراضي 4',
+                configs: getDefaultConfigs(),
+                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                theme: 'theme-luxury-gold',
+                font: 'font-cairo',
+                paperSize: 'A4',
+                orientation: 'landscape',
+                showLogo: true,
+                showInfo: true,
+                showInRibbon: true,
+                isLocked: false,
+                isFactoryDefault: true
+            },
+            {
+                name: '✨ نموذج 1',
                 configs: getDefaultConfigs(),
                 order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 theme: '',
@@ -333,8 +380,36 @@ function initPresets() {
                 showInRibbon: true,
                 isLocked: false,
                 isFactoryDefault: false
-            });
-        }
+            },
+            {
+                name: '🚀 نموذج 2',
+                configs: getDefaultConfigs(),
+                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                theme: '',
+                font: 'font-ultra',
+                paperSize: 'A4',
+                orientation: 'landscape',
+                showLogo: true,
+                showInfo: true,
+                showInRibbon: true,
+                isLocked: false,
+                isFactoryDefault: false
+            },
+            {
+                name: '🌟 نموذج 3',
+                configs: getDefaultConfigs(),
+                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                theme: '',
+                font: 'font-ultra',
+                paperSize: 'A4',
+                orientation: 'landscape',
+                showLogo: true,
+                showInfo: true,
+                showInRibbon: true,
+                isLocked: false,
+                isFactoryDefault: false
+            }
+        ];
     } else {
         // Migration & Swapping per user request:
         // Old افتراضي 3 -> New افتراضي 1
