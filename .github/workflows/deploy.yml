@@ -27,7 +27,7 @@ jobs:
         debug: true
         script: |
           cd /var/www/magaees
-          git remote set-url origin https://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@github.com/magaies-cloud/magaies.git
+          git remote set-url origin https://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@github.com/magaies-cloud/magaies.git
           git update-index --no-skip-worktree whatsapp-service.mjs || true
           chmod 644 whatsapp-service.mjs || true
           git fetch origin
