@@ -16,7 +16,7 @@ window.colConfigs = [
 ];
 window.colOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 window.currentTableTheme = '';
-window.currentNumFont = 'num-font-jetbrains';
+window.currentNumFont = 'num-font-inter';
 
 let ledgerExchangeRate = 1.0;
 let ledgerForeignCurrency = 'USD';
@@ -79,14 +79,16 @@ function applyLayoutToDOM() {
 
                 // Styles
                 const fsVal = (conf.fs !== undefined ? conf.fs : 1.0) + 'em';
-                const fwVal = conf.fontWeight || (conf.bold ? '900' : 'bold');
+                const isBold = conf.bold || conf.fontWeight === 'bold' || conf.fontWeight === '900';
+                const fwVal = isBold ? '900' : 'normal';
+                const alignVal = conf.textAlign || conf.align || '';
                 
                 th.style.setProperty('font-weight', fwVal, 'important');
                 th.style.setProperty('font-size', fsVal, 'important');
                 if (conf.color) th.style.setProperty('color', conf.color, 'important'); else th.style.removeProperty('color');
                 if (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') th.style.setProperty('background-color', conf.bg, 'important'); else th.style.removeProperty('background-color');
                 if (conf.fontFamily) th.style.setProperty('font-family', conf.fontFamily, 'important'); else th.style.removeProperty('font-family');
-                if (conf.textAlign) th.style.setProperty('text-align', conf.textAlign, 'important'); else th.style.removeProperty('text-align');
+                if (alignVal) th.style.setProperty('text-align', alignVal, 'important'); else th.style.removeProperty('text-align');
             });
         }
 
@@ -107,14 +109,16 @@ function applyLayoutToDOM() {
 
                         // Styles
                         const fsVal = (conf.fs !== undefined ? conf.fs : 1.0) + 'em';
-                        const fwVal = conf.fontWeight || (conf.bold ? 'bold' : '');
+                        const isBold = conf.bold || conf.fontWeight === 'bold' || conf.fontWeight === '900';
+                        const fwVal = isBold ? '900' : 'normal';
+                        const alignVal = conf.textAlign || conf.align || '';
 
                         cell.style.setProperty('font-weight', fwVal, 'important');
                         cell.style.setProperty('font-size', fsVal, 'important');
                         if (conf.color) cell.style.setProperty('color', conf.color, 'important'); else cell.style.removeProperty('color');
                         if (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') cell.style.setProperty('background-color', conf.bg, 'important'); else cell.style.removeProperty('background-color');
                         if (conf.fontFamily) cell.style.setProperty('font-family', conf.fontFamily, 'important'); else cell.style.removeProperty('font-family');
-                        if (conf.textAlign) cell.style.setProperty('text-align', conf.textAlign, 'important'); else cell.style.removeProperty('text-align');
+                        if (alignVal) cell.style.setProperty('text-align', alignVal, 'important'); else cell.style.removeProperty('text-align');
                     }
                 });
             });
@@ -131,19 +135,76 @@ function applyLayoutToDOM() {
 
 function loadLayout() {
     try {
-        const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
-        const settings = JSON.parse(settingsStr);
-        const layout = settings.balancesReportLayout;
-        if (layout) {
-            if (layout.colConfigs && layout.colOrder && layout.colOrder.length === 9) {
-                layout.colConfigs.forEach(c => {
-                    if (c.visible === undefined) c.visible = true;
-                });
+        const master1 = localStorage.getItem('balances_report_master_v4_default1');
+        if (master1) {
+            const parsed = JSON.parse(master1);
+            if (parsed && parsed.colConfigs && parsed.colOrder) {
+                window.colConfigs = parsed.colConfigs;
+                window.colOrder = parsed.colOrder;
+            }
+        } else {
+            const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
+            const settings = JSON.parse(settingsStr);
+            const layout = settings.balancesReportLayout;
+            if (layout && layout.colConfigs && layout.colOrder) {
                 window.colConfigs = layout.colConfigs;
                 window.colOrder = layout.colOrder;
             }
         }
-    } catch(e) { console.error('Error loading layout', e); }
+    } catch(e) { console.error('Error loading local layout', e); }
+
+    // Synchronize permanently with Database
+    fetch('api_index.php/report-layout?reportKey=balances_report_layout_v4_default1')
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.success && data.layout) {
+                const dbLayout = data.layout;
+                if (dbLayout.colConfigs && dbLayout.colOrder && dbLayout.colOrder.length === 9) {
+                    window.colConfigs = dbLayout.colConfigs;
+                    window.colOrder = dbLayout.colOrder;
+                    
+                    try {
+                        localStorage.setItem('balances_report_master_v4_default1', JSON.stringify(dbLayout));
+                        const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
+                        const settings = JSON.parse(settingsStr);
+                        settings.balancesReportLayout = dbLayout;
+                        localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
+                    } catch(e) {}
+
+                    if (typeof applyLayoutToDOM === 'function') applyLayoutToDOM();
+                    if (typeof bindContextMenuList === 'function') bindContextMenuList();
+                    if (typeof renderColumnContextMenu === 'function') renderColumnContextMenu();
+                    if (typeof window.renderBalancesPresets === 'function') window.renderBalancesPresets();
+                    if (window.lastResults && typeof renderTable === 'function') renderTable(window.lastResults);
+                }
+            }
+        })
+        .catch(err => console.log('DB layout sync info:', err));
+
+    // Permanently sync and lock User Presets (including افتراضي 1) to Database
+    fetch('api_index.php/report-layout?reportKey=balances_report_user_presets_locked')
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.success && data.layout) {
+                // If it exists in DB, strictly overwrite local storage so it never changes
+                localStorage.setItem('balances_report_user_presets_v3', JSON.stringify(data.layout));
+                if (typeof window.renderBalancesPresets === 'function') window.renderBalancesPresets();
+            } else {
+                // If not in DB yet, upload current local storage to DB to lock it forever
+                let curUserList = localStorage.getItem('balances_report_user_presets_v3');
+                if (curUserList) {
+                    fetch('api_index.php/report-layout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            reportKey: 'balances_report_user_presets_locked',
+                            layout: JSON.parse(curUserList)
+                        })
+                    });
+                }
+            }
+        })
+        .catch(e => console.log(e));
 }
 loadLayout();
 
@@ -155,43 +216,90 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+let isSavingLayout = false;
 function saveLayout() {
     try {
-        const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
-        const settings = JSON.parse(settingsStr);
-        
-        settings.balancesReportLayout = {
+        const layoutPayload = {
             colConfigs: window.colConfigs,
             colOrder: window.colOrder
         };
-        
+
+        const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
+        const settings = JSON.parse(settingsStr);
+        settings.balancesReportLayout = layoutPayload;
         localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
-        showToast('تم حفظ التصميم في قاعدة البيانات بنجاح', 'success');
+        localStorage.setItem('balances_report_master_v4_default1', JSON.stringify(layoutPayload));
+        
+        // Save permanently to MySQL Database
+        if (!isSavingLayout) {
+            isSavingLayout = true;
+            fetch('api_index.php/report-layout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    reportKey: 'balances_report_layout_v4_default1',
+                    layout: layoutPayload
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                isSavingLayout = false;
+                if (data && data.success) {
+                    console.log('✅ Layout saved permanently to DB');
+                }
+            })
+            .catch(err => {
+                isSavingLayout = false;
+                console.error('Failed to save layout to DB', err);
+            });
+        }
         
         if (typeof window.renderBalancesPresets === 'function') {
             window.renderBalancesPresets();
         }
     } catch(e) {
         console.error('Error saving layout', e);
-        showToast('فشل في حفظ التصميم', 'error');
     }
 }
 
 function fmtColNum(n, origIdx) {
     const conf = (window.colConfigs && window.colConfigs[origIdx]) ? window.colConfigs[origIdx] : {};
     const showDec = (conf.showDecimals !== false);
-    const d = showDec ? ((conf.decimals !== undefined) ? parseInt(conf.decimals) : 2) : 0;
+    const d = showDec ? ((conf.decimals !== undefined) ? parseInt(conf.decimals) : ((conf.dec !== undefined) ? parseInt(conf.dec) : 2)) : 0;
     const isThousands = (conf.thousands !== false);
+    const thouSep = (conf.thousandsSep !== undefined) ? conf.thousandsSep : ',';
+    const decSep = (conf.decSep !== undefined) ? conf.decSep : '.';
+    const roundMode = conf.roundMode || 'round';
+
     const val = parseFloat(n);
     if (isNaN(val)) return String(n || '');
 
-    let formatted = val.toFixed(d);
-    if (isThousands) {
-        const parts = formatted.split('.');
-        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        formatted = parts.join('.');
+    let roundedVal = val;
+    const factor = Math.pow(10, d);
+    if (d >= 0) {
+        if (roundMode === 'floor') {
+            roundedVal = Math.floor(val * factor) / factor;
+        } else if (roundMode === 'ceil') {
+            roundedVal = Math.ceil(val * factor) / factor;
+        } else if (roundMode === 'trunc') {
+            roundedVal = Math.trunc(val * factor) / factor;
+        } else {
+            roundedVal = Math.round(val * factor) / factor;
+        }
     }
-    return formatted;
+
+    let formatted = roundedVal.toFixed(d);
+    const parts = formatted.split('.');
+    
+    if (isThousands && thouSep !== 'none') {
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, thouSep);
+    }
+    
+    if (d > 0) {
+        return parts[0] + decSep + (parts[1] || '');
+    } else {
+        return parts[0];
+    }
 }
 function parseNum(str) {
     return parseFloat(String(str || '0').replace(/,/g, '')) || 0;
@@ -652,37 +760,77 @@ function bindNumberFocus() {
 
 window.switchCtxTab = function(tab) {
     const colsTab = document.getElementById('ctx-tab-cols');
+    const numbersTab = document.getElementById('ctx-tab-numbers');
     const formattingTab = document.getElementById('ctx-tab-formatting');
+    
     const colsBtn = document.getElementById('tab-btn-cols');
+    const numbersBtn = document.getElementById('tab-btn-numbers');
     const formattingBtn = document.getElementById('tab-btn-formatting');
     
     if (!colsTab || !formattingTab) return;
-    
+
+    const resetStyle = (btn) => {
+        if (!btn) return;
+        btn.style.background = 'transparent';
+        btn.style.color = '#94a3b8';
+        btn.style.fontWeight = '700';
+        btn.style.boxShadow = 'none';
+    };
+    const setActiveStyle = (btn) => {
+        if (!btn) return;
+        btn.style.background = '#38bdf8';
+        btn.style.color = '#0f172a';
+        btn.style.fontWeight = '900';
+        btn.style.boxShadow = '0 2px 10px rgba(56,189,248,0.4)';
+    };
+
+    if (colsTab) colsTab.style.display = 'none';
+    if (numbersTab) numbersTab.style.display = 'none';
+    if (formattingTab) formattingTab.style.display = 'none';
+
+    resetStyle(colsBtn);
+    resetStyle(numbersBtn);
+    resetStyle(formattingBtn);
+
     if (tab === 'cols') {
-        colsTab.style.display = 'block';
-        formattingTab.style.display = 'none';
-        colsBtn.style.background = '#38bdf8';
-        colsBtn.style.color = '#0f172a';
-        colsBtn.style.fontWeight = '900';
-        colsBtn.style.boxShadow = '0 2px 8px rgba(56,189,248,0.3)';
-        
-        formattingBtn.style.background = 'transparent';
-        formattingBtn.style.color = '#94a3b8';
-        formattingBtn.style.fontWeight = '700';
-        formattingBtn.style.boxShadow = 'none';
+        if (colsTab) colsTab.style.display = 'block';
+        setActiveStyle(colsBtn);
+    } else if (tab === 'numbers') {
+        if (numbersTab) numbersTab.style.display = 'block';
+        setActiveStyle(numbersBtn);
     } else {
-        colsTab.style.display = 'none';
-        formattingTab.style.display = 'block';
-        formattingBtn.style.background = '#38bdf8';
-        formattingBtn.style.color = '#0f172a';
-        formattingBtn.style.fontWeight = '900';
-        formattingBtn.style.boxShadow = '0 2px 8px rgba(56,189,248,0.3)';
-        
-        colsBtn.style.background = 'transparent';
-        colsBtn.style.color = '#94a3b8';
-        colsBtn.style.fontWeight = '700';
-        colsBtn.style.boxShadow = 'none';
+        if (formattingTab) formattingTab.style.display = 'block';
+        setActiveStyle(formattingBtn);
     }
+};
+
+window.applyGlobalNumberSettingsFromUI = function() {
+    const thActive = document.getElementById('global-thousands-active')?.value === '1';
+    const thSep = document.getElementById('global-thousands-sep')?.value || ',';
+    const decSep = document.getElementById('global-dec-sep')?.value || '.';
+    const showDec = document.getElementById('global-show-decimals')?.value === '1';
+    const decCount = parseInt(document.getElementById('global-decimals-count')?.value || '2');
+    const roundMode = document.getElementById('global-round-mode')?.value || 'round';
+
+    if (window.colConfigs) {
+        window.colConfigs.forEach(col => {
+            col.thousands = thActive;
+            col.thousandsSep = thSep;
+            col.decSep = decSep;
+            col.showDecimals = showDec;
+            col.decimals = decCount;
+            col.dec = decCount;
+            col.roundMode = roundMode;
+        });
+    }
+
+    if (typeof applyLayoutToDOM === 'function') applyLayoutToDOM();
+    if (typeof window.runReport === 'function' && window.lastResults) {
+        window.runReport();
+    }
+    if (typeof saveLayout === 'function') saveLayout();
+    if (typeof renderColumnContextMenu === 'function') renderColumnContextMenu();
+    if (typeof showToast === 'function') showToast('⚡ تم تطبيق إعدادات الأرقام والكسور والتقريب على جميع الأعمدة بنجاح', 'success');
 };
 
 window.initDraggableModal = function() {
@@ -796,8 +944,13 @@ function bindContextMenu() {
 
         if (partnerCtxMenu) partnerCtxMenu.style.display = 'none';
 
-        // Header context menu popup on right-click disabled per user request
-        if (ctxMenu) ctxMenu.style.display = 'none';
+        if (th && firstHeaderRow && firstHeaderRow.contains(th)) {
+            if (typeof openColumnContextMenu === 'function') {
+                openColumnContextMenu(e);
+            }
+        } else {
+            if (ctxMenu) ctxMenu.style.display = 'none';
+        }
     });
 
     document.addEventListener('click', function(e) {
@@ -935,39 +1088,79 @@ window.bindContextMenuList = function(keepOpenVisualIdx = null) {
                     </div>
                 </div>
 
-                <!-- 4. Thousands Separator & Decimal Point Toggles -->
-                <div style="display:flex; gap:10px; margin-bottom:12px;">
-                    <!-- Thousands Toggle -->
-                    <div style="flex:1; display:flex; flex-direction:column; background:rgba(30,41,59,0.5); padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
-                        <label style="font-size:0.75rem; font-weight:bold; color:#cbd5e1; margin-bottom:4px;">فاصلة الألفيات (1,000):</label>
-                        <button type="button" onclick="toggleColThousands(${origIdx}, ${visualIndex})" style="width:100%; padding:6px; cursor:pointer; border-radius:6px; border:1px solid ${conf.thousands !== false ? '#10b981' : 'rgba(239,68,68,0.4)'}; background:${conf.thousands !== false ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.15)'}; color:${conf.thousands !== false ? '#34d399' : '#f87171'}; font-weight:bold; font-size:0.8rem; transition:all 0.2s;">
-                            ${conf.thousands !== false ? 'مفعلة (1,000 ✔)' : 'ملغاة (1000 ✖)'}
-                        </button>
+                <!-- 4. Number Formatting Section (تنسيق الأرقام والفاصلات والتقريب) -->
+                <div style="background:rgba(30,41,59,0.6); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); margin-bottom:12px;">
+                    <div style="font-size:0.8rem; font-weight:bold; color:#38bdf8; margin-bottom:8px; display:flex; align-items:center; gap:5px;">
+                        <span>🔢</span>
+                        <span>تخصيص الأرقام والفاصلات والتقريب:</span>
                     </div>
-                    
-                    <!-- Decimals Toggle -->
-                    <div style="flex:1; display:flex; flex-direction:column; background:rgba(30,41,59,0.5); padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
-                        <label style="font-size:0.75rem; font-weight:bold; color:#cbd5e1; margin-bottom:4px;">الكسور العشرية (.00):</label>
-                        <button type="button" onclick="toggleColShowDecimals(${origIdx}, ${visualIndex})" style="width:100%; padding:6px; cursor:pointer; border-radius:6px; border:1px solid ${conf.showDecimals !== false ? '#38bdf8' : 'rgba(239,68,68,0.4)'}; background:${conf.showDecimals !== false ? 'rgba(56,189,248,0.25)' : 'rgba(239,68,68,0.15)'}; color:${conf.showDecimals !== false ? '#38bdf8' : '#f87171'}; font-weight:bold; font-size:0.8rem; transition:all 0.2s;">
-                            ${conf.showDecimals !== false ? 'مفعلة (.00 ✔)' : 'ملغاة (أرقام صحيحة ✖)'}
-                        </button>
-                    </div>
-                </div>
 
-                <!-- 5. Decimal Precision Selector (if decimals enabled) -->
-                ${conf.showDecimals !== false ? `
-                <div style="margin-bottom:12px;">
-                    <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:4px;">عدد منازل الكسور العشرية:</label>
-                    <select onchange="setColDecimals(${origIdx}, ${visualIndex}, this.value)" style="width:100%; background:rgba(30, 41, 59, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:6px 8px; border-radius:6px; font-size:0.8rem; outline:none;">
-                        <option value="1" ${conf.decimals === 1 ? 'selected' : ''}>منزلة واحدة (0.0)</option>
-                        <option value="2" ${conf.decimals === 2 || conf.decimals === undefined ? 'selected' : ''}>منزلتان (0.00)</option>
-                        <option value="3" ${conf.decimals === 3 ? 'selected' : ''}>3 منازل (0.000)</option>
-                        <option value="4" ${conf.decimals === 4 ? 'selected' : ''}>4 منازل (0.0000)</option>
-                        <option value="5" ${conf.decimals === 5 ? 'selected' : ''}>5 منازل (0.00000)</option>
-                        <option value="6" ${conf.decimals === 6 ? 'selected' : ''}>6 منازل (0.000000)</option>
-                    </select>
+                    <!-- Thousands Separator: Toggle & Character -->
+                    <div style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
+                        <div style="flex:1;">
+                            <label style="font-size:0.74rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:3px;">الفاصلة الألفية:</label>
+                            <button type="button" onclick="toggleColThousands(${origIdx}, ${visualIndex})" style="width:100%; padding:5px 6px; cursor:pointer; border-radius:6px; border:1px solid ${conf.thousands !== false ? '#10b981' : 'rgba(239,68,68,0.4)'}; background:${conf.thousands !== false ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.15)'}; color:${conf.thousands !== false ? '#34d399' : '#f87171'}; font-weight:bold; font-size:0.78rem;">
+                                ${conf.thousands !== false ? 'مفعلة (1,000 ✔)' : 'ملغاة (1000 ✖)'}
+                            </button>
+                        </div>
+                        <div style="flex:1;">
+                            <label style="font-size:0.74rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:3px;">رمز الفاصلة الألفية:</label>
+                            <select onchange="setColThousandsSep(${origIdx}, ${visualIndex}, this.value)" style="width:100%; background:rgba(15, 23, 42, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px 6px; border-radius:6px; font-size:0.78rem; outline:none;">
+                                <option value="," ${(!conf.thousandsSep || conf.thousandsSep === ',') ? 'selected' : ''}>, (فاصلة عادية)</option>
+                                <option value="." ${conf.thousandsSep === '.' ? 'selected' : ''}>. (نقطة)</option>
+                                <option value=" " ${conf.thousandsSep === ' ' ? 'selected' : ''}>[مسافة] (1 000)</option>
+                                <option value="_" ${conf.thousandsSep === '_' ? 'selected' : ''}>_ (شرطة سفلى)</option>
+                                <option value="'" ${conf.thousandsSep === "'" ? 'selected' : ''}>' (اقتباس)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Decimal Separator & Show Decimals Toggle -->
+                    <div style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
+                        <div style="flex:1;">
+                            <label style="font-size:0.74rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:3px;">رمز الفاصلة العشرية:</label>
+                            <select onchange="setColDecSep(${origIdx}, ${visualIndex}, this.value)" style="width:100%; background:rgba(15, 23, 42, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px 6px; border-radius:6px; font-size:0.78rem; outline:none;">
+                                <option value="." ${(!conf.decSep || conf.decSep === '.') ? 'selected' : ''}>. (نقطة إنجليزية)</option>
+                                <option value="," ${conf.decSep === ',' ? 'selected' : ''}>, (فاصلة)</option>
+                                <option value="٫" ${conf.decSep === '٫' ? 'selected' : ''}>٫ (فاصلة عشرية عربية)</option>
+                                <option value="/" ${conf.decSep === '/' ? 'selected' : ''}>/ (شرطة مائلة)</option>
+                            </select>
+                        </div>
+                        <div style="flex:1;">
+                            <label style="font-size:0.74rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:3px;">إظهار الكسور العشرية:</label>
+                            <button type="button" onclick="toggleColShowDecimals(${origIdx}, ${visualIndex})" style="width:100%; padding:5px 6px; cursor:pointer; border-radius:6px; border:1px solid ${conf.showDecimals !== false ? '#38bdf8' : 'rgba(239,68,68,0.4)'}; background:${conf.showDecimals !== false ? 'rgba(56,189,248,0.25)' : 'rgba(239,68,68,0.15)'}; color:${conf.showDecimals !== false ? '#38bdf8' : '#f87171'}; font-weight:bold; font-size:0.78rem;">
+                                ${conf.showDecimals !== false ? 'مفعلة (.00 ✔)' : 'ملغاة (أرقام صحيحة ✖)'}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Decimal Count & Rounding Mode -->
+                    ${conf.showDecimals !== false ? `
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <div style="flex:1;">
+                            <label style="font-size:0.74rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:3px;">عدد الخانات العشرية:</label>
+                            <select onchange="setColDecimals(${origIdx}, ${visualIndex}, this.value)" style="width:100%; background:rgba(15, 23, 42, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px 6px; border-radius:6px; font-size:0.78rem; outline:none;">
+                                <option value="0" ${conf.decimals === 0 ? 'selected' : ''}>بدون خانات (0)</option>
+                                <option value="1" ${conf.decimals === 1 ? 'selected' : ''}>منزلة واحدة (0.0)</option>
+                                <option value="2" ${conf.decimals === 2 || conf.decimals === undefined ? 'selected' : ''}>منزلتان (0.00)</option>
+                                <option value="3" ${conf.decimals === 3 ? 'selected' : ''}>3 منازل (0.000)</option>
+                                <option value="4" ${conf.decimals === 4 ? 'selected' : ''}>4 منازل (0.0000)</option>
+                                <option value="5" ${conf.decimals === 5 ? 'selected' : ''}>5 منازل (0.00000)</option>
+                                <option value="6" ${conf.decimals === 6 ? 'selected' : ''}>6 منازل (0.000000)</option>
+                            </select>
+                        </div>
+                        <div style="flex:1;">
+                            <label style="font-size:0.74rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:3px;">طريقة والتقريب:</label>
+                            <select onchange="setColRoundMode(${origIdx}, ${visualIndex}, this.value)" style="width:100%; background:rgba(15, 23, 42, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px 6px; border-radius:6px; font-size:0.78rem; outline:none;">
+                                <option value="round" ${(!conf.roundMode || conf.roundMode === 'round') ? 'selected' : ''}>تقريب عادي (أقرب رقم)</option>
+                                <option value="floor" ${conf.roundMode === 'floor' ? 'selected' : ''}>تقريب لأسفل (Floor)</option>
+                                <option value="ceil" ${conf.roundMode === 'ceil' ? 'selected' : ''}>تقريب لأعلى (Ceil)</option>
+                                <option value="trunc" ${conf.roundMode === 'trunc' ? 'selected' : ''}>قطع الكسر (Truncate)</option>
+                            </select>
+                        </div>
+                    </div>
+                    ` : ''}
                 </div>
-                ` : ''}
 
                 <!-- 6. Colors -->
                 <div style="display:flex; gap:10px; align-items:center;">
@@ -997,7 +1190,7 @@ window.saveLayoutAndStyles = function() {
         const curConfigs = JSON.parse(JSON.stringify(window.colConfigs));
         const curOrder = [...window.colOrder];
         
-        localStorage.setItem('balances_report_master_default1', JSON.stringify({
+        localStorage.setItem('balances_report_master_v4_default1', JSON.stringify({
             colConfigs: curConfigs,
             colOrder: curOrder
         }));
@@ -1033,16 +1226,11 @@ window.saveLayoutAndStyles = function() {
 };
 
 window.resetLayoutAndStyles = function() {
-    if (confirm("هل أنت متأكد من رغبتك في إعادة ضبط إعدادات وتنسيقات الأعمدة للافتراضي؟")) {
-        localStorage.removeItem('balances_report_col_configs_v2');
-        localStorage.removeItem('balances_report_global_styles_v1');
-        localStorage.removeItem('erp_custom_styles_v1');
-        localStorage.removeItem('erp_settings_v1');
-        
+    if (confirm("هل أنت متأكد من رغبتك في استعادة التصميم الافتراضي المحفوظ في قاعدة البيانات؟")) {
+        loadLayout();
         if (typeof showToast === 'function') {
-            showToast('تمت إعادة الضبط للافتراضي، جارِ إعادة التحميل...', 'info');
+            showToast('🔄 تم استعادة التصميم الافتراضي المحفوظ في قاعدة البيانات بنجاح ⭐', 'success');
         }
-        setTimeout(() => window.location.reload(), 500);
     }
 };
 
@@ -1066,6 +1254,15 @@ window.toggleColumn = function(visualIndex, show) {
     saveLayout();
 };
 
+function updateColDOMByOrigIdx(origIdx) {
+    if (window.colOrder) {
+        const visIdx = window.colOrder.indexOf(origIdx);
+        if (visIdx !== -1) {
+            updateColDOM(visIdx, origIdx);
+        }
+    }
+}
+
 function updateColDOM(visualIndex, origIdx) {
     const conf = window.colConfigs[origIdx];
     if (!conf) return;
@@ -1073,12 +1270,13 @@ function updateColDOM(visualIndex, origIdx) {
     if (!table) return;
 
     const fsVal = (conf.fs !== undefined ? conf.fs : 1.0) + 'em';
-    const fwValHeader = conf.fontWeight || (conf.bold ? '900' : 'bold');
-    const fwValCell = conf.fontWeight || (conf.bold ? 'bold' : '');
+    const isBold = conf.bold || conf.fontWeight === 'bold' || conf.fontWeight === '900';
+    const fwValHeader = isBold ? '900' : 'normal';
+    const fwValCell = isBold ? '900' : 'normal';
     const colorVal = conf.color || '';
     const bgVal = (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') ? conf.bg : '';
     const fontVal = conf.fontFamily || '';
-    const alignVal = conf.textAlign || '';
+    const alignVal = conf.textAlign || conf.align || '';
 
     const ths = table.querySelectorAll('thead th');
     const th = ths[visualIndex];
@@ -1115,10 +1313,12 @@ window.setColFontFamily = function(origIdx, visualIndex, fontVal) {
 
 window.setColFontWeight = function(origIdx, visualIndex, weightVal) {
     if (origIdx !== undefined && window.colConfigs[origIdx]) {
-        window.colConfigs[origIdx].fontWeight = weightVal;
-        window.colConfigs[origIdx].bold = (weightVal === 'bold' || weightVal === '900');
+        const isBold = (weightVal === 'bold' || weightVal === '900');
+        window.colConfigs[origIdx].fontWeight = isBold ? '900' : 'normal';
+        window.colConfigs[origIdx].bold = isBold;
         updateColDOM(visualIndex, origIdx);
         saveLayout();
+        if (window.lastResults) renderTable(window.lastResults);
         bindContextMenuList(visualIndex);
     }
 };
@@ -1143,21 +1343,61 @@ window.setColFsExact = function(origIdx, visualIndex, fsVal) {
 window.setColTextAlign = function(origIdx, visualIndex, alignVal) {
     if (origIdx !== undefined && window.colConfigs[origIdx]) {
         window.colConfigs[origIdx].textAlign = alignVal;
+        window.colConfigs[origIdx].align = alignVal;
         updateColDOM(visualIndex, origIdx);
         saveLayout();
+        if (window.lastResults) renderTable(window.lastResults);
         bindContextMenuList(visualIndex);
     }
 };
 
 window.setColDecimals = function(origIdx, visualIndex, d) {
-    if (origIdx !== undefined && window.colConfigs[origIdx]) {
-        window.colConfigs[origIdx].decimals = parseInt(d);
-        if (window.lastResults && window.lastResults.length > 0) {
+    if (origIdx !== undefined && window.colConfigs && window.colConfigs[origIdx]) {
+        const parsedD = parseInt(d);
+        window.colConfigs[origIdx].decimals = parsedD;
+        window.colConfigs[origIdx].dec = parsedD;
+        if (window.lastResults && window.lastResults.length > 0 && typeof renderTable === 'function') {
             renderTable(window.lastResults);
         }
-        updateColDOM(visualIndex, origIdx);
+        if (typeof updateColDOM === 'function') updateColDOM(visualIndex, origIdx);
         saveLayout();
-        bindContextMenuList(visualIndex);
+        if (typeof bindContextMenuList === 'function') bindContextMenuList(visualIndex);
+    }
+};
+
+window.setColThousandsSep = function(origIdx, visualIndex, sep) {
+    if (origIdx !== undefined && window.colConfigs && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].thousandsSep = sep;
+        if (window.lastResults && window.lastResults.length > 0 && typeof renderTable === 'function') {
+            renderTable(window.lastResults);
+        }
+        if (typeof updateColDOM === 'function') updateColDOM(visualIndex, origIdx);
+        saveLayout();
+        if (typeof bindContextMenuList === 'function') bindContextMenuList(visualIndex);
+    }
+};
+
+window.setColDecSep = function(origIdx, visualIndex, sep) {
+    if (origIdx !== undefined && window.colConfigs && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].decSep = sep;
+        if (window.lastResults && window.lastResults.length > 0 && typeof renderTable === 'function') {
+            renderTable(window.lastResults);
+        }
+        if (typeof updateColDOM === 'function') updateColDOM(visualIndex, origIdx);
+        saveLayout();
+        if (typeof bindContextMenuList === 'function') bindContextMenuList(visualIndex);
+    }
+};
+
+window.setColRoundMode = function(origIdx, visualIndex, mode) {
+    if (origIdx !== undefined && window.colConfigs && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].roundMode = mode;
+        if (window.lastResults && window.lastResults.length > 0 && typeof renderTable === 'function') {
+            renderTable(window.lastResults);
+        }
+        if (typeof updateColDOM === 'function') updateColDOM(visualIndex, origIdx);
+        saveLayout();
+        if (typeof bindContextMenuList === 'function') bindContextMenuList(visualIndex);
     }
 };
 
@@ -1204,7 +1444,7 @@ function bindColumnReorder() {
     ths.forEach(th => th.style.cursor = 'grab');
 
     if (window.colSortable) {
-        window.colSortable.destroy();
+        try { window.colSortable.destroy(); } catch(e){}
     }
     
     window.colSortable = new Sortable(tr, {
@@ -1273,13 +1513,18 @@ function renderTable(results) {
     function getCellStyle(origIdx) {
         const conf = window.colConfigs[origIdx] || {};
         let style = '';
-        if (conf.fontWeight) style += `font-weight:${conf.fontWeight};`;
-        else if (conf.bold) style += 'font-weight:bold;';
-        if (conf.fs !== undefined && conf.fs !== 1.0) style += `font-size:${conf.fs}em;`;
-        if (conf.color) style += `color:${conf.color};`;
-        if (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') style += `background-color:${conf.bg};`;
-        if (conf.fontFamily) style += `font-family:${conf.fontFamily};`;
-        if (conf.textAlign) style += `text-align:${conf.textAlign};`;
+        const isBold = conf.bold || conf.fontWeight === 'bold' || conf.fontWeight === '900';
+        if (isBold) style += 'font-weight:900 !important;';
+        else style += 'font-weight:normal !important;';
+
+        if (conf.fs !== undefined && conf.fs !== 1.0) style += `font-size:${conf.fs}em !important;`;
+        if (conf.color) style += `color:${conf.color} !important;`;
+        if (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') style += `background-color:${conf.bg} !important;`;
+        if (conf.fontFamily) style += `font-family:${conf.fontFamily} !important;`;
+        
+        const alignVal = conf.textAlign || conf.align || '';
+        if (alignVal) style += `text-align:${alignVal} !important;`;
+
         return style;
     }
 
@@ -1333,6 +1578,11 @@ function renderTable(results) {
     
     applyLayoutToDOM();
     bindNumberFocus();
+    
+    // Apply the active number font to all rendered number cells permanently
+    if (typeof changeNumberFont === 'function' && window.currentNumFont) {
+        changeNumberFont(window.currentNumFont);
+    }
     bindContextMenu();
     bindColumnReorder();
     renderVisualAnalytics(results);
@@ -1418,10 +1668,18 @@ window.getBalancesPresets = function() {
     } catch(e) {}
     if (!userList || !Array.isArray(userList) || userList.length !== 3) {
         userList = [
-            { id: 1, name: 'تخطيط 1', colConfigs: null, colOrder: null },
+            { id: 1, name: 'افتراضي 1', colConfigs: null, colOrder: null },
             { id: 2, name: 'تخطيط 2', colConfigs: null, colOrder: null },
-            { id: 3, name: 'تخطيط 3', colConfigs: null, colOrder: null }
+            { id: 3, name: 'تخطيط 1', colConfigs: null, colOrder: null }
         ];
+        localStorage.setItem('balances_report_user_presets_v3', JSON.stringify(userList));
+    } else {
+        if (userList[0] && (userList[0].name === 'تخطيط 1' || !userList[0].name)) {
+            userList[0].name = 'افتراضي 1';
+        }
+        if (userList[2]) {
+            userList[2].name = 'تخطيط 1';
+        }
         localStorage.setItem('balances_report_user_presets_v3', JSON.stringify(userList));
     }
 
@@ -1429,7 +1687,7 @@ window.getBalancesPresets = function() {
     let default1Configs = null;
     let default1Order = null;
     try {
-        const master1 = JSON.parse(localStorage.getItem('balances_report_master_default1'));
+        const master1 = JSON.parse(localStorage.getItem('balances_report_master_v4_default1'));
         if (master1 && master1.colConfigs && master1.colOrder) {
             default1Configs = master1.colConfigs;
             default1Order = master1.colOrder;
@@ -1441,14 +1699,14 @@ window.getBalancesPresets = function() {
             visible: true, bold: false, fontWeight: 'normal', fs: 1.0, decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right'
         }));
         default1Order = [0, 1, 2, 3, 4, 5, 6, 7, 8];
-        localStorage.setItem('balances_report_master_default1', JSON.stringify({ colConfigs: default1Configs, colOrder: default1Order }));
+        localStorage.setItem('balances_report_master_v4_default1', JSON.stringify({ colConfigs: default1Configs, colOrder: default1Order }));
     }
 
-    // Default 2 Master Configs (Frozen Current Report Setup with fonts, sizes, colors)
+    // Default 2 Master Configs (Frozen Current Report Setup)
     let default2Configs = null;
     let default2Order = null;
     try {
-        const master2 = JSON.parse(localStorage.getItem('balances_report_master_default2'));
+        const master2 = JSON.parse(localStorage.getItem('balances_report_master_v4_default2'));
         if (master2 && master2.colConfigs && master2.colOrder) {
             default2Configs = master2.colConfigs;
             default2Order = master2.colOrder;
@@ -1458,26 +1716,74 @@ window.getBalancesPresets = function() {
     if (!default2Configs) {
         default2Configs = window.colConfigs ? JSON.parse(JSON.stringify(window.colConfigs)) : JSON.parse(JSON.stringify(default1Configs));
         default2Order = window.colOrder ? [...window.colOrder] : [...default1Order];
-        localStorage.setItem('balances_report_master_default2', JSON.stringify({ colConfigs: default2Configs, colOrder: default2Order }));
+        localStorage.setItem('balances_report_master_v4_default2', JSON.stringify({ colConfigs: default2Configs, colOrder: default2Order }));
     }
 
-    const defaultPreset1 = {
-        id: 'default1',
-        name: 'الافتراضي 1 ⭐',
-        isDefault: true,
-        colOrder: default1Order,
-        colConfigs: default1Configs
-    };
+    // Default 3 Master Configs
+    let default3Configs = null;
+    let default3Order = null;
+    try {
+        const master3 = JSON.parse(localStorage.getItem('balances_report_master_v4_default3'));
+        if (master3 && master3.colConfigs && master3.colOrder) {
+            default3Configs = master3.colConfigs;
+            default3Order = master3.colOrder;
+        }
+    } catch(e) {}
 
-    const defaultPreset2 = {
-        id: 'default2',
-        name: 'الافتراضي 2 🌟',
-        isDefault: true,
-        colOrder: default2Order,
-        colConfigs: default2Configs
-    };
+    if (!default3Configs) {
+        default3Configs = JSON.parse(JSON.stringify(default1Configs));
+        default3Order = [0, 6, 7, 3, 4, 5, 1, 2, 8];
+        localStorage.setItem('balances_report_master_v4_default3', JSON.stringify({ colConfigs: default3Configs, colOrder: default3Order }));
+    }
 
-    return [defaultPreset1, defaultPreset2, ...userList];
+    // Default 4 Master Configs
+    let default4Configs = null;
+    let default4Order = null;
+    try {
+        const master4 = JSON.parse(localStorage.getItem('balances_report_master_v4_default4'));
+        if (master4 && master4.colConfigs && master4.colOrder) {
+            default4Configs = master4.colConfigs;
+            default4Order = master4.colOrder;
+        }
+    } catch(e) {}
+
+    if (!default4Configs) {
+        default4Configs = JSON.parse(JSON.stringify(default1Configs));
+        default4Order = [0, 1, 3, 6, 7, 8, 2, 4, 5];
+        localStorage.setItem('balances_report_master_v4_default4', JSON.stringify({ colConfigs: default4Configs, colOrder: default4Order }));
+    }
+
+    // Master Basic Configs (Cloned from Default 2)
+    let basicConfigs = null;
+    let basicOrder = null;
+    try {
+        const masterBasic = JSON.parse(localStorage.getItem('balances_report_master_basic'));
+        if (masterBasic && masterBasic.colConfigs && masterBasic.colOrder) {
+            basicConfigs = masterBasic.colConfigs;
+            basicOrder = masterBasic.colOrder;
+        }
+    } catch(e) {}
+
+    if (!basicConfigs) {
+        let layout2Conf = (userList[1] && userList[1].colConfigs) ? userList[1].colConfigs : default2Configs;
+        let layout2Ord = (userList[1] && userList[1].colOrder) ? userList[1].colOrder : default2Order;
+
+        basicConfigs = layout2Conf ? JSON.parse(JSON.stringify(layout2Conf)) : JSON.parse(JSON.stringify(default1Configs));
+        basicOrder = layout2Ord ? [...layout2Ord] : [...default1Order];
+        localStorage.setItem('balances_report_master_basic', JSON.stringify({ colConfigs: basicConfigs, colOrder: basicOrder }));
+    }
+
+    const preset1 = userList[0] || { id: 1, name: 'افتراضي 1', colConfigs: null, colOrder: null };
+    const presetLayout2 = userList[1] || { id: 2, name: 'تخطيط 2', colConfigs: null, colOrder: null };
+    const presetLayout1 = userList[2] || { id: 3, name: 'تخطيط 1', colConfigs: null, colOrder: null };
+    presetLayout1.name = 'تخطيط 1';
+
+    const defaultPreset2 = { id: 'default2', name: 'الافتراضي 2 🌟', isDefault: true, colOrder: default2Order, colConfigs: default2Configs };
+    const defaultPreset3 = { id: 'default3', name: 'الافتراضي 3 ✨', isDefault: true, colOrder: default3Order, colConfigs: default3Configs };
+    const defaultPreset4 = { id: 'default4', name: 'الافتراضي 4 💎', isDefault: true, colOrder: default4Order, colConfigs: default4Configs };
+    const basicPreset = { id: 'basic', name: 'أساسي 📌', isDefault: true, isReadOnly: true, colOrder: basicOrder, colConfigs: basicConfigs };
+
+    return [preset1, defaultPreset2, defaultPreset3, defaultPreset4, presetLayout1, presetLayout2, basicPreset];
 };
 
 window.renderBalancesPresets = function() {
@@ -1495,21 +1801,22 @@ window.renderBalancesPresets = function() {
                        JSON.stringify(p.colConfigs) === JSON.stringify(window.colConfigs) && 
                        JSON.stringify(p.colOrder) === JSON.stringify(window.colOrder);
                        
+        const isLockedDefault = p.isDefault || p.isReadOnly || ['default1', 'default2', 'default3', 'default4', 1, '1', 'basic'].includes(p.id);
         btn.className = `preset-btn ${p.colConfigs || p.isDefault ? 'has-data' : ''} ${isActive ? 'active' : ''}`;
         
-        if (p.isDefault) {
-            btn.title = `نقرة لاسترجاع [${p.name}]. هذا الضبط مصنعي مثبت داخل السيستم ولا يمكن التعديل عليه.`;
+        if (isLockedDefault) {
+            btn.title = `نقرة لاسترجاع [${p.name}]. هذا الضبط مثبت ومحفوظ داخل النظام.`;
+            btn.innerHTML = `<span>${p.name}</span>`;
         } else {
             btn.title = p.colConfigs ? `نقرة لتطبيق [${p.name}]. اضغط مطولاً (8 ثوانٍ) للحفظ هنا. كليك يمين للحذف.` : `اضغط مطولاً (8 ثوانٍ) لحفظ التخطيط الحالي هنا.`;
+            btn.innerHTML = `
+                <svg class="preset-clock-svg" width="16" height="16" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.15)" stroke-width="3" fill="none"></circle>
+                    <circle class="preset-clock-progress" cx="12" cy="12" r="10" stroke="#38bdf8" stroke-width="3" fill="none" stroke-dasharray="62.8" stroke-dashoffset="62.8" transform="rotate(-90 12 12)"></circle>
+                </svg>
+                <span>${p.name}</span>
+            `;
         }
-        
-        btn.innerHTML = `
-            <svg class="preset-clock-svg" width="16" height="16" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.15)" stroke-width="3" fill="none"></circle>
-                <circle class="preset-clock-progress" cx="12" cy="12" r="10" stroke="#38bdf8" stroke-width="3" fill="none" stroke-dasharray="62.8" stroke-dashoffset="62.8" transform="rotate(-90 12 12)"></circle>
-            </svg>
-            <span>${p.name}</span>
-        `;
         
         setupPresetButtonEvents(btn, p);
         wrap.appendChild(btn);
@@ -1517,14 +1824,15 @@ window.renderBalancesPresets = function() {
 };
 
 function setupPresetButtonEvents(btn, p) {
-    if (p.isDefault) {
+    const isLockedDefault = p.isDefault || p.isReadOnly || ['default1', 'default2', 'default3', 'default4', 1, '1', 'basic'].includes(p.id);
+    if (isLockedDefault) {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             applyPresetLayout(p.id);
         });
         btn.addEventListener('contextmenu', (e) => {
             e.preventDefault();
-            showToast(`الضبط [${p.name}] محمي ومثبت داخل النظام ولا يمكن التعديل عليه أو مسحه`, "info");
+            showToast(`🔒 الضبط [${p.name}] محمي ومثبت نهائياً داخل النظام ولا يمكن التعديل عليه أو مسحه`, "info");
         });
         return;
     }
@@ -1589,6 +1897,10 @@ function setupPresetButtonEvents(btn, p) {
     
     btn.addEventListener('contextmenu', (e) => {
         e.preventDefault();
+        if (p.isDefault || isLockedDefault) {
+            showToast(`🔒 الضبط [${p.name}] محمي ومثبت داخل النظام`, "info");
+            return;
+        }
         if (!p.colConfigs) return;
         if (confirm("هل أنت متأكد من رغبتك في حذف هذا التخطيط المبرمج؟")) {
             let userList = [];
@@ -1605,8 +1917,35 @@ function setupPresetButtonEvents(btn, p) {
 }
 
 function savePresetLayout(id) {
-    if (id === 'default1' || id === 'default2') {
-        showToast("الأزرار الافتراضية محمية داخل السيستم. يمكنك الحفظ في تخطيط 1 أو 2 أو 3.", "warning");
+    if (['default1', 'default2', 'default3', 'default4', 1, '1', 'basic'].includes(id)) {
+        showToast("🔒 هذا الضبط محمي ومثبت نهائياً داخل النظام ولا يمكن التعديل عليه أو تغييره إطلاقاً.", "warning");
+        return;
+    }
+
+    const newConfigs = JSON.parse(JSON.stringify(window.colConfigs));
+    const newOrder = [...window.colOrder];
+    const layoutPayload = { colConfigs: newConfigs, colOrder: newOrder };
+
+    if (['default2', 'default3', 'default4'].includes(id)) {
+        const key = 'balances_report_master_' + id;
+        localStorage.setItem(key, JSON.stringify(layoutPayload));
+        
+        fetch('api_index.php/report-layout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                reportKey: 'balances_report_layout_' + id,
+                layout: layoutPayload
+            })
+        });
+
+        const labelMap = {
+            'default2': 'الافتراضي 2 🌟',
+            'default3': 'الافتراضي 3 ✨',
+            'default4': 'الافتراضي 4 💎'
+        };
+        showToast("✨ تم حفظ تصميم التقرير داخل (" + (labelMap[id] || id) + ") وفي قاعدة البيانات بنجاح!", "success");
+        window.renderBalancesPresets();
         return;
     }
 
@@ -1628,9 +1967,6 @@ function savePresetLayout(id) {
     if (name === null) return;
     name = name.trim() || ("تخطيط " + id);
 
-    const newConfigs = JSON.parse(JSON.stringify(window.colConfigs));
-    const newOrder = [...window.colOrder];
-
     userList[slotIdx] = {
         id: parseInt(id),
         name: name,
@@ -1644,10 +1980,10 @@ function savePresetLayout(id) {
 }
 
 function applyPresetLayout(id) {
-    if (id === 'default1' || id === 'default2') {
+    if (['default1', 'default2', 'default3', 'default4'].includes(id)) {
         let masterConfigs = null;
         let masterOrder = null;
-        const key = (id === 'default1') ? 'balances_report_master_default1' : 'balances_report_master_default2';
+        const key = 'balances_report_master_' + id;
 
         try {
             const master = JSON.parse(localStorage.getItem(key));
@@ -1682,11 +2018,18 @@ function applyPresetLayout(id) {
         } catch(e) {}
 
         applyLayoutToDOM();
+        if (typeof bindContextMenuList === 'function') bindContextMenuList();
+        if (typeof renderColumnContextMenu === 'function') renderColumnContextMenu();
         if (window.lastResults && window.lastResults.length > 0) {
             renderTable(window.lastResults);
         }
-        const label = (id === 'default1') ? 'الافتراضي 1 ⭐' : 'الافتراضي 2 🌟';
-        showToast("تم تطبيق الضبط والتصميم الافتراضي (" + label + ") بنجاح ✨", "success");
+        const labelMap = {
+            'default1': 'الافتراضي 1 ⭐',
+            'default2': 'الافتراضي 2 🌟',
+            'default3': 'الافتراضي 3 ✨',
+            'default4': 'الافتراضي 4 💎'
+        };
+        showToast("تم تطبيق الضبط والتصميم المحفوظ (" + (labelMap[id] || id) + ") بنجاح ✨", "success");
         window.renderBalancesPresets();
         return;
     }
@@ -1856,6 +2199,24 @@ function renderVisualAnalytics(results) {
     const isLightTheme = document.documentElement.classList.contains('light-theme');
     const chartThemeMode = isLightTheme ? 'light' : 'dark';
 
+    function formatDualCurrencyLine(val) {
+        const sdg = parseFloat(val).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+        if (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0 && typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency) {
+            const fval = (parseFloat(val) / ledgerExchangeRate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            return sdg + '  |  ' + fval + ' ' + ledgerForeignCurrency;
+        }
+        return sdg;
+    }
+
+    function formatDualCurrencyArray(val) {
+        const sdg = parseFloat(val).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG';
+        if (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0 && typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency) {
+            const fval = (parseFloat(val) / ledgerExchangeRate).toLocaleString('en-US', {maximumFractionDigits: 0});
+            return [sdg, fval + ' ' + ledgerForeignCurrency];
+        }
+        return [sdg];
+    }
+
     // ─── Chart 1: Hollow Donut Chart - Categories Breakdown ───
     const catLabels = ['العملاء (مدين)', 'الموردين (دائن)', 'البنوك', 'الخزن', 'المصروفات'];
     const catValues = [
@@ -1889,9 +2250,7 @@ function renderVisualAnalytics(results) {
                             fontSize: '16px',
                             fontWeight: 900,
                             color: isLightTheme ? '#0284c7' : '#38bdf8',
-                            formatter: function (val) {
-                                return parseFloat(val).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG';
-                            }
+                            formatter: formatDualCurrencyArray
                         },
                         total: {
                             show: true,
@@ -1899,7 +2258,7 @@ function renderVisualAnalytics(results) {
                             color: isLightTheme ? '#64748b' : '#94a3b8',
                             formatter: function (w) {
                                 const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
-                                return total.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG';
+                                return formatDualCurrencyArray(total);
                             }
                         }
                     }
@@ -1914,15 +2273,13 @@ function renderVisualAnalytics(results) {
         },
         tooltip: {
             y: {
-                formatter: function(val) {
-                    return val.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' SDG';
-                }
+                formatter: formatDualCurrencyLine
             }
         },
         theme: { mode: chartThemeMode }
     };
 
-    if (chartHollowDonutCategories) chartHollowDonutCategories.destroy();
+    try { if (chartHollowDonutCategories) chartHollowDonutCategories.destroy(); } catch(e){}
     chartHollowDonutCategories = new ApexCharts(document.querySelector("#chart-hollow-donut-categories"), optionsCatDonut);
     chartHollowDonutCategories.render();
 
@@ -1957,9 +2314,7 @@ function renderVisualAnalytics(results) {
                             fontSize: '15px',
                             fontWeight: 800,
                             color: isLightTheme ? '#059669' : '#34d399',
-                            formatter: function (val) {
-                                return parseFloat(val).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG';
-                            }
+                            formatter: formatDualCurrencyArray
                         },
                         total: {
                             show: true,
@@ -1967,7 +2322,7 @@ function renderVisualAnalytics(results) {
                             color: isLightTheme ? '#64748b' : '#94a3b8',
                             formatter: function (w) {
                                 const sum = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
-                                return sum.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG';
+                                return formatDualCurrencyArray(sum);
                             }
                         }
                     }
@@ -1983,7 +2338,7 @@ function renderVisualAnalytics(results) {
         theme: { mode: chartThemeMode }
     };
 
-    if (chartHollowDonutTopDebtors) chartHollowDonutTopDebtors.destroy();
+    try { if (chartHollowDonutTopDebtors) chartHollowDonutTopDebtors.destroy(); } catch(e){}
     chartHollowDonutTopDebtors = new ApexCharts(document.querySelector("#chart-hollow-donut-top-debtors"), optionsDebtorsDonut);
     chartHollowDonutTopDebtors.render();
 
@@ -2037,12 +2392,12 @@ function renderVisualAnalytics(results) {
         grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
         legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
         tooltip: {
-            y: { formatter: function(val) { return val.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' SDG'; } }
+            y: { formatter: formatDualCurrencyLine }
         },
         theme: { mode: chartThemeMode }
     };
 
-    if (chartCurvedLineSpectrum) chartCurvedLineSpectrum.destroy();
+    try { if (chartCurvedLineSpectrum) chartCurvedLineSpectrum.destroy(); } catch(e){}
     chartCurvedLineSpectrum = new ApexCharts(document.querySelector("#chart-curved-line-spectrum"), optionsSpectrum);
     chartCurvedLineSpectrum.render();
 
@@ -2083,12 +2438,12 @@ function renderVisualAnalytics(results) {
         grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
         legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
         tooltip: {
-            y: { formatter: function(val) { return val.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' SDG'; } }
+            y: { formatter: formatDualCurrencyLine }
         },
         theme: { mode: chartThemeMode }
     };
 
-    if (chartBiDirectionalBar) chartBiDirectionalBar.destroy();
+    try { if (chartBiDirectionalBar) chartBiDirectionalBar.destroy(); } catch(e){}
     chartBiDirectionalBar = new ApexCharts(document.querySelector("#chart-bidirectional-bar"), optionsBiBar);
     chartBiDirectionalBar.render();
 
@@ -2144,7 +2499,7 @@ function renderVisualAnalytics(results) {
         theme: { mode: chartThemeMode }
     };
 
-    if (chartSemiCircleGauge) chartSemiCircleGauge.destroy();
+    try { if (chartSemiCircleGauge) chartSemiCircleGauge.destroy(); } catch(e){}
     chartSemiCircleGauge = new ApexCharts(document.querySelector("#chart-semicircle-gauge"), optionsGauge);
     chartSemiCircleGauge.render();
 
@@ -2168,8 +2523,8 @@ function renderVisualAnalytics(results) {
                     labels: {
                         show: true,
                         name: { show: true, fontSize: '13px', color: isLightTheme ? '#0f172a' : '#cbd5e1' },
-                        value: { show: true, fontSize: '15px', fontWeight: 900, color: isLightTheme ? '#e11d48' : '#fb7185', formatter: v => parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' },
-                        total: { show: true, label: 'إجمالي الديون', color: isLightTheme ? '#64748b' : '#94a3b8', formatter: w => w.globals.seriesTotals.reduce((a,b)=>a+b, 0).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' }
+                        value: { show: true, fontSize: '15px', fontWeight: 900, color: isLightTheme ? '#e11d48' : '#fb7185', formatter: formatDualCurrencyArray },
+                        total: { show: true, label: 'إجمالي الديون', color: isLightTheme ? '#64748b' : '#94a3b8', formatter: w => formatDualCurrencyArray(w.globals.seriesTotals.reduce((a,b)=>a+b, 0)) }
                     }
                 }
             }
@@ -2178,7 +2533,7 @@ function renderVisualAnalytics(results) {
         legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
         theme: { mode: chartThemeMode }
     };
-    if (chartHollowDonutCreditors) chartHollowDonutCreditors.destroy();
+    try { if (chartHollowDonutCreditors) chartHollowDonutCreditors.destroy(); } catch(e){}
     chartHollowDonutCreditors = new ApexCharts(document.querySelector("#chart-hollow-donut-creditors"), optionsCreditorsDonut);
     chartHollowDonutCreditors.render();
 
@@ -2198,10 +2553,10 @@ function renderVisualAnalytics(results) {
         yaxis: { labels: { style: { colors: isLightTheme ? '#1e293b' : '#cbd5e1', fontSize: '11px', fontFamily: 'Tajawal' } } },
         grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
         legend: { show: false },
-        tooltip: { y: { formatter: v => v.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' SDG' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
         theme: { mode: chartThemeMode }
     };
-    if (chartHorizontalTopBar) chartHorizontalTopBar.destroy();
+    try { if (chartHorizontalTopBar) chartHorizontalTopBar.destroy(); } catch(e){}
     chartHorizontalTopBar = new ApexCharts(document.querySelector("#chart-horizontal-top-bar"), optionsHorizontalBar);
     chartHorizontalTopBar.render();
 
@@ -2225,10 +2580,10 @@ function renderVisualAnalytics(results) {
         yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
         grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
         legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        tooltip: { y: { formatter: v => v.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' SDG' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
         theme: { mode: chartThemeMode }
     };
-    if (chartCumulativeAreaFluid) chartCumulativeAreaFluid.destroy();
+    try { if (chartCumulativeAreaFluid) chartCumulativeAreaFluid.destroy(); } catch(e){}
     chartCumulativeAreaFluid = new ApexCharts(document.querySelector("#chart-cumulative-area-fluid"), optionsFluidArea);
     chartCumulativeAreaFluid.render();
 
@@ -2247,9 +2602,10 @@ function renderVisualAnalytics(results) {
         xaxis: { categories: ['العملاء', 'الموردين', 'البنوك', 'الخزن', 'المصروفات'], labels: { style: { colors: isLightTheme ? '#0f172a' : '#e2e8f0', fontSize: '12px' } } },
         yaxis: { show: false },
         legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
         theme: { mode: chartThemeMode }
     };
-    if (chartRadarEquilibrium) chartRadarEquilibrium.destroy();
+    try { if (chartRadarEquilibrium) chartRadarEquilibrium.destroy(); } catch(e){}
     chartRadarEquilibrium = new ApexCharts(document.querySelector("#chart-radar-equilibrium"), optionsRadar);
     chartRadarEquilibrium.render();
 
@@ -2266,7 +2622,7 @@ function renderVisualAnalytics(results) {
         tooltip: { y: { formatter: v => v + ' حساب' } },
         theme: { mode: chartThemeMode }
     };
-    if (chartSolidPieActiveZero) chartSolidPieActiveZero.destroy();
+    try { if (chartSolidPieActiveZero) chartSolidPieActiveZero.destroy(); } catch(e){}
     chartSolidPieActiveZero = new ApexCharts(document.querySelector("#chart-solid-pie-active-zero"), optionsSolidPie);
     chartSolidPieActiveZero.render();
 
@@ -2294,9 +2650,67 @@ function renderVisualAnalytics(results) {
         labels: ['حصة العملاء', 'حصة الموردين', 'حصة الخزينة والبنوك'],
         theme: { mode: chartThemeMode }
     };
-    if (chartMultiRadialRings) chartMultiRadialRings.destroy();
+    try { if (chartMultiRadialRings) chartMultiRadialRings.destroy(); } catch(e){}
     chartMultiRadialRings = new ApexCharts(document.querySelector("#chart-multi-radial-rings"), optionsMultiRadial);
     chartMultiRadialRings.render();
+
+    // ─── Chart 12: Treemap Top 15 Accounts ───
+    const top15Treemap = sortedByVolume.slice(0, 15).map(x => ({
+        x: x.name,
+        y: Math.max(x.endingDebitLocal, x.endingCreditLocal)
+    }));
+    const optionsTreemap = {
+        series: [{ data: top15Treemap }],
+        legend: { show: false },
+        chart: { type: 'treemap', height: 380, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#38bdf8', '#34d399', '#a855f7', '#fbbf24', '#f43f5e', '#22d3ee', '#818cf8', '#fb7185', '#10b981', '#f59e0b', '#c084fc', '#e879f9', '#4ade80', '#facc15', '#fb923c'],
+        plotOptions: { treemap: { enableShades: true, shadeIntensity: 0.5, reverseNegativeShade: true, colorScale: { ranges: [] } } },
+        dataLabels: { enabled: true, style: { fontSize: '12px', fontFamily: 'Tajawal' }, formatter: function(text, op) { return [text, formatDualCurrencyLine(op.value)]; } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartTreemapAccounts) window.chartTreemapAccounts.destroy(); } catch(e){}
+    window.chartTreemapAccounts = new ApexCharts(document.querySelector("#chart-treemap-accounts"), optionsTreemap);
+    window.chartTreemapAccounts.render();
+
+
+    // ─── Chart 13: Waterfall Net Balance ───
+    const topDebtorsWaterfall = [...results].filter(x => x.endingDebitLocal > 0).sort((a, b) => b.endingDebitLocal - a.endingDebitLocal).slice(0, 7);
+    const topCreditorsWaterfall = [...results].filter(x => x.endingCreditLocal > 0).sort((a, b) => b.endingCreditLocal - a.endingCreditLocal).slice(0, 7);
+    
+    let waterfallData = [];
+    topDebtorsWaterfall.forEach(d => waterfallData.push({ x: d.name, y: d.endingDebitLocal }));
+    topCreditorsWaterfall.forEach(c => waterfallData.push({ x: c.name, y: -c.endingCreditLocal }));
+    
+    const optionsWaterfall = {
+        series: [{ name: 'التأثير على الصافي', data: waterfallData }],
+        chart: { type: 'waterfall', height: 380, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        dataLabels: { enabled: true, formatter: function(val) { return (val / 1000).toFixed(0) + 'K'; }, style: { fontSize: '10px' } },
+        xaxis: { type: 'category', labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'Tajawal' }, rotate: -45 } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        tooltip: { y: { formatter: function(val) { return formatDualCurrencyLine(Math.abs(val)); } } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartWaterfallNet) window.chartWaterfallNet.destroy(); } catch(e){}
+    window.chartWaterfallNet = new ApexCharts(document.querySelector("#chart-waterfall-net"), optionsWaterfall);
+    window.chartWaterfallNet.render();
+
+
+    // ─── Chart 14: Polar Area ───
+    const optionsPolar = {
+        series: catValues,
+        labels: catLabels,
+        chart: { type: 'polarArea', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#38bdf8', '#f43f5e', '#a855f7', '#10b981', '#f59e0b'],
+        stroke: { colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        fill: { opacity: 0.8 },
+        legend: { position: 'bottom', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartPolarCategories) window.chartPolarCategories.destroy(); } catch(e){}
+    window.chartPolarCategories = new ApexCharts(document.querySelector("#chart-polar-categories"), optionsPolar);
+    window.chartPolarCategories.render();
 }
 
 window.switchVisualTab = function(type) {
@@ -2372,7 +2786,9 @@ function renderSidebarConfig() {
             <div class="col-settings-panel" id="col-settings-${index}">
                 <div class="cfg-row">
                     <span>مسمى العمود:</span>
-                    <input type="text" class="cfg-input" value="${col.alias || col.name}" onchange="updateColField(${origIdx}, 'alias', this.value)" placeholder="${col.name}">
+                    <span style="font-weight:bold; color:#38bdf8; font-size:0.85rem; display:flex; align-items:center; gap:4px;">
+                        🔒 ${col.name} (ثابت بالنظام)
+                    </span>
                 </div>
                 <div class="cfg-row">
                     <span>حجم الخط (تكبير/تصغير):</span>
@@ -2401,26 +2817,51 @@ function renderSidebarConfig() {
                         <input type="color" class="cfg-input" value="${col.bg || '#000000'}" onchange="updateColField(${origIdx}, 'bg', this.value)" title="لون الخلفية">
                     </div>
                 </div>
-                ${['debit', 'credit', 'debitF', 'creditF'].includes(col.id) ? `
-                <div class="cfg-row">
-                    <span>التقريب والفاصلة الألفية:</span>
-                    <div style="display:flex; align-items:center; gap:6px;">
-                        <select class="cfg-input" onchange="updateColField(${origIdx}, 'dec', parseInt(this.value))" style="width:115px;" title="عدد الخانات العشرية للتقريب">
-                            <option value="0" ${col.dec === 0 ? 'selected' : ''}>بدون خانات (0)</option>
-                            <option value="1" ${col.dec === 1 ? 'selected' : ''}>خانة واحدة (1)</option>
-                            <option value="2" ${col.dec === 2 ? 'selected' : ''}>خانتين (2)</option>
-                            <option value="3" ${col.dec === 3 ? 'selected' : ''}>3 خانات (3)</option>
-                            <option value="4" ${col.dec === 4 ? 'selected' : ''}>4 خانات (4)</option>
-                            <option value="5" ${col.dec === 5 ? 'selected' : ''}>5 خانات (5)</option>
-                            <option value="6" ${col.dec === 6 ? 'selected' : ''}>6 خانات (6)</option>
-                        </select>
-                        <label style="font-size:0.75rem; color:#cbd5e1; cursor:pointer; display:flex; align-items:center; gap:3px;">
-                            <input type="checkbox" ${col.thousands !== false ? 'checked' : ''} onchange="updateColField(${origIdx}, 'thousands', this.checked)">
-                            فاصلة (,)
-                        </label>
+                                <div class="cfg-row" style="flex-wrap:wrap; margin-top:8px; border-top:1px dashed rgba(255,255,255,0.1); padding-top:8px;">
+                    <span style="font-weight:bold; color:#38bdf8; width:100%; margin-bottom:4px;">🔢 خصائص وتنسيق الأرقام والكسور:</span>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; width:100%;">
+                        <div>
+                            <span style="font-size:0.7rem; color:#94a3b8; display:block;">رمز الفاصلة الألفية:</span>
+                            <select class="cfg-input" onchange="updateColField(${origIdx}, 'thousandsSep', this.value)" style="width:100%; font-size:0.75rem;">
+                                <option value="," ${(!col.thousandsSep || col.thousandsSep === ',') ? 'selected' : ''}>, (فاصلة عادية)</option>
+                                <option value="." ${col.thousandsSep === '.' ? 'selected' : ''}>. (نقطة)</option>
+                                <option value=" " ${col.thousandsSep === ' ' ? 'selected' : ''}>[مسافة]</option>
+                                <option value="_" ${col.thousandsSep === '_' ? 'selected' : ''}>_ (شرطة)</option>
+                                <option value="'" ${col.thousandsSep === "'" ? 'selected' : ''}>' (اقتباس)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span style="font-size:0.7rem; color:#94a3b8; display:block;">رمز الفاصلة العشرية:</span>
+                            <select class="cfg-input" onchange="updateColField(${origIdx}, 'decSep', this.value)" style="width:100%; font-size:0.75rem;">
+                                <option value="." ${(!col.decSep || col.decSep === '.') ? 'selected' : ''}>. (نقطة)</option>
+                                <option value="," ${col.decSep === ',' ? 'selected' : ''}>, (فاصلة)</option>
+                                <option value="٫" ${col.decSep === '٫' ? 'selected' : ''}>٫ (عربية)</option>
+                                <option value="/" ${col.decSep === '/' ? 'selected' : ''}>/ (شرطة)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span style="font-size:0.7rem; color:#94a3b8; display:block;">عدد الخانات العشرية:</span>
+                            <select class="cfg-input" onchange="updateColField(${origIdx}, 'dec', parseInt(this.value)); updateColField(${origIdx}, 'decimals', parseInt(this.value));" style="width:100%; font-size:0.75rem;">
+                                <option value="0" ${col.dec === 0 || col.decimals === 0 ? 'selected' : ''}>0 (بدون)</option>
+                                <option value="1" ${col.dec === 1 || col.decimals === 1 ? 'selected' : ''}>1 خانة</option>
+                                <option value="2" ${col.dec === 2 || col.decimals === 2 || (col.dec === undefined && col.decimals === undefined) ? 'selected' : ''}>2 خانة</option>
+                                <option value="3" ${col.dec === 3 || col.decimals === 3 ? 'selected' : ''}>3 خانات</option>
+                                <option value="4" ${col.dec === 4 || col.decimals === 4 ? 'selected' : ''}>4 خانات</option>
+                                <option value="5" ${col.dec === 5 || col.decimals === 5 ? 'selected' : ''}>5 خانات</option>
+                                <option value="6" ${col.dec === 6 || col.decimals === 6 ? 'selected' : ''}>6 خانات</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span style="font-size:0.7rem; color:#94a3b8; display:block;">طريقة والتقريب:</span>
+                            <select class="cfg-input" onchange="updateColField(${origIdx}, 'roundMode', this.value)" style="width:100%; font-size:0.75rem;">
+                                <option value="round" ${(!col.roundMode || col.roundMode === 'round') ? 'selected' : ''}>تقريب عادي</option>
+                                <option value="floor" ${col.roundMode === 'floor' ? 'selected' : ''}>تقريب لأسفل</option>
+                                <option value="ceil" ${col.roundMode === 'ceil' ? 'selected' : ''}>تقريب لأعلى</option>
+                                <option value="trunc" ${col.roundMode === 'trunc' ? 'selected' : ''}>قطع الكسر</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                ` : ''}
             </div>
         `;
 
@@ -2446,11 +2887,27 @@ function toggleColVisibility(origIdx, el) {
     }
 }
 function updateColField(origIdx, field, val) {
+    if (field === 'alias' || field === 'name') {
+        if (typeof showToast === 'function') showToast('🔒 مسميات الأعمدة مثبتة بالنظام ولا يمكن تغييرها', 'info');
+        return;
+    }
     if (window.colConfigs[origIdx]) {
         window.colConfigs[origIdx][field] = val;
+        if (field === 'align') window.colConfigs[origIdx]['textAlign'] = val;
+        if (field === 'textAlign') window.colConfigs[origIdx]['align'] = val;
+        if (field === 'dec') window.colConfigs[origIdx]['decimals'] = val;
+        if (field === 'decimals') window.colConfigs[origIdx]['dec'] = val;
+        if (field === 'bold') window.colConfigs[origIdx]['fontWeight'] = val ? '900' : 'normal';
+        if (field === 'fontWeight') window.colConfigs[origIdx]['bold'] = (val === 'bold' || val === '900');
+
+        updateColDOMByOrigIdx(origIdx);
         applyLayoutToDOM();
-        if (['dec', 'thousands'].includes(field) && typeof window.runReport === 'function' && window.lastResults) {
-            window.runReport();
+        saveLayout();
+
+        if (['dec', 'decimals', 'thousands', 'thousandsSep', 'decSep', 'roundMode', 'showDecimals'].includes(field)) {
+            if (typeof window.lastResults !== 'undefined' && window.lastResults) {
+                renderTable(window.lastResults);
+            }
         }
     }
 }
@@ -2461,13 +2918,19 @@ function adjustFontSize(origIdx, dir) {
         window.colConfigs[origIdx].fs = parseFloat(fs.toFixed(2));
         renderSidebarConfig();
         applyLayoutToDOM();
+        saveLayout();
     }
 }
 function toggleColBold(origIdx, el) {
-    if (window.colConfigs[origIdx]) {
-        window.colConfigs[origIdx].bold = !window.colConfigs[origIdx].bold;
-        if (el) el.classList.toggle('active');
+    if (window.colConfigs && window.colConfigs[origIdx]) {
+        const isBold = !window.colConfigs[origIdx].bold;
+        window.colConfigs[origIdx].bold = isBold;
+        window.colConfigs[origIdx].fontWeight = isBold ? '900' : 'normal';
+        if (el) el.classList.toggle('active', isBold);
+        updateColDOMByOrigIdx(origIdx);
         applyLayoutToDOM();
+        saveLayout();
+        if (window.lastResults) renderTable(window.lastResults);
     }
 }
 
@@ -2615,7 +3078,9 @@ function renderColumnContextMenu() {
             <div class="col-settings-panel" id="col-settings-ctx-${index}">
                 <div class="cfg-row">
                     <span>مسمى العمود:</span>
-                    <input type="text" class="cfg-input" value="${col.alias || col.name}" onchange="updateColField(${origIdx}, 'alias', this.value)" placeholder="${col.name}">
+                    <span style="font-weight:bold; color:#38bdf8; font-size:0.85rem; display:flex; align-items:center; gap:4px;">
+                        🔒 ${col.name} (ثابت بالنظام)
+                    </span>
                 </div>
                 <div class="cfg-row">
                     <span>حجم الخط:</span>
@@ -2644,24 +3109,51 @@ function renderColumnContextMenu() {
                         <input type="color" class="cfg-input" value="${col.bg || '#000000'}" onchange="updateColField(${origIdx}, 'bg', this.value)">
                     </div>
                 </div>
-                ${['debit', 'credit', 'debitF', 'creditF'].includes(col.id) ? `
-                <div class="cfg-row">
-                    <span>التقريب والفاصلة:</span>
-                    <div style="display:flex; align-items:center; gap:6px;">
-                        <select class="cfg-input" onchange="updateColField(${origIdx}, 'dec', parseInt(this.value))" style="width:100px;">
-                            <option value="0" ${col.dec === 0 ? 'selected' : ''}>0 خانة</option>
-                            <option value="1" ${col.dec === 1 ? 'selected' : ''}>1 خانة</option>
-                            <option value="2" ${col.dec === 2 ? 'selected' : ''}>2 خانة</option>
-                            <option value="3" ${col.dec === 3 ? 'selected' : ''}>3 خانات</option>
-                            <option value="4" ${col.dec === 4 ? 'selected' : ''}>4 خانات</option>
-                        </select>
-                        <label style="font-size:0.75rem; color:#cbd5e1; cursor:pointer; display:flex; align-items:center; gap:3px;">
-                            <input type="checkbox" ${col.thousands !== false ? 'checked' : ''} onchange="updateColField(${origIdx}, 'thousands', this.checked)">
-                            فاصلة (,)
-                        </label>
+                                <div class="cfg-row" style="flex-wrap:wrap; margin-top:8px; border-top:1px dashed rgba(255,255,255,0.1); padding-top:8px;">
+                    <span style="font-weight:bold; color:#38bdf8; width:100%; margin-bottom:4px;">🔢 خصائص وتنسيق الأرقام والكسور:</span>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; width:100%;">
+                        <div>
+                            <span style="font-size:0.7rem; color:#94a3b8; display:block;">رمز الفاصلة الألفية:</span>
+                            <select class="cfg-input" onchange="updateColField(${origIdx}, 'thousandsSep', this.value)" style="width:100%; font-size:0.75rem;">
+                                <option value="," ${(!col.thousandsSep || col.thousandsSep === ',') ? 'selected' : ''}>, (فاصلة عادية)</option>
+                                <option value="." ${col.thousandsSep === '.' ? 'selected' : ''}>. (نقطة)</option>
+                                <option value=" " ${col.thousandsSep === ' ' ? 'selected' : ''}>[مسافة]</option>
+                                <option value="_" ${col.thousandsSep === '_' ? 'selected' : ''}>_ (شرطة)</option>
+                                <option value="'" ${col.thousandsSep === "'" ? 'selected' : ''}>' (اقتباس)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span style="font-size:0.7rem; color:#94a3b8; display:block;">رمز الفاصلة العشرية:</span>
+                            <select class="cfg-input" onchange="updateColField(${origIdx}, 'decSep', this.value)" style="width:100%; font-size:0.75rem;">
+                                <option value="." ${(!col.decSep || col.decSep === '.') ? 'selected' : ''}>. (نقطة)</option>
+                                <option value="," ${col.decSep === ',' ? 'selected' : ''}>, (فاصلة)</option>
+                                <option value="٫" ${col.decSep === '٫' ? 'selected' : ''}>٫ (عربية)</option>
+                                <option value="/" ${col.decSep === '/' ? 'selected' : ''}>/ (شرطة)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span style="font-size:0.7rem; color:#94a3b8; display:block;">عدد الخانات العشرية:</span>
+                            <select class="cfg-input" onchange="updateColField(${origIdx}, 'dec', parseInt(this.value)); updateColField(${origIdx}, 'decimals', parseInt(this.value));" style="width:100%; font-size:0.75rem;">
+                                <option value="0" ${col.dec === 0 || col.decimals === 0 ? 'selected' : ''}>0 (بدون)</option>
+                                <option value="1" ${col.dec === 1 || col.decimals === 1 ? 'selected' : ''}>1 خانة</option>
+                                <option value="2" ${col.dec === 2 || col.decimals === 2 || (col.dec === undefined && col.decimals === undefined) ? 'selected' : ''}>2 خانة</option>
+                                <option value="3" ${col.dec === 3 || col.decimals === 3 ? 'selected' : ''}>3 خانات</option>
+                                <option value="4" ${col.dec === 4 || col.decimals === 4 ? 'selected' : ''}>4 خانات</option>
+                                <option value="5" ${col.dec === 5 || col.decimals === 5 ? 'selected' : ''}>5 خانات</option>
+                                <option value="6" ${col.dec === 6 || col.decimals === 6 ? 'selected' : ''}>6 خانات</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span style="font-size:0.7rem; color:#94a3b8; display:block;">طريقة والتقريب:</span>
+                            <select class="cfg-input" onchange="updateColField(${origIdx}, 'roundMode', this.value)" style="width:100%; font-size:0.75rem;">
+                                <option value="round" ${(!col.roundMode || col.roundMode === 'round') ? 'selected' : ''}>تقريب عادي</option>
+                                <option value="floor" ${col.roundMode === 'floor' ? 'selected' : ''}>تقريب لأسفل</option>
+                                <option value="ceil" ${col.roundMode === 'ceil' ? 'selected' : ''}>تقريب لأعلى</option>
+                                <option value="trunc" ${col.roundMode === 'trunc' ? 'selected' : ''}>قطع الكسر</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                ` : ''}
             </div>
         `;
 
@@ -2687,10 +3179,15 @@ function toggleColVisibilityCtx(origIdx, el) {
     }
 }
 function toggleColBoldCtx(origIdx, el) {
-    if (window.colConfigs[origIdx]) {
-        window.colConfigs[origIdx].bold = !window.colConfigs[origIdx].bold;
-        if (el) el.classList.toggle('active');
+    if (window.colConfigs && window.colConfigs[origIdx]) {
+        const isBold = !window.colConfigs[origIdx].bold;
+        window.colConfigs[origIdx].bold = isBold;
+        window.colConfigs[origIdx].fontWeight = isBold ? '900' : 'normal';
+        if (el) el.classList.toggle('active', isBold);
+        updateColDOMByOrigIdx(origIdx);
         applyLayoutToDOM();
+        saveLayout();
+        if (window.lastResults) renderTable(window.lastResults);
     }
 }
 
@@ -2766,26 +3263,7 @@ function makeElementDraggable(elmnt, headerElmnt) {
     }
 }
 
-function bindReportContextMenu() {
-    document.addEventListener('contextmenu', function(e) {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
-            return;
-        }
-        if (e.target.closest('#partnerContextMenu') || e.target.closest('#columnContextMenu')) {
-            return;
-        }
-
-        openColumnContextMenu(e);
-    });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    bindReportContextMenu();
-});
-
-document.addEventListener('DBReady', () => {
-    bindReportContextMenu();
-});
+// Global right-click and auto-open behaviors removed to strictly enforce table header right-click only
 
 
 
