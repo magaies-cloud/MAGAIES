@@ -179,22 +179,58 @@ $page_title = 'حساب الارصده الاساسية';
         }
 
         .v-card {
-            background: rgba(30, 41, 59, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.07);
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             padding: 20px;
             position: relative;
             overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .v-card::after, .v-chart-card::after {
+            content: '';
+            position: absolute;
+            top: -60%;
+            left: -60%;
+            width: 220%;
+            height: 220%;
+            background: linear-gradient(45deg, transparent 42%, rgba(255, 255, 255, 0.08) 50%, transparent 58%);
+            transform: rotate(25deg);
+            animation: shimmerSweep 7s infinite ease-in-out;
+            pointer-events: none;
+        }
+        @keyframes shimmerSweep {
+            0% { transform: translateY(-100%) rotate(25deg); }
+            100% { transform: translateY(100%) rotate(25deg); }
+        }
+        .shimmer-text {
+            background: linear-gradient(90deg, #ffffff, #38bdf8, #ffffff);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: textShimmer 4s linear infinite;
+        }
+        .gold-shimmer-text {
+            background: linear-gradient(90deg, #fbbf24, #fef08a, #fbbf24);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: textShimmer 3s linear infinite;
+        }
+        @keyframes textShimmer {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
         }
         .v-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
-        .glow-sky:hover { border-color: rgba(56, 189, 248, 0.4); box-shadow: 0 15px 35px rgba(56, 189, 248, 0.15); }
-        .glow-purple:hover { border-color: rgba(168, 85, 247, 0.4); box-shadow: 0 15px 35px rgba(168, 85, 247, 0.15); }
-        .glow-emerald:hover { border-color: rgba(16, 185, 129, 0.4); box-shadow: 0 15px 35px rgba(16, 185, 129, 0.15); }
-        .glow-amber:hover { border-color: rgba(245, 158, 11, 0.4); box-shadow: 0 15px 35px rgba(245, 158, 11, 0.15); }
+        .glow-sky { border-color: rgba(56, 189, 248, 0.4) !important; box-shadow: 0 0 20px rgba(56, 189, 248, 0.15); }
+        .glow-purple { border-color: rgba(168, 85, 247, 0.4) !important; box-shadow: 0 0 20px rgba(168, 85, 247, 0.15); }
+        .glow-emerald { border-color: rgba(16, 185, 129, 0.4) !important; box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); }
+        .glow-amber { border-color: rgba(245, 158, 11, 0.4) !important; box-shadow: 0 0 20px rgba(245, 158, 11, 0.15); }
 
         :root.light-theme .v-card {
             background: #ffffff !important;

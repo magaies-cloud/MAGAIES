@@ -2531,8 +2531,18 @@ function renderVisualAnalytics(results) {
     const indCoveragePct = document.getElementById('ind-coverage-pct');
     const indCoverageBar = document.getElementById('ind-coverage-bar');
 
+    const netPositionUSD = (ledgerExchangeRate > 0) ? (netPosition / ledgerExchangeRate) : netPosition;
+    
     if (indNetVal) {
-        indNetVal.textContent = (Math.abs(netPosition)).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+        const sdgStr = (Math.abs(netPosition)).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+        const usdStr = (Math.abs(netPositionUSD)).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ' + (ledgerForeignCurrency || 'USD');
+        
+        indNetVal.innerHTML = `
+            <div style="display:flex; flex-direction:column; gap:4px;">
+                <span style="color:#f8fafc; font-size:1.3rem; font-weight:900;" class="shimmer-text">${sdgStr}</span>
+                <span style="color:#fbbf24; font-size:1.05rem; font-weight:800;" class="gold-shimmer-text">💳 المعادل بالأجنبي: ${usdStr}</span>
+            </div>
+        `;
         if (netPosition >= 0) {
             if (indTrendArrow) indTrendArrow.textContent = '↗️';
             if (indTrendBadge) {
