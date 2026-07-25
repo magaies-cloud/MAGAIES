@@ -1388,20 +1388,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!confirmed) return;
 
             const refCode = 'REF-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-            const SAAS_MASTER_KEY = "990011";
-            let masterRecoveryHash = null;
-            if (refCode) {
-                const masterBuffer = new TextEncoder().encode(refCode + SAAS_MASTER_KEY);
-                const masterHashBuffer = await crypto.subtle.digest('SHA-256', masterBuffer);
-                masterRecoveryHash = Array.from(new Uint8Array(masterHashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-            }
 
+            // Dynamic Token System: We no longer store masterRecoveryHash.
+            // Only the refCode and user's pinHash are saved.
             const exportPayload = {
                 magaiees_backup_v3: true,
                 refCode: refCode,
                 isProtected: !!pinHash,
                 pinHash: pinHash,
-                masterRecoveryHash: masterRecoveryHash,
                 store: cleanStore
             };
 
@@ -1484,26 +1478,27 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
 
                         const cleanPin = enteredPin.trim();
-                        const SAAS_MASTER_KEY = "990011";
 
-                        // Compute hashes for entered PIN
+                        // Compute hashes for entered PIN (User's personal PIN)
                         const msgBuffer = new TextEncoder().encode(cleanPin);
                         const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
                         const enteredHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 
-                        // Compute master recovery hash for entered PIN + refCode
-                        let enteredMasterHash = '';
+                        // Dynamic Master Token Generation
+                        let expectedDynamicToken = "";
                         if (refCode) {
-                            const masterBuffer = new TextEncoder().encode(refCode + cleanPin);
-                            const masterHashBuffer = await crypto.subtle.digest('SHA-256', masterBuffer);
-                            enteredMasterHash = Array.from(new Uint8Array(masterHashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+                            const salt = "Magaiees_ERP_2026_SaaS_Secr3t";
+                            const dynBuffer = new TextEncoder().encode(refCode + salt);
+                            const dynHash = await crypto.subtle.digest('SHA-256', dynBuffer);
+                            const hashArray = Array.from(new Uint8Array(dynHash));
+                            const num = (hashArray[0] << 24 | hashArray[1] << 16 | hashArray[2] << 8 | hashArray[3]) >>> 0;
+                            expectedDynamicToken = (num % 1000000).toString().padStart(6, '0');
                         }
 
-                        // Check 1: Direct PIN match
-                        // Check 2: Master Recovery Hash match (entered PIN is Admin Master Key)
-                        // Check 3: Direct Super-Admin Master Key ("990011")
+                        // Check 1: Direct PIN match (User's PIN)
+                        // Check 2: Dynamic Master Token match (Admin generated)
                         const isPinMatch = (enteredHash === data.pinHash);
-                        const isMasterMatch = (cleanPin === SAAS_MASTER_KEY || (data.masterRecoveryHash && enteredMasterHash === data.masterRecoveryHash));
+                        const isMasterMatch = (cleanPin === expectedDynamicToken && expectedDynamicToken !== "");
 
                         if (!isPinMatch && !isMasterMatch) {
                             alert(`❌ الرقم السري غير صحيح!\n\nرمز مرجعية الملف: [${refCode || 'N/A'}]\nيرجى التواصل مع إدارة المشتركين وتزويدهم بالرمز لاسترداد كلمة السر.`);

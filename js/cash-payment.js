@@ -362,6 +362,10 @@ function submitVoucher() {
     rows.forEach(id => {
         const accId = document.getElementById(`acc-${id}`).value;
         const amt = parseNum(document.getElementById(`amt-${id}`).value);
+        if (amt < 0) {
+            showToast("لا يمكن إدخال مبالغ سالبة في سند الصرف", "error");
+            return;
+        }
         if (amt > 0) {
             if(!accId) hasEmptyAccounts = true;
             details.push({

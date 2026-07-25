@@ -334,14 +334,7 @@ $header_theme_class = 'header-theme-reports';
                 <div class="ai-badge">● مؤشر أداء التحصيل السريع</div>
             </a>
 
-            <!-- 2. كشف الحساب التفصيلي -->
-            <a href="statement.php" class="report-card" style="--accent-color: #a855f7; --shadow-color: 168, 85, 247;">
-                <div class="live-badge"><span class="live-dot"></span>مفعل (Live)</div>
-                <div class="card-icon">📋</div>
-                <div class="card-title">كشف الحساب التفصيلي</div>
-                <div class="card-desc">تقرير شامل يوضح كل العمليات المالية والمطالبات للعميل أو المورد مع احتساب الرصيد التراكمي خطوة بخطوة.</div>
-                <div class="ai-badge">● تدقيق القيود والمطالبات التراكمية</div>
-            </a>
+
 
             <!-- 3. الأرصدة المجمعة للشركاء -->
             <a href="balances-report.php" class="report-card" style="--accent-color: #00ffff; --shadow-color: 0, 255, 255;">

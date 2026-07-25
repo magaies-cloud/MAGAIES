@@ -306,11 +306,16 @@ $header_theme_class = "header-theme-inventory";
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
             purchases = purchases.filter(x => !x.deleted);
             purchases.forEach(inv => {
+                const isReturn = inv.isReturn === true;
                 (inv.items || inv.lines || []).forEach(line => {
                     let itemId = line.itemId || line.productId;
                     let item = itemsDb.find(i => i.id === itemId);
                     let baseQty = line.customBaseQty !== undefined ? line.customBaseQty : ((parseFloat(line.quantity) || 0) * (line.customFactor || 1) * (item ? (item.conversionFactor || 1) : 1));
-                    actualStockMap[itemId] = (actualStockMap[itemId] || 0) + baseQty;
+                    if (isReturn) {
+                        actualStockMap[itemId] = (actualStockMap[itemId] || 0) - baseQty;
+                    } else {
+                        actualStockMap[itemId] = (actualStockMap[itemId] || 0) + baseQty;
+                    }
                 });
             });
             salesDb.forEach(inv => {

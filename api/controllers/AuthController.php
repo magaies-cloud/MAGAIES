@@ -179,6 +179,7 @@ class AuthController {
             $token = generateToken();
             $tokenExpiry = date('Y-m-d H:i:s', strtotime('+30 days'));
             $this->pdo->prepare("UPDATE users SET token = ?, token_expires_at = ? WHERE id = ?")->execute([$token, $tokenExpiry, $user['id']]);
+            $this->pdo->prepare("UPDATE tenants SET last_login_at = NOW() WHERE id = ?")->execute([$user['tenant_id']]);
             
             // Set cookie for server-side reports to read
             setcookie('saas_token', $token, time() + (86400 * 30), '/', '', isset($_SERVER['HTTPS']), true);

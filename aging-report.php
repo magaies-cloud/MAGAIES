@@ -340,7 +340,7 @@
                     <td style="color: #f97316;">${d.days60.toLocaleString()}</td>
                     <td style="color: #f87171;">${d.days90.toLocaleString()}</td>
                     <td style="${dangerStyle}">${d.over90.toLocaleString()}</td>
-                    <td><a data-href="statement.php?customer=${d.name}" onclick="window.location.href='statement.php?customer=${d.name}'" class="btn-action" style="font-size: 0.8rem; background: rgba(56,189,248,0.2); color: #38bdf8;">كشف حساب</a></td>
+                    <td></td>
                 `;
                 tbody.appendChild(tr);
             });

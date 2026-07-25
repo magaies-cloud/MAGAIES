@@ -36,6 +36,7 @@ CREATE TABLE "tenants" (
   "max_users" int DEFAULT '5',
   "plan_id" int DEFAULT '1',
   "max_storage" int DEFAULT NULL,
+  "last_login_at" datetime DEFAULT NULL,
   PRIMARY KEY ("id"),
   UNIQUE KEY "subdomain" ("subdomain"),
   KEY "idx_subdomain" ("subdomain"),
@@ -935,6 +936,22 @@ CREATE TABLE "warehouses" (
   KEY "idx_warehouses_is_deleted" ("is_deleted"),
   KEY "idx_warehouses_tenant_deleted" ("tenant_id","is_deleted"),
   CONSTRAINT "warehouses_ibfk_1" FOREIGN KEY ("tenant_id") REFERENCES "tenants" ("id") ON DELETE CASCADE
+);
+
+-- ----------------------------------------------------------------------
+-- Table: `saas_payments`
+-- ----------------------------------------------------------------------
+DROP TABLE IF EXISTS `saas_payments`;
+CREATE TABLE "saas_payments" (
+  "id" int NOT NULL AUTO_INCREMENT,
+  "tenant_id" int NOT NULL,
+  "amount" decimal(10,2) NOT NULL,
+  "description" varchar(255) DEFAULT NULL,
+  "payment_date" datetime DEFAULT CURRENT_TIMESTAMP,
+  "created_at" timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY ("id"),
+  KEY "idx_tenant" ("tenant_id"),
+  CONSTRAINT "saas_payments_ibfk_1" FOREIGN KEY ("tenant_id") REFERENCES "tenants" ("id") ON DELETE CASCADE
 );
 
 SET FOREIGN_KEY_CHECKS = 1;

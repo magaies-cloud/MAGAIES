@@ -262,6 +262,11 @@ function submitVoucher() {
         const cred = parseNum(row.querySelector('.credit').value);
         
         if (deb > 0 || cred > 0) {
+            if (deb < 0 || cred < 0) {
+                showToast("لا يمكن إدخال مبالغ سالبة في قيد اليومية!", "error");
+                hasError = true;
+                return;
+            }
             if (!acc) {
                 showToast("يرجى تحديد الحساب في كل سطر يحتوي على مبالغ!", "error");
                 hasError = true;

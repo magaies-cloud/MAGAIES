@@ -51,3 +51,13 @@ uploads/
 scripts/
 temp*.js
 journal.php
+
+# ── Temporary / Debug Files ─────────────────────────
+scratch/
+curl_jobs.json
+job_log.txt
+jobs*.json
+test.php
+db_fix.php
+saas-admin.html
+deploy_origin.yml

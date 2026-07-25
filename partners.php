@@ -226,19 +226,51 @@
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=1783054968.70701"></script>
     <script>
-        // Mock data for UI preview
-        let localPartners = [
-            { id: 1, name: 'شركة مقاييس التجارية', type: 'CUSTOMER', phone: '0912345678' },
-            { id: 2, name: 'مصنع الإسمنت الحديث', type: 'SUPPLIER', phone: '0123456789' },
-            { id: 3, name: 'أحمد محمد إبراهيم', type: 'EMPLOYEE', phone: '0111111111' }
-        ];
+        let localPartners = [];
+
+        function loadFromStorage() {
+            const customers = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+            const suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
+
+            localPartners = [];
+
+            customers.forEach(c => {
+                localPartners.push({
+                    id: c.id,
+                    name: c.name || c.customerName,
+                    type: 'CUSTOMER',
+                    phone: c.phone || c.mobile || '',
+                    balance: parseFloat(c.currentBalance || 0),
+                    storageKey: 'erp_customers_v1',
+                    raw: c
+                });
+            });
+
+            suppliers.forEach(s => {
+                localPartners.push({
+                    id: s.id,
+                    name: s.name || s.supplierName,
+                    type: 'SUPPLIER',
+                    phone: s.phone || s.mobile || '',
+                    balance: parseFloat(s.currentBalance || 0),
+                    storageKey: 'erp_suppliers_v1',
+                    raw: s
+                });
+            });
+        }
 
         document.addEventListener('DBReady', () => {
             if (!localStorage.getItem('authToken')) {
                 window.location.href = 'login.php';
             }
+            loadFromStorage();
             loadPartners('');
         });
+
+        if (window.APP_READY) {
+            loadFromStorage();
+            loadPartners('');
+        }
 
         function loadPartners(filterType) {
             // Update active tab UI
@@ -258,45 +290,128 @@
             }
 
             if (filtered.length === 0) {
-                container.innerHTML = '<div style="text-align:center;">لا توجد بيانات</div>';
+                container.innerHTML = '<div style="text-align:center; padding: 40px; color:var(--text-secondary);"><div style="font-size:3rem; margin-bottom:10px;">📭</div>لا توجد بيانات</div>';
                 return;
             }
 
+            // Sort by name
+            filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
             filtered.forEach(p => {
                 const typeLabel = p.type === 'CUSTOMER' ? 'عميل' : p.type === 'SUPPLIER' ? 'مورد' : 'موظف';
-                container.innerHTML += \`
-                    <div class="partner-card glass-panel">
+                const balColor = p.balance > 0 ? '#f87171' : p.balance < 0 ? '#34d399' : 'var(--text-secondary)';
+                const balLabel = p.balance !== 0 ? `<div style="font-size: 0.8rem; color: ${balColor}; margin-top:3px; font-weight:700;">الرصيد: ${Math.abs(p.balance).toLocaleString()} ${p.balance > 0 ? '(عليه)' : '(له)'}</div>` : '';
+
+                container.innerHTML += `
+                    <div class="partner-card glass-panel" style="cursor:pointer;" onclick="editPartner('${p.id}', '${p.type}')">
                         <div>
-                            <div class="partner-name">\${p.name}</div>
-                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top:5px;">\${p.phone || 'لا يوجد هاتف'}</div>
+                            <div class="partner-name">${p.name}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top:5px;">📱 ${p.phone || 'لا يوجد هاتف'}</div>
+                            ${balLabel}
                         </div>
-                        <div class="partner-type type-\${p.type}">\${typeLabel}</div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span class="partner-type type-${p.type}">${typeLabel}</span>
+                            <button onclick="event.stopPropagation(); deletePartner('${p.id}', '${p.type}')" style="background:none; border:none; font-size:1.2rem; cursor:pointer; opacity:0.5;" title="حذف">🗑️</button>
+                        </div>
                     </div>
-                \`;
+                `;
             });
+
+            // Add count
+            container.insertAdjacentHTML('beforeend', `<div style="text-align:center; padding:10px; color:var(--text-secondary); font-size:0.85rem;">إجمالي: ${filtered.length} شريك</div>`);
         }
 
         async function addPartner() {
-            const name = document.getElementById('p-name').value;
+            const name = document.getElementById('p-name').value.trim();
             const type = document.getElementById('p-type').value;
-            const phone = document.getElementById('p-phone').value;
+            const phone = document.getElementById('p-phone').value.trim();
 
             if (!name) {
                 alert('يرجى إدخال الاسم');
                 return;
             }
 
-            // Mock backend call
-            localPartners.unshift({
-                id: Date.now(),
-                name, type, phone
-            });
+            // Duplicate check
+            const allCustomers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+            const allSuppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+            const allNames = [...allCustomers, ...allSuppliers].filter(x => !x.deleted).map(x => (x.name || x.customerName || x.supplierName || '').trim().toLowerCase());
+            if (allNames.includes(name.toLowerCase())) {
+                alert('⚠️ يوجد شريك بنفس الاسم بالفعل!');
+                return;
+            }
 
-            alert('تمت الإضافة بنجاح!');
+            const newPartner = {
+                id: type === 'CUSTOMER' ? 'cust-' + Date.now() : 'supp-' + Date.now(),
+                name: name,
+                phone: phone,
+                mobile: phone,
+                currentBalance: 0,
+                openingDebit: 0,
+                openingCredit: 0,
+                createdAt: new Date().toISOString()
+            };
+
+            if (type === 'CUSTOMER') {
+                newPartner.customerName = name;
+                allCustomers.push(newPartner);
+                localStorage.setItem('erp_customers_v1', JSON.stringify(allCustomers));
+                if (window.saveToDB) window.saveToDB('customers', allCustomers);
+            } else {
+                newPartner.supplierName = name;
+                allSuppliers.push(newPartner);
+                localStorage.setItem('erp_suppliers_v1', JSON.stringify(allSuppliers));
+                if (window.saveToDB) window.saveToDB('suppliers', allSuppliers);
+            }
+
+            alert('✅ تمت إضافة الشريك بنجاح!');
             document.getElementById('p-name').value = '';
             document.getElementById('p-phone').value = '';
             
-            // Reload the currently active tab
+            loadFromStorage();
+            document.querySelector('.tab-btn.active').click();
+        }
+
+        function deletePartner(id, type) {
+            if (!confirm('هل تريد حذف هذا الشريك نهائياً؟')) return;
+
+            const key = type === 'CUSTOMER' ? 'erp_customers_v1' : 'erp_suppliers_v1';
+            const data = JSON.parse(localStorage.getItem(key)) || [];
+            const item = data.find(x => String(x.id) === String(id));
+            if (item) {
+                item.deleted = true;
+                localStorage.setItem(key, JSON.stringify(data));
+                if (window.saveToDB) window.saveToDB(key.replace('erp_', '').replace('_v1', ''), data);
+            }
+
+            loadFromStorage();
+            document.querySelector('.tab-btn.active').click();
+        }
+
+        function editPartner(id, type) {
+            const partner = localPartners.find(p => String(p.id) === String(id) && p.type === type);
+            if (!partner) return;
+
+            const newName = prompt('تعديل الاسم:', partner.name);
+            if (newName === null) return;
+            if (!newName.trim()) { alert('الاسم لا يمكن أن يكون فارغاً'); return; }
+
+            const newPhone = prompt('تعديل رقم الهاتف:', partner.phone);
+            if (newPhone === null) return;
+
+            const key = type === 'CUSTOMER' ? 'erp_customers_v1' : 'erp_suppliers_v1';
+            const data = JSON.parse(localStorage.getItem(key)) || [];
+            const item = data.find(x => String(x.id) === String(id));
+            if (item) {
+                item.name = newName.trim();
+                if (type === 'CUSTOMER') item.customerName = newName.trim();
+                else item.supplierName = newName.trim();
+                item.phone = newPhone.trim();
+                item.mobile = newPhone.trim();
+                localStorage.setItem(key, JSON.stringify(data));
+                if (window.saveToDB) window.saveToDB(key.replace('erp_', '').replace('_v1', ''), data);
+            }
+
+            loadFromStorage();
             document.querySelector('.tab-btn.active').click();
         }
     </script>

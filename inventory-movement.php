@@ -450,12 +450,17 @@
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
             purchases = purchases.filter(x => !x.deleted);
             purchases.forEach(inv => {
+                const isReturn = inv.isReturn === true;
                 let whName = getWarehouseName(inv.warehouseId || inv.warehouse);
                 (inv.items || inv.lines || []).forEach(line => {
                     let key = (line.itemId || line.productId) + '|' + whName;
                     let item = items.find(i => i.id === (line.itemId || line.productId));
                     let baseQty = line.customBaseQty !== undefined ? line.customBaseQty : ((parseFloat(line.quantity) || 0) * (line.customFactor || 1) * (item ? (item.conversionFactor || 1) : 1));
-                    actualStockMap[key] = (actualStockMap[key] || 0) + baseQty;
+                    if (isReturn) {
+                        actualStockMap[key] = (actualStockMap[key] || 0) - baseQty;
+                    } else {
+                        actualStockMap[key] = (actualStockMap[key] || 0) + baseQty;
+                    }
                 });
             });
 
