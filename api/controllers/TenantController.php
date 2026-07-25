@@ -19,6 +19,9 @@ class TenantController {
             try {
                 $this->pdo->exec("ALTER TABLE `tenants` ADD COLUMN `max_storage` INT(11) DEFAULT NULL;");
             } catch (Exception $ex) {}
+            try {
+                $this->pdo->exec("ALTER TABLE `tenants` ADD COLUMN `last_login_at` DATETIME DEFAULT NULL;");
+            } catch (Exception $ex) {}
         } catch (Exception $e) {
             error_log("Failed to create saas_audit_logs: " . $e->getMessage());
         }
