@@ -1916,34 +1916,19 @@ window.renderBalancesPresets = function() {
 
             if (hud) {
                 hud.style.display = 'block';
-                if (isLockedDefault) {
-                    hudIcon.innerText = '🛑';
-                    hudTitle.innerText = `ضبط مصنع محمي نهائياً (${p.name})`;
-                    hudDesc.innerText = 'هذا الخيار محمي كـ "ضبط مصنع نهائي" ولا يمكن تغييره أو تعديله نهائياً!';
-                    if (hudProgress) { hudProgress.style.width = '100%'; hudProgress.style.background = '#ef4444'; }
-                    if (hudTimer) hudTimer.innerText = 'محمي من التعديل 🔒';
-                } else if (isDefaultGroup) {
+                if (isDefaultGroup) {
                     hudIcon.innerText = '🔒';
-                    hudTitle.innerText = `حفظ وقفل (${p.name}) كـ "ضبط مصنع نهائي"`;
-                    hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) حتى يمتلئ الشريط، وسيطلب منك النظام تأكيد الحفظ النهائى المحمي.';
+                    hudTitle.innerText = `حفظ وتثبيت ضبط المصنع (${p.name})`;
+                    hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) لحفظ وتثبيت التعديلات الجديدة كـ "ضبط مصنع نهائي".';
                     if (hudProgress) { hudProgress.style.width = '0%'; hudProgress.style.background = 'linear-gradient(90deg, #eab308, #10b981)'; }
                     if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
                 } else {
                     hudIcon.innerText = '✨';
                     hudTitle.innerText = `حفظ وتحديث (${p.name})`;
-                    hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) حتى يمتلئ الشريط، وسيطلب منك النظام تأكيد الحفظ والتحديث (يمكن تجديده لاحقاً).';
+                    hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) حتى يمتلئ الشريط، وسيطلب منك النظام تأكيد الحفظ والتحديث.';
                     if (hudProgress) { hudProgress.style.width = '0%'; hudProgress.style.background = 'linear-gradient(90deg, #3b82f6, #10b981)'; }
                     if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
                 }
-            }
-
-            if (isLockedDefault) {
-                mainInterval = setTimeout(() => {
-                    isTriggered = true;
-                    if (hud) hud.style.display = 'none';
-                    alert(`🛑 الخيار "${p.name}" محمي ومقفل كـ "ضبط مصنع نهائي".\n\nلقد تم حفظ وتثبيت شكل التقرير وتصميمه سابقاً بشكل دائم، ولا يمكن تغييره أو إعادة كتابته نهائياً!`);
-                }, 1000);
-                return;
             }
 
             const duration = 8000;

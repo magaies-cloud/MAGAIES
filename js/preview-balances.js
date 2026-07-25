@@ -559,19 +559,10 @@ function startLongPressCount(idx, btn) {
 
     if (hud) {
         hud.style.display = 'block';
-        if (isLockedDefault) {
-            hudIcon.innerText = '🛑';
-            hudTitle.innerText = `ضبط مصنع محمي نهائياً (${p.name})`;
-            hudDesc.innerText = 'هذا الخيار محمي كـ "ضبط مصنع نهائي" ولا يمكن تغييره أو تعديله نهائياً!';
-            if (hudProgress) {
-                hudProgress.style.width = '100%';
-                hudProgress.style.background = '#ef4444';
-            }
-            if (hudTimer) hudTimer.innerText = 'محمي من التعديل 🔒';
-        } else if (isDefaultGroup) {
+        if (isDefaultGroup) {
             hudIcon.innerText = '🔒';
-            hudTitle.innerText = `حفظ وقفل (${p.name}) كـ "ضبط مصنع نهائي"`;
-            hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) حتى يمتلئ الشريط، وسيطلب منك النظام تأكيد الحفظ النهائى المحمي.';
+            hudTitle.innerText = `حفظ وتثبيت ضبط المصنع (${p.name})`;
+            hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) لحفظ وتثبيت التعديلات الجديدة كـ "ضبط مصنع نهائي".';
             if (hudProgress) {
                 hudProgress.style.width = '0%';
                 hudProgress.style.background = 'linear-gradient(90deg, #eab308, #10b981)';
@@ -580,22 +571,13 @@ function startLongPressCount(idx, btn) {
         } else {
             hudIcon.innerText = '✨';
             hudTitle.innerText = `حفظ وتحديث (${p.name})`;
-            hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) حتى يمتلئ الشريط، وسيطلب منك النظام تأكيد الحفظ والتحديث (يمكن تجديده لاحقاً).';
+            hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) حتى يمتلئ الشريط، وسيطلب منك النظام تأكيد الحفظ والتحديث.';
             if (hudProgress) {
                 hudProgress.style.width = '0%';
                 hudProgress.style.background = 'linear-gradient(90deg, #3b82f6, #10b981)';
             }
             if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
         }
-    }
-
-    if (isLockedDefault) {
-        longPressInterval = setTimeout(() => {
-            isLongPressTriggered = true;
-            cancelLongPressCount();
-            alert(`🛑 الخيار "${p.name}" محمي ومقفل كـ "ضبط مصنع نهائي".\n\nلقد تم حفظ وتثبيت شكل التقرير وتصميمه سابقاً بشكل دائم، ولا يمكن تغييره أو إعادة كتابته نهائياً!`);
-        }, 1000);
-        return;
     }
 
     const duration = 8000;
@@ -651,11 +633,6 @@ function promptConfirmationAndSave(idx) {
 
     const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
 
-    if (isDefaultGroup && p.isLocked) {
-        alert(`🛑 الخيار "${p.name}" محمي ومقفل كـ "ضبط مصنع نهائي".\n\nلقد تم حفظ وتثبيت شكل التقرير وتصميمه سابقاً بشكل دائم، ولا يمكن تغييره أو إعادة كتابته نهائياً!`);
-        return;
-    }
-
     const modal = document.getElementById('save-confirm-modal');
     const title = document.getElementById('confirm-modal-title');
     const body = document.getElementById('confirm-modal-body');
@@ -669,7 +646,7 @@ function promptConfirmationAndSave(idx) {
         if (isDefaultGroup) {
             if (icon) icon.innerText = '🔒';
             title.innerText = `حفظ وتثبيت ضبط المصنع (${p.name})`;
-            body.innerHTML = `اكتملت الـ 8 ثوانٍ بنجاح! <br><br>هل تريد حفظ وتثبيت شكل وتصميم التقرير الحالي كـ <b>"ضبط مصنع نهائي"</b> في (<b>${p.name}</b>)؟<br><br><span style="color:#ef4444; font-size:0.85rem;">⚠️ تنبيه هام: بعد التثبيت سيتم قفل هذا التصميم نهائياً ولن يمكن تغييره أو تعديله لاحقاً.</span>`;
+            body.innerHTML = `اكتملت الـ 8 ثوانٍ بنجاح! <br><br>هل تريد حفظ وتثبيت التعديلات الجديدة في (<b>${p.name}</b>) كـ <b>"ضبط مصنع نهائي"</b>؟<br><br><span style="color:#eab308; font-size:0.85rem;">(ملاحظة: سيتم تثبيت وتقييد جميع الخطوط والألوان والأعمدة والتنسيقات الجديدة).</span>`;
         } else {
             if (icon) icon.innerText = '✨';
             title.innerText = `حفظ وتحديث التقرير (${p.name})`;
@@ -686,10 +663,10 @@ function promptConfirmationAndSave(idx) {
         };
     } else {
         if (isDefaultGroup) {
-            const confirmSave = confirm(`🔒 اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتثبيت شكل وتصميم التقرير الحالي كـ "ضبط مصنع نهائي" في (${p.name})؟\n\n⚠️ تنبيه هام: بعد التأكيد سيتم قفل وتثبيت هذا التصميم نهائياً ولن يمكن تغييره لاحقاً.`);
+            const confirmSave = confirm(`🔒 اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتثبيت التعديلات الجديدة في (${p.name}) كـ "ضبط مصنع نهائي"؟`);
             if (confirmSave) executeLongPressSave(idx);
         } else {
-            const confirmSave = confirm(`✨ اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتحديث تصميم التقرير الحالي في (${p.name})؟\n\n(ملاحظة: يمكنك إعادة تعديله وتجديده لاحقاً في أي وقت بالضغط 8 ثوانٍ مجدداً).`);
+            const confirmSave = confirm(`✨ اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتحديث تصميم التقرير الحالي في (${p.name})؟`);
             if (confirmSave) executeLongPressSave(idx);
         }
     }
@@ -703,12 +680,7 @@ function executeLongPressSave(idx) {
     const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
 
     if (isDefaultGroup) {
-        if (p.isLocked) {
-            alert(`🛑 الزر "${p.name}" محمي ومقفل كـ "ضبط مصنع نهائي".\n\nلقد تم حفظ هذا التصميم وتثبيته سابقاً بشكل دائم ولا يمكن تغييره أو الكتابة عليه نهائياً.`);
-            return;
-        }
-
-        // Lock as Permanent Factory Reset
+        // Lock as Permanent Factory Reset with updated settings
         p.configs = JSON.parse(JSON.stringify(columnConfigs));
         p.order = [...columnOrder];
         p.theme = currentTheme;
