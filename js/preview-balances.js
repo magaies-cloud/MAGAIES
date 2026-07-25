@@ -330,39 +330,101 @@ function initPresets() {
                 orientation: 'landscape',
                 showLogo: true,
                 showInfo: true,
-                showInRibbon: true
+                showInRibbon: true,
+                isLocked: false,
+                isFactoryDefault: false
             });
         }
     } else {
-        // Automatically migrate existing default preset names to the new names requested by user
-        const oldToNewNameMap = {
-            '💎 تجريبي': '💎 افتراضي 1',
-            'تجريبي': '💎 افتراضي 1',
-            'تجربة': '💎 افتراضي 1',
-            '⭐ تصميم 2': '⭐ افتراضي 2',
-            'تصميم 2': '⭐ افتراضي 2',
-            '🎨 تصميم 3': '🎨 افتراضي 3',
-            'تصميم 3': '🎨 افتراضي 3',
-            '🔥 تصميم 4': '🔥 افتراضي 4',
-            'تصميم 4': '🔥 افتراضي 4',
-            '✨ تصميم 5': '✨ نموذج 1',
-            'تصميم 5': '✨ نموذج 1',
-            '🚀 تصميم 6': '🚀 نموذج 2',
-            'تصميم 6': '🚀 نموذج 2',
-            '🌟 تصميم 7': '🌟 نموذج 3',
-            'تصميم 7': '🌟 نموذج 3'
-        };
+        // Migration & Swapping per user request:
+        // Old افتراضي 3 -> New افتراضي 1
+        // Old افتراضي 4 -> New افتراضي 2
+        // Old افتراضي 1 -> New افتراضي 3 (Cleared & Unlocked)
+        // Old افتراضي 2 -> New افتراضي 4 (Cleared & Unlocked)
+        const SWAP_VERSION_KEY = 'balances_presets_swapped_v6';
+        if (!localStorage.getItem(SWAP_VERSION_KEY)) {
+            if (list.length >= 4) {
+                const oldP0 = JSON.parse(JSON.stringify(list[0])); // Old 1
+                const oldP1 = JSON.parse(JSON.stringify(list[1])); // Old 2
+                const oldP2 = JSON.parse(JSON.stringify(list[2])); // Old 3
+                const oldP3 = JSON.parse(JSON.stringify(list[3])); // Old 4
 
-        let updatedAny = false;
-        list.forEach(p => {
-            if (p && p.name && oldToNewNameMap[p.name.trim()]) {
-                p.name = oldToNewNameMap[p.name.trim()];
-                updatedAny = true;
+                // New 1 gets Old 3's design
+                const newP0 = Object.assign({}, oldP2 || {}, { name: '💎 افتراضي 1' });
+                // New 2 gets Old 4's design
+                const newP1 = Object.assign({}, oldP3 || {}, { name: '⭐ افتراضي 2' });
+
+                // New 3 gets cleared/reset Old 1
+                const newP2 = {
+                    name: '🎨 افتراضي 3',
+                    configs: getDefaultConfigs(),
+                    order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    theme: '',
+                    font: 'font-ultra',
+                    paperSize: 'A4',
+                    orientation: 'landscape',
+                    showLogo: true,
+                    showInfo: true,
+                    showInRibbon: true,
+                    isLocked: false,
+                    isFactoryDefault: false
+                };
+
+                // New 4 gets cleared/reset Old 2
+                const newP3 = {
+                    name: '🔥 افتراضي 4',
+                    configs: getDefaultConfigs(),
+                    order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    theme: '',
+                    font: 'font-ultra',
+                    paperSize: 'A4',
+                    orientation: 'landscape',
+                    showLogo: true,
+                    showInfo: true,
+                    showInRibbon: true,
+                    isLocked: false,
+                    isFactoryDefault: false
+                };
+
+                list[0] = newP0;
+                list[1] = newP1;
+                list[2] = newP2;
+                list[3] = newP3;
+
+                savePresets(list);
             }
-        });
+            localStorage.setItem(SWAP_VERSION_KEY, 'true');
+        } else {
+            // Rename fallback map
+            const oldToNewNameMap = {
+                '💎 تجريبي': '💎 افتراضي 1',
+                'تجريبي': '💎 افتراضي 1',
+                'تجربة': '💎 افتراضي 1',
+                '⭐ تصميم 2': '⭐ افتراضي 2',
+                'تصميم 2': '⭐ افتراضي 2',
+                '🎨 تصميم 3': '🎨 افتراضي 3',
+                'تصميم 3': '🎨 افتراضي 3',
+                '🔥 تصميم 4': '🔥 افتراضي 4',
+                'تصميم 4': '🔥 افتراضي 4',
+                '✨ تصميم 5': '✨ نموذج 1',
+                'تصميم 5': '✨ نموذج 1',
+                '🚀 تصميم 6': '🚀 نموذج 2',
+                'تصميم 6': '🚀 نموذج 2',
+                '🌟 تصميم 7': '🌟 نموذج 3',
+                'تصميم 7': '🌟 نموذج 3'
+            };
 
-        if (updatedAny) {
-            savePresets(list);
+            let updatedAny = false;
+            list.forEach(p => {
+                if (p && p.name && oldToNewNameMap[p.name.trim()]) {
+                    p.name = oldToNewNameMap[p.name.trim()];
+                    updatedAny = true;
+                }
+            });
+
+            if (updatedAny) {
+                savePresets(list);
+            }
         }
     }
 
