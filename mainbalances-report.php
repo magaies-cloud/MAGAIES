@@ -2,7 +2,7 @@
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
-$page_title = 'حسابات تجميعية متساوية';
+$page_title = 'حساب الارصده الاساسية';
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -20,7 +20,7 @@ $page_title = 'حسابات تجميعية متساوية';
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500;700&family=JetBrains+Mono:wght@400;600;800&family=Fira+Code:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حسابات تجميعية متساوية | Al-Sajana ERP</title>
+    <title>حساب الارصده الاساسية | Al-Sajana ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -28,6 +28,64 @@ $page_title = 'حسابات تجميعية متساوية';
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
+        /* CSS for pos-grid table enhancements (From Purchases) */
+        .pos-grid th, .pos-grid td {
+            font-size: 0.8rem !important;
+            padding: 8px 10px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .pos-grid .g-input, .pos-grid .g-select, .pos-grid .g-readonly {
+            font-size: 0.85rem !important;
+            padding: 8px 10px !important;
+            background: rgba(15, 23, 42, 0.5) !important;
+            color: #f8fafc !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 8px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .grid-scroll-wrap {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            overflow: visible;
+        }
+        .pos-grid thead th {
+            background: rgba(15, 23, 42, 0.8) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #eab308 !important; /* gold-primary fallback */
+            color: #eab308 !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            position: relative;
+            border-top: none;
+        }
+        .pos-grid tbody tr {
+            background: rgba(255, 255, 255, 0.02) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            transition: all 0.3s ease;
+        }
+        .pos-grid tbody tr:hover td {
+            background-color: rgba(56, 189, 248, 0.08) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(255,255,255,0.1);
+        }
+        .pos-grid tbody tr:hover {
+            transform: translateY(-2px) scale(1.002);
+            box-shadow: 0 12px 40px rgba(56, 189, 248, 0.15);
+            z-index: 2;
+            position: relative;
+        }
+        .pos-grid .resizer {
+            width: 5px;
+            cursor: col-resize;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+        }
         /* ─── Visual Intelligence Analytics Hub Styling ─── */
         .visual-hub-container {
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.65));
@@ -168,8 +226,9 @@ $page_title = 'حسابات تجميعية متساوية';
         .badge-sgl { background: #38bdf8; color: #0f172a; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; letter-spacing: 1px; }
         .badge-active { background: rgba(52,211,153,0.15); color: #34d399; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; border: 1px solid rgba(52,211,153,0.3); }
 
-        .btn-run { background: #38bdf8; color: #0f172a; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; font-family: inherit; font-size: 0.9rem; }
-        .btn-run:hover { background: #0ea5e9; transform: translateY(-1px); }
+        .btn-run { background: linear-gradient(135deg, #38bdf8, #0284c7); color: #ffffff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-family: inherit; font-size: 0.9rem; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3); }
+        .btn-run:hover { background: linear-gradient(135deg, #0ea5e9, #0369a1); transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 20px rgba(2, 132, 199, 0.5); }
+        .btn-run:active { transform: translateY(1px) scale(0.98); }
         .btn-action { background: rgba(255,255,255,0.05); color: #f8fafc; border: 1px solid rgba(255,255,255,0.1); padding: 7px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; font-family: inherit; }
         .btn-action:hover { background: rgba(255,255,255,0.1); }
 
@@ -181,18 +240,15 @@ $page_title = 'حسابات تجميعية متساوية';
         }
 
         /* Dynamic Enterprise Variables & Clickable Numbers */
-        #v-classic-ent { background: #fff; padding: 40px; border-radius: 8px; color: #111827; }
-        #v-classic-ent table { --fs-text: 1.15rem; --fs-num: 1.15rem; --font-num: 'JetBrains Mono', monospace; transition: all 0.3s; width: 100%; table-layout: fixed; border-collapse: collapse; text-align: right; border: 4px solid #000000; }
-        #v-classic-ent th { position: relative; background: #e2e8f0; color: #000000; padding: 10px 12px; border: 3px solid #111827; line-height: 1.2; font-size: calc(var(--fs-text) * 1.1); font-weight: 900; text-align: center; }
-        #v-classic-ent td { padding: 5px 12px; border: 2px solid #475569; color: #000000; font-weight: 600; line-height: 1.3; font-size: var(--fs-text); text-align: center; }
-        #v-classic-ent tr:nth-child(even) { background: #f9fafb; }
+        #v-classic-ent { background: transparent; padding: 0; border-radius: 8px; }
+        /* Removed rigid table styles to allow pos-grid to shine */
         
         #v-classic-ent td.num { 
             text-align: center;
             font-size: var(--fs-num); 
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
             font-family: var(--font-num);
-            font-weight: 600; color: #111827;
+            font-weight: 600;
             letter-spacing: 0px;
             position: relative;
             cursor: pointer;
@@ -555,7 +611,7 @@ $page_title = 'حسابات تجميعية متساوية';
 <div class="toast-container" id="toast-container"></div>
 
 <!-- Unified Context Menu for Columns & Data Formatting -->
-<div id="columnContextMenu" style="display:none; position:fixed; z-index:100000; background:rgba(15, 23, 42, 0.96); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(56, 189, 248, 0.35); border-radius:16px; box-shadow:0 25px 60px rgba(0,0,0,0.7), 0 0 30px rgba(56, 189, 248, 0.25); padding:16px 20px 20px 20px; width:510px; color:#f8fafc; font-family:'Tajawal', 'Inter', sans-serif; max-height:88vh; overflow:auto; resize:both; min-width:340px; min-height:200px; direction:rtl; text-align:right;">
+<div id="columnContextMenu" style="display:none; position:fixed; z-index:100000; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(15, 23, 42, 0.96); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(56, 189, 248, 0.35); border-radius:16px; box-shadow:0 25px 60px rgba(0,0,0,0.7), 0 0 30px rgba(56, 189, 248, 0.25); padding:16px 20px 20px 20px; width:550px; color:#f8fafc; font-family:'Tajawal', 'Inter', sans-serif; max-height:88vh; overflow:auto; resize:both; min-width:340px; min-height:200px; direction:rtl; text-align:right;">
     <!-- Draggable Header -->
     <div id="columnContextMenuHeader" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); cursor:move; user-select:none; background:rgba(255,255,255,0.03); margin:-16px -20px 14px -20px; padding:12px 18px; border-top-left-radius:15px; border-top-right-radius:15px;">
         <div style="font-weight:900; font-size:1.05rem; color:#38bdf8; display:flex; align-items:center; gap:8px;">
@@ -746,11 +802,8 @@ $page_title = 'حسابات تجميعية متساوية';
 
             <div style="height: 22px; width: 1px; background: rgba(255,255,255,0.15); margin: 0 4px;" class="no-print"></div>
 
-            <div class="preset-slots-container no-print" style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; height:36px; padding:2px 10px; border-radius:8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-                <span style="font-size:0.8rem; color:#94a3b8; font-weight:700; margin-left: 2px;">💾 التخطيطات:</span>
-                <div id="balances-presets-wrap" style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
-                    <!-- Preset buttons generated by JS -->
-                </div>
+            <div class="preset-slots-container no-print" id="main-presets-container" style="flex:1; display:flex; gap:6px; align-items:center; flex-wrap:wrap; padding:2px 10px; border-radius:8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                <!-- Dynamic preset buttons rendered via JS -->
             </div>
         </div>
     </div>
@@ -833,7 +886,8 @@ $page_title = 'حسابات تجميعية متساوية';
             
 
 
-            <table id="balances-table">
+            <div class="grid-scroll-wrap" style="flex: 1; margin-top: 10px; width: 100%;">
+            <table class="pos-grid" style="width: 100%; border-collapse: collapse;" id="balances-table">
                 <thead>
                     <tr id="balances-header-row">
                         <th data-orig-idx="0">اسم الحساب<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
@@ -856,6 +910,7 @@ $page_title = 'حسابات تجميعية متساوية';
                     </tr>
                 </tbody>
             </table>
+            </div>
             
 
 
@@ -1124,7 +1179,7 @@ $page_title = 'حسابات تجميعية متساوية';
 
 <script defer src="js/localforage.min.js"></script>
 <script defer src="js/app.js?v=1783054966.35444"></script>
-<script defer src="js/balances-report.js?v=<?php echo time(); ?>"></script>
+<script defer src="js/mainbalances-report.js?v=<?php echo time(); ?>"></script>
 <script>
 // Debug wrapper: override runReport to catch and display errors
 document.addEventListener('DOMContentLoaded', function() {
@@ -1212,6 +1267,13 @@ document.addEventListener('DOMContentLoaded', function() {
         <button class="btn-action" style="width:100%; justify-content:center; margin-top:10px; color:#f87171;" onclick="resetColumnConfig()">🔄 إعادة للوضع الافتراضي</button>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof window.renderBalancesPresets === 'function') {
+        window.renderBalancesPresets();
+    }
+});
+</script>
 </body>
 </html>
 

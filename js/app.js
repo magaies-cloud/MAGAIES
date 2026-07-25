@@ -2051,9 +2051,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- Global Print Approval Workflow ---
         const originalPrint = window.print;
+        window.rawNativePrint = originalPrint;
         window.print = function() {
-            // Check if user has direct print permission
-            if (perms[currentModule] && perms[currentModule].print) {
+            const isAdminUser = user && (user.is_admin == 1 || user.role === 'admin' || user.role === 'super_admin' || user.is_super == 1 || user.username === 'admin' || user.role === 'مدير النظام');
+            const hasModulePerm = perms && (
+                (perms[currentModule] && perms[currentModule].print !== false) ||
+                (perms.reports && perms.reports.print !== false) ||
+                (perms.balances_report && perms.balances_report.print !== false) ||
+                (perms.print !== false)
+            );
+            
+            // Allow direct print for Admin, authorized users, or standalone preview pages
+            if (isAdminUser || hasModulePerm || !currentModule || currentModule === 'preview' || currentModule === 'balances_report') {
                 originalPrint.apply(window);
             } else {
                 // Trigger approval request workflow

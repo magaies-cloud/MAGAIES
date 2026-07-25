@@ -1,0 +1,3428 @@
+/* ═══════════════════════════════════════════════════════
+   balances-report.js — Global Balances & Aging Report
+   ═══════════════════════════════════════════════════════ */
+console.log('%c[balances-report.js] FILE LOADED v2', 'color: lime; font-size: 16px; font-weight: bold;');
+
+window.colConfigs = [
+    { name: 'اسم الحساب', alias: 'اسم الحساب', id: 'name', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'right' },
+    { name: 'رقم الهاتف', alias: 'رقم الهاتف', id: 'phone', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'الرقم الضريبي', alias: 'الرقم الضريبي', id: 'taxNo', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'العملة', alias: 'العملة', id: 'currency', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'عليه عملة', alias: 'عليه عملة', id: 'debitF', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'له عملة', alias: 'له عملة', id: 'creditF', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'عليه', alias: 'عليه', id: 'debit', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'له', alias: 'له', id: 'credit', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'ملحوظة', alias: 'ملحوظة', id: 'note', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'right' }
+];
+window.colOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+window.currentTableTheme = '';
+window.currentNumFont = 'num-font-inter';
+
+let ledgerExchangeRate = 1.0;
+let ledgerForeignCurrency = 'USD';
+
+function initBalancesCurrencySettings() {
+    try {
+        const erpSettings = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+        const systemBaseCurrency = erpSettings.currency || 'SDG';
+        const activeCurrencies = erpSettings.activeCurrencies || [];
+        const configuredForeignCurrency = activeCurrencies.find(c => c !== systemBaseCurrency);
+        if (configuredForeignCurrency) {
+            ledgerForeignCurrency = configuredForeignCurrency;
+        }
+    } catch(e) {
+        console.error("Error loading foreign currency from settings:", e);
+    }
+
+    fetch('api_index.php/exchange-rate')
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.rate) {
+                ledgerExchangeRate = parseFloat(data.rate) || 1.0;
+            }
+        })
+        .catch(() => {});
+}
+initBalancesCurrencySettings();
+
+function applyLayoutToDOM() {
+    try {
+        const table = document.getElementById('balances-table');
+        if (!table) return;
+        
+        // 1. Reorder header th elements according to window.colOrder
+        const theadTr = table.querySelector('thead tr');
+        if (theadTr) {
+            const ths = Array.from(theadTr.querySelectorAll('th'));
+            const thMap = {};
+            ths.forEach(th => {
+                const oIdx = parseInt(th.getAttribute('data-orig-idx'));
+                if (!isNaN(oIdx)) thMap[oIdx] = th;
+            });
+
+            theadTr.innerHTML = '';
+            window.colOrder.forEach(oIdx => {
+                if (thMap[oIdx]) {
+                    theadTr.appendChild(thMap[oIdx]);
+                }
+            });
+
+            // Apply styles and visibility to headers
+            const currentThs = theadTr.querySelectorAll('th');
+            currentThs.forEach((th, visualIndex) => {
+                const origIdx = window.colOrder[visualIndex];
+                const conf = window.colConfigs[origIdx] || { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true };
+                
+                // Visibility
+                const isVisible = conf.visible !== false;
+                th.style.display = isVisible ? '' : 'none';
+
+                // Styles
+                const fsVal = (conf.fs !== undefined ? conf.fs : 1.0) + 'em';
+                const isBold = conf.bold || conf.fontWeight === 'bold' || conf.fontWeight === '900';
+                const fwVal = isBold ? '900' : 'normal';
+                const alignVal = conf.textAlign || conf.align || '';
+                
+                th.style.setProperty('font-weight', fwVal, 'important');
+                th.style.setProperty('font-size', fsVal, 'important');
+                if (conf.color) th.style.setProperty('color', conf.color, 'important'); else th.style.removeProperty('color');
+                if (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') th.style.setProperty('background-color', conf.bg, 'important'); else th.style.removeProperty('background-color');
+                if (conf.fontFamily) th.style.setProperty('font-family', conf.fontFamily, 'important'); else th.style.removeProperty('font-family');
+                if (alignVal) th.style.setProperty('text-align', alignVal, 'important'); else th.style.removeProperty('text-align');
+            });
+        }
+
+        // 2. Apply styles and visibility to body cells if populated
+        const tbody = table.querySelector('tbody');
+        if (tbody) {
+            const rows = tbody.querySelectorAll('tr:not(.empty-state)');
+            rows.forEach(row => {
+                const cells = Array.from(row.children);
+                cells.forEach((cell, visualIndex) => {
+                    const origIdx = window.colOrder[visualIndex];
+                    if (origIdx !== undefined) {
+                        const conf = window.colConfigs[origIdx] || { bold: false, fs: 1.0, decimals: 2, color: '', bg: '', visible: true };
+
+                        // Visibility
+                        const isVisible = conf.visible !== false;
+                        cell.style.display = isVisible ? '' : 'none';
+
+                        // Styles
+                        const fsVal = (conf.fs !== undefined ? conf.fs : 1.0) + 'em';
+                        const isBold = conf.bold || conf.fontWeight === 'bold' || conf.fontWeight === '900';
+                        const fwVal = isBold ? '900' : 'normal';
+                        const alignVal = conf.textAlign || conf.align || '';
+
+                        cell.style.setProperty('font-weight', fwVal, 'important');
+                        cell.style.setProperty('font-size', fsVal, 'important');
+                        if (conf.color) cell.style.setProperty('color', conf.color, 'important'); else cell.style.removeProperty('color');
+                        if (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') cell.style.setProperty('background-color', conf.bg, 'important'); else cell.style.removeProperty('background-color');
+                        if (conf.fontFamily) cell.style.setProperty('font-family', conf.fontFamily, 'important'); else cell.style.removeProperty('font-family');
+                        if (alignVal) cell.style.setProperty('text-align', alignVal, 'important'); else cell.style.removeProperty('text-align');
+                    }
+                });
+            });
+        }
+
+        // Re-bind resizers because headers were reordered
+        if (typeof bindResizers === 'function') {
+            bindResizers();
+        }
+    } catch(e) {
+        console.error('Error applying layout to DOM:', e);
+    }
+}
+
+function loadLayout() {
+    try {
+        const master1 = localStorage.getItem('mainbalances_report_master_v4_default1');
+        if (master1) {
+            const parsed = JSON.parse(master1);
+            if (parsed && parsed.colConfigs && parsed.colOrder) {
+                window.colConfigs = parsed.colConfigs;
+                window.colOrder = parsed.colOrder;
+            }
+        } else {
+            const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
+            const settings = JSON.parse(settingsStr);
+            const layout = settings.mainbalancesReportLayout;
+            if (layout && layout.colConfigs && layout.colOrder) {
+                window.colConfigs = layout.colConfigs;
+                window.colOrder = layout.colOrder;
+            }
+        }
+    } catch(e) { console.error('Error loading local layout', e); }
+
+    // Synchronize permanently with Database
+    fetch('api_index.php/report-layout?reportKey=mainbalances_report_layout_v4_default1')
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.success && data.layout) {
+                const dbLayout = data.layout;
+                if (dbLayout.colConfigs && dbLayout.colOrder && dbLayout.colOrder.length === 9) {
+                    window.colConfigs = dbLayout.colConfigs;
+                    window.colOrder = dbLayout.colOrder;
+                    
+                    try {
+                        localStorage.setItem('mainbalances_report_master_v4_default1', JSON.stringify(dbLayout));
+                        const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
+                        const settings = JSON.parse(settingsStr);
+                        settings.mainbalancesReportLayout = dbLayout;
+                        localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
+                    } catch(e) {}
+
+                    if (typeof applyLayoutToDOM === 'function') applyLayoutToDOM();
+                    if (typeof bindContextMenuList === 'function') bindContextMenuList();
+                    if (typeof renderColumnContextMenu === 'function') renderColumnContextMenu();
+                    if (typeof window.renderBalancesPresets === 'function') window.renderBalancesPresets();
+                    if (window.lastResults && typeof renderTable === 'function') renderTable(window.lastResults);
+                }
+            }
+        })
+        .catch(err => console.log('DB layout sync info:', err));
+
+    // Permanently sync and lock User Presets (including افتراضي 1) to Database
+    fetch('api_index.php/report-layout?reportKey=mainbalances_report_user_presets_locked')
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.success && data.layout) {
+                // If it exists in DB, strictly overwrite local storage so it never changes
+                localStorage.setItem('mainbalances_report_user_presets_v3', JSON.stringify(data.layout));
+                if (typeof window.renderBalancesPresets === 'function') window.renderBalancesPresets();
+            } else {
+                // If not in DB yet, upload current local storage to DB to lock it forever
+                let curUserList = localStorage.getItem('mainbalances_report_user_presets_v3');
+                if (curUserList) {
+                    fetch('api_index.php/report-layout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            reportKey: 'mainbalances_report_user_presets_locked',
+                            layout: JSON.parse(curUserList)
+                        })
+                    });
+                }
+            }
+        })
+        .catch(e => console.log(e));
+}
+loadLayout();
+
+document.addEventListener('DOMContentLoaded', () => {
+    applyLayoutToDOM();
+    bindRowContextMenu();
+    if (typeof window.renderBalancesPresets === 'function') {
+        window.renderBalancesPresets();
+    }
+});
+
+let isSavingLayout = false;
+function saveLayout() {
+    try {
+        const layoutPayload = {
+            colConfigs: window.colConfigs,
+            colOrder: window.colOrder
+        };
+
+        const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
+        const settings = JSON.parse(settingsStr);
+        settings.mainbalancesReportLayout = layoutPayload;
+        localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
+        localStorage.setItem('mainbalances_report_master_v4_default1', JSON.stringify(layoutPayload));
+        
+        // Save permanently to MySQL Database
+        if (!isSavingLayout) {
+            isSavingLayout = true;
+            fetch('api_index.php/report-layout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    reportKey: 'mainbalances_report_layout_v4_default1',
+                    layout: layoutPayload
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                isSavingLayout = false;
+                if (data && data.success) {
+                    console.log('✅ Layout saved permanently to DB');
+                }
+            })
+            .catch(err => {
+                isSavingLayout = false;
+                console.error('Failed to save layout to DB', err);
+            });
+        }
+        
+        if (typeof window.renderBalancesPresets === 'function') {
+            window.renderBalancesPresets();
+        }
+    } catch(e) {
+        console.error('Error saving layout', e);
+    }
+}
+
+function fmtColNum(n, origIdx) {
+    const conf = (window.colConfigs && window.colConfigs[origIdx]) ? window.colConfigs[origIdx] : {};
+    const showDec = (conf.showDecimals !== false);
+    const d = showDec ? ((conf.decimals !== undefined) ? parseInt(conf.decimals) : ((conf.dec !== undefined) ? parseInt(conf.dec) : 2)) : 0;
+    const isThousands = (conf.thousands !== false);
+    const thouSep = (conf.thousandsSep !== undefined) ? conf.thousandsSep : ',';
+    const decSep = (conf.decSep !== undefined) ? conf.decSep : '.';
+    const roundMode = conf.roundMode || 'round';
+
+    const val = parseFloat(n);
+    if (isNaN(val)) return String(n || '');
+
+    let roundedVal = val;
+    const factor = Math.pow(10, d);
+    if (d >= 0) {
+        if (roundMode === 'floor') {
+            roundedVal = Math.floor(val * factor) / factor;
+        } else if (roundMode === 'ceil') {
+            roundedVal = Math.ceil(val * factor) / factor;
+        } else if (roundMode === 'trunc') {
+            roundedVal = Math.trunc(val * factor) / factor;
+        } else {
+            roundedVal = Math.round(val * factor) / factor;
+        }
+    }
+
+    let formatted = roundedVal.toFixed(d);
+    const parts = formatted.split('.');
+    
+    if (isThousands && thouSep !== 'none') {
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, thouSep);
+    }
+    
+    if (d > 0) {
+        return parts[0] + decSep + (parts[1] || '');
+    } else {
+        return parts[0];
+    }
+}
+function parseNum(str) {
+    return parseFloat(String(str || '0').replace(/,/g, '')) || 0;
+}
+function showToast(msg, type = 'success') {
+    const c = document.getElementById('toast-container');
+    if(!c) return;
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.innerHTML = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+}
+
+let ALL_PARTNERS = [];
+let ALL_TXNS = [];
+
+function getCurrencyRates() {
+    let rates = {};
+    try {
+        rates = JSON.parse(localStorage.getItem('erp_currency_rates_v1')) || {};
+    } catch(e) {}
+    const defaults = {
+        'SDG': 1,
+        'USD': 600,
+        'SAR': 160,
+        'AED': 163,
+        'EGP': 12
+    };
+    for (let cur in defaults) {
+        if (rates[cur] === undefined) {
+            rates[cur] = defaults[cur];
+        }
+    }
+    return rates;
+}
+
+function loadData() {
+    console.log('%c[balances-report.js] loadData() CALLED', 'color: cyan; font-size: 14px;');
+    ALL_PARTNERS = [];
+    const custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+    const sups  = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
+    const banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+    const safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
+    const exp   = JSON.parse(localStorage.getItem('erp_accounts_v1')) || [];
+    
+    const rates = getCurrencyRates();
+    
+    custs.forEach(c => {
+        const cur = c.currency || 'SDG';
+        const rate = parseNum(c.exRate || rates[cur] || 1);
+        ALL_PARTNERS.push({ 
+            id: c.id, code: c.accountNo || c.code || '-', name: c.name, type: 'CUST', 
+            phone: c.phone || '', taxNumber: c.taxNumber || '', currency: cur, exRate: rate,
+            openingDebit: parseNum(c.openingDebit || 0), openingCredit: parseNum(c.openingCredit || 0),
+            notes: c.notes || '',
+            debit: 0, credit: 0, lastDate: null 
+        });
+    });
+    sups.forEach(s  => {
+        const cur = s.currency || 'SDG';
+        const rate = parseNum(s.exRate || rates[cur] || 1);
+        ALL_PARTNERS.push({ 
+            id: s.id, code: s.accountNo || s.code || '-', name: s.name, type: 'SUPP', 
+            phone: s.phone || '', taxNumber: s.taxNumber || '', currency: cur, exRate: rate,
+            openingDebit: parseNum(s.openingDebit || 0), openingCredit: parseNum(s.openingCredit || 0),
+            notes: s.notes || '',
+            debit: 0, credit: 0, lastDate: null 
+        });
+    });
+    banks.forEach(b => {
+        const cur = b.currency || 'SDG';
+        const rate = parseNum(b.exRate || rates[cur] || 1);
+        ALL_PARTNERS.push({ 
+            id: b.id, code: b.glAccount || b.code || '-', name: b.name, type: 'BANK', 
+            phone: b.branch || '', taxNumber: b.accountNo || '', currency: cur, exRate: rate,
+            openingDebit: parseNum(b.openingDebit || 0), openingCredit: parseNum(b.openingCredit || 0),
+            notes: b.notes || '',
+            debit: 0, credit: 0, lastDate: null 
+        });
+    });
+    safes.forEach(s => {
+        const cur = s.currency || 'SDG';
+        const rate = parseNum(s.exRate || rates[cur] || 1);
+        ALL_PARTNERS.push({ 
+            id: s.id, code: s.glAccount || s.code || '-', name: s.name, type: 'SAFE', 
+            phone: '', taxNumber: '', currency: cur, exRate: rate,
+            openingDebit: parseNum(s.openingDebit || 0), openingCredit: parseNum(s.openingCredit || 0),
+            notes: s.notes || '',
+            debit: 0, credit: 0, lastDate: null 
+        });
+    });
+    exp.forEach(e => {
+        const cur = 'SDG';
+        const rate = 1;
+        ALL_PARTNERS.push({ 
+            id: e.id || e.code, code: e.code || '-', name: e.name, type: 'EXP', 
+            phone: '', taxNumber: '', currency: cur, exRate: rate,
+            openingDebit: parseNum(e.openingDebit || 0), openingCredit: parseNum(e.openingCredit || 0),
+            notes: e.notes || '',
+            debit: 0, credit: 0, lastDate: null 
+        });
+    });
+    
+    // We reuse the collector logic from SGL, modified to only grab partner transactions
+    ALL_TXNS = [];
+    const timeNow = new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+
+    // 1. Receipts
+    const receipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+    receipts.forEach(v => {
+        const cc = v.costCenter || 'ALL';
+        const rate = parseNum(v.rate || 1);
+        ALL_TXNS.push({ partner: v.fromAccount, debit: 0, credit: parseNum(v.amountLocal), date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
+        ALL_TXNS.push({ partner: v.toAccount, debit: parseNum(v.amountLocal), credit: 0, date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
+    });
+
+    // 2. Payments
+    const payments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+    payments.forEach(v => {
+        const cc = v.costCenter || 'ALL';
+        const rate = parseNum(v.rate || 1);
+        ALL_TXNS.push({ partner: v.toAccount, debit: parseNum(v.amountLocal), credit: 0, date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
+        ALL_TXNS.push({ partner: v.fromAccount, debit: 0, credit: parseNum(v.amountLocal), date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
+    });
+
+    // 2.2 Multiple Receipts (erp_receipts_v1)
+    const multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
+    multiReceipts.forEach(v => {
+        if (!v.isPosted) return;
+        const cc = v.costCenter || 'ALL';
+        const rate = parseNum(v.exchangeRate || 1);
+        const mainAcc = v.mainAccount || v.toAccount || 'safe-001';
+        ALL_TXNS.push({ partner: mainAcc, debit: parseNum(v.totalAmount), credit: 0, date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
+        if (v.items && Array.isArray(v.items)) {
+            v.items.forEach(item => {
+                const itemCC = item.costCenter || cc;
+                ALL_TXNS.push({ partner: item.account, debit: 0, credit: parseNum(item.amount), date: v.date, time: v.time || timeNow, costCenter: itemCC, exchangeRate: rate });
+            });
+        }
+    });
+
+    // 2.3 Multiple Payments (erp_payments_v1)
+    const multiPayments = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
+    multiPayments.forEach(v => {
+        if (!v.isPosted) return;
+        const cc = v.costCenter || 'ALL';
+        const rate = parseNum(v.exchangeRate || 1);
+        const mainAcc = v.mainAccount || v.fromAccount || 'safe-001';
+        ALL_TXNS.push({ partner: mainAcc, debit: 0, credit: parseNum(v.totalAmount), date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
+        if (v.items && Array.isArray(v.items)) {
+            v.items.forEach(item => {
+                const itemCC = item.costCenter || cc;
+                ALL_TXNS.push({ partner: item.account, debit: parseNum(item.amount), credit: 0, date: v.date, time: v.time || timeNow, costCenter: itemCC, exchangeRate: rate });
+            });
+        }
+    });
+
+    // 3. JVs
+    const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
+    jvs.forEach(v => {
+        if (!v.lines) return;
+        const time = v.time || timeNow;
+        v.lines.forEach(line => {
+            const cc = line.costCenter || v.costCenter || 'ALL';
+            const rate = parseNum(line.rate || 1);
+            ALL_TXNS.push({ partner: line.account, debit: parseNum(line.debit), credit: parseNum(line.credit), date: v.date, time: time, costCenter: cc, exchangeRate: rate });
+        });
+    });
+
+    // 4. Sales
+    const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    sales.forEach(inv => {
+        const cc = inv.costCenter || 'ALL';
+        const time = inv.time || timeNow;
+        const partner = inv.customerId || inv.customer;
+        const rate = parseNum(inv.exchangeRate || 1);
+        
+        let total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
+        if (total === 0 && inv.items && inv.items.length > 0) {
+            total = inv.items.reduce((sum, item) => sum + (parseNum(item.total) || parseNum(item.quantity) * parseNum(item.price)), 0);
+            total += parseNum(inv.laborCost || 0) + parseNum(inv.transportCost || 0) + parseNum(inv.additions || 0) + parseNum(inv.taxAmt || 0) - parseNum(inv.discountAmt || 0);
+        }
+        
+        const paid = parseNum(inv.paidAmount || inv.paid);
+        if(partner && partner !== 'walk-in') {
+            let pRef = String(partner);
+            if (!pRef.startsWith('cust-') && !pRef.startsWith('supp-') && !pRef.startsWith('bank-') && !pRef.startsWith('safe-') && !pRef.startsWith('exp-')) {
+                pRef = 'cust-' + pRef;
+            }
+            ALL_TXNS.push({ partner: pRef, debit: total, credit: 0, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
+            if(inv.paymentMethod !== 'credit' && paid === 0) {
+                ALL_TXNS.push({ partner: pRef, debit: 0, credit: total, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
+            } else if(paid > 0) {
+                ALL_TXNS.push({ partner: pRef, debit: 0, credit: paid, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
+            }
+        }
+    });
+
+    // 5. Purchases
+    const purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+    purchases.forEach(inv => {
+        const cc = inv.costCenter || 'ALL';
+        const time = inv.time || timeNow;
+        const partner = inv.supplierId || inv.supplier || inv.customer;
+        const rate = parseNum(inv.exchangeRate || 1);
+        
+        let total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
+        if (total === 0 && inv.items && inv.items.length > 0) {
+            total = inv.items.reduce((sum, item) => sum + (parseNum(item.total) || parseNum(item.quantity) * parseNum(item.price)), 0);
+            total += parseNum(inv.laborCost || 0) + parseNum(inv.transportCost || 0) + parseNum(inv.additions || 0) + parseNum(inv.taxAmt || 0) - parseNum(inv.discountAmt || 0);
+        }
+        
+        const paid = parseNum(inv.paidAmount || inv.paid);
+        if(partner && partner !== 'walk-in') {
+            let pRef = String(partner);
+            if (!pRef.startsWith('cust-') && !pRef.startsWith('supp-') && !pRef.startsWith('bank-') && !pRef.startsWith('safe-') && !pRef.startsWith('exp-')) {
+                pRef = 'supp-' + pRef;
+            }
+            ALL_TXNS.push({ partner: pRef, debit: 0, credit: total, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
+            if(inv.paymentMethod !== 'credit' && paid === 0) {
+                ALL_TXNS.push({ partner: pRef, debit: total, credit: 0, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
+            } else if(paid > 0) {
+                ALL_TXNS.push({ partner: pRef, debit: paid, credit: 0, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
+            }
+        }
+    });
+
+    // Extract Cost Centers
+    const ccSet = new Set();
+    ALL_TXNS.forEach(t => { if(t.costCenter && t.costCenter !== 'ALL') ccSet.add(t.costCenter); });
+    const ccSelect = document.getElementById('filter-costcenter');
+    if(ccSelect) {
+        ccSelect.innerHTML = '<option value="ALL">جميع مراكز التكلفة (مجمعة)</option>';
+        Array.from(ccSet).forEach(cc => {
+            ccSelect.innerHTML += `<option value="${cc}">${cc}</option>`;
+        });
+    }
+}
+
+document.addEventListener('DBReady', () => {
+    console.log('%c[balances-report.js] DBReady event received!', 'color: yellow; font-size: 14px;');
+    loadLayout();
+    applyLayoutToDOM();
+    loadData();
+    console.log('%c[balances-report.js] After loadData: Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: orange; font-size: 14px;');
+});
+
+// Fallback: if DBReady already fired before this script loaded
+if (window.APP_READY) {
+    console.log('%c[balances-report.js] APP_READY was already true! Calling loadData directly.', 'color: red; font-size: 16px; font-weight: bold;');
+    loadLayout();
+    applyLayoutToDOM();
+    loadData();
+    console.log('%c[balances-report.js] Fallback loadData: Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: orange; font-size: 14px;');
+}
+
+function runReport() {
+    console.log('%c[balances-report.js] runReport() CALLED. Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: #ff6b6b; font-size: 16px; font-weight: bold;');
+    if (ALL_PARTNERS.length === 0) {
+        console.warn('[balances-report.js] WARNING: ALL_PARTNERS is EMPTY. loadData may not have run.');
+        // Try loading data now as a last resort
+        loadData();
+        console.log('[balances-report.js] Re-ran loadData. Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length);
+    }
+    const grpFilter = document.getElementById('filter-group') ? document.getElementById('filter-group').value : 'ALL';
+    const sortFilter = document.getElementById('filter-sort') ? document.getElementById('filter-sort').value : 'BALANCE_DESC';
+    const ccFilter = document.getElementById('filter-costcenter') ? document.getElementById('filter-costcenter').value : 'ALL';
+    const sectorFilter = document.getElementById('filter-sector') ? document.getElementById('filter-sector').value : 'ALL';
+    const currFilter = document.getElementById('filter-currency') ? document.getElementById('filter-currency').value : 'ALL';
+    const conditionFilter = document.getElementById('filter-condition') ? document.getElementById('filter-condition').value : 'ALL';
+
+    // Reset balances
+    ALL_PARTNERS.forEach(p => {
+        p.endingDebitLocal = 0;
+        p.endingCreditLocal = 0;
+        p.endingDebitForeign = 0;
+        p.endingCreditForeign = 0;
+        p.lastDate = null;
+    });
+
+    // Calculate for each partner sequentially to match SGL ledger
+    ALL_PARTNERS.forEach(p => {
+        let runningBal = p.openingDebit - p.openingCredit;
+        let runningBalForeign = (p.openingDebit / p.exRate) - (p.openingCredit / p.exRate);
+        
+        // Filter transactions for this partner using type-prefixed IDs to avoid ID collisions
+        let pRef = String(p.id);
+        if (!pRef.includes('-')) {
+            if (p.type === 'CUST') pRef = 'cust-' + p.id;
+            else if (p.type === 'SUPP') pRef = 'supp-' + p.id;
+            else if (p.type === 'BANK') pRef = 'bank-' + p.id;
+            else if (p.type === 'SAFE') pRef = 'safe-' + p.id;
+            else if (p.type === 'EXP') pRef = 'exp-' + p.id;
+        }
+
+        const partnerTxns = ALL_TXNS.filter(t => {
+            const matchesAcc = (String(t.partner) === pRef);
+            const matchesCC = (ccFilter === 'ALL' || t.costCenter === ccFilter);
+            return matchesAcc && matchesCC;
+        });
+
+        // Sort partner transactions by date & time chronologically
+        partnerTxns.sort((a, b) => {
+            const da = a.date + ' ' + (a.time || '00:00');
+            const db = b.date + ' ' + (b.time || '00:00');
+            return da.localeCompare(db);
+        });
+
+        partnerTxns.forEach(t => {
+            const exRate = t.exchangeRate || 1;
+            const debF = t.debitForeign || (t.debit / exRate);
+            const credF = t.creditForeign || (t.credit / exRate);
+            
+            runningBal += t.debit - t.credit;
+            runningBalForeign += debF - credF;
+            
+            const tDate = t.date + ' ' + (t.time || '00:00');
+            if(!p.lastDate || tDate > p.lastDate) {
+                p.lastDate = tDate;
+            }
+        });
+
+        if (runningBal > 0) {
+            p.endingDebitLocal = runningBal;
+            p.endingDebitForeign = runningBalForeign;
+        } else if (runningBal < 0) {
+            p.endingCreditLocal = Math.abs(runningBal);
+            p.endingCreditForeign = Math.abs(runningBalForeign);
+        } else {
+            // runningBal === 0
+            if (runningBalForeign > 0) {
+                p.endingDebitForeign = runningBalForeign;
+            } else if (runningBalForeign < 0) {
+                p.endingCreditForeign = Math.abs(runningBalForeign);
+            }
+        }
+    });
+
+    // Filter partners by group, sector, currency & condition
+    let results = ALL_PARTNERS.filter(p => {
+        // Group Filter
+        if (grpFilter !== 'ALL' && p.type !== grpFilter) return false;
+
+        // Sector / Category Filter
+        if (sectorFilter !== 'ALL') {
+            const pSector = (p.sector || p.category || p.classification || '').toUpperCase();
+            if (sectorFilter === 'RETAIL' && !pSector.includes('RETAIL') && !pSector.includes('تجزئة')) return false;
+            if (sectorFilter === 'WHOLESALE' && !pSector.includes('WHOLESALE') && !pSector.includes('جملة')) return false;
+            if (sectorFilter === 'VIP' && !pSector.includes('VIP') && !pSector.includes('كبار') && !p.isVip) return false;
+            if (sectorFilter === 'EXTERNAL' && !pSector.includes('EXT') && !pSector.includes('خارجي')) return false;
+        }
+
+        // Currency Filter
+        if (currFilter === 'SDG' && p.currency && p.currency !== 'SDG') return false;
+        if (currFilter === 'USD' && p.currency && p.currency !== 'USD') return false;
+
+        // Condition Filter
+        if (conditionFilter === 'DEBTORS_ONLY' && p.endingDebitLocal <= 0) return false;
+        if (conditionFilter === 'CREDITORS_ONLY' && p.endingCreditLocal <= 0) return false;
+        if (conditionFilter === 'ACTIVE_ONLY' && !p.lastDate) return false;
+        if (conditionFilter === 'NON_ZERO' && p.endingDebitLocal === 0 && p.endingCreditLocal === 0 && p.endingDebitForeign === 0 && p.endingCreditForeign === 0) return false;
+
+        return true;
+    });
+
+    // Sort
+    results.sort((a, b) => {
+        const absBalA = Math.max(a.endingDebitLocal, a.endingCreditLocal);
+        const absBalB = Math.max(b.endingDebitLocal, b.endingCreditLocal);
+        if (sortFilter === 'BALANCE_DESC') return absBalB - absBalA;
+        if (sortFilter === 'BALANCE_ASC') return absBalA - absBalB;
+        if (sortFilter === 'DEBIT_DESC') return (b.endingDebitLocal || 0) - (a.endingDebitLocal || 0);
+        if (sortFilter === 'CREDIT_DESC') return (b.endingCreditLocal || 0) - (a.endingCreditLocal || 0);
+        if (sortFilter === 'NAME') return (a.name || '').localeCompare(b.name || '');
+        if (sortFilter === 'LAST_DATE') return (b.lastDate || '').localeCompare(a.lastDate || '');
+        return 0;
+    });
+
+    renderTable(results);
+}
+
+function openWhatsAppModal() {
+    document.getElementById('whatsapp-modal').style.display = 'flex';
+}
+
+function closeWhatsAppModal() {
+    document.getElementById('whatsapp-modal').style.display = 'none';
+}
+
+let startX, startWidth, resizingTh;
+
+function bindResizers() {
+    const table = document.getElementById('balances-table');
+    if (!table) return;
+    const resizers = table.querySelectorAll('.resizer');
+    resizers.forEach(resizer => {
+        resizer.addEventListener('mousedown', initResize);
+        resizer.addEventListener('dblclick', autoSize);
+    });
+}
+
+function autoSize(e) {
+    e.stopPropagation();
+    const th = e.target.parentElement;
+    th.style.width = 'auto'; 
+}
+
+function initResize(e) {
+    e.stopPropagation();
+    resizingTh = e.target.parentElement;
+    startX = e.clientX;
+    startWidth = parseInt(window.getComputedStyle(resizingTh).width, 10);
+    
+    const ths = document.querySelectorAll('#balances-table th');
+    ths.forEach((th) => {
+        if (!th.style.width) {
+            th.style.width = window.getComputedStyle(th).width;
+        }
+    });
+    
+    const table = document.getElementById('balances-table');
+    table.style.width = 'max-content';
+    
+    document.addEventListener('mousemove', doResize);
+    document.addEventListener('mouseup', stopResize);
+    e.target.classList.add('resizing');
+}
+
+function doResize(e) {
+    const delta = startX - e.clientX; 
+    const newWidth = startWidth + delta;
+    if (newWidth > 40) {
+        resizingTh.style.width = newWidth + 'px';
+    }
+}
+
+function stopResize(e) {
+    document.removeEventListener('mousemove', doResize);
+    document.removeEventListener('mouseup', stopResize);
+    document.querySelectorAll('.resizer').forEach(r => r.classList.remove('resizing'));
+}
+
+function bindNumberFocus() {
+    const nums = document.querySelectorAll('#balances-tbody td.num');
+    nums.forEach(td => {
+        td.addEventListener('click', function(e) {
+            const cell = e.target;
+            if (cell.classList.contains('focused-num')) {
+                cell.classList.remove('focused-num');
+            } else {
+                document.querySelectorAll('.focused-num').forEach(c => c.classList.remove('focused-num'));
+                cell.classList.add('focused-num');
+            }
+        });
+    });
+}
+
+window.switchCtxTab = function(tab) {
+    const colsTab = document.getElementById('ctx-tab-cols');
+    const numbersTab = document.getElementById('ctx-tab-numbers');
+    const formattingTab = document.getElementById('ctx-tab-formatting');
+    
+    const colsBtn = document.getElementById('tab-btn-cols');
+    const numbersBtn = document.getElementById('tab-btn-numbers');
+    const formattingBtn = document.getElementById('tab-btn-formatting');
+    
+    if (!colsTab || !formattingTab) return;
+
+    const resetStyle = (btn) => {
+        if (!btn) return;
+        btn.style.background = 'transparent';
+        btn.style.color = '#94a3b8';
+        btn.style.fontWeight = '700';
+        btn.style.boxShadow = 'none';
+    };
+    const setActiveStyle = (btn) => {
+        if (!btn) return;
+        btn.style.background = '#38bdf8';
+        btn.style.color = '#0f172a';
+        btn.style.fontWeight = '900';
+        btn.style.boxShadow = '0 2px 10px rgba(56,189,248,0.4)';
+    };
+
+    if (colsTab) colsTab.style.display = 'none';
+    if (numbersTab) numbersTab.style.display = 'none';
+    if (formattingTab) formattingTab.style.display = 'none';
+
+    resetStyle(colsBtn);
+    resetStyle(numbersBtn);
+    resetStyle(formattingBtn);
+
+    if (tab === 'cols') {
+        if (colsTab) colsTab.style.display = 'block';
+        setActiveStyle(colsBtn);
+    } else if (tab === 'numbers') {
+        if (numbersTab) numbersTab.style.display = 'block';
+        setActiveStyle(numbersBtn);
+    } else {
+        if (formattingTab) formattingTab.style.display = 'block';
+        setActiveStyle(formattingBtn);
+    }
+};
+
+window.applyGlobalNumberSettingsFromUI = function() {
+    const thActive = document.getElementById('global-thousands-active')?.value === '1';
+    const thSep = document.getElementById('global-thousands-sep')?.value || ',';
+    const decSep = document.getElementById('global-dec-sep')?.value || '.';
+    const showDec = document.getElementById('global-show-decimals')?.value === '1';
+    const decCount = parseInt(document.getElementById('global-decimals-count')?.value || '2');
+    const roundMode = document.getElementById('global-round-mode')?.value || 'round';
+
+    if (window.colConfigs) {
+        window.colConfigs.forEach(col => {
+            col.thousands = thActive;
+            col.thousandsSep = thSep;
+            col.decSep = decSep;
+            col.showDecimals = showDec;
+            col.decimals = decCount;
+            col.dec = decCount;
+            col.roundMode = roundMode;
+        });
+    }
+
+    if (typeof applyLayoutToDOM === 'function') applyLayoutToDOM();
+    if (typeof window.runReport === 'function' && window.lastResults) {
+        window.runReport();
+    }
+    if (typeof saveLayout === 'function') saveLayout();
+    if (typeof renderColumnContextMenu === 'function') renderColumnContextMenu();
+    if (typeof showToast === 'function') showToast('⚡ تم تطبيق إعدادات الأرقام والكسور والتقريب على جميع الأعمدة بنجاح', 'success');
+};
+
+window.initDraggableModal = function() {
+    const modal = document.getElementById('columnContextMenu');
+    const header = document.getElementById('columnContextMenuHeader');
+    if (!modal || !header || modal.dataset.draggableInit) return;
+    
+    modal.dataset.draggableInit = "true";
+
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    header.addEventListener('mousedown', function(e) {
+        if (e.target.closest('button')) return;
+        
+        isDragging = true;
+        const rect = modal.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+        header.style.cursor = 'grabbing';
+        modal.style.transition = 'none';
+        e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        
+        let newLeft = e.clientX - offsetX;
+        let newTop = e.clientY - offsetY;
+
+        const maxLeft = window.innerWidth - modal.offsetWidth;
+        const maxTop = window.innerHeight - modal.offsetHeight;
+
+        if (newLeft < 0) newLeft = 0;
+        if (newTop < 0) newTop = 0;
+        if (newLeft > maxLeft && maxLeft > 0) newLeft = maxLeft;
+        if (newTop > maxTop && maxTop > 0) newTop = maxTop;
+
+        modal.style.left = newLeft + 'px';
+        modal.style.top = newTop + 'px';
+    });
+
+    document.addEventListener('mouseup', function() {
+        if (isDragging) {
+            isDragging = false;
+            header.style.cursor = 'move';
+        }
+    });
+};
+
+window.toggleMinimizeCtxMenu = function() {
+    const modal = document.getElementById('columnContextMenu');
+    const body = document.getElementById('columnContextMenuBody');
+    if (!modal || !body) return;
+
+    if (body.style.display === 'none') {
+        body.style.display = 'block';
+        modal.style.height = '';
+        modal.style.minHeight = '200px';
+    } else {
+        body.style.display = 'none';
+        modal.style.height = 'auto';
+        modal.style.minHeight = '0px';
+    }
+};
+
+window.toggleMaximizeCtxMenu = function() {
+    const modal = document.getElementById('columnContextMenu');
+    if (!modal) return;
+
+    if (modal.dataset.isMaximized === 'true') {
+        modal.dataset.isMaximized = 'false';
+        modal.style.width = modal.dataset.origWidth || '490px';
+        modal.style.height = modal.dataset.origHeight || 'auto';
+        modal.style.left = modal.dataset.origLeft || '100px';
+        modal.style.top = modal.dataset.origTop || '100px';
+        modal.style.maxHeight = '88vh';
+    } else {
+        modal.dataset.isMaximized = 'true';
+        modal.dataset.origWidth = modal.style.width;
+        modal.dataset.origHeight = modal.style.height;
+        modal.dataset.origLeft = modal.style.left;
+        modal.dataset.origTop = modal.style.top;
+
+        modal.style.width = '90vw';
+        modal.style.height = '85vh';
+        modal.style.left = '5vw';
+        modal.style.top = '5vh';
+        modal.style.maxHeight = '95vh';
+
+        const body = document.getElementById('columnContextMenuBody');
+        if (body) body.style.display = 'block';
+    }
+};
+
+function bindContextMenu() {
+    const table = document.getElementById('balances-table');
+    if (!table) return;
+    const ctxMenu = document.getElementById('columnContextMenu');
+    const partnerCtxMenu = document.getElementById('partnerContextMenu');
+
+    // Prevent default right-click context menu inside the table except headers
+    table.addEventListener('contextmenu', function(e) {
+        // Prevent default contextmenu on the entire table
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (partnerCtxMenu) partnerCtxMenu.style.display = 'none';
+        if (ctxMenu) ctxMenu.style.display = 'none';
+    });
+
+    document.addEventListener('click', function(e) {
+        if (ctxMenu && !ctxMenu.contains(e.target)) {
+            // Wait, we want the modal to act like a normal modal, so clicking outside shouldn't close it instantly unless it's a backdrop.
+            // But let's leave it for now.
+            // ctxMenu.style.display = 'none'; 
+        }
+    });
+}
+
+function bindRowContextMenu() {
+    // Row context menu disabled to enforce single header contextmenu rule
+    const partnerCtxMenu = document.getElementById('partnerContextMenu');
+    if (partnerCtxMenu) partnerCtxMenu.style.display = 'none';
+}
+
+window.initTogglesSortable = function() {
+    const container = document.getElementById('columnToggles');
+    if (!container || !window.Sortable) return;
+
+    if (window.togglesSortableInstance) {
+        try { window.togglesSortableInstance.destroy(); } catch(e) {}
+    }
+
+    window.togglesSortableInstance = new Sortable(container, {
+        animation: 180,
+        handle: '.col-drag-handle',
+        ghostClass: 'sortable-ghost',
+        onEnd: function(evt) {
+            const oldIndex = evt.oldIndex;
+            const newIndex = evt.newIndex;
+            if (oldIndex === undefined || newIndex === undefined || oldIndex === newIndex) return;
+
+            // Reorder colOrder array
+            const movedOrigIdx = window.colOrder.splice(oldIndex, 1)[0];
+            window.colOrder.splice(newIndex, 0, movedOrigIdx);
+
+            saveLayout();
+            applyLayoutToDOM();
+            if (window.lastResults) renderTable(window.lastResults);
+            
+            // Re-bind list so visual indices match
+            bindContextMenuList();
+        }
+    });
+};
+
+window.bindContextMenuList = function(keepOpenVisualIdx = null) {
+    const table = document.getElementById('balances-table');
+    const togglesContainer = document.getElementById('columnToggles');
+    if (!table || !togglesContainer) return;
+
+    if (keepOpenVisualIdx === null) {
+        const openEl = togglesContainer.querySelector('[id^="config-panel-"]:not([style*="display: none"]):not([style*="display:none"])');
+        if (openEl) {
+            keepOpenVisualIdx = parseInt(openEl.id.replace('config-panel-', ''));
+        }
+    }
+
+    const ths = table.querySelectorAll('thead th');
+    togglesContainer.innerHTML = '';
+
+    ths.forEach((thEl, visualIndex) => {
+        const isHidden = thEl.style.display === 'none';
+        let text = thEl.innerText.replace('اسحب لتغيير عرض العمود (Double click للإرجاع)', '').trim();
+        if(!text) text = 'عمود ' + (visualIndex+1);
+        
+        const origIdx = parseInt(thEl.getAttribute('data-orig-idx'));
+        const conf = window.colConfigs[origIdx] || { fs: 1.0, bold: false, fontWeight: 'normal', decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', visible: true, fontFamily: '', textAlign: 'right' };
+
+        const isOpen = (keepOpenVisualIdx === visualIndex);
+
+        const div = document.createElement('div');
+        div.className = 'col-item-card';
+        div.dataset.visualIdx = visualIndex;
+        div.dataset.origIdx = origIdx;
+        div.style.marginBottom = '10px';
+        div.style.border = '1px solid rgba(255,255,255,0.12)';
+        div.style.borderRadius = '10px';
+        div.style.background = 'rgba(30, 41, 59, 0.75)';
+        div.style.overflow = 'hidden';
+        
+        div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:rgba(30, 41, 59, 0.9); cursor:pointer;" onclick="const p = document.getElementById('config-panel-${visualIndex}'); p.style.display = p.style.display === 'none' ? 'block' : 'none'">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span class="col-drag-handle" style="cursor:grab; font-weight:bold; font-size:1.2rem; color:#38bdf8; padding:0 4px;" title="اسحب لأعلى أو لأسفل لترتيب العمود" onclick="event.stopPropagation()">⣿</span>
+                    <input type="checkbox" style="width:17px; height:17px; cursor:pointer; accent-color:#38bdf8;" ${!isHidden ? 'checked' : ''} onchange="toggleColumn(${visualIndex}, this.checked)" onclick="event.stopPropagation()"> 
+                    <span style="font-weight:800; font-size:0.92rem; color:#f8fafc;">${text}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:0.75rem; background:rgba(56,189,248,0.15); color:#38bdf8; padding:2px 8px; border-radius:6px; font-weight:bold;">تخصيص العمود</span>
+                    <span style="font-size:0.9rem; color:#38bdf8;">⚙️</span>
+                </div>
+            </div>
+            <div id="config-panel-${visualIndex}" style="display:${isOpen ? 'block' : 'none'}; padding:14px; background:rgba(15, 23, 42, 0.94); border-top:1px solid rgba(255,255,255,0.08);">
+                
+                <!-- 1. Font Family & Font Weight Buttons (تخين / ضعيف) -->
+                <div style="display:flex; gap:10px; margin-bottom:12px;">
+                    <div style="flex:1;">
+                        <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:5px;">خط العمود:</label>
+                        <select onchange="setColFontFamily(${origIdx}, ${visualIndex}, this.value)" style="width:100%; background:rgba(30, 41, 59, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:6px 8px; border-radius:6px; font-size:0.8rem; outline:none;">
+                            <option value="" ${!conf.fontFamily ? 'selected' : ''}>-- الخط الافتراضي --</option>
+                            <option value="'Inter', sans-serif" ${conf.fontFamily === "'Inter', sans-serif" ? 'selected' : ''}>1. Inter (عصري وواضح)</option>
+                            <option value="'Roboto Mono', monospace" ${conf.fontFamily === "'Roboto Mono', monospace" ? 'selected' : ''}>2. Roboto Mono (أرقام متساوية)</option>
+                            <option value="'JetBrains Mono', monospace" ${conf.fontFamily === "'JetBrains Mono', monospace" ? 'selected' : ''}>3. JetBrains Mono (وضوح فائق)</option>
+                            <option value="'Fira Code', monospace" ${conf.fontFamily === "'Fira Code', monospace" ? 'selected' : ''}>4. Fira Code (تقني مريح)</option>
+                            <option value="'Poppins', sans-serif" ${conf.fontFamily === "'Poppins', sans-serif" ? 'selected' : ''}>5. Poppins (هندسي وواضح)</option>
+                        </select>
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:5px;">سمك الخط (تخين / ضعيف):</label>
+                        <div style="display:flex; gap:4px;">
+                            <button type="button" onclick="setColFontWeight(${origIdx}, ${visualIndex}, 'normal')" style="flex:1; padding:5px 6px; cursor:pointer; border-radius:6px; border:1px solid ${(!conf.bold && conf.fontWeight !== 'bold' && conf.fontWeight !== '900') ? '#38bdf8' : 'rgba(255,255,255,0.15)'}; background:${(!conf.bold && conf.fontWeight !== 'bold' && conf.fontWeight !== '900') ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${(!conf.bold && conf.fontWeight !== 'bold' && conf.fontWeight !== '900') ? '#0f172a' : '#fff'}; font-weight:bold; font-size:0.78rem;">ضعيف</button>
+                            <button type="button" onclick="setColFontWeight(${origIdx}, ${visualIndex}, 'bold')" style="flex:1; padding:5px 6px; cursor:pointer; border-radius:6px; border:1px solid ${(conf.bold || conf.fontWeight === 'bold' || conf.fontWeight === '900') ? '#38bdf8' : 'rgba(255,255,255,0.15)'}; background:${(conf.bold || conf.fontWeight === 'bold' || conf.fontWeight === '900') ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${(conf.bold || conf.fontWeight === 'bold' || conf.fontWeight === '900') ? '#0f172a' : '#fff'}; font-weight:bold; font-size:0.78rem;">تخين (B)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Font Size Slider & Exact Input -->
+                <div style="margin-bottom:12px;">
+                    <label style="font-size:0.78rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:5px;">حجم الخط (سحب أو كتابة أي مقاس من 0.3em إلى 5.0em):</label>
+                    <div style="display:flex; align-items:center; gap:10px; background:rgba(30,41,59,0.5); padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">
+                        <input type="range" min="0.3" max="4.0" step="0.05" value="${conf.fs || 1.0}" oninput="setColFsExact(${origIdx}, ${visualIndex}, this.value)" style="flex:1; cursor:pointer; accent-color:#38bdf8;">
+                        <input type="number" min="0.2" max="6.0" step="0.1" value="${(conf.fs || 1.0).toFixed(1)}" oninput="setColFsExact(${origIdx}, ${visualIndex}, this.value)" onchange="setColFsExact(${origIdx}, ${visualIndex}, this.value)" style="width:60px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.15); color:#38bdf8; font-weight:bold; text-align:center; padding:4px; border-radius:4px; font-size:0.82rem;">
+                        <span style="font-size:0.75rem; color:#94a3b8; font-weight:bold;">em</span>
+                    </div>
+                </div>
+
+                <!-- 3. Text Alignment -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <span style="font-size:0.78rem; font-weight:bold; color:#cbd5e1;">محاذاة النص والبيانات:</span>
+                    <div style="display:flex; gap:6px;">
+                        <button type="button" onclick="setColTextAlign(${origIdx}, ${visualIndex}, 'right')" style="padding:4px 10px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${(conf.textAlign === 'right' || !conf.textAlign) ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${(conf.textAlign === 'right' || !conf.textAlign) ? '#0f172a' : '#fff'}; font-weight:bold;">يمين ➡</button>
+                        <button type="button" onclick="setColTextAlign(${origIdx}, ${visualIndex}, 'center')" style="padding:4px 10px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.textAlign === 'center' ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.textAlign === 'center' ? '#0f172a' : '#fff'}; font-weight:bold;">وسط ↔</button>
+                        <button type="button" onclick="setColTextAlign(${origIdx}, ${visualIndex}, 'left')" style="padding:4px 10px; cursor:pointer; border-radius:6px; border:1px solid rgba(255,255,255,0.15); background:${conf.textAlign === 'left' ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${conf.textAlign === 'left' ? '#0f172a' : '#fff'}; font-weight:bold;">شمال ⬅</button>
+                    </div>
+                </div>
+
+                <!-- 4. Number Formatting Section (تنسيق الأرقام والفاصلات والتقريب) -->
+                <div style="background:rgba(30,41,59,0.6); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); margin-bottom:12px;">
+                    <div style="font-size:0.8rem; font-weight:bold; color:#38bdf8; margin-bottom:8px; display:flex; align-items:center; gap:5px;">
+                        <span>🔢</span>
+                        <span>تخصيص الأرقام والفاصلات والتقريب:</span>
+                    </div>
+
+                    <!-- Thousands Separator: Toggle & Character -->
+                    <div style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
+                        <div style="flex:1;">
+                            <label style="font-size:0.74rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:3px;">الفاصلة الألفية:</label>
+                            <button type="button" onclick="toggleColThousands(${origIdx}, ${visualIndex})" style="width:100%; padding:5px 6px; cursor:pointer; border-radius:6px; border:1px solid ${conf.thousands !== false ? '#10b981' : 'rgba(239,68,68,0.4)'}; background:${conf.thousands !== false ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.15)'}; color:${conf.thousands !== false ? '#34d399' : '#f87171'}; font-weight:bold; font-size:0.78rem;">
+                                ${conf.thousands !== false ? 'مفعلة (1,000 ✔)' : 'ملغاة (1000 ✖)'}
+                            </button>
+                        </div>
+                        <div style="flex:1;">
+                            <label style="font-size:0.74rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:3px;">رمز الفاصلة الألفية:</label>
+                            <select onchange="setColThousandsSep(${origIdx}, ${visualIndex}, this.value)" style="width:100%; background:rgba(15, 23, 42, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px 6px; border-radius:6px; font-size:0.78rem; outline:none;">
+                                <option value="," ${(!conf.thousandsSep || conf.thousandsSep === ',') ? 'selected' : ''}>, (فاصلة عادية)</option>
+                                <option value="." ${conf.thousandsSep === '.' ? 'selected' : ''}>. (نقطة)</option>
+                                <option value=" " ${conf.thousandsSep === ' ' ? 'selected' : ''}>[مسافة] (1 000)</option>
+                                <option value="_" ${conf.thousandsSep === '_' ? 'selected' : ''}>_ (شرطة سفلى)</option>
+                                <option value="'" ${conf.thousandsSep === "'" ? 'selected' : ''}>' (اقتباس)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Decimal Separator & Show Decimals Toggle -->
+                    <div style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
+                        <div style="flex:1;">
+                            <label style="font-size:0.74rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:3px;">رمز الفاصلة العشرية:</label>
+                            <select onchange="setColDecSep(${origIdx}, ${visualIndex}, this.value)" style="width:100%; background:rgba(15, 23, 42, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px 6px; border-radius:6px; font-size:0.78rem; outline:none;">
+                                <option value="." ${(!conf.decSep || conf.decSep === '.') ? 'selected' : ''}>. (نقطة إنجليزية)</option>
+                                <option value="," ${conf.decSep === ',' ? 'selected' : ''}>, (فاصلة)</option>
+                                <option value="٫" ${conf.decSep === '٫' ? 'selected' : ''}>٫ (فاصلة عشرية عربية)</option>
+                                <option value="/" ${conf.decSep === '/' ? 'selected' : ''}>/ (شرطة مائلة)</option>
+                            </select>
+                        </div>
+                        <div style="flex:1;">
+                            <label style="font-size:0.74rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:3px;">إظهار الكسور العشرية:</label>
+                            <button type="button" onclick="toggleColShowDecimals(${origIdx}, ${visualIndex})" style="width:100%; padding:5px 6px; cursor:pointer; border-radius:6px; border:1px solid ${conf.showDecimals !== false ? '#38bdf8' : 'rgba(239,68,68,0.4)'}; background:${conf.showDecimals !== false ? 'rgba(56,189,248,0.25)' : 'rgba(239,68,68,0.15)'}; color:${conf.showDecimals !== false ? '#38bdf8' : '#f87171'}; font-weight:bold; font-size:0.78rem;">
+                                ${conf.showDecimals !== false ? 'مفعلة (.00 ✔)' : 'ملغاة (أرقام صحيحة ✖)'}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Decimal Count & Rounding Mode -->
+                    ${conf.showDecimals !== false ? `
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <div style="flex:1;">
+                            <label style="font-size:0.74rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:3px;">عدد الخانات العشرية:</label>
+                            <select onchange="setColDecimals(${origIdx}, ${visualIndex}, this.value)" style="width:100%; background:rgba(15, 23, 42, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px 6px; border-radius:6px; font-size:0.78rem; outline:none;">
+                                <option value="0" ${conf.decimals === 0 ? 'selected' : ''}>بدون خانات (0)</option>
+                                <option value="1" ${conf.decimals === 1 ? 'selected' : ''}>منزلة واحدة (0.0)</option>
+                                <option value="2" ${conf.decimals === 2 || conf.decimals === undefined ? 'selected' : ''}>منزلتان (0.00)</option>
+                                <option value="3" ${conf.decimals === 3 ? 'selected' : ''}>3 منازل (0.000)</option>
+                                <option value="4" ${conf.decimals === 4 ? 'selected' : ''}>4 منازل (0.0000)</option>
+                                <option value="5" ${conf.decimals === 5 ? 'selected' : ''}>5 منازل (0.00000)</option>
+                                <option value="6" ${conf.decimals === 6 ? 'selected' : ''}>6 منازل (0.000000)</option>
+                            </select>
+                        </div>
+                        <div style="flex:1;">
+                            <label style="font-size:0.74rem; font-weight:bold; color:#cbd5e1; display:block; margin-bottom:3px;">طريقة والتقريب:</label>
+                            <select onchange="setColRoundMode(${origIdx}, ${visualIndex}, this.value)" style="width:100%; background:rgba(15, 23, 42, 0.9); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px 6px; border-radius:6px; font-size:0.78rem; outline:none;">
+                                <option value="round" ${(!conf.roundMode || conf.roundMode === 'round') ? 'selected' : ''}>تقريب عادي (أقرب رقم)</option>
+                                <option value="floor" ${conf.roundMode === 'floor' ? 'selected' : ''}>تقريب لأسفل (Floor)</option>
+                                <option value="ceil" ${conf.roundMode === 'ceil' ? 'selected' : ''}>تقريب لأعلى (Ceil)</option>
+                                <option value="trunc" ${conf.roundMode === 'trunc' ? 'selected' : ''}>قطع الكسر (Truncate)</option>
+                            </select>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+
+                <!-- 6. Colors -->
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <div style="flex:1; display:flex; justify-content:space-between; align-items:center; background:rgba(30,41,59,0.5); padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">
+                        <span style="font-size:0.78rem; font-weight:bold; color:#cbd5e1;">لون النص:</span>
+                        <input type="color" value="${conf.color || '#ffffff'}" onchange="setColColor(${origIdx}, ${visualIndex}, 'color', this.value)" style="width:28px; height:26px; padding:0; border:none; background:transparent; cursor:pointer;">
+                    </div>
+                    <div style="flex:1; display:flex; justify-content:space-between; align-items:center; background:rgba(30,41,59,0.5); padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">
+                        <span style="font-size:0.78rem; font-weight:bold; color:#cbd5e1;">لون الخلفية:</span>
+                        <input type="color" value="${conf.bg || '#0f172a'}" onchange="setColColor(${origIdx}, ${visualIndex}, 'bg', this.value)" style="width:28px; height:26px; padding:0; border:none; background:transparent; cursor:pointer;">
+                    </div>
+                </div>
+            </div>
+        `;
+        togglesContainer.appendChild(div);
+    });
+
+    initTogglesSortable();
+};
+
+window.saveLayoutAndStyles = function() {
+    if (typeof saveLayout === 'function') {
+        saveLayout();
+    }
+
+    try {
+        const curConfigs = JSON.parse(JSON.stringify(window.colConfigs));
+        const curOrder = [...window.colOrder];
+        
+        localStorage.setItem('mainbalances_report_master_v4_default1', JSON.stringify({
+            colConfigs: curConfigs,
+            colOrder: curOrder
+        }));
+
+        let list = [];
+        try { list = JSON.parse(localStorage.getItem('mainbalances_report_presets_v1')) || []; } catch(e){}
+        if (!list || list.length !== 4) {
+            list = [
+                { id: 1, name: 'تخطيط 1', colConfigs: null, colOrder: null },
+                { id: 2, name: 'تخطيط 2', colConfigs: null, colOrder: null },
+                { id: 3, name: 'تخطيط 3', colConfigs: null, colOrder: null },
+                { id: 4, name: 'تخطيط 4', colConfigs: null, colOrder: null }
+            ];
+        }
+        list[3] = {
+            id: 4,
+            name: list[3]?.name || 'تخطيط 4',
+            colConfigs: curConfigs,
+            colOrder: curOrder
+        };
+        localStorage.setItem('mainbalances_report_presets_v1', JSON.stringify(list));
+        if (typeof window.renderBalancesPresets === 'function') {
+            window.renderBalancesPresets();
+        }
+    } catch(e) {}
+
+    const ctxMenu = document.getElementById('columnContextMenu');
+    if (ctxMenu) ctxMenu.style.display = 'none';
+
+    if (typeof showToast === 'function') {
+        showToast('تم حفظ الترتيب والتخصيص الأخير في (الافتراضي 1) و(تخطيط 4) بنجاح ⭐', 'success');
+    }
+};
+
+window.resetLayoutAndStyles = function() {
+    if (confirm("هل أنت متأكد من رغبتك في استعادة التصميم الافتراضي المحفوظ في قاعدة البيانات؟")) {
+        loadLayout();
+        if (typeof showToast === 'function') {
+            showToast('🔄 تم استعادة التصميم الافتراضي المحفوظ في قاعدة البيانات بنجاح ⭐', 'success');
+        }
+    }
+};
+
+window.toggleColumn = function(visualIndex, show) {
+    const origIdx = window.colOrder[visualIndex];
+    if (origIdx !== undefined && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].visible = show;
+    }
+    const table = document.getElementById('balances-table');
+    const display = show ? '' : 'none';
+    const ths = table.querySelectorAll('thead th');
+    if (ths[visualIndex]) ths[visualIndex].style.display = display;
+    
+    const rows = table.querySelectorAll('tbody tr:not(.empty-state)');
+    rows.forEach(row => {
+        const cells = row.children;
+        if (cells.length > visualIndex) {
+            cells[visualIndex].style.display = display;
+        }
+    });
+    saveLayout();
+};
+
+function updateColDOMByOrigIdx(origIdx) {
+    if (window.colOrder) {
+        const visIdx = window.colOrder.indexOf(origIdx);
+        if (visIdx !== -1) {
+            updateColDOM(visIdx, origIdx);
+        }
+    }
+}
+
+function updateColDOM(visualIndex, origIdx) {
+    const conf = window.colConfigs[origIdx];
+    if (!conf) return;
+    const table = document.getElementById('balances-table');
+    if (!table) return;
+
+    const fsVal = (conf.fs !== undefined ? conf.fs : 1.0) + 'em';
+    const isBold = conf.bold || conf.fontWeight === 'bold' || conf.fontWeight === '900';
+    const fwValHeader = isBold ? '900' : 'normal';
+    const fwValCell = isBold ? '900' : 'normal';
+    const colorVal = conf.color || '';
+    const bgVal = (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') ? conf.bg : '';
+    const fontVal = conf.fontFamily || '';
+    const alignVal = conf.textAlign || conf.align || '';
+
+    const ths = table.querySelectorAll('thead th');
+    const th = ths[visualIndex];
+    if (th) {
+        th.style.setProperty('font-weight', fwValHeader, 'important');
+        th.style.setProperty('font-size', fsVal, 'important');
+        if (colorVal) th.style.setProperty('color', colorVal, 'important'); else th.style.removeProperty('color');
+        if (bgVal) th.style.setProperty('background-color', bgVal, 'important'); else th.style.removeProperty('background-color');
+        if (fontVal) th.style.setProperty('font-family', fontVal, 'important'); else th.style.removeProperty('font-family');
+        if (alignVal) th.style.setProperty('text-align', alignVal, 'important'); else th.style.removeProperty('text-align');
+    }
+
+    const rows = table.querySelectorAll('tbody tr:not(.empty-state)');
+    rows.forEach(row => {
+        const cell = row.children[visualIndex];
+        if (cell) {
+            cell.style.setProperty('font-weight', fwValCell, 'important');
+            cell.style.setProperty('font-size', fsVal, 'important');
+            if (colorVal) cell.style.setProperty('color', colorVal, 'important'); else cell.style.removeProperty('color');
+            if (bgVal) cell.style.setProperty('background-color', bgVal, 'important'); else cell.style.removeProperty('background-color');
+            if (fontVal) cell.style.setProperty('font-family', fontVal, 'important'); else cell.style.removeProperty('font-family');
+            if (alignVal) cell.style.setProperty('text-align', alignVal, 'important'); else cell.style.removeProperty('text-align');
+        }
+    });
+}
+
+window.setColFontFamily = function(origIdx, visualIndex, fontVal) {
+    if (origIdx !== undefined && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].fontFamily = fontVal;
+        updateColDOM(visualIndex, origIdx);
+        saveLayout();
+    }
+};
+
+window.setColFontWeight = function(origIdx, visualIndex, weightVal) {
+    if (origIdx !== undefined && window.colConfigs[origIdx]) {
+        const isBold = (weightVal === 'bold' || weightVal === '900');
+        window.colConfigs[origIdx].fontWeight = isBold ? '900' : 'normal';
+        window.colConfigs[origIdx].bold = isBold;
+        updateColDOM(visualIndex, origIdx);
+        saveLayout();
+        if (window.lastResults) renderTable(window.lastResults);
+        bindContextMenuList(visualIndex);
+    }
+};
+
+window.setColFsExact = function(origIdx, visualIndex, fsVal) {
+    if (origIdx !== undefined && window.colConfigs[origIdx]) {
+        const parsed = parseFloat(fsVal);
+        if (!isNaN(parsed) && parsed >= 0.2 && parsed <= 6.0) {
+            window.colConfigs[origIdx].fs = parsed;
+            
+            const rangeEl = document.querySelector(`#config-panel-${visualIndex} input[type="range"]`);
+            const numEl = document.querySelector(`#config-panel-${visualIndex} input[type="number"]`);
+            if (rangeEl && parseFloat(rangeEl.value) !== parsed) rangeEl.value = parsed;
+            if (numEl && parseFloat(numEl.value) !== parsed) numEl.value = parsed.toFixed(1);
+
+            updateColDOM(visualIndex, origIdx);
+            saveLayout();
+        }
+    }
+};
+
+window.setColTextAlign = function(origIdx, visualIndex, alignVal) {
+    if (origIdx !== undefined && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].textAlign = alignVal;
+        window.colConfigs[origIdx].align = alignVal;
+        updateColDOM(visualIndex, origIdx);
+        saveLayout();
+        if (window.lastResults) renderTable(window.lastResults);
+        bindContextMenuList(visualIndex);
+    }
+};
+
+window.setColDecimals = function(origIdx, visualIndex, d) {
+    if (origIdx !== undefined && window.colConfigs && window.colConfigs[origIdx]) {
+        const parsedD = parseInt(d);
+        window.colConfigs[origIdx].decimals = parsedD;
+        window.colConfigs[origIdx].dec = parsedD;
+        if (window.lastResults && window.lastResults.length > 0 && typeof renderTable === 'function') {
+            renderTable(window.lastResults);
+        }
+        if (typeof updateColDOM === 'function') updateColDOM(visualIndex, origIdx);
+        saveLayout();
+        if (typeof bindContextMenuList === 'function') bindContextMenuList(visualIndex);
+    }
+};
+
+window.setColThousandsSep = function(origIdx, visualIndex, sep) {
+    if (origIdx !== undefined && window.colConfigs && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].thousandsSep = sep;
+        if (window.lastResults && window.lastResults.length > 0 && typeof renderTable === 'function') {
+            renderTable(window.lastResults);
+        }
+        if (typeof updateColDOM === 'function') updateColDOM(visualIndex, origIdx);
+        saveLayout();
+        if (typeof bindContextMenuList === 'function') bindContextMenuList(visualIndex);
+    }
+};
+
+window.setColDecSep = function(origIdx, visualIndex, sep) {
+    if (origIdx !== undefined && window.colConfigs && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].decSep = sep;
+        if (window.lastResults && window.lastResults.length > 0 && typeof renderTable === 'function') {
+            renderTable(window.lastResults);
+        }
+        if (typeof updateColDOM === 'function') updateColDOM(visualIndex, origIdx);
+        saveLayout();
+        if (typeof bindContextMenuList === 'function') bindContextMenuList(visualIndex);
+    }
+};
+
+window.setColRoundMode = function(origIdx, visualIndex, mode) {
+    if (origIdx !== undefined && window.colConfigs && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].roundMode = mode;
+        if (window.lastResults && window.lastResults.length > 0 && typeof renderTable === 'function') {
+            renderTable(window.lastResults);
+        }
+        if (typeof updateColDOM === 'function') updateColDOM(visualIndex, origIdx);
+        saveLayout();
+        if (typeof bindContextMenuList === 'function') bindContextMenuList(visualIndex);
+    }
+};
+
+window.toggleColShowDecimals = function(origIdx, visualIndex) {
+    if (origIdx !== undefined && window.colConfigs[origIdx]) {
+        const cur = window.colConfigs[origIdx].showDecimals !== false;
+        window.colConfigs[origIdx].showDecimals = !cur;
+        if (window.lastResults && window.lastResults.length > 0) {
+            renderTable(window.lastResults);
+        }
+        updateColDOM(visualIndex, origIdx);
+        saveLayout();
+        bindContextMenuList(visualIndex);
+    }
+};
+
+window.toggleColThousands = function(origIdx, visualIndex) {
+    if (origIdx !== undefined && window.colConfigs[origIdx]) {
+        const cur = window.colConfigs[origIdx].thousands !== false;
+        window.colConfigs[origIdx].thousands = !cur;
+        if (window.lastResults && window.lastResults.length > 0) {
+            renderTable(window.lastResults);
+        }
+        updateColDOM(visualIndex, origIdx);
+        saveLayout();
+        bindContextMenuList(visualIndex);
+    }
+};
+
+window.setColColor = function(origIdx, visualIndex, type, val) {
+    if (origIdx !== undefined && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx][type] = val;
+        updateColDOM(visualIndex, origIdx);
+        saveLayout();
+    }
+};
+
+function bindColumnReorder() {
+    const table = document.getElementById('balances-table');
+    const tr = table.querySelector('thead tr');
+    if (!window.Sortable) return;
+    
+    const ths = tr.querySelectorAll('th');
+    ths.forEach(th => th.style.cursor = 'grab');
+
+    if (window.colSortable) {
+        try { window.colSortable.destroy(); } catch(e){}
+    }
+    
+    window.colSortable = new Sortable(tr, {
+        animation: 150,
+        filter: '.resizer',
+        preventOnFilter: false,
+        onStart: function(evt) {
+            evt.item.style.cursor = 'grabbing';
+        },
+        onEnd: function(evt) {
+            evt.item.style.cursor = 'grab';
+            const oldIndex = evt.oldIndex;
+            const newIndex = evt.newIndex;
+            if (oldIndex === newIndex) return;
+            
+            // update window.colOrder
+            const movedIdx = window.colOrder.splice(oldIndex, 1)[0];
+            window.colOrder.splice(newIndex, 0, movedIdx);
+
+            const tbody = table.querySelector('tbody');
+            const rows = tbody.querySelectorAll('tr:not(.empty-state)');
+            rows.forEach(row => {
+                const cellsArray = Array.from(row.children);
+                if (cellsArray.length > oldIndex && cellsArray.length > newIndex) {
+                    const movedCell = cellsArray.splice(oldIndex, 1)[0];
+                    cellsArray.splice(newIndex, 0, movedCell);
+                    row.innerHTML = '';
+                    cellsArray.forEach(c => row.appendChild(c));
+                }
+            });
+        }
+    });
+}
+
+
+function handleRowClick(event, partnerId, partnerType) {
+    if (event.target.closest('td.num')) {
+        return;
+    }
+    let prefix = '';
+    if (partnerType === 'CUST') prefix = 'cust-';
+    else if (partnerType === 'SUPP') prefix = 'supp-';
+    else if (partnerType === 'BANK') prefix = 'bank-';
+    else if (partnerType === 'SAFE') prefix = 'safe-';
+    else if (partnerType === 'EXP') prefix = 'exp-';
+    
+    window.location.href = `general-ledger.php?accountId=${prefix}${partnerId}`;
+}
+
+function renderTable(results) {
+    window.lastResults = results;
+    const tbody = document.getElementById('balances-tbody');
+    
+    if(results.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="empty-state">لا توجد حسابات مسجلة تطابق الفلتر</td></tr>`;
+        document.getElementById('analytics-dashboard').style.display = 'none';
+        document.getElementById('actions-panel').style.display = 'none';
+        document.getElementById('print-container').style.display = 'none';
+        return;
+    }
+
+    let rows = '';
+    let sumCust = 0;
+    let sumSupp = 0;
+
+    function getCellStyle(origIdx) {
+        const conf = window.colConfigs[origIdx] || {};
+        let style = '';
+        const isBold = conf.bold || conf.fontWeight === 'bold' || conf.fontWeight === '900';
+        if (isBold) style += 'font-weight:900 !important;';
+        else style += 'font-weight:normal !important;';
+
+        if (conf.fs !== undefined && conf.fs !== 1.0) style += `font-size:${conf.fs}em !important;`;
+        if (conf.color) style += `color:${conf.color} !important;`;
+        if (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') style += `background-color:${conf.bg} !important;`;
+        if (conf.fontFamily) style += `font-family:${conf.fontFamily} !important;`;
+        
+        const alignVal = conf.textAlign || conf.align || '';
+        if (alignVal) style += `text-align:${alignVal} !important;`;
+
+        return style;
+    }
+
+    results.forEach(p => {
+        const endingDebitLocal = p.endingDebitLocal || 0;
+        const endingCreditLocal = p.endingCreditLocal || 0;
+        const endingDebitForeign = p.endingDebitForeign || 0;
+        const endingCreditForeign = p.endingCreditForeign || 0;
+
+        sumCust += endingDebitLocal;
+        sumSupp += endingCreditLocal;
+
+        const cleanPhone = String(p.phone || '').replace(/,/g, '').replace(/\.00$/, '').trim();
+
+        let cells = [];
+        cells[0] = `<td style="${getCellStyle(0)}">${p.name} <span style="color:#64748b;font-size:0.7rem;margin-right:5px;">(${p.type === 'CUST' ? 'عميل' : 'مورد'})</span></td>`;
+        cells[1] = `<td class="num" dir="ltr" style="${getCellStyle(1)}">${cleanPhone || '-'}</td>`;
+        cells[2] = `<td class="num" style="${getCellStyle(2)}">${p.taxNumber || '-'}</td>`;
+        cells[3] = `<td style="font-weight:bold; color:#38bdf8; ${getCellStyle(3)}">${p.currency || 'SDG'}</td>`;
+        cells[4] = `<td class="num" style="${getCellStyle(4)}">${endingDebitForeign > 0 ? fmtColNum(endingDebitForeign, 4) : '-'}</td>`;
+        cells[5] = `<td class="num" style="${getCellStyle(5)}">${endingCreditForeign > 0 ? fmtColNum(endingCreditForeign, 5) : '-'}</td>`;
+        cells[6] = `<td class="num" style="${getCellStyle(6)}">${endingDebitLocal > 0 ? fmtColNum(endingDebitLocal, 6) : '-'}</td>`;
+        cells[7] = `<td class="num" style="${getCellStyle(7)}">${endingCreditLocal > 0 ? fmtColNum(endingCreditLocal, 7) : '-'}</td>`;
+        cells[8] = `<td style="max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; ${getCellStyle(8)}" title="${p.notes || ''}">${p.notes || '-'}</td>`;
+        
+        let orderedCells = window.colOrder.map(idx => cells[idx]).join('');
+        rows += `<tr class="partner-row" data-partner-id="${p.id}" data-partner-name="${p.name}" data-partner-type="${p.type}" onclick="handleRowClick(event, '${p.id}', '${p.type}')" style="cursor: pointer;">${orderedCells}</tr>`;
+    });
+
+    tbody.innerHTML = rows;
+
+    document.getElementById('kpi-dr').textContent = fmtColNum(sumCust, 6) + ' SDG';
+    const drForeign = ledgerExchangeRate > 0 ? (sumCust / ledgerExchangeRate) : 0;
+    document.getElementById('kpi-dr-foreign').textContent = `${fmtColNum(drForeign, 4)} ${ledgerForeignCurrency}`;
+
+    document.getElementById('kpi-cr').textContent = fmtColNum(sumSupp, 7) + ' SDG';
+    const crForeign = ledgerExchangeRate > 0 ? (sumSupp / ledgerExchangeRate) : 0;
+    document.getElementById('kpi-cr-foreign').textContent = `${fmtColNum(crForeign, 5)} ${ledgerForeignCurrency}`;
+    
+    const net = sumCust - sumSupp;
+    const netSign = net >= 0 ? ' (لنا)' : ' (علينا)';
+    document.getElementById('kpi-bal').textContent = fmtColNum(Math.abs(net), 6) + ' SDG' + netSign;
+    const netForeign = ledgerExchangeRate > 0 ? (Math.abs(net) / ledgerExchangeRate) : 0;
+    document.getElementById('kpi-bal-foreign').textContent = `${fmtColNum(netForeign, 4)} ${ledgerForeignCurrency}` + netSign;
+
+    document.getElementById('analytics-dashboard').style.display = 'block';
+    document.getElementById('actions-panel').style.display = 'flex';
+    document.getElementById('print-container').style.display = 'block';
+
+    showToast(`✅ تم تجميع أرصدة ${results.length} حساب بنجاح`, 'success');
+    
+    applyLayoutToDOM();
+    bindNumberFocus();
+    
+    // Apply the active number font to all rendered number cells permanently
+    if (typeof changeNumberFont === 'function' && window.currentNumFont) {
+        changeNumberFont(window.currentNumFont);
+    }
+    bindContextMenu();
+    bindColumnReorder();
+    renderVisualAnalytics(results);
+}
+
+function exportExcel() {
+    const table = document.getElementById('balances-table');
+    const visibleIndices = [];
+    const headers = Array.from(table.querySelectorAll('thead th'))
+        .filter((th, idx) => {
+            if (th.style.display !== 'none') {
+                visibleIndices.push(idx);
+                return true;
+            }
+            return false;
+        })
+        .map(th => th.innerText.replace('اسحب لتغيير عرض العمود (Double click للإرجاع)', '').trim());
+
+    const rows = document.querySelectorAll('#balances-tbody tr:not(.empty-state)');
+    if (rows.length === 0) return showToast('لا توجد بيانات للتصدير', 'warning');
+
+    let csv = '\uFEFF';
+    csv += headers.map(h => `"${h}"`).join(',') + '\n';
+    
+    rows.forEach(r => {
+        const cells = Array.from(r.querySelectorAll('td'));
+        const rowData = visibleIndices.map(idx => {
+            let text = cells[idx].innerText.replace('(عميل)', '').replace('(مورد)', '').trim();
+            if (text === '-') text = '0';
+            return `"${text}"`;
+        });
+        csv += rowData.join(',') + '\n';
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `Global-Balances-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    showToast('📥 تم التصدير للإكسل بنجاح', 'success');
+}
+
+function exportPDF() {
+    const element = document.getElementById('print-container');
+    if (!element || element.style.display === 'none') {
+        return showToast('الرجاء تشغيل التقرير أولاً للتصدير', 'warning');
+    }
+    showToast('⏳ جاري تصدير التقرير كملف PDF...');
+    
+    // Using html2pdf if included
+    if(typeof html2pdf !== 'undefined') {
+        var opt = {
+          margin:       0.5,
+          filename:     'Balances-Report.pdf',
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2 },
+          jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
+        };
+        html2pdf().set(opt).from(element).save().then(() => {
+            showToast('✅ تم التصدير بنجاح!', 'success');
+        });
+    } else {
+        window.print();
+    }
+}
+
+function shareEmail() {
+    showToast('تم فتح تطبيق البريد لإرسال التقرير', 'success');
+    window.location.href = "mailto:?subject=تقرير الأرصدة الإجمالية&body=تجدون مرفقاً التقرير...";
+}
+
+function shareWhatsApp() {
+    showToast('جاري التحويل للواتساب...', 'success');
+    window.open("https://api.whatsapp.com/send?text=تم إرسال تقرير الأرصدة من النظام المالي", "_blank");
+}
+
+/* ─── Premium Glassmorphic Quick Presets (Hold 8s to Save, Click to Apply) ─── */
+window.getBalancesPresets = function() {
+    let userList = [];
+    try {
+        userList = JSON.parse(localStorage.getItem('mainbalances_report_user_presets_v3'));
+    } catch(e) {}
+    if (!userList || !Array.isArray(userList) || userList.length !== 3) {
+        userList = [
+            { id: 1, name: 'افتراضي 1', colConfigs: null, colOrder: null },
+            { id: 2, name: 'تخطيط 2', colConfigs: null, colOrder: null },
+            { id: 3, name: 'تخطيط 1', colConfigs: null, colOrder: null }
+        ];
+        localStorage.setItem('mainbalances_report_user_presets_v3', JSON.stringify(userList));
+    } else {
+        if (userList[0] && (userList[0].name === 'تخطيط 1' || !userList[0].name)) {
+            userList[0].name = 'افتراضي 1';
+        }
+        if (userList[2]) {
+            userList[2].name = 'تخطيط 1';
+        }
+        localStorage.setItem('mainbalances_report_user_presets_v3', JSON.stringify(userList));
+    }
+
+    // Default 1 Master Configs (Standard Factory System Default)
+    let default1Configs = null;
+    let default1Order = null;
+    try {
+        const master1 = JSON.parse(localStorage.getItem('mainbalances_report_master_v4_default1'));
+        if (master1 && master1.colConfigs && master1.colOrder) {
+            default1Configs = master1.colConfigs;
+            default1Order = master1.colOrder;
+        }
+    } catch(e) {}
+
+    if (!default1Configs) {
+        default1Configs = Array.from({length: 9}, () => ({
+            visible: true, bold: false, fontWeight: 'normal', fs: 1.0, decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right'
+        }));
+        default1Order = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+        localStorage.setItem('mainbalances_report_master_v4_default1', JSON.stringify({ colConfigs: default1Configs, colOrder: default1Order }));
+    }
+
+    // Default 2 Master Configs (Frozen Current Report Setup)
+    let default2Configs = null;
+    let default2Order = null;
+    try {
+        const master2 = JSON.parse(localStorage.getItem('mainbalances_report_master_v4_default2'));
+        if (master2 && master2.colConfigs && master2.colOrder) {
+            default2Configs = master2.colConfigs;
+            default2Order = master2.colOrder;
+        }
+    } catch(e) {}
+
+    if (!default2Configs) {
+        default2Configs = window.colConfigs ? JSON.parse(JSON.stringify(window.colConfigs)) : JSON.parse(JSON.stringify(default1Configs));
+        default2Order = window.colOrder ? [...window.colOrder] : [...default1Order];
+        localStorage.setItem('mainbalances_report_master_v4_default2', JSON.stringify({ colConfigs: default2Configs, colOrder: default2Order }));
+    }
+
+    // Default 3 Master Configs
+    let default3Configs = null;
+    let default3Order = null;
+    try {
+        const master3 = JSON.parse(localStorage.getItem('mainbalances_report_master_v4_default3'));
+        if (master3 && master3.colConfigs && master3.colOrder) {
+            default3Configs = master3.colConfigs;
+            default3Order = master3.colOrder;
+        }
+    } catch(e) {}
+
+    if (!default3Configs) {
+        default3Configs = JSON.parse(JSON.stringify(default1Configs));
+        default3Order = [0, 6, 7, 3, 4, 5, 1, 2, 8];
+        localStorage.setItem('mainbalances_report_master_v4_default3', JSON.stringify({ colConfigs: default3Configs, colOrder: default3Order }));
+    }
+
+    // Default 4 Master Configs
+    let default4Configs = null;
+    let default4Order = null;
+    try {
+        const master4 = JSON.parse(localStorage.getItem('mainbalances_report_master_v4_default4'));
+        if (master4 && master4.colConfigs && master4.colOrder) {
+            default4Configs = master4.colConfigs;
+            default4Order = master4.colOrder;
+        }
+    } catch(e) {}
+
+    if (!default4Configs) {
+        default4Configs = JSON.parse(JSON.stringify(default1Configs));
+        default4Order = [0, 1, 3, 6, 7, 8, 2, 4, 5];
+        localStorage.setItem('mainbalances_report_master_v4_default4', JSON.stringify({ colConfigs: default4Configs, colOrder: default4Order }));
+    }
+
+    // Master Basic Configs (Cloned from Default 2)
+    let basicConfigs = null;
+    let basicOrder = null;
+    try {
+        const masterBasic = JSON.parse(localStorage.getItem('mainbalances_report_master_basic'));
+        if (masterBasic && masterBasic.colConfigs && masterBasic.colOrder) {
+            basicConfigs = masterBasic.colConfigs;
+            basicOrder = masterBasic.colOrder;
+        }
+    } catch(e) {}
+
+    if (!basicConfigs) {
+        let layout2Conf = (userList[1] && userList[1].colConfigs) ? userList[1].colConfigs : default2Configs;
+        let layout2Ord = (userList[1] && userList[1].colOrder) ? userList[1].colOrder : default2Order;
+
+        basicConfigs = layout2Conf ? JSON.parse(JSON.stringify(layout2Conf)) : JSON.parse(JSON.stringify(default1Configs));
+        basicOrder = layout2Ord ? [...layout2Ord] : [...default1Order];
+        localStorage.setItem('mainbalances_report_master_basic', JSON.stringify({ colConfigs: basicConfigs, colOrder: basicOrder }));
+    }
+
+    const preset1 = userList[0] || { id: 1, name: 'افتراضي 1', colConfigs: null, colOrder: null };
+    const presetLayout2 = userList[1] || { id: 2, name: 'تخطيط 2', colConfigs: null, colOrder: null };
+    const presetLayout1 = userList[2] || { id: 3, name: 'تخطيط 1', colConfigs: null, colOrder: null };
+    presetLayout1.name = 'تخطيط 1';
+
+    const defaultPreset2 = { id: 'default2', name: 'الافتراضي 2 🌟', isDefault: true, colOrder: default2Order, colConfigs: default2Configs };
+    const defaultPreset3 = { id: 'default3', name: 'الافتراضي 3 ✨', isDefault: true, colOrder: default3Order, colConfigs: default3Configs };
+    const defaultPreset4 = { id: 'default4', name: 'الافتراضي 4 💎', isDefault: true, colOrder: default4Order, colConfigs: default4Configs };
+    const basicPreset = { id: 'basic', name: 'أساسي 📌', isDefault: true, isReadOnly: true, colOrder: basicOrder, colConfigs: basicConfigs };
+
+    return [preset1, defaultPreset2, defaultPreset3, defaultPreset4, presetLayout1, presetLayout2, basicPreset];
+};
+
+window.renderBalancesPresets = function() {
+    const container = document.getElementById('main-presets-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const PRESETS_STORAGE_KEY = 'balances_preview_presets_v5';
+    let presets = [];
+    try { presets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
+
+    if (!Array.isArray(presets) || presets.length === 0) {
+        const defaultIcons = ['💎 تجريبي', '⭐ تصميم 2', '🎨 تصميم 3', '🔥 تصميم 4', '✨ تصميم 5', '🚀 تصميم 6', '🌟 تصميم 7'];
+        presets = defaultIcons.map(name => ({ name, showInRibbon: true }));
+    }
+
+    presets.forEach((p, idx) => {
+        if (p.showInRibbon === false) return;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'preset-ribbon-btn';
+        btn.style.cssText = `
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25);
+            color: #f1f5f9; padding: 5px 14px; border-radius: 18px;
+            font-family: inherit; font-size: 0.85rem; font-weight: 800;
+            cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+        `;
+        btn.innerHTML = p.name;
+        btn.onmouseover = () => {
+            btn.style.background = 'linear-gradient(135deg, rgba(56,189,248,0.3), rgba(2,132,199,0.4))';
+            btn.style.borderColor = '#38bdf8';
+            btn.style.transform = 'translateY(-2px) scale(1.03)';
+            btn.style.boxShadow = '0 6px 16px rgba(56,189,248,0.4)';
+        };
+        btn.onmouseout = () => {
+            btn.style.background = 'rgba(255,255,255,0.08)';
+            btn.style.borderColor = 'rgba(255,255,255,0.25)';
+            btn.style.transform = 'translateY(0) scale(1)';
+            btn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.18)';
+        };
+        btn.onclick = () => window.openPresetModal(idx, p.name);
+        container.appendChild(btn);
+    });
+
+    // Main Preview & Design Page Button (Pushed to the very end of the row)
+    const mainPreviewBtn = document.createElement('button');
+    mainPreviewBtn.type = 'button';
+    mainPreviewBtn.onclick = () => window.openNewPreviewPage();
+    mainPreviewBtn.style.cssText = `
+        display:flex; align-items:center; gap:6px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color:#fff; border:none; border-radius:18px; padding:6px 18px;
+        font-weight:900; font-family:inherit; font-size:0.88rem; cursor:pointer;
+        box-shadow:0 3px 10px rgba(16,185,129,0.35); transition:all 0.2s;
+        margin-right: auto;
+    `;
+    mainPreviewBtn.onmouseover = () => {
+        mainPreviewBtn.style.transform = 'translateY(-2px) scale(1.04)';
+        mainPreviewBtn.style.boxShadow = '0 6px 18px rgba(16,185,129,0.5)';
+        mainPreviewBtn.style.background = 'linear-gradient(135deg, #34d399, #059669)';
+    };
+    mainPreviewBtn.onmouseout = () => {
+        mainPreviewBtn.style.transform = 'translateY(0) scale(1)';
+        mainPreviewBtn.style.boxShadow = '0 3px 10px rgba(16,185,129,0.35)';
+        mainPreviewBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+    };
+    mainPreviewBtn.innerHTML = `<span>👁️ المعاينة والتصميم ⚙️</span>`;
+    container.appendChild(mainPreviewBtn);
+};
+
+window.addEventListener('storage', function(e) {
+    if (e.key === 'balances_preview_presets_v5') {
+        if (typeof window.renderBalancesPresets === 'function') {
+            window.renderBalancesPresets();
+        }
+    }
+});
+
+window.openPresetModal = function(presetIndex, presetName) {
+    if (!window.lastResults || window.lastResults.length === 0) {
+        if (typeof showToast === 'function') {
+            showToast('يرجى تشغيل التقرير أولاً للحصول على البيانات.', 'error');
+        } else {
+            alert('⚠️ يرجى تشغيل التقرير أولاً للحصول على البيانات.');
+        }
+        return;
+    }
+
+    // Save logo and report data
+    const logoImg = document.getElementById('company-logo');
+    if (logoImg && logoImg.src) {
+        localStorage.setItem('company_logo_base64', logoImg.src);
+    }
+    localStorage.setItem('preview_table_data', JSON.stringify(window.lastResults));
+    localStorage.setItem('preview_table_totals', JSON.stringify({
+        kpiDr: document.getElementById('kpi-dr')?.innerText || '0.00 SDG',
+        kpiCr: document.getElementById('kpi-cr')?.innerText || '0.00 SDG',
+        kpiBal: document.getElementById('kpi-bal')?.innerText || '0.00 SDG'
+    }));
+
+    // Create Modal Backdrop if not present
+    let modal = document.getElementById('preset-preview-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'preset-preview-modal';
+        modal.style.cssText = `
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(12px);
+            z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        `;
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div style="background: #1e293b; border: 1px solid rgba(56,189,248,0.3); border-radius: 16px; width: 95%; max-width: 1400px; height: 92vh; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.5); overflow: hidden;">
+            <!-- Modal Header -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: linear-gradient(135deg, #0f172a, #1e293b); border-bottom: 2px solid #ca8a04;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="background: linear-gradient(135deg, #ca8a04, #854d0e); color: #fff; padding: 4px 14px; border-radius: 16px; font-weight: 900; font-size: 0.95rem;">${presetName}</span>
+                    <span style="color: #f8fafc; font-weight: 800; font-size: 1rem;">📄 معاينة وطباعة التقرير بالتصميم المخصص</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button type="button" onclick="document.getElementById('preset-modal-iframe').contentWindow.executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(2,132,199,0.4);">
+                        🖨️ طباعة التقرير مباشرة
+                    </button>
+                    <button type="button" onclick="window.location.href='preview-balances-design.php?presetIndex=${presetIndex}'" style="background: linear-gradient(135deg, #eab308, #ca8a04); color: #fff; border: none; padding: 7px 16px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(202,138,4,0.4);">
+                        ⚙️ التعديل على التنسيق
+                    </button>
+                    <button type="button" onclick="document.getElementById('preset-preview-modal').style.display='none'" style="background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.4); padding: 7px 16px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer;">
+                        ❌ إغلاق
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Iframe Body -->
+            <iframe id="preset-modal-iframe" src="preview-balances-design.php?presetIndex=${presetIndex}&hideRibbon=1" style="width: 100%; height: 100%; border: none; background: #f8fafc;"></iframe>
+        </div>
+    `;
+    modal.style.display = 'flex';
+};
+
+// --- New Function: Open New Preview Page ---
+window.openNewPreviewPage = function() {
+    if (!window.lastResults || window.lastResults.length === 0) {
+        showToast('يرجى تشغيل التقرير أولاً للحصول على البيانات.', 'error');
+        return;
+    }
+    
+    // Attempt to grab logo from the DOM to pass it over
+    const logoImg = document.getElementById('company-logo');
+    if (logoImg && logoImg.src) {
+        localStorage.setItem('company_logo_base64', logoImg.src);
+    }
+
+    localStorage.setItem('preview_table_data', JSON.stringify(window.lastResults));
+    localStorage.setItem('preview_table_totals', JSON.stringify({
+        kpiDr: document.getElementById('kpi-dr')?.innerText || '0.00 SDG',
+        kpiCr: document.getElementById('kpi-cr')?.innerText || '0.00 SDG',
+        kpiBal: document.getElementById('kpi-bal')?.innerText || '0.00 SDG'
+    }));
+    
+    // Open in the same tab per user request
+    window.location.href = 'preview-balances-design.php';
+};
+
+window.renderBalancesPresetsOld = function() {
+    const wrap = document.getElementById('balances-presets-wrap');
+    if (!wrap) return;
+    
+    const list = window.getBalancesPresets();
+    wrap.innerHTML = '';
+    
+    list.forEach(p => {
+        const btn = document.createElement('div');
+        btn.setAttribute('data-slot-id', p.id);
+        
+        let isActive = p.colConfigs && window.colConfigs &&
+                       JSON.stringify(p.colConfigs) === JSON.stringify(window.colConfigs) && 
+                       JSON.stringify(p.colOrder) === JSON.stringify(window.colOrder);
+                       
+        const isLockedDefault = p.isDefault || p.isReadOnly || ['default1', 'default2', 'default3', 'default4', 1, '1', 'basic'].includes(p.id);
+        btn.className = `preset-btn ${p.colConfigs || p.isDefault ? 'has-data' : ''} ${isActive ? 'active' : ''}`;
+        
+        if (isLockedDefault) {
+            btn.title = `نقرة لاسترجاع [${p.name}]. هذا الضبط مثبت ومحفوظ داخل النظام.`;
+            btn.innerHTML = `<span>${p.name}</span>`;
+        } else {
+            btn.title = p.colConfigs ? `نقرة لتطبيق [${p.name}]. اضغط مطولاً (8 ثوانٍ) للحفظ هنا. كليك يمين للحذف.` : `اضغط مطولاً (8 ثوانٍ) لحفظ التخطيط الحالي هنا.`;
+            btn.innerHTML = `
+                <svg class="preset-clock-svg" width="16" height="16" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.15)" stroke-width="3" fill="none"></circle>
+                    <circle class="preset-clock-progress" cx="12" cy="12" r="10" stroke="#38bdf8" stroke-width="3" fill="none" stroke-dasharray="62.8" stroke-dashoffset="62.8" transform="rotate(-90 12 12)"></circle>
+                </svg>
+                <span>${p.name}</span>
+            `;
+        }
+        
+        setupPresetButtonEvents(btn, p);
+        wrap.appendChild(btn);
+    });
+};
+
+function setupPresetButtonEvents(btn, p) {
+    const isLockedDefault = p.isDefault || p.isReadOnly || ['default1', 'default2', 'default3', 'default4', 1, '1', 'basic'].includes(p.id);
+    if (isLockedDefault) {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            applyPresetLayout(p.id);
+        });
+        btn.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            showToast(`🔒 الضبط [${p.name}] محمي ومثبت نهائياً داخل النظام ولا يمكن التعديل عليه أو مسحه`, "info");
+        });
+        return;
+    }
+
+    let holdTimer = null;
+    let progressInterval = null;
+    let holdStartTime = 0;
+    let isHolding = false;
+    const HOLD_DURATION = 8000; // 8 seconds
+    const clockProgress = btn.querySelector('.preset-clock-progress');
+
+    function startHold(e) {
+        if (e.type === 'touchstart') {
+            e.preventDefault();
+        }
+        isHolding = true;
+        holdStartTime = Date.now();
+        btn.classList.add('holding');
+        
+        let elapsed = 0;
+        progressInterval = setInterval(() => {
+            elapsed = Date.now() - holdStartTime;
+            let percent = Math.min(elapsed / HOLD_DURATION, 1);
+            let offset = 62.8 * (1 - percent);
+            if (clockProgress) {
+                clockProgress.style.strokeDashoffset = offset;
+            }
+        }, 50);
+
+        holdTimer = setTimeout(() => {
+            endHold();
+            savePresetLayout(p.id);
+        }, HOLD_DURATION);
+    }
+
+    function cancelHold(e) {
+        if (!isHolding) return;
+        let elapsed = Date.now() - holdStartTime;
+        endHold();
+
+        if (elapsed < 500) {
+            applyPresetLayout(p.id);
+        }
+    }
+
+    function endHold() {
+        isHolding = false;
+        btn.classList.remove('holding');
+        if (holdTimer) clearTimeout(holdTimer);
+        if (progressInterval) clearInterval(progressInterval);
+        if (clockProgress) {
+            clockProgress.style.strokeDashoffset = 62.8;
+        }
+    }
+
+    btn.addEventListener('mousedown', startHold);
+    btn.addEventListener('touchstart', startHold, { passive: false });
+    
+    btn.addEventListener('mouseup', cancelHold);
+    btn.addEventListener('touchend', cancelHold);
+    btn.addEventListener('mouseleave', endHold);
+    
+    btn.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        if (p.isDefault || isLockedDefault) {
+            showToast(`🔒 الضبط [${p.name}] محمي ومثبت داخل النظام`, "info");
+            return;
+        }
+        if (!p.colConfigs) return;
+        if (confirm("هل أنت متأكد من رغبتك في حذف هذا التخطيط المبرمج؟")) {
+            let userList = [];
+            try { userList = JSON.parse(localStorage.getItem('mainbalances_report_user_presets_v3')) || []; } catch(e){}
+            let slotIdx = userList.findIndex(x => String(x.id) === String(p.id));
+            if (slotIdx !== -1) {
+                userList[slotIdx] = { id: p.id, name: 'تخطيط ' + p.id, colConfigs: null, colOrder: null };
+                localStorage.setItem('mainbalances_report_user_presets_v3', JSON.stringify(userList));
+                showToast("تم حذف برمجة التخطيط", "success");
+                window.renderBalancesPresets();
+            }
+        }
+    });
+}
+
+function savePresetLayout(id) {
+    if (['default1', 'default2', 'default3', 'default4', 1, '1', 'basic'].includes(id)) {
+        showToast("🔒 هذا الضبط محمي ومثبت نهائياً داخل النظام ولا يمكن التعديل عليه أو تغييره إطلاقاً.", "warning");
+        return;
+    }
+
+    const newConfigs = JSON.parse(JSON.stringify(window.colConfigs));
+    const newOrder = [...window.colOrder];
+    const layoutPayload = { colConfigs: newConfigs, colOrder: newOrder };
+
+    if (['default2', 'default3', 'default4'].includes(id)) {
+        const key = 'mainbalances_report_master_' + id;
+        localStorage.setItem(key, JSON.stringify(layoutPayload));
+        
+        fetch('api_index.php/report-layout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                reportKey: 'mainbalances_report_layout_' + id,
+                layout: layoutPayload
+            })
+        });
+
+        const labelMap = {
+            'default2': 'الافتراضي 2 🌟',
+            'default3': 'الافتراضي 3 ✨',
+            'default4': 'الافتراضي 4 💎'
+        };
+        showToast("✨ تم حفظ تصميم التقرير داخل (" + (labelMap[id] || id) + ") وفي قاعدة البيانات بنجاح!", "success");
+        window.renderBalancesPresets();
+        return;
+    }
+
+    let userList = [];
+    try { userList = JSON.parse(localStorage.getItem('mainbalances_report_user_presets_v3')) || []; } catch(e){}
+    if (!userList || userList.length !== 3) {
+        userList = [
+            { id: 1, name: 'تخطيط 1', colConfigs: null, colOrder: null },
+            { id: 2, name: 'تخطيط 2', colConfigs: null, colOrder: null },
+            { id: 3, name: 'تخطيط 3', colConfigs: null, colOrder: null }
+        ];
+    }
+    
+    let slotIdx = userList.findIndex(x => String(x.id) === String(id));
+    if (slotIdx === -1) slotIdx = parseInt(id) - 1;
+
+    let defaultName = userList[slotIdx] ? userList[slotIdx].name : ("تخطيط " + id);
+    let name = prompt("أدخل اسماً لتسمية هذا التخطيط المخصص (تخطيط " + id + "):", defaultName);
+    if (name === null) return;
+    name = name.trim() || ("تخطيط " + id);
+
+    userList[slotIdx] = {
+        id: parseInt(id),
+        name: name,
+        colConfigs: newConfigs,
+        colOrder: newOrder
+    };
+    
+    localStorage.setItem('mainbalances_report_user_presets_v3', JSON.stringify(userList));
+    showToast("تم حفظ التخطيط '" + name + "' بنجاح", "success");
+    window.renderBalancesPresets();
+}
+
+function applyPresetLayout(id) {
+    if (['default1', 'default2', 'default3', 'default4'].includes(id)) {
+        let masterConfigs = null;
+        let masterOrder = null;
+        const key = 'mainbalances_report_master_' + id;
+
+        try {
+            const master = JSON.parse(localStorage.getItem(key));
+            if (master && master.colConfigs && master.colOrder) {
+                masterConfigs = master.colConfigs;
+                masterOrder = master.colOrder;
+            }
+        } catch(e) {}
+
+        if (!masterConfigs) {
+            const presets = window.getBalancesPresets();
+            const target = presets.find(x => x.id === id);
+            if (target && target.colConfigs) {
+                masterConfigs = target.colConfigs;
+                masterOrder = target.colOrder;
+            }
+        }
+
+        if (masterConfigs) {
+            window.colConfigs = JSON.parse(JSON.stringify(masterConfigs));
+            window.colOrder = [...masterOrder];
+        }
+
+        try {
+            const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
+            const settings = JSON.parse(settingsStr);
+            settings.mainbalancesReportLayout = {
+                colConfigs: window.colConfigs,
+                colOrder: window.colOrder
+            };
+            localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
+        } catch(e) {}
+
+        applyLayoutToDOM();
+        if (typeof bindContextMenuList === 'function') bindContextMenuList();
+        if (typeof renderColumnContextMenu === 'function') renderColumnContextMenu();
+        if (window.lastResults && window.lastResults.length > 0) {
+            renderTable(window.lastResults);
+        }
+        const labelMap = {
+            'default1': 'الافتراضي 1 ⭐',
+            'default2': 'الافتراضي 2 🌟',
+            'default3': 'الافتراضي 3 ✨',
+            'default4': 'الافتراضي 4 💎'
+        };
+        showToast("تم تطبيق الضبط والتصميم المحفوظ (" + (labelMap[id] || id) + ") بنجاح ✨", "success");
+        window.renderBalancesPresets();
+        return;
+    }
+
+    let userList = [];
+    try { userList = JSON.parse(localStorage.getItem('mainbalances_report_user_presets_v3')) || []; } catch(e){}
+    let p = userList.find(x => String(x.id) === String(id));
+    if (!p || !p.colConfigs) {
+        showToast("هذا التخطيط فارغ! اضغط مطولاً (8 ثوانٍ) لحفظ التخطيط الحالي هنا.", "warning");
+        return;
+    }
+
+    window.colConfigs = p.colConfigs;
+    window.colOrder = p.colOrder;
+    
+    try {
+        const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
+        const settings = JSON.parse(settingsStr);
+        settings.mainbalancesReportLayout = {
+            colConfigs: window.colConfigs,
+            colOrder: window.colOrder
+        };
+        localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
+    } catch(e) {}
+
+    applyLayoutToDOM();
+    if (window.lastResults && window.lastResults.length > 0) {
+        renderTable(window.lastResults);
+    }
+    
+    showToast("تم تطبيق التخطيط المخصص: " + p.name, "success");
+    window.renderBalancesPresets();
+}
+
+/* ═══════════════════════════════════════════════════════
+   Visual Intelligence Analytics Hub (ApexCharts & KPIs)
+   ═══════════════════════════════════════════════════════ */
+let chartHollowDonutCategories = null;
+let chartHollowDonutTopDebtors = null;
+let chartCurvedLineSpectrum = null;
+let chartBiDirectionalBar = null;
+let chartSemiCircleGauge = null;
+let chartHollowDonutCreditors = null;
+let chartHorizontalTopBar = null;
+let chartCumulativeAreaFluid = null;
+let chartRadarEquilibrium = null;
+let chartSolidPieActiveZero = null;
+let chartMultiRadialRings = null;
+
+function renderVisualAnalytics(results) {
+    const hub = document.getElementById('visual-intelligence-hub');
+    if (!hub) return;
+    if (!results || results.length === 0) {
+        hub.style.display = 'none';
+        return;
+    }
+    hub.style.display = 'block';
+
+    // 1. Calculate Aggregates
+    let debtorsCount = 0, creditorsCount = 0, zeroCount = 0;
+
+    let categorySums = {
+        'CUST': { name: 'العملاء (مدين)', debit: 0, credit: 0, count: 0 },
+        'SUPP': { name: 'الموردين (دائن)', debit: 0, credit: 0, count: 0 },
+        'BANK': { name: 'البنوك', debit: 0, credit: 0, count: 0 },
+        'SAFE': { name: 'الخزن', debit: 0, credit: 0, count: 0 },
+        'EXP':  { name: 'المصروفات والحسابات', debit: 0, credit: 0, count: 0 }
+    };
+
+    results.forEach(p => {
+        const d = p.endingDebitLocal || 0;
+        const c = p.endingCreditLocal || 0;
+        
+        if (d > 0) debtorsCount++;
+        else if (c > 0) creditorsCount++;
+        else zeroCount++;
+
+        if (categorySums[p.type]) {
+            categorySums[p.type].debit += d;
+            categorySums[p.type].credit += c;
+            categorySums[p.type].count++;
+        }
+    });
+
+    const totalDebit = results.reduce((acc, r) => acc + (r.endingDebitLocal || 0), 0);
+    const totalCredit = results.reduce((acc, r) => acc + (r.endingCreditLocal || 0), 0);
+    const netPosition = totalDebit - totalCredit;
+
+    // 2. Update KPI Cards & Arrow Indicators
+    const indNetVal = document.getElementById('ind-net-val');
+    const indTrendArrow = document.getElementById('ind-trend-arrow');
+    const indTrendBadge = document.getElementById('ind-trend-badge');
+    const indCoveragePct = document.getElementById('ind-coverage-pct');
+    const indCoverageBar = document.getElementById('ind-coverage-bar');
+
+    if (indNetVal) {
+        indNetVal.textContent = (Math.abs(netPosition)).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+        if (netPosition >= 0) {
+            if (indTrendArrow) indTrendArrow.textContent = '↗️';
+            if (indTrendBadge) {
+                indTrendBadge.className = 'v-badge badge-success';
+                indTrendBadge.textContent = '↑ فائض سيولة مستحقة';
+            }
+            if (indCoverageBar) indCoverageBar.style.background = 'linear-gradient(90deg, #10b981, #34d399)';
+        } else {
+            if (indTrendArrow) indTrendArrow.textContent = '↘️';
+            if (indTrendBadge) {
+                indTrendBadge.className = 'v-badge badge-danger';
+                indTrendBadge.textContent = '↓ صافي التزامات واجبة السداد';
+            }
+            if (indCoverageBar) indCoverageBar.style.background = 'linear-gradient(90deg, #f43f5e, #fb7185)';
+        }
+        const coverageRatio = totalCredit > 0 ? ((totalDebit / totalCredit) * 100).toFixed(1) : '100.0';
+        if (indCoveragePct) indCoveragePct.textContent = `نسبة التغطية: ${coverageRatio}%`;
+        if (indCoverageBar) indCoverageBar.style.width = `${Math.min(parseFloat(coverageRatio), 100)}%`;
+    }
+
+    // Concentration Risk Card
+    const sortedByVolume = [...results].sort((a, b) => Math.max(b.endingDebitLocal, b.endingCreditLocal) - Math.max(a.endingDebitLocal, a.endingCreditLocal));
+    const top3Volume = sortedByVolume.slice(0, 3).reduce((sum, r) => sum + Math.max(r.endingDebitLocal, r.endingCreditLocal), 0);
+    const totalVolume = results.reduce((sum, r) => sum + Math.max(r.endingDebitLocal, r.endingCreditLocal), 0);
+    const top3Pct = totalVolume > 0 ? ((top3Volume / totalVolume) * 100).toFixed(1) : '0.0';
+
+    const indTop3Pct = document.getElementById('ind-top3-pct');
+    const indTop3Names = document.getElementById('ind-top3-names');
+    const indRiskBar = document.getElementById('ind-risk-bar');
+    if (indTop3Pct) indTop3Pct.textContent = `${top3Pct}%`;
+    if (indTop3Names) indTop3Names.textContent = sortedByVolume.slice(0, 3).map(x => x.name).join('، ');
+    if (indRiskBar) indRiskBar.style.width = `${Math.min(parseFloat(top3Pct), 100)}%`;
+
+    // Debtors vs Creditors Ratio Card
+    const ratioVal = creditorsCount > 0 ? (debtorsCount / creditorsCount).toFixed(2) : (debtorsCount > 0 ? '1.0' : '0.0');
+    const indRatioVal = document.getElementById('ind-ratio-val');
+    const indActiveCount = document.getElementById('ind-active-count');
+    const indRatioBar = document.getElementById('ind-ratio-bar');
+
+    if (indRatioVal) indRatioVal.textContent = `${ratioVal} : 1`;
+    if (indActiveCount) indActiveCount.textContent = `${debtorsCount + creditorsCount} حساب نشط من أصل ${results.length}`;
+    if (indRatioBar) indRatioBar.style.width = `${Math.min((debtorsCount / (results.length || 1)) * 100, 100)}%`;
+
+    // Financial Health Score Card
+    let healthScore = 85;
+    if (totalCredit > 0) {
+        const cov = totalDebit / totalCredit;
+        if (cov >= 1.5) healthScore = 95;
+        else if (cov >= 1.0) healthScore = 88;
+        else if (cov >= 0.7) healthScore = 72;
+        else healthScore = 55;
+    }
+    const indHealthScore = document.getElementById('ind-health-score');
+    const indHealthBadge = document.getElementById('ind-health-badge');
+    const indHealthBar = document.getElementById('ind-health-bar');
+    if (indHealthScore) indHealthScore.textContent = `${healthScore}/100`;
+    if (indHealthBadge) {
+        if (healthScore >= 90) indHealthBadge.textContent = '🌟 ممتاز للغاية';
+        else if (healthScore >= 75) indHealthBadge.textContent = '✅ جيد جداً';
+        else indHealthBadge.textContent = '⚠️ يتطلب متابعة';
+    }
+    if (indHealthBar) indHealthBar.style.width = `${healthScore}%`;
+
+    // 3. Render ApexCharts
+    if (typeof ApexCharts === 'undefined') {
+        console.warn('ApexCharts library not loaded yet');
+        return;
+    }
+
+    const isLightTheme = document.documentElement.classList.contains('light-theme');
+    const chartThemeMode = isLightTheme ? 'light' : 'dark';
+
+    function formatDualCurrencyLine(val) {
+        const sdg = parseFloat(val).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+        if (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0 && typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency) {
+            const fval = (parseFloat(val) / ledgerExchangeRate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            return sdg + '  |  ' + fval + ' ' + ledgerForeignCurrency;
+        }
+        return sdg;
+    }
+
+    function formatDualCurrencyArray(val) {
+        const sdg = parseFloat(val).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG';
+        if (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0 && typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency) {
+            const fval = (parseFloat(val) / ledgerExchangeRate).toLocaleString('en-US', {maximumFractionDigits: 0});
+            return [sdg, fval + ' ' + ledgerForeignCurrency];
+        }
+        return [sdg];
+    }
+
+    // ─── Chart 1: Hollow Donut Chart - Categories Breakdown ───
+    const catLabels = ['العملاء (مدين)', 'الموردين (دائن)', 'البنوك', 'الخزن', 'المصروفات'];
+    const catValues = [
+        categorySums['CUST'].debit,
+        categorySums['SUPP'].credit,
+        Math.abs(categorySums['BANK'].debit - categorySums['BANK'].credit),
+        Math.abs(categorySums['SAFE'].debit - categorySums['SAFE'].credit),
+        Math.abs(categorySums['EXP'].debit - categorySums['EXP'].credit)
+    ];
+
+    const optionsCatDonut = {
+        series: catValues,
+        labels: catLabels,
+        chart: {
+            type: 'donut',
+            height: 330,
+            background: 'transparent',
+            fontFamily: 'Tajawal, sans-serif'
+        },
+        colors: ['#38bdf8', '#f43f5e', '#a855f7', '#10b981', '#f59e0b'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '72%',
+                    labels: {
+                        show: true,
+                        name: { show: true, fontSize: '14px', fontWeight: 700, color: isLightTheme ? '#0f172a' : '#cbd5e1' },
+                        value: {
+                            show: true,
+                            fontSize: '16px',
+                            fontWeight: 900,
+                            color: isLightTheme ? '#0284c7' : '#38bdf8',
+                            formatter: formatDualCurrencyArray
+                        },
+                        total: {
+                            show: true,
+                            label: 'إجمالي الأرصدة',
+                            color: isLightTheme ? '#64748b' : '#94a3b8',
+                            formatter: function (w) {
+                                const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                                return formatDualCurrencyArray(total);
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        dataLabels: { enabled: false },
+        legend: {
+            position: 'bottom',
+            fontSize: '13px',
+            labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' }
+        },
+        tooltip: {
+            y: {
+                formatter: formatDualCurrencyLine
+            }
+        },
+        theme: { mode: chartThemeMode }
+    };
+
+    try { if (chartHollowDonutCategories) chartHollowDonutCategories.destroy(); } catch(e){}
+    chartHollowDonutCategories = new ApexCharts(document.querySelector("#chart-hollow-donut-categories"), optionsCatDonut);
+    chartHollowDonutCategories.render();
+
+
+    // ─── Chart 2: Hollow Donut Chart - Top Debtor Exposure ───
+    const topDebtors = [...results].filter(x => x.endingDebitLocal > 0)
+        .sort((a, b) => b.endingDebitLocal - a.endingDebitLocal).slice(0, 5);
+    
+    const topDebtorNames = topDebtors.map(x => x.name);
+    const topDebtorValues = topDebtors.map(x => x.endingDebitLocal);
+
+    const optionsDebtorsDonut = {
+        series: topDebtorValues.length > 0 ? topDebtorValues : [1],
+        labels: topDebtorNames.length > 0 ? topDebtorNames : ['لا يوجد بيانات'],
+        chart: {
+            type: 'donut',
+            height: 330,
+            background: 'transparent',
+            fontFamily: 'Tajawal, sans-serif'
+        },
+        colors: ['#38bdf8', '#818cf8', '#c084fc', '#34d399', '#fbbf24'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '68%',
+                    labels: {
+                        show: true,
+                        name: { show: true, fontSize: '13px', color: isLightTheme ? '#0f172a' : '#cbd5e1' },
+                        value: {
+                            show: true,
+                            fontSize: '15px',
+                            fontWeight: 800,
+                            color: isLightTheme ? '#059669' : '#34d399',
+                            formatter: formatDualCurrencyArray
+                        },
+                        total: {
+                            show: true,
+                            label: 'أعلى 5 مديونية',
+                            color: isLightTheme ? '#64748b' : '#94a3b8',
+                            formatter: function (w) {
+                                const sum = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                                return formatDualCurrencyArray(sum);
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        dataLabels: { enabled: false },
+        legend: {
+            position: 'bottom',
+            fontSize: '12px',
+            labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' }
+        },
+        theme: { mode: chartThemeMode }
+    };
+
+    try { if (chartHollowDonutTopDebtors) chartHollowDonutTopDebtors.destroy(); } catch(e){}
+    chartHollowDonutTopDebtors = new ApexCharts(document.querySelector("#chart-hollow-donut-top-debtors"), optionsDebtorsDonut);
+    chartHollowDonutTopDebtors.render();
+
+
+    // ─── Chart 3: Curved Line & Area Spectrum Chart ───
+    const spectrumAccounts = [...results]
+        .sort((a, b) => Math.max(b.endingDebitLocal, b.endingCreditLocal) - Math.max(a.endingDebitLocal, a.endingCreditLocal))
+        .slice(0, 15);
+    
+    const specNames = spectrumAccounts.map(x => x.name);
+    const specDebits = spectrumAccounts.map(x => x.endingDebitLocal);
+    const specCredits = spectrumAccounts.map(x => x.endingCreditLocal);
+
+    const optionsSpectrum = {
+        series: [
+            { name: 'رصيد مدين (عليه)', data: specDebits },
+            { name: 'رصيد دائن (له)', data: specCredits }
+        ],
+        chart: {
+            type: 'area',
+            height: 330,
+            background: 'transparent',
+            fontFamily: 'Tajawal, sans-serif',
+            toolbar: { show: false }
+        },
+        colors: ['#38bdf8', '#f43f5e'],
+        stroke: { curve: 'smooth', width: 3 },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shadeIntensity: 1,
+                opacityFrom: 0.45,
+                opacityTo: 0.05,
+                stops: [0, 95, 100]
+            }
+        },
+        dataLabels: { enabled: false },
+        xaxis: {
+            categories: specNames,
+            labels: {
+                style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontSize: '11px', fontFamily: 'Tajawal, sans-serif' },
+                rotate: -25
+            }
+        },
+        yaxis: {
+            labels: {
+                style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono, monospace' },
+                formatter: function(val) { return val.toLocaleString('en-US', {maximumFractionDigits: 0}); }
+            }
+        },
+        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
+        legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: {
+            y: { formatter: formatDualCurrencyLine }
+        },
+        theme: { mode: chartThemeMode }
+    };
+
+    try { if (chartCurvedLineSpectrum) chartCurvedLineSpectrum.destroy(); } catch(e){}
+    chartCurvedLineSpectrum = new ApexCharts(document.querySelector("#chart-curved-line-spectrum"), optionsSpectrum);
+    chartCurvedLineSpectrum.render();
+
+
+    // ─── Chart 4: Bi-directional Bar Chart ───
+    const optionsBiBar = {
+        series: [
+            { name: 'إجمالي مدين (عليه)', data: [categorySums['CUST'].debit, categorySums['SUPP'].debit, categorySums['BANK'].debit, categorySums['SAFE'].debit, categorySums['EXP'].debit] },
+            { name: 'إجمالي دائن (له)', data: [categorySums['CUST'].credit, categorySums['SUPP'].credit, categorySums['BANK'].credit, categorySums['SAFE'].credit, categorySums['EXP'].credit] }
+        ],
+        chart: {
+            type: 'bar',
+            height: 320,
+            background: 'transparent',
+            fontFamily: 'Tajawal, sans-serif',
+            toolbar: { show: false }
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '55%',
+                borderRadius: 6
+            }
+        },
+        colors: ['#10b981', '#f43f5e'],
+        dataLabels: { enabled: false },
+        stroke: { show: true, width: 2, colors: ['transparent'] },
+        xaxis: {
+            categories: ['العملاء', 'الموردين', 'البنوك', 'الخزن', 'المصروفات'],
+            labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '12px' } }
+        },
+        yaxis: {
+            labels: {
+                style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' },
+                formatter: function(val) { return val.toLocaleString('en-US', {maximumFractionDigits: 0}); }
+            }
+        },
+        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
+        legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: {
+            y: { formatter: formatDualCurrencyLine }
+        },
+        theme: { mode: chartThemeMode }
+    };
+
+    try { if (chartBiDirectionalBar) chartBiDirectionalBar.destroy(); } catch(e){}
+    chartBiDirectionalBar = new ApexCharts(document.querySelector("#chart-bidirectional-bar"), optionsBiBar);
+    chartBiDirectionalBar.render();
+
+
+    // ─── Chart 5: Semi-Circle Donut Radial Gauge ───
+    const optionsGauge = {
+        series: [healthScore],
+        chart: {
+            type: 'radialBar',
+            height: 340,
+            offsetY: -10,
+            background: 'transparent',
+            fontFamily: 'Tajawal, sans-serif'
+        },
+        plotOptions: {
+            radialBar: {
+                startAngle: -90,
+                endAngle: 90,
+                track: {
+                    background: isLightTheme ? "#e2e8f0" : "#1e293b",
+                    strokeWidth: '97%',
+                    margin: 5,
+                    dropShadow: { enabled: false }
+                },
+                dataLabels: {
+                    name: {
+                        show: true,
+                        fontSize: '14px',
+                        color: isLightTheme ? '#64748b' : '#94a3b8',
+                        offsetY: -10
+                    },
+                    value: {
+                        offsetY: -50,
+                        fontSize: '24px',
+                        fontWeight: '900',
+                        color: isLightTheme ? '#0f172a' : '#f8fafc',
+                        formatter: function (val) { return val + "%"; }
+                    }
+                }
+            }
+        },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shade: 'dark',
+                type: 'horizontal',
+                gradientToColors: ['#34d399'],
+                stops: [0, 100]
+            }
+        },
+        colors: ['#38bdf8'],
+        labels: ['مؤشر صحة الأرصدة والسيولة'],
+        theme: { mode: chartThemeMode }
+    };
+
+    try { if (chartSemiCircleGauge) chartSemiCircleGauge.destroy(); } catch(e){}
+    chartSemiCircleGauge = new ApexCharts(document.querySelector("#chart-semicircle-gauge"), optionsGauge);
+    chartSemiCircleGauge.render();
+
+
+    // ─── Chart 6: Hollow Donut Chart - Top Creditor Suppliers ───
+    const topCreditors = [...results].filter(x => x.endingCreditLocal > 0)
+        .sort((a, b) => b.endingCreditLocal - a.endingCreditLocal).slice(0, 5);
+    const topCreditorNames = topCreditors.map(x => x.name);
+    const topCreditorValues = topCreditors.map(x => x.endingCreditLocal);
+
+    const optionsCreditorsDonut = {
+        series: topCreditorValues.length > 0 ? topCreditorValues : [1],
+        labels: topCreditorNames.length > 0 ? topCreditorNames : ['لا يوجد بيانات'],
+        chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#f43f5e', '#fb7185', '#a855f7', '#fbbf24', '#38bdf8'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '68%',
+                    labels: {
+                        show: true,
+                        name: { show: true, fontSize: '13px', color: isLightTheme ? '#0f172a' : '#cbd5e1' },
+                        value: { show: true, fontSize: '15px', fontWeight: 900, color: isLightTheme ? '#e11d48' : '#fb7185', formatter: formatDualCurrencyArray },
+                        total: { show: true, label: 'إجمالي الديون', color: isLightTheme ? '#64748b' : '#94a3b8', formatter: w => formatDualCurrencyArray(w.globals.seriesTotals.reduce((a,b)=>a+b, 0)) }
+                    }
+                }
+            }
+        },
+        dataLabels: { enabled: false },
+        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (chartHollowDonutCreditors) chartHollowDonutCreditors.destroy(); } catch(e){}
+    chartHollowDonutCreditors = new ApexCharts(document.querySelector("#chart-hollow-donut-creditors"), optionsCreditorsDonut);
+    chartHollowDonutCreditors.render();
+
+
+    // ─── Chart 7: Horizontal Bar Chart - Top 10 Accounts Volume Ranking ───
+    const top10Overall = [...results].sort((a, b) => Math.max(b.endingDebitLocal, b.endingCreditLocal) - Math.max(a.endingDebitLocal, a.endingCreditLocal)).slice(0, 10);
+    const top10Names = top10Overall.map(x => x.name);
+    const top10Values = top10Overall.map(x => Math.max(x.endingDebitLocal, x.endingCreditLocal));
+
+    const optionsHorizontalBar = {
+        series: [{ name: 'رصيد الحساب', data: top10Values }],
+        chart: { type: 'bar', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        plotOptions: { bar: { horizontal: true, borderRadius: 6, barHeight: '55%', distributed: true } },
+        colors: ['#38bdf8', '#34d399', '#a855f7', '#fbbf24', '#f43f5e', '#22d3ee', '#818cf8', '#fb7185', '#10b981', '#f59e0b'],
+        dataLabels: { enabled: false },
+        xaxis: { categories: top10Names, labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#1e293b' : '#cbd5e1', fontSize: '11px', fontFamily: 'Tajawal' } } },
+        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
+        legend: { show: false },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (chartHorizontalTopBar) chartHorizontalTopBar.destroy(); } catch(e){}
+    chartHorizontalTopBar = new ApexCharts(document.querySelector("#chart-horizontal-top-bar"), optionsHorizontalBar);
+    chartHorizontalTopBar.render();
+
+
+    // ─── Chart 8: Filled Area Fluid Curve ───
+    const areaNames = sortedByVolume.slice(0, 12).map(x => x.name);
+    const areaDebits = sortedByVolume.slice(0, 12).map(x => x.endingDebitLocal);
+    const areaCredits = sortedByVolume.slice(0, 12).map(x => x.endingCreditLocal);
+
+    const optionsFluidArea = {
+        series: [
+            { name: 'مستحقات (مدين)', data: areaDebits },
+            { name: 'التزامات (دائن)', data: areaCredits }
+        ],
+        chart: { type: 'area', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#10b981', '#f43f5e'],
+        stroke: { curve: 'smooth', width: 2.5 },
+        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.05, stops: [0, 95, 100] } },
+        dataLabels: { enabled: false },
+        xaxis: { categories: areaNames, labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontSize: '10px' }, rotate: -20 } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
+        legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (chartCumulativeAreaFluid) chartCumulativeAreaFluid.destroy(); } catch(e){}
+    chartCumulativeAreaFluid = new ApexCharts(document.querySelector("#chart-cumulative-area-fluid"), optionsFluidArea);
+    chartCumulativeAreaFluid.render();
+
+
+    // ─── Chart 9: Polygon Radar Equilibrium Chart ───
+    const optionsRadar = {
+        series: [
+            { name: 'المدين (ما لك)', data: [categorySums['CUST'].debit, categorySums['SUPP'].debit, categorySums['BANK'].debit, categorySums['SAFE'].debit, categorySums['EXP'].debit] },
+            { name: 'الدائن (ما عليك)', data: [categorySums['CUST'].credit, categorySums['SUPP'].credit, categorySums['BANK'].credit, categorySums['SAFE'].credit, categorySums['EXP'].credit] }
+        ],
+        chart: { type: 'radar', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#38bdf8', '#c084fc'],
+        stroke: { width: 2 },
+        fill: { opacity: 0.25 },
+        markers: { size: 4 },
+        xaxis: { categories: ['العملاء', 'الموردين', 'البنوك', 'الخزن', 'المصروفات'], labels: { style: { colors: isLightTheme ? '#0f172a' : '#e2e8f0', fontSize: '12px' } } },
+        yaxis: { show: false },
+        legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (chartRadarEquilibrium) chartRadarEquilibrium.destroy(); } catch(e){}
+    chartRadarEquilibrium = new ApexCharts(document.querySelector("#chart-radar-equilibrium"), optionsRadar);
+    chartRadarEquilibrium.render();
+
+
+    // ─── Chart 10: Solid Pie Chart - Active vs Zero Accounts ───
+    const optionsSolidPie = {
+        series: [debtorsCount, creditorsCount, zeroCount],
+        labels: [`عملاء دائنون (${debtorsCount})`, `موردون دائنون (${creditorsCount})`, `حسابات صفريّة (${zeroCount})`],
+        chart: { type: 'pie', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#10b981', '#f43f5e', '#64748b'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        dataLabels: { enabled: true, style: { fontSize: '12px', fontFamily: 'Tajawal, sans-serif', fontWeight: 'bold' } },
+        tooltip: { y: { formatter: v => v + ' حساب' } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (chartSolidPieActiveZero) chartSolidPieActiveZero.destroy(); } catch(e){}
+    chartSolidPieActiveZero = new ApexCharts(document.querySelector("#chart-solid-pie-active-zero"), optionsSolidPie);
+    chartSolidPieActiveZero.render();
+
+
+    // ─── Chart 11: Multi-Radial Rings Gauge ───
+    const totalAccCount = results.length || 1;
+    const debtorsPct = Math.round((debtorsCount / totalAccCount) * 100);
+    const creditorsPct = Math.round((creditorsCount / totalAccCount) * 100);
+    const treasuryPct = Math.round(((categorySums['BANK'].count + categorySums['SAFE'].count) / totalAccCount) * 100);
+
+    const optionsMultiRadial = {
+        series: [debtorsPct, creditorsPct, treasuryPct],
+        chart: { type: 'radialBar', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        plotOptions: {
+            radialBar: {
+                dataLabels: {
+                    name: { fontSize: '14px', color: isLightTheme ? '#64748b' : '#94a3b8' },
+                    value: { fontSize: '16px', fontWeight: '800', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + '%' },
+                    total: { show: true, label: 'نسب الأرصدة', color: isLightTheme ? '#0f172a' : '#cbd5e1', formatter: () => debtorsPct + '%' }
+                },
+                track: { background: isLightTheme ? '#e2e8f0' : '#1e293b' }
+            }
+        },
+        colors: ['#10b981', '#f43f5e', '#38bdf8'],
+        labels: ['حصة العملاء', 'حصة الموردين', 'حصة الخزينة والبنوك'],
+        theme: { mode: chartThemeMode }
+    };
+    try { if (chartMultiRadialRings) chartMultiRadialRings.destroy(); } catch(e){}
+    chartMultiRadialRings = new ApexCharts(document.querySelector("#chart-multi-radial-rings"), optionsMultiRadial);
+    chartMultiRadialRings.render();
+
+    // ─── Chart 12: Treemap Top 15 Accounts ───
+    const top15Treemap = sortedByVolume.slice(0, 15).map(x => ({
+        x: x.name,
+        y: Math.max(x.endingDebitLocal, x.endingCreditLocal)
+    }));
+    const optionsTreemap = {
+        series: [{ data: top15Treemap }],
+        legend: { show: false },
+        chart: { type: 'treemap', height: 380, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#38bdf8', '#34d399', '#a855f7', '#fbbf24', '#f43f5e', '#22d3ee', '#818cf8', '#fb7185', '#10b981', '#f59e0b', '#c084fc', '#e879f9', '#4ade80', '#facc15', '#fb923c'],
+        plotOptions: { treemap: { enableShades: true, shadeIntensity: 0.5, reverseNegativeShade: true, colorScale: { ranges: [] } } },
+        dataLabels: { enabled: true, style: { fontSize: '12px', fontFamily: 'Tajawal' }, formatter: function(text, op) { return [text, formatDualCurrencyLine(op.value)]; } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartTreemapAccounts) window.chartTreemapAccounts.destroy(); } catch(e){}
+    window.chartTreemapAccounts = new ApexCharts(document.querySelector("#chart-treemap-accounts"), optionsTreemap);
+    window.chartTreemapAccounts.render();
+
+
+    // ─── Chart 13: Waterfall Net Balance ───
+    const topDebtorsWaterfall = [...results].filter(x => x.endingDebitLocal > 0).sort((a, b) => b.endingDebitLocal - a.endingDebitLocal).slice(0, 7);
+    const topCreditorsWaterfall = [...results].filter(x => x.endingCreditLocal > 0).sort((a, b) => b.endingCreditLocal - a.endingCreditLocal).slice(0, 7);
+    
+    let waterfallData = [];
+    topDebtorsWaterfall.forEach(d => waterfallData.push({ x: d.name, y: d.endingDebitLocal }));
+    topCreditorsWaterfall.forEach(c => waterfallData.push({ x: c.name, y: -c.endingCreditLocal }));
+    
+    const optionsWaterfall = {
+        series: [{ name: 'التأثير على الصافي', data: waterfallData }],
+        chart: { type: 'waterfall', height: 380, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        dataLabels: { enabled: true, formatter: function(val) { return (val / 1000).toFixed(0) + 'K'; }, style: { fontSize: '10px' } },
+        xaxis: { type: 'category', labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'Tajawal' }, rotate: -45 } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        tooltip: { y: { formatter: function(val) { return formatDualCurrencyLine(Math.abs(val)); } } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartWaterfallNet) window.chartWaterfallNet.destroy(); } catch(e){}
+    window.chartWaterfallNet = new ApexCharts(document.querySelector("#chart-waterfall-net"), optionsWaterfall);
+    window.chartWaterfallNet.render();
+
+
+    // ─── Chart 14: Polar Area ───
+    const optionsPolar = {
+        series: catValues,
+        labels: catLabels,
+        chart: { type: 'polarArea', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#38bdf8', '#f43f5e', '#a855f7', '#10b981', '#f59e0b'],
+        stroke: { colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        fill: { opacity: 0.8 },
+        legend: { position: 'bottom', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartPolarCategories) window.chartPolarCategories.destroy(); } catch(e){}
+    window.chartPolarCategories = new ApexCharts(document.querySelector("#chart-polar-categories"), optionsPolar);
+    window.chartPolarCategories.render();
+}
+
+window.switchVisualTab = function(type) {
+    document.querySelectorAll('.hub-tab-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('tab-' + type);
+    if (btn) btn.classList.add('active');
+
+    if (!window.lastResults) return;
+
+    let filtered = window.lastResults;
+    if (type === 'partners') {
+        filtered = window.lastResults.filter(x => x.type === 'CUST' || x.type === 'SUPP');
+    } else if (type === 'treasury') {
+        filtered = window.lastResults.filter(x => x.type === 'BANK' || x.type === 'SAFE');
+    }
+    renderVisualAnalytics(filtered);
+};
+
+/* ═══════════════════════════════════════════════════════
+   Sidebar Modal Column Customization Functions
+   ═══════════════════════════════════════════════════════ */
+function toggleSettingsSidebar() {
+    const sb = document.getElementById('settings-sidebar');
+    const ov = document.getElementById('settings-overlay');
+    if (!sb || !ov) return;
+
+    if (sb.classList.contains('active')) {
+        if (window.previewBackupConfigBalances) {
+            window.colConfigs = JSON.parse(JSON.stringify(window.previewBackupConfigBalances.colConfigs));
+            window.colOrder = [...window.previewBackupConfigBalances.colOrder];
+            applyLayoutToDOM();
+            if (typeof window.runReport === 'function') window.runReport();
+        }
+        sb.classList.remove('active');
+        ov.classList.remove('active');
+    } else {
+        window.previewBackupConfigBalances = {
+            colConfigs: JSON.parse(JSON.stringify(window.colConfigs)),
+            colOrder: [...window.colOrder]
+        };
+        renderSidebarConfig();
+        sb.classList.add('active');
+        ov.classList.add('active');
+    }
+}
+
+function renderSidebarConfig() {
+    const list = document.getElementById('columns-config-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    window.colOrder.forEach((origIdx, index) => {
+        const col = window.colConfigs[origIdx] || { name: 'عمود ' + origIdx, alias: 'عمود ' + origIdx, visible: true };
+        const li = document.createElement('li');
+        li.className = 'col-config-item';
+        li.draggable = true;
+        li.dataset.index = index;
+        li.dataset.origIdx = origIdx;
+
+        const currentFs = parseFloat(col.fs) || 1.0;
+
+        li.innerHTML = `
+            <div class="col-config-header">
+                <div class="col-title-wrap">
+                    <span class="col-drag-handle" title="اسحب لأعلى أو لأسفل لإعادة ترتيب الأعمدة أفقيًا في الجداول">☰</span>
+                    <span class="col-title">${col.alias || col.name}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button class="col-settings-btn" onclick="toggleColSettings(${index})">⚙️ تخصيص</button>
+                    <div class="col-toggle ${col.visible !== false ? 'on' : ''}" onclick="toggleColVisibility(${origIdx}, this)" title="إظهار/إخفاء العمود"></div>
+                </div>
+            </div>
+            <div class="col-settings-panel" id="col-settings-${index}">
+                <div class="cfg-row">
+                    <span>مسمى العمود:</span>
+                    <span style="font-weight:bold; color:#38bdf8; font-size:0.85rem; display:flex; align-items:center; gap:4px;">
+                        🔒 ${col.name} (ثابت بالنظام)
+                    </span>
+                </div>
+                <div class="cfg-row">
+                    <span>حجم الخط (تكبير/تصغير):</span>
+                    <div style="display:flex; align-items:center; gap:4px;">
+                        <button class="cfg-btn" onclick="adjustFontSize(${origIdx}, -1)">A-</button>
+                        <input type="range" min="0.6" max="3.0" step="0.05" value="${currentFs}" oninput="updateColField(${origIdx}, 'fs', parseFloat(this.value)); document.getElementById('fs-lbl-${origIdx}').textContent = parseFloat(this.value).toFixed(2) + 'rem';" style="width:75px; cursor:pointer;">
+                        <span id="fs-lbl-${origIdx}" style="font-size:0.75rem; color:#38bdf8; font-weight:bold; width:45px; text-align:center;">${currentFs.toFixed(2)}rem</span>
+                        <button class="cfg-btn" onclick="adjustFontSize(${origIdx}, 1)">A+</button>
+                        <button class="cfg-btn ${col.bold ? 'active' : ''}" onclick="toggleColBold(${origIdx}, this)" title="خط بولد عريض وتخين" style="font-weight:900;">B (تخين)</button>
+                    </div>
+                </div>
+                <div class="cfg-row">
+                    <span>محاذاة النص:</span>
+                    <select class="cfg-input" onchange="updateColField(${origIdx}, 'align', this.value)" style="width:115px;">
+                        <option value="center" ${col.align === 'center' ? 'selected' : ''}>الوسط ↔️</option>
+                        <option value="right" ${col.align === 'right' ? 'selected' : ''}>اليمين ➡️</option>
+                        <option value="left" ${col.align === 'left' ? 'selected' : ''}>اليسار ⬅️</option>
+                    </select>
+                </div>
+                <div class="cfg-row">
+                    <span>الألوان (النص / الخلفية):</span>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <span style="font-size:0.75rem; color:#94a3b8;">النص:</span>
+                        <input type="color" class="cfg-input" value="${col.color || '#ffffff'}" onchange="updateColField(${origIdx}, 'color', this.value)" title="لون النص">
+                        <span style="font-size:0.75rem; color:#94a3b8; margin-right:4px;">الخلفية:</span>
+                        <input type="color" class="cfg-input" value="${col.bg || '#000000'}" onchange="updateColField(${origIdx}, 'bg', this.value)" title="لون الخلفية">
+                    </div>
+                </div>
+                                <div class="cfg-row" style="flex-wrap:wrap; margin-top:8px; border-top:1px dashed rgba(255,255,255,0.1); padding-top:8px;">
+                    <span style="font-weight:bold; color:#38bdf8; width:100%; margin-bottom:4px;">🔢 خصائص وتنسيق الأرقام والكسور:</span>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; width:100%;">
+                        <div>
+                            <span style="font-size:0.7rem; color:#94a3b8; display:block;">رمز الفاصلة الألفية:</span>
+                            <select class="cfg-input" onchange="updateColField(${origIdx}, 'thousandsSep', this.value)" style="width:100%; font-size:0.75rem;">
+                                <option value="," ${(!col.thousandsSep || col.thousandsSep === ',') ? 'selected' : ''}>, (فاصلة عادية)</option>
+                                <option value="." ${col.thousandsSep === '.' ? 'selected' : ''}>. (نقطة)</option>
+                                <option value=" " ${col.thousandsSep === ' ' ? 'selected' : ''}>[مسافة]</option>
+                                <option value="_" ${col.thousandsSep === '_' ? 'selected' : ''}>_ (شرطة)</option>
+                                <option value="'" ${col.thousandsSep === "'" ? 'selected' : ''}>' (اقتباس)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span style="font-size:0.7rem; color:#94a3b8; display:block;">رمز الفاصلة العشرية:</span>
+                            <select class="cfg-input" onchange="updateColField(${origIdx}, 'decSep', this.value)" style="width:100%; font-size:0.75rem;">
+                                <option value="." ${(!col.decSep || col.decSep === '.') ? 'selected' : ''}>. (نقطة)</option>
+                                <option value="," ${col.decSep === ',' ? 'selected' : ''}>, (فاصلة)</option>
+                                <option value="٫" ${col.decSep === '٫' ? 'selected' : ''}>٫ (عربية)</option>
+                                <option value="/" ${col.decSep === '/' ? 'selected' : ''}>/ (شرطة)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span style="font-size:0.7rem; color:#94a3b8; display:block;">عدد الخانات العشرية:</span>
+                            <select class="cfg-input" onchange="updateColField(${origIdx}, 'dec', parseInt(this.value)); updateColField(${origIdx}, 'decimals', parseInt(this.value));" style="width:100%; font-size:0.75rem;">
+                                <option value="0" ${col.dec === 0 || col.decimals === 0 ? 'selected' : ''}>0 (بدون)</option>
+                                <option value="1" ${col.dec === 1 || col.decimals === 1 ? 'selected' : ''}>1 خانة</option>
+                                <option value="2" ${col.dec === 2 || col.decimals === 2 || (col.dec === undefined && col.decimals === undefined) ? 'selected' : ''}>2 خانة</option>
+                                <option value="3" ${col.dec === 3 || col.decimals === 3 ? 'selected' : ''}>3 خانات</option>
+                                <option value="4" ${col.dec === 4 || col.decimals === 4 ? 'selected' : ''}>4 خانات</option>
+                                <option value="5" ${col.dec === 5 || col.decimals === 5 ? 'selected' : ''}>5 خانات</option>
+                                <option value="6" ${col.dec === 6 || col.decimals === 6 ? 'selected' : ''}>6 خانات</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span style="font-size:0.7rem; color:#94a3b8; display:block;">طريقة والتقريب:</span>
+                            <select class="cfg-input" onchange="updateColField(${origIdx}, 'roundMode', this.value)" style="width:100%; font-size:0.75rem;">
+                                <option value="round" ${(!col.roundMode || col.roundMode === 'round') ? 'selected' : ''}>تقريب عادي</option>
+                                <option value="floor" ${col.roundMode === 'floor' ? 'selected' : ''}>تقريب لأسفل</option>
+                                <option value="ceil" ${col.roundMode === 'ceil' ? 'selected' : ''}>تقريب لأعلى</option>
+                                <option value="trunc" ${col.roundMode === 'trunc' ? 'selected' : ''}>قطع الكسر</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        li.addEventListener('dragstart', handleDragStartBalances);
+        li.addEventListener('dragover', handleDragOverBalances);
+        li.addEventListener('drop', handleDropBalances);
+        li.addEventListener('dragenter', handleDragEnterBalances);
+        li.addEventListener('dragleave', handleDragLeaveBalances);
+
+        list.appendChild(li);
+    });
+}
+
+function toggleColSettings(index) {
+    const p = document.getElementById('col-settings-' + index);
+    if (p) p.classList.toggle('open');
+}
+function toggleColVisibility(origIdx, el) {
+    if (window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].visible = !window.colConfigs[origIdx].visible;
+        if (el) el.classList.toggle('on');
+        applyLayoutToDOM();
+    }
+}
+function updateColField(origIdx, field, val) {
+    if (field === 'alias' || field === 'name') {
+        if (typeof showToast === 'function') showToast('🔒 مسميات الأعمدة مثبتة بالنظام ولا يمكن تغييرها', 'info');
+        return;
+    }
+    if (window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx][field] = val;
+        if (field === 'align') window.colConfigs[origIdx]['textAlign'] = val;
+        if (field === 'textAlign') window.colConfigs[origIdx]['align'] = val;
+        if (field === 'dec') window.colConfigs[origIdx]['decimals'] = val;
+        if (field === 'decimals') window.colConfigs[origIdx]['dec'] = val;
+        if (field === 'bold') window.colConfigs[origIdx]['fontWeight'] = val ? '900' : 'normal';
+        if (field === 'fontWeight') window.colConfigs[origIdx]['bold'] = (val === 'bold' || val === '900');
+
+        updateColDOMByOrigIdx(origIdx);
+        applyLayoutToDOM();
+        saveLayout();
+
+        if (['dec', 'decimals', 'thousands', 'thousandsSep', 'decSep', 'roundMode', 'showDecimals'].includes(field)) {
+            if (typeof window.lastResults !== 'undefined' && window.lastResults) {
+                renderTable(window.lastResults);
+            }
+        }
+    }
+}
+function adjustFontSize(origIdx, dir) {
+    if (window.colConfigs[origIdx]) {
+        let fs = parseFloat(window.colConfigs[origIdx].fs) || 1.0;
+        fs = Math.max(0.6, Math.min(3.0, fs + dir * 0.1));
+        window.colConfigs[origIdx].fs = parseFloat(fs.toFixed(2));
+        renderSidebarConfig();
+        applyLayoutToDOM();
+        saveLayout();
+    }
+}
+function toggleColBold(origIdx, el) {
+    if (window.colConfigs && window.colConfigs[origIdx]) {
+        const isBold = !window.colConfigs[origIdx].bold;
+        window.colConfigs[origIdx].bold = isBold;
+        window.colConfigs[origIdx].fontWeight = isBold ? '900' : 'normal';
+        if (el) el.classList.toggle('active', isBold);
+        updateColDOMByOrigIdx(origIdx);
+        applyLayoutToDOM();
+        saveLayout();
+        if (window.lastResults) renderTable(window.lastResults);
+    }
+}
+
+let dragSrcElBalances = null;
+function handleDragStartBalances(e) {
+    dragSrcElBalances = this;
+    e.dataTransfer.effectAllowed = 'move';
+    this.classList.add('dragging');
+}
+function handleDragOverBalances(e) {
+    if (e.preventDefault) e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+}
+function handleDragEnterBalances(e) { this.classList.add('over'); }
+function handleDragLeaveBalances(e) { this.classList.remove('over'); }
+function handleDropBalances(e) {
+    if (e.stopPropagation) e.stopPropagation();
+    if (dragSrcElBalances !== this) {
+        let fromIdx = parseInt(dragSrcElBalances.dataset.index);
+        let toIdx = parseInt(this.dataset.index);
+
+        let moved = window.colOrder.splice(fromIdx, 1)[0];
+        window.colOrder.splice(toIdx, 0, moved);
+
+        renderSidebarConfig();
+        applyLayoutToDOM();
+        if (typeof window.runReport === 'function' && window.lastResults) {
+            window.runReport();
+        }
+    }
+    return false;
+}
+
+function applyAndSaveConfig() {
+    saveLayout();
+    window.previewBackupConfigBalances = {
+        colConfigs: JSON.parse(JSON.stringify(window.colConfigs)),
+        colOrder: [...window.colOrder]
+    };
+    applyLayoutToDOM();
+    if (typeof window.runReport === 'function' && window.lastResults) window.runReport();
+    toggleSettingsSidebar();
+    if (typeof showToast === 'function') showToast('💾 تم حفظ التخصيصات وتطبيقها بنجاح', 'success');
+}
+
+function resetColumnConfig() {
+    window.colConfigs = [
+        { name: 'اسم الحساب', alias: 'اسم الحساب', id: 'name', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'right' },
+        { name: 'رقم الهاتف', alias: 'رقم الهاتف', id: 'phone', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'الرقم الضريبي', alias: 'الرقم الضريبي', id: 'taxNo', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'العملة', alias: 'العملة', id: 'currency', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'عليه عملة', alias: 'عليه عملة', id: 'debitF', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'له عملة', alias: 'له عملة', id: 'creditF', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'عليه', alias: 'عليه', id: 'debit', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'له', alias: 'له', id: 'credit', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'ملحوظة', alias: 'ملحوظة', id: 'note', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'right' }
+    ];
+    window.colOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    saveLayout();
+    renderSidebarConfig();
+    applyLayoutToDOM();
+    if (typeof window.runReport === 'function' && window.lastResults) window.runReport();
+    if (typeof showToast === 'function') showToast('🔄 تم استعادة الوضع الافتراضي', 'success');
+}
+
+function changeTableTheme(themeClass) {
+    const table = document.getElementById('balances-table');
+    if (!table) return;
+    table.classList.remove('table-theme-blue', 'table-theme-black', 'table-theme-emerald');
+    if (themeClass) table.classList.add(themeClass);
+    window.currentTableTheme = themeClass;
+    document.querySelectorAll('.crystal-btn').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById('btn-theme-' + themeClass);
+    if (activeBtn) activeBtn.classList.add('active');
+}
+
+function changeNumberFont(fontClass) {
+    window.currentNumFont = fontClass;
+    const table = document.getElementById('balances-table');
+    if (!table) return;
+    table.querySelectorAll('.num').forEach(el => {
+        el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-firacode', 'num-font-poppins');
+        el.classList.add(fontClass);
+    });
+    document.querySelectorAll('.font-chip').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById('btn-font-' + fontClass);
+    if (activeBtn) activeBtn.classList.add('active');
+}
+
+/* ═══════════════════════════════════════════════════════
+   Right-Click Header & Table Context Menu Handler (columnContextMenu)
+   ═══════════════════════════════════════════════════════ */
+
+function openColumnContextMenu(e) {
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    const menu = document.getElementById('columnContextMenu');
+    if (!menu) return;
+
+    let posX = e ? (e.clientX || e.pageX) : window.innerWidth / 2 - 250;
+    let posY = e ? (e.clientY || e.pageY) : 100;
+
+    const menuWidth = 520;
+    const menuHeight = 500;
+    if (posX + menuWidth > window.innerWidth) posX = Math.max(10, window.innerWidth - menuWidth - 20);
+    if (posY + menuHeight > window.innerHeight) posY = Math.max(10, window.innerHeight - menuHeight - 20);
+
+    menu.style.left = posX + 'px';
+    menu.style.top = posY + 'px';
+    menu.style.display = 'block';
+
+    renderColumnContextMenu();
+    makeElementDraggable(menu, document.getElementById('columnContextMenuHeader'));
+}
+
+function renderColumnContextMenu() {
+    const container = document.getElementById('columnToggles');
+    if (!container) return;
+    container.innerHTML = '';
+
+    window.colOrder.forEach((origIdx, index) => {
+        const col = window.colConfigs[origIdx] || { name: 'عمود ' + origIdx, alias: 'عمود ' + origIdx, visible: true };
+        const item = document.createElement('div');
+        item.className = 'col-config-item';
+        item.draggable = true;
+        item.dataset.index = index;
+        item.dataset.origIdx = origIdx;
+
+        const currentFs = parseFloat(col.fs) || 1.0;
+
+        item.innerHTML = `
+            <div class="col-config-header">
+                <div class="col-title-wrap">
+                    <span class="col-drag-handle" title="اسحب لأعلى أو لأسفل لترتيب الأهمية">⣿</span>
+                    <span class="col-title" style="color:#e2e8f0; font-weight:800;">${col.alias || col.name}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button class="col-settings-btn" onclick="toggleColSettingsCtx(${index})">⚙️ تخصيص</button>
+                    <div class="col-toggle ${col.visible !== false ? 'on' : ''}" onclick="toggleColVisibilityCtx(${origIdx}, this)" title="إظهار / إخفاء العمود"></div>
+                </div>
+            </div>
+            <div class="col-settings-panel" id="col-settings-ctx-${index}">
+                <div class="cfg-row">
+                    <span>مسمى العمود:</span>
+                    <span style="font-weight:bold; color:#38bdf8; font-size:0.85rem; display:flex; align-items:center; gap:4px;">
+                        🔒 ${col.name} (ثابت بالنظام)
+                    </span>
+                </div>
+                <div class="cfg-row">
+                    <span>حجم الخط:</span>
+                    <div style="display:flex; align-items:center; gap:4px;">
+                        <button class="cfg-btn" onclick="adjustFontSize(${origIdx}, -1)">A-</button>
+                        <input type="range" min="0.6" max="3.0" step="0.05" value="${currentFs}" oninput="updateColField(${origIdx}, 'fs', parseFloat(this.value)); document.getElementById('fs-ctx-lbl-${origIdx}').textContent = parseFloat(this.value).toFixed(2) + 'rem';" style="width:75px; cursor:pointer;">
+                        <span id="fs-ctx-lbl-${origIdx}" style="font-size:0.75rem; color:#38bdf8; font-weight:bold; width:45px; text-align:center;">${currentFs.toFixed(2)}rem</span>
+                        <button class="cfg-btn" onclick="adjustFontSize(${origIdx}, 1)">A+</button>
+                        <button class="cfg-btn ${col.bold ? 'active' : ''}" onclick="toggleColBoldCtx(${origIdx}, this)" title="خط بولد عريض" style="font-weight:900;">B (تخين)</button>
+                    </div>
+                </div>
+                <div class="cfg-row">
+                    <span>المحاذاة:</span>
+                    <select class="cfg-input" onchange="updateColField(${origIdx}, 'align', this.value)" style="width:115px;">
+                        <option value="center" ${col.align === 'center' ? 'selected' : ''}>الوسط ↔️</option>
+                        <option value="right" ${col.align === 'right' ? 'selected' : ''}>اليمين ➡️</option>
+                        <option value="left" ${col.align === 'left' ? 'selected' : ''}>اليسار ⬅️</option>
+                    </select>
+                </div>
+                <div class="cfg-row">
+                    <span>ألوان الخط والخلفية:</span>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <span style="font-size:0.75rem; color:#94a3b8;">النص:</span>
+                        <input type="color" class="cfg-input" value="${col.color || '#ffffff'}" onchange="updateColField(${origIdx}, 'color', this.value)">
+                        <span style="font-size:0.75rem; color:#94a3b8; margin-right:4px;">الخلفية:</span>
+                        <input type="color" class="cfg-input" value="${col.bg || '#000000'}" onchange="updateColField(${origIdx}, 'bg', this.value)">
+                    </div>
+                </div>
+                                <div class="cfg-row" style="flex-wrap:wrap; margin-top:8px; border-top:1px dashed rgba(255,255,255,0.1); padding-top:8px;">
+                    <span style="font-weight:bold; color:#38bdf8; width:100%; margin-bottom:4px;">🔢 خصائص وتنسيق الأرقام والكسور:</span>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; width:100%;">
+                        <div>
+                            <span style="font-size:0.7rem; color:#94a3b8; display:block;">رمز الفاصلة الألفية:</span>
+                            <select class="cfg-input" onchange="updateColField(${origIdx}, 'thousandsSep', this.value)" style="width:100%; font-size:0.75rem;">
+                                <option value="," ${(!col.thousandsSep || col.thousandsSep === ',') ? 'selected' : ''}>, (فاصلة عادية)</option>
+                                <option value="." ${col.thousandsSep === '.' ? 'selected' : ''}>. (نقطة)</option>
+                                <option value=" " ${col.thousandsSep === ' ' ? 'selected' : ''}>[مسافة]</option>
+                                <option value="_" ${col.thousandsSep === '_' ? 'selected' : ''}>_ (شرطة)</option>
+                                <option value="'" ${col.thousandsSep === "'" ? 'selected' : ''}>' (اقتباس)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span style="font-size:0.7rem; color:#94a3b8; display:block;">رمز الفاصلة العشرية:</span>
+                            <select class="cfg-input" onchange="updateColField(${origIdx}, 'decSep', this.value)" style="width:100%; font-size:0.75rem;">
+                                <option value="." ${(!col.decSep || col.decSep === '.') ? 'selected' : ''}>. (نقطة)</option>
+                                <option value="," ${col.decSep === ',' ? 'selected' : ''}>, (فاصلة)</option>
+                                <option value="٫" ${col.decSep === '٫' ? 'selected' : ''}>٫ (عربية)</option>
+                                <option value="/" ${col.decSep === '/' ? 'selected' : ''}>/ (شرطة)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span style="font-size:0.7rem; color:#94a3b8; display:block;">عدد الخانات العشرية:</span>
+                            <select class="cfg-input" onchange="updateColField(${origIdx}, 'dec', parseInt(this.value)); updateColField(${origIdx}, 'decimals', parseInt(this.value));" style="width:100%; font-size:0.75rem;">
+                                <option value="0" ${col.dec === 0 || col.decimals === 0 ? 'selected' : ''}>0 (بدون)</option>
+                                <option value="1" ${col.dec === 1 || col.decimals === 1 ? 'selected' : ''}>1 خانة</option>
+                                <option value="2" ${col.dec === 2 || col.decimals === 2 || (col.dec === undefined && col.decimals === undefined) ? 'selected' : ''}>2 خانة</option>
+                                <option value="3" ${col.dec === 3 || col.decimals === 3 ? 'selected' : ''}>3 خانات</option>
+                                <option value="4" ${col.dec === 4 || col.decimals === 4 ? 'selected' : ''}>4 خانات</option>
+                                <option value="5" ${col.dec === 5 || col.decimals === 5 ? 'selected' : ''}>5 خانات</option>
+                                <option value="6" ${col.dec === 6 || col.decimals === 6 ? 'selected' : ''}>6 خانات</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span style="font-size:0.7rem; color:#94a3b8; display:block;">طريقة والتقريب:</span>
+                            <select class="cfg-input" onchange="updateColField(${origIdx}, 'roundMode', this.value)" style="width:100%; font-size:0.75rem;">
+                                <option value="round" ${(!col.roundMode || col.roundMode === 'round') ? 'selected' : ''}>تقريب عادي</option>
+                                <option value="floor" ${col.roundMode === 'floor' ? 'selected' : ''}>تقريب لأسفل</option>
+                                <option value="ceil" ${col.roundMode === 'ceil' ? 'selected' : ''}>تقريب لأعلى</option>
+                                <option value="trunc" ${col.roundMode === 'trunc' ? 'selected' : ''}>قطع الكسر</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        item.addEventListener('dragstart', handleDragStartBalances);
+        item.addEventListener('dragover', handleDragOverBalances);
+        item.addEventListener('drop', handleDropBalances);
+        item.addEventListener('dragenter', handleDragEnterBalances);
+        item.addEventListener('dragleave', handleDragLeaveBalances);
+
+        container.appendChild(item);
+    });
+}
+
+function toggleColSettingsCtx(index) {
+    const p = document.getElementById('col-settings-ctx-' + index);
+    if (p) p.classList.toggle('open');
+}
+function toggleColVisibilityCtx(origIdx, el) {
+    if (window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].visible = !window.colConfigs[origIdx].visible;
+        if (el) el.classList.toggle('on');
+        applyLayoutToDOM();
+    }
+}
+function toggleColBoldCtx(origIdx, el) {
+    if (window.colConfigs && window.colConfigs[origIdx]) {
+        const isBold = !window.colConfigs[origIdx].bold;
+        window.colConfigs[origIdx].bold = isBold;
+        window.colConfigs[origIdx].fontWeight = isBold ? '900' : 'normal';
+        if (el) el.classList.toggle('active', isBold);
+        updateColDOMByOrigIdx(origIdx);
+        applyLayoutToDOM();
+        saveLayout();
+        if (window.lastResults) renderTable(window.lastResults);
+    }
+}
+
+function saveLayoutAndStyles() {
+    saveLayout();
+    applyLayoutToDOM();
+    if (typeof window.runReport === 'function' && window.lastResults) window.runReport();
+    const menu = document.getElementById('columnContextMenu');
+    if (menu) menu.style.display = 'none';
+    if (typeof showToast === 'function') showToast('💾 تم حفظ التخصيصات والترتيب بنجاح', 'success');
+}
+
+function resetLayoutAndStyles() {
+    resetColumnConfig();
+    renderColumnContextMenu();
+}
+
+function toggleMinimizeCtxMenu() {
+    const body = document.getElementById('columnContextMenuBody');
+    if (body) {
+        body.style.display = (body.style.display === 'none') ? 'block' : 'none';
+    }
+}
+
+function toggleMaximizeCtxMenu() {
+    const menu = document.getElementById('columnContextMenu');
+    if (menu) {
+        if (menu.style.width === '90vw') {
+            menu.style.width = '510px';
+            menu.style.height = 'auto';
+            menu.style.top = '100px';
+            menu.style.left = '50%';
+            menu.style.transform = 'translateX(-50%)';
+        } else {
+            menu.style.width = '90vw';
+            menu.style.height = '85vh';
+            menu.style.top = '5vh';
+            menu.style.left = '5vw';
+            menu.style.transform = 'none';
+        }
+    }
+}
+
+function makeElementDraggable(elmnt, headerElmnt) {
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    const handle = headerElmnt || elmnt;
+    handle.onmousedown = dragMouseDown;
+
+    function dragMouseDown(e) {
+        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+        e = e || window.event;
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+        elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+    }
+
+    function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+    }
+}
+
+// Global right-click and auto-open behaviors removed to strictly enforce table header right-click only
+
+
+
+
