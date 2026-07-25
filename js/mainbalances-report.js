@@ -2531,18 +2531,16 @@ function renderVisualAnalytics(results) {
     const indCoveragePct = document.getElementById('ind-coverage-pct');
     const indCoverageBar = document.getElementById('ind-coverage-bar');
 
-    const netPositionUSD = (ledgerExchangeRate > 0) ? (netPosition / ledgerExchangeRate) : netPosition;
-    
     if (indNetVal) {
-        const sdgStr = (Math.abs(netPosition)).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
-        const usdStr = (Math.abs(netPositionUSD)).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ' + (ledgerForeignCurrency || 'USD');
-        
-        indNetVal.innerHTML = `
-            <div style="display:flex; flex-direction:column; gap:4px;">
-                <span style="color:#f8fafc; font-size:1.3rem; font-weight:900;" class="shimmer-text">${sdgStr}</span>
-                <span style="color:#fbbf24; font-size:1.05rem; font-weight:800;" class="gold-shimmer-text">💳 المعادل بالأجنبي: ${usdStr}</span>
-            </div>
-        `;
+        const absVal = Math.abs(netPosition);
+        const sdgText = absVal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+        let usdText = '';
+        if (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0) {
+            const usdVal = (absVal / ledgerExchangeRate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            usdText = `  |  $${usdVal} ${ledgerForeignCurrency || 'USD'}`;
+        }
+        indNetVal.textContent = sdgText + usdText;
+        indNetVal.style.fontSize = '1.02rem';
         if (netPosition >= 0) {
             if (indTrendArrow) indTrendArrow.textContent = '↗️';
             if (indTrendBadge) {
@@ -2619,7 +2617,7 @@ function renderVisualAnalytics(results) {
         const sdg = parseFloat(val).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
         if (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0 && typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency) {
             const fval = (parseFloat(val) / ledgerExchangeRate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            return sdg + '  |  ' + fval + ' ' + ledgerForeignCurrency;
+            return sdg + '  |  $' + fval + ' ' + ledgerForeignCurrency;
         }
         return sdg;
     }
@@ -2628,7 +2626,7 @@ function renderVisualAnalytics(results) {
         const sdg = parseFloat(val).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG';
         if (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0 && typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency) {
             const fval = (parseFloat(val) / ledgerExchangeRate).toLocaleString('en-US', {maximumFractionDigits: 0});
-            return [sdg, fval + ' ' + ledgerForeignCurrency];
+            return [sdg, '$' + fval + ' ' + ledgerForeignCurrency];
         }
         return [sdg];
     }
@@ -2750,6 +2748,9 @@ function renderVisualAnalytics(results) {
             position: 'bottom',
             fontSize: '12px',
             labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' }
+        },
+        tooltip: {
+            y: { formatter: formatDualCurrencyLine }
         },
         theme: { mode: chartThemeMode }
     };
@@ -2887,16 +2888,18 @@ function renderVisualAnalytics(results) {
                 dataLabels: {
                     name: {
                         show: true,
-                        fontSize: '14px',
+                        fontSize: '13px',
                         color: isLightTheme ? '#64748b' : '#94a3b8',
                         offsetY: -10
                     },
                     value: {
-                        offsetY: -50,
-                        fontSize: '24px',
+                        offsetY: -45,
+                        fontSize: '18px',
                         fontWeight: '900',
                         color: isLightTheme ? '#0f172a' : '#f8fafc',
-                        formatter: function (val) { return val + "%"; }
+                        formatter: function (val) {
+                            return val + "% (" + formatDualCurrencyLine(netPosition) + ")";
+                        }
                     }
                 }
             }
@@ -2947,6 +2950,7 @@ function renderVisualAnalytics(results) {
         },
         dataLabels: { enabled: false },
         legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
         theme: { mode: chartThemeMode }
     };
     try { if (window.chartHollowDonutCreditors) window.chartHollowDonutCreditors.destroy(); } catch(e){}
@@ -3035,7 +3039,17 @@ function renderVisualAnalytics(results) {
         stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
         legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
         dataLabels: { enabled: true, style: { fontSize: '12px', fontFamily: 'Tajawal, sans-serif', fontWeight: 'bold' } },
-        tooltip: { y: { formatter: v => v + ' حساب' } },
+        tooltip: {
+            y: {
+                formatter: function(val, opts) {
+                    let sumVal = 0;
+                    if (opts.seriesIndex === 0) sumVal = totalDebit;
+                    else if (opts.seriesIndex === 1) sumVal = totalCredit;
+                    else sumVal = 0;
+                    return val + ' حساب  |  ' + formatDualCurrencyLine(sumVal);
+                }
+            }
+        },
         theme: { mode: chartThemeMode }
     };
     try { if (chartSolidPieActiveZero) chartSolidPieActiveZero.destroy(); } catch(e){}
@@ -3056,7 +3070,7 @@ function renderVisualAnalytics(results) {
             radialBar: {
                 dataLabels: {
                     name: { fontSize: '14px', color: isLightTheme ? '#64748b' : '#94a3b8' },
-                    value: { fontSize: '16px', fontWeight: '800', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + '%' },
+                    value: { fontSize: '15px', fontWeight: '800', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + '%' },
                     total: { show: true, label: 'نسب الأرصدة', color: isLightTheme ? '#0f172a' : '#cbd5e1', formatter: () => debtorsPct + '%' }
                 },
                 track: { background: isLightTheme ? '#e2e8f0' : '#1e293b' }
@@ -3064,6 +3078,18 @@ function renderVisualAnalytics(results) {
         },
         colors: ['#10b981', '#f43f5e', '#38bdf8'],
         labels: ['حصة العملاء', 'حصة الموردين', 'حصة الخزينة والبنوك'],
+        tooltip: {
+            enabled: true,
+            y: {
+                formatter: function(val, opts) {
+                    let sumVal = 0;
+                    if (opts.seriesIndex === 0) sumVal = categorySums['CUST'].debit;
+                    else if (opts.seriesIndex === 1) sumVal = categorySums['SUPP'].credit;
+                    else if (opts.seriesIndex === 2) sumVal = (categorySums['BANK'].debit + categorySums['SAFE'].debit);
+                    return val + '%  |  ' + formatDualCurrencyLine(sumVal);
+                }
+            }
+        },
         theme: { mode: chartThemeMode }
     };
     try { if (chartMultiRadialRings) chartMultiRadialRings.destroy(); } catch(e){}
