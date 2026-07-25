@@ -1907,7 +1907,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'analytics.php': 'reports',
             'financial-reports.php': 'reports',
             'balances-report.php': 'reports',
-            'statement.php': 'reports',
+
             'settings.php': 'settings',
             'users-roles.php': 'settings',
             'audit-log.php': 'settings',

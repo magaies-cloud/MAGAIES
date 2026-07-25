@@ -602,7 +602,7 @@ function openPartnerStatement() {
         showToast('يرجى اختيار العميل أولاً لعرض كشف الحساب', 'warning');
         return;
     }
-    window.open('statement.php?partnerId=' + accId, '_blank');
+    window.open('account-statement.php?partnerId=' + accId, '_blank');
 }
 
 function showSuccessModal(title, subtitle) {

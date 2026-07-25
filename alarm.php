@@ -475,7 +475,7 @@ function renderOverdue() {
                 <span class="alarm-badge ${isLate?'badge-red':'badge-yellow'}">${dayLabel}</span>
             </div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
-                <a data-href="statement.php" onclick="window.location.href='statement.php'" class="alarm-action ${isLate?'red':'yellow'}">كشف حساب</a>
+
             </div>
         </div>`;
     }).join('');
