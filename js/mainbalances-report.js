@@ -584,11 +584,12 @@ function runReport() {
     // Calculate for each partner sequentially to match SGL ledger
     ALL_PARTNERS.forEach(p => {
         let runningBal = p.openingDebit - p.openingCredit;
-        let runningBalForeign = (p.openingDebit / p.exRate) - (p.openingCredit / p.exRate);
+        const safeExRate = (p.exRate && p.exRate !== 0) ? p.exRate : 1;
+        let runningBalForeign = (p.openingDebit / safeExRate) - (p.openingCredit / safeExRate);
         
         // Filter transactions for this partner using type-prefixed IDs to avoid ID collisions
         let pRef = String(p.id);
-        if (!pRef.includes('-')) {
+        if (!pRef.startsWith('cust-') && !pRef.startsWith('supp-') && !pRef.startsWith('bank-') && !pRef.startsWith('safe-') && !pRef.startsWith('exp-')) {
             if (p.type === 'CUST') pRef = 'cust-' + p.id;
             else if (p.type === 'SUPP') pRef = 'supp-' + p.id;
             else if (p.type === 'BANK') pRef = 'bank-' + p.id;
@@ -610,7 +611,7 @@ function runReport() {
         });
 
         partnerTxns.forEach(t => {
-            const exRate = t.exchangeRate || 1;
+            const exRate = (t.exchangeRate && t.exchangeRate !== 0) ? t.exchangeRate : 1;
             const debF = t.debitForeign || (t.debit / exRate);
             const credF = t.creditForeign || (t.credit / exRate);
             
@@ -623,19 +624,17 @@ function runReport() {
             }
         });
 
+        // Local balance: determined by its own sign
         if (runningBal > 0) {
             p.endingDebitLocal = runningBal;
-            p.endingDebitForeign = runningBalForeign;
         } else if (runningBal < 0) {
             p.endingCreditLocal = Math.abs(runningBal);
+        }
+        // Foreign balance: determined independently by its own sign
+        if (runningBalForeign > 0) {
+            p.endingDebitForeign = runningBalForeign;
+        } else if (runningBalForeign < 0) {
             p.endingCreditForeign = Math.abs(runningBalForeign);
-        } else {
-            // runningBal === 0
-            if (runningBalForeign > 0) {
-                p.endingDebitForeign = runningBalForeign;
-            } else if (runningBalForeign < 0) {
-                p.endingCreditForeign = Math.abs(runningBalForeign);
-            }
         }
     });
 

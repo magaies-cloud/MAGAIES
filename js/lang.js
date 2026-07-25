@@ -418,7 +418,6 @@
             const key = el.getAttribute('data-i18n');
             const entry = translations[key];
             if (entry) {
-                // Handle different element types
                 if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
                     if (el.getAttribute('placeholder')) {
                         el.setAttribute('placeholder', entry[lang] || entry['ar']);
@@ -460,6 +459,329 @@
                 document.title = entry[lang] || entry['ar'];
             }
         }
+
+        // Run the dynamic Arabic -> English DOM replacement engine if language is English
+        if (lang === 'en') {
+            autoTranslatePage();
+        }
+    }
+
+    /** Walk DOM and translate all Arabic elements dynamically */
+    function autoTranslatePage() {
+        const dict = {
+            // Sidebar / Nav
+            'لوحة التحكم': 'Dashboard',
+            'المبيعات': 'Sales',
+            'المبيعات المباشرة': 'Direct Sales',
+            'المشتريات': 'Purchases',
+            'المخازن': 'Inventory',
+            'تقارير المخزون والجرد': 'Inventory & Stock Reports',
+            'المعاملات المالية': 'Financial Transactions',
+            'البيانات الأساسية': 'Master Data',
+            'تقارير مالية': 'Financial Reports',
+            'التنبيهات': 'Alerts',
+            'الإعدادات': 'Settings',
+            'أدوات مساعدة': 'Helper Tools',
+            'الصندوق الأسود': 'Audit Log',
+            'خروج': 'Logout',
+            'مقاييس (MAGAIEES)': 'MAGAIEES (ERP)',
+            'نظام إدارة الأعمال': 'Business Management System',
+            'متصل الآن:': 'Online Now:',
+            'سعر الصرف:': 'Exchange Rate:',
+            'توسيع الشاشة': 'Toggle Fullscreen',
+            'تبديل المظهر': 'Toggle Theme',
+            'رجوع': 'Back',
+            'تحديث': 'Refresh',
+
+            // Common labels
+            'الاسم': 'Name',
+            'النوع': 'Type',
+            'رقم الهاتف': 'Phone Number',
+            'رقم السجل التجاري': 'CR Number',
+            'الرقم الضريبي': 'Tax Number',
+            'حفظ': 'Save',
+            'إلغاء': 'Cancel',
+            'حذف': 'Delete',
+            'تعديل': 'Edit',
+            'عرض': 'View',
+            'إضافة': 'Add',
+            'بحث': 'Search',
+            'الكل': 'All',
+            'العملاء': 'Customers',
+            'الموردون': 'Suppliers',
+            'الموظفون': 'Employees',
+            'التفاصيل': 'Details',
+            'الحالة': 'Status',
+            'التاريخ': 'Date',
+            'العملة': 'Currency',
+            'الإجمالي': 'Total',
+            'المجموع': 'Total',
+            'المجموع الفرعي': 'Subtotal',
+            'الخصم': 'Discount',
+            'الضريبة': 'Tax',
+            'الإجمالي النهائي': 'Grand Total',
+            'المدفوع': 'Paid',
+            'المتبقي': 'Remaining',
+            'ملاحظات': 'Notes',
+            'طباعة': 'Print',
+            'تصدير': 'Export',
+            'جاري التحميل...': 'Loading...',
+            'لا توجد بيانات': 'No data found',
+            'نعم': 'Yes',
+            'لا': 'No',
+            'حسناً': 'OK',
+            'تأكيد': 'Confirm',
+            'تم الحفظ بنجاح': 'Saved successfully',
+            'تمت الإضافة بنجاح': 'Added successfully',
+            'قيمة الضريبة': 'Tax Amount',
+            'الخصم الإضافي': 'Additional Discount',
+            'تكلفة العمل': 'Labor Cost',
+            'تكلفة النقل': 'Transport Cost',
+            'المبلغ المدفوع': 'Paid Amount',
+            'ملاحظات الفاتورة': 'Invoice Notes',
+            'حفظ الفاتورة': 'Save Invoice',
+            'طباعة الفاتورة': 'Print Invoice',
+
+            // Settings Screen
+            'بيانات الشركة': 'Company Data',
+            'المالية والضرائب': 'Finance & Tax',
+            'قواعد المخازن': 'Warehouse Rules',
+            'إعدادات الطباعة': 'Print Settings',
+            'إعدادات البريد SMTP': 'SMTP Settings',
+            'ربط الواتساب': 'WhatsApp Integration',
+            'المخدمين': 'Servers',
+            'اللغة والواجهة': 'Language & Interface',
+            'النظام والنسخ': 'System & Backup',
+            'اللغة': 'Language',
+            'اختر لغة واجهة النظام': 'Select interface language',
+            'واجهة المستخدم والمظهر': 'User Interface & Appearance',
+            'حجم الخط الرئيسي للنظام (Font Size)': 'Main System Font Size',
+            'صغير جداً (14px)': 'Very Small (14px)',
+            'متوسط (16px - افتراضي)': 'Medium (16px - Default)',
+            'كبير (18px)': 'Large (18px)',
+            'كبير جداً (20px)': 'Very Large (20px)',
+            'تفعيل الوضع التلقائي الغامق': 'Enable Auto Dark Mode',
+            'إظهار الأشكال في الترويسة العليا': 'Show Shapes in Top Header',
+            'مدة تسجيل الخروج التلقائي عند عدم النشاط': 'Auto Logout on Inactivity',
+            'بدون (معطل)': 'None (Disabled)',
+            '30 ثانية': '30 Seconds',
+            '1 دقيقة': '1 Minute',
+            '5 دقائق': '5 Minutes',
+            '10 دقائق': '10 Minutes',
+            '30 دقيقة': '30 Minutes',
+            'بيانات الشركة الأساسية': 'Basic Company Data',
+            'اسم الشركة / المحل': 'Company / Store Name',
+            'البريد الإلكتروني': 'Email Address',
+            'عنوان الشركة': 'Company Address',
+            'شعار الشركة': 'Company Logo',
+            'رفع شعار جديد': 'Upload New Logo',
+            'حفظ بيانات الشركة': 'Save Company Data',
+            'العملة الرئيسية': 'Main Currency',
+            'العملة الثانوية (اختياري)': 'Secondary Currency (Optional)',
+            'سعر صرف العملة الثانوية': 'Secondary Exchange Rate',
+            'نسبة ضريبة القيمة المضافة (%)': 'VAT Rate (%)',
+            'الأسعار شاملة الضريبة افتراضياً': 'Prices Include Tax by Default',
+            'تفعيل الضريبة على الفواتير': 'Enable Tax on Invoices',
+            'حفظ إعدادات المالية': 'Save Finance Settings',
+            'السماح بالبيع بالسالب (تجاوز رصيد المخزون)': 'Allow Negative Stock',
+            'تنزيل نسخة احتياطية للبيانات': 'Download Data Backup',
+            'استعادة من ملف احتياطي سابق': 'Restore from Backup',
+            'منطقة الخطر': 'Danger Zone',
+            'تصفير بيانات النظام': 'Reset System Data',
+
+            // Partners Screen
+            'إضافة شريك جديد': 'Add New Partner',
+            'حفظ الشريك': 'Save Partner',
+            'عميل (مبيعات)': 'Customer (Sales)',
+            'مورد (مشتريات/مصروفات)': 'Supplier (Purchases/Expenses)',
+            'موظف': 'Employee',
+            'العملاء': 'Customers',
+            'الموردون': 'Suppliers',
+            'الرصيد:': 'Balance:',
+            'إجمالي:': 'Total:',
+            'شريك': 'Partner',
+            'تعديل الاسم:': 'Edit Name:',
+            'تعديل رقم الهاتف:': 'Edit Phone:',
+            'هل تريد حذف هذا الشريك نهائياً؟': 'Are you sure you want to delete this partner permanently?',
+            'يوجد شريك بنفس الاسم بالفعل!': 'A partner with this name already exists!',
+            'الاسم لا يمكن أن يكون فارغاً': 'Name cannot be empty',
+            '📱 لا يوجد هاتف': '📱 No phone number',
+            'عميل': 'Customer',
+            'مورد': 'Supplier',
+            'الرصيد': 'Balance',
+            
+            // Warehouse & Transfers
+            'تحويلات المستودعات': 'Warehouse Transfers',
+            'تحويل جديد بين المستودعات': 'New Warehouse Transfer',
+            'من المستودع': 'From Warehouse',
+            'إلى المستودع': 'To Warehouse',
+            'رقم المرجع': 'Reference No.',
+            'تأكيد تحويل المخزون': 'Confirm Stock Transfer',
+            'سجل التحويلات السابقة': 'Previous Transfers Log',
+            'الصنف': 'Item',
+            'المتاح': 'Available',
+            'الكمية المحولة': 'Transferred Qty',
+            '-- اختر المستودع --': '-- Select Warehouse --',
+            '-- اختر الصنف --': '-- Select Item --',
+            'إضافة صنف': 'Add Item',
+            'الكمية الإجمالية': 'Total Qty',
+            'صنف': 'Item',
+            'مستودع': 'Warehouse',
+            'تأكيد عملية التحويل': 'Confirm Stock Transfer',
+            
+            // Purchases & Sales Invoices
+            'فاتورة جديدة': 'New Invoice',
+            'فاتورة مشتريات': 'Purchase Invoice',
+            'استلام بضاعة': 'Receive Goods',
+            'استرداد بضاعة': 'Return Goods',
+            'عمل الفاتورة': 'Create Invoice',
+            'بحث عن صنف...': 'Search for item...',
+            'العميل': 'Customer',
+            'المورد': 'Supplier',
+            'اختر العميل': 'Select Customer',
+            'اختر المورد': 'Select Supplier',
+            'عميل نقدي': 'Cash Customer',
+            'مورد نقدي': 'Cash Supplier',
+            'تاريخ الفاتورة': 'Invoice Date',
+            'نقدي': 'Cash',
+            'آجل': 'Credit',
+            'تحويل بنكي': 'Bank Transfer',
+            'شيك': 'Cheque',
+            'كود الصنف': 'Item Code',
+            'اسم الصنف': 'Item Name',
+            'الكمية': 'Quantity',
+            'السعر': 'Price',
+            'الخصم': 'Discount',
+            'الضريبة': 'Tax',
+            
+            // Financial Hub & Vouchers
+            'مركز المعاملات المالية': 'Financial Hub',
+            'سند قبض مفرد': 'Single Receipt',
+            'سند صرف مفرد': 'Single Payment',
+            'سند صرف متعدد': 'Multi Payment',
+            'سند قبض شامل': 'Comprehensive Receipt',
+            'سند صرف شامل': 'Comprehensive Payment',
+            'تحويل بنكي': 'Bank Transfer',
+            'تحويل خزنة': 'Safe Transfer',
+            'إدارة الشيكات': 'Check Management',
+            'كشف الرواتب': 'Payroll',
+            'من حساب': 'From Account',
+            'إلى حساب': 'To Account',
+            'المبلغ': 'Amount',
+            'البيان': 'Description',
+            'تاريخ التحويل': 'Transfer Date',
+            'رقم العملية / الشيك / التحويلة': 'Ref / Cheque / Transfer No.',
+            'تأكيد عملية التحويل البنكي': 'Confirm Bank Transfer',
+            'تأكيد عملية التحويل بين الخزن': 'Confirm Safe Transfer',
+            'البيان / الملاحظات': 'Description / Notes',
+            'ابحث عن البنك المحول منه...': 'Search source bank...',
+            'ابحث عن البنك المحول إليه...': 'Search destination bank...',
+            'ابحث عن الخزنة المحول منها...': 'Search source safe...',
+            'ابحث عن الخزنة المحول إليها...': 'Search destination safe...',
+            
+            // Reports Hub
+            'دفتر الأستاذ العام': 'General Ledger',
+            'ميزان المراجعة': 'Trial Balance',
+            'الأرباح والخسائر': 'Profit & Loss',
+            'الميزانية العمومية': 'Balance Sheet',
+            'كشف حساب': 'Account Statement',
+            'تقرير أعمار الديون': 'Aging Report',
+            'التدفقات النقدية': 'Cash Flow',
+            'ترحيل الحسابات': 'Post Accounts',
+            'حسابات الأرصدة': 'Balance Accounts',
+            'التقارير والقوائم': 'Reports & Lists',
+            'المحلل المالي الذكي': 'Smart Financial Analyst',
+            'مستشار AI للأموال': 'AI Money Advisor',
+            'بوابة الزكاة': 'Zakat Portal',
+            
+            // Inventory & Analytics
+            'جرد المخازن': 'Stock Taking',
+            'الجرد العام': 'General Inventory',
+            'منخفض الحركة': 'Slow Moving Items',
+            'تحليل الاستراتيجي': 'Strategic Analysis',
+            'حركة المخزون': 'Stock Movement',
+            'معدل الدوران': 'Turnover Rate',
+            'تقرير الجرد الذكي': 'Smart Inventory Report',
+            'كشف حركة مخزن': 'Warehouse Movement Log',
+
+            // Table headers & standard terms
+            'اسم الحساب': 'Account Name',
+            'عليه عملة': 'Debit (Foreign)',
+            'له عملة': 'Credit (Foreign)',
+            'ملحوظة': 'Note',
+            'مدين': 'Debit',
+            'دائن': 'Credit',
+            'الرمز': 'Code',
+            'الاسم العربي': 'Arabic Name',
+            'الاسم الإنجليزي': 'English Name',
+            'المجموعة': 'Group',
+            'الرصيد الافتتاحي': 'Opening Balance',
+            'الرصيد الحالي': 'Current Balance',
+            'العمليات': 'Actions',
+            'سعر التكلفة': 'Cost Price',
+            'المستودع الافتراضي': 'Default Warehouse',
+            'رقم العملية': 'Transaction No.',
+            'الوصف / البيان': 'Description',
+            'نوع المستند': 'Doc Type',
+            'الرقم': 'No.',
+            'سند قبض': 'Receipt Voucher',
+            'سند صرف': 'Payment Voucher',
+            'قيد يومية': 'Journal Entry',
+            'تحويل بنكي': 'Bank Transfer',
+            'تحويل خزنة': 'Safe Transfer'
+        };
+
+        function translateText(text) {
+            const trimmed = text.trim();
+            if (!trimmed) return null;
+            if (dict[trimmed]) return dict[trimmed];
+            return null;
+        }
+
+        function walkDOM(node) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                const translation = translateText(node.nodeValue);
+                if (translation !== null) {
+                    const leadingSpace = node.nodeValue.match(/^\s*/)[0];
+                    const trailingSpace = node.nodeValue.match(/\s*$/)[0];
+                    node.nodeValue = leadingSpace + translation + trailingSpace;
+                }
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+                const tag = node.tagName.toLowerCase();
+                if (tag !== 'script' && tag !== 'style') {
+                    if (node.hasAttribute('placeholder')) {
+                        const placeholder = node.getAttribute('placeholder');
+                        const translation = translateText(placeholder);
+                        if (translation !== null) {
+                            node.setAttribute('placeholder', translation);
+                        }
+                    }
+                    if (node.tagName === 'INPUT' && (node.type === 'button' || node.type === 'submit')) {
+                        const val = node.value;
+                        const translation = translateText(val);
+                        if (translation !== null) {
+                            node.value = translation;
+                        }
+                    }
+                    for (let i = 0; i < node.childNodes.length; i++) {
+                        walkDOM(node.childNodes[i]);
+                    }
+                }
+            }
+        }
+
+        walkDOM(document.body);
+
+        const observer = new MutationObserver((mutations) => {
+            observer.disconnect();
+            mutations.forEach(mutation => {
+                mutation.addedNodes.forEach(node => {
+                    walkDOM(node);
+                });
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
     }
 
     // ─── Auto-initialize on page load ─────────────────────────

@@ -234,13 +234,89 @@
 
         document.getElementById('t-date').valueAsDate = new Date();
         function confirmTransfer() {
-            const amt = document.getElementById('t-amount').value;
-            const from = document.getElementById('t-from').value;
-            const to = document.getElementById('t-to').value;
-            if(!amt || amt <= 0) return alert('الرجاء إدخال مبلغ صحيح');
-            if(from === to) return alert('لا يمكن التحويل لنفس الخزنة');
-            alert('تم تأكيد التحويل بنجاح!');
-            window.location.href='vouchers-hub.php';
+            const fromId = document.getElementById('t-from').value;
+            const toId = document.getElementById('t-to').value;
+            const amt = parseFloat(document.getElementById('t-amount').value);
+            const date = document.getElementById('t-date').value;
+            const notes = document.getElementById('t-notes').value;
+
+            if (!fromId) return alert('الرجاء اختيار الخزنة المحول منها');
+            if (!toId) return alert('الرجاء اختيار الخزنة المحول إليها');
+            if (fromId === toId) return alert('لا يمكن التحويل لنفس الخزنة');
+            if (!amt || amt <= 0 || isNaN(amt)) return alert('الرجاء إدخال مبلغ صحيح');
+
+            try {
+                // 1. Update safe balances in localStorage
+                const safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
+                const fromSafe = safes.find(s => String(s.id) === String(fromId));
+                const toSafe = safes.find(s => String(s.id) === String(toId));
+
+                if (!fromSafe) return alert('خطأ: الخزنة المحول منها غير موجودة');
+                if (!toSafe) return alert('خطأ: الخزنة المحول إليها غير موجودة');
+
+                const fromBal = parseFloat(fromSafe.currentBalance || 0);
+                if (fromBal < amt) {
+                    if (!confirm(`⚠️ تحذير: رصيد الخزنة (${fromBal.toLocaleString()}) أقل من مبلغ التحويل (${amt.toLocaleString()}). هل تريد المتابعة؟`)) return;
+                }
+
+                // Debit from source, Credit to destination
+                fromSafe.currentBalance = fromBal - amt;
+                toSafe.currentBalance = parseFloat(toSafe.currentBalance || 0) + amt;
+
+                localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
+
+                // 2. Create transfer record for audit trail
+                const transfers = JSON.parse(localStorage.getItem('erp_safe_transfers_v1')) || [];
+                transfers.push({
+                    id: 'st-' + Date.now(),
+                    fromAccount: 'safe-' + fromId,
+                    toAccount: 'safe-' + toId,
+                    fromName: fromSafe.name || fromSafe.safeName,
+                    toName: toSafe.name || toSafe.safeName,
+                    amountLocal: amt,
+                    date: date,
+                    time: new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}),
+                    notes: notes,
+                    type: 'SAFE_TRANSFER',
+                    createdAt: new Date().toISOString()
+                });
+                localStorage.setItem('erp_safe_transfers_v1', JSON.stringify(transfers));
+
+                // 3. Create matching single receipt entries for the ledger
+                const receipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+                receipts.push({
+                    id: 'sr-st-' + Date.now(),
+                    fromAccount: 'safe-' + fromId,
+                    toAccount: 'safe-' + toId,
+                    amountLocal: amt,
+                    date: date,
+                    time: new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}),
+                    description: 'تحويل بين خزن: ' + (fromSafe.name || fromSafe.safeName) + ' ← ' + (toSafe.name || toSafe.safeName),
+                    notes: notes,
+                    isPosted: true,
+                    type: 'SAFE_TRANSFER'
+                });
+                localStorage.setItem('erp_single_receipts_v1', JSON.stringify(receipts));
+
+                // 4. Sync to DB if available
+                if (window.saveToDB) {
+                    window.saveToDB('safes', safes);
+                    window.saveToDB('single_receipts', receipts);
+                }
+
+                // 5. Update UI
+                ACCOUNTS = safes.filter(x => !x.deleted).map(x => ({
+                    id: x.id,
+                    name: x.name || x.safeName || x.bankName,
+                    balance: parseFloat(x.currentBalance || 0)
+                }));
+
+                alert('✅ تم تأكيد التحويل بين الخزن بنجاح!\n\nمن: ' + (fromSafe.name || fromSafe.safeName) + '\nإلى: ' + (toSafe.name || toSafe.safeName) + '\nالمبلغ: ' + amt.toLocaleString());
+                window.location.href = 'vouchers-hub.php';
+            } catch(e) {
+                alert('❌ خطأ في عملية التحويل: ' + e.message);
+                console.error('Safe Transfer Error:', e);
+            }
         }
     </script>
 </body>

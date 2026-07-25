@@ -238,12 +238,92 @@
 
         document.getElementById('t-date').valueAsDate = new Date();
         function confirmTransfer() {
-            const amt = document.getElementById('t-amount').value;
+            const fromId = document.getElementById('t-from').value;
+            const toId = document.getElementById('t-to').value;
+            const amt = parseFloat(document.getElementById('t-amount').value);
             const ref = document.getElementById('t-ref').value;
-            if(!amt || amt <= 0) return alert('الرجاء إدخال مبلغ صحيح');
-            if(!ref) return alert('الرجاء إدخال رقم العملية أو الشيك');
-            alert('تم تأكيد التحويل بنجاح!');
-            window.location.href='vouchers-hub.php';
+            const date = document.getElementById('t-date').value;
+            const notes = document.getElementById('t-notes').value;
+
+            if (!fromId) return alert('الرجاء اختيار البنك المحول منه');
+            if (!toId) return alert('الرجاء اختيار البنك المحول إليه');
+            if (fromId === toId) return alert('لا يمكن التحويل لنفس البنك');
+            if (!amt || amt <= 0 || isNaN(amt)) return alert('الرجاء إدخال مبلغ صحيح');
+            if (!ref) return alert('الرجاء إدخال رقم العملية أو الشيك');
+
+            // 1. Update bank balances in localStorage
+            try {
+                const banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+                const fromBank = banks.find(b => String(b.id) === String(fromId));
+                const toBank = banks.find(b => String(b.id) === String(toId));
+
+                if (!fromBank) return alert('خطأ: البنك المحول منه غير موجود');
+                if (!toBank) return alert('خطأ: البنك المحول إليه غير موجود');
+
+                const fromBal = parseFloat(fromBank.currentBalance || 0);
+                if (fromBal < amt) {
+                    if (!confirm(`⚠️ تحذير: رصيد البنك (${fromBal.toLocaleString()}) أقل من مبلغ التحويل (${amt.toLocaleString()}). هل تريد المتابعة؟`)) return;
+                }
+
+                // Debit from source, Credit to destination
+                fromBank.currentBalance = fromBal - amt;
+                toBank.currentBalance = parseFloat(toBank.currentBalance || 0) + amt;
+
+                localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+
+                // 2. Create transfer record for audit trail
+                const transfers = JSON.parse(localStorage.getItem('erp_bank_transfers_v1')) || [];
+                transfers.push({
+                    id: 'bt-' + Date.now(),
+                    fromAccount: 'bank-' + fromId,
+                    toAccount: 'bank-' + toId,
+                    fromName: fromBank.name || fromBank.bankName,
+                    toName: toBank.name || toBank.bankName,
+                    amountLocal: amt,
+                    date: date,
+                    time: new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}),
+                    reference: ref,
+                    notes: notes,
+                    type: 'BANK_TRANSFER',
+                    createdAt: new Date().toISOString()
+                });
+                localStorage.setItem('erp_bank_transfers_v1', JSON.stringify(transfers));
+
+                // 3. Create matching single receipt entries for the ledger
+                const receipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+                receipts.push({
+                    id: 'sr-bt-' + Date.now(),
+                    fromAccount: 'bank-' + fromId,
+                    toAccount: 'bank-' + toId,
+                    amountLocal: amt,
+                    date: date,
+                    time: new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}),
+                    description: 'تحويل بنكي: ' + (fromBank.name || fromBank.bankName) + ' ← ' + (toBank.name || toBank.bankName) + ' | مرجع: ' + ref,
+                    notes: notes,
+                    isPosted: true,
+                    type: 'BANK_TRANSFER'
+                });
+                localStorage.setItem('erp_single_receipts_v1', JSON.stringify(receipts));
+
+                // 4. Sync to DB if available
+                if (window.saveToDB) {
+                    window.saveToDB('banks', banks);
+                    window.saveToDB('single_receipts', receipts);
+                }
+
+                // 5. Update UI
+                ACCOUNTS = banks.filter(x => !x.deleted).map(x => ({
+                    id: x.id,
+                    name: x.name || x.safeName || x.bankName,
+                    balance: parseFloat(x.currentBalance || 0)
+                }));
+
+                alert('✅ تم تأكيد التحويل البنكي بنجاح!\n\nمن: ' + (fromBank.name || fromBank.bankName) + '\nإلى: ' + (toBank.name || toBank.bankName) + '\nالمبلغ: ' + amt.toLocaleString());
+                window.location.href = 'vouchers-hub.php';
+            } catch(e) {
+                alert('❌ خطأ في عملية التحويل: ' + e.message);
+                console.error('Bank Transfer Error:', e);
+            }
         }
     </script>
 </body>

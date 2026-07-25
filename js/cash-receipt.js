@@ -149,7 +149,7 @@ function calcTotals() {
     let totalAED = 0;
 
     rows.forEach(id => {
-        const amt = parseNum(document.getElementById(`amt-${id}`).value);
+        const amt = Math.abs(parseNum(document.getElementById(`amt-${id}`).value));
         const eqAmt = parseNum(document.getElementById(`eq-amt-${id}`).value);
         const curr = document.getElementById(`curr-${id}`).value;
         
@@ -337,6 +337,10 @@ function submitVoucher() {
     rows.forEach(id => {
         const accId = document.getElementById(`acc-${id}`).value;
         const amt = parseNum(document.getElementById(`amt-${id}`).value);
+        if (amt < 0) {
+            showToast("لا يمكن إدخال مبالغ سالبة في سند القبض", "error");
+            return;
+        }
         if (amt > 0) {
             if(!accId) hasEmptyAccounts = true;
             details.push({

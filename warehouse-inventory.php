@@ -512,16 +512,21 @@
                 reservedStockMap[key] = 0;
             });
 
-            // 1. ADD Purchases (Inward)
+            // 1. ADD Purchases (Inward) — SUBTRACT if Return
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
             purchases = purchases.filter(x => !x.deleted);
             purchases.forEach(inv => {
                 let whName = getWarehouseName(inv.warehouseId || inv.warehouse);
+                const isReturn = inv.isReturn === true;
                 (inv.items || inv.lines || []).forEach(line => {
                     let key = (line.itemId || line.productId) + '|' + whName;
                     let item = items.find(i => i.id === (line.itemId || line.productId));
                     let baseQty = line.customBaseQty !== undefined ? line.customBaseQty : ((parseFloat(line.quantity) || 0) * (line.customFactor || 1) * (item ? (item.conversionFactor || 1) : 1));
-                    actualStockMap[key] = (actualStockMap[key] || 0) + baseQty;
+                    if (isReturn) {
+                        actualStockMap[key] = (actualStockMap[key] || 0) - baseQty;
+                    } else {
+                        actualStockMap[key] = (actualStockMap[key] || 0) + baseQty;
+                    }
                 });
             });
 

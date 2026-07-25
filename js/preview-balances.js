@@ -865,7 +865,9 @@ function formatCustomNumber(val, conf) {
     let decPart = parts[1] || '';
 
     const sep = conf.thousandSep !== undefined ? conf.thousandSep : ',';
-    intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, sep);
+    if (sep && sep !== 'none') {
+        intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, sep);
+    }
 
     if (dec > 0 && conf.showDecSep !== false) {
         return intPart + '.' + decPart;

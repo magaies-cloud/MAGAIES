@@ -310,6 +310,7 @@ $header_theme_class = "header-theme-inventory";
 
             // 1. Process Purchases
             purchases.forEach(inv => {
+                const isReturn = inv.isReturn === true;
                 let invDate = new Date(inv.date || inv.invoiceDate || inv.createdAt);
                 let whName = getWarehouseName(inv.warehouseId || inv.warehouse);
                 
@@ -321,11 +322,21 @@ $header_theme_class = "header-theme-inventory";
                     let baseQty = line.customBaseQty !== undefined ? line.customBaseQty : ((parseFloat(line.quantity) || 0) * (line.customFactor || 1) * (item ? (item.conversionFactor || 1) : 1));
                     
                     if (invDate < startDate) {
-                        summaryMap[key].opening += baseQty;
-                        summaryMap[key].closing += baseQty;
+                        if (isReturn) {
+                            summaryMap[key].opening -= baseQty;
+                            summaryMap[key].closing -= baseQty;
+                        } else {
+                            summaryMap[key].opening += baseQty;
+                            summaryMap[key].closing += baseQty;
+                        }
                     } else if (invDate >= startDate && invDate <= endDate) {
-                        summaryMap[key].inward += baseQty;
-                        summaryMap[key].closing += baseQty;
+                        if (isReturn) {
+                            summaryMap[key].inward -= baseQty;
+                            summaryMap[key].closing -= baseQty;
+                        } else {
+                            summaryMap[key].inward += baseQty;
+                            summaryMap[key].closing += baseQty;
+                        }
                     }
                 });
             });

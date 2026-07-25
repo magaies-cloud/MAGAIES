@@ -599,7 +599,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         </div>
 
         <!-- TAB: GLOBAL PAYMENTS -->
-        <div id="tab-global-payments" class="tab-content" style="display:none;">
+        <div id="tab-global-payments" class="tab-content">
             <div class="glass-panel">
                 <div class="flex-between" style="margin-bottom: 20px;">
                     <h3>سجل المدفوعات والفواتير (جميع الشركات)</h3>

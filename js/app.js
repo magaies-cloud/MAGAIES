@@ -1890,6 +1890,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'inventory.php': 'inventory',
             'item-ledger.php': 'inventory',
             'warehouse-ledger.php': 'inventory',
+            'warehouse-transfer.php': 'inventory',
             'vouchers-hub.php': 'finance',
             'cash-receipt.php': 'finance',
             'cash-payment.php': 'finance',

@@ -1216,6 +1216,19 @@ try {
                 jsonResponse(["error" => "لا يمكن تعديل أو حذف مستند مرحّل أو مدفوع"], 403);
             }
         }
+
+        // 3. Double-Entry Balance Check for Journal Vouchers
+        if ($resource === 'journal_vouchers' && $input && isset($input['lines']) && is_array($input['lines'])) {
+            $totalDebit = 0;
+            $totalCredit = 0;
+            foreach ($input['lines'] as $line) {
+                $totalDebit += floatval($line['debit'] ?? 0);
+                $totalCredit += floatval($line['credit'] ?? 0);
+            }
+            if (abs($totalDebit - $totalCredit) > 0.01) {
+                jsonResponse(["error" => "لا يمكن حفظ القيد: مجموع المدين (" . number_format($totalDebit, 2) . ") لا يساوي مجموع الدائن (" . number_format($totalCredit, 2) . "). يجب أن يكون القيد متوازناً."], 422);
+            }
+        }
     }
 
     switch ($method) {
@@ -1276,6 +1289,16 @@ try {
                 $newData = json_encode($dataArr, JSON_UNESCAPED_UNICODE);
                 $updateStmt = $pdo->prepare("UPDATE `$resource` SET data = :data WHERE tenant_id = :tid AND (id = :id OR JSON_EXTRACT(data, '$.id') = :id_json)");
                 $updateStmt->execute(['data' => $newData, 'tid' => $tenant_id, 'id' => $id, 'id_json' => $id]);
+
+                // Cascading soft-delete: mark associated GL entries as deleted
+                if ($resource === 'journal_vouchers') {
+                    try {
+                        $glStmt = $pdo->prepare("UPDATE `gl_entries` SET data = JSON_SET(data, '$.deleted', true) WHERE tenant_id = :tid AND JSON_EXTRACT(data, '$.voucherId') = :vid");
+                        $glStmt->execute(['tid' => $tenant_id, 'vid' => $id]);
+                    } catch (Exception $glEx) {
+                        error_log('Cascading GL delete warning: ' . $glEx->getMessage());
+                    }
+                }
             }
             jsonResponse(["success" => true, "id" => $id]);
             break;
