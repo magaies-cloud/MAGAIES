@@ -68,9 +68,29 @@ class TenantController {
 
         // GET all tenants (only when no sub-action like /delete)
         if ($method === 'GET' && $action === 'tenants' && !isset($requestUri[$base_index + 3])) {
+            $limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 50;
+            $offset = isset($_GET['offset']) ? max(0, (int)$_GET['offset']) : 0;
+            $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+            
+            $whereClause = "";
+            $params = [];
+            if ($search !== '') {
+                $whereClause = "WHERE t.company_name LIKE :search OR t.subdomain LIKE :search OR t.owner_name LIKE :search OR t.owner_phone LIKE :search";
+                $params[':search'] = '%' . $search . '%';
+            }
+            
             try {
-                $stmt = $this->pdo->query("SELECT t.id, t.company_name, t.subdomain, t.owner_name, t.owner_phone, t.phone2, t.owner_email, t.status, t.receipt_path, t.valid_until, t.max_users, t.max_storage, t.plan_id, t.created_at, (SELECT username FROM users WHERE tenant_id = t.id AND role = 'admin' LIMIT 1) AS admin_username, (SELECT COUNT(*) FROM users WHERE tenant_id = t.id) AS users_count FROM tenants t ORDER BY t.created_at DESC");
-                $tenants = $stmt->fetchAll();
+                // Get total count
+                $countSql = "SELECT COUNT(*) FROM tenants t $whereClause";
+                $countStmt = $this->pdo->prepare($countSql);
+                $countStmt->execute($params);
+                $totalCount = $countStmt->fetchColumn();
+
+                // Get paginated tenants
+                $sql = "SELECT t.id, t.company_name, t.subdomain, t.owner_name, t.owner_phone, t.phone2, t.owner_email, t.status, t.receipt_path, t.valid_until, t.max_users, t.max_storage, t.plan_id, t.created_at, t.last_login_at, (SELECT username FROM users WHERE tenant_id = t.id AND role = 'admin' LIMIT 1) AS admin_username, (SELECT COUNT(*) FROM users WHERE tenant_id = t.id) AS users_count FROM tenants t $whereClause ORDER BY t.created_at DESC LIMIT $limit OFFSET $offset";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute($params);
+                $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (PDOException $e) {
                 jsonResponse(['error' => 'DB Error in tenants GET: ' . $e->getMessage()], 500);
                 exit;
@@ -94,7 +114,7 @@ class TenantController {
                 $tenant['storage_used'] = isset($sizes[$tenant['id']]) ? (int)$sizes[$tenant['id']] : 0;
             }
             
-            jsonResponse($tenants);
+            jsonResponse(['success' => true, 'total' => (int)$totalCount, 'data' => $tenants]);
         }
         
         if ($method === 'POST' && $action === 'tenants' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'update') {
@@ -111,7 +131,44 @@ class TenantController {
                 $this->pdo->prepare("UPDATE tenants SET status = ?, max_users = ?, max_storage = ?, plan_id = ? WHERE id = ?")->execute([$newStatus, $maxUsers, $maxStorage, $planId, $tenantId]);
             }
             $this->logSaaSAction('تعديل خطة المشترك', 'تعديل الباقة والحدود للمشترك معرّف ' . $tenantId . ' للحالة ' . $newStatus);
+
+            $paymentAmount = isset($input['payment_amount']) && $input['payment_amount'] !== '' ? floatval($input['payment_amount']) : 0;
+            $paymentDesc = $input['payment_desc'] ?? '';
+            if ($paymentAmount > 0) {
+                $this->pdo->prepare("INSERT INTO saas_payments (tenant_id, amount, description) VALUES (?, ?, ?)")->execute([$tenantId, $paymentAmount, $paymentDesc]);
+                $this->logSaaSAction('تسجيل دفعة', "تم استلام دفعة بقيمة $paymentAmount للمشترك معرّف $tenantId. البيان: $paymentDesc");
+            }
+            
             jsonResponse(['success' => true]);
+        }
+        if ($method === 'GET' && $action === 'tenants' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'payments') {
+            $tenantId = intval($_GET['id'] ?? 0);
+            if (!$tenantId) {
+                $limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 50;
+                $offset = isset($_GET['offset']) ? max(0, (int)$_GET['offset']) : 0;
+                $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+                
+                $whereClause = "";
+                $params = [];
+                if ($search !== '') {
+                    $whereClause = "WHERE t.company_name LIKE :search OR p.description LIKE :search";
+                    $params[':search'] = '%' . $search . '%';
+                }
+                
+                $countSql = "SELECT COUNT(*) FROM saas_payments p JOIN tenants t ON p.tenant_id = t.id $whereClause";
+                $countStmt = $this->pdo->prepare($countSql);
+                $countStmt->execute($params);
+                $totalCount = $countStmt->fetchColumn();
+
+                $sql = "SELECT p.*, t.company_name, t.subdomain FROM saas_payments p JOIN tenants t ON p.tenant_id = t.id $whereClause ORDER BY p.payment_date DESC LIMIT $limit OFFSET $offset";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute($params);
+                jsonResponse(['success' => true, 'total' => (int)$totalCount, 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+            } else {
+                $stmt = $this->pdo->prepare("SELECT p.*, t.company_name FROM saas_payments p JOIN tenants t ON p.tenant_id = t.id WHERE p.tenant_id = ? ORDER BY p.payment_date DESC");
+                $stmt->execute([$tenantId]);
+                jsonResponse($stmt->fetchAll());
+            }
         }
         
         if ($method === 'POST' && $action === 'tenants' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'activate') {

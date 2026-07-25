@@ -239,9 +239,53 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             background-size: 20px !important;
             padding-left: 40px !important;
         }
+
+        .pulsating-dot {
+            width: 12px; height: 12px; border-radius: 50%;
+            background-color: var(--dot-color);
+            animation: pulse-dot 2s infinite; flex-shrink: 0;
+            display: inline-block; box-shadow: 0 0 0 0 rgba(0,0,0,0.5);
+        }
+        @keyframes pulse-dot {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0.8; }
+        }
+
+        /* Global Search Modal */
+        #global-search-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 10000;
+            justify-content: center; align-items: flex-start; padding-top: 10vh;
+        }
+        #global-search-modal {
+            width: 90%; max-width: 600px; background: rgba(18, 15, 25, 0.95);
+            border: 1px solid var(--glass-border); border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); padding: 20px;
+        }
+        #global-search-input {
+            width: 100%; padding: 15px; font-size: 1.2rem; border-radius: 8px;
+            background: rgba(0,0,0,0.3); color: #fff; border: 1px solid var(--primary-accent);
+            outline: none; box-sizing: border-box; font-family: 'Tajawal', sans-serif;
+        }
+        #global-search-results {
+            margin-top: 15px; max-height: 300px; overflow-y: auto;
+        }
+        .gs-item {
+            padding: 12px 15px; border-bottom: 1px solid var(--glass-border);
+            cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+        }
+        .gs-item:hover { background: rgba(255,255,255,0.05); }
     </style>
 </head>
 <body>
+    <div id="global-search-overlay" onclick="if(event.target===this) toggleGlobalSearch()">
+        <div id="global-search-modal">
+            <input type="text" id="global-search-input" placeholder="🔍 بحث شامل عن شركة، نطاق، مالك..." onkeyup="performGlobalSearch()">
+            <div id="global-search-results"></div>
+        </div>
+    </div>
+    
     <div class="ambient-bg"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
 
     <div id="login-modal">
@@ -266,6 +310,14 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 </div>
             </div>
             <div class="header-controls" style="display:flex; align-items:center; gap:15px;">
+                <div class="notification-bell" style="position:relative; cursor:pointer; font-size:1.5rem; user-select:none; margin-left: 10px;" onclick="toggleNotifications(event)">
+                    🔔
+                    <span id="notif-badge" style="display:none; position:absolute; top:-5px; right:-5px; background:var(--danger-color); color:#fff; border-radius:50%; font-size:0.7rem; font-weight:bold; width:18px; height:18px; text-align:center; line-height:18px;">0</span>
+                    <div id="notif-dropdown" class="glass-panel" style="display:none; position:absolute; top:40px; right:0; width:350px; max-height:400px; overflow-y:auto; z-index:100; font-size:0.9rem; padding:15px; text-align:right; flex-direction:column; gap:10px; cursor:default;" onclick="event.stopPropagation()">
+                        <h4 style="margin:0 0 10px 0; border-bottom:1px solid var(--glass-border); padding-bottom:5px; color:var(--primary-accent);">التنبيهات الذكية</h4>
+                        <div id="notif-list" style="color:var(--text-secondary); display:flex; flex-direction:column; gap:10px;">لا توجد تنبيهات حالياً.</div>
+                    </div>
+                </div>
                 <div id="wa-status-widget" onclick="openAdminWhatsAppModal()" style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; color:#d1d5db; cursor:pointer;">
                     <span id="wa-status-indicator" style="width:10px; height:10px; border-radius:50%; background:#ef4444; display:inline-block; box-shadow:0 0 8px #ef4444;"></span>
                     <span id="wa-status-text" style="font-weight:bold;">خادم الواتساب: فحص...</span>
@@ -301,7 +353,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         <div class="tabs-container">
             <button class="tab-btn active" onclick="switchTab('tab-analytics', this)">📊 التحليلات والإحصائيات</button>
             <button class="tab-btn" onclick="switchTab('tab-tenants', this)">🏢 المشتركون</button>
-            <button class="tab-btn" onclick="switchTab('tab-users', this)">👥 إدارة المستخدمين</button>
+            <button class="tab-btn" onclick="switchTab('tab-global-payments', this)">💰 الفواتير والمدفوعات</button>
             <button class="tab-btn" onclick="switchTab('tab-plans', this)">💎 الباقات (Plans)</button>
             <button class="tab-btn" onclick="switchTab('tab-partners', this)">🤝 الشركاء والعملاء</button>
             <button class="tab-btn" onclick="switchTab('tab-broadcasts', this)">📣 رسائل النظام</button>
@@ -325,6 +377,12 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     <h3 style="margin-top:0; margin-bottom: 20px; display:flex; align-items:center; gap:8px;">💾 أكبر 5 شركات استهلاكاً للمساحة التخزينية</h3>
                     <div style="position: relative; height: 300px; width: 100%;">
                         <canvas id="chart-storage"></canvas>
+                    </div>
+                </div>
+                <div class="glass-panel" style="padding: 20px; min-height: 350px; grid-column: 1 / -1;">
+                    <h3 style="margin-top:0; margin-bottom: 20px; display:flex; align-items:center; gap:8px;">💰 نمو الإيرادات المالية (حسب المدفوعات المسجلة)</h3>
+                    <div style="position: relative; height: 350px; width: 100%;">
+                        <canvas id="chart-revenue"></canvas>
                     </div>
                 </div>
             </div>
@@ -415,75 +473,161 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             </div>
         </div>
 
-        <!-- TAB: TENANTS -->
+        <!-- TAB: TENANTS (Combined Tenants & Users with Drill-down) -->
         <div id="tab-tenants" class="tab-content">
+            <!-- LIST VIEW -->
+            <div id="tenants-list-view">
+                <div class="glass-panel">
+                    <div class="flex-between" style="margin-bottom: 20px;">
+                        <h3>سجل المشتركين</h3>
+                        <div style="display:flex; gap:10px;">
+                            <button class="btn-outline" onclick="exportTenantsToCSV()" style="border-color:var(--primary-accent); color:var(--primary-accent); padding: 10px 20px;">📥 تصدير الإكسل</button>
+                            <input type="text" id="tenant-search" placeholder="بحث ذكي (الشركة، النطاق، المالك، المستخدم، الباقة...)" style="padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color:#fff; border: 1px solid var(--glass-border); width: 350px;" onkeyup="filterTenants()">
+                            <select id="tenant-filter-status" style="padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color:#fff; border: 1px solid var(--glass-border);" onchange="filterTenants()">
+                                <option value="all">الكل</option>
+                                <option value="active">نشط</option>
+                                <option value="pending">قيد المراجعة</option>
+                                <option value="suspended">موقوف</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>الشركة / النطاق</th>
+                                    <th>اسم المستخدم</th>
+                                    <th>المالك</th>
+                                    <th>الباقة</th>
+                                    <th>المساحة المستهلكة</th>
+                                    <th>عدد المستخدمين</th>
+                                    <th>الحالة</th>
+                                    <th>تاريخ الانتهاء</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tenants-body">
+                                <tr><td colspan="9" style="text-align:center;">جاري التحميل...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="flex-between" style="margin-top:20px;">
+                        <button class="btn-primary" id="btn-tenants-prev" onclick="changeTenantsPage(-1)" style="padding: 8px 16px;">السابق</button>
+                        <span id="tenants-page-indicator" style="color: var(--text-secondary); font-weight: bold;">الصفحة 1 من 1</span>
+                        <button class="btn-primary" id="btn-tenants-next" onclick="changeTenantsPage(1)" style="padding: 8px 16px;">التالي</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DETAIL VIEW (Drill-down) -->
+            <div id="tenant-detail-view" style="display: none; position: fixed; top: 0; right: -800px; width: 700px; height: 100vh; background: var(--glass-bg); border-left: 1px solid var(--glass-border); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 9999; overflow-y: auto; box-shadow: -10px 0 30px rgba(0,0,0,0.5); transition: right 0.3s ease; padding: 20px;">
+                <div class="flex-between" style="margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">
+                    <h2 id="detail-company-title" style="margin:0; color:var(--primary-accent);">تفاصيل الشركة</h2>
+                    <button class="close-btn" onclick="closeTenantDetails()" style="font-size:1.5rem;">&times;</button>
+                </div>
+                
+                <div class="tabs-container" style="margin-bottom: 20px;">
+                    <button class="tab-btn active" onclick="switchInnerTab('inner-tab-info', this)">📋 معلومات الشركة</button>
+                    <button class="tab-btn" onclick="switchInnerTab('inner-tab-users', this)">👥 المستخدمين</button>
+                    <button class="tab-btn" onclick="switchInnerTab('inner-tab-payments', this)">💳 الفواتير والمدفوعات</button>
+                </div>
+                
+                <input type="hidden" id="users-tenant-select" value="">
+                
+                <!-- Inner Tab: Info -->
+                <div id="inner-tab-info" class="inner-tab-content">
+                    <div class="glass-panel">
+                        <div id="detail-company-info" style="line-height:1.8; color:var(--text-secondary);">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Inner Tab: Users -->
+                <div id="inner-tab-users" class="inner-tab-content" style="display:none;">
+                    <div class="glass-panel">
+                        <div class="flex-between" style="margin-bottom: 15px;">
+                            <h3 style="margin-top:0;">المستخدمون</h3>
+                            <button class="btn-primary" onclick="openAddUserModal()">+ مستخدم جديد</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>المستخدم</th>
+                                        <th>الاسم</th>
+                                        <th>الدور</th>
+                                        <th>إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tenant-users-body">
+                                    <tr><td colspan="4" style="text-align:center;">جاري التحميل...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inner Tab: Payments -->
+                <div id="inner-tab-payments" class="inner-tab-content" style="display:none;">
+                    <div class="glass-panel">
+                        <div class="flex-between" style="margin-bottom: 15px;">
+                            <h3 style="margin-top:0;">سجل المدفوعات</h3>
+                            <button class="btn-primary" onclick="openEditModal(document.getElementById('users-tenant-select').value)">+ إضافة دفعة</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>تاريخ الدفع</th>
+                                        <th>المبلغ</th>
+                                        <th>البيان</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tenant-payments-body">
+                                    <tr><td colspan="3" style="text-align:center;">لا يوجد سجل مدفوعات.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Overlay for Drawer -->
+            <div id="tenant-detail-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 9998;" onclick="closeTenantDetails()"></div>
+        </div>
+
+        <!-- TAB: GLOBAL PAYMENTS -->
+        <div id="tab-global-payments" class="tab-content" style="display:none;">
             <div class="glass-panel">
                 <div class="flex-between" style="margin-bottom: 20px;">
-                    <h3>سجل المشتركين</h3>
+                    <h3>سجل المدفوعات والفواتير (جميع الشركات)</h3>
                     <div style="display:flex; gap:10px;">
-                        <input type="text" id="tenant-search" placeholder="بحث ذكي (الشركة، النطاق، المالك، المستخدم، الباقة...)" style="padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color:#fff; border: 1px solid var(--glass-border); width: 350px;" onkeyup="filterTenants()">
-                        <select id="tenant-filter-status" style="padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color:#fff; border: 1px solid var(--glass-border);" onchange="filterTenants()">
-                            <option value="all">الكل</option>
-                            <option value="active">نشط</option>
-                            <option value="pending">قيد المراجعة</option>
-                            <option value="suspended">موقوف</option>
-                        </select>
+                        <input type="text" id="global-payments-search" placeholder="بحث بالشركة أو البيان..." style="padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color:#fff; border: 1px solid var(--glass-border); width: 300px;" onkeyup="filterGlobalPayments()">
                     </div>
                 </div>
                 <div class="table-responsive">
                     <table>
                         <thead>
                             <tr>
-                                <th>الشركة / النطاق</th>
-                                <th>اسم المستخدم</th>
-                                <th>المالك</th>
-                                <th>الباقة</th>
-                                <th>المساحة المستهلكة</th>
-                                <th>عدد المستخدمين</th>
-                                <th>الحالة</th>
-                                <th>تاريخ الانتهاء</th>
-                                <th>إجراءات</th>
+                                <th>تاريخ الدفع</th>
+                                <th>اسم الشركة</th>
+                                <th>النطاق</th>
+                                <th>المبلغ</th>
+                                <th>البيان</th>
                             </tr>
                         </thead>
-                        <tbody id="tenants-body">
-                            <tr><td colspan="9" style="text-align:center;">جاري التحميل...</td></tr>
+                        <tbody id="global-payments-body">
+                            <tr><td colspan="5" style="text-align:center;">جاري التحميل...</td></tr>
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-
-        <!-- TAB: USERS -->
-        <div id="tab-users" class="tab-content">
-            <div class="glass-panel">
-                <div class="flex-between" style="margin-bottom: 20px;">
-                    <h3>مستخدمو المشتركين</h3>
-                    <button class="btn-primary" onclick="openAddUserModal()">+ مستخدم جديد</button>
-                </div>
-                <div class="form-group" style="max-width: 400px;">
-                    <label>الشركة</label>
-                    <select id="users-tenant-select" onchange="loadTenantUsers()">
-                        <option value="">اختر شركة</option>
-                    </select>
-                </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>المستخدم</th>
-                                <th>الاسم الكامل</th>
-                                <th>الهاتف</th>
-                                <th>الدور</th>
-                                <th>الحالة</th>
-                                <th>آخر نشاط</th>
-                                <th>إجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tenant-users-body">
-                            <tr><td colspan="8" style="text-align:center;">اختر شركة لعرض مستخدميها</td></tr>
-                        </tbody>
-                    </table>
+                
+                <div class="flex-between" style="margin-top:20px;">
+                    <button class="btn-primary" id="btn-gpayments-prev" onclick="changeGlobalPaymentsPage(-1)" style="padding: 8px 16px;">السابق</button>
+                    <span id="gpayments-page-indicator" style="color: var(--text-secondary); font-weight: bold;">الصفحة 1 من 1</span>
+                    <button class="btn-primary" id="btn-gpayments-next" onclick="changeGlobalPaymentsPage(1)" style="padding: 8px 16px;">التالي</button>
                 </div>
             </div>
         </div>
@@ -711,6 +855,17 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     </div>
                     <button class="btn-primary" onclick="saveBackdoorCredentials()" style="width:100%; background:#a855f7; border-color:#a855f7;">✨ حفظ وتفعيل</button>
                 </div>
+
+                <div class="glass-panel" style="flex:1; min-width:300px;">
+                    <h3 style="color:#0ea5e9; margin-top:0; display:flex; align-items:center; gap:8px;">🛠️ مُولد مفتاح استعادة النسخ</h3>
+                    <div style="font-size: 0.85em; color: #a1a1aa; margin-bottom: 15px;">يستخدم لتوليد رقم سري ديناميكي مخصص لفك تشفير نسخة احتياطية لعميل نسي رقمه السري.</div>
+                    <div class="form-group"><label>الرمز المرجعي للملف (refCode)</label><input type="text" id="recovery-ref-code" placeholder="مثال: REF-A1B2C3" style="text-transform: uppercase;"></div>
+                    <div class="form-group">
+                        <label>التوكن السري المستخرج</label>
+                        <input type="text" id="recovery-generated-token" readonly style="background: rgba(255,255,255,0.05); color: #0ea5e9; font-weight: bold; font-family: monospace; text-align: center; letter-spacing: 5px; font-size: 1.2rem; cursor: copy;" onclick="if(this.value) { navigator.clipboard.writeText(this.value); alert('تم نسخ التوكن!'); }" placeholder="------">
+                    </div>
+                    <button class="btn-primary" onclick="generateDynamicRecoveryToken()" style="width:100%; background:#0ea5e9; border-color:#0ea5e9;">⚙️ توليد التوكن الآن</button>
+                </div>
             </div>
         </div>
     </div>
@@ -810,6 +965,13 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 <select id="edit-status"><option value="active">نشط</option><option value="suspended">موقوف</option></select>
             </div>
             <div class="form-group"><label>تاريخ النهاية</label><input type="text" id="edit-valid-until" placeholder="اختر التاريخ والوقت..."></div>
+            <div class="form-group" style="background: rgba(16,185,129,0.1); padding: 10px; border-radius: 8px; border-right: 3px solid #10b981; margin-top: 15px;">
+                <label style="color:#10b981;">💰 تسجيل دفعة مالية (اختياري)</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="number" id="edit-tenant-payment-amount" placeholder="المبلغ (مثال: 150)" style="flex:1;">
+                    <input type="text" id="edit-tenant-payment-desc" placeholder="البيان (مثال: تجديد سنوي)" style="flex:2;">
+                </div>
+            </div>
             <div class="modal-actions"><button class="btn-primary" style="flex:1;" onclick="saveTenantUpdate()">حفظ</button></div>
         </div>
     </div>
@@ -1023,6 +1185,8 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             btn.classList.add('active');
             if (tabId === 'tab-audit') {
                 loadAuditLogs(true);
+            } else if (tabId === 'tab-global-payments') {
+                loadGlobalPayments(true);
             }
         }
 
@@ -1711,6 +1875,54 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     }
                 });
             }
+
+            // Revenue Chart
+            const ctxRev = document.getElementById('chart-revenue');
+            if (ctxRev) {
+                fetch(apiUrl('saas', 'tenants', 'payments'), { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } })
+                .then(res => res.json())
+                .then(payments => {
+                    if (Array.isArray(payments) && payments.length > 0) {
+                        const monthlyRev = {};
+                        payments.forEach(p => {
+                            if (p.payment_date) {
+                                const date = new Date(p.payment_date);
+                                if (!isNaN(date)) {
+                                    const month = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+                                    monthlyRev[month] = (monthlyRev[month] || 0) + parseFloat(p.amount);
+                                }
+                            }
+                        });
+                        const revMonths = Object.keys(monthlyRev).sort();
+                        const revValues = revMonths.map(m => monthlyRev[m]);
+
+                        new Chart(ctxRev.getContext('2d'), {
+                            type: 'line',
+                            data: {
+                                labels: revMonths,
+                                datasets: [{
+                                    label: 'الإيرادات ($)',
+                                    data: revValues,
+                                    borderColor: '#10b981',
+                                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                    borderWidth: 3,
+                                    fill: true,
+                                    tension: 0.4
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3af' } },
+                                    x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3af' } }
+                                }
+                            }
+                        });
+                    }
+                }).catch(e => console.error('Error fetching payments for chart', e));
+            }
         }
 
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
@@ -1856,22 +2068,39 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             return url;
         }
 
-        async function loadTenants() {
+        let currentTenantsPage = 1;
+        const tenantsPageSize = 50;
+        let totalTenantsCount = 0;
+        
+        async function loadTenants(resetPage = false) {
+            if (resetPage) currentTenantsPage = 1;
             const tbody = document.getElementById('tenants-body');
+            const searchInput = document.getElementById('tenant-search-input');
+            const search = searchInput ? searchInput.value : '';
+            const offset = (currentTenantsPage - 1) * tenantsPageSize;
+            
             try {
-                const url = apiUrl('saas', 'tenants');
+                const url = apiUrl('saas', 'tenants') + `&limit=${tenantsPageSize}&offset=${offset}&search=${encodeURIComponent(search)}`;
                 const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
                 const data = await res.json();
                 console.log('Tenants API response:', res.status, data);
 
-                if (Array.isArray(data)) {
-                    allTenants = data;
+                if (data.success && Array.isArray(data.data)) {
+                    allTenants = data.data;
+                    totalTenantsCount = data.total || 0;
                     renderTenantsTable();
+                    renderTenantsPagination();
+                    
+                    // We may only have a subset of tenants in memory now.
+                    // For global selects, we might need a separate endpoint or just use what we have.
                     populateUserTenantSelect();
                     renderBackupTenantsTable();
                     populateWaTenantSelect();
+                    
+                    // Note: updateKPIs() now needs to fetch aggregated stats from backend if we want global stats,
+                    // but for now it will just show stats for the loaded page or we can fetch a separate stats endpoint.
                     updateKPIs();
-                    initAnalyticsCharts();
+                    if(typeof initAnalyticsCharts === 'function') initAnalyticsCharts();
                 } else {
                     const msg = data.error || JSON.stringify(data);
                     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#ef4444;">❌ خطأ: ${msg}</td></tr>`;
@@ -1882,9 +2111,31 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 console.error('Fetch error:', e);
             }
         }
+        
+        function renderTenantsPagination() {
+            let container = document.getElementById('tenants-pagination');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'tenants-pagination';
+                container.style = 'display:flex; justify-content:center; gap:10px; margin-top:20px;';
+                const tbody = document.getElementById('tenants-body');
+                if (tbody && tbody.parentElement && tbody.parentElement.parentElement) {
+                    tbody.parentElement.parentElement.appendChild(container);
+                }
+            }
+            
+            const totalPages = Math.ceil(totalTenantsCount / tenantsPageSize) || 1;
+            let html = '';
+            
+            html += `<button class="btn-outline" onclick="if(currentTenantsPage>1){ currentTenantsPage--; loadTenants(); }" ${currentTenantsPage === 1 ? 'disabled' : ''}>السابق</button>`;
+            html += `<span style="color:#fff; padding:8px;">صفحة ${currentTenantsPage} من ${totalPages}</span>`;
+            html += `<button class="btn-outline" onclick="if(currentTenantsPage<${totalPages}){ currentTenantsPage++; loadTenants(); }" ${currentTenantsPage === totalPages ? 'disabled' : ''}>التالي</button>`;
+            
+            container.innerHTML = html;
+        }
 
-        function updateKPIs() {
-            let active = 0, suspended = 0, expiring = 0, revenue = 0;
+        async function updateKPIs() {
+            let active = 0, suspended = 0, expiring = 0;
             const now = new Date();
             const next30 = new Date(); next30.setDate(now.getDate() + 30);
             
@@ -1892,52 +2143,136 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 if(t.status === 'active') active++;
                 if(t.status === 'suspended') suspended++;
                 if(t.valid_until && new Date(t.valid_until) < next30 && new Date(t.valid_until) > now) expiring++;
-                
-                // Revenue calculation based on real plan
-                let planId = t.plan_id || 1;
-                let plan = allPlans.find(p => p.id == planId);
-                if(plan && t.status === 'active') revenue += parseInt(plan.price || 0);
             });
             
             document.getElementById('kpi-total-tenants').innerText = allTenants.length;
             document.getElementById('kpi-active-tenants').innerText = active;
             document.getElementById('kpi-suspended-tenants').innerText = suspended;
-            document.getElementById('kpi-revenue').innerText = '$' + revenue;
+
+            try {
+                const res = await fetch(apiUrl('saas', 'tenants', 'payments'), { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
+                const payments = await res.json();
+                let totalRevenue = 0;
+                if(Array.isArray(payments)) {
+                    totalRevenue = payments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
+                }
+                document.getElementById('kpi-revenue').innerText = '$' + totalRevenue.toLocaleString();
+            } catch (e) {
+                document.getElementById('kpi-revenue').innerText = 'خطأ';
+            }
+
+            // Update Smart Alerts
+            updateSmartAlerts();
         }
 
-        function filterTenants() { renderTenantsTable(); }
+        function updateSmartAlerts() {
+            const notifList = document.getElementById('notif-list');
+            const notifBadge = document.getElementById('notif-badge');
+            let alertsHTML = '';
+            let alertCount = 0;
+            const now = new Date();
+            const next7 = new Date(); next7.setDate(now.getDate() + 7);
+
+            allTenants.forEach(t => {
+                if (t.status === 'pending') {
+                    alertsHTML += `<div style="background:rgba(245,158,11,0.1); border-right:3px solid #f59e0b; padding:10px; border-radius:4px;">
+                        <strong style="color:#f59e0b;">قيد المراجعة:</strong> الشركة <span style="color:#fff;">${t.company_name}</span> تنتظر التفعيل.
+                        <br><button class="btn-outline" style="padding:4px 8px; font-size:0.8rem; margin-top:5px; border-color:#f59e0b; color:#f59e0b;" onclick="openTenantDetails(${t.id})">مراجعة</button>
+                    </div>`;
+                    alertCount++;
+                } else if (t.valid_until) {
+                    const validDate = new Date(t.valid_until);
+                    if (validDate < now) {
+                        alertsHTML += `<div style="background:rgba(239,68,68,0.1); border-right:3px solid #ef4444; padding:10px; border-radius:4px;">
+                            <strong style="color:#ef4444;">انتهى الاشتراك:</strong> اشتراك <span style="color:#fff;">${t.company_name}</span> منتهي.
+                            <br><button class="btn-outline" style="padding:4px 8px; font-size:0.8rem; margin-top:5px; border-color:#ef4444; color:#ef4444;" onclick="openTenantDetails(${t.id})">إدارة</button>
+                        </div>`;
+                        alertCount++;
+                    } else if (validDate < next7) {
+                        alertsHTML += `<div style="background:rgba(16,185,129,0.1); border-right:3px solid #10b981; padding:10px; border-radius:4px;">
+                            <strong style="color:#10b981;">ينتهي قريباً:</strong> اشتراك <span style="color:#fff;">${t.company_name}</span> ينتهي في أقل من 7 أيام.
+                            <br><button class="btn-outline" style="padding:4px 8px; font-size:0.8rem; margin-top:5px; border-color:#10b981; color:#10b981;" onclick="openTenantDetails(${t.id})">مراجعة</button>
+                        </div>`;
+                        alertCount++;
+                    }
+                }
+            });
+
+            if (alertCount > 0) {
+                notifBadge.innerText = alertCount;
+                notifBadge.style.display = 'block';
+                notifList.innerHTML = alertsHTML;
+            } else {
+                notifBadge.style.display = 'none';
+                notifList.innerHTML = 'لا توجد تنبيهات حالياً.';
+            }
+        }
+
+        function toggleNotifications(e) {
+            e.stopPropagation();
+            const dp = document.getElementById('notif-dropdown');
+            dp.style.display = (dp.style.display === 'flex') ? 'none' : 'flex';
+        }
+        document.addEventListener('click', () => {
+            const dp = document.getElementById('notif-dropdown');
+            if (dp) dp.style.display = 'none';
+        });
+
+        function exportTenantsToCSV() {
+            if(allTenants.length === 0) return alert('لا يوجد مشتركون لتصديرهم.');
+            const headers = ['الشركة/النطاق', 'اسم المستخدم', 'المالك', 'رقم الهاتف', 'البريد الإلكتروني', 'الباقة', 'الحالة', 'الإنشاء', 'تاريخ الانتهاء', 'آخر ظهور'];
+            let csvContent = "data:text/csv;charset=utf-8,\\uFEFF" + headers.join(',') + "\\n";
+
+            allTenants.forEach(t => {
+                const planId = t.plan_id || 1;
+                const plan = allPlans.find(p => p.id == planId) || {name: ''};
+                
+                const row = [
+                    t.company_name || '',
+                    t.admin_username || '',
+                    t.owner_name || '',
+                    t.owner_phone || '',
+                    t.owner_email || '',
+                    plan.name,
+                    t.status === 'active' ? 'نشط' : (t.status === 'pending' ? 'قيد المراجعة' : 'موقوف'),
+                    t.created_at ? t.created_at.split(' ')[0] : '',
+                    t.valid_until ? t.valid_until.split(' ')[0] : 'غير محدود',
+                    t.last_login_at || 'لم يدخل بعد'
+                ];
+                
+                const escapedRow = row.map(v => '"' + String(v).replace(/"/g, '""') + '"');
+                csvContent += escapedRow.join(',') + "\\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Subscribers_Export_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        let filterTenantsTimeout = null;
+        function filterTenants() { 
+            clearTimeout(filterTenantsTimeout);
+            filterTenantsTimeout = setTimeout(() => {
+                loadTenants(true);
+            }, 300);
+        }
+
+        // changeTenantsPage is removed because it's handled by loadTenants / renderTenantsPagination directly
 
         function renderTenantsTable() {
             const tbody = document.getElementById('tenants-body');
             tbody.innerHTML = '';
-            const search = (document.getElementById('tenant-search').value || '').toLowerCase();
-            const filterEl = document.getElementById('tenant-filter-status');
-            const statusFilter = filterEl ? filterEl.value : 'all';
 
-            const filtered = allTenants.filter(t => {
-                const companyName = (t.company_name || '').toLowerCase();
-                const subdomain   = (t.subdomain || '').toLowerCase();
-                const ownerName   = (t.owner_name || '').toLowerCase();
-                const ownerPhone  = (t.owner_phone || '').toLowerCase();
-                const adminUser   = (t.admin_username || '').toLowerCase();
-                
-                let planId = t.plan_id || 1;
-                let plan = allPlans.find(p => p.id == planId) || allPlans[0] || {name: ''};
-                const planName = (plan.name || '').toLowerCase();
+            if (allTenants.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">لا يوجد بيانات تطابق البحث</td></tr>';
+                return;
+            }
 
-                const mSearch = search === '' || 
-                             companyName.includes(search) || 
-                             subdomain.includes(search) || 
-                             ownerName.includes(search) || 
-                             ownerPhone.includes(search) || 
-                             adminUser.includes(search) || 
-                             planName.includes(search);
-
-                const mStatus = statusFilter === 'all' || t.status === statusFilter;
-                return mSearch && mStatus;
-            });
-
-            filtered.forEach(t => {
+            allTenants.forEach(t => {
                 try {
                     let statusColor = '#94a3b8'; // Default
                     if(t.status === 'active') statusColor = '#10b981'; // Green
@@ -1945,11 +2280,14 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     if(t.status === 'suspended') statusColor = '#ef4444'; // Red
 
                     const statusBadge = `
-                        <select onchange="updateTenantStatus(${t.id}, this.value, this)" style="padding: 6px 12px; border-radius: 20px; background: rgba(0,0,0,0.3); color: ${statusColor}; border: 1px solid ${statusColor}; font-family: Tajawal; cursor: pointer; outline: none; width: 130px; font-weight: bold; text-align: center;">
-                            <option value="active" ${t.status === 'active' ? 'selected' : ''} style="color:#10b981;">نشط</option>
-                            <option value="pending" ${t.status === 'pending' ? 'selected' : ''} style="color:#f59e0b;">قيد المراجعة</option>
-                            <option value="suspended" ${t.status === 'suspended' ? 'selected' : ''} style="color:#ef4444;">موقوف</option>
-                        </select>
+                        <div style="display:flex; align-items:center; justify-content:center; gap:8px;" onclick="event.stopPropagation();">
+                            <span class="pulsating-dot" style="--dot-color: ${statusColor}"></span>
+                            <select onchange="updateTenantStatus(${t.id}, this.value)" style="background:transparent; border:none; color:${statusColor}; font-weight:bold; cursor:pointer; outline:none;">
+                                <option value="pending" ${t.status === 'pending' ? 'selected' : ''}>قيد المراجعة</option>
+                                <option value="active" ${t.status === 'active' ? 'selected' : ''}>نشط</option>
+                                <option value="suspended" ${t.status === 'suspended' ? 'selected' : ''}>موقوف</option>
+                            </select>
+                        </div>
                     `;
                     let validStr = '<span style="color:#ef4444">غير محدد</span>';
                     if(t.valid_until) {
@@ -1969,16 +2307,16 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     else if (storageBytes >= 1024) storageStr = (storageBytes / 1024).toFixed(2) + ' KB';
 
                     tbody.innerHTML += `
-                        <tr>
+                        <tr onclick="openTenantDetails(${t.id})" style="cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
                             <td><strong>${t.company_name || '—'}</strong><br><small style="color:var(--text-secondary)">${t.subdomain || '—'}.elsajana.com</small></td>
                             <td><span style="color:var(--primary-accent); font-weight: bold;">${t.admin_username || 'غير متوفر'}</span></td>
                             <td>${t.owner_name || '-'}<br><small>${t.owner_phone || ''}</small>${t.phone2 ? '<br><small>'+t.phone2+'</small>' : ''}</td>
                             <td><span class="badge badge-plan">${plan.name}</span><br><small style="color:var(--text-secondary)">الحد: ${maxUsers} مستخدم</small></td>
                             <td style="direction: ltr;">${storageStr} <br><small style="color:var(--text-secondary)">الحد: ${maxStorage} GB</small></td>
                             <td style="text-align: center;"><span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 0.95rem; padding: 4px 12px; border-radius: 12px; font-weight: bold;">${t.users_count || 0}</span></td>
-                            <td>${statusBadge}</td>
+                            <td onclick="event.stopPropagation();">${statusBadge}</td>
                             <td>${validStr}</td>
-                            <td>
+                            <td onclick="event.stopPropagation();">
                                 <div class="dropdown" id="drop-${t.id}">
                                     <button class="btn-outline" onclick="toggleDropdown(${t.id}); event.stopPropagation();">إجراءات ▼</button>
                                     <div class="dropdown-content">
@@ -1995,31 +2333,213 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     console.error('Error rendering tenant row:', t, rowErr);
                 }
             });
-            if(filtered.length === 0) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">لا يوجد بيانات</td></tr>';
         }
 
         // Add User & Reset Pass Logic (Simulated for SaaS)
+        function openTenantDetails(tenantId) {
+            const tenant = allTenants.find(t => t.id == tenantId);
+            if (!tenant) return;
+            
+            // Populate Company Info
+            let plan = allPlans.find(p => p.id == (tenant.plan_id || 1)) || {name: 'غير محدد'};
+            let storageBytes = parseInt(tenant.storage_used) || 0;
+            let storageStr = storageBytes + ' B';
+            if (storageBytes >= 1073741824) storageStr = (storageBytes / 1073741824).toFixed(2) + ' GB';
+            else if (storageBytes >= 1048576) storageStr = (storageBytes / 1048576).toFixed(2) + ' MB';
+            else if (storageBytes >= 1024) storageStr = (storageBytes / 1024).toFixed(2) + ' KB';
+            
+            document.getElementById('detail-company-info').innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <!-- Basic Info -->
+                    <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                        <h4 style="margin-top:0; color: var(--primary-accent); margin-bottom: 10px; font-size: 1.1rem;">معلومات أساسية</h4>
+                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 100px;">🏢 اسم الشركة:</strong> ${tenant.company_name || 'غير متوفر'}</p>
+                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 100px;">🌐 النطاق:</strong> ${tenant.subdomain || 'غير متوفر'}.elsajana.com</p>
+                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 100px;">👤 المالك:</strong> ${tenant.owner_name || 'غير متوفر'}</p>
+                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 100px;">📞 الهاتف:</strong> <span style="direction:ltr; display:inline-block;">${tenant.owner_phone || 'غير متوفر'}</span></p>
+                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 100px;">✉️ البريد:</strong> ${tenant.owner_email || 'غير متوفر'}</p>
+                    </div>
+                    
+                    <!-- Subscription Info -->
+                    <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                        <h4 style="margin-top:0; color: var(--primary-accent); margin-bottom: 10px; font-size: 1.1rem;">حالة الاشتراك</h4>
+                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 110px;">💎 الباقة الحالية:</strong> ${plan.name}</p>
+                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 110px;">📊 المساحة:</strong> <span style="direction:ltr; display:inline-block; color:#38bdf8;">${storageStr}</span></p>
+                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 110px;">👥 المستخدمين:</strong> ${tenant.users_count || 0} من ${tenant.max_users || '-'}</p>
+                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 110px;">📅 الإنشاء:</strong> ${tenant.created_at ? new Date(tenant.created_at).toLocaleDateString('ar-EG') : 'غير متوفر'}</p>
+                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 110px;">🟢 آخر ظهور:</strong> ${tenant.last_login_at ? new Date(tenant.last_login_at).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : '<span style="color:#a1a1aa;">لم يدخل بعد</span>'}</p>
+                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 110px;">⏳ صالح حتى:</strong> ${tenant.valid_until ? new Date(tenant.valid_until).toLocaleDateString('ar-EG') : '<span style="color:#10b981;">غير محدود</span>'}</p>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; border-top: 1px solid var(--glass-border); padding-top: 15px;">
+                    <button class="btn-primary" onclick="openEditModal(${tenant.id})">⚙️ تعديل الباقة والصلاحية</button>
+                    ${tenant.status === 'pending' ? `<button class="btn-primary" style="background: linear-gradient(135deg, #10b981, #059669);" onclick="activateTenant(${tenant.id})">✅ تفعيل الحساب</button>` : ''}
+                    ${tenant.receipt_path ? `<button class="btn-outline" onclick="window.open('${tenant.receipt_path}', '_blank')" style="border-color:var(--primary-accent); color:var(--primary-accent);">📄 عرض إشعار الدفع</button>` : ''}
+                    <button class="btn-danger" style="margin-right: auto;" onclick="deleteTenant(${tenant.id})">🗑️ حذف</button>
+                </div>
+            `;
+
+            // Set hidden select value so add user modal still works
+            document.getElementById('users-tenant-select').value = tenantId;
+            document.getElementById('detail-company-title').innerText = tenant.company_name || 'تفاصيل الشركة';
+            
+            // Switch Views (Slide Drawer)
+            const drawer = document.getElementById('tenant-detail-view');
+            const overlay = document.getElementById('tenant-detail-overlay');
+            drawer.style.display = 'block';
+            overlay.style.display = 'block';
+            
+            // Allow display block to render before sliding
+            setTimeout(() => {
+                drawer.style.right = '0';
+            }, 10);
+            
+            // Ensure Info tab is active by default
+            const firstTabBtn = drawer.querySelector('.tabs-container .tab-btn');
+            if (firstTabBtn) switchInnerTab('inner-tab-info', firstTabBtn);
+            
+            loadTenantUsers();
+            loadTenantPayments(tenantId);
+        }
+
+        async function loadTenantPayments(tenantId) {
+            const tbody = document.getElementById('tenant-payments-body');
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">جاري التحميل...</td></tr>';
+            try {
+                const res = await fetch(apiUrl('saas', 'tenants', 'payments') + '&id=' + tenantId, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
+                const payments = await res.json();
+                if(Array.isArray(payments) && payments.length > 0) {
+                    tbody.innerHTML = payments.map(p => `
+                        <tr>
+                            <td>${new Date(p.payment_date).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' })}</td>
+                            <td style="color:#10b981; font-weight:bold;">$${p.amount}</td>
+                            <td>${p.description || '—'}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا توجد مدفوعات مسجلة</td></tr>';
+                }
+            } catch(e) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#ef4444;">فشل جلب المدفوعات</td></tr>';
+            }
+        }
+
+        function closeTenantDetails() {
+            const drawer = document.getElementById('tenant-detail-view');
+            const overlay = document.getElementById('tenant-detail-overlay');
+            
+            drawer.style.right = '-800px';
+            setTimeout(() => {
+                drawer.style.display = 'none';
+                overlay.style.display = 'none';
+            }, 300);
+            
+            // renderTenantsTable(); // No longer needed because list view is not hidden
+        }
+        
+        function switchInnerTab(tabId, btnElement) {
+            const drawer = document.getElementById('tenant-detail-view');
+            const contents = drawer.querySelectorAll('.inner-tab-content');
+            contents.forEach(c => c.style.display = 'none');
+            
+            const btns = drawer.querySelectorAll('.tabs-container .tab-btn');
+            btns.forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabId).style.display = 'block';
+            if(btnElement) btnElement.classList.add('active');
+        }
+
+        let currentGPaymentsPage = 1;
+        const gPaymentsPageSize = 50;
+        let totalGPaymentsCount = 0;
+
+        async function loadGlobalPayments(resetPage = false) {
+            if (resetPage) currentGPaymentsPage = 1;
+            const tbody = document.getElementById('global-payments-body');
+            const searchInput = document.getElementById('global-payments-search');
+            const search = searchInput ? searchInput.value : '';
+            const offset = (currentGPaymentsPage - 1) * gPaymentsPageSize;
+            
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">جاري التحميل...</td></tr>';
+            try {
+                const url = apiUrl('saas', 'tenants', 'payments') + `&limit=${gPaymentsPageSize}&offset=${offset}&search=${encodeURIComponent(search)}`;
+                const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
+                const data = await res.json();
+                
+                if (data.success && Array.isArray(data.data)) {
+                    totalGPaymentsCount = data.total || 0;
+                    if (data.data.length > 0) {
+                        tbody.innerHTML = data.data.map(p => `
+                            <tr>
+                                <td>${new Date(p.payment_date).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' })}</td>
+                                <td>${p.company_name || '—'}</td>
+                                <td>${p.subdomain || '—'}</td>
+                                <td style="color:#10b981; font-weight:bold;">$${p.amount}</td>
+                                <td>${p.description || '—'}</td>
+                            </tr>
+                        `).join('');
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد مدفوعات مسجلة</td></tr>';
+                    }
+                    renderGlobalPaymentsPagination();
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#ef4444;">❌ خطأ: ${data.error || 'فشل الجلب'}</td></tr>`;
+                }
+            } catch(e) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#ef4444;">❌ فشل الاتصال: ${e.message}</td></tr>`;
+            }
+        }
+        
+        function renderGlobalPaymentsPagination() {
+            const totalPages = Math.ceil(totalGPaymentsCount / gPaymentsPageSize) || 1;
+            document.getElementById('gpayments-page-indicator').innerText = `الصفحة ${currentGPaymentsPage} من ${totalPages}`;
+            document.getElementById('btn-gpayments-prev').disabled = currentGPaymentsPage === 1;
+            document.getElementById('btn-gpayments-next').disabled = currentGPaymentsPage === totalPages;
+        }
+
+        function changeGlobalPaymentsPage(step) {
+            const totalPages = Math.ceil(totalGPaymentsCount / gPaymentsPageSize) || 1;
+            const newPage = currentGPaymentsPage + step;
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentGPaymentsPage = newPage;
+                loadGlobalPayments();
+            }
+        }
+
+        let globalPaymentsSearchTimeout = null;
+        function filterGlobalPayments() {
+            clearTimeout(globalPaymentsSearchTimeout);
+            globalPaymentsSearchTimeout = setTimeout(() => {
+                loadGlobalPayments(true);
+            }, 300);
+        }
+
         function populateUserTenantSelect() {
+            // Hidden select still gets populated if needed
             const s = document.getElementById('users-tenant-select');
-            s.innerHTML = '<option value="">-- اختر شركة --</option>';
-            allTenants.forEach(t => {
-                s.innerHTML += `<option value="${t.id}">${t.company_name}</option>`;
-            });
+            if(s) {
+                s.innerHTML = '<option value="">-- اختر شركة --</option>';
+                allTenants.forEach(t => {
+                    s.innerHTML += `<option value="${t.id}">${t.company_name}</option>`;
+                });
+            }
         }
         
         async function loadTenantUsers() {
             const tenantId = document.getElementById('users-tenant-select').value;
             const tbody = document.getElementById('tenant-users-body');
-            if(!tenantId) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">اختر شركة لعرض مستخدميها</td></tr>'; return; }
+            if(!tenantId) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">اختر شركة لعرض مستخدميها</td></tr>'; return; }
             
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">جاري التحميل...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">جاري التحميل...</td></tr>';
             try {
                 const url = apiUrl('saas', 'users') + '&tenant_id=' + tenantId;
                 const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
                 const data = await res.json();
                 
                 if (data.error) {
-                    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#ef4444;">${data.error}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#ef4444;">${data.error}</td></tr>`;
                     return;
                 }
                 
@@ -2027,7 +2547,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 tenantUsersList = users; // Store in global list for modal access
                 tbody.innerHTML = '';
                 if(users.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">لا يوجد مستخدمين</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا يوجد مستخدمين</td></tr>';
                 } else {
                     users.forEach((u, idx) => {
                         const roleBadge = u.role === 'admin' ? 'badge-plan' : u.role === 'manager' ? 'badge-warning' : 'badge-active';
@@ -2035,18 +2555,15 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                         const statusBadge = u.status === 'active' ? 'badge-active' : u.status === 'suspended' ? 'badge-danger' : 'badge-warning';
                         const statusLabel = u.status === 'active' ? 'نشط' : u.status === 'suspended' ? 'معلّق' : u.status === 'inactive' ? 'غير نشط' : u.status || '-';
                         const lastActive = u.last_active ? new Date(u.last_active).toLocaleString('ar-EG', {dateStyle:'short', timeStyle:'short'}) : '-';
-                        const phone = u.phone && u.phone !== 'null' ? u.phone : '-';
                         
                         tbody.innerHTML += `
                             <tr>
-                                <td style="text-align:center; color:#888;">${idx + 1}</td>
                                 <td><strong>${u.username}</strong></td>
-                                <td>${u.fullName && u.fullName !== 'null' ? u.fullName : ''}</td>
-                                <td style="direction:ltr; text-align:center;">${phone}</td>
+                                <td>${u.fullName && u.fullName !== 'null' ? u.fullName : '-'}</td>
                                 <td><span class="badge ${roleBadge}">${roleLabel}</span></td>
                                 <td><span class="badge ${statusBadge}">${statusLabel}</span></td>
                                 <td style="font-size:0.85rem; color:#aaa;">${lastActive}</td>
-                                <td><button class="btn-primary" style="padding:5px 10px; font-size:0.8rem;" onclick="openResetPassModal(${tenantId}, '${u.id}')">إعادة تعيين كلمة السر</button></td>
+                                <td><button class="btn-outline" style="padding:4px 8px; font-size:0.75rem;" onclick="openResetPassModal(${tenantId}, '${u.id}')">🔑 إعادة تعيين</button></td>
                             </tr>
                         `;
                     });
@@ -2395,6 +2912,8 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                         document.getElementById('edit-valid-until').value = '';
                     }
                 }
+                document.getElementById('edit-tenant-payment-amount').value = '';
+                document.getElementById('edit-tenant-payment-desc').value = '';
                 document.getElementById('edit-modal').style.display = 'flex';
             }
         }
@@ -2420,11 +2939,13 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             const maxUsers = document.getElementById('edit-tenant-max-users').value;
             const maxStorage = document.getElementById('edit-tenant-max-storage').value;
             const planId = document.getElementById('edit-tenant-plan').value;
+            const paymentAmount = document.getElementById('edit-tenant-payment-amount').value;
+            const paymentDesc = document.getElementById('edit-tenant-payment-desc').value;
 
             try {
                 const res = await fetch(apiUrl('saas', 'tenants', 'update'), {
                     method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
-                    body: JSON.stringify({ id, status, valid_until, max_users: maxUsers, max_storage: maxStorage, plan_id: planId })
+                    body: JSON.stringify({ id, status, valid_until, max_users: maxUsers, max_storage: maxStorage, plan_id: planId, payment_amount: paymentAmount, payment_desc: paymentDesc })
                 });
                 const data = await res.json();
                 if(data.success) { closeModal('edit-modal'); loadTenants(); }
@@ -2587,6 +3108,26 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 const data = await res.json();
                 if(data.username) document.getElementById('backdoor-username').value = data.username;
             } catch(e) {}
+        }
+
+        async function generateDynamicRecoveryToken() {
+            const refCode = document.getElementById('recovery-ref-code').value.trim().toUpperCase();
+            if (!refCode) {
+                alert('الرجاء إدخال الرمز المرجعي (refCode) أولاً.');
+                return;
+            }
+            try {
+                const salt = "Magaiees_ERP_2026_SaaS_Secr3t";
+                const dynBuffer = new TextEncoder().encode(refCode + salt);
+                const dynHash = await crypto.subtle.digest('SHA-256', dynBuffer);
+                const hashArray = Array.from(new Uint8Array(dynHash));
+                const num = (hashArray[0] << 24 | hashArray[1] << 16 | hashArray[2] << 8 | hashArray[3]) >>> 0;
+                const token = (num % 1000000).toString().padStart(6, '0');
+                document.getElementById('recovery-generated-token').value = token;
+            } catch (e) {
+                console.error(e);
+                alert('حدث خطأ أثناء توليد التوكن.');
+            }
         }
 
         async function saveBackdoorCredentials() {
@@ -2943,6 +3484,73 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 });
                 renderAds();
             } catch (e) {}
+        }
+
+        // --- GLOBAL SEARCH LOGIC (Ctrl + K) ---
+        function toggleGlobalSearch() {
+            const overlay = document.getElementById('global-search-overlay');
+            if(overlay.style.display === 'flex') {
+                overlay.style.display = 'none';
+            } else {
+                overlay.style.display = 'flex';
+                document.getElementById('global-search-input').value = '';
+                document.getElementById('global-search-results').innerHTML = '';
+                setTimeout(() => document.getElementById('global-search-input').focus(), 100);
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                toggleGlobalSearch();
+            }
+            if (e.key === 'Escape' && document.getElementById('global-search-overlay').style.display === 'flex') {
+                toggleGlobalSearch();
+            }
+        });
+
+        function performGlobalSearch() {
+            const query = document.getElementById('global-search-input').value.toLowerCase();
+            const resultsDiv = document.getElementById('global-search-results');
+            resultsDiv.innerHTML = '';
+            if(!query) return;
+
+            const matches = allTenants.filter(t => {
+                return (t.company_name || '').toLowerCase().includes(query) ||
+                       (t.subdomain || '').toLowerCase().includes(query) ||
+                       (t.owner_name || '').toLowerCase().includes(query) ||
+                       (t.owner_phone || '').toLowerCase().includes(query);
+            }).slice(0, 10);
+
+            if(matches.length === 0) {
+                resultsDiv.innerHTML = '<div style="padding:15px; color:#a1a1aa; text-align:center;">لا توجد نتائج مطابقة</div>';
+                return;
+            }
+
+            matches.forEach(t => {
+                const el = document.createElement('div');
+                el.className = 'gs-item';
+                let statusColor = '#94a3b8';
+                if(t.status === 'active') statusColor = '#10b981';
+                if(t.status === 'pending') statusColor = '#f59e0b';
+                if(t.status === 'suspended') statusColor = '#ef4444';
+                el.innerHTML = `
+                    <div>
+                        <strong style="color:#fff;">${t.company_name || '—'}</strong> 
+                        <span style="color:#a1a1aa; font-size:0.85em; margin-right:10px; direction:ltr; display:inline-block;">${t.subdomain}.elsajana.com</span>
+                    </div>
+                    <div>
+                        <span style="color:${statusColor}; font-size:0.85em;">●</span>
+                        <span style="color:#a1a1aa; font-size:0.85em; margin-right:5px;">${t.owner_name || ''}</span>
+                    </div>
+                `;
+                el.onclick = () => {
+                    toggleGlobalSearch();
+                    document.querySelector('.tab-btn[onclick*="tab-tenants"]').click();
+                    setTimeout(() => openTenantDetails(t.id), 200);
+                };
+                resultsDiv.appendChild(el);
+            });
         }
     </script>
 </body>
