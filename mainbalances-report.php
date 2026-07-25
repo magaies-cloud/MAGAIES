@@ -1137,8 +1137,8 @@ $page_title = 'حساب الارصده الاساسية';
 
                 </div>
 
-                <!-- Charts Row 6: Solid Pie & Multi-Radial Rings Gauge (جديد) -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px;">
+                <!-- Charts Row 6: Solid Pie & Multi-Radial Rings Gauge -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
                     
                     <!-- Chart 10: Solid Pie Chart - Active vs Zero Accounts -->
                     <div class="v-chart-card">
@@ -1162,6 +1162,76 @@ $page_title = 'حساب الارصده الاساسية';
                             <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: ثلاث حلقات دائرية ملونة متداخلة تقارن حصة كل قطاع بنسبة مئوية واضحة</span>
                         </div>
                         <div id="chart-multi-radial-rings" style="min-height: 320px;"></div>
+                    </div>
+
+                </div>
+
+                <!-- Charts Row 7: DEDICATED COLUMN CHARTS FOR ALL SUPPLIERS & ALL CUSTOMERS (جديد ومفصل) -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
+                    
+                    <!-- Chart 12: Dedicated Column Chart for ALL Suppliers -->
+                    <div class="v-chart-card" style="grid-column: span 1 / -1;">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.1rem; font-weight: 900;">🏬 مدرّج أعمدة الموردين التفصيلي: (ارتفاع العمود بحسب حجم المبلغ دائن "له" ومدين "عليه" بالعملتين)</h4>
+                                <span style="font-size: 0.75rem; background: rgba(244, 63, 94, 0.2); color: #fb7185; padding: 4px 12px; border-radius: 12px; font-weight: 900; border: 1px solid rgba(244, 63, 94, 0.4);">📊 أعمدة الموردين</span>
+                            </div>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">توضيح بسيط: أعمدة شاهقة ترتفع وتتفاوت بوضوح حسب حجم مستحقات كل مورد (بالجنيه السوداني + الدولار الأجنبي)</span>
+                        </div>
+                        <div id="chart-suppliers-columns" style="min-height: 360px;"></div>
+                    </div>
+
+                    <!-- Chart 13: Dedicated Column Chart for ALL Customers -->
+                    <div class="v-chart-card" style="grid-column: span 1 / -1;">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.1rem; font-weight: 900;">👥 مدرّج أعمدة العملاء التفصيلي: (ارتفاع العمود بحسب حجم الديون مدين "عليه" ودائن "له" بالعملتين)</h4>
+                                <span style="font-size: 0.75rem; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 4px 12px; border-radius: 12px; font-weight: 900; border: 1px solid rgba(16, 185, 129, 0.4);">📊 أعمدة العملاء</span>
+                            </div>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">توضيح بسيط: أعمدة بصرية مرتفعة تُميز مطالبات العملاء بوضوح شديد حسب المبلغ (بالجنيه السوداني + الدولار الأجنبي)</span>
+                        </div>
+                        <div id="chart-customers-columns" style="min-height: 360px;"></div>
+                    </div>
+
+                </div>
+
+                <!-- Charts Row 8: Treemap, Waterfall & Polar Area Spectrum (مستويات إضافية متقدمة) -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px;">
+                    
+                    <!-- Chart 14: Treemap Accounts -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🗺️ خريطة المساحة المربّعة للمحفظة (Treemap)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">🗺️ مساحات ملوّنة</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: مربعات تترتب مساحاتها تلقائياً بحسب القيمة المالية للحساب</span>
+                        </div>
+                        <div id="chart-treemap-accounts" style="min-height: 340px;"></div>
+                    </div>
+
+                    <!-- Chart 15: Waterfall Net Balance -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📉 شلال حركة الصافي المالي (Waterfall)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">🌊 تدفق الشلال</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: إظهار الفروقات الإيجابية والسلبية التي تصب في الصافي النهائي</span>
+                        </div>
+                        <div id="chart-waterfall-net" style="min-height: 340px;"></div>
+                    </div>
+
+                    <!-- Chart 16: Polar Area Categories -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🧭 المخطط القطبي المحوري (Polar Area Spectrum)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">🧭 قطاعات دائريّة</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: قطاعات مرسومة من المركز توضح اتساع نطاق كل قسم</span>
+                        </div>
+                        <div id="chart-polar-categories" style="min-height: 340px;"></div>
                     </div>
 
                 </div>

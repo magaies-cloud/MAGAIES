@@ -2994,6 +2994,135 @@ function renderVisualAnalytics(results) {
     chartMultiRadialRings = new ApexCharts(document.querySelector("#chart-multi-radial-rings"), optionsMultiRadial);
     chartMultiRadialRings.render();
 
+    // ─── Chart 12: Dedicated Column Chart for ALL Suppliers ───
+    const allSuppliers = [...results].filter(x => x.type === 'SUPP' || (x.endingCreditLocal > 0 && !x.name.includes('عميل')))
+        .sort((a, b) => b.endingCreditLocal - a.endingCreditLocal).slice(0, 25);
+    
+    const suppNames = allSuppliers.map(x => x.name);
+    const suppCreditValues = allSuppliers.map(x => x.endingCreditLocal);
+    const suppDebitValues = allSuppliers.map(x => x.endingDebitLocal);
+
+    const optionsSuppliersColumns = {
+        series: [
+            { name: 'رصيد دائن للمورد (له)', data: suppCreditValues },
+            { name: 'رصيد مدين للمورد (عليه)', data: suppDebitValues }
+        ],
+        chart: {
+            type: 'bar',
+            height: 380,
+            background: 'transparent',
+            fontFamily: 'Tajawal, sans-serif',
+            toolbar: { show: true }
+        },
+        colors: ['#f43f5e', '#38bdf8'],
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '55%',
+                borderRadius: 6,
+                dataLabels: { position: 'top' }
+            }
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                if (!val || val === 0) return '';
+                return val >= 1000000 ? (val/1000000).toFixed(1) + 'M' : (val >= 1000 ? (val/1000).toFixed(0) + 'K' : val);
+            },
+            offsetY: -20,
+            style: { fontSize: '10px', colors: [isLightTheme ? '#0f172a' : '#f8fafc'], fontFamily: 'Tajawal, sans-serif' }
+        },
+        stroke: { show: true, width: 2, colors: ['transparent'] },
+        xaxis: {
+            categories: suppNames.length > 0 ? suppNames : ['لا يوجد موردين'],
+            labels: {
+                style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '11px', fontWeight: 'bold' },
+                rotate: -35
+            }
+        },
+        yaxis: {
+            labels: {
+                style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono, monospace' },
+                formatter: function(val) { return val.toLocaleString('en-US', {maximumFractionDigits: 0}); }
+            }
+        },
+        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
+        legend: { position: 'top', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: {
+            y: { formatter: formatDualCurrencyLine }
+        },
+        theme: { mode: chartThemeMode }
+    };
+
+    try { if (window.chartSuppliersColumns) window.chartSuppliersColumns.destroy(); } catch(e){}
+    window.chartSuppliersColumns = new ApexCharts(document.querySelector("#chart-suppliers-columns"), optionsSuppliersColumns);
+    window.chartSuppliersColumns.render();
+
+
+    // ─── Chart 13: Dedicated Column Chart for ALL Customers ───
+    const allCustomers = [...results].filter(x => x.type === 'CUST' || (x.endingDebitLocal > 0 && !x.name.includes('مورد')))
+        .sort((a, b) => b.endingDebitLocal - a.endingDebitLocal).slice(0, 25);
+    
+    const custNames = allCustomers.map(x => x.name);
+    const custDebitValues = allCustomers.map(x => x.endingDebitLocal);
+    const custCreditValues = allCustomers.map(x => x.endingCreditLocal);
+
+    const optionsCustomersColumns = {
+        series: [
+            { name: 'رصيد مدين على العميل (عليه)', data: custDebitValues },
+            { name: 'رصيد دائن للعميل (له)', data: custCreditValues }
+        ],
+        chart: {
+            type: 'bar',
+            height: 380,
+            background: 'transparent',
+            fontFamily: 'Tajawal, sans-serif',
+            toolbar: { show: true }
+        },
+        colors: ['#10b981', '#fbbf24'],
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '55%',
+                borderRadius: 6,
+                dataLabels: { position: 'top' }
+            }
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                if (!val || val === 0) return '';
+                return val >= 1000000 ? (val/1000000).toFixed(1) + 'M' : (val >= 1000 ? (val/1000).toFixed(0) + 'K' : val);
+            },
+            offsetY: -20,
+            style: { fontSize: '10px', colors: [isLightTheme ? '#0f172a' : '#f8fafc'], fontFamily: 'Tajawal, sans-serif' }
+        },
+        stroke: { show: true, width: 2, colors: ['transparent'] },
+        xaxis: {
+            categories: custNames.length > 0 ? custNames : ['لا يوجد عملاء'],
+            labels: {
+                style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '11px', fontWeight: 'bold' },
+                rotate: -35
+            }
+        },
+        yaxis: {
+            labels: {
+                style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono, monospace' },
+                formatter: function(val) { return val.toLocaleString('en-US', {maximumFractionDigits: 0}); }
+            }
+        },
+        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
+        legend: { position: 'top', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: {
+            y: { formatter: formatDualCurrencyLine }
+        },
+        theme: { mode: chartThemeMode }
+    };
+
+    try { if (window.chartCustomersColumns) window.chartCustomersColumns.destroy(); } catch(e){}
+    window.chartCustomersColumns = new ApexCharts(document.querySelector("#chart-customers-columns"), optionsCustomersColumns);
+    window.chartCustomersColumns.render();
+
     // ─── Chart 12: Treemap Top 15 Accounts ───
     const top15Treemap = sortedByVolume.slice(0, 15).map(x => ({
         x: x.name,
