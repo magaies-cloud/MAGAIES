@@ -72,14 +72,19 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         .autocomplete-list { position:absolute; top:calc(100% + 4px); right:0; left:0; background:#1e293b; border:1px solid #334155; border-radius:8px; list-style:none; margin:0; padding:4px; display:none; max-height:250px; overflow-y:auto; z-index:1000; box-shadow:0 10px 25px rgba(0,0,0,0.5); }
         .autocomplete-list li { padding:8px 12px; cursor:pointer; color:#f8fafc; font-size:0.85rem; border-radius:6px; margin-bottom:2px; font-weight:bold; display:flex; justify-content:space-between; }
         .autocomplete-list li:hover, .autocomplete-list li.active { background:#38bdf8; color:#0f172a; }
-        :root.light-theme .autocomplete-list { background:#ffffff; border-color:#e2e8f0; }
-        :root.light-theme .autocomplete-list li { color:#1e293b; }
+        :root.light-theme .autocomplete-list { background:#ffffff !important; border-color:#e2e8f0 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        :root.light-theme .autocomplete-list li { color:#1e293b !important; }
+        :root.light-theme .autocomplete-list li:hover { background:#e0f2fe !important; color:#0284c7 !important; }
         
         .selected-account-chip { display:none; align-items:center; gap:8px; width:100%; background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.4); border-radius:8px; padding:0 12px; height:40px; box-sizing:border-box; }
-        :root.light-theme .selected-account-chip { background:rgba(168,85,247,0.05); }
+        :root.light-theme .selected-account-chip { background:rgba(168,85,247,0.08) !important; border-color:rgba(168,85,247,0.3) !important; }
         
         .btn-run { background: linear-gradient(135deg, #a855f7, #7e22ce); color: #ffffff; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content:center; gap: 8px; transition: all 0.3s; font-family: inherit; font-size: 0.95rem; height: 40px; box-shadow: 0 4px 15px rgba(126, 34, 206, 0.4); }
         .btn-run:hover { background: linear-gradient(135deg, #c084fc, #9333ea); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(126, 34, 206, 0.6); }
+
+        .btn-action-secondary { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #f8fafc; padding: 8px 16px; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content:center; gap: 6px; transition: all 0.3s; font-family: inherit; font-size: 0.88rem; height: 40px; }
+        .btn-action-secondary:hover { background: rgba(255,255,255,0.18); transform: translateY(-2px); }
+        :root.light-theme .btn-action-secondary { background: #ffffff !important; border-color: rgba(0,0,0,0.15) !important; color: #0f172a !important; }
         
         /* Preset Buttons styles */
         .preset-slots-container {
@@ -137,9 +142,10 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         .pos-grid { width: 100%; border-collapse: collapse; font-family: 'Tajawal', sans-serif; }
         .pos-grid th, .pos-grid td { padding: 8px 10px; font-size: 0.85rem; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.05); color:#f8fafc; }
         .pos-grid thead th { background: rgba(15, 23, 42, 0.95); color: #c084fc; font-weight: 800; border-bottom: 2px solid #a855f7; position: sticky; top: 0; z-index: 10; }
-        :root.light-theme .pos-grid th, :root.light-theme .pos-grid td { color: #0f172a; border-color: rgba(0,0,0,0.05); }
-        :root.light-theme .pos-grid thead th { background: #f1f5f9; border-bottom: 2px solid #9333ea; }
+        :root.light-theme .pos-grid th, :root.light-theme .pos-grid td { color: #0f172a !important; border-color: rgba(0,0,0,0.05) !important; }
+        :root.light-theme .pos-grid thead th { background: #f1f5f9 !important; color: #9333ea !important; border-bottom: 2px solid #9333ea !important; }
         .pos-grid tbody tr:hover td { background: rgba(168,85,247,0.08); }
+        :root.light-theme .pos-grid tbody tr:hover td { background: rgba(168,85,247,0.05) !important; }
         
         .grid-scroll-wrap {
             background: rgba(15, 23, 42, 0.6);
@@ -147,14 +153,22 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            overflow-x: auto;
         }
-        :root.light-theme .grid-scroll-wrap { background:#ffffff; border-color:rgba(0,0,0,0.1); }
+        :root.light-theme .grid-scroll-wrap { background:#ffffff !important; border-color:rgba(0,0,0,0.1) !important; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+
+        .summary-card-val {
+            font-size: 1.4rem; font-weight: 900; color: #f8fafc; font-family: 'JetBrains Mono', monospace;
+        }
+        :root.light-theme .summary-card-val {
+            color: #0f172a !important;
+        }
     </style>
 </head>
 <body class="has-sidebar">
 <div class="sgl-master-container" style="padding: 10px 20px;">
     <?php $header_theme_class = 'header-theme-reports'; ?>
-    <?php // include 'includes/header.php'; ?>
+    <?php if(file_exists(__DIR__ . '/includes/header.php')) include __DIR__ . '/includes/header.php'; ?>
 
     <!-- Filter Launcher Panel -->
     <div class="report-header no-print">
@@ -170,7 +184,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
                 </div>
                 <div class="selected-account-chip" id="selected-chip">
                     <span id="chip-icon">🏷️</span>
-                    <span id="chip-name" style="flex:1; font-size:0.95rem; color:#f8fafc; font-weight:bold;"></span>
+                    <span id="chip-name" style="flex:1; font-size:0.95rem; font-weight:bold;"></span>
                     <button class="chip-remove" id="chip-remove-btn" title="إلغاء" style="background:none;border:none;color:#f87171;cursor:pointer;font-size:1.1rem;" onclick="clearAccountSearch()">✕</button>
                 </div>
                 <input type="hidden" id="filter-account" value="ALL">
@@ -240,11 +254,17 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         </div>
     </div>
 
-    <!-- Presets & Preview Button -->
-    <div class="filter-row" style="margin-bottom: 20px; display: flex; gap: 10px;">
-        <div class="preset-slots-container no-print" id="presets-container" style="flex:1; display:flex; gap:6px; align-items:center; flex-wrap:wrap; padding:2px 10px; border-radius:8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+    <!-- Presets & Action Buttons -->
+    <div class="filter-row" style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <div class="preset-slots-container no-print" id="presets-container" style="flex:1; display:flex; gap:6px; align-items:center; flex-wrap:wrap; padding:2px 10px; border-radius:8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); min-width: 250px;">
             <!-- Dynamic preset buttons rendered via JS -->
         </div>
+        <button class="btn-action-secondary" onclick="shareViaWhatsApp()" title="مشاركة ملخص التقرير عبر واتساب">
+            💬 واتساب
+        </button>
+        <button class="btn-action-secondary" onclick="openPreviewDesign()" title="طباعة مباشرة">
+            🖨️ طباعة
+        </button>
         <button class="btn-run" onclick="openPreviewDesign()">
             👁️ الشاشة الذكية للمعاينة والتصميم والطباعة والتخصيص
         </button>
@@ -254,15 +274,15 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
     <div class="filter-row" style="margin-bottom: 20px;">
         <div class="filter-group" style="background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.3); border-radius: 12px; padding: 15px; text-align: center;">
             <div style="font-size: 0.85rem; font-weight: 800; color: #34d399; margin-bottom: 5px;">إجمالي المدين</div>
-            <div id="launcher-total-debit" style="font-size: 1.4rem; font-weight: 900; color: #f8fafc; font-family: 'JetBrains Mono', monospace;">0.00</div>
+            <div id="launcher-total-debit" class="summary-card-val">0.00</div>
         </div>
         <div class="filter-group" style="background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.3); border-radius: 12px; padding: 15px; text-align: center;">
             <div style="font-size: 0.85rem; font-weight: 800; color: #f87171; margin-bottom: 5px;">إجمالي الدائن</div>
-            <div id="launcher-total-credit" style="font-size: 1.4rem; font-weight: 900; color: #f8fafc; font-family: 'JetBrains Mono', monospace;">0.00</div>
+            <div id="launcher-total-credit" class="summary-card-val">0.00</div>
         </div>
         <div class="filter-group" style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 15px; text-align: center;">
             <div style="font-size: 0.85rem; font-weight: 800; color: #38bdf8; margin-bottom: 5px;">الرصيد التراكمي</div>
-            <div id="launcher-total-balance" style="font-size: 1.4rem; font-weight: 900; color: #f8fafc; font-family: 'JetBrains Mono', monospace;">0.00</div>
+            <div id="launcher-total-balance" class="summary-card-val">0.00</div>
         </div>
     </div>
 
@@ -286,7 +306,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             </thead>
             <tbody id="recent-tbody">
                 <!-- Populated via JS -->
-                <tr><td colspan="8" style="text-align:center; padding: 20px;">جاري تحميل البيانات...</td></tr>
+                <tr><td colspan="10" style="text-align:center; padding: 20px;">جاري تحميل البيانات...</td></tr>
             </tbody>
         </table>
     </div>
@@ -294,6 +314,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 </div>
 
 <!-- Core JS -->
+<script src="js/localforage.min.js"></script>
 <script src="js/app.js?v=<?php echo time(); ?>"></script>
 <script src="js/general-ledger.js?v=<?php echo time(); ?>"></script>
 <script>

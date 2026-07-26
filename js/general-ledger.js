@@ -70,11 +70,10 @@ window.setDateMode = function(mode) {
         if (toCont) toCont.style.display = 'flex';
     }
     
-    // Auto run report when mode switches and we have transactions loaded
     if (typeof ALL_TXNS !== 'undefined' && ALL_TXNS.length > 0) {
         runReport();
     }
-}
+};
 
 function buildAccountsList() {
     ALL_ACCOUNTS = [{ id: 'ALL', name: 'جميع الحسابات', icon: '📊', type: 'عام' }];
@@ -98,6 +97,10 @@ function buildAccountsList() {
     ALL_ACCOUNTS.forEach(a => {
         const idLower = String(a.id).toLowerCase();
         ACCOUNT_NAME_CACHE.set(idLower, a.name);
+        const nameLower = String(a.name).toLowerCase();
+        if (nameLower && !ACCOUNT_NAME_CACHE.has(nameLower)) {
+            ACCOUNT_NAME_CACHE.set(nameLower, a.name);
+        }
         // Also cache without prefix for fallback lookups
         const cleanId = idLower.replace(/^[a-zA-Z]+\s*[-_:\/]\s*/, '').trim();
         if (cleanId && !ACCOUNT_NAME_CACHE.has(cleanId)) {
@@ -271,7 +274,7 @@ function collectAllTransactions() {
         txns.push({
             date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند قبض',
             account: v.toAccount || 'safe-001', counterAccount: v.fromAccount,
-            statement: 'سند قبض #' + (v.voucherNo || v.id),
+            statement: 'سند قبض #' + (v.voucherNo || v.id || 'بدون_رقم'),
             additionalNote: v.fromStatement || 'سند قبض نقدي',
             debit: valLoc, credit: 0, 
             debitForeign: valFc, creditForeign: 0,
@@ -283,7 +286,7 @@ function collectAllTransactions() {
         txns.push({
             date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند صرف',
             account: v.fromAccount, counterAccount: v.toAccount || 'safe-001',
-            statement: 'سند قبض #' + (v.voucherNo || v.id),
+            statement: 'سند قبض #' + (v.voucherNo || v.id || 'بدون_رقم'),
             additionalNote: v.fromStatement || 'سند صرف نقدي',
             debit: 0, credit: valLoc, 
             debitForeign: 0, creditForeign: valFc,
@@ -314,7 +317,7 @@ function collectAllTransactions() {
                 const amt = parseNum(bt.amount);
                 const amtLoc = isBaseSDG ? amt : amt * rate;
                 const amtFc = isBaseSDG ? 0 : amt;
-                const stmt = bt.statement || v.statement || v.toStatement || ('تحويل بنكي - سند صرف #' + (v.voucherNo || v.id));
+                const stmt = bt.statement || v.statement || v.toStatement || ('تحويل بنكي - سند صرف #' + (v.voucherNo || v.id || 'بدون_رقم'));
 
                 // Disbursing side (Safe/Bank)
                 txns.push({
@@ -342,7 +345,7 @@ function collectAllTransactions() {
                 const amt = parseNum(ch.amount);
                 const amtLoc = isBaseSDG ? amt : amt * rate;
                 const amtFc = isBaseSDG ? 0 : amt;
-                const stmt = ch.statement || v.statement || v.toStatement || ('شيك - سند صرف #' + (v.voucherNo || v.id));
+                const stmt = ch.statement || v.statement || v.toStatement || ('شيك - سند صرف #' + (v.voucherNo || v.id || 'بدون_رقم'));
 
                 // Disbursing side (Safe/Bank)
                 txns.push({
@@ -370,7 +373,7 @@ function collectAllTransactions() {
             txns.push({
                 date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
                 account: v.fromAccount || 'safe-001', counterAccount: v.toAccount,
-                statement: v.statement || 'سند صرف #' + (v.voucherNo || v.id),
+                statement: v.statement || 'سند صرف #' + (v.voucherNo || v.id || 'بدون_رقم'),
                 additionalNote: v.toStatement || 'سند صرف نقدي',
                 debit: 0, credit: valLoc, 
                 debitForeign: 0, creditForeign: valFc,
@@ -382,7 +385,7 @@ function collectAllTransactions() {
             txns.push({
                 date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
                 account: v.toAccount, counterAccount: v.fromAccount || 'safe-001',
-                statement: v.statement || 'سند صرف #' + (v.voucherNo || v.id),
+                statement: v.statement || 'سند صرف #' + (v.voucherNo || v.id || 'بدون_رقم'),
                 additionalNote: v.toStatement || 'سند استلام نقدي',
                 debit: valLoc, credit: 0, 
                 debitForeign: valFc, creditForeign: 0,
@@ -694,7 +697,7 @@ function collectAllTransactions() {
             txns.push({
                 date: v.date, time: time, ref: v.id, type: 'jv', typeLabel: 'قيد يومي',
                 account: line.account, counterAccount: '-',
-                statement: 'قيد يومي #' + (v.voucherNo || v.id),
+                statement: 'قيد يومي #' + (v.voucherNo || v.id || 'بدون_رقم'),
                 additionalNote: v.statement || line.note || 'قيد يومي',
                 debit: debLoc, credit: credLoc, 
                 debitForeign: debFc, creditForeign: credFc,
@@ -1503,137 +1506,222 @@ function showAttachment(e, ref) {
 // ==========================================
 
 let currentTxns = [];
+const LEDGER_PAGE_SIZE = 50;
+let ledgerCurrentPage = 1;
 
-function runReport() {
-    ALL_TXNS = collectAllTransactions();
-    
-    const accVal = document.getElementById('filter-account').value;
-    const fromDate = document.getElementById('filter-date-from').value;
-    const toDate = document.getElementById('filter-date-to').value;
-    const currencyFilter = document.getElementById('filter-currency').value;
-    const typeFilter = document.getElementById('filter-type').value;
-    const ccFilter = document.getElementById('filter-costcenter').value;
-    const postedFilter = document.getElementById('filter-posted').value;
-    const smartSearch = (document.getElementById('filter-smart').value || '').trim().toLowerCase();
-    
-    let filtered = ALL_TXNS;
-
-    // Account Filter
-    if (accVal !== 'ALL') {
-        const cleanFilter = accVal.replace(/^(cust|supp|bank|safe|exp)-/, '');
-        filtered = filtered.filter(t => {
-            if (String(t.account) === String(accVal)) return true;
-            if (String(t.account) === cleanFilter) return true;
-            return false;
-        });
+window.nextLedgerPage = function() {
+    if (ledgerCurrentPage * LEDGER_PAGE_SIZE < currentTxns.length) {
+        ledgerCurrentPage++;
+        renderLedgerPage();
     }
+};
 
-    // Date Filter
-    if (currentDateMode === 'range') {
-        if (fromDate) filtered = filtered.filter(t => t.date >= fromDate);
-        if (toDate) filtered = filtered.filter(t => t.date <= toDate);
+window.prevLedgerPage = function() {
+    if (ledgerCurrentPage > 1) {
+        ledgerCurrentPage--;
+        renderLedgerPage();
     }
+};
 
-    // Currency Filter
-    if (currencyFilter === 'LOCAL') {
-        filtered = filtered.filter(t => t.currency === 'SDG');
-    } else if (currencyFilter === 'FOREIGN') {
-        filtered = filtered.filter(t => t.currency !== 'SDG');
-    }
-
-    // Type Filter
-    if (typeFilter !== 'ALL') {
-        filtered = filtered.filter(t => {
-            if (typeFilter === 'sales' && t.type === 'invoice' && t.account !== 'revenue-sales') return true;
-            if (typeFilter === 'purchases' && t.type === 'purchase' && t.account !== 'cost-purchases') return true;
-            if (typeFilter === 'receipt' && (t.type === 'receipt' || t.type === 'multi-receipt') && t.debit > 0) return true;
-            if (typeFilter === 'payment' && (t.type === 'payment' || t.type === 'multi-payment') && t.credit > 0) return true;
-            if (typeFilter === 'journal' && t.type === 'jv') return true;
-            return false;
-        });
-    }
-
-    // Cost Center
-    if (ccFilter !== 'ALL') {
-        filtered = filtered.filter(t => t.costCenter === ccFilter);
-    }
-
-    // Posted Status
-    if (postedFilter === 'POSTED') {
-        filtered = filtered.filter(t => t.isPosted === true);
-    } else if (postedFilter === 'UNPOSTED') {
-        filtered = filtered.filter(t => t.isPosted === false);
-    }
-
-    // Smart Search
-    if (smartSearch) {
-        filtered = filtered.filter(t => {
-            return (t.statement || '').toLowerCase().includes(smartSearch) ||
-                   (t.additionalNote || '').toLowerCase().includes(smartSearch) ||
-                   (String(t.ref) || '').toLowerCase().includes(smartSearch) ||
-                   (t.checkNo || '').toLowerCase().includes(smartSearch) ||
-                   (t.transferNo || '').toLowerCase().includes(smartSearch);
-        });
-    }
-
-    // Sort Descending (Newest first) for Recent Table
-    filtered.sort((a, b) => {
-        const da = a.date + ' ' + (a.time || '00:00');
-        const db = b.date + ' ' + (b.time || '00:00');
-        return db.localeCompare(da);
-    });
-
-    currentTxns = filtered;
-
-    let totalDebit = 0;
-    let totalCredit = 0;
-    currentTxns.forEach(t => {
-        totalDebit += (t.debit || 0);
-        totalCredit += (t.credit || 0);
-    });
-
-    const tdDebit = document.getElementById('launcher-total-debit');
-    const tdCredit = document.getElementById('launcher-total-credit');
-    const tdBalance = document.getElementById('launcher-total-balance');
-
-    if (tdDebit) tdDebit.innerText = typeof fmtNum === 'function' ? fmtNum(totalDebit) : totalDebit.toLocaleString();
-    if (tdCredit) tdCredit.innerText = typeof fmtNum === 'function' ? fmtNum(totalCredit) : totalCredit.toLocaleString();
-    if (tdBalance) {
-        let bal = totalDebit - totalCredit;
-        tdBalance.innerText = typeof fmtNum === 'function' ? fmtNum(bal) : bal.toLocaleString();
-    }
-
-    renderRecentTable(currentTxns.slice(0, 50));
+function renderLedgerPage() {
+    const start = (ledgerCurrentPage - 1) * LEDGER_PAGE_SIZE;
+    const end = start + LEDGER_PAGE_SIZE;
+    renderRecentTable(currentTxns.slice(start, end), start);
 }
 
-function renderRecentTable(txns) {
+function runReport() {
+    try {
+        ALL_TXNS = collectAllTransactions();
+        
+        const accEl = document.getElementById('filter-account');
+        const fromEl = document.getElementById('filter-date-from');
+        const toEl = document.getElementById('filter-date-to');
+        const curEl = document.getElementById('filter-currency');
+        const typeEl = document.getElementById('filter-type');
+        const ccEl = document.getElementById('filter-costcenter');
+        const postedEl = document.getElementById('filter-posted');
+        const smartEl = document.getElementById('filter-smart');
+
+        const accVal = accEl ? accEl.value : 'ALL';
+        const fromDate = fromEl ? fromEl.value : '';
+        const toDate = toEl ? toEl.value : '';
+        const currencyFilter = curEl ? curEl.value : 'ALL';
+        const typeFilter = typeEl ? typeEl.value : 'ALL';
+        const ccFilter = ccEl ? ccEl.value : 'ALL';
+        const postedFilter = postedEl ? postedEl.value : 'ALL';
+        const smartSearch = (smartEl ? smartEl.value : '').trim().toLowerCase();
+        
+        let filtered = ALL_TXNS || [];
+
+        // Account Filter
+        if (accVal !== 'ALL') {
+            const cleanFilter = accVal.replace(/^(cust|supp|bank|safe|exp)-/, '');
+            filtered = filtered.filter(t => {
+                if (!t) return false;
+                if (String(t.account) === String(accVal)) return true;
+                if (String(t.account) === cleanFilter) return true;
+                return false;
+            });
+        }
+
+        // Date Filter
+        if (currentDateMode === 'range') {
+            if (fromDate) filtered = filtered.filter(t => t && t.date >= fromDate);
+            if (toDate) filtered = filtered.filter(t => t && t.date <= toDate);
+        }
+
+        // Currency Filter
+        if (currencyFilter === 'LOCAL') {
+            filtered = filtered.filter(t => t && t.currency === 'SDG');
+        } else if (currencyFilter === 'FOREIGN') {
+            filtered = filtered.filter(t => t && t.currency !== 'SDG');
+        }
+
+        // Type Filter
+        if (typeFilter !== 'ALL') {
+            filtered = filtered.filter(t => {
+                if (!t) return false;
+                if (typeFilter === 'sales' && t.type === 'invoice' && t.account !== 'revenue-sales') return true;
+                if (typeFilter === 'purchases' && t.type === 'purchase' && t.account !== 'cost-purchases') return true;
+                if (typeFilter === 'receipt' && (t.type === 'receipt' || t.type === 'multi-receipt') && t.debit > 0) return true;
+                if (typeFilter === 'payment' && (t.type === 'payment' || t.type === 'multi-payment') && t.credit > 0) return true;
+                if (typeFilter === 'journal' && t.type === 'jv') return true;
+                return false;
+            });
+        }
+
+        // Cost Center
+        if (ccFilter !== 'ALL') {
+            filtered = filtered.filter(t => t && t.costCenter === ccFilter);
+        }
+
+        // Posted Status
+        if (postedFilter === 'POSTED') {
+            filtered = filtered.filter(t => t && t.isPosted === true);
+        } else if (postedFilter === 'UNPOSTED') {
+            filtered = filtered.filter(t => t && t.isPosted === false);
+        }
+
+        // Smart Search
+        if (smartSearch) {
+            filtered = filtered.filter(t => {
+                if (!t) return false;
+                return (t.statement || '').toLowerCase().includes(smartSearch) ||
+                       (t.additionalNote || '').toLowerCase().includes(smartSearch) ||
+                       (String(t.ref) || '').toLowerCase().includes(smartSearch) ||
+                       (t.checkNo || '').toLowerCase().includes(smartSearch) ||
+                       (t.transferNo || '').toLowerCase().includes(smartSearch);
+            });
+        }
+
+        // Compute running balance in chronological order (oldest first)
+        let runningBal = 0;
+        let chronological = filtered.slice().sort((a, b) => {
+            const da = ((a && a.date) || '') + ' ' + ((a && a.time) || '00:00');
+            const db = ((b && b.date) || '') + ' ' + ((b && b.time) || '00:00');
+            return da.localeCompare(db);
+        });
+
+        chronological.forEach(t => {
+            if (!t) return;
+            runningBal += (t.debit || 0) - (t.credit || 0);
+            t.balance = runningBal;
+        });
+
+        // Sort Descending (Newest first) for Recent Table
+        filtered.sort((a, b) => {
+            const da = ((a && a.date) || '') + ' ' + ((a && a.time) || '00:00');
+            const db = ((b && b.date) || '') + ' ' + ((b && b.time) || '00:00');
+            return db.localeCompare(da);
+        });
+
+        currentTxns = filtered;
+
+        let totalDebit = 0;
+        let totalCredit = 0;
+        currentTxns.forEach(t => {
+            if (!t) return;
+            totalDebit += (t.debit || 0);
+            totalCredit += (t.credit || 0);
+        });
+
+        const tdDebit = document.getElementById('launcher-total-debit');
+        const tdCredit = document.getElementById('launcher-total-credit');
+        const tdBalance = document.getElementById('launcher-total-balance');
+
+        if (tdDebit) tdDebit.innerText = typeof fmtNum === 'function' ? fmtNum(totalDebit) : totalDebit.toLocaleString();
+        if (tdCredit) tdCredit.innerText = typeof fmtNum === 'function' ? fmtNum(totalCredit) : totalCredit.toLocaleString();
+        if (tdBalance) {
+            let bal = totalDebit - totalCredit;
+            tdBalance.innerText = typeof fmtNum === 'function' ? fmtNum(bal) : bal.toLocaleString();
+        }
+
+        ledgerCurrentPage = 1;
+        renderLedgerPage();
+    } catch (e) {
+        console.error('Error running report:', e);
+        renderRecentTable([]);
+    }
+}
+
+function renderRecentTable(txns, startIndex = 0) {
     const tbody = document.getElementById('recent-tbody');
     if (!tbody) return;
 
     if (txns.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 20px;">لا توجد عمليات تطابق الفلتر...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 20px;">لا توجد عمليات تطابق الفلتر...</td></tr>';
         return;
     }
 
     let html = '';
     txns.forEach((t, i) => {
         const counterAccName = getAccountName(t.counterAccount) || '-';
+        const mainAccName = getAccountName(t.account) || '-';
+        const isPosBal = (t.balance || 0) >= 0;
+
         html += `
             <tr>
-                <td>${i + 1}</td>
+                <td>${startIndex + i + 1}</td>
                 <td title="${t.time || ''}">${t.date || '-'}</td>
-                <td>${t.ref || '-'}</td>
+                <td><strong style="color:#38bdf8;">${t.ref || '-'}</strong></td>
+                <td><span style="font-weight:700;">${mainAccName}</span></td>
+                <td><span style="background:rgba(168,85,247,0.15); color:#c084fc; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">${t.typeLabel || '-'}</span></td>
                 <td style="white-space:normal; min-width:180px;">
-                    ${t.statement || '-'}
-                    ${t.additionalNote && t.additionalNote !== t.statement ? '<br><small style="color:#94a3b8;">' + t.additionalNote + '</small>' : ''}
+                    ${(t.statement === 'undefined' ? '-' : t.statement) || '-'}
+                    ${t.additionalNote && t.additionalNote !== t.statement && t.additionalNote !== 'undefined' ? '<br><small style="color:#94a3b8;">' + t.additionalNote + '</small>' : ''}
                 </td>
                 <td>${counterAccName}</td>
-                <td style="color:#34d399; font-weight:bold;">${t.debit > 0 ? fmtNum(t.debit) : ''}</td>
-                <td style="color:#f87171; font-weight:bold;">${t.credit > 0 ? fmtNum(t.credit) : ''}</td>
-                <td>-</td>
+                <td style="color:#34d399; font-weight:900;">${t.debit > 0 ? fmtNum(t.debit) : ''}</td>
+                <td style="color:#f87171; font-weight:900;">${t.credit > 0 ? fmtNum(t.credit) : ''}</td>
+                <td style="color:${isPosBal ? '#34d399' : '#f87171'}; font-weight:900; font-family:'JetBrains Mono',monospace;">${t.balance !== undefined ? fmtNum(t.balance) : '-'}</td>
             </tr>
         `;
     });
+
+    if (currentTxns && currentTxns.length > LEDGER_PAGE_SIZE) {
+        const totalPages = Math.ceil(currentTxns.length / LEDGER_PAGE_SIZE);
+        const hasNext = ledgerCurrentPage < totalPages;
+        const hasPrev = ledgerCurrentPage > 1;
+        
+        html += `
+            <tr class="pagination-row">
+                <td colspan="10" style="text-align:center; padding: 25px 0;">
+                    <div style="display:inline-flex; align-items:center; gap: 15px; background: rgba(125,125,125,0.08); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(125,125,125,0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.05); backdrop-filter: blur(4px);">
+                        <button onclick="prevLedgerPage()" style="background: ${hasPrev ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : 'rgba(125,125,125,0.15)'}; color: ${hasPrev ? '#fff' : 'inherit'}; border: none; padding: 8px 18px; border-radius: 12px; font-family: inherit; font-size: 0.9rem; font-weight: bold; cursor: ${hasPrev ? 'pointer' : 'not-allowed'}; opacity: ${hasPrev ? '1' : '0.5'}; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(1);" onmouseover="if(${hasPrev}) { this.style.transform='scale(1.05) translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(59,130,246,0.4)'; }" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';" ${hasPrev ? '' : 'disabled'}>
+                            السابق ◀
+                        </button>
+                        <span style="font-size: 0.9rem; font-weight: 700; opacity: 0.8; padding: 0 10px;">
+                            صفحة <strong style="color: #38bdf8;">${ledgerCurrentPage}</strong> من ${totalPages}
+                        </span>
+                        <button onclick="nextLedgerPage()" style="background: ${hasNext ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : 'rgba(125,125,125,0.15)'}; color: ${hasNext ? '#fff' : 'inherit'}; border: none; padding: 8px 18px; border-radius: 12px; font-family: inherit; font-size: 0.9rem; font-weight: bold; cursor: ${hasNext ? 'pointer' : 'not-allowed'}; opacity: ${hasNext ? '1' : '0.5'}; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(1);" onmouseover="if(${hasNext}) { this.style.transform='scale(1.05) translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(59,130,246,0.4)'; }" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';" ${hasNext ? '' : 'disabled'}>
+                            ▶ التالي
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
     tbody.innerHTML = html;
 }
 
@@ -1656,7 +1744,7 @@ function getAccountName(accVal) {
     return accVal; // return ID if name not found
 }
 
-function prepareLedgerPreviewData() {
+async function prepareLedgerPreviewData() {
     if (!currentTxns || currentTxns.length === 0) {
         if (typeof runReport === 'function') {
             runReport();
@@ -1724,17 +1812,26 @@ function prepareLedgerPreviewData() {
     try {
         localStorage.setItem('preview_ledger_config', JSON.stringify(config));
         localStorage.setItem('preview_ledger_totals', JSON.stringify(totals));
-        localStorage.setItem('preview_ledger_data', JSON.stringify(previewTxns));
-        localStorage.setItem('preview_table_data', JSON.stringify(previewTxns));
+        
+        if (typeof localforage !== 'undefined') {
+            await localforage.setItem('preview_ledger_data', previewTxns);
+            await localforage.setItem('preview_table_data', previewTxns);
+        }
+        
+        try {
+            localStorage.setItem('preview_ledger_data', JSON.stringify(previewTxns));
+            localStorage.setItem('preview_table_data', JSON.stringify(previewTxns));
+        } catch(quotaErr) {
+            console.warn('LocalStorage quota limit reached, stored in IndexedDB/localforage:', quotaErr);
+        }
     } catch(e) {
         console.error('Storage Error:', e);
-        alert('تنبيه: حجم البيانات كبير جداً ولا يمكن حفظه في الذاكرة المؤقتة لفتح شاشة المعاينة. ' + e.message);
     }
 }
 
-function openPreviewDesign() {
+async function openPreviewDesign() {
     try {
-        prepareLedgerPreviewData();
+        await prepareLedgerPreviewData();
         window.location.href = 'preview-ledger.php';
     } catch (e) {
         console.error(e);
@@ -1788,9 +1885,9 @@ function renderLedgerPresets() {
 }
 window.renderLedgerPresets = renderLedgerPresets;
 
-function openPresetModal(presetIndex, presetName) {
+async function openPresetModal(presetIndex, presetName) {
     try {
-        prepareLedgerPreviewData();
+        await prepareLedgerPreviewData();
     } catch (e) {
         console.error(e);
         alert('حدث خطأ غير متوقع: ' + e.message);
@@ -1854,11 +1951,10 @@ document.addEventListener('DOMContentLoaded', () => {
     renderLedgerPresets();
 
     buildAccountsList();
-    
-    // Initial fetch to load ALL_TXNS for the first time
+    runReport();
     setTimeout(() => {
         runReport();
-    }, 500);
+    }, 300);
 });
 
 window.addEventListener('storage', function(e) {

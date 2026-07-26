@@ -277,7 +277,7 @@ function calculateLedgerTxns() {
     return currentTxns;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     loadCompanyHeader();
     
     let attempts = 0;
@@ -289,10 +289,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('DBReady', loadCompanyHeader);
 
-    // Load Ledger Table Data & Config
-    const rawData = localStorage.getItem('preview_ledger_data') || localStorage.getItem('preview_table_data');
+    // Load Ledger Table Data & Config (Try IndexedDB via localforage first for large datasets)
+    if (typeof localforage !== 'undefined') {
+        try {
+            const lfData = await localforage.getItem('preview_ledger_data');
+            if (Array.isArray(lfData) && lfData.length > 0) {
+                currentData = lfData;
+            }
+        } catch(e) {
+            console.error('Error reading from localforage:', e);
+        }
+    }
+
+    if (!currentData || currentData.length === 0) {
+        const rawData = localStorage.getItem('preview_ledger_data') || localStorage.getItem('preview_table_data');
+        if (rawData) {
+            try {
+                const parsed = JSON.parse(rawData);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    currentData = parsed;
+                }
+            } catch(e) {
+                console.error('Error parsing ledger data', e);
+            }
+        }
+    }
+
     const rawConfig = localStorage.getItem('preview_ledger_config');
-    
     if (rawConfig) {
         try {
             const cfg = JSON.parse(rawConfig);
@@ -303,17 +326,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } catch(e){}
-    }
-
-    if (rawData) {
-        try {
-            const parsed = JSON.parse(rawData);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                currentData = parsed;
-            }
-        } catch(e) {
-            console.error('Error parsing ledger data', e);
-        }
     }
 
     if (!currentData || currentData.length === 0) {
