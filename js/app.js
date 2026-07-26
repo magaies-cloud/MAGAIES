@@ -33,8 +33,9 @@ JSON.parse = function(val) {
             return 'https://c.elsajana.com/';
         }
         const path = window.location.pathname;
-        const dir = path.substring(0, path.lastIndexOf('/'));
-        return origin + dir + "/";
+        let dir = path.substring(0, path.lastIndexOf('/'));
+        if (dir.endsWith('/')) dir = dir.slice(0, -1);
+        return origin + (dir ? dir : '') + "/";
     };
     const SYNC_PULL_URL = getBaseUrl() + "api_index.php/sync/pull";
     const SYNC_PUSH_URL = getBaseUrl() + "api_index.php/sync/push";

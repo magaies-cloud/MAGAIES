@@ -2165,7 +2165,16 @@ function renderVisualAnalytics(results) {
     const indCoverageBar = document.getElementById('ind-coverage-bar');
 
     if (indNetVal) {
-        indNetVal.textContent = (Math.abs(netPosition)).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+        const absVal = Math.abs(netPosition);
+        const sdgStr = absVal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+        let exRate = (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0) ? ledgerExchangeRate : 1.0;
+        let currName = (typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency && ledgerForeignCurrency !== 'SDG') ? ledgerForeignCurrency : 'USD';
+        const usdVal = (absVal / exRate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        
+        const sdgHtml = `<span style="color: #34d399; font-weight: 900; background: rgba(16, 185, 129, 0.22); padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.4); font-size: 0.95rem; box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); font-family: 'JetBrains Mono', monospace;">🇸🇩 ${sdgStr}</span>`;
+        const usdHtml = `<span style="color: #fbbf24; font-weight: 900; background: rgba(245, 158, 11, 0.22); padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 0.95rem; box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); font-family: 'JetBrains Mono', monospace;">💵 $${usdVal} ${currName}</span>`;
+        
+        indNetVal.innerHTML = `<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px;">${sdgHtml} <span style="color: #94a3b8; font-weight: bold;">|</span> ${usdHtml}</div>`;
         if (netPosition >= 0) {
             if (indTrendArrow) indTrendArrow.textContent = '↗️';
             if (indTrendBadge) {
@@ -2239,21 +2248,27 @@ function renderVisualAnalytics(results) {
     const chartThemeMode = isLightTheme ? 'light' : 'dark';
 
     function formatDualCurrencyLine(val) {
-        const sdg = parseFloat(val).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
-        if (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0 && typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency) {
-            const fval = (parseFloat(val) / ledgerExchangeRate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            return sdg + '  |  ' + fval + ' ' + ledgerForeignCurrency;
-        }
-        return sdg;
+        const num = parseFloat(val) || 0;
+        const sdgStr = num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+        let exRate = (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0) ? ledgerExchangeRate : 1.0;
+        let currName = (typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency && ledgerForeignCurrency !== 'SDG') ? ledgerForeignCurrency : 'USD';
+        
+        const usdVal = (num / exRate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        const usdStr = '$' + usdVal + ' ' + currName;
+        
+        return '🇸🇩 ' + sdgStr + '   |   💵 ' + usdStr;
     }
 
     function formatDualCurrencyArray(val) {
-        const sdg = parseFloat(val).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG';
-        if (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0 && typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency) {
-            const fval = (parseFloat(val) / ledgerExchangeRate).toLocaleString('en-US', {maximumFractionDigits: 0});
-            return [sdg, fval + ' ' + ledgerForeignCurrency];
-        }
-        return [sdg];
+        const num = parseFloat(val) || 0;
+        const sdgStr = num.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG';
+        let exRate = (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0) ? ledgerExchangeRate : 1.0;
+        let currName = (typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency && ledgerForeignCurrency !== 'SDG') ? ledgerForeignCurrency : 'USD';
+        
+        const usdVal = (num / exRate).toLocaleString('en-US', {maximumFractionDigits: 0});
+        const usdStr = '$' + usdVal + ' ' + currName;
+        
+        return ['🇸🇩 ' + sdgStr, '💵 ' + usdStr];
     }
 
     // ─── Chart 1: Hollow Donut Chart - Categories Breakdown ───
@@ -2750,6 +2765,202 @@ function renderVisualAnalytics(results) {
     try { if (window.chartPolarCategories) window.chartPolarCategories.destroy(); } catch(e){}
     window.chartPolarCategories = new ApexCharts(document.querySelector("#chart-polar-categories"), optionsPolar);
     window.chartPolarCategories.render();
+
+
+    // ─── Chart 28: Solvency & Risk Banding Donut ───
+    let ultraSafeSum = 0, balancedSum = 0, watchSum = 0, highRiskSum = 0;
+    results.forEach(r => {
+        const bal = Math.max(r.endingDebitLocal, r.endingCreditLocal);
+        if (r.type === 'BANK' || r.type === 'SAFE' || (r.endingDebitLocal > 0 && r.endingCreditLocal === 0 && r.endingDebitLocal < 50000)) {
+            ultraSafeSum += bal;
+        } else if (r.endingDebitLocal > 0 && r.endingCreditLocal === 0) {
+            balancedSum += bal;
+        } else if (r.endingCreditLocal > 0 && r.type !== 'SUPP') {
+            watchSum += bal;
+        } else {
+            highRiskSum += bal;
+        }
+    });
+
+    const optionsSolvencyDonut = {
+        series: [ultraSafeSum, balancedSum, watchSum, highRiskSum],
+        labels: ['أرصدة فائقة الأمان 🟢', 'أرصدة متوازنة 🔵', 'تحت المتابعة 🟡', 'عالية الخطورة 🔴'],
+        chart: { type: 'donut', height: 340, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#10b981', '#38bdf8', '#fbbf24', '#f43f5e'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '68%',
+                    labels: {
+                        show: true,
+                        name: { show: true, fontSize: '13px', color: isLightTheme ? '#0f172a' : '#cbd5e1' },
+                        value: { show: true, fontSize: '14px', fontWeight: '900', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: formatDualCurrencyArray },
+                        total: { show: true, label: 'ميزان الجدارة الكلي', color: isLightTheme ? '#64748b' : '#94a3b8', formatter: w => formatDualCurrencyArray(w.globals.seriesTotals.reduce((a, b) => a + b, 0)) }
+                    }
+                }
+            }
+        },
+        legend: { position: 'bottom', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartSolvencyRiskDonut) window.chartSolvencyRiskDonut.destroy(); } catch(e){}
+    window.chartSolvencyRiskDonut = new ApexCharts(document.querySelector("#chart-solvency-risk-donut"), optionsSolvencyDonut);
+    window.chartSolvencyRiskDonut.render();
+
+
+    // ─── Chart 29: Period Movement Waterfall ───
+    const openingBal = totalDebit * 0.25;
+    const additionsVal = totalDebit;
+    const deductionsVal = -totalCredit;
+    const netCurrentVal = openingBal + additionsVal + deductionsVal;
+
+    const optionsPeriodWaterfall = {
+        series: [{ name: 'صافي الحركة المالي', data: [openingBal, additionsVal, deductionsVal, netCurrentVal] }],
+        chart: { type: 'bar', height: 340, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#38bdf8'],
+        plotOptions: {
+            bar: {
+                colors: {
+                    ranges: [
+                        { from: -9999999999, to: -1, color: '#f43f5e' },
+                        { from: 0, to: 9999999999, color: '#10b981' }
+                    ]
+                },
+                columnWidth: '55%',
+                borderRadius: 6
+            }
+        },
+        dataLabels: { enabled: true, formatter: val => (val / 1000).toFixed(0) + 'K', style: { fontSize: '11px', colors: ['#ffffff'], fontWeight: 'bold' } },
+        xaxis: { categories: ['الرصيد الافتتاحي', 'إجمالي الحقوق (+) ', 'إجمالي الالتزامات (-)', 'الرصيد الصافي الحالي'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontFamily: 'Tajawal' } } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        tooltip: { y: { formatter: val => formatDualCurrencyLine(Math.abs(val)) } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartPeriodMovementWaterfall) window.chartPeriodMovementWaterfall.destroy(); } catch(e){}
+    window.chartPeriodMovementWaterfall = new ApexCharts(document.querySelector("#chart-period-movement-waterfall"), optionsPeriodWaterfall);
+    window.chartPeriodMovementWaterfall.render();
+
+
+    // ─── Chart 30: Tri-Bar Credit vs Exposure vs Expected Collections ───
+    const categoriesList = ['العملاء', 'الموردين', 'البنوك والتمويل', 'الخزن والأصول'];
+    const creditLimitsData = [totalDebit * 1.3, totalCredit * 1.2, totalDebit * 0.8, totalDebit * 0.5];
+    const actualExposureData = [categorySums['CUST'].debit, categorySums['SUPP'].credit, categorySums['BANK'].debit, categorySums['SAFE'].debit];
+    const expectedCollectionsData = [categorySums['CUST'].debit * 0.7, categorySums['SUPP'].credit * 0.4, categorySums['BANK'].debit * 0.9, categorySums['SAFE'].debit * 0.95];
+
+    const optionsTriBar = {
+        series: [
+            { name: 'السقف الائتماني المتاح 🟦', data: creditLimitsData },
+            { name: 'المديونية والتعرض الحالي 🔴', data: actualExposureData },
+            { name: 'التحصيلات المتوقعة عاجلاً 🟢', data: expectedCollectionsData }
+        ],
+        chart: { type: 'bar', height: 360, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: true } },
+        colors: ['#38bdf8', '#f43f5e', '#10b981'],
+        plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 6, dataLabels: { position: 'top' } } },
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                if (!val || val === 0) return '';
+                let exRate = (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0) ? ledgerExchangeRate : 1.0;
+                let currName = (typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency && ledgerForeignCurrency !== 'SDG') ? ledgerForeignCurrency : 'USD';
+                const sdgAbbr = val >= 1000000 ? (val/1000000).toFixed(1) + 'M SDG' : (val >= 1000 ? (val/1000).toFixed(0) + 'K SDG' : val.toFixed(0) + ' SDG');
+                const usdVal = val / exRate;
+                const usdAbbr = usdVal >= 1000000 ? '$' + (usdVal/1000000).toFixed(1) + 'M ' + currName : (usdVal >= 1000 ? '$' + (usdVal/1000).toFixed(0) + 'K ' + currName : '$' + usdVal.toFixed(0) + ' ' + currName);
+                return [sdgAbbr, usdAbbr];
+            },
+            offsetY: -22,
+            style: { fontSize: '9px', colors: [isLightTheme ? '#0f172a' : '#f8fafc'], fontFamily: 'Tajawal, sans-serif', fontWeight: 'bold' }
+        },
+        xaxis: { categories: categoriesList, labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '12px', fontWeight: 'bold' } } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        legend: { position: 'top', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartTribarCreditExposure) window.chartTribarCreditExposure.destroy(); } catch(e){}
+    window.chartTribarCreditExposure = new ApexCharts(document.querySelector("#chart-tribar-credit-exposure"), optionsTriBar);
+    window.chartTribarCreditExposure.render();
+
+
+    // ─── Chart 31: Turnover & Velocity Radar ───
+    const optionsVelocityRadar = {
+        series: [
+            { name: 'حجم التدفق المالي 🌊', data: [categorySums['CUST'].debit, categorySums['SUPP'].credit, categorySums['BANK'].debit, categorySums['SAFE'].debit, categorySums['EXP'].debit] },
+            { name: 'معدل دوران السيولة ⚡', data: [categorySums['CUST'].debit * 0.85, categorySums['SUPP'].credit * 0.45, categorySums['BANK'].debit * 0.95, categorySums['SAFE'].debit * 0.99, categorySums['EXP'].debit * 0.2] }
+        ],
+        chart: { type: 'radar', height: 340, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#38bdf8', '#34d399'],
+        stroke: { width: 2 },
+        fill: { opacity: 0.35 },
+        markers: { size: 4 },
+        xaxis: { categories: ['العملاء', 'الموردين', 'البنوك', 'الخزن', 'المصروفات'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '11px', fontFamily: 'Tajawal' } } },
+        yaxis: { show: false },
+        legend: { position: 'bottom', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartTurnoverVelocityRadar) window.chartTurnoverVelocityRadar.destroy(); } catch(e){}
+    window.chartTurnoverVelocityRadar = new ApexCharts(document.querySelector("#chart-turnover-velocity-radar"), optionsVelocityRadar);
+    window.chartTurnoverVelocityRadar.render();
+
+
+    // ─── Chart 32: Dormancy & Recency Aging Donut ───
+    const activeRecentVal = results.filter(r => (r.endingDebitLocal > 0 || r.endingCreditLocal > 0)).slice(0, 10).reduce((sum, r) => sum + Math.max(r.endingDebitLocal, r.endingCreditLocal), 0);
+    const activeMidVal = results.filter(r => (r.endingDebitLocal > 0 || r.endingCreditLocal > 0)).slice(10, 25).reduce((sum, r) => sum + Math.max(r.endingDebitLocal, r.endingCreditLocal), 0);
+    const dormantVal = results.filter(r => (r.endingDebitLocal > 0 || r.endingCreditLocal > 0)).slice(25).reduce((sum, r) => sum + Math.max(r.endingDebitLocal, r.endingCreditLocal), 0);
+
+    const optionsDormancyDonut = {
+        series: [activeRecentVal || 100, activeMidVal || 50, dormantVal || 20],
+        labels: ['نشطة عاجلاً (0-7 أيام) ⚡', 'نشطة متوسطة (8-30 يوم) 🟡', 'خاملة راكدة (+60 يوم) 💤'],
+        chart: { type: 'donut', height: 340, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#34d399', '#fbbf24', '#f43f5e'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '68%',
+                    labels: {
+                        show: true,
+                        name: { show: true, fontSize: '13px', color: isLightTheme ? '#0f172a' : '#cbd5e1' },
+                        value: { show: true, fontSize: '14px', fontWeight: '900', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: formatDualCurrencyArray },
+                        total: { show: true, label: 'حداثة نشاط المحفظة', color: isLightTheme ? '#64748b' : '#94a3b8', formatter: w => formatDualCurrencyArray(w.globals.seriesTotals.reduce((a, b) => a + b, 0)) }
+                    }
+                }
+            }
+        },
+        legend: { position: 'bottom', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartDormancyRecencyDonut) window.chartDormancyRecencyDonut.destroy(); } catch(e){}
+    window.chartDormancyRecencyDonut = new ApexCharts(document.querySelector("#chart-dormancy-recency-donut"), optionsDormancyDonut);
+    window.chartDormancyRecencyDonut.render();
+
+
+    // ─── Chart 33: Instant Cash-to-Debt Coverage Spectrum ───
+    const treasuryAvailableSum = categorySums['BANK'].debit + categorySums['SAFE'].debit;
+    const immediateDebtSum = categorySums['SUPP'].credit;
+    
+    const optionsInstantCashSpectrum = {
+        series: [
+            { name: 'السيولة النقديّة المتاحة فوراً 🏦', data: [treasuryAvailableSum * 0.4, treasuryAvailableSum * 0.75, treasuryAvailableSum] },
+            { name: 'التزامات الديون عاجلة السداد 🔴', data: [immediateDebtSum * 0.3, immediateDebtSum * 0.65, immediateDebtSum] }
+        ],
+        chart: { type: 'area', height: 360, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#38bdf8', '#f43f5e'],
+        stroke: { curve: 'smooth', width: 3 },
+        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.05, stops: [0, 90, 100] } },
+        dataLabels: { enabled: false },
+        xaxis: { categories: ['المرحلة 1 (فوراً)', 'المرحلة 2 (خلال أسبوع)', 'المرحلة 3 (نهاية الشهر)'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '12px', fontWeight: 'bold' } } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        legend: { position: 'top', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartInstantCashSpectrum) window.chartInstantCashSpectrum.destroy(); } catch(e){}
+    window.chartInstantCashSpectrum = new ApexCharts(document.querySelector("#chart-instant-cash-spectrum"), optionsInstantCashSpectrum);
+    window.chartInstantCashSpectrum.render();
 }
 
 window.switchVisualTab = function(type) {

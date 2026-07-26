@@ -955,6 +955,36 @@
             </div>
         </div>
 
+        <!-- Categorized Navigation Hub Bar ("تجميع حسب الاختصاصات") -->
+        <div class="glass-panel" id="category-hubs-container" style="padding: 14px 18px; border-radius: 18px; border: 1.5px solid rgba(56, 189, 248, 0.25); background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8)); margin-bottom: 14px; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div style="font-weight: 900; font-size: 0.9rem; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-layer-group text-sky-400" style="font-size: 1.1rem;"></i> الشاشات والتقارير مجمعة حسب الاختصاص والقطاع 📂
+                    <span style="font-size: 0.72rem; font-weight: 700; color: #94a3b8; margin-right: 6px;">(اختر أي تخصص لتنسدل لك قائمه المخصصة فوراً)</span>
+                </div>
+            </div>
+            
+            <!-- 7 Domain Specialty Buttons Grid -->
+            <div id="category-hubs-grid" style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; width: 100%;">
+                <!-- Rendered dynamically by renderCategoryHubs() -->
+            </div>
+        </div>
+
+        <!-- Floating Popover Container for Domain Dropdowns -->
+        <div id="category-dropdown-popover" style="display: none; position: fixed; width: 380px; max-width: 94vw; background: #070a12 !important; border: 2px solid #38bdf8; border-radius: 18px; box-shadow: 0 25px 95px rgba(0,0,0,0.99), 0 0 45px rgba(56, 189, 248, 0.55); z-index: 999999; padding: 14px; direction: rtl;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.12);">
+                <div id="cat-popover-title" style="font-size: 0.95rem; font-weight: 900; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-briefcase"></i> قائمة الاختصاص
+                </div>
+                <button onclick="closeCategoryDropdown()" style="background: rgba(248, 113, 113, 0.25); border: 1.5px solid #f87171; color: #f87171; border-radius: 10px; padding: 4px 12px; font-size: 0.82rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;" onmouseover="this.style.background='rgba(248,113,113,0.4)';" onmouseout="this.style.background='rgba(248,113,113,0.25)';">
+                    <span>إغلاق</span> &times;
+                </button>
+            </div>
+            <div id="cat-popover-list" style="max-height: 420px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
+                <!-- Rendered via JS -->
+            </div>
+        </div>
+
         <!-- 100% OPAQUE Floating Popover Menu for Uncustomized Screens (Zero Transparency, Covers Top Bar) -->
         <div id="screens-dropdown-menu" style="display: none; position: fixed; width: 500px; max-width: 96vw; background: #070a12 !important; border: 2px solid #a855f7; border-radius: 18px; box-shadow: 0 25px 95px rgba(0,0,0,0.99), 0 0 45px rgba(168, 85, 247, 0.55); z-index: 999999; padding: 14px; direction: rtl;">
             <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.12);">
@@ -1947,6 +1977,226 @@
         });
 
         // ═════════════════════════════════════════════════════════════════════
+        //  CATEGORIZED DOMAIN HUBS ENGINE ("تجميع حسب الاختصاصات")
+        // ═════════════════════════════════════════════════════════════════════
+        const DOMAIN_CATEGORIES = [
+            {
+                id: 'cat_accounting',
+                title: 'الحسابات والمالية',
+                icon: 'fa-file-invoice-dollar',
+                color: '#38bdf8',
+                bg: 'rgba(56, 189, 248, 0.2)',
+                border: '#38bdf8',
+                screens: [
+                    { href: 'account-statement.php', label: 'كشف حساب شريك', icon: 'fa-file-invoice-dollar', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
+                    { href: 'general-ledger.php', label: 'دفتر الأستاذ العام', icon: 'fa-book-bookmark', color: '#60a5fa', border: '#3b82f6', bg: 'rgba(59, 130, 246, 0.2)' },
+                    { href: 'trial-balance.php', label: 'ميزان المراجعة', icon: 'fa-scale-balanced', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
+                    { href: 'pl-statement.php', label: 'قائمة الأرباح والخسائر', icon: 'fa-chart-line', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
+                    { href: 'posting-accounts.php', label: 'دليل وشجرة الحسابات', icon: 'fa-sitemap', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
+                    { href: 'journal-voucher.php', label: 'سند قيد اليومية', icon: 'fa-pen-to-square', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' }
+                ]
+            },
+            {
+                id: 'cat_sales',
+                title: 'المبيعات والفواتير',
+                icon: 'fa-cart-shopping',
+                color: '#34d399',
+                bg: 'rgba(16, 185, 129, 0.2)',
+                border: '#10b981',
+                screens: [
+                    { href: 'direct-sales.php', label: 'المبيعات المباشرة ونقاط البيع', icon: 'fa-cart-shopping', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
+                    { href: 'sales-invoice.php', label: 'فواتير المبيعات الآجلة', icon: 'fa-receipt', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
+                    { href: 'sales-delivery.php', label: 'تسليم وإذون المبيعات', icon: 'fa-truck-ramp-box', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
+                    { href: 'customer-portfolio.php', label: 'محفظة وتحليلات العملاء', icon: 'fa-users', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
+                    { href: 'reserved-sales.php', label: 'حجوزات المبيعات', icon: 'fa-bookmark', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' }
+                ]
+            },
+            {
+                id: 'cat_purchases',
+                title: 'المشتريات والموردين',
+                icon: 'fa-bag-shopping',
+                color: '#fbbf24',
+                bg: 'rgba(251, 191, 36, 0.2)',
+                border: '#fbbf24',
+                screens: [
+                    { href: 'purchase.php', label: 'فواتير المشتريات', icon: 'fa-bag-shopping', color: '#fbbf24', border: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)' },
+                    { href: 'purchase-receipt.php', label: 'استلام شحنات المشتريات', icon: 'fa-box-open', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
+                    { href: 'purchase-return.php', label: 'مرتجعات المشتريات', icon: 'fa-rotate-left', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
+                    { href: 'supplier_reliability.php', label: 'اعتمادية وموثوقية الموردين', icon: 'fa-award', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' }
+                ]
+            },
+            {
+                id: 'cat_inventory',
+                title: 'المخزون والمستودعات',
+                icon: 'fa-warehouse',
+                color: '#a78bfa',
+                bg: 'rgba(167, 139, 250, 0.2)',
+                border: '#a78bfa',
+                screens: [
+                    { href: 'inventory-summary.php', label: 'ملخص حركة المخزون', icon: 'fa-boxes-stacked', color: '#a78bfa', border: '#a78bfa', bg: 'rgba(167, 139, 250, 0.2)' },
+                    { href: 'inventory-movement.php', label: 'حركة الأصناف التفصيلية', icon: 'fa-dolly', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
+                    { href: 'warehouse-inventory.php', label: 'مخزون المستودعات', icon: 'fa-warehouse', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
+                    { href: 'warehouse-transfer.php', label: 'التحويل بين المستودعات', icon: 'fa-arrows-left-right', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
+                    { href: 'item-ledger.php', label: 'دفتر حركة الصنف', icon: 'fa-barcode', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' }
+                ]
+            },
+            {
+                id: 'cat_balances',
+                title: 'المقاييس والأرصدة والتقارير',
+                icon: 'fa-scale-balanced',
+                color: '#f472b6',
+                bg: 'rgba(244, 114, 182, 0.2)',
+                border: '#f472b6',
+                screens: [
+                    { href: 'mainbalances-report.php', label: 'تقرير الأرصدة الأساسية', icon: 'fa-scale-balanced', color: '#00f3ff', border: '#00f3ff', bg: 'rgba(0, 243, 255, 0.2)' },
+                    { href: 'balances-report.php', label: 'أرصدة تجميعية متساوية', icon: 'fa-layer-group', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
+                    { href: 'balances_modern_hub.php', label: 'مركز الأرصدة الموحد', icon: 'fa-chart-pie', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
+                    { href: 'daily_master_report.php', label: 'التقرير اليومي الشامل', icon: 'fa-calendar-day', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
+                    { href: 'aging-report.php', label: 'تقرير أعمار الديون', icon: 'fa-clock-rotate-left', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
+                    { href: 'combined_receivables.php', label: 'تجميعية المستحقات والديون', icon: 'fa-hand-holding-dollar', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' }
+                ]
+            },
+            {
+                id: 'cat_treasury',
+                title: 'الخزن والبنوك والسيولة',
+                icon: 'fa-vault',
+                color: '#34d399',
+                bg: 'rgba(52, 211, 153, 0.2)',
+                border: '#34d399',
+                screens: [
+                    { href: 'cash-bank-statement.php', label: 'كشف حركة الخزن والبنوك', icon: 'fa-building-columns', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
+                    { href: 'multi-cash-payment.php', label: 'سند دفع وصرف متعدد', icon: 'fa-money-bill-wave', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
+                    { href: 'single-cash-payment.php', label: 'سند صرف نقدية', icon: 'fa-file-invoice', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
+                    { href: 'single-cash-receipt.php', label: 'سند قبض نقدية', icon: 'fa-receipt', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
+                    { href: 'safe-transfer.php', label: 'تحويل نقدية بين الخزن', icon: 'fa-arrow-right-arrow-left', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
+                    { href: 'checks-cycle.php', label: 'دورة إدارة الشيكات', icon: 'fa-money-check-dollar', color: '#fbbf24', border: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)' }
+                ]
+            },
+            {
+                id: 'cat_system',
+                title: 'الذكاء الاصطناعي والإدارة',
+                icon: 'fa-robot',
+                color: '#c084fc',
+                bg: 'rgba(192, 132, 252, 0.2)',
+                border: '#c084fc',
+                screens: [
+                    { href: 'ai_goods_advisor.php', label: 'مستشار AI للبضائع', icon: 'fa-robot', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
+                    { href: 'ai_money_advisor.php', label: 'مستشار AI للأموال', icon: 'fa-lightbulb', color: '#c084fc', border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
+                    { href: 'smart_inventory_report.php', label: 'تقارير الذكاء الاصطناعي', icon: 'fa-brain', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
+                    { href: 'master-data.php', label: 'إدارة البيانات الأساسية', icon: 'fa-database', color: '#60a5fa', border: '#3b82f6', bg: 'rgba(59, 130, 246, 0.2)' },
+                    { href: 'users-roles.php', label: 'المستخدمون والصلاحيات', icon: 'fa-user-gear', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' },
+                    { href: 'settings.php', label: 'إعدادات النظام والقواعد', icon: 'fa-gear', color: '#94a3b8', border: '#64748b', bg: 'rgba(100, 116, 139, 0.2)' },
+                    { href: 'backup.php', label: 'النسخ الاحتياطي', icon: 'fa-hard-drive', color: '#a78bfa', border: '#a78bfa', bg: 'rgba(167, 139, 250, 0.2)' },
+                    { href: 'audit-log.php', label: 'سجل العمليات والرقابة', icon: 'fa-user-shield', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' }
+                ]
+            }
+        ];
+
+        let activeCategoryDropdownId = null;
+
+        function renderCategoryHubs() {
+            const grid = document.getElementById('category-hubs-grid');
+            if (!grid) return;
+
+            grid.innerHTML = DOMAIN_CATEGORIES.map(cat => `
+                <button onclick="toggleCategoryMenu('${cat.id}', event)" id="btn-${cat.id}" class="qa-master-btn cat-hub-btn" style="--btn-border-color: ${cat.border}; --btn-glow-color: ${cat.bg}; border-bottom: 3.5px solid ${cat.border} !important; width: 100%;">
+                    <span class="qa-icon" style="background: ${cat.bg}; border: 1px solid ${cat.border}; color: ${cat.color};">
+                        <i class="fa-solid ${cat.icon}"></i>
+                    </span>
+                    <span class="btn-text" style="color: #ffffff; font-size: 0.85rem !important;">${cat.title}</span>
+                    <i class="fa-solid fa-chevron-down cat-chevron" style="font-size: 0.72rem; color: ${cat.color}; margin-right: auto; transition: transform 0.3s ease;"></i>
+                </button>
+            `).join('');
+        }
+
+        function toggleCategoryMenu(catId, e) {
+            if (e) e.stopPropagation();
+            const popover = document.getElementById('category-dropdown-popover');
+            const targetBtn = document.getElementById(`btn-${catId}`);
+            if (!popover || !targetBtn) return;
+
+            if (activeCategoryDropdownId === catId && popover.style.display === 'block') {
+                closeCategoryDropdown();
+                return;
+            }
+
+            const cat = DOMAIN_CATEGORIES.find(c => c.id === catId);
+            if (!cat) return;
+
+            activeCategoryDropdownId = catId;
+
+            // Reset all chevrons
+            document.querySelectorAll('.cat-chevron').forEach(ch => ch.style.transform = 'rotate(0deg)');
+
+            const chev = targetBtn.querySelector('.cat-chevron');
+            if (chev) chev.style.transform = 'rotate(180deg)';
+
+            // Update title and border color
+            popover.style.borderColor = cat.border;
+            popover.style.boxShadow = `0 25px 95px rgba(0,0,0,0.99), 0 0 45px ${cat.bg}`;
+
+            const popoverTitle = document.getElementById('cat-popover-title');
+            if (popoverTitle) {
+                popoverTitle.style.color = cat.color;
+                popoverTitle.innerHTML = `<i class="fa-solid ${cat.icon}" style="color: ${cat.color}; font-size: 1.1rem;"></i> 📜 قائمة اختصاص (${cat.title})`;
+            }
+
+            const popoverList = document.getElementById('cat-popover-list');
+            if (popoverList) {
+                popoverList.innerHTML = cat.screens.map(scr => `
+                    <a href="${scr.href}" onclick="window.location.href='${scr.href}'" class="screen-popover-item" style="--item-border-color: ${scr.border}; --item-glow-color: ${scr.bg}; border-bottom: 2.5px solid ${scr.border} !important; background: rgba(15, 23, 42, 0.95) !important;">
+                        <div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;">
+                            <span class="qa-icon" style="width: 32px; height: 32px; min-width: 32px; font-size: 0.88rem; border-radius: 8px; background: ${scr.bg}; border: 1px solid ${scr.border}; color: ${scr.color}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="fa-solid ${scr.icon}"></i>
+                            </span>
+                            <span class="screen-title" style="font-size: 0.92rem; font-weight: 800; color: #ffffff;">${scr.label}</span>
+                        </div>
+                        <i class="fa-solid fa-arrow-left screen-arrow" style="font-size: 0.8rem; color: ${scr.color}; opacity: 0.9;"></i>
+                    </a>
+                `).join('');
+            }
+
+            // Calculate Position relative to targetBtn in RTL layout
+            popover.style.position = 'fixed';
+            popover.style.display = 'block';
+
+            const rect = targetBtn.getBoundingClientRect();
+            const popoverWidth = Math.min(380, window.innerWidth - 24);
+            popover.style.width = `${popoverWidth}px`;
+
+            let topPos = rect.bottom + 8;
+            if (topPos + 400 > window.innerHeight) {
+                topPos = Math.max(12, rect.top - 420);
+            }
+            popover.style.top = `${topPos}px`;
+
+            let rightPos = window.innerWidth - rect.right;
+            if (rightPos + popoverWidth > window.innerWidth - 12) {
+                rightPos = Math.max(12, window.innerWidth - popoverWidth - 12);
+            }
+            popover.style.right = `${rightPos}px`;
+            popover.style.left = 'auto';
+            popover.style.zIndex = '999999';
+        }
+
+        function closeCategoryDropdown() {
+            const popover = document.getElementById('category-dropdown-popover');
+            if (popover) popover.style.display = 'none';
+            activeCategoryDropdownId = null;
+            document.querySelectorAll('.cat-chevron').forEach(ch => ch.style.transform = 'rotate(0deg)');
+        }
+
+        document.addEventListener('click', function(e) {
+            const popover = document.getElementById('category-dropdown-popover');
+            if (popover && popover.style.display === 'block') {
+                const targetBtn = activeCategoryDropdownId ? document.getElementById(`btn-${activeCategoryDropdownId}`) : null;
+                if (!popover.contains(e.target) && (!targetBtn || !targetBtn.contains(e.target))) {
+                    closeCategoryDropdown();
+                }
+            }
+        });
+
+        // ═════════════════════════════════════════════════════════════════════
         //  SINGLE-ROW 7-ITEM QUICK ACTIONS ENGINE WITH RIGHT-CLICK CUSTOMIZER
         // ═════════════════════════════════════════════════════════════════════
         const ALL_QUICK_ACTIONS = [
@@ -2222,11 +2472,16 @@
             if (typeof showToast === 'function') showToast('✅ تم حفظ التبديل وعرض الأزرار الـ 7 بنجاح', 'success');
         }
 
-        // Initialize Quick Actions & Screens Dropdown immediately on DOM ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', renderSingleRowQA);
-        } else {
+        // Initialize Quick Actions, Category Hubs & Screens Dropdown immediately on DOM ready
+        function initDashboardNav() {
+            renderCategoryHubs();
             renderSingleRowQA();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initDashboardNav);
+        } else {
+            initDashboardNav();
         }
         </script>
     

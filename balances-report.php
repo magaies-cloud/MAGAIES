@@ -168,8 +168,53 @@ $page_title = 'حسابات تجميعية متساوية';
         .badge-sgl { background: #38bdf8; color: #0f172a; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; letter-spacing: 1px; }
         .badge-active { background: rgba(52,211,153,0.15); color: #34d399; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; border: 1px solid rgba(52,211,153,0.3); }
 
-        .btn-run { background: #38bdf8; color: #0f172a; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; font-family: inherit; font-size: 0.9rem; }
-        .btn-run:hover { background: #0ea5e9; transform: translateY(-1px); }
+        /* ─── 1. Run Button (أيقونة التشغيل) Neon Styling & +50% Width / +10% Height Sizing ─── */
+        .btn-run {
+            background: linear-gradient(135deg, #00f3ff 0%, #0284c7 60%, #0369a1 100%) !important;
+            color: #ffffff !important;
+            border: 2px solid #00f3ff !important;
+            padding: 10px 24px !important;
+            border-radius: 12px !important;
+            font-weight: 900 !important;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            font-family: inherit;
+            font-size: 0.95rem !important;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.7), inset 0 1px 3px rgba(255, 255, 255, 0.8) !important;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-run:hover {
+            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 50%, #0d9488 100%) !important;
+            transform: translateY(-4px) scale(1.08) !important;
+            box-shadow: 0 0 35px rgba(0, 243, 255, 0.95), 0 0 55px rgba(0, 243, 255, 0.6), inset 0 1px 4px rgba(255, 255, 255, 1) !important;
+            filter: brightness(1.2);
+        }
+
+        .btn-run:active {
+            transform: translateY(-1px) scale(1.02) !important;
+        }
+
+        .btn-run svg {
+            width: 24px !important;
+            height: 18px !important;
+            transform: scale(1.5, 1.1) !important;
+            transform-origin: center center;
+            filter: drop-shadow(0 0 8px #00f3ff) drop-shadow(0 0 15px rgba(0, 243, 255, 0.8));
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            flex-shrink: 0;
+        }
+
+        .btn-run:hover svg {
+            transform: scale(1.75, 1.25) rotate(15deg) !important;
+            filter: drop-shadow(0 0 12px #ffffff) drop-shadow(0 0 25px #00f3ff) !important;
+        }
+
         .btn-action { background: rgba(255,255,255,0.05); color: #f8fafc; border: 1px solid rgba(255,255,255,0.1); padding: 7px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; font-family: inherit; }
         .btn-action:hover { background: rgba(255,255,255,0.1); }
 
@@ -961,10 +1006,10 @@ $page_title = 'حسابات تجميعية متساوية';
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div style="width: 14px; height: 14px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 15px #38bdf8; animation: pulse 2s infinite;"></div>
                         <h3 style="margin: 0; font-size: 1.35rem; font-weight: 900; color: #f8fafc; letter-spacing: -0.5px;">
-                            📈 التقرير البصري التحليلي للأرصدة وهيكل السيولة
+                            📈 التقرير البصري التحليلي للأرصدة وهيكل السيولة (SDG + $ USD)
                         </h3>
                         <span class="hub-badge" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 800;">
-                            ✨ visual intelligence 3.0
+                            ✨ مزدوج العملتين (SDG + $ USD) 3.0
                         </span>
                     </div>
                     <div style="display: flex; gap: 8px;" class="no-print">
@@ -980,7 +1025,7 @@ $page_title = 'حسابات تجميعية متساوية';
                     <!-- Card 1: مؤشر الاتجاه والتغطية -->
                     <div class="v-card glow-sky">
                         <div class="v-card-header">
-                            <span class="v-card-title">مؤشر صافي الاتجاه والسيولة</span>
+                            <span class="v-card-title">مؤشر صافي الاتجاه والسيولة (SDG + $ USD)</span>
                             <span class="v-card-icon" id="ind-trend-arrow" style="font-size: 1.4rem; color: #34d399;">↗️</span>
                         </div>
                         <div class="v-card-value" id="ind-net-val">0.00 SDG</div>
@@ -1237,6 +1282,107 @@ $page_title = 'حسابات تجميعية متساوية';
                             <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يشبه المخطط الدائري ولكن طول القطعة يعبر عن القيمة بدلاً من عرض الزاوية</span>
                         </div>
                         <div id="chart-polar-categories" style="min-height: 320px;"></div>
+                    </div>
+
+                </div>
+
+                <!-- ════════════════════════════════════════════════════════════
+                     5. التقرير البصري الخامس: المؤشرات المبتكرة والجدارة المالية ومتابعة الحركة
+                     ════════════════════════════════════════════════════════════ -->
+                <div class="v-section-banner">
+                    <div class="v-section-title">
+                        <span>🚀</span> 5. التقرير البصري الخامس: مؤشرات الجدارة، حركة المحفظة، والأمان النقدي الفوري
+                    </div>
+                    <div class="v-section-badge">
+                        مزدوج العملتين: (SDG + $ USD)
+                    </div>
+                </div>
+
+                <!-- Charts Row 13: 6 NEW EASY-TO-UNDERSTAND POWERFUL ANALYTICAL REPORTS -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-top: 25px;">
+                    
+                    <!-- Chart 28: Financial Solvency & Risk Banding Donut -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🛡️ كعكة ميزان الجدارة المالية وتصنيف مستويات الخطورة (Solvency Risk Bands)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.4);">🛡️ مستويات الأمان</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: تصنيف المحفظة إلى 4 فئات أمان (فائقة الأمان، متوازنة، تحت المتابعة، عالية الخطورة) بالعملتين</span>
+                        </div>
+                        <div id="chart-solvency-risk-donut" style="min-height: 340px;"></div>
+                    </div>
+
+                    <!-- Chart 29: Period Movement Waterfall -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📉 شلال حركة السيولة والذمم بين أول وأخر الفترة (Period Movement Waterfall)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.4);">🌊 شلال الحركة</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يوضح للشخص غير المحاسب كيف تطورت الأرصدة من البداية إلى الصافي الحالي بالعملتين</span>
+                        </div>
+                        <div id="chart-period-movement-waterfall" style="min-height: 340px;"></div>
+                    </div>
+
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-top: 25px;">
+                    
+                    <!-- Chart 30: Tri-Bar Credit vs Exposure vs Expected Collections -->
+                    <div class="v-chart-card" style="grid-column: span 1 / -1;">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.1rem; font-weight: 900;">📊 المدرّج الثلاثي للتسهيلات والديون والتحصيلات المتوقعة (Tri-Bar Credit & Exposure)</h4>
+                                <span style="font-size: 0.75rem; background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 4px 12px; border-radius: 12px; font-weight: 900; border: 1px solid rgba(245, 158, 11, 0.4);">📊 مقارنة ثلاثية بالعملتين</span>
+                            </div>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">توضيح بسيط: 3 أعمدة متجاورة تقارن السقف المالي والديون الفعلية والسيولة المتوقع تحصيلها عاجلاً</span>
+                        </div>
+                        <div id="chart-tribar-credit-exposure" style="min-height: 360px;"></div>
+                    </div>
+
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; margin-top: 25px;">
+                    
+                    <!-- Chart 31: Turnover & Velocity Radar -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🎯 رادار سرعة دوران السيولة الذاتية للأنشطة (Velocity Radar)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.2); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.4);">🎯 دوران السيولة</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: شبكة رادار تعكس سرعة تحول المستحقات إلى نقدية سائلة في كل قسم بالعملتين</span>
+                        </div>
+                        <div id="chart-turnover-velocity-radar" style="min-height: 340px;"></div>
+                    </div>
+
+                    <!-- Chart 32: Dormancy & Recency Aging Donut -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">⏱️ كعكة التوزيع الزمني لحداثة نشاط الحسابات (Dormancy Aging Donut)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(244, 63, 94, 0.2); color: #fb7185; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(244, 63, 94, 0.4);">⏱️ حداثة النشاط</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: تمييز الحسابات ذات الحركة الحديثة مقابل الحسابات الخاملة الراكدة بالعملتين</span>
+                        </div>
+                        <div id="chart-dormancy-recency-donut" style="min-height: 340px;"></div>
+                    </div>
+
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-top: 25px;">
+                    
+                    <!-- Chart 33: Instant Cash-to-Debt Coverage Spectrum -->
+                    <div class="v-chart-card" style="grid-column: span 1 / -1;">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.1rem; font-weight: 900;">🌊 منحنى التغطية النقدية الفورية للالتزامات (Instant Cash-to-Debt Coverage Spectrum)</h4>
+                                <span style="font-size: 0.75rem; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 4px 12px; border-radius: 12px; font-weight: 900; border: 1px solid rgba(16, 185, 129, 0.4);">🌊 التغطية النقدية الفورية</span>
+                            </div>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">توضيح بسيط: مقارنة مساحية ملونة بين النقدية الجاهزة فوراً في الخزن والبنوك والديون الواجبة السداد بالعملتين</span>
+                        </div>
+                        <div id="chart-instant-cash-spectrum" style="min-height: 360px;"></div>
                     </div>
 
                 </div>

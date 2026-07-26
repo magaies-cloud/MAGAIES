@@ -78,39 +78,60 @@
             border-bottom: 3px solid #0284c7;
             flex-wrap: wrap; gap: 10px;
         }
-        .ribbon-btn {
-            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25);
-            color: white; padding: 7px 16px; border-radius: 20px; font-family: inherit; font-weight: 800;
-            cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); font-size: 0.85rem; display: flex; align-items: center; gap: 6px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        @keyframes shimmer-sweep {
+            0% { transform: translateX(-150%) skewX(-25deg); }
+            100% { transform: translateX(250%) skewX(-25deg); }
         }
+
+        .ribbon-btn {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(30, 41, 59, 0.7));
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: white; padding: 8px 18px; border-radius: 22px; font-family: inherit; font-weight: 900;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(14px);
+        }
+        .ribbon-btn::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+            transform: translateX(-150%) skewX(-25deg); pointer-events: none;
+        }
+        .ribbon-btn:hover::after { animation: shimmer-sweep 0.75s ease-in-out forwards; }
         .ribbon-btn:hover {
-            transform: translateY(-2px);
-            background: rgba(56,189,248,0.25); border-color: #38bdf8;
-            box-shadow: 0 4px 12px rgba(56,189,248,0.3);
+            transform: translateY(-4px) scale(1.06);
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.35), rgba(3, 105, 161, 0.8)); border-color: #38bdf8;
+            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.45);
         }
         .ribbon-btn:active { transform: translateY(0); }
         
         .preset-btn {
-            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25);
-            color: #f1f5f9; padding: 7px 16px; border-radius: 20px; font-family: inherit; font-size: 0.95rem;
-            cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); font-weight: 800; display: inline-flex; align-items: center; gap: 6px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(15,23,42,0.8));
+            border: 1.5px solid rgba(255,255,255,0.25);
+            color: #f1f5f9; padding: 8px 18px; border-radius: 24px; font-family: inherit; font-size: 0.92rem;
+            cursor: pointer; transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); font-weight: 900; display: inline-flex; align-items: center; gap: 8px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.3);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+        }
+        .preset-btn::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+            transform: translateX(-150%) skewX(-25deg); pointer-events: none;
+        }
+        .preset-btn:hover::after { animation: shimmer-sweep 0.75s ease-in-out forwards; }
+        .preset-btn:hover:not(.active) {
+            background: linear-gradient(135deg, rgba(56,189,248,0.35), rgba(3,105,161,0.8));
+            border-color: #38bdf8; color: #ffffff !important; transform: translateY(-4px) scale(1.08);
+            box-shadow: 0 12px 28px rgba(56,189,248,0.5), 0 0 20px rgba(56,189,248,0.3);
         }
         .preset-btn.active {
-            background: linear-gradient(135deg, #10b981, #059669); border-color: #34d399; color: #ffffff !important;
-            box-shadow: 0 4px 14px rgba(16,185,129,0.45); transform: translateY(-1px);
-        }
-        .preset-btn:hover:not(.active) {
-            background: rgba(56,189,248,0.25); border-color: #38bdf8; color: #ffffff !important; transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(56,189,248,0.3);
-        }
-        .preset-btn.is-pressing {
-            transform: scale(0.96) translateY(1px) !important;
-            box-shadow: 0 0 16px rgba(16, 185, 129, 0.9) !important;
-            border-color: #10b981 !important;
-            user-select: none !important;
-            -webkit-user-select: none !important;
+            background: linear-gradient(135deg, rgba(16,185,129,0.5), rgba(4,120,87,0.9)) !important;
+            border-color: #34d399 !important; color: #ffffff !important;
+            box-shadow: 0 8px 25px rgba(16,185,129,0.55), inset 0 1px 1px rgba(255,255,255,0.5);
+            transform: scale(1.05);
         }
 
         /* Studio Tabs Dark-Gold Header Bar */

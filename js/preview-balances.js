@@ -423,7 +423,7 @@ function initPresets() {
             showLogo: true,
             showInfo: true,
             showInRibbon: true,
-            isLocked: false,
+            isLocked: true,
             isFactoryDefault: true
         },
         {
@@ -437,13 +437,13 @@ function initPresets() {
             showLogo: true,
             showInfo: true,
             showInRibbon: true,
-            isLocked: false,
+            isLocked: true,
             isFactoryDefault: true
         },
         {
             name: '🎨 افتراضي 3',
             configs: getDefaultConfigs(),
-            order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            order: [0, 3, 4, 5, 6, 7, 8, 9, 1, 2, 10],
             theme: 'theme-modern-slate',
             font: 'font-tajawal',
             paperSize: 'A4',
@@ -451,13 +451,13 @@ function initPresets() {
             showLogo: true,
             showInfo: true,
             showInRibbon: true,
-            isLocked: false,
+            isLocked: true,
             isFactoryDefault: true
         },
         {
             name: '🔥 افتراضي 4',
             configs: getDefaultConfigs(),
-            order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            order: [0, 1, 3, 6, 7, 8, 9, 2, 4, 5, 10],
             theme: 'theme-luxury-gold',
             font: 'font-cairo',
             paperSize: 'A4',
@@ -465,7 +465,7 @@ function initPresets() {
             showLogo: true,
             showInfo: true,
             showInRibbon: true,
-            isLocked: false,
+            isLocked: true,
             isFactoryDefault: true
         }
     ];
@@ -493,16 +493,12 @@ function initPresets() {
         });
     }
 
-    // Unlock all presets so they remain 100% editable & re-savable at any time without restriction
-    let unlockCount = 0;
-    list.forEach(p => {
-        if (p && p.isLocked) {
-            p.isLocked = false;
-            unlockCount++;
+    // Lock factory defaults slots 0..3 permanently
+    for (let i = 0; i < 4; i++) {
+        if (list[i]) {
+            list[i].isLocked = true;
+            list[i].isFactoryDefault = true;
         }
-    });
-    if (unlockCount > 0) {
-        savePresets(list);
     }
 
     // Enforce max limit of 7
@@ -546,19 +542,25 @@ function renderPresetButtons() {
         btn.className = 'preset-btn' + (idx === currentPresetIndex ? ' active' : '');
         
         const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
-        let badge = '';
-        if (isDefaultGroup && p.isLocked) {
-            badge = ' 🔒';
-        } else if (!isDefaultGroup) {
-            badge = ' 🔄';
+
+        if (isDefaultGroup) {
+            btn.innerText = p.name + ' 🔒';
+            btn.title = '🔒 ضبط مصنع نهائي مثبت في قاعدة البيانات لا يتغير نهائياً (مُطبق على كافة المنشآت والشركات)';
+            btn.onclick = (e) => {
+                if (e) e.preventDefault();
+                loadPreset(idx);
+                if (typeof showToast === 'function') {
+                    showToast('🔒 الضبط [' + p.name + '] مثبت نهائياً في قاعدة البيانات والنظام كضبط مصنع لا يتغير نهائياً ومُطبق على كافة الشركات.', 'success');
+                } else if (typeof toast === 'function') {
+                    toast('🔒 الضبط [' + p.name + '] مثبت نهائياً كضبط مصنع.');
+                }
+            };
+        } else {
+            btn.innerText = p.name + ' 🔄';
+            btn.title = 'اضغط مطولاً (8 ثوانٍ) لحفظ وتحديث نموذج التنسيق 🔄';
+            bindPresetButtonLongPress(btn, idx);
         }
 
-        btn.innerText = p.name + badge;
-        btn.title = isDefaultGroup 
-            ? (p.isLocked ? 'ضبط مصنع نهائي محمي 🔒' : 'اضغط مطولاً (8 ثوانٍ) للحفظ كضبط مصنع نهائي 🔒')
-            : 'اضغط مطولاً (8 ثوانٍ) لحفظ وتحديث النموذج 🔄';
-
-        bindPresetButtonLongPress(btn, idx);
         container.appendChild(btn);
     });
 }
@@ -756,51 +758,30 @@ function executeLongPressSave(idx) {
 
     const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
 
-    if (isDefaultGroup) {
-        // Save updated Factory Reset settings without hard-locking future edits
-        p.configs = JSON.parse(JSON.stringify(columnConfigs));
-        p.order = [...columnOrder];
-        p.theme = currentTheme;
-        p.font = currentFont;
-        p.paperSize = currentPaperSize;
-        p.orientation = currentOrientation;
-        p.showLogo = showHeaderLogo;
-        p.showInfo = showHeaderInfo;
-        p.isLocked = false;
-        p.isFactoryDefault = true;
-        p.updatedAt = new Date().toISOString();
+    if (idx < 4 || isDefaultGroup || p.isFactoryDefault || p.isLocked) {
+        if (typeof showToast === 'function') {
+            showToast("🔒 هذا الضبط مثبت نهائياً في النظام وقاعدة البيانات كضبط مصنع لا يتغير نهائياً.", "warning");
+        } else {
+            alert("🔒 هذا الضبط مثبت نهائياً في النظام وقاعدة البيانات كضبط مصنع لا يتغير نهائياً.");
+        }
+        return;
+    }
 
-        savePresets(presets);
-        renderPresetButtons();
-        renderPresetsManagementList();
+    // Custom model preset (نموذج 1, 2, 3) - Overwritable
+    p.configs = JSON.parse(JSON.stringify(columnConfigs));
+    p.order = [...columnOrder];
+    p.theme = currentTheme;
+    p.font = currentFont;
+    p.paperSize = currentPaperSize;
+    p.orientation = currentOrientation;
+    p.showLogo = showHeaderLogo;
+    p.showInfo = showHeaderInfo;
+    p.isLocked = false;
+    p.updatedAt = new Date().toISOString();
 
-        try {
-            if (window.DB_STORE && window.getTenantKey) {
-                const tk = window.getTenantKey(PRESETS_STORAGE_KEY);
-                window.DB_STORE[tk] = JSON.stringify(presets);
-            }
-            if (typeof localforage !== 'undefined') {
-                localforage.setItem(PRESETS_STORAGE_KEY, presets);
-            }
-        } catch(e){}
-
-        alert(`⭐ تم حفظ وتثبيت التعديلات الجديدة في "${p.name}" كـ "ضبط المصنع" بنجاح!\n\n(ملاحظة: جميع التنسيقات الجديدة محفوظة الآن، وتظل مجهزة لإعادة التعديل والتحديث مجدداً في أي وقت تعود فيه إلي هذا الخيار).`);
-    } else {
-        // Model preset (نموذج 1, 2, 3) - Overwritable
-        p.configs = JSON.parse(JSON.stringify(columnConfigs));
-        p.order = [...columnOrder];
-        p.theme = currentTheme;
-        p.font = currentFont;
-        p.paperSize = currentPaperSize;
-        p.orientation = currentOrientation;
-        p.showLogo = showHeaderLogo;
-        p.showInfo = showHeaderInfo;
-        p.isLocked = false;
-        p.updatedAt = new Date().toISOString();
-
-        savePresets(presets);
-        renderPresetButtons();
-        renderPresetsManagementList();
+    savePresets(presets);
+    renderPresetButtons();
+    renderPresetsManagementList();
 
         try {
             if (window.DB_STORE && window.getTenantKey) {

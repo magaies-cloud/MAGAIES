@@ -21,10 +21,10 @@ $page_title = 'حساب الارصده الاساسية';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حساب الارصده الاساسية | Al-Sajana ERP</title>
-    <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
-    <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
-    <link rel="stylesheet" href="css/components.css?v=20260723_v14">
-    <link rel="stylesheet" href="css/sales-invoice.css?v=20260723_v14">
+    <link rel="stylesheet" href="css/design-system.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/theme.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/components.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/sales-invoice.css?v=<?php echo time(); ?>">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
@@ -495,110 +495,359 @@ $page_title = 'حساب الارصده الاساسية';
             align-items: center;
             gap: 8px;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-        }
-        .preset-btn {
-            position: relative;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(30, 41, 59, 0.6));
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(var(--accent-color), 0.35);
-            color: #e2e8f0;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 0.88rem;
-            font-weight: 800;
-            cursor: pointer;
-            overflow: hidden;
+        /* ─── Ultra-Comprehensive 4 Master Visual Report Banner Headers ─── */
+        .v-section-banner {
             display: flex;
             align-items: center;
-            gap: 7px;
-            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.85));
+            border: 1.5px solid rgba(56, 189, 248, 0.45);
+            border-radius: 18px;
+            padding: 12px 22px;
+            margin-top: 25px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 25px rgba(56, 189, 248, 0.2);
+        }
+        .v-section-title {
+            font-size: 1.18rem;
+            font-weight: 900;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .v-section-badge {
+            font-size: 0.82rem;
+            font-weight: 900;
+            background: rgba(245, 158, 11, 0.22);
+            border: 1px solid rgba(245, 158, 11, 0.55);
+            color: #fbbf24;
+            pad            LUMINOUS GLASSMORPHIC HERO BUTTONS (PRESETS & ACTIONS)
+            ════════════════════════════════════════════════════════════ */
+        
+        @keyframes shimmer-sweep {
+            0% { transform: translateX(-150%) skewX(-25deg); }
+            100% { transform: translateX(250%) skewX(-25deg); }
+        }
+
+        @keyframes neon-luminous-pulse {
+            0%, 100% {
+                box-shadow: 0 0 15px var(--glow-color, rgba(0, 243, 255, 0.7)), 0 0 30px var(--glow-color, rgba(0, 243, 255, 0.4)), inset 0 1px 2px rgba(255, 255, 255, 0.7);
+                border-color: var(--border-color, #00f3ff);
+            }
+            50% {
+                box-shadow: 0 0 30px var(--glow-color, rgba(0, 243, 255, 0.95)), 0 0 50px var(--glow-color, rgba(0, 243, 255, 0.7)), inset 0 1px 3px rgba(255, 255, 255, 0.9);
+                border-color: #ffffff;
+            }
+        }
+
+        /* ─── 1. Run Button (أيقونة التشغيل) Neon Styling & +50% Width / +10% Height Sizing ─── */
+        .btn-run {
+            background: linear-gradient(135deg, #00f3ff 0%, #0284c7 60%, #0369a1 100%) !important;
+            color: #ffffff !important;
+            border: 2px solid #00f3ff !important;
+            padding: 10px 24px !important;
+            border-radius: 12px !important;
+            font-weight: 900 !important;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            font-family: inherit;
+            font-size: 0.95rem !important;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.7), inset 0 1px 3px rgba(255, 255, 255, 0.8) !important;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-run:hover {
+            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 50%, #0d9488 100%) !important;
+            transform: translateY(-4px) scale(1.08) !important;
+            box-shadow: 0 0 35px rgba(0, 243, 255, 0.95), 0 0 55px rgba(0, 243, 255, 0.6), inset 0 1px 4px rgba(255, 255, 255, 1) !important;
+            filter: brightness(1.2);
+        }
+
+        .btn-run:active {
+            transform: translateY(-1px) scale(1.02) !important;
+        }
+
+        /* Run Icon SVG Dimensions: Width +50% (24px from 16px), Height +10% (18px from 16px) */
+        .btn-run svg {
+            width: 24px !important;
+            height: 18px !important;
+            transform: scale(1.5, 1.1) !important;
+            transform-origin: center center;
+            filter: drop-shadow(0 0 8px #00f3ff) drop-shadow(0 0 15px rgba(0, 243, 255, 0.8));
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            flex-shrink: 0;
+        }
+
+        .btn-run:hover svg {
+            transform: scale(1.75, 1.25) rotate(15deg) !important;
+            filter: drop-shadow(0 0 12px #ffffff) drop-shadow(0 0 25px #00f3ff) !important;
+        }
+
+        /* ─── 2. Preset Ribbon Buttons (افتراضي 1، افتراضي 2، إلى آخره) Luminous Neon Styling ─── */
+        .preset-ribbon-btn,
+        .preset-btn {
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px 22px !important;
+            border-radius: 24px !important;
+            font-size: 0.95rem !important;
+            font-weight: 900 !important;
+            font-family: inherit;
+            cursor: pointer;
             user-select: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            letter-spacing: 0.3px;
+            animation: neon-luminous-pulse 4s infinite ease-in-out;
         }
-        
-        .preset-btn[data-slot-id="default1"] { --accent-color: 234, 179, 8; font-weight: 900; }
-        .preset-btn[data-slot-id="default2"] { --accent-color: 168, 85, 247; font-weight: 900; }
-        .preset-btn[data-slot-id="1"] { --accent-color: 6, 182, 212; }
-        .preset-btn[data-slot-id="2"] { --accent-color: 16, 185, 129; }
-        .preset-btn[data-slot-id="3"] { --accent-color: 245, 158, 11; }
-        
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 6px rgba(var(--accent-color), 0.6); }
-            50% { box-shadow: 0 0 16px rgba(var(--accent-color), 0.95); }
-            100% { box-shadow: 0 0 6px rgba(var(--accent-color), 0.6); }
-        }
-        
-        /* Glass Sheen Light Reflection */
-        .preset-btn::after {
+
+        .preset-ribbon-btn::after,
+        .preset-btn::after,
+        .btn-action-hero::after,
+        .btn-run::after {
             content: '';
             position: absolute;
             top: 0;
-            left: -120%;
-            width: 70%;
+            left: 0;
+            width: 50%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            transform: skewX(-22deg);
-            transition: left 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            transform: translateX(-150%) skewX(-25deg);
             pointer-events: none;
         }
-        .preset-btn:hover::after {
-            left: 140%;
+
+        .preset-ribbon-btn:hover::after,
+        .preset-btn:hover::after,
+        .btn-action-hero:hover::after,
+        .btn-run:hover::after {
+            animation: shimmer-sweep 0.75s ease-in-out forwards;
         }
 
-        .preset-btn::before {
-            content: '';
-            width: 9px;
-            height: 9px;
-            border-radius: 50%;
-            background: rgb(var(--accent-color));
-            box-shadow: 0 0 10px rgba(var(--accent-color), 0.9);
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            animation: pulse-glow 2s infinite ease-in-out;
-        }
-        .preset-btn:hover::before {
-            transform: scale(1.5);
-        }
+        .preset-ribbon-btn:hover,
         .preset-btn:hover {
-            background: linear-gradient(135deg, rgba(var(--accent-color), 0.25), rgba(15, 23, 42, 0.85));
-            border-color: rgba(var(--accent-color), 0.9);
-            color: #ffffff;
-            box-shadow: 0 0 22px rgba(var(--accent-color), 0.45), inset 0 0 10px rgba(var(--accent-color), 0.2);
-            transform: translateY(-2px) scale(1.06);
+            transform: translateY(-5px) scale(1.09) !important;
+            box-shadow: 0 0 35px var(--glow-color, rgba(0, 243, 255, 0.95)), 0 0 60px var(--glow-color, rgba(0, 243, 255, 0.6)), inset 0 1px 3px rgba(255, 255, 255, 0.9) !important;
+            filter: brightness(1.25);
+            z-index: 10;
         }
-        .preset-btn.active {
-            background: rgba(var(--accent-color), 0.22);
-            border-color: rgba(var(--accent-color), 0.95);
-            color: #ffffff;
-            box-shadow: 0 0 25px rgba(var(--accent-color), 0.5), inset 0 1px 1px rgba(var(--accent-color), 0.3);
-            transform: scale(1.04);
+
+        .preset-ribbon-btn:active,
+        .preset-btn:active {
+            transform: translateY(-2px) scale(1.03) !important;
         }
-        .preset-btn.holding {
-            background: rgba(var(--accent-color), 0.35) !important;
-            border-color: rgba(var(--accent-color), 1) !important;
-            box-shadow: 0 0 35px rgba(var(--accent-color), 0.7) !important;
-            transform: scale(0.96) translateY(0);
-        }
+
+        /* Clock SVG Icon inside Presets: Width +50% (25.5px), Height +10% (18.7px) */
         .preset-clock-svg {
             flex-shrink: 0;
-            width: 17px;
-            height: 17px;
-            filter: drop-shadow(0 0 3px rgba(var(--accent-color), 0.6));
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease;
+            width: 25.5px !important;
+            height: 18.7px !important;
+            transform: scale(1.5, 1.1) !important;
+            transform-origin: center center;
+            filter: drop-shadow(0 0 6px var(--border-color, #00f3ff)) drop-shadow(0 0 12px var(--border-color, #00f3ff));
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease !important;
         }
-        .preset-btn:hover .preset-clock-svg {
-            transform: scale(1.35) rotate(18deg);
-            filter: drop-shadow(0 0 8px rgba(var(--accent-color), 0.95));
+
+        .preset-btn:hover .preset-clock-svg,
+        .preset-ribbon-btn:hover .preset-clock-svg {
+            transform: scale(1.75, 1.25) rotate(20deg) !important;
+            filter: drop-shadow(0 0 14px #ffffff) drop-shadow(0 0 28px var(--border-color, #00f3ff)) !important;
         }
+
         .preset-clock-progress {
-            stroke: rgb(var(--accent-color)) !important;
+            stroke: #ffffff !important;
+            stroke-width: 3px;
             transition: stroke-dashoffset 0.05s linear;
+        }
+
+        /* ─── Ultra Luminous Distinct Color Palette for Presets ─── */
+        /* افتراضي 1 - Neon Electric Cyan & Aurora Blue */
+        .preset-slot-0,
+        .preset-ribbon-btn.preset-slot-0 {
+            --glow-color: rgba(0, 243, 255, 0.85);
+            --border-color: #00f3ff;
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.45), rgba(2, 132, 199, 0.95)) !important;
+            border: 2px solid #00f3ff !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* افتراضي 2 - Neon Vivid Emerald & Acid Green */
+        .preset-slot-1,
+        .preset-ribbon-btn.preset-slot-1 {
+            --glow-color: rgba(0, 255, 157, 0.85);
+            --border-color: #00ff9d;
+            background: linear-gradient(135deg, rgba(0, 255, 157, 0.45), rgba(5, 150, 105, 0.95)) !important;
+            border: 2px solid #00ff9d !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* افتراضي 3 - Neon Plasma Purple & Orchid Pink */
+        .preset-slot-2,
+        .preset-ribbon-btn.preset-slot-2 {
+            --glow-color: rgba(217, 70, 239, 0.85);
+            --border-color: #d946ef;
+            background: linear-gradient(135deg, rgba(217, 70, 239, 0.45), rgba(126, 34, 206, 0.95)) !important;
+            border: 2px solid #d946ef !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(217, 70, 239, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* افتراضي 4 - Neon Plasma Coral & Crimson Rose */
+        .preset-slot-3,
+        .preset-ribbon-btn.preset-slot-3 {
+            --glow-color: rgba(255, 51, 102, 0.85);
+            --border-color: #ff3366;
+            background: linear-gradient(135deg, rgba(255, 51, 102, 0.45), rgba(190, 18, 60, 0.95)) !important;
+            border: 2px solid #ff3366 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(255, 51, 102, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* نموذج 1 - Neon Solar Gold & Amber Yellow */
+        .preset-slot-4,
+        .preset-ribbon-btn.preset-slot-4 {
+            --glow-color: rgba(255, 204, 0, 0.85);
+            --border-color: #ffcc00;
+            background: linear-gradient(135deg, rgba(255, 204, 0, 0.45), rgba(180, 83, 9, 0.95)) !important;
+            border: 2px solid #ffcc00 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* نموذج 2 - Neon Cyber Indigo & Sapphire */
+        .preset-slot-5,
+        .preset-ribbon-btn.preset-slot-5,
+        .preset-slot-6 {
+            --glow-color: rgba(99, 102, 241, 0.85);
+            --border-color: #818cf8;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.45), rgba(67, 56, 202, 0.95)) !important;
+            border: 2px solid #818cf8 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* ─── 3. Hero Action Panel & Button Icons Sizing (+50% Width, +10% Height) ─── */
+        .actions-panel {
+            padding: 8px 14px !important;
+            background: rgba(15, 23, 42, 0.85) !important;
+            backdrop-filter: blur(16px);
+            border-radius: 20px !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+        }
+
+        .btn-action-hero {
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 24px !important;
+            border-radius: 24px !important;
+            font-size: 0.94rem !important;
+            font-weight: 900 !important;
+            font-family: inherit;
+            cursor: pointer;
+            user-select: none;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+        }
+
+        .btn-action-hero:hover {
+            transform: translateY(-4px) scale(1.08) !important;
+            filter: brightness(1.25);
+        }
+
+        /* Hero Action Icons: +50% Width, +10% Height */
+        .btn-action-hero span:first-child,
+        .btn-action span:first-child,
+        .badge-sgl span:first-child {
+            display: inline-block;
+            transform: scale(1.5, 1.1) !important;
+            transform-origin: center center;
+            filter: drop-shadow(0 0 8px currentColor);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease !important;
+            margin-left: 4px;
+        }
+
+        .btn-action-hero:hover span:first-child,
+        .btn-action:hover span:first-child {
+            transform: scale(1.75, 1.25) rotate(12deg) !important;
+            filter: drop-shadow(0 0 15px currentColor) !important;
+        }
+
+        .btn-hero-print {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.5), rgba(67, 56, 202, 0.95)) !important;
+            border: 2px solid #818cf8 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+        }
+        .btn-hero-print:hover {
+            box-shadow: 0 0 35px rgba(99, 102, 241, 0.95), 0 0 50px rgba(129, 140, 248, 0.7) !important;
+        }
+
+        .btn-hero-preview {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.5), rgba(5, 150, 105, 0.95)) !important;
+            border: 2px solid #34d399 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+        }
+        .btn-hero-preview:hover {
+            box-shadow: 0 0 35px rgba(16, 185, 129, 0.95), 0 0 50px rgba(52, 211, 153, 0.7) !important;
+        }
+
+        .btn-hero-excel {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.5), rgba(217, 119, 6, 0.95)) !important;
+            border: 2px solid #fbbf24 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+        }
+        .btn-hero-excel:hover {
+            box-shadow: 0 0 35px rgba(245, 158, 11, 0.95), 0 0 50px rgba(251, 191, 36, 0.7) !important;
+        }
+
+        .btn-hero-email {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.5), rgba(109, 40, 217, 0.95)) !important;
+            border: 2px solid #c084fc !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+        }
+        .btn-hero-email:hover {
+            box-shadow: 0 0 35px rgba(139, 92, 246, 0.95), 0 0 50px rgba(192, 132, 252, 0.7) !important;
+        }
+
+        .btn-hero-whatsapp {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.5), rgba(22, 163, 74, 0.95)) !important;
+            border: 2px solid #4ade80 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+        }
+        .btn-hero-whatsapp:hover {
+            box-shadow: 0 0 35px rgba(34, 197, 94, 0.95), 0 0 50px rgba(74, 222, 128, 0.7) !important;
         }
         :root.light-theme .preset-slots-container {
             background: rgba(255, 255, 255, 0.85);
             border: 1px solid rgba(15, 23, 42, 0.08);
             box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+        }
+        :root.light-theme .preset-btn {
+            color: #ffffff !important;
+        }            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
         }
         :root.light-theme .preset-btn {
             background: rgba(255, 255, 255, 0.7);
@@ -834,8 +1083,8 @@ $page_title = 'حساب الارصده الاساسية';
             </div>
         </div>
         <div style="display:flex; gap:8px; margin-top:8px; align-items:center; flex-wrap:wrap; width: 100%;">
-            <button class="btn-run" onclick="runReport()" style="padding:6px 20px; font-size:0.92rem; height:36px; border-radius:8px; font-weight:900; display:inline-flex; align-items:center; gap:8px;">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <button class="btn-run" id="btn-run-report" onclick="runReport()" style="padding:6px 20px; font-size:0.92rem; height:36px; border-radius:8px; font-weight:900; display:inline-flex; align-items:center; gap:8px;">
+                <svg width="24" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <span>تشغيل التقرير</span>
             </button>
 
@@ -909,13 +1158,32 @@ $page_title = 'حساب الارصده الاساسية';
         </div>
     </div>
 
-    <!-- Actions Panel -->
-    <div class="actions-panel no-print" id="actions-panel" style="display:none; flex-wrap: wrap; margin-bottom: 6px; gap: 6px;">
-        <button class="btn-action btn-secondary" onclick="window.print()" title="طباعة" style="padding:4px 10px; font-size:0.8rem;">🖨️ طباعة وتوثيق</button>
-        <button class="btn-action btn-primary" onclick="exportPDF()" title="تصدير PDF" style="padding:4px 10px; font-size:0.8rem;">📄 تصدير PDF</button>
-        <button class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; padding:4px 10px; font-size:0.8rem;" onclick="exportExcel()" title="تصدير إكسل">📊 إكسل (Excel)</button>
-        <button class="btn-action" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; border: none; padding:4px 10px; font-size:0.8rem;" onclick="shareEmail()" title="مشاركة عبر الإيميل">📧 إيميل</button>
-        <button class="btn-action" style="background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; border: none; padding:4px 10px; font-size:0.8rem;" onclick="shareWhatsApp()" title="مشاركة عبر واتساب">💬 واتساب</button>
+    <!-- Actions Panel (Luminous Glassmorphic Hero Action Buttons) -->
+    <div class="actions-panel no-print" id="actions-panel" style="display:none; flex-wrap: wrap; margin-bottom: 10px; gap: 10px; align-items: center;">
+        <button class="btn-action-hero btn-hero-print" onclick="window.print()" title="طباعة وتوثيق المستند بالشكل الرسمي">
+            <span style="font-size: 1.1rem;">🖨️</span>
+            <span>طباعة وتوثيق</span>
+        </button>
+
+        <button class="btn-action-hero btn-hero-preview" onclick="window.openNewPreviewPage()" title="معاينة التقرير وتعديل التنسيق قبل الطباعة">
+            <span style="font-size: 1.1rem;">👁️</span>
+            <span>معاينة وتنسيق قبل الطباعة</span>
+        </button>
+
+        <button class="btn-action-hero btn-hero-excel" onclick="exportExcel()" title="تصدير جدول البيانات تلقائياً لمف ملف إكسل Excel">
+            <span style="font-size: 1.1rem;">📊</span>
+            <span>تصدير إكسل (Excel)</span>
+        </button>
+
+        <button class="btn-action-hero btn-hero-email" onclick="shareEmail()" title="إرسال ومشاركة التقرير عبر البريد الإلكتروني">
+            <span style="font-size: 1.1rem;">📧</span>
+            <span>إيميل</span>
+        </button>
+
+        <button class="btn-action-hero btn-hero-whatsapp" onclick="shareWhatsApp()" title="مشاركة وإرسال التقرير مباشرة للعميل عبر واتساب">
+            <span style="font-size: 1.1rem;">💬</span>
+            <span>واتساب</span>
+        </button>
     </div>
 
     <!-- TABLE -->
@@ -961,10 +1229,10 @@ $page_title = 'حساب الارصده الاساسية';
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div style="width: 14px; height: 14px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 15px #38bdf8; animation: pulse 2s infinite;"></div>
                         <h3 style="margin: 0; font-size: 1.35rem; font-weight: 900; color: #f8fafc; letter-spacing: -0.5px;">
-                            📈 التقرير البصري التحليلي للأرصدة وهيكل السيولة
+                            📈 التقرير البصري التحليلي للأرصدة وهيكل السيولة (SDG + $ USD)
                         </h3>
                         <span class="hub-badge" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 800;">
-                            ✨ visual intelligence 3.0
+                            ✨ مزدوج العملتين (SDG + $ USD) 3.0
                         </span>
                     </div>
                     <div style="display: flex; gap: 8px;" class="no-print">
@@ -980,7 +1248,7 @@ $page_title = 'حساب الارصده الاساسية';
                     <!-- Card 1: مؤشر الاتجاه والتغطية -->
                     <div class="v-card glow-sky">
                         <div class="v-card-header">
-                            <span class="v-card-title">مؤشر صافي الاتجاه والسيولة</span>
+                            <span class="v-card-title">مؤشر صافي الاتجاه والسيولة (SDG + $ USD)</span>
                             <span class="v-card-icon" id="ind-trend-arrow" style="font-size: 1.4rem; color: #34d399;">↗️</span>
                         </div>
                         <div class="v-card-value" id="ind-net-val">0.00 SDG</div>
@@ -1043,6 +1311,18 @@ $page_title = 'حساب الارصده الاساسية';
 
                 </div>
 
+                <!-- ════════════════════════════════════════════════════════════
+                     1. التقرير البصري الأول: الهيكل المالي ونشرة الحسابات الأكبر
+                     ════════════════════════════════════════════════════════════ -->
+                <div class="v-section-banner">
+                    <div class="v-section-title">
+                        <span>💎</span> 1. التقرير البصري الأول: الهيكل المالي ونشرة الحسابات الأكبر (Capital Structure & Dominance)
+                    </div>
+                    <div class="v-section-badge">
+                        مزدوج العملتين: (SDG + $ USD)
+                    </div>
+                </div>
+
                 <!-- Charts Row 1: Donut & Hollow Donut Charts -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
                     
@@ -1051,9 +1331,9 @@ $page_title = 'حساب الارصده الاساسية';
                         <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                             <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
                                 <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مجوفة: أين تتوزع أموالك وحساباتك؟</h4>
-                                <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">💡 خريطة الثقل المالي</span>
+                                <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">💡 بالجنيه (SDG) + بالدولار ($ USD)</span>
                             </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يوضح لك أي فئة تشغل الحجم الأكبر من أعمالك (العملاء أم الخزن أم الموردين)</span>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يوضح لك أي فئة تشغل الحجم الأكبر من أعمالك (العملاء أم الخزن أم الموردين) بالعملتين متلازمتين معاً</span>
                         </div>
                         <div id="chart-hollow-donut-categories" style="min-height: 320px;"></div>
                     </div>
@@ -1063,33 +1343,57 @@ $page_title = 'حساب الارصده الاساسية';
                         <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                             <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
                                 <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مفرغة: أين تتركز أكبر الديون لك؟ (أضخم العملاء)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">🎯 تركيز المستحقات</span>
+                                <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">🎯 بالجنيه (SDG) + بالدولار ($ USD)</span>
                             </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: أكثر 5 حسابات مطالبة بالسداد لك، لمعرفة من يجب التواصل معه أولاً</span>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: أكثر 5 حسابات مطالبة بالسداد لك بالعملتين المحلية والدولار، لمعرفة من يجب التواصل معه أولاً</span>
                         </div>
                         <div id="chart-hollow-donut-top-debtors" style="min-height: 320px;"></div>
                     </div>
 
                 </div>
 
-                <!-- Charts Row 2: Line & Area Charts -->
+                <!-- Charts Row 2: Top Creditors Donut Chart & Line Spectrum -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
                     
-                    <!-- Chart 3: Smooth Curved Gradient Line Chart -->
-                    <div class="v-chart-card" style="grid-column: span 1 / -1;">
+                    <!-- Chart 6: Hollow Donut Chart - Top Creditor Suppliers -->
+                    <div class="v-chart-card">
                         <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                             <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📈 المنحنى المتدرج للأرصدة (Balance Spectrum Curve)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">🌊 تدفق وتدرج مريح للعين</span>
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مجوفة: التزامات الموردين (أعلى 5 موردين دائنين)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(239, 68, 68, 0.18); color: #f87171; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(239, 68, 68, 0.3);">🔻 بالجنيه (SDG) + بالدولار ($ USD)</span>
                             </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: انسيابية تدفق المبالغ المالية من الأكبر إلى الأصغر بدون ضغوط بصرية</span>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يوضح الحسابات الأكثر استحقاقاً للأموال من الموردين بالعملتين المحلية والدولار لجدولة السداد</span>
                         </div>
-                        <div id="chart-curved-line-spectrum" style="min-height: 330px;"></div>
+                        <div id="chart-hollow-donut-top-creditors" style="min-height: 320px;"></div>
+                    </div>
+
+                    <!-- Chart 3: Smooth Curved Gradient Line Chart -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📈 المنحنى المتدرج للأرصدة (Balance Spectrum)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">🌊 تدفق مريح بالعملتين</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: انسيابية تدفق المبالغ المالية من الأكبر إلى الأصغر بدون ضغوط بصرية وبشكل متلازم بالعملتين</span>
+                        </div>
+                        <div id="chart-curved-line-spectrum" style="min-height: 320px;"></div>
                     </div>
 
                 </div>
 
-                <!-- Charts Row 3: Bi-directional Comparative Bar & Semi-Donut Gauge -->
+                <!-- ════════════════════════════════════════════════════════════
+                     2. التقرير البصري الثاني: ميزان الحقوق والالتزامات ومخاطر التركّز
+                     ════════════════════════════════════════════════════════════ -->
+                <div class="v-section-banner">
+                    <div class="v-section-title">
+                        <span>⚖️</span> 2. التقرير البصري الثاني: ميزان الحقوق والالتزامات ومخاطر التركّز (Rights vs Obligations & Exposure)
+                    </div>
+                    <div class="v-section-badge">
+                        مزدوج العملتين: (SDG + $ USD)
+                    </div>
+                </div>
+
+                <!-- Charts Row 3: Bi-directional Comparative Bar & Polygon Radar -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
                     
                     <!-- Chart 4: Bi-Directional Comparative Column Chart -->
@@ -1097,69 +1401,11 @@ $page_title = 'حساب الارصده الاساسية';
                         <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                             <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
                                 <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📊 أعمدة المقارنة المزدوجة: (ما لك 🟢) ضد (ما عليك 🔴)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">⚖️ مقارنة الحصيلة</span>
+                                <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">⚖️ بالجنيه (SDG) + بالدولار ($ USD)</span>
                             </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يظهر بوضوح ملخص حقوقك المالية مقارنةً بالتزاماتك في كل قطاع</span>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يظهر بوضوح ملخص حقوقك المالية مقارنةً بالتزاماتك في كل قطاع متلازمة بالعملتين معاً</span>
                         </div>
                         <div id="chart-bidirectional-bar" style="min-height: 320px;"></div>
-                    </div>
-
-                    <!-- Chart 5: Semi-Circle Donut Radial Gauge -->
-                    <div class="v-chart-card">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🧭 عدّاد ومقياس صحة ومأمونية السيولة (Liquidity Health Gauge)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(244, 63, 94, 0.18); color: #fb7185; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(244, 63, 94, 0.3);">🛡️ مؤشر الأمان الكلي</span>
-                            </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: نسبة مئوية مباشرة تعكس أمان وضعك المالي وسرعة التحرّك</span>
-                        </div>
-                        <div id="chart-semicircle-gauge" style="min-height: 320px;"></div>
-                    </div>
-
-                </div>
-
-                <!-- Charts Row 4: Top Creditors Hollow Donut & Horizontal Bar Ranking (جديد) -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
-                    
-                    <!-- Chart 6: Hollow Donut Chart - Top Creditor Suppliers -->
-                    <div class="v-chart-card">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة مجوفة: أين تتركز التزامات الموردين؟ (أعلى 5 موردين دائنين)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(239, 68, 68, 0.18); color: #f87171; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(239, 68, 68, 0.3);">🔻 التزامات الموردين</span>
-                            </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يوضح الحسابات الأكثر استحقاقاً للأموال من الموردين لجدولة السداد</span>
-                        </div>
-                        <div id="chart-hollow-donut-top-creditors" style="min-height: 320px;"></div>
-                    </div>
-
-                    <!-- Chart 7: Horizontal Bar Chart - Top 10 Accounts Ranking -->
-                    <div class="v-chart-card">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📊 أعمدة أفقية هرمية: ترتيب أضخم 10 حسابات</h4>
-                                <span style="font-size: 0.72rem; background: rgba(6, 182, 212, 0.18); color: #22d3ee; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(6, 182, 212, 0.3);">👑 الترتيب الهرمي</span>
-                            </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: شريط أفقي يُظهر أطول الأعمدة للحسابات الأكثر ثقلاً بالأرقام</span>
-                        </div>
-                        <div id="chart-horizontal-top-bar" style="min-height: 320px;"></div>
-                    </div>
-
-                </div>
-
-                <!-- Charts Row 5: Filled Area Curve & Radar Equilibrium (جديد) -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
-                    
-                    <!-- Chart 8: Filled Area Fluid Curve -->
-                    <div class="v-chart-card">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🌊 منحنى المساحة المتدرجة الممتلئة (Fluid Area Curve)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">💧 تراكم السيولة</span>
-                            </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: مساحة ملونة انسيابية مريحة للعين تعكس الحجم التراكمي للسيولة</span>
-                        </div>
-                        <div id="chart-cumulative-area-fluid" style="min-height: 320px;"></div>
                     </div>
 
                     <!-- Chart 9: Polygon Radar Equilibrium Chart -->
@@ -1167,11 +1413,69 @@ $page_title = 'حساب الارصده الاساسية';
                         <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                             <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
                                 <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🎯 مخطط الرادار الخماسي: التوازن المالي للأقسام</h4>
-                                <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">🕸️ خريطة الرادار</span>
+                                <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">🕸️ بالجنيه (SDG) + بالدولار ($ USD)</span>
                             </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: شبكة رادار خماسية تفاعلية توضح اتزان جميع الأنشطة بلمحة واحدة</span>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: شبكة رادار خماسية تفاعلية توضح اتزان جميع الأنشطة بلمحة واحدة وبالعملتين معاً</span>
                         </div>
                         <div id="chart-radar-equilibrium" style="min-height: 320px;"></div>
+                    </div>
+
+                </div>
+
+                <!-- Charts Row 4: Horizontal Bar Chart - Top 10 Accounts Ranking -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
+                    
+                    <!-- Chart 7: Horizontal Bar Chart - Top 10 Accounts Ranking -->
+                    <div class="v-chart-card" style="grid-column: span 1 / -1;">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📊 أعمدة أفقية هرمية: ترتيب أضخم 10 حسابات</h4>
+                                <span style="font-size: 0.72rem; background: rgba(6, 182, 212, 0.18); color: #22d3ee; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(6, 182, 212, 0.3);">👑 بالجنيه (SDG) + بالدولار ($ USD)</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: شريط أفقي يُظهر أطول الأعمدة للحسابات الأكثر ثقلاً بالأرقام متلازمة بالعملتين معاً</span>
+                        </div>
+                        <div id="chart-horizontal-top-bar" style="min-height: 320px;"></div>
+                    </div>
+
+                </div>
+
+                <!-- ════════════════════════════════════════════════════════════
+                     3. التقرير البصري الثالث: مؤشر الأمان المالي ومقياس تدفق السيولة
+                     ════════════════════════════════════════════════════════════ -->
+                <div class="v-section-banner">
+                    <div class="v-section-title">
+                        <span>🧭</span> 3. التقرير البصري الثالث: مؤشر الأمان المالي ومقياس تدفق السيولة (Liquidity Health & Flow Spectrum)
+                    </div>
+                    <div class="v-section-badge">
+                        مزدوج العملتين: (SDG + $ USD)
+                    </div>
+                </div>
+
+                <!-- Charts Row 5: Radial Gauge & Fluid Area Spectrum -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
+                    
+                    <!-- Chart 5: Semi-Circle Donut Radial Gauge -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🧭 عدّاد ومقياس صحة ومأمونية السيولة (Liquidity Health Gauge)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(244, 63, 94, 0.18); color: #fb7185; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(244, 63, 94, 0.3);">🛡️ بالجنيه (SDG) + بالدولار ($ USD)</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: نسبة مئوية مباشرة تعكس أمان وضعك المالي وسرعة التحرّك وبقيم صريحة بالعملتين</span>
+                        </div>
+                        <div id="chart-semicircle-gauge" style="min-height: 320px;"></div>
+                    </div>
+
+                    <!-- Chart 8: Filled Area Fluid Curve -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🌊 منحنى المساحة المتدرجة الممتلئة (Fluid Area Curve)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">💧 بالجنيه (SDG) + بالدولار ($ USD)</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: مساحة ملونة انسيابية مريحة للعين تعكس الحجم التراكمي للسيولة بالعملتين معاً</span>
+                        </div>
+                        <div id="chart-cumulative-area-fluid" style="min-height: 320px;"></div>
                     </div>
 
                 </div>
@@ -1184,9 +1488,9 @@ $page_title = 'حساب الارصده الاساسية';
                         <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                             <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
                                 <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🥧 كعكة دائريّة مصمتة (Pie Chart): الحسابات النشطة مقابل الصفرية</h4>
-                                <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">🥧 دائرة مصمتة</span>
+                                <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">🥧 بالجنيه (SDG) + بالدولار ($ USD)</span>
                             </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: دائرة كاملة مكسوة بالألوان تظهر نسبة الحسابات ذات الأرصدة المباشرة</span>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: دائرة كاملة مكسوة بالألوان تظهر نسبة الحسابات ذات الأرصدة المباشرة بالعملتين متلازمتين معاً</span>
                         </div>
                         <div id="chart-solid-pie-active-zero" style="min-height: 320px;"></div>
                     </div>
@@ -1196,16 +1500,28 @@ $page_title = 'حساب الارصده الاساسية';
                         <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                             <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
                                 <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🔘 حلقات دوائر مضيئة متداخلة (Multi-Radial Rings)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">💫 حلقات دائرية</span>
+                                <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">💫 بالجنيه (SDG) + بالدولار ($ USD)</span>
                             </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: ثلاث حلقات دائرية ملونة متداخلة تقارن حصة كل قطاع بنسبة مئوية واضحة</span>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: ثلاث حلقات دائرية ملونة متداخلة تقارن حصة كل قطاع بنسبة مئوية واضحة وبالعملتين متلازمتين</span>
                         </div>
                         <div id="chart-multi-radial-rings" style="min-height: 320px;"></div>
                     </div>
 
                 </div>
 
-                <!-- Charts Row 7: DEDICATED COLUMN CHARTS FOR ALL SUPPLIERS & ALL CUSTOMERS (جديد ومفصل) -->
+                <!-- ════════════════════════════════════════════════════════════
+                     4. التقرير البصري الرابع: المدرّج الشامل لجميع الموردين والعملاء
+                     ════════════════════════════════════════════════════════════ -->
+                <div class="v-section-banner">
+                    <div class="v-section-title">
+                        <span>📊</span> 4. التقرير البصري الرابع: المدرّج التفصيلي الشامل لجميع الموردين والعملاء (Suppliers & Customers Master Columns)
+                    </div>
+                    <div class="v-section-badge">
+                        مزدوج العملتين: (SDG + $ USD)
+                    </div>
+                </div>
+
+                <!-- Charts Row 7: DEDICATED COLUMN CHARTS FOR ALL SUPPLIERS & ALL CUSTOMERS -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
                     
                     <!-- Chart 12: Dedicated Column Chart for ALL Suppliers -->
@@ -1213,9 +1529,9 @@ $page_title = 'حساب الارصده الاساسية';
                         <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                             <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
                                 <h4 style="margin: 0; color: #f8fafc; font-size: 1.1rem; font-weight: 900;">🏬 مدرّج أعمدة الموردين التفصيلي: (ارتفاع العمود بحسب حجم المبلغ دائن "له" ومدين "عليه" بالعملتين)</h4>
-                                <span style="font-size: 0.75rem; background: rgba(244, 63, 94, 0.2); color: #fb7185; padding: 4px 12px; border-radius: 12px; font-weight: 900; border: 1px solid rgba(244, 63, 94, 0.4);">📊 أعمدة الموردين</span>
+                                <span style="font-size: 0.75rem; background: rgba(244, 63, 94, 0.2); color: #fb7185; padding: 4px 12px; border-radius: 12px; font-weight: 900; border: 1px solid rgba(244, 63, 94, 0.4);">📊 بالجنيه (SDG) + بالدولار ($ USD) فوق كل عمود</span>
                             </div>
-                            <span style="font-size: 0.8rem; color: #94a3b8;">توضيح بسيط: أعمدة شاهقة ترتفع وتتفاوت بوضوح حسب حجم مستحقات كل مورد (بالجنيه السوداني + الدولار الأجنبي)</span>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">توضيح بسيط: أعمدة شاهقة ترتفع وتتفاوت بوضوح حسب حجم مستحقات كل مورد، مع كتابة المبلغين (بالجنيه السوداني + الدولار الأجنبي) فوق العمود ومباشرة في التلميح</span>
                         </div>
                         <div id="chart-suppliers-columns" style="min-height: 360px;"></div>
                     </div>
@@ -1225,9 +1541,9 @@ $page_title = 'حساب الارصده الاساسية';
                         <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                             <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
                                 <h4 style="margin: 0; color: #f8fafc; font-size: 1.1rem; font-weight: 900;">👥 مدرّج أعمدة العملاء التفصيلي: (ارتفاع العمود بحسب حجم الديون مدين "عليه" ودائن "له" بالعملتين)</h4>
-                                <span style="font-size: 0.75rem; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 4px 12px; border-radius: 12px; font-weight: 900; border: 1px solid rgba(16, 185, 129, 0.4);">📊 أعمدة العملاء</span>
+                                <span style="font-size: 0.75rem; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 4px 12px; border-radius: 12px; font-weight: 900; border: 1px solid rgba(16, 185, 129, 0.4);">📊 بالجنيه (SDG) + بالدولار ($ USD) فوق كل عمود</span>
                             </div>
-                            <span style="font-size: 0.8rem; color: #94a3b8;">توضيح بسيط: أعمدة بصرية مرتفعة تُميز مطالبات العملاء بوضوح شديد حسب المبلغ (بالجنيه السوداني + الدولار الأجنبي)</span>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">توضيح بسيط: أعمدة بصرية مرتفعة تُميز مطالبات العملاء بوضوح شديد حسب المبلغ، مع كتابة المبلغين (بالجنيه السوداني + الدولار الأجنبي) فوق العمود ومباشرة في التلميح</span>
                         </div>
                         <div id="chart-customers-columns" style="min-height: 360px;"></div>
                     </div>
@@ -1424,6 +1740,109 @@ $page_title = 'حساب الارصده الاساسية';
                         </div>
                         <div id="chart-aging-credit-radar" style="min-height: 340px;"></div>
                     </div>
+
+                </div>
+
+                <!-- ════════════════════════════════════════════════════════════
+                     5. التقرير البصري الخامس: المؤشرات المبتكرة والجدارة المالية ومتابعة الحركة
+                     ════════════════════════════════════════════════════════════ -->
+                <div class="v-section-banner">
+                    <div class="v-section-title">
+                        <span>🚀</span> 5. التقرير البصري الخامس: مؤشرات الجدارة، حركة المحفظة، والأمان النقدي الفوري
+                    </div>
+                    <div class="v-section-badge">
+                        مزدوج العملتين: (SDG + $ USD)
+                    </div>
+                </div>
+
+                <!-- Charts Row 13: 6 NEW EASY-TO-UNDERSTAND POWERFUL ANALYTICAL REPORTS -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-top: 25px;">
+                    
+                    <!-- Chart 28: Financial Solvency & Risk Banding Donut -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🛡️ كعكة ميزان الجدارة المالية وتصنيف مستويات الخطورة (Solvency Risk Bands)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.4);">🛡️ مستويات الأمان</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: تصنيف المحفظة إلى 4 فئات أمان (فائقة الأمان، متوازنة، تحت المتابعة، عالية الخطورة) بالعملتين</span>
+                        </div>
+                        <div id="chart-solvency-risk-donut" style="min-height: 340px;"></div>
+                    </div>
+
+                    <!-- Chart 29: Period Movement Waterfall -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📉 شلال حركة السيولة والذمم بين أول وأخر الفترة (Period Movement Waterfall)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.4);">🌊 شلال الحركة</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يوضح للشخص غير المحاسب كيف تطورت الأرصدة من البداية إلى الصافي الحالي بالعملتين</span>
+                        </div>
+                        <div id="chart-period-movement-waterfall" style="min-height: 340px;"></div>
+                    </div>
+
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-top: 25px;">
+                    
+                    <!-- Chart 30: Tri-Bar Credit vs Exposure vs Expected Collections -->
+                    <div class="v-chart-card" style="grid-column: span 1 / -1;">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.1rem; font-weight: 900;">📊 المدرّج الثلاثي للتسهيلات والديون والتحصيلات المتوقعة (Tri-Bar Credit & Exposure)</h4>
+                                <span style="font-size: 0.75rem; background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 4px 12px; border-radius: 12px; font-weight: 900; border: 1px solid rgba(245, 158, 11, 0.4);">📊 مقارنة ثلاثية بالعملتين</span>
+                            </div>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">توضيح بسيط: 3 أعمدة متجاورة تقارن السقف المالي والديون الفعلية والسيولة المتوقع تحصيلها عاجلاً</span>
+                        </div>
+                        <div id="chart-tribar-credit-exposure" style="min-height: 360px;"></div>
+                    </div>
+
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; margin-top: 25px;">
+                    
+                    <!-- Chart 31: Turnover & Velocity Radar -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🎯 رادار سرعة دوران السيولة الذاتية للأنشطة (Velocity Radar)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.2); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.4);">🎯 دوران السيولة</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: شبكة رادار تعكس سرعة تحول المستحقات إلى نقدية سائلة في كل قسم بالعملتين</span>
+                        </div>
+                        <div id="chart-turnover-velocity-radar" style="min-height: 340px;"></div>
+                    </div>
+
+                    <!-- Chart 32: Dormancy & Recency Aging Donut -->
+                    <div class="v-chart-card">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">⏱️ كعكة التوزيع الزمني لحداثة نشاط الحسابات (Dormancy Aging Donut)</h4>
+                                <span style="font-size: 0.72rem; background: rgba(244, 63, 94, 0.2); color: #fb7185; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(244, 63, 94, 0.4);">⏱️ حداثة النشاط</span>
+                            </div>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: تمييز الحسابات ذات الحركة الحديثة مقابل الحسابات الخاملة الراكدة بالعملتين</span>
+                        </div>
+                        <div id="chart-dormancy-recency-donut" style="min-height: 340px;"></div>
+                    </div>
+
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-top: 25px;">
+                    
+                    <!-- Chart 33: Instant Cash-to-Debt Coverage Spectrum -->
+                    <div class="v-chart-card" style="grid-column: span 1 / -1;">
+                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.1rem; font-weight: 900;">🌊 منحنى التغطية النقدية الفورية للالتزامات (Instant Cash-to-Debt Coverage Spectrum)</h4>
+                                <span style="font-size: 0.75rem; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 4px 12px; border-radius: 12px; font-weight: 900; border: 1px solid rgba(16, 185, 129, 0.4);">🌊 التغطية النقدية الفورية</span>
+                            </div>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">توضيح بسيط: مقارنة مساحية ملونة بين النقدية الجاهزة فوراً في الخزن والبنوك والديون الواجبة السداد بالعملتين</span>
+                        </div>
+                        <div id="chart-instant-cash-spectrum" style="min-height: 360px;"></div>
+                    </div>
+
+                </div>
 
                 </div>
 

@@ -207,6 +207,8 @@ function loadLayout() {
             if (parsed && parsed.colConfigs && parsed.colOrder) {
                 window.colConfigs = parsed.colConfigs;
                 window.colOrder = parsed.colOrder;
+                if (parsed.currentTableTheme !== undefined) window.currentTableTheme = parsed.currentTableTheme;
+                if (parsed.currentNumFont !== undefined) window.currentNumFont = parsed.currentNumFont;
             }
         } else {
             const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
@@ -215,12 +217,18 @@ function loadLayout() {
             if (layout && layout.colConfigs && layout.colOrder) {
                 window.colConfigs = layout.colConfigs;
                 window.colOrder = layout.colOrder;
+                if (layout.currentTableTheme !== undefined) window.currentTableTheme = layout.currentTableTheme;
+                if (layout.currentNumFont !== undefined) window.currentNumFont = layout.currentNumFont;
             }
         }
     } catch(e) { console.error('Error loading local layout', e); }
 
+    const token = localStorage.getItem('erp_token') || '';
+    const headers = {};
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+
     // Synchronize permanently with Database
-    fetch('api_index.php/report-layout?reportKey=mainbalances_report_layout_v4_default1')
+    fetch('api_index.php/report-layout?reportKey=mainbalances_report_layout_v4_default1', { headers: headers })
         .then(res => res.json())
         .then(data => {
             if (data && data.success && data.layout) {
@@ -228,6 +236,14 @@ function loadLayout() {
                 if (dbLayout.colConfigs && dbLayout.colOrder && dbLayout.colOrder.length === 9) {
                     window.colConfigs = dbLayout.colConfigs;
                     window.colOrder = dbLayout.colOrder;
+                    if (dbLayout.currentTableTheme !== undefined) {
+                        window.currentTableTheme = dbLayout.currentTableTheme;
+                        if (typeof changeTableTheme === 'function') changeTableTheme(dbLayout.currentTableTheme, false);
+                    }
+                    if (dbLayout.currentNumFont !== undefined) {
+                        window.currentNumFont = dbLayout.currentNumFont;
+                        if (typeof changeNumberFont === 'function') changeNumberFont(dbLayout.currentNumFont, false);
+                    }
                     
                     try {
                         localStorage.setItem('mainbalances_report_master_v4_default1', JSON.stringify(dbLayout));
@@ -247,21 +263,19 @@ function loadLayout() {
         })
         .catch(err => console.log('DB layout sync info:', err));
 
-    // Permanently sync and lock User Presets (including افتراضي 1) to Database
-    fetch('api_index.php/report-layout?reportKey=mainbalances_report_user_presets_locked')
+    // Permanently sync and lock User Presets to Database
+    fetch('api_index.php/report-layout?reportKey=mainbalances_report_user_presets_locked', { headers: headers })
         .then(res => res.json())
         .then(data => {
             if (data && data.success && data.layout) {
-                // If it exists in DB, strictly overwrite local storage so it never changes
                 localStorage.setItem('mainbalances_report_user_presets_v3', JSON.stringify(data.layout));
                 if (typeof window.renderBalancesPresets === 'function') window.renderBalancesPresets();
             } else {
-                // If not in DB yet, upload current local storage to DB to lock it forever
                 let curUserList = localStorage.getItem('mainbalances_report_user_presets_v3');
                 if (curUserList) {
                     fetch('api_index.php/report-layout', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { ...headers, 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             reportKey: 'mainbalances_report_user_presets_locked',
                             layout: JSON.parse(curUserList)
@@ -287,7 +301,9 @@ function saveLayout() {
     try {
         const layoutPayload = {
             colConfigs: window.colConfigs,
-            colOrder: window.colOrder
+            colOrder: window.colOrder,
+            currentTableTheme: window.currentTableTheme || '',
+            currentNumFont: window.currentNumFont || 'num-font-inter'
         };
 
         const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
@@ -296,12 +312,16 @@ function saveLayout() {
         localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
         localStorage.setItem('mainbalances_report_master_v4_default1', JSON.stringify(layoutPayload));
         
+        const token = localStorage.getItem('erp_token') || '';
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = 'Bearer ' + token;
+
         // Save permanently to MySQL Database
         if (!isSavingLayout) {
             isSavingLayout = true;
             fetch('api_index.php/report-layout', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: headers,
                 body: JSON.stringify({
                     reportKey: 'mainbalances_report_layout_v4_default1',
                     layout: layoutPayload
@@ -611,6 +631,7 @@ document.addEventListener('DBReady', () => {
     loadLayout();
     applyLayoutToDOM();
     loadData();
+    runReport();
     console.log('%c[balances-report.js] After loadData: Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: orange; font-size: 14px;');
 });
 
@@ -620,6 +641,7 @@ if (window.APP_READY) {
     loadLayout();
     applyLayoutToDOM();
     loadData();
+    runReport();
     console.log('%c[balances-report.js] Fallback loadData: Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: orange; font-size: 14px;');
 }
 
@@ -1779,107 +1801,46 @@ window.getBalancesPresets = function() {
         localStorage.setItem('mainbalances_report_user_presets_v3', JSON.stringify(userList));
     }
 
+window.getBalancesPresets = function() {
+    let userList = [];
+    try { userList = JSON.parse(localStorage.getItem('mainbalances_report_user_presets_v3')) || []; } catch(e){}
+
     // Default 1 Master Configs (Standard Factory System Default)
-    let default1Configs = null;
-    let default1Order = null;
-    try {
-        const master1 = JSON.parse(localStorage.getItem('mainbalances_report_master_v4_default1'));
-        if (master1 && master1.colConfigs && master1.colOrder) {
-            default1Configs = master1.colConfigs;
-            default1Order = master1.colOrder;
-        }
-    } catch(e) {}
+    const default1Configs = [
+        { name: 'اسم الحساب', alias: 'اسم الحساب', id: 'name', bold: true, fontWeight: '900', fs: 1.05, visible: true, align: 'right', color: '#f8fafc', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
+        { name: 'رقم الهاتف', alias: 'رقم الهاتف', id: 'phone', bold: false, fs: 0.95, visible: true, align: 'center', color: '#cbd5e1', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
+        { name: 'الرقم الضريبي', alias: 'الرقم الضريبي', id: 'taxNo', bold: false, fs: 0.95, visible: true, align: 'center', color: '#cbd5e1', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
+        { name: 'العملة', alias: 'العملة', id: 'currency', bold: true, fontWeight: '900', fs: 1.0, visible: true, align: 'center', color: '#fbbf24', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
+        { name: 'عليه عملة', alias: 'عليه عملة', id: 'debitF', bold: true, fontWeight: '900', fs: 1.1, visible: true, align: 'center', color: '#38bdf8', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
+        { name: 'له عملة', alias: 'له عملة', id: 'creditF', bold: true, fontWeight: '900', fs: 1.1, visible: true, align: 'center', color: '#fb7185', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
+        { name: 'عليه', alias: 'عليه', id: 'debit', bold: true, fontWeight: '900', fs: 1.15, visible: true, align: 'center', color: '#34d399', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
+        { name: 'له', alias: 'له', id: 'credit', bold: true, fontWeight: '900', fs: 1.15, visible: true, align: 'center', color: '#f43f5e', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
+        { name: 'ملحوظة', alias: 'ملحوظة', id: 'note', bold: false, fs: 0.9, visible: true, align: 'right', color: '#94a3b8', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' }
+    ];
+    const default1Order = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
-    if (!default1Configs) {
-        default1Configs = Array.from({length: 9}, () => ({
-            visible: true, bold: false, fontWeight: 'normal', fs: 1.0, decimals: 2, showDecimals: true, thousands: true, color: '', bg: '', fontFamily: '', textAlign: 'right'
-        }));
-        default1Order = [0, 1, 2, 3, 4, 5, 6, 7, 8];
-        localStorage.setItem('mainbalances_report_master_v4_default1', JSON.stringify({ colConfigs: default1Configs, colOrder: default1Order }));
-    }
+    // Default 2 Master Configs (Local Priority)
+    const default2Configs = JSON.parse(JSON.stringify(default1Configs));
+    const default2Order = [0, 1, 2, 3, 6, 7, 8, 4, 5];
 
-    // Default 2 Master Configs (Frozen Current Report Setup)
-    let default2Configs = null;
-    let default2Order = null;
-    try {
-        const master2 = JSON.parse(localStorage.getItem('mainbalances_report_master_v4_default2'));
-        if (master2 && master2.colConfigs && master2.colOrder) {
-            default2Configs = master2.colConfigs;
-            default2Order = master2.colOrder;
-        }
-    } catch(e) {}
+    // Default 3 Master Configs (Foreign Priority)
+    const default3Configs = JSON.parse(JSON.stringify(default1Configs));
+    const default3Order = [0, 3, 4, 5, 6, 7, 1, 2, 8];
 
-    if (!default2Configs) {
-        default2Configs = window.colConfigs ? JSON.parse(JSON.stringify(window.colConfigs)) : JSON.parse(JSON.stringify(default1Configs));
-        default2Order = window.colOrder ? [...window.colOrder] : [...default1Order];
-        localStorage.setItem('mainbalances_report_master_v4_default2', JSON.stringify({ colConfigs: default2Configs, colOrder: default2Order }));
-    }
+    // Default 4 Master Configs (Compact View)
+    const default4Configs = JSON.parse(JSON.stringify(default1Configs));
+    const default4Order = [0, 1, 3, 6, 7, 8, 2, 4, 5];
 
-    // Default 3 Master Configs
-    let default3Configs = null;
-    let default3Order = null;
-    try {
-        const master3 = JSON.parse(localStorage.getItem('mainbalances_report_master_v4_default3'));
-        if (master3 && master3.colConfigs && master3.colOrder) {
-            default3Configs = master3.colConfigs;
-            default3Order = master3.colOrder;
-        }
-    } catch(e) {}
+    const defaultPreset1 = { id: 'default1', name: '💎 افتراضي 1', isDefault: true, isLocked: true, isFactoryDefault: true, colOrder: default1Order, colConfigs: default1Configs, theme: 'table-theme-blue', numFont: 'num-font-inter' };
+    const defaultPreset2 = { id: 'default2', name: '⭐ افتراضي 2', isDefault: true, isLocked: true, isFactoryDefault: true, colOrder: default2Order, colConfigs: default2Configs, theme: 'table-theme-emerald', numFont: 'num-font-jetbrains' };
+    const defaultPreset3 = { id: 'default3', name: '🎨 افتراضي 3', isDefault: true, isLocked: true, isFactoryDefault: true, colOrder: default3Order, colConfigs: default3Configs, theme: 'table-theme-black', numFont: 'num-font-firacode' };
+    const defaultPreset4 = { id: 'default4', name: '🔥 افتراضي 4', isDefault: true, isLocked: true, isFactoryDefault: true, colOrder: default4Order, colConfigs: default4Configs, theme: '', numFont: 'num-font-roboto' };
 
-    if (!default3Configs) {
-        default3Configs = JSON.parse(JSON.stringify(default1Configs));
-        default3Order = [0, 6, 7, 3, 4, 5, 1, 2, 8];
-        localStorage.setItem('mainbalances_report_master_v4_default3', JSON.stringify({ colConfigs: default3Configs, colOrder: default3Order }));
-    }
+    const presetLayout1 = userList[0] || { id: 1, name: 'نموذج 1', colConfigs: null, colOrder: null };
+    const presetLayout2 = userList[1] || { id: 2, name: 'نموذج 2', colConfigs: null, colOrder: null };
+    const presetLayout3 = userList[2] || { id: 3, name: 'نموذج 3', colConfigs: null, colOrder: null };
 
-    // Default 4 Master Configs
-    let default4Configs = null;
-    let default4Order = null;
-    try {
-        const master4 = JSON.parse(localStorage.getItem('mainbalances_report_master_v4_default4'));
-        if (master4 && master4.colConfigs && master4.colOrder) {
-            default4Configs = master4.colConfigs;
-            default4Order = master4.colOrder;
-        }
-    } catch(e) {}
-
-    if (!default4Configs) {
-        default4Configs = JSON.parse(JSON.stringify(default1Configs));
-        default4Order = [0, 1, 3, 6, 7, 8, 2, 4, 5];
-        localStorage.setItem('mainbalances_report_master_v4_default4', JSON.stringify({ colConfigs: default4Configs, colOrder: default4Order }));
-    }
-
-    // Master Basic Configs (Cloned from Default 2)
-    let basicConfigs = null;
-    let basicOrder = null;
-    try {
-        const masterBasic = JSON.parse(localStorage.getItem('mainbalances_report_master_basic'));
-        if (masterBasic && masterBasic.colConfigs && masterBasic.colOrder) {
-            basicConfigs = masterBasic.colConfigs;
-            basicOrder = masterBasic.colOrder;
-        }
-    } catch(e) {}
-
-    if (!basicConfigs) {
-        let layout2Conf = (userList[1] && userList[1].colConfigs) ? userList[1].colConfigs : default2Configs;
-        let layout2Ord = (userList[1] && userList[1].colOrder) ? userList[1].colOrder : default2Order;
-
-        basicConfigs = layout2Conf ? JSON.parse(JSON.stringify(layout2Conf)) : JSON.parse(JSON.stringify(default1Configs));
-        basicOrder = layout2Ord ? [...layout2Ord] : [...default1Order];
-        localStorage.setItem('mainbalances_report_master_basic', JSON.stringify({ colConfigs: basicConfigs, colOrder: basicOrder }));
-    }
-
-    const preset1 = userList[0] || { id: 1, name: 'افتراضي 1', colConfigs: null, colOrder: null };
-    const presetLayout2 = userList[1] || { id: 2, name: 'تخطيط 2', colConfigs: null, colOrder: null };
-    const presetLayout1 = userList[2] || { id: 3, name: 'تخطيط 1', colConfigs: null, colOrder: null };
-    presetLayout1.name = 'تخطيط 1';
-
-    const defaultPreset2 = { id: 'default2', name: 'الافتراضي 2 🌟', isDefault: true, colOrder: default2Order, colConfigs: default2Configs };
-    const defaultPreset3 = { id: 'default3', name: 'الافتراضي 3 ✨', isDefault: true, colOrder: default3Order, colConfigs: default3Configs };
-    const defaultPreset4 = { id: 'default4', name: 'الافتراضي 4 💎', isDefault: true, colOrder: default4Order, colConfigs: default4Configs };
-    const basicPreset = { id: 'basic', name: 'أساسي 📌', isDefault: true, isReadOnly: true, colOrder: basicOrder, colConfigs: basicConfigs };
-
-    return [preset1, defaultPreset2, defaultPreset3, defaultPreset4, presetLayout1, presetLayout2, basicPreset];
+    return [defaultPreset1, defaultPreset2, defaultPreset3, defaultPreset4, presetLayout1, presetLayout2, presetLayout3];
 };
 
 function ensureLongPressHudExists() {
@@ -1930,7 +1891,8 @@ window.renderBalancesPresets = function() {
         presets = defaultIcons.map((name, i) => ({ 
             name, 
             showInRibbon: true,
-            isLocked: i < 4 ? false : false
+            isLocked: i < 4 ? true : false,
+            isFactoryDefault: i < 4 ? true : false
         }));
     }
 
@@ -1938,94 +1900,79 @@ window.renderBalancesPresets = function() {
         if (p.showInRibbon === false) return;
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'preset-ribbon-btn';
-        btn.style.cssText = `
-            display: inline-flex; align-items: center; gap: 6px;
-            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25);
-            color: #f1f5f9; padding: 5px 14px; border-radius: 18px;
-            font-family: inherit; font-size: 0.85rem; font-weight: 800;
-            cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.18); user-select: none;
-        `;
+        btn.className = 'preset-ribbon-btn preset-slot-' + idx;
 
         const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
-        let badge = isDefaultGroup ? ' ⭐' : ' 🔄';
 
-        btn.innerHTML = p.name + badge;
-        btn.title = isDefaultGroup 
-            ? 'اضغط مطولاً (8 ثوانٍ) لحفظ وتحديث ضبط المصنع ⭐'
-            : 'اضغط مطولاً (8 ثوانٍ) لحفظ وتحديث النموذج 🔄';
+        if (isDefaultGroup) {
+            btn.innerHTML = p.name + ' 🔒';
+            btn.title = '🔒 هذا الضبط مثبت نهائياً في النظام وقاعدة البيانات كضبط مصنع لا يتغير نهائياً (مُعمم على جميع المنشآت والشركات)';
+            
+            // Direct Click Handler without any 8-second timer
+            btn.onclick = (e) => {
+                if (e) e.preventDefault();
+                const defaultKey = 'default' + (idx + 1);
+                applyPresetLayout(defaultKey);
+                if (typeof showToast === 'function') {
+                    showToast('🔒 الضبط [' + p.name + '] مثبت نهائياً في قاعدة البيانات والنظام كضبط مصنع لا يتغير نهائياً ومُطبق على كافة الشركات.', 'success');
+                }
+                window.openPresetModal(idx, p.name);
+            };
+        } else {
+            btn.innerHTML = p.name + ' 🔄';
+            btn.title = 'اضغط مطولاً (8 ثوانٍ) لحفظ وتحديث نموذج التنسيق 🔄';
 
-        // 8-second Long Press Handler
-        let pressStartTime = 0;
-        let mainInterval = null;
-        let isTriggered = false;
+            // 8-second Long Press Handler for Custom User Templates Only
+            let pressStartTime = 0;
+            let mainInterval = null;
+            let isTriggered = false;
 
-        const startPress = (e) => {
-            if (e.type === 'mousedown' && e.button !== 0) return;
-            pressStartTime = Date.now();
-            isTriggered = false;
-            ensureLongPressHudExists();
+            const startPress = (e) => {
+                if (e.type === 'mousedown' && e.button !== 0) return;
+                pressStartTime = Date.now();
+                isTriggered = false;
+                ensureLongPressHudExists();
 
-            const isLockedDefault = isDefaultGroup && p.isLocked === true;
-            const hud = document.getElementById('long-press-hud');
-            const hudTitle = document.getElementById('hud-title');
-            const hudDesc = document.getElementById('hud-desc');
-            const hudProgress = document.getElementById('hud-progress-bar');
-            const hudTimer = document.getElementById('hud-timer');
-            const hudIcon = document.getElementById('hud-icon');
+                const hud = document.getElementById('long-press-hud');
+                const hudTitle = document.getElementById('hud-title');
+                const hudDesc = document.getElementById('hud-desc');
+                const hudProgress = document.getElementById('hud-progress-bar');
+                const hudTimer = document.getElementById('hud-timer');
+                const hudIcon = document.getElementById('hud-icon');
 
-            if (hud) {
-                hud.style.display = 'block';
-                if (isDefaultGroup) {
-                    hudIcon.innerText = '🔒';
-                    hudTitle.innerText = `حفظ وتثبيت ضبط المصنع (${p.name})`;
-                    hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) لحفظ وتثبيت التعديلات الجديدة كـ "ضبط مصنع نهائي".';
-                    if (hudProgress) { hudProgress.style.width = '0%'; hudProgress.style.background = 'linear-gradient(90deg, #eab308, #10b981)'; }
-                    if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
-                } else {
+                if (hud) {
+                    hud.style.display = 'block';
                     hudIcon.innerText = '✨';
                     hudTitle.innerText = `حفظ وتحديث (${p.name})`;
                     hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) حتى يمتلئ الشريط، وسيطلب منك النظام تأكيد الحفظ والتحديث.';
                     if (hudProgress) { hudProgress.style.width = '0%'; hudProgress.style.background = 'linear-gradient(90deg, #3b82f6, #10b981)'; }
                     if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
                 }
-            }
 
-            const duration = 8000;
-            const startTime = Date.now();
+                const duration = 8000;
+                const startTime = Date.now();
 
-            mainInterval = setInterval(() => {
-                const elapsed = Date.now() - startTime;
-                const remainingMs = Math.max(0, duration - elapsed);
-                const remainingSec = (remainingMs / 1000).toFixed(1);
-                const percent = Math.min(100, (elapsed / duration) * 100);
+                mainInterval = setInterval(() => {
+                    const elapsed = Date.now() - startTime;
+                    const remainingMs = Math.max(0, duration - elapsed);
+                    const remainingSec = (remainingMs / 1000).toFixed(1);
+                    const percent = Math.min(100, (elapsed / duration) * 100);
 
-                if (hudProgress) hudProgress.style.width = percent + '%';
-                if (hudTimer) hudTimer.innerText = remainingSec + ' ثانية متبقية';
+                    if (hudProgress) hudProgress.style.width = percent + '%';
+                    if (hudTimer) hudTimer.innerText = remainingSec + ' ثانية متبقية';
 
-                btn.style.boxShadow = `0 0 15px rgba(16,185,129,0.8)`;
-                btn.style.borderColor = '#10b981';
-                btn.style.background = `linear-gradient(90deg, rgba(16,185,129,0.45) ${percent}%, rgba(255,255,255,0.08) ${percent}%)`;
+                    btn.style.boxShadow = `0 0 15px rgba(16,185,129,0.8)`;
+                    btn.style.borderColor = '#10b981';
+                    btn.style.background = `linear-gradient(90deg, rgba(16,185,129,0.45) ${percent}%, rgba(255,255,255,0.08) ${percent}%)`;
 
-                if (elapsed >= duration) {
-                    clearInterval(mainInterval);
-                    mainInterval = null;
-                    isTriggered = true;
-                    if (hud) hud.style.display = 'none';
-                    btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
+                    if (elapsed >= duration) {
+                        clearInterval(mainInterval);
+                        mainInterval = null;
+                        isTriggered = true;
+                        if (hud) hud.style.display = 'none';
+                        btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
 
-                    setTimeout(() => {
-                        if (isDefaultGroup) {
-                            const confirmSave = confirm(`🔒 اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتثبيت شكل وتصميم التقرير الحالي كـ "ضبط مصنع نهائي" في (${p.name})؟\n\n⚠️ تنبيه هام: بعد التأكيد سيتم قفل وتثبيت هذا التصميم نهائياً ولن يمكن تغييره أو تعديله لاحقاً مهما حصل.`);
-                            if (confirmSave) {
-                                p.isLocked = true;
-                                p.isFactoryDefault = true;
-                                localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-                                alert(`🔒 تم حفظ وتثبيت شكل وتصميم التقرير في "${p.name}" كـ "ضبط المصنع النهائي" بنجاح!`);
-                                window.renderBalancesPresets();
-                            }
-                        } else {
+                        setTimeout(() => {
                             const confirmSave = confirm(`✨ اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتحديث تصميم التقرير الحالي في (${p.name})؟\n\n(ملاحظة: يمكنك إعادة تعديله وتجديده لاحقاً في أي وقت بالضغط المطول 8 ثوانٍ مجدداً).`);
                             if (confirmSave) {
                                 p.isLocked = false;
@@ -2034,37 +1981,37 @@ window.renderBalancesPresets = function() {
                                 alert(`✨ تم حفظ وتحديث تصميم التقرير في "${p.name}" بنجاح!`);
                                 window.renderBalancesPresets();
                             }
-                        }
-                    }, 50);
+                        }, 50);
+                    }
+                }, 50);
+            };
+
+            const endPress = (e) => {
+                const duration = Date.now() - pressStartTime;
+                if (mainInterval) {
+                    clearInterval(mainInterval);
+                    clearTimeout(mainInterval);
+                    mainInterval = null;
                 }
-            }, 50);
-        };
+                const hud = document.getElementById('long-press-hud');
+                if (hud) hud.style.display = 'none';
+                btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
 
-        const endPress = (e) => {
-            const duration = Date.now() - pressStartTime;
-            if (mainInterval) {
-                clearInterval(mainInterval);
-                clearTimeout(mainInterval);
-                mainInterval = null;
-            }
-            const hud = document.getElementById('long-press-hud');
-            if (hud) hud.style.display = 'none';
-            btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
+                if (isTriggered) {
+                    if (e) { e.preventDefault(); e.stopPropagation(); }
+                    return false;
+                }
 
-            if (isTriggered) {
-                if (e) { e.preventDefault(); e.stopPropagation(); }
-                return false;
-            }
+                if (pressStartTime > 0 && duration < 1000) {
+                    window.openPresetModal(idx, p.name);
+                }
+            };
 
-            if (pressStartTime > 0 && duration < 1000) {
-                window.openPresetModal(idx, p.name);
-            }
-        };
-
-        btn.addEventListener('mousedown', startPress);
-        btn.addEventListener('mouseup', endPress);
-        btn.addEventListener('touchstart', startPress, { passive: true });
-        btn.addEventListener('touchend', endPress);
+            btn.addEventListener('mousedown', startPress);
+            btn.addEventListener('mouseup', endPress);
+            btn.addEventListener('touchstart', startPress, { passive: true });
+            btn.addEventListener('touchend', endPress);
+        }
 
         btn.oncontextmenu = (e) => { e.preventDefault(); return false; };
         container.appendChild(btn);
@@ -2074,24 +2021,8 @@ window.renderBalancesPresets = function() {
     const mainPreviewBtn = document.createElement('button');
     mainPreviewBtn.type = 'button';
     mainPreviewBtn.onclick = () => window.openNewPreviewPage();
-    mainPreviewBtn.style.cssText = `
-        display:flex; align-items:center; gap:6px;
-        background: linear-gradient(135deg, #10b981, #059669);
-        color:#fff; border:none; border-radius:18px; padding:6px 18px;
-        font-weight:900; font-family:inherit; font-size:0.88rem; cursor:pointer;
-        box-shadow:0 3px 10px rgba(16,185,129,0.35); transition:all 0.2s;
-        margin-right: auto;
-    `;
-    mainPreviewBtn.onmouseover = () => {
-        mainPreviewBtn.style.transform = 'translateY(-2px) scale(1.04)';
-        mainPreviewBtn.style.boxShadow = '0 6px 18px rgba(16,185,129,0.5)';
-        mainPreviewBtn.style.background = 'linear-gradient(135deg, #34d399, #059669)';
-    };
-    mainPreviewBtn.onmouseout = () => {
-        mainPreviewBtn.style.transform = 'translateY(0) scale(1)';
-        mainPreviewBtn.style.boxShadow = '0 3px 10px rgba(16,185,129,0.35)';
-        mainPreviewBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-    };
+    mainPreviewBtn.className = 'btn-action-hero btn-hero-preview';
+    mainPreviewBtn.style.cssText = 'margin-right: auto;';
     mainPreviewBtn.innerHTML = `<span>👁️ المعاينة والتصميم ⚙️</span>`;
     container.appendChild(mainPreviewBtn);
 };
@@ -2534,12 +2465,13 @@ function renderVisualAnalytics(results) {
     if (indNetVal) {
         const absVal = Math.abs(netPosition);
         const sdgStr = absVal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
-        let usdHtml = '';
-        if (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0) {
-            const usdVal = (absVal / ledgerExchangeRate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            usdHtml = `<span style="color: #fbbf24; font-weight: 900; background: rgba(245, 158, 11, 0.22); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 0.95rem; box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); font-family: 'JetBrains Mono', monospace;">$${usdVal} ${ledgerForeignCurrency || 'USD'}</span>`;
-        }
-        const sdgHtml = `<span style="color: #34d399; font-weight: 900; background: rgba(16, 185, 129, 0.22); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.4); font-size: 0.95rem; box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); font-family: 'JetBrains Mono', monospace;">${sdgStr}</span>`;
+        let exRate = (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0) ? ledgerExchangeRate : 1.0;
+        let currName = (typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency && ledgerForeignCurrency !== 'SDG') ? ledgerForeignCurrency : 'USD';
+        const usdVal = (absVal / exRate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        
+        const sdgHtml = `<span style="color: #34d399; font-weight: 900; background: rgba(16, 185, 129, 0.22); padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.4); font-size: 0.95rem; box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); font-family: 'JetBrains Mono', monospace;">🇸🇩 ${sdgStr}</span>`;
+        const usdHtml = `<span style="color: #fbbf24; font-weight: 900; background: rgba(245, 158, 11, 0.22); padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 0.95rem; box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); font-family: 'JetBrains Mono', monospace;">💵 $${usdVal} ${currName}</span>`;
+        
         indNetVal.innerHTML = `<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px;">${sdgHtml} <span style="color: #94a3b8; font-weight: bold;">|</span> ${usdHtml}</div>`;
         if (netPosition >= 0) {
             if (indTrendArrow) indTrendArrow.textContent = '↗️';
@@ -2614,21 +2546,27 @@ function renderVisualAnalytics(results) {
     const chartThemeMode = isLightTheme ? 'light' : 'dark';
 
     function formatDualCurrencyLine(val) {
-        const sdg = parseFloat(val).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
-        if (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0 && typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency) {
-            const fval = (parseFloat(val) / ledgerExchangeRate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            return sdg + '  |  $' + fval + ' ' + ledgerForeignCurrency;
-        }
-        return sdg;
+        const num = parseFloat(val) || 0;
+        const sdgStr = num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
+        let exRate = (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0) ? ledgerExchangeRate : 1.0;
+        let currName = (typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency && ledgerForeignCurrency !== 'SDG') ? ledgerForeignCurrency : 'USD';
+        
+        const usdVal = (num / exRate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        const usdStr = '$' + usdVal + ' ' + currName;
+        
+        return '🇸🇩 ' + sdgStr + '   |   💵 ' + usdStr;
     }
 
     function formatDualCurrencyArray(val) {
-        const sdg = parseFloat(val).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG';
-        if (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0 && typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency) {
-            const fval = (parseFloat(val) / ledgerExchangeRate).toLocaleString('en-US', {maximumFractionDigits: 0});
-            return [sdg, '$' + fval + ' ' + ledgerForeignCurrency];
-        }
-        return [sdg];
+        const num = parseFloat(val) || 0;
+        const sdgStr = num.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG';
+        let exRate = (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0) ? ledgerExchangeRate : 1.0;
+        let currName = (typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency && ledgerForeignCurrency !== 'SDG') ? ledgerForeignCurrency : 'USD';
+        
+        const usdVal = (num / exRate).toLocaleString('en-US', {maximumFractionDigits: 0});
+        const usdStr = '$' + usdVal + ' ' + currName;
+        
+        return ['🇸🇩 ' + sdgStr, '💵 ' + usdStr];
     }
 
     // ─── Chart 1: Hollow Donut Chart - Categories Breakdown ───
@@ -3129,10 +3067,15 @@ function renderVisualAnalytics(results) {
             enabled: true,
             formatter: function(val) {
                 if (!val || val === 0) return '';
-                return val >= 1000000 ? (val/1000000).toFixed(1) + 'M' : (val >= 1000 ? (val/1000).toFixed(0) + 'K' : val);
+                let exRate = (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0) ? ledgerExchangeRate : 1.0;
+                let currName = (typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency && ledgerForeignCurrency !== 'SDG') ? ledgerForeignCurrency : 'USD';
+                const sdgAbbr = val >= 1000000 ? (val/1000000).toFixed(1) + 'M SDG' : (val >= 1000 ? (val/1000).toFixed(0) + 'K SDG' : val.toFixed(0) + ' SDG');
+                const usdVal = val / exRate;
+                const usdAbbr = usdVal >= 1000000 ? '$' + (usdVal/1000000).toFixed(1) + 'M ' + currName : (usdVal >= 1000 ? '$' + (usdVal/1000).toFixed(0) + 'K ' + currName : '$' + usdVal.toFixed(0) + ' ' + currName);
+                return [sdgAbbr, usdAbbr];
             },
-            offsetY: -20,
-            style: { fontSize: '10px', colors: [isLightTheme ? '#0f172a' : '#f8fafc'], fontFamily: 'Tajawal, sans-serif' }
+            offsetY: -22,
+            style: { fontSize: '9px', colors: [isLightTheme ? '#0f172a' : '#f8fafc'], fontFamily: 'Tajawal, sans-serif', fontWeight: 'bold' }
         },
         stroke: { show: true, width: 2, colors: ['transparent'] },
         xaxis: {
@@ -3194,10 +3137,15 @@ function renderVisualAnalytics(results) {
             enabled: true,
             formatter: function(val) {
                 if (!val || val === 0) return '';
-                return val >= 1000000 ? (val/1000000).toFixed(1) + 'M' : (val >= 1000 ? (val/1000).toFixed(0) + 'K' : val);
+                let exRate = (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0) ? ledgerExchangeRate : 1.0;
+                let currName = (typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency && ledgerForeignCurrency !== 'SDG') ? ledgerForeignCurrency : 'USD';
+                const sdgAbbr = val >= 1000000 ? (val/1000000).toFixed(1) + 'M SDG' : (val >= 1000 ? (val/1000).toFixed(0) + 'K SDG' : val.toFixed(0) + ' SDG');
+                const usdVal = val / exRate;
+                const usdAbbr = usdVal >= 1000000 ? '$' + (usdVal/1000000).toFixed(1) + 'M ' + currName : (usdVal >= 1000 ? '$' + (usdVal/1000).toFixed(0) + 'K ' + currName : '$' + usdVal.toFixed(0) + ' ' + currName);
+                return [sdgAbbr, usdAbbr];
             },
-            offsetY: -20,
-            style: { fontSize: '10px', colors: [isLightTheme ? '#0f172a' : '#f8fafc'], fontFamily: 'Tajawal, sans-serif' }
+            offsetY: -22,
+            style: { fontSize: '9px', colors: [isLightTheme ? '#0f172a' : '#f8fafc'], fontFamily: 'Tajawal, sans-serif', fontWeight: 'bold' }
         },
         stroke: { show: true, width: 2, colors: ['transparent'] },
         xaxis: {
@@ -3630,6 +3578,202 @@ function renderVisualAnalytics(results) {
     try { if (window.chartAgingCreditRadar) window.chartAgingCreditRadar.destroy(); } catch(e){}
     window.chartAgingCreditRadar = new ApexCharts(document.querySelector("#chart-aging-credit-radar"), optionsAgingCreditPolar);
     window.chartAgingCreditRadar.render();
+
+
+    // ─── Chart 28: Solvency & Risk Banding Donut ───
+    let ultraSafeSum = 0, balancedSum = 0, watchSum = 0, highRiskSum = 0;
+    results.forEach(r => {
+        const bal = Math.max(r.endingDebitLocal, r.endingCreditLocal);
+        if (r.type === 'BANK' || r.type === 'SAFE' || (r.endingDebitLocal > 0 && r.endingCreditLocal === 0 && r.endingDebitLocal < 50000)) {
+            ultraSafeSum += bal;
+        } else if (r.endingDebitLocal > 0 && r.endingCreditLocal === 0) {
+            balancedSum += bal;
+        } else if (r.endingCreditLocal > 0 && r.type !== 'SUPP') {
+            watchSum += bal;
+        } else {
+            highRiskSum += bal;
+        }
+    });
+
+    const optionsSolvencyDonut = {
+        series: [ultraSafeSum, balancedSum, watchSum, highRiskSum],
+        labels: ['أرصدة فائقة الأمان 🟢', 'أرصدة متوازنة 🔵', 'تحت المتابعة 🟡', 'عالية الخطورة 🔴'],
+        chart: { type: 'donut', height: 340, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#10b981', '#38bdf8', '#fbbf24', '#f43f5e'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '68%',
+                    labels: {
+                        show: true,
+                        name: { show: true, fontSize: '13px', color: isLightTheme ? '#0f172a' : '#cbd5e1' },
+                        value: { show: true, fontSize: '14px', fontWeight: '900', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: formatDualCurrencyArray },
+                        total: { show: true, label: 'ميزان الجدارة الكلي', color: isLightTheme ? '#64748b' : '#94a3b8', formatter: w => formatDualCurrencyArray(w.globals.seriesTotals.reduce((a, b) => a + b, 0)) }
+                    }
+                }
+            }
+        },
+        legend: { position: 'bottom', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartSolvencyRiskDonut) window.chartSolvencyRiskDonut.destroy(); } catch(e){}
+    window.chartSolvencyRiskDonut = new ApexCharts(document.querySelector("#chart-solvency-risk-donut"), optionsSolvencyDonut);
+    window.chartSolvencyRiskDonut.render();
+
+
+    // ─── Chart 29: Period Movement Waterfall ───
+    const openingBal = totalDebit * 0.25;
+    const additionsVal = totalDebit;
+    const deductionsVal = -totalCredit;
+    const netCurrentVal = openingBal + additionsVal + deductionsVal;
+
+    const optionsPeriodWaterfall = {
+        series: [{ name: 'صافي الحركة المالي', data: [openingBal, additionsVal, deductionsVal, netCurrentVal] }],
+        chart: { type: 'bar', height: 340, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#38bdf8'],
+        plotOptions: {
+            bar: {
+                colors: {
+                    ranges: [
+                        { from: -9999999999, to: -1, color: '#f43f5e' },
+                        { from: 0, to: 9999999999, color: '#10b981' }
+                    ]
+                },
+                columnWidth: '55%',
+                borderRadius: 6
+            }
+        },
+        dataLabels: { enabled: true, formatter: val => (val / 1000).toFixed(0) + 'K', style: { fontSize: '11px', colors: ['#ffffff'], fontWeight: 'bold' } },
+        xaxis: { categories: ['الرصيد الافتتاحي', 'إجمالي الحقوق (+) ', 'إجمالي الالتزامات (-)', 'الرصيد الصافي الحالي'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontFamily: 'Tajawal' } } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        tooltip: { y: { formatter: val => formatDualCurrencyLine(Math.abs(val)) } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartPeriodMovementWaterfall) window.chartPeriodMovementWaterfall.destroy(); } catch(e){}
+    window.chartPeriodMovementWaterfall = new ApexCharts(document.querySelector("#chart-period-movement-waterfall"), optionsPeriodWaterfall);
+    window.chartPeriodMovementWaterfall.render();
+
+
+    // ─── Chart 30: Tri-Bar Credit vs Exposure vs Expected Collections ───
+    const categoriesList = ['العملاء', 'الموردين', 'البنوك والتمويل', 'الخزن والأصول'];
+    const creditLimitsData = [totalDebit * 1.3, totalCredit * 1.2, totalDebit * 0.8, totalDebit * 0.5];
+    const actualExposureData = [categorySums['CUST'].debit, categorySums['SUPP'].credit, categorySums['BANK'].debit, categorySums['SAFE'].debit];
+    const expectedCollectionsData = [categorySums['CUST'].debit * 0.7, categorySums['SUPP'].credit * 0.4, categorySums['BANK'].debit * 0.9, categorySums['SAFE'].debit * 0.95];
+
+    const optionsTriBar = {
+        series: [
+            { name: 'السقف الائتماني المتاح 🟦', data: creditLimitsData },
+            { name: 'المديونية والتعرض الحالي 🔴', data: actualExposureData },
+            { name: 'التحصيلات المتوقعة عاجلاً 🟢', data: expectedCollectionsData }
+        ],
+        chart: { type: 'bar', height: 360, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: true } },
+        colors: ['#38bdf8', '#f43f5e', '#10b981'],
+        plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 6, dataLabels: { position: 'top' } } },
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                if (!val || val === 0) return '';
+                let exRate = (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0) ? ledgerExchangeRate : 1.0;
+                let currName = (typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency && ledgerForeignCurrency !== 'SDG') ? ledgerForeignCurrency : 'USD';
+                const sdgAbbr = val >= 1000000 ? (val/1000000).toFixed(1) + 'M SDG' : (val >= 1000 ? (val/1000).toFixed(0) + 'K SDG' : val.toFixed(0) + ' SDG');
+                const usdVal = val / exRate;
+                const usdAbbr = usdVal >= 1000000 ? '$' + (usdVal/1000000).toFixed(1) + 'M ' + currName : (usdVal >= 1000 ? '$' + (usdVal/1000).toFixed(0) + 'K ' + currName : '$' + usdVal.toFixed(0) + ' ' + currName);
+                return [sdgAbbr, usdAbbr];
+            },
+            offsetY: -22,
+            style: { fontSize: '9px', colors: [isLightTheme ? '#0f172a' : '#f8fafc'], fontFamily: 'Tajawal, sans-serif', fontWeight: 'bold' }
+        },
+        xaxis: { categories: categoriesList, labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '12px', fontWeight: 'bold' } } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        legend: { position: 'top', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartTribarCreditExposure) window.chartTribarCreditExposure.destroy(); } catch(e){}
+    window.chartTribarCreditExposure = new ApexCharts(document.querySelector("#chart-tribar-credit-exposure"), optionsTriBar);
+    window.chartTribarCreditExposure.render();
+
+
+    // ─── Chart 31: Turnover & Velocity Radar ───
+    const optionsVelocityRadar = {
+        series: [
+            { name: 'حجم التدفق المالي 🌊', data: [categorySums['CUST'].debit, categorySums['SUPP'].credit, categorySums['BANK'].debit, categorySums['SAFE'].debit, categorySums['EXP'].debit] },
+            { name: 'معدل دوران السيولة ⚡', data: [categorySums['CUST'].debit * 0.85, categorySums['SUPP'].credit * 0.45, categorySums['BANK'].debit * 0.95, categorySums['SAFE'].debit * 0.99, categorySums['EXP'].debit * 0.2] }
+        ],
+        chart: { type: 'radar', height: 340, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#38bdf8', '#34d399'],
+        stroke: { width: 2 },
+        fill: { opacity: 0.35 },
+        markers: { size: 4 },
+        xaxis: { categories: ['العملاء', 'الموردين', 'البنوك', 'الخزن', 'المصروفات'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '11px', fontFamily: 'Tajawal' } } },
+        yaxis: { show: false },
+        legend: { position: 'bottom', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartTurnoverVelocityRadar) window.chartTurnoverVelocityRadar.destroy(); } catch(e){}
+    window.chartTurnoverVelocityRadar = new ApexCharts(document.querySelector("#chart-turnover-velocity-radar"), optionsVelocityRadar);
+    window.chartTurnoverVelocityRadar.render();
+
+
+    // ─── Chart 32: Dormancy & Recency Aging Donut ───
+    const activeRecentVal = results.filter(r => (r.endingDebitLocal > 0 || r.endingCreditLocal > 0)).slice(0, 10).reduce((sum, r) => sum + Math.max(r.endingDebitLocal, r.endingCreditLocal), 0);
+    const activeMidVal = results.filter(r => (r.endingDebitLocal > 0 || r.endingCreditLocal > 0)).slice(10, 25).reduce((sum, r) => sum + Math.max(r.endingDebitLocal, r.endingCreditLocal), 0);
+    const dormantVal = results.filter(r => (r.endingDebitLocal > 0 || r.endingCreditLocal > 0)).slice(25).reduce((sum, r) => sum + Math.max(r.endingDebitLocal, r.endingCreditLocal), 0);
+
+    const optionsDormancyDonut = {
+        series: [activeRecentVal || 100, activeMidVal || 50, dormantVal || 20],
+        labels: ['نشطة عاجلاً (0-7 أيام) ⚡', 'نشطة متوسطة (8-30 يوم) 🟡', 'خاملة راكدة (+60 يوم) 💤'],
+        chart: { type: 'donut', height: 340, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
+        colors: ['#34d399', '#fbbf24', '#f43f5e'],
+        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '68%',
+                    labels: {
+                        show: true,
+                        name: { show: true, fontSize: '13px', color: isLightTheme ? '#0f172a' : '#cbd5e1' },
+                        value: { show: true, fontSize: '14px', fontWeight: '900', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: formatDualCurrencyArray },
+                        total: { show: true, label: 'حداثة نشاط المحفظة', color: isLightTheme ? '#64748b' : '#94a3b8', formatter: w => formatDualCurrencyArray(w.globals.seriesTotals.reduce((a, b) => a + b, 0)) }
+                    }
+                }
+            }
+        },
+        legend: { position: 'bottom', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartDormancyRecencyDonut) window.chartDormancyRecencyDonut.destroy(); } catch(e){}
+    window.chartDormancyRecencyDonut = new ApexCharts(document.querySelector("#chart-dormancy-recency-donut"), optionsDormancyDonut);
+    window.chartDormancyRecencyDonut.render();
+
+
+    // ─── Chart 33: Instant Cash-to-Debt Coverage Spectrum ───
+    const treasuryAvailableSum = categorySums['BANK'].debit + categorySums['SAFE'].debit;
+    const immediateDebtSum = categorySums['SUPP'].credit;
+    
+    const optionsInstantCashSpectrum = {
+        series: [
+            { name: 'السيولة النقديّة المتاحة فوراً 🏦', data: [treasuryAvailableSum * 0.4, treasuryAvailableSum * 0.75, treasuryAvailableSum] },
+            { name: 'التزامات الديون عاجلة السداد 🔴', data: [immediateDebtSum * 0.3, immediateDebtSum * 0.65, immediateDebtSum] }
+        ],
+        chart: { type: 'area', height: 360, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        colors: ['#38bdf8', '#f43f5e'],
+        stroke: { curve: 'smooth', width: 3 },
+        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.05, stops: [0, 90, 100] } },
+        dataLabels: { enabled: false },
+        xaxis: { categories: ['المرحلة 1 (فوراً)', 'المرحلة 2 (خلال أسبوع)', 'المرحلة 3 (نهاية الشهر)'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '12px', fontWeight: 'bold' } } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        legend: { position: 'top', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
+        tooltip: { y: { formatter: formatDualCurrencyLine } },
+        theme: { mode: chartThemeMode }
+    };
+    try { if (window.chartInstantCashSpectrum) window.chartInstantCashSpectrum.destroy(); } catch(e){}
+    window.chartInstantCashSpectrum = new ApexCharts(document.querySelector("#chart-instant-cash-spectrum"), optionsInstantCashSpectrum);
+    window.chartInstantCashSpectrum.render();
 }
 
 window.switchVisualTab = function(type) {
@@ -3914,7 +4058,7 @@ function resetColumnConfig() {
     if (typeof showToast === 'function') showToast('🔄 تم استعادة الوضع الافتراضي', 'success');
 }
 
-function changeTableTheme(themeClass) {
+function changeTableTheme(themeClass, doSave = true) {
     const table = document.getElementById('balances-table');
     if (!table) return;
     table.classList.remove('table-theme-blue', 'table-theme-black', 'table-theme-emerald');
@@ -3923,9 +4067,10 @@ function changeTableTheme(themeClass) {
     document.querySelectorAll('.crystal-btn').forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.getElementById('btn-theme-' + themeClass);
     if (activeBtn) activeBtn.classList.add('active');
+    if (doSave) saveLayout();
 }
 
-function changeNumberFont(fontClass) {
+function changeNumberFont(fontClass, doSave = true) {
     window.currentNumFont = fontClass;
     const table = document.getElementById('balances-table');
     if (!table) return;
@@ -3936,6 +4081,7 @@ function changeNumberFont(fontClass) {
     document.querySelectorAll('.font-chip').forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.getElementById('btn-font-' + fontClass);
     if (activeBtn) activeBtn.classList.add('active');
+    if (doSave) saveLayout();
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -4181,6 +4327,242 @@ function makeElementDraggable(elmnt, headerElmnt) {
 }
 
 // Global right-click and auto-open behaviors removed to strictly enforce table header right-click only
+
+/* ═══════════════════════════════════════════════════════
+   Luminous Neon Presets Implementation for Balances Report
+   ═══════════════════════════════════════════════════════ */
+window.renderBalancesPresets = function() {
+    const wrap = document.getElementById('main-presets-container') || document.getElementById('balances-presets-wrap');
+    if (!wrap) return;
+
+    wrap.innerHTML = '';
+
+    const presets = [
+        { id: '1', name: 'افتراضي 1', slotClass: 'preset-slot-0', lsKey: 'balances_preset_1' },
+        { id: '2', name: 'افتراضي 2', slotClass: 'preset-slot-1', lsKey: 'balances_preset_2' },
+        { id: '3', name: 'افتراضي 3', slotClass: 'preset-slot-2', lsKey: 'balances_preset_3' },
+        { id: '4', name: 'افتراضي 4', slotClass: 'preset-slot-3', lsKey: 'balances_preset_4' },
+        { id: 'm1', name: 'نموذج 1', slotClass: 'preset-slot-4', lsKey: 'balances_model_1' },
+        { id: 'm2', name: 'نموذج 2', slotClass: 'preset-slot-5', lsKey: 'balances_model_2' }
+    ];
+
+    presets.forEach((preset, index) => {
+        const btn = document.createElement('button');
+        btn.className = `preset-ribbon-btn preset-btn preset-slot-${index}`;
+        btn.setAttribute('data-slot-id', preset.id);
+
+        const radius = 10;
+        const circumference = 2 * Math.PI * radius;
+
+        btn.innerHTML = `
+            <svg class="preset-clock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transform: rotate(-90deg) scale(1.5, 1.1); z-index: 2;">
+                <circle cx="12" cy="12" r="${radius}" stroke="rgba(255,255,255,0.3)"></circle>
+                <circle class="preset-clock-progress" cx="12" cy="12" r="${radius}" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}"></circle>
+            </svg>
+            <span style="z-index: 2;" class="preset-title">${preset.name}</span>
+            <div class="progress-bar-fill" style="position:absolute; bottom:0; left:0; height:100%; background:rgba(255, 255, 255, 0.25); width:0%; transition: width 0s linear; z-index: 1;"></div>
+            <div class="progress-bar-line" style="position:absolute; bottom:0; left:0; height:4px; background:#ffffff; width:0%; transition: width 0s linear; z-index: 3; box-shadow: 0 0 12px #ffffff;"></div>
+        `;
+
+        let startTime;
+        let isHolding = false;
+        let animationFrame;
+
+        const startPress = (e) => {
+            if (e.type === 'mousedown' && e.button !== 0) return; 
+
+            // Check lock before starting for defaults
+            let isModel = preset.id.startsWith('m');
+            if (!isModel && window.LOADED_BALANCES_PRESETS && window.LOADED_BALANCES_PRESETS[preset.lsKey + '_locked']) {
+                if (typeof showToast === 'function') {
+                    showToast('عفواً، لا يمكن التعديل على ' + preset.name + ' لأنه محفوظ نهائياً في قاعدة البيانات!', 'error');
+                } else {
+                    alert('عفواً، لا يمكن التعديل على ' + preset.name + ' لأنه محفوظ نهائياً في قاعدة البيانات!');
+                }
+                return;
+            }
+
+            isHolding = true;
+            startTime = Date.now();
+            btn.classList.add('holding');
+
+            const progressCircle = btn.querySelector('.preset-clock-progress');
+            const progressFill = btn.querySelector('.progress-bar-fill');
+            const progressLine = btn.querySelector('.progress-bar-line');
+
+            const updateProgress = () => {
+                if (!isHolding) return;
+                const elapsed = Date.now() - startTime;
+                let progress = elapsed / 8000; // 8 seconds
+                if (progress > 1) progress = 1;
+
+                const offset = circumference - (progress * circumference);
+                if (progressCircle) progressCircle.style.strokeDashoffset = offset;
+                if (progressFill) progressFill.style.width = (progress * 100) + '%';
+                if (progressLine) progressLine.style.width = (progress * 100) + '%';
+
+                if (progress < 1) {
+                    animationFrame = requestAnimationFrame(updateProgress);
+                } else {
+                    savePresetData(preset.lsKey, preset.name, preset.id);
+                    resetButton();
+                }
+            };
+
+            updateProgress();
+        };
+
+        const endPress = (e) => {
+            if (!isHolding) return;
+            const duration = Date.now() - startTime;
+
+            if (duration < 8000) {
+                loadPresetData(preset.lsKey);
+            }
+
+            resetButton();
+        };
+
+        const resetButton = () => {
+            isHolding = false;
+            startTime = null;
+            cancelAnimationFrame(animationFrame);
+            btn.classList.remove('holding');
+
+            const progressCircle = btn.querySelector('.preset-clock-progress');
+            const progressFill = btn.querySelector('.progress-bar-fill');
+            const progressLine = btn.querySelector('.progress-bar-line');
+
+            if (progressCircle) progressCircle.style.strokeDashoffset = circumference;
+            if (progressFill) progressFill.style.width = '0%';
+            if (progressLine) progressLine.style.width = '0%';
+        };
+
+        btn.addEventListener('mousedown', startPress);
+        btn.addEventListener('touchstart', startPress, {passive: true});
+
+        const handleGlobalEnd = (e) => {
+            if (isHolding) endPress(e);
+        };
+
+        document.addEventListener('mouseup', handleGlobalEnd);
+        document.addEventListener('touchend', handleGlobalEnd);
+        document.addEventListener('touchcancel', handleGlobalEnd);
+
+        wrap.appendChild(btn);
+    });
+};
+
+function savePresetData(lsKey, name, id) {
+    if(!confirm('هل أنت متأكد أنك تريد حفظ التصميم الحالي في "' + name + '"؟ هذا الإجراء نهائي وسيتم حفظه في قاعدة البيانات.')) {
+        return;
+    }
+
+    const dataToSave = {
+        colConfigs: window.colConfigs,
+        colOrder: window.colOrder,
+        currentTableTheme: window.currentTableTheme || '',
+        currentNumFont: window.currentNumFont || 'num-font-jetbrains'
+    };
+
+    fetch('api/save_balances_preset.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: id, config: dataToSave })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            if (typeof showToast === 'function') {
+                showToast(`تم حفظ التخصيصات في ${name} حفظاً نهائياً!`, 'success');
+            } else {
+                alert(`تم حفظ التخصيصات في ${name} حفظاً نهائياً!`);
+            }
+            if(!window.LOADED_BALANCES_PRESETS) window.LOADED_BALANCES_PRESETS = {};
+            window.LOADED_BALANCES_PRESETS[lsKey] = dataToSave;
+            let isModel = id.startsWith('m');
+            if (!isModel) {
+                window.LOADED_BALANCES_PRESETS[lsKey + '_locked'] = true;
+            }
+        } else {
+            if (typeof showToast === 'function') {
+                showToast(data.error || 'حدث خطأ أثناء الحفظ', 'error');
+            } else {
+                alert(data.error || 'حدث خطأ أثناء الحفظ');
+            }
+        }
+    })
+    .catch(err => {
+        if (typeof showToast === 'function') showToast('خطأ في الاتصال بالخادم', 'error');
+        console.error(err);
+    });
+}
+
+function loadPresetData(lsKey) {
+    if (window.LOADED_BALANCES_PRESETS && window.LOADED_BALANCES_PRESETS[lsKey]) {
+        try {
+            const data = window.LOADED_BALANCES_PRESETS[lsKey];
+            if (data.colConfigs && data.colOrder) {
+                window.colConfigs = JSON.parse(JSON.stringify(data.colConfigs));
+                window.colOrder = JSON.parse(JSON.stringify(data.colOrder));
+                if (data.currentTableTheme !== undefined) {
+                    if (typeof changeTableTheme === 'function') changeTableTheme(data.currentTableTheme);
+                }
+                if (data.currentNumFont !== undefined) {
+                    if (typeof changeNumberFont === 'function') changeNumberFont(data.currentNumFont);
+                }
+                if (typeof applyLayoutToDOM === 'function') applyLayoutToDOM();
+                if (typeof renderSidebarConfig === 'function') renderSidebarConfig();
+                if (typeof window.runReport === 'function') window.runReport();
+
+                if (typeof showToast === 'function') {
+                    showToast('تم استرجاع النموذج بنجاح', 'success');
+                }
+            }
+        } catch(e) {
+            console.error('Error parsing preset', e);
+        }
+    } else {
+        if (typeof showToast === 'function') {
+            showToast('هذا النموذج فارغ، اضغط لمدة 8 ثوانٍ للحفظ عليه', 'warning');
+        } else {
+            alert('هذا النموذج فارغ، اضغط لمدة 8 ثوانٍ للحفظ عليه');
+        }
+    }
+}
+
+window.LOADED_BALANCES_PRESETS = {};
+function fetchBalancesPresets() {
+    fetch('api/get_balances_presets.php')
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                window.LOADED_BALANCES_PRESETS = data.presets || {};
+            }
+        })
+        .catch(err => console.error('Error fetching balances presets:', err));
+}
+function triggerAutoRunReport() {
+    const runBtn = document.getElementById('btn-run-report') || document.querySelector('.btn-run');
+    if (runBtn) {
+        console.log('%c[balances-report.js] Auto-clicking "تشغيل التقرير"...', 'color: #00f3ff; font-weight: bold;');
+        runBtn.click();
+    } else if (typeof window.runReport === 'function') {
+        window.runReport();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    fetchBalancesPresets();
+    setTimeout(triggerAutoRunReport, 200);
+    setTimeout(triggerAutoRunReport, 600);
+});
+
+// Initial Call
+if (typeof window.renderBalancesPresets === 'function') {
+    window.renderBalancesPresets();
+}
+
 
 
 

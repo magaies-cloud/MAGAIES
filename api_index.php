@@ -219,16 +219,41 @@ if ($resource === 'debug' && $method === 'GET') {
     jsonResponse($dbg);
 }
 
-// Public: Get exchange rate (no auth needed so it always loads on the page)
-if ($resource === 'exchange-rate' && $method === 'GET') {
-    $ex_rate = ['rate' => 1.0, 'visible' => false];
-    try {
-        $stmt_ex = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'exchange_rate'");
-        $val = $stmt_ex->fetchColumn();
-        if ($val) $ex_rate = json_decode($val, true);
-    } catch(Exception $e) {}
-    jsonResponse($ex_rate);
 }
+
+// Public: Report Layout Settings (GET & POST)
+if ($resource === 'report-layout') {
+    $reportKey = $_GET['reportKey'] ?? ($input['reportKey'] ?? '');
+    if (empty($reportKey)) {
+        jsonResponse(['success' => false, 'error' => 'reportKey is required'], 400);
+    }
+    $setting_key = 'report_layout_' . preg_replace('/[^a-zA-Z0-9_-]/', '', $reportKey);
+    
+    if ($method === 'GET') {
+        try {
+            $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
+            $stmt->execute([$setting_key]);
+            $val = $stmt->fetchColumn();
+            if ($val) {
+                jsonResponse(['success' => true, 'layout' => json_decode($val, true)]);
+            } else {
+                jsonResponse(['success' => false, 'layout' => null]);
+            }
+        } catch (Exception $e) {
+            jsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    } elseif ($method === 'POST') {
+        try {
+            $layoutData = json_encode($input['layout'] ?? [], JSON_UNESCAPED_UNICODE);
+            $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+            $stmt->execute([$setting_key, $layoutData, $layoutData]);
+            jsonResponse(['success' => true, 'message' => 'Layout saved successfully']);
+        } catch (Exception $e) {
+            jsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+}
+
 
 // Public: Check Uniqueness Globally
 if ($resource === 'public' && $action === 'check-unique' && $method === 'GET') {
@@ -503,6 +528,74 @@ if ($resource === 'auth') {
     $authController = new AuthController($pdo);
     $authController->handleRequest($action, $method, $input);
     exit;
+}
+
+// ---------------------------------------------------------
+// REPORT LAYOUT & PRESETS STORAGE (SYNC ACROSS DEVICES)
+// ---------------------------------------------------------
+if ($resource === 'report-layout') {
+    $authHeader = '';
+    if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
+    } elseif (function_exists('apache_request_headers')) {
+        $headers    = apache_request_headers();
+        $authHeader = $headers['Authorization'] ?? '';
+    }
+    
+    $reqToken = '';
+    if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+        $reqToken = $matches[1];
+    } elseif (isset($_GET['token'])) {
+        $reqToken = $_GET['token'];
+    }
+    
+    $layoutTenantId = 'default';
+    if (!empty($reqToken)) {
+        $stmtT = $pdo->prepare("SELECT tenant_id FROM users WHERE token = ?");
+        $stmtT->execute([$reqToken]);
+        $foundTid = $stmtT->fetchColumn();
+        if ($foundTid) {
+            $layoutTenantId = $foundTid;
+        }
+    }
+
+    if ($method === 'GET') {
+        $reportKey = trim($_GET['reportKey'] ?? $input['reportKey'] ?? '');
+        if (empty($reportKey)) {
+            jsonResponse(['error' => 'مفتاح التقرير مفقود'], 400);
+        }
+        $fullKey = 'report_layout_' . $layoutTenantId . '_' . $reportKey;
+        $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
+        $stmt->execute([$fullKey]);
+        $val = $stmt->fetchColumn();
+        if (!$val) {
+            $stmtLegacy = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
+            $stmtLegacy->execute([$reportKey]);
+            $val = $stmtLegacy->fetchColumn();
+        }
+        jsonResponse([
+            'success' => true,
+            'layout' => $val ? json_decode($val, true) : null
+        ]);
+    }
+    
+    if ($method === 'POST') {
+        $reportKey = trim($input['reportKey'] ?? '');
+        $layoutData = $input['layout'] ?? null;
+        if (empty($reportKey) || $layoutData === null) {
+            jsonResponse(['error' => 'بيانات التقرير غير صالحة'], 400);
+        }
+        $fullKey = 'report_layout_' . $layoutTenantId . '_' . $reportKey;
+        $val = json_encode($layoutData, JSON_UNESCAPED_UNICODE);
+        
+        $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+        $stmt->execute([$fullKey, $val, $val]);
+        
+        $stmtLegacy = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+        $stmtLegacy->execute([$reportKey, $val, $val]);
+        
+        jsonResponse(['success' => true]);
+    }
 }
 
 // ---------------------------------------------------------
