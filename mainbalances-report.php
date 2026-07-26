@@ -86,45 +86,6 @@ $page_title = 'حساب الارصده الاساسية';
             left: 0;
             bottom: 0;
         }
-
-        /* ─── Table Header Drag & Drop Cues ─── */
-        th.header-dragging {
-            opacity: 0.55 !important;
-            background: rgba(56, 189, 248, 0.35) !important;
-            border: 2px dashed #38bdf8 !important;
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.6) !important;
-        }
-        th.header-drag-over {
-            border-right: 4px solid #10b981 !important;
-            background: rgba(16, 185, 129, 0.25) !important;
-        }
-
-        /* ─── High Contrast Numbers & Thicker Currency Fonts ─── */
-        #balances-table td.num, 
-        #balances-table td.num-cell {
-            font-weight: 800 !important;
-            font-size: 1.05rem;
-            letter-spacing: 0.3px;
-            color: #f8fafc !important;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
-        }
-        :root.light-theme #balances-table td.num,
-        :root.light-theme #balances-table td.num-cell {
-            color: #0f172a !important;
-            text-shadow: none !important;
-        }
-
-        /* Thicker & Larger Currency Columns */
-        #balances-table th[data-orig-idx="3"],
-        #balances-table th[data-orig-idx="4"],
-        #balances-table th[data-orig-idx="5"],
-        #balances-table td:nth-child(4),
-        #balances-table td:nth-child(5),
-        #balances-table td:nth-child(6) {
-            font-size: 1.15rem !important;
-            font-weight: 900 !important;
-            letter-spacing: -0.3px;
-        }
         /* ─── Visual Intelligence Analytics Hub Styling ─── */
         .visual-hub-container {
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.65));
@@ -1012,8 +973,6 @@ $page_title = 'حساب الارصده الاساسية';
                     <option value="BANK">🏦 حسابات البنوك</option>
                     <option value="SAFE">🔒 الخزن والصناديق</option>
                     <option value="EXP">📊 المصروفات والحسابات العامة</option>
-                    <option value="PARTNER">🤝 حسابات الشركاء والمالكين</option>
-                    <option value="PAYROLL">👷 حسابات العمالة والرواتب</option>
                 </select>
             </div>
 
@@ -1222,7 +1181,7 @@ $page_title = 'حساب الارصده الاساسية';
 
 
             <!-- Visual Intelligence Analytics Hub (المركز البصري التحليلي والرسوم البيانية) -->
-            <div id="visual-intelligence-hub" class="visual-hub-container" style="display: none;">
+            <div id="visual-intelligence-hub" class="visual-hub-container no-print" style="display: none;">
                 
                 <!-- Section Header -->
                 <div class="hub-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">

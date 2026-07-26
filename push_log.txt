@@ -1,2 +1,13 @@
-2026-07-26 22:38:06 - Fix report layout cross-device sync and add report-layout API endpoint
-Everything up-to-date
+2026-07-26 22:39:47
+fatal: no rebase in progress
+From https://github.com/magaies-cloud/magaies
+ * branch            main       -> FETCH_HEAD
+warning: in the working copy of 'push_log.txt', LF will be replaced by CRLF the next time Git touches it
+CONFLICT (modify/delete): balances-report.php deleted in 771fd359faf6206f9a99c40a592a76abc056b386 and modified in HEAD.  Version HEAD of balances-report.php left in tree.
+Auto-merging js/app.js
+CONFLICT (modify/delete): js/balances-report.js deleted in 771fd359faf6206f9a99c40a592a76abc056b386 and modified in HEAD.  Version HEAD of js/balances-report.js left in tree.
+Auto-merging js/mainbalances-report.js
+Auto-merging js/preview-balances.js
+Auto-merging mainbalances-report.php
+Auto-merging preview-balances-design.php
+Automatic merge failed; fix conflicts and then commit the result.

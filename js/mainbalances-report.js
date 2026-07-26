@@ -124,80 +124,14 @@ function applyLayoutToDOM() {
             });
         }
 
-        // Re-bind resizers and drag & drop handlers for table headers
+        // Re-bind resizers because headers were reordered
         if (typeof bindResizers === 'function') {
             bindResizers();
-        }
-        if (typeof initTableHeaderDragAndDrop === 'function') {
-            initTableHeaderDragAndDrop();
         }
     } catch(e) {
         console.error('Error applying layout to DOM:', e);
     }
 }
-
-window.initTableHeaderDragAndDrop = function() {
-    const table = document.getElementById('balances-table');
-    if (!table) return;
-    const theadTr = table.querySelector('thead tr#balances-header-row');
-    if (!theadTr) return;
-
-    const ths = Array.from(theadTr.querySelectorAll('th'));
-    let draggedVisualIdx = -1;
-
-    ths.forEach((th, visualIdx) => {
-        th.setAttribute('draggable', 'true');
-        th.title = 'اسحب يميناً أو شمالاً لترتيب الخانة وإعادة موضعها تلقائياً';
-        if (!th.style.cursor || th.style.cursor === 'auto') {
-            th.style.cursor = 'grab';
-        }
-
-        th.ondragstart = (e) => {
-            if (e.target.classList.contains('resizer')) {
-                e.preventDefault();
-                return false;
-            }
-            draggedVisualIdx = visualIdx;
-            th.classList.add('header-dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', visualIdx);
-        };
-
-        th.ondragend = () => {
-            th.classList.remove('header-dragging');
-            ths.forEach(t => t.classList.remove('header-drag-over'));
-        };
-
-        th.ondragover = (e) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            th.classList.add('header-drag-over');
-        };
-
-        th.ondragleave = () => {
-            th.classList.remove('header-drag-over');
-        };
-
-        th.ondrop = (e) => {
-            e.preventDefault();
-            th.classList.remove('header-drag-over');
-            const targetVisualIdx = visualIdx;
-
-            if (draggedVisualIdx >= 0 && draggedVisualIdx !== targetVisualIdx) {
-                // Reorder window.colOrder
-                const movedOrigIdx = window.colOrder.splice(draggedVisualIdx, 1)[0];
-                window.colOrder.splice(targetVisualIdx, 0, movedOrigIdx);
-
-                // Auto-save layout automatically without any button!
-                saveLayout();
-                applyLayoutToDOM();
-                if (window.lastResults) renderTable(window.lastResults);
-                if (typeof bindContextMenuList === 'function') bindContextMenuList();
-                showToast('✨ تم إعادة ترتيب الخانات وحفظ الترتيب تلقائياً!', 'success');
-            }
-        };
-    });
-};
 
 function loadLayout() {
     try {
@@ -1342,30 +1276,6 @@ function updateColDOMByOrigIdx(origIdx) {
     }
 }
 
-window.updateColAliasCtx = function(origIdx, newAlias) {
-    if (origIdx === undefined || !window.colConfigs || !window.colConfigs[origIdx]) return;
-    const val = String(newAlias || '').trim();
-    if (!val) return;
-    
-    window.colConfigs[origIdx].alias = val;
-    window.colConfigs[origIdx].name = val;
-    
-    const titleSpan = document.querySelector(`.col-config-item[data-orig-idx="${origIdx}"] .col-title`);
-    if (titleSpan) titleSpan.textContent = val;
-
-    if (typeof updateColDOMByOrigIdx === 'function') {
-        updateColDOMByOrigIdx(origIdx);
-    } else if (typeof applyLayoutToDOM === 'function') {
-        applyLayoutToDOM();
-    }
-    
-    saveLayout();
-    
-    if (typeof showToast === 'function') {
-        showToast(`✨ تم تغيير مسمى العمود إلى "${val}" وحفظه نهائياً`, "success");
-    }
-};
-
 function updateColDOM(visualIndex, origIdx) {
     const conf = window.colConfigs[origIdx];
     if (!conf) return;
@@ -1384,21 +1294,6 @@ function updateColDOM(visualIndex, origIdx) {
     const ths = table.querySelectorAll('thead th');
     const th = ths[visualIndex];
     if (th) {
-        const labelText = conf.alias || conf.name;
-        if (labelText) {
-            const resizer = th.querySelector('.resizer');
-            let textUpdated = false;
-            th.childNodes.forEach(node => {
-                if (node.nodeType === Node.TEXT_NODE) {
-                    node.textContent = labelText;
-                    textUpdated = true;
-                }
-            });
-            if (!textUpdated) {
-                th.innerText = labelText;
-                if (resizer) th.appendChild(resizer);
-            }
-        }
         th.style.setProperty('font-weight', fwValHeader, 'important');
         th.style.setProperty('font-size', fsVal, 'important');
         if (colorVal) th.style.setProperty('color', colorVal, 'important'); else th.style.removeProperty('color');
@@ -1843,38 +1738,12 @@ window.getBalancesPresets = function() {
     return [defaultPreset1, defaultPreset2, defaultPreset3, defaultPreset4, presetLayout1, presetLayout2, presetLayout3];
 };
 
-function ensureLongPressHudExists() {
-    let hud = document.getElementById('long-press-hud');
-    if (!hud) {
-        hud = document.createElement('div');
-        hud.id = 'long-press-hud';
-        hud.style.cssText = `
-            display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-            z-index:9999999; background:rgba(15,23,42,0.96); border:3px solid #eab308;
-            color:#fff; padding:25px 35px; border-radius:24px; box-shadow:0 25px 60px rgba(0,0,0,0.8);
-            text-align:center; min-width:320px; max-width:90%; backdrop-filter:blur(12px);
-            font-family:'Tajawal', sans-serif;
-        `;
-        hud.innerHTML = `
-            <div id="hud-icon" style="font-size:3.5rem; margin-bottom:10px;">⏳</div>
-            <div id="hud-title" style="font-size:1.25rem; font-weight:900; color:#fef08a; margin-bottom:6px;">جاري الحفظ والتثبيت...</div>
-            <div id="hud-desc" style="font-size:0.9rem; opacity:0.9; margin-bottom:18px; line-height:1.4;">استمر بالضغط المتواصل لمدة 8 ثوانٍ لحفظ تصميم التقرير النهائي</div>
-            <div style="background:rgba(255,255,255,0.12); height:14px; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.25); margin-bottom:12px;">
-                <div id="hud-progress-bar" style="background:linear-gradient(90deg, #eab308, #10b981); height:100%; width:0%;"></div>
-            </div>
-            <div id="hud-timer" style="font-weight:900; font-size:1.15rem; color:#38bdf8;">8.0 ثانية متبقية</div>
-        `;
-        document.body.appendChild(hud);
-    }
-    return hud;
-}
-
 window.renderBalancesPresets = function() {
     const container = document.getElementById('main-presets-container');
     if (!container) return;
     container.innerHTML = '';
 
-    const PRESETS_STORAGE_KEY = 'balances_preview_presets_v5';
+    const PRESETS_STORAGE_KEY = 'balances_preview_presets_v7';
     let presets = [];
     try { presets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
 
@@ -2028,7 +1897,7 @@ window.renderBalancesPresets = function() {
 };
 
 window.addEventListener('storage', function(e) {
-    if (e.key === 'balances_preview_presets_v5') {
+    if (e.key === 'balances_preview_presets_v7') {
         if (typeof window.renderBalancesPresets === 'function') {
             window.renderBalancesPresets();
         }
@@ -2066,13 +1935,13 @@ window.openPresetModal = function(presetIndex, presetName) {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(12px);
             z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px; animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 10px; animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         `;
         document.body.appendChild(modal);
     }
 
     modal.innerHTML = `
-        <div style="background: #1e293b; border: 1px solid rgba(56,189,248,0.3); border-radius: 16px; width: 95%; max-width: 1400px; height: 92vh; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.5); overflow: hidden;">
+        <div style="background: #1e293b; border: 1px solid rgba(56,189,248,0.3); border-radius: 16px; width: 99%; max-width: 100%; height: 98vh; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.5); overflow: hidden;">
             <!-- Modal Header -->
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: linear-gradient(135deg, #0f172a, #1e293b); border-bottom: 2px solid #ca8a04;">
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -2687,9 +2556,6 @@ function renderVisualAnalytics(results) {
             fontSize: '12px',
             labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' }
         },
-        tooltip: {
-            y: { formatter: formatDualCurrencyLine }
-        },
         theme: { mode: chartThemeMode }
     };
 
@@ -2826,18 +2692,16 @@ function renderVisualAnalytics(results) {
                 dataLabels: {
                     name: {
                         show: true,
-                        fontSize: '13px',
+                        fontSize: '14px',
                         color: isLightTheme ? '#64748b' : '#94a3b8',
                         offsetY: -10
                     },
                     value: {
-                        offsetY: -45,
-                        fontSize: '18px',
+                        offsetY: -50,
+                        fontSize: '24px',
                         fontWeight: '900',
                         color: isLightTheme ? '#0f172a' : '#f8fafc',
-                        formatter: function (val) {
-                            return val + "% (" + formatDualCurrencyLine(netPosition) + ")";
-                        }
+                        formatter: function (val) { return val + "%"; }
                     }
                 }
             }
@@ -2888,12 +2752,11 @@ function renderVisualAnalytics(results) {
         },
         dataLabels: { enabled: false },
         legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        tooltip: { y: { formatter: formatDualCurrencyLine } },
         theme: { mode: chartThemeMode }
     };
-    try { if (window.chartHollowDonutCreditors) window.chartHollowDonutCreditors.destroy(); } catch(e){}
-    window.chartHollowDonutCreditors = new ApexCharts(document.querySelector("#chart-hollow-donut-top-creditors"), optionsCreditorsDonut);
-    window.chartHollowDonutCreditors.render();
+    try { if (chartHollowDonutCreditors) chartHollowDonutCreditors.destroy(); } catch(e){}
+    chartHollowDonutCreditors = new ApexCharts(document.querySelector("#chart-hollow-donut-creditors"), optionsCreditorsDonut);
+    chartHollowDonutCreditors.render();
 
 
     // ─── Chart 7: Horizontal Bar Chart - Top 10 Accounts Volume Ranking ───
@@ -2977,17 +2840,7 @@ function renderVisualAnalytics(results) {
         stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
         legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
         dataLabels: { enabled: true, style: { fontSize: '12px', fontFamily: 'Tajawal, sans-serif', fontWeight: 'bold' } },
-        tooltip: {
-            y: {
-                formatter: function(val, opts) {
-                    let sumVal = 0;
-                    if (opts.seriesIndex === 0) sumVal = totalDebit;
-                    else if (opts.seriesIndex === 1) sumVal = totalCredit;
-                    else sumVal = 0;
-                    return val + ' حساب  |  ' + formatDualCurrencyLine(sumVal);
-                }
-            }
-        },
+        tooltip: { y: { formatter: v => v + ' حساب' } },
         theme: { mode: chartThemeMode }
     };
     try { if (chartSolidPieActiveZero) chartSolidPieActiveZero.destroy(); } catch(e){}
@@ -3008,7 +2861,7 @@ function renderVisualAnalytics(results) {
             radialBar: {
                 dataLabels: {
                     name: { fontSize: '14px', color: isLightTheme ? '#64748b' : '#94a3b8' },
-                    value: { fontSize: '15px', fontWeight: '800', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + '%' },
+                    value: { fontSize: '16px', fontWeight: '800', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + '%' },
                     total: { show: true, label: 'نسب الأرصدة', color: isLightTheme ? '#0f172a' : '#cbd5e1', formatter: () => debtorsPct + '%' }
                 },
                 track: { background: isLightTheme ? '#e2e8f0' : '#1e293b' }
@@ -3016,18 +2869,6 @@ function renderVisualAnalytics(results) {
         },
         colors: ['#10b981', '#f43f5e', '#38bdf8'],
         labels: ['حصة العملاء', 'حصة الموردين', 'حصة الخزينة والبنوك'],
-        tooltip: {
-            enabled: true,
-            y: {
-                formatter: function(val, opts) {
-                    let sumVal = 0;
-                    if (opts.seriesIndex === 0) sumVal = categorySums['CUST'].debit;
-                    else if (opts.seriesIndex === 1) sumVal = categorySums['SUPP'].credit;
-                    else if (opts.seriesIndex === 2) sumVal = (categorySums['BANK'].debit + categorySums['SAFE'].debit);
-                    return val + '%  |  ' + formatDualCurrencyLine(sumVal);
-                }
-            }
-        },
         theme: { mode: chartThemeMode }
     };
     try { if (chartMultiRadialRings) chartMultiRadialRings.destroy(); } catch(e){}
@@ -3189,53 +3030,37 @@ function renderVisualAnalytics(results) {
         theme: { mode: chartThemeMode }
     };
     try { if (window.chartTreemapAccounts) window.chartTreemapAccounts.destroy(); } catch(e){}
-    window.chartTreemapAccounts = new ApexCharts(document.querySelector("#chart-treemap-accounts"), optionsTreemap);
-    window.chartTreemapAccounts.render();
+    if (document.querySelector("#chart-treemap-accounts")) {
+        window.chartTreemapAccounts = new ApexCharts(document.querySelector("#chart-treemap-accounts"), optionsTreemap);
+        window.chartTreemapAccounts.render();
+    }
 
 
-    // ─── Chart 15: Waterfall Net Balance Impact ───
+    // ─── Chart 13: Waterfall Net Balance ───
     const topDebtorsWaterfall = [...results].filter(x => x.endingDebitLocal > 0).sort((a, b) => b.endingDebitLocal - a.endingDebitLocal).slice(0, 7);
     const topCreditorsWaterfall = [...results].filter(x => x.endingCreditLocal > 0).sort((a, b) => b.endingCreditLocal - a.endingCreditLocal).slice(0, 7);
     
-    let waterfallNames = [];
-    let waterfallValues = [];
-    topDebtorsWaterfall.forEach(d => {
-        waterfallNames.push(d.name + ' (حق لك)');
-        waterfallValues.push(d.endingDebitLocal);
-    });
-    topCreditorsWaterfall.forEach(c => {
-        waterfallNames.push(c.name + ' (التزام عليك)');
-        waterfallValues.push(-c.endingCreditLocal);
-    });
+    let waterfallData = [];
+    topDebtorsWaterfall.forEach(d => waterfallData.push({ x: d.name, y: d.endingDebitLocal }));
+    topCreditorsWaterfall.forEach(c => waterfallData.push({ x: c.name, y: -c.endingCreditLocal }));
     
     const optionsWaterfall = {
-        series: [{ name: 'التأثير المالي على الصافي', data: waterfallValues }],
-        chart: { type: 'bar', height: 380, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        colors: ['#10b981'],
-        plotOptions: {
-            bar: {
-                colors: {
-                    ranges: [
-                        { from: -9999999999, to: -1, color: '#f43f5e' },
-                        { from: 0, to: 9999999999, color: '#10b981' }
-                    ]
-                },
-                columnWidth: '60%',
-                borderRadius: 6
-            }
-        },
-        dataLabels: { enabled: true, formatter: function(val) { return (val / 1000).toFixed(0) + 'K'; }, style: { fontSize: '10px', colors: ['#ffffff'] } },
-        xaxis: { categories: waterfallNames, labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontFamily: 'Tajawal, sans-serif' }, rotate: -35 } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono, monospace' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        series: [{ name: 'التأثير على الصافي', data: waterfallData }],
+        chart: { type: 'waterfall', height: 380, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        dataLabels: { enabled: true, formatter: function(val) { return (val / 1000).toFixed(0) + 'K'; }, style: { fontSize: '10px' } },
+        xaxis: { type: 'category', labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'Tajawal' }, rotate: -45 } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
         tooltip: { y: { formatter: function(val) { return formatDualCurrencyLine(Math.abs(val)); } } },
         theme: { mode: chartThemeMode }
     };
     try { if (window.chartWaterfallNet) window.chartWaterfallNet.destroy(); } catch(e){}
-    window.chartWaterfallNet = new ApexCharts(document.querySelector("#chart-waterfall-net"), optionsWaterfall);
-    window.chartWaterfallNet.render();
+    if (document.querySelector("#chart-waterfall-net")) {
+        window.chartWaterfallNet = new ApexCharts(document.querySelector("#chart-waterfall-net"), optionsWaterfall);
+        window.chartWaterfallNet.render();
+    }
 
 
-    // ─── Chart 16: Polar Area ───
+    // ─── Chart 14: Polar Area ───
     const optionsPolar = {
         series: catValues,
         labels: catLabels,
@@ -3248,119 +3073,9 @@ function renderVisualAnalytics(results) {
         theme: { mode: chartThemeMode }
     };
     try { if (window.chartPolarCategories) window.chartPolarCategories.destroy(); } catch(e){}
-    window.chartPolarCategories = new ApexCharts(document.querySelector("#chart-polar-categories"), optionsPolar);
-    window.chartPolarCategories.render();
-
-
-    // ─── Chart 17: Currency Volume Share Donut ───
-    const currMap = {};
-    results.forEach(r => {
-        const cur = r.currency || 'SDG';
-        const bal = Math.max(r.endingDebitLocal, r.endingCreditLocal);
-        currMap[cur] = (currMap[cur] || 0) + bal;
-    });
-
-    const currLabels = Object.keys(currMap).length > 0 ? Object.keys(currMap) : ['SDG'];
-    const currValues = Object.keys(currMap).length > 0 ? Object.values(currMap) : [1];
-
-    const optionsCurrencyShareDonut = {
-        series: currValues,
-        labels: currLabels.map(c => 'عملة ' + c),
-        chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
-        colors: ['#34d399', '#38bdf8', '#fbbf24', '#c084fc', '#fb7185'],
-        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
-        plotOptions: {
-            pie: {
-                donut: {
-                    size: '68%',
-                    labels: {
-                        show: true,
-                        value: { show: true, fontSize: '15px', fontWeight: 'bold', formatter: formatDualCurrencyArray }
-                    }
-                }
-            }
-        },
-        legend: { position: 'bottom', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        tooltip: { y: { formatter: formatDualCurrencyLine } },
-        theme: { mode: chartThemeMode }
-    };
-    try { if (window.chartCurrencyShareDonut) window.chartCurrencyShareDonut.destroy(); } catch(e){}
-    window.chartCurrencyShareDonut = new ApexCharts(document.querySelector("#chart-currency-share-donut"), optionsCurrencyShareDonut);
-    window.chartCurrencyShareDonut.render();
-
-
-    // ─── Chart 18: Treasury & Cash Accounts Column Chart ───
-    const treasuryAccounts = [...results].filter(x => x.type === 'BANK' || x.type === 'SAFE')
-        .sort((a, b) => Math.max(b.endingDebitLocal, b.endingCreditLocal) - Math.max(a.endingDebitLocal, a.endingCreditLocal));
-    
-    const treasNames = treasuryAccounts.map(x => x.name);
-    const treasDebits = treasuryAccounts.map(x => x.endingDebitLocal);
-    const treasCredits = treasuryAccounts.map(x => x.endingCreditLocal);
-
-    const optionsTreasuryColumns = {
-        series: [
-            { name: 'سيولة سائلة متاحة (مدين)', data: treasDebits },
-            { name: 'التزامات الخزينة (دائن)', data: treasCredits }
-        ],
-        chart: { type: 'bar', height: 350, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: true } },
-        colors: ['#38bdf8', '#fb7185'],
-        plotOptions: { bar: { horizontal: false, columnWidth: '50%', borderRadius: 6 } },
-        dataLabels: { enabled: false },
-        xaxis: { categories: treasNames.length > 0 ? treasNames : ['لا يوجد خزن/بنوك'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '11px', fontWeight: 'bold' } } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-        tooltip: { y: { formatter: formatDualCurrencyLine } },
-        theme: { mode: chartThemeMode }
-    };
-    try { if (window.chartTreasuryCashColumns) window.chartTreasuryCashColumns.destroy(); } catch(e){}
-    window.chartTreasuryCashColumns = new ApexCharts(document.querySelector("#chart-treasury-cash-columns"), optionsTreasuryColumns);
-    window.chartTreasuryCashColumns.render();
-
-
-    // ─── Chart 19: Dual Currency Cumulative Flow Spectrum Curve ───
-    const cumAccounts = sortedByVolume.slice(0, 15);
-    const cumNames = cumAccounts.map(x => x.name);
-    const cumLocalValues = cumAccounts.map(x => Math.max(x.endingDebitLocal, x.endingCreditLocal));
-    const cumForeignValues = cumAccounts.map(x => {
-        const localVal = Math.max(x.endingDebitLocal, x.endingCreditLocal);
-        return (ledgerExchangeRate > 0) ? (localVal / ledgerExchangeRate) : localVal;
-    });
-
-    const optionsCumulativeDualFlow = {
-        series: [
-            { name: 'إجمالي القيمة بالجنيه السوداني (SDG)', data: cumLocalValues },
-            { name: `إجمالي المعادل بالـ (${ledgerForeignCurrency})`, data: cumForeignValues }
-        ],
-        chart: { type: 'area', height: 360, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: true } },
-        colors: ['#38bdf8', '#fbbf24'],
-        stroke: { curve: 'smooth', width: 3 },
-        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 90, 100] } },
-        xaxis: { categories: cumNames, labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '11px', fontWeight: 'bold' }, rotate: -30 } },
-        yaxis: [
-            { title: { text: 'بالجنيه السوداني SDG', style: { color: '#38bdf8' } }, labels: { style: { colors: '#38bdf8' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-            { opposite: true, title: { text: `بالعملة الأجنبية ${ledgerForeignCurrency}`, style: { color: '#fbbf24' } }, labels: { style: { colors: '#fbbf24' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } }
-        ],
-        tooltip: { y: { formatter: formatDualCurrencyLine } },
-        theme: { mode: chartThemeMode }
-    };
-    try { if (window.chartCumulativeDualCurrencyFlow) window.chartCumulativeDualCurrencyFlow.destroy(); } catch(e){}
-    window.chartCumulativeDualCurrencyFlow = new ApexCharts(document.querySelector("#chart-cumulative-dual-currency-flow"), optionsCumulativeDualFlow);
-    window.chartCumulativeDualCurrencyFlow.render();
-
-
-    // ─── Chart 20: Pyramidal Distribution of Debts & Credits ───
-    const topDebtorsPyr = [...results].filter(x => x.endingDebitLocal > 0).sort((a, b) => b.endingDebitLocal - a.endingDebitLocal).slice(0, 8);
-    const topCreditorsPyr = [...results].filter(x => x.endingCreditLocal > 0).sort((a, b) => b.endingCreditLocal - a.endingCreditLocal).slice(0, 8);
-    
-    const pyrCategories = [];
-    const pyrDebits = [];
-    const pyrCredits = [];
-    const maxPyrCount = Math.max(topDebtorsPyr.length, topCreditorsPyr.length);
-    for (let i = 0; i < maxPyrCount; i++) {
-        const d = topDebtorsPyr[i];
-        const c = topCreditorsPyr[i];
-        pyrCategories.push(d ? d.name : (c ? c.name : `مستوى ${i+1}`));
-        pyrDebits.push(d ? d.endingDebitLocal : 0);
-        pyrCredits.push(c ? -c.endingCreditLocal : 0);
+    if (document.querySelector("#chart-polar-categories")) {
+        window.chartPolarCategories = new ApexCharts(document.querySelector("#chart-polar-categories"), optionsPolar);
+        window.chartPolarCategories.render();
     }
 
     const optionsPyramid = {
@@ -3847,9 +3562,11 @@ function renderSidebarConfig() {
                 </div>
             </div>
             <div class="col-settings-panel" id="col-settings-${index}">
-                <div class="cfg-row" style="margin-bottom:6px; background:rgba(0,0,0,0.25); padding:8px 10px; border-radius:8px; border:1px solid rgba(56,189,248,0.3);">
-                    <span style="font-weight:bold; color:#38bdf8; font-size:0.82rem;">🏷️ مسمى العمود (تعديل باللغة العربية):</span>
-                    <input type="text" class="cfg-input" value="${col.alias || col.name || ''}" placeholder="أدخل مسمى العمود باللغة العربية..." onchange="window.updateColAliasCtx(${origIdx}, this.value)" style="width:200px; font-weight:800; color:#38bdf8; background:rgba(30,41,59,0.95); border:1px solid #38bdf8; border-radius:6px; padding:4px 8px; font-family:inherit; outline:none;" title="اكتب أي اسم تريد تسمية هذا العمود به باللغة العربية">
+                <div class="cfg-row">
+                    <span>مسمى العمود:</span>
+                    <span style="font-weight:bold; color:#38bdf8; font-size:0.85rem; display:flex; align-items:center; gap:4px;">
+                        🔒 ${col.name} (ثابت بالنظام)
+                    </span>
                 </div>
                 <div class="cfg-row">
                     <span>حجم الخط (تكبير/تصغير):</span>

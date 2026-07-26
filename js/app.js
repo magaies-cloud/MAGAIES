@@ -1895,7 +1895,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'vouchers-hub.php': 'finance',
             'cash-receipt.php': 'finance',
             'cash-payment.php': 'finance',
-            'single-cash-receipt.php': 'finance_single',
+            'single-cash-receipt.php': 'finance_single', // redirects to single-cash-payment.php
             'single-cash-payment.php': 'finance_single',
             'multi-cash-payment.php': 'finance_multi',
             'payment-voucher.php': 'finance',
@@ -1908,7 +1908,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'partners.php': 'master_data',
             'analytics.php': 'reports',
             'financial-reports.php': 'reports',
-            'balances-report.php': 'reports',
+
 
             'settings.php': 'settings',
             'users-roles.php': 'settings',

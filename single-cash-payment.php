@@ -58,6 +58,18 @@ try {
         /* -------------------------------------------
            ✨ ADVANCED UI / UX VISUAL EFFECTS ✨
            ------------------------------------------- */
+        /* Entrance Animations */
+        @keyframes gl-fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes gl-slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes gl-slideFromLeft { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes gl-scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        /* Apply Entrance Animations */
+        body > .premium-header { animation: gl-slideFromLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards !important; }
+        .main-panel { animation: gl-scaleIn 0.4s ease-out 0.1s both; }
+        .side-panel { animation: gl-slideUp 0.4s ease-out 0.2s both; }
+        .sticky-footer { animation: gl-slideUp 0.4s ease-out 0.3s both; }
+        
         /* Glassmorphism & Blur */
         .main-panel, .side-panel, .premium-header, .sticky-footer {
             backdrop-filter: blur(16px);

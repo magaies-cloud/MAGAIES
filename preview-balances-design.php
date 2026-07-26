@@ -46,6 +46,24 @@
         table.excel-table.theme-slate th { background: #475569 !important; color: #ffffff !important; border-color: #334155 !important; }
         table.excel-table.theme-slate td { border-color: #cbd5e1 !important; }
 
+        table.excel-table.theme-classic-navy th { background: #1e3a8a !important; color: #ffffff !important; border-color: #172554 !important; }
+        table.excel-table.theme-classic-navy td { border-color: #dbeafe !important; }
+
+        table.excel-table.theme-emerald-pro th { background: #065f46 !important; color: #ffffff !important; border-color: #022c22 !important; }
+        table.excel-table.theme-emerald-pro td { border-color: #d1fae5 !important; }
+
+        table.excel-table.theme-modern-slate th { background: #334155 !important; color: #ffffff !important; border-color: #0f172a !important; }
+        table.excel-table.theme-modern-slate td { border-color: #e2e8f0 !important; }
+
+        table.excel-table.theme-luxury-gold th { background: #78350f !important; color: #ffffff !important; border-color: #451a03 !important; }
+        table.excel-table.theme-luxury-gold td { border-color: #fef3c7 !important; }
+
+        table.excel-table.theme-luxury-black th { background: #0a0a0a !important; color: #f5f5f5 !important; border-color: #000000 !important; font-weight: 900 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); letter-spacing: 0.3px; }
+        table.excel-table.theme-luxury-black td { border-color: #1a1a1a !important; color: #171717 !important; font-weight: 600 !important; }
+        table.excel-table.theme-luxury-black tbody tr:nth-child(even) { background: #fafafa !important; }
+        table.excel-table.theme-luxury-black tbody tr:nth-child(odd) { background: #ffffff !important; }
+        table.excel-table.theme-luxury-black tfoot td { background: #171717 !important; color: #f5f5f5 !important; font-weight: 900 !important; border-color: #000000 !important; }
+        
         /* Fonts */
         .font-newsons { font-family: 'JetBrains Mono', monospace !important; }
         .font-ribot { font-family: 'Roboto Mono', monospace !important; }
@@ -54,6 +72,8 @@
         .font-jakarta { font-family: 'Plus Jakarta Sans', sans-serif !important; font-variant-numeric: tabular-nums !important; }
         .font-roboto { font-family: 'Roboto', sans-serif !important; font-variant-numeric: tabular-nums !important; }
         .font-outfit { font-family: 'Outfit', sans-serif !important; font-variant-numeric: tabular-nums !important; }
+        .font-tajawal { font-family: 'Tajawal', sans-serif !important; font-weight: 400 !important; font-variant-numeric: tabular-nums !important; }
+        .font-cairo { font-family: 'Cairo', sans-serif !important; font-weight: 400 !important; font-variant-numeric: tabular-nums !important; }
 
         /* Hide injected global navigation sidebar/header on preview page */
         .global-sidebar, header.premium-header, .global-header, .navbar {
@@ -300,6 +320,168 @@
                 padding: 6px 8px !important;
             }
         }
+
+        /* Toasts container & animations */
+        #studio-toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .studio-toast {
+            pointer-events: auto;
+            min-width: 250px;
+            max-width: 350px;
+            direction: rtl;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            font-weight: 800;
+            font-size: 0.95rem;
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .studio-toast.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: 1px solid #34d399;
+        }
+        .studio-toast.info {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            border: 1px solid #38bdf8;
+        }
+        .studio-toast.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: 1px solid #f87171;
+        }
+        .studio-toast.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Custom Glassmorphic Modal */
+        .reset-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 100000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .reset-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .reset-modal-container {
+            background: rgba(30, 41, 59, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            color: #f8fafc;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            direction: rtl;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .reset-modal-overlay.show .reset-modal-container {
+            transform: scale(1);
+        }
+        .reset-modal-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            animation: pulse-warn 2s infinite;
+        }
+        @keyframes pulse-warn {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.5)); }
+            100% { transform: scale(1); }
+        }
+        .reset-modal-title {
+            margin: 0 0 10px 0;
+            font-size: 1.25rem;
+            font-weight: 900;
+            line-height: 1.4;
+        }
+        .reset-modal-desc {
+            margin: 0 0 24px 0;
+            font-size: 0.92rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+        .reset-modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .modal-btn {
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 800;
+            padding: 10px 24px;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+        }
+        .modal-btn.cancel {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+        }
+        .modal-btn.cancel:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .modal-btn.ok {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .modal-btn.ok:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+        .modal-btn.ok:active {
+            transform: translateY(0);
+        }
+        /* SVG Circle progress styles */
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.1s linear;
+        }
     </style>
 </head>
 <body>
@@ -339,9 +521,15 @@
             <button class="studio-tab-btn" id="tab-btn-presets" onclick="switchStudioTab('presets')">💎 التخصيصات الجاهزة</button>
         </div>
 
-        <button class="ribbon-btn" onclick="saveCurrentPreset()" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:5px 16px; font-size:0.85rem; font-weight:800; border-radius:18px; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
-            💾 حفظ الإعدادات
-        </button>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <button id="reset-design-btn" class="ribbon-btn" style="background: linear-gradient(135deg, #64748b, #475569); color:#fff; border:none; padding:5px 16px; font-size:0.85rem; font-weight:800; border-radius:18px; box-shadow: 0 2px 8px rgba(71,85,105,0.3); position: relative; overflow: hidden; display: flex; align-items: center; gap: 4px; cursor: pointer; user-select: none;">
+                <span class="btn-progress" style="position: absolute; right: 0; top: 0; bottom: 0; width: 0%; background: rgba(255,255,255,0.25); transition: none; pointer-events: none;"></span>
+                <span class="btn-text">🔄 إعادة ضبط</span>
+            </button>
+            <button class="ribbon-btn" onclick="saveCurrentPreset()" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:5px 16px; font-size:0.85rem; font-weight:800; border-radius:18px; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
+                💾 حفظ الإعدادات
+            </button>
+        </div>
     </div>
 
     <!-- TAB 1: Columns & Formatting -->
@@ -430,9 +618,14 @@
                 <span>✨ أنماط العرض الفاخرة:</span>
                 <select id="table-theme-select" class="panel-input" style="font-weight:800;" onchange="setTableTheme(this.value)">
                     <option value="">⚪ 1. الأساسي المعياري</option>
-                    <option value="theme-gold">🟡 2. الأصفر الغامق (Luxury Gold)</option>
-                    <option value="theme-lightblue">🔵 3. الأزرق الفاتح (Ocean Blue)</option>
-                    <option value="theme-slate">⚪ 4. الرمادي الراقي (Slate Gray)</option>
+                    <option value="theme-classic-navy">🔷 2. الأزرق الكلاسيكي (Classic Navy)</option>
+                    <option value="theme-emerald-pro">💚 3. الزمردي الراقي (Emerald Pro)</option>
+                    <option value="theme-modern-slate">🩶 4. الرمادي العصري (Modern Slate)</option>
+                    <option value="theme-luxury-gold">👑 5. الذهبي الملكي (Luxury Gold)</option>
+                    <option value="theme-gold">🟡 6. الأصفر الغامق (Amber Gold)</option>
+                    <option value="theme-lightblue">🔵 7. الأزرق الفاتح (Ocean Blue)</option>
+                    <option value="theme-slate">⚪ 8. الرمادي الكلاسيكي (Slate Gray)</option>
+                    <option value="theme-luxury-black">🖤 9. الأسود الفاخر (Luxury Black)</option>
                 </select>
             </div>
         </div>
@@ -606,6 +799,25 @@
             </button>
             <button type="button" id="confirm-modal-cancel-btn" style="flex:1; padding:12px 20px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#f87171; border-radius:12px; font-weight:900; font-size:1rem; cursor:pointer;">
                 🔴 إلغاء
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Glassmorphic Confirm Save Factory Reset Modal -->
+<div id="reset-confirm-modal" class="reset-modal-overlay">
+    <div class="reset-modal-container">
+        <div class="reset-modal-icon">🔧</div>
+        <h3 class="reset-modal-title">حفظ التصميم الحالي كـ ضبط مصنع</h3>
+        <p class="reset-modal-desc">سيتم حفظ جميع إعدادات التصميم الحالية كنقطة ضبط المصنع. يمكنك استرجاعها لاحقاً بالضغط المطوّل على زر إعادة الضبط لمدة 8 ثوانٍ.</p>
+        
+        <div class="reset-modal-buttons">
+            <button id="modal-cancel-btn" class="modal-btn cancel">
+                ❌ إلغاء
+            </button>
+            <button id="modal-ok-btn" class="modal-btn ok" style="position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; min-width: 170px;">
+                <span class="modal-ok-progress" style="position: absolute; right: 0; top: 0; bottom: 0; width: 0%; background: rgba(255, 255, 255, 0.3); transition: none; pointer-events: none;"></span>
+                <span class="ok-btn-text" style="position: relative; z-index: 2;">🟢 موافق (اضغط 3 ثوانٍ)</span>
             </button>
         </div>
     </div>

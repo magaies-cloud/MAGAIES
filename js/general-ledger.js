@@ -22,9 +22,9 @@ function showToast(msg, type = 'success') {
     setTimeout(() => t.remove(), 3500);
 }
 
-let ALL_ACCOUNTS = [{ id: 'ALL', name: 'جميع الحسابات', icon: '📊', type: 'عام' }];
+var ALL_ACCOUNTS = [{ id: 'ALL', name: 'جميع الحسابات', icon: '📊', type: 'عام' }];
 let ALL_TXNS = []; // Cache to extract cost centers and currencies
-let ACCOUNT_NAME_CACHE = new Map(); // O(1) lookup cache for getAccountName
+var ACCOUNT_NAME_CACHE = new Map(); // O(1) lookup cache for getAccountName
 let currentDateMode = 'all'; // 'all' or 'range'
 
 let ledgerExchangeRate = 1.0;
@@ -70,11 +70,10 @@ window.setDateMode = function(mode) {
         if (toCont) toCont.style.display = 'flex';
     }
     
-    // Auto run report when mode switches and we have transactions loaded
     if (typeof ALL_TXNS !== 'undefined' && ALL_TXNS.length > 0) {
         runReport();
     }
-}
+};
 
 function buildAccountsList() {
     ALL_ACCOUNTS = [{ id: 'ALL', name: 'جميع الحسابات', icon: '📊', type: 'عام' }];
@@ -98,6 +97,10 @@ function buildAccountsList() {
     ALL_ACCOUNTS.forEach(a => {
         const idLower = String(a.id).toLowerCase();
         ACCOUNT_NAME_CACHE.set(idLower, a.name);
+        const nameLower = String(a.name).toLowerCase();
+        if (nameLower && !ACCOUNT_NAME_CACHE.has(nameLower)) {
+            ACCOUNT_NAME_CACHE.set(nameLower, a.name);
+        }
         // Also cache without prefix for fallback lookups
         const cleanId = idLower.replace(/^[a-zA-Z]+\s*[-_:\/]\s*/, '').trim();
         if (cleanId && !ACCOUNT_NAME_CACHE.has(cleanId)) {
@@ -240,6 +243,9 @@ document.addEventListener('mousedown', function(e) {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (typeof window.renderLedgerPresets === 'function') window.renderLedgerPresets();
+    if (typeof window.renderLedgerPresets === 'function') window.renderLedgerPresets();
+    if (typeof window.renderLedgerPresets === 'function') window.renderLedgerPresets();
     const input = document.getElementById('account-search-input');
     if (input) input.addEventListener('focus', onAccountSearch);
 });
@@ -268,7 +274,7 @@ function collectAllTransactions() {
         txns.push({
             date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند قبض',
             account: v.toAccount || 'safe-001', counterAccount: v.fromAccount,
-            statement: 'سند قبض #' + (v.voucherNo || v.id),
+            statement: 'سند قبض #' + (v.voucherNo || v.id || 'بدون_رقم'),
             additionalNote: v.fromStatement || 'سند قبض نقدي',
             debit: valLoc, credit: 0, 
             debitForeign: valFc, creditForeign: 0,
@@ -280,7 +286,7 @@ function collectAllTransactions() {
         txns.push({
             date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند صرف',
             account: v.fromAccount, counterAccount: v.toAccount || 'safe-001',
-            statement: 'سند قبض #' + (v.voucherNo || v.id),
+            statement: 'سند قبض #' + (v.voucherNo || v.id || 'بدون_رقم'),
             additionalNote: v.fromStatement || 'سند صرف نقدي',
             debit: 0, credit: valLoc, 
             debitForeign: 0, creditForeign: valFc,
@@ -311,7 +317,7 @@ function collectAllTransactions() {
                 const amt = parseNum(bt.amount);
                 const amtLoc = isBaseSDG ? amt : amt * rate;
                 const amtFc = isBaseSDG ? 0 : amt;
-                const stmt = bt.statement || v.statement || v.toStatement || ('تحويل بنكي - سند صرف #' + (v.voucherNo || v.id));
+                const stmt = bt.statement || v.statement || v.toStatement || ('تحويل بنكي - سند صرف #' + (v.voucherNo || v.id || 'بدون_رقم'));
 
                 // Disbursing side (Safe/Bank)
                 txns.push({
@@ -339,7 +345,7 @@ function collectAllTransactions() {
                 const amt = parseNum(ch.amount);
                 const amtLoc = isBaseSDG ? amt : amt * rate;
                 const amtFc = isBaseSDG ? 0 : amt;
-                const stmt = ch.statement || v.statement || v.toStatement || ('شيك - سند صرف #' + (v.voucherNo || v.id));
+                const stmt = ch.statement || v.statement || v.toStatement || ('شيك - سند صرف #' + (v.voucherNo || v.id || 'بدون_رقم'));
 
                 // Disbursing side (Safe/Bank)
                 txns.push({
@@ -367,7 +373,7 @@ function collectAllTransactions() {
             txns.push({
                 date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
                 account: v.fromAccount || 'safe-001', counterAccount: v.toAccount,
-                statement: v.statement || 'سند صرف #' + (v.voucherNo || v.id),
+                statement: v.statement || 'سند صرف #' + (v.voucherNo || v.id || 'بدون_رقم'),
                 additionalNote: v.toStatement || 'سند صرف نقدي',
                 debit: 0, credit: valLoc, 
                 debitForeign: 0, creditForeign: valFc,
@@ -379,7 +385,7 @@ function collectAllTransactions() {
             txns.push({
                 date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
                 account: v.toAccount, counterAccount: v.fromAccount || 'safe-001',
-                statement: v.statement || 'سند صرف #' + (v.voucherNo || v.id),
+                statement: v.statement || 'سند صرف #' + (v.voucherNo || v.id || 'بدون_رقم'),
                 additionalNote: v.toStatement || 'سند استلام نقدي',
                 debit: valLoc, credit: 0, 
                 debitForeign: valFc, creditForeign: 0,
@@ -691,7 +697,7 @@ function collectAllTransactions() {
             txns.push({
                 date: v.date, time: time, ref: v.id, type: 'jv', typeLabel: 'قيد يومي',
                 account: line.account, counterAccount: '-',
-                statement: 'قيد يومي #' + (v.voucherNo || v.id),
+                statement: 'قيد يومي #' + (v.voucherNo || v.id || 'بدون_رقم'),
                 additionalNote: v.statement || line.note || 'قيد يومي',
                 debit: debLoc, credit: credLoc, 
                 debitForeign: debFc, creditForeign: credFc,
@@ -1078,8 +1084,8 @@ function initGeneralLedgerApp() {
     extractFilters(); // Build filters dynamically
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    document.getElementById('filter-from').value = firstDay.toISOString().slice(0, 10);
-    document.getElementById('filter-to').value = now.toISOString().slice(0, 10);
+    if (document.getElementById('filter-date-from')) document.getElementById('filter-date-from').value = firstDay.toISOString().slice(0, 10);
+    if (document.getElementById('filter-date-to')) document.getElementById('filter-date-to').value = now.toISOString().slice(0, 10);
     
     // Set default date mode to all period
     setDateMode('all');
@@ -1128,6 +1134,11 @@ if (window.APP_READY) {
 } else {
     document.addEventListener('DBReady', initGeneralLedgerApp);
 }
+
+// Explicitly expose functions to window for inline onclick handlers
+window.openPreviewDesign = openPreviewDesign;
+window.openPresetModal = openPresetModal;
+window.prepareLedgerPreviewData = prepareLedgerPreviewData;
 
 function getAccountName(id) {
     if(id === 'ALL') return 'جميع الحسابات';
@@ -1449,7 +1460,7 @@ window.shareViaWhatsApp = async function() {
             <h2>دفتر الأستاذ العام</h2>
             <div id="print-meta">
                 <span>الحساب: <strong>${getAccountNameForShare()}</strong></span>
-                <span>الفترة: <strong>${currentDateMode === 'all' ? 'كل الفترة' : `من ${document.getElementById('filter-from').value || '-'} إلى ${document.getElementById('filter-to').value || '-'}`}</strong></span>
+                <span>الفترة: <strong>${currentDateMode === 'all' ? 'كل الفترة' : `من ${document.getElementById('filter-date-from').value || '-'} إلى ${document.getElementById('filter-date-to').value || '-'}`}</strong></span>
                 <span>تاريخ الطباعة: <strong>${new Date().toLocaleDateString('ar-SD')}</strong></span>
             </div>
             ${tableClone.outerHTML}
@@ -1459,7 +1470,7 @@ window.shareViaWhatsApp = async function() {
     printContainer.innerHTML = htmlContent;
     document.body.appendChild(printContainer);
 
-    const periodText = currentDateMode === 'all' ? 'لكل الفترة' : 'لفتـرة من ' + document.getElementById('filter-from').value + ' إلى ' + document.getElementById('filter-to').value;
+    const periodText = currentDateMode === 'all' ? 'لكل الفترة' : 'لفتـرة من ' + document.getElementById('filter-date-from').value + ' إلى ' + document.getElementById('filter-date-to').value;
     const message = 'مرحباً، مرفق كشف حسابكم الخاص بـ ' + getAccountNameForShare() + ' ' + periodText;
 
     if (typeof sendPDFViaWhatsApp === 'function') {
@@ -1489,2129 +1500,467 @@ function showAttachment(e, ref) {
 }
 
 /* ─── Run Report ─── */
-function runReport() {
-    const acctFilter = document.getElementById('filter-account').value;
-    const fromDate = document.getElementById('filter-from').value;
-    const toDate = document.getElementById('filter-to').value;
-    const typeFilter = document.getElementById('filter-type').value;
-    const ccFilter = document.getElementById('filter-costcenter').value;
-    const curFilter = document.getElementById('filter-currency').value;
-    const postedFilter = document.getElementById('filter-posted') ? document.getElementById('filter-posted').value : 'ALL';
 
-    if (currentDateMode === 'range' && (!fromDate || !toDate)) {
-        return showToast('يرجى تحديد الفترة الزمنية', 'warning');
+// ==========================================
+// LAUNCHER SPECIFIC LOGIC (Rebuilt)
+// ==========================================
+
+let currentTxns = [];
+const LEDGER_PAGE_SIZE = 50;
+let ledgerCurrentPage = 1;
+
+window.nextLedgerPage = function() {
+    if (ledgerCurrentPage * LEDGER_PAGE_SIZE < currentTxns.length) {
+        ledgerCurrentPage++;
+        renderLedgerPage();
     }
+};
 
-    const btnIcon = document.getElementById('btn-run-icon');
-    const btnSpinner = document.getElementById('btn-run-spinner');
-    const btnText = document.getElementById('btn-run-text');
-    if (btnIcon && btnSpinner) {
-        btnIcon.style.display = 'none';
-        btnSpinner.style.display = 'inline-block';
-        btnText.innerText = 'جاري التحليل...';
+window.prevLedgerPage = function() {
+    if (ledgerCurrentPage > 1) {
+        ledgerCurrentPage--;
+        renderLedgerPage();
     }
+};
 
-    setTimeout(() => {
-        executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, curFilter, postedFilter);
-        if (btnIcon && btnSpinner) {
-            btnIcon.style.display = 'inline-block';
-            btnSpinner.style.display = 'none';
-            btnText.innerText = 'تشغيل التقرير الذكي';
-        }
-    }, 400);
+function renderLedgerPage() {
+    const start = (ledgerCurrentPage - 1) * LEDGER_PAGE_SIZE;
+    const end = start + LEDGER_PAGE_SIZE;
+    renderRecentTable(currentTxns.slice(start, end), start);
 }
 
-function executeReportLogic(acctFilter, fromDate, toDate, typeFilter, ccFilter, curFilter, postedFilter) {
-    let txns = [...ALL_TXNS];
+function runReport() {
+    try {
+        ALL_TXNS = collectAllTransactions();
+        
+        const accEl = document.getElementById('filter-account');
+        const fromEl = document.getElementById('filter-date-from');
+        const toEl = document.getElementById('filter-date-to');
+        const curEl = document.getElementById('filter-currency');
+        const typeEl = document.getElementById('filter-type');
+        const ccEl = document.getElementById('filter-costcenter');
+        const postedEl = document.getElementById('filter-posted');
+        const smartEl = document.getElementById('filter-smart');
 
-    // Filter Account and Setup Opening Balance
-    let intrinsicBal = 0;
-    let accountCurrency = 'SDG';
-    let accountExRate = 1;
+        const accVal = accEl ? accEl.value : 'ALL';
+        const fromDate = fromEl ? fromEl.value : '';
+        const toDate = toEl ? toEl.value : '';
+        const currencyFilter = curEl ? curEl.value : 'ALL';
+        const typeFilter = typeEl ? typeEl.value : 'ALL';
+        const ccFilter = ccEl ? ccEl.value : 'ALL';
+        const postedFilter = postedEl ? postedEl.value : 'ALL';
+        const smartSearch = (smartEl ? smartEl.value : '').trim().toLowerCase();
+        
+        let filtered = ALL_TXNS || [];
 
-    if (acctFilter !== 'ALL') {
-        const cleanFilter = String(acctFilter).replace(/^(cust|supp|bank|safe|exp)-/, '');
-        txns = txns.filter(t => {
-            if (String(t.account) === String(acctFilter)) return true;
-            const cleanAcc = String(t.account).replace(/^(cust|supp|bank|safe|exp)-/, '');
-            return cleanAcc === cleanFilter;
+        // Account Filter
+        if (accVal !== 'ALL') {
+            const cleanFilter = accVal.replace(/^(cust|supp|bank|safe|exp)-/, '');
+            filtered = filtered.filter(t => {
+                if (!t) return false;
+                if (String(t.account) === String(accVal)) return true;
+                if (String(t.account) === cleanFilter) return true;
+                return false;
+            });
+        }
+
+        // Date Filter
+        if (currentDateMode === 'range') {
+            if (fromDate) filtered = filtered.filter(t => t && t.date >= fromDate);
+            if (toDate) filtered = filtered.filter(t => t && t.date <= toDate);
+        }
+
+        // Currency Filter
+        if (currencyFilter === 'LOCAL') {
+            filtered = filtered.filter(t => t && t.currency === 'SDG');
+        } else if (currencyFilter === 'FOREIGN') {
+            filtered = filtered.filter(t => t && t.currency !== 'SDG');
+        }
+
+        // Type Filter
+        if (typeFilter !== 'ALL') {
+            filtered = filtered.filter(t => {
+                if (!t) return false;
+                if (typeFilter === 'sales' && t.type === 'invoice' && t.account !== 'revenue-sales') return true;
+                if (typeFilter === 'purchases' && t.type === 'purchase' && t.account !== 'cost-purchases') return true;
+                if (typeFilter === 'receipt' && (t.type === 'receipt' || t.type === 'multi-receipt') && t.debit > 0) return true;
+                if (typeFilter === 'payment' && (t.type === 'payment' || t.type === 'multi-payment') && t.credit > 0) return true;
+                if (typeFilter === 'journal' && t.type === 'jv') return true;
+                return false;
+            });
+        }
+
+        // Cost Center
+        if (ccFilter !== 'ALL') {
+            filtered = filtered.filter(t => t && t.costCenter === ccFilter);
+        }
+
+        // Posted Status
+        if (postedFilter === 'POSTED') {
+            filtered = filtered.filter(t => t && t.isPosted === true);
+        } else if (postedFilter === 'UNPOSTED') {
+            filtered = filtered.filter(t => t && t.isPosted === false);
+        }
+
+        // Smart Search
+        if (smartSearch) {
+            filtered = filtered.filter(t => {
+                if (!t) return false;
+                return (t.statement || '').toLowerCase().includes(smartSearch) ||
+                       (t.additionalNote || '').toLowerCase().includes(smartSearch) ||
+                       (String(t.ref) || '').toLowerCase().includes(smartSearch) ||
+                       (t.checkNo || '').toLowerCase().includes(smartSearch) ||
+                       (t.transferNo || '').toLowerCase().includes(smartSearch);
+            });
+        }
+
+        // Compute running balance in chronological order (oldest first)
+        let runningBal = 0;
+        let chronological = filtered.slice().sort((a, b) => {
+            const da = ((a && a.date) || '') + ' ' + ((a && a.time) || '00:00');
+            const db = ((b && b.date) || '') + ' ' + ((b && b.time) || '00:00');
+            return da.localeCompare(db);
         });
-        
-        let custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
-        let sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
-        let banks = (JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => !x.deleted);
-        let safes = (JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => !x.deleted);
-        let exp = (JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => !x.deleted);
-        
-        let foundAccount = null;
-        if (acctFilter.startsWith('cust-')) {
-            foundAccount = custs.find(x => String(x.id) === cleanFilter);
-        } else if (acctFilter.startsWith('supp-')) {
-            foundAccount = sups.find(x => String(x.id) === cleanFilter);
-        } else if (acctFilter.startsWith('bank-')) {
-            foundAccount = banks.find(x => String(x.id) === cleanFilter);
-        } else if (acctFilter.startsWith('safe-')) {
-            foundAccount = safes.find(x => String(x.id) === cleanFilter);
-        } else if (acctFilter.startsWith('exp-')) {
-            foundAccount = exp.find(x => String(x.id || x.code) === cleanFilter);
+
+        chronological.forEach(t => {
+            if (!t) return;
+            runningBal += (t.debit || 0) - (t.credit || 0);
+            t.balance = runningBal;
+        });
+
+        // Sort Descending (Newest first) for Recent Table
+        filtered.sort((a, b) => {
+            const da = ((a && a.date) || '') + ' ' + ((a && a.time) || '00:00');
+            const db = ((b && b.date) || '') + ' ' + ((b && b.time) || '00:00');
+            return db.localeCompare(da);
+        });
+
+        currentTxns = filtered;
+
+        let totalDebit = 0;
+        let totalCredit = 0;
+        currentTxns.forEach(t => {
+            if (!t) return;
+            totalDebit += (t.debit || 0);
+            totalCredit += (t.credit || 0);
+        });
+
+        const tdDebit = document.getElementById('launcher-total-debit');
+        const tdCredit = document.getElementById('launcher-total-credit');
+        const tdBalance = document.getElementById('launcher-total-balance');
+
+        if (tdDebit) tdDebit.innerText = typeof fmtNum === 'function' ? fmtNum(totalDebit) : totalDebit.toLocaleString();
+        if (tdCredit) tdCredit.innerText = typeof fmtNum === 'function' ? fmtNum(totalCredit) : totalCredit.toLocaleString();
+        if (tdBalance) {
+            let bal = totalDebit - totalCredit;
+            tdBalance.innerText = typeof fmtNum === 'function' ? fmtNum(bal) : bal.toLocaleString();
         }
-        
-        if (!foundAccount) {
-            foundAccount = custs.find(x => String(x.id) === cleanFilter) ||
-                           sups.find(x => String(x.id) === cleanFilter) ||
-                           banks.find(x => String(x.id) === cleanFilter) ||
-                           safes.find(x => String(x.id) === cleanFilter) ||
-                           exp.find(x => String(x.id || x.code) === cleanFilter);
-        }
-        
-        if (foundAccount) {
-            let opDeb = parseNum(foundAccount.openingDebit || 0);
-            let opCred = parseNum(foundAccount.openingCredit || 0);
-            let opBal = parseNum(foundAccount.openingBalance || foundAccount.opening_balance || 0);
-            intrinsicBal = opBal !== 0 ? opBal : (opDeb - opCred);
-            accountCurrency = foundAccount.currency || 'SDG';
-            accountExRate = parseNum(foundAccount.exRate || 1);
-        }
+
+        ledgerCurrentPage = 1;
+        renderLedgerPage();
+    } catch (e) {
+        console.error('Error running report:', e);
+        renderRecentTable([]);
+    }
+}
+
+function renderRecentTable(txns, startIndex = 0) {
+    const tbody = document.getElementById('recent-tbody');
+    if (!tbody) return;
+
+    if (txns.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 20px;">لا توجد عمليات تطابق الفلتر...</td></tr>';
+        return;
     }
 
-    let runningBal = intrinsicBal;
-    let priorTxns = [];
-    let currentTxns = [];
+    let html = '';
+    txns.forEach((t, i) => {
+        const counterAccName = getAccountName(t.counterAccount) || '-';
+        const mainAccName = getAccountName(t.account) || '-';
+        const isPosBal = (t.balance || 0) >= 0;
 
-    // Separate based on dates first
-    if (currentDateMode === 'all') {
-        currentTxns = [...txns];
-    } else {
-        priorTxns = txns.filter(t => t.date < fromDate);
-        currentTxns = txns.filter(t => t.date >= fromDate && t.date <= toDate);
-    }
-
-    // Apply Posted status filter to both sets to keep opening balances correct
-    if (postedFilter && postedFilter !== 'ALL') {
-        const wantPosted = (postedFilter === 'posted');
-        priorTxns = priorTxns.filter(t => t.isPosted === wantPosted);
-        currentTxns = currentTxns.filter(t => t.isPosted === wantPosted);
-    }
-
-    // Calculate opening balance after filtering prior transactions
-    priorTxns.forEach(t => {
-        runningBal += t.debit;
-        runningBal -= t.credit;
+        html += `
+            <tr>
+                <td>${startIndex + i + 1}</td>
+                <td title="${t.time || ''}">${t.date || '-'}</td>
+                <td><strong style="color:#38bdf8;">${t.ref || '-'}</strong></td>
+                <td><span style="font-weight:700;">${mainAccName}</span></td>
+                <td><span style="background:rgba(168,85,247,0.15); color:#c084fc; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">${t.typeLabel || '-'}</span></td>
+                <td style="white-space:normal; min-width:180px;">
+                    ${(t.statement === 'undefined' ? '-' : t.statement) || '-'}
+                    ${t.additionalNote && t.additionalNote !== t.statement && t.additionalNote !== 'undefined' ? '<br><small style="color:#94a3b8;">' + t.additionalNote + '</small>' : ''}
+                </td>
+                <td>${counterAccName}</td>
+                <td style="color:#34d399; font-weight:900;">${t.debit > 0 ? fmtNum(t.debit) : ''}</td>
+                <td style="color:#f87171; font-weight:900;">${t.credit > 0 ? fmtNum(t.credit) : ''}</td>
+                <td style="color:${isPosBal ? '#34d399' : '#f87171'}; font-weight:900; font-family:'JetBrains Mono',monospace;">${t.balance !== undefined ? fmtNum(t.balance) : '-'}</td>
+            </tr>
+        `;
     });
 
-    if (typeFilter !== 'ALL') currentTxns = currentTxns.filter(t => t.type === typeFilter);
-    if (ccFilter !== 'ALL') currentTxns = currentTxns.filter(t => t.costCenter === ccFilter);
-    if (curFilter !== 'ALL') currentTxns = currentTxns.filter(t => t.currency === curFilter);
-    
-    const searchFilter = document.getElementById('filter-search') ? document.getElementById('filter-search').value.trim().toLowerCase() : '';
-    if (searchFilter) {
-        currentTxns = currentTxns.filter(t => {
-            return (t.statement && t.statement.toLowerCase().includes(searchFilter)) ||
-                   (t.ref && String(t.ref).toLowerCase().includes(searchFilter)) ||
-                   (t.additionalNote && t.additionalNote.toLowerCase().includes(searchFilter));
-        });
+    if (currentTxns && currentTxns.length > LEDGER_PAGE_SIZE) {
+        const totalPages = Math.ceil(currentTxns.length / LEDGER_PAGE_SIZE);
+        const hasNext = ledgerCurrentPage < totalPages;
+        const hasPrev = ledgerCurrentPage > 1;
+        
+        html += `
+            <tr class="pagination-row">
+                <td colspan="10" style="text-align:center; padding: 25px 0;">
+                    <div style="display:inline-flex; align-items:center; gap: 15px; background: rgba(125,125,125,0.08); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(125,125,125,0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.05); backdrop-filter: blur(4px);">
+                        <button onclick="prevLedgerPage()" style="background: ${hasPrev ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : 'rgba(125,125,125,0.15)'}; color: ${hasPrev ? '#fff' : 'inherit'}; border: none; padding: 8px 18px; border-radius: 12px; font-family: inherit; font-size: 0.9rem; font-weight: bold; cursor: ${hasPrev ? 'pointer' : 'not-allowed'}; opacity: ${hasPrev ? '1' : '0.5'}; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(1);" onmouseover="if(${hasPrev}) { this.style.transform='scale(1.05) translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(59,130,246,0.4)'; }" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';" ${hasPrev ? '' : 'disabled'}>
+                            السابق ◀
+                        </button>
+                        <span style="font-size: 0.9rem; font-weight: 700; opacity: 0.8; padding: 0 10px;">
+                            صفحة <strong style="color: #38bdf8;">${ledgerCurrentPage}</strong> من ${totalPages}
+                        </span>
+                        <button onclick="nextLedgerPage()" style="background: ${hasNext ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : 'rgba(125,125,125,0.15)'}; color: ${hasNext ? '#fff' : 'inherit'}; border: none; padding: 8px 18px; border-radius: 12px; font-family: inherit; font-size: 0.9rem; font-weight: bold; cursor: ${hasNext ? 'pointer' : 'not-allowed'}; opacity: ${hasNext ? '1' : '0.5'}; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(1);" onmouseover="if(${hasNext}) { this.style.transform='scale(1.05) translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(59,130,246,0.4)'; }" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';" ${hasNext ? '' : 'disabled'}>
+                            ▶ التالي
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
     }
 
-    currentTxns.sort((a, b) => {
-        const da = a.date + ' ' + (a.time || '00:00');
-        const db = b.date + ' ' + (b.time || '00:00');
+    tbody.innerHTML = html;
+}
+
+function getAccountName(accVal) {
+    if (!accVal) return '';
+    const idLower = String(accVal).toLowerCase();
+    if (ACCOUNT_NAME_CACHE.has(idLower)) return ACCOUNT_NAME_CACHE.get(idLower);
+    const cleanId = idLower.replace(/^[a-zA-Z]+\s*[-_:\/]\s*/, '').trim();
+    if (ACCOUNT_NAME_CACHE.has(cleanId)) return ACCOUNT_NAME_CACHE.get(cleanId);
+    
+    // Hardcoded fallbacks
+    if (accVal === 'revenue-sales') return 'إيرادات المبيعات';
+    if (accVal === 'cost-purchases') return 'تكلفة المشتريات (مخزون)';
+    if (accVal === 'discount-permitted') return 'خصم مسموح به';
+    if (accVal === 'discount-received') return 'خصم مكتسب';
+    if (accVal === 'vat-collected') return 'ضريبة القيمة المضافة (مبيعات)';
+    if (accVal === 'vat-paid') return 'ضريبة القيمة المضافة (مشتريات)';
+    if (accVal === 'cheques-receivable') return 'شيكات تحت التحصيل';
+    
+    return accVal; // return ID if name not found
+}
+
+async function prepareLedgerPreviewData() {
+    if (!currentTxns || currentTxns.length === 0) {
+        if (typeof runReport === 'function') {
+            runReport();
+        }
+    }
+
+    let sourceTxns = currentTxns || [];
+
+    // Clone and sort chronologically (Oldest first) for Ledger Preview & Print
+    let previewTxns = sourceTxns.slice().sort((a, b) => {
+        const da = (a.date || '') + ' ' + (a.time || '00:00');
+        const db = (b.date || '') + ' ' + (b.time || '00:00');
         return da.localeCompare(db);
     });
 
-    if (acctFilter !== 'ALL') {
-        let hasOpening = (intrinsicBal !== 0);
-        let hasPrior = (currentDateMode !== 'all' && priorTxns.length > 0);
-        
-        let priorSum = 0;
-        priorTxns.forEach(t => {
-            priorSum += t.debit;
-            priorSum -= t.credit;
+    // Calculate Running Cumulative Balance for each transaction
+    let runningBalance = 0;
+    previewTxns = previewTxns.map(t => {
+        const dr = parseFloat(t.debit || t.dr || 0);
+        const cr = parseFloat(t.credit || t.cr || 0);
+        const drF = parseFloat(t.debitForeign || t.dr_foreign || 0);
+        const crF = parseFloat(t.creditForeign || t.cr_foreign || 0);
+        runningBalance += (dr - cr);
+        return Object.assign({}, t, {
+            debit: dr,
+            credit: cr,
+            debitForeign: drF,
+            creditForeign: crF,
+            balance: runningBalance,
+            statement: t.statement || t.description || t.desc || t.notes || '-',
+            ref: t.ref || t.doc_no || t.voucher_no || t.id || '-',
+            counterAccount: t.counterAccount || t.accountName || t.account || '-',
+            typeLabel: t.typeLabel || t.type || '-',
+            additionalNote: t.additionalNote || t.notes || t.costCenter || ''
         });
-
-        let opDate = '—';
-        if (txns.length > 0) {
-            opDate = txns.reduce((min, t) => t.date < min ? t.date : min, txns[0].date);
-        }
-
-        // 1. Prepend "رصيد افتتاحي" (Opening Balance)
-        if (hasOpening || currentDateMode === 'all' || !hasPrior) {
-            let opDebit = intrinsicBal > 0 ? intrinsicBal : 0;
-            let opCredit = intrinsicBal < 0 ? Math.abs(intrinsicBal) : 0;
-            
-            currentTxns.unshift({
-                date: opDate, time: '', ref: 'OPENING', type: 'opening', typeLabel: 'افتتاحي',
-                account: acctFilter, counterAccount: '-',
-                statement: 'رصيد افتتاحي',
-                additionalNote: 'رصيد افتتاحي',
-                debit: opDebit, credit: opCredit, costCenter: '', 
-                currency: accountCurrency, exchangeRate: accountExRate,
-                isOpening: true
-            });
-        }
-        
-        // 2. Prepend "رصيد ما قبل الفترة" if there are prior transactions
-        if (hasPrior && priorSum !== 0) {
-            let preDebit = priorSum > 0 ? priorSum : 0;
-            let preCredit = priorSum < 0 ? Math.abs(priorSum) : 0;
-            
-            currentTxns.unshift({
-                date: fromDate, time: '', ref: 'PRE-PERIOD', type: 'opening', typeLabel: 'افتتاحي',
-                account: acctFilter, counterAccount: '-',
-                statement: 'رصيد ما قبل الفترة',
-                additionalNote: 'رصيد ما قبل الفترة',
-                debit: preDebit, credit: preCredit, costCenter: '', 
-                currency: accountCurrency, exchangeRate: accountExRate,
-                isOpening: true
-            });
-        }
-    }
-
-    renderTable(currentTxns, acctFilter, fromDate, toDate);
-    if (typeof renderVisualAnalytics === 'function') {
-        renderVisualAnalytics(currentTxns);
-    }
-}
-
-function renderTable(txns, acctFilter, fromDate, toDate) {
-    const tbody = document.getElementById('ledger-tbody');
-    const summaryCards = document.getElementById('summary-cards');
-    const auditStamp = document.getElementById('audit-stamp');
-    const thead = document.querySelector('.ledger-table thead');
-
-    // 1. Build Header Dynamically
-    let ths = '';
-    let activeColsCount = 0;
-    colConfig.forEach(c => {
-        if (!c.visible) return;
-        activeColsCount++;
-        let displayName = c.alias ? c.alias : c.name;
-        
-        let sizeVal = c.size;
-        if (sizeVal && !String(sizeVal).includes('px') && !String(sizeVal).includes('rem')) {
-            sizeVal = sizeVal + 'px';
-        }
-        
-        let thAlign = c.align ? `text-align:${c.align} !important;` : '';
-        let thSize = sizeVal ? `font-size:${sizeVal} !important;` : '';
-        let thColor = c.color ? `color:${c.color} !important;` : '';
-        let thBg = c.bg ? `background-color:${c.bg} !important;` : '';
-        let thBold = c.bold ? `font-weight:bold !important;` : '';
-        
-        ths += `<th style="width:${c.width}; ${thAlign} ${thSize} ${thColor} ${thBg} ${thBold}">${displayName}<div class="resize-handle"></div></th>`;
-    });
-    thead.innerHTML = `<tr>${ths}</tr>`;
-
-    if (txns.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="${activeColsCount}" class="empty-state"><span style="font-size:3rem;display:block;margin-bottom:15px;">🔍</span><div>لا توجد بيانات تطابق الفلاتر المحددة</div></td></tr>`;
-        summaryCards.style.display = 'none';
-        auditStamp.style.display = 'none';
-        
-        const secActions = document.getElementById('secondary-actions');
-        if (secActions) {
-            secActions.style.opacity = '0';
-            secActions.style.transform = 'translateY(10px)';
-            setTimeout(() => secActions.style.display = 'none', 500);
-        }
-        return;
-    }
-
-    let totalDebit = 0, totalCredit = 0, runningBalance = 0;
-    let totalDebitForeign = 0, totalCreditForeign = 0, runningBalanceForeign = 0;
-    let rows = '';
-
-    txns.forEach((t, i) => {
-        const exRate = t.exchangeRate || 1;
-        const addNote = t.additionalNote || '-';
-        
-        let debF = 0;
-        let credF = 0;
-        if (t.currency && t.currency !== 'SDG' && t.currency !== '-') {
-            debF = t.debitForeign || (t.debit / exRate);
-            credF = t.creditForeign || (t.credit / exRate);
-        } else {
-            const rate = ledgerExchangeRate > 0 ? ledgerExchangeRate : (exRate > 1 ? exRate : 1.0);
-            debF = t.debit / rate;
-            credF = t.credit / rate;
-        }
-
-        if (!t.isOpening) {
-            totalDebit += t.debit;
-            totalCredit += t.credit;
-            totalDebitForeign += debF;
-            totalCreditForeign += credF;
-        }
-        runningBalance += t.debit - t.credit;
-        runningBalanceForeign += debF - credF;
-
-        const counterAccName = getAccountName(t.counterAccount) || '-';
-
-        let rowHtml = `<tr data-type="${t.type}" data-ref="${t.ref}" data-is-opening="${t.isOpening ? 'true' : 'false'}" title="${t.isOpening ? '' : 'انقر لعرض المستند (Drill-down)'}" ${t.isOpening ? '' : `onclick="openDrillDown('${t.type}', '${t.ref}')"`} style="${t.isOpening ? 'background:rgba(255,255,255,0.03);' : ''}">`;
-
-        // Map values to IDs
-        const colValues = {
-            'idx': i + 1,
-            'date': `<div title="وقت العملية: ${t.time || 'غير محدد'}" ondblclick="alert('وقت العملية: ' + '${t.time || 'غير محدد'}')" style="cursor: pointer;">${t.date || '-'}</div>`,
-            'account': getAccountName(t.account) || '-',
-            'counterAcc': counterAccName,
-            'statement': t.statement,
-            'note': addNote,
-            'checkNo': t.checkNo || '-',
-            'transferNo': t.transferNo || '-',
-            'costCenter': t.costCenter || '-',
-            'debit': t.debit > 0 ? t.debit : null,
-            'credit': t.credit > 0 ? t.credit : null,
-            'total': (t.debit > 0 ? t.debit : t.credit) || null,
-            'balance': runningBalance,
-            'currency': t.currency || '-',
-            'exRate': exRate,
-            'debitF': debF > 0 ? debF : null,
-            'creditF': credF > 0 ? credF : null,
-            'balanceF': runningBalanceForeign
-        };
-
-        colConfig.forEach(c => {
-            if (!c.visible) return;
-            
-            let val = colValues[c.id];
-            
-            // Format size properly
-            let sizeVal = c.size;
-            if (sizeVal && !String(sizeVal).includes('px') && !String(sizeVal).includes('rem')) {
-                sizeVal = sizeVal + 'px';
-            }
-
-            let innerStyle = 'width: 100%; display: flex; align-items: center; ';
-            if (sizeVal) innerStyle += `font-size:${sizeVal} !important; `;
-            if (c.bold || t.isOpening) innerStyle += `font-weight:900 !important; `;
-            if (c.color) innerStyle += `color:${c.color} !important; `;
-            
-            let jc = 'center';
-            if (c.align === 'right') jc = 'flex-start';
-            if (c.align === 'left') jc = 'flex-end';
-            innerStyle += `justify-content:${jc} !important; text-align:${c.align} !important;`;
-            
-            if (['statement', 'note'].includes(c.id)) {
-                innerStyle += ' white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;';
-            }
-
-            if (['debit', 'credit', 'total', 'balance', 'exRate', 'debitF', 'creditF', 'balanceF'].includes(c.id)) {
-                innerStyle += ' white-space:nowrap; padding: 0 4px;';
-                if (val === null) {
-                    val = '<span class="td-empty">—</span>';
-                } else {
-                    let formatted = fmtNumDec(val, c.dec, c.thousandSep !== false);
-                    val = `<div class="num-cell-wrapper ${currentNumFont}" style="${innerStyle}" onclick="showContextMenu(event, '${t.type}', '${t.ref}')" oncontextmenu="showContextMenu(event, '${t.type}', '${t.ref}')">${formatted}</div>`;
-                }
-            } else {
-                // Wrap text columns in a consistent div to ensure styles are applied
-                innerStyle += ' padding: 0 4px;';
-                val = `<div style="${innerStyle}">${val}</div>`;
-            }
-
-            let style = [];
-            if (c.bg) style.push(`background-color:${c.bg} !important`);
-
-            let extraAttrs = '';
-            if (c.id === 'counterAcc') {
-                extraAttrs = ` class="counter-acc-cell" data-acc-id="${t.counterAccount || ''}" data-acc-name="${counterAccName}"`;
-            }
-            rowHtml += `<td${extraAttrs} style="${style.join('; ')}" title="${(typeof val === 'string' && val.includes('<')) ? '' : val}">${val}</td>`;
-        });
-
-        rowHtml += `</tr>`;
-        rows += rowHtml;
     });
 
-    tbody.innerHTML = rows;
+    window.currentTxns = currentTxns;
 
-    let activeCurrency = ledgerForeignCurrency;
-
-    document.getElementById('sum-debit').textContent = fmtNum(totalDebit) + ' SDG';
-    document.getElementById('sum-debit-foreign').textContent = `(${fmtNum(totalDebitForeign)} ${activeCurrency})`;
-
-    document.getElementById('sum-credit').textContent = fmtNum(totalCredit) + ' SDG';
-    document.getElementById('sum-credit-foreign').textContent = `(${fmtNum(totalCreditForeign)} ${activeCurrency})`;
-
-    const balanceSign = runningBalance >= 0 ? ' (مدين)' : ' (دائن)';
-    const balanceFSign = runningBalanceForeign >= 0 ? ' (مدين)' : ' (دائن)';
-    document.getElementById('sum-balance').textContent = fmtNum(Math.abs(runningBalance)) + ' SDG' + balanceSign;
-    document.getElementById('sum-balance-foreign').textContent = `(${fmtNum(Math.abs(runningBalanceForeign))} ${activeCurrency}) ${balanceFSign}`;
-    summaryCards.style.display = 'grid';
-    auditStamp.style.display = 'flex';
-
-    document.getElementById('print-header').style.display = 'block';
-    const accName = acctFilter === 'ALL' ? 'جميع الحسابات المتأثرة' : getAccountName(acctFilter);
-    const printedBy = document.getElementById('header-user-name') ? document.getElementById('header-user-name').innerText : 'مدير النظام';
-    document.getElementById('print-meta').innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #333; padding-bottom:10px; margin-bottom:5px; font-weight:bold; font-size:1.1rem; width:100%;">
-            <div style="flex:1; text-align:right;">الحساب: <strong style="color:var(--text-primary, #000);">${accName}</strong></div>
-            <div style="flex:1; text-align:center; font-size:1.4rem;">التقرير العام للحسابات</div>
-            <div style="flex:1; text-align:left;">الفترة: <strong>${currentDateMode === 'all' ? 'كل الفترة' : `من ${fromDate} إلى ${toDate}`}</strong></div>
-        </div>
-        <div class="hide-on-screen" style="justify-content:space-between; font-size:0.85rem; color:var(--text-secondary, #555); margin-bottom:15px; width:100%;">
-            <span>طبعت بواسطة: <strong>${printedBy}</strong></span>
-            <span>تاريخ الطباعة: <strong>${new Date().toLocaleDateString('ar-SD')}</strong></span>
-        </div>
-    `;
-
-    showToast(`✅ اكتمل التحليل: ${txns.length} حركة مسجلة`, 'success');
-    
-    const secActions = document.getElementById('secondary-actions');
-    if (secActions) {
-        secActions.style.display = 'flex';
-        // force reflow for animation
-        void secActions.offsetWidth;
-        secActions.style.opacity = '1';
-        secActions.style.transform = 'translateY(0)';
-    }
-}
-
-/* ─── Export to CSV ─── */
-
-function previewGL(autoPrint = false) {
-    const tableWrap = document.querySelector('.ledger-table-wrap');
-    if (!tableWrap) {
-        return showToast('الرجاء تشغيل التقرير أولاً للمعاينة', 'warning');
-    }
-    
-    const tbody = document.getElementById('ledger-tbody');
-    if (!tbody || tbody.querySelector('.empty-state')) {
-        return showToast('لا توجد بيانات للمعاينة، شغّل التقرير أولاً', 'warning');
-    }
-    
-    const tableHtml = document.querySelector('.ledger-table').outerHTML;
-    
-    // Robust settings retrieval
-    let cfg = {};
-    try {
-        cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
-    } catch(e) {}
-    
-    if (!cfg || Object.keys(cfg).length === 0) {
-        try { cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}'); } catch(e) {}
-    }
-
-    const companyName = cfg.companyName || 'اسم الشركة غير مسجل (يرجى حفظ الإعدادات)';
-    const companyPhone = cfg.phone || '';
-    const companyAddress = cfg.address || '';
-    const companyReg = cfg.regNumber || '';
-    const companyVat = cfg.taxNumber || '';
-    
-    // Logo: check logoBase64 in settings, or look for the header logo already on page
-    let logoSrc = cfg.logoBase64 || '';
-    if (!logoSrc) {
-        const headerLogo = document.querySelector('.company-logo, #hdr-c-logo');
-        if (headerLogo && headerLogo.src && !headerLogo.src.includes('placeholder')) {
-            logoSrc = headerLogo.src;
-        }
-    }
-    const logoImg = logoSrc ? `<img src="${logoSrc}" style="max-height:80px; max-width:200px; object-fit:contain;">` : '';
-
-    const companyHeaderHtml = `
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px;">
-            <div style="text-align: right;">
-                <h1 style="margin: 0; font-size: 1.5rem;">${companyName}</h1>
-                <div style="font-size: 0.9rem; color: #555; margin-top: 5px;">
-                    ${companyAddress ? `<div>العنوان: ${companyAddress}</div>` : ''}
-                    ${companyPhone ? `<div>الهاتف: ${companyPhone}</div>` : ''}
-                    ${companyReg ? `<div>السجل التجاري: ${companyReg}</div>` : ''}
-                    ${companyVat ? `<div>الرقم الضريبي: ${companyVat}</div>` : ''}
-                </div>
-            </div>
-            <div>
-                ${logoImg}
-            </div>
-        </div>
-    `;
-
-    const win = window.open('', '_blank', 'width=1000,height=700');
-    if (!win) {
-        showToast('يرجى السماح بالنوافذ المنبثقة (Popups) في متصفحك لمعاينة التقرير', 'error');
-        return;
-    }
-    
-    win.document.write(`
-        <html dir="rtl" lang="ar">
-        <head>
-            <title>معاينة الأستاذ العام</title>
-            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-            <style>
-                body { font-family: 'Tajawal', sans-serif; padding: 30px; background: #fff; color: #000; direction: rtl; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; }
-                th, td { border: 1px solid #ddd; padding: 10px; text-align: right; }
-                th { background: #f3f4f6; color: #333; font-weight: bold; }
-                .td-debit { color: #059669; font-weight: bold; }
-                .td-credit { color: #dc2626; font-weight: bold; }
-                .td-balance-dr { color: #059669; font-weight: bold; }
-                .td-balance-cr { color: #dc2626; font-weight: bold; }
-                h2, h3 { text-align: center; margin: 5px 0; }
-                #print-meta { display: flex; justify-content: space-between; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 15px; font-weight: bold; }
-                @media print { 
-                    .no-print { display: none !important; }
-                    @page { margin: 0; }
-                    body { padding: 1.5cm; }
-                }
-            </style>
-        </head>
-        <body>
-            ${companyHeaderHtml}
-            <div id="print-meta" style="display:flex; flex-direction:column;">
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #333; padding-bottom:10px; margin-bottom:5px; font-weight:bold; font-size:1.1rem; width:100%;">
-                    <div style="flex:1; text-align:right;">الحساب: <strong>${getAccountNameForShare()}</strong></div>
-                    <div style="flex:1; text-align:center; font-size:1.5rem;">التقرير العام للحسابات</div>
-                    <div style="flex:1; text-align:left;">الفترة: <strong>${currentDateMode === 'all' ? 'كل الفترة' : `من ${document.getElementById('filter-from').value} إلى ${document.getElementById('filter-to').value}`}</strong></div>
-                </div>
-                <div style="display:flex; justify-content:space-between; font-size:0.9rem; color:#555; margin-bottom:15px; width:100%;">
-                    <span>طبعت بواسطة: <strong>${document.getElementById('header-user-name') ? document.getElementById('header-user-name').innerText : 'مدير النظام'}</strong></span>
-                    <span>تاريخ الطباعة: <strong>${new Date().toLocaleDateString('ar-SD')}</strong></span>
-                </div>
-            </div>
-            ${tableHtml}
-            <div style="margin-top: 30px; text-align: center;" class="no-print">
-                <button onclick="window.print()" style="padding: 10px 20px; background: #38bdf8; border: none; border-radius: 5px; color: #fff; cursor: pointer; font-family: inherit; font-weight: bold; margin: 10px;">🖨️ طباعة</button>
-                <button onclick="window.close()" style="padding: 10px 20px; background: #94a3b8; border: none; border-radius: 5px; color: #fff; cursor: pointer; font-family: inherit; font-weight: bold; margin: 10px;">❌ إغلاق</button>
-            </div>
-        </body>
-        </html>
-    `);
-    win.document.close();
-
-    if (autoPrint) {
-        // Wait briefly for styles and fonts to render before printing
-        setTimeout(() => {
-            win.focus();
-            win.print();
-            win.close();
-        }, 800);
-    }
-}
-
-function exportCSV() {
-    const rows = document.querySelectorAll('#ledger-tbody tr:not(.empty-state)');
-    if (rows.length === 0) return showToast('لا توجد بيانات للتصدير', 'warning');
-
-    let csv = '\uFEFF';
-    let visibleCols = colConfig.filter(c => c.visible);
-    let headers = visibleCols.map(c => `"${c.alias || c.name}"`).join(',');
-    csv += headers + '\n';
-    
-    rows.forEach(r => {
-        const cells = Array.from(r.querySelectorAll('td'));
-        if (cells.length < visibleCols.length) return;
-        let rowCsv = cells.map(cell => `"${cell.innerText.replace(/"/g, '""').replace(/\n/g, ' ')}"`).join(',');
-        csv += rowCsv + '\n';
-    });
-
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `SGL-Report-${new Date().toISOString().slice(0,10)}.csv`;
-    a.click();
-    showToast('📥 تم التصدير بنجاح', 'success');
-}
-
-function exportGLPDF() {
-    const tableWrap = document.querySelector('.ledger-table-wrap');
-    if (!tableWrap) return showToast('الرجاء تشغيل التقرير أولاً للتصدير', 'warning');
-    
-    showToast('جاري تحضير ملف PDF...', 'info');
-
-    // Re-use logic from previewGL to get the HTML
-    const tableHtml = document.querySelector('.ledger-table').outerHTML;
-    
-    let cfg = {};
-    try { cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}'); } catch(e) {}
-    
-    const companyName = cfg.companyName || 'اسم الشركة غير مسجل (يرجى حفظ الإعدادات)';
-    const companyPhone = cfg.phone || '';
-    const companyAddress = cfg.address || '';
-    const companyReg = cfg.regNumber || '';
-    const companyVat = cfg.taxNumber || '';
-    
-    let logoSrc = cfg.logoBase64 || '';
-    if (!logoSrc) {
-        const headerLogo = document.querySelector('.company-logo, #hdr-c-logo');
-        if (headerLogo && headerLogo.src && !headerLogo.src.includes('placeholder')) logoSrc = headerLogo.src;
-    }
-    const logoImg = logoSrc ? `<img src="${logoSrc}" style="max-height:80px; max-width:200px; object-fit:contain;">` : '';
-
-    const companyHeaderHtml = `
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px;">
-            <div style="text-align: right;">
-                <h1 style="margin: 0; font-size: 1.5rem;">${companyName}</h1>
-                <div style="font-size: 0.9rem; color: #555; margin-top: 5px;">
-                    ${companyAddress ? `<div>العنوان: ${companyAddress}</div>` : ''}
-                    ${companyPhone ? `<div>الهاتف: ${companyPhone}</div>` : ''}
-                    ${companyReg ? `<div>السجل التجاري: ${companyReg}</div>` : ''}
-                    ${companyVat ? `<div>الرقم الضريبي: ${companyVat}</div>` : ''}
-                </div>
-            </div>
-            <div>${logoImg}</div>
-        </div>
-    `;
-
-    const container = document.createElement('div');
-    container.style.padding = '30px';
-    container.style.fontFamily = "'Tajawal', sans-serif";
-    container.style.direction = 'rtl';
-    container.style.background = '#fff';
-    container.style.color = '#000';
-    container.style.position = 'fixed';
-    container.style.top = '0';
-    container.style.left = '0';
-    container.style.zIndex = '-99999';
-    container.style.opacity = '0.01';
-    container.style.pointerEvents = 'none';
-    container.style.width = '1100px';
-
-    container.innerHTML = `
-        ${companyHeaderHtml}
-        <div id="print-meta" style="display:flex; flex-direction:column;">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #333; padding-bottom:10px; margin-bottom:5px; font-weight:bold; font-size:1.1rem; width:100%;">
-                <div style="flex:1; text-align:right;">الحساب: <strong>${getAccountNameForShare()}</strong></div>
-                <div style="flex:1; text-align:center; font-size:1.5rem;">التقرير العام للحسابات</div>
-                <div style="flex:1; text-align:left;">الفترة: <strong>${currentDateMode === 'all' ? 'كل الفترة' : `من ${document.getElementById('filter-from').value} إلى ${document.getElementById('filter-to').value}`}</strong></div>
-            </div>
-            <div style="display:flex; justify-content:space-between; font-size:0.9rem; color:#555; margin-bottom:15px; width:100%;">
-                <span>طبعت بواسطة: <strong>${document.getElementById('header-user-name') ? document.getElementById('header-user-name').innerText : 'مدير النظام'}</strong></span>
-                <span>تاريخ الطباعة: <strong>${new Date().toLocaleDateString('ar-SD')}</strong></span>
-            </div>
-        </div>
-        <style>
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; }
-            th, td { border: 1px solid #ddd; padding: 10px; text-align: right; }
-            th { background: #f3f4f6; color: #333; font-weight: bold; }
-            .td-debit { color: #059669; font-weight: bold; }
-            .td-credit { color: #dc2626; font-weight: bold; }
-            .td-balance-dr { color: #059669; font-weight: bold; }
-            .td-balance-cr { color: #dc2626; font-weight: bold; }
-        </style>
-        ${tableHtml}
-    `;
-
-    document.body.appendChild(container);
-    
-    const opt = {
-        margin:       10,
-        filename:     'General_Ledger.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+    const config = {
+        filterAccount: document.getElementById('filter-account') ? document.getElementById('filter-account').value : 'ALL',
+        dateMode: typeof currentDateMode !== 'undefined' ? currentDateMode : 'all',
+        dateFrom: document.getElementById('filter-date-from') ? document.getElementById('filter-date-from').value : '',
+        dateTo: document.getElementById('filter-date-to') ? document.getElementById('filter-date-to').value : '',
+        filterCurrency: document.getElementById('filter-currency') ? document.getElementById('filter-currency').value : 'ALL',
+        filterType: document.getElementById('filter-type') ? document.getElementById('filter-type').value : 'ALL',
+        filterCostCenter: document.getElementById('filter-costcenter') ? document.getElementById('filter-costcenter').value : 'ALL',
+        filterPosted: document.getElementById('filter-posted') ? document.getElementById('filter-posted').value : 'ALL',
+        filterSmart: document.getElementById('filter-smart') ? document.getElementById('filter-smart').value : '',
+        accountName: document.getElementById('chip-name') ? document.getElementById('chip-name').innerText : 'دفتر الأستاذ العام'
     };
-    
-    html2pdf().set(opt).from(container).save().then(() => {
-        document.body.removeChild(container);
-        showToast('✅ تم تحميل ملف PDF بنجاح', 'success');
-    }).catch(err => {
-        document.body.removeChild(container);
-        showToast('❌ حدث خطأ أثناء التصدير', 'error');
-    });
-}
 
-function printDirectly() {
-    // Use the same robust layout as previewGL but trigger print automatically
-    previewGL(true);
-}
+    const totals = {
+        openingBalance: window.currentOpeningBalance || 0,
+        totalDebit: document.getElementById('launcher-total-debit') ? document.getElementById('launcher-total-debit').innerText : '0.00',
+        totalCredit: document.getElementById('launcher-total-credit') ? document.getElementById('launcher-total-credit').innerText : '0.00',
+        totalBalance: document.getElementById('launcher-total-balance') ? document.getElementById('launcher-total-balance').innerText : '0.00'
+    };
 
-/* ─── Dynamic Column Configuration & Sidebar ─── */
-const defaultColConfig = [
-    { id: 'idx', name: '#', alias: '', visible: true, width: '40px', bg: '', color: '#64748b', bold: false, size: 13, dec: 0, align: 'center' },
-    { id: 'date', name: 'التاريخ', alias: '', visible: true, width: '90px', bg: '', color: '', bold: false, size: 14, dec: 0, align: 'center' },
-    { id: 'account', name: 'الحساب الرئيسي', alias: '', visible: true, width: 'auto', bg: '', color: '#cbd5e1', bold: false, size: 14, dec: 0, align: 'center' },
-    { id: 'counterAcc', name: 'الحساب المقابل', alias: '', visible: true, width: 'auto', bg: '', color: '#e2e8f0', bold: false, size: 14, dec: 0, align: 'center' },
-    { id: 'statement', name: 'حالة السند', alias: '', visible: true, width: '130px', bg: '', color: '#e2e8f0', bold: false, size: 14, dec: 0, align: 'center' },
-    { id: 'note', name: 'ملحوظة إضافية', alias: '', visible: true, width: '130px', bg: '', color: '#94a3b8', bold: false, size: 13, dec: 0, align: 'center' },
-    { id: 'checkNo', name: 'رقم الشيك', alias: '', visible: true, width: '100px', bg: '', color: '#cbd5e1', bold: false, size: 13, dec: 0, align: 'center' },
-    { id: 'transferNo', name: 'رقم التحويلة البنكية', alias: '', visible: true, width: '110px', bg: '', color: '#cbd5e1', bold: false, size: 13, dec: 0, align: 'center' },
-    { id: 'costCenter', name: 'مركز التكلفة', alias: '', visible: true, width: '100px', bg: '', color: '#94a3b8', bold: false, size: 13, dec: 0, align: 'center' },
-    { id: 'debit', name: 'مدين محلي (عليه)', alias: '', visible: true, width: '140px', bg: '', color: '#34d399', bold: true, size: 15, dec: 2, align: 'center' },
-    { id: 'credit', name: 'دائن محلي (له)', alias: '', visible: true, width: '140px', bg: '', color: '#f87171', bold: true, size: 15, dec: 2, align: 'center' },
-    { id: 'balance', name: 'الرصيد محلي', alias: '', visible: true, width: '140px', bg: '', color: '#c084fc', bold: true, size: 15, dec: 2, align: 'center' },
-    { id: 'currency', name: 'العملة', alias: '', visible: true, width: '70px', bg: '', color: '#c084fc', bold: false, size: 14, dec: 0, align: 'center' },
-    { id: 'exRate', name: 'سعر الصرف', alias: '', visible: true, width: '90px', bg: '', color: '#94a3b8', bold: false, size: 13, dec: 2, align: 'center' },
-    { id: 'debitF', name: 'مدين أجنبي (عليه)', alias: '', visible: true, width: '120px', bg: '', color: '#34d399', bold: true, size: 15, dec: 2, align: 'center' },
-    { id: 'creditF', name: 'دائن أجنبي (له)', alias: '', visible: true, width: '120px', bg: '', color: '#f87171', bold: true, size: 15, dec: 2, align: 'center' },
-    { id: 'balanceF', name: 'رصيد أجنبي', alias: '', visible: true, width: '120px', bg: '', color: '#c084fc', bold: true, size: 15, dec: 2, align: 'center' }
-];
+    const logoImg = document.getElementById('company-logo');
+    if (logoImg && logoImg.src) {
+        localStorage.setItem('company_logo_base64', logoImg.src);
+    }
 
-let colConfig = [];
-function loadColumnConfig() {
     try {
-        let settingsStr = localStorage.getItem('erp_settings_v1');
-        let loadedConfig = null;
-        if (settingsStr) {
-            let settings = JSON.parse(settingsStr);
-            if (settings.sgl_col_config_v2) {
-                loadedConfig = settings.sgl_col_config_v2;
-            }
-        }
-        if (!loadedConfig) {
-            const oldSaved = localStorage.getItem('sgl_col_config_v2');
-            if (oldSaved) {
-                loadedConfig = JSON.parse(oldSaved);
-            }
-        }
-
-        if (loadedConfig) {
-            const merged = [];
-            defaultColConfig.forEach(defCol => {
-                const found = loadedConfig.find(c => c.id === defCol.id);
-                if (found) {
-                    found.name = defCol.name; // Keep name aligned with the new default name
-                    if (!found.align) found.align = defCol.align || 'center'; // Set default alignment
-                    if (found.width === 'auto' && defCol.width !== 'auto') found.width = defCol.width; // Update to new fixed widths
-                    
-                    // Migrate size format
-                    if (found.size && typeof found.size === 'string') {
-                        if (found.size.includes('rem')) {
-                            found.size = Math.round(parseFloat(found.size) * 16);
-                        } else if (found.size.includes('px')) {
-                            found.size = parseInt(found.size, 10);
-                        }
-                    }
-                    if (!found.size || isNaN(found.size)) found.size = defCol.size;
-
-                    merged.push(found);
-                } else {
-                    merged.push(defCol);
-                }
-            });
-            colConfig = merged;
-            return;
+        localStorage.setItem('preview_ledger_config', JSON.stringify(config));
+        localStorage.setItem('preview_ledger_totals', JSON.stringify(totals));
+        
+        if (typeof localforage !== 'undefined') {
+            await localforage.setItem('preview_ledger_data', previewTxns);
+            await localforage.setItem('preview_table_data', previewTxns);
         }
         
-        colConfig = JSON.parse(JSON.stringify(defaultColConfig));
-    } catch(e) { colConfig = JSON.parse(JSON.stringify(defaultColConfig)); }
-}
-loadColumnConfig();
-
-// Table Theme Management
-let currentTableTheme = '';
-function loadTableTheme() {
-    try {
-        let settingsStr = localStorage.getItem('erp_settings_v1');
-        if (settingsStr) {
-            let settings = JSON.parse(settingsStr);
-            if (settings.sgl_table_theme !== undefined) {
-                currentTableTheme = settings.sgl_table_theme;
-                applyTableTheme(currentTableTheme);
-                updateCrystalButtons(currentTableTheme);
-            }
-        }
-    } catch(e) {}
-}
-
-function updateCrystalButtons(themeClass) {
-    const btns = document.querySelectorAll('.crystal-theme-container .crystal-btn');
-    if (btns.length > 0) {
-        btns.forEach(b => b.classList.remove('active'));
-        let activeBtn = document.getElementById('btn-theme-' + (themeClass || ''));
-        if (activeBtn) activeBtn.classList.add('active');
-    }
-}
-
-function applyTableTheme(themeClass) {
-    const table = document.querySelector('.ledger-table');
-    if (!table) return;
-    // Remove all existing theme classes
-    table.classList.forEach(cls => {
-        if (cls.startsWith('table-theme-')) {
-            table.classList.remove(cls);
-        }
-    });
-    // Add new theme
-    if (themeClass) {
-        table.classList.add(themeClass);
-    }
-}
-
-window.changeTableTheme = function(themeClass) {
-    currentTableTheme = themeClass;
-    applyTableTheme(themeClass);
-    updateCrystalButtons(themeClass);
-};
-
-let currentNumFont = 'num-font-roboto';
-
-function loadNumberFont() {
-    try {
-        let settingsStr = localStorage.getItem('erp_settings_v1');
-        if (settingsStr) {
-            let settings = JSON.parse(settingsStr);
-            if (settings.sgl_num_font) {
-                currentNumFont = settings.sgl_num_font;
-            }
-        }
-    } catch(e) {}
-    
-    document.querySelectorAll('.font-chip').forEach(el => el.classList.remove('active'));
-    let btn = document.getElementById('btn-font-' + currentNumFont);
-    if (btn) btn.classList.add('active');
-
-    document.querySelectorAll('.num-cell-wrapper').forEach(el => {
-        el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins', 'num-font-tahoma', 'num-font-arial', 'num-font-consolas');
-        el.classList.add(currentNumFont);
-    });
-}
-
-window.changeNumberFont = function(fontClass) {
-    currentNumFont = fontClass;
-    document.querySelectorAll('.num-cell-wrapper').forEach(el => {
-        el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins', 'num-font-tahoma', 'num-font-arial', 'num-font-consolas');
-        el.classList.add(fontClass);
-    });
-    
-    document.querySelectorAll('.font-chip').forEach(el => el.classList.remove('active'));
-    let btn = document.getElementById('btn-font-' + fontClass);
-    if (btn) btn.classList.add('active');
-};
-
-window.toggleReviewMode = function(e) {
-    e.stopPropagation();
-    e.currentTarget.classList.toggle('reviewed-cell');
-};
-
-window.showContextMenu = function(e, type, ref) {
-    if (type === 'opening') return; // no drill down for opening balances
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (window.openLedgerContextMenu) {
-        window.openLedgerContextMenu(e, type, ref, e.currentTarget);
-    }
-};
-
-function closeContextMenu() {
-    const menu = document.getElementById('drilldown-context-menu');
-    if (menu) menu.classList.remove('show');
-    document.removeEventListener('click', closeContextMenu);
-}
-
-function initializeLedgerSettings() {
-    loadColumnConfig();
-    applyConfigToHeaders();
-    loadTableTheme();
-    loadNumberFont();
-}
-
-if (window.APP_READY) {
-    initializeLedgerSettings();
-} else {
-    document.addEventListener('DBReady', initializeLedgerSettings);
-}
-
-function saveColumnConfig() {
-    if (!window.APP_READY) return;
-    try {
-        let settingsStr = localStorage.getItem('erp_settings_v1');
-        let settings = settingsStr ? JSON.parse(settingsStr) : {};
-        settings.sgl_col_config_v2 = colConfig;
-        
-        // By setting it in erp_settings_v1, app.js will automatically push it to the SaaS DB!
-        localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
-    } catch(e) {
-        console.error("Failed to save col config to DB", e);
-    }
-}
-
-function toggleSettingsSidebar() {
-    const sb = document.getElementById('settings-sidebar');
-    const ov = document.getElementById('settings-overlay');
-    if (sb.classList.contains('active')) {
-        if (window.previewBackupConfigGL) {
-            colConfig = JSON.parse(JSON.stringify(window.previewBackupConfigGL));
-            applyConfigToHeaders();
-            runReport();
-            renderSidebarConfig();
-        }
-        if (window.previewBackupThemeGL !== undefined) {
-            currentTableTheme = window.previewBackupThemeGL;
-            applyTableTheme(currentTableTheme);
-            updateCrystalButtons(currentTableTheme);
-        }
-        if (window.previewBackupFontGL !== undefined) {
-            currentNumFont = window.previewBackupFontGL;
-            document.querySelectorAll('.num-cell-wrapper').forEach(el => {
-                el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins', 'num-font-tahoma', 'num-font-arial', 'num-font-consolas');
-                el.classList.add(currentNumFont);
-            });
-            document.querySelectorAll('.font-chip').forEach(el => el.classList.remove('active'));
-            let btn = document.getElementById('btn-font-' + currentNumFont);
-            if (btn) btn.classList.add('active');
-        }
-        sb.classList.remove('active');
-        ov.classList.remove('active');
-    } else {
-        window.previewBackupConfigGL = JSON.parse(JSON.stringify(colConfig));
-        window.previewBackupThemeGL = currentTableTheme;
-        window.previewBackupFontGL = currentNumFont;
-        // Load position and size if exists
         try {
-            let settingsStr = localStorage.getItem('erp_settings_v1');
-            if (settingsStr) {
-                let settings = JSON.parse(settingsStr);
-                if (settings.sgl_sidebar_ui) {
-                    if (settings.sgl_sidebar_ui.left) sb.style.left = settings.sgl_sidebar_ui.left;
-                    if (settings.sgl_sidebar_ui.top) sb.style.top = settings.sgl_sidebar_ui.top;
-                    if (settings.sgl_sidebar_ui.width) sb.style.width = settings.sgl_sidebar_ui.width;
-                    if (settings.sgl_sidebar_ui.height) sb.style.height = settings.sgl_sidebar_ui.height;
-                }
-            }
-        } catch(e) {}
-        
-        renderSidebarConfig();
-        if (typeof renderPresets === 'function') {
-            renderPresets();
+            localStorage.setItem('preview_ledger_data', JSON.stringify(previewTxns));
+            localStorage.setItem('preview_table_data', JSON.stringify(previewTxns));
+        } catch(quotaErr) {
+            console.warn('LocalStorage quota limit reached, stored in IndexedDB/localforage:', quotaErr);
         }
-        sb.classList.add('active');
-        ov.classList.add('active');
+    } catch(e) {
+        console.error('Storage Error:', e);
     }
 }
 
-function renderSidebarConfig() {
-    const list = document.getElementById('columns-config-list');
-    list.innerHTML = '';
-    colConfig.forEach((col, index) => {
-        const li = document.createElement('li');
-        li.className = 'col-config-item';
-        li.draggable = true;
-        li.dataset.index = index;
-        
-        li.innerHTML = `
-            <div class="col-config-header">
-                <div class="col-title-wrap">
-                    <span class="col-drag-handle">☰</span>
-                    <span class="col-title">${col.name}</span>
+async function openPreviewDesign() {
+    try {
+        await prepareLedgerPreviewData();
+        window.location.href = 'preview-ledger.php';
+    } catch (e) {
+        console.error(e);
+        alert('حدث خطأ غير متوقع: ' + e.message);
+    }
+}
+
+function renderLedgerPresets() {
+    const container = document.getElementById('presets-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const PRESETS_STORAGE_KEY = 'ledger_preview_presets_v7';
+    let presets = [];
+    try { presets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
+
+    if (!Array.isArray(presets) || presets.length === 0) {
+        const defaultIcons = ['💎 افتراضي 1', '⭐ افتراضي 2', '🎨 افتراضي 3', '🔥 افتراضي 4', '✨ نموذج 1'];
+        presets = defaultIcons.map(name => ({ name, showInRibbon: true }));
+    }
+
+    presets.slice(0, 5).forEach((p, idx) => {
+        if (p.showInRibbon === false) return;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'preset-ribbon-btn';
+        btn.style.cssText = `
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25);
+            color: #f1f5f9; padding: 5px 14px; border-radius: 18px;
+            font-family: inherit; font-size: 0.85rem; font-weight: 800;
+            cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+        `;
+        btn.innerHTML = p.name || ('افتراضي ' + (idx + 1));
+        btn.onmouseover = () => {
+            btn.style.background = 'linear-gradient(135deg, rgba(56,189,248,0.3), rgba(2,132,199,0.4))';
+            btn.style.borderColor = '#38bdf8';
+            btn.style.transform = 'translateY(-2px) scale(1.03)';
+            btn.style.boxShadow = '0 6px 16px rgba(56,189,248,0.4)';
+        };
+        btn.onmouseout = () => {
+            btn.style.background = 'rgba(255,255,255,0.08)';
+            btn.style.borderColor = 'rgba(255,255,255,0.25)';
+            btn.style.transform = 'translateY(0) scale(1)';
+            btn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.18)';
+        };
+        btn.onclick = () => openPresetModal(idx, p.name || ('افتراضي ' + (idx + 1)));
+        container.appendChild(btn);
+    });
+}
+window.renderLedgerPresets = renderLedgerPresets;
+
+async function openPresetModal(presetIndex, presetName) {
+    try {
+        await prepareLedgerPreviewData();
+    } catch (e) {
+        console.error(e);
+        alert('حدث خطأ غير متوقع: ' + e.message);
+        return;
+    }
+
+    // Create Modal Backdrop if not present
+    let modal = document.getElementById('preset-preview-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'preset-preview-modal';
+        modal.style.cssText = `
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(12px);
+            z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 10px; animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        `;
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div style="background: #1e293b; border: 1px solid rgba(56,189,248,0.3); border-radius: 16px; width: 99%; max-width: 100%; height: 98vh; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.5); overflow: hidden;">
+            <!-- Modal Header -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: linear-gradient(135deg, #0f172a, #1e293b); border-bottom: 2px solid #ca8a04;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="background: linear-gradient(135deg, #ca8a04, #854d0e); color: #fff; padding: 4px 14px; border-radius: 16px; font-weight: 900; font-size: 0.95rem;">${presetName}</span>
+                    <span style="color: #f8fafc; font-weight: 800; font-size: 1rem;">📄 معاينة وطباعة التقرير بالتصميم المخصص (دفتر الأستاذ)</span>
                 </div>
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <button class="col-settings-btn" onclick="toggleColSettings(${index})">تخصيص</button>
-                    <div class="col-toggle ${col.visible ? 'on' : ''}" onclick="toggleColVisibility(${index}, this)"></div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button type="button" onclick="document.getElementById('preset-modal-iframe').contentWindow.executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(2,132,199,0.4);">
+                        🖨️ طباعة التقرير مباشرة
+                    </button>
+                    <button type="button" onclick="window.location.href='preview-ledger.php?presetIndex=${presetIndex}'" style="background: linear-gradient(135deg, #eab308, #ca8a04); color: #fff; border: none; padding: 7px 16px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(202,138,4,0.4);">
+                        ⚙️ التعديل على التنسيق
+                    </button>
+                    <button type="button" onclick="document.getElementById('preset-preview-modal').style.display='none'" style="background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.4); padding: 7px 16px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer;">
+                        ❌ إغلاق
+                    </button>
                 </div>
             </div>
-            <div class="col-settings-panel" id="col-settings-${index}">
-                <div class="cfg-row">
-                    <span>مسمى بديل:</span>
-                    <input type="text" class="cfg-input" value="${col.alias}" onchange="updateColField(${index}, 'alias', this.value)" placeholder="مثلاً: ${col.name}">
-                </div>
-                <div class="cfg-row">
-                    <span>الخط (حجم/سمك):</span>
-                    <div class="cfg-btns" style="display: flex; align-items: center; gap: 5px;">
-                        <button class="cfg-btn" onclick="adjustFontSize(${index}, -1)">A-</button>
-                        <input type="number" id="col-font-size-${index}" value="${col.size || 14}" onchange="setColFontSize(${index}, this.value)" style="width: 50px; text-align: center; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 4px; padding: 2px;" title="اكتب مقاس الخط هنا">
-                        <button class="cfg-btn" onclick="adjustFontSize(${index}, 1)">A+</button>
-                        <button class="cfg-btn ${col.bold ? 'active' : ''}" style="margin-right: 5px;" onclick="toggleColBold(${index}, this)">B</button>
-                    </div>
-                </div>
-                <div class="cfg-row">
-                    <span>محاذاة النص:</span>
-                    <select class="cfg-input" onchange="updateColField(${index}, 'align', this.value)" style="width:120px;">
-                        <option value="center" ${col.align === 'center' ? 'selected' : ''}>الوسط ↔️</option>
-                        <option value="right" ${col.align === 'right' ? 'selected' : ''}>اليمين ➡️</option>
-                        <option value="left" ${col.align === 'left' ? 'selected' : ''}>اليسار ⬅️</option>
-                    </select>
-                </div>
-                <div class="cfg-row">
-                    <span>عرض العمود:</span>
-                    <input type="text" class="cfg-input" value="${col.width || 'auto'}" onchange="updateColField(${index}, 'width', this.value)" placeholder="مثلاً: 110px أو auto" style="width:120px; text-align: left;" dir="ltr">
-                </div>
-                <div class="cfg-row">
-                    <span>الألوان (نص/خلفية):</span>
-                    <div style="display:flex; gap:5px;">
-                        <input type="color" class="cfg-input" value="${col.color || '#ffffff'}" onchange="updateColField(${index}, 'color', this.value)" title="لون النص">
-                        <input type="color" class="cfg-input" value="${col.bg || '#000000'}" onchange="updateColField(${index}, 'bg', this.value)" title="لون الخلفية">
-                    </div>
-                </div>
-                ${['debit', 'credit', 'total', 'balance', 'exRate', 'debitF', 'creditF', 'balanceF'].includes(col.id) ? `
-                <div class="cfg-row">
-                    <span>التقريب (العشري):</span>
-                    <select class="cfg-input" onchange="updateColField(${index}, 'dec', parseInt(this.value))" style="width:120px;">
-                        <option value="0" ${col.dec === 0 ? 'selected' : ''}>بدون خانات (0)</option>
-                        <option value="1" ${col.dec === 1 ? 'selected' : ''}>خانة واحدة (1)</option>
-                        <option value="2" ${col.dec === 2 ? 'selected' : ''}>خانتين (2)</option>
-                        <option value="3" ${col.dec === 3 ? 'selected' : ''}>3 خانات (3)</option>
-                        <option value="4" ${col.dec === 4 ? 'selected' : ''}>4 خانات (4)</option>
-                        <option value="5" ${col.dec === 5 ? 'selected' : ''}>5 خانات (5)</option>
-                        <option value="6" ${col.dec === 6 ? 'selected' : ''}>6 خانات (6)</option>
-                    </select>
-                </div>
-                <div class="cfg-row">
-                    <span>الفاصلة الألفية (,) :</span>
-                    <select class="cfg-input" onchange="updateColField(${index}, 'thousandSep', this.value === 'true')" style="width:120px;">
-                        <option value="true" ${col.thousandSep !== false ? 'selected' : ''}>إظهار (1,000)</option>
-                        <option value="false" ${col.thousandSep === false ? 'selected' : ''}>إخفاء (1000)</option>
-                    </select>
-                </div>
-                ` : ''}
-            </div>
-        `;
-        
-        li.addEventListener('dragstart', handleDragStart);
-        li.addEventListener('dragover', handleDragOver);
-        li.addEventListener('drop', handleDrop);
-        li.addEventListener('dragenter', handleDragEnter);
-        li.addEventListener('dragleave', handleDragLeave);
-        
-        list.appendChild(li);
-    });
-}
-
-function previewColSettingsGL() {
-    applyConfigToHeaders();
-    runReport();
-}
-
-function toggleColSettings(index) {
-    const p = document.getElementById('col-settings-' + index);
-    p.classList.toggle('open');
-}
-function toggleColVisibility(index, el) {
-    colConfig[index].visible = !colConfig[index].visible;
-    el.classList.toggle('on');
-    previewColSettingsGL();
-}
-function updateColField(index, field, val) {
-    colConfig[index][field] = val;
-    previewColSettingsGL();
-}
-function adjustFontSize(index, dir) {
-    let size = colConfig[index].size || 14;
-    if (typeof size === 'string') {
-        if (size.includes('rem')) {
-            size = Math.round(parseFloat(size) * 16);
-        } else {
-            size = parseInt(size, 10);
-        }
-    }
-    if (isNaN(size)) size = 14;
-    size += dir;
-    if (size < 8) size = 8;
-    if (size > 36) size = 36;
-    setColFontSize(index, size);
-}
-function setColFontSize(index, val) {
-    let size = parseInt(val, 10);
-    if (isNaN(size) || size < 8) size = 8;
-    if (size > 36) size = 36;
-    colConfig[index].size = size;
-    const input = document.getElementById(`col-font-size-${index}`);
-    if (input) input.value = size;
-    previewColSettingsGL();
-}
-function toggleColBold(index, el) {
-    colConfig[index].bold = !colConfig[index].bold;
-    el.classList.toggle('active');
-    previewColSettingsGL();
-}
-
-function applyGlobalFontSize(size) {
-    let s = parseInt(size, 10);
-    if (isNaN(s) || s < 8) s = 8;
-    if (s > 36) s = 36;
-    colConfig.forEach((c, idx) => {
-        c.size = s;
-        const input = document.getElementById(`col-font-size-${idx}`);
-        if (input) input.value = s;
-    });
-    previewColSettingsGL();
-}
-
-let dragSrcEl = null;
-function handleDragStart(e) {
-    dragSrcEl = this;
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', this.innerHTML);
-    this.classList.add('dragging');
-}
-function handleDragOver(e) {
-    if (e.preventDefault) e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    return false;
-}
-function handleDragEnter(e) { this.classList.add('over'); }
-function handleDragLeave(e) { this.classList.remove('over'); }
-function handleDrop(e) {
-    if (e.stopPropagation) e.stopPropagation();
-    if (dragSrcEl !== this) {
-        let fromIdx = parseInt(dragSrcEl.dataset.index);
-        let toIdx = parseInt(this.dataset.index);
-        
-        let moved = colConfig.splice(fromIdx, 1)[0];
-        colConfig.splice(toIdx, 0, moved);
-        
-        renderSidebarConfig();
-        previewColSettingsGL();
-    }
-    return false;
-}
-
-function applyAndSaveConfig() {
-    saveColumnConfig();
-    try {
-        if (window.APP_READY) {
-            let settingsStr = localStorage.getItem('erp_settings_v1');
-            let settings = settingsStr ? JSON.parse(settingsStr) : {};
-            settings.sgl_table_theme = currentTableTheme;
-            settings.sgl_num_font = currentNumFont;
-            localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
-        }
-    } catch(e) {}
-    window.previewBackupConfigGL = JSON.parse(JSON.stringify(colConfig));
-    window.previewBackupThemeGL = currentTableTheme;
-    window.previewBackupFontGL = currentNumFont;
-    runReport();
-    toggleSettingsSidebar();
-    showToast('💾 تم حفظ التخصيصات وتطبيقها بنجاح', 'success');
-}
-function resetColumnConfig() {
-    colConfig = JSON.parse(JSON.stringify(defaultColConfig));
-    saveColumnConfig();
-    window.previewBackupConfigGL = JSON.parse(JSON.stringify(colConfig));
-    renderSidebarConfig();
-    runReport();
-    showToast('🔄 تم استعادة الوضع الافتراضي', 'success');
-}
-function fmtNumDec(n, decimals, useThousandSep = true) {
-    const val = parseFloat(n) || 0;
-    const opts = { 
-        minimumFractionDigits: decimals, 
-        maximumFractionDigits: decimals,
-        useGrouping: useThousandSep
-    };
-    if (val < 0) {
-        return `-(${Math.abs(val).toLocaleString('en-US', opts)})`;
-    }
-    return val.toLocaleString('en-US', opts);
-}
-
-function applyConfigToHeaders() {
-    const thead = document.querySelector('#ledger-thead');
-    if (!thead) return;
-    let ths = '';
-    colConfig.forEach(c => {
-        if (!c.visible) return;
-        let displayName = c.alias ? c.alias : c.name;
-        
-        let sizeVal = c.size;
-        if (sizeVal && !String(sizeVal).includes('px') && !String(sizeVal).includes('rem')) {
-            sizeVal = sizeVal + 'px';
-        }
-        
-        let thAlign = c.align ? `text-align:${c.align} !important;` : '';
-        let thSize = sizeVal ? `font-size:${sizeVal} !important;` : '';
-        let thColor = c.color ? `color:${c.color} !important;` : '';
-        let thBg = c.bg ? `background-color:${c.bg} !important;` : '';
-        let thBold = c.bold ? `font-weight:bold !important;` : '';
-        
-        ths += `<th style="width:${c.width}; ${thAlign} ${thSize} ${thColor} ${thBg} ${thBold}">${displayName}<div class="resize-handle"></div></th>`;
-    });
-    thead.innerHTML = `<tr>${ths}</tr>`;
-}
-
-/* ─── Column Resizing Logic ─── */
-let isResizing = false;
-let currentTh = null;
-let startX = 0;
-let startWidth = 0;
-let isLeftHandle = true;
-let resizeColIndex = -1;
-
-document.addEventListener('mousedown', function(e) {
-    if (e.target.classList.contains('resize-handle-left') || e.target.classList.contains('resize-handle-right') || e.target.classList.contains('resize-handle')) {
-        isResizing = true;
-        currentTh = e.target.parentElement;
-        startX = e.pageX;
-        startWidth = currentTh.offsetWidth;
-        isLeftHandle = e.target.classList.contains('resize-handle-left') || e.target.classList.contains('resize-handle');
-        
-        let thName = currentTh.textContent.trim();
-        resizeColIndex = colConfig.findIndex(c => c.visible && (c.alias || c.name) === thName);
-        e.preventDefault(); 
-    }
-});
-
-document.addEventListener('mousemove', function(e) {
-    if (!isResizing) return;
-    let diff = 0;
-    if (isLeftHandle) {
-        diff = startX - e.pageX; // Drag left increases width
-    } else {
-        diff = e.pageX - startX; // Drag right increases width
-    }
-    let newWidth = startWidth + diff;
-    if (newWidth > 30) {
-        currentTh.style.width = newWidth + 'px';
-    }
-});
-
-document.addEventListener('mouseup', function(e) {
-    if (isResizing) {
-        isResizing = false;
-        if (resizeColIndex >= 0 && resizeColIndex < colConfig.length) {
-            colConfig[resizeColIndex].width = currentTh.style.width;
-            saveColumnConfig();
-        }
-        currentTh = null;
-    }
-});
-
-/* ─── Sleek & Tactile Quick Presets (Hold to Save, Click to Apply) ─── */
-const HOLD_TIME_MS = 1500; // Hold for 1.5s to trigger save
-
-window.getQuickPresets = function() {
-    let list = [];
-    try {
-        list = JSON.parse(localStorage.getItem('sgl_quick_presets_v3'));
-    } catch(e) {}
-    if (!list || list.length !== 4) {
-        list = [
-            { id: 1, name: 'النمط 1', active: false, colConfig: null },
-            { id: 2, name: 'النمط 2', active: false, colConfig: null },
-            { id: 3, name: 'النمط 3', active: false, colConfig: null },
-            { id: 4, name: 'النمط 4', active: false, colConfig: null }
-        ];
-        localStorage.setItem('sgl_quick_presets_v3', JSON.stringify(list));
-    }
-    return list;
-}
-
-window.renderQuickPresets = function() {
-    const wrap = document.getElementById('presets-slots-wrap');
-    if (!wrap) return;
-    
-    const list = window.getQuickPresets();
-    wrap.innerHTML = '';
-    
-    list.forEach((p) => {
-        const btn = document.createElement('div');
-        btn.className = `preset-slot-btn ${p.colConfig ? 'has-data' : ''}`;
-        btn.setAttribute('data-id', p.id);
-        
-        btn.title = p.colConfig ? 'نقرة واحدة للتطبيق. اضغط مطولاً (ثانية ونصف) لحفظ التخطيط الحالي هنا. انقر بالزر الأيمن للحذف.' : 'اضغط مطولاً (ثانية ونصف) لحفظ التخطيط الحالي في هذا الموضع.';
-        
-        btn.innerHTML = `
-            <span>${p.name}</span>
-            <div class="hold-bar" id="hold-bar-${p.id}"></div>
-        `;
-        
-        setupLongPress(btn, p);
-        wrap.appendChild(btn);
-    });
-}
-
-function setupLongPress(element, preset) {
-    let pressTimer = null;
-    let progressTimer = null;
-    let holdStartTime = 0;
-    let isHolding = false;
-    const bar = element.querySelector('.hold-bar');
-
-    function startPress(e) {
-        if (e.type === 'touchstart') e.preventDefault();
-        
-        isHolding = true;
-        holdStartTime = Date.now();
-        bar.style.transition = 'none';
-        bar.style.width = '0%';
-        
-        let progress = 0;
-        progressTimer = setInterval(() => {
-            const elapsed = Date.now() - holdStartTime;
-            const pct = Math.min(100, (elapsed / HOLD_TIME_MS) * 100);
-            bar.style.width = pct + '%';
-            if (pct >= 100) {
-                clearInterval(progressTimer);
-            }
-        }, 30);
-
-        pressTimer = setTimeout(() => {
-            triggerSave(preset);
-            cancelPress();
-        }, HOLD_TIME_MS);
-    }
-
-    function cancelPress() {
-        isHolding = false;
-        clearTimeout(pressTimer);
-        clearInterval(progressTimer);
-        bar.style.transition = 'width 0.2s ease-out';
-        bar.style.width = '0%';
-    }
-
-    function endPress(e) {
-        if (!isHolding) return;
-        const elapsed = Date.now() - holdStartTime;
-        cancelPress();
-        
-        if (elapsed < HOLD_TIME_MS) {
-            triggerApply(preset);
-        }
-    }
-
-    element.addEventListener('mousedown', startPress);
-    element.addEventListener('mouseup', endPress);
-    element.addEventListener('mouseleave', cancelPress);
-
-    element.addEventListener('touchstart', startPress, { passive: false });
-    element.addEventListener('touchend', endPress);
-    element.addEventListener('touchcancel', cancelPress);
-
-    // Right click clears preset
-    element.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        if (!preset.colConfig) return;
-        
-        if (confirm(`هل تريد تصفير وحذف قالب النمط "${preset.name}"؟`)) {
-            clearPresetSlot(preset.id);
-        }
-    });
-}
-
-function triggerSave(preset) {
-    const oldModal = document.getElementById('save-preset-modal-wrap');
-    if (oldModal) oldModal.remove();
-
-    const overlay = document.createElement('div');
-    overlay.id = 'save-preset-modal-wrap';
-    overlay.style.cssText = `
-        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(15, 23, 42, 0.85); z-index: 9999999;
-        display: flex; align-items: center; justify-content: center;
-        backdrop-filter: blur(12px);
-        opacity: 0; transition: opacity 0.3s ease;
-    `;
-    
-    overlay.innerHTML = `
-        <div style="background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95)); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 20px; padding: 25px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: all 0.3s ease;">
-            <div style="font-size: 2.5rem; margin-bottom: 15px;">💾</div>
-            <h3 style="color:#fff; font-family:'Tajawal', sans-serif; font-size:1.2rem; font-weight:800; margin-bottom:10px;">حفظ النمط المخصص</h3>
-            <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:20px; font-family:'Tajawal', sans-serif;">يرجى كتابة اسم مناسب لهذا النمط لحفظ التعديلات الحالية عليه:</p>
-            <input type="text" id="preset-custom-name-input" value="${preset.colConfig ? preset.name : 'نمط مخصص'}" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:12px; border-radius:10px; font-size:1rem; outline:none; text-align:center; font-family:inherit; font-weight:bold; margin-bottom:20px;" onfocus="this.style.borderColor='#a855f7'">
-            <div style="display:flex; gap:10px; justify-content:center;">
-                <button id="btn-save-preset-confirm" class="btn-run" style="padding:10px 25px; border-radius:10px; font-weight:bold; background: linear-gradient(135deg, #10b981, #059669); border:none; color:#fff; cursor:pointer;">حفظ وتطبيق</button>
-                <button id="btn-save-preset-cancel" class="btn-action" style="padding:10px 20px; border-radius:10px; cursor:pointer;">إلغاء</button>
+            <!-- Iframe Container -->
+            <div style="flex: 1; background: #fff; position: relative;">
+                <iframe id="preset-modal-iframe" src="preview-ledger.php?presetIndex=${presetIndex}&hideRibbon=1" style="width: 100%; height: 100%; border: none;"></iframe>
             </div>
         </div>
     `;
-
-    document.body.appendChild(overlay);
-    
-    requestAnimationFrame(() => {
-        overlay.style.opacity = '1';
-        overlay.children[0].style.transform = 'scale(1)';
-    });
-
-    const nameInput = document.getElementById('preset-custom-name-input');
-    nameInput.focus();
-    nameInput.select();
-
-    const closeModal = () => {
-        overlay.style.opacity = '0';
-        overlay.children[0].style.transform = 'scale(0.9)';
-        setTimeout(() => overlay.remove(), 300);
-    };
-
-    document.getElementById('btn-save-preset-cancel').onclick = closeModal;
-    
-    document.getElementById('btn-save-preset-confirm').onclick = () => {
-        const customName = nameInput.value.trim() || `النمط ${preset.id}`;
-        saveCurrentConfigToPreset(preset.id, customName);
-        closeModal();
-    };
-
-    nameInput.onkeyup = (e) => {
-        if (e.key === 'Enter') {
-            const customName = nameInput.value.trim() || `النمط ${preset.id}`;
-            saveCurrentConfigToPreset(preset.id, customName);
-            closeModal();
-        }
-    };
-}
-
-function saveCurrentConfigToPreset(presetId, name) {
-    const list = window.getQuickPresets();
-    const idx = list.findIndex(p => p.id === presetId);
-    if (idx === -1) return;
-    
-    const savedConfig = JSON.parse(JSON.stringify(colConfig));
-    
-    list[idx] = {
-        id: presetId,
-        name: name,
-        active: true,
-        colConfig: savedConfig
-    };
-    
-    localStorage.setItem('sgl_quick_presets_v3', JSON.stringify(list));
-    window.renderQuickPresets();
-    showToast(`💾 تم حفظ التخطيط باسم: ${name}`, 'success');
-}
-
-function triggerApply(preset) {
-    if (!preset.colConfig) {
-        showToast('⚠️ هذا موضع نمط فارغ! اضغط مطولاً لحفظ التنسيق الحالي هنا.', 'warning');
-        return;
-    }
-    
-    colConfig = JSON.parse(JSON.stringify(preset.colConfig));
-    saveColumnConfig();
-    renderSidebarConfig();
-    runReport();
-    
-    showToast(`✨ تم تطبيق نمط العرض: ${preset.name}`, 'success');
-}
-
-function clearPresetSlot(presetId) {
-    const list = window.getQuickPresets();
-    const idx = list.findIndex(p => p.id === presetId);
-    if (idx === -1) return;
-    
-    list[idx] = {
-        id: presetId,
-        name: `النمط ${presetId}`,
-        active: false,
-        colConfig: null
-    };
-    
-    localStorage.setItem('sgl_quick_presets_v3', JSON.stringify(list));
-    window.renderQuickPresets();
-    showToast(`🔄 تم حذف وتصفير موضع النمط ${presetId}`, 'success');
-}
-
-/* ═══════════════════════════════════════════════════════
-   Visual Intelligence Analytics Hub (ApexCharts & KPIs)
-   ═══════════════════════════════════════════════════════ */
-let chartHollowDonutCategories = null;
-let chartHollowDonutTopDebtors = null;
-let chartCurvedLineSpectrum = null;
-let chartBiDirectionalBar = null;
-let chartSemiCircleGauge = null;
-let chartHollowDonutCreditors = null;
-let chartHorizontalTopBar = null;
-let chartCumulativeAreaFluid = null;
-let chartRadarEquilibrium = null;
-let chartSolidPieActiveZero = null;
-let chartMultiRadialRings = null;
-
-function renderVisualAnalytics(results) {
-    const hub = document.getElementById('visual-intelligence-hub');
-    if (!hub) return;
-    if (!results || results.length === 0) {
-        hub.style.display = 'none';
-        return;
-    }
-    hub.style.display = 'block';
-
-    // 1. Calculate Aggregates for Ledger Transactions
-    let debtorsCount = 0, creditorsCount = 0, zeroCount = 0;
-    let categorySums = {
-        'invoice': { name: 'المبيعات', debit: 0, credit: 0, debitF: 0, creditF: 0, count: 0 },
-        'purchase': { name: 'المشتريات', debit: 0, credit: 0, debitF: 0, creditF: 0, count: 0 },
-        'receipt': { name: 'المقبوضات', debit: 0, credit: 0, debitF: 0, creditF: 0, count: 0 },
-        'payment': { name: 'المدفوعات', debit: 0, credit: 0, debitF: 0, creditF: 0, count: 0 },
-        'jv': { name: 'قيود اليومية', debit: 0, credit: 0, debitF: 0, creditF: 0, count: 0 }
-    };
-
-    results.forEach(t => {
-        const d = t.debit || 0;
-        const c = t.credit || 0;
-        const exRate = t.exchangeRate || 1;
-        
-        let debF = 0, credF = 0;
-        if (t.currency && t.currency !== 'SDG' && t.currency !== '-') {
-            debF = t.debitForeign || (d / exRate);
-            credF = t.creditForeign || (c / exRate);
-        } else {
-            const rate = (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0) ? ledgerExchangeRate : (exRate > 1 ? exRate : 1.0);
-            debF = d / rate;
-            credF = c / rate;
-        }
-
-        if (d > 0) debtorsCount++;
-        else if (c > 0) creditorsCount++;
-        else zeroCount++;
-
-        let cat = t.type || 'jv';
-        if (!categorySums[cat]) cat = 'jv';
-        categorySums[cat].debit += d;
-        categorySums[cat].credit += c;
-        categorySums[cat].debitF += debF;
-        categorySums[cat].creditF += credF;
-        categorySums[cat].count++;
-    });
-
-    const totalDebit = results.reduce((acc, r) => acc + (r.debit || 0), 0);
-    const totalCredit = results.reduce((acc, r) => acc + (r.credit || 0), 0);
-    const netPosition = totalDebit - totalCredit;
-    
-    const totalDebitF = categorySums['invoice'].debitF + categorySums['purchase'].debitF + categorySums['receipt'].debitF + categorySums['payment'].debitF + categorySums['jv'].debitF;
-    const totalCreditF = categorySums['invoice'].creditF + categorySums['purchase'].creditF + categorySums['receipt'].creditF + categorySums['payment'].creditF + categorySums['jv'].creditF;
-    const netPositionF = totalDebitF - totalCreditF;
-
-    // 2. Render Indicator Cards
-    const indNetVal = document.getElementById('ind-net-val');
-    const indTrendBadge = document.getElementById('ind-trend-badge');
-    const indTrendArrow = document.getElementById('ind-trend-arrow');
-    const indCoveragePct = document.getElementById('ind-coverage-pct');
-    const indCoverageBar = document.getElementById('ind-coverage-bar');
-
-    if (indNetVal) indNetVal.innerHTML = `${(netPosition < 0 ? '-' : '') + Math.abs(netPosition).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} SDG<br><span style="font-size:0.8em; color:#94a3b8;">${(netPositionF < 0 ? '-' : '') + Math.abs(netPositionF).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD</span>`;
-    
-    let coverageRatio = totalCredit > 0 ? ((totalDebit / totalCredit) * 100).toFixed(0) : '100';
-    if (indCoveragePct) indCoveragePct.textContent = `تغطية: ${coverageRatio}%`;
-    if (indCoverageBar) indCoverageBar.style.width = `${Math.min(parseFloat(coverageRatio), 100)}%`;
-
-    if (netPosition >= 0) {
-        if (indTrendBadge) { indTrendBadge.textContent = '↑ تدفق مدين متفوق'; indTrendBadge.className = 'v-badge badge-success'; }
-        if (indTrendArrow) { indTrendArrow.textContent = '↗️'; indTrendArrow.style.color = '#34d399'; }
-    } else {
-        if (indTrendBadge) { indTrendBadge.textContent = '↓ التزامات دائنة عالية'; indTrendBadge.className = 'v-badge badge-danger'; }
-        if (indTrendArrow) { indTrendArrow.textContent = '↘️'; indTrendArrow.style.color = '#f43f5e'; }
-    }
-
-    // Concentration Risk Card
-    const sortedByVolume = [...results].sort((a, b) => Math.max(b.debit, b.credit) - Math.max(a.debit, a.credit));
-    const top3Volume = sortedByVolume.slice(0, 3).reduce((sum, r) => sum + Math.max(r.debit, r.credit), 0);
-    const totalVolume = results.reduce((sum, r) => sum + Math.max(r.debit, r.credit), 0);
-    const top3Pct = totalVolume > 0 ? ((top3Volume / totalVolume) * 100).toFixed(1) : '0.0';
-
-    const indTop3Pct = document.getElementById('ind-top3-pct');
-    const indTop3Names = document.getElementById('ind-top3-names');
-    const indRiskBar = document.getElementById('ind-risk-bar');
-    if (indTop3Pct) indTop3Pct.textContent = `${top3Pct}%`;
-    if (indTop3Names) indTop3Names.textContent = sortedByVolume.slice(0, 3).map(x => x.typeLabel || x.ref).join('، ');
-    if (indRiskBar) indRiskBar.style.width = `${Math.min(parseFloat(top3Pct), 100)}%`;
-
-    // Ratio Card
-    const ratioVal = creditorsCount > 0 ? (debtorsCount / creditorsCount).toFixed(2) : (debtorsCount > 0 ? '1.0' : '0.0');
-    const indRatioVal = document.getElementById('ind-ratio-val');
-    const indActiveCount = document.getElementById('ind-active-count');
-    const indRatioBar = document.getElementById('ind-ratio-bar');
-
-    if (indRatioVal) indRatioVal.textContent = `${ratioVal} : 1`;
-    if (indActiveCount) indActiveCount.textContent = `${debtorsCount + creditorsCount} قيد نشط من أصل ${results.length}`;
-    if (indRatioBar) indRatioBar.style.width = `${Math.min((debtorsCount / (results.length || 1)) * 100, 100)}%`;
-
-    // Financial Health Score Card
-    let healthScore = 88;
-    if (totalCredit > 0) {
-        const cov = totalDebit / totalCredit;
-        if (cov >= 1.5) healthScore = 96;
-        else if (cov >= 1.0) healthScore = 88;
-        else if (cov >= 0.7) healthScore = 74;
-        else healthScore = 58;
-    }
-    const indHealthScore = document.getElementById('ind-health-score');
-    const indHealthBadge = document.getElementById('ind-health-badge');
-    const indHealthBar = document.getElementById('ind-health-bar');
-    if (indHealthScore) indHealthScore.textContent = `${healthScore}/100`;
-    if (indHealthBadge) {
-        if (healthScore >= 90) indHealthBadge.textContent = '🌟 ممتاز للغاية';
-        else if (healthScore >= 75) indHealthBadge.textContent = '✅ جيد جداً';
-        else indHealthBadge.textContent = '⚠️ يتطلب متابعة';
-    }
-    if (indHealthBar) indHealthBar.style.width = `${healthScore}%`;
-
-    // 3. Render ApexCharts
-    if (typeof ApexCharts === 'undefined') return;
-
-    const isLightTheme = document.documentElement.classList.contains('light-theme');
-    const chartThemeMode = isLightTheme ? 'light' : 'dark';
-
-    // Chart 1: Categories Donut
-    const catLabels = ['المبيعات', 'المشتريات', 'المقبوضات', 'المدفوعات', 'قيود اليومية'];
-    const catValues = [categorySums['invoice'].debit, categorySums['purchase'].credit, categorySums['receipt'].debit, categorySums['payment'].credit, categorySums['jv'].debit];
-    const catValuesF = [categorySums['invoice'].debitF, categorySums['purchase'].creditF, categorySums['receipt'].debitF, categorySums['payment'].creditF, categorySums['jv'].debitF];
-    
-    const optionsCatDonut = {
-        series: catValues,
-        labels: catLabels,
-        chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
-        colors: ['#38bdf8', '#f43f5e', '#10b981', '#fbbf24', '#a855f7'],
-        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
-        plotOptions: {
-            pie: { donut: { size: '72%', labels: { show: true, name: { show: true, fontSize: '20px', fontWeight: 700 }, value: { show: true, fontSize: '21px', fontWeight: 900, formatter: (v, opts) => { const idx = opts?.seriesIndex; const usd = idx !== undefined ? catValuesF[idx] : 0; return parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG | ' + parseFloat(usd).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' USD'; } }, total: { show: true, label: 'إجمالي الحركات', fontSize: '19px', formatter: w => { const totSDG = w.globals.seriesTotals.reduce((a,b)=>a+b, 0); const totUSD = catValuesF.reduce((a,b)=>a+b,0); return totSDG.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG'; } } } } }
-        },
-        dataLabels: { enabled: false },
-        tooltip: { y: { formatter: (v, opts) => { const idx = opts?.seriesIndex; const usd = idx !== undefined ? catValuesF[idx] : 0; return v.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG | ' + usd.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' USD'; } } },
-        legend: { position: 'bottom', fontSize: '19px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        theme: { mode: chartThemeMode }
-    };
-    if (chartHollowDonutCategories) chartHollowDonutCategories.destroy();
-    chartHollowDonutCategories = new ApexCharts(document.querySelector("#chart-hollow-donut-categories"), optionsCatDonut);
-    chartHollowDonutCategories.render();
-
-    // Chart 2: Top Debit Transactions Donut
-    const topDebtors = [...results].filter(x => x.debit > 0).sort((a,b) => b.debit - a.debit).slice(0, 5);
-    const topDebtorsVals = topDebtors.length > 0 ? topDebtors.map(x => x.debit) : [1];
-    const topDebtorsValsF = topDebtors.length > 0 ? topDebtors.map(x => { const r = x.exchangeRate || 1; return x.debitForeign || (x.debit / r); }) : [0];
-    const optionsDebtorsDonut = {
-        series: topDebtorsVals,
-        labels: topDebtors.length > 0 ? topDebtors.map(x => x.typeLabel + ' #' + x.ref) : ['لا يوجد بيانات'],
-        chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
-        colors: ['#38bdf8', '#818cf8', '#c084fc', '#34d399', '#fbbf24'],
-        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
-        plotOptions: { pie: { donut: { size: '68%', labels: { show: true, name: { show: true, fontSize: '19px' }, value: { show: true, fontSize: '20px', fontWeight: 900, formatter: (v, opts) => { const idx = opts?.seriesIndex; const usd = idx !== undefined ? topDebtorsValsF[idx] : 0; return parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG | ' + parseFloat(usd).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' USD'; } }, total: { show: true, label: 'إجمالي المدين', fontSize: '19px', formatter: w => w.globals.seriesTotals.reduce((a,b)=>a+b, 0).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' } } } } },
-        dataLabels: { enabled: false },
-        tooltip: { y: { formatter: (v, opts) => { const idx = opts?.seriesIndex; const usd = idx !== undefined ? topDebtorsValsF[idx] : 0; return v.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG | ' + usd.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' USD'; } } },
-        legend: { position: 'bottom', fontSize: '18px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        theme: { mode: chartThemeMode }
-    };
-    if (chartHollowDonutTopDebtors) chartHollowDonutTopDebtors.destroy();
-    chartHollowDonutTopDebtors = new ApexCharts(document.querySelector("#chart-hollow-donut-top-debtors"), optionsDebtorsDonut);
-    chartHollowDonutTopDebtors.render();
-    if (chartHollowDonutTopDebtors) chartHollowDonutTopDebtors.destroy();
-    chartHollowDonutTopDebtors = new ApexCharts(document.querySelector("#chart-hollow-donut-top-debtors"), optionsDebtorsDonut);
-    chartHollowDonutTopDebtors.render();
-
-    // Chart 3: Curved Line Spectrum
-    const specNames = sortedByVolume.slice(0, 15).map(x => x.date);
-    const specValues = sortedByVolume.slice(0, 15).map(x => Math.max(x.debit, x.credit));
-    const specValuesF = sortedByVolume.slice(0, 15).map(x => {
-        const r = x.exchangeRate || 1;
-        let v = Math.max(x.debit, x.credit);
-        if (x.debit > 0) return x.debitForeign || (v/r);
-        return x.creditForeign || (v/r);
-    });
-    
-    const optionsSpectrum = {
-        series: [{ name: 'حجم الحركة (SDG)', data: specValues }, { name: 'حجم الحركة (USD)', data: specValuesF }],
-        chart: { type: 'area', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        colors: ['#38bdf8', '#10b981'],
-        stroke: { curve: 'smooth', width: 2 },
-        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.05, stops: [0, 95, 100] } },
-        dataLabels: { enabled: false },
-        xaxis: { categories: specNames, labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontSize: '17px' } } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
-        tooltip: { y: { formatter: (v, opts) => { const idx = opts?.seriesIndex; return v.toLocaleString('en-US', {minimumFractionDigits: 2}) + (idx === 0 ? ' SDG' : ' USD'); } } },
-        theme: { mode: chartThemeMode }
-    };
-    if (chartCurvedLineSpectrum) chartCurvedLineSpectrum.destroy();
-    chartCurvedLineSpectrum = new ApexCharts(document.querySelector("#chart-curved-line-spectrum"), optionsSpectrum);
-    chartCurvedLineSpectrum.render();
-
-    // Chart 4: Bi-Directional Bar
-    const optionsBiBar = {
-        series: [
-            { name: 'المدين (ما لك)', data: [categorySums['invoice'].debit, categorySums['purchase'].debit, categorySums['receipt'].debit, categorySums['payment'].debit, categorySums['jv'].debit] },
-            { name: 'الدائن (ما عليك)', data: [categorySums['invoice'].credit, categorySums['purchase'].credit, categorySums['receipt'].credit, categorySums['payment'].credit, categorySums['jv'].credit] }
-        ],
-        chart: { type: 'bar', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 6 } },
-        colors: ['#10b981', '#f43f5e'],
-        dataLabels: { enabled: false },
-        xaxis: { categories: ['مبيعات', 'مشتريات', 'مقبوضات', 'مدفوعات', 'قيود'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '18px' } } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
-        legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        tooltip: {
-            custom: function({series, seriesIndex, dataPointIndex, w}) {
-                const cat = ['invoice', 'purchase', 'receipt', 'payment', 'jv'][dataPointIndex];
-                const deb = categorySums[cat].debit;
-                const cred = categorySums[cat].credit;
-                const debF = categorySums[cat].debitF;
-                const credF = categorySums[cat].creditF;
-                return '<div style="padding:10px; background:rgba(15,23,42,0.9); border:1px solid rgba(255,255,255,0.1); border-radius:8px;">' +
-                       '<div style="font-weight:bold; margin-bottom:5px; color:#38bdf8;">' + w.globals.labels[dataPointIndex] + '</div>' +
-                       '<div style="color:#10b981;">المدين: ' + deb.toLocaleString('en-US', {maximumFractionDigits:0}) + ' SDG | ' + debF.toLocaleString('en-US', {maximumFractionDigits:2}) + ' USD</div>' +
-                       '<div style="color:#f43f5e;">الدائن: ' + cred.toLocaleString('en-US', {maximumFractionDigits:0}) + ' SDG | ' + credF.toLocaleString('en-US', {maximumFractionDigits:2}) + ' USD</div>' +
-                       '</div>';
-            }
-        },
-        theme: { mode: chartThemeMode }
-    };
-    if (chartBiDirectionalBar) chartBiDirectionalBar.destroy();
-    chartBiDirectionalBar = new ApexCharts(document.querySelector("#chart-bidirectional-bar"), optionsBiBar);
-    chartBiDirectionalBar.render();
-
-    // Chart 5: Semi-Circle Gauge
-    const optionsGauge = {
-        series: [healthScore],
-        chart: { type: 'radialBar', height: 340, offsetY: -10, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
-        plotOptions: { radialBar: { startAngle: -90, endAngle: 90, track: { background: isLightTheme ? "#e2e8f0" : "#1e293b", strokeWidth: '97%' }, dataLabels: { name: { show: true, fontSize: '20px', color: isLightTheme ? '#64748b' : '#94a3b8' }, value: { offsetY: -50, fontSize: '30px', fontWeight: '900', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + "%" } } } },
-        fill: { type: 'gradient', gradient: { shade: 'dark', type: 'horizontal', gradientToColors: ['#34d399'], stops: [0, 100] } },
-        colors: ['#38bdf8'],
-        labels: ['مؤشر مأمونية الحركات'],
-        theme: { mode: chartThemeMode }
-    };
-    if (chartSemiCircleGauge) chartSemiCircleGauge.destroy();
-    chartSemiCircleGauge = new ApexCharts(document.querySelector("#chart-semicircle-gauge"), optionsGauge);
-    chartSemiCircleGauge.render();
-
-    // Chart 6: Hollow Donut Chart - Top Creditor Transactions
-    const topCreditors = [...results].filter(x => x.credit > 0).sort((a,b) => b.credit - a.credit).slice(0, 5);
-    const topCreditorsVals = topCreditors.length > 0 ? topCreditors.map(x => x.credit) : [1];
-    const topCreditorsValsF = topCreditors.length > 0 ? topCreditors.map(x => { const r = x.exchangeRate || 1; return x.creditForeign || (x.credit / r); }) : [0];
-    const optionsCreditorsDonut = {
-        series: topCreditorsVals,
-        labels: topCreditors.length > 0 ? topCreditors.map(x => x.typeLabel + ' #' + x.ref) : ['لا يوجد بيانات'],
-        chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
-        colors: ['#f43f5e', '#fb7185', '#a855f7', '#fbbf24', '#38bdf8'],
-        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
-        plotOptions: { pie: { donut: { size: '68%', labels: { show: true, name: { show: true, fontSize: '19px' }, value: { show: true, fontSize: '20px', fontWeight: 900, formatter: (v, opts) => { const idx = opts?.seriesIndex; const usd = idx !== undefined ? topCreditorsValsF[idx] : 0; return parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG | ' + parseFloat(usd).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' USD'; } }, total: { show: true, label: 'إجمالي الدائن', fontSize: '19px', formatter: w => w.globals.seriesTotals.reduce((a,b)=>a+b, 0).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' } } } } },
-        dataLabels: { enabled: false },
-        tooltip: { y: { formatter: (v, opts) => { const idx = opts?.seriesIndex; const usd = idx !== undefined ? topCreditorsValsF[idx] : 0; return v.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG | ' + usd.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' USD'; } } },
-        legend: { position: 'bottom', fontSize: '18px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        theme: { mode: chartThemeMode }
-    };
-    if (chartHollowDonutCreditors) chartHollowDonutCreditors.destroy();
-    chartHollowDonutCreditors = new ApexCharts(document.querySelector("#chart-hollow-donut-creditors"), optionsCreditorsDonut);
-    chartHollowDonutCreditors.render();
-
-    // Chart 7: Horizontal Bar Chart - Top 10 Transactions Volume Ranking
-    const top10Overall = sortedByVolume.slice(0, 10);
-    const top10Vals = top10Overall.map(x => Math.max(x.debit, x.credit));
-    const top10ValsF = top10Overall.map(x => {
-        const r = x.exchangeRate || 1;
-        let v = Math.max(x.debit, x.credit);
-        if (x.debit > 0) return x.debitForeign || (v/r);
-        return x.creditForeign || (v/r);
-    });
-    const optionsHorizontalBar = {
-        series: [{ name: 'مبلغ الحركة (SDG)', data: top10Vals }, { name: 'مبلغ الحركة (USD)', data: top10ValsF }],
-        chart: { type: 'bar', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        plotOptions: { bar: { horizontal: true, borderRadius: 6, barHeight: '55%', distributed: false } },
-        colors: ['#38bdf8', '#10b981'],
-        dataLabels: { 
-            enabled: true,
-            style: { fontSize: '11px', colors: ['#fff'] },
-            formatter: function(val, opts) {
-                if(val === 0) return '';
-                return val.toLocaleString('en-US',{maximumFractionDigits:0});
-            }
-        },
-        xaxis: { categories: top10Overall.map(x => x.typeLabel + ' #' + x.ref), labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#1e293b' : '#cbd5e1', fontSize: '17px', fontFamily: 'Tajawal' } } },
-        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
-        legend: { position: 'bottom', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        tooltip: { y: { formatter: (v, opts) => { const idx = opts?.seriesIndex; return v.toLocaleString('en-US', {minimumFractionDigits: 2}) + (idx === 0 ? ' SDG' : ' USD'); } } },
-        theme: { mode: chartThemeMode }
-    };
-    if (chartHorizontalTopBar) chartHorizontalTopBar.destroy();
-    chartHorizontalTopBar = new ApexCharts(document.querySelector("#chart-horizontal-top-bar"), optionsHorizontalBar);
-    chartHorizontalTopBar.render();
-
-    // Chart 8: Filled Area Fluid Curve
-    const areaNames = sortedByVolume.slice(0, 12).map(x => x.date);
-    const areaDebF = sortedByVolume.slice(0, 12).map(x => { const r = x.exchangeRate || 1; return x.debitForeign || (x.debit / r); });
-    const areaCredF = sortedByVolume.slice(0, 12).map(x => { const r = x.exchangeRate || 1; return x.creditForeign || (x.credit / r); });
-    
-    const optionsFluidArea = {
-        series: [
-            { name: 'المدين (SDG)', data: sortedByVolume.slice(0, 12).map(x => x.debit) },
-            { name: 'الدائن (SDG)', data: sortedByVolume.slice(0, 12).map(x => x.credit) }
-        ],
-        chart: { type: 'area', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        colors: ['#10b981', '#f43f5e'],
-        stroke: { curve: 'smooth', width: 2.5 },
-        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.05, stops: [0, 95, 100] } },
-        dataLabels: { enabled: false },
-        xaxis: { categories: areaNames, labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontSize: '16px' }, rotate: -20 } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
-        legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        tooltip: { custom: function({series, seriesIndex, dataPointIndex, w}) {
-            const isDebit = seriesIndex === 0;
-            const valSDG = w.globals.series[seriesIndex][dataPointIndex];
-            const valUSD = isDebit ? areaDebF[dataPointIndex] : areaCredF[dataPointIndex];
-            const color = w.globals.colors[seriesIndex];
-            const name = w.globals.seriesNames[seriesIndex];
-            return '<div style="padding:8px; background:rgba(15,23,42,0.9); border:1px solid '+color+'; border-radius:6px; color:'+color+';">' +
-                   '<b>' + name + '</b><br>' +
-                   valSDG.toLocaleString('en-US', {maximumFractionDigits:0}) + ' SDG<br>' +
-                   valUSD.toLocaleString('en-US', {maximumFractionDigits:2}) + ' USD' +
-                   '</div>';
-        } },
-        theme: { mode: chartThemeMode }
-    };
-    if (chartCumulativeAreaFluid) chartCumulativeAreaFluid.destroy();
-    chartCumulativeAreaFluid = new ApexCharts(document.querySelector("#chart-cumulative-area-fluid"), optionsFluidArea);
-    chartCumulativeAreaFluid.render();
-
-    // Chart 9: Polygon Radar Equilibrium Chart
-    const optionsRadar = {
-        series: [
-            { name: 'المدين (SDG)', data: [categorySums['invoice'].debit, categorySums['purchase'].debit, categorySums['receipt'].debit, categorySums['payment'].debit, categorySums['jv'].debit] },
-            { name: 'الدائن (SDG)', data: [categorySums['invoice'].credit, categorySums['purchase'].credit, categorySums['receipt'].credit, categorySums['payment'].credit, categorySums['jv'].credit] }
-        ],
-        chart: { type: 'radar', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        colors: ['#38bdf8', '#c084fc'],
-        stroke: { width: 2 },
-        fill: { opacity: 0.25 },
-        markers: { size: 4 },
-        xaxis: { categories: ['مبيعات', 'مشتريات', 'مقبوضات', 'مدفوعات', 'قيود'], labels: { style: { colors: isLightTheme ? '#0f172a' : '#e2e8f0', fontSize: '18px' } } },
-        yaxis: { show: false },
-        legend: { labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        tooltip: { custom: function({series, seriesIndex, dataPointIndex, w}) {
-            const isDebit = seriesIndex === 0;
-            const cat = ['invoice', 'purchase', 'receipt', 'payment', 'jv'][dataPointIndex];
-            const valSDG = w.globals.series[seriesIndex][dataPointIndex];
-            const valUSD = isDebit ? categorySums[cat].debitF : categorySums[cat].creditF;
-            const color = w.globals.colors[seriesIndex];
-            const name = w.globals.seriesNames[seriesIndex];
-            return '<div style="padding:8px; background:rgba(15,23,42,0.9); border:1px solid '+color+'; border-radius:6px; color:'+color+';">' +
-                   '<b>' + w.globals.labels[dataPointIndex] + ' (' + name + ')</b><br>' +
-                   valSDG.toLocaleString('en-US', {maximumFractionDigits:0}) + ' SDG<br>' +
-                   valUSD.toLocaleString('en-US', {maximumFractionDigits:2}) + ' USD' +
-                   '</div>';
-        } },
-        theme: { mode: chartThemeMode }
-    };
-    if (chartRadarEquilibrium) chartRadarEquilibrium.destroy();
-    chartRadarEquilibrium = new ApexCharts(document.querySelector("#chart-radar-equilibrium"), optionsRadar);
-    chartRadarEquilibrium.render();
-
-    // Chart 10: Solid Pie Chart
-    const optionsSolidPie = {
-        series: [debtorsCount, creditorsCount, zeroCount],
-        labels: [`قيود مدينة (${debtorsCount})`, `قيود دائنة (${creditorsCount})`, `قيود صفرية (${zeroCount})`],
-        chart: { type: 'pie', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
-        colors: ['#10b981', '#f43f5e', '#64748b'],
-        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
-        legend: { position: 'bottom', fontSize: '18px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        dataLabels: { enabled: true, style: { fontSize: '18px', fontFamily: 'Tajawal, sans-serif', fontWeight: 'bold' } },
-        tooltip: { y: { formatter: (v, opts) => {
-            const idx = opts?.seriesIndex;
-            if (idx === 0) return v + ' قيد (حجم: ' + totalDebit.toLocaleString() + ' SDG | ' + totalDebitF.toLocaleString(undefined, {maximumFractionDigits:2}) + ' USD)';
-            if (idx === 1) return v + ' قيد (حجم: ' + totalCredit.toLocaleString() + ' SDG | ' + totalCreditF.toLocaleString(undefined, {maximumFractionDigits:2}) + ' USD)';
-            return v + ' قيد';
-        } } },
-        theme: { mode: chartThemeMode }
-    };
-    if (chartSolidPieActiveZero) chartSolidPieActiveZero.destroy();
-    chartSolidPieActiveZero = new ApexCharts(document.querySelector("#chart-solid-pie-active-zero"), optionsSolidPie);
-    chartSolidPieActiveZero.render();
-
-    // Chart 11: Multi-Radial Rings Gauge
-    const totalAccCount = results.length || 1;
-    const debtorsPct = Math.round((debtorsCount / totalAccCount) * 100);
-    const creditorsPct = Math.round((creditorsCount / totalAccCount) * 100);
-    const jvPct = Math.round((zeroCount / totalAccCount) * 100);
-
-    const optionsMultiRadial = {
-        series: [debtorsPct, creditorsPct, jvPct],
-        chart: { type: 'radialBar', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
-        plotOptions: {
-            radialBar: {
-                dataLabels: {
-                    name: { fontSize: '20px', color: isLightTheme ? '#64748b' : '#94a3b8' },
-                    value: { fontSize: '22px', fontWeight: '800', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + '%' },
-                    total: { show: true, label: 'نسب القيود', color: isLightTheme ? '#0f172a' : '#cbd5e1', formatter: () => debtorsPct + '%' }
-                },
-                track: { background: isLightTheme ? '#e2e8f0' : '#1e293b' }
-            }
-        },
-        colors: ['#10b981', '#f43f5e', '#38bdf8'],
-        labels: ['قيود مدينة', 'قيود دائنة', 'حركات أخرى'],
-        theme: { mode: chartThemeMode }
-    };
-    if (chartMultiRadialRings) chartMultiRadialRings.destroy();
-    chartMultiRadialRings = new ApexCharts(document.querySelector("#chart-multi-radial-rings"), optionsMultiRadial);
-    chartMultiRadialRings.render();
-
-    // Chart 12: Waterfall Balance
-    let runningSDG = 0;
-    let runningUSD = 0;
-    const waterfallDataSDG = [];
-    const waterfallDataUSD = [];
-    
-    // Limit to first 15 for waterfall to avoid clutter
-    const waterfallTxns = results.slice(0, 15);
-    waterfallTxns.forEach(t => {
-        let diffSDG = (t.debit || 0) - (t.credit || 0);
-        const exRate = t.exchangeRate || 1;
-        let diffUSD = 0;
-        if (t.currency && t.currency !== 'SDG' && t.currency !== '-') {
-            diffUSD = (t.debitForeign || (t.debit / exRate)) - (t.creditForeign || (t.credit / exRate));
-        } else {
-            const rate = (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0) ? ledgerExchangeRate : (exRate > 1 ? exRate : 1.0);
-            diffUSD = (t.debit / rate) - (t.credit / rate);
-        }
-        
-        waterfallDataSDG.push({
-            x: t.date + ' #' + t.ref,
-            y: diffSDG
-        });
-        waterfallDataUSD.push(diffUSD);
-    });
-
-    const optionsWaterfall = {
-        series: [{ name: 'التغير في الرصيد', data: waterfallDataSDG }],
-        chart: { type: 'bar', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        plotOptions: {
-            bar: {
-                colors: {
-                    ranges: [
-                        { from: -99999999999, to: -0.01, color: '#f43f5e' },
-                        { from: 0, to: 99999999999, color: '#10b981' }
-                    ]
-                },
-                columnWidth: '80%'
-            }
-        },
-        dataLabels: { enabled: false },
-        xaxis: { type: 'category', labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontSize: '16px' }, rotate: -45 } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
-        tooltip: {
-            custom: function({series, seriesIndex, dataPointIndex, w}) {
-                const valSDG = w.globals.series[seriesIndex][dataPointIndex];
-                const valUSD = waterfallDataUSD[dataPointIndex];
-                const color = valSDG < 0 ? '#f43f5e' : '#10b981';
-                return '<div style="padding:8px; background:rgba(15,23,42,0.9); border:1px solid '+color+'; border-radius:6px; color:'+color+';">' +
-                       '<b>' + w.globals.labels[dataPointIndex] + '</b><br>' +
-                       valSDG.toLocaleString('en-US', {maximumFractionDigits:0}) + ' SDG<br>' +
-                       valUSD.toLocaleString('en-US', {maximumFractionDigits:2}) + ' USD' +
-                       '</div>';
-            }
-        },
-        theme: { mode: chartThemeMode }
-    };
-    if (window.chartWaterfall) window.chartWaterfall.destroy();
-    window.chartWaterfall = new ApexCharts(document.querySelector("#chart-waterfall-balance"), optionsWaterfall);
-    window.chartWaterfall.render();
-
-    // Chart 13: Currency Composition
-    const totalLocalTxns = results.filter(t => !t.currency || t.currency === 'SDG' || t.currency === '-').reduce((acc, t) => acc + Math.max(t.debit, t.credit), 0);
-    const totalForeignTxns = results.filter(t => t.currency && t.currency !== 'SDG' && t.currency !== '-').reduce((acc, t) => acc + Math.max(t.debit, t.credit), 0);
-    
-    // We convert the foreign volume to local equivalent for ratio comparison
-    let totalForeignTxnsConverted = 0;
-    results.filter(t => t.currency && t.currency !== 'SDG' && t.currency !== '-').forEach(t => {
-         const exRate = t.exchangeRate || 1;
-         totalForeignTxnsConverted += (t.debitForeign || (t.debit/exRate)) * exRate + (t.creditForeign || (t.credit/exRate)) * exRate;
-    });
-
-    const optionsCurrency = {
-        series: [totalLocalTxns, totalForeignTxnsConverted],
-        labels: ['عمليات بالجنيه', 'عمليات بالدولار (مُقيّمة بالجنيه)'],
-        chart: { type: 'pie', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
-        colors: ['#38bdf8', '#10b981'],
-        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
-        legend: { position: 'bottom', fontSize: '19px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        tooltip: { y: { formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' } },
-        theme: { mode: chartThemeMode }
-    };
-    if (window.chartCurrencyComp) window.chartCurrencyComp.destroy();
-    window.chartCurrencyComp = new ApexCharts(document.querySelector("#chart-currency-composition"), optionsCurrency);
-    window.chartCurrencyComp.render();
-
-    // Chart 14: Heatmap
-    // Group transactions by date
-    let dateGroups = {};
-    results.forEach(t => {
-        if (!dateGroups[t.date]) dateGroups[t.date] = 0;
-        dateGroups[t.date] += Math.max(t.debit, t.credit);
-    });
-    
-    let heatmapData = [];
-    Object.keys(dateGroups).slice(0, 30).forEach(d => {
-        heatmapData.push({ x: d, y: dateGroups[d] });
-    });
-
-    const optionsHeatmap = {
-        series: [{ name: 'حجم المعاملات (SDG)', data: heatmapData }],
-        chart: { type: 'treemap', height: 320, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        colors: ['#a855f7'],
-        plotOptions: { treemap: { enableShades: true, shadeIntensity: 0.5, distributed: true, colorScale: { ranges: [{ from: 0, to: 99999999999, color: '#a855f7' }] } } },
-        dataLabels: { enabled: true, style: { fontSize: '18px', fontFamily: 'JetBrains Mono' }, formatter: (text, op) => op.value.toLocaleString('en-US', {maximumFractionDigits:0}) },
-        tooltip: { y: { formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG' } },
-        theme: { mode: chartThemeMode }
-    };
-    if (window.chartLiquidityHeatmap) window.chartLiquidityHeatmap.destroy();
-    window.chartLiquidityHeatmap = new ApexCharts(document.querySelector("#chart-liquidity-heatmap"), optionsHeatmap);
-    window.chartLiquidityHeatmap.render();
-}
-
-window.switchVisualTab = function(type) {
-    document.querySelectorAll('.hub-tab-btn').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById('tab-' + type);
-    if (btn) btn.classList.add('active');
-
-    if (typeof ALL_TXNS !== 'undefined' && ALL_TXNS.length > 0) {
-        renderVisualAnalytics(ALL_TXNS);
-    }
+    modal.style.display = 'flex';
 };
+window.openPresetModal = openPresetModal;
 
-
-
-const DEFAULT_PRESETS_GL = { 1: [], 2: [], 3: [], 4: [] };
-
-let modelSaveTimer = null;
-
-let presetSaveTimers = {};
-
-function startPresetSave(id) {
-    presetSaveTimers[id] = setTimeout(() => {
-        let presetKey = 'gl_preset_' + id;
-        if (window.LOADED_GL_PRESETS && window.LOADED_GL_PRESETS[presetKey + '_locked']) {
-            showToast('عفواً، لا يمكن تعديل افتراضي ' + id + ' لأنه محفوظ نهائياً في قاعدة البيانات!', 'error');
-            return;
+// Attach event listeners to filters to auto-run
+document.addEventListener('DOMContentLoaded', () => {
+    const inputs = document.querySelectorAll('.filter-input');
+    inputs.forEach(inp => {
+        inp.addEventListener('change', runReport);
+        if (inp.id === 'filter-smart') {
+            inp.addEventListener('keyup', runReport);
         }
+    });
+    
+    renderLedgerPresets();
 
-        if(confirm('هل أنت متأكد أنك تريد حفظ التصميم الحالي في "افتراضي ' + id + '"؟ هذا الإجراء نهائي ولا يمكن تغييره لاحقاً وسيتم حفظه في قاعدة البيانات.')) {
-            
-            let config = {
-                colConfig: JSON.parse(JSON.stringify(colConfig)),
-                theme: currentTableTheme,
-                font: currentNumFont
-            };
+    buildAccountsList();
+    runReport();
+    setTimeout(() => {
+        runReport();
+    }, 300);
+});
 
-            fetch('api/save_gl_preset.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: id, config: config })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    showToast('تم حفظ التصميم في افتراضي ' + id + ' بشكل نهائي من الألف إلى الياء!', 'success');
-                    if(!window.LOADED_GL_PRESETS) window.LOADED_GL_PRESETS = {};
-                    window.LOADED_GL_PRESETS[presetKey] = config;
-                    window.LOADED_GL_PRESETS[presetKey + '_locked'] = true;
-                    
-                    let btn = document.getElementById('btn-preset-' + id);
-                    if(btn) {
-                        btn.style.background = '#10b981';
-                        btn.style.color = '#fff';
-                        setTimeout(() => {
-                            btn.style.background = '';
-                            btn.style.color = '';
-                        }, 1500);
-                    }
-                } else {
-                    showToast(data.error || 'حدث خطأ أثناء الحفظ', 'error');
-                }
-            })
-            .catch(err => showToast('خطأ في الاتصال بالخادم', 'error'));
-        }
-    }, 8000); // 8 seconds hold
-}
-
-function stopPresetSave(id) {
-    if (presetSaveTimers[id]) {
-        clearTimeout(presetSaveTimers[id]);
-        presetSaveTimers[id] = null;
-    }
-}
-
-function applyPresetGL(id) {
-    document.querySelectorAll('.preset-btn, .magic-btn').forEach(b => b.classList.remove('active'));
-    let btn = document.getElementById('btn-preset-' + id);
-    if (!btn) btn = document.getElementById('btn-preset-m' + String(id).replace('m', ''));
-    if(btn) btn.classList.add('active');
-
-    let pConfig = null;
-    let layout = null;
-
-    if (['1', '2', '3', '4', 1, 2, 3, 4].includes(id)) {
-        let presetKey = 'gl_preset_' + id;
-        if (window.LOADED_GL_PRESETS && window.LOADED_GL_PRESETS[presetKey]) {
-            pConfig = window.LOADED_GL_PRESETS[presetKey];
-        } else {
-            showToast('هذا الافتراضي فارغ حالياً. اضغط مطولاً لمدة 8 ثوانٍ للحفظ.', 'warning');
-            return;
-        }
-    } else {
-        // Models m1, m2
-        let modelKey = 'gl_model_' + String(id).replace('m', '');
-        if (window.LOADED_GL_PRESETS && window.LOADED_GL_PRESETS[modelKey]) {
-            pConfig = window.LOADED_GL_PRESETS[modelKey];
-        } else {
-            showToast('هذا النموذج فارغ، اضغط عليه 8 ثوانٍ لحفظ التنسيق الحالي كنموذج.', 'error');
-            return;
+window.addEventListener('storage', function(e) {
+    if (e.key === 'ledger_preview_presets_v7' || e.key === 'ledger_preview_presets_v1') {
+        if (typeof renderLedgerPresets === 'function') {
+            renderLedgerPresets();
         }
     }
-
-    if (pConfig) {
-        if (pConfig.colConfig) {
-            colConfig = JSON.parse(JSON.stringify(pConfig.colConfig));
-        }
-
-        if (pConfig.theme !== undefined) {
-            currentTableTheme = pConfig.theme;
-            if (typeof applyTableTheme === 'function') applyTableTheme(currentTableTheme);
-            if (typeof updateCrystalButtons === 'function') updateCrystalButtons(currentTableTheme);
-        }
-
-        if (pConfig.font !== undefined) {
-            currentNumFont = pConfig.font;
-            if (typeof changeNumberFont === 'function') changeNumberFont(currentNumFont);
-            else {
-                document.querySelectorAll('.num-cell-wrapper').forEach(el => {
-                    el.classList.remove('num-font-roboto', 'num-font-inter', 'num-font-jetbrains', 'num-font-poppins', 'num-font-tahoma', 'num-font-arial', 'num-font-consolas');
-                    el.classList.add(currentNumFont);
-                });
-            }
-        }
-
-        saveColumnConfig(); // Ensure SaaS sync picks up the loaded config
-
-        if (typeof previewColSettingsGL === 'function') previewColSettingsGL();
-        else {
-            applyConfigToHeaders();
-            runReport();
-        }
-        showToast('تم تطبيق التصميم المحفوظ بنجاح', 'success');
-    }
-}
-
-function startModelSave(id) {
-    modelSaveTimer = setTimeout(() => {
-        let config = {
-            colConfig: JSON.parse(JSON.stringify(colConfig)),
-            theme: currentTableTheme,
-            font: currentNumFont
-        };
-
-        fetch('api/save_gl_preset.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: id, config: config })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.success) {
-                let modelKey = 'gl_model_' + String(id).replace('m', '');
-                if(!window.LOADED_GL_PRESETS) window.LOADED_GL_PRESETS = {};
-                window.LOADED_GL_PRESETS[modelKey] = config;
-                
-                showToast('تم حفظ التنسيق الحالي في هذا النموذج بنجاح!', 'success');
-                let btn = document.getElementById('btn-preset-' + id);
-                if(btn) {
-                    btn.style.background = '#22c55e';
-                    btn.style.color = '#fff';
-                    setTimeout(() => {
-                        btn.style.background = '';
-                        btn.style.color = '';
-                    }, 1000);
-                }
-            } else {
-                showToast(data.error || 'حدث خطأ أثناء الحفظ', 'error');
-            }
-        })
-        .catch(err => showToast('خطأ في الاتصال بالخادم', 'error'));
-    }, 8000);
-}
-
-function stopModelSave() {
-    if (modelSaveTimer) {
-        clearTimeout(modelSaveTimer);
-        modelSaveTimer = null;
-    }
-}
-
-
-
-window.LOADED_GL_PRESETS = {};
-function fetchGLPresets() {
-    fetch('api/get_gl_presets.php')
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                window.LOADED_GL_PRESETS = data.presets || {};
-            }
-        })
-        .catch(err => console.error('Error fetching presets:', err));
-}
-document.addEventListener('DOMContentLoaded', fetchGLPresets);
+});

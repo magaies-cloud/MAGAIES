@@ -12,6 +12,8 @@ let currentPaperSize = 'A4';
 let currentOrientation = 'landscape';
 let showHeaderLogo = true;
 let showHeaderInfo = true;
+let isLongPressTriggered = false;
+let longPressInterval = null;
 
 // Default column definitions with exact field mapping
 const baseColumns = [
@@ -130,7 +132,7 @@ function loadCompanyHeader() {
             if (logoUrl && logoUrl !== 'null' && logoUrl.trim() !== '') {
                 cLogo.src = logoUrl;
                 cLogo.style.display = 'block';
-                if (showHeaderLogo) logoBlock.style.display = 'flex';
+                logoBlock.style.display = showHeaderLogo ? 'flex' : 'none';
             } else {
                 logoBlock.style.display = 'none';
             }
@@ -160,8 +162,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const rawData = localStorage.getItem('preview_table_data');
     if (rawData) {
         try {
-            currentData = JSON.parse(rawData);
-        } catch(e) { console.error('Error parsing data', e); }
+            const parsed = JSON.parse(rawData);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                currentData = parsed;
+            } else {
+                currentData = [
+                    { name: 'شركة تجريبية 1', phone: '0123456789', taxNumber: '100200300', currency: 'SDG', endingDebitForeign: 100, endingCreditForeign: 0, endingDebitLocal: 5000, endingCreditLocal: 0, notes: 'نشط' },
+                    { name: 'مؤسسة السلام', phone: '0987654321', taxNumber: '300400500', currency: 'USD', endingDebitForeign: 0, endingCreditForeign: 1250.75, endingDebitLocal: 0, endingCreditLocal: 1250.75, notes: 'نشط' }
+                ];
+            }
+        } catch(e) {
+            console.error('Error parsing data', e);
+            currentData = [
+                { name: 'شركة تجريبية 1', phone: '0123456789', taxNumber: '100200300', currency: 'SDG', endingDebitForeign: 100, endingCreditForeign: 0, endingDebitLocal: 5000, endingCreditLocal: 0, notes: 'نشط' },
+                { name: 'مؤسسة السلام', phone: '0987654321', taxNumber: '300400500', currency: 'USD', endingDebitForeign: 0, endingCreditForeign: 1250.75, endingDebitLocal: 0, endingCreditLocal: 1250.75, notes: 'نشط' }
+            ];
+        }
     } else {
         currentData = [
             { name: 'شركة تجريبية 1', phone: '0123456789', taxNumber: '100200300', currency: 'SDG', endingDebitForeign: 100, endingCreditForeign: 0, endingDebitLocal: 5000, endingCreditLocal: 0, notes: 'نشط' },
@@ -196,6 +212,8 @@ document.addEventListener('DOMContentLoaded', () => {
             printArea.style.margin = '10px auto';
         }
     }
+    initResetButton();
+    initConfirmModal();
 });
 
 window.addEventListener('storage', function(e) {
@@ -410,6 +428,7 @@ function initPresets() {
                 isFactoryDefault: false
             }
         ];
+    }
     // Always enforce Factory Default Presets (slots 0..3) across ALL companies (old and new)
     const FACTORY_DEFAULTS_SEED = [
         {
@@ -471,7 +490,9 @@ function initPresets() {
     ];
 
     for (let i = 0; i < 4; i++) {
-        list[i] = Object.assign({}, FACTORY_DEFAULTS_SEED[i]);
+        if (!list[i]) {
+            list[i] = Object.assign({}, FACTORY_DEFAULTS_SEED[i]);
+        }
     }
 
     // Ensure list has at least 7 slots
@@ -607,8 +628,14 @@ function bindPresetButtonLongPress(btn, idx) {
     btn.addEventListener('mouseup', endPress);
     btn.addEventListener('mouseleave', cancelPress);
 
-    btn.addEventListener('touchstart', startPress, { passive: true });
-    btn.addEventListener('touchend', endPress);
+    btn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        startPress(e);
+    }, { passive: false });
+    btn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        endPress(e);
+    });
     btn.addEventListener('touchcancel', cancelPress);
 
     btn.oncontextmenu = (e) => {
@@ -967,8 +994,8 @@ function loadPreset(idx) {
     
     setTableTheme(currentTheme, false);
     setNumberFont(currentFont, false);
-    setPaperSize(currentPaperSize, false);
-    setPageOrientation(currentOrientation, false);
+    setPaperSize(currentPaperSize, true);
+    setPageOrientation(currentOrientation, true);
     
     document.getElementById('hdr-show-logo-chk').checked = showHeaderLogo;
     document.getElementById('hdr-show-info-chk').checked = showHeaderInfo;
@@ -985,7 +1012,36 @@ function loadPreset(idx) {
 }
 
 function saveCurrentPreset() {
-    promptConfirmationAndSave(currentPresetIndex);
+    const presets = getSavedPresets();
+    const p = presets[currentPresetIndex];
+    if (!p) return;
+
+    // Direct save - no long press needed, just save immediately
+    p.configs = JSON.parse(JSON.stringify(columnConfigs));
+    p.order = [...columnOrder];
+    p.theme = currentTheme;
+    p.font = currentFont;
+    p.paperSize = currentPaperSize;
+    p.orientation = currentOrientation;
+    p.showLogo = showHeaderLogo;
+    p.showInfo = showHeaderInfo;
+    p.updatedAt = new Date().toISOString();
+
+    savePresets(presets);
+    renderPresetButtons();
+    if (typeof renderPresetsManagementList === 'function') renderPresetsManagementList();
+
+    try {
+        if (window.DB_STORE && window.getTenantKey) {
+            const tk = window.getTenantKey(PRESETS_STORAGE_KEY);
+            window.DB_STORE[tk] = JSON.stringify(presets);
+        }
+        if (typeof localforage !== 'undefined') {
+            localforage.setItem(PRESETS_STORAGE_KEY, presets);
+        }
+    } catch(e){}
+
+    showToast(`💾 تم حفظ تصميم الجدول في "${p.name}" بنجاح!`, 'success');
 }
 
 function toggleSettingsPanel() {
@@ -1038,7 +1094,7 @@ function setTableTheme(themeName) {
     const sel = document.getElementById('table-theme-select');
     if (sel) sel.value = themeName || '';
     if (tbl) {
-        tbl.classList.remove('theme-gold', 'theme-lightblue', 'theme-slate');
+        tbl.classList.remove('theme-gold', 'theme-lightblue', 'theme-slate', 'theme-classic-navy', 'theme-emerald-pro', 'theme-modern-slate', 'theme-luxury-gold', 'theme-luxury-black');
         if (themeName) tbl.classList.add(themeName);
     }
 }
@@ -1049,7 +1105,7 @@ function setNumberFont(fontClass) {
     const select = document.getElementById('num-font-select');
     if (select) select.value = fontClass;
     if (tbl) {
-        tbl.classList.remove('font-newsons', 'font-ribot', 'font-firacode', 'font-ultra', 'font-bolt', 'font-jakarta', 'font-roboto', 'font-outfit');
+        tbl.classList.remove('font-newsons', 'font-ribot', 'font-firacode', 'font-ultra', 'font-bolt', 'font-jakarta', 'font-roboto', 'font-outfit', 'font-tajawal', 'font-cairo');
         if (fontClass) tbl.classList.add(fontClass);
     }
 }
@@ -1138,12 +1194,28 @@ function moveSelectedCol(direction) {
     const pos = columnOrder.indexOf(selectedColIndex);
     if (pos === -1) return;
     
-    const newPos = pos + direction;
-    if (newPos < 0 || newPos >= columnOrder.length) return;
+    // Find all visible columns in their current order
+    const visibleIndices = columnOrder.filter(idx => {
+        const conf = columnConfigs[idx];
+        return !conf || conf.visible !== false;
+    });
     
+    const visiblePos = visibleIndices.indexOf(selectedColIndex);
+    if (visiblePos === -1) return; // Selected column is hidden, can't move
+    
+    const newVisiblePos = visiblePos + direction;
+    if (newVisiblePos < 0 || newVisiblePos >= visibleIndices.length) return; // Out of bounds
+    
+    // The target column index we want to swap with in the entire columnOrder array
+    const targetColIndex = visibleIndices[newVisiblePos];
+    const targetPos = columnOrder.indexOf(targetColIndex);
+    
+    if (targetPos === -1) return;
+    
+    // Swap their positions in the full columnOrder array
     const temp = columnOrder[pos];
-    columnOrder[pos] = columnOrder[newPos];
-    columnOrder[newPos] = temp;
+    columnOrder[pos] = columnOrder[targetPos];
+    columnOrder[targetPos] = temp;
     
     renderTable();
 }
@@ -1419,4 +1491,297 @@ function updateSelectedCol(type, val) {
     }
     
     renderTable();
+}
+
+// ==========================================
+// Smart Custom Reset & Toast Notifications System
+// ==========================================
+
+function showToast(message, type = 'success') {
+    let container = document.getElementById('studio-toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'studio-toast-container';
+        document.body.appendChild(container);
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `studio-toast ${type}`;
+    
+    let icon = '✨';
+    if (type === 'error') icon = '⚠️';
+    if (type === 'info') icon = 'ℹ️';
+    
+    toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            toast.remove();
+        }, 400);
+    }, 3500);
+}
+
+function applyDesignState(state) {
+    columnConfigs = state.configs || getDefaultConfigs();
+    columnOrder = state.order || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    currentTheme = state.theme || '';
+    currentFont = state.font || 'font-newsons';
+    currentPaperSize = state.paperSize || 'A4';
+    currentOrientation = state.orientation || 'landscape';
+    showHeaderLogo = state.showLogo !== undefined ? state.showLogo : true;
+    showHeaderInfo = state.showInfo !== undefined ? state.showInfo : true;
+
+    setTableTheme(currentTheme);
+    setNumberFont(currentFont);
+    setPaperSize(currentPaperSize, true);
+    setPageOrientation(currentOrientation, true);
+    
+    const logoChk = document.getElementById('hdr-show-logo-chk');
+    const infoChk = document.getElementById('hdr-show-info-chk');
+    if (logoChk) logoChk.checked = showHeaderLogo;
+    if (infoChk) infoChk.checked = showHeaderInfo;
+    toggleHeaderElement('logo', showHeaderLogo);
+    toggleHeaderElement('info', showHeaderInfo);
+
+    renderTable();
+    updateHiddenColumnsDropdown();
+    populateSelectedColDropdown();
+    
+    if (selectedColIndex !== null) {
+        updateSettingsPanelForCol(selectedColIndex);
+    }
+}
+
+function initResetButton() {
+    const btn = document.getElementById('reset-design-btn');
+    if (!btn) return;
+
+    const progress = btn.querySelector('.btn-progress');
+    let timer = null;
+    let isHolding = false;
+    let holdCompleted = false;
+
+    const startHold = (e) => {
+        if (e.type === 'mousedown' && e.button !== 0) return;
+        
+        isHolding = true;
+        holdCompleted = false;
+        
+        if (progress) {
+            progress.style.transition = 'width 8s linear';
+            progress.style.width = '100%';
+        }
+
+        timer = setTimeout(() => {
+            holdCompleted = true;
+            cancelHold();
+            // Long press 8 seconds = RESTORE factory reset
+            restoreFactoryReset();
+        }, 8000);
+    };
+
+    const cancelHold = () => {
+        if (!isHolding) return;
+        isHolding = false;
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+        if (progress) {
+            progress.style.transition = 'none';
+            progress.style.width = '0%';
+        }
+    };
+
+    // Desktop mouse events
+    btn.addEventListener('mousedown', startHold);
+    btn.addEventListener('mouseup', (e) => {
+        if (e.button !== 0) return;
+        if (isHolding) {
+            cancelHold();
+            if (!holdCompleted) {
+                // Short click = open modal to SAVE factory reset
+                saveFactoryResetViaModal();
+            }
+        }
+    });
+    btn.addEventListener('mouseleave', cancelHold);
+
+    // Mobile touch events
+    btn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        startHold(e);
+    });
+    btn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        if (isHolding) {
+            cancelHold();
+            if (!holdCompleted) {
+                saveFactoryResetViaModal();
+            }
+        }
+    });
+    btn.addEventListener('touchmove', cancelHold);
+    btn.addEventListener('touchcancel', cancelHold);
+}
+
+function saveCustomResetState() {
+    const state = {
+        configs: JSON.parse(JSON.stringify(columnConfigs)),
+        order: [...columnOrder],
+        theme: currentTheme,
+        font: currentFont,
+        paperSize: currentPaperSize,
+        orientation: currentOrientation,
+        showLogo: showHeaderLogo,
+        showInfo: showHeaderInfo
+    };
+    localStorage.setItem('balances_custom_reset_v1', JSON.stringify(state));
+}
+
+let confirmCallback = null;
+
+function showConfirmModal(onConfirm) {
+    confirmCallback = onConfirm;
+    const modal = document.getElementById('reset-confirm-modal');
+    if (modal) {
+        modal.classList.add('show');
+    }
+    
+    const progress = document.querySelector('.modal-ok-progress');
+    if (progress) {
+        progress.style.transition = 'none';
+        progress.style.width = '0%';
+    }
+}
+
+function hideConfirmModal() {
+    const modal = document.getElementById('reset-confirm-modal');
+    if (modal) {
+        modal.classList.remove('show');
+    }
+    confirmCallback = null;
+}
+
+function initConfirmModal() {
+    const modal = document.getElementById('reset-confirm-modal');
+    const cancelBtn = document.getElementById('modal-cancel-btn');
+    const okBtn = document.getElementById('modal-ok-btn');
+    if (!modal || !cancelBtn || !okBtn) return;
+
+    const progress = modal.querySelector('.modal-ok-progress');
+    let timer = null;
+    let isHolding = false;
+    let holdCompleted = false;
+
+    const startOkHold = (e) => {
+        if (e.type === 'mousedown' && e.button !== 0) return;
+        
+        isHolding = true;
+        holdCompleted = false;
+
+        if (progress) {
+            progress.style.transition = 'width 3s linear';
+            progress.style.width = '100%';
+        }
+
+        timer = setTimeout(() => {
+            holdCompleted = true;
+            cancelOkHold();
+            hideConfirmModal();
+            if (confirmCallback) {
+                confirmCallback();
+            }
+        }, 3000);
+    };
+
+    const cancelOkHold = () => {
+        if (!isHolding) return;
+        isHolding = false;
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+        if (progress) {
+            progress.style.transition = 'none';
+            progress.style.width = '0%';
+        }
+    };
+
+    cancelBtn.addEventListener('click', hideConfirmModal);
+    
+    okBtn.addEventListener('mousedown', startOkHold);
+    okBtn.addEventListener('mouseup', cancelOkHold);
+    okBtn.addEventListener('mouseleave', cancelOkHold);
+
+    okBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        startOkHold(e);
+    });
+    okBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        cancelOkHold();
+    });
+    okBtn.addEventListener('touchmove', cancelOkHold);
+    okBtn.addEventListener('touchcancel', cancelOkHold);
+}
+
+// Short click on reset button: opens modal → 3s hold on OK → SAVE current design as factory reset
+function saveFactoryResetViaModal() {
+    showConfirmModal(() => {
+        saveCustomResetState();
+        showToast('✅ تم حفظ التصميم الحالي كـ ضبط مصنع بنجاح!', 'success');
+    });
+}
+
+function saveCustomResetState() {
+    const state = {
+        configs: JSON.parse(JSON.stringify(columnConfigs)),
+        order: [...columnOrder],
+        theme: currentTheme,
+        font: currentFont,
+        paperSize: currentPaperSize,
+        orientation: currentOrientation,
+        showLogo: showHeaderLogo,
+        showInfo: showHeaderInfo
+    };
+    localStorage.setItem('balances_custom_reset_v1', JSON.stringify(state));
+}
+
+// Long press 8 seconds on reset button: RESTORE factory reset settings
+function restoreFactoryReset() {
+    const raw = localStorage.getItem('balances_custom_reset_v1');
+    if (raw) {
+        try {
+            const state = JSON.parse(raw);
+            applyDesignState(state);
+            showToast('🔄 تم استرجاع ضبط المصنع المحفوظ بنجاح!', 'success');
+        } catch(e) {
+            console.error('Error parsing custom reset state', e);
+            restoreToFactoryDefault();
+        }
+    } else {
+        restoreToFactoryDefault();
+    }
+}
+
+function restoreToFactoryDefault() {
+    const factoryState = {
+        configs: getDefaultConfigs(),
+        order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        theme: '',
+        font: 'font-newsons',
+        paperSize: 'A4',
+        orientation: 'landscape',
+        showLogo: true,
+        showInfo: true
+    };
+    applyDesignState(factoryState);
+    showToast('🔄 تم استعادة ضبط المصنع الافتراضي!', 'info');
 }
