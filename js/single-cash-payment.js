@@ -158,12 +158,34 @@ document.addEventListener('DBReady', () => {
     // Deep Drill-down
     const urlParams = new URLSearchParams(window.location.search);
     const voucherId = urlParams.get('id');
+    const voucherType = urlParams.get('type');
     if (voucherId) {
-        singlePaymentsData = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : ((window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []))));
-        const idx = singlePaymentsData.findIndex(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId) || String(v.paymentNo) === String(voucherId));
+        let dataSource;
+        if (voucherType === 'receipt') {
+            // Load from receipts data when coming from old single-cash-receipt links
+            dataSource = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || []));
+        } else {
+            dataSource = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : ((window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []))));
+        }
+        // Try finding in the selected data source first
+        let idx = dataSource.findIndex(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId) || String(v.paymentNo) === String(voucherId) || String(v.receiptNo) === String(voucherId));
         if (idx !== -1) {
-            currentViewedIndex = idx;
-            renderVoucher(singlePaymentsData[idx]);
+            if (voucherType === 'receipt') {
+                // Use receipt data directly for rendering
+                renderVoucher(dataSource[idx]);
+            } else {
+                currentViewedIndex = idx;
+                renderVoucher(singlePaymentsData[idx]);
+            }
+        } else {
+            // Fallback: search in both data sources
+            const fallbackReceipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+            const fallbackPayments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+            const allData = [...fallbackPayments, ...fallbackReceipts];
+            const found = allData.find(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId) || String(v.paymentNo) === String(voucherId) || String(v.receiptNo) === String(voucherId));
+            if (found) {
+                renderVoucher(found);
+            }
         }
     }
 });

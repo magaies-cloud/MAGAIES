@@ -86,45 +86,6 @@ $page_title = 'حساب الارصده الاساسية';
             left: 0;
             bottom: 0;
         }
-
-        /* ─── Table Header Drag & Drop Cues ─── */
-        th.header-dragging {
-            opacity: 0.55 !important;
-            background: rgba(56, 189, 248, 0.35) !important;
-            border: 2px dashed #38bdf8 !important;
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.6) !important;
-        }
-        th.header-drag-over {
-            border-right: 4px solid #10b981 !important;
-            background: rgba(16, 185, 129, 0.25) !important;
-        }
-
-        /* ─── High Contrast Numbers & Thicker Currency Fonts ─── */
-        #balances-table td.num, 
-        #balances-table td.num-cell {
-            font-weight: 800 !important;
-            font-size: 1.05rem;
-            letter-spacing: 0.3px;
-            color: #f8fafc !important;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
-        }
-        :root.light-theme #balances-table td.num,
-        :root.light-theme #balances-table td.num-cell {
-            color: #0f172a !important;
-            text-shadow: none !important;
-        }
-
-        /* Thicker & Larger Currency Columns */
-        #balances-table th[data-orig-idx="3"],
-        #balances-table th[data-orig-idx="4"],
-        #balances-table th[data-orig-idx="5"],
-        #balances-table td:nth-child(4),
-        #balances-table td:nth-child(5),
-        #balances-table td:nth-child(6) {
-            font-size: 1.15rem !important;
-            font-weight: 900 !important;
-            letter-spacing: -0.3px;
-        }
         /* ─── Visual Intelligence Analytics Hub Styling ─── */
         .visual-hub-container {
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.65));
@@ -763,8 +724,6 @@ $page_title = 'حساب الارصده الاساسية';
                     <option value="BANK">🏦 حسابات البنوك</option>
                     <option value="SAFE">🔒 الخزن والصناديق</option>
                     <option value="EXP">📊 المصروفات والحسابات العامة</option>
-                    <option value="PARTNER">🤝 حسابات الشركاء والمالكين</option>
-                    <option value="PAYROLL">👷 حسابات العمالة والرواتب</option>
                 </select>
             </div>
 
@@ -834,7 +793,7 @@ $page_title = 'حساب الارصده الاساسية';
             </div>
         </div>
         <div style="display:flex; gap:8px; margin-top:8px; align-items:center; flex-wrap:wrap; width: 100%;">
-            <button class="btn-run" onclick="runReport()" style="display: none !important; padding:6px 20px; font-size:0.92rem; height:36px; border-radius:8px; font-weight:900; display:inline-flex; align-items:center; gap:8px;">
+            <button class="btn-run" onclick="runReport()" style="padding:6px 20px; font-size:0.92rem; height:36px; border-radius:8px; font-weight:900; display:inline-flex; align-items:center; gap:8px;">
                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <span>تشغيل التقرير</span>
             </button>
@@ -954,7 +913,7 @@ $page_title = 'حساب الارصده الاساسية';
 
 
             <!-- Visual Intelligence Analytics Hub (المركز البصري التحليلي والرسوم البيانية) -->
-            <div id="visual-intelligence-hub" class="visual-hub-container" style="display: none;">
+            <div id="visual-intelligence-hub" class="visual-hub-container no-print" style="display: none;">
                 
                 <!-- Section Header -->
                 <div class="hub-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
@@ -1176,8 +1135,8 @@ $page_title = 'حساب الارصده الاساسية';
 
                 </div>
 
-                <!-- Charts Row 6: Solid Pie & Multi-Radial Rings Gauge -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
+                <!-- Charts Row 6: Solid Pie & Multi-Radial Rings Gauge (جديد) -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px;">
                     
                     <!-- Chart 10: Solid Pie Chart - Active vs Zero Accounts -->
                     <div class="v-chart-card">
@@ -1201,228 +1160,6 @@ $page_title = 'حساب الارصده الاساسية';
                             <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: ثلاث حلقات دائرية ملونة متداخلة تقارن حصة كل قطاع بنسبة مئوية واضحة</span>
                         </div>
                         <div id="chart-multi-radial-rings" style="min-height: 320px;"></div>
-                    </div>
-
-                </div>
-
-                <!-- Charts Row 7: DEDICATED COLUMN CHARTS FOR ALL SUPPLIERS & ALL CUSTOMERS (جديد ومفصل) -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
-                    
-                    <!-- Chart 12: Dedicated Column Chart for ALL Suppliers -->
-                    <div class="v-chart-card" style="grid-column: span 1 / -1;">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.1rem; font-weight: 900;">🏬 مدرّج أعمدة الموردين التفصيلي: (ارتفاع العمود بحسب حجم المبلغ دائن "له" ومدين "عليه" بالعملتين)</h4>
-                                <span style="font-size: 0.75rem; background: rgba(244, 63, 94, 0.2); color: #fb7185; padding: 4px 12px; border-radius: 12px; font-weight: 900; border: 1px solid rgba(244, 63, 94, 0.4);">📊 أعمدة الموردين</span>
-                            </div>
-                            <span style="font-size: 0.8rem; color: #94a3b8;">توضيح بسيط: أعمدة شاهقة ترتفع وتتفاوت بوضوح حسب حجم مستحقات كل مورد (بالجنيه السوداني + الدولار الأجنبي)</span>
-                        </div>
-                        <div id="chart-suppliers-columns" style="min-height: 360px;"></div>
-                    </div>
-
-                    <!-- Chart 13: Dedicated Column Chart for ALL Customers -->
-                    <div class="v-chart-card" style="grid-column: span 1 / -1;">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.1rem; font-weight: 900;">👥 مدرّج أعمدة العملاء التفصيلي: (ارتفاع العمود بحسب حجم الديون مدين "عليه" ودائن "له" بالعملتين)</h4>
-                                <span style="font-size: 0.75rem; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 4px 12px; border-radius: 12px; font-weight: 900; border: 1px solid rgba(16, 185, 129, 0.4);">📊 أعمدة العملاء</span>
-                            </div>
-                            <span style="font-size: 0.8rem; color: #94a3b8;">توضيح بسيط: أعمدة بصرية مرتفعة تُميز مطالبات العملاء بوضوح شديد حسب المبلغ (بالجنيه السوداني + الدولار الأجنبي)</span>
-                        </div>
-                        <div id="chart-customers-columns" style="min-height: 360px;"></div>
-                    </div>
-
-                </div>
-
-                <!-- Charts Row 8: Treemap, Waterfall & Polar Area Spectrum -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; margin-bottom: 25px;">
-                    
-                    <!-- Chart 14: Treemap Accounts -->
-                    <div class="v-chart-card">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🗺️ خريطة المساحة المربّعة للمحفظة (Treemap)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.18); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.3);">🗺️ مساحات ملوّنة</span>
-                            </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: مربعات تترتب مساحاتها تلقائياً بحسب القيمة المالية للحساب</span>
-                        </div>
-                        <div id="chart-treemap-accounts" style="min-height: 340px;"></div>
-                    </div>
-
-                    <!-- Chart 15: Waterfall Net Balance -->
-                    <div class="v-chart-card">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📉 شلال حركة الصافي المالي (Waterfall)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">🌊 تدفق الشلال</span>
-                            </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: إظهار الفروقات الإيجابية والسلبية التي تصب في الصافي النهائي</span>
-                        </div>
-                        <div id="chart-waterfall-net" style="min-height: 340px;"></div>
-                    </div>
-
-                    <!-- Chart 16: Polar Area Categories -->
-                    <div class="v-chart-card">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🧭 المخطط القطبي المحوري (Polar Area Spectrum)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.18); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3);">🧭 قطاعات دائريّة</span>
-                            </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: قطاعات مرسومة من المركز توضح اتساع نطاق كل قسم</span>
-                        </div>
-                        <div id="chart-polar-categories" style="min-height: 340px;"></div>
-                    </div>
-
-                </div>
-
-                <!-- Charts Row 9: 3 NEW HIGHLY COMPREHENSIVE CHARTS (3 تقارير بصرية جديدة أكثر شمولية) -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 25px;">
-                    
-                    <!-- Chart 17: Currency Share Donut -->
-                    <div class="v-chart-card">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة توزيع الأرصدة حسب العملات (Currency Volume Share)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.18); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">🔱 وزن العملات</span>
-                            </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: ثقل وحصة كل عملة (سوداني / دولار أجنبي / غيرها) بالعملتين فوراً</span>
-                        </div>
-                        <div id="chart-currency-share-donut" style="min-height: 330px;"></div>
-                    </div>
-
-                    <!-- Chart 18: Treasury & Cash Accounts Column Chart -->
-                    <div class="v-chart-card">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🏛️ مدرّج النقدية السائلة بالخزن والبنوك (Treasury & Cash Columns)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">🏦 السيولة السائلة</span>
-                            </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: ارتفاع أعمدة الخزن والبنوك بحسب الرصيد الفعلي المتاح بالعملتين</span>
-                        </div>
-                        <div id="chart-treasury-cash-columns" style="min-height: 330px;"></div>
-                    </div>
-
-                    <!-- Chart 19: Dual Currency Cumulative Flow Spectrum Curve -->
-                    <div class="v-chart-card" style="grid-column: span 1 / -1;">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.1rem; font-weight: 900;">📈 منحنى التراكم والترافق المزدوج للعملتين (SDG vs USD Cumulative Spectrum)</h4>
-                                <span style="font-size: 0.75rem; background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 4px 12px; border-radius: 12px; font-weight: 900; border: 1px solid rgba(245, 158, 11, 0.4);">🌊 تراكم العملتين</span>
-                            </div>
-                            <span style="font-size: 0.8rem; color: #94a3b8;">توضيح بسيط: منحنيات متدرجة ملونة تقارن تراكم مبالغ الجنيه السوداني مقابل المعادل بالدولار الأجنبي</span>
-                        </div>
-                        <div id="chart-cumulative-dual-currency-flow" style="min-height: 350px;"></div>
-                    </div>
-
-                </div>
-
-                <!-- Charts Row 10: 3 ADDITIONAL COMPREHENSIVE ADVANCED MODELS (3 نماذج إضافية شاملة) -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px;">
-                    
-                    <!-- Chart 20: Pyramidal Distribution of Debts and Credits -->
-                    <div class="v-chart-card">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🔺 الهرم المزدوج لتركز الحقوق والالتزامات (Debts Pyramidal Distribution)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.2); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.4);">🔺 الهرم المزدوج</span>
-                            </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: توزيع هرمي متقابل لأكبر الذمم المدينة والدائنة بالعملتين</span>
-                        </div>
-                        <div id="chart-pyramid-debt-credit" style="min-height: 340px;"></div>
-                    </div>
-
-                    <!-- Chart 21: Category Average Balance Bar Chart -->
-                    <div class="v-chart-card">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">📊 متوسط رصيد الحساب الواحدة في كل فئة (Category Average Balance)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.4);">📐 متوسطات الفئات</span>
-                            </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: يُظهر متوسط الحجم المالي للحساب الواحد لدى العملاء والموردين والخزن</span>
-                        </div>
-                        <div id="chart-category-avg-balance" style="min-height: 340px;"></div>
-                    </div>
-
-                    <!-- Chart 22: Net Cashflow Spectrum Curve -->
-                    <div class="v-chart-card" style="grid-column: span 1 / -1;">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.1rem; font-weight: 900;">🌊 منحنى التوازن وتدفق الصافي التراكمي الشامل (Net Cashflow Spectrum Curve)</h4>
-                                <span style="font-size: 0.75rem; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 4px 12px; border-radius: 12px; font-weight: 900; border: 1px solid rgba(56, 189, 248, 0.4);">🌊 التوازن الصافي</span>
-                            </div>
-                            <span style="font-size: 0.8rem; color: #94a3b8;">توضيح بسيط: منحنى انسيابي متدرج يعكس الصافي الكلي المتبقي في المؤسسة بالعملتين فوراً</span>
-                        </div>
-                        <div id="chart-net-cashflow-spectrum" style="min-height: 360px;"></div>
-                    </div>
-
-                </div>
-
-                <!-- Charts Row 11: CREDIT LIMITS & DEBT AGING MODELS (مخططات حد الائتمان وأعمار الديون) -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-top: 25px;">
-                    
-                    <!-- Chart 23: Credit Limit vs Debt Used vs Remaining Credit Allowance -->
-                    <div class="v-chart-card">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">💳 مقارنة حد الائتمان وسقف المديونية مع المتبقي المتاح (Credit Limit vs Debt Allowance)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.4);">🛡️ سقف الائتمان</span>
-                            </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: مقارنة بصرية سريعة لكل عميل بين المديونية الحالية المستهلكة والمتبقي من حد الائتمان</span>
-                        </div>
-                        <div id="chart-credit-limit-vs-debt" style="min-height: 360px;"></div>
-                    </div>
-
-                    <!-- Chart 24: Debt Aging Spectrum Brackets -->
-                    <div class="v-chart-card">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">⏳ التوزيع البصري لأعمار الديون والمديونية (Debt Aging Spectrum Brackets)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.4);">⌛ أعمار المديونية</span>
-                            </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: تصنيف الديون حسب الأقدمية (0-30 يوم، 31-60 يوم، 61-90 يوم، +90 يوم) بالعملتين</span>
-                        </div>
-                        <div id="chart-debt-aging-spectrum" style="min-height: 360px;"></div>
-                    </div>
-
-                </div>
-
-                <!-- Charts Row 12: ADVANCED CREDIT UTILIZATION & DEBT AGING TREEMAP & POLAR (نماذج إضافية أكثر شمولية) -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; margin-top: 25px;">
-                    
-                    <!-- Chart 25: Donut Credit Limit Utilization -->
-                    <div class="v-chart-card">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🍩 كعكة نسبة استنفاذ سقف الائتمان (Portfolio Credit Utilization Donut)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(244, 63, 94, 0.2); color: #fb7185; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(244, 63, 94, 0.4);">🎯 نسبة استهلاك الائتمان</span>
-                            </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: نسبة المستهلك حالياً من إجمالي التسهيلات والائتمان مقابل المتبقي بالعملتين</span>
-                        </div>
-                        <div id="chart-credit-utilization-donut" style="min-height: 340px;"></div>
-                    </div>
-
-                    <!-- Chart 26: Treemap Debt Aging Risk Matrix -->
-                    <div class="v-chart-card">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🗺️ خريطة مسافات ومساحات مخاطر أعمار الديون (Aging Risk Treemap Matrix)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(168, 85, 247, 0.2); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(168, 85, 247, 0.4);">🗺️ مساحات الخطورة</span>
-                            </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: مربعات ملونة تتوزع مساحاتها بحسب حجم الديون المتأخرة وحرجة الأقدمية</span>
-                        </div>
-                        <div id="chart-aging-risk-treemap" style="min-height: 340px;"></div>
-                    </div>
-
-                    <!-- Chart 27: Polar Area Credit vs Aging Matrix -->
-                    <div class="v-chart-card">
-                        <div class="v-chart-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                                <h4 style="margin: 0; color: #f8fafc; font-size: 1.05rem; font-weight: 900;">🧭 المخطط القطبي لرادار السقوف المالية وأعمار الذمم (Aging & Credit Polar Radar)</h4>
-                                <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 3px 10px; border-radius: 12px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.4);">🧭 قطب السقوف والأعمار</span>
-                            </div>
-                            <span style="font-size: 0.78rem; color: #94a3b8;">توضيح بسيط: قطاعات مرسومة من المركز توضح اتساع نطاق كل فئة عمرية للديون بالعملتين</span>
-                        </div>
-                        <div id="chart-aging-credit-radar" style="min-height: 340px;"></div>
                     </div>
 
                 </div>

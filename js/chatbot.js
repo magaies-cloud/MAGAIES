@@ -755,7 +755,7 @@
                             let btnText = '';
                             
                             if (type === 'draft_receipt') {
-                                targetPage = 'single-cash-receipt.php';
+                                targetPage = 'single-cash-payment.php?type=receipt';
                                 btnText = '💵 فتح شاشة السند وتعبئته';
                             } else if (type === 'draft_payment') {
                                 targetPage = 'single-cash-payment.php';

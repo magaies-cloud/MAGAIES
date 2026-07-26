@@ -336,14 +336,7 @@ $header_theme_class = 'header-theme-reports';
 
 
 
-            <!-- 3. الأرصدة المجمعة للشركاء -->
-            <a href="balances-report.php" class="report-card" style="--accent-color: #00ffff; --shadow-color: 0, 255, 255;">
-                <div class="live-badge"><span class="live-dot"></span>مفعل (Live)</div>
-                <div class="card-icon">👥</div>
-                <div class="card-title">الأرصدة المجمعة للشركاء</div>
-                <div class="card-desc">نظرة عامة على أرصدة جميع الشركاء التجاريين لتقييم المديونيات بشكل مجمع وسريع.</div>
-                <div class="ai-badge">● تجميع المديونيات وحقوق المؤسسة</div>
-            </a>
+
 
             <!-- 4. أعمار المديونية (Aging) -->
             <a href="aging-report.php" class="report-card" style="--accent-color: #ff007f; --shadow-color: 255, 0, 127;">

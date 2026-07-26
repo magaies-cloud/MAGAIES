@@ -280,14 +280,7 @@ $header_theme_class = 'header-theme-reports';
                 <div class="ai-badge">● مراقبة أرصدة شجرة الحسابات</div>
             </a>
 
-            <!-- 2. حسابات الأرصدة -->
-            <a href="balances-report.php" class="report-card" style="--accent-color: #f43f5e; --shadow-color: 244, 63, 94;">
-                <div class="live-badge"><span class="live-dot"></span>مفعل (Live)</div>
-                <div class="card-icon">💰</div>
-                <div class="card-title">حسابات الأرصدة</div>
-                <div class="card-desc">مراجعة سريعة للأرصدة المجمعة، مديونيات الشركاء التجاريين، وتقييم الأرصدة المالية.</div>
-                <div class="ai-badge">● تقييم الأرصدة المجمعة والمديونيات</div>
-            </a>
+
 
             <!-- 3. تقرير اليومية الشامل -->
             <a href="daily_master_report.php" class="report-card" style="--accent-color: #a855f7; --shadow-color: 168, 85, 247;">

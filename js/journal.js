@@ -94,8 +94,8 @@ function openDrillDown(type, ref) {
     if (type === 'sales') target = `direct-sales.php?id=${ref}`;
     else if (type === 'purchase') target = `purchase.php?id=${ref}`;
     else if (type === 'jv') target = `journal-voucher.php?id=${ref}`;
-    else if (type === 'receipt') target = `single-cash-receipt.php?id=${ref}`;
-    else if (type === 'payment') target = `single-cash-payment.php?id=${ref}`;
+    else if (type === 'receipt') target = `single-cash-payment.php?id=${ref}&type=receipt`;
+    else if (type === 'payment') target = `single-cash-payment.php?id=${ref}&type=payment`;
     
     if(target) {
         window.open(target, '_blank');

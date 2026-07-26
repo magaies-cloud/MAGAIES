@@ -12,6 +12,8 @@ let currentPaperSize = 'A4';
 let currentOrientation = 'landscape';
 let showHeaderLogo = true;
 let showHeaderInfo = true;
+let isLongPressTriggered = false;
+let longPressInterval = null;
 
 // Default column definitions with exact field mapping
 const baseColumns = [
@@ -130,7 +132,7 @@ function loadCompanyHeader() {
             if (logoUrl && logoUrl !== 'null' && logoUrl.trim() !== '') {
                 cLogo.src = logoUrl;
                 cLogo.style.display = 'block';
-                if (showHeaderLogo) logoBlock.style.display = 'flex';
+                logoBlock.style.display = showHeaderLogo ? 'flex' : 'none';
             } else {
                 logoBlock.style.display = 'none';
             }
@@ -160,8 +162,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const rawData = localStorage.getItem('preview_table_data');
     if (rawData) {
         try {
-            currentData = JSON.parse(rawData);
-        } catch(e) { console.error('Error parsing data', e); }
+            const parsed = JSON.parse(rawData);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                currentData = parsed;
+            } else {
+                currentData = [
+                    { name: 'شركة تجريبية 1', phone: '0123456789', taxNumber: '100200300', currency: 'SDG', endingDebitForeign: 100, endingCreditForeign: 0, endingDebitLocal: 5000, endingCreditLocal: 0, notes: 'نشط' },
+                    { name: 'مؤسسة السلام', phone: '0987654321', taxNumber: '300400500', currency: 'USD', endingDebitForeign: 0, endingCreditForeign: 1250.75, endingDebitLocal: 0, endingCreditLocal: 1250.75, notes: 'نشط' }
+                ];
+            }
+        } catch(e) {
+            console.error('Error parsing data', e);
+            currentData = [
+                { name: 'شركة تجريبية 1', phone: '0123456789', taxNumber: '100200300', currency: 'SDG', endingDebitForeign: 100, endingCreditForeign: 0, endingDebitLocal: 5000, endingCreditLocal: 0, notes: 'نشط' },
+                { name: 'مؤسسة السلام', phone: '0987654321', taxNumber: '300400500', currency: 'USD', endingDebitForeign: 0, endingCreditForeign: 1250.75, endingDebitLocal: 0, endingCreditLocal: 1250.75, notes: 'نشط' }
+            ];
+        }
     } else {
         currentData = [
             { name: 'شركة تجريبية 1', phone: '0123456789', taxNumber: '100200300', currency: 'SDG', endingDebitForeign: 100, endingCreditForeign: 0, endingDebitLocal: 5000, endingCreditLocal: 0, notes: 'نشط' },
@@ -412,6 +428,7 @@ function initPresets() {
                 isFactoryDefault: false
             }
         ];
+    }
     // Always enforce Factory Default Presets (slots 0..3) across ALL companies (old and new)
     const FACTORY_DEFAULTS_SEED = [
         {
@@ -473,7 +490,9 @@ function initPresets() {
     ];
 
     for (let i = 0; i < 4; i++) {
-        list[i] = Object.assign({}, FACTORY_DEFAULTS_SEED[i]);
+        if (!list[i]) {
+            list[i] = Object.assign({}, FACTORY_DEFAULTS_SEED[i]);
+        }
     }
 
     // Ensure list has at least 7 slots
@@ -607,8 +626,14 @@ function bindPresetButtonLongPress(btn, idx) {
     btn.addEventListener('mouseup', endPress);
     btn.addEventListener('mouseleave', cancelPress);
 
-    btn.addEventListener('touchstart', startPress, { passive: true });
-    btn.addEventListener('touchend', endPress);
+    btn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        startPress(e);
+    }, { passive: false });
+    btn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        endPress(e);
+    });
     btn.addEventListener('touchcancel', cancelPress);
 
     btn.oncontextmenu = (e) => {
@@ -988,8 +1013,8 @@ function loadPreset(idx) {
     
     setTableTheme(currentTheme, false);
     setNumberFont(currentFont, false);
-    setPaperSize(currentPaperSize, false);
-    setPageOrientation(currentOrientation, false);
+    setPaperSize(currentPaperSize, true);
+    setPageOrientation(currentOrientation, true);
     
     document.getElementById('hdr-show-logo-chk').checked = showHeaderLogo;
     document.getElementById('hdr-show-info-chk').checked = showHeaderInfo;
@@ -1006,7 +1031,36 @@ function loadPreset(idx) {
 }
 
 function saveCurrentPreset() {
-    promptConfirmationAndSave(currentPresetIndex);
+    const presets = getSavedPresets();
+    const p = presets[currentPresetIndex];
+    if (!p) return;
+
+    // Direct save - no long press needed, just save immediately
+    p.configs = JSON.parse(JSON.stringify(columnConfigs));
+    p.order = [...columnOrder];
+    p.theme = currentTheme;
+    p.font = currentFont;
+    p.paperSize = currentPaperSize;
+    p.orientation = currentOrientation;
+    p.showLogo = showHeaderLogo;
+    p.showInfo = showHeaderInfo;
+    p.updatedAt = new Date().toISOString();
+
+    savePresets(presets);
+    renderPresetButtons();
+    if (typeof renderPresetsManagementList === 'function') renderPresetsManagementList();
+
+    try {
+        if (window.DB_STORE && window.getTenantKey) {
+            const tk = window.getTenantKey(PRESETS_STORAGE_KEY);
+            window.DB_STORE[tk] = JSON.stringify(presets);
+        }
+        if (typeof localforage !== 'undefined') {
+            localforage.setItem(PRESETS_STORAGE_KEY, presets);
+        }
+    } catch(e){}
+
+    showToast(`💾 تم حفظ تصميم الجدول في "${p.name}" بنجاح!`, 'success');
 }
 
 function toggleSettingsPanel() {
@@ -1059,7 +1113,7 @@ function setTableTheme(themeName) {
     const sel = document.getElementById('table-theme-select');
     if (sel) sel.value = themeName || '';
     if (tbl) {
-        tbl.classList.remove('theme-gold', 'theme-lightblue', 'theme-slate');
+        tbl.classList.remove('theme-gold', 'theme-lightblue', 'theme-slate', 'theme-classic-navy', 'theme-emerald-pro', 'theme-modern-slate', 'theme-luxury-gold', 'theme-luxury-black');
         if (themeName) tbl.classList.add(themeName);
     }
 }
@@ -1070,7 +1124,7 @@ function setNumberFont(fontClass) {
     const select = document.getElementById('num-font-select');
     if (select) select.value = fontClass;
     if (tbl) {
-        tbl.classList.remove('font-newsons', 'font-ribot', 'font-firacode', 'font-ultra', 'font-bolt', 'font-jakarta', 'font-roboto', 'font-outfit');
+        tbl.classList.remove('font-newsons', 'font-ribot', 'font-firacode', 'font-ultra', 'font-bolt', 'font-jakarta', 'font-roboto', 'font-outfit', 'font-tajawal', 'font-cairo');
         if (fontClass) tbl.classList.add(fontClass);
     }
 }
@@ -1159,12 +1213,28 @@ function moveSelectedCol(direction) {
     const pos = columnOrder.indexOf(selectedColIndex);
     if (pos === -1) return;
     
-    const newPos = pos + direction;
-    if (newPos < 0 || newPos >= columnOrder.length) return;
+    // Find all visible columns in their current order
+    const visibleIndices = columnOrder.filter(idx => {
+        const conf = columnConfigs[idx];
+        return !conf || conf.visible !== false;
+    });
     
+    const visiblePos = visibleIndices.indexOf(selectedColIndex);
+    if (visiblePos === -1) return; // Selected column is hidden, can't move
+    
+    const newVisiblePos = visiblePos + direction;
+    if (newVisiblePos < 0 || newVisiblePos >= visibleIndices.length) return; // Out of bounds
+    
+    // The target column index we want to swap with in the entire columnOrder array
+    const targetColIndex = visibleIndices[newVisiblePos];
+    const targetPos = columnOrder.indexOf(targetColIndex);
+    
+    if (targetPos === -1) return;
+    
+    // Swap their positions in the full columnOrder array
     const temp = columnOrder[pos];
-    columnOrder[pos] = columnOrder[newPos];
-    columnOrder[newPos] = temp;
+    columnOrder[pos] = columnOrder[targetPos];
+    columnOrder[targetPos] = temp;
     
     renderTable();
 }
@@ -1517,23 +1587,22 @@ function initResetButton() {
     let holdCompleted = false;
 
     const startHold = (e) => {
-        // Only trigger on left-click (button 0) or touch
         if (e.type === 'mousedown' && e.button !== 0) return;
         
         isHolding = true;
         holdCompleted = false;
         
         if (progress) {
-            progress.style.transition = 'width 5s linear';
+            progress.style.transition = 'width 8s linear';
             progress.style.width = '100%';
         }
 
         timer = setTimeout(() => {
             holdCompleted = true;
-            saveCustomResetState();
             cancelHold();
-            showToast('✨ تم حفظ التصميم الحالي كنقطة إعادة ضبط جديدة!', 'success');
-        }, 5000);
+            // Long press 8 seconds = RESTORE factory reset
+            restoreFactoryReset();
+        }, 8000);
     };
 
     const cancelHold = () => {
@@ -1556,7 +1625,8 @@ function initResetButton() {
         if (isHolding) {
             cancelHold();
             if (!holdCompleted) {
-                confirmAndRestoreState();
+                // Short click = open modal to SAVE factory reset
+                saveFactoryResetViaModal();
             }
         }
     });
@@ -1572,7 +1642,7 @@ function initResetButton() {
         if (isHolding) {
             cancelHold();
             if (!holdCompleted) {
-                confirmAndRestoreState();
+                saveFactoryResetViaModal();
             }
         }
     });
@@ -1603,10 +1673,10 @@ function showConfirmModal(onConfirm) {
         modal.classList.add('show');
     }
     
-    const circle = document.querySelector('.progress-ring__circle');
-    if (circle) {
-        circle.style.transition = 'none';
-        circle.style.strokeDashoffset = '50.26';
+    const progress = document.querySelector('.modal-ok-progress');
+    if (progress) {
+        progress.style.transition = 'none';
+        progress.style.width = '0%';
     }
 }
 
@@ -1624,7 +1694,7 @@ function initConfirmModal() {
     const okBtn = document.getElementById('modal-ok-btn');
     if (!modal || !cancelBtn || !okBtn) return;
 
-    const circle = modal.querySelector('.progress-ring__circle');
+    const progress = modal.querySelector('.modal-ok-progress');
     let timer = null;
     let isHolding = false;
     let holdCompleted = false;
@@ -1635,9 +1705,9 @@ function initConfirmModal() {
         isHolding = true;
         holdCompleted = false;
 
-        if (circle) {
-            circle.style.transition = 'stroke-dashoffset 3s linear';
-            circle.style.strokeDashoffset = '0';
+        if (progress) {
+            progress.style.transition = 'width 3s linear';
+            progress.style.width = '100%';
         }
 
         timer = setTimeout(() => {
@@ -1657,9 +1727,9 @@ function initConfirmModal() {
             clearTimeout(timer);
             timer = null;
         }
-        if (circle) {
-            circle.style.transition = 'none';
-            circle.style.strokeDashoffset = '50.26';
+        if (progress) {
+            progress.style.transition = 'none';
+            progress.style.width = '0%';
         }
     };
 
@@ -1681,22 +1751,43 @@ function initConfirmModal() {
     okBtn.addEventListener('touchcancel', cancelOkHold);
 }
 
-function confirmAndRestoreState() {
+// Short click on reset button: opens modal → 3s hold on OK → SAVE current design as factory reset
+function saveFactoryResetViaModal() {
     showConfirmModal(() => {
-        const raw = localStorage.getItem('balances_custom_reset_v1');
-        if (raw) {
-            try {
-                const state = JSON.parse(raw);
-                applyDesignState(state);
-                showToast('🔄 تم استعادة التصميم المحفوظ بنجاح!', 'success');
-            } catch(e) {
-                console.error('Error parsing custom reset state', e);
-                restoreToFactoryDefault();
-            }
-        } else {
+        saveCustomResetState();
+        showToast('✅ تم حفظ التصميم الحالي كـ ضبط مصنع بنجاح!', 'success');
+    });
+}
+
+function saveCustomResetState() {
+    const state = {
+        configs: JSON.parse(JSON.stringify(columnConfigs)),
+        order: [...columnOrder],
+        theme: currentTheme,
+        font: currentFont,
+        paperSize: currentPaperSize,
+        orientation: currentOrientation,
+        showLogo: showHeaderLogo,
+        showInfo: showHeaderInfo
+    };
+    localStorage.setItem('balances_custom_reset_v1', JSON.stringify(state));
+}
+
+// Long press 8 seconds on reset button: RESTORE factory reset settings
+function restoreFactoryReset() {
+    const raw = localStorage.getItem('balances_custom_reset_v1');
+    if (raw) {
+        try {
+            const state = JSON.parse(raw);
+            applyDesignState(state);
+            showToast('🔄 تم استرجاع ضبط المصنع المحفوظ بنجاح!', 'success');
+        } catch(e) {
+            console.error('Error parsing custom reset state', e);
             restoreToFactoryDefault();
         }
-    });
+    } else {
+        restoreToFactoryDefault();
+    }
 }
 
 function restoreToFactoryDefault() {
@@ -1711,5 +1802,5 @@ function restoreToFactoryDefault() {
         showInfo: true
     };
     applyDesignState(factoryState);
-    showToast('🔄 تم استعادة ضبط المصنع الافتراضي للمشروع!', 'info');
+    showToast('🔄 تم استعادة ضبط المصنع الافتراضي!', 'info');
 }

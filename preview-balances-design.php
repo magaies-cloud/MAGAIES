@@ -46,6 +46,24 @@
         table.excel-table.theme-slate th { background: #475569 !important; color: #ffffff !important; border-color: #334155 !important; }
         table.excel-table.theme-slate td { border-color: #cbd5e1 !important; }
 
+        table.excel-table.theme-classic-navy th { background: #1e3a8a !important; color: #ffffff !important; border-color: #172554 !important; }
+        table.excel-table.theme-classic-navy td { border-color: #dbeafe !important; }
+
+        table.excel-table.theme-emerald-pro th { background: #065f46 !important; color: #ffffff !important; border-color: #022c22 !important; }
+        table.excel-table.theme-emerald-pro td { border-color: #d1fae5 !important; }
+
+        table.excel-table.theme-modern-slate th { background: #334155 !important; color: #ffffff !important; border-color: #0f172a !important; }
+        table.excel-table.theme-modern-slate td { border-color: #e2e8f0 !important; }
+
+        table.excel-table.theme-luxury-gold th { background: #78350f !important; color: #ffffff !important; border-color: #451a03 !important; }
+        table.excel-table.theme-luxury-gold td { border-color: #fef3c7 !important; }
+
+        table.excel-table.theme-luxury-black th { background: #0a0a0a !important; color: #f5f5f5 !important; border-color: #000000 !important; font-weight: 900 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); letter-spacing: 0.3px; }
+        table.excel-table.theme-luxury-black td { border-color: #1a1a1a !important; color: #171717 !important; font-weight: 600 !important; }
+        table.excel-table.theme-luxury-black tbody tr:nth-child(even) { background: #fafafa !important; }
+        table.excel-table.theme-luxury-black tbody tr:nth-child(odd) { background: #ffffff !important; }
+        table.excel-table.theme-luxury-black tfoot td { background: #171717 !important; color: #f5f5f5 !important; font-weight: 900 !important; border-color: #000000 !important; }
+        
         /* Fonts */
         .font-newsons { font-family: 'JetBrains Mono', monospace !important; }
         .font-ribot { font-family: 'Roboto Mono', monospace !important; }
@@ -54,6 +72,8 @@
         .font-jakarta { font-family: 'Plus Jakarta Sans', sans-serif !important; font-variant-numeric: tabular-nums !important; }
         .font-roboto { font-family: 'Roboto', sans-serif !important; font-variant-numeric: tabular-nums !important; }
         .font-outfit { font-family: 'Outfit', sans-serif !important; font-variant-numeric: tabular-nums !important; }
+        .font-tajawal { font-family: 'Tajawal', sans-serif !important; font-weight: 400 !important; font-variant-numeric: tabular-nums !important; }
+        .font-cairo { font-family: 'Cairo', sans-serif !important; font-weight: 400 !important; font-variant-numeric: tabular-nums !important; }
 
         /* Hide injected global navigation sidebar/header on preview page */
         .global-sidebar, header.premium-header, .global-header, .navbar {
@@ -577,9 +597,14 @@
                 <span>✨ أنماط العرض الفاخرة:</span>
                 <select id="table-theme-select" class="panel-input" style="font-weight:800;" onchange="setTableTheme(this.value)">
                     <option value="">⚪ 1. الأساسي المعياري</option>
-                    <option value="theme-gold">🟡 2. الأصفر الغامق (Luxury Gold)</option>
-                    <option value="theme-lightblue">🔵 3. الأزرق الفاتح (Ocean Blue)</option>
-                    <option value="theme-slate">⚪ 4. الرمادي الراقي (Slate Gray)</option>
+                    <option value="theme-classic-navy">🔷 2. الأزرق الكلاسيكي (Classic Navy)</option>
+                    <option value="theme-emerald-pro">💚 3. الزمردي الراقي (Emerald Pro)</option>
+                    <option value="theme-modern-slate">🩶 4. الرمادي العصري (Modern Slate)</option>
+                    <option value="theme-luxury-gold">👑 5. الذهبي الملكي (Luxury Gold)</option>
+                    <option value="theme-gold">🟡 6. الأصفر الغامق (Amber Gold)</option>
+                    <option value="theme-lightblue">🔵 7. الأزرق الفاتح (Ocean Blue)</option>
+                    <option value="theme-slate">⚪ 8. الرمادي الكلاسيكي (Slate Gray)</option>
+                    <option value="theme-luxury-black">🖤 9. الأسود الفاخر (Luxury Black)</option>
                 </select>
             </div>
         </div>
@@ -758,23 +783,20 @@
     </div>
 </div>
 
-<!-- Custom Glassmorphic Confirm Reset Modal -->
+<!-- Custom Glassmorphic Confirm Save Factory Reset Modal -->
 <div id="reset-confirm-modal" class="reset-modal-overlay">
     <div class="reset-modal-container">
-        <div class="reset-modal-icon">⚠️</div>
-        <h3 class="reset-modal-title">هل أنت متأكد من رغبتك في إعادة ضبط التصميم؟</h3>
-        <p class="reset-modal-desc">سيتم فقدان جميع التعديلات غير المحفوظة في لوحة التصميم الحالية.</p>
+        <div class="reset-modal-icon">🔧</div>
+        <h3 class="reset-modal-title">حفظ التصميم الحالي كـ ضبط مصنع</h3>
+        <p class="reset-modal-desc">سيتم حفظ جميع إعدادات التصميم الحالية كنقطة ضبط المصنع. يمكنك استرجاعها لاحقاً بالضغط المطوّل على زر إعادة الضبط لمدة 8 ثوانٍ.</p>
         
         <div class="reset-modal-buttons">
             <button id="modal-cancel-btn" class="modal-btn cancel">
                 ❌ إلغاء
             </button>
-            <button id="modal-ok-btn" class="modal-btn ok">
-                <svg class="progress-ring" width="20" height="20">
-                    <circle class="progress-ring__circle-bg" stroke="rgba(255, 255, 255, 0.2)" stroke-width="2.5" fill="transparent" r="8" cx="10" cy="10"/>
-                    <circle class="progress-ring__circle" stroke="#10b981" stroke-width="2.5" fill="transparent" r="8" cx="10" cy="10" stroke-dasharray="50.26" stroke-dashoffset="50.26"/>
-                </svg>
-                <span class="ok-btn-text">موافق (اضغط 3 ثوانٍ)</span>
+            <button id="modal-ok-btn" class="modal-btn ok" style="position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; min-width: 170px;">
+                <span class="modal-ok-progress" style="position: absolute; right: 0; top: 0; bottom: 0; width: 0%; background: rgba(255, 255, 255, 0.3); transition: none; pointer-events: none;"></span>
+                <span class="ok-btn-text" style="position: relative; z-index: 2;">🟢 موافق (اضغط 3 ثوانٍ)</span>
             </button>
         </div>
     </div>

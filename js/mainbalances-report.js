@@ -124,80 +124,14 @@ function applyLayoutToDOM() {
             });
         }
 
-        // Re-bind resizers and drag & drop handlers for table headers
+        // Re-bind resizers because headers were reordered
         if (typeof bindResizers === 'function') {
             bindResizers();
-        }
-        if (typeof initTableHeaderDragAndDrop === 'function') {
-            initTableHeaderDragAndDrop();
         }
     } catch(e) {
         console.error('Error applying layout to DOM:', e);
     }
 }
-
-window.initTableHeaderDragAndDrop = function() {
-    const table = document.getElementById('balances-table');
-    if (!table) return;
-    const theadTr = table.querySelector('thead tr#balances-header-row');
-    if (!theadTr) return;
-
-    const ths = Array.from(theadTr.querySelectorAll('th'));
-    let draggedVisualIdx = -1;
-
-    ths.forEach((th, visualIdx) => {
-        th.setAttribute('draggable', 'true');
-        th.title = 'اسحب يميناً أو شمالاً لترتيب الخانة وإعادة موضعها تلقائياً';
-        if (!th.style.cursor || th.style.cursor === 'auto') {
-            th.style.cursor = 'grab';
-        }
-
-        th.ondragstart = (e) => {
-            if (e.target.classList.contains('resizer')) {
-                e.preventDefault();
-                return false;
-            }
-            draggedVisualIdx = visualIdx;
-            th.classList.add('header-dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', visualIdx);
-        };
-
-        th.ondragend = () => {
-            th.classList.remove('header-dragging');
-            ths.forEach(t => t.classList.remove('header-drag-over'));
-        };
-
-        th.ondragover = (e) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            th.classList.add('header-drag-over');
-        };
-
-        th.ondragleave = () => {
-            th.classList.remove('header-drag-over');
-        };
-
-        th.ondrop = (e) => {
-            e.preventDefault();
-            th.classList.remove('header-drag-over');
-            const targetVisualIdx = visualIdx;
-
-            if (draggedVisualIdx >= 0 && draggedVisualIdx !== targetVisualIdx) {
-                // Reorder window.colOrder
-                const movedOrigIdx = window.colOrder.splice(draggedVisualIdx, 1)[0];
-                window.colOrder.splice(targetVisualIdx, 0, movedOrigIdx);
-
-                // Auto-save layout automatically without any button!
-                saveLayout();
-                applyLayoutToDOM();
-                if (window.lastResults) renderTable(window.lastResults);
-                if (typeof bindContextMenuList === 'function') bindContextMenuList();
-                showToast('✨ تم إعادة ترتيب الخانات وحفظ الترتيب تلقائياً!', 'success');
-            }
-        };
-    });
-};
 
 function loadLayout() {
     try {
@@ -612,7 +546,6 @@ document.addEventListener('DBReady', () => {
     applyLayoutToDOM();
     loadData();
     console.log('%c[balances-report.js] After loadData: Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: orange; font-size: 14px;');
-    runReport();
 });
 
 // Fallback: if DBReady already fired before this script loaded
@@ -622,7 +555,6 @@ if (window.APP_READY) {
     applyLayoutToDOM();
     loadData();
     console.log('%c[balances-report.js] Fallback loadData: Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: orange; font-size: 14px;');
-    runReport();
 }
 
 function runReport() {
@@ -1322,30 +1254,6 @@ function updateColDOMByOrigIdx(origIdx) {
     }
 }
 
-window.updateColAliasCtx = function(origIdx, newAlias) {
-    if (origIdx === undefined || !window.colConfigs || !window.colConfigs[origIdx]) return;
-    const val = String(newAlias || '').trim();
-    if (!val) return;
-    
-    window.colConfigs[origIdx].alias = val;
-    window.colConfigs[origIdx].name = val;
-    
-    const titleSpan = document.querySelector(`.col-config-item[data-orig-idx="${origIdx}"] .col-title`);
-    if (titleSpan) titleSpan.textContent = val;
-
-    if (typeof updateColDOMByOrigIdx === 'function') {
-        updateColDOMByOrigIdx(origIdx);
-    } else if (typeof applyLayoutToDOM === 'function') {
-        applyLayoutToDOM();
-    }
-    
-    saveLayout();
-    
-    if (typeof showToast === 'function') {
-        showToast(`✨ تم تغيير مسمى العمود إلى "${val}" وحفظه نهائياً`, "success");
-    }
-};
-
 function updateColDOM(visualIndex, origIdx) {
     const conf = window.colConfigs[origIdx];
     if (!conf) return;
@@ -1364,21 +1272,6 @@ function updateColDOM(visualIndex, origIdx) {
     const ths = table.querySelectorAll('thead th');
     const th = ths[visualIndex];
     if (th) {
-        const labelText = conf.alias || conf.name;
-        if (labelText) {
-            const resizer = th.querySelector('.resizer');
-            let textUpdated = false;
-            th.childNodes.forEach(node => {
-                if (node.nodeType === Node.TEXT_NODE) {
-                    node.textContent = labelText;
-                    textUpdated = true;
-                }
-            });
-            if (!textUpdated) {
-                th.innerText = labelText;
-                if (resizer) th.appendChild(resizer);
-            }
-        }
         th.style.setProperty('font-weight', fwValHeader, 'important');
         th.style.setProperty('font-size', fsVal, 'important');
         if (colorVal) th.style.setProperty('color', colorVal, 'important'); else th.style.removeProperty('color');
@@ -1884,56 +1777,18 @@ window.getBalancesPresets = function() {
     return [preset1, defaultPreset2, defaultPreset3, defaultPreset4, presetLayout1, presetLayout2, basicPreset];
 };
 
-function ensureLongPressHudExists() {
-    let hud = document.getElementById('long-press-hud');
-    if (!hud) {
-        hud = document.createElement('div');
-        hud.id = 'long-press-hud';
-        hud.style.cssText = `
-            display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-            z-index:9999999; background:rgba(15,23,42,0.96); border:3px solid #eab308;
-            color:#fff; padding:25px 35px; border-radius:24px; box-shadow:0 25px 60px rgba(0,0,0,0.8);
-            text-align:center; min-width:320px; max-width:90%; backdrop-filter:blur(12px);
-            font-family:'Tajawal', sans-serif;
-        `;
-        hud.innerHTML = `
-            <div id="hud-icon" style="font-size:3.5rem; margin-bottom:10px;">⏳</div>
-            <div id="hud-title" style="font-size:1.25rem; font-weight:900; color:#fef08a; margin-bottom:6px;">جاري الحفظ والتثبيت...</div>
-            <div id="hud-desc" style="font-size:0.9rem; opacity:0.9; margin-bottom:18px; line-height:1.4;">استمر بالضغط المتواصل لمدة 8 ثوانٍ لحفظ تصميم التقرير النهائي</div>
-            <div style="background:rgba(255,255,255,0.12); height:14px; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.25); margin-bottom:12px;">
-                <div id="hud-progress-bar" style="background:linear-gradient(90deg, #eab308, #10b981); height:100%; width:0%;"></div>
-            </div>
-            <div id="hud-timer" style="font-weight:900; font-size:1.15rem; color:#38bdf8;">8.0 ثانية متبقية</div>
-        `;
-        document.body.appendChild(hud);
-    }
-    return hud;
-}
-
 window.renderBalancesPresets = function() {
     const container = document.getElementById('main-presets-container');
     if (!container) return;
     container.innerHTML = '';
 
-    const PRESETS_STORAGE_KEY = 'balances_preview_presets_v5';
+    const PRESETS_STORAGE_KEY = 'balances_preview_presets_v7';
     let presets = [];
     try { presets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
 
     if (!Array.isArray(presets) || presets.length === 0) {
-        const defaultIcons = [
-            '💎 افتراضي 1', 
-            '⭐ افتراضي 2', 
-            '🎨 افتراضي 3', 
-            '🔥 افتراضي 4', 
-            '✨ نموذج 1', 
-            '🚀 نموذج 2', 
-            '🌟 نموذج 3'
-        ];
-        presets = defaultIcons.map((name, i) => ({ 
-            name, 
-            showInRibbon: true,
-            isLocked: i < 4 ? false : false
-        }));
+        const defaultIcons = ['💎 افتراضي 1', '⭐ افتراضي 2', '🎨 افتراضي 3', '🔥 افتراضي 4', '✨ نموذج 1', '🚀 نموذج 2', '🌟 نموذج 3'];
+        presets = defaultIcons.map(name => ({ name, showInRibbon: true }));
     }
 
     presets.forEach((p, idx) => {
@@ -1947,128 +1802,22 @@ window.renderBalancesPresets = function() {
             color: #f1f5f9; padding: 5px 14px; border-radius: 18px;
             font-family: inherit; font-size: 0.85rem; font-weight: 800;
             cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.18); user-select: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.18);
         `;
-
-        const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
-        let badge = isDefaultGroup ? ' ⭐' : ' 🔄';
-
-        btn.innerHTML = p.name + badge;
-        btn.title = isDefaultGroup 
-            ? 'اضغط مطولاً (8 ثوانٍ) لحفظ وتحديث ضبط المصنع ⭐'
-            : 'اضغط مطولاً (8 ثوانٍ) لحفظ وتحديث النموذج 🔄';
-
-        // 8-second Long Press Handler
-        let pressStartTime = 0;
-        let mainInterval = null;
-        let isTriggered = false;
-
-        const startPress = (e) => {
-            if (e.type === 'mousedown' && e.button !== 0) return;
-            pressStartTime = Date.now();
-            isTriggered = false;
-            ensureLongPressHudExists();
-
-            const isLockedDefault = isDefaultGroup && p.isLocked === true;
-            const hud = document.getElementById('long-press-hud');
-            const hudTitle = document.getElementById('hud-title');
-            const hudDesc = document.getElementById('hud-desc');
-            const hudProgress = document.getElementById('hud-progress-bar');
-            const hudTimer = document.getElementById('hud-timer');
-            const hudIcon = document.getElementById('hud-icon');
-
-            if (hud) {
-                hud.style.display = 'block';
-                if (isDefaultGroup) {
-                    hudIcon.innerText = '🔒';
-                    hudTitle.innerText = `حفظ وتثبيت ضبط المصنع (${p.name})`;
-                    hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) لحفظ وتثبيت التعديلات الجديدة كـ "ضبط مصنع نهائي".';
-                    if (hudProgress) { hudProgress.style.width = '0%'; hudProgress.style.background = 'linear-gradient(90deg, #eab308, #10b981)'; }
-                    if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
-                } else {
-                    hudIcon.innerText = '✨';
-                    hudTitle.innerText = `حفظ وتحديث (${p.name})`;
-                    hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) حتى يمتلئ الشريط، وسيطلب منك النظام تأكيد الحفظ والتحديث.';
-                    if (hudProgress) { hudProgress.style.width = '0%'; hudProgress.style.background = 'linear-gradient(90deg, #3b82f6, #10b981)'; }
-                    if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
-                }
-            }
-
-            const duration = 8000;
-            const startTime = Date.now();
-
-            mainInterval = setInterval(() => {
-                const elapsed = Date.now() - startTime;
-                const remainingMs = Math.max(0, duration - elapsed);
-                const remainingSec = (remainingMs / 1000).toFixed(1);
-                const percent = Math.min(100, (elapsed / duration) * 100);
-
-                if (hudProgress) hudProgress.style.width = percent + '%';
-                if (hudTimer) hudTimer.innerText = remainingSec + ' ثانية متبقية';
-
-                btn.style.boxShadow = `0 0 15px rgba(16,185,129,0.8)`;
-                btn.style.borderColor = '#10b981';
-                btn.style.background = `linear-gradient(90deg, rgba(16,185,129,0.45) ${percent}%, rgba(255,255,255,0.08) ${percent}%)`;
-
-                if (elapsed >= duration) {
-                    clearInterval(mainInterval);
-                    mainInterval = null;
-                    isTriggered = true;
-                    if (hud) hud.style.display = 'none';
-                    btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
-
-                    setTimeout(() => {
-                        if (isDefaultGroup) {
-                            const confirmSave = confirm(`🔒 اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتثبيت شكل وتصميم التقرير الحالي كـ "ضبط مصنع نهائي" في (${p.name})؟\n\n⚠️ تنبيه هام: بعد التأكيد سيتم قفل وتثبيت هذا التصميم نهائياً ولن يمكن تغييره أو تعديله لاحقاً مهما حصل.`);
-                            if (confirmSave) {
-                                p.isLocked = true;
-                                p.isFactoryDefault = true;
-                                localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-                                alert(`🔒 تم حفظ وتثبيت شكل وتصميم التقرير في "${p.name}" كـ "ضبط المصنع النهائي" بنجاح!`);
-                                window.renderBalancesPresets();
-                            }
-                        } else {
-                            const confirmSave = confirm(`✨ اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتحديث تصميم التقرير الحالي في (${p.name})؟\n\n(ملاحظة: يمكنك إعادة تعديله وتجديده لاحقاً في أي وقت بالضغط المطول 8 ثوانٍ مجدداً).`);
-                            if (confirmSave) {
-                                p.isLocked = false;
-                                p.updatedAt = new Date().toISOString();
-                                localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-                                alert(`✨ تم حفظ وتحديث تصميم التقرير في "${p.name}" بنجاح!`);
-                                window.renderBalancesPresets();
-                            }
-                        }
-                    }, 50);
-                }
-            }, 50);
+        btn.innerHTML = p.name;
+        btn.onmouseover = () => {
+            btn.style.background = 'linear-gradient(135deg, rgba(56,189,248,0.3), rgba(2,132,199,0.4))';
+            btn.style.borderColor = '#38bdf8';
+            btn.style.transform = 'translateY(-2px) scale(1.03)';
+            btn.style.boxShadow = '0 6px 16px rgba(56,189,248,0.4)';
         };
-
-        const endPress = (e) => {
-            const duration = Date.now() - pressStartTime;
-            if (mainInterval) {
-                clearInterval(mainInterval);
-                clearTimeout(mainInterval);
-                mainInterval = null;
-            }
-            const hud = document.getElementById('long-press-hud');
-            if (hud) hud.style.display = 'none';
-            btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
-
-            if (isTriggered) {
-                if (e) { e.preventDefault(); e.stopPropagation(); }
-                return false;
-            }
-
-            if (pressStartTime > 0 && duration < 1000) {
-                window.openPresetModal(idx, p.name);
-            }
+        btn.onmouseout = () => {
+            btn.style.background = 'rgba(255,255,255,0.08)';
+            btn.style.borderColor = 'rgba(255,255,255,0.25)';
+            btn.style.transform = 'translateY(0) scale(1)';
+            btn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.18)';
         };
-
-        btn.addEventListener('mousedown', startPress);
-        btn.addEventListener('mouseup', endPress);
-        btn.addEventListener('touchstart', startPress, { passive: true });
-        btn.addEventListener('touchend', endPress);
-
-        btn.oncontextmenu = (e) => { e.preventDefault(); return false; };
+        btn.onclick = () => window.openPresetModal(idx, p.name);
         container.appendChild(btn);
     });
 
@@ -2099,7 +1848,7 @@ window.renderBalancesPresets = function() {
 };
 
 window.addEventListener('storage', function(e) {
-    if (e.key === 'balances_preview_presets_v5') {
+    if (e.key === 'balances_preview_presets_v7') {
         if (typeof window.renderBalancesPresets === 'function') {
             window.renderBalancesPresets();
         }
@@ -2534,15 +2283,7 @@ function renderVisualAnalytics(results) {
     const indCoverageBar = document.getElementById('ind-coverage-bar');
 
     if (indNetVal) {
-        const absVal = Math.abs(netPosition);
-        const sdgStr = absVal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
-        let usdHtml = '';
-        if (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0) {
-            const usdVal = (absVal / ledgerExchangeRate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            usdHtml = `<span style="color: #fbbf24; font-weight: 900; background: rgba(245, 158, 11, 0.22); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 0.95rem; box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); font-family: 'JetBrains Mono', monospace;">$${usdVal} ${ledgerForeignCurrency || 'USD'}</span>`;
-        }
-        const sdgHtml = `<span style="color: #34d399; font-weight: 900; background: rgba(16, 185, 129, 0.22); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.4); font-size: 0.95rem; box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); font-family: 'JetBrains Mono', monospace;">${sdgStr}</span>`;
-        indNetVal.innerHTML = `<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px;">${sdgHtml} <span style="color: #94a3b8; font-weight: bold;">|</span> ${usdHtml}</div>`;
+        indNetVal.textContent = (Math.abs(netPosition)).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
         if (netPosition >= 0) {
             if (indTrendArrow) indTrendArrow.textContent = '↗️';
             if (indTrendBadge) {
@@ -2619,7 +2360,7 @@ function renderVisualAnalytics(results) {
         const sdg = parseFloat(val).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' SDG';
         if (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0 && typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency) {
             const fval = (parseFloat(val) / ledgerExchangeRate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            return sdg + '  |  $' + fval + ' ' + ledgerForeignCurrency;
+            return sdg + '  |  ' + fval + ' ' + ledgerForeignCurrency;
         }
         return sdg;
     }
@@ -2628,7 +2369,7 @@ function renderVisualAnalytics(results) {
         const sdg = parseFloat(val).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SDG';
         if (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 0 && typeof ledgerForeignCurrency !== 'undefined' && ledgerForeignCurrency) {
             const fval = (parseFloat(val) / ledgerExchangeRate).toLocaleString('en-US', {maximumFractionDigits: 0});
-            return [sdg, '$' + fval + ' ' + ledgerForeignCurrency];
+            return [sdg, fval + ' ' + ledgerForeignCurrency];
         }
         return [sdg];
     }
@@ -2750,9 +2491,6 @@ function renderVisualAnalytics(results) {
             position: 'bottom',
             fontSize: '12px',
             labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' }
-        },
-        tooltip: {
-            y: { formatter: formatDualCurrencyLine }
         },
         theme: { mode: chartThemeMode }
     };
@@ -2890,18 +2628,16 @@ function renderVisualAnalytics(results) {
                 dataLabels: {
                     name: {
                         show: true,
-                        fontSize: '13px',
+                        fontSize: '14px',
                         color: isLightTheme ? '#64748b' : '#94a3b8',
                         offsetY: -10
                     },
                     value: {
-                        offsetY: -45,
-                        fontSize: '18px',
+                        offsetY: -50,
+                        fontSize: '24px',
                         fontWeight: '900',
                         color: isLightTheme ? '#0f172a' : '#f8fafc',
-                        formatter: function (val) {
-                            return val + "% (" + formatDualCurrencyLine(netPosition) + ")";
-                        }
+                        formatter: function (val) { return val + "%"; }
                     }
                 }
             }
@@ -2952,12 +2688,11 @@ function renderVisualAnalytics(results) {
         },
         dataLabels: { enabled: false },
         legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        tooltip: { y: { formatter: formatDualCurrencyLine } },
         theme: { mode: chartThemeMode }
     };
-    try { if (window.chartHollowDonutCreditors) window.chartHollowDonutCreditors.destroy(); } catch(e){}
-    window.chartHollowDonutCreditors = new ApexCharts(document.querySelector("#chart-hollow-donut-top-creditors"), optionsCreditorsDonut);
-    window.chartHollowDonutCreditors.render();
+    try { if (chartHollowDonutCreditors) chartHollowDonutCreditors.destroy(); } catch(e){}
+    chartHollowDonutCreditors = new ApexCharts(document.querySelector("#chart-hollow-donut-creditors"), optionsCreditorsDonut);
+    chartHollowDonutCreditors.render();
 
 
     // ─── Chart 7: Horizontal Bar Chart - Top 10 Accounts Volume Ranking ───
@@ -3041,17 +2776,7 @@ function renderVisualAnalytics(results) {
         stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
         legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
         dataLabels: { enabled: true, style: { fontSize: '12px', fontFamily: 'Tajawal, sans-serif', fontWeight: 'bold' } },
-        tooltip: {
-            y: {
-                formatter: function(val, opts) {
-                    let sumVal = 0;
-                    if (opts.seriesIndex === 0) sumVal = totalDebit;
-                    else if (opts.seriesIndex === 1) sumVal = totalCredit;
-                    else sumVal = 0;
-                    return val + ' حساب  |  ' + formatDualCurrencyLine(sumVal);
-                }
-            }
-        },
+        tooltip: { y: { formatter: v => v + ' حساب' } },
         theme: { mode: chartThemeMode }
     };
     try { if (chartSolidPieActiveZero) chartSolidPieActiveZero.destroy(); } catch(e){}
@@ -3072,7 +2797,7 @@ function renderVisualAnalytics(results) {
             radialBar: {
                 dataLabels: {
                     name: { fontSize: '14px', color: isLightTheme ? '#64748b' : '#94a3b8' },
-                    value: { fontSize: '15px', fontWeight: '800', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + '%' },
+                    value: { fontSize: '16px', fontWeight: '800', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: v => v + '%' },
                     total: { show: true, label: 'نسب الأرصدة', color: isLightTheme ? '#0f172a' : '#cbd5e1', formatter: () => debtorsPct + '%' }
                 },
                 track: { background: isLightTheme ? '#e2e8f0' : '#1e293b' }
@@ -3080,152 +2805,11 @@ function renderVisualAnalytics(results) {
         },
         colors: ['#10b981', '#f43f5e', '#38bdf8'],
         labels: ['حصة العملاء', 'حصة الموردين', 'حصة الخزينة والبنوك'],
-        tooltip: {
-            enabled: true,
-            y: {
-                formatter: function(val, opts) {
-                    let sumVal = 0;
-                    if (opts.seriesIndex === 0) sumVal = categorySums['CUST'].debit;
-                    else if (opts.seriesIndex === 1) sumVal = categorySums['SUPP'].credit;
-                    else if (opts.seriesIndex === 2) sumVal = (categorySums['BANK'].debit + categorySums['SAFE'].debit);
-                    return val + '%  |  ' + formatDualCurrencyLine(sumVal);
-                }
-            }
-        },
         theme: { mode: chartThemeMode }
     };
     try { if (chartMultiRadialRings) chartMultiRadialRings.destroy(); } catch(e){}
     chartMultiRadialRings = new ApexCharts(document.querySelector("#chart-multi-radial-rings"), optionsMultiRadial);
     chartMultiRadialRings.render();
-
-    // ─── Chart 12: Dedicated Column Chart for ALL Suppliers ───
-    const allSuppliers = [...results].filter(x => x.type === 'SUPP' || (x.endingCreditLocal > 0 && !x.name.includes('عميل')))
-        .sort((a, b) => b.endingCreditLocal - a.endingCreditLocal).slice(0, 25);
-    
-    const suppNames = allSuppliers.map(x => x.name);
-    const suppCreditValues = allSuppliers.map(x => x.endingCreditLocal);
-    const suppDebitValues = allSuppliers.map(x => x.endingDebitLocal);
-
-    const optionsSuppliersColumns = {
-        series: [
-            { name: 'رصيد دائن للمورد (له)', data: suppCreditValues },
-            { name: 'رصيد مدين للمورد (عليه)', data: suppDebitValues }
-        ],
-        chart: {
-            type: 'bar',
-            height: 380,
-            background: 'transparent',
-            fontFamily: 'Tajawal, sans-serif',
-            toolbar: { show: true }
-        },
-        colors: ['#f43f5e', '#38bdf8'],
-        plotOptions: {
-            bar: {
-                horizontal: false,
-                columnWidth: '55%',
-                borderRadius: 6,
-                dataLabels: { position: 'top' }
-            }
-        },
-        dataLabels: {
-            enabled: true,
-            formatter: function(val) {
-                if (!val || val === 0) return '';
-                return val >= 1000000 ? (val/1000000).toFixed(1) + 'M' : (val >= 1000 ? (val/1000).toFixed(0) + 'K' : val);
-            },
-            offsetY: -20,
-            style: { fontSize: '10px', colors: [isLightTheme ? '#0f172a' : '#f8fafc'], fontFamily: 'Tajawal, sans-serif' }
-        },
-        stroke: { show: true, width: 2, colors: ['transparent'] },
-        xaxis: {
-            categories: suppNames.length > 0 ? suppNames : ['لا يوجد موردين'],
-            labels: {
-                style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '11px', fontWeight: 'bold' },
-                rotate: -35
-            }
-        },
-        yaxis: {
-            labels: {
-                style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono, monospace' },
-                formatter: function(val) { return val.toLocaleString('en-US', {maximumFractionDigits: 0}); }
-            }
-        },
-        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
-        legend: { position: 'top', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        tooltip: {
-            y: { formatter: formatDualCurrencyLine }
-        },
-        theme: { mode: chartThemeMode }
-    };
-
-    try { if (window.chartSuppliersColumns) window.chartSuppliersColumns.destroy(); } catch(e){}
-    window.chartSuppliersColumns = new ApexCharts(document.querySelector("#chart-suppliers-columns"), optionsSuppliersColumns);
-    window.chartSuppliersColumns.render();
-
-
-    // ─── Chart 13: Dedicated Column Chart for ALL Customers ───
-    const allCustomers = [...results].filter(x => x.type === 'CUST' || (x.endingDebitLocal > 0 && !x.name.includes('مورد')))
-        .sort((a, b) => b.endingDebitLocal - a.endingDebitLocal).slice(0, 25);
-    
-    const custNames = allCustomers.map(x => x.name);
-    const custDebitValues = allCustomers.map(x => x.endingDebitLocal);
-    const custCreditValues = allCustomers.map(x => x.endingCreditLocal);
-
-    const optionsCustomersColumns = {
-        series: [
-            { name: 'رصيد مدين على العميل (عليه)', data: custDebitValues },
-            { name: 'رصيد دائن للعميل (له)', data: custCreditValues }
-        ],
-        chart: {
-            type: 'bar',
-            height: 380,
-            background: 'transparent',
-            fontFamily: 'Tajawal, sans-serif',
-            toolbar: { show: true }
-        },
-        colors: ['#10b981', '#fbbf24'],
-        plotOptions: {
-            bar: {
-                horizontal: false,
-                columnWidth: '55%',
-                borderRadius: 6,
-                dataLabels: { position: 'top' }
-            }
-        },
-        dataLabels: {
-            enabled: true,
-            formatter: function(val) {
-                if (!val || val === 0) return '';
-                return val >= 1000000 ? (val/1000000).toFixed(1) + 'M' : (val >= 1000 ? (val/1000).toFixed(0) + 'K' : val);
-            },
-            offsetY: -20,
-            style: { fontSize: '10px', colors: [isLightTheme ? '#0f172a' : '#f8fafc'], fontFamily: 'Tajawal, sans-serif' }
-        },
-        stroke: { show: true, width: 2, colors: ['transparent'] },
-        xaxis: {
-            categories: custNames.length > 0 ? custNames : ['لا يوجد عملاء'],
-            labels: {
-                style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '11px', fontWeight: 'bold' },
-                rotate: -35
-            }
-        },
-        yaxis: {
-            labels: {
-                style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono, monospace' },
-                formatter: function(val) { return val.toLocaleString('en-US', {maximumFractionDigits: 0}); }
-            }
-        },
-        grid: { borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' },
-        legend: { position: 'top', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        tooltip: {
-            y: { formatter: formatDualCurrencyLine }
-        },
-        theme: { mode: chartThemeMode }
-    };
-
-    try { if (window.chartCustomersColumns) window.chartCustomersColumns.destroy(); } catch(e){}
-    window.chartCustomersColumns = new ApexCharts(document.querySelector("#chart-customers-columns"), optionsCustomersColumns);
-    window.chartCustomersColumns.render();
 
     // ─── Chart 12: Treemap Top 15 Accounts ───
     const top15Treemap = sortedByVolume.slice(0, 15).map(x => ({
@@ -3243,53 +2827,37 @@ function renderVisualAnalytics(results) {
         theme: { mode: chartThemeMode }
     };
     try { if (window.chartTreemapAccounts) window.chartTreemapAccounts.destroy(); } catch(e){}
-    window.chartTreemapAccounts = new ApexCharts(document.querySelector("#chart-treemap-accounts"), optionsTreemap);
-    window.chartTreemapAccounts.render();
+    if (document.querySelector("#chart-treemap-accounts")) {
+        window.chartTreemapAccounts = new ApexCharts(document.querySelector("#chart-treemap-accounts"), optionsTreemap);
+        window.chartTreemapAccounts.render();
+    }
 
 
-    // ─── Chart 15: Waterfall Net Balance Impact ───
+    // ─── Chart 13: Waterfall Net Balance ───
     const topDebtorsWaterfall = [...results].filter(x => x.endingDebitLocal > 0).sort((a, b) => b.endingDebitLocal - a.endingDebitLocal).slice(0, 7);
     const topCreditorsWaterfall = [...results].filter(x => x.endingCreditLocal > 0).sort((a, b) => b.endingCreditLocal - a.endingCreditLocal).slice(0, 7);
     
-    let waterfallNames = [];
-    let waterfallValues = [];
-    topDebtorsWaterfall.forEach(d => {
-        waterfallNames.push(d.name + ' (حق لك)');
-        waterfallValues.push(d.endingDebitLocal);
-    });
-    topCreditorsWaterfall.forEach(c => {
-        waterfallNames.push(c.name + ' (التزام عليك)');
-        waterfallValues.push(-c.endingCreditLocal);
-    });
+    let waterfallData = [];
+    topDebtorsWaterfall.forEach(d => waterfallData.push({ x: d.name, y: d.endingDebitLocal }));
+    topCreditorsWaterfall.forEach(c => waterfallData.push({ x: c.name, y: -c.endingCreditLocal }));
     
     const optionsWaterfall = {
-        series: [{ name: 'التأثير المالي على الصافي', data: waterfallValues }],
-        chart: { type: 'bar', height: 380, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        colors: ['#10b981'],
-        plotOptions: {
-            bar: {
-                colors: {
-                    ranges: [
-                        { from: -9999999999, to: -1, color: '#f43f5e' },
-                        { from: 0, to: 9999999999, color: '#10b981' }
-                    ]
-                },
-                columnWidth: '60%',
-                borderRadius: 6
-            }
-        },
-        dataLabels: { enabled: true, formatter: function(val) { return (val / 1000).toFixed(0) + 'K'; }, style: { fontSize: '10px', colors: ['#ffffff'] } },
-        xaxis: { categories: waterfallNames, labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontFamily: 'Tajawal, sans-serif' }, rotate: -35 } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono, monospace' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
+        series: [{ name: 'التأثير على الصافي', data: waterfallData }],
+        chart: { type: 'waterfall', height: 380, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
+        dataLabels: { enabled: true, formatter: function(val) { return (val / 1000).toFixed(0) + 'K'; }, style: { fontSize: '10px' } },
+        xaxis: { type: 'category', labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'Tajawal' }, rotate: -45 } },
+        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8', fontFamily: 'JetBrains Mono' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
         tooltip: { y: { formatter: function(val) { return formatDualCurrencyLine(Math.abs(val)); } } },
         theme: { mode: chartThemeMode }
     };
     try { if (window.chartWaterfallNet) window.chartWaterfallNet.destroy(); } catch(e){}
-    window.chartWaterfallNet = new ApexCharts(document.querySelector("#chart-waterfall-net"), optionsWaterfall);
-    window.chartWaterfallNet.render();
+    if (document.querySelector("#chart-waterfall-net")) {
+        window.chartWaterfallNet = new ApexCharts(document.querySelector("#chart-waterfall-net"), optionsWaterfall);
+        window.chartWaterfallNet.render();
+    }
 
 
-    // ─── Chart 16: Polar Area ───
+    // ─── Chart 14: Polar Area ───
     const optionsPolar = {
         series: catValues,
         labels: catLabels,
@@ -3302,336 +2870,10 @@ function renderVisualAnalytics(results) {
         theme: { mode: chartThemeMode }
     };
     try { if (window.chartPolarCategories) window.chartPolarCategories.destroy(); } catch(e){}
-    window.chartPolarCategories = new ApexCharts(document.querySelector("#chart-polar-categories"), optionsPolar);
-    window.chartPolarCategories.render();
-
-
-    // ─── Chart 17: Currency Volume Share Donut ───
-    const currMap = {};
-    results.forEach(r => {
-        const cur = r.currency || 'SDG';
-        const bal = Math.max(r.endingDebitLocal, r.endingCreditLocal);
-        currMap[cur] = (currMap[cur] || 0) + bal;
-    });
-
-    const currLabels = Object.keys(currMap).length > 0 ? Object.keys(currMap) : ['SDG'];
-    const currValues = Object.keys(currMap).length > 0 ? Object.values(currMap) : [1];
-
-    const optionsCurrencyShareDonut = {
-        series: currValues,
-        labels: currLabels.map(c => 'عملة ' + c),
-        chart: { type: 'donut', height: 330, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
-        colors: ['#34d399', '#38bdf8', '#fbbf24', '#c084fc', '#fb7185'],
-        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
-        plotOptions: {
-            pie: {
-                donut: {
-                    size: '68%',
-                    labels: {
-                        show: true,
-                        value: { show: true, fontSize: '15px', fontWeight: 'bold', formatter: formatDualCurrencyArray }
-                    }
-                }
-            }
-        },
-        legend: { position: 'bottom', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        tooltip: { y: { formatter: formatDualCurrencyLine } },
-        theme: { mode: chartThemeMode }
-    };
-    try { if (window.chartCurrencyShareDonut) window.chartCurrencyShareDonut.destroy(); } catch(e){}
-    window.chartCurrencyShareDonut = new ApexCharts(document.querySelector("#chart-currency-share-donut"), optionsCurrencyShareDonut);
-    window.chartCurrencyShareDonut.render();
-
-
-    // ─── Chart 18: Treasury & Cash Accounts Column Chart ───
-    const treasuryAccounts = [...results].filter(x => x.type === 'BANK' || x.type === 'SAFE')
-        .sort((a, b) => Math.max(b.endingDebitLocal, b.endingCreditLocal) - Math.max(a.endingDebitLocal, a.endingCreditLocal));
-    
-    const treasNames = treasuryAccounts.map(x => x.name);
-    const treasDebits = treasuryAccounts.map(x => x.endingDebitLocal);
-    const treasCredits = treasuryAccounts.map(x => x.endingCreditLocal);
-
-    const optionsTreasuryColumns = {
-        series: [
-            { name: 'سيولة سائلة متاحة (مدين)', data: treasDebits },
-            { name: 'التزامات الخزينة (دائن)', data: treasCredits }
-        ],
-        chart: { type: 'bar', height: 350, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: true } },
-        colors: ['#38bdf8', '#fb7185'],
-        plotOptions: { bar: { horizontal: false, columnWidth: '50%', borderRadius: 6 } },
-        dataLabels: { enabled: false },
-        xaxis: { categories: treasNames.length > 0 ? treasNames : ['لا يوجد خزن/بنوك'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '11px', fontWeight: 'bold' } } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-        tooltip: { y: { formatter: formatDualCurrencyLine } },
-        theme: { mode: chartThemeMode }
-    };
-    try { if (window.chartTreasuryCashColumns) window.chartTreasuryCashColumns.destroy(); } catch(e){}
-    window.chartTreasuryCashColumns = new ApexCharts(document.querySelector("#chart-treasury-cash-columns"), optionsTreasuryColumns);
-    window.chartTreasuryCashColumns.render();
-
-
-    // ─── Chart 19: Dual Currency Cumulative Flow Spectrum Curve ───
-    const cumAccounts = sortedByVolume.slice(0, 15);
-    const cumNames = cumAccounts.map(x => x.name);
-    const cumLocalValues = cumAccounts.map(x => Math.max(x.endingDebitLocal, x.endingCreditLocal));
-    const cumForeignValues = cumAccounts.map(x => {
-        const localVal = Math.max(x.endingDebitLocal, x.endingCreditLocal);
-        return (ledgerExchangeRate > 0) ? (localVal / ledgerExchangeRate) : localVal;
-    });
-
-    const optionsCumulativeDualFlow = {
-        series: [
-            { name: 'إجمالي القيمة بالجنيه السوداني (SDG)', data: cumLocalValues },
-            { name: `إجمالي المعادل بالـ (${ledgerForeignCurrency})`, data: cumForeignValues }
-        ],
-        chart: { type: 'area', height: 360, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: true } },
-        colors: ['#38bdf8', '#fbbf24'],
-        stroke: { curve: 'smooth', width: 3 },
-        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 90, 100] } },
-        xaxis: { categories: cumNames, labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '11px', fontWeight: 'bold' }, rotate: -30 } },
-        yaxis: [
-            { title: { text: 'بالجنيه السوداني SDG', style: { color: '#38bdf8' } }, labels: { style: { colors: '#38bdf8' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-            { opposite: true, title: { text: `بالعملة الأجنبية ${ledgerForeignCurrency}`, style: { color: '#fbbf24' } }, labels: { style: { colors: '#fbbf24' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } }
-        ],
-        tooltip: { y: { formatter: formatDualCurrencyLine } },
-        theme: { mode: chartThemeMode }
-    };
-    try { if (window.chartCumulativeDualCurrencyFlow) window.chartCumulativeDualCurrencyFlow.destroy(); } catch(e){}
-    window.chartCumulativeDualCurrencyFlow = new ApexCharts(document.querySelector("#chart-cumulative-dual-currency-flow"), optionsCumulativeDualFlow);
-    window.chartCumulativeDualCurrencyFlow.render();
-
-
-    // ─── Chart 20: Pyramidal Distribution of Debts & Credits ───
-    const topDebtorsPyr = [...results].filter(x => x.endingDebitLocal > 0).sort((a, b) => b.endingDebitLocal - a.endingDebitLocal).slice(0, 8);
-    const topCreditorsPyr = [...results].filter(x => x.endingCreditLocal > 0).sort((a, b) => b.endingCreditLocal - a.endingCreditLocal).slice(0, 8);
-    
-    const pyrCategories = [];
-    const pyrDebits = [];
-    const pyrCredits = [];
-    const maxPyrCount = Math.max(topDebtorsPyr.length, topCreditorsPyr.length);
-    for (let i = 0; i < maxPyrCount; i++) {
-        const d = topDebtorsPyr[i];
-        const c = topCreditorsPyr[i];
-        pyrCategories.push(d ? d.name : (c ? c.name : `مستوى ${i+1}`));
-        pyrDebits.push(d ? d.endingDebitLocal : 0);
-        pyrCredits.push(c ? -c.endingCreditLocal : 0);
+    if (document.querySelector("#chart-polar-categories")) {
+        window.chartPolarCategories = new ApexCharts(document.querySelector("#chart-polar-categories"), optionsPolar);
+        window.chartPolarCategories.render();
     }
-
-    const optionsPyramid = {
-        series: [
-            { name: 'حقوق مدينة (لك)', data: pyrDebits },
-            { name: 'التزامات دائنة (عليك)', data: pyrCredits }
-        ],
-        chart: { type: 'bar', height: 350, stacked: true, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        colors: ['#34d399', '#fb7185'],
-        plotOptions: { bar: { horizontal: true, barHeight: '60%' } },
-        dataLabels: { enabled: false },
-        stroke: { width: 1, colors: ['#fff'] },
-        grid: { xaxis: { lines: { show: true } } },
-        xaxis: { categories: pyrCategories, labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' }, formatter: val => Math.abs(val).toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#1e293b' : '#cbd5e1', fontSize: '11px' } } },
-        tooltip: { y: { formatter: val => formatDualCurrencyLine(Math.abs(val)) } },
-        theme: { mode: chartThemeMode }
-    };
-    try { if (window.chartPyramidDebtCredit) window.chartPyramidDebtCredit.destroy(); } catch(e){}
-    window.chartPyramidDebtCredit = new ApexCharts(document.querySelector("#chart-pyramid-debt-credit"), optionsPyramid);
-    window.chartPyramidDebtCredit.render();
-
-
-    // ─── Chart 21: Category Average Balance Bar Chart ───
-    const catAvgDebits = [
-        categorySums['CUST'].count > 0 ? categorySums['CUST'].debit / categorySums['CUST'].count : 0,
-        categorySums['SUPP'].count > 0 ? categorySums['SUPP'].debit / categorySums['SUPP'].count : 0,
-        categorySums['BANK'].count > 0 ? categorySums['BANK'].debit / categorySums['BANK'].count : 0,
-        categorySums['SAFE'].count > 0 ? categorySums['SAFE'].debit / categorySums['SAFE'].count : 0,
-        categorySums['EXP'].count > 0 ? categorySums['EXP'].debit / categorySums['EXP'].count : 0
-    ];
-    const catAvgCredits = [
-        categorySums['CUST'].count > 0 ? categorySums['CUST'].credit / categorySums['CUST'].count : 0,
-        categorySums['SUPP'].count > 0 ? categorySums['SUPP'].credit / categorySums['SUPP'].count : 0,
-        categorySums['BANK'].count > 0 ? categorySums['BANK'].credit / categorySums['BANK'].count : 0,
-        categorySums['SAFE'].count > 0 ? categorySums['SAFE'].credit / categorySums['SAFE'].count : 0,
-        categorySums['EXP'].count > 0 ? categorySums['EXP'].credit / categorySums['EXP'].count : 0
-    ];
-
-    const optionsCategoryAvg = {
-        series: [
-            { name: 'متوسط رصيد المدين', data: catAvgDebits },
-            { name: 'متوسط رصيد الدائن', data: catAvgCredits }
-        ],
-        chart: { type: 'bar', height: 350, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
-        colors: ['#10b981', '#f43f5e'],
-        plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 6 } },
-        dataLabels: { enabled: false },
-        xaxis: { categories: ['العملاء', 'الموردين', 'البنوك', 'الخزن', 'المصروفات'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '11px', fontWeight: 'bold' } } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-        tooltip: { y: { formatter: formatDualCurrencyLine } },
-        theme: { mode: chartThemeMode }
-    };
-    try { if (window.chartCategoryAvgBalance) window.chartCategoryAvgBalance.destroy(); } catch(e){}
-    window.chartCategoryAvgBalance = new ApexCharts(document.querySelector("#chart-category-avg-balance"), optionsCategoryAvg);
-    window.chartCategoryAvgBalance.render();
-
-
-    // ─── Chart 22: Net Cashflow Spectrum Curve ───
-    let cumNetBalance = 0;
-    const cumNetSeries = sortedByVolume.slice(0, 15).map(x => {
-        cumNetBalance += (x.endingDebitLocal - x.endingCreditLocal);
-        return cumNetBalance;
-    });
-
-    const optionsNetCashflowSpectrum = {
-        series: [{ name: 'التوازن التراكمي الصافي', data: cumNetSeries }],
-        chart: { type: 'area', height: 370, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: true } },
-        colors: ['#38bdf8'],
-        stroke: { curve: 'smooth', width: 3 },
-        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.05, stops: [0, 90, 100] } },
-        xaxis: { categories: sortedByVolume.slice(0, 15).map(x => x.name), labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '11px', fontWeight: 'bold' }, rotate: -30 } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-        tooltip: { y: { formatter: formatDualCurrencyLine } },
-        theme: { mode: chartThemeMode }
-    };
-    try { if (window.chartNetCashflowSpectrum) window.chartNetCashflowSpectrum.destroy(); } catch(e){}
-    window.chartNetCashflowSpectrum = new ApexCharts(document.querySelector("#chart-net-cashflow-spectrum"), optionsNetCashflowSpectrum);
-    window.chartNetCashflowSpectrum.render();
-
-
-    // ─── Chart 23: Credit Limit vs Debt Used vs Remaining Allowance ───
-    const custCreditList = [...results].filter(x => x.type === 'CUST' || (x.endingDebitLocal > 0 && !x.name.includes('مورد')))
-        .sort((a, b) => b.endingDebitLocal - a.endingDebitLocal).slice(0, 10);
-    
-    const creditNames = custCreditList.map(x => x.name);
-    const creditDebtUsed = custCreditList.map(x => x.endingDebitLocal);
-    const creditLimits = custCreditList.map(x => (x.creditLimit && x.creditLimit > 0) ? x.creditLimit : Math.max(x.endingDebitLocal * 1.5, 5000000));
-    const creditRemaining = custCreditList.map((x, i) => Math.max(0, creditLimits[i] - creditDebtUsed[i]));
-
-    const optionsCreditVsDebt = {
-        series: [
-            { name: 'المديونية الحالية (المستهلكة)', data: creditDebtUsed },
-            { name: 'المتبقي المتاح من سقف الائتمان', data: creditRemaining }
-        ],
-        chart: { type: 'bar', height: 360, stacked: true, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: true } },
-        colors: ['#f43f5e', '#34d399'],
-        plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 6 } },
-        dataLabels: { enabled: false },
-        xaxis: { categories: creditNames.length > 0 ? creditNames : ['لا يوجد عملاء'], labels: { style: { colors: isLightTheme ? '#475569' : '#cbd5e1', fontSize: '11px', fontWeight: 'bold' }, rotate: -25 } },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-        tooltip: { y: { formatter: formatDualCurrencyLine } },
-        legend: { position: 'top', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        theme: { mode: chartThemeMode }
-    };
-    try { if (window.chartCreditLimitVsDebt) window.chartCreditLimitVsDebt.destroy(); } catch(e){}
-    window.chartCreditLimitVsDebt = new ApexCharts(document.querySelector("#chart-credit-limit-vs-debt"), optionsCreditVsDebt);
-    window.chartCreditLimitVsDebt.render();
-
-
-    // ─── Chart 24: Debt Aging Spectrum Brackets Chart ───
-    let age0_30 = 0, age31_60 = 0, age61_90 = 0, age90_plus = 0;
-    results.forEach(r => {
-        const bal = Math.max(r.endingDebitLocal, r.endingCreditLocal);
-        const days = r.agingDays || Math.floor(Math.random() * 80) + 5;
-        if (days <= 30) age0_30 += bal;
-        else if (days <= 60) age31_60 += bal;
-        else if (days <= 90) age61_90 += bal;
-        else age90_plus += bal;
-    });
-
-    const optionsDebtAgingSpectrum = {
-        series: [{ name: 'إجمالي حجم الديون', data: [age0_30, age31_60, age61_90, age90_plus] }],
-        chart: { type: 'bar', height: 360, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: true } },
-        colors: ['#34d399', '#38bdf8', '#fbbf24', '#f43f5e'],
-        plotOptions: { bar: { horizontal: false, columnWidth: '50%', borderRadius: 8, distributed: true } },
-        dataLabels: {
-            enabled: true,
-            formatter: function(val) { return formatDualCurrencyArray(val)[0]; },
-            style: { fontSize: '11px', fontFamily: 'Tajawal, sans-serif', fontWeight: 'bold' }
-        },
-        xaxis: {
-            categories: ['حديثة (0 - 30 يوم)', 'متوسطة (31 - 60 يوم)', 'حرجة (61 - 90 يوم)', 'متعثرة (+90 يوم)'],
-            labels: { style: { colors: isLightTheme ? '#0f172a' : '#f8fafc', fontSize: '11px', fontWeight: 'bold' } }
-        },
-        yaxis: { labels: { style: { colors: isLightTheme ? '#475569' : '#94a3b8' }, formatter: v => v.toLocaleString('en-US', {maximumFractionDigits: 0}) } },
-        tooltip: { y: { formatter: formatDualCurrencyLine } },
-        legend: { show: false },
-        theme: { mode: chartThemeMode }
-    };
-    try { if (window.chartDebtAgingSpectrum) window.chartDebtAgingSpectrum.destroy(); } catch(e){}
-    window.chartDebtAgingSpectrum = new ApexCharts(document.querySelector("#chart-debt-aging-spectrum"), optionsDebtAgingSpectrum);
-    window.chartDebtAgingSpectrum.render();
-
-
-    // ─── Chart 25: Donut Credit Limit Utilization Chart ───
-    const totalCreditCap = results.reduce((sum, r) => sum + (r.creditLimit && r.creditLimit > 0 ? r.creditLimit : Math.max((r.endingDebitLocal || 0) * 1.5, 5000000)), 0);
-    const totalDebtUsed = results.reduce((sum, r) => sum + (r.endingDebitLocal || 0), 0);
-    const totalCreditRemaining = Math.max(0, totalCreditCap - totalDebtUsed);
-
-    const optionsCreditDonut = {
-        series: [totalDebtUsed, totalCreditRemaining],
-        labels: ['المديونية المستهلكة', 'المتبقي المتاح من الائتمان'],
-        chart: { type: 'donut', height: 340, background: 'transparent', fontFamily: 'Tajawal, sans-serif' },
-        colors: ['#f43f5e', '#34d399'],
-        stroke: { show: true, width: 2, colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
-        plotOptions: {
-            pie: {
-                donut: {
-                    size: '70%',
-                    labels: {
-                        show: true,
-                        name: { show: true, fontSize: '13px', color: isLightTheme ? '#0f172a' : '#cbd5e1' },
-                        value: { show: true, fontSize: '15px', fontWeight: '900', color: isLightTheme ? '#0f172a' : '#f8fafc', formatter: formatDualCurrencyArray },
-                        total: { show: true, label: 'إجمالي التسهيلات', color: isLightTheme ? '#64748b' : '#94a3b8', formatter: () => formatDualCurrencyArray(totalCreditCap) }
-                    }
-                }
-            }
-        },
-        dataLabels: { enabled: false },
-        legend: { position: 'bottom', fontSize: '12px', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        tooltip: { y: { formatter: formatDualCurrencyLine } },
-        theme: { mode: chartThemeMode }
-    };
-    try { if (window.chartCreditUtilizationDonut) window.chartCreditUtilizationDonut.destroy(); } catch(e){}
-    window.chartCreditUtilizationDonut = new ApexCharts(document.querySelector("#chart-credit-utilization-donut"), optionsCreditDonut);
-    window.chartCreditUtilizationDonut.render();
-
-
-    // ─── Chart 26: Treemap Debt Aging Risk Matrix ───
-    const agingTreemapData = [
-        { x: 'حديثة (0-30 يوم)', y: age0_30 },
-        { x: 'متوسطة (31-60 يوم)', y: age31_60 },
-        { x: 'حرجة (61-90 يوم)', y: age61_90 },
-        { x: 'متعثرة (+90 يوم)', y: age90_plus }
-    ];
-
-    const optionsAgingTreemap = {
-        series: [{ data: agingTreemapData }],
-        chart: { type: 'treemap', height: 340, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        colors: ['#34d399', '#38bdf8', '#fbbf24', '#f43f5e'],
-        plotOptions: { treemap: { distributed: true, enableShades: true } },
-        dataLabels: { enabled: true, style: { fontSize: '12px', fontFamily: 'Tajawal' }, formatter: (text, op) => [text, formatDualCurrencyLine(op.value)] },
-        legend: { show: false },
-        tooltip: { y: { formatter: formatDualCurrencyLine } },
-        theme: { mode: chartThemeMode }
-    };
-    try { if (window.chartAgingRiskTreemap) window.chartAgingRiskTreemap.destroy(); } catch(e){}
-    window.chartAgingRiskTreemap = new ApexCharts(document.querySelector("#chart-aging-risk-treemap"), optionsAgingTreemap);
-    window.chartAgingRiskTreemap.render();
-
-
-    // ─── Chart 27: Polar Area Credit vs Aging Matrix ───
-    const optionsAgingCreditPolar = {
-        series: [age0_30, age31_60, age61_90, age90_plus],
-        labels: ['ديون 0-30 يوم', 'ديون 31-60 يوم', 'ديون 61-90 يوم', 'ديون +90 يوم'],
-        chart: { type: 'polarArea', height: 340, background: 'transparent', fontFamily: 'Tajawal, sans-serif', toolbar: { show: false } },
-        colors: ['#34d399', '#38bdf8', '#fbbf24', '#f43f5e'],
-        stroke: { colors: [isLightTheme ? '#ffffff' : '#1e293b'] },
-        fill: { opacity: 0.8 },
-        legend: { position: 'bottom', labels: { colors: isLightTheme ? '#1e293b' : '#cbd5e1' } },
-        tooltip: { y: { formatter: formatDualCurrencyLine } },
-        theme: { mode: chartThemeMode }
-    };
-    try { if (window.chartAgingCreditRadar) window.chartAgingCreditRadar.destroy(); } catch(e){}
-    window.chartAgingCreditRadar = new ApexCharts(document.querySelector("#chart-aging-credit-radar"), optionsAgingCreditPolar);
-    window.chartAgingCreditRadar.render();
 }
 
 window.switchVisualTab = function(type) {
@@ -3705,9 +2947,11 @@ function renderSidebarConfig() {
                 </div>
             </div>
             <div class="col-settings-panel" id="col-settings-${index}">
-                <div class="cfg-row" style="margin-bottom:6px; background:rgba(0,0,0,0.25); padding:8px 10px; border-radius:8px; border:1px solid rgba(56,189,248,0.3);">
-                    <span style="font-weight:bold; color:#38bdf8; font-size:0.82rem;">🏷️ مسمى العمود (تعديل باللغة العربية):</span>
-                    <input type="text" class="cfg-input" value="${col.alias || col.name || ''}" placeholder="أدخل مسمى العمود باللغة العربية..." onchange="window.updateColAliasCtx(${origIdx}, this.value)" style="width:200px; font-weight:800; color:#38bdf8; background:rgba(30,41,59,0.95); border:1px solid #38bdf8; border-radius:6px; padding:4px 8px; font-family:inherit; outline:none;" title="اكتب أي اسم تريد تسمية هذا العمود به باللغة العربية">
+                <div class="cfg-row">
+                    <span>مسمى العمود:</span>
+                    <span style="font-weight:bold; color:#38bdf8; font-size:0.85rem; display:flex; align-items:center; gap:4px;">
+                        🔒 ${col.name} (ثابت بالنظام)
+                    </span>
                 </div>
                 <div class="cfg-row">
                     <span>حجم الخط (تكبير/تصغير):</span>
