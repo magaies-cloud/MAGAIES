@@ -456,6 +456,8 @@ $page_title = 'حساب الارصده الاساسية';
             align-items: center;
             gap: 8px;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
         /* ─── Ultra-Comprehensive 4 Master Visual Report Banner Headers ─── */
         .v-section-banner {
             display: flex;
@@ -484,7 +486,12 @@ $page_title = 'حساب الارصده الاساسية';
             background: rgba(245, 158, 11, 0.22);
             border: 1px solid rgba(245, 158, 11, 0.55);
             color: #fbbf24;
-            pad            LUMINOUS GLASSMORPHIC HERO BUTTONS (PRESETS & ACTIONS)
+            padding: 5px 14px;
+            border-radius: 20px;
+        }
+
+        /* ════════════════════════════════════════════════════════════
+            LUMINOUS GLASSMORPHIC HERO BUTTONS (PRESETS & ACTIONS)
             ════════════════════════════════════════════════════════════ */
         
         @keyframes shimmer-sweep {
@@ -807,10 +814,6 @@ $page_title = 'حساب الارصده الاساسية';
             box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
         }
         :root.light-theme .preset-btn {
-            color: #ffffff !important;
-        }            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-        }
-        :root.light-theme .preset-btn {
             background: rgba(255, 255, 255, 0.7);
             border-color: rgba(15, 23, 42, 0.08);
             color: #334155;
@@ -1041,17 +1044,19 @@ $page_title = 'حساب الارصده الاساسية';
                 </select>
             </div>
         </div>
-        <div style="display:flex; gap:8px; margin-top:8px; align-items:center; flex-wrap:wrap; width: 100%;">
-            <button class="btn-run" id="btn-run-report" onclick="runReport()" style="padding:6px 20px; font-size:0.92rem; height:36px; border-radius:8px; font-weight:900; display:inline-flex; align-items:center; gap:8px;">
+        <div class="filter-row" style="margin-top: 15px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; width: 100%;">
+            <button class="btn-run" id="btn-run-report" onclick="runReport()" style="padding:6px 20px; font-size:0.92rem; height:42px; border-radius:8px; font-weight:900; display:inline-flex; align-items:center; gap:8px;">
                 <svg width="24" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <span>تشغيل التقرير</span>
             </button>
 
-            <div style="height: 22px; width: 1px; background: rgba(255,255,255,0.15); margin: 0 4px;" class="no-print"></div>
-
-            <div class="preset-slots-container no-print" id="main-presets-container" style="flex:1; display:flex; gap:6px; align-items:center; flex-wrap:wrap; padding:2px 10px; border-radius:8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+            <div class="preset-slots-container no-print" id="main-presets-container" style="flex:1; display:flex; gap:6px; align-items:center; flex-wrap:wrap; padding:2px 10px; border-radius:8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); min-width: 250px; min-height: 42px;">
                 <!-- Dynamic preset buttons rendered via JS -->
             </div>
+
+            <button class="btn-run" onclick="window.openNewPreviewPage()" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: 0 4px 15px rgba(16,185,129,0.3); padding: 8px 16px; border-radius: 8px; font-weight: bold; font-family: 'Tajawal', sans-serif; height: 42px;">
+                👁️ الشاشة الذكية للمعاينة والتصميم والطباعة
+            </button>
         </div>
     </div>
 
@@ -1169,7 +1174,7 @@ $page_title = 'حساب الارصده الاساسية';
                 </thead>
                 <tbody id="balances-tbody">
                     <tr>
-                        <td colspan="11" class="empty-state">
+                        <td colspan="9" class="empty-state">
                             <span style="font-size:3rem; display:block; margin-bottom:15px;">🔍</span>
                             <div>إضغط "تشغيل التقرير" لجلب جميع الأرصدة</div>
                         </td>
@@ -1817,7 +1822,7 @@ $page_title = 'حساب الارصده الاساسية';
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script defer src="js/localforage.min.js"></script>
-<script defer src="js/app.js?v=1783054966.35444"></script>
+<script defer src="js/app.js?v=<?php echo time(); ?>"></script>
 <script defer src="js/mainbalances-report.js?v=<?php echo time(); ?>"></script>
 <script>
 // Debug wrapper: override runReport to catch and display errors

@@ -3078,6 +3078,22 @@ function renderVisualAnalytics(results) {
         window.chartPolarCategories.render();
     }
 
+    const pyrCategories = ['العملاء', 'الموردين', 'البنوك', 'الخزن', 'المصروفات'];
+    const pyrDebits = [
+        categorySums['CUST'].debit,
+        categorySums['SUPP'].debit,
+        categorySums['BANK'].debit,
+        categorySums['SAFE'].debit,
+        categorySums['EXP'].debit
+    ];
+    const pyrCredits = [
+        -categorySums['CUST'].credit,
+        -categorySums['SUPP'].credit,
+        -categorySums['BANK'].credit,
+        -categorySums['SAFE'].credit,
+        -categorySums['EXP'].credit
+    ];
+
     const optionsPyramid = {
         series: [
             { name: 'حقوق مدينة (لك)', data: pyrDebits },
@@ -4048,127 +4064,7 @@ function makeElementDraggable(elmnt, headerElmnt) {
 /* ═══════════════════════════════════════════════════════
    Luminous Neon Presets Implementation for Balances Report
    ═══════════════════════════════════════════════════════ */
-window.renderBalancesPresets = function() {
-    const wrap = document.getElementById('main-presets-container') || document.getElementById('balances-presets-wrap');
-    if (!wrap) return;
 
-    wrap.innerHTML = '';
-
-    const presets = [
-        { id: '1', name: 'افتراضي 1', slotClass: 'preset-slot-0', lsKey: 'balances_preset_1' },
-        { id: '2', name: 'افتراضي 2', slotClass: 'preset-slot-1', lsKey: 'balances_preset_2' },
-        { id: '3', name: 'افتراضي 3', slotClass: 'preset-slot-2', lsKey: 'balances_preset_3' },
-        { id: '4', name: 'افتراضي 4', slotClass: 'preset-slot-3', lsKey: 'balances_preset_4' },
-        { id: 'm1', name: 'نموذج 1', slotClass: 'preset-slot-4', lsKey: 'balances_model_1' },
-        { id: 'm2', name: 'نموذج 2', slotClass: 'preset-slot-5', lsKey: 'balances_model_2' }
-    ];
-
-    presets.forEach((preset, index) => {
-        const btn = document.createElement('button');
-        btn.className = `preset-ribbon-btn preset-btn preset-slot-${index}`;
-        btn.setAttribute('data-slot-id', preset.id);
-
-        const radius = 10;
-        const circumference = 2 * Math.PI * radius;
-
-        btn.innerHTML = `
-            <svg class="preset-clock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transform: rotate(-90deg) scale(1.5, 1.1); z-index: 2;">
-                <circle cx="12" cy="12" r="${radius}" stroke="rgba(255,255,255,0.3)"></circle>
-                <circle class="preset-clock-progress" cx="12" cy="12" r="${radius}" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}"></circle>
-            </svg>
-            <span style="z-index: 2;" class="preset-title">${preset.name}</span>
-            <div class="progress-bar-fill" style="position:absolute; bottom:0; left:0; height:100%; background:rgba(255, 255, 255, 0.25); width:0%; transition: width 0s linear; z-index: 1;"></div>
-            <div class="progress-bar-line" style="position:absolute; bottom:0; left:0; height:4px; background:#ffffff; width:0%; transition: width 0s linear; z-index: 3; box-shadow: 0 0 12px #ffffff;"></div>
-        `;
-
-        let startTime;
-        let isHolding = false;
-        let animationFrame;
-
-        const startPress = (e) => {
-            if (e.type === 'mousedown' && e.button !== 0) return; 
-
-            // Check lock before starting for defaults
-            let isModel = preset.id.startsWith('m');
-            if (!isModel && window.LOADED_BALANCES_PRESETS && window.LOADED_BALANCES_PRESETS[preset.lsKey + '_locked']) {
-                if (typeof showToast === 'function') {
-                    showToast('عفواً، لا يمكن التعديل على ' + preset.name + ' لأنه محفوظ نهائياً في قاعدة البيانات!', 'error');
-                } else {
-                    alert('عفواً، لا يمكن التعديل على ' + preset.name + ' لأنه محفوظ نهائياً في قاعدة البيانات!');
-                }
-                return;
-            }
-
-            isHolding = true;
-            startTime = Date.now();
-            btn.classList.add('holding');
-
-            const progressCircle = btn.querySelector('.preset-clock-progress');
-            const progressFill = btn.querySelector('.progress-bar-fill');
-            const progressLine = btn.querySelector('.progress-bar-line');
-
-            const updateProgress = () => {
-                if (!isHolding) return;
-                const elapsed = Date.now() - startTime;
-                let progress = elapsed / 8000; // 8 seconds
-                if (progress > 1) progress = 1;
-
-                const offset = circumference - (progress * circumference);
-                if (progressCircle) progressCircle.style.strokeDashoffset = offset;
-                if (progressFill) progressFill.style.width = (progress * 100) + '%';
-                if (progressLine) progressLine.style.width = (progress * 100) + '%';
-
-                if (progress < 1) {
-                    animationFrame = requestAnimationFrame(updateProgress);
-                } else {
-                    savePresetData(preset.lsKey, preset.name, preset.id);
-                    resetButton();
-                }
-            };
-
-            updateProgress();
-        };
-
-        const endPress = (e) => {
-            if (!isHolding) return;
-            const duration = Date.now() - startTime;
-
-            if (duration < 8000) {
-                loadPresetData(preset.lsKey);
-            }
-
-            resetButton();
-        };
-
-        const resetButton = () => {
-            isHolding = false;
-            startTime = null;
-            cancelAnimationFrame(animationFrame);
-            btn.classList.remove('holding');
-
-            const progressCircle = btn.querySelector('.preset-clock-progress');
-            const progressFill = btn.querySelector('.progress-bar-fill');
-            const progressLine = btn.querySelector('.progress-bar-line');
-
-            if (progressCircle) progressCircle.style.strokeDashoffset = circumference;
-            if (progressFill) progressFill.style.width = '0%';
-            if (progressLine) progressLine.style.width = '0%';
-        };
-
-        btn.addEventListener('mousedown', startPress);
-        btn.addEventListener('touchstart', startPress, {passive: true});
-
-        const handleGlobalEnd = (e) => {
-            if (isHolding) endPress(e);
-        };
-
-        document.addEventListener('mouseup', handleGlobalEnd);
-        document.addEventListener('touchend', handleGlobalEnd);
-        document.addEventListener('touchcancel', handleGlobalEnd);
-
-        wrap.appendChild(btn);
-    });
-};
 
 function savePresetData(lsKey, name, id) {
     if(!confirm('هل أنت متأكد أنك تريد حفظ التصميم الحالي في "' + name + '"؟ هذا الإجراء نهائي وسيتم حفظه في قاعدة البيانات.')) {
@@ -4260,11 +4156,8 @@ function fetchBalancesPresets() {
         .catch(err => console.error('Error fetching balances presets:', err));
 }
 function triggerAutoRunReport() {
-    const runBtn = document.getElementById('btn-run-report') || document.querySelector('.btn-run');
-    if (runBtn) {
-        console.log('%c[balances-report.js] Auto-clicking "تشغيل التقرير"...', 'color: #00f3ff; font-weight: bold;');
-        runBtn.click();
-    } else if (typeof window.runReport === 'function') {
+    console.log('%c[balances-report.js] Auto-running report...', 'color: #00f3ff; font-weight: bold;');
+    if (typeof window.runReport === 'function') {
         window.runReport();
     }
 }
