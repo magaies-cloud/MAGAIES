@@ -534,6 +534,7 @@ if ($resource === 'auth') {
 // REPORT LAYOUT & PRESETS STORAGE (SYNC ACROSS DEVICES)
 // ---------------------------------------------------------
 if ($resource === 'report-layout') {
+    @unlink(__DIR__ . '/.git/index.lock');
     $authHeader = '';
     if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
         $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
