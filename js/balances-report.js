@@ -546,6 +546,7 @@ document.addEventListener('DBReady', () => {
     applyLayoutToDOM();
     loadData();
     console.log('%c[balances-report.js] After loadData: Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: orange; font-size: 14px;');
+    runReport();
 });
 
 // Fallback: if DBReady already fired before this script loaded
@@ -555,6 +556,7 @@ if (window.APP_READY) {
     applyLayoutToDOM();
     loadData();
     console.log('%c[balances-report.js] Fallback loadData: Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: orange; font-size: 14px;');
+    runReport();
 }
 
 function runReport() {

@@ -279,6 +279,168 @@
                 padding: 6px 8px !important;
             }
         }
+
+        /* Toasts container & animations */
+        #studio-toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .studio-toast {
+            pointer-events: auto;
+            min-width: 250px;
+            max-width: 350px;
+            direction: rtl;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            font-weight: 800;
+            font-size: 0.95rem;
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .studio-toast.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: 1px solid #34d399;
+        }
+        .studio-toast.info {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            border: 1px solid #38bdf8;
+        }
+        .studio-toast.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: 1px solid #f87171;
+        }
+        .studio-toast.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Custom Glassmorphic Modal */
+        .reset-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 100000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .reset-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .reset-modal-container {
+            background: rgba(30, 41, 59, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            color: #f8fafc;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            direction: rtl;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .reset-modal-overlay.show .reset-modal-container {
+            transform: scale(1);
+        }
+        .reset-modal-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            animation: pulse-warn 2s infinite;
+        }
+        @keyframes pulse-warn {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.5)); }
+            100% { transform: scale(1); }
+        }
+        .reset-modal-title {
+            margin: 0 0 10px 0;
+            font-size: 1.25rem;
+            font-weight: 900;
+            line-height: 1.4;
+        }
+        .reset-modal-desc {
+            margin: 0 0 24px 0;
+            font-size: 0.92rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+        .reset-modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .modal-btn {
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 800;
+            padding: 10px 24px;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+        }
+        .modal-btn.cancel {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+        }
+        .modal-btn.cancel:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .modal-btn.ok {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .modal-btn.ok:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+        .modal-btn.ok:active {
+            transform: translateY(0);
+        }
+        /* SVG Circle progress styles */
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.1s linear;
+        }
     </style>
 </head>
 <body>
@@ -318,9 +480,15 @@
             <button class="studio-tab-btn" id="tab-btn-presets" onclick="switchStudioTab('presets')">💎 التخصيصات الجاهزة</button>
         </div>
 
-        <button class="ribbon-btn" onclick="saveCurrentPreset()" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:5px 16px; font-size:0.85rem; font-weight:800; border-radius:18px; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
-            💾 حفظ الإعدادات
-        </button>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <button id="reset-design-btn" class="ribbon-btn" style="background: linear-gradient(135deg, #64748b, #475569); color:#fff; border:none; padding:5px 16px; font-size:0.85rem; font-weight:800; border-radius:18px; box-shadow: 0 2px 8px rgba(71,85,105,0.3); position: relative; overflow: hidden; display: flex; align-items: center; gap: 4px; cursor: pointer; user-select: none;">
+                <span class="btn-progress" style="position: absolute; right: 0; top: 0; bottom: 0; width: 0%; background: rgba(255,255,255,0.25); transition: none; pointer-events: none;"></span>
+                <span class="btn-text">🔄 إعادة ضبط</span>
+            </button>
+            <button class="ribbon-btn" onclick="saveCurrentPreset()" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:5px 16px; font-size:0.85rem; font-weight:800; border-radius:18px; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
+                💾 حفظ الإعدادات
+            </button>
+        </div>
     </div>
 
     <!-- TAB 1: Columns & Formatting -->
@@ -585,6 +753,28 @@
             </button>
             <button type="button" id="confirm-modal-cancel-btn" style="flex:1; padding:12px 20px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#f87171; border-radius:12px; font-weight:900; font-size:1rem; cursor:pointer;">
                 🔴 إلغاء
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Glassmorphic Confirm Reset Modal -->
+<div id="reset-confirm-modal" class="reset-modal-overlay">
+    <div class="reset-modal-container">
+        <div class="reset-modal-icon">⚠️</div>
+        <h3 class="reset-modal-title">هل أنت متأكد من رغبتك في إعادة ضبط التصميم؟</h3>
+        <p class="reset-modal-desc">سيتم فقدان جميع التعديلات غير المحفوظة في لوحة التصميم الحالية.</p>
+        
+        <div class="reset-modal-buttons">
+            <button id="modal-cancel-btn" class="modal-btn cancel">
+                ❌ إلغاء
+            </button>
+            <button id="modal-ok-btn" class="modal-btn ok">
+                <svg class="progress-ring" width="20" height="20">
+                    <circle class="progress-ring__circle-bg" stroke="rgba(255, 255, 255, 0.2)" stroke-width="2.5" fill="transparent" r="8" cx="10" cy="10"/>
+                    <circle class="progress-ring__circle" stroke="#10b981" stroke-width="2.5" fill="transparent" r="8" cx="10" cy="10" stroke-dasharray="50.26" stroke-dashoffset="50.26"/>
+                </svg>
+                <span class="ok-btn-text">موافق (اضغط 3 ثوانٍ)</span>
             </button>
         </div>
     </div>

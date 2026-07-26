@@ -196,6 +196,8 @@ document.addEventListener('DOMContentLoaded', () => {
             printArea.style.margin = '10px auto';
         }
     }
+    initResetButton();
+    initConfirmModal();
 });
 
 window.addEventListener('storage', function(e) {
@@ -1438,4 +1440,276 @@ function updateSelectedCol(type, val) {
     }
     
     renderTable();
+}
+
+// ==========================================
+// Smart Custom Reset & Toast Notifications System
+// ==========================================
+
+function showToast(message, type = 'success') {
+    let container = document.getElementById('studio-toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'studio-toast-container';
+        document.body.appendChild(container);
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `studio-toast ${type}`;
+    
+    let icon = '✨';
+    if (type === 'error') icon = '⚠️';
+    if (type === 'info') icon = 'ℹ️';
+    
+    toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            toast.remove();
+        }, 400);
+    }, 3500);
+}
+
+function applyDesignState(state) {
+    columnConfigs = state.configs || getDefaultConfigs();
+    columnOrder = state.order || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    currentTheme = state.theme || '';
+    currentFont = state.font || 'font-newsons';
+    currentPaperSize = state.paperSize || 'A4';
+    currentOrientation = state.orientation || 'landscape';
+    showHeaderLogo = state.showLogo !== undefined ? state.showLogo : true;
+    showHeaderInfo = state.showInfo !== undefined ? state.showInfo : true;
+
+    setTableTheme(currentTheme);
+    setNumberFont(currentFont);
+    setPaperSize(currentPaperSize, true);
+    setPageOrientation(currentOrientation, true);
+    
+    const logoChk = document.getElementById('hdr-show-logo-chk');
+    const infoChk = document.getElementById('hdr-show-info-chk');
+    if (logoChk) logoChk.checked = showHeaderLogo;
+    if (infoChk) infoChk.checked = showHeaderInfo;
+    toggleHeaderElement('logo', showHeaderLogo);
+    toggleHeaderElement('info', showHeaderInfo);
+
+    renderTable();
+    updateHiddenColumnsDropdown();
+    populateSelectedColDropdown();
+    
+    if (selectedColIndex !== null) {
+        updateSettingsPanelForCol(selectedColIndex);
+    }
+}
+
+function initResetButton() {
+    const btn = document.getElementById('reset-design-btn');
+    if (!btn) return;
+
+    const progress = btn.querySelector('.btn-progress');
+    let timer = null;
+    let isHolding = false;
+    let holdCompleted = false;
+
+    const startHold = (e) => {
+        // Only trigger on left-click (button 0) or touch
+        if (e.type === 'mousedown' && e.button !== 0) return;
+        
+        isHolding = true;
+        holdCompleted = false;
+        
+        if (progress) {
+            progress.style.transition = 'width 5s linear';
+            progress.style.width = '100%';
+        }
+
+        timer = setTimeout(() => {
+            holdCompleted = true;
+            saveCustomResetState();
+            cancelHold();
+            showToast('✨ تم حفظ التصميم الحالي كنقطة إعادة ضبط جديدة!', 'success');
+        }, 5000);
+    };
+
+    const cancelHold = () => {
+        if (!isHolding) return;
+        isHolding = false;
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+        if (progress) {
+            progress.style.transition = 'none';
+            progress.style.width = '0%';
+        }
+    };
+
+    // Desktop mouse events
+    btn.addEventListener('mousedown', startHold);
+    btn.addEventListener('mouseup', (e) => {
+        if (e.button !== 0) return;
+        if (isHolding) {
+            cancelHold();
+            if (!holdCompleted) {
+                confirmAndRestoreState();
+            }
+        }
+    });
+    btn.addEventListener('mouseleave', cancelHold);
+
+    // Mobile touch events
+    btn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        startHold(e);
+    });
+    btn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        if (isHolding) {
+            cancelHold();
+            if (!holdCompleted) {
+                confirmAndRestoreState();
+            }
+        }
+    });
+    btn.addEventListener('touchmove', cancelHold);
+    btn.addEventListener('touchcancel', cancelHold);
+}
+
+function saveCustomResetState() {
+    const state = {
+        configs: JSON.parse(JSON.stringify(columnConfigs)),
+        order: [...columnOrder],
+        theme: currentTheme,
+        font: currentFont,
+        paperSize: currentPaperSize,
+        orientation: currentOrientation,
+        showLogo: showHeaderLogo,
+        showInfo: showHeaderInfo
+    };
+    localStorage.setItem('balances_custom_reset_v1', JSON.stringify(state));
+}
+
+let confirmCallback = null;
+
+function showConfirmModal(onConfirm) {
+    confirmCallback = onConfirm;
+    const modal = document.getElementById('reset-confirm-modal');
+    if (modal) {
+        modal.classList.add('show');
+    }
+    
+    const circle = document.querySelector('.progress-ring__circle');
+    if (circle) {
+        circle.style.transition = 'none';
+        circle.style.strokeDashoffset = '50.26';
+    }
+}
+
+function hideConfirmModal() {
+    const modal = document.getElementById('reset-confirm-modal');
+    if (modal) {
+        modal.classList.remove('show');
+    }
+    confirmCallback = null;
+}
+
+function initConfirmModal() {
+    const modal = document.getElementById('reset-confirm-modal');
+    const cancelBtn = document.getElementById('modal-cancel-btn');
+    const okBtn = document.getElementById('modal-ok-btn');
+    if (!modal || !cancelBtn || !okBtn) return;
+
+    const circle = modal.querySelector('.progress-ring__circle');
+    let timer = null;
+    let isHolding = false;
+    let holdCompleted = false;
+
+    const startOkHold = (e) => {
+        if (e.type === 'mousedown' && e.button !== 0) return;
+        
+        isHolding = true;
+        holdCompleted = false;
+
+        if (circle) {
+            circle.style.transition = 'stroke-dashoffset 3s linear';
+            circle.style.strokeDashoffset = '0';
+        }
+
+        timer = setTimeout(() => {
+            holdCompleted = true;
+            cancelOkHold();
+            hideConfirmModal();
+            if (confirmCallback) {
+                confirmCallback();
+            }
+        }, 3000);
+    };
+
+    const cancelOkHold = () => {
+        if (!isHolding) return;
+        isHolding = false;
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+        if (circle) {
+            circle.style.transition = 'none';
+            circle.style.strokeDashoffset = '50.26';
+        }
+    };
+
+    cancelBtn.addEventListener('click', hideConfirmModal);
+    
+    okBtn.addEventListener('mousedown', startOkHold);
+    okBtn.addEventListener('mouseup', cancelOkHold);
+    okBtn.addEventListener('mouseleave', cancelOkHold);
+
+    okBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        startOkHold(e);
+    });
+    okBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        cancelOkHold();
+    });
+    okBtn.addEventListener('touchmove', cancelOkHold);
+    okBtn.addEventListener('touchcancel', cancelOkHold);
+}
+
+function confirmAndRestoreState() {
+    showConfirmModal(() => {
+        const raw = localStorage.getItem('balances_custom_reset_v1');
+        if (raw) {
+            try {
+                const state = JSON.parse(raw);
+                applyDesignState(state);
+                showToast('🔄 تم استعادة التصميم المحفوظ بنجاح!', 'success');
+            } catch(e) {
+                console.error('Error parsing custom reset state', e);
+                restoreToFactoryDefault();
+            }
+        } else {
+            restoreToFactoryDefault();
+        }
+    });
+}
+
+function restoreToFactoryDefault() {
+    const factoryState = {
+        configs: getDefaultConfigs(),
+        order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        theme: '',
+        font: 'font-newsons',
+        paperSize: 'A4',
+        orientation: 'landscape',
+        showLogo: true,
+        showInfo: true
+    };
+    applyDesignState(factoryState);
+    showToast('🔄 تم استعادة ضبط المصنع الافتراضي للمشروع!', 'info');
 }

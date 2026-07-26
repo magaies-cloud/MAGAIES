@@ -612,6 +612,7 @@ document.addEventListener('DBReady', () => {
     applyLayoutToDOM();
     loadData();
     console.log('%c[balances-report.js] After loadData: Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: orange; font-size: 14px;');
+    runReport();
 });
 
 // Fallback: if DBReady already fired before this script loaded
@@ -621,6 +622,7 @@ if (window.APP_READY) {
     applyLayoutToDOM();
     loadData();
     console.log('%c[balances-report.js] Fallback loadData: Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: orange; font-size: 14px;');
+    runReport();
 }
 
 function runReport() {
@@ -2135,13 +2137,13 @@ window.openPresetModal = function(presetIndex, presetName) {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(12px);
             z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px; animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 10px; animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         `;
         document.body.appendChild(modal);
     }
 
     modal.innerHTML = `
-        <div style="background: #1e293b; border: 1px solid rgba(56,189,248,0.3); border-radius: 16px; width: 95%; max-width: 1400px; height: 92vh; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.5); overflow: hidden;">
+        <div style="background: #1e293b; border: 1px solid rgba(56,189,248,0.3); border-radius: 16px; width: 99%; max-width: 100%; height: 98vh; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.5); overflow: hidden;">
             <!-- Modal Header -->
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: linear-gradient(135deg, #0f172a, #1e293b); border-bottom: 2px solid #ca8a04;">
                 <div style="display: flex; align-items: center; gap: 10px;">
