@@ -37,6 +37,7 @@ file_put_contents($logFile, "[$timestamp] Deploying: $commitMsg\n", FILE_APPEND)
 // Execute deployment
 $output = [];
 $commands = [
+    'rm -f /var/www/magaees/.git/index.lock 2>&1',
     'cd /var/www/magaees',
     'git fetch origin 2>&1',
     'git reset --hard origin/main 2>&1',
