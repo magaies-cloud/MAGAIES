@@ -7,10 +7,12 @@ $cmd = 'cd /d "C:\\xampp\\htdocs\\ELSAJANA2\\magaies" && git merge --abort 2>&1 
 
 $output = shell_exec($cmd);
 
-// If there are conflict files like deleted balances-report.php, resolve them
-shell_exec('cd /d "C:\\xampp\\htdocs\\ELSAJANA2\\magaies" && git rm --ignore-unmatch balances-report.php js/balances-report.js 2>&1');
+@unlink('check_users.php');
+@unlink('test_login.php');
+
+shell_exec('cd /d "C:\\xampp\\htdocs\\ELSAJANA2\\magaies" && git rm --ignore-unmatch check_users.php test_login.php 2>&1');
 shell_exec('cd /d "C:\\xampp\\htdocs\\ELSAJANA2\\magaies" && git add . 2>&1');
-shell_exec('cd /d "C:\\xampp\\htdocs\\ELSAJANA2\\magaies" && git commit -m "Fix report layout cross-device sync and resolve conflicts" 2>&1');
+shell_exec('cd /d "C:\\xampp\\htdocs\\ELSAJANA2\\magaies" && git commit -m "Update local database setup and push latest changes to GitHub" 2>&1');
 
 $pushOutput = shell_exec('cd /d "C:\\xampp\\htdocs\\ELSAJANA2\\magaies" && git push origin main 2>&1 && git push origin feature/amar-updates 2>&1');
 
