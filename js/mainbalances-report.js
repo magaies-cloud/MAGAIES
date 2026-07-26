@@ -1695,6 +1695,7 @@ window.getBalancesPresets = function() {
         }
         localStorage.setItem('mainbalances_report_user_presets_v3', JSON.stringify(userList));
     }
+};
 
 window.getBalancesPresets = function() {
     let userList = [];
@@ -1737,6 +1738,23 @@ window.getBalancesPresets = function() {
 
     return [defaultPreset1, defaultPreset2, defaultPreset3, defaultPreset4, presetLayout1, presetLayout2, presetLayout3];
 };
+
+function ensureLongPressHudExists() {
+    if (document.getElementById('long-press-hud')) return;
+    const hud = document.createElement('div');
+    hud.id = 'long-press-hud';
+    hud.style.cssText = 'display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:999999; background:rgba(15,23,42,0.96); backdrop-filter:blur(20px); border:2px solid rgba(56,189,248,0.5); border-radius:20px; padding:30px 40px; min-width:380px; text-align:center; color:#f8fafc; font-family:Tajawal,sans-serif; box-shadow:0 25px 60px rgba(0,0,0,0.7);';
+    hud.innerHTML = `
+        <div id="hud-icon" style="font-size:3rem; margin-bottom:10px;">✨</div>
+        <div id="hud-title" style="font-size:1.2rem; font-weight:900; margin-bottom:8px; color:#38bdf8;">حفظ وتحديث</div>
+        <div id="hud-desc" style="font-size:0.85rem; color:#94a3b8; margin-bottom:15px;">استمر بالضغط...</div>
+        <div style="background:rgba(255,255,255,0.1); border-radius:10px; height:12px; overflow:hidden; margin-bottom:10px;">
+            <div id="hud-progress-bar" style="height:100%; width:0%; border-radius:10px; background:linear-gradient(90deg,#3b82f6,#10b981); transition:width 0.05s linear;"></div>
+        </div>
+        <div id="hud-timer" style="font-size:0.9rem; font-weight:bold; color:#fbbf24;">8.0 ثانية متبقية</div>
+    `;
+    document.body.appendChild(hud);
+}
 
 window.renderBalancesPresets = function() {
     const container = document.getElementById('main-presets-container');
