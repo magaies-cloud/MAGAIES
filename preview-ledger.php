@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // preview-balances-design.php
 // Excel-Style Preview Page for Balances - Pro Edition with Studio Tabs & Page Setup
 ?>
@@ -534,6 +534,7 @@
 
 <!-- Long Press HUD Overlay for 8-second Save & Lock -->
 <?php include 'includes/studio-modals.php'; ?>
+<script src="js/localforage.min.js"></script>
 <script src="js/app.js?v=<?php echo time(); ?>"></script>
 <script src="js/general-ledger.js?v=<?php echo time(); ?>"></script>
 <script src="js/preview-ledger.js?v=<?php echo time(); ?>"></script>
