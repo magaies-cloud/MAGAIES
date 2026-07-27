@@ -1048,18 +1048,18 @@ $page_title = 'حساب الارصده الاساسية';
         <div class="filter-row" style="margin-top: 10px; margin-bottom: 15px; display: flex; gap: 6px; flex-wrap: nowrap; width: 100%; align-items: center;">
 
             <div class="preset-slots-container no-print" id="main-presets-container" style="flex:1; display:flex; gap:4px; align-items:center; flex-wrap:nowrap; padding:2px 6px; border-radius:8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); min-height: 36px; overflow-x: auto;">
-                <!-- Static fallback buttons (replaced by JS renderBalancesPresets) -->
-                <button type="button" class="preset-ribbon-btn" onclick="if(typeof applyPresetLayout==='function'){applyPresetLayout('default1')}else{alert('جاري التحميل...')}">💎 افتراضي 1 🔒</button>
-                <button type="button" class="preset-ribbon-btn" onclick="if(typeof applyPresetLayout==='function'){applyPresetLayout('default2')}else{alert('جاري التحميل...')}">⭐ افتراضي 2 🔒</button>
-                <button type="button" class="preset-ribbon-btn" onclick="if(typeof applyPresetLayout==='function'){applyPresetLayout('default3')}else{alert('جاري التحميل...')}">🎨 افتراضي 3 🔒</button>
-                <button type="button" class="preset-ribbon-btn" onclick="if(typeof applyPresetLayout==='function'){applyPresetLayout('default4')}else{alert('جاري التحميل...')}">🔥 افتراضي 4 🔒</button>
-                <button type="button" class="preset-ribbon-btn" onclick="if(typeof window.openPresetModal==='function'){window.openPresetModal(4,'✨ نموذج 1')}">✨ نموذج 1 🔄</button>
-                <button type="button" class="preset-ribbon-btn" onclick="if(typeof window.openPresetModal==='function'){window.openPresetModal(5,'🚀 نموذج 2')}">🚀 نموذج 2 🔄</button>
-                <button type="button" class="preset-ribbon-btn" onclick="if(typeof window.openPresetModal==='function'){window.openPresetModal(6,'🌟 نموذج 3')}">🌟 نموذج 3 🔄</button>
+                <!-- Static fallback buttons with vibrant neon colors -->
+                <button type="button" class="preset-ribbon-btn preset-slot-0" onclick="applyPresetLayout('default1')">💎 افتراضي 1 🔒</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-1" onclick="applyPresetLayout('default2')">⭐ افتراضي 2 🔒</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-2" onclick="applyPresetLayout('default3')">🎨 افتراضي 3 🔒</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-3" onclick="applyPresetLayout('default4')">🔥 افتراضي 4 🔒</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-4" onclick="applyPresetLayout(1)">✨ نموذج 1 🔄</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-5" onclick="applyPresetLayout(2)">🚀 نموذج 2 🔄</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-6" onclick="applyPresetLayout(3)">🌟 نموذج 3 🔄</button>
             </div>
 
-            <button class="btn-run" id="btn-preview-design" onclick="window.openNewPreviewPage()" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: 0 4px 15px rgba(16,185,129,0.3); padding: 5px 12px; border-radius: 8px; font-weight: bold; font-family: 'Tajawal', sans-serif; height: 36px; font-size: 0.78rem; white-space: nowrap; flex-shrink: 0;">
-                👁️ المعاينة والتصميم ⚙️
+            <button class="btn-run" id="btn-preview-design" onclick="window.openNewPreviewPage()" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: 0 4px 15px rgba(16,185,129,0.3); padding: 6px 14px; border-radius: 8px; font-weight: bold; font-family: 'Tajawal', sans-serif; height: 36px; font-size: 0.82rem; white-space: nowrap; flex-shrink: 0; cursor: pointer;">
+                👁️ الشاشة الذكية للمعاينة والتصميم والطباعة
             </button>
         </div>
     </div>

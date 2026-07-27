@@ -1795,15 +1795,11 @@ window.renderBalancesPresets = function() {
             btn.innerHTML = p.name + ' 🔒';
             btn.title = '🔒 هذا الضبط مثبت نهائياً في النظام وقاعدة البيانات كضبط مصنع لا يتغير نهائياً (مُعمم على جميع المنشآت والشركات)';
             
-            // Direct Click Handler without any 8-second timer
+            // Direct Click Handler to apply layout directly
             btn.onclick = (e) => {
                 if (e) e.preventDefault();
                 const defaultKey = 'default' + (idx + 1);
                 applyPresetLayout(defaultKey);
-                if (typeof showToast === 'function') {
-                    showToast('🔒 الضبط [' + p.name + '] مثبت نهائياً في قاعدة البيانات والنظام كضبط مصنع لا يتغير نهائياً ومُطبق على كافة الشركات.', 'success');
-                }
-                window.openPresetModal(idx, p.name);
             };
         } else {
             btn.innerHTML = p.name + ' 🔄';
@@ -1890,7 +1886,8 @@ window.renderBalancesPresets = function() {
                 }
 
                 if (pressStartTime > 0 && duration < 1000) {
-                    window.openPresetModal(idx, p.name);
+                    const userSlotId = idx - 3;
+                    applyPresetLayout(userSlotId);
                 }
             };
 
