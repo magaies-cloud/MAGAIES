@@ -1048,17 +1048,17 @@ $page_title = 'حساب الارصده الاساسية';
         <div class="filter-row" style="margin-top: 10px; margin-bottom: 15px; display: flex; gap: 6px; flex-wrap: nowrap; width: 100%; align-items: center;">
 
             <div class="preset-slots-container no-print" id="main-presets-container" style="flex:1; display:flex; gap:4px; align-items:center; flex-wrap:nowrap; padding:2px 6px; border-radius:8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); min-height: 36px; overflow-x: auto;">
-                <!-- Static fallback buttons with vibrant neon colors -->
-                <button type="button" class="preset-ribbon-btn preset-slot-0" onclick="applyPresetLayout('default1')">💎 افتراضي 1 🔒</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-1" onclick="applyPresetLayout('default2')">⭐ افتراضي 2 🔒</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-2" onclick="applyPresetLayout('default3')">🎨 افتراضي 3 🔒</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-3" onclick="applyPresetLayout('default4')">🔥 افتراضي 4 🔒</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-4" onclick="applyPresetLayout(1)">✨ نموذج 1 🔄</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-5" onclick="applyPresetLayout(2)">🚀 نموذج 2 🔄</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-6" onclick="applyPresetLayout(3)">🌟 نموذج 3 🔄</button>
+                <!-- Static fallback buttons matching General Ledger style -->
+                <button type="button" class="preset-ribbon-btn preset-slot-0" onclick="window.openPresetModal(0, 'افتراضي 1')">💎 افتراضي 1 🔒</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-1" onclick="window.openPresetModal(1, 'افتراضي 2')">⭐ افتراضي 2 🔒</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-2" onclick="window.openPresetModal(2, 'افتراضي 3')">🎨 افتراضي 3 🔒</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-3" onclick="window.openPresetModal(3, 'افتراضي 4')">🔥 افتراضي 4 🔒</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-4" onclick="window.openPresetModal(4, 'نموذج 1')">✨ نموذج 1 🔄</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-5" onclick="window.openPresetModal(5, 'نموذج 2')">🚀 نموذج 2 🔄</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-6" onclick="window.openPresetModal(6, 'نموذج 3')">🌟 نموذج 3 🔄</button>
             </div>
 
-            <button class="btn-run" id="btn-preview-design" onclick="window.openNewPreviewPage()" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: 0 4px 15px rgba(16,185,129,0.3); padding: 6px 14px; border-radius: 8px; font-weight: bold; font-family: 'Tajawal', sans-serif; height: 36px; font-size: 0.82rem; white-space: nowrap; flex-shrink: 0; cursor: pointer;">
+            <button type="button" class="btn-run" id="btn-preview-design" onclick="if (typeof window.openNewPreviewPage === 'function') { window.openNewPreviewPage(); } else if (typeof window.openPresetModal === 'function') { window.openPresetModal(0, 'الشاشة الذكية للمعاينة والتصميم والطباعة'); }" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: 0 4px 15px rgba(16,185,129,0.3); padding: 6px 14px; border-radius: 8px; font-weight: bold; font-family: 'Tajawal', sans-serif; height: 36px; font-size: 0.82rem; white-space: nowrap; flex-shrink: 0; cursor: pointer;">
                 👁️ الشاشة الذكية للمعاينة والتصميم والطباعة
             </button>
         </div>
@@ -1128,30 +1128,7 @@ $page_title = 'حساب الارصده الاساسية';
 
     <!-- Actions Panel (Luminous Glassmorphic Hero Action Buttons) -->
     <div class="actions-panel no-print" id="actions-panel" style="display:none; flex-wrap: wrap; margin-bottom: 10px; gap: 10px; align-items: center;">
-        <button class="btn-action-hero btn-hero-print" onclick="window.print()" title="طباعة وتوثيق المستند بالشكل الرسمي">
-            <span style="font-size: 1.1rem;">🖨️</span>
-            <span>طباعة وتوثيق</span>
-        </button>
-
-        <button class="btn-action-hero btn-hero-preview" onclick="window.openNewPreviewPage()" title="معاينة التقرير وتعديل التنسيق قبل الطباعة">
-            <span style="font-size: 1.1rem;">👁️</span>
-            <span>معاينة وتنسيق قبل الطباعة</span>
-        </button>
-
-        <button class="btn-action-hero btn-hero-excel" onclick="exportExcel()" title="تصدير جدول البيانات تلقائياً لمف ملف إكسل Excel">
-            <span style="font-size: 1.1rem;">📊</span>
-            <span>تصدير إكسل (Excel)</span>
-        </button>
-
-        <button class="btn-action-hero btn-hero-email" onclick="shareEmail()" title="إرسال ومشاركة التقرير عبر البريد الإلكتروني">
-            <span style="font-size: 1.1rem;">📧</span>
-            <span>إيميل</span>
-        </button>
-
-        <button class="btn-action-hero btn-hero-whatsapp" onclick="shareWhatsApp()" title="مشاركة وإرسال التقرير مباشرة للعميل عبر واتساب">
-            <span style="font-size: 1.1rem;">💬</span>
-            <span>واتساب</span>
-        </button>
+        <!-- The user requested the removal of the print, export, preview, email, and whatsapp buttons here to avoid conflicts -->
     </div>
 
     <!-- TABLE -->

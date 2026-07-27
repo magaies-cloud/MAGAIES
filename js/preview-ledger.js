@@ -577,110 +577,59 @@ function initPresets() {
             }
         ];
     }
-    // Always enforce Factory Default Presets (slots 0..3) across ALL companies (old and new)
-    const FACTORY_DEFAULTS_SEED = [
-        {
-            name: '💎 افتراضي 1',
-            configs: getDefaultConfigs(),
-            order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            theme: 'theme-classic-navy',
-            font: 'font-ultra',
-            paperSize: 'A4',
-            orientation: 'landscape',
-            showLogo: true,
-            showInfo: true,
-            showInRibbon: true,
-            isLocked: false,
-            isFactoryDefault: true
-        },
-        {
-            name: '⭐ افتراضي 2',
-            configs: getDefaultConfigs(),
-            order: [0, 1, 2, 3, 6, 7, 8, 9, 4, 5, 10],
-            theme: 'theme-emerald-pro',
-            font: 'font-newsons',
-            paperSize: 'A4',
-            orientation: 'landscape',
-            showLogo: true,
-            showInfo: true,
-            showInRibbon: true,
-            isLocked: false,
-            isFactoryDefault: true
-        },
-        {
-            name: '🎨 افتراضي 3',
-            configs: getDefaultConfigs(),
-            order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            theme: 'theme-modern-slate',
-            font: 'font-tajawal',
-            paperSize: 'A4',
-            orientation: 'landscape',
-            showLogo: true,
-            showInfo: true,
-            showInRibbon: true,
-            isLocked: false,
-            isFactoryDefault: true
-        },
-        {
-            name: '🔥 افتراضي 4',
-            configs: getDefaultConfigs(),
-            order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            theme: 'theme-luxury-gold',
-            font: 'font-cairo',
-            paperSize: 'A4',
-            orientation: 'landscape',
-            showLogo: true,
-            showInfo: true,
-            showInRibbon: true,
-            isLocked: false,
-            isFactoryDefault: true
-        }
-    ];
-
-    for (let i = 0; i < 4; i++) {
-        if (!list[i]) {
-            list[i] = Object.assign({}, FACTORY_DEFAULTS_SEED[i]);
-        }
-    }
-
-    // Ensure list has at least 7 slots
-    while (list.length < MAX_PRESETS_LIMIT) {
-        let idx = list.length;
-        list.push({
-            name: `✨ نموذج ${idx - 3}`,
-            configs: getDefaultConfigs(),
-            order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            theme: '',
-            font: 'font-ultra',
-            paperSize: 'A4',
-            orientation: 'landscape',
-            showLogo: true,
-            showInfo: true,
-            showInRibbon: true,
-            isLocked: false,
-            isFactoryDefault: false
-        });
-    }
-
-    // Unlock all presets so they remain 100% editable & re-savable at any time without restriction
-    let unlockCount = 0;
-    list.forEach(p => {
-        if (p && p.isLocked) {
-            p.isLocked = false;
-            unlockCount++;
-        }
-    });
-    if (unlockCount > 0) {
-        savePresets(list);
-    }
-
-    // Enforce max limit of 7
-    if (list.length > MAX_PRESETS_LIMIT) {
-        list = list.slice(0, MAX_PRESETS_LIMIT);
-    }
 
     savePresets(list);
     renderPresetButtons();
+
+    // Async sync with database
+    loadPresetsFromDB(PRESETS_STORAGE_KEY, PRESETS_STORAGE_KEY, function() {
+        renderPresetButtons();
+        if (typeof renderPresetsManagementList === 'function') renderPresetsManagementList();
+    });
+}
+
+function syncPresetsToDB(reportKey, presets) {
+    if (!Array.isArray(presets)) return;
+    try {
+        const token = localStorage.getItem('erp_token') || '';
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = 'Bearer ' + token;
+        fetch('api_index.php/report-layout', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({
+                reportKey: reportKey,
+                layout: presets
+            })
+        }).catch(err => console.warn('[PresetDBSync] POST failed:', err));
+    } catch(e) { console.warn('[PresetDBSync] Error:', e); }
+}
+
+function loadPresetsFromDB(reportKey, localKey, onComplete) {
+    try {
+        const token = localStorage.getItem('erp_token') || '';
+        const headers = {};
+        if (token) headers['Authorization'] = 'Bearer ' + token;
+        fetch('api_index.php/report-layout?reportKey=' + reportKey, { headers })
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.success && Array.isArray(data.layout) && data.layout.length > 0) {
+                    localStorage.setItem(localKey, JSON.stringify(data.layout));
+                    if (typeof onComplete === 'function') onComplete(data.layout);
+                } else {
+                    let rawLocal = localStorage.getItem(localKey);
+                    if (rawLocal) {
+                        try {
+                            let localPresets = JSON.parse(rawLocal);
+                            if (Array.isArray(localPresets) && localPresets.length > 0) {
+                                syncPresetsToDB(reportKey, localPresets);
+                            }
+                        } catch(e){}
+                    }
+                }
+            })
+            .catch(err => console.warn('[PresetDBSync] GET failed:', err));
+    } catch(e) { console.warn('[PresetDBSync] Error:', e); }
 }
 
 function getSavedPresets() {
@@ -700,13 +649,13 @@ function savePresets(presets) {
             presets = presets.slice(0, MAX_PRESETS_LIMIT);
         }
         localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
+        syncPresetsToDB(PRESETS_STORAGE_KEY, presets);
     }
 }
 
 function renderPresetButtons() {
     const container = document.getElementById('presets-container');
     if (!container) return;
-    container.innerHTML = '';
     const presets = getSavedPresets();
     
     presets.forEach((p, idx) => {

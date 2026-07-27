@@ -146,7 +146,7 @@ function loadCompanyHeader() {
     } catch(e) { console.error('Error loading company header', e); }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     loadCompanyHeader();
     
     let attempts = 0;
@@ -160,24 +160,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load Table Data
     const rawData = localStorage.getItem('preview_table_data');
+    let parsedData = null;
+    
     if (rawData) {
         try {
-            const parsed = JSON.parse(rawData);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                currentData = parsed;
-            } else {
-                currentData = [
-                    { name: 'شركة تجريبية 1', phone: '0123456789', taxNumber: '100200300', currency: 'SDG', endingDebitForeign: 100, endingCreditForeign: 0, endingDebitLocal: 5000, endingCreditLocal: 0, notes: 'نشط' },
-                    { name: 'مؤسسة السلام', phone: '0987654321', taxNumber: '300400500', currency: 'USD', endingDebitForeign: 0, endingCreditForeign: 1250.75, endingDebitLocal: 0, endingCreditLocal: 1250.75, notes: 'نشط' }
-                ];
-            }
-        } catch(e) {
-            console.error('Error parsing data', e);
-            currentData = [
-                { name: 'شركة تجريبية 1', phone: '0123456789', taxNumber: '100200300', currency: 'SDG', endingDebitForeign: 100, endingCreditForeign: 0, endingDebitLocal: 5000, endingCreditLocal: 0, notes: 'نشط' },
-                { name: 'مؤسسة السلام', phone: '0987654321', taxNumber: '300400500', currency: 'USD', endingDebitForeign: 0, endingCreditForeign: 1250.75, endingDebitLocal: 0, endingCreditLocal: 1250.75, notes: 'نشط' }
-            ];
-        }
+            parsedData = JSON.parse(rawData);
+        } catch(e) { console.error('Error parsing localStorage data', e); }
+    } else if (typeof localforage !== 'undefined') {
+        try {
+            localforage.config({
+                driver: [localforage.INDEXEDDB, localforage.WEBSQL, localforage.LOCALSTORAGE],
+                name: 'MagaeesApp',
+                storeName: 'preview_data'
+            });
+            parsedData = await localforage.getItem('preview_table_data');
+        } catch(e) { console.error('Error getting localforage data', e); }
+    }
+    
+    if (Array.isArray(parsedData) && parsedData.length > 0) {
+        currentData = parsedData;
     } else {
         currentData = [
             { name: 'شركة تجريبية 1', phone: '0123456789', taxNumber: '100200300', currency: 'SDG', endingDebitForeign: 100, endingCreditForeign: 0, endingDebitLocal: 5000, endingCreditLocal: 0, notes: 'نشط' },
@@ -529,6 +530,56 @@ function initPresets() {
 
     savePresets(list);
     renderPresetButtons();
+
+    // Async sync with DB
+    loadPresetsFromDB(PRESETS_STORAGE_KEY, PRESETS_STORAGE_KEY, function() {
+        renderPresetButtons();
+        if (typeof renderPresetsManagementList === 'function') renderPresetsManagementList();
+    });
+}
+
+function syncPresetsToDB(reportKey, presets) {
+    if (!Array.isArray(presets)) return;
+    try {
+        const token = localStorage.getItem('erp_token') || '';
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = 'Bearer ' + token;
+        fetch('api_index.php/report-layout', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({
+                reportKey: reportKey,
+                layout: presets
+            })
+        }).catch(err => console.warn('[PresetDBSync] POST failed:', err));
+    } catch(e) { console.warn('[PresetDBSync] Error:', e); }
+}
+
+function loadPresetsFromDB(reportKey, localKey, onComplete) {
+    try {
+        const token = localStorage.getItem('erp_token') || '';
+        const headers = {};
+        if (token) headers['Authorization'] = 'Bearer ' + token;
+        fetch('api_index.php/report-layout?reportKey=' + reportKey, { headers })
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.success && Array.isArray(data.layout) && data.layout.length > 0) {
+                    localStorage.setItem(localKey, JSON.stringify(data.layout));
+                    if (typeof onComplete === 'function') onComplete(data.layout);
+                } else {
+                    let rawLocal = localStorage.getItem(localKey);
+                    if (rawLocal) {
+                        try {
+                            let localPresets = JSON.parse(rawLocal);
+                            if (Array.isArray(localPresets) && localPresets.length > 0) {
+                                syncPresetsToDB(reportKey, localPresets);
+                            }
+                        } catch(e){}
+                    }
+                }
+            })
+            .catch(err => console.warn('[PresetDBSync] GET failed:', err));
+    } catch(e) { console.warn('[PresetDBSync] Error:', e); }
 }
 
 function getSavedPresets() {
@@ -548,6 +599,7 @@ function savePresets(presets) {
             presets = presets.slice(0, MAX_PRESETS_LIMIT);
         }
         localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
+        syncPresetsToDB(PRESETS_STORAGE_KEY, presets);
     }
 }
 
@@ -821,7 +873,6 @@ function executeLongPressSave(idx) {
         } catch(e){}
 
         alert(`✨ تم حفظ وتحديث تصميم التقرير في "${p.name}" بنجاح!\n\nتمت أرشفة ونقل التعديلات الحالية إلى هذا النموذج، ويمكنك إعادة تعديله وتحديثه مرة أخرى في أي وقت عن طريق الضغط المطول (8 ثوانٍ).`);
-    }
 }
 
 function renderPresetsManagementList() {

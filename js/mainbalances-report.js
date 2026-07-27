@@ -198,20 +198,20 @@ function loadLayout() {
         .catch(err => console.log('DB layout sync info:', err));
 
     // Permanently sync and lock User Presets to Database
-    fetch('api_index.php/report-layout?reportKey=mainbalances_report_user_presets_locked', { headers: headers })
+    fetch('api_index.php/report-layout?reportKey=balances_preview_presets_v7', { headers: headers })
         .then(res => res.json())
         .then(data => {
-            if (data && data.success && data.layout) {
-                localStorage.setItem('mainbalances_report_user_presets_v3', JSON.stringify(data.layout));
+            if (data && data.success && Array.isArray(data.layout) && data.layout.length > 0) {
+                localStorage.setItem('balances_preview_presets_v7', JSON.stringify(data.layout));
                 if (typeof window.renderBalancesPresets === 'function') window.renderBalancesPresets();
             } else {
-                let curUserList = localStorage.getItem('mainbalances_report_user_presets_v3');
+                let curUserList = localStorage.getItem('balances_preview_presets_v7');
                 if (curUserList) {
                     fetch('api_index.php/report-layout', {
                         method: 'POST',
                         headers: { ...headers, 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            reportKey: 'mainbalances_report_user_presets_locked',
+                            reportKey: 'balances_preview_presets_v7',
                             layout: JSON.parse(curUserList)
                         })
                     });
@@ -580,6 +580,7 @@ if (window.APP_READY) {
 }
 
 function runReport() {
+    window.runReport = runReport;
     console.log('%c[balances-report.js] runReport() CALLED. Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: #ff6b6b; font-size: 16px; font-weight: bold;');
     if (ALL_PARTNERS.length === 0) {
         console.warn('[balances-report.js] WARNING: ALL_PARTNERS is EMPTY. loadData may not have run.');
@@ -826,12 +827,18 @@ window.switchCtxTab = function(tab) {
 };
 
 window.applyGlobalNumberSettingsFromUI = function() {
-    const thActive = document.getElementById('global-thousands-active')?.value === '1';
-    const thSep = document.getElementById('global-thousands-sep')?.value || ',';
-    const decSep = document.getElementById('global-dec-sep')?.value || '.';
-    const showDec = document.getElementById('global-show-decimals')?.value === '1';
-    const decCount = parseInt(document.getElementById('global-decimals-count')?.value || '2');
-    const roundMode = document.getElementById('global-round-mode')?.value || 'round';
+    const thActiveEl = document.getElementById('global-thousands-active');
+    const thActive = thActiveEl ? thActiveEl.value === '1' : false;
+    const thSepEl = document.getElementById('global-thousands-sep');
+    const thSep = thSepEl ? thSepEl.value || ',' : ',';
+    const decSepEl = document.getElementById('global-dec-sep');
+    const decSep = decSepEl ? decSepEl.value || '.' : '.';
+    const showDecEl = document.getElementById('global-show-decimals');
+    const showDec = showDecEl ? showDecEl.value === '1' : false;
+    const decCountEl = document.getElementById('global-decimals-count');
+    const decCount = parseInt(decCountEl ? decCountEl.value || '2' : '2');
+    const roundModeEl = document.getElementById('global-round-mode');
+    const roundMode = roundModeEl ? roundModeEl.value || 'round' : 'round';
 
     if (window.colConfigs) {
         window.colConfigs.forEach(col => {
@@ -853,6 +860,7 @@ window.applyGlobalNumberSettingsFromUI = function() {
     if (typeof renderColumnContextMenu === 'function') renderColumnContextMenu();
     if (typeof showToast === 'function') showToast('⚡ تم تطبيق إعدادات الأرقام والكسور والتقريب على جميع الأعمدة بنجاح', 'success');
 };
+window.runReport = runReport;
 
 window.initDraggableModal = function() {
     const modal = document.getElementById('columnContextMenu');
@@ -1220,7 +1228,7 @@ window.saveLayoutAndStyles = function() {
         }
         list[3] = {
             id: 4,
-            name: list[3]?.name || 'تخطيط 4',
+            name: (list[3] ? list[3].name : null) || 'تخطيط 4',
             colConfigs: curConfigs,
             colOrder: curOrder
         };
@@ -1676,29 +1684,6 @@ function shareWhatsApp() {
 /* ─── Premium Glassmorphic Quick Presets (Hold 8s to Save, Click to Apply) ─── */
 window.getBalancesPresets = function() {
     let userList = [];
-    try {
-        userList = JSON.parse(localStorage.getItem('mainbalances_report_user_presets_v3'));
-    } catch(e) {}
-    if (!userList || !Array.isArray(userList) || userList.length !== 3) {
-        userList = [
-            { id: 1, name: 'افتراضي 1', colConfigs: null, colOrder: null },
-            { id: 2, name: 'تخطيط 2', colConfigs: null, colOrder: null },
-            { id: 3, name: 'تخطيط 1', colConfigs: null, colOrder: null }
-        ];
-        localStorage.setItem('mainbalances_report_user_presets_v3', JSON.stringify(userList));
-    } else {
-        if (userList[0] && (userList[0].name === 'تخطيط 1' || !userList[0].name)) {
-            userList[0].name = 'افتراضي 1';
-        }
-        if (userList[2]) {
-            userList[2].name = 'تخطيط 1';
-        }
-        localStorage.setItem('mainbalances_report_user_presets_v3', JSON.stringify(userList));
-    }
-};
-
-window.getBalancesPresets = function() {
-    let userList = [];
     try { userList = JSON.parse(localStorage.getItem('mainbalances_report_user_presets_v3')) || []; } catch(e){}
 
     // Default 1 Master Configs (Standard Factory System Default)
@@ -1793,13 +1778,12 @@ window.renderBalancesPresets = function() {
 
         if (isDefaultGroup) {
             btn.innerHTML = p.name + ' 🔒';
-            btn.title = '🔒 هذا الضبط مثبت نهائياً في النظام وقاعدة البيانات كضبط مصنع لا يتغير نهائياً (مُعمم على جميع المنشآت والشركات)';
+            btn.title = '🔒 معاينة وتعديل التنسيق بهذا النموذج الافتراضي';
             
-            // Direct Click Handler to apply layout directly
+            // Direct Click Handler to open modal directly (Same as General Ledger)
             btn.onclick = (e) => {
                 if (e) e.preventDefault();
-                const defaultKey = 'default' + (idx + 1);
-                applyPresetLayout(defaultKey);
+                window.openPresetModal(idx, p.name);
             };
         } else {
             btn.innerHTML = p.name + ' 🔄';
@@ -1861,6 +1845,14 @@ window.renderBalancesPresets = function() {
                                 p.isLocked = false;
                                 p.updatedAt = new Date().toISOString();
                                 localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
+                                const token = localStorage.getItem('erp_token') || '';
+                                const headers = { 'Content-Type': 'application/json' };
+                                if (token) headers['Authorization'] = 'Bearer ' + token;
+                                fetch('api_index.php/report-layout', {
+                                    method: 'POST',
+                                    headers: headers,
+                                    body: JSON.stringify({ reportKey: PRESETS_STORAGE_KEY, layout: presets })
+                                }).catch(e => {});
                                 alert(`✨ تم حفظ وتحديث تصميم التقرير في "${p.name}" بنجاح!`);
                                 window.renderBalancesPresets();
                             }
@@ -1886,8 +1878,7 @@ window.renderBalancesPresets = function() {
                 }
 
                 if (pressStartTime > 0 && duration < 1000) {
-                    const userSlotId = idx - 3;
-                    applyPresetLayout(userSlotId);
+                    window.openPresetModal(idx, p.name);
                 }
             };
 
@@ -1904,7 +1895,13 @@ window.renderBalancesPresets = function() {
     // Main Preview & Design Page Button (Pushed to the very end of the row)
     const mainPreviewBtn = document.createElement('button');
     mainPreviewBtn.type = 'button';
-    mainPreviewBtn.onclick = () => window.openNewPreviewPage();
+    mainPreviewBtn.onclick = () => {
+        if (typeof window.openNewPreviewPage === 'function') {
+            window.openNewPreviewPage();
+        } else {
+            window.openPresetModal(0, 'الشاشة الذكية للمعاينة والتصميم');
+        }
+    };
     mainPreviewBtn.className = 'btn-action-hero btn-hero-preview';
     mainPreviewBtn.style.cssText = 'margin-right: auto;';
     mainPreviewBtn.innerHTML = `<span>👁️ المعاينة والتصميم ⚙️</span>`;
@@ -1919,27 +1916,50 @@ window.addEventListener('storage', function(e) {
     }
 });
 
-window.openPresetModal = function(presetIndex, presetName) {
-    if (!window.lastResults || window.lastResults.length === 0) {
-        if (typeof showToast === 'function') {
-            showToast('يرجى تشغيل التقرير أولاً للحصول على البيانات.', 'error');
-        } else {
-            alert('⚠️ يرجى تشغيل التقرير أولاً للحصول على البيانات.');
+async function openPresetModal(presetIndex, presetName) {
+    if (!window.lastResults || !Array.isArray(window.lastResults)) {
+        if (typeof window.runReport === 'function') {
+            window.runReport();
         }
-        return;
+    }
+
+    if (!window.lastResults || !Array.isArray(window.lastResults)) {
+        window.lastResults = [];
     }
 
     // Save logo and report data
     const logoImg = document.getElementById('company-logo');
     if (logoImg && logoImg.src) {
-        localStorage.setItem('company_logo_base64', logoImg.src);
+        try { localStorage.setItem('company_logo_base64', logoImg.src); } catch(e){}
     }
-    localStorage.setItem('preview_table_data', JSON.stringify(window.lastResults));
-    localStorage.setItem('preview_table_totals', JSON.stringify({
-        kpiDr: document.getElementById('kpi-dr')?.innerText || '0.00 SDG',
-        kpiCr: document.getElementById('kpi-cr')?.innerText || '0.00 SDG',
-        kpiBal: document.getElementById('kpi-bal')?.innerText || '0.00 SDG'
-    }));
+    
+    try {
+        localStorage.setItem('preview_table_totals', JSON.stringify({
+            kpiDr: document.getElementById('kpi-dr') ? document.getElementById('kpi-dr').innerText : '0.00 SDG',
+            kpiCr: document.getElementById('kpi-cr') ? document.getElementById('kpi-cr').innerText : '0.00 SDG',
+            kpiBal: document.getElementById('kpi-bal') ? document.getElementById('kpi-bal').innerText : '0.00 SDG'
+        }));
+    } catch(e){}
+
+    let dataSaved = false;
+    try {
+        localStorage.setItem('preview_table_data', JSON.stringify(window.lastResults));
+        dataSaved = true;
+    } catch (e) {
+        console.warn("localStorage quota exceeded, using localforage...", e);
+        if (typeof localforage !== 'undefined') {
+            try {
+                await localforage.setItem('preview_table_data', window.lastResults);
+                localStorage.removeItem('preview_table_data');
+                dataSaved = true;
+            } catch(err) { console.error(err); }
+        }
+    }
+    
+    if(!dataSaved) {
+        if (typeof showToast === 'function') showToast('خطأ: حجم البيانات كبير جداً على الذاكرة', 'error');
+        return;
+    }
 
     // Create Modal Backdrop if not present
     let modal = document.getElementById('preset-preview-modal');
@@ -1976,328 +1996,84 @@ window.openPresetModal = function(presetIndex, presetName) {
                 </div>
             </div>
 
-            <!-- Modal Iframe Body -->
-            <iframe id="preset-modal-iframe" src="preview-balances-design.php?presetIndex=${presetIndex}&hideRibbon=1" style="width: 100%; height: 100%; border: none; background: #f8fafc;"></iframe>
+            <!-- Modal Iframe Body Container -->
+            <div style="flex: 1; position: relative; width: 100%; height: 100%; min-height: 0; background: #f8fafc;">
+                <iframe id="preset-modal-iframe" src="preview-balances-design.php?presetIndex=${presetIndex}&hideRibbon=1" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
         </div>
     `;
     modal.style.display = 'flex';
-};
+}
+window.openPresetModal = openPresetModal;
 
 // --- New Function: Open New Preview Page ---
-window.openNewPreviewPage = function() {
-    if (!window.lastResults || window.lastResults.length === 0) {
-        // التقرير لم يُحمّل بعد — نشغله أولاً ثم نفتح المعاينة
+window.openNewPreviewPage = async function() {
+    if (typeof showToast === 'function') {
+        showToast('جاري تحضير شاشة المعاينة...', 'info');
+    }
+
+    if (!window.lastResults || !Array.isArray(window.lastResults)) {
         if (typeof window.runReport === 'function') {
-            showToast('جاري تحميل البيانات أولاً...', 'warning');
             window.runReport();
-            // انتظر قليلاً حتى تكتمل البيانات ثم أعد المحاولة
-            setTimeout(function() {
-                if (window.lastResults && window.lastResults.length > 0) {
-                    window.openNewPreviewPage();
-                } else {
-                    showToast('لا توجد بيانات لعرضها. يرجى الانتظار حتى يتم تحميل البيانات.', 'error');
-                }
-            }, 1500);
-        } else {
-            showToast('يرجى الانتظار حتى يتم تحميل التقرير.', 'error');
         }
-        return;
+    }
+
+    if (!window.lastResults || !Array.isArray(window.lastResults)) {
+        window.lastResults = [];
     }
     
     // Attempt to grab logo from the DOM to pass it over
     const logoImg = document.getElementById('company-logo');
     if (logoImg && logoImg.src) {
-        localStorage.setItem('company_logo_base64', logoImg.src);
+        try { localStorage.setItem('company_logo_base64', logoImg.src); } catch(e){}
     }
 
-    localStorage.setItem('preview_table_data', JSON.stringify(window.lastResults));
-    localStorage.setItem('preview_table_totals', JSON.stringify({
-        kpiDr: document.getElementById('kpi-dr')?.innerText || '0.00 SDG',
-        kpiCr: document.getElementById('kpi-cr')?.innerText || '0.00 SDG',
-        kpiBal: document.getElementById('kpi-bal')?.innerText || '0.00 SDG'
-    }));
-    
-    // Open in the same tab per user request
-    window.location.href = 'preview-balances-design.php';
-};
-
-window.renderBalancesPresetsOld = function() {
-    const wrap = document.getElementById('balances-presets-wrap');
-    if (!wrap) return;
-    
-    const list = window.getBalancesPresets();
-    wrap.innerHTML = '';
-    
-    list.forEach(p => {
-        const btn = document.createElement('div');
-        btn.setAttribute('data-slot-id', p.id);
-        
-        let isActive = p.colConfigs && window.colConfigs &&
-                       JSON.stringify(p.colConfigs) === JSON.stringify(window.colConfigs) && 
-                       JSON.stringify(p.colOrder) === JSON.stringify(window.colOrder);
-                       
-        const isLockedDefault = p.isDefault || p.isReadOnly || ['default1', 'default2', 'default3', 'default4', 1, '1', 'basic'].includes(p.id);
-        btn.className = `preset-btn ${p.colConfigs || p.isDefault ? 'has-data' : ''} ${isActive ? 'active' : ''}`;
-        
-        if (isLockedDefault) {
-            btn.title = `نقرة لاسترجاع [${p.name}]. هذا الضبط مثبت ومحفوظ داخل النظام.`;
-            btn.innerHTML = `<span>${p.name}</span>`;
-        } else {
-            btn.title = p.colConfigs ? `نقرة لتطبيق [${p.name}]. اضغط مطولاً (8 ثوانٍ) للحفظ هنا. كليك يمين للحذف.` : `اضغط مطولاً (8 ثوانٍ) لحفظ التخطيط الحالي هنا.`;
-            btn.innerHTML = `
-                <svg class="preset-clock-svg" width="16" height="16" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.15)" stroke-width="3" fill="none"></circle>
-                    <circle class="preset-clock-progress" cx="12" cy="12" r="10" stroke="#38bdf8" stroke-width="3" fill="none" stroke-dasharray="62.8" stroke-dashoffset="62.8" transform="rotate(-90 12 12)"></circle>
-                </svg>
-                <span>${p.name}</span>
-            `;
-        }
-        
-        setupPresetButtonEvents(btn, p);
-        wrap.appendChild(btn);
-    });
-};
-
-function setupPresetButtonEvents(btn, p) {
-    const isLockedDefault = p.isDefault || p.isReadOnly || ['default1', 'default2', 'default3', 'default4', 1, '1', 'basic'].includes(p.id);
-    if (isLockedDefault) {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            applyPresetLayout(p.id);
-        });
-        btn.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            showToast(`🔒 الضبط [${p.name}] محمي ومثبت نهائياً داخل النظام ولا يمكن التعديل عليه أو مسحه`, "info");
-        });
-        return;
-    }
-
-    let holdTimer = null;
-    let progressInterval = null;
-    let holdStartTime = 0;
-    let isHolding = false;
-    const HOLD_DURATION = 8000; // 8 seconds
-    const clockProgress = btn.querySelector('.preset-clock-progress');
-
-    function startHold(e) {
-        if (e.type === 'touchstart') {
-            e.preventDefault();
-        }
-        isHolding = true;
-        holdStartTime = Date.now();
-        btn.classList.add('holding');
-        
-        let elapsed = 0;
-        progressInterval = setInterval(() => {
-            elapsed = Date.now() - holdStartTime;
-            let percent = Math.min(elapsed / HOLD_DURATION, 1);
-            let offset = 62.8 * (1 - percent);
-            if (clockProgress) {
-                clockProgress.style.strokeDashoffset = offset;
-            }
-        }, 50);
-
-        holdTimer = setTimeout(() => {
-            endHold();
-            savePresetLayout(p.id);
-        }, HOLD_DURATION);
-    }
-
-    function cancelHold(e) {
-        if (!isHolding) return;
-        let elapsed = Date.now() - holdStartTime;
-        endHold();
-
-        if (elapsed < 500) {
-            applyPresetLayout(p.id);
-        }
-    }
-
-    function endHold() {
-        isHolding = false;
-        btn.classList.remove('holding');
-        if (holdTimer) clearTimeout(holdTimer);
-        if (progressInterval) clearInterval(progressInterval);
-        if (clockProgress) {
-            clockProgress.style.strokeDashoffset = 62.8;
-        }
-    }
-
-    btn.addEventListener('mousedown', startHold);
-    btn.addEventListener('touchstart', startHold, { passive: false });
-    
-    btn.addEventListener('mouseup', cancelHold);
-    btn.addEventListener('touchend', cancelHold);
-    btn.addEventListener('mouseleave', endHold);
-    
-    btn.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        if (p.isDefault || isLockedDefault) {
-            showToast(`🔒 الضبط [${p.name}] محمي ومثبت داخل النظام`, "info");
-            return;
-        }
-        if (!p.colConfigs) return;
-        if (confirm("هل أنت متأكد من رغبتك في حذف هذا التخطيط المبرمج؟")) {
-            let userList = [];
-            try { userList = JSON.parse(localStorage.getItem('mainbalances_report_user_presets_v3')) || []; } catch(e){}
-            let slotIdx = userList.findIndex(x => String(x.id) === String(p.id));
-            if (slotIdx !== -1) {
-                userList[slotIdx] = { id: p.id, name: 'تخطيط ' + p.id, colConfigs: null, colOrder: null };
-                localStorage.setItem('mainbalances_report_user_presets_v3', JSON.stringify(userList));
-                showToast("تم حذف برمجة التخطيط", "success");
-                window.renderBalancesPresets();
-            }
-        }
-    });
-}
-
-function savePresetLayout(id) {
-    if (['default1', 'default2', 'default3', 'default4', 1, '1', 'basic'].includes(id)) {
-        showToast("🔒 هذا الضبط محمي ومثبت نهائياً داخل النظام ولا يمكن التعديل عليه أو تغييره إطلاقاً.", "warning");
-        return;
-    }
-
-    const newConfigs = JSON.parse(JSON.stringify(window.colConfigs));
-    const newOrder = [...window.colOrder];
-    const layoutPayload = { colConfigs: newConfigs, colOrder: newOrder };
-
-    if (['default2', 'default3', 'default4'].includes(id)) {
-        const key = 'mainbalances_report_master_' + id;
-        localStorage.setItem(key, JSON.stringify(layoutPayload));
-        
-        fetch('api_index.php/report-layout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                reportKey: 'mainbalances_report_layout_' + id,
-                layout: layoutPayload
-            })
-        });
-
-        const labelMap = {
-            'default2': 'الافتراضي 2 🌟',
-            'default3': 'الافتراضي 3 ✨',
-            'default4': 'الافتراضي 4 💎'
-        };
-        showToast("✨ تم حفظ تصميم التقرير داخل (" + (labelMap[id] || id) + ") وفي قاعدة البيانات بنجاح!", "success");
-        window.renderBalancesPresets();
-        return;
-    }
-
-    let userList = [];
-    try { userList = JSON.parse(localStorage.getItem('mainbalances_report_user_presets_v3')) || []; } catch(e){}
-    if (!userList || userList.length !== 3) {
-        userList = [
-            { id: 1, name: 'تخطيط 1', colConfigs: null, colOrder: null },
-            { id: 2, name: 'تخطيط 2', colConfigs: null, colOrder: null },
-            { id: 3, name: 'تخطيط 3', colConfigs: null, colOrder: null }
-        ];
-    }
-    
-    let slotIdx = userList.findIndex(x => String(x.id) === String(id));
-    if (slotIdx === -1) slotIdx = parseInt(id) - 1;
-
-    let defaultName = userList[slotIdx] ? userList[slotIdx].name : ("تخطيط " + id);
-    let name = prompt("أدخل اسماً لتسمية هذا التخطيط المخصص (تخطيط " + id + "):", defaultName);
-    if (name === null) return;
-    name = name.trim() || ("تخطيط " + id);
-
-    userList[slotIdx] = {
-        id: parseInt(id),
-        name: name,
-        colConfigs: newConfigs,
-        colOrder: newOrder
-    };
-    
-    localStorage.setItem('mainbalances_report_user_presets_v3', JSON.stringify(userList));
-    showToast("تم حفظ التخطيط '" + name + "' بنجاح", "success");
-    window.renderBalancesPresets();
-}
-
-function applyPresetLayout(id) {
-    if (['default1', 'default2', 'default3', 'default4'].includes(id)) {
-        let masterConfigs = null;
-        let masterOrder = null;
-        const key = 'mainbalances_report_master_' + id;
-
-        try {
-            const master = JSON.parse(localStorage.getItem(key));
-            if (master && master.colConfigs && master.colOrder) {
-                masterConfigs = master.colConfigs;
-                masterOrder = master.colOrder;
-            }
-        } catch(e) {}
-
-        if (!masterConfigs) {
-            const presets = window.getBalancesPresets();
-            const target = presets.find(x => x.id === id);
-            if (target && target.colConfigs) {
-                masterConfigs = target.colConfigs;
-                masterOrder = target.colOrder;
-            }
-        }
-
-        if (masterConfigs) {
-            window.colConfigs = JSON.parse(JSON.stringify(masterConfigs));
-            window.colOrder = [...masterOrder];
-        }
-
-        try {
-            const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
-            const settings = JSON.parse(settingsStr);
-            settings.mainbalancesReportLayout = {
-                colConfigs: window.colConfigs,
-                colOrder: window.colOrder
-            };
-            localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
-        } catch(e) {}
-
-        applyLayoutToDOM();
-        if (typeof bindContextMenuList === 'function') bindContextMenuList();
-        if (typeof renderColumnContextMenu === 'function') renderColumnContextMenu();
-        if (window.lastResults && window.lastResults.length > 0) {
-            renderTable(window.lastResults);
-        }
-        const labelMap = {
-            'default1': 'الافتراضي 1 ⭐',
-            'default2': 'الافتراضي 2 🌟',
-            'default3': 'الافتراضي 3 ✨',
-            'default4': 'الافتراضي 4 💎'
-        };
-        showToast("تم تطبيق الضبط والتصميم المحفوظ (" + (labelMap[id] || id) + ") بنجاح ✨", "success");
-        window.renderBalancesPresets();
-        return;
-    }
-
-    let userList = [];
-    try { userList = JSON.parse(localStorage.getItem('mainbalances_report_user_presets_v3')) || []; } catch(e){}
-    let p = userList.find(x => String(x.id) === String(id));
-    if (!p || !p.colConfigs) {
-        showToast("هذا التخطيط فارغ! اضغط مطولاً (8 ثوانٍ) لحفظ التخطيط الحالي هنا.", "warning");
-        return;
-    }
-
-    window.colConfigs = p.colConfigs;
-    window.colOrder = p.colOrder;
-    
     try {
-        const settingsStr = localStorage.getItem('erp_settings_v1') || '{}';
-        const settings = JSON.parse(settingsStr);
-        settings.mainbalancesReportLayout = {
-            colConfigs: window.colConfigs,
-            colOrder: window.colOrder
-        };
-        localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
-    } catch(e) {}
+        localStorage.setItem('preview_table_totals', JSON.stringify({
+            kpiDr: document.getElementById('kpi-dr') ? document.getElementById('kpi-dr').innerText : '0.00 SDG',
+            kpiCr: document.getElementById('kpi-cr') ? document.getElementById('kpi-cr').innerText : '0.00 SDG',
+            kpiBal: document.getElementById('kpi-bal') ? document.getElementById('kpi-bal').innerText : '0.00 SDG'
+        }));
+    } catch(e){}
 
-    applyLayoutToDOM();
-    if (window.lastResults && window.lastResults.length > 0) {
-        renderTable(window.lastResults);
+    let dataSaved = false;
+    try {
+        localStorage.setItem('preview_table_data', JSON.stringify(window.lastResults));
+        dataSaved = true;
+    } catch (e) {
+        console.warn("localStorage quota exceeded, using localforage...", e);
+        if (typeof localforage !== 'undefined') {
+            try {
+                localforage.config({
+                    driver: [localforage.INDEXEDDB, localforage.WEBSQL, localforage.LOCALSTORAGE],
+                    name: 'MagaeesApp',
+                    storeName: 'preview_data'
+                });
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 6000));
+                await Promise.race([
+                    localforage.setItem('preview_table_data', window.lastResults),
+                    timeoutPromise
+                ]);
+                localStorage.removeItem('preview_table_data');
+                dataSaved = true;
+            } catch(err) { 
+                console.error(err);
+                if (err.message === 'timeout') {
+                    if (typeof showToast === 'function') showToast('تأخر حفظ البيانات، يرجى المحاولة مرة أخرى.', 'error');
+                }
+            }
+        }
     }
     
-    showToast("تم تطبيق التخطيط المخصص: " + p.name, "success");
-    window.renderBalancesPresets();
-}
+    if (dataSaved) {
+        // Open in the same tab per user request
+        window.location.href = 'preview-balances-design.php';
+    } else {
+        if (typeof showToast === 'function') showToast('خطأ: لم نتمكن من حفظ البيانات لانتقال الشاشة', 'error');
+    }
+};
+
+
 
 /* ═══════════════════════════════════════════════════════
    Visual Intelligence Analytics Hub (ApexCharts & KPIs)

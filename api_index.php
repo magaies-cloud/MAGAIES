@@ -219,38 +219,7 @@ if ($resource === 'debug' && $method === 'GET') {
     jsonResponse($dbg);
 }
 
-// Public: Report Layout Settings (GET & POST)
-if ($resource === 'report-layout') {
-    $reportKey = $_GET['reportKey'] ?? ($input['reportKey'] ?? '');
-    if (empty($reportKey)) {
-        jsonResponse(['success' => false, 'error' => 'reportKey is required'], 400);
-    }
-    $setting_key = 'report_layout_' . preg_replace('/[^a-zA-Z0-9_-]/', '', $reportKey);
-    
-    if ($method === 'GET') {
-        try {
-            $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
-            $stmt->execute([$setting_key]);
-            $val = $stmt->fetchColumn();
-            if ($val) {
-                jsonResponse(['success' => true, 'layout' => json_decode($val, true)]);
-            } else {
-                jsonResponse(['success' => false, 'layout' => null]);
-            }
-        } catch (Exception $e) {
-            jsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
-        }
-    } elseif ($method === 'POST') {
-        try {
-            $layoutData = json_encode($input['layout'] ?? [], JSON_UNESCAPED_UNICODE);
-            $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
-            $stmt->execute([$setting_key, $layoutData, $layoutData]);
-            jsonResponse(['success' => true, 'message' => 'Layout saved successfully']);
-        } catch (Exception $e) {
-            jsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
-        }
-    }
-}
+
 
 
 // Public: Check Uniqueness Globally

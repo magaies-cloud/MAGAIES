@@ -1950,6 +1950,19 @@ document.addEventListener('DOMContentLoaded', () => {
     
     renderLedgerPresets();
 
+    const token = localStorage.getItem('erp_token') || '';
+    const headers = {};
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    fetch('api_index.php/report-layout?reportKey=ledger_preview_presets_v7', { headers: headers })
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.success && Array.isArray(data.layout) && data.layout.length > 0) {
+                localStorage.setItem('ledger_preview_presets_v7', JSON.stringify(data.layout));
+                renderLedgerPresets();
+            }
+        })
+        .catch(e => {});
+
     buildAccountsList();
     runReport();
     setTimeout(() => {
