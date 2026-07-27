@@ -1080,6 +1080,8 @@ $page_title = 'حساب الارصده الاساسية';
         <div class="filter-row" style="margin-top: 10px; margin-bottom: 15px; display: flex; gap: 6px; flex-wrap: nowrap; width: 100%; align-items: center;">
 
             <div class="preset-slots-container no-print" id="main-presets-container" style="flex:1; display:flex; gap:4px; align-items:center; flex-wrap:nowrap; padding:2px 6px; border-radius:8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); min-height: 36px; overflow-x: auto;">
+                <!-- Visual Intelligence Hub Toggle Button -->
+                <button type="button" class="preset-ribbon-btn" onclick="window.toggleVisualHub()" style="background: linear-gradient(135deg, #0ea5e9, #6366f1) !important; color: #ffffff !important; border: 1px solid rgba(56, 189, 248, 0.6) !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4) !important;">📊 الشاشات والتقارير البصرية 📈</button>
                 <!-- Static fallback buttons matching General Ledger style -->
                 <button type="button" class="preset-ribbon-btn preset-slot-0" onclick="window.openPresetModal(0, 'افتراضي 1')">💎 افتراضي 1 🔒</button>
                 <button type="button" class="preset-ribbon-btn preset-slot-1" onclick="window.openPresetModal(1, 'افتراضي 2')">⭐ افتراضي 2 🔒</button>

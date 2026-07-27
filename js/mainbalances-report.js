@@ -2173,11 +2173,27 @@ let chartRadarEquilibrium = null;
 let chartSolidPieActiveZero = null;
 let chartMultiRadialRings = null;
 
+window.currentBalancesResults = [];
+
+window.toggleVisualHub = function() {
+    const hub = document.getElementById('visual-intelligence-hub');
+    if (!hub) return;
+    if (hub.style.display === 'none' || hub.style.display === '') {
+        hub.style.display = 'block';
+        hub.scrollIntoView({ behavior: 'smooth' });
+        if (window.currentBalancesResults && window.currentBalancesResults.length > 0) {
+            renderVisualAnalytics(window.currentBalancesResults);
+        }
+    } else {
+        hub.style.display = 'none';
+    }
+};
+
 function renderVisualAnalytics(results) {
+    window.currentBalancesResults = results || [];
     const hub = document.getElementById('visual-intelligence-hub');
     if (!hub) return;
     if (!results || results.length === 0) {
-        hub.style.display = 'none';
         return;
     }
     hub.style.display = 'block';
