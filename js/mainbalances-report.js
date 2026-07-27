@@ -324,6 +324,40 @@ function fmtColNum(n, origIdx) {
 function parseNum(str) {
     return parseFloat(String(str || '0').replace(/,/g, '')) || 0;
 }
+function animateKpiNumber(elId, targetNum, suffixStr = '', decCount = 2) {
+    const el = document.getElementById(elId);
+    if (!el || isNaN(targetNum)) return;
+    
+    const start = performance.now();
+    const duration = 1200;
+    const isNegative = targetNum < 0;
+    const absTarget = Math.abs(targetNum);
+    
+    function update(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = absTarget * eased;
+        
+        const formatted = current.toLocaleString('en-US', {
+            minimumFractionDigits: decCount,
+            maximumFractionDigits: decCount
+        });
+        
+        el.textContent = (isNegative ? '-' : '') + formatted + (suffixStr ? ' ' + suffixStr : '');
+        
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        } else {
+            const finalFormatted = absTarget.toLocaleString('en-US', {
+                minimumFractionDigits: decCount,
+                maximumFractionDigits: decCount
+            });
+            el.textContent = (isNegative ? '-' : '') + finalFormatted + (suffixStr ? ' ' + suffixStr : '');
+        }
+    }
+    requestAnimationFrame(update);
+}
 function showToast(msg, type = 'success') {
     const c = document.getElementById('toast-container');
     if(!c) return;
@@ -1572,24 +1606,24 @@ function renderTable(results) {
         cells[8] = `<td style="max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; ${getCellStyle(8)}" title="${p.notes || ''}">${p.notes || '-'}</td>`;
         
         let orderedCells = window.colOrder.map(idx => cells[idx]).join('');
-        rows += `<tr class="partner-row" data-partner-id="${p.id}" data-partner-name="${p.name}" data-partner-type="${p.type}" onclick="handleRowClick(event, '${p.id}', '${p.type}')" style="cursor: pointer;">${orderedCells}</tr>`;
+        let delay = Math.min(idx * 0.03, 0.6).toFixed(2);
+        rows += `<tr class="partner-row animate-slide-up" data-partner-id="${p.id}" data-partner-name="${p.name}" data-partner-type="${p.type}" onclick="handleRowClick(event, '${p.id}', '${p.type}')" style="cursor: pointer; animation-delay: ${delay}s;">${orderedCells}</tr>`;
     });
 
     tbody.innerHTML = rows;
 
-    document.getElementById('kpi-dr').textContent = fmtColNum(sumCust, 6) + ' SDG';
     const drForeign = ledgerExchangeRate > 0 ? (sumCust / ledgerExchangeRate) : 0;
-    document.getElementById('kpi-dr-foreign').textContent = `${fmtColNum(drForeign, 4)} ${ledgerForeignCurrency}`;
-
-    document.getElementById('kpi-cr').textContent = fmtColNum(sumSupp, 7) + ' SDG';
     const crForeign = ledgerExchangeRate > 0 ? (sumSupp / ledgerExchangeRate) : 0;
-    document.getElementById('kpi-cr-foreign').textContent = `${fmtColNum(crForeign, 5)} ${ledgerForeignCurrency}`;
-    
     const net = sumCust - sumSupp;
     const netSign = net >= 0 ? ' (لنا)' : ' (علينا)';
-    document.getElementById('kpi-bal').textContent = fmtColNum(Math.abs(net), 6) + ' SDG' + netSign;
     const netForeign = ledgerExchangeRate > 0 ? (Math.abs(net) / ledgerExchangeRate) : 0;
-    document.getElementById('kpi-bal-foreign').textContent = `${fmtColNum(netForeign, 4)} ${ledgerForeignCurrency}` + netSign;
+
+    animateKpiNumber('kpi-dr', sumCust, 'SDG');
+    animateKpiNumber('kpi-dr-foreign', drForeign, ledgerForeignCurrency);
+    animateKpiNumber('kpi-cr', sumSupp, 'SDG');
+    animateKpiNumber('kpi-cr-foreign', crForeign, ledgerForeignCurrency);
+    animateKpiNumber('kpi-bal', Math.abs(net), 'SDG' + netSign);
+    animateKpiNumber('kpi-bal-foreign', netForeign, ledgerForeignCurrency + netSign);
 
     document.getElementById('analytics-dashboard').style.display = 'block';
     document.getElementById('actions-panel').style.display = 'flex';
