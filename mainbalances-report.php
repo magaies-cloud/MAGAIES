@@ -1044,17 +1044,20 @@ $page_title = 'حساب الارصده الاساسية';
                 </select>
             </div>
         </div>
-        <div class="filter-row" style="margin-top: 15px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; width: 100%;">
-            <button class="btn-run" id="btn-run-report" onclick="runReport()" style="padding:6px 20px; font-size:0.92rem; height:42px; border-radius:8px; font-weight:900; display:inline-flex; align-items:center; gap:8px;">
-                <svg width="24" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <span>تشغيل التقرير</span>
-            </button>
+        <div class="filter-row" style="margin-top: 15px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; width: 100%; align-items: center;">
 
             <div class="preset-slots-container no-print" id="main-presets-container" style="flex:1; display:flex; gap:6px; align-items:center; flex-wrap:wrap; padding:2px 10px; border-radius:8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); min-width: 250px; min-height: 42px;">
-                <!-- Dynamic preset buttons rendered via JS -->
+                <!-- Static fallback buttons (replaced by JS renderBalancesPresets) -->
+                <button type="button" class="preset-ribbon-btn preset-slot-0" onclick="if(typeof applyPresetLayout==='function')applyPresetLayout('default1')">💎 افتراضي 1 🔒</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-1" onclick="if(typeof applyPresetLayout==='function')applyPresetLayout('default2')">⭐ افتراضي 2 🔒</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-2" onclick="if(typeof applyPresetLayout==='function')applyPresetLayout('default3')">🎨 افتراضي 3 🔒</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-3" onclick="if(typeof applyPresetLayout==='function')applyPresetLayout('default4')">🔥 افتراضي 4 🔒</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-4">✨ نموذج 1 🔄</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-5">🚀 نموذج 2 🔄</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-6">🌟 نموذج 3 🔄</button>
             </div>
 
-            <button class="btn-run" onclick="window.openNewPreviewPage()" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: 0 4px 15px rgba(16,185,129,0.3); padding: 8px 16px; border-radius: 8px; font-weight: bold; font-family: 'Tajawal', sans-serif; height: 42px;">
+            <button class="btn-run" id="btn-preview-design" onclick="window.openNewPreviewPage()" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: 0 4px 15px rgba(16,185,129,0.3); padding: 8px 16px; border-radius: 8px; font-weight: bold; font-family: 'Tajawal', sans-serif; height: 42px;">
                 👁️ الشاشة الذكية للمعاينة والتصميم والطباعة
             </button>
         </div>

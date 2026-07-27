@@ -1989,7 +1989,21 @@ window.openPresetModal = function(presetIndex, presetName) {
 // --- New Function: Open New Preview Page ---
 window.openNewPreviewPage = function() {
     if (!window.lastResults || window.lastResults.length === 0) {
-        showToast('يرجى تشغيل التقرير أولاً للحصول على البيانات.', 'error');
+        // التقرير لم يُحمّل بعد — نشغله أولاً ثم نفتح المعاينة
+        if (typeof window.runReport === 'function') {
+            showToast('جاري تحميل البيانات أولاً...', 'warning');
+            window.runReport();
+            // انتظر قليلاً حتى تكتمل البيانات ثم أعد المحاولة
+            setTimeout(function() {
+                if (window.lastResults && window.lastResults.length > 0) {
+                    window.openNewPreviewPage();
+                } else {
+                    showToast('لا توجد بيانات لعرضها. يرجى الانتظار حتى يتم تحميل البيانات.', 'error');
+                }
+            }, 1500);
+        } else {
+            showToast('يرجى الانتظار حتى يتم تحميل التقرير.', 'error');
+        }
         return;
     }
     
