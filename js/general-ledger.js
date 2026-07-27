@@ -1920,9 +1920,7 @@ async function openPresetModal(presetIndex, presetName) {
                     <button type="button" onclick="document.getElementById('preset-modal-iframe').contentWindow.executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(2,132,199,0.4);">
                         🖨️ طباعة التقرير مباشرة
                     </button>
-                    <button type="button" onclick="window.location.href='preview-ledger.php?presetIndex=${presetIndex}'" style="background: linear-gradient(135deg, #eab308, #ca8a04); color: #fff; border: none; padding: 7px 16px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(202,138,4,0.4);">
-                        ⚙️ التعديل على التنسيق
-                    </button>
+
                     <button type="button" onclick="document.getElementById('preset-preview-modal').style.display='none'" style="background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.4); padding: 7px 16px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer;">
                         ❌ إغلاق
                     </button>
