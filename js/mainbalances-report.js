@@ -1625,9 +1625,14 @@ function renderTable(results) {
     animateKpiNumber('kpi-bal', Math.abs(net), 'SDG' + netSign);
     animateKpiNumber('kpi-bal-foreign', netForeign, ledgerForeignCurrency + netSign);
 
-    document.getElementById('analytics-dashboard').style.display = 'block';
-    document.getElementById('actions-panel').style.display = 'flex';
-    document.getElementById('print-container').style.display = 'block';
+    const dashboardEl = document.getElementById('analytics-dashboard');
+    if (dashboardEl) dashboardEl.style.display = 'block';
+
+    const actionsEl = document.getElementById('actions-panel');
+    if (actionsEl) actionsEl.style.display = 'flex';
+
+    const printContainerEl = document.getElementById('print-container');
+    if (printContainerEl) printContainerEl.style.display = 'block';
 
     showToast(`✅ تم تجميع أرصدة ${results.length} حساب بنجاح`, 'success');
     

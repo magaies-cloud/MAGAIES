@@ -1097,7 +1097,7 @@ $page_title = 'حساب الارصده الاساسية';
     </div>
 
     <!-- HIGH CONTRAST COMPACT KPI DASHBOARD -->
-    <div id="analytics-dashboard" class="no-print" style="display:none; margin-bottom: 6px; padding: 4px 8px; background: rgba(15, 23, 42, 0.65); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+    <div id="analytics-dashboard" class="no-print" style="display:block; margin-bottom: 6px; padding: 4px 8px; background: rgba(15, 23, 42, 0.65); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
             <!-- KPI 1: Customers -->
             <div style="background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(15,23,42,0.9)); border-radius: 6px; padding: 4px 8px; border: 1px solid rgba(16,185,129,0.45); box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
@@ -1164,7 +1164,7 @@ $page_title = 'حساب الارصده الاساسية';
     </div>
 
     <!-- TABLE -->
-    <div id="print-container" style="display:none; padding: 6px; border-radius: 10px; background: rgba(255,255,255,0.02);">
+    <div id="print-container" style="display:block; padding: 6px; border-radius: 10px; background: rgba(255,255,255,0.02);">
         
         <div id="v-classic-ent">
             
