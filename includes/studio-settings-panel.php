@@ -204,7 +204,7 @@
                 </label>
             </div>
         </div>
-        </div>
+
 
         <div class="panel-card" style="margin-top: 8px;">
             <div class="panel-group">
