@@ -219,8 +219,6 @@ if ($resource === 'debug' && $method === 'GET') {
     jsonResponse($dbg);
 }
 
-}
-
 // Public: Report Layout Settings (GET & POST)
 if ($resource === 'report-layout') {
     $reportKey = $_GET['reportKey'] ?? ($input['reportKey'] ?? '');
