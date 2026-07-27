@@ -603,6 +603,7 @@ JSON.parse = function(val) {
         // ═════════════════════════════════════════════════════════════════════
         //  COMPLETE RE-SEQUENCING: CONVERT ALL PURCHASES (P+YYMM+SEQ) & SALES (S+YYMM+SEQ)
         // ═════════════════════════════════════════════════════════════════════
+        if (localGetItem('erp_resequence_v1_done') !== 'true') {
         try {
             const migPrefixSet = new Set(['tenant_default_', getTenantPrefix()]);
             try {
@@ -860,9 +861,11 @@ JSON.parse = function(val) {
                         }
                     }
                 }
+                localSetItem('erp_resequence_v1_done', 'true');
             }
         } catch(e) {
             console.error('[Unified Invoices Re-sequencing] failed:', e);
+        }
         }
 
         window.APP_READY = true;

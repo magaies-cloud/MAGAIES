@@ -391,14 +391,40 @@ function getCurrencyRates() {
     return rates;
 }
 
+function readERPStore(key) {
+    try {
+        let val = localStorage.getItem(key);
+        if (!val && window.getTenantKey) {
+            val = localStorage.getItem(window.getTenantKey(key));
+        }
+        if (!val && window.DB_STORE) {
+            val = window.DB_STORE[key] || (window.getTenantKey ? window.DB_STORE[window.getTenantKey(key)] : null);
+        }
+        if (!val) {
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && (k === key || k.endsWith('_' + key))) {
+                    val = localStorage.getItem(k);
+                    if (val) break;
+                }
+            }
+        }
+        if (typeof val === 'string') return JSON.parse(val);
+        if (Array.isArray(val)) return val;
+    } catch(e) {
+        console.error('[balances-report.js] Error parsing ' + key, e);
+    }
+    return [];
+}
+
 function loadData() {
     console.log('%c[balances-report.js] loadData() CALLED', 'color: cyan; font-size: 14px;');
     ALL_PARTNERS = [];
-    const custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
-    const sups  = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
-    const banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
-    const safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
-    const exp   = JSON.parse(localStorage.getItem('erp_accounts_v1')) || [];
+    const custs = (readERPStore('erp_customers_v1') || []).filter(x => !x.deleted && !x.is_deleted);
+    const sups  = (readERPStore('erp_suppliers_v1') || []).filter(x => !x.deleted && !x.is_deleted);
+    const banks = readERPStore('erp_banks_v1') || [];
+    const safes = readERPStore('erp_safes_v1') || [];
+    const exp   = readERPStore('erp_accounts_v1') || [];
     
     const rates = getCurrencyRates();
     
@@ -463,7 +489,7 @@ function loadData() {
     const timeNow = new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
 
     // 1. Receipts
-    const receipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+    const receipts = readERPStore('erp_single_receipts_v1') || [];
     receipts.forEach(v => {
         const cc = v.costCenter || 'ALL';
         const rate = parseNum(v.rate || 1);
@@ -472,7 +498,7 @@ function loadData() {
     });
 
     // 2. Payments
-    const payments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+    const payments = readERPStore('erp_single_payments_v1') || [];
     payments.forEach(v => {
         const cc = v.costCenter || 'ALL';
         const rate = parseNum(v.rate || 1);
@@ -481,7 +507,7 @@ function loadData() {
     });
 
     // 2.2 Multiple Receipts (erp_receipts_v1)
-    const multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
+    const multiReceipts = readERPStore('erp_receipts_v1') || [];
     multiReceipts.forEach(v => {
         if (!v.isPosted) return;
         const cc = v.costCenter || 'ALL';
@@ -497,7 +523,7 @@ function loadData() {
     });
 
     // 2.3 Multiple Payments (erp_payments_v1)
-    const multiPayments = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
+    const multiPayments = readERPStore('erp_payments_v1') || [];
     multiPayments.forEach(v => {
         if (!v.isPosted) return;
         const cc = v.costCenter || 'ALL';
@@ -513,7 +539,7 @@ function loadData() {
     });
 
     // 3. JVs
-    const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
+    const jvs = readERPStore('erp_journal_vouchers_v1') || [];
     jvs.forEach(v => {
         if (!v.lines) return;
         const time = v.time || timeNow;
@@ -525,7 +551,7 @@ function loadData() {
     });
 
     // 4. Sales
-    const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    const sales = readERPStore('erp_sales_invoices_v1') || [];
     sales.forEach(inv => {
         const cc = inv.costCenter || 'ALL';
         const time = inv.time || timeNow;
@@ -554,7 +580,7 @@ function loadData() {
     });
 
     // 5. Purchases
-    const purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+    const purchases = readERPStore('erp_purchase_invoices_v1') || [];
     purchases.forEach(inv => {
         const cc = inv.costCenter || 'ALL';
         const time = inv.time || timeNow;
@@ -594,26 +620,35 @@ function loadData() {
     }
 }
 
-document.addEventListener('DBReady', () => {
-    console.log('%c[balances-report.js] DBReady event received!', 'color: yellow; font-size: 14px;');
-    loadLayout();
-    applyLayoutToDOM();
-    loadData();
-    runReport();
-    console.log('%c[balances-report.js] After loadData: Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: orange; font-size: 14px;');
-});
-
-// Fallback: if DBReady already fired before this script loaded
-if (window.APP_READY) {
-    console.log('%c[balances-report.js] APP_READY was already true! Calling loadData directly.', 'color: red; font-size: 16px; font-weight: bold;');
-    loadLayout();
-    applyLayoutToDOM();
-    loadData();
-    runReport();
-    console.log('%c[balances-report.js] Fallback loadData: Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: orange; font-size: 14px;');
+let _autoInitBalancesTimer = null;
+let _reportHasRun = false;
+function autoInitBalancesReport() {
+    // Prevent multiple auto-runs — only allow ONE successful auto-init
+    if (_reportHasRun) return;
+    if (_autoInitBalancesTimer) clearTimeout(_autoInitBalancesTimer);
+    _autoInitBalancesTimer = setTimeout(() => {
+        if (_reportHasRun) return;
+        try {
+            loadLayout();
+            applyLayoutToDOM();
+            loadData();
+            
+            if (ALL_PARTNERS.length > 0) {
+                _reportHasRun = true;
+                runReport(true);
+            }
+        } catch(err) {
+            console.error('[balances-report.js] Error during autoInitBalancesReport:', err);
+        }
+    }, 100);
 }
 
-function runReport() {
+// Attach event listeners — the _reportHasRun guard ensures only the first successful one runs
+document.addEventListener('DBReady', autoInitBalancesReport);
+document.addEventListener('DOMContentLoaded', autoInitBalancesReport);
+window.addEventListener('load', autoInitBalancesReport);
+
+function runReport(isAutoInit = false) {
     window.runReport = runReport;
     console.log('%c[balances-report.js] runReport() CALLED. Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: #ff6b6b; font-size: 16px; font-weight: bold;');
     if (ALL_PARTNERS.length === 0) {
@@ -638,6 +673,14 @@ function runReport() {
         p.lastDate = null;
     });
 
+    // Group ALL_TXNS by partner upfront for O(N) performance
+    const txnsByPartner = {};
+    ALL_TXNS.forEach(t => {
+        const pRefStr = String(t.partner);
+        if (!txnsByPartner[pRefStr]) txnsByPartner[pRefStr] = [];
+        txnsByPartner[pRefStr].push(t);
+    });
+
     // Calculate for each partner sequentially to match SGL ledger
     ALL_PARTNERS.forEach(p => {
         let runningBal = p.openingDebit - p.openingCredit;
@@ -654,11 +697,12 @@ function runReport() {
             else if (p.type === 'EXP') pRef = 'exp-' + p.id;
         }
 
-        const partnerTxns = ALL_TXNS.filter(t => {
-            const matchesAcc = (String(t.partner) === pRef);
-            const matchesCC = (ccFilter === 'ALL' || t.costCenter === ccFilter);
-            return matchesAcc && matchesCC;
-        });
+        // Fetch pre-grouped transactions
+        let partnerTxns = txnsByPartner[pRef] || [];
+        
+        if (ccFilter !== 'ALL') {
+            partnerTxns = partnerTxns.filter(t => t.costCenter === ccFilter);
+        }
 
         // Sort partner transactions by date & time chronologically
         partnerTxns.sort((a, b) => {
@@ -735,7 +779,7 @@ function runReport() {
         return 0;
     });
 
-    renderTable(results);
+    renderTable(results, isAutoInit);
 }
 
 function openWhatsAppModal() {
@@ -1549,7 +1593,7 @@ function handleRowClick(event, partnerId, partnerType) {
     window.location.href = `general-ledger.php?accountId=${prefix}${partnerId}`;
 }
 
-function renderTable(results) {
+function renderTable(results, isAutoInit = false) {
     window.lastResults = results;
     const tbody = document.getElementById('balances-tbody');
     
@@ -1583,7 +1627,7 @@ function renderTable(results) {
         return style;
     }
 
-    results.forEach(p => {
+    results.forEach((p, idx) => {
         const endingDebitLocal = p.endingDebitLocal || 0;
         const endingCreditLocal = p.endingCreditLocal || 0;
         const endingDebitForeign = p.endingDebitForeign || 0;
@@ -1634,7 +1678,9 @@ function renderTable(results) {
     const printContainerEl = document.getElementById('print-container');
     if (printContainerEl) printContainerEl.style.display = 'block';
 
-    showToast(`✅ تم تجميع أرصدة ${results.length} حساب بنجاح`, 'success');
+    if (!isAutoInit) {
+        showToast(`✅ تم تجميع أرصدة ${results.length} حساب بنجاح`, 'success');
+    }
     
     applyLayoutToDOM();
     bindNumberFocus();
@@ -3999,25 +4045,10 @@ function fetchBalancesPresets() {
         })
         .catch(err => console.error('Error fetching balances presets:', err));
 }
-function triggerAutoRunReport() {
-    console.log('%c[balances-report.js] Auto-running report...', 'color: #00f3ff; font-weight: bold;');
-    if (typeof window.runReport === 'function') {
-        window.runReport();
-    }
-}
-
+// Fetch presets on DOMContentLoaded (non-blocking, no report re-run)
 document.addEventListener('DOMContentLoaded', () => {
     fetchBalancesPresets();
-    setTimeout(triggerAutoRunReport, 200);
-    setTimeout(triggerAutoRunReport, 600);
+    if (typeof window.renderBalancesPresets === 'function') {
+        window.renderBalancesPresets();
+    }
 });
-
-// Initial Call
-if (typeof window.renderBalancesPresets === 'function') {
-    window.renderBalancesPresets();
-}
-
-
-
-
-

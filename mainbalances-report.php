@@ -1090,9 +1090,6 @@ $page_title = 'حساب الارصده الاساسية';
                 <button type="button" class="preset-ribbon-btn preset-slot-6" onclick="window.openPresetModal(6, 'نموذج 3')">🌟 نموذج 3 🔄</button>
             </div>
 
-            <button type="button" class="btn-run" id="btn-preview-design" onclick="if (typeof window.openNewPreviewPage === 'function') { window.openNewPreviewPage(); } else if (typeof window.openPresetModal === 'function') { window.openPresetModal(0, 'الشاشة الذكية للمعاينة والتصميم والطباعة'); }" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: 0 4px 15px rgba(16,185,129,0.3); padding: 6px 14px; border-radius: 8px; font-weight: bold; font-family: 'Tajawal', sans-serif; height: 36px; font-size: 0.82rem; white-space: nowrap; flex-shrink: 0; cursor: pointer;">
-                👁️ الشاشة الذكية للمعاينة والتصميم والطباعة
-            </button>
         </div>
     </div>
 
@@ -1188,8 +1185,8 @@ $page_title = 'حساب الارصده الاساسية';
                 <tbody id="balances-tbody">
                     <tr>
                         <td colspan="9" class="empty-state">
-                            <span style="font-size:3rem; display:block; margin-bottom:15px;">🔍</span>
-                            <div>إضغط "تشغيل التقرير" لجلب جميع الأرصدة</div>
+                            <span style="font-size:3rem; display:block; margin-bottom:15px;">🔄</span>
+                            <div>جاري تحميل وعرض الأرصدة تلقائياً...</div>
                         </td>
                     </tr>
                 </tbody>
@@ -1848,7 +1845,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.runReport = function() {
                 try {
                     console.log('[DEBUG] runReport called. ALL_PARTNERS:', (typeof ALL_PARTNERS !== 'undefined' ? ALL_PARTNERS.length : 'UNDEF'), 'ALL_TXNS:', (typeof ALL_TXNS !== 'undefined' ? ALL_TXNS.length : 'UNDEF'));
-                    originalRunReport();
+                    originalRunReport.apply(this, arguments);
                     console.log('[DEBUG] runReport completed successfully');
                 } catch(e) {
                     alert('خطأ في التقرير: ' + e.message + '\n\nStack: ' + e.stack);
