@@ -656,87 +656,53 @@ function savePresets(presets) {
 function renderPresetButtons() {
     const container = document.getElementById('presets-container');
     if (!container) return;
-    const presets = getSavedPresets();
+    container.innerHTML = ''; // Prevent duplicates if general-ledger.js also rendered
+    let presets = getSavedPresets();
     
-    presets.forEach((p, idx) => {
-        if (p.showInRibbon === false) return; // Skip if hidden by user
+    if (!Array.isArray(presets) || presets.length === 0) {
+        const defaultIcons = ['💎 افتراضي 1', '⭐ افتراضي 2', '🎨 افتراضي 3', '🔥 افتراضي 4', '✨ نموذج 1'];
+        presets = defaultIcons.map(name => ({ name, showInRibbon: true }));
+    }
+
+    presets.slice(0, 5).forEach((p, idx) => {
+        if (p.showInRibbon === false) return;
         const btn = document.createElement('button');
-        btn.className = 'preset-btn' + (idx === currentPresetIndex ? ' active' : '');
-        
-        const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
-        let badge = '';
-        if (isDefaultGroup && p.isLocked) {
-            badge = ' 🔒';
-        } else if (!isDefaultGroup) {
-            badge = ' 🔄';
+        btn.type = 'button';
+        btn.className = 'preset-ribbon-btn' + (idx === currentPresetIndex ? ' active' : '');
+        btn.style.cssText = `
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25);
+            color: #f1f5f9; padding: 5px 14px; border-radius: 18px;
+            font-family: inherit; font-size: 0.85rem; font-weight: 800;
+            cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+        `;
+        if (idx === currentPresetIndex) {
+            btn.style.background = 'linear-gradient(135deg, rgba(56,189,248,0.3), rgba(2,132,199,0.4))';
+            btn.style.borderColor = '#38bdf8';
         }
-
-        btn.innerText = p.name + badge;
-        btn.title = isDefaultGroup 
-            ? (p.isLocked ? 'ضبط مصنع نهائي محمي 🔒' : 'اضغط مطولاً (8 ثوانٍ) للحفظ كضبط مصنع نهائي 🔒')
-            : 'اضغط مطولاً (8 ثوانٍ) لحفظ وتحديث النموذج 🔄';
-
-        bindPresetButtonLongPress(btn, idx);
+        btn.innerHTML = p.name || ('افتراضي ' + (idx + 1));
+        
+        btn.onmouseover = () => {
+            btn.style.background = 'linear-gradient(135deg, rgba(56,189,248,0.3), rgba(2,132,199,0.4))';
+            btn.style.borderColor = '#38bdf8';
+            btn.style.transform = 'translateY(-2px) scale(1.03)';
+            btn.style.boxShadow = '0 6px 16px rgba(56,189,248,0.4)';
+        };
+        btn.onmouseout = () => {
+            if (idx !== currentPresetIndex) {
+                btn.style.background = 'rgba(255,255,255,0.08)';
+                btn.style.borderColor = 'rgba(255,255,255,0.25)';
+            }
+            btn.style.transform = 'translateY(0) scale(1)';
+            btn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.18)';
+        };
+        btn.onclick = () => {
+            loadPreset(idx);
+            setTimeout(renderPresetButtons, 50); // re-render to update active styling
+        };
         container.appendChild(btn);
     });
-}
-
-let currentPressingBtn = null;
-
-function bindPresetButtonLongPress(btn, idx) {
-    let pressStartTime = 0;
-
-    const startPress = (e) => {
-        if (e.type === 'mousedown' && e.button !== 0) return;
-        pressStartTime = Date.now();
-        isLongPressTriggered = false;
-        currentPressingBtn = btn;
-        btn.classList.add('is-pressing');
-        startLongPressCount(idx, btn);
-    };
-
-    const cancelPress = () => {
-        btn.classList.remove('is-pressing');
-        cancelLongPressCount();
-    };
-
-    const endPress = (e) => {
-        btn.classList.remove('is-pressing');
-        const duration = Date.now() - pressStartTime;
-        const wasTriggered = isLongPressTriggered;
-        cancelLongPressCount();
-
-        if (wasTriggered) {
-            if (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            return false;
-        }
-
-        if (pressStartTime > 0 && duration < 7800) {
-            loadPreset(idx);
-        }
-    };
-
-    btn.addEventListener('mousedown', startPress);
-    btn.addEventListener('mouseup', endPress);
-    btn.addEventListener('mouseleave', cancelPress);
-
-    btn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        startPress(e);
-    }, { passive: false });
-    btn.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        endPress(e);
-    });
-    btn.addEventListener('touchcancel', cancelPress);
-
-    btn.oncontextmenu = (e) => {
-        e.preventDefault();
-        return false;
-    };
 }
 
 function startLongPressCount(idx, btn) {
