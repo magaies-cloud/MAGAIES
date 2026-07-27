@@ -1,4 +1,4 @@
-﻿<div class="settings-panel no-print" id="settings-panel">
+<div class="settings-panel no-print" id="settings-panel">
     <!-- Studio Tabs Header -->
     <div class="studio-tabs" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ca8a04; margin-bottom: 10px; padding-bottom: 6px;">
         <div style="display: flex; gap: 6px; flex-wrap: wrap;">
@@ -204,6 +204,39 @@
                 </label>
             </div>
         </div>
+        </div>
+
+        <div class="panel-card" style="margin-top: 8px;">
+            <div class="panel-group">
+                <span>🌟 خيارات الطباعة المتقدمة التلقائية:</span>
+                
+                <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; width: 100%;">
+                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer; background:rgba(255,255,255,0.6); padding:5px 12px; border-radius:6px; border:1px solid #0369a1;">
+                        <input type="checkbox" id="hdr-show-user-chk" checked onchange="updatePrintMeta()">
+                        👤 إظهار اسم المستخدم الذي قام بالطباعة
+                    </label>
+
+                    <select id="meta-user-pos-select" class="panel-input" onchange="updatePrintMeta()" style="background:#f0f9ff; border-color:#0369a1; color:#0369a1; font-weight:bold;">
+                        <option value="bottom-right" selected>↘️ أسفل اليمين</option>
+                        <option value="bottom-left">↙️ أسفل اليسار</option>
+                        <option value="top-right">↗️ أعلى اليمين</option>
+                        <option value="top-left">↖️ أعلى اليسار</option>
+                    </select>
+                </div>
+
+                <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; width: 100%; margin-top: 5px;">
+                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer; background:rgba(255,255,255,0.6); padding:5px 12px; border-radius:6px; border:1px solid #059669;">
+                        <input type="checkbox" id="hdr-show-datetime-chk" checked onchange="updatePrintMeta()">
+                        🕒 إظهار تاريخ ووقت الطباعة الدقيق
+                    </label>
+
+                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer; background:rgba(255,255,255,0.6); padding:5px 12px; border-radius:6px; border:1px solid #8b5cf6;">
+                        <input type="checkbox" id="hdr-show-pagenums-chk" checked onchange="updatePrintMeta()">
+                        📑 إظهار أرقام الصفحات
+                    </label>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- TAB 3: Presets Management -->
@@ -221,3 +254,78 @@
     </div>
 </div>
 
+<style>
+@media print {
+    .print-meta-bar { display: flex !important; justify-content: space-between; align-items: center; font-size: 11px; color: #555; width: 100%; margin-bottom: 5px; }
+    .print-meta-footer { margin-top: 15px; border-top: 1px solid #ccc; padding-top: 5px; }
+    .print-meta-page-numbers { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 10px; }
+}
+@media screen {
+    .print-meta-bar { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #64748b; width: 100%; padding: 4px 10px; background: rgba(0,0,0,0.02); border-radius: 6px; margin-bottom: 10px; border: 1px dashed #cbd5e1; }
+    .print-meta-footer { margin-top: 20px; }
+}
+</style>
+<script>
+function getPrintUsername() {
+    try {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            return user.fullName || user.username || 'المستخدم الحالي';
+        }
+    } catch(e) {}
+    return 'المستخدم الحالي';
+}
+
+function updatePrintMeta() {
+    const showUser = document.getElementById('hdr-show-user-chk')?.checked;
+    const userPos = document.getElementById('meta-user-pos-select')?.value || 'bottom-right';
+    const showDateTime = document.getElementById('hdr-show-datetime-chk')?.checked;
+    const showPageNums = document.getElementById('hdr-show-pagenums-chk')?.checked;
+
+    const topBar = document.getElementById('print-top-bar');
+    const footerBar = document.getElementById('print-footer-bar');
+    
+    if (!topBar || !footerBar) return;
+    
+    const userName = getPrintUsername();
+    
+    let now = new Date();
+    let dateStr = now.toLocaleDateString('ar-EG') + ' ' + now.toLocaleTimeString('ar-EG');
+    
+    // Clear
+    topBar.innerHTML = '<div class="meta-right"></div><div class="meta-center"></div><div class="meta-left"></div>';
+    footerBar.innerHTML = '<div class="meta-right"></div><div class="meta-center"></div><div class="meta-left"></div>';
+    
+    // Top Bar Logic
+    let hasTop = false;
+    if (showUser && userPos === 'top-right') { topBar.querySelector('.meta-right').innerHTML = '👤 طباعة: ' + userName; hasTop = true; }
+    if (showUser && userPos === 'top-left') { topBar.querySelector('.meta-left').innerHTML = '👤 طباعة: ' + userName; hasTop = true; }
+    
+    topBar.style.display = hasTop ? 'flex' : 'none';
+    
+    // Footer Bar Logic
+    let hasFooter = false;
+    if (showUser && userPos === 'bottom-right') { footerBar.querySelector('.meta-right').innerHTML = '👤 طباعة: ' + userName; hasFooter = true; }
+    if (showUser && userPos === 'bottom-left') { footerBar.querySelector('.meta-left').innerHTML = '👤 طباعة: ' + userName; hasFooter = true; }
+    
+    if (showDateTime) {
+        if (!footerBar.querySelector('.meta-right').innerHTML) footerBar.querySelector('.meta-right').innerHTML = '🕒 وقت الطباعة: ' + dateStr;
+        else if (!footerBar.querySelector('.meta-left').innerHTML) footerBar.querySelector('.meta-left').innerHTML = '🕒 وقت الطباعة: ' + dateStr;
+        else footerBar.querySelector('.meta-center').innerHTML = '🕒 وقت الطباعة: ' + dateStr;
+        hasFooter = true;
+    }
+    
+    if (showPageNums) {
+        // We use a CSS trick for page numbers if possible, otherwise just static text
+        footerBar.querySelector('.meta-center').innerHTML += '<span class="page-number-css"></span>';
+        hasFooter = true;
+    }
+    
+    footerBar.style.display = hasFooter ? 'flex' : 'none';
+}
+
+// Attach to global window so it can be called after preset load
+window.updatePrintMeta = updatePrintMeta;
+document.addEventListener('DOMContentLoaded', updatePrintMeta);
+</script>

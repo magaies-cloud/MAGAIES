@@ -492,7 +492,10 @@
 
 <!-- Pro Studio Dropdown Panel with Slide Animation -->
 <?php include 'includes/studio-settings-panel.php'; ?>
+<!-- Print Area - Paper Sheet Layout View -->
 <div class="print-area paper-landscape" id="print-area-wrapper">
+    <div id="print-top-bar" class="print-meta-bar" style="display:none;"></div>
+    
     <!-- Company Header Area -->
     <div class="company-header report-header" id="main-company-header">
         <!-- Right Side: Company Details -->
@@ -530,6 +533,8 @@
             <!-- Summary totals row rendered via JS -->
         </tfoot>
     </table>
+    
+    <div id="print-footer-bar" class="print-meta-bar print-meta-footer" style="display:none;"></div>
 </div>
 
 <!-- Long Press HUD Overlay for 8-second Save & Lock -->

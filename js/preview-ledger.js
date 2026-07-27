@@ -890,6 +890,10 @@ function executeLongPressSave(idx) {
         p.orientation = currentOrientation;
         p.showLogo = showHeaderLogo;
         p.showInfo = showHeaderInfo;
+        p.showUser = document.getElementById('hdr-show-user-chk')?.checked;
+        p.userPos = document.getElementById('meta-user-pos-select')?.value;
+        p.showDateTime = document.getElementById('hdr-show-datetime-chk')?.checked;
+        p.showPageNums = document.getElementById('hdr-show-pagenums-chk')?.checked;
         p.isLocked = false;
         p.isFactoryDefault = true;
         p.updatedAt = new Date().toISOString();
@@ -919,6 +923,10 @@ function executeLongPressSave(idx) {
         p.orientation = currentOrientation;
         p.showLogo = showHeaderLogo;
         p.showInfo = showHeaderInfo;
+        p.showUser = document.getElementById('hdr-show-user-chk')?.checked;
+        p.userPos = document.getElementById('meta-user-pos-select')?.value;
+        p.showDateTime = document.getElementById('hdr-show-datetime-chk')?.checked;
+        p.showPageNums = document.getElementById('hdr-show-pagenums-chk')?.checked;
         p.isLocked = false;
         p.updatedAt = new Date().toISOString();
 
@@ -1072,6 +1080,10 @@ function addNewPresetPrompt() {
             orientation: currentOrientation,
             showLogo: showHeaderLogo,
             showInfo: showHeaderInfo,
+            showUser: document.getElementById('hdr-show-user-chk')?.checked,
+            userPos: document.getElementById('meta-user-pos-select')?.value,
+            showDateTime: document.getElementById('hdr-show-datetime-chk')?.checked,
+            showPageNums: document.getElementById('hdr-show-pagenums-chk')?.checked,
             showInRibbon: true
         });
         savePresets(presets);
@@ -1117,6 +1129,25 @@ function loadPreset(idx) {
     document.getElementById('hdr-show-info-chk').checked = showHeaderInfo;
     toggleHeaderElement('logo', showHeaderLogo);
     toggleHeaderElement('info', showHeaderInfo);
+    
+    // Load advanced print options if available
+    const showUserChk = document.getElementById('hdr-show-user-chk');
+    if (showUserChk) {
+        showUserChk.checked = preset ? (preset.showUser !== undefined ? preset.showUser : true) : true;
+    }
+    const userPosSel = document.getElementById('meta-user-pos-select');
+    if (userPosSel) {
+        userPosSel.value = preset ? (preset.userPos || 'bottom-right') : 'bottom-right';
+    }
+    const showDateTimeChk = document.getElementById('hdr-show-datetime-chk');
+    if (showDateTimeChk) {
+        showDateTimeChk.checked = preset ? (preset.showDateTime !== undefined ? preset.showDateTime : true) : true;
+    }
+    const showPageNumsChk = document.getElementById('hdr-show-pagenums-chk');
+    if (showPageNumsChk) {
+        showPageNumsChk.checked = preset ? (preset.showPageNums !== undefined ? preset.showPageNums : true) : true;
+    }
+    if (typeof window.updatePrintMeta === 'function') window.updatePrintMeta();
 
     renderPresetButtons();
     renderTable();
