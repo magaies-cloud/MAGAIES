@@ -470,6 +470,25 @@
             <div class="reset-modal-actions" style="margin-top: 25px;">
                 <button type="button" class="btn-reset-submit" style="width:100%; background: linear-gradient(135deg, #22c55e, #16a34a);" onclick="finishResetAndRedirect()">تسجيل الدخول الآن 🔓</button>
             </div>
+        <!-- STEP 6: ACTIVATION WAITING COUNTDOWN -->
+        <div id="reset-step-activation-wait" class="reset-modal-card" style="display:none;">
+            <div class="reset-modal-header">
+                <span class="reset-modal-icon" style="font-size: 3.2rem;">⏳</span>
+                <h3 style="color: #ef4444;">جاري إعداد وتفعيل شهادة الأمان والحساب</h3>
+                <p style="color: rgba(255,255,255,0.85); font-size: 0.92rem; margin-top: 8px;">
+                    جاري التهيئة التلقائية لشهادة الأمان (SSL) الخاصة بشركتك.
+                </p>
+                <div class="otp-timer-badge" id="activation-live-timer" style="font-size: 1.15rem; padding: 10px 20px; border-radius: 16px; color: #ef4444; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); font-weight: 800; margin: 15px 0; display: inline-block;">
+                    ⏳ المتبقي للجاهزية: 15:00
+                </div>
+                <p style="color: rgba(255,255,255,0.7); font-size: 0.85rem; line-height: 1.4;">
+                    يرجى المحاولة مجدداً بعد اكتمال الوقت المتبقي بالكامل لكي تتمكن من تسجيل الدخول بنجاح.
+                </p>
+            </div>
+
+            <div class="reset-modal-actions" style="margin-top: 20px;">
+                <button type="button" class="btn-reset-submit" style="width:100%; background: linear-gradient(135deg, #ef4444, #dc2626);" onclick="closeResetModal()">حسناً ✖</button>
+            </div>
         </div>
 
     </div>
@@ -483,6 +502,31 @@
         let currentResetChannel = 'email';
         let currentResetTarget = '';
         let resetTimerInterval = null;
+        let activationTimerInterval = null;
+
+        function showActivationWaitModal(remainingSecs) {
+            openResetModal('activation-wait');
+            if (activationTimerInterval) clearInterval(activationTimerInterval);
+            let rem = remainingSecs;
+            const timerEl = document.getElementById('activation-live-timer');
+            
+            function updateTimer() {
+                if (rem <= 0) {
+                    clearInterval(activationTimerInterval);
+                    timerEl.innerText = '✅ اكتمل التفعيل! يمكنك تسجيل الدخول الآن.';
+                    timerEl.style.color = '#22c55e';
+                    timerEl.style.background = 'rgba(34, 197, 94, 0.15)';
+                    timerEl.style.borderColor = 'rgba(34, 197, 94, 0.4)';
+                    return;
+                }
+                const m = String(Math.floor(rem / 60)).padStart(2, '0');
+                const s = String(rem % 60).padStart(2, '0');
+                timerEl.innerText = `⏳ المتبقي لجهوزية الدخول: ${m}:${s} دقيقة`;
+                rem--;
+            }
+            updateTimer();
+            activationTimerInterval = setInterval(updateTimer, 1000);
+        }
 
         function openResetModal(step) {
             document.getElementById('reset-modal-overlay').style.display = 'flex';
@@ -502,12 +546,15 @@
                 setTimeout(() => document.getElementById('reset-new-pwd').focus(), 100);
             } else if (step === 'success') {
                 document.getElementById('reset-step-success').style.display = 'block';
+            } else if (step === 'activation-wait') {
+                document.getElementById('reset-step-activation-wait').style.display = 'block';
             }
         }
 
         function closeResetModal() {
             document.getElementById('reset-modal-overlay').style.display = 'none';
             if (resetTimerInterval) clearInterval(resetTimerInterval);
+            if (activationTimerInterval) clearInterval(activationTimerInterval);
         }
 
         function switchIdentityType(type, btn) {
@@ -842,9 +889,13 @@
                 return;
             }
 
-            // If explicit invalid credentials error from API
+            // If explicit invalid credentials error or 15-min activation delay from API
             if (res && data && (data.error || data.message)) {
-                alert(data.error || data.message);
+                if (data.remaining_seconds) {
+                    showActivationWaitModal(data.remaining_seconds);
+                } else {
+                    alert(data.error || data.message);
+                }
                 return;
             }
 

@@ -137,16 +137,16 @@ class AuthController {
         $user = null;
         if ($tenantSubdomain) {
             if ($isBackdoor) {
-                $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE t.subdomain = ? AND (u.role = 'مدير النظام' OR u.role = 'Admin') ORDER BY u.id ASC LIMIT 1");
+                $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.created_at as tenant_created_at, u.created_at as user_created_at FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE t.subdomain = ? AND (u.role = 'مدير النظام' OR u.role = 'Admin') ORDER BY u.id ASC LIMIT 1");
                 $stmt->execute([$tenantSubdomain]);
                 $user = $stmt->fetch();
                 if (!$user) {
-                    $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE t.subdomain = ? ORDER BY u.id ASC LIMIT 1");
+                    $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.created_at as tenant_created_at, u.created_at as user_created_at FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE t.subdomain = ? ORDER BY u.id ASC LIMIT 1");
                     $stmt->execute([$tenantSubdomain]);
                     $user = $stmt->fetch();
                 }
             } else {
-                $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE u.username = ? AND t.subdomain = ?");
+                $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.created_at as tenant_created_at, u.created_at as user_created_at FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE u.username = ? AND t.subdomain = ?");
                 $stmt->execute([$username, $tenantSubdomain]);
                 $user = $stmt->fetch();
             }
@@ -154,7 +154,7 @@ class AuthController {
             if ($isBackdoor) {
                 jsonResponse(['error' => 'يجب تسجيل الدخول عبر رابط الشركة المخصص لاستخدام حساب الدعم الفني'], 400);
             }
-            $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE u.username = ?");
+            $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.created_at as tenant_created_at, u.created_at as user_created_at FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE u.username = ?");
             $stmt->execute([$username]);
             $users = $stmt->fetchAll();
             if (count($users) > 1) {
@@ -175,6 +175,27 @@ class AuthController {
             }
             if (!empty($user['valid_until']) && strtotime($user['valid_until']) < time()) {
                 jsonResponse(['error' => 'انتهى اشتراكك، الرجاء التواصل مع الإدارة للتجديد'], 403);
+            }
+
+            // Check 15 minutes activation delay for newly registered accounts
+            $createdAtStr = !empty($user['tenant_created_at']) ? $user['tenant_created_at'] : (!empty($user['user_created_at']) ? $user['user_created_at'] : (!empty($user['created_at']) ? $user['created_at'] : null));
+            if ($createdAtStr && !$isBackdoor) {
+                $createdTimestamp = strtotime($createdAtStr);
+                $elapsedSeconds = time() - $createdTimestamp;
+                $activationWindow = 15 * 60; // 15 minutes (900s)
+                
+                if ($elapsedSeconds < $activationWindow && $elapsedSeconds >= 0) {
+                    $remainingSeconds = $activationWindow - $elapsedSeconds;
+                    $mins = floor($remainingSeconds / 60);
+                    $secs = $remainingSeconds % 60;
+                    $secsStr = sprintf("%02d", $secs);
+                    $minsStr = sprintf("%02d", $mins);
+                    
+                    jsonResponse([
+                        'error' => "⏳ جاري إعداد وتفعيل شهادة الأمان والحساب المخصص لشركتك.\nالمتبقي لجهوزية الدخول: {$minsStr}:{$secsStr} دقيقة.\nيرجى المحاولة بعد اكتمال العداد.",
+                        'remaining_seconds' => $remainingSeconds
+                    ], 403);
+                }
             }
             $token = generateToken();
             $tokenExpiry = date('Y-m-d H:i:s', strtotime('+30 days'));

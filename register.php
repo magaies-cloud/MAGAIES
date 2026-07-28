@@ -926,7 +926,15 @@
                         localStorage.setItem('tenant_plan_' + res.tenant_id, selectedPlanId);
                     }
                     const targetSubdomainUrl = `https://${subdomain}.elsajana.com/login.php`;
-                    const successMsg = `تم إنشاء حساب شركتك بنجاح على الرابط المخصص الاحترافي:\n${targetSubdomainUrl}\n\n⏳ يرجى الانتظار لمدة (15 دقيقة) لاكتمال إعداد وتفعيل شهادة الأمان المخصصة لحسابك.`;
+                    const successMsg = `
+                        <div style="font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px;">
+                            تم إنشاء حساب شركتك بنجاح على الرابط المخصص الاحترافي:<br>
+                            <a href="${targetSubdomainUrl}" target="_blank" style="color: #38bdf8; text-decoration: underline; font-weight: bold; word-break: break-all;">${targetSubdomainUrl}</a>
+                        </div>
+                        <div style="color: #ef4444; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); padding: 12px 15px; border-radius: 14px; font-weight: bold; font-size: 0.95rem; line-height: 1.5; margin-top: 10px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);">
+                            ⏳ يرجى الانتظار لمدة (15 دقيقة) لاكتمال إعداد وتفعيل شهادة الأمان المخصصة لحسابك.
+                        </div>
+                    `;
                     showModal('success', 'تهانينا! 🎉', successMsg, true, () => {
                         window.location.href = targetSubdomainUrl;
                     });
@@ -956,7 +964,7 @@
             }
 
             titleEl.innerText = title;
-            msgEl.innerText = message;
+            msgEl.innerHTML = message;
             waBtn.style.display = showWhatsapp ? 'inline-flex' : 'none';
 
             window.modalActionCallback = onAction;
