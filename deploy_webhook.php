@@ -39,6 +39,8 @@ $output = [];
 $commands = [
     'rm -f /var/www/magaees/.git/index.lock 2>&1',
     'cd /var/www/magaees',
+    'git update-index --no-skip-worktree whatsapp-service.mjs 2>&1',
+    'chmod +w whatsapp-service.mjs 2>&1',
     'git fetch origin 2>&1',
     'git clean -fd 2>&1',
     'git reset --hard origin/main 2>&1',
