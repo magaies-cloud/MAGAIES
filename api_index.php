@@ -488,17 +488,6 @@ if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
     }
 }
 
-if ($resource === 'public' && $action === 'read-brevo-log') {
-    $logFile = __DIR__ . '/brevo_debug.log';
-    if (file_exists($logFile)) {
-        header("Content-Type: text/plain; charset=UTF-8");
-        echo file_get_contents($logFile);
-    } else {
-        echo "Log file not found.";
-    }
-    exit;
-}
-
 // ---------------------------------------------------------
 // AUTHENTICATION ROUTES (No token required)
 // ---------------------------------------------------------

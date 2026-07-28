@@ -70,8 +70,6 @@ class EmailService {
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        @file_put_contents(__DIR__ . '/../../brevo_debug.log', date('Y-m-d H:i:s') . " | Code: $httpCode | Resp: $response\n", FILE_APPEND);
-
         if ($httpCode === 201 || $httpCode === 200) {
             return ['success' => true, 'message' => 'تم إرسال الرمز بنجاح إلى بريدك الإلكتروني'];
         } else {
