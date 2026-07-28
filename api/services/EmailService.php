@@ -20,10 +20,10 @@ class EmailService {
         if (empty($brevo_api_key) || $brevo_api_key === 'YOUR_BREVO_API_KEY') {
             // Fallback to PHP mail()
             $subject = 'رمز التحقق (OTP) الخاص بك - MAGAIES';
-            $headers = "MIME-Version: 1.0\r\n";
-            $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-            $headers .= "From: MAGAIES <info@elsajana.com>\r\n";
-            $headers .= "Reply-To: info@elsajana.com\r\n";
+            $headers = "MIME-Version: 1.0\n";
+            $headers .= "Content-Type: text/html; charset=UTF-8\n";
+            $headers .= "From: MAGAIES <info@elsajana.com>\n";
+            $headers .= "Reply-To: info@elsajana.com\n";
             
             $mailSent = @mail($email, $subject, $htmlContent, $headers, "-finfo@elsajana.com");
             if ($mailSent) {
