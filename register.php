@@ -706,16 +706,6 @@
                             otpDesc.style.color = '#38bdf8';
                         }
                     }
-                    if(data.dev_otp) {
-                        console.log("DEV OTP:", data.dev_otp);
-                        const otpArray = String(data.dev_otp).split('');
-                        for (let i = 0; i < 6; i++) {
-                            const el = document.getElementById(`otp-${i+1}`);
-                            if (el && otpArray[i]) {
-                                el.value = otpArray[i];
-                            }
-                        }
-                    }
                 } else {
                     showModal('error', 'فشل الإرسال', data.error || 'حدث خطأ أثناء إرسال الرمز');
                     prevStep(3);
