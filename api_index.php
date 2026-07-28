@@ -150,6 +150,55 @@ function generateToken() {
 // PUBLIC ROUTES (No token required)
 // ---------------------------------------------------------
 
+if ($resource === 'wa-tenant' || $action === 'wa-proxy') {
+    startWhatsAppServiceIfNeeded();
+    $endpoint = ltrim($_GET['a2'] ?? $_GET['endpoint'] ?? $action ?? 'status', '/');
+    if ($endpoint === 'wa-proxy' || $endpoint === 'wa-tenant') {
+        $endpoint = 'status';
+    }
+    
+    // Build query params for target NodeJS service
+    $queryParams = $_GET;
+    unset($queryParams['r'], $queryParams['a'], $queryParams['a2'], $queryParams['endpoint']);
+    if (!isset($queryParams['userId'])) {
+        $queryParams['userId'] = 'default-saas-admin';
+    }
+    $queryString = http_build_query($queryParams);
+    
+    $url = 'http://127.0.0.1:3001/wa/' . $endpoint . ($queryString ? '?' . $queryString : '');
+    
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    if ($method === 'POST') {
+        curl_setopt($ch, CURLOPT_POST, true);
+        if (!empty($_FILES)) {
+            $postFields = $_POST;
+            foreach ($_FILES as $key => $file) {
+                $postFields[$key] = new CURLFile($file['tmp_name'], $file['type'], $file['name']);
+            }
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
+        } else {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($input));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        }
+    }
+    curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $err = curl_error($ch);
+    curl_close($ch);
+    
+    if ($err) {
+        jsonResponse(['success' => false, 'error' => 'فشل الاتصال بخادم الواتساب المحلي: ' . $err], 500);
+    }
+    
+    header('Content-Type: application/json');
+    http_response_code($httpCode ?: 200);
+    echo $response;
+    exit;
+}
+
 if ($resource === 'public' && empty($action) && $method === 'GET') {
     $data = ['plans' => [], 'partners' => [], 'ads' => [], 'partners_enabled' => true];
     try {
@@ -755,6 +804,55 @@ if ($resource === 'report-layout') {
 }
 
 // ---------------------------------------------------------
+// PUBLIC WA PROXY ROUTE
+// ---------------------------------------------------------
+if ($action === 'wa-proxy') {
+    startWhatsAppServiceIfNeeded();
+    $endpoint = ltrim($_GET['a2'] ?? 'status', '/');
+    
+    // Build query params for target NodeJS service
+    $queryParams = $_GET;
+    unset($queryParams['r'], $queryParams['a'], $queryParams['a2']);
+    if (!isset($queryParams['userId'])) {
+        $queryParams['userId'] = 'default-saas-admin';
+    }
+    $queryString = http_build_query($queryParams);
+    
+    $url = 'http://127.0.0.1:3001/wa/' . $endpoint . ($queryString ? '?' . $queryString : '');
+    
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    if ($method === 'POST') {
+        curl_setopt($ch, CURLOPT_POST, true);
+        if (!empty($_FILES)) {
+            $postFields = $_POST;
+            foreach ($_FILES as $key => $file) {
+                $postFields[$key] = new CURLFile($file['tmp_name'], $file['type'], $file['name']);
+            }
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
+        } else {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($input));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        }
+    }
+    curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $err = curl_error($ch);
+    curl_close($ch);
+    
+    if ($err) {
+        jsonResponse(['success' => false, 'error' => 'فشل الاتصال بخادم الواتساب المحلي: ' . $err], 500);
+    }
+    
+    header('Content-Type: application/json');
+    http_response_code($httpCode ?: 200);
+    echo $response;
+    exit;
+}
+
+// ---------------------------------------------------------
 // SECURE ROUTES (Require Token)
 // ---------------------------------------------------------
 $authHeader = '';
@@ -909,44 +1007,7 @@ if ($token === $saasSecret) {
             exit;
         }
 
-        if ($action === 'wa-proxy') {
-            startWhatsAppServiceIfNeeded();
-            $endpoint = $_GET['a2'] ?? 'status';
-            $url = 'http://127.0.0.1:3001/wa/' . $endpoint . '?userId=default-saas-admin';
-            
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            if ($method === 'POST') {
-                curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($input));
-                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-            }
-            curl_setopt($ch, CURLOPT_TIMEOUT, 20);
-            
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $err = curl_error($ch);
-            curl_close($ch);
-            
-            if ($err) {
-                jsonResponse(['success' => false, 'error' => 'فشل الاتصال بخادم الواتساب المحلي: ' . $err], 500);
-            }
-            
-            // Ensure response is JSON
-            $decoded = json_decode($response, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                jsonResponse([
-                    'success' => false, 
-                    'error' => 'استجابة غير متوقعة من خادم الواتساب (ربما تعطلت الخدمة)',
-                    'raw_error' => trim(substr(strip_tags($response), 0, 300))
-                ], 500);
-            }
-            
-            header('Content-Type: application/json');
-            http_response_code(200); // Always 200 to prevent Nginx HTML error pages
-            echo $response;
-            exit;
-        }
+
 
         require_once __DIR__ . '/api/controllers/TenantController.php';
         $tenantController = new TenantController($pdo);

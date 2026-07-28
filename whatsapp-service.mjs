@@ -64,6 +64,14 @@ function logErr(tag, ...args) {
 // ═══════════════════════════════════════════════════════════════
 //  WhatsAppClient — manages a single user's WhatsApp session
 // ═══════════════════════════════════════════════════════════════
+// Handle unhandled promise rejections to prevent node from crashing
+process.on('uncaughtException', err => {
+    console.error('Uncaught Exception:', err);
+});
+process.on('unhandledRejection', err => {
+    console.error('Unhandled Rejection:', err);
+});
+
 class WhatsAppClient {
     constructor(userId) {
         this.userId            = userId;
@@ -283,11 +291,10 @@ class WhatsAppClient {
                 }
             }
 
-            // ── Create socket ──
             const createSocket = makeWASocket.default || makeWASocket;
             const sock = createSocket({
                 auth: state,
-                browser: ['Windows', 'Chrome', '120.0.0.0'], // Stabilizes connection and avoids 428 precondition loops
+                browser: Browsers.appropriate('Desktop'), // Recommended dynamic signature by Baileys to prevent 401/428 errors
                 printQRInTerminal: false,
                 logger: pino({ level: 'error' }),
                 syncFullHistory: false,
@@ -394,12 +401,14 @@ class WhatsAppClient {
 
             switch (code) {
                 case DisconnectReason.loggedOut:
-                    log(this.userId, 'Disconnected with code 401 (Logged Out) — session invalidated. Requires manual re-link.');
-                    this._setState('LOGGED_OUT');
+                    log(this.userId, 'Disconnected with code 401 (Logged Out) — session invalidated. Cleaning auth and re-initializing for fresh QR.');
                     this.phoneNumber = null;
                     this.reconnectAttempts = 0;
-                    // Do NOT auto-reconnect on 401 — the session is permanently invalidated.
-                    // The user must re-scan the QR code to re-link.
+                    // Delete corrupted/old auth and re-initialize to generate fresh QR
+                    this._deleteAuthFolder();
+                    this._setState('IDLE');
+                    // Auto re-init after a short delay to generate fresh QR
+                    setTimeout(() => this.init().catch(e => logErr(this.userId, 'Re-init after logout failed:', e.message)), 2000);
                     break;
 
                 case DisconnectReason.restartRequired:

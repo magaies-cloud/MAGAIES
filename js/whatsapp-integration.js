@@ -3,7 +3,7 @@
  * Requires: html2pdf.bundle.min.js to be loaded in the HTML
  */
 
-const WA_SERVER_URL = 'http://localhost:3001/wa';
+const WA_SERVER_URL = 'api_index.php?r=wa-tenant&endpoint=';
 
 // Add WhatsApp Modal to the DOM
 function initWhatsAppModal() {
@@ -237,21 +237,22 @@ function setWAContainerState(state, data = '') {
                             <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
                         </svg>
                     </div>
-                    <div style="font-weight: bold; font-size: 1.05rem; color: #075e54; margin-bottom: 5px;">جاري ربط جهازك...</div>
-                    <div style="font-size: 0.78rem; color: #64748b; font-weight: 500;">حافظ على اتصال هاتفك ليبقى متصلاً بالخدمة</div>
+                    <div style="font-weight: bold; font-size: 1.05rem; color: #075e54; margin-bottom: 5px;">جاري تسجيل الدخول...</div>
+                    <div style="font-size: 0.78rem; color: #64748b; font-weight: 500;">واتساب مفتوح على كلا الجهازين</div>
                 </div>
             `;
             break;
         case 'CONNECTED':
+            const phoneStr = stateData ? ` برقم الهاتف (${stateData})` : '';
             html = `
-                <div class="wa-state-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 220px; color: #1e293b;">
-                    <div style="display: flex; align-items: center; justify-content: center; width: 80px; height: 80px; border-radius: 50%; background: rgba(37, 211, 102, 0.1); border: 3px solid #25d366; margin-bottom: 20px; animation: wa-scale-up 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+                <div class="wa-state-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 220px; color: #1e293b; text-align: center;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 75px; height: 75px; border-radius: 50%; background: rgba(37, 211, 102, 0.1); border: 3px solid #25d366; margin-bottom: 20px; animation: wa-scale-up 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
                         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                     </div>
-                    <div style="font-weight: bold; font-size: 1.1rem; color: #0f766e; margin-bottom: 5px;">تم ربط الواتساب بنجاح!</div>
-                    <div style="font-size: 0.78rem; color: #64748b; font-weight: 500;">النظام متصل الآن وجاهز لإرسال الفواتير</div>
+                    <div style="font-weight: bold; font-size: 1.1rem; color: #15803d; margin-bottom: 5px; padding: 0 10px;">تم الربط بنجاح${phoneStr}</div>
+                    <div style="font-size: 0.78rem; color: #64748b; font-weight: 500;">يمكنك الآن البدء بإرسال الرسائل</div>
                 </div>
             `;
             break;
@@ -304,7 +305,7 @@ function setWAContainerState(state, data = '') {
     container.innerHTML = html;
 }
 
-async function checkWAStatus() {
+async function checkWAStatus(retryCount = 0) {
     const userId = getWAUserId();
     const statusText = document.getElementById('wa-status-text');
     const instructionText = document.getElementById('wa-instruction-text');
@@ -323,14 +324,14 @@ async function checkWAStatus() {
         if (data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') {
             statusText.textContent = '✅ أنت متصل بحساب واتساب بنجاح.';
             statusText.style.color = '#34d399';
-            setWAContainerState('CONNECTED');
+            setWAContainerState('CONNECTED', data.phoneNumber);
             if (logoutBtn) logoutBtn.style.display = 'inline-block';
             if (instructionText) instructionText.style.display = 'none';
-        } else if (data.status === 'AUTHENTICATING') {
-            statusText.textContent = '🔄 جاري الاتصال بالخادم...';
+        } else if (data.status === 'AUTHENTICATING' || data.status === 'CONNECTING') {
+            statusText.textContent = '🔄 جاري تسجيل الدخول...';
             statusText.style.color = '#fbbf24';
             setWAContainerState('AUTHENTICATING');
-            if (instructionText) instructionText.style.display = 'block';
+            if (instructionText) instructionText.style.display = 'none';
 
             // Poll again in 2 seconds during authentication for fast updates
             setTimeout(() => {
@@ -338,6 +339,17 @@ async function checkWAStatus() {
                     checkWAStatus();
                 }
             }, 2000);
+        } else if (data.status === 'RECONNECTING' || data.status === 'INITIALIZING') {
+            statusText.textContent = '🔄 جاري إعادة الاتصال...';
+            statusText.style.color = '#fbbf24';
+            setWAContainerState('AUTHENTICATING');
+            if (instructionText) instructionText.style.display = 'none';
+
+            setTimeout(() => {
+                if (document.getElementById('wa-modal-overlay') && document.getElementById('wa-modal-overlay').classList.contains('visible')) {
+                    checkWAStatus();
+                }
+            }, 3000);
         } else {
             statusText.textContent = 'يرجى مسح الرمز أدناه للربط:';
             statusText.style.color = '#fbbf24';
@@ -345,6 +357,16 @@ async function checkWAStatus() {
             fetchWAQRCode();
         }
     } catch (err) {
+        // Retry up to 3 times before showing error (server may be momentarily busy)
+        if (retryCount < 3) {
+            console.warn(`checkWAStatus failed (attempt ${retryCount + 1}/3), retrying...`, err.message);
+            setTimeout(() => {
+                if (document.getElementById('wa-modal-overlay') && document.getElementById('wa-modal-overlay').classList.contains('visible')) {
+                    checkWAStatus(retryCount + 1);
+                }
+            }, 2000);
+            return;
+        }
         statusText.textContent = '❌ الخادم غير متصل. يرجى التأكد من تشغيل خدمة الواتساب.';
         statusText.style.color = '#ef4444';
         setWAContainerState('ERROR');
@@ -354,6 +376,7 @@ async function checkWAStatus() {
 async function fetchWAQRCode() {
     const userId = getWAUserId();
     const instructionText = document.getElementById('wa-instruction-text');
+    const statusText = document.getElementById('wa-status-text');
 
     try {
         const res = await fetch(`${WA_SERVER_URL}/qr?userId=${userId}`);
@@ -362,28 +385,59 @@ async function fetchWAQRCode() {
         if (data.qrCode) {
             setWAContainerState('QR_CODE', data.qrCode);
             if (instructionText) instructionText.style.display = 'block';
+            if (statusText) {
+                statusText.textContent = 'يرجى مسح الرمز أدناه للربط:';
+                statusText.style.color = '#fbbf24';
+            }
 
-            // Poll for status every 5 seconds until connected
+            // Poll for status every 3 seconds until connected
             setTimeout(() => {
                 if(document.getElementById('wa-modal-overlay') && document.getElementById('wa-modal-overlay').classList.contains('visible')) {
                     checkWAStatus();
                 }
-            }, 5000);
+            }, 3000);
         } else if (data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') {
-            setWAContainerState('CONNECTED');
-        } else if (data.status === 'AUTHENTICATING') {
+            setWAContainerState('CONNECTED', data.phoneNumber);
+            if (statusText) {
+                statusText.textContent = '✅ أنت متصل بحساب واتساب بنجاح.';
+                statusText.style.color = '#34d399';
+            }
+        } else if (data.status === 'AUTHENTICATING' || data.status === 'CONNECTING') {
             setWAContainerState('AUTHENTICATING');
+            if (statusText) {
+                statusText.textContent = '🔄 جاري تسجيل الدخول...';
+                statusText.style.color = '#fbbf24';
+            }
+            if (instructionText) instructionText.style.display = 'none';
             setTimeout(() => {
                 if (document.getElementById('wa-modal-overlay') && document.getElementById('wa-modal-overlay').classList.contains('visible')) {
                     checkWAStatus();
                 }
             }, 2000);
+        } else if (data.status === 'RECONNECTING' || data.status === 'INITIALIZING') {
+            setWAContainerState('AUTHENTICATING');
+            if (statusText) {
+                statusText.textContent = '🔄 جاري إعادة الاتصال...';
+                statusText.style.color = '#fbbf24';
+            }
+            if (instructionText) instructionText.style.display = 'none';
+            setTimeout(() => {
+                if (document.getElementById('wa-modal-overlay') && document.getElementById('wa-modal-overlay').classList.contains('visible')) {
+                    checkWAStatus();
+                }
+            }, 3000);
         } else {
             // Still loading or waiting, try again in 3s
             setTimeout(fetchWAQRCode, 3000);
         }
     } catch (err) {
         console.error('QR fetch error', err);
+        // Retry silently after 3s
+        setTimeout(() => {
+            if (document.getElementById('wa-modal-overlay') && document.getElementById('wa-modal-overlay').classList.contains('visible')) {
+                checkWAStatus();
+            }
+        }, 3000);
     }
 }
 
