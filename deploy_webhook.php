@@ -40,6 +40,7 @@ $commands = [
     'rm -f /var/www/magaees/.git/index.lock 2>&1',
     'cd /var/www/magaees',
     'git fetch origin 2>&1',
+    'git clean -fd 2>&1',
     'git reset --hard origin/main 2>&1',
     'chown -R www-data:www-data /var/www/magaees 2>&1',
     'chmod -R 755 /var/www/magaees 2>&1',
