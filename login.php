@@ -165,6 +165,148 @@
             display: inline-block;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
+        /* Reset Password Modals */
+        .reset-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(12, 16, 27, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .reset-modal-card {
+            width: 100%;
+            max-width: 440px;
+            background: rgba(15, 22, 38, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 24px;
+            padding: 30px 25px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            color: white;
+            text-align: center;
+            box-sizing: border-box;
+            animation: modalPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes modalPopIn {
+            from { opacity: 0; transform: scale(0.92) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .reset-modal-header .reset-modal-icon {
+            font-size: 2.8rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .reset-modal-header h3 {
+            margin: 0 0 6px 0;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #38bdf8;
+        }
+        .reset-modal-header p {
+            margin: 0 0 15px 0;
+            font-size: 0.88rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .reset-tab-btn {
+            flex: 1;
+            padding: 8px 5px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .reset-tab-btn.active {
+            background: rgba(56, 189, 248, 0.25);
+            border-color: #38bdf8;
+            color: #38bdf8;
+        }
+        .channel-btn {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.06);
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .channel-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #38bdf8;
+            transform: translateY(-2px);
+        }
+        .channel-btn.whatsapp:hover { border-color: #22c55e; }
+        .channel-btn.email:hover { border-color: #38bdf8; }
+        .reset-modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .btn-reset-submit {
+            flex: 2;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            color: white;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-reset-submit:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-reset-cancel {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: transparent;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+        .btn-reset-cancel:hover { background: rgba(255, 255, 255, 0.08); }
+        .otp-box {
+            width: 44px;
+            height: 52px;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 800;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            color: #38bdf8;
+            outline: none;
+        }
+        .otp-box:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .otp-timer-badge {
+            font-size: 0.8rem;
+            color: #fbbf24;
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            padding: 4px 12px;
+            border-radius: 15px;
+            display: inline-block;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body style="display:flex !important; align-items:center !important; justify-content:center !important; height:100vh !important; padding:0 !important; margin:0 !important; animation:none !important; transition:none !important; transform:none !important; background-color:#0c101b !important; background-image:url('assets/user_bg_fast.jpg') !important; background-size:cover !important; background-position:center center !important; background-repeat:no-repeat !important; background-attachment:fixed !important; overflow:hidden !important;">
@@ -180,10 +322,14 @@
             <input type="text" class="input-field" id="username" placeholder="أدخل اسم المستخدم" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
         </div>
         
-        <div class="input-group" style="position: relative;">
+        <div class="input-group" style="position: relative; margin-bottom: 8px;">
             <label>كلمة المرور</label>
             <input type="password" class="input-field" id="password" placeholder="أدخل كلمة المرور" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" style="padding-left: 50px;">
             <button type="button" class="toggle-pwd-btn" onclick="togglePassword()" title="إظهار/إخفاء كلمة المرور" id="toggle-pwd-icon">👁️</button>
+        </div>
+
+        <div style="text-align: left; margin-bottom: 12px; direction: ltr;">
+            <a href="javascript:void(0)" onclick="openResetModal('identity')" style="color: #38bdf8; text-decoration: none; font-size: 0.88rem; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.color='#0ea5e9'; this.style.textDecoration='underline';" onmouseout="this.style.color='#38bdf8'; this.style.textDecoration='none';">نسيت كلمة المرور؟</a>
         </div>
         
         <script>
@@ -205,8 +351,380 @@
         <div class="device-info" id="device-id-display">جاري التحقق من الجهاز...</div>
     </div>
 
+    <!-- ==================== FORGOT PASSWORD MODALS ==================== -->
+    <div id="reset-modal-overlay" class="reset-modal-overlay" style="display:none;">
+        
+        <!-- STEP 1: IDENTITY INPUT -->
+        <div id="reset-step-identity" class="reset-modal-card" style="display:none;">
+            <div class="reset-modal-header">
+                <span class="reset-modal-icon">🔑</span>
+                <h3>استرداد كلمة المرور</h3>
+                <p>اختر الطريقة التي تفضلها لتحديد حسابك:</p>
+            </div>
+            
+            <div class="reset-option-tabs" style="display: flex; gap: 8px; margin-bottom: 15px;">
+                <button type="button" class="reset-tab-btn active" onclick="switchIdentityType('username', this)">اسم المستخدم</button>
+                <button type="button" class="reset-tab-btn" onclick="switchIdentityType('email', this)">البريد الإلكتروني</button>
+                <button type="button" class="reset-tab-btn" onclick="switchIdentityType('phone', this)">رقم الهاتف</button>
+            </div>
+
+            <div class="input-group">
+                <label id="reset-identity-label">اسم المستخدم</label>
+                <input type="text" class="input-field" id="reset-identity-val" placeholder="أدخل اسم المستخدم المسجل" autocomplete="off">
+            </div>
+
+            <div class="reset-modal-actions">
+                <button type="button" class="btn-reset-cancel" onclick="closeResetModal()">إلغاء</button>
+                <button type="button" class="btn-reset-submit" onclick="submitResetIdentity()">التالي ⬅️</button>
+            </div>
+        </div>
+
+        <!-- STEP 2: CHANNEL SELECTION -->
+        <div id="reset-step-channel" class="reset-modal-card" style="display:none;">
+            <div class="reset-modal-header">
+                <span class="reset-modal-icon">📲</span>
+                <h3>اختر طريقة استقبال الرمز</h3>
+                <p>كيف ترغب في استلام رمز التحقق (OTP)؟</p>
+            </div>
+
+            <div class="channel-options" style="display:flex; flex-direction:column; gap:12px; margin: 15px 0;">
+                <button type="button" class="channel-btn whatsapp" onclick="selectResetChannel('whatsapp')">
+                    <span style="font-size: 1.5rem;">💬</span>
+                    <div style="text-align: right;">
+                        <strong style="display:block;">عبر الواتساب</strong>
+                        <small style="color: rgba(255,255,255,0.7);">إرسال الرمز مباشرة إلى رقم الواتساب</small>
+                    </div>
+                </button>
+                <button type="button" class="channel-btn email" onclick="selectResetChannel('email')">
+                    <span style="font-size: 1.5rem;">✉️</span>
+                    <div style="text-align: right;">
+                        <strong style="display:block;">عبر البريد الإلكتروني</strong>
+                        <small style="color: rgba(255,255,255,0.7);">إرسال الرمز إلى بريدك المسجل</small>
+                    </div>
+                </button>
+            </div>
+
+            <div class="reset-modal-actions">
+                <button type="button" class="btn-reset-cancel" onclick="openResetModal('identity')">رجوع</button>
+            </div>
+        </div>
+
+        <!-- STEP 3: OTP VERIFICATION -->
+        <div id="reset-step-otp" class="reset-modal-card" style="display:none;">
+            <div class="reset-modal-header">
+                <span class="reset-modal-icon">📩</span>
+                <h3>تأكيد رمز التحقق (OTP)</h3>
+                <p id="reset-otp-desc">أرسلنا رمزاً مكوناً من 6 أرقام لحسابك</p>
+                <div class="otp-timer-badge" id="reset-otp-timer">⏳ تنتهي صلاحية الرمز خلال: 10:00</div>
+            </div>
+
+            <div class="otp-digits-container" style="display:flex; justify-content:center; gap:8px; margin: 20px 0; direction: ltr;">
+                <input type="text" maxlength="1" class="otp-box" id="reset-otp-1" onkeyup="moveResetOtp(1, event)">
+                <input type="text" maxlength="1" class="otp-box" id="reset-otp-2" onkeyup="moveResetOtp(2, event)">
+                <input type="text" maxlength="1" class="otp-box" id="reset-otp-3" onkeyup="moveResetOtp(3, event)">
+                <input type="text" maxlength="1" class="otp-box" id="reset-otp-4" onkeyup="moveResetOtp(4, event)">
+                <input type="text" maxlength="1" class="otp-box" id="reset-otp-5" onkeyup="moveResetOtp(5, event)">
+                <input type="text" maxlength="1" class="otp-box" id="reset-otp-6" onkeyup="moveResetOtp(6, event)">
+            </div>
+
+            <div class="reset-modal-actions">
+                <button type="button" class="btn-reset-cancel" onclick="openResetModal('channel')">رجوع</button>
+                <button type="button" class="btn-reset-submit" onclick="verifyResetOtp()">تأكيد الرمز 🔑</button>
+            </div>
+        </div>
+
+        <!-- STEP 4: NEW PASSWORD INPUT -->
+        <div id="reset-step-newpwd" class="reset-modal-card" style="display:none;">
+            <div class="reset-modal-header">
+                <span class="reset-modal-icon">🔐</span>
+                <h3>تعيين كلمة المرور الجديدة</h3>
+                <p>أدخل كلمة مرور قوية جديدة لحسابك</p>
+            </div>
+
+            <div class="input-group" style="position:relative;">
+                <label>كلمة المرور الجديدة</label>
+                <input type="password" class="input-field" id="reset-new-pwd" placeholder="6 أحرف أو أرقام على الأقل" style="padding-left:45px;">
+                <button type="button" class="toggle-pwd-btn" onclick="toggleResetPwd('reset-new-pwd', this)" style="top:32px;">👁️</button>
+            </div>
+
+            <div class="input-group" style="position:relative; margin-top: 10px;">
+                <label>تأكيد كلمة المرور الجديدة</label>
+                <input type="password" class="input-field" id="reset-confirm-pwd" placeholder="أعد كتابة كلمة المرور" style="padding-left:45px;">
+                <button type="button" class="toggle-pwd-btn" onclick="toggleResetPwd('reset-confirm-pwd', this)" style="top:32px;">👁️</button>
+            </div>
+
+            <div class="reset-modal-actions" style="margin-top: 20px;">
+                <button type="button" class="btn-reset-cancel" onclick="closeResetModal()">إلغاء</button>
+                <button type="button" class="btn-reset-submit" onclick="submitNewPassword()">حفظ كلمة المرور 🚀</button>
+            </div>
+        </div>
+
+        <!-- STEP 5: SUCCESS & REDIRECT -->
+        <div id="reset-step-success" class="reset-modal-card" style="display:none;">
+            <div class="reset-modal-header">
+                <span class="reset-modal-icon" style="font-size: 3.5rem;">🎉</span>
+                <h3 style="color: #4ade80;">تمت العملية بنجاح!</h3>
+                <p style="color: rgba(255,255,255,0.9); font-size: 1rem; margin-top: 10px;">تم تحديث كلمة المرور الخاصة بك بنجاح.<br>يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة.</p>
+            </div>
+
+            <div class="reset-modal-actions" style="margin-top: 25px;">
+                <button type="button" class="btn-reset-submit" style="width:100%; background: linear-gradient(135deg, #22c55e, #16a34a);" onclick="finishResetAndRedirect()">تسجيل الدخول الآن 🔓</button>
+            </div>
+        </div>
+
+    </div>
+
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=20260723_v14"></script>
+
+    <script>
+        // ==================== FORGOT PASSWORD LOGIC ====================
+        let currentResetIdentity = '';
+        let currentResetChannel = 'email';
+        let currentResetTarget = '';
+        let resetTimerInterval = null;
+
+        function openResetModal(step) {
+            document.getElementById('reset-modal-overlay').style.display = 'flex';
+            document.querySelectorAll('.reset-modal-card').forEach(c => c.style.display = 'none');
+            
+            if (step === 'identity') {
+                document.getElementById('reset-step-identity').style.display = 'block';
+                setTimeout(() => document.getElementById('reset-identity-val').focus(), 100);
+            } else if (step === 'channel') {
+                document.getElementById('reset-step-channel').style.display = 'block';
+            } else if (step === 'otp') {
+                document.getElementById('reset-step-otp').style.display = 'block';
+                startResetOtpTimer(600);
+                setTimeout(() => document.getElementById('reset-otp-1').focus(), 100);
+            } else if (step === 'newpwd') {
+                document.getElementById('reset-step-newpwd').style.display = 'block';
+                setTimeout(() => document.getElementById('reset-new-pwd').focus(), 100);
+            } else if (step === 'success') {
+                document.getElementById('reset-step-success').style.display = 'block';
+            }
+        }
+
+        function closeResetModal() {
+            document.getElementById('reset-modal-overlay').style.display = 'none';
+            if (resetTimerInterval) clearInterval(resetTimerInterval);
+        }
+
+        function switchIdentityType(type, btn) {
+            document.querySelectorAll('.reset-tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const label = document.getElementById('reset-identity-label');
+            const input = document.getElementById('reset-identity-val');
+            
+            if (type === 'username') {
+                label.innerText = 'اسم المستخدم';
+                input.placeholder = 'أدخل اسم المستخدم المسجل';
+            } else if (type === 'email') {
+                label.innerText = 'البريد الإلكتروني';
+                input.placeholder = 'example@domain.com';
+            } else if (type === 'phone') {
+                label.innerText = 'رقم الهاتف';
+                input.placeholder = '09xxxxxxxx';
+            }
+        }
+
+        async function submitResetIdentity() {
+            const val = document.getElementById('reset-identity-val').value.trim();
+            if (!val) {
+                alert('يرجى إدخال البيانات المطلوبة للحساب');
+                return;
+            }
+            currentResetIdentity = val;
+            openResetModal('channel');
+        }
+
+        async function selectResetChannel(channel) {
+            currentResetChannel = channel;
+            
+            try {
+                const getBaseUrl = () => {
+                    const origin = window.location.origin;
+                    if (origin === 'https://elsajana.com' || origin === 'https://www.elsajana.com') {
+                        return 'https://c.elsajana.com/';
+                    }
+                    const path = window.location.pathname;
+                    let dir = path.substring(0, path.lastIndexOf('/'));
+                    if (dir.endsWith('/')) dir = dir.slice(0, -1);
+                    return origin + (dir ? dir : '') + "/";
+                };
+
+                const url = getBaseUrl() + 'api_index.php?r=public&a=request-reset-otp';
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        identity: currentResetIdentity,
+                        channel: currentResetChannel
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    currentResetTarget = data.target || '';
+                    document.getElementById('reset-otp-desc').innerText = `أرسلنا رمزاً مكوناً من 6 أرقام إلى (${currentResetTarget})`;
+                    openResetModal('otp');
+                } else {
+                    alert(data.error || 'حدث خطأ أثناء إرسال الرمز، يرجى التأكد من بيانات الحساب.');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('تعذر الاتصال بالسيرفر، يرجى المحاولة لاحقاً.');
+            }
+        }
+
+        function moveResetOtp(index, event) {
+            const val = event.target.value;
+            if (val && index < 6) {
+                document.getElementById(`reset-otp-${index + 1}`).focus();
+            } else if (event.key === 'Backspace' && index > 1) {
+                document.getElementById(`reset-otp-${index - 1}`).focus();
+            }
+        }
+
+        function getEnteredResetOtp() {
+            let otp = '';
+            for (let i = 1; i <= 6; i++) {
+                otp += document.getElementById(`reset-otp-${i}`).value.trim();
+            }
+            return otp;
+        }
+
+        function startResetOtpTimer(seconds) {
+            if (resetTimerInterval) clearInterval(resetTimerInterval);
+            let rem = seconds;
+            const badge = document.getElementById('reset-otp-timer');
+            
+            resetTimerInterval = setInterval(() => {
+                rem--;
+                if (rem <= 0) {
+                    clearInterval(resetTimerInterval);
+                    badge.innerText = '⚠️ انتهت صلاحية الرمز!';
+                    badge.style.color = '#ef4444';
+                    return;
+                }
+                const m = String(Math.floor(rem / 60)).padStart(2, '0');
+                const s = String(rem % 60).padStart(2, '0');
+                badge.innerText = `⏳ تنتهي صلاحية الرمز خلال: ${m}:${s}`;
+            }, 1000);
+        }
+
+        async function verifyResetOtp() {
+            const otp = getEnteredResetOtp();
+            if (otp.length < 6) {
+                alert('يرجى كتابة رمز الـ OTP المكون من 6 أرقام بالكامل');
+                return;
+            }
+
+            try {
+                const getBaseUrl = () => {
+                    const origin = window.location.origin;
+                    if (origin === 'https://elsajana.com' || origin === 'https://www.elsajana.com') {
+                        return 'https://c.elsajana.com/';
+                    }
+                    const path = window.location.pathname;
+                    let dir = path.substring(0, path.lastIndexOf('/'));
+                    if (dir.endsWith('/')) dir = dir.slice(0, -1);
+                    return origin + (dir ? dir : '') + "/";
+                };
+
+                const url = getBaseUrl() + 'api_index.php?r=public&a=verify-reset-otp';
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        identity: currentResetIdentity,
+                        otp: otp
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    openResetModal('newpwd');
+                } else {
+                    alert(data.error || 'رمز التحقق غير صحيح أو منتهي الصلاحية');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('حدث خطأ أثناء التحقق من الرمز.');
+            }
+        }
+
+        function toggleResetPwd(id, btn) {
+            const input = document.getElementById(id);
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.innerText = '🙈';
+            } else {
+                input.type = 'password';
+                btn.innerText = '👁️';
+            }
+        }
+
+        async function submitNewPassword() {
+            const pwd = document.getElementById('reset-new-pwd').value;
+            const confirmPwd = document.getElementById('reset-confirm-pwd').value;
+            const otp = getEnteredResetOtp();
+
+            if (!pwd || !confirmPwd) {
+                alert('يرجى كتابة كلمة المرور الجديدة وتأكيدها');
+                return;
+            }
+            if (pwd.length < 6) {
+                alert('كلمة المرور يجب أن لا تقل عن 6 أحرف');
+                return;
+            }
+            if (pwd !== confirmPwd) {
+                alert('كلمة المرور وتأكيدها غير متطابقين');
+                return;
+            }
+
+            try {
+                const getBaseUrl = () => {
+                    const origin = window.location.origin;
+                    if (origin === 'https://elsajana.com' || origin === 'https://www.elsajana.com') {
+                        return 'https://c.elsajana.com/';
+                    }
+                    const path = window.location.pathname;
+                    let dir = path.substring(0, path.lastIndexOf('/'));
+                    if (dir.endsWith('/')) dir = dir.slice(0, -1);
+                    return origin + (dir ? dir : '') + "/";
+                };
+
+                const url = getBaseUrl() + 'api_index.php?r=public&a=reset-password';
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        identity: currentResetIdentity,
+                        otp: otp,
+                        new_password: pwd
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    openResetModal('success');
+                } else {
+                    alert(data.error || 'فشل تحديث كلمة المرور.');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('حدث خطأ أثناء حفظ كلمة المرور.');
+            }
+        }
+
+        function finishResetAndRedirect() {
+            closeResetModal();
+            document.getElementById('username').value = currentResetIdentity;
+            document.getElementById('password').value = '';
+            document.getElementById('password').focus();
+        }
+    </script>
     
     <script>
         // --- SSO Interceptor ---

@@ -488,6 +488,156 @@ if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
     }
 }
 
+// Public: Password Reset - Request OTP
+if ($resource === 'public' && $action === 'request-reset-otp' && $method === 'POST') {
+    $identity = trim($input['identity'] ?? '');
+    $channel  = trim($input['channel'] ?? 'email');
+    
+    if (empty($identity)) {
+        jsonResponse(['success' => false, 'error' => 'يرجى إدخال اسم المستخدم أو البريد الإلكتروني أو رقم الهاتف'], 400);
+    }
+    
+    $cleanIdentity = strtolower($identity);
+    $cleanPhone = normalizePhoneNumber($identity);
+    
+    $stmt = $pdo->prepare("SELECT id, username, email, phone FROM users WHERE LOWER(username) = ? OR LOWER(email) = ? OR phone = ? OR phone = ? LIMIT 1");
+    $stmt->execute([$cleanIdentity, $cleanIdentity, $identity, $cleanPhone]);
+    $user = $stmt->fetch();
+    
+    if (!$user) {
+        jsonResponse(['success' => false, 'error' => 'لم نتمكن من العثور على حساب مرتبط بهذه البيانات'], 404);
+    }
+    
+    $userEmail = trim($user['email'] ?? '');
+    $userPhone = normalizePhoneNumber(trim($user['phone'] ?? ''));
+    
+    if (empty($userEmail) && empty($userPhone)) {
+        jsonResponse(['success' => false, 'error' => 'هذا الحساب لا يمتلك بريداً إلكترونياً أو رقم هاتف مسجلاً لاستعادة كلمة المرور'], 400);
+    }
+    
+    $otp = sprintf("%06d", random_int(1, 999999));
+    
+    $identifier = !empty($userEmail) ? $userEmail : $userPhone;
+    $stmt = $pdo->prepare("INSERT INTO otp_verifications (email, otp, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))");
+    $stmt->execute([$identifier, $otp]);
+    
+    $waSuccess = false;
+    $waError = '';
+    if ($channel === 'whatsapp' && !empty($userPhone)) {
+        $waResult = sendWhatsAppOTP($userPhone, $otp);
+        if ($waResult['success']) {
+            $waSuccess = true;
+        } else {
+            $waError = $waResult['error'];
+        }
+    }
+    
+    if ($waSuccess) {
+        jsonResponse([
+            'success' => true, 
+            'message' => 'تم إرسال رمز استعادة كلمة المرور إلى حساب الواتساب الخاص بك بنجاح!',
+            'target' => substr($userPhone, 0, 4) . '***' . substr($userPhone, -2)
+        ]);
+    } else {
+        if (empty($userEmail)) {
+            jsonResponse(['success' => false, 'error' => 'تعذر الإرسال عبر الواتساب ولا يتوفر بريد إلكتروني مسجل لحسابك'], 400);
+        }
+        $result = EmailService::sendPasswordResetOTP($userEmail, $otp, $pdo);
+        if ($result['success']) {
+            $msg = 'تم إرسال رمز استعادة كلمة المرور إلى بريدك الإلكتروني بنجاح!';
+            if ($channel === 'whatsapp' && !empty($waError)) {
+                $msg .= ' (فشل الإرسال عبر الواتساب: ' . $waError . ')';
+            }
+            jsonResponse([
+                'success' => true, 
+                'message' => $msg,
+                'target' => substr($userEmail, 0, 3) . '***@' . (explode('@', $userEmail)[1] ?? '')
+            ]);
+        } else {
+            jsonResponse(['success' => false, 'error' => $result['error']], 500);
+        }
+    }
+}
+
+// Public: Password Reset - Verify OTP
+if ($resource === 'public' && $action === 'verify-reset-otp' && $method === 'POST') {
+    $identity = trim($input['identity'] ?? '');
+    $otp      = trim($input['otp'] ?? '');
+    
+    if (empty($identity) || empty($otp)) {
+        jsonResponse(['success' => false, 'error' => 'بيانات التحقق غير مكتملة'], 400);
+    }
+    
+    $cleanIdentity = strtolower($identity);
+    $cleanPhone = normalizePhoneNumber($identity);
+    
+    $stmt = $pdo->prepare("SELECT id, email, phone FROM users WHERE LOWER(username) = ? OR LOWER(email) = ? OR phone = ? OR phone = ? LIMIT 1");
+    $stmt->execute([$cleanIdentity, $cleanIdentity, $identity, $cleanPhone]);
+    $user = $stmt->fetch();
+    
+    if (!$user) {
+        jsonResponse(['success' => false, 'error' => 'الحساب غير موجود'], 404);
+    }
+    
+    $identifier1 = trim($user['email'] ?? '');
+    $identifier2 = normalizePhoneNumber(trim($user['phone'] ?? ''));
+    
+    $stmt = $pdo->prepare("SELECT id FROM otp_verifications WHERE (email = ? OR email = ?) AND otp = ? AND expires_at > NOW() ORDER BY id DESC LIMIT 1");
+    $stmt->execute([$identifier1, $identifier2, $otp]);
+    $foundOtp = $stmt->fetchColumn();
+    
+    if ($foundOtp) {
+        jsonResponse(['success' => true, 'message' => 'تم التحقق من الرمز بنجاح']);
+    } else {
+        jsonResponse(['success' => false, 'error' => 'رمز التحقق غير صحيح أو منتهي الصلاحية'], 400);
+    }
+}
+
+// Public: Password Reset - Reset Password
+if ($resource === 'public' && $action === 'reset-password' && $method === 'POST') {
+    $identity    = trim($input['identity'] ?? '');
+    $otp         = trim($input['otp'] ?? '');
+    $newPassword = $input['new_password'] ?? '';
+    
+    if (empty($identity) || empty($otp) || empty($newPassword)) {
+        jsonResponse(['success' => false, 'error' => 'جميع الحقول مطلوبة لإعادة تعيين كلمة المرور'], 400);
+    }
+    
+    if (strlen($newPassword) < 6) {
+        jsonResponse(['success' => false, 'error' => 'كلمة المرور يجب أن لا تقل عن 6 أحرف'], 400);
+    }
+    
+    $cleanIdentity = strtolower($identity);
+    $cleanPhone = normalizePhoneNumber($identity);
+    
+    $stmt = $pdo->prepare("SELECT id, email, phone FROM users WHERE LOWER(username) = ? OR LOWER(email) = ? OR phone = ? OR phone = ? LIMIT 1");
+    $stmt->execute([$cleanIdentity, $cleanIdentity, $identity, $cleanPhone]);
+    $user = $stmt->fetch();
+    
+    if (!$user) {
+        jsonResponse(['success' => false, 'error' => 'الحساب غير موجود'], 404);
+    }
+    
+    $identifier1 = trim($user['email'] ?? '');
+    $identifier2 = normalizePhoneNumber(trim($user['phone'] ?? ''));
+    
+    $stmt = $pdo->prepare("SELECT id FROM otp_verifications WHERE (email = ? OR email = ?) AND otp = ? AND expires_at > NOW() ORDER BY id DESC LIMIT 1");
+    $stmt->execute([$identifier1, $identifier2, $otp]);
+    $foundOtpId = $stmt->fetchColumn();
+    
+    if (!$foundOtpId) {
+        jsonResponse(['success' => false, 'error' => 'رمز التحقق غير صحيح أو انتهت صلاحيته. يرجى إعادة الطلب'], 400);
+    }
+    
+    $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
+    $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+    $stmt->execute([$hashedPassword, $user['id']]);
+    
+    $pdo->prepare("DELETE FROM otp_verifications WHERE id = ?")->execute([$foundOtpId]);
+    
+    jsonResponse(['success' => true, 'message' => 'تم تغيير كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.']);
+}
+
 // ---------------------------------------------------------
 // AUTHENTICATION ROUTES (No token required)
 // ---------------------------------------------------------
