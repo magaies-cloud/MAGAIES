@@ -22,9 +22,10 @@ class EmailService {
             $subject = 'رمز التحقق (OTP) الخاص بك - MAGAIES';
             $headers = "MIME-Version: 1.0\r\n";
             $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-            $headers .= "From: نظام مقاييس <info@elsajana.com>\r\n";
+            $headers .= "From: MAGAIES <info@elsajana.com>\r\n";
+            $headers .= "Reply-To: info@elsajana.com\r\n";
             
-            $mailSent = @mail($email, $subject, $htmlContent, $headers);
+            $mailSent = @mail($email, $subject, $htmlContent, $headers, "-finfo@elsajana.com");
             if ($mailSent) {
                 return ['success' => true, 'message' => 'تم إرسال الرمز بنجاح إلى بريدك الإلكتروني'];
             } else {
