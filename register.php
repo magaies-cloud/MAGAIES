@@ -929,14 +929,14 @@
                     const successMsg = `
                         <div style="font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px;">
                             تم إنشاء حساب شركتك بنجاح على الرابط المخصص الاحترافي:<br>
-                            <a href="${targetSubdomainUrl}" target="_blank" style="color: #38bdf8; text-decoration: underline; font-weight: bold; word-break: break-all;">${targetSubdomainUrl}</a>
+                            <span style="color: #38bdf8; font-weight: bold; word-break: break-all;">${targetSubdomainUrl}</span>
                         </div>
                         <div style="color: #ef4444; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); padding: 12px 15px; border-radius: 14px; font-weight: bold; font-size: 0.95rem; line-height: 1.5; margin-top: 10px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);">
                             ⏳ يرجى الانتظار لمدة (15 دقيقة) لاكتمال إعداد وتفعيل شهادة الأمان المخصصة لحسابك.
                         </div>
                     `;
                     showModal('success', 'تهانينا! 🎉', successMsg, true, () => {
-                        window.location.href = targetSubdomainUrl;
+                        window.location.href = 'login.php';
                     });
                 }
             } catch(e) {

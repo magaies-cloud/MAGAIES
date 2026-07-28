@@ -470,6 +470,8 @@
             <div class="reset-modal-actions" style="margin-top: 25px;">
                 <button type="button" class="btn-reset-submit" style="width:100%; background: linear-gradient(135deg, #22c55e, #16a34a);" onclick="finishResetAndRedirect()">تسجيل الدخول الآن 🔓</button>
             </div>
+        </div>
+
         <!-- STEP 6: ACTIVATION WAITING COUNTDOWN -->
         <div id="reset-step-activation-wait" class="reset-modal-card" style="display:none;">
             <div class="reset-modal-header">
@@ -854,7 +856,8 @@
             }
 
             // 2. Second Attempt: Cloud Server Fallback
-            if (!res || !res.ok) {
+            // Skip cloud fallback if local returned a valid activation-wait response
+            if ((!res || !res.ok) && !(data && data.remaining_seconds)) {
                 try {
                     const cloudController = new AbortController();
                     const cloudTimeoutId = setTimeout(() => cloudController.abort(), 6000);
@@ -869,6 +872,10 @@
                     clearTimeout(cloudTimeoutId);
                     const cloudData = await cloudRes.json().catch(() => ({}));
                     if (cloudRes.ok && cloudData && cloudData.success !== false && cloudData.token) {
+                        res = cloudRes;
+                        data = cloudData;
+                    } else if (cloudData && cloudData.remaining_seconds) {
+                        // Cloud returned activation-wait, use it
                         res = cloudRes;
                         data = cloudData;
                     }
