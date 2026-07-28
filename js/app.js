@@ -1460,7 +1460,7 @@ JSON.parse = function(val) {
     const pushToCloud = window.pushToCloud = function(force = false) {
         return new Promise((resolve, reject) => {
             if (!navigator.onLine) {
-                alert('السيرفر غير متصل! لا يمكن حفظ البيانات في وضع Strict Sync.');
+                if (force) alert('السيرفر غير متصل! لا يمكن حفظ البيانات في وضع Strict Sync.');
                 reject(new Error("Offline"));
                 return;
             }
@@ -1505,25 +1505,41 @@ JSON.parse = function(val) {
             isPushing = true;
             showSyncOverlay('جاري حفظ البيانات بالسيرفر...');
 
+            let resStatus = 200;
             fetch(SYNC_PUSH_URL, {
                 method: "POST",
                 headers: getAuthHeaders(),
                 body: JSON.stringify(payload),
                 keepalive: true
             }).then(res => {
+                resStatus = res.status;
                 if (res.status === 401) {
                     alert('انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
-                    window.logout(true);
+                    if (typeof window.logout === 'function') window.logout(true);
+                    else window.location.href = 'login.php';
+                    reject(new Error("Unauthorized"));
+                    return null;
+                }
+                return res.json().catch(() => ({}));
+            }).then(data => {
+                if (!data) return;
+                
+                if (data.error && (resStatus === 401 || data.error.includes('الجلسة') || data.error.includes('تسجيل الدخول'))) {
+                    alert('انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
+                    if (typeof window.logout === 'function') window.logout(true);
+                    else window.location.href = 'login.php';
                     reject(new Error("Unauthorized"));
                     return;
                 }
-                return res.json();
-            }).then(data => {
-                if(!data.success) {
-                    alert('حدث خطأ أثناء الحفظ في قاعدة البيانات!');
-                    // Restore dirty keys
+
+                if (!data.success && data.error !== 'تمت المزامنة بنجاح') {
+                    // Restore dirty keys for retry
                     currentDirty.forEach(k => dirtyKeys.add(k));
-                    reject(new Error("Save failed"));
+                    console.warn("Cloud Sync Push Notice:", data.error || "Save failed");
+                    if (force) {
+                        alert(data.error || 'حدث خطأ أثناء الحفظ بالسيرفر');
+                    }
+                    reject(new Error(data.error || "Save failed"));
                 } else {
                     console.log("Cloud Sync: Strict Backup Successful");
                     resolve(data);
@@ -1532,7 +1548,6 @@ JSON.parse = function(val) {
                 console.error("Cloud Sync Push Failed:", err);
                 // Restore dirty keys on failure
                 currentDirty.forEach(k => dirtyKeys.add(k));
-                // Removed annoying alert popup on transient sync failures
                 reject(err);
             }).finally(() => {
                 isPushing = false;
