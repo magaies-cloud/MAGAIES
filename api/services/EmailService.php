@@ -14,6 +14,10 @@ class EmailService {
             } catch (\Throwable $e) {}
         }
         
+        if (empty($brevo_api_key)) {
+            $brevo_api_key = 'xsmtpsib-6c6ea74657925c087e405359219b73505c62ce064a07fe3cf8d95acf0e096c29-bfjcZZIT3IKRgXIv';
+        }
+        
         $htmlContent = '
             <div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; background-color: #f8fafc; padding: 20px;">
                 <div style="background-color: #ffffff; padding: 30px; border-radius: 10px; max-width: 500px; margin: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
