@@ -889,8 +889,12 @@
             let targetUrl = 'dashboard-pro.php';
 
             if (userSubdomain && window.location.hostname !== userSubdomain + '.elsajana.com' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
-                // Pass tenant parameter on main domain to prevent missing Wildcard SSL certificate errors
-                targetUrl = `dashboard-pro.php?tenant=${encodeURIComponent(userSubdomain)}`;
+                const subdomainUrl = `https://${userSubdomain}.elsajana.com`;
+                if (token) {
+                    targetUrl = `${subdomainUrl}/login.php?sso_token=${encodeURIComponent(token)}&sso_user=${encodeURIComponent(userStr || '')}&redirect=dashboard-pro.php`;
+                } else {
+                    targetUrl = `${subdomainUrl}/dashboard-pro.php`;
+                }
             }
             // --- END SSO REDIRECT ---
 

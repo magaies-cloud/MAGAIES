@@ -925,8 +925,10 @@
                     if (selectedPlanId && res.tenant_id) {
                         localStorage.setItem('tenant_plan_' + res.tenant_id, selectedPlanId);
                     }
-                    showModal('success', 'تهانينا! 🎉', res.message || 'تم إنشاء حساب شركتك بنجاح! سيتم تفعيل حسابك قريباً.', true, () => {
-                        window.location.href = 'login.php';
+                    const targetSubdomainUrl = `https://${subdomain}.elsajana.com/login.php`;
+                    const successMsg = `تم إنشاء حساب شركتك بنجاح على الرابط المخصص الاحترافي:\n${targetSubdomainUrl}\n\n⏳ يرجى الانتظار لمدة (1 إلى 2 دقيقة) لاكتمال إعداد شهادة الأمان المخصصة لحسابك، لكي تتمكن من الدخول بدون أي تحذير أمان.`;
+                    showModal('success', 'تهانينا! 🎉', successMsg, true, () => {
+                        window.location.href = targetSubdomainUrl;
                     });
                 }
             } catch(e) {
