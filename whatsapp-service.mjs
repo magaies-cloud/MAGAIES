@@ -238,6 +238,7 @@ class WhatsAppClient {
 
         this._isInitializing = true;
         this.lastInitTime    = Date.now();
+        this.reconnectAttempts = 0;
         this._destroySocket();
         this._clearAllTimers();
         this._setState('INITIALIZING');
@@ -289,6 +290,10 @@ class WhatsAppClient {
                     fs.mkdirSync(this.authFolder, { recursive: true });
                     ({ state, saveCreds } = await useMultiFileAuthState(this.authFolder));
                 }
+            }
+
+            if (state?.creds?.me?.id) {
+                this.phoneNumber = state.creds.me.id.split(':')[0].split('@')[0];
             }
 
             const createSocket = makeWASocket.default || makeWASocket;
