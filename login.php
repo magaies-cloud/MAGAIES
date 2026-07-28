@@ -612,7 +612,7 @@
             openResetModal('activation-wait');
             if (activationTimerInterval) clearInterval(activationTimerInterval);
             let rem = remainingSecs;
-            const totalSecs = remainingSecs; // store initial total for sand ratio
+            const TOTAL_ACTIVATION_SECS = 900; // always 15 minutes as the full hourglass
             const timerEl = document.getElementById('activation-live-timer');
             const topSand = document.getElementById('hg-top-sand');
             const bottomSand = document.getElementById('hg-bottom-sand');
@@ -635,9 +635,9 @@
                 const s = String(rem % 60).padStart(2, '0');
                 timerEl.innerText = `⏳ المتبقي لجهوزية الدخول: ${m}:${s} دقيقة`;
 
-                // Sync hourglass sand with elapsed ratio
-                const elapsed = totalSecs - rem;
-                const ratio = elapsed / totalSecs; // 0 → 1
+                // Sync hourglass sand based on remaining vs original 15-min total
+                const elapsed = TOTAL_ACTIVATION_SECS - rem;
+                const ratio = Math.min(1, Math.max(0, elapsed / TOTAL_ACTIVATION_SECS)); // 0 → 1
                 const maxSandH = 34;
                 const topH = maxSandH * (1 - ratio);
                 const topY = 14 + (maxSandH - topH); // slide down as sand decreases
