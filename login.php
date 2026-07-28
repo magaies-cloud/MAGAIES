@@ -479,9 +479,70 @@
             <div style="position:absolute; top:-50%; left:-50%; width:200%; height:200%; background: radial-gradient(circle at 50% 30%, rgba(239, 68, 68, 0.08) 0%, transparent 60%); animation: glowPulse 3s ease-in-out infinite; pointer-events:none;"></div>
             
             <div style="position:relative; z-index:2;">
-                <!-- Animated Hourglass Icon -->
-                <div style="margin-bottom: 12px;">
-                    <span style="font-size: 3.5rem; display: inline-block; animation: hourglassFlip 2s ease-in-out infinite; filter: drop-shadow(0 4px 15px rgba(239, 68, 68, 0.4));">⏳</span>
+                <!-- Custom SVG Animated Hourglass with Flowing Sand -->
+                <div style="margin-bottom: 14px; display:flex; justify-content:center;">
+                    <svg id="hourglass-svg" width="70" height="90" viewBox="0 0 70 90" style="filter: drop-shadow(0 6px 20px rgba(239, 68, 68, 0.35));">
+                        <defs>
+                            <linearGradient id="glass-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#fbbf24; stop-opacity:0.9"/>
+                                <stop offset="100%" style="stop-color:#f59e0b; stop-opacity:0.7"/>
+                            </linearGradient>
+                            <linearGradient id="sand-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#fbbf24"/>
+                                <stop offset="100%" style="stop-color:#d97706"/>
+                            </linearGradient>
+                            <clipPath id="top-bulb-clip">
+                                <path d="M14,14 Q14,42 35,48 Q56,42 56,14 Z"/>
+                            </clipPath>
+                            <clipPath id="bottom-bulb-clip">
+                                <path d="M14,76 Q14,48 35,42 Q56,48 56,76 Z"/>
+                            </clipPath>
+                        </defs>
+                        
+                        <!-- Frame top bar -->
+                        <rect x="8" y="4" width="54" height="6" rx="3" fill="url(#glass-grad)" opacity="0.95"/>
+                        <!-- Frame bottom bar -->
+                        <rect x="8" y="80" width="54" height="6" rx="3" fill="url(#glass-grad)" opacity="0.95"/>
+                        
+                        <!-- Glass body outline -->
+                        <path d="M14,12 Q14,44 35,48 Q56,44 56,12" fill="none" stroke="rgba(251,191,36,0.5)" stroke-width="1.5"/>
+                        <path d="M14,78 Q14,46 35,42 Q56,46 56,78" fill="none" stroke="rgba(251,191,36,0.5)" stroke-width="1.5"/>
+                        
+                        <!-- Top sand (decreases over time) -->
+                        <g clip-path="url(#top-bulb-clip)">
+                            <rect id="hg-top-sand" x="12" y="14" width="46" height="34" fill="url(#sand-grad)" opacity="0.85">
+                            </rect>
+                        </g>
+                        
+                        <!-- Bottom sand (increases over time) -->
+                        <g clip-path="url(#bottom-bulb-clip)">
+                            <rect id="hg-bottom-sand" x="12" y="76" width="46" height="0" fill="url(#sand-grad)" opacity="0.85">
+                            </rect>
+                        </g>
+                        
+                        <!-- Falling sand stream in the neck -->
+                        <line id="hg-stream" x1="35" y1="42" x2="35" y2="48" stroke="#d97706" stroke-width="2" stroke-linecap="round" opacity="0.9">
+                            <animate attributeName="opacity" values="0.9;0.4;0.9" dur="0.8s" repeatCount="indefinite"/>
+                        </line>
+                        
+                        <!-- Sand particles falling -->
+                        <circle cx="35" cy="44" r="1" fill="#fbbf24" opacity="0.8">
+                            <animate attributeName="cy" values="43;50;56;62;68;74" dur="1.5s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.9;0.7;0.5;0.3;0.1;0" dur="1.5s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="34" cy="44" r="0.8" fill="#f59e0b" opacity="0.6">
+                            <animate attributeName="cy" values="43;52;58;64;70;76" dur="1.8s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.8;0.6;0.4;0.2;0.1;0" dur="1.8s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="36" cy="44" r="0.7" fill="#fbbf24" opacity="0.7">
+                            <animate attributeName="cy" values="44;51;57;63;69;75" dur="1.3s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.7;0.5;0.4;0.2;0.1;0" dur="1.3s" repeatCount="indefinite"/>
+                        </circle>
+                        
+                        <!-- Subtle glass shine -->
+                        <path d="M20,16 Q22,30 30,40" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M20,74 Q22,62 28,54" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-linecap="round"/>
+                    </svg>
                 </div>
 
                 <!-- Title in one line -->
@@ -492,10 +553,10 @@
                     حرصاً على حماية بياناتك وخصوصية حسابك،<br>يتم الآن تفعيل نظام الحماية الآمن لموقعك.
                 </p>
 
-                <!-- Premium Timer Badge -->
+                <!-- Premium Timer Badge (single line) -->
                 <div id="activation-live-timer" style="
-                    font-size: 1.2rem; 
-                    padding: 14px 28px; 
+                    font-size: 1.05rem; 
+                    padding: 12px 22px; 
                     border-radius: 18px; 
                     color: #ef4444; 
                     background: rgba(239, 68, 68, 0.1); 
@@ -503,11 +564,12 @@
                     font-weight: 900; 
                     margin: 0 auto 18px auto; 
                     display: inline-block;
-                    letter-spacing: 1px;
+                    letter-spacing: 0.5px;
+                    white-space: nowrap;
                     animation: timerPulse 1.5s ease-in-out infinite;
                     box-shadow: 0 0 25px rgba(239, 68, 68, 0.15), inset 0 0 15px rgba(239, 68, 68, 0.05);
                 ">
-                    ⏳ المتبقي لجهوزية الدخول: 15:00
+                    ⏳ المتبقي لجهوزية الدخول: 15:00 دقيقة
                 </div>
 
                 <!-- Bottom note -->
@@ -522,13 +584,6 @@
             </div>
 
             <style>
-                @keyframes hourglassFlip {
-                    0% { transform: rotate(0deg) scale(1); }
-                    25% { transform: rotate(15deg) scale(1.08); }
-                    50% { transform: rotate(0deg) scale(1); }
-                    75% { transform: rotate(-15deg) scale(1.08); }
-                    100% { transform: rotate(0deg) scale(1); }
-                }
                 @keyframes glowPulse {
                     0%, 100% { opacity: 0.5; }
                     50% { opacity: 1; }
@@ -557,7 +612,11 @@
             openResetModal('activation-wait');
             if (activationTimerInterval) clearInterval(activationTimerInterval);
             let rem = remainingSecs;
+            const totalSecs = remainingSecs; // store initial total for sand ratio
             const timerEl = document.getElementById('activation-live-timer');
+            const topSand = document.getElementById('hg-top-sand');
+            const bottomSand = document.getElementById('hg-bottom-sand');
+            const sandStream = document.getElementById('hg-stream');
             
             function updateTimer() {
                 if (rem <= 0) {
@@ -566,11 +625,29 @@
                     timerEl.style.color = '#22c55e';
                     timerEl.style.background = 'rgba(34, 197, 94, 0.15)';
                     timerEl.style.borderColor = 'rgba(34, 197, 94, 0.4)';
+                    // Sand fully emptied on top, fully filled on bottom
+                    if (topSand) { topSand.setAttribute('height', '0'); topSand.setAttribute('y', '48'); }
+                    if (bottomSand) { bottomSand.setAttribute('height', '34'); bottomSand.setAttribute('y', '42'); }
+                    if (sandStream) sandStream.style.display = 'none';
                     return;
                 }
                 const m = String(Math.floor(rem / 60)).padStart(2, '0');
                 const s = String(rem % 60).padStart(2, '0');
                 timerEl.innerText = `⏳ المتبقي لجهوزية الدخول: ${m}:${s} دقيقة`;
+
+                // Sync hourglass sand with elapsed ratio
+                const elapsed = totalSecs - rem;
+                const ratio = elapsed / totalSecs; // 0 → 1
+                const maxSandH = 34;
+                const topH = maxSandH * (1 - ratio);
+                const topY = 14 + (maxSandH - topH); // slide down as sand decreases
+                const botH = maxSandH * ratio;
+                const botY = 76 - botH; // grow upward from bottom
+
+                if (topSand) { topSand.setAttribute('height', String(topH)); topSand.setAttribute('y', String(topY)); }
+                if (bottomSand) { bottomSand.setAttribute('height', String(botH)); bottomSand.setAttribute('y', String(botY)); }
+                if (sandStream) sandStream.style.display = '';
+
                 rem--;
             }
             updateTimer();
