@@ -50,9 +50,9 @@ class EmailService {
         
         // Production Mode (Brevo API)
         $mailData = [
-            'sender' => ['name' => 'نظام مقاييس (MAGAIES)', 'email' => 'info@elsajana.com'],
+            'sender' => ['name' => 'مقاييس', 'email' => 'info@elsajana.com'],
             'to' => [['email' => $email]],
-            'subject' => 'رمز التحقق (OTP) الخاص بك - MAGAIES',
+            'subject' => 'رمز التحقق (OTP) الخاص بك - مقاييس',
             'htmlContent' => $htmlContent
         ];
 
