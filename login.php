@@ -715,7 +715,7 @@
             currentResetChannel = channel;
             
             try {
-                const getBaseUrl = () => {
+                const getResetApiUrl = () => {
                     const origin = window.location.origin;
                     if (origin === 'https://elsajana.com' || origin === 'https://www.elsajana.com') {
                         return 'https://c.elsajana.com/';
@@ -726,23 +726,58 @@
                     return origin + (dir ? dir : '') + "/";
                 };
 
-                const url = getBaseUrl() + 'api_index.php?r=public&a=request-reset-otp';
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        identity: currentResetIdentity,
-                        channel: currentResetChannel
-                    })
-                });
+                let data = null;
+                let success = false;
 
-                const data = await res.json();
-                if (res.ok && data.success) {
+                // 1. Try local/subdomain API first
+                try {
+                    const localUrl = getResetApiUrl() + 'api_index.php?r=public&a=request-reset-otp';
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 6000);
+                    const res = await fetch(localUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ identity: currentResetIdentity, channel: currentResetChannel }),
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                    data = await res.json().catch(() => ({}));
+                    if (res.ok && data.success) success = true;
+                } catch (localErr) {
+                    console.warn('Local reset OTP failed, trying cloud fallback...', localErr);
+                }
+
+                // 2. Cloud fallback if local failed
+                if (!success) {
+                    try {
+                        const cloudUrl = 'https://c.elsajana.com/api_index.php?r=public&a=request-reset-otp';
+                        const cloudController = new AbortController();
+                        const cloudTimeout = setTimeout(() => cloudController.abort(), 8000);
+                        const cloudRes = await fetch(cloudUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ identity: currentResetIdentity, channel: currentResetChannel }),
+                            signal: cloudController.signal
+                        });
+                        clearTimeout(cloudTimeout);
+                        const cloudData = await cloudRes.json().catch(() => ({}));
+                        if (cloudRes.ok && cloudData.success) {
+                            data = cloudData;
+                            success = true;
+                        } else if (cloudData && cloudData.error) {
+                            data = cloudData;
+                        }
+                    } catch (cloudErr) {
+                        console.warn('Cloud reset OTP fallback failed:', cloudErr);
+                    }
+                }
+
+                if (success && data) {
                     currentResetTarget = data.target || '';
                     document.getElementById('reset-otp-desc').innerText = `أرسلنا رمزاً مكوناً من 6 أرقام إلى (${currentResetTarget})`;
                     openResetModal('otp');
                 } else {
-                    alert(data.error || 'حدث خطأ أثناء إرسال الرمز، يرجى التأكد من بيانات الحساب.');
+                    alert((data && data.error) || 'حدث خطأ أثناء إرسال الرمز، يرجى التأكد من بيانات الحساب.');
                 }
             } catch (e) {
                 console.error(e);
@@ -794,7 +829,7 @@
             }
 
             try {
-                const getBaseUrl = () => {
+                const getResetApiUrl = () => {
                     const origin = window.location.origin;
                     if (origin === 'https://elsajana.com' || origin === 'https://www.elsajana.com') {
                         return 'https://c.elsajana.com/';
@@ -805,21 +840,39 @@
                     return origin + (dir ? dir : '') + "/";
                 };
 
-                const url = getBaseUrl() + 'api_index.php?r=public&a=verify-reset-otp';
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        identity: currentResetIdentity,
-                        otp: otp
-                    })
-                });
+                let data = null;
+                let success = false;
+                const payload = { identity: currentResetIdentity, otp: otp };
 
-                const data = await res.json();
-                if (res.ok && data.success) {
+                // 1. Try local API
+                try {
+                    const localUrl = getResetApiUrl() + 'api_index.php?r=public&a=verify-reset-otp';
+                    const ctrl = new AbortController();
+                    const tid = setTimeout(() => ctrl.abort(), 6000);
+                    const res = await fetch(localUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: ctrl.signal });
+                    clearTimeout(tid);
+                    data = await res.json().catch(() => ({}));
+                    if (res.ok && data.success) success = true;
+                } catch (e) { console.warn('Local verify OTP failed, trying cloud...', e); }
+
+                // 2. Cloud fallback
+                if (!success) {
+                    try {
+                        const cloudUrl = 'https://c.elsajana.com/api_index.php?r=public&a=verify-reset-otp';
+                        const ctrl2 = new AbortController();
+                        const tid2 = setTimeout(() => ctrl2.abort(), 8000);
+                        const cRes = await fetch(cloudUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: ctrl2.signal });
+                        clearTimeout(tid2);
+                        const cData = await cRes.json().catch(() => ({}));
+                        if (cRes.ok && cData.success) { data = cData; success = true; }
+                        else if (cData && cData.error) { data = cData; }
+                    } catch (e2) { console.warn('Cloud verify OTP failed:', e2); }
+                }
+
+                if (success) {
                     openResetModal('newpwd');
                 } else {
-                    alert(data.error || 'رمز التحقق غير صحيح أو منتهي الصلاحية');
+                    alert((data && data.error) || 'رمز التحقق غير صحيح أو منتهي الصلاحية');
                 }
             } catch (e) {
                 console.error(e);
@@ -857,7 +910,7 @@
             }
 
             try {
-                const getBaseUrl = () => {
+                const getResetApiUrl = () => {
                     const origin = window.location.origin;
                     if (origin === 'https://elsajana.com' || origin === 'https://www.elsajana.com') {
                         return 'https://c.elsajana.com/';
@@ -868,22 +921,39 @@
                     return origin + (dir ? dir : '') + "/";
                 };
 
-                const url = getBaseUrl() + 'api_index.php?r=public&a=reset-password';
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        identity: currentResetIdentity,
-                        otp: otp,
-                        new_password: pwd
-                    })
-                });
+                let data = null;
+                let success = false;
+                const payload = { identity: currentResetIdentity, otp: otp, new_password: pwd };
 
-                const data = await res.json();
-                if (res.ok && data.success) {
+                // 1. Try local API
+                try {
+                    const localUrl = getResetApiUrl() + 'api_index.php?r=public&a=reset-password';
+                    const ctrl = new AbortController();
+                    const tid = setTimeout(() => ctrl.abort(), 6000);
+                    const res = await fetch(localUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: ctrl.signal });
+                    clearTimeout(tid);
+                    data = await res.json().catch(() => ({}));
+                    if (res.ok && data.success) success = true;
+                } catch (e) { console.warn('Local reset-password failed, trying cloud...', e); }
+
+                // 2. Cloud fallback
+                if (!success) {
+                    try {
+                        const cloudUrl = 'https://c.elsajana.com/api_index.php?r=public&a=reset-password';
+                        const ctrl2 = new AbortController();
+                        const tid2 = setTimeout(() => ctrl2.abort(), 8000);
+                        const cRes = await fetch(cloudUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: ctrl2.signal });
+                        clearTimeout(tid2);
+                        const cData = await cRes.json().catch(() => ({}));
+                        if (cRes.ok && cData.success) { data = cData; success = true; }
+                        else if (cData && cData.error) { data = cData; }
+                    } catch (e2) { console.warn('Cloud reset-password failed:', e2); }
+                }
+
+                if (success) {
                     openResetModal('success');
                 } else {
-                    alert(data.error || 'فشل تحديث كلمة المرور.');
+                    alert((data && data.error) || 'فشل تحديث كلمة المرور.');
                 }
             } catch (e) {
                 console.error(e);
