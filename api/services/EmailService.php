@@ -1,7 +1,18 @@
 <?php
 class EmailService {
-    public static function sendOTP($email, $otp) {
-        $brevo_api_key = getenv('BREVO_API_KEY');
+    public static function sendOTP($email, $otp, $pdo = null) {
+        $brevo_api_key = getenv('BREVO_API_KEY') ?: ($_ENV['BREVO_API_KEY'] ?? ($_SERVER['BREVO_API_KEY'] ?? ''));
+        
+        if (empty($brevo_api_key) && $pdo) {
+            try {
+                $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'brevo_api_key'");
+                $stmt->execute();
+                $dbKey = $stmt->fetchColumn();
+                if (!empty($dbKey)) {
+                    $brevo_api_key = trim($dbKey);
+                }
+            } catch (\Throwable $e) {}
+        }
         
         $htmlContent = '
             <div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; background-color: #f8fafc; padding: 20px;">

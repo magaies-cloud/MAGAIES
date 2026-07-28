@@ -475,7 +475,7 @@ if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
             'message' => 'تم إرسال رمز التحقق (OTP) إلى حساب الواتساب الخاص بك بنجاح!'
         ]);
     } else {
-        $result = EmailService::sendOTP($email, $otp);
+        $result = EmailService::sendOTP($email, $otp, $pdo);
         if ($result['success']) {
             $msg = 'تم إرسال رمز التحقق إلى بريدك الإلكتروني بنجاح!';
             if ($channel === 'whatsapp' && !empty($waError)) {
