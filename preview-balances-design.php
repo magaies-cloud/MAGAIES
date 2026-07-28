@@ -37,8 +37,10 @@
         }
 
         /* Themes */
-        table.excel-table.theme-gold th { background: #b45309 !important; color: #ffffff !important; border-color: #78350f !important; }
+        table.excel-table.theme-gold th { background: #b45309 !important; color: #ffffff !important; border-color: #78350f !important; font-weight: 800 !important; text-shadow: none !important; }
         table.excel-table.theme-gold td { border-color: #fde68a !important; }
+        table.excel-table.theme-gold tbody tr:nth-child(even) { background: #fffde7 !important; }
+        table.excel-table.theme-gold tbody tr:nth-child(odd) { background: #ffffff !important; }
         
         table.excel-table.theme-lightblue th { background: #0284c7 !important; color: #ffffff !important; border-color: #0369a1 !important; }
         table.excel-table.theme-lightblue td { border-color: #bae6fd !important; }

@@ -285,6 +285,22 @@ function getDefaultConfigs() {
     return conf;
 }
 
+function getFactoryPreset1Configs() {
+    let conf = getDefaultConfigs();
+    conf[0] = { ...conf[0], label: "اسم الحساب", visible: true, align: 'center', fontWeight: 'bold', color: '#000000' };
+    conf[1] = { ...conf[1], label: "رقم الهاتف", visible: true, align: 'center', fontWeight: 'bold', color: '#008000' };
+    conf[2] = { ...conf[2], visible: false };
+    conf[3] = { ...conf[3], visible: false };
+    conf[4] = { ...conf[4], label: "عليه (أجنبي)", visible: true, align: 'center', fontWeight: 'bold', color: '#0044cc' };
+    conf[5] = { ...conf[5], label: "له (أجنبي)", visible: true, align: 'center', fontWeight: 'bold', color: '#dc2626' };
+    conf[6] = { ...conf[6], label: "عليه (محلي)", visible: true, align: 'center', fontWeight: 'bold', color: '#0044cc' };
+    conf[7] = { ...conf[7], label: "له (محلي)", visible: true, align: 'center', fontWeight: 'bold', color: '#dc2626' };
+    conf[8] = { ...conf[8], visible: false };
+    conf[9] = { ...conf[9], visible: false };
+    conf[10] = { ...conf[10], visible: false };
+    return conf;
+}
+
 function initPresets() {
     let raw = localStorage.getItem(PRESETS_STORAGE_KEY);
     let list = [];
@@ -434,9 +450,9 @@ function initPresets() {
     const FACTORY_DEFAULTS_SEED = [
         {
             name: '💎 افتراضي 1',
-            configs: getDefaultConfigs(),
-            order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            theme: 'theme-classic-navy',
+            configs: getFactoryPreset1Configs(),
+            order: [0, 6, 7, 4, 5, 1, 2, 3, 8, 9, 10],
+            theme: 'theme-gold',
             font: 'font-ultra',
             paperSize: 'A4',
             orientation: 'landscape',
@@ -491,9 +507,7 @@ function initPresets() {
     ];
 
     for (let i = 0; i < 4; i++) {
-        if (!list[i]) {
-            list[i] = Object.assign({}, FACTORY_DEFAULTS_SEED[i]);
-        }
+        list[i] = Object.assign({}, FACTORY_DEFAULTS_SEED[i]);
     }
 
     // Ensure list has at least 7 slots
