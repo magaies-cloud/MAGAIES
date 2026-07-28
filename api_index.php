@@ -481,7 +481,11 @@ if ($resource === 'public' && $action === 'send-otp' && $method === 'POST') {
             if ($channel === 'whatsapp' && !empty($waError)) {
                 $msg .= ' (فشل الإرسال عبر الواتساب: ' . $waError . ')';
             }
-            jsonResponse(['success' => true, 'message' => $msg]);
+            $resData = ['success' => true, 'message' => $msg];
+            if (isset($result['dev_otp'])) {
+                $resData['dev_otp'] = $result['dev_otp'];
+            }
+            jsonResponse($resData);
         } else {
             jsonResponse(['success' => false, 'error' => $result['error']], 500);
         }
