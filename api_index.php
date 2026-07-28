@@ -511,7 +511,12 @@ if ($resource === 'public' && $action === 'request-reset-otp' && $method === 'PO
         $cleanIdentity = strtolower($identity);
         $cleanPhone = normalizePhoneNumber($identity);
         
-        $stmt = $pdo->prepare("SELECT id, username, email, phone FROM users WHERE LOWER(username) = ? OR LOWER(email) = ? OR phone = ? OR phone = ? LIMIT 1");
+        // Users table has username; email/phone are in tenants table (owner_email, owner_phone)
+        $stmt = $pdo->prepare("SELECT u.id, u.username, t.owner_email AS email, t.owner_phone AS phone 
+            FROM users u 
+            JOIN tenants t ON u.tenant_id = t.id 
+            WHERE LOWER(u.username) = ? OR LOWER(t.owner_email) = ? OR t.owner_phone = ? OR t.owner_phone = ? 
+            LIMIT 1");
         $stmt->execute([$cleanIdentity, $cleanIdentity, $identity, $cleanPhone]);
         $user = $stmt->fetch();
         
@@ -587,7 +592,11 @@ if ($resource === 'public' && $action === 'verify-reset-otp' && $method === 'POS
         $cleanIdentity = strtolower($identity);
         $cleanPhone = normalizePhoneNumber($identity);
         
-        $stmt = $pdo->prepare("SELECT id, email, phone FROM users WHERE LOWER(username) = ? OR LOWER(email) = ? OR phone = ? OR phone = ? LIMIT 1");
+        $stmt = $pdo->prepare("SELECT u.id, t.owner_email AS email, t.owner_phone AS phone 
+            FROM users u 
+            JOIN tenants t ON u.tenant_id = t.id 
+            WHERE LOWER(u.username) = ? OR LOWER(t.owner_email) = ? OR t.owner_phone = ? OR t.owner_phone = ? 
+            LIMIT 1");
         $stmt->execute([$cleanIdentity, $cleanIdentity, $identity, $cleanPhone]);
         $user = $stmt->fetch();
         
@@ -631,7 +640,11 @@ if ($resource === 'public' && $action === 'reset-password' && $method === 'POST'
         $cleanIdentity = strtolower($identity);
         $cleanPhone = normalizePhoneNumber($identity);
         
-        $stmt = $pdo->prepare("SELECT id, email, phone FROM users WHERE LOWER(username) = ? OR LOWER(email) = ? OR phone = ? OR phone = ? LIMIT 1");
+        $stmt = $pdo->prepare("SELECT u.id, t.owner_email AS email, t.owner_phone AS phone 
+            FROM users u 
+            JOIN tenants t ON u.tenant_id = t.id 
+            WHERE LOWER(u.username) = ? OR LOWER(t.owner_email) = ? OR t.owner_phone = ? OR t.owner_phone = ? 
+            LIMIT 1");
         $stmt->execute([$cleanIdentity, $cleanIdentity, $identity, $cleanPhone]);
         $user = $stmt->fetch();
         
