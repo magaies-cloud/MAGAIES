@@ -1867,21 +1867,102 @@ function saveCustomResetState() {
     localStorage.setItem('balances_custom_reset_v1', JSON.stringify(state));
 }
 
-// Long press 8 seconds on reset button: RESTORE factory reset settings
-function restoreFactoryReset() {
+// Long press 8 seconds on reset button: Open modal giving 2 options (User Custom Reset vs System Factory Default)
+function showResetOptionsModal() {
+    let modal = document.getElementById('reset-options-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'reset-options-modal';
+        modal.style.cssText = `
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(12px);
+            z-index: 9999999; display: flex; align-items: center; justify-content: center;
+            padding: 15px; animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        `;
+        document.body.appendChild(modal);
+    }
+
+    const hasUserCustomState = !!localStorage.getItem('balances_custom_reset_v1');
+
+    modal.innerHTML = `
+        <div style="background: linear-gradient(135deg, #0f172a, #1e293b); border: 2px solid #ca8a04; border-radius: 20px; width: 100%; max-width: 520px; box-shadow: 0 25px 60px rgba(0,0,0,0.7); overflow: hidden; padding: 24px; color: #f8fafc; text-align: center; position: relative;">
+            <div style="width: 60px; height: 60px; margin: 0 auto 16px; background: rgba(202, 138, 4, 0.15); border: 2px solid #ca8a04; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 0 20px rgba(202, 138, 4, 0.3);">
+                ⚙️
+            </div>
+            
+            <h3 style="margin: 0 0 10px 0; font-size: 1.3rem; font-weight: 900; background: linear-gradient(to right, #fef08a, #ca8a04); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                إعادة ضبط إعدادات التقرير
+            </h3>
+            
+            <p style="margin: 0 0 22px 0; font-size: 0.95rem; color: #cbd5e1; line-height: 1.6;">
+                اكتمل الضغط المطول (8 ثوانٍ)! يرجى اختيار نوع إعادة الضبط المطلوب تطبيقه على التقرير:
+            </p>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                <!-- Option 1: User's saved custom factory reset -->
+                <button type="button" onclick="window.handleResetOptionChoice('custom')" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.4)); border: 1.5px solid #10b981; color: #ffffff; padding: 14px 18px; border-radius: 14px; font-weight: 800; font-size: 0.95rem; cursor: pointer; text-align: right; display: flex; flex-direction: column; gap: 4px; transition: all 0.2s; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span style="font-size: 1rem; font-weight: 900; color: #6ee7b7;">💾 1. استرجاع ضبط المصنع المخصص للمستخدم</span>
+                        ${hasUserCustomState ? '<span style="background: #10b981; color: #fff; font-size: 0.75rem; padding: 2px 8px; border-radius: 10px;">محفوظ</span>' : '<span style="background: #64748b; color: #fff; font-size: 0.75rem; padding: 2px 8px; border-radius: 10px;">غير محفوظ</span>'}
+                    </div>
+                    <span style="font-size: 0.82rem; color: #e2e8f0; opacity: 0.9; font-weight: 500;">
+                        استرجاع آخر تنسيق قام المستخدم بحفظه كضبط مصنع خاص به (بعد ضغط حفظ موافق 3 ثوانٍ).
+                    </span>
+                </button>
+
+                <!-- Option 2: Original System Factory Reset -->
+                <button type="button" onclick="window.handleResetOptionChoice('factory')" style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(3, 105, 161, 0.4)); border: 1.5px solid #38bdf8; color: #ffffff; padding: 14px 18px; border-radius: 14px; font-weight: 800; font-size: 0.95rem; cursor: pointer; text-align: right; display: flex; flex-direction: column; gap: 4px; transition: all 0.2s; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.25);">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span style="font-size: 1rem; font-weight: 900; color: #7dd3fc;">🏭 2. استرجاع الضبط الافتراضي الأصلي للنظام (المصنع)</span>
+                        <span style="background: #0284c7; color: #fff; font-size: 0.75rem; padding: 2px 8px; border-radius: 10px;">مثبت بالنظام</span>
+                    </div>
+                    <span style="font-size: 0.82rem; color: #e2e8f0; opacity: 0.9; font-weight: 500;">
+                        إعادة التقرير كلياً إلى التصميم الافتراضي الذي تم برمجه ورفعه مع البرنامج.
+                    </span>
+                </button>
+            </div>
+
+            <!-- Cancel Button -->
+            <button type="button" onclick="document.getElementById('reset-options-modal').style.display='none'" style="background: rgba(255, 255, 255, 0.08); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.15); padding: 8px 24px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s;">
+                إلغاء
+            </button>
+        </div>
+    `;
+    modal.style.display = 'flex';
+}
+
+window.handleResetOptionChoice = function(choice) {
+    const modal = document.getElementById('reset-options-modal');
+    if (modal) modal.style.display = 'none';
+
+    if (choice === 'custom') {
+        restoreUserCustomResetState();
+    } else if (choice === 'factory') {
+        restoreToFactoryDefault();
+    }
+};
+
+function restoreUserCustomResetState() {
     const raw = localStorage.getItem('balances_custom_reset_v1');
     if (raw) {
         try {
             const state = JSON.parse(raw);
             applyDesignState(state);
-            showToast('🔄 تم استرجاع ضبط المصنع المحفوظ بنجاح!', 'success');
+            showToast('💾 تم استرجاع ضبط المصنع المخصص للمستخدم بنجاح!', 'success');
         } catch(e) {
             console.error('Error parsing custom reset state', e);
             restoreToFactoryDefault();
         }
     } else {
+        if (typeof showToast === 'function') {
+            showToast('⚠️ لا يوجد ضبط مخصص محفوظ سابقاً، تم استرجاع الضبط الافتراضي الأصلي.', 'warning');
+        }
         restoreToFactoryDefault();
     }
+}
+
+function restoreFactoryReset() {
+    showResetOptionsModal();
 }
 
 function restoreToFactoryDefault() {
@@ -1896,7 +1977,7 @@ function restoreToFactoryDefault() {
         showInfo: true
     };
     applyDesignState(factoryState);
-    showToast('🔄 تم استعادة ضبط المصنع الافتراضي!', 'info');
+    showToast('🏭 تم استرجاع الضبط الافتراضي الأصلي للنظام بنجاح!', 'info');
 }
 
 
