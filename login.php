@@ -472,25 +472,72 @@
             </div>
         </div>
 
-        <!-- STEP 6: ACTIVATION WAITING COUNTDOWN -->
-        <div id="reset-step-activation-wait" class="reset-modal-card" style="display:none;">
-            <div class="reset-modal-header">
-                <span class="reset-modal-icon" style="font-size: 3.2rem;">⏳</span>
-                <h3 style="color: #ef4444;">جاري إعداد وتفعيل شهادة الأمان والحساب</h3>
-                <p style="color: rgba(255,255,255,0.85); font-size: 0.92rem; margin-top: 8px;">
-                    جاري التهيئة التلقائية لشهادة الأمان (SSL) الخاصة بشركتك.
-                </p>
-                <div class="otp-timer-badge" id="activation-live-timer" style="font-size: 1.15rem; padding: 10px 20px; border-radius: 16px; color: #ef4444; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); font-weight: 800; margin: 15px 0; display: inline-block;">
-                    ⏳ المتبقي للجاهزية: 15:00
+        <!-- STEP 6: ACTIVATION WAITING COUNTDOWN (Premium Animated) -->
+        <div id="reset-step-activation-wait" class="reset-modal-card" style="display:none; overflow:hidden; position:relative;">
+            
+            <!-- Animated background glow -->
+            <div style="position:absolute; top:-50%; left:-50%; width:200%; height:200%; background: radial-gradient(circle at 50% 30%, rgba(239, 68, 68, 0.08) 0%, transparent 60%); animation: glowPulse 3s ease-in-out infinite; pointer-events:none;"></div>
+            
+            <div style="position:relative; z-index:2;">
+                <!-- Animated Hourglass Icon -->
+                <div style="margin-bottom: 12px;">
+                    <span style="font-size: 3.5rem; display: inline-block; animation: hourglassFlip 2s ease-in-out infinite; filter: drop-shadow(0 4px 15px rgba(239, 68, 68, 0.4));">⏳</span>
                 </div>
-                <p style="color: rgba(255,255,255,0.7); font-size: 0.85rem; line-height: 1.4;">
-                    يرجى المحاولة مجدداً بعد اكتمال الوقت المتبقي بالكامل لكي تتمكن من تسجيل الدخول بنجاح.
+
+                <!-- Title in one line -->
+                <h3 style="color: #ef4444; margin: 0 0 10px 0; font-size: 1.05rem; font-weight: 800; white-space: nowrap;">جاري إعداد وتفعيل شهادة الأمان والحساب</h3>
+                
+                <!-- Updated description -->
+                <p style="color: rgba(255,255,255,0.8); font-size: 0.88rem; margin: 0 0 18px 0; line-height: 1.5;">
+                    حرصاً على حماية بياناتك وخصوصية حسابك،<br>يتم الآن تفعيل نظام الحماية الآمن لموقعك.
                 </p>
+
+                <!-- Premium Timer Badge -->
+                <div id="activation-live-timer" style="
+                    font-size: 1.2rem; 
+                    padding: 14px 28px; 
+                    border-radius: 18px; 
+                    color: #ef4444; 
+                    background: rgba(239, 68, 68, 0.1); 
+                    border: 1.5px solid rgba(239, 68, 68, 0.35); 
+                    font-weight: 900; 
+                    margin: 0 auto 18px auto; 
+                    display: inline-block;
+                    letter-spacing: 1px;
+                    animation: timerPulse 1.5s ease-in-out infinite;
+                    box-shadow: 0 0 25px rgba(239, 68, 68, 0.15), inset 0 0 15px rgba(239, 68, 68, 0.05);
+                ">
+                    ⏳ المتبقي لجهوزية الدخول: 15:00
+                </div>
+
+                <!-- Bottom note -->
+                <p style="color: rgba(255,255,255,0.55); font-size: 0.8rem; line-height: 1.4; margin: 0 0 5px 0;">
+                    يرجى المحاولة مجدداً بعد اكتمال الوقت المتبقي بالكامل.
+                </p>
+
+                <!-- OK Button -->
+                <div class="reset-modal-actions" style="margin-top: 18px;">
+                    <button type="button" class="btn-reset-submit" style="width:100%; background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4); font-size: 1.05rem;" onclick="closeResetModal()">حسناً</button>
+                </div>
             </div>
 
-            <div class="reset-modal-actions" style="margin-top: 20px;">
-                <button type="button" class="btn-reset-submit" style="width:100%; background: linear-gradient(135deg, #ef4444, #dc2626);" onclick="closeResetModal()">حسناً ✖</button>
-            </div>
+            <style>
+                @keyframes hourglassFlip {
+                    0% { transform: rotate(0deg) scale(1); }
+                    25% { transform: rotate(15deg) scale(1.08); }
+                    50% { transform: rotate(0deg) scale(1); }
+                    75% { transform: rotate(-15deg) scale(1.08); }
+                    100% { transform: rotate(0deg) scale(1); }
+                }
+                @keyframes glowPulse {
+                    0%, 100% { opacity: 0.5; }
+                    50% { opacity: 1; }
+                }
+                @keyframes timerPulse {
+                    0%, 100% { transform: scale(1); box-shadow: 0 0 25px rgba(239, 68, 68, 0.15), inset 0 0 15px rgba(239, 68, 68, 0.05); }
+                    50% { transform: scale(1.02); box-shadow: 0 0 35px rgba(239, 68, 68, 0.25), inset 0 0 20px rgba(239, 68, 68, 0.08); }
+                }
+            </style>
         </div>
 
     </div>
