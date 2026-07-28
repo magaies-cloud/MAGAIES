@@ -15,7 +15,7 @@ class EmailService {
         }
         
         if (empty($brevo_api_key)) {
-            $brevo_api_key = 'xsmtpsib-6c6ea74657925c087e405359219b73505c62ce064a07fe3cf8d95acf0e096c29-bfjcZZIT3IKRgXIv';
+            $brevo_api_key = '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';
         }
         
         $htmlContent = '
@@ -73,7 +73,9 @@ class EmailService {
         if ($httpCode === 201 || $httpCode === 200) {
             return ['success' => true, 'message' => 'تم إرسال الرمز بنجاح إلى بريدك الإلكتروني'];
         } else {
-            return ['success' => false, 'error' => 'فشل إرسال الإيميل، يرجى المحاولة لاحقاً'];
+            $resData = json_decode($response, true);
+            $errMsg = $resData['message'] ?? 'فشل إرسال الإيميل، يرجى المحاولة لاحقاً';
+            return ['success' => false, 'error' => 'Brevo: ' . $errMsg];
         }
     }
 }
