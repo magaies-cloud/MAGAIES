@@ -31,15 +31,6 @@
             if (document.documentElement.classList.contains('has-sidebar')) {
                 document.body.classList.add('has-sidebar');
             }
-
-            // تعيين نسبة التكبير الافتراضية 75% عند أول دخول للبرنامج
-            const savedZoom = localStorage.getItem('magaiees_app_zoom');
-            if (!savedZoom) {
-                document.body.style.zoom = '0.75';
-                localStorage.setItem('magaiees_app_zoom', '0.75');
-            } else {
-                document.body.style.zoom = savedZoom;
-            }
         }
     });
 </script>
