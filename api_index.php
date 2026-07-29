@@ -169,6 +169,8 @@ if ($resource === 'wa-tenant' || $action === 'wa-proxy') {
     
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 6);
     if ($method === 'POST') {
         curl_setopt($ch, CURLOPT_POST, true);
         if (!empty($_FILES)) {
@@ -178,11 +180,10 @@ if ($resource === 'wa-tenant' || $action === 'wa-proxy') {
             }
             curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
         } else {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($input));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, !empty($rawInput) ? $rawInput : json_encode($input ?: []));
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         }
     }
-    curl_setopt($ch, CURLOPT_TIMEOUT, 20);
     
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -375,63 +376,35 @@ function getWhatsAppNodeCommand() {
 }
 
 function isWhatsAppServiceProcessRunning() {
-    if (stristr(PHP_OS, 'WIN')) {
-        $output = [];
-        @exec('wmic process where "name=\'node.exe\' and commandline like \'%whatsapp-service%\'" get processid 2>&1', $output);
-        $output = array_filter(array_map('trim', $output));
-        $pids = [];
-        foreach ($output as $line) {
-            if (is_numeric($line)) {
-                $pids[] = $line;
-            }
-        }
-        return count($pids) > 0;
-    } else {
-        $pid = @shell_exec('pgrep -f "whatsapp-service\.(mjs|js)" 2>/dev/null');
-        if (!empty(trim($pid))) {
-            return true;
-        }
-        $ps = @shell_exec('ps aux | grep "whatsapp-service" | grep -v grep 2>/dev/null');
-        return !empty(trim($ps));
-    }
-}
-
-function startWhatsAppServiceIfNeeded() {
-    // 1. Check OS process list first to see if it's already running in the background
-    if (isWhatsAppServiceProcessRunning()) {
-        return true;
-    }
-
-    $connection = @fsockopen('127.0.0.1', 3001, $errno, $errstr, 1);
+    $connection = @fsockopen('127.0.0.1', 3001, $errno, $errstr, 0.1);
     if (is_resource($connection)) {
         fclose($connection);
         return true;
     }
+    return false;
+}
+
+function startWhatsAppServiceIfNeeded() {
+    if (isWhatsAppServiceProcessRunning()) {
+        return true;
+    }
     
-    // Lock file to prevent concurrent spawns (especially on Linux)
+    // Lock file to prevent concurrent spawns
     $lockFile = __DIR__ . '/whatsapp_starting.lock';
     if (file_exists($lockFile)) {
         $mtime = filemtime($lockFile);
         if (time() - $mtime < 10) {
-            // Service is already being started by another request in the last 10 seconds
-            usleep(1500000); // Wait 1.5s and check again
+            usleep(300000);
             if (isWhatsAppServiceProcessRunning()) {
-                return true;
-            }
-            $connection = @fsockopen('127.0.0.1', 3001, $errno, $errstr, 1);
-            if (is_resource($connection)) {
-                fclose($connection);
                 return true;
             }
             return false;
         }
     }
     
-    // Create lock file
     file_put_contents($lockFile, time());
     
     $cmd = getWhatsAppNodeCommand();
-    // Use .mjs (ESM) file — required for Baileys v7 compatibility
     $serviceFile = file_exists(__DIR__ . '/whatsapp-service.mjs') 
         ? 'whatsapp-service.mjs' 
         : 'whatsapp-service.js';
@@ -442,12 +415,10 @@ function startWhatsAppServiceIfNeeded() {
         shell_exec("$cmd \"" . __DIR__ . "/" . $serviceFile . "\" >> \"" . __DIR__ . "/whatsapp-service.log\" 2>&1 &");
     }
     
-    usleep(2500000);
-    
-    // Remove lock file after starting
+    usleep(800000);
     @unlink($lockFile);
     
-    return false;
+    return isWhatsAppServiceProcessRunning();
 }
 
 function sendWhatsAppOTP($phone, $otp) {

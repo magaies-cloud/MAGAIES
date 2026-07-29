@@ -2486,6 +2486,14 @@ document.addEventListener('DOMContentLoaded', () => {
                    .toLowerCase();
     };
     
+    // --- 5b. Posting Mode Helper ---
+    window.getPostingMode = function() {
+        return localStorage.getItem('erp_posting_mode') || 'auto';
+    };
+    window.setPostingMode = function(mode) {
+        localStorage.setItem('erp_posting_mode', mode);
+    };
+
     // --- 6. Document Immutability UI ---
     window.applyImmutabilityUI = function(status) {
         const isImmutable = (status === 'posted' || status === 'closed' || status === 'archived');

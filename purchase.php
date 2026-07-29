@@ -22,6 +22,43 @@
     <link rel="stylesheet" href="css/sales-invoice.css">
     <link rel="stylesheet" href="css/print-invoice.css">
     <style>
+        /* ═══════════════════════════════════════════════════════
+           ⚡ PERFORMANCE OVERRIDES — eliminates GPU-heavy effects
+           ═══════════════════════════════════════════════════════ */
+        .glass-panel,
+        .neon-glass-panel,
+        .panel,
+        .neo-card,
+        .pro-panel,
+        .purchase-glass-card,
+        .sales-glass-card,
+        .toast,
+        .custom-dropdown-list {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        .glass-panel {
+            background: rgba(12, 10, 20, 0.92) !important;
+        }
+        .panel {
+            background: rgba(14, 12, 22, 0.95) !important;
+        }
+        .pro-panel {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(10, 17, 40, 0.98)) !important;
+        }
+        .purchase-glass-card {
+            background: linear-gradient(135deg, rgba(60, 20, 90, 0.95) 0%, rgba(20, 35, 85, 0.95) 50%, rgba(12, 15, 30, 0.98) 100%) !important;
+        }
+        .toast {
+            background: rgba(15, 23, 42, 0.96) !important;
+        }
+        .toast.success { background: rgba(10, 40, 30, 0.96) !important; }
+        .toast.error { background: rgba(50, 15, 15, 0.96) !important; }
+        .toast.warning { background: rgba(50, 40, 10, 0.96) !important; }
+        .custom-dropdown-list {
+            background: rgba(25, 30, 45, 0.98) !important;
+        }
+
         table.pos-grid th, table.pos-grid td { padding: 4px 4px !important; }
         table.pos-grid .g-input, table.pos-grid .g-select { padding: 4px !important; margin: 0 !important; }
 
@@ -46,16 +83,189 @@
             font-size: 18px;
         }
 
+        /* ═══ PREMIUM FORM CONTROL STYLING ═══ */
+        /* Dark Mode Default Controls */
+        .ctrl-input, .v-input, .system-currency-select {
+            background: rgba(10, 8, 16, 0.85) !important;
+            border: 1px solid rgba(56, 189, 248, 0.25) !important;
+            border-radius: 8px !important;
+            color: #f8fafc !important;
+            padding: 8px 12px !important;
+            font-size: 0.85rem !important;
+            font-weight: 500 !important;
+            outline: none !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .ctrl-input:focus, .v-input:focus, .system-currency-select:focus {
+            background: #020104 !important;
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.4), inset 0 1px 2px rgba(0,0,0,0.6) !important;
+            transform: translateY(-1px);
+        }
+        /* Custom Ledger button inside supplier input wrapper */
+        .ledger-btn-2027 {
+            position: absolute;
+            left: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(99, 102, 241, 0.2)) !important;
+            border: 1px solid rgba(56, 189, 248, 0.4) !important;
+            color: #38bdf8 !important;
+            padding: 4px 10px !important;
+            border-radius: 6px !important;
+            font-size: 0.75rem !important;
+            font-weight: bold !important;
+            cursor: pointer !important;
+            z-index: 10;
+            transition: all 0.25s ease !important;
+        }
+        .ledger-btn-2027:hover {
+            background: linear-gradient(135deg, #38bdf8, #6366f1) !important;
+            color: #fff !important;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.4) !important;
+        }
+        /* Labels formatting */
+        .h-label {
+            font-size: 0.8rem !important;
+            font-weight: 700 !important;
+            color: #94a3b8 !important;
+            transition: color 0.25s ease !important;
+        }
+        .h-form-group:focus-within .h-label {
+            color: #38bdf8 !important;
+            text-shadow: 0 0 8px rgba(56, 189, 248, 0.3) !important;
+        }
+
+        /* ═══ MULTI-COLOR VISUAL CODING & GLASSMORPHISM ═══ */
+        /* Purchase specific top card custom glass style */
+        .purchase-glass-card {
+            background: linear-gradient(135deg, rgba(88, 28, 135, 0.22) 0%, rgba(30, 58, 138, 0.15) 50%, rgba(15, 23, 42, 0.75) 100%) !important;
+            border: 1px solid rgba(139, 92, 246, 0.35) !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(139, 92, 246, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.05) !important;
+            backdrop-filter: blur(25px) !important;
+            -webkit-backdrop-filter: blur(25px) !important;
+        }
+        /* Sales specific top card custom glass style */
+        .sales-glass-card {
+            background: linear-gradient(135deg, rgba(49, 46, 129, 0.25) 0%, rgba(15, 23, 42, 0.75) 100%) !important;
+            border: 1px solid rgba(99, 102, 241, 0.35) !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(99, 102, 241, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.05) !important;
+            backdrop-filter: blur(25px) !important;
+            -webkit-backdrop-filter: blur(25px) !important;
+        }
+
+        /* Group Specific Color Codings (Dark Mode Default) */
+        /* 1. Invoice No (Sky Blue) */
+        .group-invoice .h-label { color: #38bdf8 !important; }
+        .group-invoice .ctrl-input { border-color: rgba(56, 189, 248, 0.25) !important; color: #ffffff !important; }
+        .h-form-group.group-invoice:focus-within .h-label { text-shadow: 0 0 8px rgba(56, 189, 248, 0.4) !important; }
+        .group-invoice .ctrl-input:focus { border-color: #38bdf8 !important; box-shadow: 0 0 12px rgba(56, 189, 248, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
+
+        /* 2. Date (Soft Rose/Red) */
+        .group-date .h-label { color: #f87171 !important; }
+        .group-date .ctrl-input { border-color: rgba(248, 113, 113, 0.25) !important; color: #f87171 !important; }
+        .h-form-group.group-date:focus-within .h-label { text-shadow: 0 0 8px rgba(248, 113, 113, 0.4) !important; }
+        .group-date .ctrl-input:focus { border-color: #f87171 !important; box-shadow: 0 0 12px rgba(248, 113, 113, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
+
+        /* 3. Supplier / Customer (Teal/Emerald Green) */
+        .group-supplier .h-label { color: #34d399 !important; }
+        .group-supplier .ctrl-input { border-color: rgba(52, 211, 153, 0.25) !important; color: #ffffff !important; }
+        .h-form-group.group-supplier:focus-within .h-label { text-shadow: 0 0 8px rgba(52, 211, 153, 0.4) !important; }
+        .group-supplier .ctrl-input:focus { border-color: #34d399 !important; box-shadow: 0 0 12px rgba(52, 211, 153, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
+
+        /* 4. Currency / Exchange Rate (Lavender/Indigo) */
+        .group-currency .h-label { color: #a78bfa !important; }
+        .group-currency .ctrl-input, .group-currency select.system-currency-select { border-color: rgba(167, 139, 250, 0.25) !important; color: #ffffff !important; }
+        .h-form-group.group-currency:focus-within .h-label { text-shadow: 0 0 8px rgba(167, 139, 250, 0.4) !important; }
+        .group-currency .ctrl-input:focus, .group-currency select.system-currency-select:focus { border-color: #a78bfa !important; box-shadow: 0 0 12px rgba(167, 139, 250, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
+
+        /* 5. Warehouse (Warm Orange) */
+        .group-warehouse .h-label { color: #fb923c !important; }
+        .group-warehouse .ctrl-input { border-color: rgba(251, 146, 60, 0.25) !important; color: #ffffff !important; }
+        .h-form-group.group-warehouse:focus-within .h-label { text-shadow: 0 0 8px rgba(251, 146, 60, 0.4) !important; }
+        .group-warehouse .ctrl-input:focus { border-color: #fb923c !important; box-shadow: 0 0 12px rgba(251, 146, 60, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
+
+        /* 6. Cost Center (Lime Green) */
+        .group-cost-center .h-label { color: #a3e635 !important; }
+        .group-cost-center .ctrl-input { border-color: rgba(163, 230, 53, 0.25) !important; color: #ffffff !important; }
+        .h-form-group.group-cost-center:focus-within .h-label { text-shadow: 0 0 8px rgba(163, 230, 53, 0.4) !important; }
+        .group-cost-center .ctrl-input:focus { border-color: #a3e635 !important; box-shadow: 0 0 12px rgba(163, 230, 53, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
+
+        /* 7. Description (Slate/Gray) */
+        .group-description .h-label { color: #94a3b8 !important; }
+        .group-description .ctrl-input { border-color: rgba(148, 163, 184, 0.2) !important; color: #ffffff !important; }
+        .h-form-group.group-description:focus-within .h-label { text-shadow: 0 0 8px rgba(148, 163, 184, 0.4) !important; }
+        .group-description .ctrl-input:focus { border-color: #94a3b8 !important; box-shadow: 0 0 12px rgba(148, 163, 184, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
+
+        /* Light Theme Overrides for Group Titles/Labels */
+        :root.light-theme .group-invoice .h-label { color: #0284c7 !important; }
+        :root.light-theme .group-date .h-label { color: #dc2626 !important; }
+        :root.light-theme .group-supplier .h-label { color: #059669 !important; }
+        :root.light-theme .group-currency .h-label { color: #7c3aed !important; }
+        :root.light-theme .group-warehouse .h-label { color: #ea580c !important; }
+        :root.light-theme .group-cost-center .h-label { color: #65a30d !important; }
+        :root.light-theme .group-description .h-label { color: #475569 !important; }
+
+        :root.light-theme .group-invoice .ctrl-input { border-color: #cbd5e1 !important; color: #0f172a !important; }
+        :root.light-theme .group-date .ctrl-input { border-color: #cbd5e1 !important; color: #dc2626 !important; }
+        :root.light-theme .group-supplier .ctrl-input { border-color: #cbd5e1 !important; color: #0f172a !important; }
+        :root.light-theme .group-currency .ctrl-input, :root.light-theme .group-currency select.system-currency-select { border-color: #cbd5e1 !important; color: #0f172a !important; }
+        :root.light-theme .group-warehouse .ctrl-input { border-color: #cbd5e1 !important; color: #0f172a !important; }
+        :root.light-theme .group-cost-center .ctrl-input { border-color: #cbd5e1 !important; color: #0f172a !important; }
+        :root.light-theme .group-description .ctrl-input { border-color: #cbd5e1 !important; color: #0f172a !important; }
+
+        :root.light-theme .group-invoice .ctrl-input:focus { border-color: #0284c7 !important; box-shadow: 0 0 10px rgba(2, 132, 199, 0.25) !important; }
+        :root.light-theme .group-date .ctrl-input:focus { border-color: #dc2626 !important; box-shadow: 0 0 10px rgba(220, 38, 38, 0.25) !important; }
+        :root.light-theme .group-supplier .ctrl-input:focus { border-color: #059669 !important; box-shadow: 0 0 10px rgba(5, 150, 105, 0.25) !important; }
+        :root.light-theme .group-currency .ctrl-input:focus, :root.light-theme .group-currency select.system-currency-select:focus { border-color: #7c3aed !important; box-shadow: 0 0 10px rgba(124, 58, 237, 0.25) !important; }
+        :root.light-theme .group-warehouse .ctrl-input:focus { border-color: #ea580c !important; box-shadow: 0 0 10px rgba(234, 88, 12, 0.25) !important; }
+        :root.light-theme .group-cost-center .ctrl-input:focus { border-color: #65a30d !important; box-shadow: 0 0 10px rgba(101, 163, 13, 0.25) !important; }
+        :root.light-theme .group-description .ctrl-input:focus { border-color: #475569 !important; box-shadow: 0 0 10px rgba(71, 85, 105, 0.25) !important; }
+
+        /* Light Mode Controls Override */
+        :root.light-theme .ctrl-input, 
+        :root.light-theme .v-input,
+        :root.light-theme .system-currency-select {
+            background: #f1f5f9 !important;
+            border: 1px solid #cbd5e1 !important;
+            color: #0f172a !important;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+        }
+        :root.light-theme .ctrl-input:focus,
+        :root.light-theme .v-input:focus,
+        :root.light-theme .system-currency-select:focus {
+            background: #ffffff !important;
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.2), inset 0 1px 2px rgba(0,0,0,0.05) !important;
+        }
+        :root.light-theme .ledger-btn-2027 {
+            background: rgba(59, 130, 246, 0.08) !important;
+            border-color: rgba(59, 130, 246, 0.3) !important;
+            color: #2563eb !important;
+        }
+        :root.light-theme .ledger-btn-2027:hover {
+            background: #2563eb !important;
+            color: #ffffff !important;
+            border-color: #2563eb !important;
+        }
+        :root.light-theme .h-label {
+            color: #475569 !important;
+        }
+        :root.light-theme .h-form-group:focus-within .h-label {
+            color: #2563eb !important;
+            text-shadow: none !important;
+        }
+
         .ambient-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
             overflow: hidden; z-index: -1; pointer-events: none;
-            background: radial-gradient(circle at 50% 50%, #0c0812 0%, #000000 100%);
+            background: 
+                radial-gradient(circle at 95% 5%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 5% 95%, rgba(236, 72, 153, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 35% 45%, rgba(59, 130, 246, 0.05) 0%, transparent 60%),
+                radial-gradient(circle at 50% 50%, #0c0812 0%, #000000 100%);
         }
-        .orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.15; animation: floatOrb 20s infinite alternate ease-in-out; }
-        .orb-1 { width: 500px; height: 500px; background: var(--primary-accent); top: -5%; right: -5%; }
-        .orb-2 { width: 450px; height: 450px; background: var(--theme-pink); bottom: -10%; left: -5%; animation-delay: -7s; }
-        .orb-3 { width: 600px; height: 600px; background: var(--theme-blue); top: 30%; left: 30%; animation-duration: 25s; opacity: 0.1; }
-        @keyframes floatOrb { 0% { transform: translate(0, 0) scale(1); } 33% { transform: translate(30px, -50px) scale(1.1); } 66% { transform: translate(-30px, 30px) scale(0.9); } 100% { transform: translate(0, 0) scale(1); } }
 
 
 
@@ -1599,11 +1809,7 @@
     <!-- ═══ VELVET NAV ═══ -->
 <div class="dash-main">
     
-    <div class="ambient-bg">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-    </div>
+    <div class="ambient-bg"></div>
     
         <?php $header_theme_class = 'header-theme-purchase'; ?>
         <?php include 'includes/header.php'; ?>
@@ -1652,14 +1858,64 @@
             </button>
         </div>
 
+        <!-- Smart Filter Bar (شريط الفلترة الذكي) -->
+        <div class="neo-card smart-filter-bar" style="margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, rgba(30, 27, 50, 0.7), rgba(15, 12, 30, 0.7)); border: 1px solid rgba(56, 189, 248, 0.15); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); border-radius: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; direction: rtl;">
+                
+                <!-- Right Side: Dual Filters Category + Value -->
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; flex: 1; min-width: 300px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.1rem; filter: drop-shadow(0 0 5px rgba(56,189,248,0.5));">🔍</span>
+                        <span style="font-size: 0.9rem; font-weight: 800; color: #38bdf8; text-shadow: 0 0 8px rgba(56,189,248,0.2);">تصفية الفواتير:</span>
+                    </div>
+                    
+                    <!-- Column 1: Filter Type Select -->
+                    <div style="position: relative; min-width: 160px;">
+                        <select id="hub-filter-type" class="v-input ctrl-input" onchange="updateHubFilterValueUI()" style="width: 100%; cursor: pointer;">
+                            <option value="all">🔍 بحث عام</option>
+                            <option value="invoiceNo">📄 رقم الفاتورة</option>
+                            <option value="status">⏳ الحالة (مرحلة / مسودة)</option>
+                            <option value="warehouse">📦 المخزن (أو قيد الاستلام)</option>
+                            <option value="supplier">👤 المورد</option>
+                            <option value="item">🏷️ الصنف</option>
+                            <option value="date">📅 التاريخ</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Arrow separator -->
+                    <span style="color: rgba(255,255,255,0.2); font-weight: bold; font-size: 1rem;">←</span>
+                    
+                    <!-- Column 2: Dynamic Filter Value -->
+                    <div id="hub-filter-value-container" style="display: flex; align-items: center; min-width: 220px; flex: 0.5;">
+                        <!-- Dynamic Element -->
+                        <input type="text" id="hub-filter-value" class="v-input ctrl-input" placeholder="بحث عام..." style="width: 200px;" oninput="filterHubTransactions()">
+                    </div>
+                </div>
+
+                <!-- Left Side: Time Period Group + Refresh Button -->
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <!-- Time Buttons container -->
+                    <div class="filter-time-group" style="display: flex; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05);">
+                        <button class="hub-time-btn" data-period="all" onclick="setHubTimePeriod('all')" style="background:rgba(56,189,248,0.15); border:none; color:#38bdf8; padding:6px 16px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; transition: all 0.25s; font-family:'Tajawal',sans-serif;">الكل</button>
+                        <button class="hub-time-btn" data-period="today" onclick="setHubTimePeriod('today')" style="background:transparent; border:none; color:#94a3b8; padding:6px 16px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; transition: all 0.25s; font-family:'Tajawal',sans-serif;">اليوم</button>
+                        <button class="hub-time-btn" data-period="week" onclick="setHubTimePeriod('week')" style="background:transparent; border:none; color:#94a3b8; padding:6px 16px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; transition: all 0.25s; font-family:'Tajawal',sans-serif;">آخر 7 أيام</button>
+                        <button class="hub-time-btn" data-period="month" onclick="setHubTimePeriod('month')" style="background:transparent; border:none; color:#94a3b8; padding:6px 16px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; transition: all 0.25s; font-family:'Tajawal',sans-serif;">الشهر الحالي</button>
+                    </div>
+
+                    <!-- Refresh button -->
+                    <button class="btn-action refresh-btn-premium" style="width: auto; height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 16px; font-size: 0.85rem; font-weight: 700; background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(99,102,241,0.15)); border: 1px solid rgba(56,189,248,0.3); color: #38bdf8; border-radius: 8px; cursor: pointer; transition: all 0.25s;" onmouseover="this.style.background='linear-gradient(135deg, #38bdf8, #6366f1)'; this.style.color='#fff';" onmouseout="this.style.background='linear-gradient(135deg, rgba(56,189,248,0.15), rgba(99,102,241,0.15))'; this.style.color='#38bdf8';" onclick="loadHubTransactions()">
+                        <span>🔄 تحديث</span>
+                    </button>
+                </div>
+                
+            </div>
+        </div>
+
         <!-- Recent Transactions Table -->
         <div class="neo-card" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 15px;">
-            <div class="neo-card-title" style="font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;">
+            <div class="neo-card-title" style="font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; margin-bottom: 12px;">
                 <span>📦 عمليات الشراء الأخيرة</span>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="hub-search" class="v-input" placeholder="بحث برقم الفاتورة أو المورد..." style="width: 250px;" oninput="filterHubTransactions()">
-                    <button class="btn-action" style="width: auto; padding: 6px 12px; font-size: 0.8rem; background: rgba(255,255,255,0.05);" onclick="loadHubTransactions()">🔄 تحديث</button>
-                </div>
+                <div id="hub-summary-bar" style="display: flex; gap: 18px; font-size: 0.85rem; color: #94a3b8; font-weight: 600;"></div>
             </div>
             
             <div class="grid-scroll-wrap" style="flex: 1; margin-top: 10px;">
@@ -1670,9 +1926,8 @@
                             <th style="text-align:right;">التاريخ</th>
                             <th style="text-align:right;">المورد</th>
                             <th style="text-align:right;">الصنف</th>
-                            <th style="text-align:center;">الكمية</th>
-                            <th style="text-align:center;">السعر</th>
                             <th style="text-align:center;">الإجمالي</th>
+                            <th style="text-align:center;">الحالة</th>
                             <th style="text-align:center;">المخزن</th>
                             <th style="text-align:center;">الإجراءات</th>
                         </tr>
@@ -1687,6 +1942,9 @@
                     <p>اضغط على أحد الخيارات بالأعلى للبدء.</p>
                 </div>
             </div>
+
+            <!-- Pagination Bar -->
+            <div id="hub-pagination-bar" style="display: none; justify-content: center; align-items: center; gap: 15px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.05);"></div>
         </div>
     </div>
 
@@ -1698,35 +1956,31 @@
         
 <!-- WRAPPER FOR TOP SECTION -->
 <div id="purchase-top-container" class="form-expanded" style="display: flex; gap: 15px; align-items: stretch; transition: all 0.5s ease; width: 100%;">
-<div class="neo-card expanded-form" id="form-fields-card" style="margin-bottom: 0;">
+<div class="neo-card expanded-form purchase-glass-card" id="form-fields-card" style="margin-bottom: 0;">
             <div style="display: flex; flex-direction: column; gap: 15px;">
                 
                 
                 <!-- ROW 0 WRAPPER (Dynamic Split) -->
                 <div style="display: flex; width: 100%; gap: 15px; margin-bottom: 12px; transition: all 0.4s ease;">
-                    
                     <!-- LEFT: Invoice & Date -->
-                    <div 
-                    
-                    id="invoice-info-box" style="flex: 1.3; display: flex; gap: 20px; width: 100%; background: linear-gradient(90deg, rgba(30,58,138,0.2), rgba(15,23,42,0.4)); padding: 6px 15px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); align-items: center; transition: all 0.4s ease;">
+                    <div id="invoice-info-box" style="flex: 1.3; display: flex; gap: 20px; width: 100%; align-items: center; transition: all 0.4s ease; padding: 6px 15px; border-radius: 12px;">
                         
-                        <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:15px; margin:0;; flex-direction: row !important;">
+                        <div class="h-form-group group-invoice" style="flex: 1; display:flex; align-items:center; gap:15px; margin:0; flex-direction: row !important;">
 
-                            <label id="hdr-inv-label" class="h-label" style="margin:0; color:#38bdf8; font-size: 0.9rem; font-weight:bold; white-space:nowrap; text-shadow: 0 0 5px rgba(56,189,248,0.3); transition: all 0.3s ease;">رقم الفاتورة:</label>
-                            <div style="display:flex; align-items:center; justify-content:space-between; flex:1; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-                                <button class="pro-serial-btn" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❮</button>
-                                <span id="inv-number" class="pro-serial-number" style="font-size: 0.9rem; font-family: 'Outfit', sans-serif; font-weight: 900; color: #38bdf8; letter-spacing: 2px; text-shadow: 0 0 10px rgba(56,189,248,0.5); transition: all 0.3s ease;">INV-000001</span>
+                            <label id="hdr-inv-label" class="h-label" style="margin:0; font-size: 0.9rem; font-weight:bold; white-space:nowrap; transition: all 0.3s ease;">رقم الفاتورة:</label>
+                            <div class="pro-serial-container" style="flex:1; display:flex; align-items:center; justify-content:space-between; padding: 3px 8px; border-radius: 8px;">
+                                <button class="pro-serial-btn" type="button" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❮</button>
+                                <span id="inv-number" class="pro-serial-number" style="font-size: 0.9rem; font-family: 'Outfit', sans-serif; font-weight: 900; letter-spacing: 2px; transition: all 0.3s ease;">INV-000001</span>
                                 <input type="hidden" id="hdr-inv-no">
-                                <button class="pro-serial-btn" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❯</button>
+                                <button class="pro-serial-btn" type="button" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❯</button>
                             </div>
                         </div>
 
                         <div style="width: 2px; height: 40px; background: rgba(255,255,255,0.1); margin: 0 10px;"></div>
 
-                        <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:15px; margin:0;; flex-direction: row !important;">
-
-                            <label class="h-label" id="hdr-date-label" style="margin:0; color:#ef4444; font-size: 0.9rem; font-weight:bold; white-space:nowrap; text-shadow: 0 0 5px rgba(239,68,68,0.3); transition: all 0.3s ease;">التاريخ:</label>
-                            <input type="date" class="v-input ctrl-input" id="hdr-date" style="flex:1; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; color:#ef4444; padding:4px 8px; font-family:'Outfit',sans-serif; font-weight:bold; font-size:0.95rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); transition: all 0.3s ease;">
+                        <div class="h-form-group group-date" style="flex: 1; display:flex; align-items:center; gap:15px; margin:0; flex-direction: row !important;">
+                            <label class="h-label" id="hdr-date-label" style="margin:0; font-size: 0.9rem; font-weight:bold; white-space:nowrap; transition: all 0.3s ease;">التاريخ:</label>
+                            <input type="date" class="v-input ctrl-input" id="hdr-date" style="flex:1; text-align: center; padding:4px 8px; font-family:'Outfit',sans-serif; font-weight:bold; font-size:0.95rem; transition: all 0.3s ease;">
                         </div>
                     </div>
                     
@@ -1734,66 +1988,69 @@
                     <div id="customer-financial-card" class="fin-strip-inline" style="flex: 0; width: 0; opacity: 0; overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); display: flex;">
                         <div style="width: 100%; background: linear-gradient(90deg, rgba(15,23,42,0.4), rgba(30,58,138,0.2)); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 4px 10px; display: flex; align-items: center; justify-content: space-around; gap: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); min-width: 500px;">
                             <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 1.2rem;">📊</span>
-                <div style="display:flex; flex-direction:column;">
-                    <span style="font-weight: 800; color:#fff; font-size:0.8rem;">الحالة المالية للمورد</span>
-                    <span id="fin-status-msg" style="color:var(--text-dim); font-size:0.65rem;">لا يوجد</span>
-                </div>
-            </div>
-            
-            <div style="display:flex; gap: 15px; align-items: center;">
-                <div id="fin-wrap-ledger" style="display:flex; flex-direction:column; align-items:center;">
-                    <span style="font-size:0.6rem; color:#94a3b8; font-weight:700;">الرصيد الدفتري</span>
-                    <span id="fin-ledger" style="font-weight:800; color:#fff; font-size:0.8rem;">0</span>
-                </div>
-                <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
-                
-                <div id="fin-wrap-debt" style="display:flex; flex-direction:column; align-items:center;">
-                    <span style="font-size:0.6rem; color:#ef4444; font-weight:700;">المديونية علينا</span>
-                    <span id="fin-total-debt" style="font-weight:800; color:#ef4444; font-size:0.8rem;">0</span>
-                </div>
-                <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
-                
-                <div id="fin-wrap-checks" style="display:flex; flex-direction:column; align-items:center;">
-                    <span style="font-size:0.6rem; color:#f59e0b; font-weight:700;">شيكات مدفوعة</span>
-                    <span id="fin-checks" style="font-weight:800; color:#f59e0b; font-size:0.8rem;">0</span>
-                </div>
-                <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
-                
-                <div id="fin-wrap-limit" style="display:flex; flex-direction:column; align-items:center;">
-                    <span style="font-size:0.6rem; color:#38bdf8; font-weight:700;">حد المورد</span>
-                    <span id="fin-credit-limit" style="font-weight:800; color:#38bdf8; font-size:0.8rem;">0</span>
-                </div>
-                <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
-                
-                <div style="display:flex; flex-direction:column; align-items:center; background: rgba(16,185,129,0.1); padding: 3px 10px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.2);">
-                    <span style="font-size:0.6rem; color:#34d399; font-weight:800;">✨ المتاح</span>
-                    <span id="fin-remaining" style="font-weight:900; color:#34d399; font-size:0.9rem;">0</span>
-                </div>
-            </div>
+                                <span style="font-size: 1.2rem;">📊</span>
+                                <div style="display:flex; flex-direction:column;">
+                                    <span style="font-weight: 800; color:#fff; font-size:0.8rem;">الحالة المالية للمورد</span>
+                                    <span id="fin-status-msg" style="color:var(--text-dim); font-size:0.65rem;">لا يوجد</span>
+                                </div>
+                            </div>
+                            
+                            <div style="display:flex; gap: 15px; align-items: center;">
+                                <div id="fin-wrap-ledger" style="display:flex; flex-direction:column; align-items:center;">
+                                    <span style="font-size:0.6rem; color:#94a3b8; font-weight:700;">الرصيد الدفتري</span>
+                                    <span id="fin-ledger" style="font-weight:800; color:#fff; font-size:0.8rem;">0</span>
+                                </div>
+                                <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
+                                
+                                <div id="fin-wrap-debt" style="display:flex; flex-direction:column; align-items:center;">
+                                    <span style="font-size:0.6rem; color:#ef4444; font-weight:700;">المديونية علينا</span>
+                                    <span id="fin-total-debt" style="font-weight:800; color:#ef4444; font-size:0.8rem;">0</span>
+                                </div>
+                                <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
+                                
+                                <div id="fin-wrap-checks" style="display:flex; flex-direction:column; align-items:center;">
+                                    <span style="font-size:0.6rem; color:#f59e0b; font-weight:700;">شيكات مدفوعة</span>
+                                    <span id="fin-checks" style="font-weight:800; color:#f59e0b; font-size:0.8rem;">0</span>
+                                </div>
+                                <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
+                                
+                                <div id="fin-wrap-limit" style="display:flex; flex-direction:column; align-items:center;">
+                                    <span style="font-size:0.6rem; color:#38bdf8; font-weight:700;">حد المورد</span>
+                                    <span id="fin-credit-limit" style="font-weight:800; color:#38bdf8; font-size:0.8rem;">0</span>
+                                </div>
+                                <div style="width:1px; height:15px; background:rgba(255,255,255,0.1);"></div>
+                                
+                                <div style="display:flex; flex-direction:column; align-items:center; background: rgba(16,185,129,0.1); padding: 3px 10px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.2);">
+                                    <span style="font-size:0.6rem; color:#34d399; font-weight:800;">✨ المتاح</span>
+                                    <span id="fin-remaining" style="font-weight:900; color:#34d399; font-size:0.9rem;">0</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
                 </div>
-                <!-- Row 1: Supplier, Currency -->
-                <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 5px;">
-                    <div class="h-form-group" style="flex: 3; min-width: 250px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
-                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">المورد</label>
+
+                <!-- Unified Row 1: Supplier, Exchange Rate, Warehouse, Cost Center -->
+                <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 5px; width: 100%; align-items: center;">
+                    <!-- 1. Supplier -->
+                    <div class="h-form-group group-supplier" style="flex: 2.2; min-width: 260px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
+                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">👤 المورد</label>
                           <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1;">
-                                    <div class="custom-dropdown" style="flex:1;">
-                                        <div class="custom-dropdown-input-wrap" style="position: relative;">
-                                            <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم المورد..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15); padding-left: 60px !important;" autocomplete="one-time-code">
-                                            <button type="button" id="hdr-customer-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('hdr-customer').value)" class="ledger-btn-2027" title="دفتر الأستاذ العام">أستاذ</button>
-                                            <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange()">
-                                            <div class="custom-dropdown-list" id="customer-dropdown-list">
-                                                <!-- Populated via JS -->
-                                            </div>
-                                        </div>
-                                    </div>
+                              <div class="custom-dropdown" style="flex:1;">
+                                  <div class="custom-dropdown-input-wrap" style="position: relative;">
+                                      <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم المورد..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; padding-left: 60px !important;" autocomplete="one-time-code">
+                                      <button type="button" id="hdr-customer-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('hdr-customer').value)" class="ledger-btn-2027" title="دفتر الأستاذ العام">أستاذ</button>
+                                      <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange()">
+                                      <div class="custom-dropdown-list" id="customer-dropdown-list">
+                                          <!-- Populated via JS -->
+                                      </div>
+                                  </div>
+                              </div>
                           </div>
                     </div>
-                    <div class="h-form-group" style="flex: 2; min-width: 200px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
-                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">سعر الصرف</label>
+                    
+                    <!-- 2. Currency & Exchange Rate -->
+                    <div class="h-form-group group-currency" style="flex: 1.8; min-width: 220px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
+                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 80px;">💱 سعر الصرف</label>
                           <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 5px; flex: 1;">
                             <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="handleCurrencyChange(this.value)" style="flex: 1;">
                                 <option value="SDG">🇸🇩 جنيه</option>
@@ -1802,23 +2059,23 @@
                                 <option value="AED">🇦🇪 درهم</option>
                                 <option value="EGP">🇪🇬 مصري</option>
                             </select>
-                            <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" disabled oninput="recalcAll()" style="flex: 1.5; text-align: center;" placeholder="الصرف" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
+                            <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" disabled oninput="recalcAll()" style="flex: 1.2; text-align: center;" placeholder="الصرف" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
                         </div>
                     </div>
-                </div>
 
-                <!-- Row 2: Warehouse, Cost Center -->
-                <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 5px;">
-                    <div class="h-form-group" style="flex: 1; min-width: 150px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
-                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">المخزن</label>
-                          <div class="h-input-wrapper" style="flex: 1; flex-direction: row !important; display: flex !important; align-items: center !important;">
-                            <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange()"></select>
-                        </div>
+                    <!-- 3. Warehouse -->
+                    <div class="h-form-group group-warehouse" style="flex: 1.5; min-width: 180px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
+                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">📦 المخزن</label>
+                          <div class="h-input-wrapper" style="display: flex; flex-direction: row !important; display: flex !important; align-items: center !important; flex: 1;">
+                            <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange()" style="width: 100%;"></select>
+                          </div>
                     </div>
-                    <div class="h-form-group" style="flex: 1; min-width: 150px; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
-                        <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 80px;">مركز الكلفة</label>
-                        <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
-                            <select class="v-input ctrl-input" id="hdr-cost-center">
+
+                    <!-- 4. Cost Center -->
+                    <div class="h-form-group group-cost-center" style="flex: 1.5; min-width: 180px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
+                        <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 80px;">🏷️ مركز الكلفة</label>
+                        <div class="h-input-wrapper" style="display: flex; flex-direction: row !important; display: flex !important; align-items: center !important; flex: 1;">
+                            <select class="v-input ctrl-input" id="hdr-cost-center" style="width: 100%;">
                                 <option value="">-- بدون مركز --</option>
                                 <option value="C1">المركز الرئيسي</option>
                                 <option value="C2">الفرع الأول</option>
@@ -1828,16 +2085,16 @@
                     </div>
                 </div>
 
-                <!-- Row 4: Description -->
-                <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 5px;">
-                    <div class="h-form-group" style="flex: 1; min-width: 100%; display: flex; align-items: center; gap: 10px;; flex-direction: row !important;">
-                        <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">البيان</label>
-                        <div class="h-input-wrapper" style="flex: 1;; flex-direction: row !important; display: flex !important; align-items: center !important;">
-                            <input type="text" class="v-input ctrl-input" id="hdr-description" placeholder="ملاحظات، أرقام مرجعية...">
+                <!-- Row 2: Description -->
+                <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 5px; width: 100%;">
+                    <div class="h-form-group group-description" style="flex: 1; display:flex; align-items:center; gap:10px; flex-direction: row !important;">
+                        <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">📝 البيان</label>
+                        <div class="h-input-wrapper" style="display: flex; flex-direction: row !important; display: flex !important; align-items: center !important; flex: 1;">
+                            <input type="text" class="v-input ctrl-input" id="hdr-description" placeholder="ملاحظات، أرقام مرجعية..." style="width: 100%;">
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Due Date (hidden normally) -->
                 <div class="h-form-group" id="due-date-group" style="display:none; border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.05);; flex-direction: row !important;">
                     <label class="h-label" style="color: #f59e0b;">الاستحقاق</label>
@@ -1949,10 +2206,10 @@
         </div>
 
             <!-- ══ FULL-WIDTH: تفاصيل الدفع ══ -->
-            <div class="panel" id="payment-panel" style="display: none; z-index: 40; margin-top: 15px; padding: 0 !important; background: rgba(15, 23, 42, 0.22) !important; border: 1px solid rgba(234, 179, 8, 0.22) !important; backdrop-filter: blur(18px) saturate(130%) !important; -webkit-backdrop-filter: blur(18px) saturate(130%) !important;">
+            <div class="panel" id="payment-panel" style="display: none; z-index: 40; margin-top: 15px; padding: 0 !important; background: rgba(15, 23, 42, 0.95) !important; border: 1px solid rgba(234, 179, 8, 0.22) !important;">
                 <style>
                     #payment-panel {
-                        animation: glassPulseGold 3.5s infinite ease-in-out;
+                        animation: none;
                         transition: all 0.4s ease;
                     }
                     @keyframes glassPulseGold {
@@ -2110,6 +2367,9 @@
                 </div>
             </div>
 
+        <!-- Posting Status Bar (visible only in manual posting mode) -->
+        <div id="posting-status-bar" style="display: none; align-items: center; justify-content: space-between; padding: 12px 20px; border-radius: 12px; border: 1px solid rgba(251,191,36,0.3); margin-top: 15px; direction: rtl; font-family: 'Tajawal', sans-serif; transition: all 0.3s ease;"></div>
+
         <div class="items-toolbar" style="display: flex; align-items: center; justify-content: center; padding: 15px; border-radius: 12px; background: rgba(18, 15, 25, 0.8); border: 1px solid rgba(255,255,255,0.05); margin-top: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
             
             <div class="toolbar-actions" style="display: flex; gap: 12px; width: 100%; align-items: center;">
@@ -2117,17 +2377,41 @@
                 <!-- Preview Button: Teal Gradient (distinct from Sales blue) -->
                 <button type="button" class="btn-action btn-preview" id="btn-preview-invoice" style="flex: 1; height: 45px; background: linear-gradient(135deg, #0d9488, #0f766e); border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(13, 148, 136, 0.3); display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='linear-gradient(135deg, #0f766e, #115e59)'; this.style.boxShadow='0 4px 15px rgba(13, 148, 136, 0.5)';" onmouseout="this.style.background='linear-gradient(135deg, #0d9488, #0f766e)'; this.style.boxShadow='0 2px 10px rgba(13, 148, 136, 0.3)';" onclick="printCurrentInvoice()">👁️ معاينة الفاتورة</button>
                 
-                <!-- Email Button: Solid Orange -->
-                <button type="button" class="btn-action btn-email" id="btn-email-invoice" style="flex: 1.2; height: 45px; background: #f59e0b; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.background='#d97706'; this.style.boxShadow='0 4px 15px rgba(245, 158, 11, 0.5)';" onmouseout="this.style.background='#f59e0b'; this.style.boxShadow='0 2px 10px rgba(245, 158, 11, 0.3)';" onclick="sendCurrentInvoiceEmail()">
-                    <span style="font-size: 1.2rem;">📧</span>
-                    <span>إيميل</span>
-                </button>
-                
-                <!-- WhatsApp Button: Solid Green -->
-                <button type="button" class="btn-action btn-whatsapp" id="btn-whatsapp-invoice" style="flex: 1.2; height: 45px; background: #25d366; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(37, 211, 102, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.background='#1da851'; this.style.boxShadow='0 4px 15px rgba(37, 211, 102, 0.5)';" onmouseout="this.style.background='#25d366'; this.style.boxShadow='0 2px 10px rgba(37, 211, 102, 0.3)';" onclick="sendCurrentInvoiceWA()">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                    <span>واتساب</span>
-                </button>
+                <!-- Share Button: Professional with dropdown -->
+                <div style="position: relative; flex: 1.2;" id="share-btn-wrapper">
+                    <button type="button" class="btn-action btn-share" id="btn-share-invoice" style="width: 100%; height: 45px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.background='linear-gradient(135deg, #7c3aed, #5b21b6)'; this.style.boxShadow='0 4px 18px rgba(139, 92, 246, 0.5)'; this.style.transform='translateY(-1px)';" onmouseout="this.style.background='linear-gradient(135deg, #8b5cf6, #6d28d9)'; this.style.boxShadow='0 2px 10px rgba(139, 92, 246, 0.3)'; this.style.transform='none';" onclick="toggleShareMenu(event)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                        <span>مشاركة</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.7;"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <!-- Share Popup Menu -->
+                    <div id="share-popup-menu" style="display: none; position: absolute; bottom: 55px; left: 50%; transform: translateX(-50%) scale(0.9); opacity: 0; min-width: 220px; background: linear-gradient(160deg, rgba(30,27,50,0.98), rgba(15,12,30,0.98)); border: 1px solid rgba(139, 92, 246, 0.35); border-radius: 16px; padding: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.5), 0 0 30px rgba(139, 92, 246, 0.15); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 9999; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);">
+                        <!-- Arrow -->
+                        <div style="position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 14px; height: 14px; background: rgba(15,12,30,0.98); border-right: 1px solid rgba(139, 92, 246, 0.35); border-bottom: 1px solid rgba(139, 92, 246, 0.35);"></div>
+                        <!-- WhatsApp Option -->
+                        <button type="button" onclick="closeShareMenu(); sendCurrentInvoiceWA();" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: transparent; border: none; border-radius: 12px; color: #e2e8f0; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; direction: rtl;" onmouseover="this.style.background='rgba(37, 211, 102, 0.12)'; this.style.color='#25d366';" onmouseout="this.style.background='transparent'; this.style.color='#e2e8f0';">
+                            <span style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #25d366, #128C7E); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 3px 10px rgba(37, 211, 102, 0.3);">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                            </span>
+                            <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
+                                <span>إرسال عبر واتساب</span>
+                                <span style="font-size: 0.7rem; color: #64748b; font-weight: 400;">إرسال PDF مع رسالة</span>
+                            </div>
+                        </button>
+                        <!-- Divider -->
+                        <div style="height: 1px; background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.2), transparent); margin: 4px 12px;"></div>
+                        <!-- Email Option -->
+                        <button type="button" onclick="closeShareMenu(); sendCurrentInvoiceEmail();" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: transparent; border: none; border-radius: 12px; color: #e2e8f0; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; direction: rtl;" onmouseover="this.style.background='rgba(245, 158, 11, 0.12)'; this.style.color='#f59e0b';" onmouseout="this.style.background='transparent'; this.style.color='#e2e8f0';">
+                            <span style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            </span>
+                            <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
+                                <span>إرسال عبر الإيميل</span>
+                                <span style="font-size: 0.7rem; color: #64748b; font-weight: 400;">فتح تطبيق البريد</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
                 
                 <!-- Submit Button: Solid Blue Gradient -->
                 <span style="display:none;" id="footer-grand"></span>
@@ -2152,7 +2436,7 @@
 </div>
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/html2pdf.bundle.min.js"></script>
-    <script defer src="js/whatsapp-integration.js"></script>
+    <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1.0.0'; ?>"></script>
     <script defer src="js/print-engine.js"></script>
     
@@ -2341,116 +2625,289 @@
             window.dispatchEvent(new Event('resize'));
         }
 
+        // ═══════════════════════════════════════
+        // ═══════════════════════════════════════
+        //  HUB TRANSACTIONS — Enhanced with Pagination + Dynamic Dual Filters
+        // ═══════════════════════════════════════
+        let hubCurrentPage = 1;
+        const HUB_PAGE_SIZE = 50;
+        let hubFilteredInvoices = [];
+        let hubTimePeriod = 'all';
+
+        function updateHubFilterValueUI() {
+            const filterType = document.getElementById('hub-filter-type').value;
+            const container = document.getElementById('hub-filter-value-container');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            const elementWidth = '220px';
+
+            if (filterType === 'all' || filterType === 'invoiceNo') {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.id = 'hub-filter-value';
+                input.className = 'v-input ctrl-input';
+                input.style.width = elementWidth;
+                input.placeholder = filterType === 'all' ? 'بحث عام...' : 'أدخل رقم الفاتورة...';
+                input.oninput = filterHubTransactions;
+                container.appendChild(input);
+            } else if (filterType === 'warehouse') {
+                const select = document.createElement('select');
+                select.id = 'hub-filter-value';
+                select.className = 'v-input ctrl-input';
+                select.style.width = elementWidth;
+                select.style.cursor = 'pointer';
+                select.onchange = filterHubTransactions;
+
+                let warehouses = [];
+                try { warehouses = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || []; } catch(e) {}
+                
+                let html = '<option value="">كل المخازن</option>';
+                html += '<option value="PENDING_RECEIPT">⏳ قيد الاستلام</option>';
+                warehouses.forEach(w => {
+                    html += `<option value="${w.id}">📦 ${w.name}</option>`;
+                });
+                select.innerHTML = html;
+                container.appendChild(select);
+            } else if (filterType === 'status') {
+                const select = document.createElement('select');
+                select.id = 'hub-filter-value';
+                select.className = 'v-input ctrl-input';
+                select.style.width = elementWidth;
+                select.style.cursor = 'pointer';
+                select.onchange = filterHubTransactions;
+
+                select.innerHTML = `
+                    <option value="">كل الحالات</option>
+                    <option value="posted">🔒 مرحلة</option>
+                    <option value="confirmed">⏳ مؤكدة</option>
+                    <option value="draft">📝 مسودة</option>
+                `;
+                container.appendChild(select);
+            } else if (filterType === 'supplier') {
+                const select = document.createElement('select');
+                select.id = 'hub-filter-value';
+                select.className = 'v-input ctrl-input';
+                select.style.width = elementWidth;
+                select.style.cursor = 'pointer';
+                select.onchange = filterHubTransactions;
+
+                let suppliers = [];
+                try { suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []; } catch(e) {}
+                
+                let html = '<option value="">كل الموردين</option>';
+                suppliers.forEach(s => {
+                    if (!s.deleted) html += `<option value="${s.id}">👤 ${s.name}</option>`;
+                });
+                select.innerHTML = html;
+                container.appendChild(select);
+            } else if (filterType === 'item') {
+                const select = document.createElement('select');
+                select.id = 'hub-filter-value';
+                select.className = 'v-input ctrl-input';
+                select.style.width = elementWidth;
+                select.style.cursor = 'pointer';
+                select.onchange = filterHubTransactions;
+
+                let items = [];
+                try { items = JSON.parse(localStorage.getItem('erp_items_v1')) || []; } catch(e) {}
+                
+                let html = '<option value="">كل الأصناف</option>';
+                items.forEach(i => {
+                    if (!i.deleted) html += `<option value="${i.id}">🏷️ ${i.name}</option>`;
+                });
+                select.innerHTML = html;
+                container.appendChild(select);
+            } else if (filterType === 'date') {
+                const input = document.createElement('input');
+                input.type = 'date';
+                input.id = 'hub-filter-value';
+                input.className = 'v-input ctrl-input';
+                input.style.width = elementWidth;
+                input.onchange = filterHubTransactions;
+                container.appendChild(input);
+            }
+        }
+
         function loadHubTransactions() {
             const tbody = document.getElementById('hub-transactions-body');
             const emptyState = document.getElementById('hub-empty-state');
             
+            window._hubPurchCache = window._hubPurchCache || { raw: null, obj: [] };
             const savedData = localStorage.getItem('erp_purchase_invoices_v1');
-            let invoices = [];
-            if (savedData) {
+            let invoices = window._hubPurchCache.obj;
+            if (savedData !== null && window._hubPurchCache.raw !== savedData) {
                 try { 
-                    invoices = JSON.parse(savedData); 
-                    if (Array.isArray(invoices)) {
-                        invoices = invoices.filter(inv => !inv.deleted && !inv.isGRN && !inv.isReturn);
+                    let parsed = JSON.parse(savedData) || []; 
+                    if (Array.isArray(parsed)) {
+                        invoices = parsed.filter(inv => !inv.deleted && !inv.isGRN && !inv.isReturn);
+                    } else {
+                        invoices = [];
                     }
-                } catch(e) {}
+                } catch(e) { invoices = []; }
+                window._hubPurchCache.raw = savedData;
+                window._hubPurchCache.obj = invoices;
             }
             
+            invoices = [...invoices];
+            
+            // Apply time period filter
+            if (hubTimePeriod !== 'all') {
+                const now = new Date();
+                const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                invoices = invoices.filter(inv => {
+                    const invDate = new Date(inv.timestamp || inv.date);
+                    if (isNaN(invDate.getTime())) return false;
+                    if (hubTimePeriod === 'today') return invDate >= todayStart;
+                    if (hubTimePeriod === 'week') {
+                        const weekStart = new Date(todayStart);
+                        weekStart.setDate(weekStart.getDate() - 7);
+                        return invDate >= weekStart;
+                    }
+                    if (hubTimePeriod === 'month') {
+                        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                        return invDate >= monthStart;
+                    }
+                    return true;
+                });
+            }
+
+            // Load lookup data
+            window._hubSuppCache = window._hubSuppCache || { raw: null, obj: [] };
+            let suppliers = window._hubSuppCache.obj;
+            let rawSupps = localStorage.getItem('erp_suppliers_v1');
+            if (rawSupps !== null && window._hubSuppCache.raw !== rawSupps) {
+                try { suppliers = typeof rawSupps === 'string' ? JSON.parse(rawSupps) : rawSupps; } catch(e) { suppliers = []; }
+                window._hubSuppCache.raw = rawSupps;
+                window._hubSuppCache.obj = suppliers || [];
+            }
+            function getSupplierName(id) { const s = suppliers.find(x => String(x.id) === String(id)); return s ? s.name : id; }
+
+            window._hubWhCache = window._hubWhCache || { raw: null, obj: [] };
+            let warehouses = window._hubWhCache.obj;
+            let rawWh = localStorage.getItem('erp_warehouses_v1');
+            if (rawWh !== null && window._hubWhCache.raw !== rawWh) {
+                try { warehouses = typeof rawWh === 'string' ? JSON.parse(rawWh) : rawWh; } catch(e) { warehouses = []; }
+                window._hubWhCache.raw = rawWh;
+                window._hubWhCache.obj = warehouses || [];
+            }
+            function getWarehouseName(id) {
+                if (id === 'PENDING_RECEIPT' || !id) return '<span style="color: #f97316; font-weight: 700;">قيد الاستلام</span>';
+                const w = warehouses.find(x => x.id === id); return w ? w.name : id;
+            }
+
+            let items = [];
+            try { let rawItems = localStorage.getItem('erp_items_v1'); if (typeof rawItems === 'string') items = JSON.parse(rawItems) || []; } catch(e) {}
+            function getItemName(id) { const item = items.find(x => x.id === id); return item ? item.name : id || 'صنف غير معروف'; }
+
             if (!invoices || invoices.length === 0) {
                 tbody.innerHTML = '';
                 emptyState.style.display = 'flex';
+                updateHubSummary([], 0, 0);
+                updateHubPagination(0);
                 return;
             }
-            
-            // Load suppliers to map IDs to names
-            let suppliers = [];
-            try {
-                let rawSupps = localStorage.getItem('erp_suppliers_v1');
-                if (typeof rawSupps === 'string') suppliers = JSON.parse(rawSupps) || [];
-                else if (rawSupps && typeof rawSupps === 'object') suppliers = rawSupps;
-            } catch(e) {}
 
-            function getSupplierName(id) {
-                const s = suppliers.find(x => String(x.id) === String(id));
-                return s ? s.name : id;
-            }
+            // Apply search/filter options
+            const filterType = document.getElementById('hub-filter-type')?.value || 'all';
+            const filterVal = document.getElementById('hub-filter-value')?.value || '';
 
-            // Load warehouses to map IDs to names
-            let warehouses = [];
-            try {
-                let rawWh = localStorage.getItem('erp_warehouses_v1');
-                if (typeof rawWh === 'string') warehouses = JSON.parse(rawWh) || [];
-                else if (rawWh && typeof rawWh === 'object') warehouses = rawWh;
-            } catch(e) {}
-
-            function getWarehouseName(id) {
-                if (id === 'PENDING_RECEIPT' || !id) {
-                    return '<span style="color: #f97316; font-weight: 700;">قيد الاستلام</span>';
+            if (filterVal) {
+                if (filterType === 'all') {
+                    const query = filterVal.toLowerCase();
+                    invoices = invoices.filter(inv => {
+                        const text = [inv.invoiceNo, inv.supplierName, getSupplierName(inv.customer || inv.customerId), inv.date].join(' ').toLowerCase();
+                        return text.includes(query);
+                    });
+                } else if (filterType === 'invoiceNo') {
+                    const query = filterVal.toLowerCase();
+                    invoices = invoices.filter(inv => String(inv.invoiceNo).toLowerCase().includes(query));
+                } else if (filterType === 'status') {
+                    invoices = invoices.filter(inv => (inv.status || 'confirmed') === filterVal);
+                } else if (filterType === 'warehouse') {
+                    invoices = invoices.filter(inv => {
+                        if (filterVal === 'PENDING_RECEIPT') {
+                            return !inv.warehouse || inv.warehouse === 'PENDING_RECEIPT';
+                        }
+                        return inv.warehouse === filterVal;
+                    });
+                } else if (filterType === 'supplier') {
+                    invoices = invoices.filter(inv => String(inv.customer || inv.customerId || inv.supplierId) === filterVal);
+                } else if (filterType === 'item') {
+                    invoices = invoices.filter(inv => {
+                        const itemsList = inv.items || [];
+                        return itemsList.some(row => String(row.itemId) === filterVal);
+                    });
+                } else if (filterType === 'date') {
+                    invoices = invoices.filter(inv => {
+                        const invDate = inv.date || '';
+                        return invDate.includes(filterVal);
+                    });
                 }
-                const w = warehouses.find(x => x.id === id);
-                return w ? w.name : id;
-            }
-
-            // Load items to map IDs to names
-            let items = [];
-            try {
-                let rawItems = localStorage.getItem('erp_items_v1');
-                if (typeof rawItems === 'string') items = JSON.parse(rawItems) || [];
-                else if (rawItems && typeof rawItems === 'object') items = rawItems;
-            } catch(e) {}
-
-            function getItemName(id) {
-                const item = items.find(x => x.id === id);
-                return item ? item.name : id || 'صنف غير معروف';
             }
 
             emptyState.style.display = 'none';
-            tbody.innerHTML = '';
             
+            // Sort by date descending
             invoices.sort((a,b) => {
                 const dateA = new Date(a.timestamp || a.date || 0).getTime();
                 const dateB = new Date(b.timestamp || b.date || 0).getTime();
                 return (isNaN(dateB) ? 0 : dateB) - (isNaN(dateA) ? 0 : dateA);
             });
+
+            hubFilteredInvoices = invoices;
+
+            // Calculate summary
+            const postedCount = invoices.filter(i => i.status === 'posted').length;
+            const pendingCount = invoices.filter(i => i.status === 'confirmed').length;
+            updateHubSummary(invoices, postedCount, pendingCount);
+
+            // Pagination
+            const totalPages = Math.ceil(invoices.length / HUB_PAGE_SIZE);
+            if (hubCurrentPage > totalPages) hubCurrentPage = totalPages || 1;
+            const startIdx = (hubCurrentPage - 1) * HUB_PAGE_SIZE;
+            const pageInvoices = invoices.slice(startIdx, startIdx + HUB_PAGE_SIZE);
             
+            updateHubPagination(totalPages);
+
+            // Render rows
+            tbody.innerHTML = '';
             const fragment = document.createDocumentFragment();
-            invoices.forEach(inv => {
+            pageInvoices.forEach(inv => {
                 const tr = document.createElement('tr');
                 
                 let itemText = 'بدون أصناف';
-                let qtyText = '0';
-                let priceText = '0';
-                
                 const lines = inv.items || [];
                 if (lines.length === 1) {
-                    const line = lines[0];
-                    itemText = line.itemName || line.name || getItemName(line.itemId);
-                    qtyText = fmtNum(line.quantity || 0);
-                    priceText = fmtNum(line.price || 0) + ' SDG';
+                    itemText = lines[0].itemName || lines[0].name || getItemName(lines[0].itemId);
                 } else if (lines.length > 1) {
                     itemText = lines.length + ' أصناف';
-                    let totalQty = 0;
-                    lines.forEach(l => {
-                        totalQty += parseFloat(l.quantity) || 0;
-                    });
-                    qtyText = fmtNum(totalQty);
-                    priceText = '—';
                 }
+
+                // Status badge
+                let statusBadge = '';
+                const st = inv.status || 'confirmed';
+                if (st === 'posted') {
+                    statusBadge = '<span style="background:rgba(16,185,129,0.15); color:#34d399; padding:3px 10px; border-radius:12px; font-size:0.75rem; font-weight:700; border:1px solid rgba(16,185,129,0.3);">🔒 مرحلة</span>';
+                } else if (st === 'confirmed') {
+                    statusBadge = '<span style="background:rgba(251,191,36,0.15); color:#fbbf24; padding:3px 10px; border-radius:12px; font-size:0.75rem; font-weight:700; border:1px solid rgba(251,191,36,0.3);">⏳ مؤكدة</span>';
+                } else if (st === 'draft') {
+                    statusBadge = '<span style="background:rgba(148,163,184,0.15); color:#94a3b8; padding:3px 10px; border-radius:12px; font-size:0.75rem; font-weight:700; border:1px solid rgba(148,163,184,0.3);">📝 مسودة</span>';
+                }
+
+                const invCurrency = inv.currency || 'SDG';
 
                 tr.innerHTML = `
                     <td style="text-align:right; font-weight:800; color:var(--gold-primary);">${inv.invoiceNo}</td>
                     <td style="text-align:right; color:var(--text-dim);">${new Date(inv.timestamp || inv.date).toLocaleString('ar-EG-u-nu-latn')}</td>
                     <td style="text-align:right; font-weight:600;">${inv.supplierName || getSupplierName(inv.customer || inv.customerId || inv.supplierId) || 'مورد غير محدد'}</td>
                     <td style="text-align:right; color:var(--text-dim);">${itemText}</td>
-                    <td style="text-align:center; color:var(--text-dim);">${qtyText}</td>
-                    <td style="text-align:center; color:var(--text-dim);">${priceText}</td>
-                    <td style="text-align:center; font-weight:900; direction:ltr; color:#fff;">${fmtNum(inv.totals?.grandTotal || inv.grandTotal || 0)} <span style="color:#a855f7; font-weight:700;">SDG</span></td>
+                    <td style="text-align:center; font-weight:900; direction:ltr; color:#fff;">${fmtNum(inv.totals?.grandTotal || inv.grandTotal || 0)} <span style="color:#a855f7; font-weight:700;">${invCurrency}</span></td>
+                    <td style="text-align:center;">${statusBadge}</td>
                     <td style="text-align:center; font-weight:600; color:var(--text-dim);">${getWarehouseName(inv.warehouse)}</td>
                     <td style="text-align:center;">
                         <button onclick="editHubTransaction('${inv.invoiceNo}')" style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; border-radius:6px; width:34px; height:34px; cursor:pointer; margin-left:4px; display:inline-flex; align-items:center; justify-content:center;" title="تعديل / عرض">👁️</button>
-                        <button onclick="sendInvoiceWA('${inv.invoiceNo}')" style="background:rgba(37,211,102,0.1); border:1px solid rgba(37,211,102,0.3); color:#25d366; border-radius:6px; width:34px; height:34px; cursor:pointer; margin-left:4px; display:inline-flex; align-items:center; justify-content:center;" title="إرسال عبر الواتساب">
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                        </button>
                         <button onclick="deleteHubTransaction('${inv.invoiceNo}')" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:6px; width:34px; height:34px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;" title="حذف">🗑️</button>
                     </td>
                 `;
@@ -2458,14 +2915,58 @@
             });
             tbody.appendChild(fragment);
         }
+
+        function updateHubSummary(invoices, postedCount, pendingCount) {
+            let summaryEl = document.getElementById('hub-summary-bar');
+            if (!summaryEl) return;
+            const total = invoices.length;
+            const totalAmount = invoices.reduce((sum, inv) => sum + (parseFloat(inv.grandTotal) || 0), 0);
+            summaryEl.innerHTML = `
+                <span style="display:inline-flex; align-items:center; gap:5px;">📊 <strong>${total}</strong> فاتورة</span>
+                <span style="display:inline-flex; align-items:center; gap:5px; color:#34d399;">🔒 <strong>${postedCount}</strong> مرحلة</span>
+                <span style="display:inline-flex; align-items:center; gap:5px; color:#fbbf24;">⏳ <strong>${pendingCount}</strong> بانتظار</span>
+                <span style="display:inline-flex; align-items:center; gap:5px; color:#a855f7;">💰 <strong>${fmtNum(totalAmount)}</strong> إجمالي</span>
+            `;
+        }
+
+        function updateHubPagination(totalPages) {
+            let pagEl = document.getElementById('hub-pagination-bar');
+            if (!pagEl) return;
+            if (totalPages <= 1) { pagEl.style.display = 'none'; return; }
+            pagEl.style.display = 'flex';
+            pagEl.innerHTML = `
+                <button onclick="hubGoToPage(${hubCurrentPage - 1})" ${hubCurrentPage <= 1 ? 'disabled style="opacity:0.3;"' : ''} style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:6px 14px; border-radius:8px; cursor:pointer; font-family:'Tajawal',sans-serif;">→ السابق</button>
+                <span style="color:#94a3b8; font-size:0.9rem;">صفحة <strong style="color:#fff;">${hubCurrentPage}</strong> من <strong style="color:#fff;">${totalPages}</strong></span>
+                <button onclick="hubGoToPage(${hubCurrentPage + 1})" ${hubCurrentPage >= totalPages ? 'disabled style="opacity:0.3;"' : ''} style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:6px 14px; border-radius:8px; cursor:pointer; font-family:'Tajawal',sans-serif;">التالي ←</button>
+            `;
+        }
+
+        function hubGoToPage(page) {
+            if (page < 1) return;
+            hubCurrentPage = page;
+            loadHubTransactions();
+        }
+
+        function setHubTimePeriod(period) {
+            hubTimePeriod = period;
+            hubCurrentPage = 1;
+            // Update active button
+            document.querySelectorAll('.hub-time-btn').forEach(btn => {
+                const isActive = btn.dataset.period === period;
+                if (isActive) {
+                    btn.style.background = 'rgba(56,189,248,0.15)';
+                    btn.style.color = '#38bdf8';
+                } else {
+                    btn.style.background = 'transparent';
+                    btn.style.color = '#94a3b8';
+                }
+            });
+            loadHubTransactions();
+        }
         
         function filterHubTransactions() {
-            const query = document.getElementById('hub-search').value.toLowerCase();
-            const rows = document.querySelectorAll('#hub-transactions-body tr');
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(query) ? '' : 'none';
-            });
+            hubCurrentPage = 1;
+            loadHubTransactions();
         }
 
         function editHubTransaction(invNo) {
@@ -2476,19 +2977,116 @@
         }
         
         function deleteHubTransaction(invNo) {
-            if(confirm('هل أنت متأكد من حذف الفاتورة ' + invNo + ' نهائياً؟')) {
-                let savedData = localStorage.getItem('erp_purchase_invoices_v1');
-                if (savedData) {
-                    let invoices = JSON.parse(savedData);
-                    invoices = invoices.filter(i => i.invoiceNo !== invNo);
-                    localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(invoices));
-                    showToast('تم حذف الفاتورة بنجاح', 'success');
-                    loadHubTransactions();
+            // Check if invoice is posted — must unpost first
+            let invStr = localStorage.getItem('erp_pur_' + invNo);
+            let inv = null;
+            if (invStr) try { inv = JSON.parse(invStr); } catch(e) {}
+            
+            if (inv && inv.status === 'posted') {
+                showToast('⛔ لا يمكن حذف فاتورة مرحلة — يجب عكس الترحيل أولاً', 'error', 4000);
+                return;
+            }
+
+            if(!confirm('هل أنت متأكد من حذف الفاتورة ' + invNo + ' نهائياً؟\nسيتم عكس جميع التأثيرات المحاسبية.')) return;
+
+            // Revert accounting effects if invoice was posted (auto mode)
+            if (inv && (inv.status === 'posted' || inv.status === 'confirmed')) {
+                if (typeof revertOldInvoiceEffects === 'function') {
+                    revertOldInvoiceEffects(invNo);
                 }
             }
+            
+            // Remove individual record
+            localStorage.removeItem('erp_pur_' + invNo);
+            localStorage.removeItem('erp_draft_' + invNo);
+
+            // Remove from global array
+            let savedData = localStorage.getItem('erp_purchase_invoices_v1');
+            if (savedData) {
+                let invoices = JSON.parse(savedData);
+                invoices = invoices.filter(i => i.invoiceNo !== invNo);
+                localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(invoices));
+            }
+            
+            showToast('🗑️ تم حذف الفاتورة وعكس تأثيراتها بنجاح', 'success');
+            loadHubTransactions();
+        }
+
+        function migratePurchaseInvoiceIds() {
+            if (localStorage.getItem('erp_pur_migrated_p260') === 'true') return;
+
+            let savedData = localStorage.getItem('erp_purchase_invoices_v1');
+            let invoices = [];
+            if (savedData) {
+                try { invoices = JSON.parse(savedData) || []; } catch(e) {}
+            }
+
+            if (!Array.isArray(invoices)) return;
+
+            // 1. Delete invoices starting with C or 260
+            let validInvoices = [];
+            invoices.forEach(inv => {
+                const invNo = String(inv.invoiceNo || '');
+                if (invNo.startsWith('C') || invNo.startsWith('260')) {
+                    // Permanently delete individual records
+                    localStorage.removeItem('erp_pur_' + invNo);
+                    localStorage.removeItem('erp_draft_' + invNo);
+                } else {
+                    validInvoices.push(inv);
+                }
+            });
+
+            // 2. Sort remaining chronologically
+            validInvoices.sort((a, b) => {
+                const dateA = new Date(a.timestamp || a.date || 0).getTime();
+                const dateB = new Date(b.timestamp || b.date || 0).getTime();
+                return (isNaN(dateA) ? 0 : dateA) - (isNaN(dateB) ? 0 : dateB);
+            });
+
+            // 3. Re-number sequentially starting from P2600001
+            let baseSeq = 1;
+            let updatedInvoices = [];
+
+            validInvoices.forEach(inv => {
+                const oldNo = inv.invoiceNo;
+                const newNo = `P260${String(baseSeq).padStart(4, '0')}`;
+                baseSeq++;
+
+                // Load individual invoice details
+                let detailsStr = localStorage.getItem('erp_pur_' + oldNo);
+                let details = null;
+                if (detailsStr) {
+                    try { details = JSON.parse(detailsStr); } catch(e) {}
+                }
+                
+                // Fallback to object in global array if individual details not found
+                if (!details) {
+                    details = JSON.parse(JSON.stringify(inv));
+                }
+
+                // Update invoiceNo inside details
+                details.invoiceNo = newNo;
+
+                // Delete old keys
+                localStorage.removeItem('erp_pur_' + oldNo);
+                localStorage.removeItem('erp_draft_' + oldNo);
+
+                // Save new keys
+                localStorage.setItem('erp_pur_' + newNo, JSON.stringify(details));
+
+                // Save to updated global list
+                inv.invoiceNo = newNo;
+                updatedInvoices.push(inv);
+            });
+
+            // Save updated list
+            localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(updatedInvoices));
+            localStorage.setItem('erp_pur_migrated_p260', 'true');
+            console.log('Purchase invoices successfully migrated to P260XXXX sequence!');
         }
 
         document.addEventListener('DBReady', () => {
+            migratePurchaseInvoiceIds();
             setTimeout(() => {
                 showPurchaseHub();
             }, 50);
@@ -2654,7 +3252,7 @@ async function sendInvoiceWA(invoiceNo) {
     printContainer.innerHTML = htmlContent;
     document.body.appendChild(printContainer);
 
-    const message = 'مرحباً، مرفق فاتورتكم المرجعية رقم ' + invoiceNo + ' من ${JSON.parse(localStorage.getItem('user'))?.company_name || 'مؤسستنا'}.';
+    const message = `مرحباً، مرفق فاتورتكم المرجعية رقم ${invoiceNo} من ${JSON.parse(localStorage.getItem('user'))?.company_name || 'مؤسستنا'}.`;
     
     try {
         await sendPDFViaWhatsApp(printContainer, phone, message);
@@ -2666,15 +3264,59 @@ async function sendInvoiceWA(invoiceNo) {
 
 function updateActionButtonsVisibility() {
     const previewBtn = document.getElementById('btn-preview-invoice');
-    const waBtn = document.getElementById('btn-whatsapp-invoice');
-    const emailBtn = document.getElementById('btn-email-invoice');
     if (currentViewedInvoiceNo) {
         if (previewBtn) previewBtn.style.display = 'flex';
     } else {
         if (previewBtn) previewBtn.style.display = 'none';
     }
-    // WhatsApp and Email are now permanently visible as per user request
+    // Share button is permanently visible
 }
+
+// ═══════════════════════════════════════
+//  SHARE MENU TOGGLE
+// ═══════════════════════════════════════
+let shareMenuOpen = false;
+
+function toggleShareMenu(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('share-popup-menu');
+    if (!menu) return;
+    
+    if (shareMenuOpen) {
+        closeShareMenu();
+    } else {
+        menu.style.display = 'block';
+        // Trigger reflow for animation
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                menu.style.opacity = '1';
+                menu.style.transform = 'translateX(-50%) scale(1)';
+            });
+        });
+        shareMenuOpen = true;
+    }
+}
+
+function closeShareMenu() {
+    const menu = document.getElementById('share-popup-menu');
+    if (!menu) return;
+    menu.style.opacity = '0';
+    menu.style.transform = 'translateX(-50%) scale(0.9)';
+    setTimeout(() => {
+        menu.style.display = 'none';
+    }, 250);
+    shareMenuOpen = false;
+}
+
+// Close share menu on outside click
+document.addEventListener('click', function(e) {
+    if (shareMenuOpen) {
+        const wrapper = document.getElementById('share-btn-wrapper');
+        if (wrapper && !wrapper.contains(e.target)) {
+            closeShareMenu();
+        }
+    }
+});
 
 async function sendCurrentInvoiceWA() {
     if (currentViewedInvoiceNo) {

@@ -60,7 +60,7 @@ http.createServer((req, res) => {
             path: reqUrl + (req.url.includes('?') ? '?' + req.url.split('?')[1] : ''),
             method: req.method,
             headers: proxyHeaders,
-            agent: keepAliveAgent
+            agent: false
         };
 
         const proxy = http.request(options, (proxyRes) => {

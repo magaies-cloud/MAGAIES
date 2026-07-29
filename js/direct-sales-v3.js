@@ -56,6 +56,32 @@ let rowIdCounter = 0;
 let currentSaleType = 'direct';
 let currentViewedInvoiceNo = null;
 
+window._cachedSalesInvoicesRaw = null;
+window._cachedSalesSorted = null;
+
+function getSortedSalesInvoices() {
+    const raw = localStorage.getItem('erp_sales_invoices_v1');
+    if (window._cachedSalesInvoicesRaw === raw && window._cachedSalesSorted) {
+        return window._cachedSalesSorted;
+    }
+    let allSales = [];
+    try { allSales = JSON.parse(raw) || []; } catch(e) {}
+    
+    const sorted = allSales
+        .filter(inv => inv.invoiceNo && inv.invoiceNo !== 'preliminary' && !String(inv.invoiceNo).startsWith('PRE-'))
+        .sort((a, b) => {
+            const cmp = (a.date || a.createdAt || '').localeCompare(b.date || b.createdAt || '');
+            if (cmp !== 0) return cmp;
+            const tcmp = (a.time || '').localeCompare(b.time || '');
+            if (tcmp !== 0) return tcmp;
+            return String(a.invoiceNo || '').localeCompare(String(b.invoiceNo || ''));
+        });
+        
+    window._cachedSalesInvoicesRaw = raw;
+    window._cachedSalesSorted = sorted;
+    return sorted;
+}
+
 // ════════════════════════════════════════
 //  HELPERS
 // ════════════════════════════════════════
@@ -101,7 +127,7 @@ const SALE_PREFIX = { direct:'', split:'', delivery:'', proforma:'', costcenter:
 
 // Peek: show the next number WITHOUT incrementing (safe for refresh)
 function peekNextInvoiceNumber(type) {
-    let list = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    let list = getSortedSalesInvoices();
     
     if (type === 'preliminary') {
         let prefix = 'PRE-';
@@ -643,19 +669,7 @@ function loadPreviousInvoice() {
     const currentNo = document.getElementById('hdr-inv-no').value;
     if (!currentNo) return;
     
-    let allSales = [];
-    try { allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e) {}
-    
-    // Filter out preliminary and sort by date/time then invoiceNo
-    const sorted = allSales
-        .filter(inv => inv.invoiceNo && inv.invoiceNo !== 'preliminary' && !String(inv.invoiceNo).startsWith('PRE-'))
-        .sort((a, b) => {
-            const cmp = (a.date || a.createdAt || '').localeCompare(b.date || b.createdAt || '');
-            if (cmp !== 0) return cmp;
-            const tcmp = (a.time || '').localeCompare(b.time || '');
-            if (tcmp !== 0) return tcmp;
-            return String(a.invoiceNo || '').localeCompare(String(b.invoiceNo || ''));
-        });
+    const sorted = getSortedSalesInvoices();
     
     if (sorted.length === 0) {
         showToast('ℹ️ لا توجد فواتير محفوظة', 'warning');
@@ -685,18 +699,7 @@ function loadNextInvoice() {
     const currentNo = document.getElementById('hdr-inv-no').value;
     if (!currentNo) return;
     
-    let allSales = [];
-    try { allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e) {}
-    
-    const sorted = allSales
-        .filter(inv => inv.invoiceNo && inv.invoiceNo !== 'preliminary' && !String(inv.invoiceNo).startsWith('PRE-'))
-        .sort((a, b) => {
-            const cmp = (a.date || a.createdAt || '').localeCompare(b.date || b.createdAt || '');
-            if (cmp !== 0) return cmp;
-            const tcmp = (a.time || '').localeCompare(b.time || '');
-            if (tcmp !== 0) return tcmp;
-            return String(a.invoiceNo || '').localeCompare(String(b.invoiceNo || ''));
-        });
+    const sorted = getSortedSalesInvoices();
     
     const idx = sorted.findIndex(inv => inv.invoiceNo === currentNo || inv.id === currentNo);
     if (idx >= 0 && idx < sorted.length - 1) {
@@ -742,6 +745,11 @@ function loadInvoiceFromStorage(invNo) {
             if (typeof openInvoiceEditor === 'function') openInvoiceEditor(currentSaleType, true);
         }
 
+        // Update posting status bar
+        if (typeof updateSalesPostingStatusBar === 'function') {
+            updateSalesPostingStatusBar(data.status);
+        }
+
         // Reset form
         rows = [];
         rowIdCounter = 0;
@@ -766,32 +774,27 @@ function loadInvoiceFromStorage(invNo) {
             if (c) selectCustomer(c.id, c.name);
         }
         
-        // Rows
+        // Rows — PERFORMANCE: direct property assignment (no recalcAll per field)
         const itemsList = data.items || data.products || [];
         if(itemsList && itemsList.length) {
             itemsList.forEach(i => {
-                addRow(true); // silent
+                addRow(true, true); // silent and skip render
                 const r = rows[rows.length-1];
-                const itemId = i.itemId || i.id || i.item_id;
-                const selectedUnit = i.selectedUnit || i.unit || i.unitName;
-                const customFactor = i.customFactor !== undefined ? i.customFactor : i.factor;
-                const quantity = i.quantity !== undefined ? i.quantity : (i.qty !== undefined ? i.qty : 0);
-                const customBaseQty = i.customBaseQty;
-                const price = i.price !== undefined ? i.price : (i.rate !== undefined ? i.rate : 0);
-                const fcPrice = i.fcPrice;
-                const warehouseId = i.warehouseId || i.warehouse;
-                const costCenterId = i.costCenterId || i.costCenter;
-
-                if (itemId) updateRow(r.id, 'itemId', itemId);
-                if (selectedUnit) updateRow(r.id, 'selectedUnit', selectedUnit);
-                if (customFactor !== undefined) updateRow(r.id, 'customFactor', customFactor);
-                if (quantity !== undefined) updateRow(r.id, 'quantity', quantity);
-                if (customBaseQty !== undefined) updateRow(r.id, 'customBaseQty', customBaseQty);
-                if (price !== undefined) updateRow(r.id, 'price', price);
-                if (fcPrice !== undefined) updateRow(r.id, 'fcPrice', fcPrice);
-                if (warehouseId) updateRow(r.id, 'warehouseId', warehouseId);
-                if (costCenterId) updateRow(r.id, 'costCenterId', costCenterId);
-                if (i.qrCode) updateRow(r.id, 'qrCode', i.qrCode);
+                
+                r.itemId = i.itemId || i.id || i.item_id || '';
+                r.selectedUnit = i.selectedUnit || i.unit || i.unitName || '';
+                r.customFactor = i.customFactor !== undefined ? i.customFactor : (i.factor !== undefined ? i.factor : 1);
+                r.quantity = i.quantity !== undefined ? i.quantity : (i.qty !== undefined ? i.qty : 0);
+                if (i.customBaseQty !== undefined) r.customBaseQty = i.customBaseQty;
+                r.price = i.price !== undefined ? i.price : (i.rate !== undefined ? i.rate : 0);
+                if (i.fcPrice !== undefined) r.fcPrice = i.fcPrice;
+                r.warehouseId = i.warehouseId || i.warehouse || '';
+                r.costCenterId = i.costCenterId || i.costCenter || '';
+                if (i.qrCode) r.qrCode = i.qrCode;
+                if (i.note) r.note = i.note;
+                if (i.itemName || i.name) r.itemName = i.itemName || i.name;
+                if (i.buyPrice !== undefined) r.buyPrice = i.buyPrice;
+                if (i.sellPrice !== undefined) r.sellPrice = i.sellPrice;
             });
         }
         
@@ -1054,18 +1057,7 @@ function loadPreviousInvoice() {
     const currentNo = document.getElementById('hdr-inv-no').value;
     if (!currentNo) return;
     
-    let allSales = [];
-    try { allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e) {}
-    
-    const sorted = allSales
-        .filter(inv => inv.invoiceNo && inv.invoiceNo !== 'preliminary' && !String(inv.invoiceNo).startsWith('PRE-'))
-        .sort((a, b) => {
-            const cmp = (a.date || a.createdAt || '').localeCompare(b.date || b.createdAt || '');
-            if (cmp !== 0) return cmp;
-            const tcmp = (a.time || '').localeCompare(b.time || '');
-            if (tcmp !== 0) return tcmp;
-            return String(a.invoiceNo || '').localeCompare(String(b.invoiceNo || ''));
-        });
+    const sorted = getSortedSalesInvoices();
     if (sorted.length === 0) {
         showToast('ℹ️ لا توجد فواتير محفوظة', 'warning');
         return;
@@ -1093,18 +1085,7 @@ function loadNextInvoice() {
     const currentNo = document.getElementById('hdr-inv-no').value;
     if (!currentNo) return;
     
-    let allSales = [];
-    try { allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e) {}
-    
-    const sorted = allSales
-        .filter(inv => inv.invoiceNo && inv.invoiceNo !== 'preliminary' && !String(inv.invoiceNo).startsWith('PRE-'))
-        .sort((a, b) => {
-            const cmp = (a.date || a.createdAt || '').localeCompare(b.date || b.createdAt || '');
-            if (cmp !== 0) return cmp;
-            const tcmp = (a.time || '').localeCompare(b.time || '');
-            if (tcmp !== 0) return tcmp;
-            return String(a.invoiceNo || '').localeCompare(String(b.invoiceNo || ''));
-        });
+    const sorted = getSortedSalesInvoices();
     
     const idx = sorted.findIndex(inv => inv.invoiceNo === currentNo || inv.id === currentNo);
     if (idx >= 0 && idx < sorted.length - 1) {
@@ -1169,32 +1150,30 @@ function loadInvoiceFromStorage(invNo) {
             if (c) selectCustomer(c.id, c.name);
         }
         
-        // Rows
+        // Rows — PERFORMANCE: assign properties directly instead of calling
+        // updateRow() (which fires recalcAll on every call). We call renderGrid
+        // and recalcAll exactly ONCE after all rows are populated.
         const itemsList = data.items || data.products || [];
         if(itemsList && itemsList.length) {
             itemsList.forEach(i => {
-                addRow(true); // silent
+                addRow(true, true); // silent and skip render
                 const r = rows[rows.length-1];
-                const itemId = i.itemId || i.id || i.item_id;
-                const selectedUnit = i.selectedUnit || i.unit || i.unitName;
-                const customFactor = i.customFactor !== undefined ? i.customFactor : i.factor;
-                const quantity = i.quantity !== undefined ? i.quantity : (i.qty !== undefined ? i.qty : 0);
-                const customBaseQty = i.customBaseQty;
-                const price = i.price !== undefined ? i.price : (i.rate !== undefined ? i.rate : 0);
-                const fcPrice = i.fcPrice;
-                const warehouseId = i.warehouseId || i.warehouse;
-                const costCenterId = i.costCenterId || i.costCenter;
-
-                if (itemId) updateRow(r.id, 'itemId', itemId);
-                if (selectedUnit) updateRow(r.id, 'selectedUnit', selectedUnit);
-                if (customFactor !== undefined) updateRow(r.id, 'customFactor', customFactor);
-                if (quantity !== undefined) updateRow(r.id, 'quantity', quantity);
-                if (customBaseQty !== undefined) updateRow(r.id, 'customBaseQty', customBaseQty);
-                if (price !== undefined) updateRow(r.id, 'price', price);
-                if (fcPrice !== undefined) updateRow(r.id, 'fcPrice', fcPrice);
-                if (warehouseId) updateRow(r.id, 'warehouseId', warehouseId);
-                if (costCenterId) updateRow(r.id, 'costCenterId', costCenterId);
-                if (i.qrCode) updateRow(r.id, 'qrCode', i.qrCode);
+                
+                // Direct property assignment (no recalcAll per field)
+                r.itemId = i.itemId || i.id || i.item_id || '';
+                r.selectedUnit = i.selectedUnit || i.unit || i.unitName || '';
+                r.customFactor = i.customFactor !== undefined ? i.customFactor : (i.factor !== undefined ? i.factor : 1);
+                r.quantity = i.quantity !== undefined ? i.quantity : (i.qty !== undefined ? i.qty : 0);
+                if (i.customBaseQty !== undefined) r.customBaseQty = i.customBaseQty;
+                r.price = i.price !== undefined ? i.price : (i.rate !== undefined ? i.rate : 0);
+                if (i.fcPrice !== undefined) r.fcPrice = i.fcPrice;
+                r.warehouseId = i.warehouseId || i.warehouse || '';
+                r.costCenterId = i.costCenterId || i.costCenter || '';
+                if (i.qrCode) r.qrCode = i.qrCode;
+                if (i.note) r.note = i.note;
+                if (i.itemName || i.name) r.itemName = i.itemName || i.name;
+                if (i.buyPrice !== undefined) r.buyPrice = i.buyPrice;
+                if (i.sellPrice !== undefined) r.sellPrice = i.sellPrice;
             });
         }
         
@@ -1589,7 +1568,7 @@ function onMainWarehouseChange() {
 // ════════════════════════════════════════
 //  ROW MANAGEMENT
 // ════════════════════════════════════════
-function addRow(silent = false) {
+function addRow(silent = false, skipRender = false) {
     let quiet = silent;
     rowIdCounter++;
     rows.push({
@@ -1602,7 +1581,7 @@ function addRow(silent = false) {
         qrCode: '',
         selectedUnit: ''
     });
-    renderGrid();
+    if (!skipRender) renderGrid();
     if (!quiet) showToast('�� تم إضافة صنف جديد', 'success', 1500);
 }
 
@@ -3053,6 +3032,18 @@ function submitInvoice(ignoreWarnings = false) {
 
     const paymentAccountId = document.getElementById('hdr-payment-account').value; // Cash account ID
 
+    const postingMode = window.getPostingMode ? window.getPostingMode() : 'auto';
+    let finalStatus = 'pending_delivery';
+    if (currentSaleType === 'preliminary') {
+        finalStatus = 'preliminary';
+    } else {
+        if (postingMode === 'auto') {
+            finalStatus = 'posted';
+        } else {
+            finalStatus = 'pending_delivery';
+        }
+    }
+
     const data = {
         invoiceNo: committedNo,
         date: document.getElementById('hdr-date').value,
@@ -3081,16 +3072,22 @@ function submitInvoice(ignoreWarnings = false) {
         discount: parseNum(document.getElementById('t-discount')?.value || document.getElementById('t-discount')?.textContent || 0),
         vatAmount: parseNum(document.getElementById('t-vat')?.textContent || document.getElementById('t-tax')?.textContent || 0),
         grandTotal: grandAmount,
-        status: currentSaleType === 'preliminary' ? 'preliminary' : 'pending_delivery',
+        status: finalStatus,
         timestamp: new Date().toISOString(),
-        customerName: cust ? cust.name : 'عميل نقدي'
+        customerName: cust ? cust.name : 'عميل نقدي',
+        effectsApplied: (currentSaleType !== 'preliminary' && postingMode === 'auto')
     };
 
-    // Update Bank/Safe balance ONLY if not preliminary
+    // If editing, revert old financial effects first
+    if (currentViewedInvoiceNo) {
+        revertSalesInvoiceEffects(currentViewedInvoiceNo, false); // false = don't revert inventory for edits
+    }
+
+    // Update Bank/Safe balance ONLY if not preliminary AND posting mode is auto
     let safeAccountName = '';
     let bankTransferNames = [];
     
-    if (currentSaleType !== 'preliminary') {
+    if (currentSaleType !== 'preliminary' && postingMode === 'auto') {
         let banks = [];
         try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e) {}
         
@@ -3152,14 +3149,18 @@ function submitInvoice(ignoreWarnings = false) {
     // It will be deducted only upon Delivery.
 
     // Show professional success toasts
-    if (safeAccountName && cashAmt > 0) {
-        showToast(`تمت إضافة ${fmtNum(cashAmt)} ${cur} إلى رصيد: ${safeAccountName}`, 'success', 4000);
-    }
-    if (bankTransferNames.length > 0) {
-        showToast(`تم إيداع التحويلات البنكية بقيمة ${fmtNum(transfersSum)} ${cur} بنجاح`, 'success', 4000);
-    }
-    if (creditAmt > 0 && custId !== 'walk-in') {
-        showToast(`تم ترحيل مبلغ ${fmtNum(creditAmt)} ${cur} إلى حساب العميل كمديونية آجل`, 'warning', 4000);
+    if (postingMode === 'manual' && currentSaleType !== 'preliminary') {
+        showToast('📋 تم تأكيد الفاتورة — تحتاج ترحيل لتؤثر في الأرصدة', 'warning', 5000);
+    } else {
+        if (safeAccountName && cashAmt > 0) {
+            showToast(`تمت إضافة ${fmtNum(cashAmt)} ${cur} إلى رصيد: ${safeAccountName}`, 'success', 4000);
+        }
+        if (bankTransferNames.length > 0) {
+            showToast(`تم إيداع التحويلات البنكية بقيمة ${fmtNum(transfersSum)} ${cur} بنجاح`, 'success', 4000);
+        }
+        if (creditAmt > 0 && custId !== 'walk-in') {
+            showToast(`تم ترحيل مبلغ ${fmtNum(creditAmt)} ${cur} إلى حساب العميل كمديونية آجل`, 'warning', 4000);
+        }
     }
 
     // Show warnings if ignoreWarnings is true
@@ -3180,6 +3181,10 @@ function submitInvoice(ignoreWarnings = false) {
     document.getElementById('hdr-inv-no').value = committedNo;
     document.getElementById('inv-number').textContent = committedNo;
     if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
+    
+    if (typeof updateSalesPostingStatusBar === 'function') {
+        updateSalesPostingStatusBar(finalStatus);
+    }
 
     showSuccessModal(committedNo, grandTotal, cur, finalWarnings);
 }
@@ -3295,87 +3300,8 @@ function executeDeleteTransaction() {
         showToast('🗑️ تم مسح بيانات الفاتورة', 'success');
         return;
     }
-    const grandAmount = parseFloat(oldInv.grandTotal) || 0;
-
-    // 1. Revert Customer Balance (if credit / hybrid)
-    let creditRevertAmount = 0;
-    if (oldInv.paymentMethod === 'hybrid' || oldInv.paymentMethod === 'multipay') {
-        creditRevertAmount = parseFloat(oldInv.creditAmount) || 0;
-    } else if (oldInv.paymentMethod === 'credit') {
-        creditRevertAmount = grandAmount;
-    }
-    if (creditRevertAmount > 0 && oldInv.customer && oldInv.customer !== 'walk-in') {
-        let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-        const cIdx = customers.findIndex(c => c.id === oldInv.customer);
-        if (cIdx > -1) {
-            let currentBalance = parseFloat(customers[cIdx].currentBalance) || 0;
-            customers[cIdx].currentBalance = currentBalance - creditRevertAmount; // Revert debt
-            localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
-        }
-    }
-
-    // 2. Revert Bank/Safe Balance (if cash / bank / cheque / hybrid)
-    if (oldInv.paymentMethod === 'hybrid' || oldInv.paymentMethod === 'multipay') {
-        let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
-        // Revert cash portion
-        if (oldInv.cashAmount > 0 && oldInv.paymentAccountId) {
-            const bIdx = banks.findIndex(b => b.id === oldInv.paymentAccountId);
-            if (bIdx > -1) {
-                banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - parseFloat(oldInv.cashAmount);
-            }
-        }
-        // Revert bank transfers
-        if (oldInv.bankTransfers && oldInv.bankTransfers.length > 0) {
-            oldInv.bankTransfers.forEach(bt => {
-                const bIdx = banks.findIndex(b => b.id === bt.bankAccountId);
-                if (bIdx > -1) {
-                    banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - parseFloat(bt.amount);
-                }
-            });
-        }
-        localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
-    } else if (oldInv.paymentMethod !== 'credit' && oldInv.paymentAccountId) {
-        let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
-        const bIdx = banks.findIndex(b => b.id === oldInv.paymentAccountId);
-        if (bIdx > -1) {
-            let currentBalance = parseFloat(banks[bIdx].currentBalance) || 0;
-            banks[bIdx].currentBalance = currentBalance - grandAmount; // Revert cash receipt
-            localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
-        }
-    }
-
-    // 3. Revert Inventory
-    let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
-    const mainWh = oldInv.warehouse || 'wh-001';
-    if (oldInv.items && Array.isArray(oldInv.items)) {
-        for (const row of oldInv.items) {
-            const item = ITEMS.find(i => String(i.id) === String(row.itemId));
-            if (!item) continue;
-            
-            let selectedUnitFactor = row.customFactor !== undefined ? row.customFactor : 1;
-            let baseQty = 0;
-            if (row.customBaseQty !== undefined) {
-                baseQty = row.customBaseQty;
-            } else {
-                baseQty = item ? row.quantity * selectedUnitFactor * item.conversionFactor : 0;
-            }
-
-            const whId = row.warehouseId || mainWh;
-            const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي';
-            
-            let itemInv = currentInvData.find(inv => inv.itemId === row.itemId && inv.warehouse === whName);
-            if (itemInv) {
-                itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) + baseQty;
-            } else {
-                currentInvData.push({ itemId: row.itemId, warehouse: whName, qty: baseQty, minQty: 10 });
-            }
-            
-            if (item.actualStock && item.actualStock[whId] !== undefined) {
-                item.actualStock[whId] += baseQty;
-            }
-        }
-    }
-    localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
+    // Revert effects
+    revertSalesInvoiceEffects(currentInvNo, true);
 
     // 4. Remove from sales invoices list
     let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
@@ -3464,6 +3390,9 @@ function showSuccessModal(invoiceNo, grandTotal, currency, warnings = []) {
 
 function onSuccessNewInvoice(closeModalFlag = true) {
     currentViewedInvoiceNo = null; // Reset edit mode
+    if (typeof updateSalesPostingStatusBar === 'function') {
+        updateSalesPostingStatusBar('new');
+    }
     // Close modal
     if (closeModalFlag) {
         const overlay = document.getElementById('success-modal-overlay');
@@ -4765,3 +4694,289 @@ document.addEventListener('focus', function(event) {
     }
 }, true);
 
+// ════════════════════════════════════════
+//  SALES POSTING SYSTEM
+// ════════════════════════════════════════
+
+function revertSalesInvoiceEffects(invNo, revertInventory = true) {
+    let oldInvStr = localStorage.getItem('erp_inv_' + invNo);
+    let oldInv = null;
+    if (oldInvStr) {
+        try { oldInv = JSON.parse(oldInvStr); } catch(e) {}
+    }
+    if (!oldInv) {
+        let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+        oldInv = allSales.find(inv => inv.invoiceNo === invNo || inv.id === invNo);
+    }
+    if (!oldInv) return;
+
+    let hadEffects = oldInv.effectsApplied === true;
+    if (oldInv.effectsApplied === undefined) {
+        hadEffects = (oldInv.status !== 'preliminary' && oldInv.saleType !== 'preliminary');
+    }
+
+    const grandAmount = parseFloat(oldInv.grandTotal) || 0;
+
+    if (hadEffects) {
+        // 1. Revert Customer Balance
+        let creditRevertAmount = 0;
+        if (oldInv.paymentMethod === 'hybrid' || oldInv.paymentMethod === 'multipay') {
+            creditRevertAmount = parseFloat(oldInv.creditAmount) || 0;
+        } else if (oldInv.paymentMethod === 'credit') {
+            creditRevertAmount = grandAmount;
+        }
+        if (creditRevertAmount > 0 && oldInv.customer && oldInv.customer !== 'walk-in') {
+            let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+            const cIdx = customers.findIndex(c => c.id === oldInv.customer);
+            if (cIdx > -1) {
+                let currentBalance = parseFloat(customers[cIdx].currentBalance) || 0;
+                customers[cIdx].currentBalance = currentBalance - creditRevertAmount;
+                localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
+            }
+        }
+
+        // 2. Revert Bank/Safe Balance
+        if (oldInv.paymentMethod === 'hybrid' || oldInv.paymentMethod === 'multipay') {
+            let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+            if (oldInv.cashAmount > 0 && oldInv.paymentAccountId) {
+                const bIdx = banks.findIndex(b => b.id === oldInv.paymentAccountId);
+                if (bIdx > -1) banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - parseFloat(oldInv.cashAmount);
+            }
+            if (oldInv.bankTransfers && oldInv.bankTransfers.length > 0) {
+                oldInv.bankTransfers.forEach(bt => {
+                    const bIdx = banks.findIndex(b => b.id === bt.bankAccountId);
+                    if (bIdx > -1) banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - parseFloat(bt.amount);
+                });
+            }
+            localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+        } else if (oldInv.paymentMethod !== 'credit' && oldInv.paymentAccountId) {
+            let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+            const bIdx = banks.findIndex(b => b.id === oldInv.paymentAccountId);
+            if (bIdx > -1) {
+                let currentBalance = parseFloat(banks[bIdx].currentBalance) || 0;
+                banks[bIdx].currentBalance = currentBalance - grandAmount;
+                localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+            }
+        }
+    }
+
+    if (revertInventory) {
+        // 3. Revert Inventory (Only for backwards compatibility if needed, or if deleting entirely)
+        let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+        const mainWh = oldInv.warehouse || 'wh-001';
+        if (oldInv.items && Array.isArray(oldInv.items)) {
+            for (const row of oldInv.items) {
+                const item = ITEMS.find(i => String(i.id) === String(row.itemId));
+                if (!item) continue;
+                
+                let selectedUnitFactor = row.customFactor !== undefined ? row.customFactor : 1;
+                let baseQty = 0;
+                if (row.customBaseQty !== undefined) {
+                    baseQty = row.customBaseQty;
+                } else {
+                    baseQty = item ? row.quantity * selectedUnitFactor * item.conversionFactor : 0;
+                }
+
+                const whId = row.warehouseId || mainWh;
+                const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي';
+                
+                let itemInv = currentInvData.find(inv => inv.itemId === row.itemId && inv.warehouse === whName);
+                if (itemInv) {
+                    itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) + baseQty;
+                } else {
+                    currentInvData.push({ itemId: row.itemId, warehouse: whName, qty: baseQty, minQty: 10 });
+                }
+                
+                if (item.actualStock && item.actualStock[whId] !== undefined) {
+                    item.actualStock[whId] += baseQty;
+                }
+            }
+        }
+        localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
+    }
+}
+
+function updateSalesPostingStatusBar(status) {
+    const bar = document.getElementById('posting-status-bar');
+    const icon = document.getElementById('posting-status-icon');
+    const text = document.getElementById('posting-status-text');
+    const desc = document.getElementById('posting-status-desc');
+    const actions = document.getElementById('posting-status-actions');
+    
+    if (!bar) return;
+
+    const postingMode = window.getPostingMode ? window.getPostingMode() : 'auto';
+    
+    if (postingMode === 'auto' || status === 'new' || status === 'preliminary' || status === 'draft') {
+        bar.style.display = 'none';
+        
+        // Remove immutability if it was set
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            if (el.hasAttribute('data-immutability-locked')) {
+                el.disabled = false;
+                el.removeAttribute('data-immutability-locked');
+            }
+        });
+        const saveBtn = document.querySelector('.btn-save');
+        if (saveBtn) {
+            saveBtn.style.display = 'flex';
+        }
+        return;
+    }
+
+    bar.style.display = 'flex';
+    
+    const invNo = document.getElementById('hdr-inv-no').value;
+
+    if (status === 'posted') {
+        bar.style.background = 'rgba(16, 185, 129, 0.1)';
+        bar.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+        icon.innerText = '✅';
+        text.innerText = 'فاتورة مُرحّلة';
+        text.style.color = '#10b981';
+        desc.innerText = 'تم إثبات الأثر المالي لهذه الفاتورة على الأرصدة.';
+        
+        actions.innerHTML = `
+            <button onclick="unpostSalesInvoice('${invNo}')" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                ↩️ إلغاء الترحيل
+            </button>
+        `;
+        
+        // Make form immutable
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            if (!el.disabled && el.id !== 'search-input') {
+                el.disabled = true;
+                el.setAttribute('data-immutability-locked', 'true');
+            }
+        });
+        const saveBtn = document.querySelector('.btn-save');
+        if (saveBtn) {
+            saveBtn.style.display = 'none';
+        }
+        
+    } else {
+        // Confirmed but not posted (pending_delivery)
+        bar.style.background = 'rgba(245, 158, 11, 0.1)';
+        bar.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+        icon.innerText = '⏳';
+        text.innerText = 'بانتظار الترحيل';
+        text.style.color = '#f59e0b';
+        desc.innerText = 'الفاتورة مؤكدة ولكن لم يتم ترحيلها لتؤثر في الأرصدة.';
+        
+        actions.innerHTML = `
+            <button onclick="postSalesInvoice('${invNo}')" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                🚀 ترحيل الآن
+            </button>
+        `;
+        
+        // Ensure form is mutable
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            if (el.hasAttribute('data-immutability-locked')) {
+                el.disabled = false;
+                el.removeAttribute('data-immutability-locked');
+            }
+        });
+        const saveBtn = document.querySelector('.btn-save');
+        if (saveBtn) {
+            saveBtn.style.display = 'flex';
+        }
+    }
+}
+
+function postSalesInvoice(invNo) {
+    if (!invNo) return;
+    
+    let str = localStorage.getItem('erp_inv_' + invNo);
+    if (!str) return;
+    
+    let oldInv = null;
+    try { oldInv = JSON.parse(str); } catch(e) { return; }
+    
+    if (oldInv.status === 'posted') {
+        showToast('الفاتورة مُرحلة مسبقاً', 'warning');
+        return;
+    }
+    
+    const grandAmount = parseFloat(oldInv.grandTotal) || 0;
+    
+    // Apply financial effects
+    // A. Cash
+    let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+    if ((oldInv.paymentMethod === 'hybrid' || oldInv.paymentMethod === 'multipay') && oldInv.cashAmount > 0 && oldInv.paymentAccountId) {
+        const bIdx = banks.findIndex(b => b.id === oldInv.paymentAccountId);
+        if (bIdx > -1) banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) + parseFloat(oldInv.cashAmount);
+    } else if (oldInv.paymentMethod !== 'credit' && oldInv.paymentMethod !== 'hybrid' && oldInv.paymentMethod !== 'multipay' && oldInv.paymentAccountId) {
+        const bIdx = banks.findIndex(b => b.id === oldInv.paymentAccountId);
+        if (bIdx > -1) banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) + grandAmount;
+    }
+    
+    // B. Bank Transfers
+    if (oldInv.bankTransfers && oldInv.bankTransfers.length > 0) {
+        oldInv.bankTransfers.forEach(bt => {
+            const bIdx = banks.findIndex(b => b.id === bt.bankAccountId);
+            if (bIdx > -1) banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) + parseFloat(bt.amount);
+        });
+    }
+    localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+    
+    // C. Customer Balance
+    let creditRevertAmount = 0;
+    if (oldInv.paymentMethod === 'hybrid' || oldInv.paymentMethod === 'multipay') {
+        creditRevertAmount = parseFloat(oldInv.creditAmount) || 0;
+    } else if (oldInv.paymentMethod === 'credit') {
+        creditRevertAmount = grandAmount;
+    }
+    if (creditRevertAmount > 0 && oldInv.customer && oldInv.customer !== 'walk-in') {
+        let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+        const cIdx = customers.findIndex(c => c.id === oldInv.customer);
+        if (cIdx > -1) {
+            customers[cIdx].currentBalance = (parseFloat(customers[cIdx].currentBalance) || 0) + creditRevertAmount;
+            localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
+        }
+    }
+    
+    // Update invoice status
+    oldInv.status = 'posted';
+    oldInv.effectsApplied = true;
+    localStorage.setItem('erp_inv_' + invNo, JSON.stringify(oldInv));
+    
+    // Update in global array
+    let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    const idx = allSales.findIndex(inv => inv.invoiceNo === invNo);
+    if (idx !== -1) {
+        allSales[idx].status = 'posted';
+        allSales[idx].effectsApplied = true;
+        localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+    }
+    
+    updateSalesPostingStatusBar('posted');
+    showToast('✅ تم ترحيل الفاتورة بنجاح', 'success');
+}
+
+function unpostSalesInvoice(invNo) {
+    if (!invNo) return;
+    
+    if (!confirm('هل أنت متأكد من إلغاء ترحيل هذه الفاتورة؟ سيتم عكس التأثيرات المالية.')) return;
+    
+    revertSalesInvoiceEffects(invNo, false);
+    
+    let str = localStorage.getItem('erp_inv_' + invNo);
+    if (!str) return;
+    let oldInv = null;
+    try { oldInv = JSON.parse(str); } catch(e) { return; }
+    
+    oldInv.status = 'pending_delivery';
+    oldInv.effectsApplied = false;
+    localStorage.setItem('erp_inv_' + invNo, JSON.stringify(oldInv));
+    
+    let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    const idx = allSales.findIndex(inv => inv.invoiceNo === invNo);
+    if (idx !== -1) {
+        allSales[idx].status = 'pending_delivery';
+        allSales[idx].effectsApplied = false;
+        localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+    }
+    
+    updateSalesPostingStatusBar('pending_delivery');
+    showToast('↩️ تم إلغاء ترحيل الفاتورة بنجاح', 'success');
+}

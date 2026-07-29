@@ -66,6 +66,21 @@ let rowIdCounter = 0;
 let currentSaleType = 'direct';
 let currentViewedInvoiceNo = null;
 
+window._cachedPurchaseInvoicesRaw = null;
+window._cachedPurchaseList = null;
+
+function getPurchaseInvoicesList() {
+    const raw = localStorage.getItem('erp_purchase_invoices_v1');
+    if (window._cachedPurchaseInvoicesRaw === raw && window._cachedPurchaseList) {
+        return window._cachedPurchaseList;
+    }
+    let list = [];
+    try { list = JSON.parse(raw) || []; } catch(e) {}
+    window._cachedPurchaseInvoicesRaw = raw;
+    window._cachedPurchaseList = list;
+    return list;
+}
+
 // ════════════════════════════════════════
 //  HELPERS
 // ════════════════════════════════════════
@@ -149,11 +164,8 @@ const SALE_PREFIX = { direct:'', split:'', delivery:'', proforma:'' };
 
 // Peek: show the next number WITHOUT incrementing (safe for refresh)
 function peekNextInvoiceNumber(type) {
-    let list = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-    const now = new Date();
-    const yy = String(now.getFullYear()).substring(2, 4);
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const datePrefix = 'P' + yy + mm;
+    let list = getPurchaseInvoicesList();
+    const datePrefix = 'P260';
     
     let max = 0;
     list.forEach(inv => {
@@ -616,7 +628,7 @@ function addNewCustomer() {
 
 function loadPreviousInvoice() {
     const currentNoStr = document.getElementById('hdr-inv-no').value;
-    let list = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+    let list = getPurchaseInvoicesList();
     
     let previousInvoices = list
         .filter(inv => inv.invoiceNo && inv.invoiceNo < currentNoStr)
@@ -634,7 +646,7 @@ function loadPreviousInvoice() {
 
 function loadNextInvoice() {
     const currentNoStr = document.getElementById('hdr-inv-no').value;
-    let list = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+    let list = getPurchaseInvoicesList();
     
     let nextInvoices = list
         .filter(inv => inv.invoiceNo && inv.invoiceNo > currentNoStr)
@@ -689,6 +701,7 @@ function loadInvoiceFromStorage(invNo) {
         if(data.description) document.getElementById('hdr-description').value = data.description;
         if(data.notes) document.getElementById('inv-notes').value = data.notes;
         if(data.warehouse) document.getElementById('hdr-warehouse').value = data.warehouse;
+        if(data.costCenter) { const ccEl = document.getElementById('hdr-cost-center'); if (ccEl) ccEl.value = data.costCenter; }
         if(data.currency) document.getElementById('hdr-currency').value = data.currency;
         if(data.exchangeRate !== undefined) {
             document.getElementById('hdr-exchange-rate').value = data.exchangeRate;
@@ -715,38 +728,37 @@ function loadInvoiceFromStorage(invNo) {
             if (c) selectCustomer(c.id, c.name);
         }
         
-        // Rows
+        // Rows — PERFORMANCE: assign properties directly instead of calling
+        // updateRow() (which fires recalcAll on every call). We call renderGrid
+        // and recalcAll exactly ONCE after all rows are populated.
         const itemsList = data.items || data.products || [];
         if(itemsList && itemsList.length) {
             itemsList.forEach(i => {
-                addRow();
+                addRow(true, true); // silent — no re-render per row
                 const r = rows[rows.length-1];
-                const itemId = i.itemId || i.id || i.item_id;
-                const selectedUnit = i.selectedUnit || i.unit || i.unitName;
-                const customFactor = i.customFactor !== undefined ? i.customFactor : i.factor;
-                const quantity = i.quantity !== undefined ? i.quantity : (i.qty !== undefined ? i.qty : 0);
-                const customBaseQty = i.customBaseQty;
-                const price = i.price !== undefined ? i.price : (i.rate !== undefined ? i.rate : 0);
-                const fcPrice = i.fcPrice;
-                const warehouseId = i.warehouseId || i.warehouse;
-                const costCenterId = i.costCenterId || i.costCenter;
-
-                if (itemId) updateRow(r.id, 'itemId', itemId);
-                if (selectedUnit) updateRow(r.id, 'selectedUnit', selectedUnit);
-                if (customFactor !== undefined) updateRow(r.id, 'customFactor', customFactor);
-                if (quantity !== undefined) updateRow(r.id, 'quantity', quantity);
-                if (customBaseQty !== undefined) updateRow(r.id, 'customBaseQty', customBaseQty);
-                if (price !== undefined) updateRow(r.id, 'price', price);
-                if (fcPrice !== undefined) updateRow(r.id, 'fcPrice', fcPrice);
-                if (warehouseId) updateRow(r.id, 'warehouseId', warehouseId);
-                if (costCenterId) updateRow(r.id, 'costCenterId', costCenterId);
-                if (i.qrCode) updateRow(r.id, 'qrCode', i.qrCode);
+                
+                // Direct property assignment (no recalcAll per field)
+                r.itemId = i.itemId || i.id || i.item_id || '';
+                r.selectedUnit = i.selectedUnit || i.unit || i.unitName || '';
+                r.customFactor = i.customFactor !== undefined ? i.customFactor : (i.factor !== undefined ? i.factor : 1);
+                r.quantity = i.quantity !== undefined ? i.quantity : (i.qty !== undefined ? i.qty : 0);
+                if (i.customBaseQty !== undefined) r.customBaseQty = i.customBaseQty;
+                r.price = i.price !== undefined ? i.price : (i.rate !== undefined ? i.rate : 0);
+                if (i.fcPrice !== undefined) r.fcPrice = i.fcPrice;
+                r.warehouseId = i.warehouseId || i.warehouse || '';
+                r.costCenterId = i.costCenterId || i.costCenter || '';
+                if (i.qrCode) r.qrCode = i.qrCode;
+                if (i.note) r.note = i.note;
+                if (i.itemName || i.name) r.itemName = i.itemName || i.name;
+                if (i.buyPrice !== undefined) r.buyPrice = i.buyPrice;
+                if (i.sellPrice !== undefined) r.sellPrice = i.sellPrice;
             });
         }
         
         renderGrid();
         recalcAll();
         if (window.applyImmutabilityUI) window.applyImmutabilityUI(data.status);
+        if (typeof updatePostingStatusBar === 'function') updatePostingStatusBar(data.status);
         if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
         return true;
     } catch(e) {
@@ -1213,7 +1225,7 @@ function onMainWarehouseChange() {
 // ════════════════════════════════════════
 //  ROW MANAGEMENT
 // ════════════════════════════════════════
-function addRow(quiet = false) {
+function addRow(quiet = false, skipRender = false) {
     rowIdCounter++;
     rows.push({
         id: rowIdCounter,
@@ -1225,7 +1237,7 @@ function addRow(quiet = false) {
         qrCode: '',
         selectedUnit: ''
     });
-    renderGrid();
+    if (!skipRender) renderGrid();
     if (!quiet) showToast('📦 تم إضافة صنف جديد', 'success', 1500);
 }
 
@@ -2059,8 +2071,8 @@ function recalcAll() {
         grandLoc = invTotalLocal + laborLoc + transportLoc + additionsLoc + taxLoc - discountLoc;
         grandFc = invTotalFc + laborFc + transportFc + additionsFc + taxFc - discountFc;
     } else {
-        grandLoc = invTotalLocal + laborFc + transportFc + additionsFc + taxFc - discountFc;
-        grandFc = invTotalFc + laborLoc + transportLoc + additionsLoc + taxLoc - discountLoc;
+        grandLoc = invTotalLocal + laborLoc + transportLoc + additionsLoc + taxLoc - discountLoc;
+        grandFc = invTotalFc + laborFc + transportFc + additionsFc + taxFc - discountFc;
     }
 
     // Update totals display (Internal Hidden)
@@ -2177,6 +2189,7 @@ function saveDraft() {
         cheques: cheques,
         dueDate: creditAmt > 0 ? document.getElementById('pay-credit-due-date').value : '',
         warehouse: document.getElementById('hdr-warehouse').value,
+        costCenter: document.getElementById('hdr-cost-center')?.value || '',
         description: document.getElementById('hdr-description').value,
         items: rows,
         notes: document.getElementById('inv-notes').value,
@@ -2311,11 +2324,6 @@ function submitInvoice(ignoreWarnings = false) {
         paymentMethod = getPaymentMethodFromUI();
     }
 
-    // If edit mode is active, first revert the old invoice's effects
-    if (currentViewedInvoiceNo) {
-        revertOldInvoiceEffects(currentViewedInvoiceNo);
-    }
-
     // Save invoice data
     const supplierSearchEl = document.getElementById('hdr-customer-search');
     const data = {
@@ -2337,6 +2345,7 @@ function submitInvoice(ignoreWarnings = false) {
         cheques: cheques,
         dueDate: creditAmt > 0 ? document.getElementById('pay-credit-due-date').value : '',
         warehouse: document.getElementById('hdr-warehouse').value,
+        costCenter: document.getElementById('hdr-cost-center')?.value || '',
         description: document.getElementById('hdr-description').value,
         items: rows.map(r => ({...r})),
         notes: document.getElementById('inv-notes').value,
@@ -2355,56 +2364,79 @@ function submitInvoice(ignoreWarnings = false) {
         discountCostFc: parseNum(document.getElementById('t-discount-fc')?.value || 0)
     };
 
-    // Update Bank/Safe balance based on new payment fields
-    let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
-    let usedAccountName = '';
+    const postingMode = window.getPostingMode ? window.getPostingMode() : 'auto';
+    const shouldApplyEffects = (postingMode === 'auto');
 
-    if (paymentMethod === 'hybrid' || paymentMethod === 'multipay') {
-        // Subtract cash portion
-        if (cashAmt > 0) {
+    // Set status based on posting mode
+    if (shouldApplyEffects) {
+        data.status = 'posted'; // Auto mode: mark as posted immediately
+    } else {
+        data.status = 'confirmed'; // Manual mode: confirmed but not posted
+    }
+
+    // If edit mode is active AND the old invoice was posted, revert effects first
+    if (currentViewedInvoiceNo) {
+        const oldStr = localStorage.getItem('erp_pur_' + currentViewedInvoiceNo);
+        let oldInv = null;
+        if (oldStr) try { oldInv = JSON.parse(oldStr); } catch(e) {}
+        if (oldInv && oldInv.status === 'posted') {
+            revertOldInvoiceEffects(currentViewedInvoiceNo);
+        }
+    }
+
+    // ── Apply Accounting Effects (only in auto mode or re-posting) ──
+    let usedAccountName = '';
+    if (shouldApplyEffects) {
+        // Update Bank/Safe balance based on new payment fields
+        let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+
+        if (paymentMethod === 'hybrid' || paymentMethod === 'multipay') {
+            // Subtract cash portion
+            if (cashAmt > 0) {
+                const paymentAccountId = document.getElementById('hdr-payment-account').value;
+                const bIdx = banks.findIndex(b => b.id === paymentAccountId);
+                if (bIdx > -1) {
+                    banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - cashAmt;
+                    data.paymentAccountId = paymentAccountId;
+                    usedAccountName = banks[bIdx].name;
+                }
+            }
+            // Subtract bank transfers
+            if (bankTransfers && bankTransfers.length > 0) {
+                bankTransfers.forEach(bt => {
+                    const bIdx = banks.findIndex(b => b.id === bt.bankAccountId);
+                    if (bIdx > -1) {
+                        banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - bt.amount;
+                    }
+                });
+            }
+            localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+        } else if (paymentMethod !== 'credit') {
             const paymentAccountId = document.getElementById('hdr-payment-account').value;
             const bIdx = banks.findIndex(b => b.id === paymentAccountId);
             if (bIdx > -1) {
-                banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - cashAmt;
+                banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - grandAmount;
+                localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
                 data.paymentAccountId = paymentAccountId;
                 usedAccountName = banks[bIdx].name;
             }
         }
-        // Subtract bank transfers
-        if (bankTransfers && bankTransfers.length > 0) {
-            bankTransfers.forEach(bt => {
-                const bIdx = banks.findIndex(b => b.id === bt.bankAccountId);
-                if (bIdx > -1) {
-                    banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - bt.amount;
-                }
-            });
-        }
-        localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
-    } else if (paymentMethod !== 'credit') {
-        const paymentAccountId = document.getElementById('hdr-payment-account').value;
-        const bIdx = banks.findIndex(b => b.id === paymentAccountId);
-        if (bIdx > -1) {
-            banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - grandAmount;
-            localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
-            data.paymentAccountId = paymentAccountId;
-            usedAccountName = banks[bIdx].name;
-        }
-    }
 
-    // Update Supplier Balance (Debt)
-    let creditBalanceToAdd = 0;
-    if (paymentMethod === 'hybrid' || paymentMethod === 'multipay') {
-        creditBalanceToAdd = creditAmt;
-    } else if (paymentMethod === 'credit') {
-        creditBalanceToAdd = grandAmount;
-    }
-    if (creditBalanceToAdd > 0 && custId && custId !== 'walk-in') {
-        let suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
-        const sIdx = suppliers.findIndex(s => s.id === custId);
-        if (sIdx > -1) {
-            let currentBalance = parseFloat(suppliers[sIdx].currentBalance) || 0;
-            suppliers[sIdx].currentBalance = currentBalance + creditBalanceToAdd;
-            localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
+        // Update Supplier Balance (Debt)
+        let creditBalanceToAdd = 0;
+        if (paymentMethod === 'hybrid' || paymentMethod === 'multipay') {
+            creditBalanceToAdd = creditAmt;
+        } else if (paymentMethod === 'credit') {
+            creditBalanceToAdd = grandAmount;
+        }
+        if (creditBalanceToAdd > 0 && custId && custId !== 'walk-in') {
+            let suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
+            const sIdx = suppliers.findIndex(s => s.id === custId);
+            if (sIdx > -1) {
+                let currentBalance = parseFloat(suppliers[sIdx].currentBalance) || 0;
+                suppliers[sIdx].currentBalance = currentBalance + creditBalanceToAdd;
+                localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
+            }
         }
     }
 
@@ -2421,38 +2453,43 @@ function submitInvoice(ignoreWarnings = false) {
     }
     localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
 
-    // Add to local inventory cache and live objects
-    let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
-    const mainWh = document.getElementById('hdr-warehouse').value;
-    for (const row of rows) {
-        const item = ITEMS.find(i => String(i.id) === String(row.itemId));
-        if (!item) continue;
-        const calcs = getRowCalcs(row);
-        const whId = row.warehouseId || mainWh;
-        const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي';
-        
-        let itemInv = currentInvData.find(inv => String(inv.itemId) === String(row.itemId) && inv.warehouse === whName);
-        if (itemInv) {
-            itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) + calcs.baseQty;
-        } else {
-            currentInvData.push({ itemId: row.itemId, warehouse: whName, qty: calcs.baseQty, minQty: 10 });
+    // Add to local inventory cache and live objects (only in auto mode)
+    if (shouldApplyEffects) {
+        let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+        const mainWh = document.getElementById('hdr-warehouse').value;
+        for (const row of rows) {
+            const item = ITEMS.find(i => String(i.id) === String(row.itemId));
+            if (!item) continue;
+            const calcs = getRowCalcs(row);
+            const whId = row.warehouseId || mainWh;
+            const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي';
+            
+            let itemInv = currentInvData.find(inv => String(inv.itemId) === String(row.itemId) && inv.warehouse === whName);
+            if (itemInv) {
+                itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) + calcs.baseQty;
+            } else {
+                currentInvData.push({ itemId: row.itemId, warehouse: whName, qty: calcs.baseQty, minQty: 10 });
+            }
+            
+            // Update live ITEMS array
+            if (item.stock && item.stock[whId] !== undefined) {
+                item.stock[whId] += calcs.baseQty;
+            } else if (item.stock) {
+                item.stock[whId] = calcs.baseQty;
+            }
         }
-        
-        // Update live ITEMS array
-        if (item.stock && item.stock[whId] !== undefined) {
-            item.stock[whId] += calcs.baseQty;
-        } else if (item.stock) {
-            item.stock[whId] = calcs.baseQty;
-        }
+        localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
     }
-    localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
 
-    // Show professional success modal (we can pass the warnings array so it still shows them if desired)
-    // To grab the actual warnings to display in success modal, we need to generate them again if ignoreWarnings is true.
+    // Show professional success modal
     let finalWarnings = [];
 
     if (usedAccountName) {
         showToast(`تم خصم ${fmtNum(grandAmount)} ${cur} من رصيد: ${usedAccountName}`, 'success', 5000);
+    }
+
+    if (!shouldApplyEffects) {
+        showToast('📋 تم تأكيد الفاتورة — تحتاج ترحيل لتؤثر في الأرصدة والمخزون', 'warning', 5000);
     }
 
     onSuccessNewInvoice(false);
@@ -2460,6 +2497,180 @@ function submitInvoice(ignoreWarnings = false) {
 
     // In production: POST to API
     // fetch('/api/v1/sales/invoices', { method:'POST', body:JSON.stringify(data) })
+}
+
+
+// ════════════════════════════════════════
+//  POST / UNPOST INVOICE (Manual Posting)
+// ════════════════════════════════════════
+function postInvoice(invoiceNo) {
+    if (!invoiceNo) { showToast('❌ لا يوجد رقم فاتورة', 'error'); return; }
+
+    let invStr = localStorage.getItem('erp_pur_' + invoiceNo);
+    let inv = null;
+    if (invStr) try { inv = JSON.parse(invStr); } catch(e) {}
+    if (!inv) {
+        let allP = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+        inv = allP.find(i => String(i.invoiceNo) === String(invoiceNo));
+    }
+    if (!inv) { showToast('❌ لم يتم العثور على الفاتورة', 'error'); return; }
+    if (inv.status === 'posted') { showToast('ℹ️ الفاتورة مرحلة بالفعل', 'warning'); return; }
+
+    const grandAmount = parseFloat(inv.grandTotal) || 0;
+    const paymentMethod = inv.paymentMethod || 'credit';
+    const custId = inv.customer;
+
+    // 1. Apply Bank/Safe effects
+    let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+    if (paymentMethod === 'hybrid' || paymentMethod === 'multipay') {
+        if (inv.cashAmount > 0 && inv.paymentAccountId) {
+            const bIdx = banks.findIndex(b => b.id === inv.paymentAccountId);
+            if (bIdx > -1) banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - parseFloat(inv.cashAmount);
+        }
+        if (inv.bankTransfers && inv.bankTransfers.length > 0) {
+            inv.bankTransfers.forEach(bt => {
+                const bIdx = banks.findIndex(b => b.id === bt.bankAccountId);
+                if (bIdx > -1) banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - parseFloat(bt.amount);
+            });
+        }
+        localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+    } else if (paymentMethod !== 'credit' && inv.paymentAccountId) {
+        const bIdx = banks.findIndex(b => b.id === inv.paymentAccountId);
+        if (bIdx > -1) {
+            banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - grandAmount;
+            localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+        }
+    }
+
+    // 2. Apply Supplier Balance (Debt)
+    let creditBalanceToAdd = 0;
+    if (paymentMethod === 'hybrid' || paymentMethod === 'multipay') {
+        creditBalanceToAdd = parseFloat(inv.creditAmount) || 0;
+    } else if (paymentMethod === 'credit') {
+        creditBalanceToAdd = grandAmount;
+    }
+    if (creditBalanceToAdd > 0 && custId && custId !== 'walk-in') {
+        let suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
+        const sIdx = suppliers.findIndex(s => s.id === custId);
+        if (sIdx > -1) {
+            suppliers[sIdx].currentBalance = (parseFloat(suppliers[sIdx].currentBalance) || 0) + creditBalanceToAdd;
+            localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
+        }
+    }
+
+    // 3. Apply Inventory
+    let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+    const mainWh = inv.warehouse || 'wh-001';
+    if (inv.items && Array.isArray(inv.items)) {
+        for (const row of inv.items) {
+            const item = ITEMS.find(i => String(i.id) === String(row.itemId));
+            if (!item) continue;
+            let selectedUnitFactor = row.customFactor !== undefined ? row.customFactor : 1;
+            let baseQty = row.customBaseQty !== undefined ? row.customBaseQty : (item ? row.quantity * selectedUnitFactor * item.conversionFactor : 0);
+            const whId = row.warehouseId || mainWh;
+            const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي';
+            let itemInv = currentInvData.find(iv => String(iv.itemId) === String(row.itemId) && iv.warehouse === whName);
+            if (itemInv) {
+                itemInv.qty = (parseFloat(itemInv.qty) || 0) + baseQty;
+            } else {
+                currentInvData.push({ itemId: row.itemId, warehouse: whName, qty: baseQty, minQty: 10 });
+            }
+            if (item.stock && item.stock[whId] !== undefined) item.stock[whId] += baseQty;
+            else if (item.stock) item.stock[whId] = baseQty;
+        }
+    }
+    localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
+
+    // 4. Update invoice status to 'posted'
+    inv.status = 'posted';
+    inv.postedAt = new Date().toISOString();
+    inv.postedBy = (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown';
+    localStorage.setItem('erp_pur_' + invoiceNo, JSON.stringify(inv));
+
+    let allPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+    const idx = allPurchases.findIndex(i => String(i.invoiceNo) === String(invoiceNo));
+    if (idx !== -1) allPurchases[idx] = inv;
+    localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+
+    // 5. Apply immutability and update UI
+    if (window.applyImmutabilityUI) window.applyImmutabilityUI('posted');
+    updatePostingStatusBar('posted');
+    showToast('📮 تم ترحيل الفاتورة بنجاح — أثرت في الأرصدة والمخزون', 'success', 4000);
+}
+
+function unpostInvoice(invoiceNo) {
+    if (!invoiceNo) { showToast('❌ لا يوجد رقم فاتورة', 'error'); return; }
+
+    let invStr = localStorage.getItem('erp_pur_' + invoiceNo);
+    let inv = null;
+    if (invStr) try { inv = JSON.parse(invStr); } catch(e) {}
+    if (!inv) { showToast('❌ لم يتم العثور على الفاتورة', 'error'); return; }
+    if (inv.status !== 'posted') { showToast('ℹ️ الفاتورة غير مرحلة', 'warning'); return; }
+
+    // Revert all effects
+    revertOldInvoiceEffects(invoiceNo);
+
+    // Update status back to confirmed
+    inv.status = 'confirmed';
+    delete inv.postedAt;
+    delete inv.postedBy;
+    localStorage.setItem('erp_pur_' + invoiceNo, JSON.stringify(inv));
+
+    let allPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+    const idx = allPurchases.findIndex(i => String(i.invoiceNo) === String(invoiceNo));
+    if (idx !== -1) allPurchases[idx] = inv;
+    localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+
+    // Remove immutability and update UI
+    if (window.applyImmutabilityUI) window.applyImmutabilityUI('confirmed');
+    updatePostingStatusBar('confirmed');
+    showToast('↩️ تم عكس ترحيل الفاتورة — يمكنك التعديل عليها الآن', 'success', 4000);
+}
+
+function updatePostingStatusBar(status) {
+    const bar = document.getElementById('posting-status-bar');
+    if (!bar) return;
+    const postingMode = window.getPostingMode ? window.getPostingMode() : 'auto';
+    
+    if (postingMode === 'auto' || !currentViewedInvoiceNo) {
+        bar.style.display = 'none';
+        return;
+    }
+
+    bar.style.display = 'flex';
+    const invNo = currentViewedInvoiceNo || document.getElementById('hdr-inv-no')?.value;
+
+    if (status === 'posted') {
+        bar.innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px; flex:1;">
+                <span style="font-size:1.3rem;">🔒</span>
+                <div>
+                    <span style="font-weight:700; color:#10b981;">مرحلة</span>
+                    <span style="color:#94a3b8; font-size:0.8rem; margin-right:8px;">— أثرت في الأرصدة والمخزون</span>
+                </div>
+            </div>
+            <button type="button" onclick="unpostInvoice('${invNo}')" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#f87171; padding:8px 18px; border-radius:10px; font-weight:700; font-size:0.9rem; cursor:pointer; transition:all 0.2s; font-family:'Tajawal',sans-serif; display:flex; align-items:center; gap:6px;" onmouseover="this.style.background='rgba(239,68,68,0.25)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'">
+                <span>↩️</span> عكس الترحيل
+            </button>`;
+        bar.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(16,185,129,0.03))';
+        bar.style.borderColor = 'rgba(16,185,129,0.3)';
+    } else if (status === 'confirmed') {
+        bar.innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px; flex:1;">
+                <span style="font-size:1.3rem;">⏳</span>
+                <div>
+                    <span style="font-weight:700; color:#fbbf24;">مؤكدة — بانتظار الترحيل</span>
+                    <span style="color:#94a3b8; font-size:0.8rem; margin-right:8px;">لم تؤثر في الأرصدة بعد</span>
+                </div>
+            </div>
+            <button type="button" onclick="postInvoice('${invNo}')" style="background:linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.15)); border:1px solid rgba(16,185,129,0.4); color:#34d399; padding:8px 22px; border-radius:10px; font-weight:700; font-size:0.95rem; cursor:pointer; transition:all 0.2s; font-family:'Tajawal',sans-serif; display:flex; align-items:center; gap:6px;" onmouseover="this.style.background='linear-gradient(135deg, rgba(16,185,129,0.3), rgba(5,150,105,0.25))'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.15))'; this.style.transform='none'">
+                <span>📮</span> ترحيل الفاتورة
+            </button>`;
+        bar.style.background = 'linear-gradient(135deg, rgba(251,191,36,0.08), rgba(245,158,11,0.03))';
+        bar.style.borderColor = 'rgba(251,191,36,0.3)';
+    } else {
+        bar.style.display = 'none';
+    }
 }
 
 // ════════════════════════════════════════
@@ -2721,6 +2932,10 @@ function showSuccessModal(invoiceNo, grandTotal, currency, warnings = []) {
 
 function onSuccessNewInvoice(closeModalFlag = true) {
     currentViewedInvoiceNo = null; // Reset edit mode
+    // Hide posting status bar
+    if (typeof updatePostingStatusBar === 'function') updatePostingStatusBar(null);
+    // Remove immutability lock
+    if (window.applyImmutabilityUI) window.applyImmutabilityUI('draft');
     // Close modal
     if (closeModalFlag) {
         const overlay = document.getElementById('success-modal-overlay');

@@ -606,9 +606,15 @@
                     <span class="form-label" style="margin:0;">تفعيل استخدام قارئ الباركود في شاشات المبيعات والمشتريات</span>
                     <label class="switch"><input type="checkbox" id="cfg-enable-barcode" checked><span class="slider"></span></label>
                 </div>
-                <div class="setting-row">
-                    <span class="form-label" style="margin:0;">الترحيل التلقائي للفواتير والحركات إلى الحسابات العامة</span>
-                    <label class="switch"><input type="checkbox" id="cfg-auto-post-gl" checked><span class="slider"></span></label>
+                <div class="setting-row" style="flex-direction:column; align-items:stretch; gap:8px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="form-label" style="margin:0;">الترحيل التلقائي للفواتير والحركات إلى الحسابات العامة</span>
+                        <label class="switch"><input type="checkbox" id="cfg-auto-post-gl" checked><span class="slider"></span></label>
+                    </div>
+                    <small style="color:#94a3b8; line-height:1.6; display:block;">
+                        <strong style="color:#10b981;">✅ مفعّل (ترحيل تلقائي):</strong> عند تأكيد الفاتورة تُرحّل فوراً وتؤثر في الأرصدة والمخزون.<br>
+                        <strong style="color:#fbbf24;">⏸️ معطّل (ترحيل يدوي):</strong> عند التأكيد تُحفظ الفاتورة لكن لا تؤثر في الأرصدة حتى يتم ترحيلها يدوياً.
+                    </small>
                 </div>
             </div>
         </div>
@@ -846,7 +852,7 @@
 
 <script defer src="js/localforage.min.js"></script>
 <script defer src="js/app.js?v=20260723_v14"></script>
-<script defer src="js/whatsapp-integration.js"></script>
+<script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
 <script>
 // Language switcher logic for settings page
 function switchLanguage(lang) {
@@ -1290,6 +1296,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (window.logSystemAction) {
             window.logSystemAction('Settings Update', 'settings', 'تم تحديث إعدادات النظام');
         }
+
+        // Sync posting mode with the posting system
+        localStorage.setItem('erp_posting_mode', cfg.autoPostGl ? 'auto' : 'manual');
 
         // Hide save button after successful save
         const saveBtn = document.getElementById('save-settings-btn');

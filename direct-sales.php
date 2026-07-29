@@ -21,6 +21,63 @@
     <link rel="stylesheet" href="css/sales-invoice.css">
     <link rel="stylesheet" href="css/print-invoice.css">
     <style>
+        /* ═══════════════════════════════════════════════════════
+           ⚡ PERFORMANCE OVERRIDES — eliminates GPU-heavy effects
+           backdrop-filter: blur() forces per-pixel compositing
+           on EVERY frame. With 20+ blurred elements visible at
+           once, the browser cannot maintain 60 FPS. This block
+           replaces ALL always-visible backdrop-filter with solid
+           opaque backgrounds that look identical but cost 0 GPU.
+           Only modals/popups (display:none by default) keep blur.
+           ═══════════════════════════════════════════════════════ */
+        .glass-panel,
+        .neon-glass-panel,
+        .panel,
+        .neo-card,
+        .pro-panel,
+        .sales-glass-card,
+        .purchase-glass-card,
+        .toast,
+        .custom-dropdown-list,
+        .pos-lemon-title,
+        #hdr-customer-ledger-btn,
+        .fin-available-credit {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        /* Give panels a solid dark background so they still look great */
+        .glass-panel {
+            background: rgba(12, 10, 20, 0.92) !important;
+        }
+        .panel {
+            background: rgba(14, 12, 22, 0.95) !important;
+        }
+        .pro-panel {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(10, 17, 40, 0.98)) !important;
+        }
+        .sales-glass-card {
+            background: linear-gradient(135deg, rgba(35, 32, 80, 0.95) 0%, rgba(12, 15, 30, 0.98) 100%) !important;
+        }
+        .purchase-glass-card {
+            background: linear-gradient(135deg, rgba(60, 20, 90, 0.95) 0%, rgba(20, 35, 85, 0.95) 50%, rgba(12, 15, 30, 0.98) 100%) !important;
+        }
+        .toast {
+            background: rgba(15, 23, 42, 0.96) !important;
+        }
+        .toast.success { background: rgba(10, 40, 30, 0.96) !important; }
+        .toast.error { background: rgba(50, 15, 15, 0.96) !important; }
+        .toast.warning { background: rgba(50, 40, 10, 0.96) !important; }
+        .custom-dropdown-list {
+            background: rgba(25, 30, 45, 0.98) !important;
+        }
+        /* Stop infinite CSS animations — they force continuous GPU repaints */
+        .pos-lemon-title,
+        .pos-lemon-title::before,
+        .pos-icon-svg,
+        #hdr-customer-ledger-btn,
+        .fin-available-credit {
+            animation: none !important;
+        }
 
         :root {
             --bg-color: #050308;
@@ -50,13 +107,12 @@
         .ambient-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
             overflow: hidden; z-index: -1; pointer-events: none;
-            background: radial-gradient(circle at 50% 50%, #0c0812 0%, #000000 100%);
+            background: 
+                radial-gradient(circle at 95% 5%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 5% 95%, rgba(236, 72, 153, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 35% 45%, rgba(59, 130, 246, 0.05) 0%, transparent 60%),
+                radial-gradient(circle at 50% 50%, #0c0812 0%, #000000 100%);
         }
-        .orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.15; animation: floatOrb 20s infinite alternate ease-in-out; }
-        .orb-1 { width: 500px; height: 500px; background: var(--primary-accent); top: -5%; right: -5%; }
-        .orb-2 { width: 450px; height: 450px; background: var(--theme-pink); bottom: -10%; left: -5%; animation-delay: -7s; }
-        .orb-3 { width: 600px; height: 600px; background: var(--theme-blue); top: 30%; left: 30%; animation-duration: 25s; opacity: 0.1; }
-        @keyframes floatOrb { 0% { transform: translate(0, 0) scale(1); } 33% { transform: translate(30px, -50px) scale(1.1); } 66% { transform: translate(-30px, 30px) scale(0.9); } 100% { transform: translate(0, 0) scale(1); } }
 
         .dash-main { width: 100%; max-width: 1600px; margin: 0 auto; margin: 0 auto; padding: 0px 30px 20px 30px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; flex: 1; animation: fadeIn 0.8s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
@@ -1018,6 +1074,148 @@
     .glass-panel-pulse {
         animation: pulseGlow 4s ease-in-out infinite;
     }
+
+    /* ═══ PREMIUM FORM CONTROL STYLING ═══ */
+    /* Dark Mode Default Controls */
+    .ctrl-input, .v-input, .system-currency-select {
+        background: rgba(10, 8, 16, 0.85) !important;
+        border: 1px solid rgba(56, 189, 248, 0.25) !important;
+        border-radius: 8px !important;
+        color: #f8fafc !important;
+        padding: 8px 12px !important;
+        font-size: 0.85rem !important;
+        font-weight: 500 !important;
+        outline: none !important;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    .ctrl-input:focus, .v-input:focus, .system-currency-select:focus {
+        background: #020104 !important;
+        border-color: #38bdf8 !important;
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.4), inset 0 1px 2px rgba(0,0,0,0.6) !important;
+        transform: translateY(-1px);
+    }
+    /* Labels formatting */
+    .h-label {
+        font-size: 0.8rem !important;
+        font-weight: 700 !important;
+        color: #94a3b8 !important;
+        transition: color 0.25s ease !important;
+    }
+    .h-form-group:focus-within .h-label {
+        color: #38bdf8 !important;
+        text-shadow: 0 0 8px rgba(56, 189, 248, 0.3) !important;
+    }
+
+    /* Light Mode Controls Override */
+    :root.light-theme .ctrl-input, 
+    :root.light-theme .v-input,
+    :root.light-theme .system-currency-select {
+        background: #f1f5f9 !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #0f172a !important;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    }
+    :root.light-theme .ctrl-input:focus,
+    :root.light-theme .v-input:focus,
+    :root.light-theme .system-currency-select:focus {
+        background: #ffffff !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.2), inset 0 1px 2px rgba(0,0,0,0.05) !important;
+    }
+    :root.light-theme .h-label {
+        color: #475569 !important;
+    }
+    :root.light-theme .h-form-group:focus-within .h-label {
+        color: #2563eb !important;
+        text-shadow: none !important;
+    }
+
+    /* ═══ MULTI-COLOR VISUAL CODING & GLASSMORPHISM ═══ */
+    /* Purchase specific top card custom glass style */
+    .purchase-glass-card {
+        background: linear-gradient(135deg, rgba(88, 28, 135, 0.22) 0%, rgba(30, 58, 138, 0.15) 50%, rgba(15, 23, 42, 0.75) 100%) !important;
+        border: 1px solid rgba(139, 92, 246, 0.35) !important;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(139, 92, 246, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.05) !important;
+        backdrop-filter: blur(25px) !important;
+        -webkit-backdrop-filter: blur(25px) !important;
+    }
+    /* Sales specific top card custom glass style */
+    .sales-glass-card {
+        background: linear-gradient(135deg, rgba(49, 46, 129, 0.25) 0%, rgba(15, 23, 42, 0.75) 100%) !important;
+        border: 1px solid rgba(99, 102, 241, 0.35) !important;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(99, 102, 241, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.05) !important;
+        backdrop-filter: blur(25px) !important;
+        -webkit-backdrop-filter: blur(25px) !important;
+    }
+
+    /* Group Specific Color Codings (Dark Mode Default) */
+    /* 1. Invoice No (Sky Blue) */
+    .group-invoice .h-label { color: #38bdf8 !important; }
+    .group-invoice .ctrl-input { border-color: rgba(56, 189, 248, 0.25) !important; color: #ffffff !important; }
+    .h-form-group.group-invoice:focus-within .h-label { text-shadow: 0 0 8px rgba(56, 189, 248, 0.4) !important; }
+    .group-invoice .ctrl-input:focus { border-color: #38bdf8 !important; box-shadow: 0 0 12px rgba(56, 189, 248, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
+
+    /* 2. Date (Soft Rose/Red) */
+    .group-date .h-label { color: #f87171 !important; }
+    .group-date .ctrl-input { border-color: rgba(248, 113, 113, 0.25) !important; color: #f87171 !important; }
+    .h-form-group.group-date:focus-within .h-label { text-shadow: 0 0 8px rgba(248, 113, 113, 0.4) !important; }
+    .group-date .ctrl-input:focus { border-color: #f87171 !important; box-shadow: 0 0 12px rgba(248, 113, 113, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
+
+    /* 3. Supplier / Customer (Teal/Emerald Green) */
+    .group-supplier .h-label { color: #34d399 !important; }
+    .group-supplier .ctrl-input { border-color: rgba(52, 211, 153, 0.25) !important; color: #ffffff !important; }
+    .h-form-group.group-supplier:focus-within .h-label { text-shadow: 0 0 8px rgba(52, 211, 153, 0.4) !important; }
+    .group-supplier .ctrl-input:focus { border-color: #34d399 !important; box-shadow: 0 0 12px rgba(52, 211, 153, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
+
+    /* 4. Currency / Exchange Rate (Lavender/Indigo) */
+    .group-currency .h-label { color: #a78bfa !important; }
+    .group-currency .ctrl-input, .group-currency select.system-currency-select { border-color: rgba(167, 139, 250, 0.25) !important; color: #ffffff !important; }
+    .h-form-group.group-currency:focus-within .h-label { text-shadow: 0 0 8px rgba(167, 139, 250, 0.4) !important; }
+    .group-currency .ctrl-input:focus, .group-currency select.system-currency-select:focus { border-color: #a78bfa !important; box-shadow: 0 0 12px rgba(167, 139, 250, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
+
+    /* 5. Warehouse (Warm Orange) */
+    .group-warehouse .h-label { color: #fb923c !important; }
+    .group-warehouse .ctrl-input { border-color: rgba(251, 146, 60, 0.25) !important; color: #ffffff !important; }
+    .h-form-group.group-warehouse:focus-within .h-label { text-shadow: 0 0 8px rgba(251, 146, 60, 0.4) !important; }
+    .group-warehouse .ctrl-input:focus { border-color: #fb923c !important; box-shadow: 0 0 12px rgba(251, 146, 60, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
+
+    /* 6. Cost Center (Lime Green) */
+    .group-cost-center .h-label { color: #a3e635 !important; }
+    .group-cost-center .ctrl-input { border-color: rgba(163, 230, 53, 0.25) !important; color: #ffffff !important; }
+    .h-form-group.group-cost-center:focus-within .h-label { text-shadow: 0 0 8px rgba(163, 230, 53, 0.4) !important; }
+    .group-cost-center .ctrl-input:focus { border-color: #a3e635 !important; box-shadow: 0 0 12px rgba(163, 230, 53, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
+
+    /* 7. Description (Slate/Gray) */
+    .group-description .h-label { color: #94a3b8 !important; }
+    .group-description .ctrl-input { border-color: rgba(148, 163, 184, 0.2) !important; color: #ffffff !important; }
+    .h-form-group.group-description:focus-within .h-label { text-shadow: 0 0 8px rgba(148, 163, 184, 0.4) !important; }
+    .group-description .ctrl-input:focus { border-color: #94a3b8 !important; box-shadow: 0 0 12px rgba(148, 163, 184, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
+
+    /* Light Theme Overrides for Group Titles/Labels */
+    :root.light-theme .group-invoice .h-label { color: #0284c7 !important; }
+    :root.light-theme .group-date .h-label { color: #dc2626 !important; }
+    :root.light-theme .group-supplier .h-label { color: #059669 !important; }
+    :root.light-theme .group-currency .h-label { color: #7c3aed !important; }
+    :root.light-theme .group-warehouse .h-label { color: #ea580c !important; }
+    :root.light-theme .group-cost-center .h-label { color: #65a30d !important; }
+    :root.light-theme .group-description .h-label { color: #475569 !important; }
+
+    :root.light-theme .group-invoice .ctrl-input { border-color: #cbd5e1 !important; color: #0f172a !important; }
+    :root.light-theme .group-date .ctrl-input { border-color: #cbd5e1 !important; color: #dc2626 !important; }
+    :root.light-theme .group-supplier .ctrl-input { border-color: #cbd5e1 !important; color: #0f172a !important; }
+    :root.light-theme .group-currency .ctrl-input, :root.light-theme .group-currency select.system-currency-select { border-color: #cbd5e1 !important; color: #0f172a !important; }
+    :root.light-theme .group-warehouse .ctrl-input { border-color: #cbd5e1 !important; color: #0f172a !important; }
+    :root.light-theme .group-cost-center .ctrl-input { border-color: #cbd5e1 !important; color: #0f172a !important; }
+    :root.light-theme .group-description .ctrl-input { border-color: #cbd5e1 !important; color: #0f172a !important; }
+
+    :root.light-theme .group-invoice .ctrl-input:focus { border-color: #0284c7 !important; box-shadow: 0 0 10px rgba(2, 132, 199, 0.25) !important; }
+    :root.light-theme .group-date .ctrl-input:focus { border-color: #dc2626 !important; box-shadow: 0 0 10px rgba(220, 38, 38, 0.25) !important; }
+    :root.light-theme .group-supplier .ctrl-input:focus { border-color: #059669 !important; box-shadow: 0 0 10px rgba(5, 150, 105, 0.25) !important; }
+    :root.light-theme .group-currency .ctrl-input:focus, :root.light-theme .group-currency select.system-currency-select:focus { border-color: #7c3aed !important; box-shadow: 0 0 10px rgba(124, 58, 237, 0.25) !important; }
+    :root.light-theme .group-warehouse .ctrl-input:focus { border-color: #ea580c !important; box-shadow: 0 0 10px rgba(234, 88, 12, 0.25) !important; }
+    :root.light-theme .group-cost-center .ctrl-input:focus { border-color: #65a30d !important; box-shadow: 0 0 10px rgba(101, 163, 13, 0.25) !important; }
+    :root.light-theme .group-description .ctrl-input:focus { border-color: #475569 !important; box-shadow: 0 0 10px rgba(71, 85, 105, 0.25) !important; }
 </style>
 
 
@@ -2030,11 +2228,7 @@
                 <!-- Unified Header -->
         
     <!-- Ambient Animated Background -->
-    <div class="ambient-bg">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-    </div>
+    <div class="ambient-bg"></div>
 
     <!-- Unified Premium Header -->
         <?php $header_theme_class = 'header-theme-sales'; ?>
@@ -2111,6 +2305,8 @@
                     <p>اضغط على "فاتورة جديدة" للبدء.</p>
                 </div>
             </div>
+            <!-- Pagination Bar -->
+            <div id="hub-pagination-bar" style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding: 5px 0;"></div>
         </div>
     </div>
 
@@ -2266,38 +2462,33 @@
 
                 
                 <!-- Form Fields -->
-                <div class="neo-card expanded-form" id="form-fields-card" style="
+                <div class="neo-card expanded-form sales-glass-card" id="form-fields-card" style="
                     margin-bottom: 0; 
                     padding: 25px; 
                     border-radius: 16px; 
-                    background: rgba(15, 23, 42, 0.15); 
-                    border: 1px solid rgba(56, 189, 248, 0.3); 
-                    backdrop-filter: blur(25px); 
-                    -webkit-backdrop-filter: blur(25px); 
-                    box-shadow: 0 0 20px rgba(56, 189, 248, 0.15), inset 0 0 15px rgba(255,255,255,0.05);
                     position: relative;
                     overflow: visible;
                     width: 100%;
                 ">
                     <!-- Neon glow effect -->
                     <div style="position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden; border-radius:16px; z-index:0; pointer-events:none;">
-                        <div style="position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 60%);"></div>
+                        <div style="position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 60%);"></div>
                     </div>
                     
                     <div style="display: flex; flex-direction: column; gap: 18px; position:relative; z-index:1;">
                         
                         
                         
-    <!-- ROW 1 WRAPPER (Dynamic Split) -->
+    <!-- ROW 1 WRAPPER (Invoice Info & Financial Strip) -->
     <div style="display: flex; width: 100%; gap: 15px; margin-bottom: 12px; transition: all 0.4s ease;">
         
         <!-- Row 1: Invoice Number & Date -->
-        <div id="invoice-info-box" style="flex: 1; display: flex; gap: 12px; width: 100%; background: linear-gradient(90deg, rgba(30,58,138,0.2), rgba(15,23,42,0.4)); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); align-items: center; justify-content: space-between;">
-            <div class="h-form-group" style="flex: 1.1; display:flex; align-items:center; gap:8px; margin:0; min-width: 0;">
-                <label class="h-label" style="margin:0; color:#38bdf8; font-size: 0.95rem; font-weight:bold; white-space:nowrap; text-shadow: 0 0 5px rgba(56,189,248,0.3);">رقم الفاتورة:</label>
+        <div id="invoice-info-box" style="flex: 1; display: flex; gap: 12px; width: 100%; background: linear-gradient(90deg, rgba(30,58,138,0.2), rgba(15,23,42,0.4)); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); align-items: center; justify-content: space-between;">
+            <div class="h-form-group group-invoice" style="flex: 1.1; display:flex; align-items:center; gap:8px; margin:0; min-width: 0;">
+                <label class="h-label" style="margin:0; font-size: 0.95rem; font-weight:bold; white-space:nowrap;">رقم الفاتورة:</label>
                 <div style="display:flex; align-items:center; justify-content:space-between; flex:1; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); min-width: 0;">
                     <button class="pro-serial-btn" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #fff; font-size: 1.1rem; cursor: pointer; padding: 0 5px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❮</button>
-                    <span id="inv-number" class="pro-serial-number" style="font-size: 0.95rem; font-family: 'Outfit', sans-serif; font-weight: 900; color: #38bdf8; letter-spacing: 1px; text-shadow: 0 0 10px rgba(56,189,248,0.5); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">INV-000001</span>
+                    <span id="inv-number" class="pro-serial-number" style="font-size: 0.95rem; font-family: 'Outfit', sans-serif; font-weight: 900; letter-spacing: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">INV-000001</span>
                     <input type="hidden" id="hdr-inv-no">
                     <button class="pro-serial-btn" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; color: #fff; font-size: 1.1rem; cursor: pointer; padding: 0 5px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❯</button>
                 </div>
@@ -2305,9 +2496,9 @@
 
             <div style="width: 1px; height: 28px; background: rgba(255,255,255,0.1); margin: 0 2px;"></div>
 
-            <div class="h-form-group" style="flex: 0.9; display:flex; align-items:center; gap:8px; margin:0; min-width: 0;">
-                <label class="h-label" id="hdr-date-label" style="margin:0; color:#ef4444; font-size: 0.95rem; font-weight:bold; white-space:nowrap; text-shadow: 0 0 5px rgba(239,68,68,0.3);">التاريخ:</label>
-                <input type="date" class="v-input ctrl-input" id="hdr-date" style="flex:1; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; color:#ef4444; padding:3px 6px; font-family:'Outfit',sans-serif; font-weight:bold; font-size:1.05rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); min-width: 0;">
+            <div class="h-form-group group-date" style="flex: 0.9; display:flex; align-items:center; gap:8px; margin:0; min-width: 0;">
+                <label class="h-label" id="hdr-date-label" style="margin:0; font-size: 0.95rem; font-weight:bold; white-space:nowrap;">التاريخ:</label>
+                <input type="date" class="v-input ctrl-input" id="hdr-date" style="flex:1; text-align: center; border-radius: 8px; padding:3px 6px; font-family:'Outfit',sans-serif; font-weight:bold; font-size:1.05rem; min-width: 0;">
             </div>
         </div>
 
@@ -2342,7 +2533,7 @@
                     <div style="width:1px; height:15px; background:rgba(255,255,255,0.1); flex-shrink: 0;"></div>
                     
                     <div style="display:flex; flex-direction:column; align-items:center; min-width: 0;">
-                        <span style="font-size:0.6rem; color:#38bdf8; font-weight:700; white-space: nowrap;">حد الائتمان</span>
+                        <span style="font-weight:800; color:#38bdf8; font-size:0.75rem; white-space: nowrap;">حد الائتمان</span>
                         <span id="fin-credit-limit" style="font-weight:800; color:#38bdf8; font-size:0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">0</span>
                     </div>
                     <div style="width:1px; height:15px; background:rgba(255,255,255,0.1); flex-shrink: 0;"></div>
@@ -2357,76 +2548,74 @@
 
     </div>
     
-    <!-- Row 2: Customer, Currency -->
-                        <div style="display: flex; gap: 20px; width: 100%;">
-                            
-                            <!-- Customer Field (75% width) -->
-                            <div class="h-form-group" style="flex: 75; min-width: 0; display:flex; align-items:center; gap:10px;">
-                                <label class="h-label" style="margin:0; white-space:nowrap;">اسم العميل <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span></span></label>
-                                <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1; width: 100%;">
-                                    
-                                    <div class="custom-dropdown" style="flex:1; min-width: 0;">
-                                        <div class="custom-dropdown-input-wrap" style="position: relative;">
-                                            <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم العميل..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15); padding-left: 95px !important;" autocomplete="one-time-code">
-                                            <button type="button" id="hdr-customer-ledger-btn" onclick="openGeneralLedgerForAccount('cust-' + document.getElementById('hdr-customer').value)" style="display: none;" title="دفتر الأستاذ العام">📖 دفتر الأستاذ</button>
-                                            <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange()">
-                                            <div class="custom-dropdown-list" id="customer-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none;">
-                                                <!-- Populated via JS -->
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <button onclick="openModal('add-customer-modal')" style="flex-shrink: 0; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid rgba(16,212,143,0.3); width: 38px; height: 38px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2); transition: 0.2s;" title="إضافة عميل">
-                                        ➕
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Exchange Rate Field (25% width) -->
-                            <div class="h-form-group" style="flex: 25; min-width: 0; display:flex; align-items:center; gap:10px;">
-                                <label class="h-label" style="margin:0; white-space:nowrap;">سعر الصرف</label>
-                                <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1; width: 100%;">
-                                    <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="handleCurrencyChange(this.value)" style="flex: 1.2; min-width:0; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
-                                        <option value="SDG">🇸🇩 جنيه</option>
-                                        <option value="USD">🇺🇸 دولار</option>
-                                        <option value="SAR">🇸🇦 ريال</option>
-                                        <option value="AED">🇦🇪 درهم</option>
-                                        <option value="EGP">🇪🇬 مصري</option>
-                                    </select>
-                                    <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" disabled oninput="recalcAll()" style="flex: 0.8; min-width:0; text-align: center; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);" placeholder="الصرف" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
-                                </div>
-                            </div>
+    <!-- Unified Row 1: Customer, Currency & Exchange Rate, Warehouse, Cost Center -->
+    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 12px; width: 100%; align-items: center;">
+        
+        <!-- 1. Customer Field -->
+        <div class="h-form-group group-supplier" style="flex: 2.2; min-width: 260px; display:flex; align-items:center; gap:10px;">
+            <label class="h-label" style="margin:0; white-space:nowrap;">👤 العميل <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span></span></label>
+            <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1; width: 100%;">
+                <div class="custom-dropdown" style="flex:1; min-width: 0;">
+                    <div class="custom-dropdown-input-wrap" style="position: relative;">
+                        <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم العميل..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; padding-left: 95px !important;" autocomplete="one-time-code">
+                        <button type="button" id="hdr-customer-ledger-btn" onclick="openGeneralLedgerForAccount('cust-' + document.getElementById('hdr-customer').value)" style="display: none;" title="دفتر الأستاذ العام">📖 أستاذ</button>
+                        <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange()">
+                        <div class="custom-dropdown-list" id="customer-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none;">
+                            <!-- Populated via JS -->
                         </div>
+                    </div>
+                </div>
+                <button onclick="openModal('add-customer-modal')" style="flex-shrink: 0; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid rgba(16,212,143,0.3); width: 38px; height: 38px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2); transition: 0.2s;" title="إضافة عميل">
+                    ➕
+                </button>
+            </div>
+        </div>
 
-                        <!-- Row 3: Warehouse, Cost Center -->
-                        <div id="warehouse-treasury-row" style="display: flex; gap: 20px; width: 100%;">
-                            <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:10px;">
-                                <label class="h-label" style="margin:0; white-space:nowrap; min-width:60px;">المخزن</label>
-                                <div style="flex:1;">
-                                    <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange()" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);"></select>
-                                </div>
-                            </div>
+        <!-- 2. Exchange Rate Field -->
+        <div class="h-form-group group-currency" style="flex: 1.8; min-width: 220px; display:flex; align-items:center; gap:10px;">
+            <label class="h-label" style="margin:0; white-space:nowrap;">💱 الصرف</label>
+            <div style="display: flex; flex-direction: row; align-items: center; gap: 5px; flex: 1; width: 100%;">
+                <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="handleCurrencyChange(this.value)" style="flex: 1.2; min-width:0;">
+                    <option value="SDG">🇸🇩 جنيه</option>
+                    <option value="USD">🇺🇸 دولار</option>
+                    <option value="SAR">🇸🇦 ريال</option>
+                    <option value="AED">🇦🇪 درهم</option>
+                    <option value="EGP">🇪🇬 مصري</option>
+                </select>
+                <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" disabled oninput="recalcAll()" style="flex: 0.8; min-width:0; text-align: center;" placeholder="الصرف" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
+            </div>
+        </div>
 
-                            <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:10px;">
-                                <label class="h-label" style="margin:0; white-space:nowrap; min-width:75px;">مركز التكلفة</label>
-                                <div style="flex:1;">
-                                    <select class="v-input ctrl-input" id="hdr-cost-center" style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
-                                        <option value="cc-001">الفرع الرئيسي</option>
-                                        <option value="cc-002">فرع بحري</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+        <!-- 3. Warehouse -->
+        <div class="h-form-group group-warehouse" style="flex: 1.5; min-width: 180px; display:flex; align-items:center; gap:10px;">
+            <label class="h-label" style="margin:0; white-space:nowrap; min-width:60px;">📦 المخزن</label>
+            <div style="flex:1;">
+                <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange()" style="width:100%;"></select>
+            </div>
+        </div>
 
-                        <!-- Row 4: Description -->
-                        <div style="display: flex; gap: 20px; width: 100%;">
-                            <div class="h-form-group" style="flex: 1; display:flex; align-items:center; gap:10px;">
-                                <label class="h-label" style="margin:0; white-space:nowrap; min-width:80px;">البيان</label>
-                                <div style="flex:1;">
-                                    <input type="text" class="v-input ctrl-input" id="hdr-description" placeholder="ملاحظات، أرقام مرجعية..." style="width:100%; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.15);">
-                                </div>
-                            </div>
-                        </div>
+        <!-- 4. Cost Center -->
+        <div class="h-form-group group-cost-center" style="flex: 1.5; min-width: 180px; display:flex; align-items:center; gap:10px;">
+            <label class="h-label" style="margin:0; white-space:nowrap; min-width:75px;">🏷️ مركز التكلفة</label>
+            <div style="flex:1;">
+                <select class="v-input ctrl-input" id="hdr-cost-center" style="width:100%;">
+                    <option value="cc-001">الفرع الرئيسي</option>
+                    <option value="cc-002">فرع بحري</option>
+                </select>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Row 2: Description -->
+    <div style="display: flex; gap: 20px; width: 100%;">
+        <div class="h-form-group group-description" style="flex: 1; display:flex; align-items:center; gap:10px;">
+            <label class="h-label" style="margin:0; white-space:nowrap; min-width:60px;">📝 البيان</label>
+            <div style="flex:1;">
+                <input type="text" class="v-input ctrl-input" id="hdr-description" placeholder="ملاحظات، أرقام مرجعية..." style="width:100%;">
+            </div>
+        </div>
+    </div>
                         
                         <!-- Due Date (hidden normally) -->
                         <div class="h-form-group" id="due-date-group" style="display:none; border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.05); padding:10px; border-radius:8px;">
@@ -2550,10 +2739,10 @@
             </div><!-- end items-panel -->
 
             <!-- ══ FULL-WIDTH: تفاصيل الدفع ══ -->
-            <div class="panel" id="payment-panel" style="display: none; z-index: 40; margin-top: 15px; padding: 0 !important; background: rgba(15, 23, 42, 0.22) !important; border: 1px solid rgba(234, 179, 8, 0.22) !important; backdrop-filter: blur(18px) saturate(130%) !important; -webkit-backdrop-filter: blur(18px) saturate(130%) !important;">
+            <div class="panel" id="payment-panel" style="display: none; z-index: 40; margin-top: 15px; padding: 0 !important; background: rgba(15, 23, 42, 0.95) !important; border: 1px solid rgba(234, 179, 8, 0.22) !important;">
                 <style>
                     #payment-panel {
-                        animation: glassPulseGold 3.5s infinite ease-in-out;
+                        animation: none;
                         transition: all 0.4s ease;
                     }
                     @keyframes glassPulseGold {
@@ -2720,8 +2909,20 @@
         </div><!-- end ds-body -->
 
 
+        <!-- Posting Status Bar -->
+        <div id="posting-status-bar" style="display: none; align-items: center; justify-content: space-between; padding: 12px 20px; border-radius: 12px; background: rgba(18, 15, 25, 0.8); border: 1px solid rgba(255,255,255,0.05); margin-top: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span id="posting-status-icon" style="font-size: 1.5rem;"></span>
+                <div>
+                    <div id="posting-status-text" style="color: #fff; font-weight: bold; font-size: 1.1rem;"></div>
+                    <div id="posting-status-desc" style="color: rgba(255,255,255,0.6); font-size: 0.85rem;"></div>
+                </div>
+            </div>
+            <div id="posting-status-actions">
+                <!-- Buttons injected dynamically -->
+            </div>
+        </div>
 
-        
         <div class="items-toolbar" style="display: flex; align-items: center; justify-content: center; padding: 15px; border-radius: 12px; background: rgba(18, 15, 25, 0.8); border: 1px solid rgba(255,255,255,0.05); margin-top: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
             <div class="toolbar-actions" style="display: flex; gap: 12px; width: 100%; align-items: center;">
                 <button class="btn-action" id="attach-btn" style="flex: 1; height: 45px; background: #8b5cf6; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);" onmouseover="this.style.background='#7c3aed'; this.style.boxShadow='0 4px 15px rgba(139, 92, 246, 0.5)';" onmouseout="this.style.background='#8b5cf6'; this.style.boxShadow='0 2px 10px rgba(139, 92, 246, 0.3)';" onclick="document.getElementById('hdr-attachment').click()">📎 إرفاق مستند</button>
@@ -2759,7 +2960,7 @@
 
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/html2pdf.bundle.min.js"></script>
-    <script defer src="js/whatsapp-integration.js"></script>
+    <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1.0.0'; ?>"></script>
     <script defer src="js/print-engine.js"></script>
     
@@ -2768,6 +2969,9 @@
     <script>
         // Sales Hub Logic
         let currentSalesView = 'hub'; // 'hub' or 'editor'
+        let hubCurrentPage = 1;
+        const HUB_PAGE_SIZE = 50;
+        let hubFilteredInvoices = [];
 
         function handleCurrencyChange(val) {
             const rateInput = document.getElementById('hdr-exchange-rate');
@@ -2953,26 +3157,36 @@
             const tbody = document.getElementById('hub-transactions-body');
             const emptyState = document.getElementById('hub-empty-state');
             
-            // Fetch from localStorage
+            // Fetch from localStorage with cache
+            window._hubSalesCache = window._hubSalesCache || { raw: null, obj: [] };
             const savedData = localStorage.getItem('erp_sales_invoices_v1');
-            let invoices = [];
-            if (savedData) {
-                try { invoices = JSON.parse(savedData); } catch(e) {}
+            let invoices = window._hubSalesCache.obj;
+            if (savedData !== null && window._hubSalesCache.raw !== savedData) {
+                try { invoices = JSON.parse(savedData) || []; } catch(e) {}
+                window._hubSalesCache.raw = savedData;
+                window._hubSalesCache.obj = invoices;
             }
+            
+            // Create a copy so we can sort without affecting the cache
+            invoices = [...invoices];
             
             if (!invoices || invoices.length === 0) {
                 tbody.innerHTML = '';
                 emptyState.style.display = 'flex';
+                const pagEl = document.getElementById('hub-pagination-bar');
+                if (pagEl) pagEl.style.display = 'none';
                 return;
             }
 
             // Load customers to map IDs to names
-            let customers = [];
-            try {
-                let rawCusts = localStorage.getItem('erp_customers_v1');
-                if (typeof rawCusts === 'string') customers = JSON.parse(rawCusts) || [];
-                else if (rawCusts && typeof rawCusts === 'object') customers = rawCusts;
-            } catch(e) {}
+            window._hubCustCache = window._hubCustCache || { raw: null, obj: [] };
+            let rawCusts = localStorage.getItem('erp_customers_v1');
+            let customers = window._hubCustCache.obj;
+            if (rawCusts !== null && window._hubCustCache.raw !== rawCusts) {
+                try { customers = typeof rawCusts === 'string' ? JSON.parse(rawCusts) : rawCusts; } catch(e) { customers = []; }
+                window._hubCustCache.raw = rawCusts;
+                window._hubCustCache.obj = customers || [];
+            }
 
             function getCustomerName(id) {
                 if (id === 'walk-in' || !id) return 'عميل نقدي';
@@ -2981,12 +3195,14 @@
             }
 
             // Load warehouses to map IDs to names
-            let warehouses = [];
-            try {
-                let rawWh = localStorage.getItem('erp_warehouses_v1');
-                if (typeof rawWh === 'string') warehouses = JSON.parse(rawWh) || [];
-                else if (rawWh && typeof rawWh === 'object') warehouses = rawWh;
-            } catch(e) {}
+            window._hubWhCache = window._hubWhCache || { raw: null, obj: [] };
+            let rawWh = localStorage.getItem('erp_warehouses_v1');
+            let warehouses = window._hubWhCache.obj;
+            if (rawWh !== null && window._hubWhCache.raw !== rawWh) {
+                try { warehouses = typeof rawWh === 'string' ? JSON.parse(rawWh) : rawWh; } catch(e) { warehouses = []; }
+                window._hubWhCache.raw = rawWh;
+                window._hubWhCache.obj = warehouses || [];
+            }
 
             function getWarehouseName(id) {
                 if (!id) return '—';
@@ -2995,16 +3211,40 @@
             }
 
             // Load items to map IDs to names
-            let items = [];
-            try {
-                let rawItems = localStorage.getItem('erp_items_v1');
-                if (typeof rawItems === 'string') items = JSON.parse(rawItems) || [];
-                else if (rawItems && typeof rawItems === 'object') items = rawItems;
-            } catch(e) {}
+            window._hubItemsCache = window._hubItemsCache || { raw: null, obj: [] };
+            let rawItems = localStorage.getItem('erp_items_v1');
+            let items = window._hubItemsCache.obj;
+            if (rawItems !== null && window._hubItemsCache.raw !== rawItems) {
+                try { items = typeof rawItems === 'string' ? JSON.parse(rawItems) : rawItems; } catch(e) { items = []; }
+                window._hubItemsCache.raw = rawItems;
+                window._hubItemsCache.obj = items || [];
+            }
 
             function getItemName(id) {
                 const item = items.find(x => x && x.id === id);
                 return item ? item.name : id || 'صنف غير معروف';
+            }
+
+            // Apply search/filter options in memory
+            const query = document.getElementById('hub-search')?.value.toLowerCase() || '';
+            if (query) {
+                invoices = invoices.filter(inv => {
+                    const text = [
+                        inv.invoiceNo,
+                        inv.customerName,
+                        getCustomerName(inv.customer || inv.customerId),
+                        inv.date
+                    ].join(' ').toLowerCase();
+                    return text.includes(query);
+                });
+            }
+
+            if (invoices.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'flex';
+                const pagEl = document.getElementById('hub-pagination-bar');
+                if (pagEl) pagEl.style.display = 'none';
+                return;
             }
 
             emptyState.style.display = 'none';
@@ -3016,9 +3256,30 @@
                 const dateB = new Date(b.timestamp || b.date || 0).getTime();
                 return (isNaN(dateB) ? 0 : dateB) - (isNaN(dateA) ? 0 : dateA);
             });
+
+            // Pagination
+            const totalPages = Math.ceil(invoices.length / HUB_PAGE_SIZE);
+            if (hubCurrentPage > totalPages) hubCurrentPage = totalPages || 1;
+            const startIdx = (hubCurrentPage - 1) * HUB_PAGE_SIZE;
+            const pageInvoices = invoices.slice(startIdx, startIdx + HUB_PAGE_SIZE);
+            
+            // Render pagination bar
+            const pagEl = document.getElementById('hub-pagination-bar');
+            if (pagEl) {
+                if (totalPages <= 1) {
+                    pagEl.style.display = 'none';
+                } else {
+                    pagEl.style.display = 'flex';
+                    pagEl.innerHTML = `
+                        <button onclick="hubGoToPage(${hubCurrentPage - 1})" ${hubCurrentPage <= 1 ? 'disabled style="opacity:0.3; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); color:#94a3b8; padding:6px 14px; border-radius:8px; cursor:default;"' : 'style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:6px 14px; border-radius:8px; cursor:pointer;"'}>→ السابق</button>
+                        <span style="color:#94a3b8; font-size:0.9rem;">صفحة <strong style="color:#fff;">${hubCurrentPage}</strong> من <strong style="color:#fff;">${totalPages}</strong></span>
+                        <button onclick="hubGoToPage(${hubCurrentPage + 1})" ${hubCurrentPage >= totalPages ? 'disabled style="opacity:0.3; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); color:#94a3b8; padding:6px 14px; border-radius:8px; cursor:default;"' : 'style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:6px 14px; border-radius:8px; cursor:pointer;"'}>التالي ←</button>
+                    `;
+                }
+            }
             
             const fragment = document.createDocumentFragment();
-            invoices.forEach(inv => {
+            pageInvoices.forEach(inv => {
                 const tr = document.createElement('tr');
                 
                 let itemText = 'بدون أصناف';
@@ -3080,13 +3341,15 @@
             tbody.appendChild(fragment);
         }
         
+        function hubGoToPage(page) {
+            if (page < 1) return;
+            hubCurrentPage = page;
+            loadHubTransactions();
+        }
+        
         function filterHubTransactions() {
-            const query = document.getElementById('hub-search').value.toLowerCase();
-            const rows = document.querySelectorAll('#hub-transactions-body tr');
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(query) ? '' : 'none';
-            });
+            hubCurrentPage = 1;
+            loadHubTransactions();
         }
 
         function editHubTransaction(invNo) {

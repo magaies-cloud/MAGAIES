@@ -12,6 +12,7 @@ import makeWASocket, {
     useMultiFileAuthState,
     DisconnectReason,
     Browsers,
+    fetchLatestBaileysVersion
 } from '@whiskeysockets/baileys';
 import pino from 'pino';
 import QRCode from 'qrcode';
@@ -238,7 +239,7 @@ class WhatsAppClient {
 
         this._isInitializing = true;
         this.lastInitTime    = Date.now();
-        this.reconnectAttempts = 0;
+        // NOTE: do NOT reset reconnectAttempts here — it's managed by _scheduleReconnect
         this._destroySocket();
         this._clearAllTimers();
         this._setState('INITIALIZING');
@@ -296,10 +297,14 @@ class WhatsAppClient {
                 this.phoneNumber = state.creds.me.id.split(':')[0].split('@')[0];
             }
 
+            const { version } = await fetchLatestBaileysVersion().catch(() => ({ version: [2, 3000, 1035194821] }));
+            log(this.userId, `Using WhatsApp Web protocol version: ${version.join('.')}`);
+
             const createSocket = makeWASocket.default || makeWASocket;
             const sock = createSocket({
+                version,
                 auth: state,
-                browser: Browsers.appropriate('Desktop'), // Recommended dynamic signature by Baileys to prevent 401/428 errors
+                browser: Browsers.macOS('Desktop'),
                 printQRInTerminal: false,
                 logger: pino({ level: 'error' }),
                 syncFullHistory: false,
@@ -375,7 +380,7 @@ class WhatsAppClient {
             log(this.userId, '✅ CONNECTED!');
             this._setState('CONNECTED');
             this.qrCode = null;
-            this.reconnectAttempts = 0;
+            this.reconnectAttempts = 0;  // Only reset on successful connection
             this._stopQRTimeout();
 
             if (this.socket?.user?.id) {
@@ -437,22 +442,55 @@ class WhatsAppClient {
                 case DisconnectReason.connectionClosed:
                 case DisconnectReason.connectionLost:
                 case DisconnectReason.timedOut:
-                default:
-                    this._scheduleReconnect();
+                default: {
+                    // For fresh sessions (no phone number, no auth) failing repeatedly,
+                    // stop after 5 attempts to avoid infinite loop when WA servers reject
+                    const credsPath = path.join(this.authFolder, 'creds.json');
+                    const isFreshSession = !this.phoneNumber && (!fs.existsSync(credsPath) || fs.statSync(credsPath).size < 100);
+                    if (isFreshSession && this.reconnectAttempts >= 5) {
+                        log(this.userId, 'Fresh session failed 5 times — stopping. User can retry manually.');
+                        this._setState('FAILED');
+                    } else {
+                        this._scheduleReconnect();
+                    }
                     break;
-            }
+                }
         }
     }
+    }
 
-    // ─── Delete auth folder safely ─────────────────────────────
     _deleteAuthFolder() {
         try {
             if (fs.existsSync(this.authFolder)) {
-                fs.rmSync(this.authFolder, { recursive: true, force: true });
-                log(this.userId, 'Auth folder deleted (including all backups)');
+                const trashFolder = this.authFolder + '_trash_' + Date.now();
+                try {
+                    fs.renameSync(this.authFolder, trashFolder);
+                    log(this.userId, `Auth folder renamed to trash: ${trashFolder}`);
+                    // Clean up trash asynchronously
+                    setTimeout(() => {
+                        try { fs.rmSync(trashFolder, { recursive: true, force: true }); } catch (_) {}
+                    }, 5000);
+                } catch (renameErr) {
+                    logErr(this.userId, 'Rename failed, trying to delete/corrupt inner files');
+                    const files = fs.readdirSync(this.authFolder);
+                    for (const file of files) {
+                        const filePath = path.join(this.authFolder, file);
+                        try {
+                            if (fs.statSync(filePath).isDirectory()) {
+                                fs.rmSync(filePath, { recursive: true, force: true });
+                            } else {
+                                try { fs.unlinkSync(filePath); } 
+                                catch (_) {
+                                    try { fs.writeFileSync(filePath, 'INVALID'); } catch (_) {}
+                                }
+                            }
+                        } catch (_) {}
+                    }
+                    try { fs.rmSync(this.authFolder, { recursive: true, force: true }); } catch (_) {}
+                }
             }
         } catch (e) {
-            logErr(this.userId, 'Failed to delete auth folder:', e.message);
+            logErr(this.userId, 'Failed to process auth folder:', e.message);
         }
     }
 
@@ -483,25 +521,37 @@ class WhatsAppClient {
     }
 
     async logout() {
+        log(this.userId, 'Logout requested. Clearing session state...');
         this._isDestroying = true;
         this._clearAllTimers();
         this._setState('DISCONNECTING');
 
-        if (this.socket) {
-            try { await this.socket.logout(); } catch (e) {
-                logErr(this.userId, 'logout() error:', e.message);
-            }
-        }
-        this._destroySocket();
-        this._deleteAuthFolder();
-
-        this._setState('LOGGED_OUT');
         this.qrCode = null;
         this.phoneNumber = null;
         this.reconnectAttempts = 0;
 
-        // Allow re-init after 3s
-        setTimeout(() => { this._isDestroying = false; }, 3000);
+        if (this.socket) {
+            try {
+                this.socket.ev.removeAllListeners();
+                await this.socket.logout().catch(() => {});
+            } catch (e) {
+                logErr(this.userId, 'socket.logout() error:', e.message);
+            }
+        }
+
+        this._destroySocket();
+        
+        // Give OS 300ms to close open handles
+        await new Promise(r => setTimeout(r, 300));
+        
+        this._deleteAuthFolder();
+
+        this._isDestroying = false;
+        this.lastInitTime = 0; // Reset cooldown so init can run immediately
+        this._setState('IDLE');
+
+        log(this.userId, 'Post-logout: Auto-initializing fresh session for new QR code...');
+        return this.init().catch(e => logErr(this.userId, 'post-logout init error:', e.message));
     }
 
     async restart() {
@@ -642,6 +692,16 @@ class AutoHealer {
         if (status === 'FAILED') {
             // Only act if there's no reconnect timer already pending
             if (client._reconnectTimer) return;
+            
+            // Don't auto-restart fresh sessions that never connected — 
+            // they failed because WA servers rejected. User must retry manually.
+            const credsPath = path.join(client.authFolder, 'creds.json');
+            const isFreshSession = !client.phoneNumber && (!fs.existsSync(credsPath) || fs.statSync(credsPath).size < 100);
+            if (isFreshSession) {
+                this._log(userId, 'SKIP_HEAL', 'Fresh session — user must retry manually');
+                return;
+            }
+            
             this._log(userId, 'AUTO_RESTART', 'Status was FAILED → restarting');
             this.stats.fixes++;
             client._clearAllTimers();
@@ -776,8 +836,9 @@ app.get('/wa/status', (req, res) => {
     const userId = req.query.userId || 'default';
     const client = manager.get(userId);
 
-    // Auto-init if idle or failed
-    if (client.status === 'IDLE' || client.status === 'FAILED') {
+    // Auto-init if idle, failed, or logged out (user wants to reconnect or scan new QR)
+    if (client.status === 'IDLE' || client.status === 'FAILED' || client.status === 'LOGGED_OUT' || client.status === 'DISCONNECTED') {
+        client.reconnectAttempts = 0; // Reset so user-triggered retry gets fresh attempts
         client.init().catch(e => logErr(userId, 'auto-init failed:', e.message));
     }
 

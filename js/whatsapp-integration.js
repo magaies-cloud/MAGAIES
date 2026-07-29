@@ -209,10 +209,14 @@ function formatPhoneForDisplay(phone) {
     return cleaned;
 }
 
+let currentWAState = 'LOADING';
+let isLoggingOut = false;
+
 function setWAContainerState(state, data = '') {
     const container = document.getElementById('wa-qr-container');
     if (!container) return;
 
+    currentWAState = state;
     let html = '';
     switch (state) {
         case 'LOADING':
@@ -228,7 +232,8 @@ function setWAContainerState(state, data = '') {
                         <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
                         <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
                     </svg>
-                    <div style="font-weight: bold; font-size: 0.95rem;">جاري التحقق من حالة الاتصال...</div>
+                    <div style="font-weight: bold; font-size: 0.95rem; color: #1e293b;">جاري توليد رمز الـ QR...</div>
+                    <div style="font-size: 0.78rem; color: #64748b; margin-top: 5px;">امسح الرمز فور ظهوره لربط الواتساب</div>
                 </div>
             `;
             break;
@@ -239,16 +244,16 @@ function setWAContainerState(state, data = '') {
             break;
         case 'AUTHENTICATING':
             html = `
-                <div class="wa-state-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 220px; color: #1e293b;">
-                    <div class="wa-pulse-wrapper" style="position: relative; display: flex; align-items: center; justify-content: center; width: 80px; height: 80px; margin-bottom: 20px;">
+                <div class="wa-state-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 220px; color: #1e293b; text-align: center; padding: 10px;">
+                    <div class="wa-pulse-wrapper" style="position: relative; display: flex; align-items: center; justify-content: center; width: 80px; height: 80px; margin-bottom: 18px;">
                         <div style="position: absolute; width: 100px; height: 100px; border: 4px solid #25d366; border-radius: 50%; opacity: 0.4; animation: wa-pulse 1.8s infinite ease-in-out;"></div>
                         <div style="position: absolute; width: 75px; height: 75px; border: 4px solid #25d366; border-radius: 50%; opacity: 0.7; animation: wa-pulse 1.8s infinite ease-in-out; animation-delay: 0.4s;"></div>
                         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="z-index: 2; animation: rotate-sync 2.5s infinite linear;">
                             <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
                         </svg>
                     </div>
-                    <div style="font-weight: bold; font-size: 1.05rem; color: #075e54; margin-bottom: 5px;">جاري تسجيل الدخول وحفظ الربط...</div>
-                    <div style="font-size: 0.78rem; color: #64748b; font-weight: 500;">يرجى عدم إغلاق النافذة</div>
+                    <div style="font-weight: 800; font-size: 1.1rem; color: #075e54; margin-bottom: 6px;">🔄 جاري ربط الجهازين...</div>
+                    <div style="font-size: 0.82rem; color: #475569; font-weight: 600; max-width: 290px; line-height: 1.4;">يرجى إبقاء الهاتفين مفتوحين لتكتمل المزامنة والربط بنجاح</div>
                 </div>
             `;
             break;
@@ -269,7 +274,7 @@ function setWAContainerState(state, data = '') {
                         </svg>
                     </div>
                     <div style="font-weight: 800; font-size: 1.15rem; color: #15803d; margin-bottom: 2px;">
-                        الواتساب مربوط ومفعل بنجاح
+                        الواتساب مربوط بحسابك ومفعل بنجاح
                     </div>
                     ${phoneBadge}
                     <div style="font-size: 0.82rem; color: #64748b; font-weight: 500; margin-top: 12px; line-height: 1.5; max-width: 290px;">
@@ -291,7 +296,7 @@ function setWAContainerState(state, data = '') {
                     <div style="font-weight: bold; font-size: 0.95rem; color: #1e293b; margin-bottom: 15px;">هل أنت متأكد من إلغاء ربط الرقم؟</div>
                     <div style="display: flex; gap: 10px; width: 100%; justify-content: center;">
                         <button onclick="confirmAndExecuteLogout()" class="btn" style="background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: background 0.2s;">نعم، إلغاء</button>
-                        <button onclick="checkWAStatus()" class="btn" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: background 0.2s;">تراجع</button>
+                        <button onclick="cancelLogout()" class="btn" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: background 0.2s;">تراجع</button>
                     </div>
                 </div>
             `;
@@ -305,21 +310,24 @@ function setWAContainerState(state, data = '') {
                         </svg>
                     </div>
                     <div style="font-weight: bold; font-size: 1.1rem; color: #15803d; margin-bottom: 5px;">تم إلغاء الرقم بنجاح</div>
-                    <div style="font-size: 0.78rem; color: #64748b; font-weight: 500;">جاري إغلاق النافذة...</div>
+                    <div style="font-size: 0.78rem; color: #64748b; font-weight: 500;">جاري إعداد رمز QR لربط رقم آخر...</div>
                 </div>
             `;
             break;
         case 'ERROR':
+        case 'QR_FAILED':
             html = `
-                <div class="wa-state-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 220px; color: #1e293b;">
-                    <div style="display: flex; align-items: center; justify-content: center; width: 75px; height: 75px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); border: 3px solid #ef4444; margin-bottom: 20px;">
-                        <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                <div class="wa-state-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 220px; color: #1e293b; text-align: center;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 75px; height: 75px; border-radius: 50%; background: rgba(245, 158, 11, 0.1); border: 3px solid #f59e0b; margin-bottom: 16px; animation: wa-scale-up 0.4s ease-out;">
+                        <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
                         </svg>
                     </div>
-                    <div style="font-weight: bold; font-size: 0.95rem; color: #b91c1c; margin-bottom: 5px;">تعذر الاتصال بخادم الواتساب</div>
-                    <div style="font-size: 0.75rem; color: #64748b; font-weight: 500;">تأكد من تشغيل الخدمة والمحاولة مجدداً</div>
+                    <div style="font-weight: bold; font-size: 0.95rem; color: #92400e; margin-bottom: 6px;">تعذر توليد رمز QR حالياً</div>
+                    <div style="font-size: 0.78rem; color: #64748b; font-weight: 500; margin-bottom: 16px; max-width: 280px; line-height: 1.5;">خادم واتساب لم يستجب. يرجى المحاولة مرة أخرى بعد قليل.</div>
+                    <button onclick="checkWAStatus()" class="btn" style="background: linear-gradient(135deg, #25D366, #128C7E); color: white; border: none; padding: 10px 28px; border-radius: 10px; font-weight: bold; font-size: 0.9rem; cursor: pointer; box-shadow: 0 4px 12px rgba(37,211,102,0.3); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">🔄 إعادة المحاولة</button>
                 </div>
             `;
             break;
@@ -334,18 +342,35 @@ async function checkWAStatus(retryCount = 0) {
     const logoutBtn = document.getElementById('wa-logout-btn');
     const refreshBtn = document.getElementById('wa-refresh-btn');
 
-    if (statusText) {
-        statusText.textContent = 'جاري التحقق من حالة الاتصال...';
-        statusText.style.color = '#fff';
-    }
     if (logoutBtn) logoutBtn.style.display = 'none';
     if (refreshBtn) refreshBtn.style.display = 'inline-block';
 
     try {
-        const res = await fetch(`${WA_SERVER_URL}/status?userId=${userId}`);
+        const res = await fetch(`${WA_SERVER_URL}status&userId=${userId}`);
         const data = await res.json();
+        if (isLoggingOut) return;
 
-        if (data.status === 'CONNECTED' || data.status === 'AUTHENTICATED' || (data.phoneNumber && data.phoneNumber.length > 5)) {
+        if ((data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') || (data.status !== 'QR_READY' && data.status !== 'FAILED' && data.phoneNumber && data.phoneNumber.length > 5)) {
+            if (currentWAState === 'QR_CODE') {
+                // Artificial delay to show "Pairing..." after scanning
+                setWAContainerState('AUTHENTICATING');
+                if (statusText) {
+                    statusText.textContent = '🔄 جاري ربط الجهازين... يرجى إبقاء الهاتفين مفتوحين';
+                    statusText.style.color = '#fbbf24';
+                }
+                if (instructionText) instructionText.style.display = 'none';
+                
+                setTimeout(() => {
+                    if (statusText) {
+                        statusText.textContent = '✅ الواتساب مربوط بحسابك ومفعل.';
+                        statusText.style.color = '#34d399';
+                    }
+                    setWAContainerState('CONNECTED', data.phoneNumber || '');
+                    if (logoutBtn) logoutBtn.style.display = 'inline-block';
+                }, 3500);
+                return;
+            }
+
             if (statusText) {
                 statusText.textContent = '✅ الواتساب مربوط بحسابك ومفعل.';
                 statusText.style.color = '#34d399';
@@ -353,72 +378,27 @@ async function checkWAStatus(retryCount = 0) {
             setWAContainerState('CONNECTED', data.phoneNumber || '');
             if (logoutBtn) logoutBtn.style.display = 'inline-block';
             if (instructionText) instructionText.style.display = 'none';
-        } else if (data.status === 'AUTHENTICATING' || data.status === 'CONNECTING') {
-            if (data.phoneNumber) {
-                if (statusText) {
-                    statusText.textContent = '✅ الواتساب مربوط بحسابك ومفعل.';
-                    statusText.style.color = '#34d399';
-                }
-                setWAContainerState('CONNECTED', data.phoneNumber);
-                if (logoutBtn) logoutBtn.style.display = 'inline-block';
-                if (instructionText) instructionText.style.display = 'none';
-            } else {
-                if (statusText) {
-                    statusText.textContent = '🔄 جاري تسجيل الدخول وحفظ الربط...';
-                    statusText.style.color = '#fbbf24';
-                }
-                setWAContainerState('AUTHENTICATING');
-                if (instructionText) instructionText.style.display = 'none';
-
-                setTimeout(() => {
-                    if (document.getElementById('wa-modal-overlay') && document.getElementById('wa-modal-overlay').classList.contains('visible')) {
-                        checkWAStatus();
-                    }
-                }, 2000);
-            }
-        } else if (data.status === 'RECONNECTING' || data.status === 'INITIALIZING') {
-            if (data.phoneNumber) {
-                if (statusText) {
-                    statusText.textContent = '✅ الواتساب مربوط بحسابك ومفعل.';
-                    statusText.style.color = '#34d399';
-                }
-                setWAContainerState('CONNECTED', data.phoneNumber);
-                if (logoutBtn) logoutBtn.style.display = 'inline-block';
-                if (instructionText) instructionText.style.display = 'none';
-            } else {
-                if (statusText) {
-                    statusText.textContent = '🔄 جاري جلب حالة الاتصال...';
-                    statusText.style.color = '#fbbf24';
-                }
-                setWAContainerState('AUTHENTICATING');
-                if (instructionText) instructionText.style.display = 'none';
-
-                setTimeout(() => {
-                    if (document.getElementById('wa-modal-overlay') && document.getElementById('wa-modal-overlay').classList.contains('visible')) {
-                        checkWAStatus();
-                    }
-                }, 3000);
-            }
-        } else if (data.qrAvailable || data.qrCode || data.status === 'QR_READY') {
+        } else if (data.status === 'CONNECTING' || data.status === 'AUTHENTICATING') {
+            setWAContainerState('AUTHENTICATING');
             if (statusText) {
-                statusText.textContent = 'يرجى مسح الرمز أدناه لربط الواتساب:';
+                statusText.textContent = '🔄 جاري ربط الجهازين... يرجى إبقاء الهاتف مفتوحاً';
                 statusText.style.color = '#fbbf24';
             }
-            if (instructionText) instructionText.style.display = 'block';
-            fetchWAQRCode();
+            if (instructionText) instructionText.style.display = 'none';
+            setTimeout(() => {
+                if (document.getElementById('wa-modal-overlay')?.classList.contains('visible')) {
+                    checkWAStatus();
+                }
+            }, 2000);
         } else {
-            if (statusText) {
-                statusText.textContent = 'يرجى مسح الرمز أدناه لربط الواتساب:';
-                statusText.style.color = '#fbbf24';
-            }
-            if (instructionText) instructionText.style.display = 'block';
+            // Not connected with phone number: fetch and display QR code for linking
             fetchWAQRCode();
         }
     } catch (err) {
         if (retryCount < 3) {
             console.warn(`checkWAStatus failed (attempt ${retryCount + 1}/3), retrying...`, err.message);
             setTimeout(() => {
-                if (document.getElementById('wa-modal-overlay') && document.getElementById('wa-modal-overlay').classList.contains('visible')) {
+                if (document.getElementById('wa-modal-overlay')?.classList.contains('visible')) {
                     checkWAStatus(retryCount + 1);
                 }
             }, 2000);
@@ -432,16 +412,49 @@ async function checkWAStatus(retryCount = 0) {
     }
 }
 
-async function fetchWAQRCode() {
+async function fetchWAQRCode(qrRetryCount = 0) {
+    if (isLoggingOut) return;
     const userId = getWAUserId();
     const instructionText = document.getElementById('wa-instruction-text');
     const statusText = document.getElementById('wa-status-text');
 
-    try {
-        const res = await fetch(`${WA_SERVER_URL}/qr?userId=${userId}`);
-        const data = await res.json();
+    // After 8 retries (~20 seconds), show error with manual retry button
+    if (qrRetryCount >= 8) {
+        if (statusText) {
+            statusText.textContent = '⚠️ تعذر توليد رمز QR حالياً';
+            statusText.style.color = '#ef4444';
+        }
+        setWAContainerState('QR_FAILED');
+        return;
+    }
 
-        if (data.status === 'CONNECTED' || data.status === 'AUTHENTICATED' || (data.phoneNumber && data.phoneNumber.length > 5)) {
+    try {
+        const res = await fetch(`${WA_SERVER_URL}qr&userId=${userId}`);
+        const data = await res.json();
+        if (isLoggingOut) return;
+
+        if ((data.status === 'CONNECTED' || data.status === 'AUTHENTICATED') || (data.status !== 'QR_READY' && data.status !== 'FAILED' && data.phoneNumber && data.phoneNumber.length > 5)) {
+            if (currentWAState === 'QR_CODE') {
+                // Artificial delay to show "Pairing..." after scanning
+                setWAContainerState('AUTHENTICATING');
+                if (statusText) {
+                    statusText.textContent = '🔄 جاري ربط الجهازين... يرجى إبقاء الهاتفين مفتوحين';
+                    statusText.style.color = '#fbbf24';
+                }
+                if (instructionText) instructionText.style.display = 'none';
+                
+                setTimeout(() => {
+                    if (statusText) {
+                        statusText.textContent = '✅ الواتساب مربوط بحسابك ومفعل.';
+                        statusText.style.color = '#34d399';
+                    }
+                    setWAContainerState('CONNECTED', data.phoneNumber || '');
+                    const logoutBtn = document.getElementById('wa-logout-btn');
+                    if (logoutBtn) logoutBtn.style.display = 'inline-block';
+                }, 3500);
+                return;
+            }
+
             setWAContainerState('CONNECTED', data.phoneNumber);
             if (statusText) {
                 statusText.textContent = '✅ الواتساب مربوط بحسابك ومفعل.';
@@ -451,6 +464,7 @@ async function fetchWAQRCode() {
             if (logoutBtn) logoutBtn.style.display = 'inline-block';
             if (instructionText) instructionText.style.display = 'none';
         } else if (data.qrCode) {
+            // QR code available! Show it immediately
             setWAContainerState('QR_CODE', data.qrCode);
             if (instructionText) instructionText.style.display = 'block';
             if (statusText) {
@@ -459,36 +473,59 @@ async function fetchWAQRCode() {
             }
 
             setTimeout(() => {
-                if(document.getElementById('wa-modal-overlay') && document.getElementById('wa-modal-overlay').classList.contains('visible')) {
+                if (document.getElementById('wa-modal-overlay')?.classList.contains('visible')) {
                     checkWAStatus();
                 }
             }, 3000);
-        } else if (data.status === 'AUTHENTICATING' || data.status === 'CONNECTING') {
+        } else if (data.status === 'CONNECTING' || data.status === 'AUTHENTICATING') {
             setWAContainerState('AUTHENTICATING');
             if (statusText) {
-                statusText.textContent = '🔄 جاري تسجيل الدخول...';
+                statusText.textContent = '🔄 جاري ربط الجهازين... يرجى إبقاء الهاتف مفتوحاً';
                 statusText.style.color = '#fbbf24';
             }
             if (instructionText) instructionText.style.display = 'none';
             setTimeout(() => {
-                if (document.getElementById('wa-modal-overlay') && document.getElementById('wa-modal-overlay').classList.contains('visible')) {
+                if (document.getElementById('wa-modal-overlay')?.classList.contains('visible')) {
                     checkWAStatus();
                 }
             }, 2000);
+        } else if (data.status === 'FAILED') {
+            // Server gave up trying — show error
+            if (statusText) {
+                statusText.textContent = '⚠️ تعذر الاتصال بخادم واتساب';
+                statusText.style.color = '#ef4444';
+            }
+            setWAContainerState('QR_FAILED');
         } else {
-            setTimeout(fetchWAQRCode, 3000);
+            // Still connecting/initializing — show loading and retry
+            if (qrRetryCount === 0) {
+                setWAContainerState('LOADING');
+            }
+            if (statusText) {
+                statusText.textContent = '🔄 جاري توليد رمز الـ QR لربط الواتساب...';
+                statusText.style.color = '#fbbf24';
+            }
+            if (instructionText) instructionText.style.display = 'none';
+            setTimeout(() => {
+                if (document.getElementById('wa-modal-overlay')?.classList.contains('visible')) {
+                    fetchWAQRCode(qrRetryCount + 1);
+                }
+            }, 2500);
         }
     } catch (err) {
         console.error('QR fetch error', err);
         setTimeout(() => {
-            if (document.getElementById('wa-modal-overlay') && document.getElementById('wa-modal-overlay').classList.contains('visible')) {
-                checkWAStatus();
+            if (document.getElementById('wa-modal-overlay')?.classList.contains('visible')) {
+                fetchWAQRCode(qrRetryCount + 1);
             }
         }, 3000);
     }
 }
 
 async function logoutWhatsApp() {
+    // Prevent background polling from interfering with the logout flow
+    isLoggingOut = true;
+    
     // Show custom confirmation state inside the container
     setWAContainerState('CONFIRM_LOGOUT');
     const logoutBtn = document.getElementById('wa-logout-btn');
@@ -497,38 +534,47 @@ async function logoutWhatsApp() {
     if (refreshBtn) refreshBtn.style.display = 'none';
 }
 
+function cancelLogout() {
+    isLoggingOut = false;
+    checkWAStatus();
+}
+
 async function confirmAndExecuteLogout() {
+    isLoggingOut = true;
     const userId = getWAUserId();
     const statusText = document.getElementById('wa-status-text');
     
     setWAContainerState('LOADING');
     if (statusText) {
-        statusText.textContent = 'جاري إلغاء ربط الرقم...';
-        statusText.style.color = '#fff';
+        statusText.textContent = '🔄 جاري إلغاء ربط الرقم...';
+        statusText.style.color = '#fbbf24';
     }
 
     try {
-        await fetch(`${WA_SERVER_URL}/logout`, {
+        await fetch(`${WA_SERVER_URL}logout&userId=${userId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId })
         });
         
-        // Show success state
-        if (statusText) {
-            statusText.textContent = 'تم إلغاء الرقم';
-            statusText.style.color = '#ef4444';
-        }
         setWAContainerState('LOGGED_OUT_SUCCESS');
+        if (statusText) {
+            statusText.textContent = '✅ تم إلغاء الرقم بنجاح. جاري استدعاء رمز الـ QR لربط رقم جديد...';
+            statusText.style.color = '#34d399';
+        }
         
-        // Auto close the modal after 2.5 seconds so it doesn't query status and hang on generating QR code
+        // After 1.2 seconds, fetch fresh QR code directly so user can scan a new number immediately
         setTimeout(() => {
-            closeWAModal();
-        }, 2500);
+            isLoggingOut = false; // Allow polling again
+            if (document.getElementById('wa-modal-overlay')?.classList.contains('visible')) {
+                fetchWAQRCode(0);
+            }
+        }, 1200);
         
     } catch (err) {
-        alert('حدث خطأ أثناء تسجيل الخروج');
-        checkWAStatus();
+        console.error('Logout error:', err);
+        setWAContainerState('ERROR');
+        isLoggingOut = false;
     }
 }
 
@@ -557,7 +603,7 @@ async function sendPDFViaWhatsApp(elementToPrint, phoneNumber, message) {
     
     // Check status first
     try {
-        const statusRes = await fetch(`${WA_SERVER_URL}/status?userId=${getWAUserId()}`);
+        const statusRes = await fetch(`${WA_SERVER_URL}status&userId=${getWAUserId()}`);
         const statusData = await statusRes.json();
         if (statusData.status !== 'CONNECTED' && statusData.status !== 'AUTHENTICATED') {
             alert('يجب ربط الواتساب أولاً قبل إرسال الفاتورة.');
@@ -593,7 +639,7 @@ async function sendPDFViaWhatsApp(elementToPrint, phoneNumber, message) {
 
         showToast('جاري إرسال الفاتورة عبر الواتساب...', 'warning');
 
-        const sendRes = await fetch(`${WA_SERVER_URL}/send`, {
+        const sendRes = await fetch(`${WA_SERVER_URL}send&userId=${getWAUserId()}`, {
             method: 'POST',
             body: formData
         });

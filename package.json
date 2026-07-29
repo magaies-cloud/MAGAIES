@@ -1,7 +1,8 @@
 {
   "dependencies": {
-    "@whiskeysockets/baileys": "^7.0.0-rc13",
+    "@whiskeysockets/baileys": "^6.7.23",
     "acorn": "^8.17.0",
+    "baileys": "github:WhiskeySockets/Baileys",
     "cors": "^2.8.6",
     "esprima": "^4.0.1",
     "express": "^5.2.1",
