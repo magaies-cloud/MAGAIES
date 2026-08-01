@@ -1643,7 +1643,7 @@ function runReport() {
 
         chronological.forEach(t => {
             if (!t) return;
-            if (filterAccount && filterAccount !== 'ALL') {
+            if (accVal !== 'ALL') {
                 runningBal += (t.debit || 0) - (t.credit || 0);
                 runningBalFc += (t.debitForeign || t.dr_foreign || 0) - (t.creditForeign || t.cr_foreign || 0);
                 t.balance = runningBal;
