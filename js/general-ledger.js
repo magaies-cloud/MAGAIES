@@ -1779,7 +1779,7 @@ async function prepareLedgerPreviewData() {
             balance: runningBalance,
             statement: t.statement || t.description || t.desc || t.notes || '-',
             ref: t.ref || t.doc_no || t.voucher_no || t.id || '-',
-            counterAccount: t.counterAccount || t.accountName || t.account || '-',
+            counterAccount: getAccountName(t.counterAccount || t.accountName || t.account) || '-',
             typeLabel: t.typeLabel || t.type || '-',
             additionalNote: t.additionalNote || t.notes || t.costCenter || ''
         });
