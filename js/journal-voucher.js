@@ -107,7 +107,7 @@ function addGridRow(data = {}) {
     `;
     tbody.appendChild(tr);
     calculateTotals();
-    if (window.applyImmutabilityUI) window.applyImmutabilityUI(v.status);
+    if (window.applyImmutabilityUI) window.applyImmutabilityUI(typeof v !== 'undefined' ? v.status : 'draft');
 }
 
 function removeGridRow(btn) {
@@ -118,7 +118,7 @@ function removeGridRow(btn) {
     }
     btn.closest('tr').remove();
     calculateTotals();
-    if (window.applyImmutabilityUI) window.applyImmutabilityUI(v.status);
+    if (window.applyImmutabilityUI) window.applyImmutabilityUI(typeof v !== 'undefined' ? v.status : 'draft');
 }
 
 // Logic: If user types in Debit, clear Credit, and vice versa.
@@ -133,14 +133,14 @@ function handleInput(input, type) {
         debitInp.value = '';
     }
     calculateTotals();
-    if (window.applyImmutabilityUI) window.applyImmutabilityUI(v.status);
+    if (window.applyImmutabilityUI) window.applyImmutabilityUI(typeof v !== 'undefined' ? v.status : 'draft');
 }
 
 function formatInput(input) {
     let val = parseNum(input.value);
     input.value = val > 0 ? fmtNum(val) : '';
     calculateTotals();
-    if (window.applyImmutabilityUI) window.applyImmutabilityUI(v.status);
+    if (window.applyImmutabilityUI) window.applyImmutabilityUI(typeof v !== 'undefined' ? v.status : 'draft');
 }
 
 function calcRowEquiv(element) {
@@ -153,7 +153,16 @@ function calcRowEquiv(element) {
         rateInp.readOnly = true;
     } else {
         rateInp.readOnly = false;
-        if(parseNum(rateInp.value) === 1) rateInp.value = ''; 
+        if (typeof window.getExchangeRateForCurrency === 'function') {
+            const fetchedRate = window.getExchangeRateForCurrency(curr);
+            if (fetchedRate && fetchedRate !== 1) {
+                rateInp.value = fetchedRate;
+            } else if(parseNum(rateInp.value) === 1) {
+                rateInp.value = ''; 
+            }
+        } else {
+            if(parseNum(rateInp.value) === 1) rateInp.value = ''; 
+        }
     }
     // We calculate base logic based on local equivalents.
     // Future expansion: store foreign amounts alongside local.
@@ -207,7 +216,7 @@ function resetVoucherSilent() {
     
     setNextVoucherNumber();
     calculateTotals();
-    if (window.applyImmutabilityUI) window.applyImmutabilityUI(v.status);
+    if (window.applyImmutabilityUI) window.applyImmutabilityUI(typeof v !== 'undefined' ? v.status : 'draft');
 }
 
 function loadPreviousVoucher() {
@@ -247,7 +256,7 @@ function renderVoucher(v) {
     v.lines.forEach(line => addGridRow(line));
     
     calculateTotals();
-    if (window.applyImmutabilityUI) window.applyImmutabilityUI(v.status);
+    if (window.applyImmutabilityUI) window.applyImmutabilityUI(typeof v !== 'undefined' ? v.status : 'draft');
 }
 
 function submitVoucher() {
@@ -321,7 +330,8 @@ function submitVoucher() {
         statement: document.getElementById('hdr-statement').value,
         totalAmount: totalDebit,
         lines: lines,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        systemExchangeRate: (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency('USD') : 1) || 1
     };
 
     jvData = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
