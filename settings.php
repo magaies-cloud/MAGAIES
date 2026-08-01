@@ -579,7 +579,7 @@
                             <option value="manual">الأسعار المدخلة يدوياً فقط</option>
                             <option value="saas">الأسعار المسحوبة من منصة ساس فقط</option>
                         </select>
-                        <button class="btn btn-primary" onclick="renderExchangeRateHistory()" style="padding: 5px 15px; font-size: 0.9rem;">تحديث</button>
+                        <button class="btn btn-primary" onclick="renderExchangeRateHistory()" style="padding: 5px 15px; font-size: 0.9rem; width: auto; flex: none;">تحديث</button>
                     </div>
                     <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
                         <table class="erp-table" style="width: 100%; border-collapse: collapse;">
@@ -1224,7 +1224,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const filter = document.getElementById('cfg-history-filter') ? document.getElementById('cfg-history-filter').value : 'all';
             
             if (filter !== 'all') {
-                hist = hist.filter(h => h.source === filter);
+                hist = hist.filter(h => h.source === filter || (filter === 'saas' && h.source === 'global'));
             }
             
             // Sort by most recent
@@ -1237,7 +1237,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             let html = '';
             hist.forEach(h => {
-                const sourceBadge = h.source === 'saas' 
+                const sourceBadge = (h.source === 'saas' || h.source === 'global') 
                     ? '<span style="background:rgba(56,189,248,0.2); color:#38bdf8; padding:3px 8px; border-radius:12px; font-size:0.8rem;">سحب من منصة ساس</span>' 
                     : '<span style="background:rgba(245,158,11,0.2); color:#f59e0b; padding:3px 8px; border-radius:12px; font-size:0.8rem;">إدخال يدوي</span>';
                 
@@ -1255,8 +1255,28 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // Hook into initialization to load history
-        document.addEventListener('DOMContentLoaded', () => {
+                document.addEventListener('DOMContentLoaded', () => {
             if (document.getElementById('cfg-history-tbody')) {
+                const historyKey = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_exchange_rate_history') : 'erp_exchange_rate_history';
+                let hist = [];
+                try { hist = JSON.parse(localStorage.getItem(historyKey) || '[]'); } catch(e){}
+                
+                if (hist.length === 0) {
+                    const tk = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1';
+                    const s = JSON.parse(localStorage.getItem(tk) || '{}');
+                    if (s.rateUSD) {
+                        const now = new Date();
+                        hist.push({
+                            id: 'HR-' + Date.now(),
+                            rate: s.rateUSD,
+                            date: now.toISOString().split('T')[0],
+                            time: now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', hour12:true}),
+                            user: 'مدير النظام',
+                            source: s.exchangeMode || 'manual'
+                        });
+                        localStorage.setItem(historyKey, JSON.stringify(hist));
+                    }
+                }
                 renderExchangeRateHistory();
             }
         });
