@@ -15,34 +15,6 @@ let showHeaderInfo = true;
 let isLongPressTriggered = false;
 let longPressInterval = null;
 
-// Exchange rate initialization (variables defined in general-ledger.js which loads first)
-(function initPreviewLedgerRate() {
-    // Ensure variables exist (safety check if loaded standalone)
-    if (typeof window.ledgerExchangeRate === 'undefined') window.ledgerExchangeRate = 1.0;
-    if (typeof window.ledgerForeignCurrency === 'undefined') window.ledgerForeignCurrency = 'USD';
-    try {
-        const erpSettings = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
-        const baseCur = erpSettings.currency || 'SDG';
-        const active = erpSettings.activeCurrencies || [];
-        const foreign = active.find(c => c !== baseCur);
-        if (foreign) ledgerForeignCurrency = foreign;
-    } catch(e) {}
-    if (typeof window.getExchangeRateForCurrency === 'function') {
-        const r = window.getExchangeRateForCurrency(ledgerForeignCurrency || 'USD');
-        if (r && r > 0) ledgerExchangeRate = r;
-    }
-    if (!ledgerExchangeRate || ledgerExchangeRate <= 1) {
-        fetch('api_index.php/exchange-rate')
-            .then(res => res.json())
-            .then(data => {
-                if (data && data.rate && (!ledgerExchangeRate || ledgerExchangeRate <= 1)) {
-                    ledgerExchangeRate = parseFloat(data.rate) || 1.0;
-                }
-            })
-            .catch(() => {});
-    }
-})();
-
 // Default column definitions with exact field mapping for General Ledger
 const baseColumns = [
     { idx: 0, defaultLabel: "التاريخ", field: "date", isNum: false },
@@ -73,7 +45,6 @@ function getRawFieldValue(row, field) {
     if (field === 'creditForeign') return parseFloat(row.creditForeign || row.cr_foreign || 0);
     if (field === 'balance') return parseFloat(row.balance !== undefined ? row.balance : ((row.debit || 0) - (row.credit || 0)));
     if (field === 'additionalNote') return row.additionalNote || row.notes || row.costCenter || '';
-    if (field === 'exchangeRate') return parseFloat(row.exchangeRate || 0) || 1;
     return row[field] !== undefined ? row[field] : '';
 }
 
@@ -324,20 +295,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (typeof localforage !== 'undefined') {
         try {
             const lfData = await localforage.getItem('preview_ledger_data');
-            console.log('preview-ledger: localforage returned', typeof lfData, Array.isArray(lfData) ? lfData.length + ' items' : lfData);
             if (Array.isArray(lfData) && lfData.length > 0) {
                 currentData = lfData;
             }
         } catch(e) {
             console.error('Error reading from localforage:', e);
         }
-    } else {
-        console.log('preview-ledger: localforage not available');
     }
 
     if (!currentData || currentData.length === 0) {
         const rawData = localStorage.getItem('preview_ledger_data') || localStorage.getItem('preview_table_data');
-        console.log('preview-ledger: localStorage rawData', rawData ? rawData.substring(0, 200) + '...' : 'null');
         if (rawData) {
             try {
                 const parsed = JSON.parse(rawData);
@@ -363,21 +330,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch(e){}
     }
 
-
     if (!currentData || currentData.length === 0) {
         if (typeof collectAllTransactions === 'function') {
-            try {
-                currentData = collectAllTransactions();
-                console.log('preview-ledger: collectAllTransactions returned', currentData ? currentData.length : 0, 'rows');
-            } catch(e) {
-                console.error('preview-ledger: collectAllTransactions error:', e);
-                currentData = [];
-            }
-        } else {
-            console.warn('preview-ledger: collectAllTransactions not defined');
+            currentData = collectAllTransactions();
         }
-    } else {
-        console.log('preview-ledger: loaded', currentData.length, 'rows from storage');
     }
 
     filteredData = [...currentData];
@@ -2063,12 +2019,11 @@ function collectAllTransactions() {
         const isPosted = v.isPosted !== false;
         
         const rate = parseNum(v.rate || 1);
-        const historicalRate = parseNum(v.systemExchangeRate || 0) || (rate > 1 ? rate : ledgerExchangeRate) || 1;
         const isBaseSDG = (currency === 'SDG');
         const amount = parseNum(v.amount);
         const amountLocal = parseNum(v.amountLocal || (amount * rate));
         const valLoc = amountLocal;
-        const valFc = isBaseSDG ? (amountLocal / (historicalRate || 1)) : amount;
+        const valFc = isBaseSDG ? (amountLocal / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amount;
 
         // Receiving side (Safe/Bank)
         txns.push({
@@ -2079,7 +2034,7 @@ function collectAllTransactions() {
             debit: valLoc, credit: 0, 
             debitForeign: valFc, creditForeign: 0,
             costCenter, currency,
-            exchangeRate: historicalRate,
+            exchangeRate: rate,
             isPosted: isPosted
         });
         // Disbursing side (Customer/Supplier pays us)
@@ -2091,7 +2046,7 @@ function collectAllTransactions() {
             debit: 0, credit: valLoc, 
             debitForeign: 0, creditForeign: valFc,
             costCenter, currency,
-            exchangeRate: historicalRate,
+            exchangeRate: rate,
             isPosted: isPosted
         });
     });
@@ -2105,19 +2060,18 @@ function collectAllTransactions() {
         const isPosted = v.isPosted !== false;
 
         const rate = parseNum(v.rate || 1);
-        const historicalRate = parseNum(v.systemExchangeRate || 0) || (rate > 1 ? rate : ledgerExchangeRate) || 1;
         const isBaseSDG = (currency === 'SDG');
         const amount = parseNum(v.amount);
         const amountLocal = parseNum(v.amountLocal || (amount * rate));
         const valLoc = amountLocal;
-        const valFc = isBaseSDG ? (amountLocal / (historicalRate || 1)) : amount;
+        const valFc = isBaseSDG ? (amountLocal / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amount;
 
         const method = v.paymentMethod || 'cash';
         if (method === 'mobile' && v.bankTransfers && v.bankTransfers.length > 0) {
             v.bankTransfers.forEach(bt => {
                 const amt = parseNum(bt.amount);
                 const amtLoc = isBaseSDG ? amt : amt * rate;
-                const amtFc = isBaseSDG ? (amtLoc / (historicalRate || 1)) : amt;
+                const amtFc = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                 const stmt = bt.statement || v.statement || v.toStatement || ('تحويل بنكي - سند صرف #' + (v.voucherNo || v.id));
 
                 // Disbursing side (Safe/Bank)
@@ -2128,7 +2082,7 @@ function collectAllTransactions() {
                     additionalNote: stmt,
                     debit: 0, credit: amtLoc, 
                     debitForeign: 0, creditForeign: amtFc,
-                    costCenter, currency, exchangeRate: historicalRate, isPosted
+                    costCenter, currency, exchangeRate: rate, isPosted
                 });
                 // Receiving side (Supplier/Customer receives from us)
                 txns.push({
@@ -2138,14 +2092,14 @@ function collectAllTransactions() {
                     additionalNote: stmt,
                     debit: amtLoc, credit: 0, 
                     debitForeign: amtFc, creditForeign: 0,
-                    costCenter, currency, exchangeRate: historicalRate, isPosted
+                    costCenter, currency, exchangeRate: rate, isPosted
                 });
             });
         } else if (method === 'check' && v.cheques && v.cheques.length > 0) {
             v.cheques.forEach(ch => {
                 const amt = parseNum(ch.amount);
                 const amtLoc = isBaseSDG ? amt : amt * rate;
-                const amtFc = isBaseSDG ? (amtLoc / (historicalRate || 1)) : amt;
+                const amtFc = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                 const stmt = ch.statement || v.statement || v.toStatement || ('شيك - سند صرف #' + (v.voucherNo || v.id));
 
                 // Disbursing side (Safe/Bank)
@@ -2156,7 +2110,7 @@ function collectAllTransactions() {
                     additionalNote: stmt,
                     debit: 0, credit: amtLoc, 
                     debitForeign: 0, creditForeign: amtFc,
-                    costCenter, currency, exchangeRate: historicalRate, isPosted
+                    costCenter, currency, exchangeRate: rate, isPosted
                 });
                 // Receiving side (Supplier/Customer receives from us)
                 txns.push({
@@ -2166,7 +2120,7 @@ function collectAllTransactions() {
                     additionalNote: stmt,
                     debit: amtLoc, credit: 0, 
                     debitForeign: amtFc, creditForeign: 0,
-                    costCenter, currency, exchangeRate: historicalRate, isPosted
+                    costCenter, currency, exchangeRate: rate, isPosted
                 });
             });
         } else {
@@ -2179,7 +2133,7 @@ function collectAllTransactions() {
                 debit: 0, credit: valLoc, 
                 debitForeign: 0, creditForeign: valFc,
                 costCenter, currency,
-                exchangeRate: historicalRate,
+                exchangeRate: rate,
                 isPosted: isPosted
             });
             // Receiving side (Supplier/Customer receives from us)
@@ -2191,7 +2145,7 @@ function collectAllTransactions() {
                 debit: valLoc, credit: 0, 
                 debitForeign: valFc, creditForeign: 0,
                 costCenter, currency,
-                exchangeRate: historicalRate,
+                exchangeRate: rate,
                 isPosted: isPosted
             });
         }
@@ -2218,7 +2172,6 @@ function collectAllTransactions() {
         const mainAcc = v.toAccount || 'safe-001';
 
         const rate = parseNum(v.exchangeRate || 1);
-        const historicalRate = parseNum(v.systemExchangeRate || 0) || (rate > 1 ? rate : ledgerExchangeRate) || 1;
         const isBaseSDG = (currency === 'SDG');
 
         if (v.items && v.items.length > 0) {
@@ -2229,7 +2182,7 @@ function collectAllTransactions() {
                 if (pms.includes('cash') && parseNum(item.cashAmount) > 0) {
                     const amt = parseNum(item.cashAmount);
                     const amtLoc = isBaseSDG ? amt : amt * rate;
-                    const amtFc = isBaseSDG ? (amtLoc / (historicalRate || 1)) : amt;
+                    const amtFc = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                     const safeAcct = resolveAccount(item.cashSafe, mainAcc);
                     const stmt = item.cashStatement || item.statement || v.description || 'قبض نقدية';
 
@@ -2241,7 +2194,7 @@ function collectAllTransactions() {
                         additionalNote: v.description || stmt,
                         debit: amtLoc, credit: 0, 
                         debitForeign: amtFc, creditForeign: 0,
-                        costCenter: item.costCenter || costCenter, currency, exchangeRate: historicalRate, isPosted
+                        costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
                     });
                     
                     // Recipient/Payer Account (Credit)
@@ -2252,7 +2205,7 @@ function collectAllTransactions() {
                         additionalNote: stmt,
                         debit: 0, credit: amtLoc, 
                         debitForeign: 0, creditForeign: amtFc,
-                        costCenter: item.costCenter || costCenter, currency, exchangeRate: historicalRate, isPosted
+                        costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
                     });
                 }
 
@@ -2263,7 +2216,7 @@ function collectAllTransactions() {
                         const amt = parseNum(bt.amount);
                         if (amt <= 0) return;
                         const amtLoc = isBaseSDG ? amt : amt * rate;
-                        const amtFc = isBaseSDG ? (amtLoc / (historicalRate || 1)) : amt;
+                        const amtFc = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                         const bankAcct = resolveAccount(bt.bankName, mainAcc);
                         const stmt = bt.statement || item.statement || v.description || 'قبض تحويل بنكي';
 
@@ -2275,7 +2228,7 @@ function collectAllTransactions() {
                             additionalNote: v.description || stmt,
                             debit: amtLoc, credit: 0, 
                             debitForeign: amtFc, creditForeign: 0,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: historicalRate, isPosted
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
                         });
                         
                         // Recipient/Payer Account (Credit)
@@ -2286,7 +2239,7 @@ function collectAllTransactions() {
                             additionalNote: stmt,
                             debit: 0, credit: amtLoc, 
                             debitForeign: 0, creditForeign: amtFc,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: historicalRate, isPosted
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
                         });
                     });
                 }
@@ -2298,7 +2251,7 @@ function collectAllTransactions() {
                         const amt = parseNum(ch.amount);
                         if (amt <= 0) return;
                         const amtLoc = isBaseSDG ? amt : amt * rate;
-                        const amtFc = isBaseSDG ? (amtLoc / (historicalRate || 1)) : amt;
+                        const amtFc = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                         const chequeAcct = 'cheques-receivable';
                         const stmt = ch.statement || item.statement || v.description || 'قبض شيك';
 
@@ -2310,7 +2263,7 @@ function collectAllTransactions() {
                             additionalNote: v.description || stmt,
                             debit: amtLoc, credit: 0, 
                             debitForeign: amtFc, creditForeign: 0,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: historicalRate, isPosted
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
                         });
                         
                         // Recipient/Payer Account (Credit)
@@ -2321,7 +2274,7 @@ function collectAllTransactions() {
                             additionalNote: stmt,
                             debit: 0, credit: amtLoc, 
                             debitForeign: 0, creditForeign: amtFc,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: historicalRate, isPosted
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
                         });
                     });
                 }
@@ -2330,7 +2283,7 @@ function collectAllTransactions() {
             // Fallback for old/empty items vouchers
             const totalAmount = parseNum(v.totalAmount);
             const valLoc = isBaseSDG ? totalAmount : totalAmount * rate;
-            const valFc = isBaseSDG ? (totalAmount / (historicalRate || 1)) : totalAmount;
+            const valFc = isBaseSDG ? (totalAmount / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : totalAmount;
             txns.push({
                 date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
                 account: mainAcc, counterAccount: 'حسابات فرعية متعددة',
@@ -2338,7 +2291,7 @@ function collectAllTransactions() {
                 additionalNote: v.description || 'سند قبض مجمع',
                 debit: valLoc, credit: 0, 
                 debitForeign: valFc, creditForeign: 0,
-                costCenter, currency, exchangeRate: historicalRate, isPosted
+                costCenter, currency, exchangeRate: rate, isPosted
             });
         }
     });
@@ -2353,7 +2306,6 @@ function collectAllTransactions() {
         const mainAcc = v.fromAccount || 'safe-001';
 
         const rate = parseNum(v.exchangeRate || 1);
-        const historicalRate = parseNum(v.systemExchangeRate || 0) || (rate > 1 ? rate : ledgerExchangeRate) || 1;
         const isBaseSDG = (currency === 'SDG');
 
         if (v.items && v.items.length > 0) {
@@ -2364,7 +2316,7 @@ function collectAllTransactions() {
                 if (pms.includes('cash') && parseNum(item.cashAmount) > 0) {
                     const amt = parseNum(item.cashAmount);
                     const amtLoc = isBaseSDG ? amt : amt * rate;
-                    const amtFc = isBaseSDG ? (amtLoc / (historicalRate || 1)) : amt;
+                    const amtFc = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                     const safeAcct = resolveAccount(item.cashSafe, mainAcc);
                     const stmt = item.cashStatement || item.statement || v.description || 'صرف نقدية';
 
@@ -2376,7 +2328,7 @@ function collectAllTransactions() {
                         additionalNote: stmt,
                         debit: amtLoc, credit: 0, 
                         debitForeign: amtFc, creditForeign: 0,
-                        costCenter: item.costCenter || costCenter, currency, exchangeRate: historicalRate, isPosted
+                        costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
                     });
                     
                     // Safe Account (Credit)
@@ -2387,7 +2339,7 @@ function collectAllTransactions() {
                         additionalNote: v.description || stmt,
                         debit: 0, credit: amtLoc, 
                         debitForeign: 0, creditForeign: amtFc,
-                        costCenter: item.costCenter || costCenter, currency, exchangeRate: historicalRate, isPosted
+                        costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
                     });
                 }
 
@@ -2398,7 +2350,7 @@ function collectAllTransactions() {
                         const amt = parseNum(bt.amount);
                         if (amt <= 0) return;
                         const amtLoc = isBaseSDG ? amt : amt * rate;
-                        const amtFc = isBaseSDG ? (amtLoc / (historicalRate || 1)) : amt;
+                        const amtFc = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                         const bankAcct = resolveAccount(bt.bankName, mainAcc);
                         const stmt = bt.statement || item.statement || v.description || 'صرف تحويل بنكي';
 
@@ -2410,7 +2362,7 @@ function collectAllTransactions() {
                             additionalNote: stmt,
                             debit: amtLoc, credit: 0, 
                             debitForeign: amtFc, creditForeign: 0,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: historicalRate, isPosted
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
                         });
                         
                         // Bank Account (Credit)
@@ -2421,7 +2373,7 @@ function collectAllTransactions() {
                             additionalNote: v.description || stmt,
                             debit: 0, credit: amtLoc, 
                             debitForeign: 0, creditForeign: amtFc,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: historicalRate, isPosted
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
                         });
                     });
                 }
@@ -2433,7 +2385,7 @@ function collectAllTransactions() {
                         const amt = parseNum(ch.amount);
                         if (amt <= 0) return;
                         const amtLoc = isBaseSDG ? amt : amt * rate;
-                        const amtFc = isBaseSDG ? (amtLoc / (historicalRate || 1)) : amt;
+                        const amtFc = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                         const chequeAcct = resolveAccount(ch.chequeBank, 'banks-cheques');
                         const stmt = ch.statement || item.statement || v.description || 'صرف شيك';
 
@@ -2445,7 +2397,7 @@ function collectAllTransactions() {
                             additionalNote: stmt,
                             debit: amtLoc, credit: 0, 
                             debitForeign: amtFc, creditForeign: 0,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: historicalRate, isPosted
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
                         });
                         
                         // Cheque Account (Credit)
@@ -2456,7 +2408,7 @@ function collectAllTransactions() {
                             additionalNote: v.description || stmt,
                             debit: 0, credit: amtLoc, 
                             debitForeign: 0, creditForeign: amtFc,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: historicalRate, isPosted
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
                         });
                     });
                 }
@@ -2465,7 +2417,7 @@ function collectAllTransactions() {
             // Fallback for old/empty items vouchers
             const totalAmount = parseNum(v.totalAmount);
             const valLoc = isBaseSDG ? totalAmount : totalAmount * rate;
-            const valFc = isBaseSDG ? (totalAmount / (historicalRate || 1)) : totalAmount;
+            const valFc = isBaseSDG ? (totalAmount / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : totalAmount;
             txns.push({
                 date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
                 account: mainAcc, counterAccount: 'حسابات فرعية متعددة',
@@ -2473,7 +2425,7 @@ function collectAllTransactions() {
                 additionalNote: v.description || 'سند صرف مجمع',
                 debit: 0, credit: valLoc, 
                 debitForeign: 0, creditForeign: valFc,
-                costCenter, currency, exchangeRate: historicalRate, isPosted
+                costCenter, currency, exchangeRate: rate, isPosted
             });
         }
     });
@@ -2493,9 +2445,9 @@ function collectAllTransactions() {
             const deb = parseNum(line.debit);
             const cred = parseNum(line.credit);
             const debLoc = isBaseSDG ? deb : deb * rate;
-            const debFc = isBaseSDG ? (debLoc / (historicalRate || 1)) : deb;
+            const debFc = isBaseSDG ? (debLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : deb;
             const credLoc = isBaseSDG ? cred : cred * rate;
-            const credFc = isBaseSDG ? (credLoc / (historicalRate || 1)) : cred;
+            const credFc = isBaseSDG ? (credLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : cred;
 
             txns.push({
                 date: v.date, time: time, ref: v.id, type: 'jv', typeLabel: 'قيد يومي',
@@ -2505,7 +2457,7 @@ function collectAllTransactions() {
                 debit: debLoc, credit: credLoc, 
                 debitForeign: debFc, creditForeign: credFc,
                 costCenter, currency,
-                exchangeRate: historicalRate,
+                exchangeRate: rate,
                 isPosted: isPosted
             });
         });
@@ -2528,10 +2480,9 @@ function collectAllTransactions() {
         const isPosted = inv.isPosted !== false;
 
         const rate = parseNum(inv.exchangeRate || 1);
-        const historicalRate = parseNum(inv.systemExchangeRate || 0) || (rate > 1 ? rate : ledgerExchangeRate) || 1;
         const isBaseSDG = (currency === 'SDG');
         const amtLoc = isBaseSDG ? total : total * rate;
-        const amtFc = isBaseSDG ? (total / (historicalRate || 1)) : total;
+        const amtFc = isBaseSDG ? (total / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : total;
 
         txns.push({
             date: inv.date, time: time, ref: refNo, type: 'invoice', typeLabel: 'مبيعات',
@@ -2541,7 +2492,7 @@ function collectAllTransactions() {
             debit: amtLoc, credit: 0, 
             debitForeign: amtFc, creditForeign: 0,
             costCenter, currency,
-            exchangeRate: historicalRate,
+            exchangeRate: rate,
             isPosted: isPosted
         });
         txns.push({
@@ -2552,7 +2503,7 @@ function collectAllTransactions() {
             debit: 0, credit: amtLoc, 
             debitForeign: 0, creditForeign: amtFc,
             costCenter, currency,
-            exchangeRate: historicalRate,
+            exchangeRate: rate,
             isPosted: isPosted
         });
 
@@ -2561,7 +2512,7 @@ function collectAllTransactions() {
             const cash = parseNum(inv.cashAmount || 0);
             if (cash > 0) {
                 const cashLoc = isBaseSDG ? cash : cash * rate;
-                const cashFc = isBaseSDG ? (cashLoc / (historicalRate || 1)) : cash;
+                const cashFc = isBaseSDG ? (cashLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : cash;
                 const paymentAcct = inv.paymentAccountId || 'safe-001';
                 txns.push({
                     date: inv.date, time: time, ref: refNo + '-PAID', type: 'receipt', typeLabel: 'سداد فاتورة',
@@ -2571,7 +2522,7 @@ function collectAllTransactions() {
                     debit: cashLoc, credit: 0, 
                     debitForeign: cashFc, creditForeign: 0,
                     costCenter, currency,
-                    exchangeRate: historicalRate,
+                    exchangeRate: rate,
                     isPosted: isPosted
                 });
                 txns.push({
@@ -2582,7 +2533,7 @@ function collectAllTransactions() {
                     debit: 0, credit: cashLoc, 
                     debitForeign: 0, creditForeign: cashFc,
                     costCenter, currency,
-                    exchangeRate: historicalRate,
+                    exchangeRate: rate,
                     isPosted: isPosted
                 });
             }
@@ -2592,7 +2543,7 @@ function collectAllTransactions() {
                     const amt = parseNum(bt.amount || 0);
                     if (amt > 0) {
                         const amtLocBt = isBaseSDG ? amt : amt * rate;
-                        const amtFcBt = isBaseSDG ? (amtLoc / (historicalRate || 1)) : amt;
+                        const amtFcBt = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                         const bankAcct = bt.bankAccountId || 'bank-001';
                         txns.push({
                             date: inv.date, time: time, ref: `${refNo}-BT${idx+1}`, type: 'receipt', typeLabel: 'سداد فاتورة',
@@ -2602,7 +2553,7 @@ function collectAllTransactions() {
                             debit: amtLocBt, credit: 0, 
                             debitForeign: amtFcBt, creditForeign: 0,
                             costCenter, currency,
-                            exchangeRate: historicalRate,
+                            exchangeRate: rate,
                             isPosted: isPosted
                         });
                         txns.push({
@@ -2613,7 +2564,7 @@ function collectAllTransactions() {
                             debit: 0, credit: amtLocBt, 
                             debitForeign: 0, creditForeign: amtFcBt,
                             costCenter, currency,
-                            exchangeRate: historicalRate,
+                            exchangeRate: rate,
                             isPosted: isPosted
                         });
                     }
@@ -2625,7 +2576,7 @@ function collectAllTransactions() {
                     const amt = parseNum(ch.amount || 0);
                     if (amt > 0) {
                         const amtLocCh = isBaseSDG ? amt : amt * rate;
-                        const amtFcCh = isBaseSDG ? (amtLoc / (historicalRate || 1)) : amt;
+                        const amtFcCh = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                         const chequeAcct = 'cheques-receivable';
                         txns.push({
                             date: inv.date, time: time, ref: `${refNo}-CH${idx+1}`, type: 'receipt', typeLabel: 'سداد فاتورة',
@@ -2635,7 +2586,7 @@ function collectAllTransactions() {
                             debit: amtLocCh, credit: 0, 
                             debitForeign: amtFcCh, creditForeign: 0,
                             costCenter, currency,
-                            exchangeRate: historicalRate,
+                            exchangeRate: rate,
                             isPosted: isPosted
                         });
                         txns.push({
@@ -2646,7 +2597,7 @@ function collectAllTransactions() {
                             debit: 0, credit: amtLocCh, 
                             debitForeign: 0, creditForeign: amtFcCh,
                             costCenter, currency,
-                            exchangeRate: historicalRate,
+                            exchangeRate: rate,
                             isPosted: isPosted
                         });
                     }
@@ -2662,7 +2613,7 @@ function collectAllTransactions() {
                 debit: amtLoc, credit: 0, 
                 debitForeign: amtFc, creditForeign: 0,
                 costCenter, currency,
-                exchangeRate: historicalRate,
+                exchangeRate: rate,
                 isPosted: isPosted
             });
             txns.push({
@@ -2673,7 +2624,7 @@ function collectAllTransactions() {
                 debit: 0, credit: amtLoc, 
                 debitForeign: 0, creditForeign: amtFc,
                 costCenter, currency,
-                exchangeRate: historicalRate,
+                exchangeRate: rate,
                 isPosted: isPosted
             });
         }
@@ -2696,10 +2647,9 @@ function collectAllTransactions() {
         const isPosted = inv.isPosted !== false;
 
         const rate = parseNum(inv.exchangeRate || 1);
-        const historicalRate = parseNum(inv.systemExchangeRate || 0) || (rate > 1 ? rate : ledgerExchangeRate) || 1;
         const isBaseSDG = (currency === 'SDG');
         const amtLoc = isBaseSDG ? total : total * rate;
-        const amtFc = isBaseSDG ? (total / (historicalRate || 1)) : total;
+        const amtFc = isBaseSDG ? (total / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : total;
 
         if (inv.isAdjustment) {
             const absAmtLoc = Math.abs(amtLoc);
@@ -2715,7 +2665,7 @@ function collectAllTransactions() {
                 debit: absAmtLoc, credit: 0, 
                 debitForeign: absAmtFc, creditForeign: 0,
                 costCenter, currency,
-                exchangeRate: historicalRate,
+                exchangeRate: rate,
                 isPosted: isPosted
             });
             txns.push({
@@ -2727,7 +2677,7 @@ function collectAllTransactions() {
                 debit: 0, credit: absAmtLoc, 
                 debitForeign: 0, creditForeign: absAmtFc,
                 costCenter, currency,
-                exchangeRate: historicalRate,
+                exchangeRate: rate,
                 isPosted: isPosted
             });
             return;
@@ -2742,7 +2692,7 @@ function collectAllTransactions() {
             debit: amtLoc, credit: 0, 
             debitForeign: amtFc, creditForeign: 0,
             costCenter, currency,
-            exchangeRate: historicalRate,
+            exchangeRate: rate,
             isPosted: isPosted
         });
         txns.push({
@@ -2753,7 +2703,7 @@ function collectAllTransactions() {
             debit: 0, credit: amtLoc, 
             debitForeign: 0, creditForeign: amtFc,
             costCenter, currency,
-            exchangeRate: historicalRate,
+            exchangeRate: rate,
             isPosted: isPosted
         });
 
@@ -2767,7 +2717,7 @@ function collectAllTransactions() {
                 debit: 0, credit: amtLoc,
                 debitForeign: 0, creditForeign: amtFc,
                 costCenter, currency,
-                exchangeRate: historicalRate,
+                exchangeRate: rate,
                 isPosted: isPosted
             });
             txns.push({
@@ -2778,7 +2728,7 @@ function collectAllTransactions() {
                 debit: amtLoc, credit: 0,
                 debitForeign: amtFc, creditForeign: 0,
                 costCenter, currency,
-                exchangeRate: historicalRate,
+                exchangeRate: rate,
                 isPosted: isPosted
             });
         }

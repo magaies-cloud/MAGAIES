@@ -675,8 +675,7 @@ function submitVoucher() {
         
         paymentMethod: method,
         
-        timestamp: new Date().toISOString(),
-        systemExchangeRate: (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency('USD') : 1)
+        timestamp: new Date().toISOString()
     };
 
     if (method === 'mobile') {

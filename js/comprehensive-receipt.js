@@ -76,8 +76,7 @@ function saveVoucher() {
         depositAccount: depositAccount,
         depositDesc: document.getElementById('deposit-desc').value,
         paymentType: currentType,
-        timestamp: new Date().toISOString(),
-        systemExchangeRate: (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency('USD') : 1)
+        timestamp: new Date().toISOString()
     };
 
     if (currentType === 'check') {

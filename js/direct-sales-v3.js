@@ -3075,8 +3075,7 @@ function submitInvoice(ignoreWarnings = false) {
         status: finalStatus,
         timestamp: new Date().toISOString(),
         customerName: cust ? cust.name : 'عميل نقدي',
-        effectsApplied: (currentSaleType !== 'preliminary' && postingMode === 'auto'),
-        systemExchangeRate: (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency('USD') : 1)
+        effectsApplied: (currentSaleType !== 'preliminary' && postingMode === 'auto')
     };
 
     // If editing, revert old financial effects first

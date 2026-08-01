@@ -1592,8 +1592,7 @@ async function saveVoucher() {
         cheques: [],
         items: items, // Contains {account, amount, statement, paymentMethod, bankName, ...}
         isPosted: true, // Auto-post to reflect in general ledger immediately
-        createdAt: new Date().toISOString(),
-        systemExchangeRate: (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency('USD') : 1)
+        createdAt: new Date().toISOString()
     };
 
     // Set fromAccount and toAccount properly for compatibility
