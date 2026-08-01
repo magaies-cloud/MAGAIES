@@ -1565,7 +1565,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const activeCurrencies = Array.from(document.querySelectorAll('#cfg-active-currencies input[type="checkbox"]:checked')).map(cb => cb.value);
             let oldCfg = {};
-            try { oldCfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}'); } catch(e) { console.error('Corrupted old settings', e); }
+            const tk = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1';
+            try { oldCfg = JSON.parse(localStorage.getItem(tk) || '{}'); } catch(e) { console.error('Corrupted old settings', e); }
 
             const baseCurrency = getVal('cfg-currency', oldCfg.currency || 'SDG');
             const foreignCurrency = getVal('cfg-foreign-currency', oldCfg.foreignCurrency || 'USD');
@@ -1683,7 +1684,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('saveSettings: COOKIE BACKUP saved OK');
             // --- Log Exchange Rate History ---
             try {
-                if (cfg.rateUSD && oldCfg.rateUSD !== cfg.rateUSD) {
+                if (cfg.rateUSD && (oldCfg.rateUSD !== cfg.rateUSD || oldCfg.exchangeMode !== cfg.exchangeMode)) {
                     const historyKey = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_exchange_rate_history') : 'erp_exchange_rate_history';
                     let hist = [];
                     try { hist = JSON.parse(localStorage.getItem(historyKey) || '[]'); } catch(e){}
