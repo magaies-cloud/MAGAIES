@@ -571,6 +571,9 @@
                 <div class="glass-panel" id="panel-exchange-history" style="margin-bottom: 20px;">
                     <div class="setting-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                         <span>📜 تقرير سجل تعديلات أسعار الصرف</span>
+                        <small style="display:block; color:#94a3b8; font-size:0.85rem; margin-top:5px;">
+                            💡 هذا التقرير يوثق فقط السجلات التاريخية التي تم حفظها سابقاً، ولا يقوم بالاتصال بمنصة ساس لجلب السعر اللحظي الحالي للوحة المشتركين هنا.
+                        </small>
                     </div>
                     <div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                         <label style="color: #94a3b8; font-size: 0.9rem;">فرز التقرير حسب:</label>
@@ -1224,14 +1227,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const filter = document.getElementById('cfg-history-filter') ? document.getElementById('cfg-history-filter').value : 'all';
             
             if (filter !== 'all') {
-                hist = hist.filter(h => h.source === filter || (filter === 'saas' && h.source === 'global'));
+                hist = hist.filter(h => h.source === filter || (filter === 'saas' && (h.source === 'global' || h.source === 1 || h.source === '1')) || (filter === 'manual' && (h.source === 0 || h.source === '0')));
             }
             
             // Sort by most recent
             hist.reverse();
             
             if (hist.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:15px; color:#94a3b8;">لا توجد سجلات مطابقة للفلتر المختار.</td></tr>';
+                tbody.innerHTML = '<tr id="empty-history-row"><td colspan="5" style="text-align:center; padding:25px; color:#f87171; font-weight:bold; font-size: 1.1rem; background:rgba(239,68,68,0.05);">⚠️ لا توجد سجلات مطابقة للفلترة المختارة.</td></tr>';
                 return;
             }
             
