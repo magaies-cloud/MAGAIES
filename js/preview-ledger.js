@@ -45,6 +45,17 @@ function getRawFieldValue(row, field) {
     if (field === 'creditForeign') return parseFloat(row.creditForeign || row.cr_foreign || 0);
     if (field === 'balance') return parseFloat(row.balance !== undefined ? row.balance : ((row.debit || 0) - (row.credit || 0)));
     if (field === 'additionalNote') return row.additionalNote || row.notes || row.costCenter || '';
+    if (field === 'exchangeRate') {
+        let r = parseFloat(row.exchangeRate || 0);
+        let sysRate = 0;
+        if (typeof window.getExchangeRateForCurrency === 'function') {
+            sysRate = window.getExchangeRateForCurrency('USD');
+        }
+        if (sysRate > 0 && (!r || r === 1 || r === 5600 || row.currency === 'SDG' || !row.currency)) {
+            return sysRate;
+        }
+        return r || sysRate || 1;
+    }
     return row[field] !== undefined ? row[field] : '';
 }
 
@@ -336,6 +347,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+        // Sanitize and enforce active system exchange rate on currentData
+    let activeSysRate = 0;
+    if (typeof window.getExchangeRateForCurrency === 'function') {
+        activeSysRate = window.getExchangeRateForCurrency('USD');
+    }
+    if (activeSysRate <= 0) {
+        try {
+            const s = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+            if (s.rateUSD) activeSysRate = parseFloat(s.rateUSD);
+        } catch(e) {}
+    }
+    if (activeSysRate > 0) {
+        currentData.forEach(row => {
+            let r = parseFloat(row.exchangeRate || 0);
+            if (!r || r === 1 || r === 5600 || row.currency === 'SDG' || !row.currency) {
+                row.exchangeRate = activeSysRate;
+                let deb = parseFloat(row.debit || 0);
+                let cred = parseFloat(row.credit || 0);
+                if (deb > 0) row.debitForeign = parseFloat((deb / activeSysRate).toFixed(2));
+                if (cred > 0) row.creditForeign = parseFloat((cred / activeSysRate).toFixed(2));
+            }
+        });
+    }
+
     filteredData = [...currentData];
     initPresets();
 
@@ -402,7 +437,31 @@ function executePrintWithPermission() {
 function filterTableRows(query) {
     const q = (query || '').toLowerCase().trim();
     if (!q) {
-        filteredData = [...currentData];
+            // Sanitize and enforce active system exchange rate on currentData
+    let activeSysRate = 0;
+    if (typeof window.getExchangeRateForCurrency === 'function') {
+        activeSysRate = window.getExchangeRateForCurrency('USD');
+    }
+    if (activeSysRate <= 0) {
+        try {
+            const s = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+            if (s.rateUSD) activeSysRate = parseFloat(s.rateUSD);
+        } catch(e) {}
+    }
+    if (activeSysRate > 0) {
+        currentData.forEach(row => {
+            let r = parseFloat(row.exchangeRate || 0);
+            if (!r || r === 1 || r === 5600 || row.currency === 'SDG' || !row.currency) {
+                row.exchangeRate = activeSysRate;
+                let deb = parseFloat(row.debit || 0);
+                let cred = parseFloat(row.credit || 0);
+                if (deb > 0) row.debitForeign = parseFloat((deb / activeSysRate).toFixed(2));
+                if (cred > 0) row.creditForeign = parseFloat((cred / activeSysRate).toFixed(2));
+            }
+        });
+    }
+
+    filteredData = [...currentData];
     } else {
         filteredData = currentData.filter(row => {
             const stmt = String(getRawFieldValue(row, 'statement')).toLowerCase();
