@@ -34,6 +34,10 @@ function initBalancesCurrencySettings() {
         console.error("Error loading foreign currency from settings:", e);
     }
 
+    if (typeof window.getExchangeRateForCurrency === 'function') {
+        const r = window.getExchangeRateForCurrency('USD');
+        if (r && r > 0) ledgerExchangeRate = r;
+    }
     fetch('api_index.php/exchange-rate')
         .then(res => res.json())
         .then(data => {

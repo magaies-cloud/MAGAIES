@@ -43,6 +43,10 @@ function initLedgerCurrencySettings() {
         console.error("Error loading foreign currency from settings:", e);
     }
 
+    if (typeof window.getExchangeRateForCurrency === 'function') {
+        const r = window.getExchangeRateForCurrency(ledgerForeignCurrency || 'USD');
+        if (r && r > 0) ledgerExchangeRate = r;
+    }
     fetch('api_index.php/exchange-rate')
         .then(res => res.json())
         .then(data => {
@@ -282,7 +286,7 @@ function collectAllTransactions() {
             debit: valLoc, credit: 0, 
             debitForeign: valFc, creditForeign: 0,
             costCenter, currency,
-            exchangeRate: rate,
+            exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
             isPosted: isPosted
         });
         // Disbursing side (Customer/Supplier pays us)
@@ -294,7 +298,7 @@ function collectAllTransactions() {
             debit: 0, credit: valLoc, 
             debitForeign: 0, creditForeign: valFc,
             costCenter, currency,
-            exchangeRate: rate,
+            exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
             isPosted: isPosted
         });
     });
@@ -330,7 +334,7 @@ function collectAllTransactions() {
                     additionalNote: stmt,
                     debit: 0, credit: amtLoc, 
                     debitForeign: 0, creditForeign: amtFc,
-                    costCenter, currency, exchangeRate: rate, isPosted
+                    costCenter, currency, exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)), isPosted
                 });
                 // Receiving side (Supplier/Customer receives from us)
                 txns.push({
@@ -340,7 +344,7 @@ function collectAllTransactions() {
                     additionalNote: stmt,
                     debit: amtLoc, credit: 0, 
                     debitForeign: amtFc, creditForeign: 0,
-                    costCenter, currency, exchangeRate: rate, isPosted
+                    costCenter, currency, exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)), isPosted
                 });
             });
         } else if (method === 'check' && v.cheques && v.cheques.length > 0) {
@@ -358,7 +362,7 @@ function collectAllTransactions() {
                     additionalNote: stmt,
                     debit: 0, credit: amtLoc, 
                     debitForeign: 0, creditForeign: amtFc,
-                    costCenter, currency, exchangeRate: rate, isPosted
+                    costCenter, currency, exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)), isPosted
                 });
                 // Receiving side (Supplier/Customer receives from us)
                 txns.push({
@@ -368,7 +372,7 @@ function collectAllTransactions() {
                     additionalNote: stmt,
                     debit: amtLoc, credit: 0, 
                     debitForeign: amtFc, creditForeign: 0,
-                    costCenter, currency, exchangeRate: rate, isPosted
+                    costCenter, currency, exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)), isPosted
                 });
             });
         } else {
@@ -381,7 +385,7 @@ function collectAllTransactions() {
                 debit: 0, credit: valLoc, 
                 debitForeign: 0, creditForeign: valFc,
                 costCenter, currency,
-                exchangeRate: rate,
+                exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
                 isPosted: isPosted
             });
             // Receiving side (Supplier/Customer receives from us)
@@ -393,7 +397,7 @@ function collectAllTransactions() {
                 debit: valLoc, credit: 0, 
                 debitForeign: valFc, creditForeign: 0,
                 costCenter, currency,
-                exchangeRate: rate,
+                exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
                 isPosted: isPosted
             });
         }
@@ -442,7 +446,7 @@ function collectAllTransactions() {
                         additionalNote: v.description || stmt,
                         debit: amtLoc, credit: 0, 
                         debitForeign: amtFc, creditForeign: 0,
-                        costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                        costCenter: item.costCenter || costCenter, currency, exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)), isPosted
                     });
                     
                     // Recipient/Payer Account (Credit)
@@ -453,7 +457,7 @@ function collectAllTransactions() {
                         additionalNote: stmt,
                         debit: 0, credit: amtLoc, 
                         debitForeign: 0, creditForeign: amtFc,
-                        costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                        costCenter: item.costCenter || costCenter, currency, exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)), isPosted
                     });
                 }
 
@@ -476,7 +480,7 @@ function collectAllTransactions() {
                             additionalNote: v.description || stmt,
                             debit: amtLoc, credit: 0, 
                             debitForeign: amtFc, creditForeign: 0,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)), isPosted
                         });
                         
                         // Recipient/Payer Account (Credit)
@@ -487,7 +491,7 @@ function collectAllTransactions() {
                             additionalNote: stmt,
                             debit: 0, credit: amtLoc, 
                             debitForeign: 0, creditForeign: amtFc,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)), isPosted
                         });
                     });
                 }
@@ -511,7 +515,7 @@ function collectAllTransactions() {
                             additionalNote: v.description || stmt,
                             debit: amtLoc, credit: 0, 
                             debitForeign: amtFc, creditForeign: 0,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)), isPosted
                         });
                         
                         // Recipient/Payer Account (Credit)
@@ -522,7 +526,7 @@ function collectAllTransactions() {
                             additionalNote: stmt,
                             debit: 0, credit: amtLoc, 
                             debitForeign: 0, creditForeign: amtFc,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)), isPosted
                         });
                     });
                 }
@@ -539,7 +543,7 @@ function collectAllTransactions() {
                 additionalNote: v.description || 'سند قبض مجمع',
                 debit: valLoc, credit: 0, 
                 debitForeign: valFc, creditForeign: 0,
-                costCenter, currency, exchangeRate: rate, isPosted
+                costCenter, currency, exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)), isPosted
             });
         }
     });
@@ -576,7 +580,7 @@ function collectAllTransactions() {
                         additionalNote: stmt,
                         debit: amtLoc, credit: 0, 
                         debitForeign: amtFc, creditForeign: 0,
-                        costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                        costCenter: item.costCenter || costCenter, currency, exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)), isPosted
                     });
                     
                     // Safe Account (Credit)
@@ -587,7 +591,7 @@ function collectAllTransactions() {
                         additionalNote: v.description || stmt,
                         debit: 0, credit: amtLoc, 
                         debitForeign: 0, creditForeign: amtFc,
-                        costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                        costCenter: item.costCenter || costCenter, currency, exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)), isPosted
                     });
                 }
 
@@ -610,7 +614,7 @@ function collectAllTransactions() {
                             additionalNote: stmt,
                             debit: amtLoc, credit: 0, 
                             debitForeign: amtFc, creditForeign: 0,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)), isPosted
                         });
                         
                         // Bank Account (Credit)
@@ -621,7 +625,7 @@ function collectAllTransactions() {
                             additionalNote: v.description || stmt,
                             debit: 0, credit: amtLoc, 
                             debitForeign: 0, creditForeign: amtFc,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)), isPosted
                         });
                     });
                 }
@@ -645,7 +649,7 @@ function collectAllTransactions() {
                             additionalNote: stmt,
                             debit: amtLoc, credit: 0, 
                             debitForeign: amtFc, creditForeign: 0,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)), isPosted
                         });
                         
                         // Cheque Account (Credit)
@@ -656,7 +660,7 @@ function collectAllTransactions() {
                             additionalNote: v.description || stmt,
                             debit: 0, credit: amtLoc, 
                             debitForeign: 0, creditForeign: amtFc,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: rate, isPosted
+                            costCenter: item.costCenter || costCenter, currency, exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)), isPosted
                         });
                     });
                 }
@@ -673,7 +677,7 @@ function collectAllTransactions() {
                 additionalNote: v.description || 'سند صرف مجمع',
                 debit: 0, credit: valLoc, 
                 debitForeign: 0, creditForeign: valFc,
-                costCenter, currency, exchangeRate: rate, isPosted
+                costCenter, currency, exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)), isPosted
             });
         }
     });
@@ -705,7 +709,7 @@ function collectAllTransactions() {
                 debit: debLoc, credit: credLoc, 
                 debitForeign: debFc, creditForeign: credFc,
                 costCenter, currency,
-                exchangeRate: rate,
+                exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
                 isPosted: isPosted
             });
         });
@@ -740,7 +744,7 @@ function collectAllTransactions() {
             debit: amtLoc, credit: 0, 
             debitForeign: amtFc, creditForeign: 0,
             costCenter, currency,
-            exchangeRate: rate,
+            exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
             isPosted: isPosted
         });
         txns.push({
@@ -751,7 +755,7 @@ function collectAllTransactions() {
             debit: 0, credit: amtLoc, 
             debitForeign: 0, creditForeign: amtFc,
             costCenter, currency,
-            exchangeRate: rate,
+            exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
             isPosted: isPosted
         });
 
@@ -770,7 +774,7 @@ function collectAllTransactions() {
                     debit: cashLoc, credit: 0, 
                     debitForeign: cashFc, creditForeign: 0,
                     costCenter, currency,
-                    exchangeRate: rate,
+                    exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
                     isPosted: isPosted
                 });
                 txns.push({
@@ -781,7 +785,7 @@ function collectAllTransactions() {
                     debit: 0, credit: cashLoc, 
                     debitForeign: 0, creditForeign: cashFc,
                     costCenter, currency,
-                    exchangeRate: rate,
+                    exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
                     isPosted: isPosted
                 });
             }
@@ -801,7 +805,7 @@ function collectAllTransactions() {
                             debit: amtLocBt, credit: 0, 
                             debitForeign: amtFcBt, creditForeign: 0,
                             costCenter, currency,
-                            exchangeRate: rate,
+                            exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
                             isPosted: isPosted
                         });
                         txns.push({
@@ -812,7 +816,7 @@ function collectAllTransactions() {
                             debit: 0, credit: amtLocBt, 
                             debitForeign: 0, creditForeign: amtFcBt,
                             costCenter, currency,
-                            exchangeRate: rate,
+                            exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
                             isPosted: isPosted
                         });
                     }
@@ -834,7 +838,7 @@ function collectAllTransactions() {
                             debit: amtLocCh, credit: 0, 
                             debitForeign: amtFcCh, creditForeign: 0,
                             costCenter, currency,
-                            exchangeRate: rate,
+                            exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
                             isPosted: isPosted
                         });
                         txns.push({
@@ -845,7 +849,7 @@ function collectAllTransactions() {
                             debit: 0, credit: amtLocCh, 
                             debitForeign: 0, creditForeign: amtFcCh,
                             costCenter, currency,
-                            exchangeRate: rate,
+                            exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
                             isPosted: isPosted
                         });
                     }
@@ -861,7 +865,7 @@ function collectAllTransactions() {
                 debit: amtLoc, credit: 0, 
                 debitForeign: amtFc, creditForeign: 0,
                 costCenter, currency,
-                exchangeRate: rate,
+                exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
                 isPosted: isPosted
             });
             txns.push({
@@ -872,7 +876,7 @@ function collectAllTransactions() {
                 debit: 0, credit: amtLoc, 
                 debitForeign: 0, creditForeign: amtFc,
                 costCenter, currency,
-                exchangeRate: rate,
+                exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
                 isPosted: isPosted
             });
         }
@@ -913,7 +917,7 @@ function collectAllTransactions() {
                 debit: absAmtLoc, credit: 0, 
                 debitForeign: absAmtFc, creditForeign: 0,
                 costCenter, currency,
-                exchangeRate: rate,
+                exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
                 isPosted: isPosted
             });
             txns.push({
@@ -925,7 +929,7 @@ function collectAllTransactions() {
                 debit: 0, credit: absAmtLoc, 
                 debitForeign: 0, creditForeign: absAmtFc,
                 costCenter, currency,
-                exchangeRate: rate,
+                exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
                 isPosted: isPosted
             });
             return;
@@ -940,7 +944,7 @@ function collectAllTransactions() {
             debit: amtLoc, credit: 0, 
             debitForeign: amtFc, creditForeign: 0,
             costCenter, currency,
-            exchangeRate: rate,
+            exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
             isPosted: isPosted
         });
         txns.push({
@@ -951,7 +955,7 @@ function collectAllTransactions() {
             debit: 0, credit: amtLoc, 
             debitForeign: 0, creditForeign: amtFc,
             costCenter, currency,
-            exchangeRate: rate,
+            exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
             isPosted: isPosted
         });
 
@@ -965,7 +969,7 @@ function collectAllTransactions() {
                 debit: 0, credit: amtLoc,
                 debitForeign: 0, creditForeign: amtFc,
                 costCenter, currency,
-                exchangeRate: rate,
+                exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
                 isPosted: isPosted
             });
             txns.push({
@@ -976,7 +980,7 @@ function collectAllTransactions() {
                 debit: amtLoc, credit: 0,
                 debitForeign: amtFc, creditForeign: 0,
                 costCenter, currency,
-                exchangeRate: rate,
+                exchangeRate: (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1)),
                 isPosted: isPosted
             });
         }
