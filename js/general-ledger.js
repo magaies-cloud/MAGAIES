@@ -1047,6 +1047,21 @@ function collectAllTransactions() {
         }
     });
 
+    // Recalibrate true exchange rate if both debit/credit exist in local and foreign
+    txns.forEach(t => {
+        const d = parseFloat(t.debit) || 0;
+        const c = parseFloat(t.credit) || 0;
+        const df = parseFloat(t.debitForeign || t.dr_foreign) || 0;
+        const cf = parseFloat(t.creditForeign || t.cr_foreign) || 0;
+        
+        const loc = d > 0 ? d : c;
+        const forgn = df > 0 ? df : cf;
+        
+        if (loc > 0 && forgn > 0) {
+            t.exchangeRate = loc / forgn;
+        }
+    });
+
     return txns;
 }
 
@@ -1619,6 +1634,7 @@ function runReport() {
 
         // Compute running balance in chronological order (oldest first)
         let runningBal = 0;
+        let runningBalFc = 0;
         let chronological = filtered.slice().sort((a, b) => {
             const da = ((a && a.date) || '') + ' ' + ((a && a.time) || '00:00');
             const db = ((b && b.date) || '') + ' ' + ((b && b.time) || '00:00');
@@ -1627,8 +1643,15 @@ function runReport() {
 
         chronological.forEach(t => {
             if (!t) return;
-            runningBal += (t.debit || 0) - (t.credit || 0);
-            t.balance = runningBal;
+            if (filterAccount && filterAccount !== 'ALL') {
+                runningBal += (t.debit || 0) - (t.credit || 0);
+                runningBalFc += (t.debitForeign || t.dr_foreign || 0) - (t.creditForeign || t.cr_foreign || 0);
+                t.balance = runningBal;
+                t.balanceForeign = runningBalFc;
+            } else {
+                t.balance = undefined;
+                t.balanceForeign = undefined;
+            }
         });
 
         // Sort Descending (Newest first) for Recent Table
@@ -1770,13 +1793,24 @@ async function prepareLedgerPreviewData() {
     // Calculate Running Cumulative Balance for each transaction
     let runningBalance = 0;
     let runningBalanceFc = 0;
+    
+    // Check if we are filtering by a specific account (assuming filterAccount is in scope or we can check the DOM)
+    const accFilter = document.getElementById('filter-account') ? document.getElementById('filter-account').value : 'ALL';
+
     previewTxns = previewTxns.map(t => {
         const dr = parseFloat(t.debit || t.dr || 0);
         const cr = parseFloat(t.credit || t.cr || 0);
         const drF = parseFloat(t.debitForeign || t.dr_foreign || 0);
         const crF = parseFloat(t.creditForeign || t.cr_foreign || 0);
-        runningBalance += (dr - cr);
-        runningBalanceFc += (drF - crF);
+        
+        if (accFilter !== 'ALL') {
+            runningBalance += (dr - cr);
+            runningBalanceFc += (drF - crF);
+        } else {
+            runningBalance = undefined;
+            runningBalanceFc = undefined;
+        }
+
         return Object.assign({}, t, {
             debit: dr,
             credit: cr,
