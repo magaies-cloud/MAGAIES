@@ -2849,6 +2849,7 @@ function saveDraft() {
         saleType: currentSaleType,
         currency: getCurrency(),
         exchangeRate: document.getElementById('hdr-exchange-rate').value,
+        systemExchangeRate: (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency('USD') : 1) || 1,
         paymentMethod: paymentMethod,
         paymentAccountId: document.getElementById('hdr-payment-account').value,
         cashAmount: cashAmt,
@@ -3058,6 +3059,7 @@ function submitInvoice(ignoreWarnings = false) {
         saleType: currentSaleType,
         currency: cur,
         exchangeRate: document.getElementById('hdr-exchange-rate').value,
+        systemExchangeRate: (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency('USD') : 1) || 1,
         paymentMethod: paymentMethod,
         paymentAccountId: paymentAccountId, // Safe for cash portion
         cashAmount: cashAmt,
