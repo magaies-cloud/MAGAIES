@@ -323,16 +323,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (typeof localforage !== 'undefined') {
         try {
             const lfData = await localforage.getItem('preview_ledger_data');
+            console.log('preview-ledger: localforage returned', typeof lfData, Array.isArray(lfData) ? lfData.length + ' items' : lfData);
             if (Array.isArray(lfData) && lfData.length > 0) {
                 currentData = lfData;
             }
         } catch(e) {
             console.error('Error reading from localforage:', e);
         }
+    } else {
+        console.log('preview-ledger: localforage not available');
     }
 
     if (!currentData || currentData.length === 0) {
         const rawData = localStorage.getItem('preview_ledger_data') || localStorage.getItem('preview_table_data');
+        console.log('preview-ledger: localStorage rawData', rawData ? rawData.substring(0, 200) + '...' : 'null');
         if (rawData) {
             try {
                 const parsed = JSON.parse(rawData);
