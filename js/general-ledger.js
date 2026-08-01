@@ -27,8 +27,8 @@ let ALL_TXNS = []; // Cache to extract cost centers and currencies
 var ACCOUNT_NAME_CACHE = new Map(); // O(1) lookup cache for getAccountName
 let currentDateMode = 'all'; // 'all' or 'range'
 
-let ledgerExchangeRate = 1.0;
-let ledgerForeignCurrency = 'USD';
+var ledgerExchangeRate = 1.0;
+var ledgerForeignCurrency = 'USD';
 
 function initLedgerCurrencySettings() {
     try {

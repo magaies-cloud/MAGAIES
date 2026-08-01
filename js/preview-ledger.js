@@ -15,10 +15,11 @@ let showHeaderInfo = true;
 let isLongPressTriggered = false;
 let longPressInterval = null;
 
-// Exchange rate settings (may already be defined by general-ledger.js)
-if (typeof ledgerExchangeRate === 'undefined') var ledgerExchangeRate = 1.0;
-if (typeof ledgerForeignCurrency === 'undefined') var ledgerForeignCurrency = 'USD';
+// Exchange rate initialization (variables defined in general-ledger.js which loads first)
 (function initPreviewLedgerRate() {
+    // Ensure variables exist (safety check if loaded standalone)
+    if (typeof window.ledgerExchangeRate === 'undefined') window.ledgerExchangeRate = 1.0;
+    if (typeof window.ledgerForeignCurrency === 'undefined') window.ledgerForeignCurrency = 'USD';
     try {
         const erpSettings = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
         const baseCur = erpSettings.currency || 'SDG';
