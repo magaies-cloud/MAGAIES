@@ -702,7 +702,7 @@ function collectAllTransactions() {
             const currency = line.currency || v.currency || 'SDG';
 
             const rate = parseNum(line.rate || 1);
-            const effRate = getEffectiveRate(line, rate);
+            const effRate = getEffectiveRate(v, rate);
             const isBaseSDG = (currency === 'SDG');
             const deb = parseNum(line.debit);
             const cred = parseNum(line.credit);
