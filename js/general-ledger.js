@@ -1672,7 +1672,7 @@ function renderRecentTable(txns, startIndex = 0) {
     if (!tbody) return;
 
     if (txns.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 20px;">لا توجد عمليات تطابق الفلتر...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="14" style="text-align:center; padding: 20px;">لا توجد عمليات تطابق الفلتر...</td></tr>';
         return;
     }
 
@@ -1708,7 +1708,7 @@ function renderRecentTable(txns, startIndex = 0) {
         
         html += `
             <tr class="pagination-row">
-                <td colspan="10" style="text-align:center; padding: 25px 0;">
+                <td colspan="14" style="text-align:center; padding: 25px 0;">
                     <div style="display:inline-flex; align-items:center; gap: 15px; background: rgba(125,125,125,0.08); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(125,125,125,0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.05); backdrop-filter: blur(4px);">
                         <button onclick="prevLedgerPage()" style="background: ${hasPrev ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : 'rgba(125,125,125,0.15)'}; color: ${hasPrev ? '#fff' : 'inherit'}; border: none; padding: 8px 18px; border-radius: 12px; font-family: inherit; font-size: 0.9rem; font-weight: bold; cursor: ${hasPrev ? 'pointer' : 'not-allowed'}; opacity: ${hasPrev ? '1' : '0.5'}; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(1);" onmouseover="if(${hasPrev}) { this.style.transform='scale(1.05) translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(59,130,246,0.4)'; }" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';" ${hasPrev ? '' : 'disabled'}>
                             السابق ◀
