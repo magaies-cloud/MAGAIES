@@ -3428,7 +3428,7 @@ window.getExchangeRateForCurrency = function(currency) {
     
     let settings = {};
     try {
-        const str = localStorage.getItem('erp_settings_v1');
+        const str = localStorage.getItem(typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1') || localStorage.getItem('erp_settings_v1');
         if (str) settings = JSON.parse(str);
     } catch(e) {}
     
@@ -3554,7 +3554,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (_cachedAutoLogoutTime === null || (now - _cacheTimestamp) > 30000) {
             let settings = {};
             try {
-                const str = localStorage.getItem('erp_settings_v1');
+                const str = localStorage.getItem(typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1') || localStorage.getItem('erp_settings_v1');
                 if (str) settings = JSON.parse(str);
             } catch(e) {}
             
