@@ -549,7 +549,7 @@
                     
                     <div style="margin-bottom: 15px;">
                         <label class="form-label" style="display:inline-block; margin-left: 10px;">مصدر تسعير العملة الأجنبية:</label>
-                        <select class="form-select" id="cfg-exchange-mode" style="display:inline-block; width:auto; padding: 5px 15px;">
+                        <select class="form-select" id="cfg-exchange-mode" style="display:inline-block; width:auto; padding: 5px 15px;" onchange="if(typeof handleExchangeModeChange === 'function') handleExchangeModeChange(this)">
                             <option value="manual" selected>إدخال يدوي مخصص</option>
                             <option value="global">الاعتماد على السعر المركزي (لوحة المشتركين)</option>
                         </select>
@@ -1217,7 +1217,40 @@ document.addEventListener('DOMContentLoaded', function() {
     window.switchTab = switchTab;
     window.switchPrintTab = switchPrintTab;
 
-            window.renderExchangeRateHistory = function() {
+                window.handleExchangeModeChange = function(select) {
+        const rateInput = document.getElementById('cfg-rate-usd');
+        if (!rateInput) return;
+        
+        if (select.value === 'global' || select.value === 'saas') {
+            rateInput.readOnly = true;
+            rateInput.style.opacity = '0.7';
+            // Fetch from SaaS
+            const _base = (() => { const o = window.location.origin; if (o === 'https://elsajana.com' || o === 'https://www.elsajana.com') return 'https://c.elsajana.com/'; let d = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')); if (d.endsWith('/')) d = d.slice(0,-1); return o + (d||'') + '/'; })();
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                rateInput.value = 'جاري السحب...';
+                fetch(_base + 'api_index.php/tenant-exchange-rate', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }).then(r => r.json()).then(data => {
+                    if (data && data.success && data.payload && data.payload.rateUSD) {
+                        rateInput.value = data.payload.rateUSD;
+                        if(typeof window.showToast === 'function') window.showToast('تم سحب السعر اللحظي من المنصة بنجاح', 'success');
+                    } else {
+                        rateInput.value = '';
+                        alert('لم يتم العثور على سعر للصرف في المنصة.');
+                    }
+                }).catch(e => {
+                    rateInput.value = '';
+                    console.error('Error fetching rate:', e);
+                });
+            }
+        } else {
+            rateInput.readOnly = false;
+            rateInput.style.opacity = '1';
+        }
+    };
+
+    window.renderExchangeRateHistory = function() {
             const tbody = document.getElementById('cfg-history-tbody');
             if (!tbody) return;
             const historyKey = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_exchange_rate_history') : 'erp_exchange_rate_history';
@@ -1458,8 +1491,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         const modeSelect = document.getElementById('cfg-exchange-mode');
-        if (modeSelect) {
+                if (modeSelect) {
             modeSelect.value = cfg.exchangeMode || 'manual';
+            if (cfg.exchangeMode === 'global' || cfg.exchangeMode === 'saas') {
+                if(usdEl) { usdEl.readOnly = true; usdEl.style.opacity = '0.7'; }
+            }
         }
         if (cfg.rateSAR != null) safeSetVal('cfg-rate-sar', cfg.rateSAR);
         if (cfg.rateAED != null) safeSetVal('cfg-rate-aed', cfg.rateAED);
