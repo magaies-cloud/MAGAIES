@@ -2936,7 +2936,8 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Fetch tenant-specific exchange rate on startup for multi-user sync
     if (localStorage.getItem('authToken')) {
-        fetch(getBaseUrl() + 'api_index.php/tenant-exchange-rate', {
+        const _base = (() => { const o = window.location.origin; if (o === 'https://elsajana.com' || o === 'https://www.elsajana.com') return 'https://c.elsajana.com/'; let d = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')); if (d.endsWith('/')) d = d.slice(0,-1); return o + (d||'') + '/'; })();
+        fetch(_base + 'api_index.php/tenant-exchange-rate', {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
         }).then(r => r.json()).then(data => {
             if (data && data.success && data.payload) {
@@ -2957,6 +2958,39 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
         }).catch(e => {});
+    }
+
+    // ONE-TIME MIGRATION: Stamp systemExchangeRate on old transactions that don't have it
+    // This ensures that changing the exchange rate in settings won't retroactively affect old transactions
+    const migrationKey = 'erp_migration_systemExchangeRate_v1';
+    if (!localStorage.getItem(migrationKey)) {
+        const currentRate = (typeof window.getExchangeRateForCurrency === 'function') ? window.getExchangeRateForCurrency('USD') : 0;
+        if (currentRate > 0) {
+            const storageKeys = [
+                'erp_single_receipts_v1', 'erp_single_payments_v1',
+                'erp_journal_vouchers_v1', 'erp_multi_vouchers_v1',
+                'erp_sales_invoices_v1', 'erp_purchases_v1'
+            ];
+            storageKeys.forEach(key => {
+                const tk = (typeof window.getTenantKey === 'function') ? window.getTenantKey(key) : key;
+                try {
+                    const arr = JSON.parse(localStorage.getItem(tk) || '[]');
+                    if (!Array.isArray(arr) || arr.length === 0) return;
+                    let changed = false;
+                    arr.forEach(item => {
+                        if (!item.systemExchangeRate) {
+                            item.systemExchangeRate = currentRate;
+                            changed = true;
+                        }
+                    });
+                    if (changed) {
+                        localStorage.setItem(tk, JSON.stringify(arr));
+                    }
+                } catch(e) {}
+            });
+            localStorage.setItem(migrationKey, new Date().toISOString());
+            console.log('Migration: stamped systemExchangeRate=' + currentRate + ' on old transactions');
+        }
     }
 
     // Load Settings for Athkar

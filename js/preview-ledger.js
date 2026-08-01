@@ -15,6 +15,33 @@ let showHeaderInfo = true;
 let isLongPressTriggered = false;
 let longPressInterval = null;
 
+// Exchange rate settings (mirrors general-ledger.js)
+let ledgerExchangeRate = 1.0;
+let ledgerForeignCurrency = 'USD';
+(function initPreviewLedgerRate() {
+    try {
+        const erpSettings = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+        const baseCur = erpSettings.currency || 'SDG';
+        const active = erpSettings.activeCurrencies || [];
+        const foreign = active.find(c => c !== baseCur);
+        if (foreign) ledgerForeignCurrency = foreign;
+    } catch(e) {}
+    if (typeof window.getExchangeRateForCurrency === 'function') {
+        const r = window.getExchangeRateForCurrency(ledgerForeignCurrency || 'USD');
+        if (r && r > 0) ledgerExchangeRate = r;
+    }
+    if (!ledgerExchangeRate || ledgerExchangeRate <= 1) {
+        fetch('api_index.php/exchange-rate')
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.rate && (!ledgerExchangeRate || ledgerExchangeRate <= 1)) {
+                    ledgerExchangeRate = parseFloat(data.rate) || 1.0;
+                }
+            })
+            .catch(() => {});
+    }
+})();
+
 // Default column definitions with exact field mapping for General Ledger
 const baseColumns = [
     { idx: 0, defaultLabel: "التاريخ", field: "date", isNum: false },
