@@ -1029,23 +1029,23 @@ document.addEventListener('DOMContentLoaded', function() {
         const aedInput = document.getElementById('cfg-rate-aed');
         const rateWarning = document.getElementById('exchange-rate-warning');
 
-        // Ensure exchange rate inputs are ALWAYS editable
+        // Enforce exchange rate edit permissions
         rateInputs.forEach(i => {
-            i.disabled = false;
-            i.readOnly = false;
-            i.style.opacity = '1';
-            i.style.pointerEvents = 'auto';
-            i.style.cursor = 'text';
+            i.disabled = !canEditRates;
+            i.readOnly = !canEditRates;
+            i.style.opacity = canEditRates ? '1' : '0.5';
+            i.style.pointerEvents = canEditRates ? 'auto' : 'none';
+            i.style.cursor = canEditRates ? 'text' : 'not-allowed';
         });
 
         if (modeSelect) {
+            modeSelect.disabled = !canEditRates;
+            modeSelect.style.opacity = canEditRates ? '1' : '0.5';
+            modeSelect.style.cursor = canEditRates ? 'pointer' : 'not-allowed';
+            
             modeSelect.addEventListener('change', function() {
-                rateInputs.forEach(i => {
-                    i.disabled = false;
-                    i.readOnly = false;
-                    i.style.opacity = '1';
-                    i.style.pointerEvents = 'auto';
-                });
+                if (!canEditRates) return;
+                
                 if (this.value === 'global') {
                     fetch('api_index.php/exchange-rate')
                         .then(r => r.json())
@@ -1062,10 +1062,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (usdInput) {
-            usdInput.disabled = false;
-            usdInput.readOnly = false;
-            usdInput.style.opacity = '1';
-            usdInput.style.pointerEvents = 'auto';
 
             const autoSaveRate = function() {
                 const rawVal = usdInput.value;
@@ -1590,6 +1586,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Sync posting mode with the posting system
             localStorage.setItem('erp_posting_mode', cfg.autoPostGl ? 'auto' : 'manual');
+
+            // Broadcast tenant exchange rate to server for multi-user sync
+            if (cfg.exchangeMode === 'manual' && cfg.rateUSD) {
+                fetch('api_index.php/tenant-exchange-rate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('authToken')}` },
+                    body: JSON.stringify({ rate: cfg.rateUSD })
+                }).catch(e => console.error('Error broadcasting rate:', e));
+            }
 
             const saveBtn = document.getElementById('save-settings-btn');
             if (saveBtn) {

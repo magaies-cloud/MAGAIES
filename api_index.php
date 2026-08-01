@@ -213,6 +213,30 @@ if ($resource === 'exchange-rate' && $method === 'GET') {
     jsonResponse($ex_rate);
 }
 
+// ---------------------------------------------------------
+// TENANT EXCHANGE RATE
+// ---------------------------------------------------------
+if ($resource === 'tenant-exchange-rate') {
+    if (!$tenant_id) {
+        jsonResponse(['error' => 'Tenant ID required'], 400);
+    }
+    $tenantKey = 'tenant_rate_' . $tenant_id;
+    if ($method === 'GET') {
+        $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
+        $stmt->execute([$tenantKey]);
+        $val = $stmt->fetchColumn();
+        jsonResponse(['success' => true, 'rate' => $val ? (float)$val : null]);
+    }
+    if ($method === 'POST') {
+        $rate = $input['rate'] ?? null;
+        if ($rate) {
+            $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+            $stmt->execute([$tenantKey, $rate, $rate]);
+        }
+        jsonResponse(['success' => true]);
+    }
+}
+
 if ($resource === 'public' && empty($action) && $method === 'GET') {
     $data = ['plans' => [], 'partners' => [], 'ads' => [], 'partners_enabled' => true];
     try {

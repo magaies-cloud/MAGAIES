@@ -2934,6 +2934,24 @@ document.addEventListener("DOMContentLoaded", function() {
         if (mainBrandEl) mainBrandEl.innerText = finalCompanyName;
     }
     
+    // Fetch tenant-specific exchange rate on startup for multi-user sync
+    if (localStorage.getItem('authToken')) {
+        fetch(getBaseUrl() + 'api_index.php/tenant-exchange-rate', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+        }).then(r => r.json()).then(data => {
+            if (data && data.success && data.rate) {
+                const tk = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1';
+                let str = localStorage.getItem(tk) || localStorage.getItem('erp_settings_v1');
+                let s = {};
+                try { s = JSON.parse(str || '{}'); } catch(e){}
+                if (s.exchangeMode === 'manual') {
+                    s.rateUSD = parseFloat(data.rate);
+                    localStorage.setItem(tk, JSON.stringify(s));
+                }
+            }
+        }).catch(e => {});
+    }
+
     // Load Settings for Athkar
     try {
         if (erpSettings.showAthkar !== false) { // Default is true
