@@ -1697,6 +1697,10 @@ function renderRecentTable(txns, startIndex = 0) {
                 <td style="color:#34d399; font-weight:900;">${t.debit > 0 ? fmtNum(t.debit) : ''}</td>
                 <td style="color:#f87171; font-weight:900;">${t.credit > 0 ? fmtNum(t.credit) : ''}</td>
                 <td style="color:${isPosBal ? '#34d399' : '#f87171'}; font-weight:900; font-family:'JetBrains Mono',monospace;">${t.balance !== undefined ? fmtNum(t.balance) : '-'}</td>
+                <td style="color:#eab308; font-weight:900;">${fmtNum(t.exchangeRate || 1)}</td>
+                <td style="color:#34d399; font-weight:900;">${t.debitForeign > 0 ? fmtNum(t.debitForeign) : ''}</td>
+                <td style="color:#f87171; font-weight:900;">${t.creditForeign > 0 ? fmtNum(t.creditForeign) : ''}</td>
+                <td style="color:${(t.balanceForeign || 0) >= 0 ? '#34d399' : '#f87171'}; font-weight:900; font-family:'JetBrains Mono',monospace;" dir="ltr">${t.balanceForeign !== undefined ? fmtNum(t.balanceForeign) : '-'}</td>
             </tr>
         `;
     });
@@ -1765,18 +1769,21 @@ async function prepareLedgerPreviewData() {
 
     // Calculate Running Cumulative Balance for each transaction
     let runningBalance = 0;
+    let runningBalanceFc = 0;
     previewTxns = previewTxns.map(t => {
         const dr = parseFloat(t.debit || t.dr || 0);
         const cr = parseFloat(t.credit || t.cr || 0);
         const drF = parseFloat(t.debitForeign || t.dr_foreign || 0);
         const crF = parseFloat(t.creditForeign || t.cr_foreign || 0);
         runningBalance += (dr - cr);
+        runningBalanceFc += (drF - crF);
         return Object.assign({}, t, {
             debit: dr,
             credit: cr,
             debitForeign: drF,
             creditForeign: crF,
             balance: runningBalance,
+            balanceForeign: runningBalanceFc,
             statement: t.statement || t.description || t.desc || t.notes || '-',
             ref: t.ref || t.doc_no || t.voucher_no || t.id || '-',
             counterAccount: getAccountName(t.counterAccount || t.accountName || t.account) || '-',
