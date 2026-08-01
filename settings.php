@@ -567,6 +567,38 @@
                 </div>
             </div>
 
+                            <!-- Exchange Rate History Panel -->
+                <div class="glass-panel" id="panel-exchange-history" style="margin-bottom: 20px;">
+                    <div class="setting-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                        <span>📜 تقرير سجل تعديلات أسعار الصرف</span>
+                    </div>
+                    <div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <label style="color: #94a3b8; font-size: 0.9rem;">فرز التقرير حسب:</label>
+                        <select id="cfg-history-filter" class="form-select" style="width: auto; padding: 5px 15px; background: rgba(0,0,0,0.2);" onchange="renderExchangeRateHistory()">
+                            <option value="all">الكل (All)</option>
+                            <option value="manual">الأسعار المدخلة يدوياً فقط</option>
+                            <option value="saas">الأسعار المسحوبة من منصة ساس فقط</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="renderExchangeRateHistory()" style="padding: 5px 15px; font-size: 0.9rem;">تحديث</button>
+                    </div>
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="erp-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:right; padding:10px; border-bottom:1px solid rgba(255,255,255,0.1);">سعر الصرف (USD)</th>
+                                    <th style="text-align:right; padding:10px; border-bottom:1px solid rgba(255,255,255,0.1);">التاريخ</th>
+                                    <th style="text-align:right; padding:10px; border-bottom:1px solid rgba(255,255,255,0.1);">الزمن</th>
+                                    <th style="text-align:right; padding:10px; border-bottom:1px solid rgba(255,255,255,0.1);">المستخدم</th>
+                                    <th style="text-align:right; padding:10px; border-bottom:1px solid rgba(255,255,255,0.1);">مصدر التعديل</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cfg-history-tbody">
+                                <tr><td colspan="5" style="text-align:center; padding:15px; color:#94a3b8;">لا توجد سجلات بعد.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             <!-- Panel 2: Standalone VAT Tax Panel -->
             <div class="glass-panel" style="margin-bottom: 20px; display: none;">
                 <div class="setting-title" style="font-size: 1.05rem; color: #10b981; display:flex; align-items:center; gap:8px;">
@@ -1182,7 +1214,54 @@ document.addEventListener('DOMContentLoaded', function() {
     window.switchTab = switchTab;
     window.switchPrintTab = switchPrintTab;
 
-    function loadSettings() {
+            window.renderExchangeRateHistory = function() {
+            const tbody = document.getElementById('cfg-history-tbody');
+            if (!tbody) return;
+            const historyKey = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_exchange_rate_history') : 'erp_exchange_rate_history';
+            let hist = [];
+            try { hist = JSON.parse(localStorage.getItem(historyKey) || '[]'); } catch(e){}
+            
+            const filter = document.getElementById('cfg-history-filter') ? document.getElementById('cfg-history-filter').value : 'all';
+            
+            if (filter !== 'all') {
+                hist = hist.filter(h => h.source === filter);
+            }
+            
+            // Sort by most recent
+            hist.reverse();
+            
+            if (hist.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:15px; color:#94a3b8;">لا توجد سجلات مطابقة للفلتر المختار.</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            hist.forEach(h => {
+                const sourceBadge = h.source === 'saas' 
+                    ? '<span style="background:rgba(56,189,248,0.2); color:#38bdf8; padding:3px 8px; border-radius:12px; font-size:0.8rem;">سحب من منصة ساس</span>' 
+                    : '<span style="background:rgba(245,158,11,0.2); color:#f59e0b; padding:3px 8px; border-radius:12px; font-size:0.8rem;">إدخال يدوي</span>';
+                
+                html += `
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background=''">
+                        <td style="text-align:right; padding:10px; color:#10b981; font-weight:bold;">${parseFloat(h.rate).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+                        <td style="text-align:right; padding:10px; color:#f8fafc;">${h.date || '-'}</td>
+                        <td style="text-align:right; padding:10px; color:#94a3b8;">${h.time || '-'}</td>
+                        <td style="text-align:right; padding:10px; color:#f8fafc;">${h.user || '-'}</td>
+                        <td style="text-align:right; padding:10px;">${sourceBadge}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        };
+
+        // Hook into initialization to load history
+        document.addEventListener('DOMContentLoaded', () => {
+            if (document.getElementById('cfg-history-tbody')) {
+                renderExchangeRateHistory();
+            }
+        });
+
+        function loadSettings() {
         console.log('=== loadSettings() CALLED ===');
         const settingsKey = window.getTenantKey ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1';
         console.log('settingsKey =', settingsKey);
@@ -1543,6 +1622,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.cookie = 'erp_settings_backup=' + encodeURIComponent(strVal) + '; path=/; max-age=31536000; SameSite=Lax';
                 document.cookie = 'erp_rate_usd_backup=' + cfg.rateUSD + '; path=/; max-age=31536000; SameSite=Lax';
                 console.log('saveSettings: COOKIE BACKUP saved OK');
+            // --- Log Exchange Rate History ---
+            try {
+                if (cfg.rateUSD && oldCfg.rateUSD !== cfg.rateUSD) {
+                    const historyKey = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_exchange_rate_history') : 'erp_exchange_rate_history';
+                    let hist = [];
+                    try { hist = JSON.parse(localStorage.getItem(historyKey) || '[]'); } catch(e){}
+                    
+                    const usr = JSON.parse(localStorage.getItem('user')||'{}');
+                    const now = new Date();
+                    
+                    hist.push({
+                        id: 'HR-' + Date.now(),
+                        rate: cfg.rateUSD,
+                        date: now.toISOString().split('T')[0],
+                        time: now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', hour12:true}),
+                        user: usr.name || usr.username || 'مدير النظام',
+                        source: cfg.exchangeMode
+                    });
+                    localStorage.setItem(historyKey, JSON.stringify(hist));
+                    if (typeof window.renderExchangeRateHistory === 'function') {
+                        window.renderExchangeRateHistory();
+                    }
+                }
+            } catch(e) { console.error('History log error:', e); }
+            // --- End Log ---
             } catch(e) { console.error('saveSettings: COOKIE BACKUP FAILED:', e.message); }
             
             // Verify immediately after save

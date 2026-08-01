@@ -1,3 +1,26 @@
+window.openRateEditor = function(inputEl) {
+    if (typeof window.openGlobalExchangeRateModal === 'function') {
+        window.openGlobalExchangeRateModal(function(newRate) {
+            inputEl.value = newRate;
+            if (typeof calcRowEquiv === 'function') {
+                calcRowEquiv(inputEl);
+            }
+            // Update all other rows with foreign currency too
+            document.querySelectorAll('#jv-tbody tr').forEach(row => {
+                const curSel = row.querySelector('.currency');
+                if (curSel && curSel.value !== 'SDG') {
+                    const rInp = row.querySelector('.rate');
+                    if (rInp) {
+                        rInp.value = newRate;
+                        if (typeof calcRowEquiv === 'function') calcRowEquiv(rInp);
+                    }
+                }
+            });
+        });
+    } else {
+        alert("وحدة التحكم المركزية لسعر الصرف غير متوفرة.");
+    }
+};
 /* ═══════════════════════════════════════════════════════
    journal-voucher.js — Journal Voucher Module
    ═══════════════════════════════════════════════════════ */
@@ -100,7 +123,7 @@ function addGridRow(data = {}) {
                 <option value="AED" ${data.currency === 'AED' ? 'selected' : ''}>AED</option>
             </select>
         </td>
-        <td><input type="text" class="jv-input rate" value="${data.rate || '1.0'}" oninput="calcRowEquiv(this)" ${data.currency && data.currency !== 'SDG' ? '' : 'readonly'}></td>
+        <td><input type="text" class="jv-input rate" style="cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; font-weight:bold; text-align:center;" value="${data.rate || '1.0'}" readonly onclick="${data.currency && data.currency !== 'SDG' ? 'window.openRateEditor(this)' : ''}"></td>
         <td><input type="text" class="jv-input cost-center" value="${data.costCenter || ''}" placeholder="مركز التكلفة..."></td>
         <td><input type="text" class="jv-input note" value="${data.note || ''}" placeholder="بيان السطر..."></td>
         <td><button class="jv-del-btn" onclick="removeGridRow(this)" title="حذف السطر">🗑️</button></td>

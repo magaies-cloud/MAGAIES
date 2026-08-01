@@ -3011,6 +3011,174 @@ window.logout = function(force = false) {
     window.location.href = 'login.php';
 };
 
+// --- GLOBAL EXCHANGE RATE MODAL ---
+window.openGlobalExchangeRateModal = function(callback) {
+    let modal = document.getElementById('global-exchange-modal');
+    if (!modal) {
+        const modalHtml = `
+            <div id="global-exchange-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:999999; justify-content:center; align-items:center; font-family:'Tajawal', sans-serif;">
+                <div style="background:#1e293b; padding:25px 35px; border-radius:15px; border:1px solid #38bdf8; width:90%; max-width:450px; text-align:center; box-shadow:0 15px 40px rgba(0,0,0,0.5);">
+                    <h3 style="color:#f8fafc; margin-top:0;">💱 وحدة التحكم بسعر الصرف المركزي</h3>
+                    <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:15px;">أي تعديل هنا سينعكس على كل الشاشات لحظياً ويحفظ في الإعدادات المركزية.</p>
+                    
+                    <div style="text-align: right; margin-bottom: 15px;">
+                        <label style="color: #cbd5e1; font-size: 0.9rem; display: block; margin-bottom: 5px;">مصدر سعر الصرف:</label>
+                        <select id="gem-source" style="width: 100%; padding: 10px; border-radius: 8px; background: #0f172a; border: 1px solid #334155; color: #f8fafc; font-family: 'Tajawal'; font-size: 1rem;">
+                            <option value="saas">سحب تلقائي من منصة المشتركين (SaaS)</option>
+                            <option value="manual">إدخال يدوي مخصص</option>
+                        </select>
+                    </div>
+
+                    <div style="text-align: right; margin-bottom: 25px;">
+                        <label style="color: #cbd5e1; font-size: 0.9rem; display: block; margin-bottom: 5px;">سعر صرف الدولار (USD) الحالي:</label>
+                        <input type="number" id="gem-rate" step="0.01" style="width: 100%; padding: 10px; border-radius: 8px; background: #0f172a; border: 1px solid #334155; color: #f8fafc; font-family: 'Tajawal'; font-size: 1.2rem; text-align: center; box-sizing: border-box;">
+                    </div>
+                    
+                    <div id="gem-auth-warning" style="display:none; color: #ef4444; font-size: 0.85rem; margin-bottom: 15px; text-align: right; background: rgba(239,68,68,0.1); padding: 8px; border-radius: 5px;">
+                        ⚠️ لا تملك صلاحية تعديل السعر المركزي. السعر للقراءة فقط.
+                    </div>
+
+                    <div style="display:flex; gap:15px; justify-content:center;">
+                        <button id="btn-gem-save" style="flex:1; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:12px; border-radius:10px; cursor:pointer; font-weight:bold; transition:all 0.2s;">
+                            💾 حفظ واعتماد
+                        </button>
+                        <button id="btn-gem-cancel" style="flex:1; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#f87171; padding:12px; border-radius:10px; cursor:pointer; font-weight:bold; transition:all 0.2s;">
+                            ❌ إلغاء
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        modal = document.getElementById('global-exchange-modal');
+
+        document.getElementById('btn-gem-cancel').onclick = () => {
+            modal.style.display = 'none';
+        };
+
+        document.getElementById('gem-source').addEventListener('change', function() {
+            if (this.value === 'saas') {
+                document.getElementById('gem-rate').readOnly = true;
+                document.getElementById('gem-rate').style.opacity = '0.7';
+                // Trigger fetch from SaaS if possible
+                const _base = (() => { const o = window.location.origin; if (o === 'https://elsajana.com' || o === 'https://www.elsajana.com') return 'https://c.elsajana.com/'; let d = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')); if (d.endsWith('/')) d = d.slice(0,-1); return o + (d||'') + '/'; })();
+                const token = localStorage.getItem('authToken');
+                if (token) {
+                    const btn = document.getElementById('btn-gem-save');
+                    const origBtnText = btn.innerHTML;
+                    btn.innerHTML = 'جاري السحب...';
+                    btn.disabled = true;
+                    fetch(_base + 'api_index.php/tenant-exchange-rate', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }).then(r => r.json()).then(data => {
+                        btn.innerHTML = origBtnText;
+                        btn.disabled = false;
+                        if (data && data.success && data.payload && data.payload.rateUSD) {
+                            document.getElementById('gem-rate').value = data.payload.rateUSD;
+                        } else {
+                            alert('لم يتم العثور على سعر للصرف في المنصة.');
+                        }
+                    }).catch(e => {
+                        btn.innerHTML = origBtnText;
+                        btn.disabled = false;
+                        console.error('Error fetching rate:', e);
+                    });
+                }
+            } else {
+                document.getElementById('gem-rate').readOnly = false;
+                document.getElementById('gem-rate').style.opacity = '1';
+            }
+        });
+
+        document.getElementById('btn-gem-save').onclick = () => {
+            const hasPerm = (typeof window.hasPermission === 'function' ? window.hasPermission('settings', 'edit') : true) || 
+                            (JSON.parse(localStorage.getItem('user')||'{}').securityLevel >= 8);
+            
+            if (!hasPerm) {
+                alert('لا تملك الصلاحيات لتعديل السعر المركزي.');
+                return;
+            }
+
+            const source = document.getElementById('gem-source').value;
+            const newRate = parseFloat(document.getElementById('gem-rate').value);
+            if (!newRate || newRate <= 0) {
+                alert('الرجاء إدخال سعر صحيح.');
+                return;
+            }
+
+            // Save to settings
+            const tk = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1';
+            let str = localStorage.getItem(tk) || localStorage.getItem('erp_settings_v1');
+            let s = {};
+            try { s = JSON.parse(str || '{}'); } catch(e){}
+            
+            s.exchangeMode = (source === 'saas' ? 1 : 0);
+            s.rateUSD = newRate;
+            localStorage.setItem(tk, JSON.stringify(s));
+            if(tk !== 'erp_settings_v1') localStorage.setItem('erp_settings_v1', JSON.stringify(s));
+            localStorage.setItem('erp_rate_usd', newRate);
+
+            // Save to History Log
+            const historyKey = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_exchange_rate_history') : 'erp_exchange_rate_history';
+            let hist = [];
+            try { hist = JSON.parse(localStorage.getItem(historyKey) || '[]'); } catch(e){}
+            
+            const usr = JSON.parse(localStorage.getItem('user')||'{}');
+            const now = new Date();
+            
+            hist.push({
+                id: 'HR-' + Date.now(),
+                rate: newRate,
+                date: now.toISOString().split('T')[0],
+                time: now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', hour12:true}),
+                user: usr.name || usr.username || 'مدير النظام',
+                source: source
+            });
+            localStorage.setItem(historyKey, JSON.stringify(hist));
+
+            modal.style.display = 'none';
+            if (typeof callback === 'function') {
+                callback(newRate);
+            }
+            if (typeof window.showToast === 'function') {
+                window.showToast('تم اعتماد السعر المركزي بنجاح!', 'success');
+            } else {
+                alert('تم التعديل بنجاح');
+            }
+        };
+    }
+
+    // Load current settings
+    const tk = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1';
+    let str = localStorage.getItem(tk) || localStorage.getItem('erp_settings_v1');
+    let s = {};
+    try { s = JSON.parse(str || '{}'); } catch(e){}
+    
+    let rate = s.rateUSD || parseFloat(localStorage.getItem('erp_rate_usd')) || 1;
+    let mode = s.exchangeMode ? 'saas' : 'manual';
+
+    document.getElementById('gem-rate').value = rate;
+    document.getElementById('gem-source').value = mode;
+    
+    // Check Permission
+    const hasPerm = (typeof window.hasPermission === 'function' ? window.hasPermission('settings', 'edit') : true) || 
+                    (JSON.parse(localStorage.getItem('user')||'{}').securityLevel >= 8);
+    
+    if (!hasPerm) {
+        document.getElementById('gem-rate').readOnly = true;
+        document.getElementById('gem-source').disabled = true;
+        document.getElementById('btn-gem-save').style.display = 'none';
+        document.getElementById('gem-auth-warning').style.display = 'block';
+    } else {
+        document.getElementById('gem-rate').readOnly = (mode === 'saas');
+        document.getElementById('gem-source').disabled = false;
+        document.getElementById('btn-gem-save').style.display = 'block';
+        document.getElementById('gem-auth-warning').style.display = 'none';
+    }
+
+    modal.style.display = 'flex';
+};
+
 // --- GLOBAL EXPORT MODAL ---
 window.openExportModal = function(csvExportCallback, pdfExportConfig) {
     let modal = document.getElementById('global-export-modal');
