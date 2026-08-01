@@ -2939,14 +2939,21 @@ document.addEventListener("DOMContentLoaded", function() {
         fetch(getBaseUrl() + 'api_index.php/tenant-exchange-rate', {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
         }).then(r => r.json()).then(data => {
-            if (data && data.success && data.rate) {
+            if (data && data.success && data.payload) {
                 const tk = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1';
                 let str = localStorage.getItem(tk) || localStorage.getItem('erp_settings_v1');
                 let s = {};
                 try { s = JSON.parse(str || '{}'); } catch(e){}
-                if (s.exchangeMode === 'manual') {
-                    s.rateUSD = parseFloat(data.rate);
+                
+                // Force sync the exchange settings from server
+                if (data.payload.exchangeMode) {
+                    s.exchangeMode = data.payload.exchangeMode;
+                    if (data.payload.rateUSD) s.rateUSD = parseFloat(data.payload.rateUSD);
+                    if (data.payload.rateSAR) s.rateSAR = parseFloat(data.payload.rateSAR);
+                    if (data.payload.rateAED) s.rateAED = parseFloat(data.payload.rateAED);
+                    
                     localStorage.setItem(tk, JSON.stringify(s));
+                    if (window.DB_STORE) window.DB_STORE[tk] = JSON.stringify(s); // Update proxy store as well
                 }
             }
         }).catch(e => {});

@@ -225,13 +225,15 @@ if ($resource === 'tenant-exchange-rate') {
         $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");
         $stmt->execute([$tenantKey]);
         $val = $stmt->fetchColumn();
-        jsonResponse(['success' => true, 'rate' => $val ? (float)$val : null]);
+        $payload = $val ? json_decode($val, true) : null;
+        jsonResponse(['success' => true, 'payload' => $payload]);
     }
     if ($method === 'POST') {
-        $rate = $input['rate'] ?? null;
-        if ($rate) {
+        $payload = $input['payload'] ?? null;
+        if ($payload) {
+            $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
             $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
-            $stmt->execute([$tenantKey, $rate, $rate]);
+            $stmt->execute([$tenantKey, $json, $json]);
         }
         jsonResponse(['success' => true]);
     }

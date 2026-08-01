@@ -1588,11 +1588,17 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.setItem('erp_posting_mode', cfg.autoPostGl ? 'auto' : 'manual');
 
             // Broadcast tenant exchange rate to server for multi-user sync
-            if (cfg.exchangeMode === 'manual' && cfg.rateUSD) {
+            if (cfg.exchangeMode) {
+                const payload = {
+                    exchangeMode: cfg.exchangeMode,
+                    rateUSD: cfg.rateUSD,
+                    rateSAR: cfg.rateSAR,
+                    rateAED: cfg.rateAED
+                };
                 fetch('api_index.php/tenant-exchange-rate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('authToken')}` },
-                    body: JSON.stringify({ rate: cfg.rateUSD })
+                    body: JSON.stringify({ payload: payload })
                 }).catch(e => console.error('Error broadcasting rate:', e));
             }
 
