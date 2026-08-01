@@ -218,7 +218,7 @@ if ($resource === 'exchange-rate' && $method === 'GET') {
 // ---------------------------------------------------------
 if ($resource === 'tenant-exchange-rate') {
     if (!$tenant_id) {
-        jsonResponse(['error' => 'Tenant ID required'], 400);
+        jsonResponse(['success' => true, 'payload' => null]);
     }
     $tenantKey = 'tenant_rate_' . $tenant_id;
     if ($method === 'GET') {
