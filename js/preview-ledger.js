@@ -26,8 +26,9 @@ const baseColumns = [
     { idx: 6, defaultLabel: "دائن (محلي)", field: "credit", isNum: true },
     { idx: 7, defaultLabel: "مدين (أجنبي)", field: "debitForeign", isNum: true },
     { idx: 8, defaultLabel: "دائن (أجنبي)", field: "creditForeign", isNum: true },
-    { idx: 9, defaultLabel: "الرصيد التراكمي", field: "balance", isNum: true },
-    { idx: 10, defaultLabel: "ملاحظات", field: "additionalNote", isNum: false }
+    { idx: 9, defaultLabel: "سعر الصرف", field: "exchangeRate", isNum: true },
+    { idx: 10, defaultLabel: "الرصيد التراكمي", field: "balance", isNum: true },
+    { idx: 11, defaultLabel: "ملاحظات", field: "additionalNote", isNum: false }
 ];
 
 function getRawFieldValue(row, field) {
@@ -46,7 +47,7 @@ function getRawFieldValue(row, field) {
     return row[field] !== undefined ? row[field] : '';
 }
 
-let columnOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+let columnOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 let columnConfigs = {};
 
 function loadCompanyHeader() {
@@ -481,7 +482,7 @@ function initPresets() {
             {
                 name: '💎 افتراضي 1',
                 configs: getDefaultConfigs(),
-                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
                 theme: 'theme-classic-navy',
                 font: 'font-ultra',
                 paperSize: 'A4',
@@ -495,7 +496,7 @@ function initPresets() {
             {
                 name: '⭐ افتراضي 2',
                 configs: getDefaultConfigs(),
-                order: [0, 1, 2, 3, 6, 7, 8, 9, 4, 5, 10],
+                order: [0, 1, 2, 3, 6, 7, 8, 9, 10, 4, 5, 11],
                 theme: 'theme-emerald-pro',
                 font: 'font-newsons',
                 paperSize: 'A4',
@@ -509,7 +510,7 @@ function initPresets() {
             {
                 name: '🎨 افتراضي 3',
                 configs: getDefaultConfigs(),
-                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
                 theme: 'theme-modern-slate',
                 font: 'font-tajawal',
                 paperSize: 'A4',
@@ -522,7 +523,7 @@ function initPresets() {
             },
             {
                 name: '🔥 افتراضي 4',
-                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
                 theme: 'theme-luxury-gold',
                 font: 'font-cairo',
                 paperSize: 'A4',
@@ -536,7 +537,7 @@ function initPresets() {
             {
                 name: '✨ نموذج 1',
                 configs: getDefaultConfigs(),
-                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
                 theme: '',
                 font: 'font-ultra',
                 paperSize: 'A4',
@@ -550,7 +551,7 @@ function initPresets() {
             {
                 name: '🚀 نموذج 2',
                 configs: getDefaultConfigs(),
-                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
                 theme: '',
                 font: 'font-ultra',
                 paperSize: 'A4',
@@ -564,7 +565,7 @@ function initPresets() {
             {
                 name: '🌟 نموذج 3',
                 configs: getDefaultConfigs(),
-                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
                 theme: '',
                 font: 'font-ultra',
                 paperSize: 'A4',
@@ -1068,7 +1069,7 @@ function loadPreset(idx) {
     
     if (preset) {
         columnConfigs = preset.configs || getDefaultConfigs();
-        columnOrder = preset.order || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        columnOrder = preset.order || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
         currentTheme = preset.theme || '';
         currentFont = preset.font || 'font-newsons';
         currentPaperSize = preset.paperSize || 'A4';
@@ -1077,7 +1078,7 @@ function loadPreset(idx) {
         showHeaderInfo = preset.showInfo !== undefined ? preset.showInfo : true;
     } else {
         columnConfigs = getDefaultConfigs();
-        columnOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        columnOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
         currentTheme = '';
         currentFont = 'font-newsons';
         currentPaperSize = 'A4';
@@ -1642,7 +1643,7 @@ function showToast(message, type = 'success') {
 
 function applyDesignState(state) {
     columnConfigs = state.configs || getDefaultConfigs();
-    columnOrder = state.order || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    columnOrder = state.order || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
     currentTheme = state.theme || '';
     currentFont = state.font || 'font-newsons';
     currentPaperSize = state.paperSize || 'A4';
@@ -1968,7 +1969,7 @@ function restoreFactoryReset() {
 function restoreToFactoryDefault() {
     const factoryState = {
         configs: getDefaultConfigs(),
-        order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
         theme: '',
         font: 'font-newsons',
         paperSize: 'A4',

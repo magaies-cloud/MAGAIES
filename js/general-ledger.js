@@ -1781,6 +1781,7 @@ async function prepareLedgerPreviewData() {
             ref: t.ref || t.doc_no || t.voucher_no || t.id || '-',
             counterAccount: getAccountName(t.counterAccount || t.accountName || t.account) || '-',
             typeLabel: t.typeLabel || t.type || '-',
+            exchangeRate: t.exchangeRate || 1,
             additionalNote: t.additionalNote || t.notes || t.costCenter || ''
         });
     });

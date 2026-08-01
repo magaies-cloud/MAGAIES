@@ -305,6 +305,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
                     <th width="90">مدين</th>
                     <th width="90">دائن</th>
                     <th width="100">الرصيد</th>
+                    <th width="90">سعر الصرف</th>
                     <th width="90">مدين أجنبي</th>
                     <th width="90">دائن أجنبي</th>
                     <th width="120">الرصيد التراكمي الأجنبي</th>
@@ -312,7 +313,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             </thead>
             <tbody id="recent-tbody">
                 <!-- Populated via JS -->
-                <tr><td colspan="13" style="text-align:center; padding: 20px;">جاري تحميل البيانات...</td></tr>
+                <tr><td colspan="14" style="text-align:center; padding: 20px;">جاري تحميل البيانات...</td></tr>
             </tbody>
         </table>
     </div>
