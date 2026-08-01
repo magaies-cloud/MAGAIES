@@ -816,7 +816,12 @@ function calcTotal() {
     }
     if (rateEl && eqEl) {
         let rate = cleanNum(rateEl.value) || 1;
-        let eq = rate === 0 ? 0 : total / rate;
+        let actualRateForForeign = rate;
+        if (rate === 1 && typeof window.getExchangeRateForCurrency === 'function') {
+            const globalRate = window.getExchangeRateForCurrency('USD');
+            if (globalRate && globalRate > 1) actualRateForForeign = globalRate;
+        }
+        let eq = actualRateForForeign === 0 ? 0 : total / actualRateForForeign;
         eqEl.value = fmtNum(eq);
     }
     

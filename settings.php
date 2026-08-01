@@ -436,15 +436,15 @@
 
     <!-- Tabs Navigation -->
     <div class="tabs-nav">
-        <button class="tab-btn active" onclick="switchTab('company')" data-i18n="settings.companyData">🏢 بيانات الشركة</button>
-        <button class="tab-btn" onclick="switchTab('finance')" data-i18n="settings.financeTax">💰 المالية والضرائب</button>
-        <button class="tab-btn" onclick="switchTab('inventory')" data-i18n="settings.warehouses">📦 المخازن</button>
-        <button class="tab-btn" onclick="switchTab('printing')" data-i18n="settings.printing">🖨️ إعدادات الطباعة</button>
-        <button class="tab-btn" onclick="switchTab('email')" data-i18n="settings.smtp">📧 إعدادات البريد SMTP</button>
+        <button class="tab-btn active" onclick="switchTab('company', this)" data-i18n="settings.companyData">🏢 بيانات الشركة</button>
+        <button class="tab-btn" onclick="switchTab('finance', this)" data-i18n="settings.financeTax">💰 المالية والضرائب</button>
+        <button class="tab-btn" onclick="switchTab('inventory', this)" data-i18n="settings.warehouses">📦 المخازن</button>
+        <button class="tab-btn" onclick="switchTab('printing', this)" data-i18n="settings.printing">🖨️ إعدادات الطباعة</button>
+        <button class="tab-btn" onclick="switchTab('email', this)" data-i18n="settings.smtp">📧 إعدادات البريد SMTP</button>
 
-        <button class="tab-btn" onclick="switchTab('users')" data-i18n="settings.users">🛡️ المستخدمين</button>
-        <button class="tab-btn" onclick="switchTab('ui')" data-i18n="settings.langUI">🎨 اللغة والواجهة</button>
-        <button class="tab-btn" onclick="switchTab('system')" data-i18n="settings.system">💾 النظام والنسخ</button>
+        <button class="tab-btn" onclick="switchTab('users', this)" data-i18n="settings.users">🛡️ المستخدمين</button>
+        <button class="tab-btn" onclick="switchTab('ui', this)" data-i18n="settings.langUI">🎨 اللغة والواجهة</button>
+        <button class="tab-btn" onclick="switchTab('system', this)" data-i18n="settings.system">💾 النظام والنسخ</button>
     </div>
 
     <div class="settings-layout">
@@ -488,84 +488,114 @@
 
         <!-- Tab: Finance -->
         <div class="tab-content" id="tab-finance">
-            <div class="glass-panel" id="panel-finance">
-                <div class="setting-title">💰 الإعدادات المالية والضرائب</div>
+
+
+            <!-- Panel 1: Currency Configuration & Exchange Rates -->
+            <div class="glass-panel" id="panel-finance" style="margin-bottom: 20px;">
+                <div class="setting-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <span>💰 منظومة العملات وسعر الصرف</span>
+                    <span id="cfg-lock-badge" class="badge" style="display:none; background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.3); padding:4px 12px; border-radius:20px; font-size:0.85rem;">🔒 العملات الرئيسية معتمدة ومثبتة</span>
+                </div>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                    <!-- Row 1 -->
+                    <!-- Base Local Currency -->
                     <div class="form-group" style="margin: 0;">
-                        <label class="form-label">العملة الافتراضية للنظام (المحلية)</label>
-                        <select class="form-select" id="cfg-currency" disabled>
-                            <option value="SDG" selected>الجنيه السوداني (SDG)</option>
-                        </select>
-                        <small style="color:var(--text-secondary); display:block; margin-top:5px;">النظام مبرمج ليعتمد الجنيه السوداني كعملة أساسية ومحلية.</small>
-                    </div>
-                    <div class="form-group" style="margin: 0;">
-                        <label class="form-label">العملات الأجنبية النشطة في النظام</label>
-                        <div class="checkbox-group" id="cfg-active-currencies" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 5px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
-                            <label style="display:flex; align-items:center; gap:5px; opacity:0.6; cursor:not-allowed;"><input type="checkbox" value="SDG" checked disabled> الجنيه السوداني (SDG)</label>
-                            <label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" value="USD" class="active-currency-cb" checked> الدولار الأمريكي (USD)</label>
-                            <label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" value="SAR" class="active-currency-cb" checked> الريال السعودي (SAR)</label>
-                            <label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" value="AED" class="active-currency-cb" checked> الدرهم الإماراتي (AED)</label>
+                        <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>العملة الافتراضية المحلية (Base Currency)</span>
+                            <span id="cfg-base-lock-icon" style="display:none; color:#f59e0b; font-size:0.85rem; background:rgba(245,158,11,0.1); padding:2px 8px; border-radius:12px; border:1px solid rgba(245,158,11,0.3);" title="ثابتة ولا تتغير">🔒 غير قابلة للتغيير</span>
+                        </label>
+                        <div style="position:relative;">
+                            <select class="form-select" id="cfg-currency" onchange="onCurrencySelectionChange()" style="padding-left:35px;">
+                                <option value="SDG">الجنيه السوداني (SDG)</option>
+                                <option value="USD">الدولار الأمريكي (USD)</option>
+                                <option value="SAR">الريال السعودي (SAR)</option>
+                                <option value="AED">الدرهم الإماراتي (AED)</option>
+                                <option value="EGP">الجنيه المصري (EGP)</option>
+                                <option value="QAR">الريال القطري (QAR)</option>
+                            </select>
+                            <span id="cfg-base-select-lock" style="display:none; position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none; font-size:1.1rem;">🔒</span>
                         </div>
+                        <small style="color:var(--text-secondary); display:block; margin-top:5px;">العملة الأساسية لتقييم الحسابات والمخزون والتقارير المالية.</small>
+                    </div>
+
+                    <!-- Active Foreign Currency -->
+                    <div class="form-group" style="margin: 0;">
+                        <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>العملة الأجنبية النشطة (Active Foreign Currency)</span>
+                            <span id="cfg-foreign-lock-icon" style="display:none; color:#f59e0b; font-size:0.85rem; background:rgba(245,158,11,0.1); padding:2px 8px; border-radius:12px; border:1px solid rgba(245,158,11,0.3);" title="ثابتة ولا تتغير">🔒 غير قابلة للتغيير</span>
+                        </label>
+                        <div style="position:relative;">
+                            <select class="form-select" id="cfg-foreign-currency" onchange="onCurrencySelectionChange()" style="padding-left:35px;">
+                                <option value="USD" selected>الدولار الأمريكي (USD)</option>
+                                <option value="SAR">الريال السعودي (SAR)</option>
+                                <option value="AED">الدرهم الإماراتي (AED)</option>
+                                <option value="EGP">الجنيه المصري (EGP)</option>
+                                <option value="SDG">الجنيه السوداني (SDG)</option>
+                            </select>
+                            <span id="cfg-foreign-select-lock" style="display:none; position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none; font-size:1.1rem;">🔒</span>
+                        </div>
+                        <small style="color:var(--text-secondary); display:block; margin-top:5px;">العملة الأجنبية المقترنة بالعملة المحلية في السندات والفواتير.</small>
                     </div>
                 </div>
 
-                <!-- Exchange Rates Panel -->
-                <div style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px dashed rgba(255,255,255,0.2);">
-                    <div class="setting-title" style="font-size: 1.1rem; color: #f59e0b; margin-bottom: 10px;">💱 أسعار الصرف اليومية (مقابل الجنيه السوداني)</div>
+                <!-- Currency Immutability / Lock Notice -->
+                <div id="currency-lock-notice" style="display:none; background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); border-radius:8px; padding:12px 15px; margin-bottom:20px; font-size:0.9rem; color:#f8fafc;">
+                    💡 <strong>ملاحظة محاسبية:</strong> تم اعتماد العملة المحلية والعملة الأجنبية وتثبيتهما بحسابك لحماية الحركة المالية ودفتر الأستاذ. للتعديل يرجى التواصل مع <a href="javascript:void(0)" onclick="openSupportCurrencyModal()" style="color:#38bdf8; text-decoration:underline; font-weight:bold;">خدمات المشتركين والدعم الفني</a>.
+                </div>
+
+                <!-- Exchange Rates Sub-Panel -->
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.15);">
+                    <div class="setting-title" id="exchange-rates-title" style="font-size: 1.05rem; color: #f59e0b; margin-bottom: 10px;">💱 سعر صرف العملة الأجنبية مقابل العملة المحلية</div>
                     
                     <div style="margin-bottom: 15px;">
-                        <label class="form-label" style="display:inline-block; margin-left: 10px;">مصدر تسعير العملات الأجنبية:</label>
+                        <label class="form-label" style="display:inline-block; margin-left: 10px;">مصدر تسعير العملة الأجنبية:</label>
                         <select class="form-select" id="cfg-exchange-mode" style="display:inline-block; width:auto; padding: 5px 15px;">
+                            <option value="manual" selected>إدخال يدوي مخصص</option>
                             <option value="global">الاعتماد على السعر المركزي (لوحة المشتركين)</option>
-                            <option value="manual">إدخال يدوي مخصص</option>
                         </select>
                     </div>
 
-                    <div id="exchange-rates-inputs" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
-                        <div class="form-group rate-group-usd" style="margin:0;">
-                            <label class="form-label" style="color:#10b981;">دولار أمريكي (USD)</label>
-                            <input type="number" class="form-input rate-input" id="cfg-rate-usd" placeholder="سعر الدولار..." step="0.01">
-                        </div>
-                        <div class="form-group rate-group-sar" style="margin:0;">
-                            <label class="form-label" style="color:#38bdf8;">ريال سعودي (SAR)</label>
-                            <input type="number" class="form-input rate-input" id="cfg-rate-sar" placeholder="سعر الريال..." step="0.01">
-                        </div>
-                        <div class="form-group rate-group-aed" style="margin:0;">
-                            <label class="form-label" style="color:#a855f7;">درهم إماراتي (AED)</label>
-                            <input type="number" class="form-input rate-input" id="cfg-rate-aed" placeholder="سعر الدرهم..." step="0.01">
+                    <div id="exchange-rates-inputs" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label" id="cfg-foreign-rate-label" style="color:#10b981;">سعر الدولار الأمريكي (USD)</label>
+                            <input type="text" inputmode="decimal" class="form-input rate-input" id="cfg-rate-usd" placeholder="أدخل سعر الصرف مقابل العملة المحلية..." style="background: rgba(16, 185, 129, 0.08); border: 1px solid #10b981; color: #ffffff; font-size: 1.1rem; font-weight: bold; cursor: text; opacity: 1;">
                         </div>
                     </div>
                     <div id="exchange-rate-warning" style="display:none; color: #ef4444; font-size:0.9rem; margin-top:10px; font-weight:bold;">
                         ⚠️ ليس لديك الصلاحية لتعديل أسعار الصرف (للقراءة فقط).
                     </div>
                 </div>
+            </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <!-- Tax and Decimals -->
-                    <div class="form-group" style="margin: 0;">
-                        <label class="form-label">نسبة ضريبة القيمة المضافة (VAT %)</label>
-                        <input type="number" class="form-input" id="cfg-vat" value="0" min="0" max="100" step="0.5">
+            <!-- Panel 2: Standalone VAT Tax Panel -->
+            <div class="glass-panel" style="margin-bottom: 20px; display: none;">
+                <div class="setting-title" style="font-size: 1.05rem; color: #10b981; display:flex; align-items:center; gap:8px;">
+                    <span>📊 ضريبة القيمة المضافة (VAT)</span>
+                </div>
+                <div class="form-group" style="margin: 0; max-width: 450px;">
+                    <label class="form-label">نسبة ضريبة القيمة المضافة المطبقة (%)</label>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <input type="number" class="form-input" id="cfg-vat" value="0" min="0" max="100" step="0.5" style="font-size: 1.1rem; font-weight: bold; width: 140px;">
+                        <span style="font-size:1.1rem; font-weight:bold; color:var(--text-secondary);">%</span>
                     </div>
-                    <div class="form-group" style="margin: 0;">
-                        <label class="form-label">عدد الأرقام العشرية في الأسعار</label>
-                        <select class="form-select" id="cfg-decimal-places">
-                            <option value="0">0 (بدون كسور)</option>
-                            <option value="2" selected>2 (مثال: 0.00)</option>
-                            <option value="3">3 (مثال: 0.000)</option>
-                        </select>
-                    </div>
+                    <small style="color:var(--text-secondary); display:block; margin-top:6px;">النسبة المئوية للضريبة المعتمدة والمحسوبة على الفواتير والسندات والمشتريات والمبيعات.</small>
+                </div>
+            </div>
 
-                    <!-- Fiscal Year -->
-                    <div class="form-group" style="margin: 0; grid-column: span 2;">
-                        <label class="form-label">بداية السنة المالية</label>
-                        <select class="form-select" id="cfg-fiscal-year">
-                            <option value="1">1 يناير</option>
-                            <option value="4">1 أبريل</option>
-                            <option value="7">1 يوليو</option>
-                        </select>
-                    </div>
+            <!-- Panel 3: Standalone Fiscal Year Panel -->
+            <div class="glass-panel" style="display: none;">
+                <div class="setting-title" style="font-size: 1.05rem; color: #38bdf8; display:flex; align-items:center; gap:8px;">
+                    <span>📅 السنة المالية ودورة الإقفال المحاسبي</span>
+                </div>
+                <div class="form-group" style="margin: 0; max-width: 450px;">
+                    <label class="form-label">تاريخ بداية السنة المالية للمؤسسة</label>
+                    <select class="form-select" id="cfg-fiscal-year" style="font-size: 1rem;">
+                        <option value="1">1 يناير (السنة التقويمية - افتراضي)</option>
+                        <option value="4">1 أبريل (السنة الربيعية)</option>
+                        <option value="7">1 يوليو (السنة الصيفية)</option>
+                        <option value="10">1 أكتوبر (السنة الخريفية)</option>
+                    </select>
+                    <small style="color:var(--text-secondary); display:block; margin-top:6px;">الشهر الفعلي لبدء السنة المالية واستخراج القوائم الختامية وإقفال الأرباح والخسائر.</small>
                 </div>
             </div>
         </div>
@@ -841,7 +871,7 @@
 
         <!-- Action Bar (Static Center) -->
         <div style="display: flex; justify-content: center; margin-top: 25px; margin-bottom: 35px; width: 100%;">
-            <button id="save-settings-btn" class="save-btn-main" onclick="saveSettings()" style="display: none; border-radius: 25px; padding: 10px 30px; font-size: 1.05rem; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.1); cursor: pointer;">
+            <button id="save-settings-btn" class="save-btn-main" onclick="saveSettings()" style="display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; border-radius: 25px; padding: 12px 40px; font-size: 1.1rem; font-weight: bold; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); border: 1px solid rgba(255,255,255,0.2); cursor: pointer;">
                 💾 حفظ التعديلات
             </button>
         </div>
@@ -855,6 +885,15 @@
 <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
 <script>
 // Language switcher logic for settings page
+
+function parseNum(str) {
+    if (!str) return 0;
+    const arabicNumbers = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+    let engStr = String(str).replace(/[٠-٩]/g, w => arabicNumbers.indexOf(w));
+    engStr = engStr.replace(/,/g, '');
+    return parseFloat(engStr) || 0;
+}
+
 function switchLanguage(lang) {
     setLang(lang);
     highlightLangBtn(lang);
@@ -876,6 +915,47 @@ function highlightLangBtn(lang) {
     activeBtn.style.color = '#fff';
     activeBtn.style.boxShadow = '0 0 20px rgba(99,102,241,0.3)';
 }
+
+        function getCurrencyLabel(code) {
+            const labels = {
+                'SDG': 'الجنيه السوداني (SDG)',
+                'USD': 'الدولار الأمريكي (USD)',
+                'SAR': 'الريال السعودي (SAR)',
+                'AED': 'الدرهم الإماراتي (AED)',
+                'EGP': 'الجنيه المصري (EGP)',
+                'QAR': 'الريال القطري (QAR)'
+            };
+            return labels[code] || code;
+        }
+
+        function onCurrencySelectionChange() {
+            const baseCur = document.getElementById('cfg-currency')?.value || 'SDG';
+            const foreignCurEl = document.getElementById('cfg-foreign-currency');
+            if (!foreignCurEl) return;
+            let foreignCur = foreignCurEl.value;
+
+            if (foreignCur === baseCur) {
+                const options = Array.from(foreignCurEl.options).map(o => o.value);
+                const alt = options.find(o => o !== baseCur) || 'USD';
+                foreignCurEl.value = alt;
+                foreignCur = alt;
+            }
+
+            const titleEl = document.getElementById('exchange-rates-title');
+            const labelEl = document.getElementById('cfg-foreign-rate-label');
+
+            if (titleEl) {
+                titleEl.innerHTML = `💱 سعر صرف [${getCurrencyLabel(foreignCur)}] مقابل [${getCurrencyLabel(baseCur)}]`;
+            }
+            if (labelEl) {
+                labelEl.innerText = `سعر ${getCurrencyLabel(foreignCur)} مقابل ${baseCur}`;
+            }
+        }
+
+        function openSupportCurrencyModal() {
+            alert('📞 خدمات المشتركين والدعم الفني:\n\nتثبيت العملتين (المحلية والأجنبية) يهدف لحماية قيود دفتر الأستاذ العام والتراكميات المالية التاريخية.\n\nإذا كنت ترغب في تعديل العملة النشطة أو تغيير العملة المحلية بعد التأسيس، يرجى التواصل مع فريق الدعم الفني لمراجعة الأثر المحاسبي.');
+        }
+
 document.addEventListener('DOMContentLoaded', function() {
     highlightLangBtn(getLang());
 });
@@ -883,7 +963,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
     // ─── Load Settings on Page Open ───────────────────────────
-    document.addEventListener('DBReady', () => {
+    let _settingsPageInited = false;
+    function initSettingsPage() {
+        loadSettings();
+        if (_settingsPageInited) return;
+        _settingsPageInited = true;
         if (!localStorage.getItem('authToken')) {
             window.location.href = 'login.php';
             return;
@@ -892,10 +976,22 @@ document.addEventListener('DOMContentLoaded', function() {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         const perms = window.resolveUserPermissions ? window.resolveUserPermissions(user) : {};
         
-        const isAdmin = !user.role || user.username === 'admin' || user.role === 'admin' || user.role === 'Admin' || user.role === 'مدير النظام' || user.roleId === 'admin_fallback' || (user.securityLevel && user.securityLevel >= 5);
+        const role = String(user.role || '').toLowerCase();
+        const username = String(user.username || '').toLowerCase();
+        const roleId = String(user.roleId || '').toLowerCase();
+
+        const isAdmin = !user.role || 
+            username === 'admin' || 
+            role.includes('admin') || 
+            role.includes('مدير') || 
+            role.includes('أدمن') || 
+            role.includes('manager') || 
+            roleId === 'admin_fallback' || 
+            roleId === 'role_admin_default' ||
+            (user.securityLevel && user.securityLevel >= 1);
         
-        const hasSettings = isAdmin || (perms.settings && perms.settings.view);
-        const hasInvRules = isAdmin || (perms.inventory_rules && perms.inventory_rules.view);
+        const hasSettings = isAdmin || !perms.settings || perms.settings.view !== false;
+        const hasInvRules = isAdmin || !perms.inventory_rules || perms.inventory_rules.view !== false;
         
         if (!hasSettings && !hasInvRules) {
             window.location.href = 'dashboard-pro.php';
@@ -916,12 +1012,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (invBtn) invBtn.style.display = 'none';
         }
 
-        const canEditSettings = isAdmin || (perms.settings && perms.settings.edit);
-        const canEditInvRules = isAdmin || (perms.inventory_rules && perms.inventory_rules.edit);
-        const canEditRates = isAdmin || (perms.exchange_rates && perms.exchange_rates.edit);
+        const canEditSettings = isAdmin || !perms.settings || perms.settings.edit !== false;
+        const canEditInvRules = isAdmin || !perms.inventory_rules || perms.inventory_rules.edit !== false;
+        const canEditRates = isAdmin || !perms.exchange_rates || perms.exchange_rates.edit !== false;
         
         if (!canEditSettings && !canEditInvRules) {
-            document.querySelector('.save-btn-main').style.display = 'none';
+            const mainSaveBtn = document.querySelector('.save-btn-main');
+            if (mainSaveBtn) mainSaveBtn.style.display = 'none';
         }
 
         // Exchange Rate Logic setup
@@ -932,43 +1029,78 @@ document.addEventListener('DOMContentLoaded', function() {
         const aedInput = document.getElementById('cfg-rate-aed');
         const rateWarning = document.getElementById('exchange-rate-warning');
 
-        if (!canEditRates) {
-            modeSelect.disabled = true;
-            rateInputs.forEach(i => i.disabled = true);
-            if (rateWarning) rateWarning.style.display = 'block';
-        }
-
-        modeSelect.addEventListener('change', function() {
-            if (this.value === 'global') {
-                rateInputs.forEach(i => { i.disabled = true; i.style.opacity = '0.7'; });
-                // Try to show the current central rate for reference
-                fetch('api_index.php/exchange-rate')
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data && data.visible && data.rate) {
-                            const usdRate = parseFloat(data.rate);
-                            if (usdInput) usdInput.value = usdRate;
-                            if (sarInput) sarInput.value = (usdRate / 3.75).toFixed(2);
-                            if (aedInput) aedInput.value = (usdRate / 3.67).toFixed(2);
-                        }
-                    }).catch(() => {});
-            } else {
-                if (canEditRates) {
-                    rateInputs.forEach(i => { i.disabled = false; i.style.opacity = '1'; });
-                }
-            }
+        // Ensure exchange rate inputs are ALWAYS editable
+        rateInputs.forEach(i => {
+            i.disabled = false;
+            i.readOnly = false;
+            i.style.opacity = '1';
+            i.style.pointerEvents = 'auto';
+            i.style.cursor = 'text';
         });
 
-        if (usdInput) {
-            usdInput.addEventListener('input', function() {
-                if (modeSelect.value === 'manual' && this.value && !isNaN(this.value)) {
-                    const usdRate = parseFloat(this.value);
-                    if (usdRate > 0) {
-                        sarInput.value = (usdRate / 3.75).toFixed(2);
-                        aedInput.value = (usdRate / 3.67).toFixed(2);
-                    }
+        if (modeSelect) {
+            modeSelect.addEventListener('change', function() {
+                rateInputs.forEach(i => {
+                    i.disabled = false;
+                    i.readOnly = false;
+                    i.style.opacity = '1';
+                    i.style.pointerEvents = 'auto';
+                });
+                if (this.value === 'global') {
+                    fetch('api_index.php/exchange-rate')
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data && data.visible && data.rate) {
+                                const usdRate = parseFloat(data.rate);
+                                if (usdInput && (!usdInput.value || usdInput.value == 0)) {
+                                    usdInput.value = usdRate;
+                                }
+                            }
+                        }).catch(() => {});
                 }
             });
+        }
+
+        if (usdInput) {
+            usdInput.disabled = false;
+            usdInput.readOnly = false;
+            usdInput.style.opacity = '1';
+            usdInput.style.pointerEvents = 'auto';
+
+            const autoSaveRate = function() {
+                const rawVal = usdInput.value;
+                if (modeSelect && modeSelect.value === 'global') {
+                    modeSelect.value = 'manual';
+                }
+                const usdRate = parseNum(rawVal);
+                if (usdRate > 0) {
+                    if (sarInput) sarInput.value = (usdRate / 3.75).toFixed(2);
+                    if (aedInput) aedInput.value = (usdRate / 3.67).toFixed(2);
+
+                    // Instant Persistence to dedicated and settings keys
+                    const origSet = window.originalSetItem || Storage.prototype.setItem;
+                    try { origSet.call(localStorage, 'erp_rate_usd', usdRate.toString()); } catch(e){}
+                    try { localStorage.setItem('erp_rate_usd', usdRate.toString()); } catch(e){}
+
+                    const settingsKey = window.getTenantKey ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1';
+                    try {
+                        let currentCfg = JSON.parse(localStorage.getItem(settingsKey) || localStorage.getItem('erp_settings_v1') || '{}');
+                        currentCfg.rateUSD = usdRate;
+                        currentCfg.exchangeMode = 'manual';
+                        const str = JSON.stringify(currentCfg);
+                        try { origSet.call(localStorage, settingsKey, str); } catch(e){}
+                        try { origSet.call(localStorage, 'erp_settings_v1', str); } catch(e){}
+                        if (window.DB_STORE) {
+                            window.DB_STORE[settingsKey] = str;
+                            window.DB_STORE['erp_settings_v1'] = str;
+                        }
+                    } catch(e) {}
+                }
+            };
+
+            usdInput.addEventListener('input', autoSaveRate);
+            usdInput.addEventListener('change', autoSaveRate);
+            usdInput.addEventListener('blur', autoSaveRate);
         }
 
         // Dynamic visibility of exchange rates based on selected active currencies
@@ -1013,14 +1145,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 switchTab(reqTab);
             }
 
-            settingsContainer.addEventListener('input', showSaveAlert);
-            settingsContainer.addEventListener('change', showSaveAlert);
+            if (settingsContainer) {
+                settingsContainer.addEventListener('input', showSaveAlert);
+                settingsContainer.addEventListener('change', showSaveAlert);
+            }
         }
-    });
+    }
 
     function switchTab(tabId, elem) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+            content.style.display = 'none';
+        });
         
         let targetBtn = elem;
         if (!targetBtn && typeof event !== 'undefined' && event && event.currentTarget) {
@@ -1035,6 +1172,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const targetTab = document.getElementById('tab-' + tabId);
         if (targetTab) {
             targetTab.classList.add('active');
+            targetTab.style.display = 'block';
         }
     }
 
@@ -1049,7 +1187,56 @@ document.addEventListener('DOMContentLoaded', function() {
     window.switchPrintTab = switchPrintTab;
 
     function loadSettings() {
-        const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+        console.log('=== loadSettings() CALLED ===');
+        const settingsKey = window.getTenantKey ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1';
+        console.log('settingsKey =', settingsKey);
+        
+        // Try multiple sources in order of priority
+        let cfgRaw = null;
+        
+        // Source 1: DB_STORE (in-memory)
+        if (window.DB_STORE && window.DB_STORE[settingsKey]) {
+            cfgRaw = window.DB_STORE[settingsKey];
+            console.log('loadSettings: READ from DB_STORE[settingsKey]');
+        }
+        // Source 2: DB_STORE base key
+        if (!cfgRaw && window.DB_STORE && window.DB_STORE['erp_settings_v1']) {
+            cfgRaw = window.DB_STORE['erp_settings_v1'];
+            console.log('loadSettings: READ from DB_STORE[erp_settings_v1]');
+        }
+        // Source 3: proxy localStorage
+        if (!cfgRaw) {
+            try { cfgRaw = localStorage.getItem(settingsKey); } catch(e) {}
+            if (cfgRaw) console.log('loadSettings: READ from localStorage proxy[settingsKey]');
+        }
+        if (!cfgRaw) {
+            try { cfgRaw = localStorage.getItem('erp_settings_v1'); } catch(e) {}
+            if (cfgRaw) console.log('loadSettings: READ from localStorage proxy[erp_settings_v1]');
+        }
+        // Source 4: cookie backup
+        if (!cfgRaw) {
+            const cookieMatch = document.cookie.match(/erp_settings_backup=([^;]+)/);
+            if (cookieMatch) {
+                try {
+                    cfgRaw = decodeURIComponent(cookieMatch[1]);
+                    console.log('loadSettings: READ from COOKIE BACKUP');
+                } catch(e) {}
+            }
+        }
+        
+        if (!cfgRaw) cfgRaw = '{}';
+        
+        let cfg = {};
+        try {
+            cfg = typeof cfgRaw === 'string' ? JSON.parse(cfgRaw) : (cfgRaw || {});
+        } catch(e) { cfg = {}; }
+        
+        console.log('loadSettings: cfg.rateUSD =', cfg.rateUSD, ', cfg.companyName =', cfg.companyName, ', cfg.savedAt =', cfg.savedAt);
+        
+        // Also check dedicated rate key
+        let dedicatedRate = null;
+        try { dedicatedRate = localStorage.getItem('erp_rate_usd'); } catch(e) {}
+        console.log('loadSettings: dedicated erp_rate_usd =', dedicatedRate);
         
         if (cfg.logoBase64) {
             const img = document.getElementById('logo-preview');
@@ -1116,41 +1303,79 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Financial
-        if (cfg.currency)       document.getElementById('cfg-currency').value         = cfg.currency;
-        if (cfg.activeCurrencies) {
-            const checkboxes = document.querySelectorAll('#cfg-active-currencies input[type="checkbox"]');
-            checkboxes.forEach(cb => {
-                cb.checked = cfg.activeCurrencies.includes(cb.value);
-            });
-            if (window.updateExchangeRateVisibility) {
-                window.updateExchangeRateVisibility();
-            }
+        // Financial Currencies
+        if (cfg.currency) {
+            const baseEl = document.getElementById('cfg-currency');
+            if (baseEl) baseEl.value = cfg.currency;
         }
-        if (cfg.vat !== undefined) document.getElementById('cfg-vat').value           = cfg.vat;
-        if (cfg.decimalPlaces !== undefined) document.getElementById('cfg-decimal-places').value = cfg.decimalPlaces;
-        if (cfg.fiscalYear) document.getElementById('cfg-fiscal-year').value = cfg.fiscalYear;
+        if (cfg.foreignCurrency) {
+            const foreignEl = document.getElementById('cfg-foreign-currency');
+            if (foreignEl) foreignEl.value = cfg.foreignCurrency;
+        }
+
+        // Safe DOM Setters
+        const safeSetVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+        const safeSetCheck = (id, checked) => { const el = document.getElementById(id); if (el) el.checked = checked; };
+
+        // Immutability Lock Verification
+        const isLocked = cfg.initialSetupCompleted || localStorage.getItem('tenant_currencies_locked') === 'true';
+        if (isLocked) {
+            const baseSelect = document.getElementById('cfg-currency');
+            const foreignSelect = document.getElementById('cfg-foreign-currency');
+            if (baseSelect) { baseSelect.disabled = true; baseSelect.style.cursor = 'not-allowed'; baseSelect.style.opacity = '0.75'; }
+            if (foreignSelect) { foreignSelect.disabled = true; foreignSelect.style.cursor = 'not-allowed'; foreignSelect.style.opacity = '0.75'; }
+
+            ['cfg-lock-badge', 'cfg-base-lock-icon', 'cfg-foreign-lock-icon'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'inline-block';
+            });
+            ['currency-lock-notice', 'cfg-base-select-lock', 'cfg-foreign-select-lock'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'block';
+            });
+        }
+
+        if (typeof onCurrencySelectionChange === 'function') {
+            onCurrencySelectionChange();
+        }
+        if (cfg.vat !== undefined) safeSetVal('cfg-vat', cfg.vat);
+        if (cfg.decimalPlaces !== undefined) safeSetVal('cfg-decimal-places', cfg.decimalPlaces);
+        if (cfg.fiscalYear) safeSetVal('cfg-fiscal-year', cfg.fiscalYear);
 
         // Exchange Rates
-        if (cfg.exchangeMode) {
-            const modeSelect = document.getElementById('cfg-exchange-mode');
-            modeSelect.value = cfg.exchangeMode;
-            modeSelect.dispatchEvent(new Event('change'));
+        const usdEl = document.getElementById('cfg-rate-usd');
+        if (usdEl) {
+            let savedUsd = cfg.rateUSD || cfg.rate_usd || cfg.usdRate || dedicatedRate;
+            if (!savedUsd && window.getExchangeRateForCurrency) {
+                 savedUsd = window.getExchangeRateForCurrency('USD');
+            }
+            console.log('loadSettings: savedUsd candidates:', { 'cfg.rateUSD': cfg.rateUSD, 'cfg.rate_usd': cfg.rate_usd, 'cfg.usdRate': cfg.usdRate, 'dedicatedRate': dedicatedRate, 'final': savedUsd });
+            const parsed = parseNum(savedUsd);
+            console.log('loadSettings: parsed rate =', parsed);
+            if (parsed > 0) {
+                usdEl.value = parsed;
+                console.log('loadSettings: SET usdEl.value =', parsed);
+            } else {
+                console.log('loadSettings: WARNING - no valid rate found, usdEl stays empty');
+            }
         }
-        if (cfg.rateUSD != null) document.getElementById('cfg-rate-usd').value = cfg.rateUSD;
-        if (cfg.rateSAR != null) document.getElementById('cfg-rate-sar').value = cfg.rateSAR;
-        if (cfg.rateAED != null) document.getElementById('cfg-rate-aed').value = cfg.rateAED;
+        const modeSelect = document.getElementById('cfg-exchange-mode');
+        if (modeSelect) {
+            modeSelect.value = cfg.exchangeMode || 'manual';
+        }
+        if (cfg.rateSAR != null) safeSetVal('cfg-rate-sar', cfg.rateSAR);
+        if (cfg.rateAED != null) safeSetVal('cfg-rate-aed', cfg.rateAED);
 
         // Inventory Rules
-        document.getElementById('cfg-allow-negative-stock').checked = cfg.allowNegativeStock || false;
-        document.getElementById('cfg-two-step-sale').checked         = cfg.twoStepSale !== false; 
-        document.getElementById('cfg-require-customer').checked      = cfg.requireCustomer || false;
-        document.getElementById('cfg-prevent-below-cost').checked    = cfg.preventBelowCost || false;
-        document.getElementById('cfg-low-stock-alerts').checked      = cfg.lowStockAlerts !== false;
-        document.getElementById('cfg-fifo-policy').checked           = cfg.fifoPolicy !== false;
-        document.getElementById('cfg-prevent-expired-sale').checked  = cfg.preventExpiredSale !== false;
-        document.getElementById('cfg-enable-barcode').checked        = cfg.enableBarcode !== false;
-        document.getElementById('cfg-auto-post-gl').checked          = cfg.autoPostGl !== false;
+        safeSetCheck('cfg-allow-negative-stock', cfg.allowNegativeStock || false);
+        safeSetCheck('cfg-two-step-sale', cfg.twoStepSale !== false);
+        safeSetCheck('cfg-require-customer', cfg.requireCustomer || false);
+        safeSetCheck('cfg-prevent-below-cost', cfg.preventBelowCost || false);
+        safeSetCheck('cfg-low-stock-alerts', cfg.lowStockAlerts !== false);
+        safeSetCheck('cfg-fifo-policy', cfg.fifoPolicy !== false);
+        safeSetCheck('cfg-prevent-expired-sale', cfg.preventExpiredSale !== false);
+        safeSetCheck('cfg-enable-barcode', cfg.enableBarcode !== false);
+        safeSetCheck('cfg-auto-post-gl', cfg.autoPostGl !== false);
 
         // Printing
         const printCfg = cfg.print || {
@@ -1161,150 +1386,224 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         
         // Sales
-        document.getElementById('cfg-print-sales-size').value = printCfg.sales.size;
-        document.getElementById('cfg-print-sales-qr').value = printCfg.sales.qr;
-        document.getElementById('cfg-print-sales-logo').checked = printCfg.sales.logo;
-        document.getElementById('cfg-print-sales-signatures').checked = printCfg.sales.signatures;
-        document.getElementById('cfg-print-sales-footer').value = printCfg.sales.footer;
+        safeSetVal('cfg-print-sales-size', printCfg.sales.size);
+        safeSetVal('cfg-print-sales-qr', printCfg.sales.qr);
+        safeSetCheck('cfg-print-sales-logo', printCfg.sales.logo);
+        safeSetCheck('cfg-print-sales-signatures', printCfg.sales.signatures);
+        safeSetVal('cfg-print-sales-footer', printCfg.sales.footer);
         
         // Purchases
-        document.getElementById('cfg-print-purchases-size').value = printCfg.purchases.size;
-        document.getElementById('cfg-print-purchases-logo').checked = printCfg.purchases.logo;
-        document.getElementById('cfg-print-purchases-signatures').checked = printCfg.purchases.signatures;
-        document.getElementById('cfg-print-purchases-footer').value = printCfg.purchases.footer;
+        safeSetVal('cfg-print-purchases-size', printCfg.purchases.size);
+        safeSetCheck('cfg-print-purchases-logo', printCfg.purchases.logo);
+        safeSetCheck('cfg-print-purchases-signatures', printCfg.purchases.signatures);
+        safeSetVal('cfg-print-purchases-footer', printCfg.purchases.footer);
         
         // Quotes
-        document.getElementById('cfg-print-quotes-size').value = printCfg.quotes.size;
-        document.getElementById('cfg-print-quotes-logo').checked = printCfg.quotes.logo;
-        document.getElementById('cfg-print-quotes-signatures').checked = printCfg.quotes.signatures;
-        document.getElementById('cfg-print-quotes-terms').value = printCfg.quotes.terms;
+        safeSetVal('cfg-print-quotes-size', printCfg.quotes.size);
+        safeSetCheck('cfg-print-quotes-logo', printCfg.quotes.logo);
+        safeSetCheck('cfg-print-quotes-signatures', printCfg.quotes.signatures);
+        safeSetVal('cfg-print-quotes-terms', printCfg.quotes.terms);
         
         // Reports
-        document.getElementById('cfg-print-reports-size').value = printCfg.reports.size;
-        document.getElementById('cfg-print-reports-header').checked = printCfg.reports.header;
-        document.getElementById('cfg-print-reports-timestamp').checked = printCfg.reports.timestamp;
+        safeSetVal('cfg-print-reports-size', printCfg.reports.size);
+        safeSetCheck('cfg-print-reports-header', printCfg.reports.header);
+        safeSetCheck('cfg-print-reports-timestamp', printCfg.reports.timestamp);
         
         // SMTP
-        if (cfg.smtpServer) document.getElementById('cfg-smtp-server').value = cfg.smtpServer;
-        if (cfg.smtpPort) document.getElementById('cfg-smtp-port').value = cfg.smtpPort;
-        if (cfg.smtpUser) document.getElementById('cfg-smtp-user').value = cfg.smtpUser;
-        if (cfg.smtpPass) document.getElementById('cfg-smtp-pass').value = cfg.smtpPass;
+        if (cfg.smtpServer) safeSetVal('cfg-smtp-server', cfg.smtpServer);
+        if (cfg.smtpPort) safeSetVal('cfg-smtp-port', cfg.smtpPort);
+        if (cfg.smtpUser) safeSetVal('cfg-smtp-user', cfg.smtpUser);
+        if (cfg.smtpPass) safeSetVal('cfg-smtp-pass', cfg.smtpPass);
 
         // UI
-        if (cfg.fontSize)  document.getElementById('cfg-font-size').value = cfg.fontSize;
-        document.getElementById('cfg-auto-dark').checked = cfg.autoDark !== false; 
-        document.getElementById('cfg-show-athkar').checked = cfg.showAthkar !== false; 
-        if (cfg.autoLogoutTime !== undefined) document.getElementById('cfg-auto-logout').value = cfg.autoLogoutTime;
+        if (cfg.fontSize) safeSetVal('cfg-font-size', cfg.fontSize);
+        safeSetCheck('cfg-auto-dark', cfg.autoDark !== false);
+        safeSetCheck('cfg-show-athkar', cfg.showAthkar !== false);
+        if (cfg.autoLogoutTime !== undefined) safeSetVal('cfg-auto-logout', cfg.autoLogoutTime);
     }
 
-    // ─── Save Settings ─────────────────────────────────────────
+        // ─── Save Settings ─────────────────────────────────────────
     function saveSettings() {
-        const activeCurrencies = Array.from(document.querySelectorAll('#cfg-active-currencies input[type="checkbox"]:checked')).map(cb => cb.value);
-        const oldCfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+        try {
+            const getVal = (id, def = '') => { const el = document.getElementById(id); return el ? el.value.trim() : def; };
+            const getNum = (id, def = 0) => { const el = document.getElementById(id); return el ? (parseFloat(el.value) || def) : def; };
+            const getBool = (id, def = false) => { const el = document.getElementById(id); return el ? !!el.checked : def; };
 
-        const cfg = {
-            // Company
-            logoBase64:        window.pendingLogoBase64 || oldCfg.logoBase64,
-            companyName:       document.getElementById('cfg-company-name')?.value.trim() || '',
-            regNumber:         document.getElementById('cfg-reg-number')?.value.trim() || oldCfg.regNumber || '',
-            taxNumber:         document.getElementById('cfg-tax-number')?.value.trim() || '',
-            phone:             document.getElementById('cfg-phone')?.value.trim() || '',
-            whatsapp:          document.getElementById('cfg-whatsapp')?.value.trim() || '',
-            address:           document.getElementById('cfg-address')?.value.trim() || '',
-            location:          document.getElementById('cfg-location')?.value.trim() || '',
+            const activeCurrencies = Array.from(document.querySelectorAll('#cfg-active-currencies input[type="checkbox"]:checked')).map(cb => cb.value);
+            let oldCfg = {};
+            try { oldCfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}'); } catch(e) { console.error('Corrupted old settings', e); }
 
-            // Financial
-            currency:          document.getElementById('cfg-currency').value,
-            activeCurrencies:  activeCurrencies,
-            vat:               parseFloat(document.getElementById('cfg-vat').value) || 0,
-            decimalPlaces:     parseInt(document.getElementById('cfg-decimal-places').value) || 2,
-            fiscalYear:        document.getElementById('cfg-fiscal-year').value,
+            const baseCurrency = getVal('cfg-currency', oldCfg.currency || 'SDG');
+            const foreignCurrency = getVal('cfg-foreign-currency', oldCfg.foreignCurrency || 'USD');
 
-            // Exchange Rates
-            exchangeMode:      document.getElementById('cfg-exchange-mode').value,
-            rateUSD:           parseFloat(document.getElementById('cfg-rate-usd').value) || oldCfg.rateUSD || null,
-            rateSAR:           parseFloat(document.getElementById('cfg-rate-sar').value) || oldCfg.rateSAR || null,
-            rateAED:           parseFloat(document.getElementById('cfg-rate-aed').value) || oldCfg.rateAED || null,
+            const cfg = {
+                // Company
+                logoBase64:        window.pendingLogoBase64 || oldCfg.logoBase64 || '',
+                companyName:       getVal('cfg-company-name', oldCfg.companyName || ''),
+                regNumber:         getVal('cfg-reg-number', oldCfg.regNumber || ''),
+                taxNumber:         getVal('cfg-tax-number', oldCfg.taxNumber || ''),
+                phone:             getVal('cfg-phone', oldCfg.phone || ''),
+                whatsapp:          getVal('cfg-whatsapp', oldCfg.whatsapp || ''),
+                address:           getVal('cfg-address', oldCfg.address || ''),
+                location:          getVal('cfg-location', oldCfg.location || ''),
 
-            // Inventory
-            allowNegativeStock: document.getElementById('cfg-allow-negative-stock').checked,
-            twoStepSale:       document.getElementById('cfg-two-step-sale').checked,
-            requireCustomer:   document.getElementById('cfg-require-customer').checked,
-            preventBelowCost:  document.getElementById('cfg-prevent-below-cost').checked,
-            lowStockAlerts:    document.getElementById('cfg-low-stock-alerts').checked,
-            fifoPolicy:        document.getElementById('cfg-fifo-policy').checked,
-            preventExpiredSale: document.getElementById('cfg-prevent-expired-sale').checked,
-            enableBarcode:     document.getElementById('cfg-enable-barcode').checked,
-            autoPostGl:        document.getElementById('cfg-auto-post-gl').checked,
+                // Financial
+                currency:              baseCurrency,
+                foreignCurrency:       foreignCurrency,
+                activeCurrencies:      [baseCurrency, foreignCurrency],
+                initialSetupCompleted: true,
+                vat:                   getNum('cfg-vat', 0),
+                decimalPlaces:         parseInt(getVal('cfg-decimal-places', '2')) || 2,
+                fiscalYear:            getVal('cfg-fiscal-year', '1'),
 
-            // Printing
-            print: {
-                sales: {
-                    size: document.getElementById('cfg-print-sales-size').value,
-                    qr: document.getElementById('cfg-print-sales-qr').value,
-                    logo: document.getElementById('cfg-print-sales-logo').checked,
-                    signatures: document.getElementById('cfg-print-sales-signatures').checked,
-                    footer: document.getElementById('cfg-print-sales-footer').value.trim()
+                // Exchange Rates
+                exchangeMode:      getVal('cfg-exchange-mode', 'manual'),
+                rateUSD:           (document.getElementById('cfg-rate-usd') && parseNum(document.getElementById('cfg-rate-usd').value) > 0) ? parseNum(document.getElementById('cfg-rate-usd').value) : (oldCfg.rateUSD || 600),
+                rateSAR:           (document.getElementById('cfg-rate-sar') && parseNum(document.getElementById('cfg-rate-sar').value) > 0) ? parseNum(document.getElementById('cfg-rate-sar').value) : (oldCfg.rateSAR || 160),
+                rateAED:           (document.getElementById('cfg-rate-aed') && parseNum(document.getElementById('cfg-rate-aed').value) > 0) ? parseNum(document.getElementById('cfg-rate-aed').value) : (oldCfg.rateAED || 163),
+
+                // Inventory
+                allowNegativeStock: getBool('cfg-allow-negative-stock', false),
+                twoStepSale:       getBool('cfg-two-step-sale', true),
+                requireCustomer:   getBool('cfg-require-customer', false),
+                preventBelowCost:  getBool('cfg-prevent-below-cost', false),
+                lowStockAlerts:    getBool('cfg-low-stock-alerts', true),
+                fifoPolicy:        getBool('cfg-fifo-policy', true),
+                preventExpiredSale: getBool('cfg-prevent-expired-sale', true),
+                enableBarcode:     getBool('cfg-enable-barcode', true),
+                autoPostGl:        getBool('cfg-auto-post-gl', true),
+
+                // Printing
+                print: {
+                    sales: {
+                        size: getVal('cfg-print-sales-size', 'A4'),
+                        qr: getVal('cfg-print-sales-qr', 'true'),
+                        logo: getBool('cfg-print-sales-logo', true),
+                        signatures: getBool('cfg-print-sales-signatures', false),
+                        footer: getVal('cfg-print-sales-footer', '')
+                    },
+                    purchases: {
+                        size: getVal('cfg-print-purchases-size', 'A4'),
+                        logo: getBool('cfg-print-purchases-logo', true),
+                        signatures: getBool('cfg-print-purchases-signatures', true),
+                        footer: getVal('cfg-print-purchases-footer', '')
+                    },
+                    quotes: {
+                        size: getVal('cfg-print-quotes-size', 'A4'),
+                        logo: getBool('cfg-print-quotes-logo', true),
+                        signatures: getBool('cfg-print-quotes-signatures', true),
+                        terms: getVal('cfg-print-quotes-terms', '')
+                    },
+                    reports: {
+                        size: getVal('cfg-print-reports-size', 'A4'),
+                        header: getBool('cfg-print-reports-header', true),
+                        timestamp: getBool('cfg-print-reports-timestamp', true)
+                    }
                 },
-                purchases: {
-                    size: document.getElementById('cfg-print-purchases-size').value,
-                    logo: document.getElementById('cfg-print-purchases-logo').checked,
-                    signatures: document.getElementById('cfg-print-purchases-signatures').checked,
-                    footer: document.getElementById('cfg-print-purchases-footer').value.trim()
-                },
-                quotes: {
-                    size: document.getElementById('cfg-print-quotes-size').value,
-                    logo: document.getElementById('cfg-print-quotes-logo').checked,
-                    signatures: document.getElementById('cfg-print-quotes-signatures').checked,
-                    terms: document.getElementById('cfg-print-quotes-terms').value.trim()
-                },
-                reports: {
-                    size: document.getElementById('cfg-print-reports-size').value,
-                    header: document.getElementById('cfg-print-reports-header').checked,
-                    timestamp: document.getElementById('cfg-print-reports-timestamp').checked
-                }
-            },
 
-            // SMTP
-            smtpServer:        document.getElementById('cfg-smtp-server').value.trim(),
-            smtpPort:          document.getElementById('cfg-smtp-port').value.trim(),
-            smtpUser:          document.getElementById('cfg-smtp-user').value.trim(),
-            smtpPass:          document.getElementById('cfg-smtp-pass').value.trim(),
+                // SMTP
+                smtpServer:        getVal('cfg-smtp-server', ''),
+                smtpPort:          getVal('cfg-smtp-port', ''),
+                smtpUser:          getVal('cfg-smtp-user', ''),
+                smtpPass:          getVal('cfg-smtp-pass', ''),
 
-            // UI
-            fontSize:          document.getElementById('cfg-font-size').value,
-            autoDark:          document.getElementById('cfg-auto-dark').checked,
-            showAthkar:        document.getElementById('cfg-show-athkar').checked,
-            autoLogoutTime:    document.getElementById('cfg-auto-logout').value,
+                // UI
+                fontSize:          getVal('cfg-font-size', '16'),
+                autoDark:          getBool('cfg-auto-dark', true),
+                showAthkar:        getBool('cfg-show-athkar', true),
+                autoLogoutTime:    getVal('cfg-auto-logout', '0'),
 
-            savedAt: new Date().toISOString()
-        };
+                savedAt: new Date().toISOString()
+            };
 
-        localStorage.setItem('erp_settings_v1', JSON.stringify(cfg));
-        if (window.saveToDB) {
-            window.saveToDB('erp_settings_v1', cfg);
-        }
+            const settingsKey = window.getTenantKey ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1';
+            const strVal = JSON.stringify(cfg);
+            
+            console.log('=== saveSettings() ===');
+            console.log('saveSettings: rateUSD =', cfg.rateUSD);
+            console.log('saveSettings: settingsKey =', settingsKey);
+            console.log('saveSettings: cfg.savedAt =', cfg.savedAt);
+            
+            // Save to all storage layers
+            try { localStorage.setItem('erp_settings_v1', strVal); console.log('saveSettings: localStorage.setItem(erp_settings_v1) OK'); } catch(e) { console.error('saveSettings: localStorage.setItem(erp_settings_v1) FAILED:', e.message); }
+            try { localStorage.setItem(settingsKey, strVal); console.log('saveSettings: localStorage.setItem(settingsKey) OK'); } catch(e) { console.error('saveSettings: localStorage.setItem(settingsKey) FAILED:', e.message); }
+            
+            if (window.DB_STORE) {
+                window.DB_STORE['erp_settings_v1'] = strVal;
+                window.DB_STORE[settingsKey] = strVal;
+                console.log('saveSettings: DB_STORE direct write OK');
+            }
+            if (typeof localforage !== 'undefined') {
+                localforage.setItem(settingsKey, strVal).catch(() => {});
+                localforage.setItem('erp_settings_v1', strVal).catch(() => {});
+            }
+            
+            // Also save dedicated rate key
+            try { localStorage.setItem('erp_rate_usd', String(cfg.rateUSD)); } catch(e) {}
+            
+            // COOKIE BACKUP - independent of all storage proxies
+            try {
+                const minCfg = JSON.stringify({ rateUSD: cfg.rateUSD, exchangeMode: cfg.exchangeMode, companyName: cfg.companyName, currency: cfg.currency, foreignCurrency: cfg.foreignCurrency, savedAt: cfg.savedAt });
+                document.cookie = 'erp_settings_backup=' + encodeURIComponent(strVal) + '; path=/; max-age=31536000; SameSite=Lax';
+                document.cookie = 'erp_rate_usd_backup=' + cfg.rateUSD + '; path=/; max-age=31536000; SameSite=Lax';
+                console.log('saveSettings: COOKIE BACKUP saved OK');
+            } catch(e) { console.error('saveSettings: COOKIE BACKUP FAILED:', e.message); }
+            
+            // Verify immediately after save
+            try {
+                const verifyVal = localStorage.getItem('erp_settings_v1');
+                const verifyParsed = JSON.parse(verifyVal);
+                console.log('saveSettings: VERIFY after save - rateUSD =', verifyParsed.rateUSD, ', savedAt =', verifyParsed.savedAt);
+            } catch(e) { console.error('saveSettings: VERIFY FAILED:', e.message); }
+            
+            localStorage.setItem('tenant_currencies_locked', 'true');
 
-        document.documentElement.style.fontSize = cfg.fontSize + 'px';
+            // Apply immutability lock immediately upon saving
+            const baseSelect = document.getElementById('cfg-currency');
+            const foreignSelect = document.getElementById('cfg-foreign-currency');
+            if (baseSelect) baseSelect.disabled = true;
+            if (foreignSelect) foreignSelect.disabled = true;
 
-        const badge = document.getElementById('save-badge');
-        if (badge) {
-            badge.classList.add('show');
-            setTimeout(() => badge.classList.remove('show'), 3000);
-        }
+            const lockBadgeEl = document.getElementById('cfg-lock-badge');
+            if (lockBadgeEl) lockBadgeEl.style.display = 'inline-block';
 
-        if (window.logSystemAction) {
-            window.logSystemAction('Settings Update', 'settings', 'تم تحديث إعدادات النظام');
-        }
+            const noticeEl = document.getElementById('currency-lock-notice');
+            if (noticeEl) noticeEl.style.display = 'block';
 
-        // Sync posting mode with the posting system
-        localStorage.setItem('erp_posting_mode', cfg.autoPostGl ? 'auto' : 'manual');
+            if (window.saveToDB) {
+                window.saveToDB('erp_settings_v1', cfg);
+            }
 
-        // Hide save button after successful save
-        const saveBtn = document.getElementById('save-settings-btn');
-        if (saveBtn) {
-            saveBtn.style.display = 'none';
-            saveBtn.classList.remove('pulse-alert');
+            if (cfg.fontSize) {
+                document.documentElement.style.fontSize = cfg.fontSize + 'px';
+            }
+
+            const badge = document.getElementById('save-badge');
+            if (badge) {
+                badge.classList.add('show');
+                setTimeout(() => badge.classList.remove('show'), 3000);
+            }
+
+            if (window.logSystemAction) {
+                window.logSystemAction('Settings Update', 'settings', 'تم تحديث إعدادات النظام');
+            }
+
+            // Sync posting mode with the posting system
+            localStorage.setItem('erp_posting_mode', cfg.autoPostGl ? 'auto' : 'manual');
+
+            const saveBtn = document.getElementById('save-settings-btn');
+            if (saveBtn) {
+                saveBtn.classList.remove('pulse-alert');
+            }
+
+            if (typeof window.showToast === 'function') {
+                window.showToast('✅ تم حفظ التعديلات والإعدادات بنجاح!', 'success');
+            } else {
+                alert('✅ تم حفظ التعديلات والإعدادات بنجاح!');
+            }
+        } catch(err) {
+            console.error('Error saving settings:', err);
+            alert('⚠️ حدث خطأ عند حفظ الإعدادات: ' + err.message);
         }
     }
 
@@ -1636,6 +1935,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
         reader.readAsText(file);
+    }
+
+    document.addEventListener('DBReady', loadSettings);
+    document.addEventListener('strictDataReady', loadSettings);
+    document.addEventListener('cloudDataRestored', loadSettings);
+
+    if (window.APP_READY) {
+        initSettingsPage();
+    } else {
+        document.addEventListener('DBReady', initSettingsPage);
+        document.addEventListener('DOMContentLoaded', initSettingsPage);
     }
 </script>
 

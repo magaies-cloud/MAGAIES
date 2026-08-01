@@ -16,14 +16,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>استلام بضاعة | Al-Sajana ERP</title>
-    <link rel="stylesheet" href="css/design-system.css">
-    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/design-system.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/theme.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
-    <link rel="stylesheet" href="css/sales-invoice.css">
+    <link rel="stylesheet" href="css/sales-invoice.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="css/print-invoice.css">
+    <link rel="stylesheet" href="css/purchase-module.css?v=<?php echo time(); ?>">
     <style>
         /* ═══════════════════════════════════════════════════════
-           ⚡ PERFORMANCE OVERRIDES — eliminates GPU-heavy effects
+           ✨ RICH GLASSMORPHISM & LAYER ARCHITECTURE
            ═══════════════════════════════════════════════════════ */
         .glass-panel,
         .neon-glass-panel,
@@ -32,22 +33,29 @@
         .pro-panel,
         .purchase-glass-card,
         .sales-glass-card,
+        .smart-filter-bar,
         .toast,
         .custom-dropdown-list {
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
+            backdrop-filter: blur(16px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+        }
+        .modal-overlay {
+            z-index: 999999 !important;
+        }
+        .toast-container {
+            z-index: 1000000 !important;
         }
         .glass-panel {
-            background: rgba(12, 10, 20, 0.92) !important;
+            background: rgba(12, 10, 20, 0.85) !important;
         }
         .panel {
-            background: rgba(14, 12, 22, 0.95) !important;
+            background: rgba(14, 12, 22, 0.88) !important;
         }
         .pro-panel {
-            background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(10, 17, 40, 0.98)) !important;
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.88), rgba(10, 17, 40, 0.92)) !important;
         }
         .purchase-glass-card {
-            background: linear-gradient(135deg, rgba(60, 20, 90, 0.95) 0%, rgba(20, 35, 85, 0.95) 50%, rgba(12, 15, 30, 0.98) 100%) !important;
+            background: linear-gradient(135deg, rgba(60, 20, 90, 0.85) 0%, rgba(20, 35, 85, 0.85) 50%, rgba(12, 15, 30, 0.92) 100%) !important;
         }
         .toast {
             background: rgba(15, 23, 42, 0.96) !important;
@@ -56,7 +64,7 @@
         .toast.error { background: rgba(50, 15, 15, 0.96) !important; }
         .toast.warning { background: rgba(50, 40, 10, 0.96) !important; }
         .custom-dropdown-list {
-            background: rgba(25, 30, 45, 0.98) !important;
+            background: rgba(25, 30, 45, 0.96) !important;
         }
 
         table.pos-grid th, table.pos-grid td { padding: 4px 4px !important; }
@@ -324,33 +332,46 @@
         @keyframes toastIn { from { opacity:0; transform:translateY(-20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
         @keyframes toastOut { to { opacity:0; transform:translateY(-20px) scale(0.95); } }
 
-        /* Custom Dropdown */
+        /* Custom Dropdown Layering */
         .custom-dropdown { position: relative; width: 100%; display: flex; gap: 6px; }
         .custom-dropdown-input-wrap { position: relative; flex: 1; }
         .custom-dropdown-list {
             position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
             max-height: 280px; overflow-y: auto;
-            background: rgba(30, 41, 59, 0.96);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(251, 191, 36, 0.25);
-            border-radius: 10px; box-shadow: 0 15px 50px rgba(0,0,0,0.6);
-            z-index: 99999; display: none; flex-direction: column;
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(20px) saturate(200%);
+            -webkit-backdrop-filter: blur(20px) saturate(200%);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            border-radius: 10px; box-shadow: 0 20px 60px rgba(0,0,0,0.95), 0 0 20px rgba(56, 189, 248, 0.25);
+            z-index: 9999999 !important; display: none; flex-direction: column;
             min-width: 320px;
             scrollbar-width: thin;
-            scrollbar-color: rgba(251, 191, 36, 0.3) transparent;
+            scrollbar-color: rgba(56, 189, 248, 0.4) transparent;
         }
         .custom-dropdown-list::-webkit-scrollbar {
             width: 6px;
         }
         .custom-dropdown-list::-webkit-scrollbar-thumb {
-            background: rgba(251, 191, 36, 0.3);
+            background: rgba(56, 189, 248, 0.4);
             border-radius: 4px;
         }
-        .custom-dropdown-list.show { display: flex; }
+        .custom-dropdown-list.show { display: flex !important; }
+        .purchase-top:has(.custom-dropdown-list.show),
+        .purchase-top-row:has(.custom-dropdown-list.show),
+        .purchase-glass-card:has(.custom-dropdown-list.show),
+        .h-form-group:has(.custom-dropdown-list.show),
+        .h-input-wrapper:has(.custom-dropdown-list.show),
+        .custom-dropdown:has(.custom-dropdown-list.show),
+        .custom-dropdown-input-wrap:has(.custom-dropdown-list.show),
+        .purchase-bottom:has(.custom-dropdown-list.show),
+        .table-container:has(.custom-dropdown-list.show),
+        .grid-scroll-wrap:has(.custom-dropdown-list.show),
+        table:has(.custom-dropdown-list.show),
+        tbody:has(.custom-dropdown-list.show),
+        tr:has(.custom-dropdown-list.show),
         td:has(.custom-dropdown-list.show),
-        .m-card-full:has(.custom-dropdown-list.show),
-        .custom-dropdown-input-wrap:has(.custom-dropdown-list.show) { z-index: 99999 !important; }
+        .m-card:has(.custom-dropdown-list.show),
+        .m-card-full:has(.custom-dropdown-list.show) { z-index: 999999 !important; position: relative !important; overflow: visible !important; }
 
         .custom-dropdown-item {
             padding: 11px 15px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
@@ -1264,76 +1285,6 @@
         overflow: hidden !important;
     }
 
-</style>
-
-    <style>
-        .hub-action-card {
-            border-radius: 12px;
-            padding: 12px 15px;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 15px;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
-            height: 80px; /* Reduced height to ~50% of the previous tall card */
-        }
-        .hub-action-card::after {
-            content: "";
-            position: absolute;
-            top: 0; left: -100%;
-            width: 50%; height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg);
-            transition: all 0.6s ease;
-        }
-        .hub-action-card:hover::after {
-            left: 200%;
-        }
-        .hub-action-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
-        }
-        .hub-action-card .icon {
-            font-size: 1.8rem;
-            margin-bottom: 0;
-            padding: 8px;
-            border-radius: 10px;
-            transition: transform 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 50px;
-            height: 50px;
-        }
-        .hub-action-card:hover .icon {
-            transform: scale(1.1) rotate(-5deg);
-        }
-        .hub-action-card .text-content {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            text-align: right;
-        }
-        .hub-action-card .title {
-            font-size: 1.05rem;
-            font-weight: 800;
-            margin-bottom: 3px;
-            letter-spacing: 0.5px;
-        }
-        .hub-action-card .subtitle {
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-align: right;
-            margin: 0;
-        }
-
         /* ── Theme-aware Card Styling (Dark Mode Defaults with Magical Glassy Borders & Glow) ── */
         .card-orange {
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(180, 83, 9, 0.08)) !important;
@@ -1457,325 +1408,8 @@
         .hub-badge.completed { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
         .hub-badge.draft { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
     </style>
-    
-    
-    <style>
-        /* CSS for table enhancements */
-        .pos-grid th, .pos-grid td {
-            font-size: 0.8rem !important;
-            padding: 8px 10px !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .pos-grid .g-input, .pos-grid .g-select, .pos-grid .g-readonly {
-            font-size: 0.85rem !important;
-            padding: 8px 10px !important;
-            background: rgba(15, 23, 42, 0.5) !important;
-            color: #f8fafc !important; /* Restore bright text */
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
-            border-radius: 8px !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        /* Modern Glassmorphism Styling */
-        .grid-scroll-wrap {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        
-        .pos-grid thead th {
-            background: rgba(15, 23, 42, 0.8) !important;
-            backdrop-filter: blur(10px);
-            border-bottom: 2px solid var(--gold-primary) !important;
-            color: var(--gold-primary) !important;
-            font-weight: 800 !important;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        .pos-grid tbody tr {
-            background: rgba(255, 255, 255, 0.02) !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-        }
-
-        /* Hover effect on rows - Dynamic Elevation */
-        .pos-grid tbody tr:hover td {
-            background-color: rgba(56, 189, 248, 0.08) !important;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(255,255,255,0.1);
-        }
-        
-        .pos-grid tbody tr:hover {
-            transform: translateY(-2px) scale(1.002);
-            box-shadow: 0 12px 40px rgba(56, 189, 248, 0.15);
-            z-index: 2;
-            position: relative;
-        }
-
-        /* Input Focus Glow Effect */
-        .pos-grid .g-input:focus, .pos-grid .g-select:focus {
-            background: rgba(15, 23, 42, 0.9) !important;
-            border-color: #38bdf8 !important;
-            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.4), 0 0 15px rgba(56, 189, 248, 0.3) !important;
-            transform: scale(1.02);
-            z-index: 10;
-        }
-        
-        .pos-grid .g-input::placeholder {
-            color: #94a3b8 !important;
-        }
-
-        /* Resizable columns */
-        .pos-grid th {
-            position: relative;
-        }
-        .resizer {
-            width: 5px;
-            cursor: col-resize;
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            background-color: transparent;
-            z-index: 10;
-        }
-        .resizer:hover, .resizing {
-            background-color: var(--gold-primary);
-        }
-
-        /* Context Menu */
-        #col-context-menu {
-            position: absolute;
-            z-index: 100000;
-            background: var(--velvet-panel-hover);
-            border: 1px solid var(--gold-border);
-            border-radius: 8px;
-            padding: 10px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-            display: none;
-            min-width: 150px;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-        .col-toggle-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 10px;
-            cursor: pointer;
-            color: #fff;
-            font-size: 0.8rem;
-            border-radius: 4px;
-        }
-        .col-toggle-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-    </style>
-
-<style>
-/* Purchase Top Container CSS */
-    #purchase-top-container {
-        display: flex; gap: 20px; align-items: stretch; width: 100%;
-        transition: margin-bottom 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-    
-    /* Glassmorphic First Panel (Invoice Details) - Sky Blue/Cyan Sapphire Glow */
-    #form-fields-card {
-        background: rgba(30, 41, 59, 0.45) !important;
-        backdrop-filter: blur(25px) saturate(140%) !important;
-        -webkit-backdrop-filter: blur(25px) saturate(140%) !important;
-        border: 1px solid rgba(56, 189, 248, 0.35) !important;
-        border-radius: 18px !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 15px rgba(56, 189, 248, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.05) !important;
-        transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
-    }
-    #form-fields-card:hover {
-        border-color: rgba(56, 189, 248, 0.6) !important;
-        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(56, 189, 248, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.08) !important;
-    }
-
-    /* Glassmorphic Second Panel (Items Grid) - Mint Emerald Glow */
-    #purchase-editor-view .table-container {
-        background: rgba(16, 24, 39, 0.5) !important;
-        backdrop-filter: blur(25px) saturate(140%) !important;
-        -webkit-backdrop-filter: blur(25px) saturate(140%) !important;
-        border: 1px solid rgba(16, 185, 129, 0.35) !important;
-        border-radius: 18px !important;
-        padding: 20px !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 15px rgba(16, 185, 129, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.05) !important;
-        transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
-    }
-    #purchase-editor-view .table-container:hover {
-        border-color: rgba(16, 185, 129, 0.6) !important;
-        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(16, 185, 129, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.08) !important;
-    }
-    #purchase-top-container #form-fields-card {
-        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        flex: 1; /* Grows to take all available space automatically */
-        min-width: 0; /* Prevents flex blowout on small screens */
-    }
-    #purchase-top-container #form-fields-card {
-        transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
-    }
-    #purchase-top-container #totals-calc-card {
-        transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-        flex: 0 0 360px; /* Fixed professional width for the totals */
-        min-width: 360px;
-        opacity: 1;
-        overflow: hidden;
-        transform-origin: right center;
-        background: linear-gradient(180deg, rgba(15,23,42,0.8), rgba(30,58,138,0.4));
-        border: 1px solid rgba(56, 189, 248, 0.3);
-        border-top: 3px solid #38bdf8 !important;
-        border-radius: 12px;
-        padding: 15px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-    }
-    .tot-row {
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 3px 0; border-bottom: 1px dashed rgba(255,255,255,0.1);
-    }
-    .tot-lbl { font-size: 0.75rem; font-weight: 700; color: #94a3b8; }
-    .tot-val { font-size: 0.85rem; font-weight: 900; color: #fff; font-family: 'Outfit', sans-serif; }
-    .tot-input { font-weight: bold; font-family: 'Outfit', sans-serif; font-size: 0.9rem !important; }
-    .tot-grand {
-        margin-top: 15px; background: rgba(16,185,129,0.15); padding: 15px; border-radius: 8px; border: 1px solid rgba(16,185,129,0.3); box-shadow: 0 0 15px rgba(16,185,129,0.2);
-        display: flex; justify-content: space-between; align-items: center;
-    }
-    .tot-grand .lbl { font-size: 0.75rem; font-weight: 900; color: #34d399; }
-    .tot-grand .val { font-size: 1.15rem; font-weight: 900; color: #fff; font-family: 'Outfit', sans-serif; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
-
-    .purchase-bottom .table-container {
-        min-height: unset !important;
-        overflow: visible !important;
-    }
-    .purchase-bottom .grid-scroll-wrap {
-        min-height: unset !important;
-        overflow: visible !important;
-    }
-    .pos-grid thead th {
-        font-size: 0.95rem !important;
-        font-weight: 900 !important;
-        color: #cbd5e1 !important;
-    }
-    .pos-grid .g-input, .pos-grid .g-select, .pos-grid .g-readonly {
-        font-size: 1.05rem !important;
-        font-weight: 700 !important;
-    }
-    html.light-theme th,
-    :root.light-theme th,
-    .light-theme th,
-    .light-theme .pos-grid thead th,
-    :root.light-theme .pos-grid thead th {
-        background: #f1f5f9 !important; /* Solid light gray to prevent dark parent background bleeding */
-        color: #0f172a !important;
-        border-bottom: 2px solid #cbd5e1 !important;
-    }
-    .light-theme thead, .light-theme thead tr {
-        background: transparent !important;
-    }
-    .light-theme .grid-scroll-wrap {
-        background: transparent !important;
-        box-shadow: none !important;
-    }
-    .light-theme .h-label,
-    .light-theme .tot-lbl,
-    .light-theme .lbl,
-    .light-theme label,
-    .light-theme span[style*="color:#94a3b8"],
-    .light-theme span[style*="color: #94a3b8"] {
-        color: #334155 !important;
-        text-shadow: none !important;
-    }
-    .light-theme .tot-val,
-    .light-theme .val {
-        color: #0f172a !important;
-        text-shadow: none !important;
-    }
-    .light-theme .neo-card-title {
-        color: #0ea5e9 !important;
-    }
-
-        
-        /* Universal Light Theme Overrides for Internal Screens */
-        :root.light-theme body,
-        :root.light-theme .ambient-bg {
-            background: #f8fafc !important;
-        }
-        :root.light-theme .glass-panel,
-        :root.light-theme .neo-card,
-        :root.light-theme .summary-card,
-        :root.light-theme .filter-panel,
-        :root.light-theme .chart-card,
-        :root.light-theme .kpi-card,
-        :root.light-theme .premium-header,
-        :root.light-theme .top-header,
-        :root.light-theme .header-area {
-            background: #ffffff !important;
-            border-color: rgba(0, 0, 0, 0.08) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
-            color: #0f172a !important;
-        }
-        :root.light-theme .glass-panel *,
-        :root.light-theme .neo-card *,
-        :root.light-theme .summary-card * {
-            text-shadow: none !important;
-        }
-        :root.light-theme table.pro-table th,
-        :root.light-theme .pos-grid thead th,
-        :root.light-theme .ledger-table th,
-        :root.light-theme .report-table th {
-            background: #f1f5f9 !important;
-            color: #0f172a !important;
-            border-bottom: 2px solid #cbd5e1 !important;
-        }
-        :root.light-theme table.pro-table td,
-        :root.light-theme .pos-grid tbody td,
-        :root.light-theme .ledger-table td,
-        :root.light-theme .report-table td {
-            color: #1e293b !important;
-            border-bottom: 1px solid rgba(0,0,0,0.08) !important;
-        }
-        :root.light-theme table.pro-table tbody tr:hover td,
-        :root.light-theme .pos-grid tbody tr:hover td,
-        :root.light-theme .ledger-table tbody tr:hover td,
-        :root.light-theme .report-table tbody tr:hover td {
-            background: rgba(0,0,0,0.02) !important;
-        }
-        :root.light-theme .h-label,
-        :root.light-theme .form-label,
-        :root.light-theme .tot-lbl,
-        :root.light-theme .lbl,
-        :root.light-theme label,
-        :root.light-theme .table-header {
-            color: #334155 !important;
-        }
-        :root.light-theme .tot-val,
-        :root.light-theme .val {
-            color: #0f172a !important;
-        }
-        :root.light-theme .h-form-group,
-        :root.light-theme .control-panel {
-            background: transparent !important;
-            border-color: rgba(0,0,0,0.08) !important;
-        }
-        :root.light-theme .modern-btn {
-            color: #1e293b !important;
-        }
-        :root.light-theme .modern-btn:hover {
-            color: #0f172a !important;
-        }
-        /* Neon text colors correction for light theme */
-        :root.light-theme .text-emerald-400, :root.light-theme span[style*="color: #34d399"], :root.light-theme span[style*="color:#34d399"] { color: #059669 !important; }
-        :root.light-theme .text-rose-400, :root.light-theme span[style*="color: #f87171"], :root.light-theme span[style*="color:#f87171"] { color: #e11d48 !important; }
-        :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
-        :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
-        :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
-\n</style>
 </head>
-<body>
+<body class="light-theme">
     <div class="toast-container" id="toast-container"></div>
 
     <!-- ═══ Add Supplier Modal ═══ -->
@@ -1914,7 +1548,10 @@
         <!-- Recent Transactions Table -->
         <div class="neo-card" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 15px;">
             <div class="neo-card-title" style="font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; margin-bottom: 12px;">
-                <span>📦 عمليات الشراء الأخيرة</span>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span>📦 عمليات الشراء الأخيرة</span>
+                    <span class="sync-live-badge" title="تحديث وتزامن لحظي"><span class="sync-live-dot"></span> متزامن الآن</span>
+                </div>
                 <div id="hub-summary-bar" style="display: flex; gap: 18px; font-size: 0.85rem; color: #94a3b8; font-weight: 600;"></div>
             </div>
             
@@ -2032,7 +1669,7 @@
                 <!-- Unified Row 1: Supplier, Exchange Rate, Warehouse, Cost Center -->
                 <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 5px; width: 100%; align-items: center;">
                     <!-- 1. Supplier -->
-                    <div class="h-form-group group-supplier" style="flex: 2.2; min-width: 260px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
+                    <div class="h-form-group group-supplier" style="flex: 3.3; min-width: 390px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
                           <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">👤 المورد</label>
                           <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1;">
                               <div class="custom-dropdown" style="flex:1;">
@@ -2049,7 +1686,7 @@
                     </div>
                     
                     <!-- 2. Currency & Exchange Rate -->
-                    <div class="h-form-group group-currency" style="flex: 1.8; min-width: 220px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
+                    <div class="h-form-group group-currency" style="flex: 2.7; min-width: 330px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
                           <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 80px;">💱 سعر الصرف</label>
                           <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 5px; flex: 1;">
                             <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="handleCurrencyChange(this.value)" style="flex: 1;">
@@ -2064,7 +1701,7 @@
                     </div>
 
                     <!-- 3. Warehouse -->
-                    <div class="h-form-group group-warehouse" style="flex: 1.5; min-width: 180px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
+                    <div class="h-form-group group-warehouse" style="flex: 2.2; min-width: 270px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
                           <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">📦 المخزن</label>
                           <div class="h-input-wrapper" style="display: flex; flex-direction: row !important; display: flex !important; align-items: center !important; flex: 1;">
                             <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange()" style="width: 100%;"></select>
@@ -2072,7 +1709,7 @@
                     </div>
 
                     <!-- 4. Cost Center -->
-                    <div class="h-form-group group-cost-center" style="flex: 1.5; min-width: 180px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
+                    <div class="h-form-group group-cost-center" style="flex: 2.2; min-width: 270px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
                         <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 80px;">🏷️ مركز الكلفة</label>
                         <div class="h-input-wrapper" style="display: flex; flex-direction: row !important; display: flex !important; align-items: center !important; flex: 1;">
                             <select class="v-input ctrl-input" id="hdr-cost-center" style="width: 100%;">
@@ -2117,8 +1754,8 @@
                 <thead>
                     <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; font-size: 0.8rem;">
                         <th style="padding-bottom:5px; text-align:right;">البيان</th>
-                        <th style="padding-bottom:5px; text-align:center;">محلي</th>
-                        <th style="padding-bottom:5px; text-align:center;">أجنبي</th>
+                        <th id="th-totals-col1" style="padding-bottom:5px; text-align:center;">محلي</th>
+                        <th id="th-totals-col2" style="padding-bottom:5px; text-align:center;">أجنبي</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -2182,23 +1819,9 @@
                     <p>استخدم شريط البحث بالأعلى أو اضغط على الزائد بالمنتصف للبدء.</p>
                 </div>
             </div>
-            <!-- Centered Add Row Button -->
-            <div id="add-row-container" style="display: flex; justify-content: center; margin-top: 15px; margin-bottom: 10px;">
-                <button type="button" onclick="addRow()" style="
-                    width: 40px;
-                    height: 40px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: linear-gradient(135deg, #10b981, #059669);
-                    color: white;
-                    border: none;
-                    border-radius: 50%;
-                    cursor: pointer;
-                    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
-                    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                    outline: none;
-                " onmouseover="this.style.transform='scale(1.15) rotate(90deg)'; this.style.boxShadow='0 6px 20px rgba(16, 185, 129, 0.4)';" onmouseout="this.style.transform='scale(1) rotate(0deg)'; this.style.boxShadow='0 4px 15px rgba(16, 185, 129, 0.25)';" title="إضافة سطر">
+            <!-- Centered Add Row Button (Hidden as button is now inside each row) -->
+            <div id="add-row-container" style="display: none !important;">
+                <button type="button" onclick="addRow()" title="إضافة سطر">
                     <span style="font-size: 1.2rem; font-weight: bold; line-height: 1;">➕</span>
                 </button>
             </div>
@@ -2439,8 +2062,8 @@
     <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1.0.0'; ?>"></script>
     <script defer src="js/print-engine.js"></script>
-    
-    <script defer src="js/purchase-pro-v4.js?v=<?php echo file_exists('js/purchase-pro-v4.js') ? filemtime('js/purchase-pro-v4.js') : '1.0.0'; ?>"></script>
+    <script defer src="js/accounting-engine.js?v=<?php echo file_exists('js/accounting-engine.js') ? filemtime('js/accounting-engine.js') : '1.0.0'; ?>"></script>
+    <script defer src="js/purchase-pro-v4.js?v=<?php echo time(); ?>"></script>
 </div>
 
     <script>
@@ -2457,7 +2080,18 @@
             if (!localId || !fcId) return;
 
             const rateInput = document.getElementById('hdr-exchange-rate');
-            const rate = rateInput ? (parseFloat(rateInput.value) || 1) : 1;
+            let rate = rateInput ? (parseFloat(rateInput.value) || 1) : 1;
+            const curEl = document.getElementById('hdr-currency');
+            const isBaseSDG = !curEl || curEl.value === 'SDG';
+
+            // If invoice is in SDG, the rate input is locked to 1. Fetch real USD rate for the foreign column.
+            if (isBaseSDG && rate === 1) {
+                try {
+                    const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+                    if (cfg.rateUSD) rate = parseFloat(cfg.rateUSD) || 1;
+                } catch(e) {}
+            }
+
             const localEl = document.getElementById(localId);
             const fcEl = document.getElementById(fcId);
             
@@ -2465,9 +2099,10 @@
                 const pNum = typeof window.parseNum === 'function' ? window.parseNum : function(v) { return parseFloat(v.toString().replace(/,/g, '')) || 0; };
                 const fNum = typeof window.fmtNum === 'function' ? window.fmtNum : function(v) { return v % 1 === 0 ? v : parseFloat(v.toFixed(4)); };
                 
-                const localVal = pNum(localEl.value);
-                const fcVal = rate > 0 ? (localVal / rate) : 0;
-                fcEl.value = fNum(fcVal);
+                const col1Val = pNum(localEl.value);
+                const col2Val = isBaseSDG ? (rate > 0 ? col1Val / rate : 0) : (col1Val * rate);
+                
+                fcEl.value = fNum(col2Val);
                 if (typeof window.recalcAll === 'function') window.recalcAll();
             }
         };
@@ -2484,7 +2119,18 @@
             if (!localId || !fcId) return;
 
             const rateInput = document.getElementById('hdr-exchange-rate');
-            const rate = rateInput ? (parseFloat(rateInput.value) || 1) : 1;
+            let rate = rateInput ? (parseFloat(rateInput.value) || 1) : 1;
+            const curEl = document.getElementById('hdr-currency');
+            const isBaseSDG = !curEl || curEl.value === 'SDG';
+
+            // If invoice is in SDG, the rate input is locked to 1. Fetch real USD rate for the foreign column.
+            if (isBaseSDG && rate === 1) {
+                try {
+                    const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+                    if (cfg.rateUSD) rate = parseFloat(cfg.rateUSD) || 1;
+                } catch(e) {}
+            }
+
             const localEl = document.getElementById(localId);
             const fcEl = document.getElementById(fcId);
             
@@ -2492,9 +2138,10 @@
                 const pNum = typeof window.parseNum === 'function' ? window.parseNum : function(v) { return parseFloat(v.toString().replace(/,/g, '')) || 0; };
                 const fNum = typeof window.fmtNum === 'function' ? window.fmtNum : function(v) { return v % 1 === 0 ? v : parseFloat(v.toFixed(4)); };
                 
-                const fcVal = pNum(fcEl.value);
-                const localVal = fcVal * rate;
-                localEl.value = fNum(localVal);
+                const col2Val = pNum(fcEl.value);
+                const col1Val = isBaseSDG ? (col2Val * rate) : (rate > 0 ? col2Val / rate : 0);
+                
+                localEl.value = fNum(col1Val);
                 if (typeof window.recalcAll === 'function') window.recalcAll();
             }
         };
@@ -2509,6 +2156,7 @@
             if (val === 'SDG') {
                 rateInput.value = '1';
                 rateInput.disabled = true;
+                if (typeof renderGrid === 'function') renderGrid();
                 if (typeof recalcAll === 'function') recalcAll();
                 return;
             }
@@ -2524,6 +2172,7 @@
             
             if (rate > 0) {
                 rateInput.value = rate;
+                if (typeof renderGrid === 'function') renderGrid();
                 if (typeof recalcAll === 'function') recalcAll();
                 return;
             }
@@ -2531,9 +2180,9 @@
             // Step 2: Try to read directly from localStorage settings (any mode)
             try {
                 const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
-                if (val === 'USD' && cfg.rateUSD) { rateInput.value = cfg.rateUSD; if (typeof recalcAll === 'function') recalcAll(); return; }
-                if (val === 'SAR' && cfg.rateSAR) { rateInput.value = cfg.rateSAR; if (typeof recalcAll === 'function') recalcAll(); return; }
-                if (val === 'AED' && cfg.rateAED) { rateInput.value = cfg.rateAED; if (typeof recalcAll === 'function') recalcAll(); return; }
+                if (val === 'USD' && cfg.rateUSD) { rateInput.value = cfg.rateUSD; if (typeof renderGrid === 'function') renderGrid(); if (typeof recalcAll === 'function') recalcAll(); return; }
+                if (val === 'SAR' && cfg.rateSAR) { rateInput.value = cfg.rateSAR; if (typeof renderGrid === 'function') renderGrid(); if (typeof recalcAll === 'function') recalcAll(); return; }
+                if (val === 'AED' && cfg.rateAED) { rateInput.value = cfg.rateAED; if (typeof renderGrid === 'function') renderGrid(); if (typeof recalcAll === 'function') recalcAll(); return; }
             } catch(e) {}
             
             // Step 3: Try to fetch from API directly (central rate)
@@ -2553,6 +2202,7 @@
                             if (val === 'EGP') finalRate = parseFloat((usdRate / 50.0).toFixed(4));
                             
                             rateInput.value = finalRate;
+                            if (typeof renderGrid === 'function') renderGrid();
                             if (typeof recalcAll === 'function') recalcAll();
                             return;
                         }
@@ -2568,9 +2218,23 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // No need for auto-init - currency defaults to SDG
-            // handleCurrencyChange only needed when user explicitly changes currency
+            loadHubTransactions();
         });
+
+        if (window.APP_READY) {
+            loadHubTransactions();
+        } else {
+            document.addEventListener('DBReady', () => {
+                loadHubTransactions();
+            });
+        }
+
+        window.addEventListener('storage', (ev) => {
+            if (!ev.key || ev.key.includes('erp_purchase_invoices_v1')) {
+                loadHubTransactions();
+            }
+        });
+
 
         function showPurchaseHub() {
             document.getElementById('purchase-editor-view').style.display = 'none';
@@ -2730,24 +2394,27 @@
             }
         }
 
+        if (typeof window.fmtNum !== 'function') {
+            window.fmtNum = function(val) {
+                const n = parseFloat(val) || 0;
+                return n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+            };
+        }
+
         function loadHubTransactions() {
             const tbody = document.getElementById('hub-transactions-body');
             const emptyState = document.getElementById('hub-empty-state');
+            if (!tbody) return;
             
-            window._hubPurchCache = window._hubPurchCache || { raw: null, obj: [] };
             const savedData = localStorage.getItem('erp_purchase_invoices_v1');
-            let invoices = window._hubPurchCache.obj;
-            if (savedData !== null && window._hubPurchCache.raw !== savedData) {
+            let invoices = [];
+            if (savedData) {
                 try { 
-                    let parsed = JSON.parse(savedData) || []; 
+                    let parsed = typeof savedData === 'string' ? JSON.parse(savedData) : savedData; 
                     if (Array.isArray(parsed)) {
-                        invoices = parsed.filter(inv => !inv.deleted && !inv.isGRN && !inv.isReturn);
-                    } else {
-                        invoices = [];
+                        invoices = parsed.filter(inv => inv && !inv.deleted && !inv.isGRN && !inv.isReturn);
                     }
                 } catch(e) { invoices = []; }
-                window._hubPurchCache.raw = savedData;
-                window._hubPurchCache.obj = invoices;
             }
             
             invoices = [...invoices];
@@ -3454,139 +3121,7 @@ function playScanBeep() {
     }
 }
 </script>
-<!-- ═══ ADVANCED COLUMN SETTINGS MODAL ═══ -->
-<div class="modal-overlay" id="advanced-col-settings-modal">
-    <div class="modal-card" style="max-width: 450px;">
-        <div class="modal-header">
-            <h3>⚙️ إعدادات العمود المتقدمة</h3>
-            <button class="modal-close" onclick="closeModal('advanced-col-settings-modal')" style="color:#fff;">✕</button>
-        </div>
-        <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px; max-height: 60vh; overflow-y: auto;">
-            <input type="hidden" id="edit-col-id">
-            
-            <div class="v-form-group">
-                <label class="v-label">الاسم المخصص (الظاهر للعميل / المستخدم)</label>
-                <input type="text" class="v-input" id="edit-col-alias" placeholder="الاسم..." oninput="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
-            </div>
-            
-            <div style="display: flex; gap: 10px;">
-                <div class="v-form-group" style="flex: 1;">
-                    <label class="v-label">لون النص</label>
-                    <input type="color" class="v-input" id="edit-col-color" style="height: 40px; padding: 2px;" oninput="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
-                </div>
-                <div class="v-form-group" style="flex: 1;">
-                    <label class="v-label">لون الخلفية</label>
-                    <input type="color" class="v-input" id="edit-col-bgcolor" style="height: 40px; padding: 2px;" oninput="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
-                </div>
-                <div class="v-form-group" style="flex: 1;">
-                    <label class="v-label">حجم الخط</label>
-                    <input type="text" class="v-input" id="edit-col-fontsize" placeholder="مثال: 0.95rem" oninput="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
-                </div>
-            </div>
-            
-            <div style="display: flex; gap: 10px;">
-                <div class="v-form-group" style="flex: 1;">
-                    <label class="v-label">سماكة الخط</label>
-                    <select class="v-input" id="edit-col-fontweight" onchange="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
-                        <option value="400">عادي (Normal)</option>
-                        <option value="700">عريض (Bold)</option>
-                        <option value="900">عريض جداً (Extra Bold)</option>
-                    </select>
-                </div>
-                <div class="v-form-group" style="flex: 1;">
-                    <label class="v-label">المحاذاة</label>
-                    <select class="v-input" id="edit-col-align" onchange="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
-                        <option value="right">يمين</option>
-                        <option value="center">وسط</option>
-                        <option value="left">يسار</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div style="display: flex; gap: 10px;">
-                <div class="v-form-group" style="flex: 1;">
-                    <label class="v-label">الخانات العشرية (للأرقام)</label>
-                    <input type="number" min="0" max="4" class="v-input" id="edit-col-decimals" placeholder="0" oninput="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
-                </div>
-                <div class="v-form-group" style="flex: 1;">
-                    <label class="v-label">الفاصلة الألفية</label>
-                    <select class="v-input" id="edit-col-thousands" onchange="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
-                        <option value=",">فاصلة ( , )</option>
-                        <option value=".">نقطة ( . )</option>
-                        <option value="">بدون فاصلة</option>
-                    </select>
-                </div>
-                <div class="v-form-group" style="flex: 1;">
-                    <label class="v-label">عرض العمود (المساحة)</label>
-                    <input type="text" class="v-input" id="edit-col-width" placeholder="مثال: 120px" oninput="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
-                </div>
-            </div>
-            
-            <div style="margin-top: 5px; margin-bottom: 5px; padding: 10px; background: rgba(251, 191, 36, 0.1); border-radius: 8px; border: 1px dashed rgba(251, 191, 36, 0.5);">
-                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: #fbbf24; cursor: pointer; font-weight: bold;">
-                    <input type="checkbox" id="edit-col-apply-all" style="width: 18px; height: 18px;" onchange="if(typeof previewAdvancedColSettings === 'function') previewAdvancedColSettings()">
-                    <span>تطبيق هذه التنسيقات (اللون، الخط، المساحة) على جميع الأعمدة حفظاً دائماً</span>
-                </label>
-            </div>
-            
-            <hr style="border-color: rgba(255,255,255,0.1); margin: 10px 0;">
-            <h4 style="color: #38bdf8; margin-bottom: 5px;">👁️ إظهار / إخفاء جميع الأعمدة</h4>
-            <div id="global-col-visibility-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
-                <!-- Populated dynamically -->
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn-action btn-draft" style="width:auto; padding:8px 16px;" onclick="if(typeof cancelAdvancedColSettings === 'function') cancelAdvancedColSettings(); else closeModal('advanced-col-settings-modal');">إلغاء</button>
-            <button class="btn-action btn-submit" style="width:auto; padding:8px 16px;" onclick="saveAdvancedColSettings()">💾 حفظ جميع الإعدادات</button>
-        </div>
-    </div>
-</div>
 
-<script>
-// Make the advanced settings modal draggable
-const advancedModal = document.getElementById('advanced-col-settings-modal');
-const advancedModalCard = advancedModal.querySelector('.modal-card');
-const advancedModalHeader = advancedModal.querySelector('.modal-header');
-
-let isDraggingModal = false;
-let dragStartX, dragStartY, initialLeft, initialTop;
-
-advancedModalHeader.style.cursor = 'move';
-
-advancedModalHeader.addEventListener('mousedown', (e) => {
-    isDraggingModal = true;
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
-    
-    const rect = advancedModalCard.getBoundingClientRect();
-    initialLeft = rect.left;
-    initialTop = rect.top;
-    
-    advancedModalCard.style.position = 'absolute';
-    advancedModalCard.style.margin = '0';
-    advancedModalCard.style.left = initialLeft + 'px';
-    advancedModalCard.style.top = initialTop + 'px';
-    advancedModalCard.style.transform = 'none';
-    advancedModalCard.style.transition = 'none';
-});
-
-document.addEventListener('mousemove', (e) => {
-    if (!isDraggingModal) return;
-    
-    const dx = e.clientX - dragStartX;
-    const dy = e.clientY - dragStartY;
-    
-    advancedModalCard.style.left = (initialLeft + dx) + 'px';
-    advancedModalCard.style.top = (initialTop + dy) + 'px';
-});
-
-document.addEventListener('mouseup', () => {
-    if (isDraggingModal) {
-        isDraggingModal = false;
-        advancedModalCard.style.transition = ''; // restore transition
-    }
-});
-</script>
 
 <!-- Numeric Custom Context Menu -->
 <div id="num-context-menu" class="glass-panel" style="
@@ -3684,10 +3219,10 @@ document.addEventListener('mouseup', () => {
 
         let css = '';
         if (color) {
-            css += `.amount, .val, .g-input, .g-readonly, .ctrl-input, .tot-input { color: ${color} !important; }\n`;
+            css += `.amount, .val, .g-input, .g-readonly, .ctrl-input, .tot-input { color: ${color}; }\n`;
         }
         if (size) {
-            css += `.amount, .val, .g-input, .g-readonly, .ctrl-input, .tot-input { font-size: ${size} !important; }\n`;
+            css += `.amount, .val, .g-input, .g-readonly, .ctrl-input, .tot-input { font-size: ${size}; }\n`;
         }
         if (font) {
             let fontStack = '';
@@ -3696,7 +3231,7 @@ document.addEventListener('mouseup', () => {
             else if (font === 'JetBrains Mono') fontStack = "'JetBrains Mono', monospace";
             
             if (fontStack) {
-                css += `.amount, .val, .g-input, .g-readonly, .ctrl-input, .tot-input { font-family: ${fontStack} !important; }\n`;
+                css += `.amount, .val, .g-input, .g-readonly, .ctrl-input, .tot-input { font-family: ${fontStack}; }\n`;
             }
         }
 

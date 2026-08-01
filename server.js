@@ -34,6 +34,13 @@ http.createServer((req, res) => {
 
     let reqUrl = req.url.split('?')[0];
 
+    // Ignore favicon requests to prevent 404 errors in the console
+    if (reqUrl === '/favicon.ico') {
+        res.writeHead(204);
+        res.end();
+        return;
+    }
+
     // Rewrite .html to .php if the .php file exists (e.g. /register.html?plan=4 -> /register.php?plan=4)
     if (reqUrl.endsWith('.html')) {
         const phpFile = path.join(DIR, reqUrl.replace(/\.html$/, '.php'));

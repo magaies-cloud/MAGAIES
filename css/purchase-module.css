@@ -1,0 +1,450 @@
+/* ═════════════════════════════════════════════════════════════════════
+   ⚡ MAGAIEES ERP 2026 - PURCHASE MODULE STYLESHEET (css/purchase-module.css)
+   ═════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. CORE THEME TOKENS & GLASSMORPHISM LAYER ARCHITECTURE ── */
+:root {
+    --bg-color: #050308;
+    --velvet-bg: #050308;
+    --velvet-panel: rgba(18, 15, 25, 0.65);
+    --velvet-panel-hover: rgba(28, 24, 38, 0.85);
+    --gold-primary: #38bdf8;
+    --gold-glow: rgba(56, 189, 248, 0.4);
+    --gold-border: rgba(255, 255, 255, 0.08);
+    --text-main: #f3f4f6;
+    --text-dim: #9ca3af;
+    --danger-color: #ef4444;
+    --success-color: #10b981;
+    --primary-accent: #6366f1;
+    --theme-pink: #ec4899;
+    --theme-blue: #3b82f6;
+}
+
+.glass-panel,
+.neon-glass-panel,
+.panel,
+.neo-card,
+.pro-panel,
+.purchase-glass-card,
+.sales-glass-card,
+.smart-filter-bar,
+.toast,
+.custom-dropdown-list {
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+}
+
+.modal-overlay {
+    z-index: 999999 !important;
+}
+
+.toast-container {
+    z-index: 1000000 !important;
+}
+
+/* Custom Dropdown Overrides for High Layering & Floating Above Table */
+.custom-dropdown-list {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    margin-top: 4px !important;
+    max-height: 280px !important;
+    overflow-y: auto !important;
+    background: rgba(15, 23, 42, 0.98) !important;
+    backdrop-filter: blur(20px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(200%) !important;
+    border: 1px solid rgba(56, 189, 248, 0.4) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.95), 0 0 20px rgba(56, 189, 248, 0.25) !important;
+    z-index: 9999999 !important;
+    display: none;
+    flex-direction: column;
+    min-width: 260px !important;
+}
+
+.custom-dropdown-list.show {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.purchase-top:has(.custom-dropdown-list.show),
+.purchase-top-row:has(.custom-dropdown-list.show),
+.purchase-glass-card:has(.custom-dropdown-list.show),
+.h-form-group:has(.custom-dropdown-list.show),
+.h-input-wrapper:has(.custom-dropdown-list.show),
+.custom-dropdown:has(.custom-dropdown-list.show),
+.custom-dropdown-input-wrap:has(.custom-dropdown-list.show),
+.purchase-bottom:has(.custom-dropdown-list.show),
+.table-container:has(.custom-dropdown-list.show),
+.grid-scroll-wrap:has(.custom-dropdown-list.show),
+table:has(.custom-dropdown-list.show),
+tbody:has(.custom-dropdown-list.show),
+tr:has(.custom-dropdown-list.show),
+td:has(.custom-dropdown-list.show),
+.m-card:has(.custom-dropdown-list.show),
+.m-card-full:has(.custom-dropdown-list.show) {
+    z-index: 999999 !important;
+    position: relative !important;
+    overflow: visible !important;
+}
+
+.pos-grid td {
+    position: relative;
+}
+
+/* ── 2. HUB ACTION CARDS (SPRING HOVER PHYSICS & SHIMMER SWEEP) ── */
+.hub-action-card {
+    border-radius: 14px;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    height: 84px;
+    box-sizing: border-box;
+}
+
+.hub-action-card::after {
+    content: "";
+    position: absolute;
+    top: 0; left: -100%;
+    width: 50%; height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-25deg);
+    transition: all 0.6s ease;
+}
+
+.hub-action-card:hover::after {
+    left: 200%;
+}
+
+.hub-action-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 14px 45px 0 rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.hub-action-card:active {
+    transform: translateY(-1px) scale(0.99);
+}
+
+.hub-action-card .icon {
+    font-size: 1.8rem;
+    margin-bottom: 0;
+    padding: 8px;
+    border-radius: 12px;
+    transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    box-sizing: border-box;
+}
+
+.hub-action-card:hover .icon {
+    transform: scale(1.15) rotate(-6deg);
+}
+
+.hub-action-card .text-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: right;
+}
+
+.hub-action-card .title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin-bottom: 3px;
+    letter-spacing: 0.5px;
+}
+
+.hub-action-card .subtitle {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-align: right;
+    margin: 0;
+}
+
+/* Card Themes - Dark Defaults */
+.card-orange {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(180, 83, 9, 0.08)) !important;
+    border: 1px solid rgba(245, 158, 11, 0.35) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
+}
+.card-orange .icon { color: #f59e0b; background: rgba(245, 158, 11, 0.12); }
+.card-orange .title { color: #f59e0b !important; }
+.card-orange .subtitle { color: rgba(255, 255, 255, 0.75) !important; }
+.card-orange:hover {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.38), rgba(180, 83, 9, 0.18)) !important;
+    border-color: rgba(245, 158, 11, 0.75) !important;
+    box-shadow: 0 14px 45px 0 rgba(245, 158, 11, 0.35), inset 0 0 20px rgba(245, 158, 11, 0.4) !important;
+}
+
+.card-blue {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.22), rgba(3, 105, 161, 0.08)) !important;
+    border: 1px solid rgba(14, 165, 233, 0.35) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
+}
+.card-blue .icon { color: #38bdf8; background: rgba(56, 189, 248, 0.12); }
+.card-blue .title { color: #38bdf8 !important; }
+.card-blue .subtitle { color: rgba(255, 255, 255, 0.75) !important; }
+.card-blue:hover {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.38), rgba(3, 105, 161, 0.18)) !important;
+    border-color: rgba(14, 165, 233, 0.75) !important;
+    box-shadow: 0 14px 45px 0 rgba(14, 165, 233, 0.35), inset 0 0 20px rgba(14, 165, 233, 0.4) !important;
+}
+
+.card-pink {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.22), rgba(190, 24, 74, 0.08)) !important;
+    border: 1px solid rgba(236, 72, 153, 0.35) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
+}
+.card-pink .icon { color: #f43f5e; background: rgba(244, 63, 94, 0.12); }
+.card-pink .title { color: #f43f5e !important; }
+.card-pink .subtitle { color: rgba(255, 255, 255, 0.75) !important; }
+.card-pink:hover {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.38), rgba(190, 24, 74, 0.18)) !important;
+    border-color: rgba(236, 72, 153, 0.75) !important;
+    box-shadow: 0 14px 45px 0 rgba(236, 72, 153, 0.35), inset 0 0 20px rgba(236, 72, 153, 0.4) !important;
+}
+
+.card-purple {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.22), rgba(109, 40, 217, 0.08)) !important;
+    border: 1px solid rgba(168, 85, 247, 0.35) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
+}
+.card-purple .icon { color: #a855f7; background: rgba(168, 85, 247, 0.12); }
+.card-purple .title { color: #a855f7 !important; }
+.card-purple .subtitle { color: rgba(255, 255, 255, 0.75) !important; }
+.card-purple:hover {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.38), rgba(109, 40, 217, 0.18)) !important;
+    border-color: rgba(168, 85, 247, 0.75) !important;
+    box-shadow: 0 14px 45px 0 rgba(168, 85, 247, 0.35), inset 0 0 20px rgba(168, 85, 247, 0.4) !important;
+}
+
+/* Light Theme Overrides for Action Cards */
+:root.light-theme .card-orange {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(251, 191, 36, 0.05)) !important;
+    border: 1px solid rgba(245, 158, 11, 0.32) !important;
+    box-shadow: 0 8px 32px 0 rgba(245, 158, 11, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
+}
+:root.light-theme .card-orange .icon { color: #d97706 !important; background: rgba(245, 158, 11, 0.12) !important; }
+:root.light-theme .card-orange .title { color: #d97706 !important; }
+:root.light-theme .card-orange .subtitle { color: rgba(217, 119, 6, 0.85) !important; }
+
+:root.light-theme .card-blue {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.16), rgba(56, 189, 248, 0.05)) !important;
+    border: 1px solid rgba(14, 165, 233, 0.32) !important;
+    box-shadow: 0 8px 32px 0 rgba(14, 165, 233, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
+}
+:root.light-theme .card-blue .icon { color: #0284c7 !important; background: rgba(14, 165, 233, 0.12) !important; }
+:root.light-theme .card-blue .title { color: #0284c7 !important; }
+:root.light-theme .card-blue .subtitle { color: rgba(2, 132, 199, 0.85) !important; }
+
+:root.light-theme .card-pink {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.16), rgba(244, 114, 182, 0.05)) !important;
+    border: 1px solid rgba(236, 72, 153, 0.32) !important;
+    box-shadow: 0 8px 32px 0 rgba(236, 72, 153, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
+}
+:root.light-theme .card-pink .icon { color: #db2777 !important; background: rgba(236, 72, 153, 0.12) !important; }
+:root.light-theme .card-pink .title { color: #db2777 !important; }
+:root.light-theme .card-pink .subtitle { color: rgba(219, 39, 119, 0.85) !important; }
+
+:root.light-theme .card-purple {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.16), rgba(192, 132, 252, 0.05)) !important;
+    border: 1px solid rgba(168, 85, 247, 0.32) !important;
+    box-shadow: 0 8px 32px 0 rgba(168, 85, 247, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
+}
+:root.light-theme .card-purple .icon { color: #7c3aed !important; background: rgba(168, 85, 247, 0.12) !important; }
+:root.light-theme .card-purple .title { color: #7c3aed !important; }
+:root.light-theme .card-purple .subtitle { color: rgba(124, 58, 237, 0.85) !important; }
+
+/* ── 3. LIVE CLOUD SYNC BADGE PULSE ANIMATION ── */
+.sync-live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+    transition: all 0.3s ease;
+}
+
+.sync-live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: #34d399;
+    box-shadow: 0 0 8px #34d399;
+    animation: syncPulse 2s infinite ease-in-out;
+}
+
+@keyframes syncPulse {
+    0% { transform: scale(0.9); opacity: 0.7; box-shadow: 0 0 4px #34d399; }
+    50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 12px #34d399; }
+    100% { transform: scale(0.9); opacity: 0.7; box-shadow: 0 0 4px #34d399; }
+}
+
+/* ── 4. TIME PERIOD BUTTON MICRO-INTERACTIONS ── */
+.hub-time-btn {
+    position: relative;
+    outline: none;
+    transition: all 0.25s ease;
+}
+
+.hub-time-btn:active {
+    transform: scale(0.95);
+}
+
+.hub-time-btn.active {
+    background: rgba(56, 189, 248, 0.18) !important;
+    color: #38bdf8 !important;
+    box-shadow: inset 0 0 8px rgba(56, 189, 248, 0.2) !important;
+}
+
+/* ── 5. FORM CONTROLS & SMART FILTER BAR ── */
+.ctrl-input, .v-input, .system-currency-select {
+    background: rgba(10, 8, 16, 0.85) !important;
+    border: 1px solid rgba(56, 189, 248, 0.25) !important;
+    border-radius: 8px !important;
+    color: #f8fafc !important;
+    padding: 8px 12px !important;
+    font-size: 1.15rem !important;
+    font-weight: 500 !important;
+    outline: none !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.ctrl-input:focus, .v-input:focus, .system-currency-select:focus {
+    background: #020104 !important;
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.4), inset 0 1px 2px rgba(0,0,0,0.6) !important;
+    transform: translateY(-1px);
+}
+
+/* ── 6. UNIVERSAL LIGHT THEME OVERRIDES & NEON COLOR CORRECTIONS ── */
+.light-theme .val { color: #0f172a !important; text-shadow: none !important; }
+.light-theme .neo-card-title { color: #0ea5e9 !important; }
+
+:root.light-theme body,
+:root.light-theme .ambient-bg {
+    background: #f8fafc !important;
+}
+
+:root.light-theme .glass-panel,
+:root.light-theme .neo-card,
+:root.light-theme .summary-card,
+:root.light-theme .filter-panel,
+:root.light-theme .chart-card,
+:root.light-theme .kpi-card,
+:root.light-theme .premium-header,
+:root.light-theme .top-header,
+:root.light-theme .header-area {
+    background: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+    color: #0f172a !important;
+}
+
+:root.light-theme .glass-panel *,
+:root.light-theme .neo-card *,
+:root.light-theme .summary-card * {
+    text-shadow: none !important;
+}
+
+:root.light-theme table.pro-table th,
+:root.light-theme .pos-grid thead th,
+:root.light-theme .ledger-table th,
+:root.light-theme .report-table th {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+}
+
+:root.light-theme table.pro-table td,
+:root.light-theme .pos-grid tbody td,
+:root.light-theme .ledger-table td,
+:root.light-theme .report-table td {
+    color: #1e293b !important;
+    border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+}
+
+:root.light-theme table.pro-table tbody tr:hover td,
+:root.light-theme .pos-grid tbody tr:hover td,
+:root.light-theme .ledger-table tbody tr:hover td,
+:root.light-theme .report-table tbody tr:hover td {
+    background: rgba(0,0,0,0.02) !important;
+}
+
+:root.light-theme .h-label,
+:root.light-theme .form-label,
+:root.light-theme .tot-lbl,
+:root.light-theme .lbl,
+:root.light-theme label,
+:root.light-theme .table-header {
+    color: #334155 !important;
+}
+
+:root.light-theme .tot-val,
+:root.light-theme .val {
+    color: #0f172a !important;
+}
+
+:root.light-theme .h-form-group,
+:root.light-theme .control-panel {
+    background: transparent !important;
+    border-color: rgba(0,0,0,0.08) !important;
+}
+
+:root.light-theme .modern-btn {
+    color: #1e293b !important;
+}
+
+:root.light-theme .modern-btn:hover {
+    color: #0f172a !important;
+}
+
+/* Neon text colors correction for light theme */
+:root.light-theme .text-emerald-400,
+:root.light-theme span[style*="color: #34d399"],
+:root.light-theme span[style*="color:#34d399"] {
+    color: #059669 !important;
+}
+
+:root.light-theme .text-rose-400,
+:root.light-theme span[style*="color: #f87171"],
+:root.light-theme span[style*="color:#f87171"] {
+    color: #e11d48 !important;
+}
+
+:root.light-theme .text-sky-400,
+:root.light-theme span[style*="color: #38bdf8"],
+:root.light-theme span[style*="color:#38bdf8"] {
+    color: #0284c7 !important;
+}
+
+:root.light-theme .text-purple-400,
+:root.light-theme span[style*="color: #c084fc"],
+:root.light-theme span[style*="color:#c084fc"] {
+    color: #7c3aed !important;
+}
+
+:root.light-theme .text-amber-400,
+:root.light-theme span[style*="color: #fbbf24"],
+:root.light-theme span[style*="color:#fbbf24"] {
+    color: #b45309 !important;
+}

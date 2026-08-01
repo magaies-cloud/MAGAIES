@@ -164,16 +164,18 @@ JSON.parse = function(val) {
             }
         });
 
-        // 2. SLOW PATH: Update from IndexedDB in background (async, non-blocking)
+        // 2. SLOW PATH: Update from IndexedDB in background ONLY if not already loaded from localStorage
         try {
             Promise.all(syncKeys.map(async (key) => {
                 const tenantKey = window.getTenantKey(key);
-                try {
-                    const val = await localforage.getItem(tenantKey);
-                    if (val !== null && val !== window.DB_STORE[tenantKey]) {
-                        window.DB_STORE[tenantKey] = val;
-                    }
-                } catch(err) {}
+                if (!window.DB_STORE[tenantKey]) {
+                    try {
+                        const val = await localforage.getItem(tenantKey);
+                        if (val !== null && !window.DB_STORE[tenantKey]) {
+                            window.DB_STORE[tenantKey] = val;
+                        }
+                    } catch(err) {}
+                }
             })).catch(e => {});
         } catch (e) {}
 
@@ -1599,16 +1601,30 @@ JSON.parse = function(val) {
                         if (data.data[key]) {
                             const pk = window.getTenantKey(key);
                             const localDataStr = window.DB_STORE[pk] || localGetItem(pk);
-                            let localData = [];
-                            try { localData = JSON.parse(localDataStr || '[]'); } catch(e){}
-                            // ONLY overwrite if server has data, or if local is empty. Do not wipe local data with empty server data!
-                            if (data.data[key].length > 0 || localData.length === 0) {
-                                const valStr = JSON.stringify(data.data[key]);
+                            const serverVal = data.data[key];
+
+                            let serverHasData = false;
+                            if (Array.isArray(serverVal)) {
+                                serverHasData = serverVal.length > 0;
+                            } else if (typeof serverVal === 'object' && serverVal !== null) {
+                                serverHasData = Object.keys(serverVal).length > 0;
+                            }
+
+                            let localIsEmpty = !localDataStr || localDataStr === '{}' || localDataStr === '[]';
+
+                            // NEVER overwrite existing local settings with empty server data
+                            if (key.includes('settings') && !serverHasData && !localIsEmpty) {
+                                console.log(`Skipping settings sync overwrite: local has settings, server has empty.`);
+                                return;
+                            }
+
+                            if (serverHasData || localIsEmpty) {
+                                const valStr = typeof serverVal === 'string' ? serverVal : JSON.stringify(serverVal);
                                 window.DB_STORE[pk] = valStr;
                                 localforage.setItem(pk, valStr).catch(e=>{});
                                 try { localSetItem(pk, valStr); } catch(e){}
                             } else {
-                                console.log(`Skipping overwrite of ${key}: server sent empty array but local has data. You should PUSH to restore server.`);
+                                console.log(`Skipping overwrite of ${key}: server sent empty data but local has data.`);
                             }
                         }
                     });
@@ -3081,6 +3097,10 @@ function updateExchangeRateUI(data) {
     const exTrend = document.getElementById('global-exchange-rate-trend');
 
     if (exBox && exVal && data) {
+        if (data.rate) {
+            window._cachedGlobalRate = parseFloat(data.rate);
+            localStorage.setItem('erp_cached_global_rate', window._cachedGlobalRate);
+        }
         if (data.visible) {
             exBox.style.display = 'block';
             exVal.innerText = parseFloat(data.rate).toLocaleString('en-US');
@@ -3162,9 +3182,11 @@ function updateExchangeRateUI(data) {
     }
 }
 
-// --- EXCHANGE RATE: Load on page load (public endpoint, no token needed) ---
+// --- EXCHANGE RATE: Load on page load ---
 document.addEventListener('DOMContentLoaded', () => {
-    fetch('api_index.php/exchange-rate')
+    fetch('api_index.php/exchange-rate', {
+        headers: { "Authorization": `Bearer ${localStorage.getItem('authToken')}` }
+    })
         .then(res => res.json())
         .then(data => {
             if (data) updateExchangeRateUI(data);
@@ -3362,7 +3384,8 @@ function showSystemMessages(messages, index) {
 window.getCurrencyOptionsHtml = function(selectedValue) {
     let settings = {};
     try {
-        const str = localStorage.getItem('erp_settings_v1');
+        const tk = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1';
+        const str = localStorage.getItem(tk) || localStorage.getItem('erp_settings_v1');
         settings = JSON.parse(str || '{}');
     } catch(e) {}
     
@@ -3409,6 +3432,27 @@ window.getExchangeRateForCurrency = function(currency) {
         if (str) settings = JSON.parse(str);
     } catch(e) {}
     
+    // Check fallback sources for USD rate if missing
+    let fallbackUsdRate = 0;
+    if (!settings.rateUSD) {
+        try { 
+            const dedicated = localStorage.getItem('erp_rate_usd');
+            if (dedicated) fallbackUsdRate = parseFloat(dedicated);
+        } catch(e) {}
+        
+        if (fallbackUsdRate <= 0) {
+            try {
+                const cookieMatch = document.cookie.match(/erp_rate_usd_backup=([0-9.]+)/);
+                if (cookieMatch) fallbackUsdRate = parseFloat(cookieMatch[1]);
+            } catch(e) {}
+        }
+        
+        if (fallbackUsdRate > 0) {
+            settings.rateUSD = fallbackUsdRate;
+            settings.exchangeMode = settings.exchangeMode || 'manual'; // assume manual if we had to fallback to local dedicated
+        }
+    }
+    
     const mode = settings.exchangeMode || 'global';
     
     if (mode === 'manual') {
@@ -3442,6 +3486,12 @@ window.getExchangeRateForCurrency = function(currency) {
     if (centralRate <= 0 && window._cachedGlobalRate) {
         centralRate = window._cachedGlobalRate;
     }
+    if (centralRate <= 0) {
+        try {
+            const cachedRateStr = localStorage.getItem('erp_cached_global_rate');
+            if (cachedRateStr) centralRate = parseFloat(cachedRateStr);
+        } catch(e) {}
+    }
     
     if (centralRate > 0) {
         if (currency === 'USD') return centralRate;
@@ -3461,11 +3511,14 @@ window.getExchangeRateForCurrency = function(currency) {
 // Pre-fetch the global exchange rate so it's available immediately
 (function() {
     try {
-        fetch('api_index.php/exchange-rate')
+        fetch('api_index.php/exchange-rate', {
+            headers: { "Authorization": `Bearer ${localStorage.getItem('authToken')}` }
+        })
             .then(r => r.json())
             .then(d => {
-                if (d && d.visible && d.rate) {
+                if (d && d.rate) {
                     window._cachedGlobalRate = parseFloat(d.rate);
+                    localStorage.setItem('erp_cached_global_rate', window._cachedGlobalRate);
                 }
             }).catch(() => {});
     } catch(e) {}

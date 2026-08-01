@@ -367,8 +367,11 @@
         ];
 
         // 1. Donut Chart
+        if (window._autoDonutChart) {
+            window._autoDonutChart.destroy();
+        }
         const donutCtx = document.getElementById('autoDonutChart').getContext('2d');
-        new Chart(donutCtx, {
+        window._autoDonutChart = new Chart(donutCtx, {
             type: 'doughnut',
             data: {
                 labels: donutLabels,
@@ -404,6 +407,9 @@
         });
 
         // 2. Bar Chart
+        if (window._autoBarChart) {
+            window._autoBarChart.destroy();
+        }
         const barCtx = document.getElementById('autoBarChart').getContext('2d');
         // Render bar chart with all datasets if there are multiple columns
         const datasets = tableData.datasets.map((ds, idx) => ({
@@ -415,7 +421,7 @@
             borderRadius: 5
         }));
 
-        new Chart(barCtx, {
+        window._autoBarChart = new Chart(barCtx, {
             type: 'bar',
             data: {
                 labels: tableData.labels,

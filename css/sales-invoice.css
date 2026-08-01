@@ -404,13 +404,13 @@ body {
 /* Grid cell inputs */
 .g-input {
     width: 100%;
-    padding: 5px 6px;
+    padding: 10px 12px;
     border-radius: 6px;
     border: 1px solid rgba(255,255,255,0.04);
     background: rgba(0,0,0,0.2);
     color: var(--text-primary);
     font-family: var(--font-base);
-    font-size: 0.78rem;
+    font-size: 1.15rem;
     font-weight: 600;
     text-align: center;
     outline: none;

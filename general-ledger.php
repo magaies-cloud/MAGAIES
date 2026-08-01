@@ -275,14 +275,17 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         <div class="filter-group" style="background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.3); border-radius: 12px; padding: 15px; text-align: center;">
             <div style="font-size: 0.85rem; font-weight: 800; color: #34d399; margin-bottom: 5px;">إجمالي المدين</div>
             <div id="launcher-total-debit" class="summary-card-val">0.00</div>
+            <div id="launcher-total-debit-foreign" style="font-size: 0.9rem; margin-top: 5px; opacity: 0.8; font-family: 'JetBrains Mono', monospace;">0.00</div>
         </div>
         <div class="filter-group" style="background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.3); border-radius: 12px; padding: 15px; text-align: center;">
             <div style="font-size: 0.85rem; font-weight: 800; color: #f87171; margin-bottom: 5px;">إجمالي الدائن</div>
             <div id="launcher-total-credit" class="summary-card-val">0.00</div>
+            <div id="launcher-total-credit-foreign" style="font-size: 0.9rem; margin-top: 5px; opacity: 0.8; font-family: 'JetBrains Mono', monospace;">0.00</div>
         </div>
         <div class="filter-group" style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 15px; text-align: center;">
             <div style="font-size: 0.85rem; font-weight: 800; color: #38bdf8; margin-bottom: 5px;">الرصيد التراكمي</div>
             <div id="launcher-total-balance" class="summary-card-val">0.00</div>
+            <div id="launcher-total-balance-foreign" style="font-size: 0.9rem; margin-top: 5px; opacity: 0.8; font-family: 'JetBrains Mono', monospace;">0.00</div>
         </div>
     </div>
 
@@ -302,11 +305,14 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
                     <th width="90">مدين</th>
                     <th width="90">دائن</th>
                     <th width="100">الرصيد</th>
+                    <th width="90">مدين أجنبي</th>
+                    <th width="90">دائن أجنبي</th>
+                    <th width="120">الرصيد التراكمي الأجنبي</th>
                 </tr>
             </thead>
             <tbody id="recent-tbody">
                 <!-- Populated via JS -->
-                <tr><td colspan="10" style="text-align:center; padding: 20px;">جاري تحميل البيانات...</td></tr>
+                <tr><td colspan="13" style="text-align:center; padding: 20px;">جاري تحميل البيانات...</td></tr>
             </tbody>
         </table>
     </div>

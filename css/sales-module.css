@@ -1,0 +1,39 @@
+/* ═════════════════════════════════════════════════════════════════════
+   ⚡ MAGAIEES ERP 2026 - SALES MODULE STYLESHEET (css/sales-module.css)
+   ═════════════════════════════════════════════════════════════════════ */
+
+.sales-grid-wrap {
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.pos-item-card {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.pos-item-card:hover {
+    transform: translateY(-3px) scale(1.02);
+    border-color: #38bdf8;
+    box-shadow: 0 10px 30px rgba(56, 189, 248, 0.2);
+}
+
+/* Universal Light Theme Support for Sales */
+:root.light-theme .sales-grid-wrap {
+    background: #ffffff !important;
+    border-color: rgba(0,0,0,0.08) !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
+}
+
+:root.light-theme .pos-item-card {
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}

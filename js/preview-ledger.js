@@ -1999,7 +1999,7 @@ function collectAllTransactions() {
         const amount = parseNum(v.amount);
         const amountLocal = parseNum(v.amountLocal || (amount * rate));
         const valLoc = amountLocal;
-        const valFc = isBaseSDG ? 0 : amount;
+        const valFc = isBaseSDG ? (amountLocal / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amount;
 
         // Receiving side (Safe/Bank)
         txns.push({
@@ -2040,14 +2040,14 @@ function collectAllTransactions() {
         const amount = parseNum(v.amount);
         const amountLocal = parseNum(v.amountLocal || (amount * rate));
         const valLoc = amountLocal;
-        const valFc = isBaseSDG ? 0 : amount;
+        const valFc = isBaseSDG ? (amountLocal / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amount;
 
         const method = v.paymentMethod || 'cash';
         if (method === 'mobile' && v.bankTransfers && v.bankTransfers.length > 0) {
             v.bankTransfers.forEach(bt => {
                 const amt = parseNum(bt.amount);
                 const amtLoc = isBaseSDG ? amt : amt * rate;
-                const amtFc = isBaseSDG ? 0 : amt;
+                const amtFc = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                 const stmt = bt.statement || v.statement || v.toStatement || ('تحويل بنكي - سند صرف #' + (v.voucherNo || v.id));
 
                 // Disbursing side (Safe/Bank)
@@ -2075,7 +2075,7 @@ function collectAllTransactions() {
             v.cheques.forEach(ch => {
                 const amt = parseNum(ch.amount);
                 const amtLoc = isBaseSDG ? amt : amt * rate;
-                const amtFc = isBaseSDG ? 0 : amt;
+                const amtFc = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                 const stmt = ch.statement || v.statement || v.toStatement || ('شيك - سند صرف #' + (v.voucherNo || v.id));
 
                 // Disbursing side (Safe/Bank)
@@ -2158,7 +2158,7 @@ function collectAllTransactions() {
                 if (pms.includes('cash') && parseNum(item.cashAmount) > 0) {
                     const amt = parseNum(item.cashAmount);
                     const amtLoc = isBaseSDG ? amt : amt * rate;
-                    const amtFc = isBaseSDG ? 0 : amt;
+                    const amtFc = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                     const safeAcct = resolveAccount(item.cashSafe, mainAcc);
                     const stmt = item.cashStatement || item.statement || v.description || 'قبض نقدية';
 
@@ -2192,7 +2192,7 @@ function collectAllTransactions() {
                         const amt = parseNum(bt.amount);
                         if (amt <= 0) return;
                         const amtLoc = isBaseSDG ? amt : amt * rate;
-                        const amtFc = isBaseSDG ? 0 : amt;
+                        const amtFc = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                         const bankAcct = resolveAccount(bt.bankName, mainAcc);
                         const stmt = bt.statement || item.statement || v.description || 'قبض تحويل بنكي';
 
@@ -2227,7 +2227,7 @@ function collectAllTransactions() {
                         const amt = parseNum(ch.amount);
                         if (amt <= 0) return;
                         const amtLoc = isBaseSDG ? amt : amt * rate;
-                        const amtFc = isBaseSDG ? 0 : amt;
+                        const amtFc = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                         const chequeAcct = 'cheques-receivable';
                         const stmt = ch.statement || item.statement || v.description || 'قبض شيك';
 
@@ -2259,7 +2259,7 @@ function collectAllTransactions() {
             // Fallback for old/empty items vouchers
             const totalAmount = parseNum(v.totalAmount);
             const valLoc = isBaseSDG ? totalAmount : totalAmount * rate;
-            const valFc = isBaseSDG ? 0 : totalAmount;
+            const valFc = isBaseSDG ? (totalAmount / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : totalAmount;
             txns.push({
                 date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
                 account: mainAcc, counterAccount: 'حسابات فرعية متعددة',
@@ -2292,7 +2292,7 @@ function collectAllTransactions() {
                 if (pms.includes('cash') && parseNum(item.cashAmount) > 0) {
                     const amt = parseNum(item.cashAmount);
                     const amtLoc = isBaseSDG ? amt : amt * rate;
-                    const amtFc = isBaseSDG ? 0 : amt;
+                    const amtFc = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                     const safeAcct = resolveAccount(item.cashSafe, mainAcc);
                     const stmt = item.cashStatement || item.statement || v.description || 'صرف نقدية';
 
@@ -2326,7 +2326,7 @@ function collectAllTransactions() {
                         const amt = parseNum(bt.amount);
                         if (amt <= 0) return;
                         const amtLoc = isBaseSDG ? amt : amt * rate;
-                        const amtFc = isBaseSDG ? 0 : amt;
+                        const amtFc = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                         const bankAcct = resolveAccount(bt.bankName, mainAcc);
                         const stmt = bt.statement || item.statement || v.description || 'صرف تحويل بنكي';
 
@@ -2361,7 +2361,7 @@ function collectAllTransactions() {
                         const amt = parseNum(ch.amount);
                         if (amt <= 0) return;
                         const amtLoc = isBaseSDG ? amt : amt * rate;
-                        const amtFc = isBaseSDG ? 0 : amt;
+                        const amtFc = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                         const chequeAcct = resolveAccount(ch.chequeBank, 'banks-cheques');
                         const stmt = ch.statement || item.statement || v.description || 'صرف شيك';
 
@@ -2393,7 +2393,7 @@ function collectAllTransactions() {
             // Fallback for old/empty items vouchers
             const totalAmount = parseNum(v.totalAmount);
             const valLoc = isBaseSDG ? totalAmount : totalAmount * rate;
-            const valFc = isBaseSDG ? 0 : totalAmount;
+            const valFc = isBaseSDG ? (totalAmount / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : totalAmount;
             txns.push({
                 date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
                 account: mainAcc, counterAccount: 'حسابات فرعية متعددة',
@@ -2421,9 +2421,9 @@ function collectAllTransactions() {
             const deb = parseNum(line.debit);
             const cred = parseNum(line.credit);
             const debLoc = isBaseSDG ? deb : deb * rate;
-            const debFc = isBaseSDG ? 0 : deb;
+            const debFc = isBaseSDG ? (debLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : deb;
             const credLoc = isBaseSDG ? cred : cred * rate;
-            const credFc = isBaseSDG ? 0 : cred;
+            const credFc = isBaseSDG ? (credLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : cred;
 
             txns.push({
                 date: v.date, time: time, ref: v.id, type: 'jv', typeLabel: 'قيد يومي',
@@ -2458,7 +2458,7 @@ function collectAllTransactions() {
         const rate = parseNum(inv.exchangeRate || 1);
         const isBaseSDG = (currency === 'SDG');
         const amtLoc = isBaseSDG ? total : total * rate;
-        const amtFc = isBaseSDG ? 0 : total;
+        const amtFc = isBaseSDG ? (total / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : total;
 
         txns.push({
             date: inv.date, time: time, ref: refNo, type: 'invoice', typeLabel: 'مبيعات',
@@ -2488,7 +2488,7 @@ function collectAllTransactions() {
             const cash = parseNum(inv.cashAmount || 0);
             if (cash > 0) {
                 const cashLoc = isBaseSDG ? cash : cash * rate;
-                const cashFc = isBaseSDG ? 0 : cash;
+                const cashFc = isBaseSDG ? (cashLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : cash;
                 const paymentAcct = inv.paymentAccountId || 'safe-001';
                 txns.push({
                     date: inv.date, time: time, ref: refNo + '-PAID', type: 'receipt', typeLabel: 'سداد فاتورة',
@@ -2519,7 +2519,7 @@ function collectAllTransactions() {
                     const amt = parseNum(bt.amount || 0);
                     if (amt > 0) {
                         const amtLocBt = isBaseSDG ? amt : amt * rate;
-                        const amtFcBt = isBaseSDG ? 0 : amt;
+                        const amtFcBt = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                         const bankAcct = bt.bankAccountId || 'bank-001';
                         txns.push({
                             date: inv.date, time: time, ref: `${refNo}-BT${idx+1}`, type: 'receipt', typeLabel: 'سداد فاتورة',
@@ -2552,7 +2552,7 @@ function collectAllTransactions() {
                     const amt = parseNum(ch.amount || 0);
                     if (amt > 0) {
                         const amtLocCh = isBaseSDG ? amt : amt * rate;
-                        const amtFcCh = isBaseSDG ? 0 : amt;
+                        const amtFcCh = isBaseSDG ? (amtLoc / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : amt;
                         const chequeAcct = 'cheques-receivable';
                         txns.push({
                             date: inv.date, time: time, ref: `${refNo}-CH${idx+1}`, type: 'receipt', typeLabel: 'سداد فاتورة',
@@ -2625,7 +2625,7 @@ function collectAllTransactions() {
         const rate = parseNum(inv.exchangeRate || 1);
         const isBaseSDG = (currency === 'SDG');
         const amtLoc = isBaseSDG ? total : total * rate;
-        const amtFc = isBaseSDG ? 0 : total;
+        const amtFc = isBaseSDG ? (total / (rate && rate !== 1 ? rate : (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate !== 0 ? ledgerExchangeRate : 1))) : total;
 
         if (inv.isAdjustment) {
             const absAmtLoc = Math.abs(amtLoc);

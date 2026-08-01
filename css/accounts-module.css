@@ -1,0 +1,52 @@
+/* ═════════════════════════════════════════════════════════════════════
+   ⚡ MAGAIEES ERP 2026 - ACCOUNTS & GENERAL LEDGER (css/accounts-module.css)
+   ═════════════════════════════════════════════════════════════════════ */
+
+.ledger-table-wrap {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+
+.account-node {
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.25s ease;
+}
+
+.account-node:hover {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: rgba(56, 189, 248, 0.3);
+    transform: translateX(-4px);
+}
+
+.account-code-badge {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+/* Light Theme Overrides */
+:root.light-theme .ledger-table-wrap {
+    background: #ffffff !important;
+    border-color: rgba(0,0,0,0.08) !important;
+}
+
+:root.light-theme .account-node {
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+    color: #0f172a !important;
+}

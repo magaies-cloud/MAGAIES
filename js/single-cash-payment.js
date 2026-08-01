@@ -373,7 +373,16 @@ function calcEquiv(source) {
     }
 
     if (source === 'local' || source === 'rate') {
-        eq = rate === 0 ? 0 : amt / rate;
+        let actualRateForForeign = rate;
+        if (rate === 1 && typeof window.getExchangeRateForCurrency === 'function') {
+            const globalRate = window.getExchangeRateForCurrency('USD');
+            if (globalRate && globalRate > 1) actualRateForForeign = globalRate;
+            else if (typeof window.getTenantKey === 'function') {
+                const settings = JSON.parse(localStorage.getItem(window.getTenantKey('erp_settings_v1')) || localStorage.getItem('erp_settings_v1')) || {};
+                if (settings.exchangeRate && settings.exchangeRate > 1) actualRateForForeign = settings.exchangeRate;
+            }
+        }
+        eq = actualRateForForeign === 0 ? 0 : amt / actualRateForForeign;
         if (typeof animateInputNumber === 'function') {
             animateInputNumber(eqEl, addCommas(eq.toFixed(2)));
         } else {
@@ -381,7 +390,7 @@ function calcEquiv(source) {
             if (typeof adjustAmountFontSize === 'function') adjustAmountFontSize(eqEl);
         }
     } else if (source === 'foreign') {
-        amt = eq * rate;
+        amt = eq * (typeof actualRateForForeign !== 'undefined' ? actualRateForForeign : rate);
         if (typeof animateInputNumber === 'function') {
             animateInputNumber(amtEl, addCommas(amt.toFixed(2)));
         } else {

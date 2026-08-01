@@ -22,41 +22,7 @@ let UOMS = [];
 let ITEMS = [];
 
 // ════════════════════════════════════════
-//  GRID COLUMN CONFIGURATION (STATE)
-// ════════════════════════════════════════
-const DEFAULT_COLUMNS_CONFIG = {
-    'num': { order: 0, visible: true, alias: '#', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 0, thousandsSeparator: '' },
-    'item': { order: 1, visible: true, alias: 'الصنف المورد', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'right', decimals: 0, thousandsSeparator: '' },
-    'unit': { order: 2, visible: true, alias: 'الوحدة', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 0, thousandsSeparator: '' },
-    'factor': { order: 3, visible: true, alias: 'معادل', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 0, thousandsSeparator: '' },
-    'qty': { order: 4, visible: true, alias: 'الكمية الوحدة', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
-    'price': { order: 5, visible: true, alias: 'سعر الوحدة أجنبي', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
-    'total': { order: 6, visible: true, alias: 'جملة أجنبي', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
-    'baseqty': { order: 7, visible: true, alias: 'العدد', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
-    'available': { order: 8, visible: true, alias: 'الكمية المتاحة', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
-    'remaining': { order: 9, visible: true, alias: 'الكمية المتبقية', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
-    'fcprice': { order: 10, visible: true, alias: 'سعر الوحدة', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
-    'fctotal': { order: 11, visible: true, alias: 'الجملة', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
-    'warehouse': { order: 12, visible: true, alias: 'المخزن', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 0, thousandsSeparator: '' },
-    'shila': { order: 13, visible: true, alias: 'الشيلة', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 0, thousandsSeparator: ',' },
-    'shila-rem': { order: 14, visible: true, alias: 'باقي سيخ', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 0, thousandsSeparator: ',' },
-    'note': { order: 15, visible: true, alias: 'ملحوظة', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 0, thousandsSeparator: '' },
-    'buy-price': { order: 16, visible: true, alias: 'سعر الشراء', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
-    'sell-price': { order: 17, visible: true, alias: 'سعر البيع', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 2, thousandsSeparator: ',' },
-    'actions': { order: 18, visible: true, alias: 'إجراء', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: '900', align: 'center', decimals: 0, thousandsSeparator: '' }
-};
-
-let gridColumnsConfig = JSON.parse(localStorage.getItem('erp_purchase_grid_config')) || JSON.parse(JSON.stringify(DEFAULT_COLUMNS_CONFIG));
-
-// Migration for existing saved configs
-if (gridColumnsConfig['price'] && gridColumnsConfig['price'].alias === 'سعر الوحدة') gridColumnsConfig['price'].alias = 'سعر الوحدة أجنبي';
-if (gridColumnsConfig['total'] && gridColumnsConfig['total'].alias === 'الجملة') gridColumnsConfig['total'].alias = 'جملة أجنبي';
-if (gridColumnsConfig['fcprice'] && gridColumnsConfig['fcprice'].alias === 'سعر الوحدة أجنبي') gridColumnsConfig['fcprice'].alias = 'سعر الوحدة';
-if (gridColumnsConfig['fctotal'] && gridColumnsConfig['fctotal'].alias === 'جملة الوحدة أجنبي') gridColumnsConfig['fctotal'].alias = 'الجملة';
-
-for (let key in DEFAULT_COLUMNS_CONFIG) {
-    if (!gridColumnsConfig[key]) gridColumnsConfig[key] = JSON.parse(JSON.stringify(DEFAULT_COLUMNS_CONFIG[key]));
-}
+// Grid settings logic removed. Using standard fixed columns.
 
 // ════════════════════════════════════════
 //  STATE
@@ -234,11 +200,19 @@ function initPurchaseApp() {
             ];
         }
 
-        const rawItems = (JSON.parse(localStorage.getItem('erp_items_v1')) || []).filter(x => !x.deleted);
+        let rawItems = (JSON.parse(localStorage.getItem('erp_items_v1')) || []).filter(x => !x.deleted);
         const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
         
         if (rawItems.length === 0) {
-            console.warn('تنبيه: لا توجد أصناف في النظام! يرجى إضافة الأصناف من شاشة (البيانات الأساسية) أولاً.');
+            console.log('💡 تهيئة أصناف افتراضية للنظام...');
+            rawItems = [
+                { id: 'item-001', name: 'أسمنت بورتلاندي 50 كجم', unit: 'كيس', baseUnit: 'كيس', sellingPrice: 4500, barcode: '1001', unitsArray: [{ name: 'كيس', factor: 1 }, { name: 'طن', factor: 20 }] },
+                { id: 'item-002', name: 'حديد تسليح 12 ملم', unit: 'سيخة / عود', baseUnit: 'سيخة / عود', sellingPrice: 12500, barcode: '1002', unitsArray: [{ name: 'سيخة / عود', factor: 1 }, { name: 'طن', factor: 120 }] },
+                { id: 'item-003', name: 'طوب مفرغ 20×20×40', unit: 'حبة', baseUnit: 'حبة', sellingPrice: 650, barcode: '1003', unitsArray: [{ name: 'حبة', factor: 1 }, { name: 'ألف حبة', factor: 1000 }] },
+                { id: 'item-004', name: 'رمل بناء ممتاز', unit: 'متر مكعب', baseUnit: 'متر مكعب', sellingPrice: 8500, barcode: '1004', unitsArray: [{ name: 'متر مكعب', factor: 1 }, { name: 'قلاب 12متر', factor: 12 }] },
+                { id: 'item-005', name: 'دهان بلاستيك مط داخلي', unit: 'جالون', baseUnit: 'جالون', sellingPrice: 14000, barcode: '1005', unitsArray: [{ name: 'جالون', factor: 1 }, { name: 'كرتونة (4 جالون)', factor: 4 }] }
+            ];
+            localStorage.setItem('erp_items_v1', JSON.stringify(rawItems));
         }
 
         ITEMS = rawItems.map(item => {
@@ -273,7 +247,9 @@ function initPurchaseApp() {
                 bundleFactor: parseFloat(item.bundleFactor) || parseFloat(item.shila) || parseFloat(item.bundleQty) || 1,
                 price: parseFloat(sp) || 0,
                 stock: stockMap,
-                unitsArray: unitsArray
+                unitsArray: unitsArray,
+                barcode: item.barcode || '',
+                image: item.image || item.photo || item.img || item.thumbnail || ''
             };
         });
 
@@ -859,7 +835,15 @@ async function renderCustomerDropdown(filter = '') {
 
 function showCustomerDropdown() {
     renderCustomerDropdown(document.getElementById('hdr-customer-search').value);
-    document.getElementById('customer-dropdown-list').classList.add('show');
+    const listEl = document.getElementById('customer-dropdown-list');
+    if (listEl) {
+        listEl.classList.add('show');
+        const wrap = listEl.closest('.custom-dropdown-input-wrap') || listEl.closest('.custom-dropdown') || listEl.closest('.h-form-group');
+        if (wrap) {
+            wrap.style.zIndex = '9999999';
+            wrap.style.position = 'relative';
+        }
+    }
 }
 
 let hideDropdownTimeout;
@@ -873,7 +857,13 @@ function hideCustomerDropdownDelayed() {
         }
 
         const listEl = document.getElementById('customer-dropdown-list');
-        if(listEl) listEl.classList.remove('show');
+        if(listEl) {
+            listEl.classList.remove('show');
+            const wrap = listEl.closest('.custom-dropdown-input-wrap') || listEl.closest('.custom-dropdown') || listEl.closest('.h-form-group');
+            if (wrap) {
+                wrap.style.zIndex = '';
+            }
+        }
         
         const idVal = document.getElementById('hdr-customer').value;
         const searchVal = document.getElementById('hdr-customer-search').value.trim();
@@ -925,38 +915,15 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
     const listEl = document.getElementById(`${prefix}item-dropdown-list-${rowId}`);
     if (!listEl) return;
     
-    listEl.innerHTML = '<div class="custom-dropdown-empty">جاري البحث...</div>';
     const term = filter.toLowerCase().trim();
     
     try {
-        let localMatches = ITEMS;
-        if (term) {
-            localMatches = ITEMS.filter(i => {
-                const normName = i.name.toLowerCase();
-                const nameWords = normName.split(' ');
-                const bcMatches = i.barcode && i.barcode.toLowerCase().startsWith(term);
-                return nameWords.some(w => w.startsWith(term)) || normName.includes(term) || bcMatches;
-            });
-        }
-
-        let dbMatches = [];
-        try {
-            const res = await fetch('api/items_search.php?q=' + encodeURIComponent(term));
-            const rawMatches = await res.json();
-            if (Array.isArray(rawMatches)) {
-                dbMatches = rawMatches;
-            }
-        } catch(err) {
-            console.error('API Search Failed:', err);
-        }
-        
+        // 1. Ensure local ITEMS array is populated from localStorage
         const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
         const WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
         const rawItems = (JSON.parse(localStorage.getItem('erp_items_v1')) || []).filter(x => !x.deleted);
         
-        // Merge dbMatches and newly added rawItems
-        const allNew = [...rawItems, ...dbMatches];
-        allNew.forEach(item => {
+        rawItems.forEach(item => {
             let existing = ITEMS.find(i => String(i.id) === String(item.id));
             if (!existing) {
                 let stockMap = {};
@@ -989,38 +956,101 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
                     bundleFactor: parseFloat(item.bundleFactor) || parseFloat(item.shila) || parseFloat(item.bundleQty) || 1,
                     price: parseFloat(sp) || 0,
                     stock: stockMap,
-                    unitsArray: unitsArray
+                    unitsArray: unitsArray,
+                    barcode: item.barcode || '',
+                    image: item.image || item.photo || item.img || item.thumbnail || ''
                 };
                 ITEMS.push(existing);
-                localMatches.push(existing); // Add to display list
             }
         });
 
-        // Deduplicate localMatches by id
-        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
+        // Function to render items into listEl
+        const renderList = (matches) => {
+            const finalMatches = Array.from(new Map(matches.map(m => [String(m.id), m])).values());
+            if (finalMatches.length === 0) {
+                listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة.<br><small style="color:#888;">(حاول استخدام اسم آخر)</small></div>';
+                return;
+            }
 
-        if (finalMatches.length === 0) {
-            listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة.<br><small style="color:#888;">(حاول استخدام اسم آخر)</small></div>';
-            return;
+            listEl.innerHTML = '';
+            finalMatches.slice(0, 50).forEach(existing => {
+                const div = document.createElement('div');
+                div.className = 'custom-dropdown-item';
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.gap = '10px';
+                
+                let imgHtml = '';
+                if (existing.image) {
+                    imgHtml = `<img src="${existing.image}" style="width:28px; height:28px; border-radius:6px; object-fit:cover; border:1px solid rgba(56,189,248,0.3); flex-shrink:0;">`;
+                } else {
+                    imgHtml = `<div style="width:28px; height:28px; border-radius:6px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.25); color:#38bdf8; display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0;">📦</div>`;
+                }
+
+                let textHtml = `<div style="flex:1;"><span>${existing.name}</span>`;
+                if (isMobile && existing.unit) textHtml += ` <span style="font-size:0.75rem; color:#aaa;">— ${existing.unit}</span>`;
+                if (existing.barcode) textHtml += ` <span style="font-size:0.75rem; color:#888;">[${existing.barcode}]</span>`;
+                textHtml += `</div>`;
+
+                div.innerHTML = imgHtml + textHtml;
+                
+                div.onmousedown = (e) => { e.preventDefault(); updateRow(rowId, 'itemId', existing.id); renderGrid(); };
+                div.onpointerdown = (e) => { e.preventDefault(); updateRow(rowId, 'itemId', existing.id); renderGrid(); };
+                listEl.appendChild(div);
+            });
+        };
+
+        // Filter local matches
+        let localMatches = ITEMS;
+        if (term) {
+            localMatches = ITEMS.filter(i => {
+                const normName = (i.name || '').toLowerCase();
+                const nameWords = normName.split(' ');
+                const bcMatches = i.barcode && i.barcode.toLowerCase().startsWith(term);
+                return nameWords.some(w => w.startsWith(term)) || normName.includes(term) || bcMatches;
+            });
         }
 
-        listEl.innerHTML = '';
-        finalMatches.slice(0, 50).forEach(existing => {
-            const div = document.createElement('div');
-            div.className = 'custom-dropdown-item';
-            
-            let displayText = existing.name;
-            if (isMobile && existing.unit) displayText += ' <span style="font-size:0.8rem; color:#aaa;">— ' + existing.unit + '</span>';
-            if (existing.barcode) displayText += ' <span style="font-size:0.8rem; color:#888;">[' + existing.barcode + ']</span>';
-            div.innerHTML = displayText;
-            
-            div.onmousedown = () => { updateRow(rowId, 'itemId', existing.id); renderGrid(); };
-            div.onpointerdown = () => { updateRow(rowId, 'itemId', existing.id); renderGrid(); };
-            listEl.appendChild(div);
-        });
+        // Render local items instantly (0ms delay)
+        renderList(localMatches);
+
+        // Async API fetch for server items (non-blocking)
+        try {
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token') || '';
+            const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+            const res = await fetch('api/items_search.php?q=' + encodeURIComponent(term), { headers });
+            if (res.ok) {
+                const rawMatches = await res.json();
+                if (Array.isArray(rawMatches) && rawMatches.length > 0) {
+                    rawMatches.forEach(item => {
+                        let existing = ITEMS.find(i => String(i.id) === String(item.id));
+                        if (!existing) {
+                            const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
+                            existing = {
+                                id: item.id,
+                                name: item.name,
+                                unit: baseUnit,
+                                baseUnit: baseUnit,
+                                conversionFactor: 1,
+                                bundleFactor: 1,
+                                price: parseFloat(item.sellingPrice || item.price || 0),
+                                stock: {},
+                                unitsArray: [{ name: baseUnit, factor: 1 }],
+                                barcode: item.barcode || ''
+                            };
+                            ITEMS.push(existing);
+                            localMatches.push(existing);
+                        }
+                    });
+                    renderList(localMatches);
+                }
+            }
+        } catch(err) {
+            // Quietly ignore API errors to keep local UI responsive
+        }
     } catch (e) {
         console.error(e);
-        listEl.innerHTML = '<div class="custom-dropdown-empty">خطأ في الاتصال</div>';
+        listEl.innerHTML = '<div class="custom-dropdown-empty">خطأ في تحويل البيانات</div>';
     }
 }
 
@@ -1029,14 +1059,30 @@ function showItemDropdown(rowId, isMobile = false) {
     // Always show all items when focusing to allow choosing a new item easily
     renderItemDropdown(rowId, isMobile, '');
     const listEl = document.getElementById(`${prefix}item-dropdown-list-${rowId}`);
-    if (listEl) listEl.classList.add('show');
+    if (listEl) {
+        listEl.classList.add('show');
+        listEl.style.display = 'flex';
+        listEl.style.visibility = 'visible';
+        listEl.style.opacity = '1';
+        const tr = listEl.closest('tr') || listEl.closest('.m-card');
+        if (tr) {
+            tr.style.zIndex = '999999';
+            tr.style.position = 'relative';
+        }
+    }
 }
 
 function hideItemDropdownDelayed(rowId, isMobile = false) {
     setTimeout(() => {
         const prefix = isMobile ? 'm-' : '';
         const listEl = document.getElementById(`${prefix}item-dropdown-list-${rowId}`);
-        if(listEl) listEl.classList.remove('show');
+        if(listEl) {
+            listEl.classList.remove('show');
+            const tr = listEl.closest('tr') || listEl.closest('.m-card');
+            if (tr) {
+                tr.style.zIndex = '';
+            }
+        }
         
         const row = rows.find(r => r.id === rowId);
         const searchEl = document.getElementById(`${prefix}item-search-${rowId}`);
@@ -1416,213 +1462,42 @@ function getCurrency() {
 }
 
 // ════════════════════════════════════════
-//  ADVANCED COLUMN SETTINGS & DRAG-DROP
+//  ADVANCED COLUMN SETTINGS
 // ════════════════════════════════════════
-let draggedColId = null;
+function openAdvancedColSettings(colId) {
+    // Deprecated
+}
+function saveAdvancedColSettings() {
+    // Deprecated
+}
 
-let isColResizing = false;
-let currentResizingTh = null;
-let colResizeStartX = 0;
-let colResizeStartWidth = 0;
-
-document.addEventListener('mousemove', (e) => {
-    if (!isColResizing || !currentResizingTh) return;
-    // RTL direction: moving mouse left (decreasing X) increases width
-    const dx = colResizeStartX - e.clientX; 
-    let newWidth = colResizeStartWidth + dx;
-    if (newWidth < 40) newWidth = 40;
-    
-    currentResizingTh.style.width = newWidth + 'px';
-    currentResizingTh.style.minWidth = newWidth + 'px';
-});
-
-document.addEventListener('mouseup', (e) => {
-    if (isColResizing && currentResizingTh) {
-        isColResizing = false;
-        const colId = currentResizingTh.getAttribute('data-col-id');
-        if (colId && gridColumnsConfig[colId]) {
-            gridColumnsConfig[colId].width = currentResizingTh.style.width;
-            localStorage.setItem('erp_purchase_grid_config', JSON.stringify(gridColumnsConfig));
-        }
-        currentResizingTh.setAttribute('draggable', 'true');
-        currentResizingTh = null;
-    }
-});
-
+// ════════════════════════════════════════
+//  RENDER GRID
+// ════════════════════════════════════════
 function renderGridHead() {
     const thead = document.getElementById('grid-head');
     if (!thead) return;
-    thead.innerHTML = '';
     
-    const tr = document.createElement('tr');
-    
-    const cols = Object.keys(gridColumnsConfig)
-        .filter(k => gridColumnsConfig[k].visible !== false)
-        .sort((a, b) => gridColumnsConfig[a].order - gridColumnsConfig[b].order);
-        
-    cols.forEach(colId => {
-        const conf = gridColumnsConfig[colId];
-        const th = document.createElement('th');
-        const currentAlias = conf.alias || DEFAULT_COLUMNS_CONFIG[colId].alias;
-        
-        let headerHtml = `<div style="line-height: 1.2;">${currentAlias}</div>`;
-        th.innerHTML = headerHtml;
-        th.title = `الاسم الأصلي: ${DEFAULT_COLUMNS_CONFIG[colId].alias}`;
-        
-        th.style.color = conf.color;
-        if(conf.backgroundColor) th.style.backgroundColor = conf.backgroundColor;
-        th.style.fontSize = conf.fontSize;
-        th.style.fontWeight = conf.fontWeight;
-        th.style.textAlign = conf.align || 'center';
-        th.style.position = 'relative';
-        
-        // Enforce width
-        if (conf.width) {
-            th.style.width = conf.width;
-            th.style.minWidth = conf.width;
-        } else {
-            if (colId === 'item') th.style.minWidth = '180px';
-            else if (['price', 'total', 'fcprice', 'fctotal', 'note'].includes(colId)) th.style.minWidth = '100px';
-            else th.style.minWidth = '70px';
-        }
-        
-        th.draggable = true;
-        th.setAttribute('data-col-id', colId);
-        
-        // Resizer Handle
-        const resizer = document.createElement('div');
-        resizer.style.width = '8px';
-        resizer.style.height = '100%';
-        resizer.style.position = 'absolute';
-        resizer.style.left = '0'; // For RTL
-        resizer.style.top = '0';
-        resizer.style.cursor = 'col-resize';
-        resizer.style.userSelect = 'none';
-        resizer.style.zIndex = '10';
-        resizer.addEventListener('mouseenter', () => { resizer.style.backgroundColor = 'rgba(56, 189, 248, 0.3)'; });
-        resizer.addEventListener('mouseleave', () => { resizer.style.backgroundColor = 'transparent'; });
-        
-        resizer.addEventListener('mousedown', (e) => {
-            isColResizing = true;
-            currentResizingTh = th;
-            colResizeStartX = e.clientX;
-            colResizeStartWidth = th.offsetWidth;
-            th.removeAttribute('draggable'); // Prevent drag and drop
-            e.stopPropagation();
-            e.preventDefault();
-        });
-        
-        resizer.addEventListener('click', (e) => e.stopPropagation());
-        resizer.addEventListener('contextmenu', (e) => e.stopPropagation());
-        
-        th.appendChild(resizer);
-        
-        th.addEventListener('dragstart', (e) => {
-            if (isColResizing) { e.preventDefault(); return; }
-            draggedColId = colId;
-            e.dataTransfer.effectAllowed = 'move';
-            th.style.opacity = '0.5';
-        });
-        
-        th.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            th.style.backgroundColor = 'rgba(255, 215, 0, 0.2)'; 
-        });
-        
-        th.addEventListener('dragleave', (e) => {
-            th.style.backgroundColor = '';
-        });
-        
-        th.addEventListener('drop', (e) => {
-            e.preventDefault();
-            th.style.backgroundColor = '';
-            if (draggedColId && draggedColId !== colId) {
-                const oldOrder = gridColumnsConfig[draggedColId].order;
-                const newOrder = gridColumnsConfig[colId].order;
-                
-                gridColumnsConfig[draggedColId].order = newOrder;
-                gridColumnsConfig[colId].order = oldOrder;
-                
-                localStorage.setItem('erp_purchase_grid_config', JSON.stringify(gridColumnsConfig));
-                renderGrid();
-            }
-        });
-        
-        th.addEventListener('dragend', (e) => {
-            th.style.opacity = '1';
-        });
-        
-        th.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            openAdvancedColSettings(colId);
-        });
-        
-        tr.appendChild(th);
-    });
-    
-    thead.appendChild(tr);
-}
+    const isBaseSDG = (getCurrency() === 'SDG');
+    const priceHeader = isBaseSDG ? 'السعر' : 'السعر (دولار)';
+    const totalHeader = isBaseSDG ? 'الجملة' : 'الجملة (دولار)';
 
-function openAdvancedColSettings(colId) {
-    // Save backup for live preview cancellation
-    window.previewBackupConfig = JSON.parse(JSON.stringify(gridColumnsConfig));
-    
-    const conf = gridColumnsConfig[colId];
-    document.getElementById('edit-col-id').value = colId;
-    document.getElementById('edit-col-alias').value = conf.alias || '';
-    document.getElementById('edit-col-alias').placeholder = `الاسم المخصص... (الأصلي: ${DEFAULT_COLUMNS_CONFIG[colId].alias})`;
-    document.getElementById('edit-col-color').value = conf.color || '#cbd5e1';
-    document.getElementById('edit-col-bgcolor').value = conf.backgroundColor || '#1e293b';
-    document.getElementById('edit-col-fontsize').value = conf.fontSize || '0.95rem';
-    document.getElementById('edit-col-fontweight').value = conf.fontWeight || '900';
-    document.getElementById('edit-col-align').value = conf.align || 'center';
-    document.getElementById('edit-col-decimals').value = conf.decimals !== undefined ? conf.decimals : 2;
-    document.getElementById('edit-col-thousands').value = conf.thousandsSeparator !== undefined ? conf.thousandsSeparator : ',';
-    document.getElementById('edit-col-width').value = conf.width || '';
-    if(document.getElementById('edit-col-apply-all')) document.getElementById('edit-col-apply-all').checked = false;
-    
-    // Populate the global visibility list
-    const visibilityList = document.getElementById('global-col-visibility-list');
-    if (visibilityList) {
-        visibilityList.innerHTML = '';
-        Object.keys(gridColumnsConfig)
-            .sort((a, b) => gridColumnsConfig[a].order - gridColumnsConfig[b].order)
-            .forEach(k => {
-                const cConf = gridColumnsConfig[k];
-                const cAlias = cConf.alias || DEFAULT_COLUMNS_CONFIG[k].alias;
-                const isVisible = cConf.visible !== false;
-                
-                const div = document.createElement('div');
-                div.style.display = 'flex';
-                div.style.alignItems = 'center';
-                div.style.gap = '8px';
-                
-                const chk = document.createElement('input');
-                chk.type = 'checkbox';
-                chk.id = `global-vis-${k}`;
-                chk.checked = isVisible;
-                chk.style.width = '18px';
-                chk.style.height = '18px';
-                chk.style.cursor = 'pointer';
-                
-                const lbl = document.createElement('label');
-                lbl.htmlFor = `global-vis-${k}`;
-                lbl.textContent = cAlias;
-                lbl.style.color = '#fff';
-                lbl.style.cursor = 'pointer';
-                lbl.style.fontSize = '0.9rem';
-                lbl.style.whiteSpace = 'nowrap';
-                lbl.style.overflow = 'hidden';
-                lbl.style.textOverflow = 'ellipsis';
-                
-                div.appendChild(chk);
-                div.appendChild(lbl);
-                visibilityList.appendChild(div);
-            });
-    }
-    
-    document.getElementById('advanced-col-settings-modal').classList.add('visible');
+    thead.innerHTML = `
+        <tr>
+            <th style="width: 40px; text-align: center; font-size: 1.05rem;">م</th>
+            <th style="width: 25%; text-align: right; font-size: 1.25rem; font-weight: bold;">الصنف</th>
+            <th style="width: 110px; text-align: center; font-size: 1.25rem; font-weight: bold;">الوحدة</th>
+            <th style="width: 100px; text-align: center; font-size: 1.25rem; font-weight: bold;">الكمية</th>
+            <th style="width: 130px; text-align: center; font-size: 1.25rem; font-weight: bold;" title="الكمية المتوفرة بالمخزن تلقائياً">المتاح</th>
+            <th style="width: 140px; text-align: center; font-size: 1.25rem; font-weight: bold;">${priceHeader}</th>
+            <th style="width: 160px; text-align: center; font-size: 1.25rem; font-weight: bold;">${totalHeader}</th>
+            ${!isBaseSDG ? `<th style="width: 120px; text-align: center; font-size: 1.05rem;">سعر (جنيه)</th><th style="width: 120px; text-align: center; font-size: 1.05rem;">جملة (جنيه)</th>` : ''}
+            <th style="width: 120px; text-align: center; font-size: 1.05rem;">سعر البيع</th>
+            <th style="width: 140px; text-align: center; font-size: 1.05rem;">المخزن</th>
+            <th style="width: 120px; text-align: center; font-size: 1.25rem; font-weight: bold;">ملحوظة</th>
+            <th style="width: 90px; text-align: center; font-size: 1.05rem;">إجراء</th>
+        </tr>
+    `;
 }
 
 function saveAdvancedColSettings() {
@@ -1767,123 +1642,88 @@ function renderGrid() {
             itemUnitsHtml = `<option value="${item ? item.unit : ''}">${item ? item.unit : '—'}</option>`;
         }
 
-        // Get sorted visible columns
-        const cols = Object.keys(gridColumnsConfig)
-            .filter(k => gridColumnsConfig[k].visible !== false)
-            .sort((a, b) => gridColumnsConfig[a].order - gridColumnsConfig[b].order);
-
-        const cellsMap = {
-            'num': `<td style="text-align:${gridColumnsConfig['num'].align};"><div class="row-num" style="color:${gridColumnsConfig['num'].color}; font-size:${gridColumnsConfig['num'].fontSize}; font-weight:${gridColumnsConfig['num'].fontWeight};">${idx + 1}</div></td>`,
-            
-            'item': `<td style="position:relative; text-align:${gridColumnsConfig['item'].align};">
-                <input type="text" class="g-input" id="item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
-                    value="${item ? item.name : ''}" autocomplete="one-time-code"
-                    style="font-size: ${gridColumnsConfig['item'].fontSize} !important; font-weight: ${gridColumnsConfig['item'].fontWeight} !important; color: ${gridColumnsConfig['item'].color} !important; text-align:${gridColumnsConfig['item'].align};"
-                    onfocus="this.select(); showItemDropdown(${row.id})" 
-                    onblur="hideItemDropdownDelayed(${row.id})" 
-                    oninput="filterItemDropdown(${row.id})">
-                <div class="custom-dropdown-list" id="item-dropdown-list-${row.id}" style="text-align:right; min-width: 220px; white-space: normal;">
+        const isBaseSDG = (getCurrency() === 'SDG');
+        
+        let trHtml = `
+            <td style="text-align: center;"><div class="row-num">${idx + 1}</div></td>
+            <td style="position:relative; text-align: right;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    ${item && item.image ? 
+                        `<img src="${item.image}" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover; border: 1px solid rgba(56,189,248,0.4); flex-shrink: 0;" title="${item.name}">` : 
+                        `<div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25); color: #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0;" title="رمز الصنف">📦</div>`
+                    }
+                    <div style="position:relative; flex: 1;">
+                        <input type="text" class="g-input" id="item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
+                            value="${item ? item.name : ''}" autocomplete="one-time-code"
+                            style="text-align: right; width: 100%; font-size: 1.4rem; font-weight: bold;"
+                            onfocus="if(this.closest('tr')) { this.closest('tr').style.zIndex='999999'; this.closest('tr').style.position='relative'; } showItemDropdown(${row.id})" 
+                            onblur="hideItemDropdownDelayed(${row.id})" 
+                            oninput="filterItemDropdown(${row.id})">
+                        <div class="custom-dropdown-list" id="item-dropdown-list-${row.id}" style="text-align:right; min-width: 260px; white-space: normal;">
+                        </div>
+                    </div>
                 </div>
-            </td>`,
-            
-            'unit': `<td style="text-align:${gridColumnsConfig['unit'].align};">
-                <select class="g-select" style="min-width: 80px; font-size: ${gridColumnsConfig['unit'].fontSize}; font-weight: ${gridColumnsConfig['unit'].fontWeight}; color: ${gridColumnsConfig['unit'].color}; text-align:${gridColumnsConfig['unit'].align};" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();" tabindex="-1">
+            </td>
+            <td style="text-align: center;">
+                <select class="g-select" style="width: 100%; font-size: 1.4rem; font-weight: bold;" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();" tabindex="-1">
                     ${itemUnitsHtml}
                 </select>
-            </td>`,
-            
-            'factor': `<td style="text-align:${gridColumnsConfig['factor'].align};"><input type="text" inputmode="decimal" class="g-input" value="${row.customFactor !== undefined ? row.customFactor : calcs.unitFactor}" placeholder="1"
-                onfocus="this.select()" oninput="updateRow(${row.id},'customFactor',this.value)"
-                onblur="this.value=parseNum(this.value)||1" tabindex="-1" style="font-size: ${gridColumnsConfig['factor'].fontSize}; font-weight: ${gridColumnsConfig['factor'].fontWeight}; color: ${gridColumnsConfig['factor'].color}; text-align:${gridColumnsConfig['factor'].align};"></td>`,
-                
-            'qty': `<td style="text-align:${gridColumnsConfig['qty'].align};"><input type="text" inputmode="decimal" class="g-input" data-qty-input="${row.id}" value="${Number.isInteger(row.quantity) ? row.quantity : parseFloat((row.quantity || 0).toFixed(4)) || ''}" placeholder="0"
-                onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)"
-                onblur="this.value=parseNum(this.value)||''" style="font-size: ${gridColumnsConfig['qty'].fontSize} !important; font-weight: ${gridColumnsConfig['qty'].fontWeight} !important; color: ${gridColumnsConfig['qty'].color} !important; text-align:${gridColumnsConfig['qty'].align};"></td>`,
-                
-            'price': `<td style="text-align:${gridColumnsConfig['price'].align};">
+            </td>
+            <td style="text-align: center;">
+                <input type="text" inputmode="decimal" class="g-input" data-qty-input="${row.id}" value="${Number.isInteger(row.quantity) ? row.quantity : parseFloat((row.quantity || 0).toFixed(4)) || ''}" placeholder="0"
+                    onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)"
+                    onblur="this.value=parseNum(this.value)||''" style="text-align: center; width: 95%; margin: 0 auto; display: block; font-size: 1.25rem; font-weight: bold; color: #facc15;">
+            </td>
+            <td style="text-align: center;">
+                <span class="g-readonly avail-val" data-avail="${row.id}" style="display: inline-block; width: 100%; text-align: center; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 6px; padding: 5px 2px; font-size: 1.25rem; font-weight: bold; font-family: 'JetBrains Mono', monospace;" title="الكمية المتوفرة حالياً بالمخزن تلقائياً">
+                    ${row.availableQty !== undefined ? fmtNum(row.availableQty, 'available') : '0'}
+                </span>
+            </td>
+            <td style="text-align: center;">
                 <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price, 'price')}"
                     onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
                     onblur="this.value=fmtNum(parseNum(this.value), 'price')" 
-                    onmousedown="startPriceHold(${row.id})" onmouseup="clearPriceHold()" onmouseleave="clearPriceHold()"
-                    ontouchstart="startPriceHold(${row.id})" ontouchend="clearPriceHold()"
-                    style="width:100%; font-size: ${gridColumnsConfig['price'].fontSize} !important; font-weight: ${gridColumnsConfig['price'].fontWeight} !important; color: ${gridColumnsConfig['price'].color} !important; text-align:${gridColumnsConfig['price'].align};">
-            </td>`,
-            
-            'total': `<td style="text-align:${gridColumnsConfig['total'].align};"><span class="g-readonly total-val" style="font-size: ${gridColumnsConfig['total'].fontSize} !important; font-weight: ${gridColumnsConfig['total'].fontWeight} !important; color: ${gridColumnsConfig['total'].color} !important;" data-total="${row.id}">${fmtNum(calcs.total, 'total')}</span></td>`,
-            
-            'baseqty': `<td style="text-align:${gridColumnsConfig['baseqty'].align};">
-                <div style="display:flex; flex-direction:column; align-items:${gridColumnsConfig['baseqty'].align === 'right' ? 'flex-start' : (gridColumnsConfig['baseqty'].align === 'left' ? 'flex-end' : 'center')}; justify-content:center;">
-                    <input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty, 'baseqty')}" placeholder="0"
-                        onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
-                        onblur="this.value=fmtNum(parseNum(this.value), 'baseqty')" style="font-size: ${gridColumnsConfig['baseqty'].fontSize}; font-weight: ${gridColumnsConfig['baseqty'].fontWeight}; color: ${gridColumnsConfig['baseqty'].color}; text-align:${gridColumnsConfig['baseqty'].align}; width:100%;" tabindex="-1">
-                    <span style="display:block; font-size:10px; line-height:1; color:var(--text-muted); margin-top:2px;">${item ? item.baseUnit : ''}</span>
-                </div>
-            </td>`,
-            
-            'available': `<td style="text-align:${gridColumnsConfig['available'].align};"><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.availableQty !== undefined ? fmtNum(row.availableQty, 'available') : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'availableQty',this.value)" onblur="this.value=fmtNum(parseNum(this.value), 'available')" style="font-size: ${gridColumnsConfig['available'].fontSize}; font-weight: ${gridColumnsConfig['available'].fontWeight}; color: ${gridColumnsConfig['available'].color}; text-align:${gridColumnsConfig['available'].align};"></td>`,
-            
-            'remaining': `<td style="text-align:${gridColumnsConfig['remaining'].align};"><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.remainingQty !== undefined ? fmtNum(row.remainingQty, 'remaining') : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'remainingQty',this.value)" onblur="this.value=fmtNum(parseNum(this.value), 'remaining')" style="font-size: ${gridColumnsConfig['remaining'].fontSize}; font-weight: ${gridColumnsConfig['remaining'].fontWeight}; color: ${gridColumnsConfig['remaining'].color}; text-align:${gridColumnsConfig['remaining'].align};"></td>`,
-            
-            'fcprice': `<td style="text-align:${gridColumnsConfig['fcprice'].align};">
-                <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)), 'fcprice')}"
+                    style="text-align: center; width: 100%; font-size: 1.6rem; font-weight: bold; color: #fff;">
+            </td>
+            <td style="text-align: center;">
+                <span class="g-readonly total-val" data-total="${row.id}" style="font-size: 1.6rem; font-weight: bold; color: #34d399;">${fmtNum(calcs.total, 'total')}</span>
+            </td>
+            ${!isBaseSDG ? `
+            <td style="text-align: center;">
+                <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1), 'fcprice')}"
                     onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
-                    onblur="this.value=fmtNum(parseNum(this.value), 'fcprice')" style="font-size: ${gridColumnsConfig['fcprice'].fontSize}; font-weight: ${gridColumnsConfig['fcprice'].fontWeight}; color: ${gridColumnsConfig['fcprice'].color}; text-align:${gridColumnsConfig['fcprice'].align};" tabindex="-1">
-            </td>`,
-            
-            'fctotal': `<td style="text-align:${gridColumnsConfig['fctotal'].align};"><span class="g-readonly total-fc-val" style="font-size: ${gridColumnsConfig['fctotal'].fontSize}; font-weight: ${gridColumnsConfig['fctotal'].fontWeight}; color: ${gridColumnsConfig['fctotal'].color};" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0), 'fctotal')}</span></td>`,
-            
-            'warehouse': `<td style="text-align:${gridColumnsConfig['warehouse'].align};">
-                <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1" style="font-size: ${gridColumnsConfig['warehouse'].fontSize}; font-weight: ${gridColumnsConfig['warehouse'].fontWeight}; color: ${gridColumnsConfig['warehouse'].color}; text-align:${gridColumnsConfig['warehouse'].align};">
+                    onblur="this.value=fmtNum(parseNum(this.value), 'fcprice')" style="text-align: center; width: 100%; color:#10b981; font-size: 1.05rem;" tabindex="-1">
+            </td>
+            <td style="text-align: center;">
+                <span class="g-readonly total-fc-val" style="color:#10b981; font-size: 1.1rem; font-weight: bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)) * (row.quantity || 0), 'fctotal')}</span>
+            </td>
+            ` : ''}
+            <td style="text-align: center;">
+                <input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.sellPrice !== undefined ? fmtNum(row.sellPrice, 'sell-price') : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'sellPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value), 'sell-price')" style="text-align: center; width: 100%; font-size: 1.05rem; font-weight: 600;">
+            </td>
+            <td style="text-align: center;">
+                <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1" style="text-align: center; width: 100%; font-size: 1.05rem;">
                     <option value="">نفس الفاتورة ↩</option>
                     ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
                 </select>
-            </td>`,
-            
-            'shila': `<td style="text-align:${gridColumnsConfig['shila'].align};"><span class="g-readonly" style="font-size: ${gridColumnsConfig['shila'].fontSize}; font-weight: ${gridColumnsConfig['shila'].fontWeight}; color: ${gridColumnsConfig['shila'].color};" data-shila="${row.id}">${fmtNum(calcs.shilaQty, 'shila')}</span></td>`,
-            
-            'shila-rem': `<td style="text-align:${gridColumnsConfig['shila-rem'].align};"><span class="g-readonly" style="font-size: ${gridColumnsConfig['shila-rem'].fontSize}; font-weight: ${gridColumnsConfig['shila-rem'].fontWeight}; color: ${gridColumnsConfig['shila-rem'].color};" data-shila-rem="${row.id}">${fmtNum(calcs.shilaRem, 'shila-rem')}</span></td>`,
-            
-            'note': `<td style="text-align:${gridColumnsConfig['note'].align};"><input type="text" class="g-input" placeholder="ملحوظة..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)" style="font-size: ${gridColumnsConfig['note'].fontSize}; font-weight: ${gridColumnsConfig['note'].fontWeight}; color: ${gridColumnsConfig['note'].color}; text-align:${gridColumnsConfig['note'].align};"></td>`,
-            
-            'buy-price': `<td style="text-align:${gridColumnsConfig['buy-price'].align};"><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.buyPrice !== undefined ? fmtNum(row.buyPrice, 'buy-price') : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'buyPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value), 'buy-price')" style="font-size: ${gridColumnsConfig['buy-price'].fontSize}; font-weight: ${gridColumnsConfig['buy-price'].fontWeight}; color: ${gridColumnsConfig['buy-price'].color}; text-align:${gridColumnsConfig['buy-price'].align};"></td>`,
-            
-            'sell-price': `<td style="text-align:${gridColumnsConfig['sell-price'].align};"><input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.sellPrice !== undefined ? fmtNum(row.sellPrice, 'sell-price') : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'sellPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value), 'sell-price')" style="font-size: ${gridColumnsConfig['sell-price'].fontSize}; font-weight: ${gridColumnsConfig['sell-price'].fontWeight}; color: ${gridColumnsConfig['sell-price'].color}; text-align:${gridColumnsConfig['sell-price'].align};"></td>`,
-            
-            'actions': `<td style="text-align:${gridColumnsConfig['actions'].align};">
-                <div style="display: flex; gap: 5px; justify-content: ${gridColumnsConfig['actions'].align === 'right' ? 'flex-start' : (gridColumnsConfig['actions'].align === 'left' ? 'flex-end' : 'center')};">
-                    <button class="edit-btn" onclick="document.getElementById('item-search-${row.id}').focus()" title="تعديل السطر" style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.2); color: #38bdf8; border-radius: 6px; padding: 6px; cursor: pointer;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            </td>
+            <td style="text-align: center;">
+                <input type="text" class="g-input" placeholder="ملحوظة..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)" style="text-align: right; width: 100%; font-size: 1.25rem; font-weight: bold;">
+            </td>
+            <td style="text-align: center;">
+                <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
+                    <button type="button" class="add-row-btn" onclick="addRow()" title="إضافة سطر جديد" style="background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.35)); border: 1px solid rgba(16,185,129,0.5); color: #34d399; border-radius: 6px; padding: 6px 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                     </button>
-                    <button class="del-btn" onclick="removeRow(${row.id})" title="حذف السطر">
+                    <button class="del-btn" onclick="removeRow(${row.id})" title="حذف السطر" style="display: flex; align-items: center; justify-content: center;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     </button>
                 </div>
-            </td>`
-        };
+            </td>
+        `;
 
-        // ── Desktop Row ──
         const tr = document.createElement('tr');
-        
-        let rowHtml = '';
-        cols.forEach(colId => {
-            rowHtml += cellsMap[colId];
-        });
-        
-        tr.innerHTML = rowHtml;
-        
-        // Apply background colors dynamically
-        Array.from(tr.children).forEach((td, index) => {
-            const colId = cols[index];
-            const conf = gridColumnsConfig[colId];
-            if (conf && conf.backgroundColor) {
-                td.style.backgroundColor = conf.backgroundColor;
-                const inputs = td.querySelectorAll('input, select');
-                inputs.forEach(input => {
-                    input.style.backgroundColor = conf.backgroundColor;
-                });
-            }
-        });
-        
+        tr.innerHTML = trHtml;
         tbody.appendChild(tr);
 
         // ── Mobile Card ──
@@ -1892,8 +1732,8 @@ function renderGrid() {
         card.innerHTML = `
             <div class="m-card-num">${idx + 1}</div>
             <div style="position: absolute; left: 10px; top: 10px; display: flex; gap: 5px;">
-                <button class="m-card-edit" onclick="document.getElementById('m-item-search-${row.id}').focus()" title="تعديل" style="background: transparent; border: none; color: #38bdf8; cursor: pointer;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                <button class="m-card-add" onclick="addRow()" title="إضافة سطر" style="background: transparent; border: none; color: #34d399; cursor: pointer;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 </button>
                 <button class="m-card-del" onclick="removeRow(${row.id})" title="حذف">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
@@ -2084,17 +1924,24 @@ function recalcAll() {
     // Update labels dynamically based on currency
     const lblLocal = document.getElementById('lbl-grand-local');
     const lblFc = document.getElementById('lbl-grand-fc');
+    const thCol1 = document.getElementById('th-totals-col1');
+    const thCol2 = document.getElementById('th-totals-col2');
+    
     if (lblLocal && lblFc) {
         if (isBaseSDG) {
             lblLocal.textContent = 'صافي محلي';
             lblLocal.style.color = '#38bdf8';
             lblFc.textContent = 'صافي أجنبي';
             lblFc.style.color = '#10b981';
+            if (thCol1) thCol1.textContent = 'محلي';
+            if (thCol2) thCol2.textContent = 'أجنبي';
         } else {
             lblLocal.textContent = 'صافي أجنبي';
             lblLocal.style.color = '#10b981';
             lblFc.textContent = 'صافي محلي';
             lblFc.style.color = '#38bdf8';
+            if (thCol1) thCol1.textContent = 'أجنبي';
+            if (thCol2) thCol2.textContent = 'محلي';
         }
     }
 
@@ -2263,8 +2110,14 @@ function submitInvoice(ignoreWarnings = false) {
         committedNo = commitInvoiceNumber(currentSaleType); // increment
     }
     const cur = getCurrency();
+    const isBase = (cur === 'SDG');
+    const rate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
     const grandTotal = document.getElementById('t-grand-local').textContent;
     const grandAmount = parseNum(grandTotal);
+    
+    // Explicitly compute Local vs FC for robust accounting
+    const localGrandAmount = isBase ? grandAmount : grandAmount * rate;
+    const fcGrandAmount = isBase ? grandAmount / rate : grandAmount;
 
     // --- 1. Multi-Payment Read & Validation ---
     const cashActive = document.getElementById('toggle-cash').classList.contains('active');
@@ -2352,6 +2205,8 @@ function submitInvoice(ignoreWarnings = false) {
         status: 'confirmed',
         grandTotal: grandAmount,
         totalAmount: grandAmount,
+        localTotal: localGrandAmount,
+        fcTotal: fcGrandAmount,
         laborCost: parseNum(document.getElementById('t-labor')?.value || 0),
         laborCostFc: parseNum(document.getElementById('t-labor-fc')?.value || 0),
         transportCost: parseNum(document.getElementById('t-transport')?.value || 0),
@@ -2391,22 +2246,24 @@ function submitInvoice(ignoreWarnings = false) {
         let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
 
         if (paymentMethod === 'hybrid' || paymentMethod === 'multipay') {
-            // Subtract cash portion
+            // Subtract cash portion (always in local base currency)
+            const localCashAmt = isBase ? cashAmt : cashAmt * rate;
             if (cashAmt > 0) {
                 const paymentAccountId = document.getElementById('hdr-payment-account').value;
                 const bIdx = banks.findIndex(b => b.id === paymentAccountId);
                 if (bIdx > -1) {
-                    banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - cashAmt;
+                    banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - localCashAmt;
                     data.paymentAccountId = paymentAccountId;
                     usedAccountName = banks[bIdx].name;
                 }
             }
-            // Subtract bank transfers
+            // Subtract bank transfers (always in local base currency)
             if (bankTransfers && bankTransfers.length > 0) {
                 bankTransfers.forEach(bt => {
                     const bIdx = banks.findIndex(b => b.id === bt.bankAccountId);
                     if (bIdx > -1) {
-                        banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - bt.amount;
+                        const localBtAmt = isBase ? bt.amount : bt.amount * rate;
+                        banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - localBtAmt;
                     }
                 });
             }
@@ -2415,7 +2272,7 @@ function submitInvoice(ignoreWarnings = false) {
             const paymentAccountId = document.getElementById('hdr-payment-account').value;
             const bIdx = banks.findIndex(b => b.id === paymentAccountId);
             if (bIdx > -1) {
-                banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - grandAmount;
+                banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - localGrandAmount;
                 localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
                 data.paymentAccountId = paymentAccountId;
                 usedAccountName = banks[bIdx].name;
@@ -2433,8 +2290,9 @@ function submitInvoice(ignoreWarnings = false) {
             let suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
             const sIdx = suppliers.findIndex(s => s.id === custId);
             if (sIdx > -1) {
+                const localCreditToAdd = isBase ? creditBalanceToAdd : creditBalanceToAdd * rate;
                 let currentBalance = parseFloat(suppliers[sIdx].currentBalance) || 0;
-                suppliers[sIdx].currentBalance = currentBalance + creditBalanceToAdd;
+                suppliers[sIdx].currentBalance = currentBalance + localCreditToAdd;
                 localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
             }
         }
@@ -2452,33 +2310,80 @@ function submitInvoice(ignoreWarnings = false) {
         allPurchases.push(data);
     }
     localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+    if (window.AccountingEngine && typeof window.AccountingEngine.postPurchaseInvoice === 'function') {
+        window.AccountingEngine.postPurchaseInvoice(data);
+    }
+    if (typeof loadHubTransactions === 'function') loadHubTransactions();
 
     // Add to local inventory cache and live objects (only in auto mode)
     if (shouldApplyEffects) {
         let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
         const mainWh = document.getElementById('hdr-warehouse').value;
-        for (const row of rows) {
+        
+        // Landed Cost Calculation
+        const localAdditions = (data.laborCost||0) + (data.transportCost||0) + (data.additionsCost||0) + (data.taxCost||0) - (data.discountCost||0);
+        const fcAdditions = (data.laborCostFc||0) + (data.transportCostFc||0) + (data.additionsCostFc||0) + (data.taxCostFc||0) - (data.discountCostFc||0);
+        let totalItemValueLocal = 0, totalItemValueFc = 0;
+        data.items.forEach(r => {
+            totalItemValueLocal += (parseFloat(r.price)||0) * (parseFloat(r.quantity)||0);
+            totalItemValueFc += (parseFloat(r.fcPrice)||0) * (parseFloat(r.quantity)||0);
+        });
+        const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+        const valuationMethod = cfg.inventoryValuation || 'moving_average';
+
+        for (const row of data.items) {
             const item = ITEMS.find(i => String(i.id) === String(row.itemId));
             if (!item) continue;
-            const calcs = getRowCalcs(row);
+            
+            let selectedUnitFactor = row.customFactor !== undefined ? row.customFactor : 1;
+            let baseQty = row.customBaseQty !== undefined ? row.customBaseQty : (item ? row.quantity * selectedUnitFactor * item.conversionFactor : 0);
             const whId = row.warehouseId || mainWh;
             const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي';
             
-            let itemInv = currentInvData.find(inv => String(inv.itemId) === String(row.itemId) && inv.warehouse === whName);
+            let itemInv = currentInvData.find(iv => String(iv.itemId) === String(row.itemId) && iv.warehouse === whName);
             if (itemInv) {
-                itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) + calcs.baseQty;
+                itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) + baseQty;
             } else {
-                currentInvData.push({ itemId: row.itemId, warehouse: whName, qty: calcs.baseQty, minQty: 10 });
+                currentInvData.push({ itemId: row.itemId, warehouse: whName, qty: baseQty, minQty: 10 });
             }
             
-            // Update live ITEMS array
-            if (item.stock && item.stock[whId] !== undefined) {
-                item.stock[whId] += calcs.baseQty;
-            } else if (item.stock) {
-                item.stock[whId] = calcs.baseQty;
+            let oldQty = parseFloat(item.stock ? Object.values(item.stock).reduce((a,b)=>a+b,0) : 0) || 0;
+            
+            if (item.stock && item.stock[whId] !== undefined) item.stock[whId] += baseQty;
+            else if (item.stock) item.stock[whId] = baseQty;
+            
+            // Costing Updates
+            let itemTotalLocal = (parseFloat(row.price)||0) * (parseFloat(row.quantity)||0);
+            let itemTotalFc = (parseFloat(row.fcPrice)||0) * (parseFloat(row.quantity)||0);
+            
+            let ratioLocal = totalItemValueLocal > 0 ? (itemTotalLocal / totalItemValueLocal) : 0;
+            let ratioFc = totalItemValueFc > 0 ? (itemTotalFc / totalItemValueFc) : 0;
+            
+            let newCostBaseLocal = baseQty > 0 ? ((itemTotalLocal + (localAdditions * ratioLocal)) / baseQty) : 0;
+            let newCostBaseFc = baseQty > 0 ? ((itemTotalFc + (fcAdditions * ratioFc)) / baseQty) : 0;
+            
+            row.costingRevertData = {
+                oldAvgLocal: parseFloat(item.averageCost) || 0, oldAvgFc: parseFloat(item.averageCostFc) || 0,
+                oldLastLocal: parseFloat(item.lastPurchaseCost) || 0, oldLastFc: parseFloat(item.lastPurchaseCostFc) || 0
+            };
+            
+            let currentTotalQty = oldQty + baseQty;
+            let oldAvgLocal = parseFloat(item.averageCost) || parseFloat(item.lastPurchaseCost) || 0;
+            let oldAvgFc = parseFloat(item.averageCostFc) || parseFloat(item.lastPurchaseCostFc) || 0;
+            
+            let movingAvgLocal = currentTotalQty > 0 ? ((oldQty * oldAvgLocal) + (baseQty * newCostBaseLocal)) / currentTotalQty : newCostBaseLocal;
+            let movingAvgFc = currentTotalQty > 0 ? ((oldQty * oldAvgFc) + (baseQty * newCostBaseFc)) / currentTotalQty : newCostBaseFc;
+            
+            if (valuationMethod === 'moving_average') {
+                item.averageCost = movingAvgLocal; item.averageCostFc = movingAvgFc;
+            } else {
+                item.averageCost = newCostBaseLocal; item.averageCostFc = newCostBaseFc;
             }
+            item.lastPurchaseCost = newCostBaseLocal; item.lastPurchaseCostFc = newCostBaseFc;
         }
+        localStorage.setItem('erp_items_v1', JSON.stringify(ITEMS));
         localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
+        localStorage.setItem('erp_pur_' + committedNo, JSON.stringify(data));
     }
 
     // Show professional success modal
@@ -2519,25 +2424,32 @@ function postInvoice(invoiceNo) {
     const grandAmount = parseFloat(inv.grandTotal) || 0;
     const paymentMethod = inv.paymentMethod || 'credit';
     const custId = inv.customer;
+    
+    const cur = inv.currency || 'SDG';
+    const rate = parseFloat(inv.exchangeRate) || 1;
+    const isBase = (cur === 'SDG');
 
     // 1. Apply Bank/Safe effects
     let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
     if (paymentMethod === 'hybrid' || paymentMethod === 'multipay') {
         if (inv.cashAmount > 0 && inv.paymentAccountId) {
             const bIdx = banks.findIndex(b => b.id === inv.paymentAccountId);
-            if (bIdx > -1) banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - parseFloat(inv.cashAmount);
+            const amtToSubtract = isBase ? parseFloat(inv.cashAmount) : parseFloat(inv.cashAmount) * rate;
+            if (bIdx > -1) banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - amtToSubtract;
         }
         if (inv.bankTransfers && inv.bankTransfers.length > 0) {
             inv.bankTransfers.forEach(bt => {
                 const bIdx = banks.findIndex(b => b.id === bt.bankAccountId);
-                if (bIdx > -1) banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - parseFloat(bt.amount);
+                const amtToSubtract = isBase ? parseFloat(bt.amount) : parseFloat(bt.amount) * rate;
+                if (bIdx > -1) banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - amtToSubtract;
             });
         }
         localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
     } else if (paymentMethod !== 'credit' && inv.paymentAccountId) {
         const bIdx = banks.findIndex(b => b.id === inv.paymentAccountId);
         if (bIdx > -1) {
-            banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - grandAmount;
+            const amtToSubtract = isBase ? grandAmount : grandAmount * rate;
+            banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - amtToSubtract;
             localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
         }
     }
@@ -2549,11 +2461,13 @@ function postInvoice(invoiceNo) {
     } else if (paymentMethod === 'credit') {
         creditBalanceToAdd = grandAmount;
     }
+    
     if (creditBalanceToAdd > 0 && custId && custId !== 'walk-in') {
+        const localCreditToAdd = isBase ? creditBalanceToAdd : creditBalanceToAdd * rate;
         let suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
         const sIdx = suppliers.findIndex(s => s.id === custId);
         if (sIdx > -1) {
-            suppliers[sIdx].currentBalance = (parseFloat(suppliers[sIdx].currentBalance) || 0) + creditBalanceToAdd;
+            suppliers[sIdx].currentBalance = (parseFloat(suppliers[sIdx].currentBalance) || 0) + localCreditToAdd;
             localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
         }
     }
@@ -2562,6 +2476,16 @@ function postInvoice(invoiceNo) {
     let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
     const mainWh = inv.warehouse || 'wh-001';
     if (inv.items && Array.isArray(inv.items)) {
+        const localAdditions = (parseFloat(inv.laborCost)||0) + (parseFloat(inv.transportCost)||0) + (parseFloat(inv.additionsCost)||0) + (parseFloat(inv.taxCost)||0) - (parseFloat(inv.discountCost)||0);
+        const fcAdditions = (parseFloat(inv.laborCostFc)||0) + (parseFloat(inv.transportCostFc)||0) + (parseFloat(inv.additionsCostFc)||0) + (parseFloat(inv.taxCostFc)||0) - (parseFloat(inv.discountCostFc)||0);
+        let totalItemValueLocal = 0, totalItemValueFc = 0;
+        inv.items.forEach(r => {
+            totalItemValueLocal += (parseFloat(r.price)||0) * (parseFloat(r.quantity)||0);
+            totalItemValueFc += (parseFloat(r.fcPrice)||0) * (parseFloat(r.quantity)||0);
+        });
+        const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+        const valuationMethod = cfg.inventoryValuation || 'moving_average';
+
         for (const row of inv.items) {
             const item = ITEMS.find(i => String(i.id) === String(row.itemId));
             if (!item) continue;
@@ -2575,9 +2499,41 @@ function postInvoice(invoiceNo) {
             } else {
                 currentInvData.push({ itemId: row.itemId, warehouse: whName, qty: baseQty, minQty: 10 });
             }
+            
+            let oldQty = parseFloat(item.stock ? Object.values(item.stock).reduce((a,b)=>a+b,0) : 0) || 0;
             if (item.stock && item.stock[whId] !== undefined) item.stock[whId] += baseQty;
             else if (item.stock) item.stock[whId] = baseQty;
+            
+            // Costing Updates
+            let itemTotalLocal = (parseFloat(row.price)||0) * (parseFloat(row.quantity)||0);
+            let itemTotalFc = (parseFloat(row.fcPrice)||0) * (parseFloat(row.quantity)||0);
+            
+            let ratioLocal = totalItemValueLocal > 0 ? (itemTotalLocal / totalItemValueLocal) : 0;
+            let ratioFc = totalItemValueFc > 0 ? (itemTotalFc / totalItemValueFc) : 0;
+            
+            let newCostBaseLocal = baseQty > 0 ? ((itemTotalLocal + (localAdditions * ratioLocal)) / baseQty) : 0;
+            let newCostBaseFc = baseQty > 0 ? ((itemTotalFc + (fcAdditions * ratioFc)) / baseQty) : 0;
+            
+            row.costingRevertData = {
+                oldAvgLocal: parseFloat(item.averageCost) || 0, oldAvgFc: parseFloat(item.averageCostFc) || 0,
+                oldLastLocal: parseFloat(item.lastPurchaseCost) || 0, oldLastFc: parseFloat(item.lastPurchaseCostFc) || 0
+            };
+            
+            let currentTotalQty = oldQty + baseQty;
+            let oldAvgLocal = parseFloat(item.averageCost) || parseFloat(item.lastPurchaseCost) || 0;
+            let oldAvgFc = parseFloat(item.averageCostFc) || parseFloat(item.lastPurchaseCostFc) || 0;
+            
+            let movingAvgLocal = currentTotalQty > 0 ? ((oldQty * oldAvgLocal) + (baseQty * newCostBaseLocal)) / currentTotalQty : newCostBaseLocal;
+            let movingAvgFc = currentTotalQty > 0 ? ((oldQty * oldAvgFc) + (baseQty * newCostBaseFc)) / currentTotalQty : newCostBaseFc;
+            
+            if (valuationMethod === 'moving_average') {
+                item.averageCost = movingAvgLocal; item.averageCostFc = movingAvgFc;
+            } else {
+                item.averageCost = newCostBaseLocal; item.averageCostFc = newCostBaseFc;
+            }
+            item.lastPurchaseCost = newCostBaseLocal; item.lastPurchaseCostFc = newCostBaseFc;
         }
+        localStorage.setItem('erp_items_v1', JSON.stringify(ITEMS));
     }
     localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
 
@@ -2776,18 +2732,24 @@ function revertOldInvoiceEffects(currentInvNo) {
     const grandAmount = parseFloat(oldInv.grandTotal) || 0;
 
     // 1. Revert Supplier Balance (Debt)
+    const isOldBase = (oldInv.currency === 'SDG' || !oldInv.currency);
+    const oldRate = parseNum(oldInv.exchangeRate) || 1;
+    const oldGrandLoc = oldInv.localTotal !== undefined ? oldInv.localTotal : (isOldBase ? oldInv.grandTotal : oldInv.grandTotal * oldRate);
+
     let creditRevertAmount = 0;
     if (oldInv.paymentMethod === 'hybrid' || oldInv.paymentMethod === 'multipay') {
         creditRevertAmount = parseFloat(oldInv.creditAmount) || 0;
     } else if (oldInv.paymentMethod === 'credit') {
-        creditRevertAmount = grandAmount;
+        creditRevertAmount = oldInv.grandTotal;
     }
+    
     if (creditRevertAmount > 0 && oldInv.customer && oldInv.customer !== 'walk-in') {
         let suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
         const sIdx = suppliers.findIndex(s => s.id === oldInv.customer);
         if (sIdx > -1) {
             let currentBalance = parseFloat(suppliers[sIdx].currentBalance) || 0;
-            suppliers[sIdx].currentBalance = currentBalance - creditRevertAmount; // Revert debt
+            const localCreditRevert = isOldBase ? creditRevertAmount : creditRevertAmount * oldRate;
+            suppliers[sIdx].currentBalance = currentBalance - localCreditRevert; // Revert debt
             localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
         }
     }
@@ -2799,7 +2761,8 @@ function revertOldInvoiceEffects(currentInvNo) {
         if (oldInv.cashAmount > 0 && oldInv.paymentAccountId) {
             const bIdx = banks.findIndex(b => b.id === oldInv.paymentAccountId);
             if (bIdx > -1) {
-                banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) + parseFloat(oldInv.cashAmount);
+                const localCashAmt = isOldBase ? oldInv.cashAmount : oldInv.cashAmount * oldRate;
+                banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) + localCashAmt;
             }
         }
         // Revert bank transfers
@@ -2807,7 +2770,8 @@ function revertOldInvoiceEffects(currentInvNo) {
             oldInv.bankTransfers.forEach(bt => {
                 const bIdx = banks.findIndex(b => b.id === bt.bankAccountId);
                 if (bIdx > -1) {
-                    banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) + parseFloat(bt.amount);
+                    const localBtAmt = isOldBase ? bt.amount : bt.amount * oldRate;
+                    banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) + localBtAmt;
                 }
             });
         }
@@ -2817,12 +2781,12 @@ function revertOldInvoiceEffects(currentInvNo) {
         const bIdx = banks.findIndex(b => b.id === oldInv.paymentAccountId);
         if (bIdx > -1) {
             let currentBalance = parseFloat(banks[bIdx].currentBalance) || 0;
-            banks[bIdx].currentBalance = currentBalance + grandAmount; // Revert payment
+            banks[bIdx].currentBalance = currentBalance + oldGrandLoc; // Revert payment
             localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
         }
     }
 
-    // 3. Revert Inventory Quantity
+    // 3. Revert Inventory Quantity and Costing
     let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
     const mainWh = oldInv.warehouse || 'wh-001';
     if (oldInv.items && Array.isArray(oldInv.items)) {
@@ -2852,7 +2816,16 @@ function revertOldInvoiceEffects(currentInvNo) {
             if (item.actualStock && item.actualStock[whId] !== undefined) {
                 item.actualStock[whId] -= baseQty;
             }
+            
+            // Revert Costing if data is available
+            if (row.costingRevertData) {
+                item.averageCost = row.costingRevertData.oldAvgLocal;
+                item.averageCostFc = row.costingRevertData.oldAvgFc;
+                item.lastPurchaseCost = row.costingRevertData.oldLastLocal;
+                item.lastPurchaseCostFc = row.costingRevertData.oldLastFc;
+            }
         }
+        localStorage.setItem('erp_items_v1', JSON.stringify(ITEMS));
     }
     localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
 }

@@ -372,7 +372,7 @@
             <button class="md-tab-btn" onclick="openTab(event, 'tab-items'); setTimeout(openItemForm, 50);"><span class="md-tab-icon">📦</span> الأصناف والوحدات</button>
             <button class="md-tab-btn" onclick="openTab(event, 'tab-employees')"><span class="md-tab-icon">👥</span> الموظفين</button>
             <button class="md-tab-btn" onclick="openTab(event, 'tab-costcenters')"><span class="md-tab-icon">📊</span> مراكز التكلفة</button>
-            <button class="md-tab-btn" onclick="openTab(event, 'tab-currencies')"><span class="md-tab-icon">🎨</span> معامل العملات</button>
+
             <div style="flex: 1;"></div>
             <button class="md-tab-btn" onclick="goBackOrExit()" style="color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.1); font-weight: 900; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);"><span class="md-tab-icon">🚪</span> خروج / رجوع</button>
         </aside>
@@ -915,33 +915,7 @@
                 </div>
             </div>
             
-            <div id="tab-currencies" class="md-tab-content">
-                <div class="md-card">
-                    <div class="md-card-header">
-                        <h3 class="md-card-title">🎨 معامل العملات (أسعار الصرف)</h3>
-                    </div>
-                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 15px;">
-                        حدد كم تساوي كل عملة أجنبية مقابل العملة المحلية الأساسية (مثلاً: كم جنيه سوداني يساوي الدولار الواحد).
-                    </p>
-                    <div class="table-responsive" style="overflow-x: auto; max-width: 600px;">
-                        <table class="pro-table">
-                            <thead>
-                                <tr>
-                                    <th>رمز العملة</th>
-                                    <th>اسم العملة (بالعربية)</th>
-                                    <th>معامل العملة (سعر الصرف)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="currencies-tbody">
-                                <!-- Loaded dynamically -->
-                            </tbody>
-                        </table>
-                    </div>
-                    <div style="margin-top: 20px; text-align: right;">
-                        <button type="button" class="btn-add" style="background: var(--success-color); padding: 10px 25px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);" onclick="saveCurrencyRates()">💾 حفظ معامل العملات</button>
-                    </div>
-                </div>
-            </div>
+            
 
         </main>
     </div>
@@ -987,9 +961,7 @@
             document.querySelectorAll('.md-tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             evt.currentTarget.classList.add('active');
-            if (tabId === 'tab-currencies') {
-                renderCurrencyRates();
-            }
+            
         }
 
         function openInnerTab(evt, tabId) {

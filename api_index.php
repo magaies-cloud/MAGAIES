@@ -200,6 +200,19 @@ if ($resource === 'wa-tenant' || $action === 'wa-proxy') {
     exit;
 }
 
+// ---------------------------------------------------------
+// EXCHANGE RATE (PUBLIC)
+// ---------------------------------------------------------
+if ($resource === 'exchange-rate' && $method === 'GET') {
+    $ex_rate = ['rate' => 1.0, 'visible' => false];
+    try {
+        $stmt_ex = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'exchange_rate'");
+        $val = $stmt_ex->fetchColumn();
+        if ($val) $ex_rate = json_decode($val, true);
+    } catch(Exception $e) {}
+    jsonResponse($ex_rate);
+}
+
 if ($resource === 'public' && empty($action) && $method === 'GET') {
     $data = ['plans' => [], 'partners' => [], 'ads' => [], 'partners_enabled' => true];
     try {
