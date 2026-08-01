@@ -1070,6 +1070,15 @@ function loadPreset(idx) {
     if (preset) {
         columnConfigs = preset.configs || getDefaultConfigs();
         columnOrder = preset.order || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+        
+        // Migration for old configs
+        if (!columnOrder.includes(11)) {
+            columnOrder.push(11);
+            const defaults = getDefaultConfigs();
+            if (columnConfigs[9]) columnConfigs[9].label = defaults[9].label;
+            if (columnConfigs[10]) columnConfigs[10].label = defaults[10].label;
+            columnConfigs[11] = defaults[11];
+        }
         currentTheme = preset.theme || '';
         currentFont = preset.font || 'font-newsons';
         currentPaperSize = preset.paperSize || 'A4';
@@ -1644,6 +1653,17 @@ function showToast(message, type = 'success') {
 function applyDesignState(state) {
     columnConfigs = state.configs || getDefaultConfigs();
     columnOrder = state.order || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+
+    // Migration for old configs that didn't have exchange rate (column 11 missing)
+    if (!columnOrder.includes(11)) {
+        // Old 9 was balance, 10 was note. Now 9 is exchangeRate, 10 is balance, 11 is note.
+        // We push 11, and we forcefully update the labels of 9, 10, 11 from default
+        columnOrder.push(11);
+        const defaults = getDefaultConfigs();
+        if (columnConfigs[9]) columnConfigs[9].label = defaults[9].label;
+        if (columnConfigs[10]) columnConfigs[10].label = defaults[10].label;
+        columnConfigs[11] = defaults[11];
+    }
     currentTheme = state.theme || '';
     currentFont = state.font || 'font-newsons';
     currentPaperSize = state.paperSize || 'A4';
