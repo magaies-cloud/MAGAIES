@@ -358,10 +358,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch(e){}
     }
 
+
     if (!currentData || currentData.length === 0) {
         if (typeof collectAllTransactions === 'function') {
-            currentData = collectAllTransactions();
+            try {
+                currentData = collectAllTransactions();
+                console.log('preview-ledger: collectAllTransactions returned', currentData ? currentData.length : 0, 'rows');
+            } catch(e) {
+                console.error('preview-ledger: collectAllTransactions error:', e);
+                currentData = [];
+            }
+        } else {
+            console.warn('preview-ledger: collectAllTransactions not defined');
         }
+    } else {
+        console.log('preview-ledger: loaded', currentData.length, 'rows from storage');
     }
 
     filteredData = [...currentData];
