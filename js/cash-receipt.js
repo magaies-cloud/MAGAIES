@@ -391,7 +391,8 @@ function submitVoucher() {
         statement: globalStatement,
         totalAmount: total,
         details: details,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        systemExchangeRate: (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency('USD') : 1)
     };
 
     receiptsData = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
