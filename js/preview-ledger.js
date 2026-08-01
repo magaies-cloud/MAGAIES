@@ -15,9 +15,9 @@ let showHeaderInfo = true;
 let isLongPressTriggered = false;
 let longPressInterval = null;
 
-// Exchange rate settings (mirrors general-ledger.js)
-let ledgerExchangeRate = 1.0;
-let ledgerForeignCurrency = 'USD';
+// Exchange rate settings (may already be defined by general-ledger.js)
+if (typeof ledgerExchangeRate === 'undefined') var ledgerExchangeRate = 1.0;
+if (typeof ledgerForeignCurrency === 'undefined') var ledgerForeignCurrency = 'USD';
 (function initPreviewLedgerRate() {
     try {
         const erpSettings = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
