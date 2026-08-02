@@ -684,7 +684,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
                         <div style="flex: 1; min-width: 120px;">
                             <label style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; display: block; white-space: nowrap;">العملة</label>
-                            <select id="currency" class="form-select" onchange="onCurrencyChange()">
+                            <select id="currency" class="form-input system-currency-select input-glow-focus hover-glow" onchange="typeof onCurrencyChange === 'function' ? onCurrencyChange() : (typeof updateCurrency === 'function' ? updateCurrency() : null);" style="border-radius: 10px; flex-grow: 1; min-width: 0; width: 100%; font-size: 1.1rem !important; font-weight: 800;">
                                 <option value="SDG">جنيه (SDG)</option>
                                 <option value="USD">دولار (USD)</option>
                                 <option value="AED">درهم (AED)</option>
@@ -693,7 +693,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         
                         <div style="flex: 1; min-width: 100px;">
                             <label style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; display: block; white-space: nowrap;">التعادل</label>
-                            <input type="text" autocomplete="off" id="exchange-rate" class="form-input" value="1.0" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); typeof calcTotal === 'function' ? calcTotal() : null;" style="font-weight: bold; font-family: monospace;">
+                            <input type="number" autocomplete="off" id="exchange-rate" class="form-input" value="1.0" readonly style="font-weight: bold; font-family: monospace; text-align: center; cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; border-radius: 10px;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; if(typeof calcTotal === 'function') calcTotal(); else if(typeof recalcAll === 'function') recalcAll();});">
                         </div>
                         
                         <div style="flex: 1; min-width: 150px;">
