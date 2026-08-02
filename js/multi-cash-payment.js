@@ -2230,10 +2230,15 @@ function getAccountName(id) {
     }
     const cleanId = String(id).replace(/^(cust|supp|bank|safe|exp)-/, '');
     const matched = ACCOUNTS.find(a => String(a.id) === String(id) || String(a.rawId) === String(cleanId) || String(a.name) === String(id));
-    return matched ? matched.name : id;
+    if (matched) return matched.name;
+    if (cleanId === 'safe-001' || id === 'safe-001') return 'الخزينة الرئيسية';
+    if (cleanId === 'bank-001' || id === 'bank-001') return 'البنك الرئيسي';
+    if (cleanId === 'bankok' || id === 'bankok') return 'بنكك (Bankak)';
+    if (cleanId === 'fawry' || id === 'fawry') return 'فوري (Fawry)';
+    if (cleanId === 'o-cash' || id === 'o-cash') return 'أوكاش (O-Cash)';
+    if (cleanId === 'other' || id === 'other') return 'أخرى';
+    return id;
 }
-
-
 function applyGroupedVoucherEffect(voucher, isRevert = false) {
     if (!voucher) return;
     const type = voucher.type; // 'payment' or 'receipt'

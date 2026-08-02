@@ -1579,7 +1579,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const modeSelect = document.getElementById('cfg-exchange-mode');
         if (modeSelect) {
             let activeMode = cfg.exchangeMode;
-            if (!activeMode || (activeMode === 'manual' && !cfg._userExplicitManual)) {
+            if (!activeMode) {
                 activeMode = 'global';
             }
             modeSelect.value = activeMode;

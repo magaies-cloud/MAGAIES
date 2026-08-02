@@ -42,7 +42,14 @@ function initBalancesCurrencySettings() {
         .then(res => res.json())
         .then(data => {
             if (data && data.rate) {
-                ledgerExchangeRate = parseFloat(data.rate) || 1.0;
+                try {
+                    const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+                    if (cfg.exchangeMode !== 'manual') {
+                        ledgerExchangeRate = parseFloat(data.rate) || 1.0;
+                    }
+                } catch(e) {
+                    ledgerExchangeRate = parseFloat(data.rate) || 1.0;
+                }
             }
         })
         .catch(() => {});
@@ -774,8 +781,8 @@ function runReport(isAutoInit = false) {
     // Calculate for each partner sequentially to match SGL ledger
     ALL_PARTNERS.forEach(p => {
         let runningBal = p.openingDebit - p.openingCredit;
-        const safeExRate = (p.exRate && p.exRate !== 0) ? p.exRate : 1;
-        let runningBalForeign = (p.openingDebit / safeExRate) - (p.openingCredit / safeExRate);
+        const effRate = (ledgerExchangeRate && ledgerExchangeRate > 0) ? ledgerExchangeRate : 1;
+        let runningBalForeign = (p.openingDebit / effRate) - (p.openingCredit / effRate);
         
         // Filter transactions for this partner using type-prefixed IDs to avoid ID collisions
         let pRef = String(p.id);

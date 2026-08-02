@@ -43,11 +43,23 @@ function initLedgerCurrencySettings() {
         console.error("Error loading foreign currency from settings:", e);
     }
 
+    if (typeof window.getExchangeRateForCurrency === 'function') {
+        const r = window.getExchangeRateForCurrency('USD');
+        if (r && r > 0) ledgerExchangeRate = r;
+    }
+
     fetch('api_index.php/exchange-rate')
         .then(res => res.json())
         .then(data => {
             if (data && data.rate) {
-                ledgerExchangeRate = parseFloat(data.rate) || 1.0;
+                try {
+                    const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+                    if (cfg.exchangeMode !== 'manual') {
+                        ledgerExchangeRate = parseFloat(data.rate) || 1.0;
+                    }
+                } catch(e) {
+                    ledgerExchangeRate = parseFloat(data.rate) || 1.0;
+                }
             }
         })
         .catch(() => {});
@@ -78,19 +90,30 @@ window.setDateMode = function(mode) {
 function buildAccountsList() {
     ALL_ACCOUNTS = [{ id: 'ALL', name: 'جميع الحسابات', icon: '📊', type: 'عام' }];
     
-    const accounts = (JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => !x.deleted);
-    accounts.forEach(a => ALL_ACCOUNTS.push({ id: `exp-${a.id}`, name: a.name, icon: '📝', type: 'عام' }));
+    try {
+        const accounts = (JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => !x.deleted);
+        accounts.forEach(a => ALL_ACCOUNTS.push({ id: `exp-${a.id}`, name: a.name, icon: '📝', type: 'عام' }));
+    } catch(e) { console.warn('Error loading accounts:', e); }
     
-    const safes = (JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => !x.deleted);
-    safes.forEach(s => ALL_ACCOUNTS.push({ id: `safe-${s.id}`, name: s.safeName || s.name, icon: '💰', type: 'صندوق' }));
+    try {
+        const safes = (JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => !x.deleted);
+        safes.forEach(s => ALL_ACCOUNTS.push({ id: `safe-${s.id}`, name: s.safeName || s.name, icon: '💰', type: 'صندوق' }));
+    } catch(e) { console.warn('Error loading safes:', e); }
     
-    const banks = (JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => !x.deleted);
-    banks.forEach(b => ALL_ACCOUNTS.push({ id: `bank-${b.id}`, name: b.bankName || b.name, icon: '🏦', type: 'بنك' }));
+    try {
+        const banks = (JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => !x.deleted);
+        banks.forEach(b => ALL_ACCOUNTS.push({ id: `bank-${b.id}`, name: b.bankName || b.name, icon: '🏦', type: 'بنك' }));
+    } catch(e) { console.warn('Error loading banks:', e); }
     
-    const custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
-    const sups  = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
-    custs.forEach(c => ALL_ACCOUNTS.push({ id: `cust-${c.id}`, name: c.name, icon: '👤', type: 'عميل' }));
-    sups.forEach(s  => ALL_ACCOUNTS.push({ id: `supp-${s.id}`, name: s.name, icon: '🏭', type: 'مورد' }));
+    try {
+        const custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+        custs.forEach(c => ALL_ACCOUNTS.push({ id: `cust-${c.id}`, name: c.name, icon: '👤', type: 'عميل' }));
+    } catch(e) { console.warn('Error loading customers:', e); }
+
+    try {
+        const sups  = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
+        sups.forEach(s  => ALL_ACCOUNTS.push({ id: `supp-${s.id}`, name: s.name, icon: '🏭', type: 'مورد' }));
+    } catch(e) { console.warn('Error loading suppliers:', e); }
 
     // Build O(1) lookup cache
     ACCOUNT_NAME_CACHE = new Map();
@@ -421,8 +444,10 @@ function collectAllTransactions() {
         return accVal;
     };
 
-    // 2b. Multi-Receipts
-    const multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
+    // 2b. Multi-Receipts & Comprehensive Receipts
+    let multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
+    const compReceipts = JSON.parse(localStorage.getItem('erp_comprehensive_receipts_v1')) || [];
+    multiReceipts = multiReceipts.concat(compReceipts);
     multiReceipts.forEach(v => {
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
@@ -556,8 +581,10 @@ function collectAllTransactions() {
         }
     });
 
-    // 2c. Multi-Payments
-    const multiPayments = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
+    // 2c. Multi-Payments & Comprehensive Payments
+    let multiPayments = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
+    const compPayments = JSON.parse(localStorage.getItem('erp_comprehensive_payments_v1')) || [];
+    multiPayments = multiPayments.concat(compPayments);
     multiPayments.forEach(v => {
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
@@ -1189,6 +1216,13 @@ function getAccountName(id) {
     if (cleanId && ACCOUNT_NAME_CACHE.has(cleanId)) return ACCOUNT_NAME_CACHE.get(cleanId);
     
     // 3. Fallback: return cleaned ID
+    if (cleanId === 'safe-001' || idStr === 'safe-001') return 'الخزينة الرئيسية';
+    if (cleanId === 'bank-001' || idStr === 'bank-001') return 'البنك الرئيسي';
+    if (cleanId === 'bankok' || idStr === 'bankok') return 'بنكك (Bankak)';
+    if (cleanId === 'fawry' || idStr === 'fawry') return 'فوري (Fawry)';
+    if (cleanId === 'o-cash' || idStr === 'o-cash') return 'أوكاش (O-Cash)';
+    if (cleanId === 'other' || idStr === 'other') return 'أخرى';
+    
     return cleanId || idStr;
 }
 
@@ -1660,10 +1694,32 @@ function runReport() {
             if (isAM && h === 12) h = 0;
             return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
         };
+        // ── Load Opening Balance (Intrinsic Balance) from Master Data ──
+        let intrinsicBal = 0;
+        let intrinsicBalFc = 0;
+        if (accVal !== 'ALL') {
+            const cleanId = accVal.replace(/^(cust|supp|bank|safe|exp)-/, '');
+            
+            const custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+            const sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
+            const banks = (JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => !x.deleted);
+            const safes = (JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => !x.deleted);
+            
+            let masterRec = custs.find(x => x.id === accVal || x.id === cleanId) 
+                         || sups.find(x => x.id === accVal || x.id === cleanId) 
+                         || banks.find(x => x.id === accVal || x.id === cleanId) 
+                         || safes.find(x => x.id === accVal || x.id === cleanId);
+            
+            if (masterRec) {
+                const opDebit = parseNum(masterRec.openingDebit || 0);
+                const opCredit = parseNum(masterRec.openingCredit || 0);
+                intrinsicBal = opDebit - opCredit;
+            }
+        }
 
         // Compute running balance in chronological order (oldest first)
-        let runningBal = 0;
-        let runningBalFc = 0;
+        let runningBal = intrinsicBal;
+        let runningBalFc = intrinsicBalFc;
         let chronological = filtered.slice().sort((a, b) => {
             const da = ((a && a.date) || '') + ' ' + parseTimeTo24h(a && a.time);
             const db = ((b && b.date) || '') + ' ' + parseTimeTo24h(b && b.time);
@@ -1674,13 +1730,32 @@ function runReport() {
             return cmp;
         });
 
+        // Insert opening balance row if account-specific view
+        if (accVal !== 'ALL' && (intrinsicBal !== 0 || chronological.length > 0)) {
+            const openingDebit = intrinsicBal > 0 ? intrinsicBal : 0;
+            const openingCredit = intrinsicBal < 0 ? Math.abs(intrinsicBal) : 0;
+            chronological.unshift({
+                date: fromDate || '0000-00-00', time: '', ref: 'OPENING', type: 'opening',
+                typeLabel: 'رصيد افتتاحي', account: accVal, counterAccount: '-',
+                statement: 'الرصيد الافتتاحي',
+                debit: openingDebit, credit: openingCredit,
+                costCenter: '', currency: 'SDG', isOpening: true, isPosted: true
+            });
+        }
+
         chronological.forEach(t => {
             if (!t) return;
             if (accVal !== 'ALL') {
-                runningBal += (t.debit || 0) - (t.credit || 0);
-                runningBalFc += (t.debitForeign || t.dr_foreign || 0) - (t.creditForeign || t.cr_foreign || 0);
-                t.balance = runningBal;
-                t.balanceForeign = runningBalFc;
+                if (t.isOpening) {
+                    // Opening row: balance = intrinsicBal (already set as runningBal)
+                    t.balance = runningBal;
+                    t.balanceForeign = runningBalFc;
+                } else {
+                    runningBal += (t.debit || 0) - (t.credit || 0);
+                    runningBalFc += (t.debitForeign || t.dr_foreign || 0) - (t.creditForeign || t.cr_foreign || 0);
+                    t.balance = runningBal;
+                    t.balanceForeign = runningBalFc;
+                }
             } else {
                 t.balance = undefined;
                 t.balanceForeign = undefined;
@@ -1693,7 +1768,7 @@ function runReport() {
         let totalDebit = 0;
         let totalCredit = 0;
         currentTxns.forEach(t => {
-            if (!t) return;
+            if (!t || t.isOpening) return;
             totalDebit += (t.debit || 0);
             totalCredit += (t.credit || 0);
         });
@@ -1713,7 +1788,9 @@ function runReport() {
         renderLedgerPage();
     } catch (e) {
         console.error('Error running report:', e);
-        renderRecentTable([]);
+        // Show the error on screen so we know exactly why it fails instead of silently hiding it
+        const tbody = document.getElementById('recent-tbody');
+        if (tbody) tbody.innerHTML = `<tr><td colspan="14" style="text-align:center; padding: 20px; color:red;">حدث خطأ أثناء تحميل التقرير: ${e.message}</td></tr>`;
     }
 }
 
@@ -1733,17 +1810,17 @@ function renderRecentTable(txns, startIndex = 0) {
         const isPosBal = (t.balance || 0) >= 0;
 
         html += `
-            <tr>
+            <tr style="${t.isOpening ? 'background:rgba(59,130,246,0.08); border-right:3px solid #3b82f6;' : ''}">
                 <td>${startIndex + i + 1}</td>
                 <td title="${t.time || ''}">${t.date || '-'}</td>
-                <td><strong style="color:#38bdf8;">${t.ref || '-'}</strong></td>
+                <td>${t.isOpening ? '<span style="color:#3b82f6; font-weight:900;">📋 افتتاحي</span>' : '<strong style="color:#38bdf8;">' + (t.ref || '-') + '</strong>'}</td>
                 <td><span style="font-weight:700;">${mainAccName}</span></td>
-                <td><span style="background:rgba(168,85,247,0.15); color:#c084fc; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">${t.typeLabel || '-'}</span></td>
-                <td style="white-space:normal; min-width:180px;">
+                <td><span style="background:${t.isOpening ? 'rgba(59,130,246,0.15)' : 'rgba(168,85,247,0.15)'}; color:${t.isOpening ? '#3b82f6' : '#c084fc'}; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">${t.typeLabel || '-'}</span></td>
+                <td style="white-space:normal; min-width:180px; ${t.isOpening ? 'font-weight:bold; color:#3b82f6;' : ''}">
                     ${(t.statement === 'undefined' ? '-' : t.statement) || '-'}
-                    ${t.additionalNote && t.additionalNote !== t.statement && t.additionalNote !== 'undefined' ? '<br><small style="color:#94a3b8;">' + t.additionalNote + '</small>' : ''}
+                    ${!t.isOpening && t.additionalNote && t.additionalNote !== t.statement && t.additionalNote !== 'undefined' ? '<br><small style="color:#94a3b8;">' + t.additionalNote + '</small>' : ''}
                 </td>
-                <td>${counterAccName}</td>
+                <td>${t.isOpening ? '-' : counterAccName}</td>
                 <td style="color:#34d399; font-weight:900;">${t.debit > 0 ? fmtNum(t.debit) : ''}</td>
                 <td style="color:#f87171; font-weight:900;">${t.credit > 0 ? fmtNum(t.credit) : ''}</td>
                 <td style="color:${isPosBal ? '#34d399' : '#f87171'}; font-weight:900; font-family:'JetBrains Mono',monospace;">${t.balance !== undefined ? fmtNum(t.balance) : '-'}</td>
@@ -1790,6 +1867,12 @@ function getAccountName(accVal) {
     if (ACCOUNT_NAME_CACHE.has(cleanId)) return ACCOUNT_NAME_CACHE.get(cleanId);
     
     // Hardcoded fallbacks
+    if (idLower === 'safe-001' || accVal === 'safe-001') return 'الخزينة الرئيسية';
+    if (idLower === 'bank-001' || accVal === 'bank-001') return 'البنك الرئيسي';
+    if (idLower === 'bankok' || accVal === 'bankok') return 'بنكك (Bankak)';
+    if (idLower === 'fawry' || accVal === 'fawry') return 'فوري (Fawry)';
+    if (idLower === 'o-cash' || accVal === 'o-cash') return 'أوكاش (O-Cash)';
+    if (idLower === 'other' || accVal === 'other') return 'أخرى';
     if (idLower === 'exp-purchases' || accVal === 'exp-purchases') return 'المشتريات';
     if (idLower === 'revenue-sales' || accVal === 'revenue-sales') return 'إيرادات المبيعات';
     if (idLower === 'cost-purchases' || accVal === 'cost-purchases') return 'تكلفة المشتريات (مخزون)';

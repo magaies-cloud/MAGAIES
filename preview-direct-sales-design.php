@@ -524,7 +524,7 @@
             ⚙️ إعدادات الأعمدة
         </button>
         <button class="ribbon-btn" onclick="toggleDarkMode()">🌙 عكس الألوان</button>
-        <button class="ribbon-btn" onclick="window.close()" style="color:#f87171; border-color:rgba(239,68,68,0.5);">❌ إغلاق / رجوع</button>
+        <button class="ribbon-btn" onclick="window.history.back()" style="color:#f87171; border-color:rgba(239,68,68,0.5);">❌ إغلاق / رجوع</button>
     </div>
 </div>
 

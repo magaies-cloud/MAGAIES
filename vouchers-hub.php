@@ -655,31 +655,41 @@
             const tkBR = window.getTenantKey ? window.getTenantKey('erp_receipts_v1') : 'erp_receipts_v1';
             const tkSP = window.getTenantKey ? window.getTenantKey('erp_single_payments_v1') : 'erp_single_payments_v1';
             const tkBP = window.getTenantKey ? window.getTenantKey('erp_payments_v1') : 'erp_payments_v1';
+            const tkCR = window.getTenantKey ? window.getTenantKey('erp_comprehensive_receipts_v1') : 'erp_comprehensive_receipts_v1';
+            const tkCP = window.getTenantKey ? window.getTenantKey('erp_comprehensive_payments_v1') : 'erp_comprehensive_payments_v1';
 
-            let sr = [], br = [], sp = [], bp = [];
+            let sr = [], br = [], sp = [], bp = [], cr = [], cp = [];
             
             if (typeof localforage !== 'undefined') {
                 sr = (await localforage.getItem(tkSR)) || [];
                 br = (await localforage.getItem(tkBR)) || [];
                 sp = (await localforage.getItem(tkSP)) || [];
                 bp = (await localforage.getItem(tkBP)) || [];
+                cr = (await localforage.getItem(tkCR)) || [];
+                cp = (await localforage.getItem(tkCP)) || [];
             }
 
             if (!Array.isArray(sr) || sr.length === 0) sr = JSON.parse(localStorage.getItem(tkSR) || localStorage.getItem('erp_single_receipts_v1') || '[]');
             if (!Array.isArray(br) || br.length === 0) br = JSON.parse(localStorage.getItem(tkBR) || localStorage.getItem('erp_receipts_v1') || '[]');
             if (!Array.isArray(sp) || sp.length === 0) sp = JSON.parse(localStorage.getItem(tkSP) || localStorage.getItem('erp_single_payments_v1') || '[]');
             if (!Array.isArray(bp) || bp.length === 0) bp = JSON.parse(localStorage.getItem(tkBP) || localStorage.getItem('erp_payments_v1') || '[]');
+            if (!Array.isArray(cr) || cr.length === 0) cr = JSON.parse(localStorage.getItem(tkCR) || localStorage.getItem('erp_comprehensive_receipts_v1') || '[]');
+            if (!Array.isArray(cp) || cp.length === 0) cp = JSON.parse(localStorage.getItem(tkCP) || localStorage.getItem('erp_comprehensive_payments_v1') || '[]');
 
             sr = Array.isArray(sr) ? sr : Object.values(sr);
             br = Array.isArray(br) ? br : Object.values(br);
             sp = Array.isArray(sp) ? sp : Object.values(sp);
             bp = Array.isArray(bp) ? bp : Object.values(bp);
+            cr = Array.isArray(cr) ? cr : Object.values(cr);
+            cp = Array.isArray(cp) ? cp : Object.values(cp);
             
             let all = [];
             sr.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند قبض مفرد', _color: '#10b981', _date: new Date(x.date || x.createdAt || 0)})});
-            br.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند قبض مجمع', _color: '#38bdf8', _date: new Date(x.date || x.createdAt || 0)})});
-            sp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'حركية مالية', _color: '#f43f5e', _date: new Date(x.date || x.createdAt || 0)})});
-            bp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف مجمع', _color: '#f59e0b', _date: new Date(x.date || x.createdAt || 0)})});
+            br.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند قبض متعدد', _color: '#38bdf8', _date: new Date(x.date || x.createdAt || 0)})});
+            sp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف مفرد', _color: '#f43f5e', _date: new Date(x.date || x.createdAt || 0)})});
+            bp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف متعدد', _color: '#f59e0b', _date: new Date(x.date || x.createdAt || 0)})});
+            cr.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند قبض مجمع', _color: '#0ea5e9', _date: new Date(x.date || x.createdAt || 0)})});
+            cp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف مجمع', _color: '#eab308', _date: new Date(x.date || x.createdAt || 0)})});
             
             all.sort((a,b) => {
                 const dateA = isNaN(a._date.getTime()) ? 0 : a._date.getTime();

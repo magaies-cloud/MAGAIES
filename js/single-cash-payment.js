@@ -1905,6 +1905,13 @@ function getAccountName(id) {
         });
         if (found) return found.name;
     }
+    if (cleanId === 'safe-001' || idStr === 'safe-001') return 'الخزينة الرئيسية';
+    if (cleanId === 'bank-001' || idStr === 'bank-001') return 'البنك الرئيسي';
+    if (cleanId === 'bankok' || idStr === 'bankok') return 'بنكك (Bankak)';
+    if (cleanId === 'fawry' || idStr === 'fawry') return 'فوري (Fawry)';
+    if (cleanId === 'o-cash' || idStr === 'o-cash') return 'أوكاش (O-Cash)';
+    if (cleanId === 'other' || idStr === 'other') return 'أخرى';
+    
     return cleanId || idStr;
 }
 

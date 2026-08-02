@@ -9,13 +9,27 @@ document.addEventListener('DBReady', () => {
     document.getElementById('current-date').innerText = now.toISOString().split('T')[0];
     
     // Auto Generate Serial
-    const existingVouchers = JSON.parse(localStorage.getItem('erp_comprehensive_payments_v1')) || [];
-    const nextSerial = 1000 + existingVouchers.length + 1;
+    const seqKey = 'erp_comprehensive_payment_seq';
+    let nextSerial = parseInt(localStorage.getItem(seqKey)) || 1000;
     document.getElementById('serial-number').innerText = 'CP-' + nextSerial;
 
     // Load Banks/Safes for Depository/Withdrawal
     const banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
-    // Old deposit-account populate logic removed
+    const safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
+    
+    const bankSelect = document.getElementById('bank-source-name');
+    if (bankSelect) {
+        banks.filter(b => !b.deleted).forEach(b => {
+            bankSelect.add(new Option(b.name || b.bankName, b.name || b.bankName));
+        });
+    }
+
+    const safeSelect = document.getElementById('check-safe');
+    if (safeSelect) {
+        safes.filter(s => !s.deleted).forEach(s => {
+            safeSelect.add(new Option(s.name || s.safeName, s.name || s.safeName));
+        });
+    }
 
     // Load Customers, GL Accounts, AND Banks/Safes for Smart Filter
     const customers = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
@@ -41,7 +55,7 @@ function setType(type) {
 
 // Save Voucher
 function saveVoucher() {
-    const accountId = document.getElementById('account-id').value;
+    const accountId = document.getElementById('from-account').value;
     const amount = Number(document.getElementById('amount').value);
     const depositAccount = document.getElementById('deposit-account').value;
 
@@ -80,6 +94,7 @@ function saveVoucher() {
     if (currentType === 'check') {
         const checkNumber = document.getElementById('check-number').value.trim();
         const checkBank = document.getElementById('check-bank').value.trim();
+        const checkSafe = document.getElementById('check-safe') ? document.getElementById('check-safe').value : '';
         
         if (!checkBank) {
             alert('الرجاء إدخال اسم البنك للشيك.');
@@ -103,6 +118,7 @@ function saveVoucher() {
         voucher.checkDate = document.getElementById('check-date').value;
         voucher.checkDueDate = document.getElementById('check-due-date').value;
         voucher.checkBank = checkBank;
+        voucher.checkSafe = checkSafe;
     } else if (currentType === 'bank') {
         const bankRef = document.getElementById('bank-ref').value.trim();
         if (!bankRef) {
@@ -122,6 +138,7 @@ function saveVoucher() {
         voucher.bankRef = bankRef;
         voucher.bankSourceName = document.getElementById('bank-source-name').value;
         voucher.bankDate = document.getElementById('bank-date').value;
+        voucher.bankDesc = document.getElementById('bank-desc') ? document.getElementById('bank-desc').value : '';
     } else if (currentType === 'mobile') {
         const mobileRef = document.getElementById('mobile-ref').value.trim();
         if (!mobileRef) {
@@ -146,6 +163,11 @@ function saveVoucher() {
     let existingVouchers = JSON.parse(localStorage.getItem('erp_comprehensive_payments_v1')) || [];
     existingVouchers.push(voucher);
     localStorage.setItem('erp_comprehensive_payments_v1', JSON.stringify(existingVouchers));
+
+    // Increment Sequence
+    const seqKey = 'erp_comprehensive_payment_seq';
+    let nextSerial = parseInt(localStorage.getItem(seqKey)) || 1000;
+    localStorage.setItem(seqKey, nextSerial + 1);
 
     alert('تم حفظ السند الشامل بنجاح!');
     window.location.href = 'vouchers-hub.php';
@@ -281,9 +303,9 @@ window.selectAccount = function(type, id, name) {
     document.getElementById(type + '-account').value = id;
     document.getElementById(type + '-account-search').value = name;
     
-    // In comprehensive payment, there is a specific ID used for save logic which was 'account-id'
+    // In comprehensive payment, there is a specific ID used for save logic which was 'from-account'
     if (type === 'from') {
-        const accIdEl = document.getElementById('account-id');
+        const accIdEl = document.getElementById('from-account');
         if (accIdEl) accIdEl.value = id;
     }
     

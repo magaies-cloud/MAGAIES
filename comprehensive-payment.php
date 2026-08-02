@@ -464,6 +464,13 @@
             <!-- Check Section -->
             <div id="section-check" class="dynamic-section">
                 <div class="input-group">
+                    <label>الخزينة/الدرج (لصرف الشيك)</label>
+                    <select class="form-control" id="check-safe">
+                        <option value="">-- اختر الخزينة --</option>
+                        <!-- Will be populated by JS -->
+                    </select>
+                </div>
+                <div class="input-group">
                     <label>رقم الشيك</label>
                     <input type="text" class="form-control" id="check-number" placeholder="أدخل رقم الشيك">
                 </div>
@@ -484,16 +491,23 @@
             <!-- Bank Transfer Section -->
             <div id="section-bank" class="dynamic-section">
                 <div class="input-group">
+                    <label>اسم البنك المحول إليه</label>
+                    <select class="form-control" id="bank-source-name">
+                        <option value="">-- اختر البنك --</option>
+                        <!-- Will be populated by JS -->
+                    </select>
+                </div>
+                <div class="input-group">
                     <label>رقم الحوالة / الإيصال</label>
                     <input type="text" class="form-control" id="bank-ref" placeholder="رقم المرجع">
                 </div>
                 <div class="input-group">
-                    <label>اسم البنك المحول منه</label>
-                    <input type="text" class="form-control" id="bank-source-name" placeholder="مثال: بنك الخرطوم">
-                </div>
-                <div class="input-group">
                     <label>تاريخ التحويل</label>
                     <input type="date" class="form-control" id="bank-date">
+                </div>
+                <div class="input-group" style="grid-column: 1 / -1;">
+                    <label>بيان التحويلة</label>
+                    <input type="text" class="form-control" id="bank-desc" placeholder="أدخل بيان التحويلة (اختياري)">
                 </div>
             </div>
 

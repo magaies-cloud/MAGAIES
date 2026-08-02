@@ -129,8 +129,8 @@ function openStandalonePrintPreview() {
         const data = getInvoiceDataForPrint();
         // Save to localStorage so the new tab can read it
         localStorage.setItem('erp_current_print_invoice', JSON.stringify(data));
-        // Open the standalone preview design page
-        window.open('preview-direct-sales-design.php', '_blank');
+        // Open the standalone preview design page in the same tab
+        window.location.href = 'preview-direct-sales-design.php';
     } else {
         alert('حدث خطأ في تجميع بيانات الفاتورة.');
     }

@@ -424,8 +424,9 @@
                             <div class="input-group"><label>رقم الواتساب</label><input type="text" id="cust-whatsapp" placeholder="00249123000000"></div>
                             <div class="input-group"><label>الايميل (البريد الإلكتروني)</label><input type="email" id="cust-email" placeholder="example@email.com"></div>
                             <div class="input-group" style="grid-column: span 2;"><label>العنوان</label><input type="text" id="cust-address" placeholder="مثال: الخرطوم، مقاييس"></div>
-                            <div class="input-group"><label>العملة</label><select id="cust-currency" class="system-currency-select" onchange="updateCustExchangeRate()"></select></div>
-                            <div class="input-group"><label>التعادل (سعر الصرف)</label><input type="number" id="cust-ex-rate" step="any" value="1" placeholder="1.00"></div>
+                            <div class="input-group"><label>العملة</label><select id="cust-currency" class="system-currency-select"></select></div>
+                            <!-- سعر الصرف يُسحب تلقائياً من الإعدادات -->
+                            <input type="hidden" id="cust-ex-rate" value="1">
                             <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="cust-tax" placeholder="الرقم الضريبي للعميل"></div>
                             <input type="hidden" id="cust-account-no" value="">
                             <div class="input-group">
@@ -467,7 +468,7 @@
 
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table">
-                            <thead><tr><th>اسم العميل</th><th>رقم الهاتف</th><th>الرصيد الحالي</th><th>حد الائتمان (المسموح)</th><th>الإجراء</th></tr></thead>
+                            <thead><tr><th>كود</th><th>اسم العميل</th><th>الهاتف</th><th>الحالة</th><th>الرصيد الحالي</th><th>حد الائتمان</th><th>المسؤول</th><th>السرية</th><th>الإجراء</th></tr></thead>
                             <tbody id="customers-tbody"></tbody>
                         </table>
                     </div>
@@ -490,8 +491,9 @@
                             <div class="input-group"><label>رقم الواتساب</label><input type="text" id="sup-whatsapp" placeholder="00249123000000"></div>
                             <div class="input-group"><label>الايميل (البريد الإلكتروني)</label><input type="email" id="sup-email" placeholder="example@email.com"></div>
                             <div class="input-group" style="grid-column: span 2;"><label>العنوان</label><input type="text" id="sup-address" placeholder="موقع المصنع / المعرض"></div>
-                            <div class="input-group"><label>العملة</label><select id="sup-currency" class="system-currency-select" onchange="updateSupExchangeRate()"></select></div>
-                            <div class="input-group"><label>التعادل (سعر الصرف)</label><input type="number" id="sup-ex-rate" step="any" value="1" placeholder="1.00"></div>
+                            <div class="input-group"><label>العملة</label><select id="sup-currency" class="system-currency-select"></select></div>
+                            <!-- سعر الصرف يُسحب تلقائياً من الإعدادات -->
+                            <input type="hidden" id="sup-ex-rate" value="1">
                             <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="sup-tax" placeholder="الرقم الضريبي للمورد"></div>
                             <input type="hidden" id="sup-account-no" value="">
                             <div class="input-group">
@@ -513,7 +515,7 @@
 
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table" id="tab-suppliers-table">
-                            <thead><tr><th>اسم المورد</th><th>الشخص المرجعي / الهاتف</th><th>الرصيد الحالي</th><th>حد الائتمان</th><th>الإجراء</th></tr></thead>
+                            <thead><tr><th>كود</th><th>اسم المورد</th><th>الهاتف</th><th>الحالة</th><th>الرصيد الحالي</th><th>حد الائتمان</th><th>السرية</th><th>الإجراء</th></tr></thead>
                             <tbody></tbody>
                         </table>
                     </div>
@@ -1103,8 +1105,13 @@
             const opBalance = parseFloat(document.getElementById('cust-opening-balance').value) || 0;
             const openingDebit = opBalance >= 0 ? opBalance : 0;
             const openingCredit = opBalance < 0 ? Math.abs(opBalance) : 0;
-            const exRate = parseFloat(document.getElementById('cust-ex-rate').value) || 1;
+            // Auto-read exchange rate from settings based on currency
             const currency = document.getElementById('cust-currency').value || 'SDG';
+            let exRate = 1;
+            try {
+                const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+                if (currency !== 'SDG' && cfg.rateUSD) exRate = parseFloat(cfg.rateUSD) || 1;
+            } catch(e) {}
             const taxNumber = document.getElementById('cust-tax').value || '';
             const accountNo = document.getElementById('cust-account-no').value || '';
             const limit = parseFloat(document.getElementById('cust-limit').value) || 0;
@@ -1198,12 +1205,24 @@
 
             tbody.innerHTML = '';
             customers.forEach(c => {
-                const statusBadge = c.status === 'vip' ? '🌟 VIP' : (c.status === 'blacklisted' ? '🔴 موقوف' : '🟢 نشط');
+                const statusMap = {'vip': '<span style="background:rgba(168,85,247,0.15); color:#a855f7; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🌟 VIP</span>', 'blacklisted': '<span style="background:rgba(239,68,68,0.15); color:#ef4444; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🔴 محظور</span>'};
+                const statusBadge = statusMap[c.status] || '<span style="background:rgba(52,211,153,0.15); color:#34d399; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🟢 نشط</span>';
                 const bal = parseFloat(c.currentBalance) || 0;
                 const balColor = bal > 0 ? '#f87171' : (bal < 0 ? '#34d399' : '#94a3b8');
                 const balLabel = bal > 0 ? 'عليه' : (bal < 0 ? 'له' : 'مسدد');
                 const balDisplay = `<span style="color:${balColor}; font-weight:900; font-family:monospace;">${Math.abs(bal).toLocaleString()}</span> <small style="color:${balColor}; opacity:0.8;">${balLabel}</small>`;
-                tbody.insertAdjacentHTML('beforeend', `<tr><td>${c.name} <small>${statusBadge}</small></td><td>${c.phone || '-'}</td><td>${balDisplay}</td><td>${c.creditLimit} SDG</td><td><button class="btn-text" onclick="editCustomer('${c.id}')">تعديل</button><button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteCustomer('${c.id}')">حذف</button></td></tr>`);
+                const shortId = (c.id || '').replace('CUST-', '').slice(-6);
+                tbody.insertAdjacentHTML('beforeend', `<tr>
+                    <td style="font-family:monospace; font-size:0.8rem; color:#94a3b8;">${shortId}</td>
+                    <td style="font-weight:bold;">${c.name}</td>
+                    <td>${c.phone || '-'}</td>
+                    <td>${statusBadge}</td>
+                    <td>${balDisplay}</td>
+                    <td>${(c.creditLimit || 0).toLocaleString()} SDG</td>
+                    <td style="font-size:0.85rem;">${c.contactPerson || '-'}</td>
+                    <td style="text-align:center;">${c.securityLevel || 1}</td>
+                    <td><button class="btn-text" onclick="editCustomer('${c.id}')">تعديل</button><button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteCustomer('${c.id}')">حذف</button></td>
+                </tr>`);
             });
         }
 
@@ -1257,7 +1276,7 @@
             document.getElementById('cust-address').value = '';
             document.getElementById('cust-opening-balance').value = '';
             document.getElementById('cust-currency').value = 'SDG';
-            document.getElementById('cust-ex-rate').value = '1';
+
             document.getElementById('cust-tax').value = '';
             document.getElementById('cust-account-no').value = '';
             document.getElementById('cust-limit').value = '';
@@ -1293,7 +1312,7 @@
             const bal = (cust.openingDebit || 0) - (cust.openingCredit || 0);
             document.getElementById('cust-opening-balance').value = bal || '';
             document.getElementById('cust-currency').value = cust.currency || 'SDG';
-            document.getElementById('cust-ex-rate').value = cust.exRate || 1;
+
             document.getElementById('cust-tax').value = cust.taxNumber || '';
             document.getElementById('cust-account-no').value = cust.accountNo || '';
             document.getElementById('cust-limit').value = cust.creditLimit || '';
@@ -1348,8 +1367,13 @@
             const opBalance = parseFloat(document.getElementById('sup-opening-balance').value) || 0;
             const openingCredit = opBalance >= 0 ? opBalance : 0;
             const openingDebit = opBalance < 0 ? Math.abs(opBalance) : 0;
-            const exRate = parseFloat(document.getElementById('sup-ex-rate').value) || 1;
+            // Auto-read exchange rate from settings based on currency
             const currency = document.getElementById('sup-currency').value || 'SDG';
+            let exRate = 1;
+            try {
+                const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+                if (currency !== 'SDG' && cfg.rateUSD) exRate = parseFloat(cfg.rateUSD) || 1;
+            } catch(e) {}
             const taxNumber = document.getElementById('sup-tax').value || '';
             const accountNo = document.getElementById('sup-account-no').value || '';
             const limit = parseFloat(document.getElementById('sup-limit').value) || 0;
@@ -1421,12 +1445,23 @@
             suppliers = suppliers.filter(s => !s.deleted);
             tbody.innerHTML = '';
             suppliers.forEach(s => {
-                const statusBadge = s.status === 'blacklisted' ? '🔴 موقوف' : '🟢 نشط';
+                const statusMap = {'vip': '<span style="background:rgba(168,85,247,0.15); color:#a855f7; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🌟 VIP</span>', 'blacklisted': '<span style="background:rgba(239,68,68,0.15); color:#ef4444; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🔴 محظور</span>'};
+                const statusBadge = statusMap[s.status] || '<span style="background:rgba(52,211,153,0.15); color:#34d399; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🟢 نشط</span>';
                 const bal = parseFloat(s.currentBalance) || 0;
                 const balColor = bal > 0 ? '#34d399' : (bal < 0 ? '#f87171' : '#94a3b8');
                 const balLabel = bal > 0 ? 'له' : (bal < 0 ? 'عليه' : 'مسدد');
                 const balDisplay = `<span style="color:${balColor}; font-weight:900; font-family:monospace;">${Math.abs(bal).toLocaleString()}</span> <small style="color:${balColor}; opacity:0.8;">${balLabel}</small>`;
-                tbody.insertAdjacentHTML('beforeend', `<tr><td>${s.name} <small>${statusBadge}</small></td><td>${s.phone||'-'}</td><td>${balDisplay}</td><td>${s.creditLimit} SDG</td><td><button class="btn-text" onclick="editSupplier('${s.id}')">تعديل</button><button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteSupplier('${s.id}')">حذف</button></td></tr>`);
+                const shortId = (s.id || '').replace('SUP-', '').slice(-6);
+                tbody.insertAdjacentHTML('beforeend', `<tr>
+                    <td style="font-family:monospace; font-size:0.8rem; color:#94a3b8;">${shortId}</td>
+                    <td style="font-weight:bold;">${s.name}</td>
+                    <td>${s.phone || '-'}</td>
+                    <td>${statusBadge}</td>
+                    <td>${balDisplay}</td>
+                    <td>${(s.creditLimit || 0).toLocaleString()} SDG</td>
+                    <td style="text-align:center;">${s.securityLevel || 1}</td>
+                    <td><button class="btn-text" onclick="editSupplier('${s.id}')">تعديل</button><button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteSupplier('${s.id}')">حذف</button></td>
+                </tr>`);
             });
         }
         
@@ -1439,7 +1474,7 @@
             document.getElementById('sup-address').value = '';
             document.getElementById('sup-opening-balance').value = '';
             document.getElementById('sup-currency').value = 'SDG';
-            document.getElementById('sup-ex-rate').value = '1';
+
             document.getElementById('sup-tax').value = '';
             document.getElementById('sup-account-no').value = '';
             document.getElementById('sup-limit').value = '';
@@ -1468,7 +1503,7 @@
             const bal = (sup.openingCredit || 0) - (sup.openingDebit || 0);
             document.getElementById('sup-opening-balance').value = bal || '';
             document.getElementById('sup-currency').value = sup.currency || 'SDG';
-            document.getElementById('sup-ex-rate').value = sup.exRate || 1;
+
             document.getElementById('sup-tax').value = sup.taxNumber || '';
             document.getElementById('sup-account-no').value = sup.accountNo || '';
             document.getElementById('sup-limit').value = sup.creditLimit || '';
