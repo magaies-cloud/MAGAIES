@@ -21,75 +21,29 @@ body.dark-mode .studio-tabs {
     background: rgba(255, 255, 255, 0.3); color: #ffffff !important;
 }
 
-/* Fullscreen Studio Modal Backdrop */
+/* Yellow Studio Dropdown Panel with Slide-Down Animation */
+@keyframes studioSlideDown {
+    from { opacity: 0; transform: translateY(-12px); max-height: 0; }
+    to { opacity: 1; transform: translateY(0); max-height: 500px; }
+}
+
 .settings-panel {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 999999;
+    background: #fef9c3; /* Yellow-100 */
+    color: #713f12; /* Yellow-900 */
+    padding: 14px 20px; border-bottom: 4px solid #eab308;
     display: none; /* Hidden by default */
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    box-sizing: border-box;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    font-size: 0.95rem; font-weight: 800;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+    flex-direction: column; gap: 10px;
+    animation: studioSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    overflow: hidden;
 }
 .settings-panel.show {
     display: flex !important;
-    opacity: 1;
 }
 
-/* Modal Content Box */
-.studio-modal-content {
-    background: #fef9c3; /* Yellow-100 */
-    color: #713f12;
-    width: 100%;
-    max-width: 1200px;
-    max-height: 95vh;
-    border-radius: 16px;
-    border: 3px solid #eab308;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.6);
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 20px 25px;
-    overflow-y: auto;
-    transform: scale(0.95) translateY(20px);
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.settings-panel.show .studio-modal-content {
-    transform: scale(1) translateY(0);
-}
-
-body.dark-mode .studio-modal-content {
-    background: #1c1507; color: #fef08a; border-color: #ca8a04;
-}
-
-/* Modal Header Close Button */
-.btn-close-modal {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    padding: 8px 20px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: inherit;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.btn-close-modal:hover {
-    background: #ef4444;
-    color: white;
+body.dark-mode .settings-panel {
+    background: #1c1507; color: #fef08a; border-bottom-color: #ca8a04;
 }
 
 .panel-card {

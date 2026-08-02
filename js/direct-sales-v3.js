@@ -3592,7 +3592,7 @@ function closePriceHistoryModal() {
 // ════════════════════════════════════════
 //  PRINT LOGIC — uses InvoicePrinter engine
 // ════════════════════════════════════════
-function printCurrentInvoice() {
+function getInvoiceDataForPrint() {
     const WAREHOUSES_local = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || WAREHOUSES;
     const whEl   = document.getElementById('hdr-warehouse');
     const whId   = whEl ? whEl.value : '';
@@ -3630,7 +3630,7 @@ function printCurrentInvoice() {
     const paymentMethodEl = document.getElementById('hdr-payment-method');
     const paymentMethod = paymentMethodEl ? paymentMethodEl.value : (typeof getPaymentMethodFromUI === 'function' ? getPaymentMethodFromUI() : 'cash');
 
-    const data = {
+    return {
         type:          'sales',
         typeLabel:     currentSaleType === 'direct' ? 'فاتورة مبيعات مباشرة' :
                        currentSaleType === 'split'  ? 'فاتورة بيع مقسّمة'    :
@@ -3652,7 +3652,10 @@ function printCurrentInvoice() {
         transportCost: transportVal,
         grandTotal:    grandVal
     };
+}
 
+function printCurrentInvoice() {
+    const data = getInvoiceDataForPrint();
     if (window.InvoicePrinter) {
         window.InvoicePrinter.print(data);
     } else {

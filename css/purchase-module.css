@@ -42,7 +42,6 @@
     z-index: 1000000 !important;
 }
 
-/* Custom Dropdown Overrides for High Layering & Floating Above Table */
 .custom-dropdown-list {
     position: absolute !important;
     top: 100% !important;
@@ -51,12 +50,12 @@
     margin-top: 4px !important;
     max-height: 280px !important;
     overflow-y: auto !important;
-    background: rgba(15, 23, 42, 0.98) !important;
+    background: rgba(10, 14, 26, 0.98) !important;
     backdrop-filter: blur(20px) saturate(200%) !important;
     -webkit-backdrop-filter: blur(20px) saturate(200%) !important;
-    border: 1px solid rgba(56, 189, 248, 0.4) !important;
+    border: 1px solid rgba(56, 189, 248, 0.45) !important;
     border-radius: 10px !important;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.95), 0 0 20px rgba(56, 189, 248, 0.25) !important;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.95), 0 0 25px rgba(56, 189, 248, 0.3) !important;
     z-index: 9999999 !important;
     display: none;
     flex-direction: column;
@@ -90,8 +89,30 @@ td:has(.custom-dropdown-list.show),
     overflow: visible !important;
 }
 
-.pos-grid td {
+/* ── 1.1 TABLE GRID HIGH CONTRAST & NEON HEADERS ── */
+table.pos-grid thead th {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+    color: #38bdf8 !important;
+    border-bottom: 2px solid rgba(56, 189, 248, 0.4) !important;
+    font-weight: 800 !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 0.5px !important;
+    text-shadow: 0 0 6px rgba(56, 189, 248, 0.4) !important;
+    padding: 10px 8px !important;
+}
+
+table.pos-grid tbody tr {
+    transition: all 0.2s ease !important;
+}
+
+table.pos-grid tbody tr:hover {
+    background: rgba(56, 189, 248, 0.05) !important;
+    box-shadow: inset 0 0 10px rgba(56, 189, 248, 0.1) !important;
+}
+
+table.pos-grid td {
     position: relative;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
 
 /* ── 2. HUB ACTION CARDS (SPRING HOVER PHYSICS & SHIMMER SWEEP) ── */

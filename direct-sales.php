@@ -2925,8 +2925,6 @@
         <!-- Dynamic Studio Styles for Invoice Grid -->
         <style id="dynamic-studio-styles"></style>
 
-        <!-- Studio Settings Panel -->
-        <?php include 'includes/studio-settings-panel.php'; ?>
 
         <div class="items-toolbar" style="display: flex; align-items: center; justify-content: center; padding: 15px; border-radius: 12px; background: rgba(18, 15, 25, 0.8); border: 1px solid rgba(255,255,255,0.05); margin-top: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
             <div class="toolbar-actions" style="display: flex; gap: 12px; width: 100%; align-items: center;">
@@ -2934,10 +2932,10 @@
                 
                 <button class="btn-action btn-delete" style="flex: 1; height: 45px; background: #ef4444; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(239, 68, 68, 0.3);" onmouseover="this.style.background='#dc2626'; this.style.boxShadow='0 4px 15px rgba(239, 68, 68, 0.5)';" onmouseout="this.style.background='#ef4444'; this.style.boxShadow='0 2px 10px rgba(239, 68, 68, 0.3)';" onclick="confirmDeleteTransaction()">❌ إلغاء</button>
                 
-                <button type="button" class="btn-action btn-preview" id="btn-preview-invoice" style="flex: 1; height: 45px; background: #3b82f6; border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3); display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='#2563eb'; this.style.boxShadow='0 4px 15px rgba(59, 130, 246, 0.5)';" onmouseout="this.style.background='#3b82f6'; this.style.boxShadow='0 2px 10px rgba(59, 130, 246, 0.3)';" onclick="printCurrentInvoice()">👁️ معاينة</button>
-                
-                <!-- Studio Settings Buttons -->
-                <button type="button" class="btn-action" style="flex: 1; height: 45px; background: linear-gradient(135deg, #0ea5e9, #38bdf8); border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(14, 165, 233, 0.3); display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="toggleSettingsPanel();" title="إعدادات الاستوديو">🎨 الاستوديو</button>
+                <!-- Unified Print Studio & Preview Button -->
+                <button type="button" class="btn-action" style="flex: 2; height: 45px; background: linear-gradient(135deg, #2563eb, #0ea5e9); border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(37,99,235,0.4); display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.boxShadow='0 6px 20px rgba(37,99,235,0.6)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.boxShadow='0 4px 15px rgba(37,99,235,0.4)'; this.style.transform='none';" onclick="openStandalonePrintPreview();" title="استوديو الطباعة والمعاينة الحية">
+                    🎨👁️ استوديو المعاينة والطباعة
+                </button>
                 <div class="preset-selector-container" style="flex: 1.5; display: flex; gap: 5px;">
                     <select id="preset-selector" class="ctrl-input" style="height: 45px; margin: 0; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 8px; color: #fff; font-weight: bold; flex: 1;" onchange="loadPreset(this.value)">
                         <option value="">⚙️ التخصيصات (0)</option>

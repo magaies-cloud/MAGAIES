@@ -55,7 +55,7 @@
             background: linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(10, 17, 40, 0.97)) !important;
         }
         .purchase-glass-card {
-            background: linear-gradient(135deg, rgba(26, 16, 45, 0.96) 0%, rgba(16, 24, 48, 0.97) 50%, rgba(10, 15, 30, 0.98) 100%) !important;
+            background: linear-gradient(135deg, rgba(26, 16, 45, 0.95) 0%, rgba(16, 24, 48, 0.96) 50%, rgba(10, 15, 30, 0.98) 100%) !important;
         }
         .toast {
             background: rgba(15, 23, 42, 0.96) !important;
@@ -148,9 +148,9 @@
         /* ═══ MULTI-COLOR VISUAL CODING & GLASSMORPHISM ═══ */
         /* Purchase specific top card custom glass style */
         .purchase-glass-card {
-            background: linear-gradient(135deg, rgba(26, 16, 45, 0.96) 0%, rgba(16, 24, 48, 0.97) 50%, rgba(10, 15, 30, 0.98) 100%) !important;
+            background: linear-gradient(135deg, rgba(26, 16, 45, 0.95) 0%, rgba(16, 24, 48, 0.96) 50%, rgba(10, 15, 30, 0.98) 100%) !important;
             border: 1px solid rgba(139, 92, 246, 0.45) !important;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.65), 0 0 25px rgba(139, 92, 246, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 30px rgba(139, 92, 246, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
             backdrop-filter: blur(25px) !important;
             -webkit-backdrop-filter: blur(25px) !important;
         }

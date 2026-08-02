@@ -190,7 +190,7 @@ window.InvoicePrinter = (function () {
                 </div>
             </div>
 
-            <table class="inv-table">
+            <table class="inv-table main-table">
                 <thead>
                     <tr>
                         <th>م</th>
@@ -276,7 +276,7 @@ window.InvoicePrinter = (function () {
                 </div>
             </div>
 
-            <table class="inv-table">
+            <table class="inv-table wh-table">
                 <thead>
                     <tr>
                         <th>م</th>
@@ -510,6 +510,35 @@ window.InvoicePrinter = (function () {
         setTimeout(() => window.print(), 100);
     }
 
+    // ── Build a single styled copy (for Studio Design Mode) ──
+    function buildSingleCopy(data, copyLabel = 'نسخة العميل') {
+        const cfg = getSettings();
+        const companyName = cfg.companyName || JSON.parse(localStorage.getItem('user'))?.company_name || 'الشركة';
+        const companyPhone = cfg.phone || '';
+        const companyAddress = cfg.address || '';
+        const companyReg = cfg.regNumber || '';
+        const currency = data.currency || cfg.currency || 'SDG';
+        const printedAt = new Date().toLocaleString('ar-SD-u-nu-latn');
+
+        const mainCopyHtml = buildMainCopy(data, companyName, companyPhone, companyAddress, companyReg, currency);
+
+        return `
+            <div class="inv-doc">
+                <div class="inv-copy-header">
+                    <span class="inv-copy-label" id="studio-copy-label-text" style="color:#1e3a5f;">📄 ${copyLabel}</span>
+                    <span>طُبع في: ${printedAt}</span>
+                </div>
+                ${mainCopyHtml}
+                <div class="inv-doc-footer">
+                    ${companyName}
+                    ${companyPhone ? ' · ' + companyPhone : ''}
+                    ${companyAddress ? ' · ' + companyAddress : ''}
+                    ${companyReg ? ' · سجل تجاري: ' + companyReg : ''}
+                </div>
+            </div>
+        `;
+    }
+
     // ── Public API ───────────────────────────────────────────
     return {
         print: showPreview,
@@ -517,6 +546,7 @@ window.InvoicePrinter = (function () {
         closePreview: closePreview,
         doPrint: doPrint,
         buildHTML: buildInvoiceHTML,
+        buildSingleCopy: buildSingleCopy,
         _refreshPreviewContent: _refreshPreviewContent
     };
 

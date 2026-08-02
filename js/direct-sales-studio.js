@@ -66,6 +66,12 @@ function applyDynamicGridCSS() {
         grid.className = 'pos-grid hub-table ' + (dsCurrentTheme || '') + ' ' + (dsCurrentFont || '');
     }
 
+    // Apply the same theme and font to the unified live preview
+    const previewContainer = document.getElementById('studio-live-preview-container');
+    if (previewContainer) {
+        previewContainer.className = (dsCurrentTheme || '') + ' ' + (dsCurrentFont || '');
+    }
+
     // Column Configs
     dsColumnOrder.forEach((colIdx) => {
         const conf = dsColumnConfigs[colIdx] || { visible: true };
@@ -118,11 +124,22 @@ function renderTable() {
 }
 
 // 3. Studio Settings Panel Integration Methods
+function openStandalonePrintPreview() {
+    if (typeof getInvoiceDataForPrint === 'function') {
+        const data = getInvoiceDataForPrint();
+        // Save to localStorage so the new tab can read it
+        localStorage.setItem('erp_current_print_invoice', JSON.stringify(data));
+        // Open the standalone preview design page
+        window.open('preview-direct-sales-design.php', '_blank');
+    } else {
+        alert('حدث خطأ في تجميع بيانات الفاتورة.');
+    }
+}
+
 function toggleSettingsPanel() {
     const p = document.getElementById('settings-panel');
     if (!p) return;
     
-    // Check if it's currently hidden or not set
     const isOpening = (p.style.display === 'none' || p.style.display === '');
     
     if (isOpening) {
@@ -137,6 +154,57 @@ function toggleSettingsPanel() {
         p.style.display = 'none';
     }
 }
+
+// Custom Print handler for the unified Studio/Preview screen
+if (!window.InvoicePrinter) window.InvoicePrinter = {};
+window.InvoicePrinter.doPrintStudio = function() {
+    const previewContainer = document.getElementById('studio-live-preview-container');
+    if (!previewContainer) return;
+    
+    const previewHtml = previewContainer.innerHTML;
+    
+    let iframe = document.getElementById('hidden-print-iframe');
+    if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.id = 'hidden-print-iframe';
+        iframe.style.position = 'fixed';
+        iframe.style.right = '0';
+        iframe.style.bottom = '0';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = '0';
+        document.body.appendChild(iframe);
+    }
+    
+    const dynamicStyles = document.getElementById('dynamic-studio-styles') ? document.getElementById('dynamic-studio-styles').innerHTML : '';
+    
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(`
+        <html dir="rtl">
+        <head>
+            <title>طباعة الفاتورة</title>
+            <style>
+                /* Essential reset */
+                body { margin: 0; padding: 0; background: #fff; font-family: sans-serif; }
+                /* Inject dynamic studio styles from the page */
+                ${dynamicStyles}
+            </style>
+        </head>
+        <body>
+            ${previewHtml}
+            <script>
+                window.onload = function() { 
+                    setTimeout(function(){ 
+                        window.print(); 
+                    }, 500); 
+                };
+            </script>
+        </body>
+        </html>
+    `);
+    doc.close();
+};
 function switchStudioTab(tab) {
     const btnCols = document.getElementById('tab-btn-cols');
     const btnPaper = document.getElementById('tab-btn-paper');

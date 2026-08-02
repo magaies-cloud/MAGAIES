@@ -1,28 +1,39 @@
 <link rel="stylesheet" href="css/studio-panel.css?v=<?php echo file_exists('css/studio-panel.css') ? filemtime('css/studio-panel.css') : time(); ?>">
 <div class="settings-panel no-print" id="settings-panel">
-    <div class="studio-modal-content">
-        <!-- Studio Tabs Header -->
-        <div class="studio-tabs" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ca8a04; margin-bottom: 10px; padding-bottom: 6px;">
-            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                <button class="studio-tab-btn active" id="tab-btn-cols" onclick="switchStudioTab('cols')">📊 إعدادات الأعمدة والتنسيق</button>
-                <button class="studio-tab-btn" id="tab-btn-paper" onclick="switchStudioTab('paper')">📄 إعدادات الورقة والطباعة</button>
-                <button class="studio-tab-btn" id="tab-btn-presets" onclick="switchStudioTab('presets')">💎 التخصيصات الجاهزة</button>
-            </div>
-
-            <div style="display: flex; gap: 8px; align-items: center;">
-                <button id="reset-design-btn" class="ribbon-btn" style="background: linear-gradient(135deg, #64748b, #475569); color:#fff; border:none; padding:5px 16px; font-size:0.85rem; font-weight:800; border-radius:18px; box-shadow: 0 2px 8px rgba(71,85,105,0.3); position: relative; overflow: hidden; display: flex; align-items: center; gap: 4px; cursor: pointer; user-select: none;">
-                    <span class="btn-progress" style="position: absolute; right: 0; top: 0; bottom: 0; width: 0%; background: rgba(255,255,255,0.25); transition: none; pointer-events: none;"></span>
-                    <span class="btn-text">🔄 إعادة ضبط</span>
-                </button>
-                <button class="ribbon-btn" onclick="saveCurrentPreset()" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:5px 16px; font-size:0.85rem; font-weight:800; border-radius:18px; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
-                    💾 حفظ الإعدادات
-                </button>
-                <button type="button" class="btn-close-modal" onclick="toggleSettingsPanel()" title="إغلاق الاستوديو">❌ إغلاق</button>
-            </div>
+    <!-- Studio Tabs Header -->
+    <div class="studio-tabs" id="studio-tabs-bar" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ca8a04; margin-bottom: 10px; padding-bottom: 6px;">
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button class="studio-tab-btn active" id="tab-btn-cols" onclick="switchStudioTab('cols')">📊 إعدادات الأعمدة والتنسيق</button>
+            <button class="studio-tab-btn" id="tab-btn-paper" onclick="switchStudioTab('paper')">📄 إعدادات الورقة والطباعة</button>
+            <button class="studio-tab-btn" id="tab-btn-presets" onclick="switchStudioTab('presets')">💎 التخصيصات الجاهزة</button>
         </div>
+
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <button id="reset-design-btn" class="ribbon-btn" style="background: linear-gradient(135deg, #64748b, #475569); color:#fff; border:none; padding:5px 16px; font-size:0.85rem; font-weight:800; border-radius:18px; box-shadow: 0 2px 8px rgba(71,85,105,0.3); position: relative; overflow: hidden; display: flex; align-items: center; gap: 4px; cursor: pointer; user-select: none;">
+                <span class="btn-progress" style="position: absolute; right: 0; top: 0; bottom: 0; width: 0%; background: rgba(255,255,255,0.25); transition: none; pointer-events: none;"></span>
+                <span class="btn-text">🔄 إعادة ضبط</span>
+            </button>
+            <button class="ribbon-btn" onclick="saveCurrentPreset()" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:5px 16px; font-size:0.85rem; font-weight:800; border-radius:18px; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
+                💾 حفظ الإعدادات
+            </button>
+            <button type="button" class="btn-close-modal" onclick="toggleSettingsPanel()" title="إغلاق الاستوديو" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">❌ إغلاق</button>
+        </div>
+    </div>
 
     <!-- TAB 1: Columns & Formatting -->
     <div id="studio-tab-cols">
+        <!-- Row 0: Copy Label -->
+        <div class="panel-card" style="margin-bottom: 8px; background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(14,165,233,0.08)); border-color: rgba(59,130,246,0.3);">
+            <div class="panel-group">
+                <span>📝 عنوان النسخة:</span>
+                <input type="text" id="copy-label-input" class="panel-input" 
+                    style="width:200px; font-weight:900; font-size:1rem; color:#1e3a5f; border-color:#3b82f6; background:#fff;" 
+                    value="نسخة العميل" 
+                    oninput="setCopyLabel(this.value)"
+                    placeholder="مثال: نسخة العميل، كشف حساب...">
+            </div>
+        </div>
+
         <!-- Row 1: Column Selection & Reordering -->
         <div class="panel-card" style="margin-bottom: 8px;">
             <div class="panel-group">
@@ -58,6 +69,23 @@
                     <option value="center" selected>وسط 🟢</option>
                     <option value="left">يسار ⬅️</option>
                 </select>
+            </div>
+
+            <div class="panel-group">
+                <span>📏 عرض العمود (%):</span>
+                <input type="range" id="col-width-range" min="5" max="60" step="1" value="15" 
+                    oninput="document.getElementById('col-width-input').value=this.value; updateSelectedCol('width', this.value)">
+                <input type="number" id="col-width-input" class="panel-input" style="width:60px;" min="5" max="60" placeholder="%" 
+                    oninput="if(document.getElementById('col-width-range')) document.getElementById('col-width-range').value=this.value; updateSelectedCol('width', this.value)">
+                <button class="ribbon-btn" style="padding:3px 10px; color:#000; background:#fff; border-color:#ca8a04; font-size:0.8rem;" 
+                    onclick="updateSelectedCol('width', ''); document.getElementById('col-width-input').value=''; document.getElementById('col-width-range').value=15;">🔄 تلقائي</button>
+            </div>
+
+            <div class="panel-group">
+                <span>📐 عرض الجدول الكلي:</span>
+                <input type="range" id="table-width-range" min="50" max="100" step="5" value="100" 
+                    oninput="setTableWidth(this.value)">
+                <span id="table-width-label" style="font-weight:900; min-width:40px; text-align:center;">100%</span>
             </div>
         </div>
 
@@ -115,6 +143,16 @@
                     <option value="theme-lightblue">🔵 7. الأزرق الفاتح (Ocean Blue)</option>
                     <option value="theme-slate">⚪ 8. الرمادي الكلاسيكي (Slate Gray)</option>
                     <option value="theme-luxury-black">🖤 9. الأسود الفاخر (Luxury Black)</option>
+                </select>
+            </div>
+
+            <div class="panel-group">
+                <span>🏗️ هيكل وتخطيط الفاتورة:</span>
+                <select id="layout-theme-select" class="panel-input" style="font-weight:800;" onchange="setLayoutTheme(this.value)">
+                    <option value="">📑 1. الهيكل الكلاسيكي (الافتراضي)</option>
+                    <option value="layout-modern">🏢 2. الهيكل المودرن المبسط</option>
+                    <option value="layout-split">🗂️ 3. الهيكل المنفصل للشركات</option>
+                    <option value="layout-compact">📋 4. الهيكل المضغوط للمراجعات</option>
                 </select>
             </div>
         </div>
@@ -252,9 +290,7 @@
         </div>
 
         <div id="presets-management-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 10px;">
-            <!-- Presets list items rendered via JS -->
         </div>
-    </div>
     </div>
 </div>
 
