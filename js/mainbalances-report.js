@@ -517,12 +517,44 @@ function loadData() {
         const cc = v.costCenter || 'ALL';
         const rate = parseNum(v.exchangeRate || 1);
         const mainAcc = v.mainAccount || v.toAccount || 'safe-001';
-        ALL_TXNS.push({ partner: mainAcc, debit: parseNum(v.totalAmount), credit: 0, date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
-        if (v.items && Array.isArray(v.items)) {
+        
+        if (v.items && Array.isArray(v.items) && v.items.length > 0) {
             v.items.forEach(item => {
                 const itemCC = item.costCenter || cc;
-                ALL_TXNS.push({ partner: item.account, debit: 0, credit: parseNum(item.amount), date: v.date, time: v.time || timeNow, costCenter: itemCC, exchangeRate: rate });
+                const amt = parseNum(item.amount);
+                
+                // The payer side (Credit)
+                ALL_TXNS.push({ partner: item.account, debit: 0, credit: amt, date: v.date, time: v.time || timeNow, costCenter: itemCC, exchangeRate: rate });
+                
+                // The receiver side (Debit - Safe/Bank/Cheque)
+                const pms = item.paymentMethods || [item.paymentMethod || 'cash'];
+                let hasHybrid = false;
+                
+                if (pms.includes('cash') && parseNum(item.cashAmount) > 0) {
+                    hasHybrid = true;
+                    ALL_TXNS.push({ partner: item.cashSafe || mainAcc, debit: parseNum(item.cashAmount), credit: 0, date: v.date, time: v.time || timeNow, costCenter: itemCC, exchangeRate: rate });
+                }
+                if (pms.includes('bank') && parseNum(item.bankAmount) > 0) {
+                    hasHybrid = true;
+                    const transfers = (item.bankTransfers && item.bankTransfers.length > 0) ? item.bankTransfers : [{ amount: item.bankAmount, bankName: item.bankName }];
+                    transfers.forEach(bt => {
+                        ALL_TXNS.push({ partner: bt.bankName || mainAcc, debit: parseNum(bt.amount), credit: 0, date: v.date, time: v.time || timeNow, costCenter: itemCC, exchangeRate: rate });
+                    });
+                }
+                if (pms.includes('cheque') && parseNum(item.chequeAmount) > 0) {
+                    hasHybrid = true;
+                    const cheques = (item.cheques && item.cheques.length > 0) ? item.cheques : [{ amount: item.chequeAmount, chequeBank: item.chequeBank }];
+                    cheques.forEach(ch => {
+                        ALL_TXNS.push({ partner: ch.chequeBank || 'cheques-receivable', debit: parseNum(ch.amount), credit: 0, date: v.date, time: v.time || timeNow, costCenter: itemCC, exchangeRate: rate });
+                    });
+                }
+                
+                if (!hasHybrid) {
+                     ALL_TXNS.push({ partner: mainAcc, debit: amt, credit: 0, date: v.date, time: v.time || timeNow, costCenter: itemCC, exchangeRate: rate });
+                }
             });
+        } else {
+             ALL_TXNS.push({ partner: mainAcc, debit: parseNum(v.totalAmount), credit: 0, date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
         }
     });
 
@@ -533,12 +565,44 @@ function loadData() {
         const cc = v.costCenter || 'ALL';
         const rate = parseNum(v.exchangeRate || 1);
         const mainAcc = v.mainAccount || v.fromAccount || 'safe-001';
-        ALL_TXNS.push({ partner: mainAcc, debit: 0, credit: parseNum(v.totalAmount), date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
-        if (v.items && Array.isArray(v.items)) {
+        
+        if (v.items && Array.isArray(v.items) && v.items.length > 0) {
             v.items.forEach(item => {
                 const itemCC = item.costCenter || cc;
-                ALL_TXNS.push({ partner: item.account, debit: parseNum(item.amount), credit: 0, date: v.date, time: v.time || timeNow, costCenter: itemCC, exchangeRate: rate });
+                const amt = parseNum(item.amount);
+                
+                // The receiver side (Debit)
+                ALL_TXNS.push({ partner: item.account, debit: amt, credit: 0, date: v.date, time: v.time || timeNow, costCenter: itemCC, exchangeRate: rate });
+                
+                // The payer side (Credit - Safe/Bank/Cheque)
+                const pms = item.paymentMethods || [item.paymentMethod || 'cash'];
+                let hasHybrid = false;
+                
+                if (pms.includes('cash') && parseNum(item.cashAmount) > 0) {
+                    hasHybrid = true;
+                    ALL_TXNS.push({ partner: item.cashSafe || mainAcc, debit: 0, credit: parseNum(item.cashAmount), date: v.date, time: v.time || timeNow, costCenter: itemCC, exchangeRate: rate });
+                }
+                if (pms.includes('bank') && parseNum(item.bankAmount) > 0) {
+                    hasHybrid = true;
+                    const transfers = (item.bankTransfers && item.bankTransfers.length > 0) ? item.bankTransfers : [{ amount: item.bankAmount, bankName: item.bankName }];
+                    transfers.forEach(bt => {
+                        ALL_TXNS.push({ partner: bt.bankName || mainAcc, debit: 0, credit: parseNum(bt.amount), date: v.date, time: v.time || timeNow, costCenter: itemCC, exchangeRate: rate });
+                    });
+                }
+                if (pms.includes('cheque') && parseNum(item.chequeAmount) > 0) {
+                    hasHybrid = true;
+                    const cheques = (item.cheques && item.cheques.length > 0) ? item.cheques : [{ amount: item.chequeAmount, chequeBank: item.chequeBank }];
+                    cheques.forEach(ch => {
+                        ALL_TXNS.push({ partner: ch.chequeBank || 'cheques-receivable', debit: 0, credit: parseNum(ch.amount), date: v.date, time: v.time || timeNow, costCenter: itemCC, exchangeRate: rate });
+                    });
+                }
+                
+                if (!hasHybrid) {
+                     ALL_TXNS.push({ partner: mainAcc, debit: 0, credit: amt, date: v.date, time: v.time || timeNow, costCenter: itemCC, exchangeRate: rate });
+                }
             });
+        } else {
+             ALL_TXNS.push({ partner: mainAcc, debit: 0, credit: parseNum(v.totalAmount), date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
         }
     });
 

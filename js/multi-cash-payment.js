@@ -1615,20 +1615,23 @@ async function saveVoucher() {
         const tKey = getTenantKey(storageKey);
         
         let existingData = [];
-        if (typeof localforage !== 'undefined') {
-            existingData = await localforage.getItem(tKey) || [];
-        } else {
+        // ALWAYS read from localStorage to keep sync with general-ledger.js
+        try {
             existingData = JSON.parse(localStorage.getItem(tKey) || '[]');
+        } catch(e) {
+            existingData = [];
         }
 
         if (!Array.isArray(existingData)) existingData = Object.values(existingData);
 
         existingData.push(voucher);
 
+        // ALWAYS save to localStorage so reporting engines see it immediately
+        localStorage.setItem(tKey, JSON.stringify(existingData));
+        
+        // Optionally sync to localforage as backup
         if (typeof localforage !== 'undefined') {
-            await localforage.setItem(tKey, existingData);
-        } else {
-            localStorage.setItem(tKey, JSON.stringify(existingData));
+            localforage.setItem(tKey, existingData).catch(e => console.error(e));
         }
 
         // Apply dynamic account balance effects

@@ -888,19 +888,83 @@ function getExpectedEntries(item, amt) {
     }
 
     if (item._metaKey === 'erp_payments_v1') {
-        expectedEntries.push({ acc: item.mainAccount || item.fromAccount || 'safe-001', debit: 0, credit: parsedAmt, stmt: item.description || 'سند صرف مجمع' });
-        if (item.items && Array.isArray(item.items)) {
+        if (item.items && Array.isArray(item.items) && item.items.length > 0) {
             item.items.forEach(sub => {
-                expectedEntries.push({ acc: sub.account, debit: parseFloat(sub.amount) || 0, credit: 0, stmt: sub.statement || 'صرف فرعي' });
+                const amt = parseFloat(sub.amount) || 0;
+                // Debit: Recipient
+                expectedEntries.push({ acc: sub.account, debit: amt, credit: 0, stmt: sub.statement || item.description || 'صرف فرعي' });
+                
+                // Credit: Payer (Safe/Bank/Cheque)
+                const pms = sub.paymentMethods || [sub.paymentMethod || 'cash'];
+                let hasHybrid = false;
+                
+                if (pms.includes('cash') && parseFloat(sub.cashAmount) > 0) {
+                    hasHybrid = true;
+                    expectedEntries.push({ acc: sub.cashSafe || item.mainAccount || item.fromAccount || 'safe-001', debit: 0, credit: parseFloat(sub.cashAmount), stmt: sub.cashStatement || sub.statement || item.description || 'صرف نقدي' });
+                }
+                if (pms.includes('bank') && parseFloat(sub.bankAmount) > 0) {
+                    hasHybrid = true;
+                    const transfers = (sub.bankTransfers && sub.bankTransfers.length > 0) ? sub.bankTransfers : [{ amount: sub.bankAmount, bankName: sub.bankName }];
+                    transfers.forEach(bt => {
+                        expectedEntries.push({ acc: bt.bankName || item.mainAccount || item.fromAccount || 'safe-001', debit: 0, credit: parseFloat(bt.amount) || 0, stmt: bt.statement || sub.statement || item.description || 'تحويل بنكي' });
+                    });
+                }
+                if (pms.includes('cheque') && parseFloat(sub.chequeAmount) > 0) {
+                    hasHybrid = true;
+                    const cheques = (sub.cheques && sub.cheques.length > 0) ? sub.cheques : [{ amount: sub.chequeAmount, chequeBank: sub.chequeBank, chequeNo: sub.chequeNo }];
+                    cheques.forEach(ch => {
+                        expectedEntries.push({ acc: ch.chequeBank || 'cheques-receivable', debit: 0, credit: parseFloat(ch.amount) || 0, stmt: ch.statement || `صرف شيك رقم ${ch.chequeNo || ''}` });
+                    });
+                }
+                
+                if (!hasHybrid) {
+                    expectedEntries.push({ acc: item.mainAccount || item.fromAccount || 'safe-001', debit: 0, credit: amt, stmt: sub.statement || item.description || 'صرف مجمع' });
+                }
             });
+        } else {
+            // Fallback for empty items
+            expectedEntries.push({ acc: item.mainAccount || item.fromAccount || 'safe-001', debit: 0, credit: parsedAmt, stmt: item.description || 'سند صرف مجمع' });
+            expectedEntries.push({ acc: 'حسابات متعددة', debit: parsedAmt, credit: 0, stmt: item.description || 'سند صرف مجمع' });
         }
         return expectedEntries;
     } else if (item._metaKey === 'erp_receipts_v1') {
-        expectedEntries.push({ acc: item.mainAccount || item.toAccount || 'safe-001', debit: parsedAmt, credit: 0, stmt: item.description || 'سند قبض مجمع' });
-        if (item.items && Array.isArray(item.items)) {
+        if (item.items && Array.isArray(item.items) && item.items.length > 0) {
             item.items.forEach(sub => {
-                expectedEntries.push({ acc: sub.account, debit: 0, credit: parseFloat(sub.amount) || 0, stmt: sub.statement || 'قبض فرعي' });
+                const amt = parseFloat(sub.amount) || 0;
+                // Credit: Payer
+                expectedEntries.push({ acc: sub.account, debit: 0, credit: amt, stmt: sub.statement || item.description || 'قبض فرعي' });
+                
+                // Debit: Receiver (Safe/Bank/Cheque)
+                const pms = sub.paymentMethods || [sub.paymentMethod || 'cash'];
+                let hasHybrid = false;
+                
+                if (pms.includes('cash') && parseFloat(sub.cashAmount) > 0) {
+                    hasHybrid = true;
+                    expectedEntries.push({ acc: sub.cashSafe || item.mainAccount || item.toAccount || 'safe-001', debit: parseFloat(sub.cashAmount), credit: 0, stmt: sub.cashStatement || sub.statement || item.description || 'قبض نقدي' });
+                }
+                if (pms.includes('bank') && parseFloat(sub.bankAmount) > 0) {
+                    hasHybrid = true;
+                    const transfers = (sub.bankTransfers && sub.bankTransfers.length > 0) ? sub.bankTransfers : [{ amount: sub.bankAmount, bankName: sub.bankName }];
+                    transfers.forEach(bt => {
+                        expectedEntries.push({ acc: bt.bankName || item.mainAccount || item.toAccount || 'safe-001', debit: parseFloat(bt.amount) || 0, credit: 0, stmt: bt.statement || sub.statement || item.description || 'تحويل بنكي' });
+                    });
+                }
+                if (pms.includes('cheque') && parseFloat(sub.chequeAmount) > 0) {
+                    hasHybrid = true;
+                    const cheques = (sub.cheques && sub.cheques.length > 0) ? sub.cheques : [{ amount: sub.chequeAmount, chequeBank: sub.chequeBank, chequeNo: sub.chequeNo }];
+                    cheques.forEach(ch => {
+                        expectedEntries.push({ acc: ch.chequeBank || 'cheques-receivable', debit: parseFloat(ch.amount) || 0, credit: 0, stmt: ch.statement || `قبض شيك رقم ${ch.chequeNo || ''}` });
+                    });
+                }
+                
+                if (!hasHybrid) {
+                    expectedEntries.push({ acc: item.mainAccount || item.toAccount || 'safe-001', debit: amt, credit: 0, stmt: sub.statement || item.description || 'قبض مجمع' });
+                }
             });
+        } else {
+            // Fallback for empty items
+            expectedEntries.push({ acc: item.mainAccount || item.toAccount || 'safe-001', debit: parsedAmt, credit: 0, stmt: item.description || 'سند قبض مجمع' });
+            expectedEntries.push({ acc: 'حسابات متعددة', debit: 0, credit: parsedAmt, stmt: item.description || 'سند قبض مجمع' });
         }
         return expectedEntries;
     } else if (item._metaKey === 'erp_single_payments_v1') {
