@@ -545,22 +545,33 @@
 
                 <!-- Exchange Rates Sub-Panel -->
                 <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.15);">
-                    <div class="setting-title" id="exchange-rates-title" style="font-size: 1.05rem; color: #f59e0b; margin-bottom: 10px;">💱 سعر صرف العملة الأجنبية مقابل العملة المحلية</div>
-                    
-                    <div style="margin-bottom: 15px;">
-                        <label class="form-label" style="display:inline-block; margin-left: 10px;">مصدر تسعير العملة الأجنبية:</label>
-                        <select class="form-select" id="cfg-exchange-mode" style="display:inline-block; width:auto; padding: 5px 15px;" onchange="if(typeof handleExchangeModeChange === 'function') handleExchangeModeChange(this)">
-                            <option value="manual" selected>إدخال يدوي مخصص</option>
-                            <option value="global">الاعتماد على السعر المركزي (لوحة المشتركين)</option>
-                        </select>
+                    <div class="setting-title" id="exchange-rates-title" style="font-size: 1.05rem; color: #f59e0b; margin-bottom: 12px; display:flex; justify-content:space-between; align-items:center;">
+                        <span>💱 سعر صرف العملة الأجنبية مقابل العملة المحلية</span>
+                        <span id="cfg-mode-badge" style="font-size: 0.85rem; padding: 4px 12px; border-radius: 20px; font-weight: bold; transition: all 0.3s ease; background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; color: #38bdf8;">
+                            🔒 السعر المركزي معتمد آلياً
+                        </span>
                     </div>
+                    
+                    <div id="exchange-rates-single-row" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(8, 20, 45, 0.98)); border: 2px solid #38bdf8; box-shadow: 0 0 25px rgba(56, 189, 248, 0.35), inset 0 1px 2px rgba(255,255,255,0.1); padding: 14px 20px; border-radius: 14px; transition: all 0.4s ease;">
+                        <!-- Source Dropdown -->
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <label class="form-label" style="margin: 0; font-size: 0.95rem; font-weight: bold; color: #cbd5e1; white-space: nowrap;">مصدر تسعير العملة الأجنبية:</label>
+                            <select class="form-select" id="cfg-exchange-mode" style="width: auto; min-width: 275px; padding: 8px 14px; background: #090d16; border: 1px solid #334155; color: #f8fafc; font-family: 'Tajawal'; font-size: 0.95rem; border-radius: 8px; cursor: pointer; font-weight: bold;" onchange="if(typeof handleExchangeModeChange === 'function') handleExchangeModeChange(this)">
+                                <option value="global" selected>الاعتماد على السعر المركزي (لوحة المشتركين)</option>
+                                <option value="manual">إدخال يدوي مخصص</option>
+                            </select>
+                        </div>
 
-                    <div id="exchange-rates-inputs" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
-                        <div class="form-group" style="margin:0;">
-                            <label class="form-label" id="cfg-foreign-rate-label" style="color:#10b981;">سعر الدولار الأمريكي (USD)</label>
-                            <input type="text" inputmode="decimal" class="form-input rate-input" id="cfg-rate-usd" placeholder="أدخل سعر الصرف مقابل العملة المحلية..." style="background: rgba(16, 185, 129, 0.08); border: 1px solid #10b981; color: #ffffff; font-size: 1.1rem; font-weight: bold; cursor: text; opacity: 1;">
+                        <div style="width: 1px; height: 35px; background: rgba(255,255,255,0.15); margin: 0 5px;"></div>
+
+                        <!-- Rate Label & Input & Currency Suffix -->
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <label class="form-label" id="cfg-foreign-rate-label" style="margin: 0; font-size: 0.95rem; font-weight: bold; color: #38bdf8; text-shadow: 0 0 10px rgba(56,189,248,0.5); white-space: nowrap;">سعر الدولار الأمريكي (USD):</label>
+                            <input type="text" inputmode="decimal" class="form-input rate-input" id="cfg-rate-usd" placeholder="سعر الصرف..." style="width: 140px; text-align: center; background: rgba(15, 23, 42, 0.9) !important; border: 2px solid #38bdf8 !important; color: #38bdf8 !important; font-size: 1.25rem !important; font-weight: 900 !important; font-family: 'JetBrains Mono', 'Outfit', sans-serif; padding: 6px 12px; border-radius: 10px; box-shadow: 0 0 15px rgba(56,189,248,0.3); transition: all 0.3s ease;" readOnly>
+                            <span id="cfg-base-currency-suffix" style="color: #f59e0b; font-weight: 900; font-size: 1.05rem; font-family: 'Outfit', sans-serif; white-space: nowrap; text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);">مقابل SDG</span>
                         </div>
                     </div>
+
                     <div id="exchange-rate-warning" style="display:none; color: #ef4444; font-size:0.9rem; margin-top:10px; font-weight:bold;">
                         ⚠️ ليس لديك الصلاحية لتعديل أسعار الصرف (للقراءة فقط).
                     </div>
@@ -1112,6 +1123,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     const origSet = window.originalSetItem || Storage.prototype.setItem;
                     try { origSet.call(localStorage, 'erp_rate_usd', usdRate.toString()); } catch(e){}
                     try { localStorage.setItem('erp_rate_usd', usdRate.toString()); } catch(e){}
+                    try { origSet.call(localStorage, 'erp_manual_rate_usd', usdRate.toString()); } catch(e){}
+                    try { localStorage.setItem('erp_manual_rate_usd', usdRate.toString()); } catch(e){}
 
                     const settingsKey = window.getTenantKey ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1';
                     try {
@@ -1219,34 +1232,107 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 window.handleExchangeModeChange = function(select) {
         const rateInput = document.getElementById('cfg-rate-usd');
+        const container = document.getElementById('exchange-rates-single-row');
+        const modeBadge = document.getElementById('cfg-mode-badge');
+        const rateLabel = document.getElementById('cfg-foreign-rate-label');
         if (!rateInput) return;
+
+        const settingsKey = window.getTenantKey ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1';
+        let currentCfg = {};
+        try {
+            currentCfg = JSON.parse(localStorage.getItem(settingsKey) || localStorage.getItem('erp_settings_v1') || '{}');
+            currentCfg.exchangeMode = select.value;
+            currentCfg._userExplicitManual = (select.value === 'manual');
+            const str = JSON.stringify(currentCfg);
+            localStorage.setItem(settingsKey, str);
+            localStorage.setItem('erp_settings_v1', str);
+            if (window.DB_STORE) {
+                window.DB_STORE[settingsKey] = str;
+                window.DB_STORE['erp_settings_v1'] = str;
+            }
+        } catch(e) {}
+
+        const fallbackRate = currentCfg.rateUSD || parseFloat(localStorage.getItem('erp_rate_usd')) || 600;
+        const lastManualRate = parseFloat(localStorage.getItem('erp_manual_rate_usd')) || fallbackRate;
+        const lastSaasRate = parseFloat(localStorage.getItem('erp_saas_rate_usd')) || (window.getExchangeRateForCurrency ? window.getExchangeRateForCurrency('USD') : 5600) || fallbackRate;
         
         if (select.value === 'global' || select.value === 'saas') {
+            // Cyan / Sky Blue High Glow for Central Rate
+            if (container) {
+                container.style.background = 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(8, 20, 45, 0.98))';
+                container.style.borderColor = '#38bdf8';
+                container.style.boxShadow = '0 0 25px rgba(56, 189, 248, 0.35), inset 0 1px 2px rgba(255,255,255,0.1)';
+            }
+            if (modeBadge) {
+                modeBadge.style.background = 'rgba(56, 189, 248, 0.15)';
+                modeBadge.style.border = '1px solid #38bdf8';
+                modeBadge.style.color = '#38bdf8';
+                modeBadge.innerHTML = '🔒 السعر المركزي معتمد آلياً';
+            }
+            if (rateLabel) {
+                rateLabel.style.color = '#38bdf8';
+                rateLabel.style.textShadow = '0 0 10px rgba(56,189,248,0.5)';
+            }
+
             rateInput.readOnly = true;
-            rateInput.style.opacity = '0.7';
+            rateInput.style.opacity = '0.9';
+            rateInput.style.background = 'rgba(15, 23, 42, 0.9)';
+            rateInput.style.borderColor = '#38bdf8';
+            rateInput.style.color = '#38bdf8';
+            rateInput.style.boxShadow = '0 0 15px rgba(56,189,248,0.3)';
+            rateInput.style.cursor = 'not-allowed';
+            rateInput.value = lastSaasRate;
+
             // Fetch from SaaS
             const _base = (() => { const o = window.location.origin; if (o === 'https://elsajana.com' || o === 'https://www.elsajana.com') return 'https://c.elsajana.com/'; let d = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')); if (d.endsWith('/')) d = d.slice(0,-1); return o + (d||'') + '/'; })();
             const token = localStorage.getItem('authToken');
             if (token) {
-                rateInput.value = 'جاري السحب...';
                 fetch(_base + 'api_index.php/tenant-exchange-rate', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 }).then(r => r.json()).then(data => {
-                    if (data && data.success && data.payload && data.payload.rateUSD) {
+                    if (data && data.success && data.payload && data.payload.rateUSD && parseFloat(data.payload.rateUSD) > 0) {
                         rateInput.value = data.payload.rateUSD;
+                        localStorage.setItem('erp_saas_rate_usd', data.payload.rateUSD);
                         if(typeof window.showToast === 'function') window.showToast('تم سحب السعر اللحظي من المنصة بنجاح', 'success');
                     } else {
-                        rateInput.value = '';
-                        alert('لم يتم العثور على سعر للصرف في المنصة.');
+                        rateInput.value = lastSaasRate;
                     }
                 }).catch(e => {
-                    rateInput.value = '';
+                    rateInput.value = lastSaasRate;
                     console.error('Error fetching rate:', e);
                 });
+            } else {
+                rateInput.value = lastSaasRate;
             }
         } else {
+            // Emerald Green High Glow for Manual Mode
+            if (container) {
+                container.style.background = 'linear-gradient(135deg, rgba(6, 30, 20, 0.95), rgba(10, 25, 30, 0.98))';
+                container.style.borderColor = '#10b981';
+                container.style.boxShadow = '0 0 25px rgba(16, 185, 129, 0.35), inset 0 1px 2px rgba(255,255,255,0.1)';
+            }
+            if (modeBadge) {
+                modeBadge.style.background = 'rgba(16, 185, 129, 0.15)';
+                modeBadge.style.border = '1px solid #10b981';
+                modeBadge.style.color = '#34d399';
+                modeBadge.innerHTML = '✏️ تسعير يدوي مخصص (متاح للتعديل)';
+            }
+            if (rateLabel) {
+                rateLabel.style.color = '#34d399';
+                rateLabel.style.textShadow = '0 0 10px rgba(16,185,129,0.5)';
+            }
+
             rateInput.readOnly = false;
             rateInput.style.opacity = '1';
+            rateInput.style.background = 'rgba(6, 20, 15, 0.95)';
+            rateInput.style.borderColor = '#10b981';
+            rateInput.style.color = '#34d399';
+            rateInput.style.boxShadow = '0 0 20px rgba(16,185,129,0.4)';
+            rateInput.style.cursor = 'text';
+            rateInput.value = lastManualRate;
+            rateInput.dispatchEvent(new Event('input'));
+            rateInput.focus();
+            rateInput.select();
         }
     };
 
@@ -1491,10 +1577,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         const modeSelect = document.getElementById('cfg-exchange-mode');
-                if (modeSelect) {
-            modeSelect.value = cfg.exchangeMode || 'manual';
-            if (cfg.exchangeMode === 'global' || cfg.exchangeMode === 'saas') {
-                if(usdEl) { usdEl.readOnly = true; usdEl.style.opacity = '0.7'; }
+        if (modeSelect) {
+            let activeMode = cfg.exchangeMode;
+            if (!activeMode || (activeMode === 'manual' && !cfg._userExplicitManual)) {
+                activeMode = 'global';
+            }
+            modeSelect.value = activeMode;
+            if (typeof handleExchangeModeChange === 'function') {
+                handleExchangeModeChange(modeSelect);
             }
         }
         if (cfg.rateSAR != null) safeSetVal('cfg-rate-sar', cfg.rateSAR);
@@ -1592,7 +1682,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 fiscalYear:            getVal('cfg-fiscal-year', '1'),
 
                 // Exchange Rates
-                exchangeMode:      getVal('cfg-exchange-mode', 'manual'),
+                exchangeMode:      getVal('cfg-exchange-mode', 'global'),
                 rateUSD:           (document.getElementById('cfg-rate-usd') && parseNum(document.getElementById('cfg-rate-usd').value) > 0) ? parseNum(document.getElementById('cfg-rate-usd').value) : (oldCfg.rateUSD || 600),
                 rateSAR:           (document.getElementById('cfg-rate-sar') && parseNum(document.getElementById('cfg-rate-sar').value) > 0) ? parseNum(document.getElementById('cfg-rate-sar').value) : (oldCfg.rateSAR || 160),
                 rateAED:           (document.getElementById('cfg-rate-aed') && parseNum(document.getElementById('cfg-rate-aed').value) > 0) ? parseNum(document.getElementById('cfg-rate-aed').value) : (oldCfg.rateAED || 163),
@@ -1766,6 +1856,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }).catch(e => console.error('Error broadcasting rate:', e));
             }
 
+            window.isSettingsDirty = false;
             const saveBtn = document.getElementById('save-settings-btn');
             if (saveBtn) {
                 saveBtn.classList.remove('pulse-alert');
@@ -2326,6 +2417,150 @@ function confirmCustomModal({ title, subtitle, confirmText = "استمرار", i
         card.querySelector('#btnCancelAction').onclick = () => close(false);
     });
 }
+</script>
+
+<!-- Centered Unsaved Changes Confirmation Modal -->
+<div id="unsaved-confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.75); z-index:9999999; justify-content:center; align-items:center; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); font-family:'Tajawal', sans-serif;">
+    <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid rgba(245, 158, 11, 0.4); box-shadow: 0 25px 60px rgba(0,0,0,0.85), 0 0 30px rgba(245, 158, 11, 0.25); border-radius: 20px; padding: 30px 35px; width: 90%; max-width: 480px; text-align: center; color: #f8fafc; animation: unsavedModalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <div style="width: 65px; height: 65px; background: rgba(245, 158, 11, 0.15); border: 2px solid #f59e0b; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 2rem;">
+            ⚠️
+        </div>
+        <h3 style="margin: 0 0 10px; font-size: 1.3rem; font-weight: 800; color: #f59e0b;">تنبيه: توجد تعديلات غير محفوظة!</h3>
+        <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px;">
+            لقد قمت بتعديل بعض الإعدادات بالنظام ولم تقم بحفظها بعد. هل تريد حفظ التعديلات الآن قبل المغادرة أم التخلي عن التعديلات؟
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <button id="btn-unsaved-save-now" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 12px; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">
+                💾 حفظ التعديلات والإستمرار
+            </button>
+            <button id="btn-unsaved-leave-no-save" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid #ef4444; padding: 11px; border-radius: 12px; font-size: 0.95rem; font-weight: bold; cursor: pointer; transition: all 0.2s ease;">
+                🚪 المغادرة بدون حفظ
+            </button>
+            <button id="btn-unsaved-cancel" style="background: rgba(255, 255, 255, 0.05); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 12px; font-size: 0.9rem; cursor: pointer;">
+                ❌ البقاء والتراجع
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes unsavedModalPop {
+    0% { transform: scale(0.85); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+.pulse-alert {
+    animation: savePulse 1.5s infinite;
+}
+@keyframes savePulse {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+</style>
+
+<script>
+(function() {
+    window.isSettingsDirty = false;
+    let pendingNavigationTarget = null;
+
+    function initDirtyTracking() {
+        window.isSettingsDirty = false;
+        
+        const container = document.body;
+        container.addEventListener('change', function(e) {
+            if (e.target.matches('input, select, textarea')) {
+                window.isSettingsDirty = true;
+                const saveBtn = document.getElementById('save-settings-btn');
+                if (saveBtn) saveBtn.classList.add('pulse-alert');
+            }
+        });
+
+        container.addEventListener('input', function(e) {
+            if (e.target.matches('input, select, textarea')) {
+                window.isSettingsDirty = true;
+                const saveBtn = document.getElementById('save-settings-btn');
+                if (saveBtn) saveBtn.classList.add('pulse-alert');
+            }
+        });
+    }
+
+    window.promptUnsavedChanges = function(targetUrl = null) {
+        pendingNavigationTarget = targetUrl;
+        const modal = document.getElementById('unsaved-confirm-modal');
+        if (modal) modal.style.display = 'flex';
+    };
+
+    document.addEventListener('click', function(e) {
+        if (!window.isSettingsDirty) return;
+
+        if (e.target.closest('#save-settings-btn, .save-btn-main, #btn-unsaved-save-now, #btn-unsaved-leave-no-save, #btn-unsaved-cancel')) {
+            return;
+        }
+
+        const navLink = e.target.closest('a[href], .sidebar-item, [data-href], button[onclick*="location"]');
+        if (navLink) {
+            let target = navLink.getAttribute('href') || navLink.getAttribute('data-href');
+            if (!target && navLink.getAttribute('onclick')) {
+                const match = navLink.getAttribute('onclick').match(/location\.href\s*=\s*['"]([^'"]+)['"]/);
+                if (match) target = match[1];
+            }
+
+            if (target && !target.startsWith('#') && !target.startsWith('javascript:')) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.promptUnsavedChanges(target);
+            }
+        }
+    }, true);
+
+    window.addEventListener('beforeunload', function(e) {
+        if (window.isSettingsDirty) {
+            e.preventDefault();
+            e.returnValue = 'توجد تعديلات غير محفوظة على الإعدادات!';
+            return e.returnValue;
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initDirtyTracking();
+
+        const saveNowBtn = document.getElementById('btn-unsaved-save-now');
+        const leaveBtn = document.getElementById('btn-unsaved-leave-no-save');
+        const cancelBtn = document.getElementById('btn-unsaved-cancel');
+        const modal = document.getElementById('unsaved-confirm-modal');
+
+        if (saveNowBtn) {
+            saveNowBtn.onclick = function() {
+                if (typeof saveSettings === 'function') {
+                    saveSettings();
+                }
+                window.isSettingsDirty = false;
+                if (modal) modal.style.display = 'none';
+                if (pendingNavigationTarget) {
+                    window.location.href = pendingNavigationTarget;
+                }
+            };
+        }
+
+        if (leaveBtn) {
+            leaveBtn.onclick = function() {
+                window.isSettingsDirty = false;
+                if (modal) modal.style.display = 'none';
+                if (pendingNavigationTarget) {
+                    window.location.href = pendingNavigationTarget;
+                }
+            };
+        }
+
+        if (cancelBtn) {
+            cancelBtn.onclick = function() {
+                if (modal) modal.style.display = 'none';
+                pendingNavigationTarget = null;
+            };
+        }
+    });
+})();
 </script>
 
 </body>

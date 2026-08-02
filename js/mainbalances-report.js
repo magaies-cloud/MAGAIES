@@ -581,6 +581,28 @@ function loadData() {
                 ALL_TXNS.push({ partner: pRef, debit: 0, credit: paid, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
             }
         }
+
+        // --- Handle Treasury Side (Safe/Bank) ---
+        if (inv.paymentMethod === 'hybrid' || inv.paymentMethod === 'multipay') {
+            const cash = parseNum(inv.cashAmount || 0);
+            if (cash > 0) {
+                ALL_TXNS.push({ partner: inv.paymentAccountId || 'safe-001', debit: cash, credit: 0, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
+            }
+            if (inv.bankTransfers && inv.bankTransfers.length > 0) {
+                inv.bankTransfers.forEach(bt => {
+                    const amt = parseNum(bt.amount || 0);
+                    if (amt > 0) ALL_TXNS.push({ partner: bt.bankAccountId || 'bank-001', debit: amt, credit: 0, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
+                });
+            }
+        } else {
+            // Standard payment
+            const paymentAcc = inv.paymentAccountId || 'safe-001';
+            if (inv.paymentMethod !== 'credit' && paid === 0) {
+                ALL_TXNS.push({ partner: paymentAcc, debit: total, credit: 0, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
+            } else if (paid > 0) {
+                ALL_TXNS.push({ partner: paymentAcc, debit: paid, credit: 0, date: inv.date, time: time, costCenter: cc, exchangeRate: rate });
+            }
+        }
     });
 
     // 5. Purchases

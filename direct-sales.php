@@ -2582,7 +2582,7 @@
                     <option value="AED">🇦🇪 درهم</option>
                     <option value="EGP">🇪🇬 مصري</option>
                 </select>
-                <input type="number" class="v-input ctrl-input"  id="hdr-exchange-rate" value="1" disabled oninput="recalcAll()" style="flex: 0.8; min-width:0; text-align: center;" placeholder="الصرف" onkeypress="return (event.charCode  readonly style="cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; font-weight:bold; text-align:center;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') { window.openGlobalExchangeRateModal((r) => { this.value = r; if(typeof window.updateCurrency === 'function') window.updateCurrency(); else if(typeof recalcTotals === 'function') recalcTotals(); else if(typeof calcTotals === 'function') calcTotals(); else if(typeof generateTable === 'function') generateTable(); }); }" >= 48 && event.charCode <= 57) || event.charCode == 46" >
+                <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" placeholder="الصرف" readonly style="flex: 1.2; text-align: center; cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; font-weight:bold;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
             </div>
         </div>
 

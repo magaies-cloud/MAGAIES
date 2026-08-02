@@ -222,10 +222,27 @@ function calculateLedgerTxns() {
         });
     }
 
+    const parseTimeTo24h = (timeStr) => {
+        if (!timeStr) return '00:00:00';
+        timeStr = String(timeStr).trim();
+        let isPM = /pm|مساء/i.test(timeStr);
+        let isAM = /am|صباحا|صباحاً/i.test(timeStr);
+        let clean = timeStr.replace(/[^0-9:]/g, '');
+        let parts = clean.split(':').map(p => parseInt(p, 10) || 0);
+        let h = parts[0] || 0, m = parts[1] || 0, s = parts[2] || 0;
+        if (isPM && h < 12) h += 12;
+        if (isAM && h === 12) h = 0;
+        return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    };
+
     currentTxns.sort((a, b) => {
-        const da = a.date + ' ' + (a.time || '00:00');
-        const db = b.date + ' ' + (b.time || '00:00');
-        return da.localeCompare(db);
+        const da = (a.date || '') + ' ' + parseTimeTo24h(a.time);
+        const db = (b.date || '') + ' ' + parseTimeTo24h(b.time);
+        let cmp = da.localeCompare(db);
+        if (cmp === 0) {
+            cmp = String(a.ref || '').localeCompare(String(b.ref || ''), undefined, { numeric: true });
+        }
+        return cmp;
     });
 
     let runningBal = 0;
@@ -2558,7 +2575,7 @@ function collectAllTransactions() {
                     const amt = parseNum(bt.amount || 0);
                     if (amt > 0) {
                         const amtLocBt = isBaseSDG ? amt : amt * rate;
-                        const amtFcBt = isBaseSDG ? (amtLoc / effRate) : amt;
+                        const amtFcBt = isBaseSDG ? (amtLocBt / effRate) : amt;
                         const bankAcct = bt.bankAccountId || 'bank-001';
                         txns.push({
                             date: inv.date, time: time, ref: `${refNo}-BT${idx+1}`, type: 'receipt', typeLabel: 'سداد فاتورة',
@@ -2591,7 +2608,7 @@ function collectAllTransactions() {
                     const amt = parseNum(ch.amount || 0);
                     if (amt > 0) {
                         const amtLocCh = isBaseSDG ? amt : amt * rate;
-                        const amtFcCh = isBaseSDG ? (amtLoc / effRate) : amt;
+                        const amtFcCh = isBaseSDG ? (amtLocCh / effRate) : amt;
                         const chequeAcct = 'cheques-receivable';
                         txns.push({
                             date: inv.date, time: time, ref: `${refNo}-CH${idx+1}`, type: 'receipt', typeLabel: 'سداد فاتورة',
@@ -2824,6 +2841,20 @@ function getAccountName(id) {
     
     let idStr = String(id).trim();
     let idLower = idStr.toLowerCase();
+    
+    const sysMap = {
+        'exp-purchases': 'المشتريات',
+        'revenue-sales': 'إيرادات المبيعات',
+        'cost-purchases': 'تكلفة المشتريات (مخزون)',
+        'act-inventory': 'حساب المخزون',
+        'exp-inventory-adjustments': 'تسويات المخزون',
+        'cheques-receivable': 'شيكات برسم التحصيل',
+        'discount-permitted': 'خصم مسموح به',
+        'discount-received': 'خصم مكتسب',
+        'vat-collected': 'ضريبة مبيعات',
+        'vat-paid': 'ضريبة مشتريات'
+    };
+    if (sysMap[idLower]) return sysMap[idLower];
     
     // 1. Fast O(1) cache lookup
     if (ACCOUNT_NAME_CACHE.has(idLower)) return ACCOUNT_NAME_CACHE.get(idLower);

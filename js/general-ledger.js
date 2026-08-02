@@ -1648,13 +1648,30 @@ function runReport() {
             });
         }
 
+        const parseTimeTo24h = (timeStr) => {
+            if (!timeStr) return '00:00:00';
+            timeStr = String(timeStr).trim();
+            let isPM = /pm|مساء/i.test(timeStr);
+            let isAM = /am|صباحا|صباحاً/i.test(timeStr);
+            let clean = timeStr.replace(/[^0-9:]/g, '');
+            let parts = clean.split(':').map(p => parseInt(p, 10) || 0);
+            let h = parts[0] || 0, m = parts[1] || 0, s = parts[2] || 0;
+            if (isPM && h < 12) h += 12;
+            if (isAM && h === 12) h = 0;
+            return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+        };
+
         // Compute running balance in chronological order (oldest first)
         let runningBal = 0;
         let runningBalFc = 0;
         let chronological = filtered.slice().sort((a, b) => {
-            const da = ((a && a.date) || '') + ' ' + ((a && a.time) || '00:00');
-            const db = ((b && b.date) || '') + ' ' + ((b && b.time) || '00:00');
-            return da.localeCompare(db);
+            const da = ((a && a.date) || '') + ' ' + parseTimeTo24h(a && a.time);
+            const db = ((b && b.date) || '') + ' ' + parseTimeTo24h(b && b.time);
+            let cmp = da.localeCompare(db);
+            if (cmp === 0) {
+                cmp = String((a && a.ref) || '').localeCompare(String((b && b.ref) || ''), undefined, { numeric: true });
+            }
+            return cmp;
         });
 
         chronological.forEach(t => {
@@ -1670,14 +1687,8 @@ function runReport() {
             }
         });
 
-        // Sort Descending (Newest first) for Recent Table
-        filtered.sort((a, b) => {
-            const da = ((a && a.date) || '') + ' ' + ((a && a.time) || '00:00');
-            const db = ((b && b.date) || '') + ' ' + ((b && b.time) || '00:00');
-            return db.localeCompare(da);
-        });
-
-        currentTxns = filtered;
+        // Set display order to Chronological (Oldest first at top, newest created at bottom)
+        currentTxns = chronological;
 
         let totalDebit = 0;
         let totalCredit = 0;
@@ -1779,13 +1790,16 @@ function getAccountName(accVal) {
     if (ACCOUNT_NAME_CACHE.has(cleanId)) return ACCOUNT_NAME_CACHE.get(cleanId);
     
     // Hardcoded fallbacks
-    if (accVal === 'revenue-sales') return 'إيرادات المبيعات';
-    if (accVal === 'cost-purchases') return 'تكلفة المشتريات (مخزون)';
-    if (accVal === 'discount-permitted') return 'خصم مسموح به';
-    if (accVal === 'discount-received') return 'خصم مكتسب';
-    if (accVal === 'vat-collected') return 'ضريبة القيمة المضافة (مبيعات)';
-    if (accVal === 'vat-paid') return 'ضريبة القيمة المضافة (مشتريات)';
-    if (accVal === 'cheques-receivable') return 'شيكات تحت التحصيل';
+    if (idLower === 'exp-purchases' || accVal === 'exp-purchases') return 'المشتريات';
+    if (idLower === 'revenue-sales' || accVal === 'revenue-sales') return 'إيرادات المبيعات';
+    if (idLower === 'cost-purchases' || accVal === 'cost-purchases') return 'تكلفة المشتريات (مخزون)';
+    if (idLower === 'act-inventory' || accVal === 'act-inventory') return 'حساب المخزون';
+    if (idLower === 'exp-inventory-adjustments' || accVal === 'exp-inventory-adjustments') return 'تسويات المخزون';
+    if (idLower === 'discount-permitted' || accVal === 'discount-permitted') return 'خصم مسموح به';
+    if (idLower === 'discount-received' || accVal === 'discount-received') return 'خصم مكتسب';
+    if (idLower === 'vat-collected' || accVal === 'vat-collected') return 'ضريبة مبيعات';
+    if (idLower === 'vat-paid' || accVal === 'vat-paid') return 'ضريبة مشتريات';
+    if (idLower === 'cheques-receivable' || accVal === 'cheques-receivable') return 'شيكات برسم التحصيل';
     
     return accVal; // return ID if name not found
 }

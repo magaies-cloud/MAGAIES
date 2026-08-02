@@ -1511,8 +1511,7 @@ JSON.parse = function(val) {
             fetch(SYNC_PUSH_URL, {
                 method: "POST",
                 headers: getAuthHeaders(),
-                body: JSON.stringify(payload),
-                keepalive: true
+                body: JSON.stringify(payload)
             }).then(res => {
                 resStatus = res.status;
                 if (res.status === 401) {
@@ -1683,7 +1682,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let btnGradient = 'linear-gradient(135deg, #38bdf8, #0284c7)';
         let iconAnimation = 'floatIcon 2s ease-in-out infinite';
 
-        if (message.includes('نجاح') || message.includes('تم ') || message.includes('بنجاح')) {
+        const isNegative = message.includes('لم يتم') || message.includes('لا يوجد') || message.includes('غير صحيح') || message.includes('خطأ') || message.includes('فشل') || message.includes('تعذر');
+
+        if (!isNegative && (message.includes('نجاح') || message.includes('تم ') || message.includes('بنجاح') || message.includes('اعتمد'))) {
             type = 'success';
             iconHtml = '✅';
             mainColorRGB = '16, 185, 129'; // Green
@@ -3016,33 +3017,34 @@ window.openGlobalExchangeRateModal = function(callback) {
     let modal = document.getElementById('global-exchange-modal');
     if (!modal) {
         const modalHtml = `
-            <div id="global-exchange-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:999999; justify-content:center; align-items:center; font-family:'Tajawal', sans-serif;">
-                <div style="background:#1e293b; padding:25px 35px; border-radius:15px; border:1px solid #38bdf8; width:90%; max-width:450px; text-align:center; box-shadow:0 15px 40px rgba(0,0,0,0.5);">
-                    <h3 style="color:#f8fafc; margin-top:0;">💱 وحدة التحكم بسعر الصرف المركزي</h3>
-                    <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:15px;">أي تعديل هنا سينعكس على كل الشاشات لحظياً ويحفظ في الإعدادات المركزية.</p>
+            <div id="global-exchange-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:999999; justify-content:center; align-items:center; font-family:'Tajawal', sans-serif;">
+                <div style="background:#1e293b; padding:25px 35px; border-radius:18px; border:1px solid #38bdf8; width:90%; max-width:460px; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,0.6);">
+                    <h3 style="color:#f8fafc; margin-top:0; font-size:1.25rem;">💱 وحدة التحكم بسعر الصرف المركزي</h3>
+                    <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:18px;">أي تعديل هنا سينعكس على كل الشاشات لحظياً ويحفظ في الإعدادات المركزية.</p>
                     
                     <div style="text-align: right; margin-bottom: 15px;">
-                        <label style="color: #cbd5e1; font-size: 0.9rem; display: block; margin-bottom: 5px;">مصدر سعر الصرف:</label>
-                        <select id="gem-source" style="width: 100%; padding: 10px; border-radius: 8px; background: #0f172a; border: 1px solid #334155; color: #f8fafc; font-family: 'Tajawal'; font-size: 1rem;">
+                        <label style="color: #cbd5e1; font-size: 0.9rem; display: block; margin-bottom: 6px; font-weight:bold;">مصدر سعر الصرف:</label>
+                        <select id="gem-source" style="width: 100%; padding: 10px 14px; border-radius: 10px; background: #090d16; border: 1px solid #334155; color: #f8fafc; font-family: 'Tajawal'; font-size: 1rem; cursor:pointer;">
                             <option value="saas">سحب تلقائي من منصة المشتركين (SaaS)</option>
                             <option value="manual">إدخال يدوي مخصص</option>
                         </select>
                     </div>
 
-                    <div style="text-align: right; margin-bottom: 25px;">
-                        <label style="color: #cbd5e1; font-size: 0.9rem; display: block; margin-bottom: 5px;">سعر صرف الدولار (USD) الحالي:</label>
-                        <input type="number" id="gem-rate" step="0.01" style="width: 100%; padding: 10px; border-radius: 8px; background: #0f172a; border: 1px solid #334155; color: #f8fafc; font-family: 'Tajawal'; font-size: 1.2rem; text-align: center; box-sizing: border-box;">
+                    <div style="text-align: right; margin-bottom: 20px;">
+                        <label style="color: #cbd5e1; font-size: 0.9rem; display: block; margin-bottom: 6px; font-weight:bold;">سعر صرف الدولار (USD) الحالي:</label>
+                        <input type="number" id="gem-rate" step="0.01" style="width: 100%; padding: 12px 16px; border-radius: 12px; background: #090d16 !important; border: 2px solid #f59e0b; color: #f59e0b; font-family: 'JetBrains Mono', 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 900; text-align: center; letter-spacing: 2px; box-sizing: border-box; transition: all 0.3s; box-shadow: inset 0 2px 6px rgba(0,0,0,0.8), 0 0 15px rgba(245, 158, 11, 0.2);">
+                        <div id="gem-rate-indicator" style="margin-top: 10px; font-size: 0.9rem; font-weight: bold; min-height: 32px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px;"></div>
                     </div>
                     
-                    <div id="gem-auth-warning" style="display:none; color: #ef4444; font-size: 0.85rem; margin-bottom: 15px; text-align: right; background: rgba(239,68,68,0.1); padding: 8px; border-radius: 5px;">
+                    <div id="gem-auth-warning" style="display:none; color: #ef4444; font-size: 0.85rem; margin-bottom: 15px; text-align: right; background: rgba(239,68,68,0.1); padding: 8px 12px; border-radius: 8px;">
                         ⚠️ لا تملك صلاحية تعديل السعر المركزي. السعر للقراءة فقط.
                     </div>
 
                     <div style="display:flex; gap:15px; justify-content:center;">
-                        <button id="btn-gem-save" style="flex:1; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:12px; border-radius:10px; cursor:pointer; font-weight:bold; transition:all 0.2s;">
+                        <button id="btn-gem-save" style="flex:1; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:12px; border-radius:10px; cursor:pointer; font-weight:bold; font-size:1rem; transition:all 0.2s;">
                             💾 حفظ واعتماد
                         </button>
-                        <button id="btn-gem-cancel" style="flex:1; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#f87171; padding:12px; border-radius:10px; cursor:pointer; font-weight:bold; transition:all 0.2s;">
+                        <button id="btn-gem-cancel" style="flex:1; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#f87171; padding:12px; border-radius:10px; cursor:pointer; font-weight:bold; font-size:1rem; transition:all 0.2s;">
                             ❌ إلغاء
                         </button>
                     </div>
@@ -3056,11 +3058,54 @@ window.openGlobalExchangeRateModal = function(callback) {
             modal.style.display = 'none';
         };
 
+        const updateRateTrendIndicator = () => {
+            const val = parseFloat(document.getElementById('gem-rate').value) || 0;
+            const ind = document.getElementById('gem-rate-indicator');
+            const input = document.getElementById('gem-rate');
+            const prevRate = window._gemInitialRate || val;
+            if (!ind || !val || !prevRate) return;
+
+            const diff = val - prevRate;
+            if (diff < -0.01) {
+                // Downward price drop -> GREEN with green down arrow ⬇️
+                input.style.color = '#10b981';
+                input.style.borderColor = '#10b981';
+                input.style.boxShadow = 'inset 0 2px 6px rgba(0,0,0,0.8), 0 0 20px rgba(16,185,129,0.4)';
+                ind.innerHTML = `<div style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #34d399; padding: 6px 16px; border-radius: 20px; font-size: 0.95rem; font-weight: bold; display: inline-flex; align-items: center; gap: 8px;"><span style="font-size: 1.2rem; color: #10b981;">⬇️</span> <span>انخفاض في سعر الصرف بمقدار <strong>${Math.abs(diff).toFixed(2)}</strong> ج.س.</span></div>`;
+            } else if (diff > 0.01) {
+                // Upward price increase -> RED with red up arrow ⬆️
+                input.style.color = '#ef4444';
+                input.style.borderColor = '#ef4444';
+                input.style.boxShadow = 'inset 0 2px 6px rgba(0,0,0,0.8), 0 0 20px rgba(239,68,68,0.4)';
+                ind.innerHTML = `<div style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 6px 16px; border-radius: 20px; font-size: 0.95rem; font-weight: bold; display: inline-flex; align-items: center; gap: 8px;"><span style="font-size: 1.2rem; color: #ef4444;">⬆️</span> <span>ارتفاع في سعر الصرف بمقدار <strong>${diff.toFixed(2)}</strong> ج.س.</span></div>`;
+            } else {
+                // Same price -> Golden Orange
+                input.style.color = '#f59e0b';
+                input.style.borderColor = '#f59e0b';
+                input.style.boxShadow = 'inset 0 2px 6px rgba(0,0,0,0.8), 0 0 15px rgba(245,158,11,0.2)';
+                ind.innerHTML = `<div style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; padding: 6px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; display: inline-flex; align-items: center; gap: 8px;"><span style="font-size: 1rem;">⚖️</span> <span>السعر الحالي المعتمد: <strong>${val}</strong> ج.س.</span></div>`;
+            }
+        };
+
+        document.getElementById('gem-rate').addEventListener('input', updateRateTrendIndicator);
+        document.getElementById('gem-rate').addEventListener('change', updateRateTrendIndicator);
+
         document.getElementById('gem-source').addEventListener('change', function() {
+            const hasPerm = (typeof window.hasPermission === 'function' ? window.hasPermission('settings', 'edit') : true) || 
+                            (JSON.parse(localStorage.getItem('user')||'{}').securityLevel >= 8);
             if (this.value === 'saas') {
                 document.getElementById('gem-rate').readOnly = true;
-                document.getElementById('gem-rate').style.opacity = '0.7';
-                // Trigger fetch from SaaS if possible
+                document.getElementById('gem-rate').style.opacity = '0.85';
+                document.getElementById('gem-rate').style.background = 'rgba(56,189,248,0.15)';
+                document.getElementById('gem-rate').style.borderColor = '#38bdf8';
+                
+                let lastSaas = parseFloat(localStorage.getItem('erp_saas_rate_usd'));
+                if (lastSaas && lastSaas > 0) {
+                    document.getElementById('gem-rate').value = lastSaas;
+                    if(typeof updateRateTrendIndicator === 'function') updateRateTrendIndicator();
+                }
+
+                // Fetch from SaaS
                 const _base = (() => { const o = window.location.origin; if (o === 'https://elsajana.com' || o === 'https://www.elsajana.com') return 'https://c.elsajana.com/'; let d = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')); if (d.endsWith('/')) d = d.slice(0,-1); return o + (d||'') + '/'; })();
                 const token = localStorage.getItem('authToken');
                 if (token) {
@@ -3068,13 +3113,15 @@ window.openGlobalExchangeRateModal = function(callback) {
                     const origBtnText = btn.innerHTML;
                     btn.innerHTML = 'جاري السحب...';
                     btn.disabled = true;
-                    fetch(_base + 'api_index.php/tenant-exchange-rate', {
+                    fetch(_base + 'api_index.php/exchange-rate', {
                         headers: { 'Authorization': `Bearer ${token}` }
                     }).then(r => r.json()).then(data => {
                         btn.innerHTML = origBtnText;
                         btn.disabled = false;
-                        if (data && data.success && data.payload && data.payload.rateUSD) {
-                            document.getElementById('gem-rate').value = data.payload.rateUSD;
+                        if (data && data.rate && data.visible) {
+                            document.getElementById('gem-rate').value = parseFloat(data.rate);
+                            localStorage.setItem('erp_saas_rate_usd', data.rate);
+                            updateRateTrendIndicator();
                         } else {
                             alert('لم يتم العثور على سعر للصرف في المنصة.');
                         }
@@ -3085,8 +3132,21 @@ window.openGlobalExchangeRateModal = function(callback) {
                     });
                 }
             } else {
-                document.getElementById('gem-rate').readOnly = false;
-                document.getElementById('gem-rate').style.opacity = '1';
+                if (hasPerm) {
+                    const rateEl = document.getElementById('gem-rate');
+                    rateEl.readOnly = false;
+                    rateEl.disabled = false;
+                    rateEl.style.opacity = '1';
+                    rateEl.style.background = '#090d16';
+                    rateEl.style.borderColor = '#f59e0b';
+                    let lastManual = parseFloat(localStorage.getItem('erp_manual_rate_usd'));
+                    if (lastManual && lastManual > 0) {
+                        rateEl.value = lastManual;
+                        if(typeof updateRateTrendIndicator === 'function') updateRateTrendIndicator();
+                    }
+                    rateEl.focus();
+                    rateEl.select();
+                }
             }
         });
 
@@ -3112,11 +3172,33 @@ window.openGlobalExchangeRateModal = function(callback) {
             let s = {};
             try { s = JSON.parse(str || '{}'); } catch(e){}
             
-            s.exchangeMode = (source === 'saas' ? 1 : 0);
+            s.exchangeMode = (source === 'saas' ? 'global' : 'manual');
+            s._userExplicitManual = (source === 'manual');
             s.rateUSD = newRate;
             localStorage.setItem(tk, JSON.stringify(s));
             if(tk !== 'erp_settings_v1') localStorage.setItem('erp_settings_v1', JSON.stringify(s));
             localStorage.setItem('erp_rate_usd', newRate);
+            if (source === 'manual') {
+                localStorage.setItem('erp_manual_rate_usd', newRate);
+            }
+            try {
+                if (localStorage.getItem('authToken')) {
+                    const _base = (() => { const o = window.location.origin; if (o === 'https://elsajana.com' || o === 'https://www.elsajana.com') return 'https://c.elsajana.com/'; let d = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')); if (d.endsWith('/')) d = d.slice(0,-1); return o + (d||'') + '/'; })();
+                    fetch(_base + 'api_index.php/tenant-exchange-rate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                        },
+                        body: JSON.stringify({
+                            payload: {
+                                exchangeMode: source,
+                                rateUSD: newRate
+                            }
+                        })
+                    }).catch(() => {});
+                }
+            } catch(e){}
 
             // Save to History Log
             const historyKey = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_exchange_rate_history') : 'erp_exchange_rate_history';
@@ -3155,9 +3237,12 @@ window.openGlobalExchangeRateModal = function(callback) {
     try { s = JSON.parse(str || '{}'); } catch(e){}
     
     let rate = s.rateUSD || parseFloat(localStorage.getItem('erp_rate_usd')) || 1;
-    let mode = s.exchangeMode ? 'saas' : 'manual';
+    let mode = (s.exchangeMode === 'manual' && s._userExplicitManual) ? 'manual' : 'saas';
+    
+    window._gemInitialRate = rate;
 
-    document.getElementById('gem-rate').value = rate;
+    const rateInput = document.getElementById('gem-rate');
+    rateInput.value = rate;
     document.getElementById('gem-source').value = mode;
     
     // Check Permission
@@ -3165,15 +3250,36 @@ window.openGlobalExchangeRateModal = function(callback) {
                     (JSON.parse(localStorage.getItem('user')||'{}').securityLevel >= 8);
     
     if (!hasPerm) {
-        document.getElementById('gem-rate').readOnly = true;
+        rateInput.readOnly = true;
         document.getElementById('gem-source').disabled = true;
         document.getElementById('btn-gem-save').style.display = 'none';
         document.getElementById('gem-auth-warning').style.display = 'block';
     } else {
-        document.getElementById('gem-rate').readOnly = (mode === 'saas');
         document.getElementById('gem-source').disabled = false;
         document.getElementById('btn-gem-save').style.display = 'block';
         document.getElementById('gem-auth-warning').style.display = 'none';
+        
+        if (mode === 'manual') {
+            rateInput.readOnly = false;
+            rateInput.disabled = false;
+            rateInput.style.opacity = '1';
+            rateInput.style.background = '#090d16';
+            rateInput.style.borderColor = '#f59e0b';
+            rateInput.style.color = '#f59e0b';
+            setTimeout(() => { rateInput.focus(); rateInput.select(); }, 150);
+        } else {
+            rateInput.readOnly = true;
+            rateInput.style.opacity = '0.85';
+            rateInput.style.background = 'rgba(56,189,248,0.15)';
+            rateInput.style.borderColor = '#38bdf8';
+            rateInput.style.color = '#38bdf8';
+        }
+    }
+
+    // Initialize rate trend indicator
+    if (rateInput) {
+        const ind = document.getElementById('gem-rate-indicator');
+        if (ind) ind.innerHTML = `<div style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; padding: 6px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; display: inline-flex; align-items: center; gap: 8px;"><span style="font-size: 1rem;">⚖️</span> <span>السعر الحالي المعتمد: <strong>${rate}</strong> ج.س.</span></div>`;
     }
 
     modal.style.display = 'flex';
@@ -4926,3 +5032,40 @@ window.printReportDirectly = function(title, targetSelector) {
 
     NumberStyleManager.init();
 })();
+
+
+window.syncHeaderExchangeRate = function() {
+    try {
+        const exVal = document.getElementById('global-exchange-rate-val');
+        const exBox = document.getElementById('global-exchange-rate-box');
+        if (!exVal) return;
+        
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            fetch('api_index.php/exchange-rate', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            }).then(r => r.json()).then(data => {
+                if (data && data.visible && data.rate) {
+                    const saasRate = parseFloat(data.rate);
+                    window._cachedGlobalRate = saasRate;
+                    localStorage.setItem('erp_cached_global_rate', saasRate.toString());
+                    if (exBox) exBox.style.display = 'block';
+                    exVal.innerText = saasRate.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+                }
+            }).catch(() => {});
+        } else {
+            const cached = localStorage.getItem('erp_cached_global_rate');
+            if (cached && parseFloat(cached) > 0) {
+                if (exBox) exBox.style.display = 'block';
+                exVal.innerText = parseFloat(cached).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+            }
+        }
+    } catch(e) { console.error('Error syncing header exchange rate:', e); }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Fetch immediately on page load (no delay)
+    window.syncHeaderExchangeRate();
+    // Then refresh every 10 seconds
+    setInterval(window.syncHeaderExchangeRate, 10000);
+});

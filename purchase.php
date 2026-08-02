@@ -46,16 +46,16 @@
             z-index: 1000000 !important;
         }
         .glass-panel {
-            background: rgba(12, 10, 20, 0.85) !important;
+            background: rgba(12, 10, 20, 0.96) !important;
         }
         .panel {
-            background: rgba(14, 12, 22, 0.88) !important;
+            background: rgba(14, 12, 22, 0.97) !important;
         }
         .pro-panel {
-            background: linear-gradient(145deg, rgba(15, 23, 42, 0.88), rgba(10, 17, 40, 0.92)) !important;
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(10, 17, 40, 0.97)) !important;
         }
         .purchase-glass-card {
-            background: linear-gradient(135deg, rgba(60, 20, 90, 0.85) 0%, rgba(20, 35, 85, 0.85) 50%, rgba(12, 15, 30, 0.92) 100%) !important;
+            background: linear-gradient(135deg, rgba(26, 16, 45, 0.96) 0%, rgba(16, 24, 48, 0.97) 50%, rgba(10, 15, 30, 0.98) 100%) !important;
         }
         .toast {
             background: rgba(15, 23, 42, 0.96) !important;
@@ -148,9 +148,9 @@
         /* ═══ MULTI-COLOR VISUAL CODING & GLASSMORPHISM ═══ */
         /* Purchase specific top card custom glass style */
         .purchase-glass-card {
-            background: linear-gradient(135deg, rgba(88, 28, 135, 0.22) 0%, rgba(30, 58, 138, 0.15) 50%, rgba(15, 23, 42, 0.75) 100%) !important;
-            border: 1px solid rgba(139, 92, 246, 0.35) !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(139, 92, 246, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.05) !important;
+            background: linear-gradient(135deg, rgba(26, 16, 45, 0.96) 0%, rgba(16, 24, 48, 0.97) 50%, rgba(10, 15, 30, 0.98) 100%) !important;
+            border: 1px solid rgba(139, 92, 246, 0.45) !important;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.65), 0 0 25px rgba(139, 92, 246, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.1) !important;
             backdrop-filter: blur(25px) !important;
             -webkit-backdrop-filter: blur(25px) !important;
         }
@@ -1696,7 +1696,7 @@
                                 <option value="AED">🇦🇪 درهم</option>
                                 <option value="EGP">🇪🇬 مصري</option>
                             </select>
-                            <input type="number" class="v-input ctrl-input"  id="hdr-exchange-rate" value="1" disabled oninput="recalcAll()" style="flex: 1.2; text-align: center;" placeholder="الصرف" onkeypress="return (event.charCode  readonly style="cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; font-weight:bold; text-align:center;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') { window.openGlobalExchangeRateModal((r) => { this.value = r; if(typeof window.updateCurrency === 'function') window.updateCurrency(); else if(typeof recalcTotals === 'function') recalcTotals(); else if(typeof calcTotals === 'function') calcTotals(); else if(typeof generateTable === 'function') generateTable(); }); }" >= 48 && event.charCode <= 57) || event.charCode == 46" >
+                            <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" placeholder="الصرف" readonly style="flex: 1.2; text-align: center; cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; font-weight:bold;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
                         </div>
                     </div>
 
