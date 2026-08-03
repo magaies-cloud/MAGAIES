@@ -260,22 +260,9 @@ function calculateLedgerTxns() {
         let opDebitLoc = intrinsicBal > 0 ? intrinsicBal : 0;
         let opCreditLoc = intrinsicBal < 0 ? Math.abs(intrinsicBal) : 0;
 
-        let opDebitFc = 0;
-        let opCreditFc = 0;
-        let opBalFc = 0;
-
-        if (currency === 'USD') {
-            opDebitFc = opDebitLoc;
-            opCreditFc = opCreditLoc;
-            opBalFc = intrinsicBal;
-            opDebitLoc = opDebitFc * exchangeRate;
-            opCreditLoc = opCreditFc * exchangeRate;
-            intrinsicBal = opBalFc * exchangeRate;
-        } else {
-            opDebitFc = exchangeRate > 0 ? (opDebitLoc / exchangeRate) : 0;
-            opCreditFc = exchangeRate > 0 ? (opCreditLoc / exchangeRate) : 0;
-            opBalFc = exchangeRate > 0 ? (intrinsicBal / exchangeRate) : 0;
-        }
+        let opDebitFc = exchangeRate > 0 ? (opDebitLoc / exchangeRate) : 0;
+        let opCreditFc = exchangeRate > 0 ? (opCreditLoc / exchangeRate) : 0;
+        let opBalFc = exchangeRate > 0 ? (intrinsicBal / exchangeRate) : 0;
 
         opInfo = {
             intrinsicBal,

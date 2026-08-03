@@ -1820,21 +1820,9 @@ function runReport() {
         let opDebitLoc = intrinsicBal > 0 ? intrinsicBal : 0;
         let opCreditLoc = intrinsicBal < 0 ? Math.abs(intrinsicBal) : 0;
 
-        let opDebitFc = 0;
-        let opCreditFc = 0;
-
-        if (entityCurrency === 'USD') {
-            opDebitFc = opDebitLoc;
-            opCreditFc = opCreditLoc;
-            intrinsicBalFc = intrinsicBal;
-            opDebitLoc = opDebitFc * entityExRate;
-            opCreditLoc = opCreditFc * entityExRate;
-            intrinsicBal = intrinsicBalFc * entityExRate;
-        } else {
-            opDebitFc = entityExRate > 0 ? (opDebitLoc / entityExRate) : 0;
-            opCreditFc = entityExRate > 0 ? (opCreditLoc / entityExRate) : 0;
-            intrinsicBalFc = entityExRate > 0 ? (intrinsicBal / entityExRate) : 0;
-        }
+        let opDebitFc = entityExRate > 0 ? (opDebitLoc / entityExRate) : 0;
+        let opCreditFc = entityExRate > 0 ? (opCreditLoc / entityExRate) : 0;
+        intrinsicBalFc = entityExRate > 0 ? (intrinsicBal / entityExRate) : 0;
 
         // Compute running balance in chronological order (oldest first)
         let runningBal = intrinsicBal;
