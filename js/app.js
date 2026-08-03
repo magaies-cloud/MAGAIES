@@ -1042,11 +1042,10 @@ JSON.parse = function(val) {
         return true;
     };
 
-    // Global helper for showing a stunning, modern duplicate warning modal
-    // Global helper for showing a stunning, modern duplicate warning modal with natural rain & atmospheric lightning
+    // Global helper for showing original clean duplicate warning modal
     window.showDuplicateWarningModal = function(referenceNo, type) {
         // Remove existing duplicate modal if any
-        const existing = document.getElementById('duplicate-warning-modal');
+        const existing = document.getElementById('duplicate-warning-modal') || document.getElementById('duplicate-modal');
         if (existing) existing.remove();
 
         const isCheck = type === 'check';
@@ -1061,360 +1060,86 @@ JSON.parse = function(val) {
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(8, 12, 22, 0.75);
-            backdrop-filter: blur(16px) saturate(170%);
-            -webkit-backdrop-filter: blur(16px) saturate(170%);
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
             z-index: 999999;
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 0;
-            transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
             font-family: 'Tajawal', 'Inter', sans-serif;
             direction: rtl;
-            overflow: hidden;
         `;
 
         overlay.innerHTML = `
-            <!-- Background Canvas for Raindrops & Subtle Lightning Flashes -->
-            <canvas id="modal-particle-canvas" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index:1;"></canvas>
-            
-            <!-- Glowing Radial Atmosphere -->
             <div style="
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                width: 550px;
-                height: 550px;
-                background: radial-gradient(circle, rgba(14, 165, 233, 0.18) 0%, rgba(56, 189, 248, 0.05) 50%, rgba(0,0,0,0) 70%);
-                pointer-events: none;
-                filter: blur(50px);
-                animation: pulseGlow 4s infinite ease-in-out;
-                z-index: 2;
-            "></div>
-
-            <!-- Glassmorphism Storm Modal Card -->
-            <div style="
-                position: relative;
-                z-index: 3;
-                background: linear-gradient(145deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.90) 100%);
-                border: 1px solid rgba(56, 189, 248, 0.35);
-                box-shadow: 
-                    0 30px 80px rgba(0, 0, 0, 0.75), 
-                    inset 0 1px 2px rgba(255, 255, 255, 0.15),
-                    0 0 50px rgba(14, 165, 233, 0.2);
-                border-radius: 24px;
-                padding: 40px 35px;
+                background: rgba(30, 41, 59, 0.95);
+                border: 1px solid rgba(239, 68, 68, 0.5);
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+                border-radius: 16px;
+                padding: 30px;
                 width: 90%;
-                max-width: 520px;
+                max-width: 420px;
                 text-align: center;
-                transform: scale(0.85) translateY(20px);
-                transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-                backdrop-filter: blur(25px);
-                -webkit-backdrop-filter: blur(25px);
-                overflow: hidden;
+                animation: toastIn 0.3s ease;
             " id="modal-card">
                 
-                <!-- Glass Shimmer Highlight -->
-                <div style="
-                    position: absolute;
-                    top: 0;
-                    left: -100%;
-                    width: 100%;
-                    height: 100%;
-                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-                    transform: skewX(-25deg);
-                    animation: glassShimmer 5s infinite ease-in-out;
-                "></div>
-
-                <!-- Header Icon with Atmospheric Pulse -->
-                <div style="
-                    width: 86px;
-                    height: 86px;
-                    background: radial-gradient(circle, rgba(14, 165, 233, 0.3) 0%, rgba(56, 189, 248, 0.08) 100%);
-                    border: 2px solid rgba(56, 189, 248, 0.6);
-                    box-shadow: 0 0 30px rgba(14, 165, 233, 0.45);
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin: 0 auto 22px auto;
-                    font-size: 3rem;
-                    animation: pulseIcon 2.5s infinite ease-in-out;
-                ">
-                    ⛈️
-                </div>
+                <!-- Icon -->
+                <div style="font-size: 3rem; margin-bottom: 10px;">⚠️</div>
 
                 <!-- Title -->
                 <h2 style="
-                    color: #ffffff;
-                    font-size: 1.85rem;
-                    font-weight: 900;
-                    margin: 0 0 14px 0;
-                    text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
-                    letter-spacing: 0.5px;
-                ">تنبيه: هذه الـ${typeLabel} تم استخدامها ومطابقتها مسبقاً!</h2>
+                    color: #f87171;
+                    font-size: 1.5rem;
+                    font-weight: 800;
+                    margin: 0 0 15px 0;
+                ">تنبيه: ${typeLabel} مكرر!</h2>
 
                 <!-- Message Description -->
                 <p style="
-                    color: #f1f5f9;
-                    font-size: 1.15rem;
-                    line-height: 1.6;
-                    margin: 0 0 18px 0;
-                    font-weight: 500;
+                    color: #ffffff;
+                    font-size: 1rem;
+                    line-height: 1.5;
+                    margin: 0 0 15px 0;
                 ">
-                    رقم الـ${typeLabel} <span style="
-                        color: #38bdf8;
-                        font-family: 'JetBrains Mono', monospace;
-                        font-weight: 900;
-                        background: rgba(14, 165, 233, 0.18);
-                        padding: 4px 12px;
-                        border-radius: 8px;
-                        border: 1px solid rgba(56, 189, 248, 0.35);
-                        font-size: 1.3rem;
-                        display: inline-block;
-                        direction: ltr;
-                        letter-spacing: 1px;
-                    ">${referenceNo}</span> تم إدخاله ومطابقته مسبقاً في النظام.
+                    رقم الـ${typeLabel} <strong>(${referenceNo})</strong> تم إدخاله مسبقاً في النظام.
                 </p>
                 
                 <p style="
                     color: #94a3b8;
-                    font-size: 0.95rem;
-                    line-height: 1.6;
-                    margin: 0 0 28px 0;
-                    background: rgba(15, 23, 42, 0.5);
-                    padding: 12px 15px;
-                    border-radius: 12px;
-                    border: 1px solid rgba(255, 255, 255, 0.05);
+                    font-size: 0.85rem;
+                    line-height: 1.5;
+                    margin: 0 0 25px 0;
                 ">
-                    ⚠️ الـ 6 أرقام الأخيرة متطابقة تماماً مع معاملة سابقة مسجلة بالصندوق/البنك. تجنباً لإدخال نفس التحويلة مرتين وحفاظاً على صحة الحسابات المالية، يرجى عدم تكرار الإدخال.
+                    يرجى التأكد لتجنب إدخال نفس الحركة مرتين عن طريق الخطأ.
                 </p>
 
-                <!-- Close Button with Glass Glow -->
+                <!-- Close Button -->
                 <button onclick="closeDuplicateWarningModal()" style="
-                    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+                    background: #ef4444;
                     color: #ffffff;
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    box-shadow: 0 8px 25px rgba(2, 132, 199, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.3);
-                    padding: 14px 30px;
-                    border-radius: 12px;
-                    font-weight: 800;
+                    border: none;
+                    padding: 12px 25px;
+                    border-radius: 8px;
+                    font-weight: bold;
                     cursor: pointer;
-                    font-size: 1.1rem;
+                    font-size: 1rem;
                     font-family: inherit;
                     width: 100%;
-                    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                    outline: none;
-                " onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 12px 32px rgba(2, 132, 199, 0.65)';"
-                   onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 8px 25px rgba(2, 132, 199, 0.45)';"
-                   onmousedown="this.style.transform='translateY(1px) scale(0.98)';">
-                    فهمت، سأراجع الرقم ومطابقته ✖
+                    transition: background 0.2s ease;
+                " onmouseover="this.style.background='#dc2626';"
+                   onmouseout="this.style.background='#ef4444';">
+                    فهمت، سأراجع الرقم
                 </button>
             </div>
-
-            <style>
-                @keyframes pulseGlow {
-                    0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
-                    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
-                }
-                @keyframes pulseIcon {
-                    0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(14, 165, 233, 0.45); }
-                    50% { transform: scale(1.08); box-shadow: 0 0 45px rgba(56, 189, 248, 0.7), 0 0 20px rgba(14, 165, 233, 0.4); }
-                }
-                @keyframes glassShimmer {
-                    0% { left: -120%; }
-                    50%, 100% { left: 150%; }
-                }
-            </style>
         `;
 
         document.body.appendChild(overlay);
 
-        // Audio Warning Tone
-        try {
-            const AudioCtx = window.AudioContext || window.webkitAudioContext;
-            if (AudioCtx) {
-                const ctx = new AudioCtx();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(440, ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 0.25);
-                gain.gain.setValueAtTime(0.1, ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.25);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.25);
-            }
-        } catch(e) {}
-
-        // Animate In
-        requestAnimationFrame(() => {
-            overlay.style.opacity = '1';
-            const card = document.getElementById('modal-card');
-            if (card) {
-                card.style.transform = 'scale(1) translateY(0)';
-            }
-        });
-
-        // Natural Rain & Subtle Lightning Canvas Animation
-        const canvas = document.getElementById('modal-particle-canvas');
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            let animationId;
-            
-            const resize = () => {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            };
-            window.addEventListener('resize', resize);
-            resize();
-
-            // Raindrops Array in Natural Realistic Colors
-            const raindrops = [];
-            const dropCount = 95;
-            for (let i = 0; i < dropCount; i++) {
-                raindrops.push({
-                    x: Math.random() * (canvas.width + 100),
-                    y: Math.random() * canvas.height,
-                    length: 22 + Math.random() * 26,
-                    speedY: 10 + Math.random() * 8,
-                    speedX: -1.8 - Math.random() * 0.8,
-                    opacity: 0.25 + Math.random() * 0.55,
-                    width: 1 + Math.random() * 1.5,
-                    colorType: Math.random() > 0.4 ? 'cyan' : (Math.random() > 0.4 ? 'blue' : 'white')
-                });
-            }
-
-            // Splashes Array
-            const splashes = [];
-
-            // Lightning Flash State
-            let lightningTimer = 0;
-            let lightningNext = 100 + Math.floor(Math.random() * 140);
-            let lightningAlpha = 0;
-            let lightningBolt = [];
-
-            function createLightningBolt() {
-                const startX = canvas.width * (0.2 + Math.random() * 0.6);
-                const points = [{x: startX, y: 0}];
-                let curX = startX;
-                let curY = 0;
-                while (curY < canvas.height * 0.65) {
-                    curY += 20 + Math.random() * 30;
-                    curX += (Math.random() - 0.5) * 50;
-                    points.push({x: curX, y: curY});
-                }
-                return points;
-            }
-
-            const animate = () => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // 1. Subtle Lightning Flash Handling
-                lightningTimer++;
-                if (lightningTimer >= lightningNext) {
-                    lightningTimer = 0;
-                    lightningNext = 140 + Math.floor(Math.random() * 200);
-                    lightningAlpha = 0.25 + Math.random() * 0.25;
-                    lightningBolt = createLightningBolt();
-                }
-
-                if (lightningAlpha > 0.01) {
-                    // Flash Background Glow
-                    ctx.fillStyle = `rgba(224, 242, 254, ${lightningAlpha * 0.25})`;
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                    // Draw Electric Lightning Bolt
-                    if (lightningBolt.length > 1) {
-                        ctx.beginPath();
-                        ctx.strokeStyle = `rgba(240, 249, 255, ${lightningAlpha})`;
-                        ctx.lineWidth = 2.2;
-                        ctx.shadowColor = 'rgba(186, 230, 253, 0.9)';
-                        ctx.shadowBlur = 18;
-                        lightningBolt.forEach((pt, idx) => {
-                            if (idx === 0) ctx.moveTo(pt.x, pt.y);
-                            else ctx.lineTo(pt.x, pt.y);
-                        });
-                        ctx.stroke();
-                        ctx.shadowBlur = 0;
-                    }
-
-                    lightningAlpha *= 0.84; // Fast fade out for real lightning flash
-                }
-
-                // 2. Render Natural Raindrops
-                ctx.lineCap = 'round';
-                for (let i = 0; i < raindrops.length; i++) {
-                    const p = raindrops[i];
-                    
-                    let strokeStyle = `rgba(186, 230, 253, ${p.opacity})`;
-                    if (p.colorType === 'blue') strokeStyle = `rgba(147, 197, 253, ${p.opacity})`;
-                    else if (p.colorType === 'white') strokeStyle = `rgba(255, 255, 255, ${p.opacity * 0.9})`;
-
-                    ctx.beginPath();
-                    ctx.lineWidth = p.width;
-                    ctx.strokeStyle = strokeStyle;
-                    
-                    ctx.moveTo(p.x, p.y);
-                    ctx.lineTo(p.x + p.speedX, p.y + p.length);
-                    ctx.stroke();
-
-                    // Movement update
-                    p.y += p.speedY;
-                    p.x += p.speedX;
-                    
-                    // Rain Splash when hitting screen bottom
-                    if (p.y > canvas.height - 25) {
-                        if (Math.random() > 0.6) {
-                            splashes.push({
-                                x: p.x,
-                                y: canvas.height - 8,
-                                r: 1,
-                                maxR: 6 + Math.random() * 8,
-                                alpha: p.opacity * 0.8
-                            });
-                        }
-                        p.y = -p.length;
-                        p.x = Math.random() * (canvas.width + 100);
-                    }
-                }
-
-                // 3. Render Water Splashes (Ripples at bottom)
-                for (let i = splashes.length - 1; i >= 0; i--) {
-                    const s = splashes[i];
-                    ctx.beginPath();
-                    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-                    ctx.strokeStyle = `rgba(186, 230, 253, ${s.alpha})`;
-                    ctx.lineWidth = 1;
-                    ctx.stroke();
-
-                    s.r += 0.8;
-                    s.alpha -= 0.04;
-                    if (s.alpha <= 0 || s.r >= s.maxR) {
-                        splashes.splice(i, 1);
-                    }
-                }
-
-                animationId = requestAnimationFrame(animate);
-            };
-            animate();
-
-            // Close logic helper
-            window.closeDuplicateWarningModal = function() {
-                window.removeEventListener('resize', resize);
-                cancelAnimationFrame(animationId);
-                overlay.style.opacity = '0';
-                const card = document.getElementById('modal-card');
-                if (card) {
-                    card.style.transform = 'scale(0.85) translateY(20px)';
-                }
-                setTimeout(() => overlay.remove(), 450);
-            };
-        }
+        window.closeDuplicateWarningModal = function() {
+            const m = document.getElementById('duplicate-warning-modal');
+            if (m) m.remove();
+        };
     };
 
     Storage.prototype.removeItem = function(key) {

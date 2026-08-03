@@ -1364,7 +1364,7 @@ try {
 
     <script defer src="js/localforage.min.js"></script>
     
-    <script defer src="js/app.js?v=20260803.09484"></script>
+    <script defer src="js/app.js?v=<?php echo time(); ?>"></script>
     <script defer src="js/html2pdf.bundle.min.js"></script>
     <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
     
