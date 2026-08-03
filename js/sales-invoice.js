@@ -1537,25 +1537,44 @@ function submitInvoice(ignoreWarnings = false) {
     
     if (paymentMethod !== 'credit' && paymentAccountId) {
         let banks = [];
-        try { banks = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [])); } catch(e) {}
-        const bIdx = banks.findIndex(b => b.id === paymentAccountId);
-        if (bIdx > -1) {
+        try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e) {}
+        let bIdx = banks.findIndex(b => b.id === paymentAccountId);
+        
+        // If not found in banks, check safes
+        if (bIdx === -1) {
+            try { 
+                let safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || []; 
+                bIdx = safes.findIndex(s => s.id === paymentAccountId);
+                if (bIdx > -1) {
+                    let currentBalance = parseFloat(safes[bIdx].currentBalance);
+                    if (isNaN(currentBalance)) {
+                        currentBalance = parseFloat(safes[bIdx].openingBalance) || 0;
+                    }
+                    // Subtract grandAmount because it is a return (paying cash out of safe/bank to customer)
+                    safes[bIdx].currentBalance = currentBalance - grandAmount;
+                    localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
+                    data.paymentAccountId = paymentAccountId;
+                    usedAccountName = safes[bIdx].name || safes[bIdx].safeName;
+                }
+            } catch(e) {}
+        } else {
             let currentBalance = parseFloat(banks[bIdx].currentBalance);
             if (isNaN(currentBalance)) {
                 currentBalance = parseFloat(banks[bIdx].openingBalance) || 0;
             }
-            banks[bIdx].currentBalance = currentBalance + grandAmount;
+            // Subtract grandAmount because it is a return
+            banks[bIdx].currentBalance = currentBalance - grandAmount;
             localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
             data.paymentAccountId = paymentAccountId;
-            usedAccountName = banks[bIdx].name;
-        }
+            usedAccountName = banks[bIdx].name || banks[bIdx].bankName;
     }
 
     localStorage.setItem('erp_inv_' + committedNo, JSON.stringify(data));
     if (window.logSystemAction) window.logSystemAction(currentViewedInvoiceNo ? 'تعديل فاتورة' : 'إنشاء فاتورة', 'SALES', 'رقم الفاتورة: ' + committedNo);
 
     // Append or Update global sales invoices array for inventory calculation
-    let allSales = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
+    let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+    data.type = 'return'; // Mark as return for general-ledger.js
     if (currentViewedInvoiceNo) {
         const idx = allSales.findIndex(inv => inv.invoiceNo === currentViewedInvoiceNo);
         if (idx !== -1) allSales[idx] = data;
@@ -1567,18 +1586,19 @@ function submitInvoice(ignoreWarnings = false) {
 
     // Update Customer Balance (Debt)
     if (paymentMethod === 'credit' && custId && custId !== 'walk-in') {
-        let customers = ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))).filter(x => !x.deleted);
+        let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
         const cIdx = customers.findIndex(c => c.id === custId);
         if (cIdx > -1) {
             let currentBalance = parseFloat(customers[cIdx].currentBalance);
             if (isNaN(currentBalance)) currentBalance = 0;
-            customers[cIdx].currentBalance = currentBalance + grandAmount;
+            // Subtract grandAmount because it is a return (crediting the customer's account)
+            customers[cIdx].currentBalance = currentBalance - grandAmount;
             localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
         }
     }
 
-    // Deduct from local inventory cache and live objects
-    let currentInvData = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []));
+    // Restore to local inventory cache and live objects
+    let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
     const mainWh = document.getElementById('hdr-warehouse').value;
     for (const row of rows) {
         const item = ITEMS.find(i => String(i.id) === String(row.itemId));
@@ -1589,16 +1609,17 @@ function submitInvoice(ignoreWarnings = false) {
         
         let itemInv = currentInvData.find(inv => String(inv.itemId) === String(row.itemId) && inv.warehouse === whName);
         if (itemInv) {
-            itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) - calcs.baseQty;
+            // Add baseQty because this is a return
+            itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) + calcs.baseQty;
         } else {
-            currentInvData.push({ itemId: row.itemId, warehouse: whName, qty: -calcs.baseQty, minQty: 10 });
+            currentInvData.push({ itemId: row.itemId, warehouse: whName, qty: calcs.baseQty, minQty: 10 });
         }
         
         // Update live ITEMS array
         if (item.actualStock && item.actualStock[whId] !== undefined) {
-            item.actualStock[whId] -= calcs.baseQty;
+            item.actualStock[whId] += calcs.baseQty;
         } else if (item.actualStock) {
-            item.actualStock[whId] = -calcs.baseQty;
+            item.actualStock[whId] = calcs.baseQty;
         }
     }
     localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));

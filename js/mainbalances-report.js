@@ -494,6 +494,23 @@ function loadData() {
             debit: 0, credit: 0, lastDate: null 
         });
     });
+
+    // Add Mobile Wallets
+    const wallets = [
+        { id: 'bankok', name: 'بنكك (Bankak)' },
+        { id: 'fawry', name: 'فوري (Fawry)' },
+        { id: 'o-cash', name: 'أوكاش (O-Cash)' },
+        { id: 'other', name: 'محفظة أخرى' }
+    ];
+    wallets.forEach(w => {
+        ALL_PARTNERS.push({ 
+            id: w.id, code: w.id, name: w.name, type: 'SAFE', 
+            phone: '', taxNumber: '', currency: 'SDG', exRate: 1,
+            openingDebit: 0, openingCredit: 0,
+            notes: 'محفظة إلكترونية',
+            debit: 0, credit: 0, lastDate: null 
+        });
+    });
     
     // We reuse the collector logic from SGL, modified to only grab partner transactions
     ALL_TXNS = [];
@@ -565,6 +582,27 @@ function loadData() {
         }
     });
 
+    // 2.2a Comprehensive Receipts (erp_comprehensive_receipts_v1)
+    const compReceipts = readERPStore('erp_comprehensive_receipts_v1') || [];
+    compReceipts.forEach(v => {
+        if (v.isPosted === false) return;
+        const cc = v.costCenter || 'ALL';
+        const rate = parseNum(v.exchangeRate || 1);
+        const mainAcc = v.depositAccount || 'safe-001';
+        const amt = parseNum(v.amount);
+        
+        // The payer side (Credit)
+        ALL_TXNS.push({ partner: v.accountId, debit: 0, credit: amt, date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
+        
+        // The receiver side (Debit - Safe/Bank/Cheque)
+        let safeBankAcc = mainAcc;
+        if (v.paymentType === 'check') safeBankAcc = v.checkBank || 'cheques-receivable';
+        else if (v.paymentType === 'bank') safeBankAcc = v.bankSourceName || safeBankAcc;
+        else if (v.paymentType === 'mobile') safeBankAcc = v.mobileWallet || safeBankAcc;
+        
+        ALL_TXNS.push({ partner: safeBankAcc, debit: amt, credit: 0, date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
+    });
+
     // 2.3 Multiple Payments (erp_payments_v1)
     const multiPayments = readERPStore('erp_payments_v1') || [];
     multiPayments.forEach(v => {
@@ -611,6 +649,27 @@ function loadData() {
         } else {
              ALL_TXNS.push({ partner: mainAcc, debit: 0, credit: parseNum(v.totalAmount), date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
         }
+    });
+
+    // 2.3a Comprehensive Payments (erp_comprehensive_payments_v1)
+    const compPayments = readERPStore('erp_comprehensive_payments_v1') || [];
+    compPayments.forEach(v => {
+        if (v.isPosted === false) return;
+        const cc = v.costCenter || 'ALL';
+        const rate = parseNum(v.exchangeRate || 1);
+        const mainAcc = v.depositAccount || 'safe-001';
+        const amt = parseNum(v.amount);
+        
+        // The receiver side (Debit)
+        ALL_TXNS.push({ partner: v.accountId, debit: amt, credit: 0, date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
+        
+        // The payer side (Credit - Safe/Bank/Cheque)
+        let safeBankAcc = mainAcc;
+        if (v.paymentType === 'check') safeBankAcc = v.checkBank || 'cheques-receivable';
+        else if (v.paymentType === 'bank') safeBankAcc = v.bankSourceName || safeBankAcc;
+        else if (v.paymentType === 'mobile') safeBankAcc = v.mobileWallet || safeBankAcc;
+        
+        ALL_TXNS.push({ partner: safeBankAcc, debit: 0, credit: amt, date: v.date, time: v.time || timeNow, costCenter: cc, exchangeRate: rate });
     });
 
     // 3. JVs

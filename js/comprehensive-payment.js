@@ -96,6 +96,10 @@ function saveVoucher() {
         const checkBank = document.getElementById('check-bank').value.trim();
         const checkSafe = document.getElementById('check-safe') ? document.getElementById('check-safe').value : '';
         
+        if (!checkSafe) {
+            alert('الرجاء اختيار الخزينة لصرف الشيك.');
+            return;
+        }
         if (!checkBank) {
             alert('الرجاء إدخال اسم البنك للشيك.');
             return;
@@ -136,7 +140,12 @@ function saveVoucher() {
         }
         
         voucher.bankRef = bankRef;
-        voucher.bankSourceName = document.getElementById('bank-source-name').value;
+        const bankSourceName = document.getElementById('bank-source-name').value;
+        if (!bankSourceName) {
+            alert('الرجاء اختيار البنك المحول إليه.');
+            return;
+        }
+        voucher.bankSourceName = bankSourceName;
         voucher.bankDate = document.getElementById('bank-date').value;
         voucher.bankDesc = document.getElementById('bank-desc') ? document.getElementById('bank-desc').value : '';
     } else if (currentType === 'mobile') {
@@ -155,7 +164,12 @@ function saveVoucher() {
             return;
         }
         
-        voucher.mobileWallet = document.getElementById('mobile-wallet').value;
+        const mobileWallet = document.getElementById('mobile-wallet').value;
+        if (!mobileWallet) {
+            alert('الرجاء اختيار المحفظة.');
+            return;
+        }
+        voucher.mobileWallet = mobileWallet;
         voucher.mobileNumber = document.getElementById('mobile-number').value;
         voucher.mobileRef = mobileRef;
     }

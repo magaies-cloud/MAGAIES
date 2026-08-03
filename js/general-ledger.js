@@ -444,10 +444,8 @@ function collectAllTransactions() {
         return accVal;
     };
 
-    // 2b. Multi-Receipts & Comprehensive Receipts
-    let multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
-    const compReceipts = JSON.parse(localStorage.getItem('erp_comprehensive_receipts_v1')) || [];
-    multiReceipts = multiReceipts.concat(compReceipts);
+    // 2b. Multi-Receipts (erp_receipts_v1)
+    const multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
     multiReceipts.forEach(v => {
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
@@ -581,10 +579,51 @@ function collectAllTransactions() {
         }
     });
 
-    // 2c. Multi-Payments & Comprehensive Payments
-    let multiPayments = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
-    const compPayments = JSON.parse(localStorage.getItem('erp_comprehensive_payments_v1')) || [];
-    multiPayments = multiPayments.concat(compPayments);
+    // 2b2. Comprehensive Receipts (erp_comprehensive_receipts_v1)
+    const compReceipts = JSON.parse(localStorage.getItem('erp_comprehensive_receipts_v1')) || [];
+    compReceipts.forEach(v => {
+        const costCenter = v.costCenter || 'بدون مركز';
+        const currency = v.currency || 'SDG';
+        const time = v.time || timeNow;
+        const isPosted = v.isPosted !== false;
+        
+        const rate = parseNum(v.exchangeRate || 1);
+        const effRate = getEffectiveRate(v, rate);
+        const isBaseSDG = (currency === 'SDG');
+        const amt = parseNum(v.amount);
+        const valLoc = isBaseSDG ? amt : amt * rate;
+        const valFc = isBaseSDG ? (amt / effRate) : amt;
+        
+        let safeAcct = v.depositAccount || 'safe-001';
+        if (v.paymentType === 'check') safeAcct = v.checkBank || 'cheques-receivable';
+        else if (v.paymentType === 'bank') safeAcct = v.bankSourceName || safeAcct;
+        else if (v.paymentType === 'mobile') safeAcct = v.mobileWallet || safeAcct;
+        
+        const stmt = v.description || v.depositDesc || 'سند قبض شامل';
+
+        // Safe/Bank Account (Debit)
+        txns.push({
+            date: v.date, time: time, ref: v.id, type: 'comprehensive-receipt', typeLabel: 'سند قبض شامل',
+            account: safeAcct, counterAccount: v.accountId,
+            statement: stmt, additionalNote: stmt,
+            debit: valLoc, credit: 0, 
+            debitForeign: valFc, creditForeign: 0,
+            costCenter, currency, exchangeRate: effRate, isPosted
+        });
+        
+        // Payer Account (Credit)
+        txns.push({
+            date: v.date, time: time, ref: v.id, type: 'comprehensive-receipt', typeLabel: 'سند قبض شامل',
+            account: v.accountId, counterAccount: safeAcct,
+            statement: stmt, additionalNote: stmt,
+            debit: 0, credit: valLoc, 
+            debitForeign: 0, creditForeign: valFc,
+            costCenter, currency, exchangeRate: effRate, isPosted
+        });
+    });
+
+    // 2c. Multi-Payments (erp_payments_v1)
+    const multiPayments = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
     multiPayments.forEach(v => {
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
@@ -774,24 +813,30 @@ function collectAllTransactions() {
         const amtLoc = isBaseSDG ? total : total * rate;
         const amtFc = isBaseSDG ? (total / effRate) : total;
 
+        const isReturn = (inv.type === 'return' || inv.isReturn === true);
+        const debBase = isReturn ? 0 : amtLoc;
+        const credBase = isReturn ? amtLoc : 0;
+        const debBaseFc = isReturn ? 0 : amtFc;
+        const credBaseFc = isReturn ? amtFc : 0;
+
         txns.push({
-            date: inv.date, time: time, ref: refNo, type: 'invoice', typeLabel: 'مبيعات',
+            date: inv.date, time: time, ref: refNo, type: isReturn ? 'sales-return' : 'invoice', typeLabel: isReturn ? 'مرتجع مبيعات' : 'مبيعات',
             account: customerAcct, counterAccount: 'revenue-sales',
-            statement: 'فاتورة مبيعات #' + refNo,
-            additionalNote: `مبيعات آجلة — ${inv.customerName || inv.customer || ''}`,
-            debit: amtLoc, credit: 0, 
-            debitForeign: amtFc, creditForeign: 0,
+            statement: (isReturn ? 'مرتجع مبيعات #' : 'فاتورة مبيعات #') + refNo,
+            additionalNote: (isReturn ? `مردودات مبيعات — ` : `مبيعات آجلة — `) + (inv.customerName || inv.customer || ''),
+            debit: debBase, credit: credBase, 
+            debitForeign: debBaseFc, creditForeign: credBaseFc,
             costCenter, currency,
             exchangeRate: effRate,
             isPosted: isPosted
         });
         txns.push({
-            date: inv.date, time: time, ref: refNo, type: 'invoice', typeLabel: 'مبيعات',
+            date: inv.date, time: time, ref: refNo, type: isReturn ? 'sales-return' : 'invoice', typeLabel: isReturn ? 'مرتجع مبيعات' : 'مبيعات',
             account: 'revenue-sales', counterAccount: customerAcct,
-            statement: 'فاتورة مبيعات #' + refNo,
-            additionalNote: `إيرادات — ${inv.customerName || inv.customer || ''}`,
-            debit: 0, credit: amtLoc, 
-            debitForeign: 0, creditForeign: amtFc,
+            statement: (isReturn ? 'مرتجع مبيعات #' : 'فاتورة مبيعات #') + refNo,
+            additionalNote: (isReturn ? `خصم إيرادات — ` : `إيرادات — `) + (inv.customerName || inv.customer || ''),
+            debit: credBase, credit: debBase, 
+            debitForeign: credBaseFc, creditForeign: debBaseFc,
             costCenter, currency,
             exchangeRate: effRate,
             isPosted: isPosted
@@ -804,24 +849,29 @@ function collectAllTransactions() {
                 const cashLoc = isBaseSDG ? cash : cash * rate;
                 const cashFc = isBaseSDG ? (cash / effRate) : cash;
                 const paymentAcct = inv.paymentAccountId || 'safe-001';
+                const debCash = isReturn ? 0 : cashLoc;
+                const credCash = isReturn ? cashLoc : 0;
+                const debCashFc = isReturn ? 0 : cashFc;
+                const credCashFc = isReturn ? cashFc : 0;
+                
                 txns.push({
-                    date: inv.date, time: time, ref: refNo + '-PAID', type: 'receipt', typeLabel: 'سداد فاتورة',
+                    date: inv.date, time: time, ref: refNo + '-PAID', type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
                     account: paymentAcct, counterAccount: customerAcct,
-                    statement: 'استلام نقدية (نقداً)',
-                    additionalNote: 'سداد نقدي مع الفاتورة',
-                    debit: cashLoc, credit: 0, 
-                    debitForeign: cashFc, creditForeign: 0,
+                    statement: isReturn ? 'سداد نقدي لمرتجع' : 'استلام نقدية (نقداً)',
+                    additionalNote: isReturn ? 'صرف نقدي للمرتجع' : 'سداد نقدي مع الفاتورة',
+                    debit: debCash, credit: credCash, 
+                    debitForeign: debCashFc, creditForeign: credCashFc,
                     costCenter, currency,
                     exchangeRate: effRate,
                     isPosted: isPosted
                 });
                 txns.push({
-                    date: inv.date, time: time, ref: refNo + '-PAID', type: 'receipt', typeLabel: 'سداد فاتورة',
+                    date: inv.date, time: time, ref: refNo + '-PAID', type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
                     account: customerAcct, counterAccount: paymentAcct,
-                    statement: 'استلام نقدية (نقداً)',
-                    additionalNote: 'سداد نقدي مع الفاتورة',
-                    debit: 0, credit: cashLoc, 
-                    debitForeign: 0, creditForeign: cashFc,
+                    statement: isReturn ? 'سداد نقدي لمرتجع' : 'استلام نقدية (نقداً)',
+                    additionalNote: isReturn ? 'صرف نقدي للمرتجع' : 'سداد نقدي مع الفاتورة',
+                    debit: credCash, credit: debCash, 
+                    debitForeign: credCashFc, creditForeign: debCashFc,
                     costCenter, currency,
                     exchangeRate: effRate,
                     isPosted: isPosted
@@ -835,24 +885,30 @@ function collectAllTransactions() {
                         const amtLocBt = isBaseSDG ? amt : amt * rate;
                         const amtFcBt = isBaseSDG ? (amt / effRate) : amt;
                         const bankAcct = bt.bankAccountId || 'bank-001';
+                        
+                        const debBt = isReturn ? 0 : amtLocBt;
+                        const credBt = isReturn ? amtLocBt : 0;
+                        const debBtFc = isReturn ? 0 : amtFcBt;
+                        const credBtFc = isReturn ? amtFcBt : 0;
+                        
                         txns.push({
-                            date: inv.date, time: time, ref: `${refNo}-BT${idx+1}`, type: 'receipt', typeLabel: 'سداد فاتورة',
+                            date: inv.date, time: time, ref: `${refNo}-BT${idx+1}`, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
                             account: bankAcct, counterAccount: customerAcct,
                             statement: `تحويل بنكي مرجع #${bt.reference || ''}`,
-                            additionalNote: 'سداد تحويل بنكي مع الفاتورة',
-                            debit: amtLocBt, credit: 0, 
-                            debitForeign: amtFcBt, creditForeign: 0,
+                            additionalNote: isReturn ? 'إرجاع تحويل بنكي' : 'سداد تحويل بنكي مع الفاتورة',
+                            debit: debBt, credit: credBt, 
+                            debitForeign: debBtFc, creditForeign: credBtFc,
                             costCenter, currency,
                             exchangeRate: effRate,
                             isPosted: isPosted
                         });
                         txns.push({
-                            date: inv.date, time: time, ref: `${refNo}-BT${idx+1}`, type: 'receipt', typeLabel: 'سداد فاتورة',
+                            date: inv.date, time: time, ref: `${refNo}-BT${idx+1}`, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
                             account: customerAcct, counterAccount: bankAcct,
                             statement: `تحويل بنكي مرجع #${bt.reference || ''}`,
-                            additionalNote: 'سداد تحويل بنكي مع الفاتورة',
-                            debit: 0, credit: amtLocBt, 
-                            debitForeign: 0, creditForeign: amtFcBt,
+                            additionalNote: isReturn ? 'إرجاع تحويل بنكي' : 'سداد تحويل بنكي مع الفاتورة',
+                            debit: credBt, credit: debBt, 
+                            debitForeign: credBtFc, creditForeign: debBtFc,
                             costCenter, currency,
                             exchangeRate: effRate,
                             isPosted: isPosted
@@ -868,24 +924,30 @@ function collectAllTransactions() {
                         const amtLocCh = isBaseSDG ? amt : amt * rate;
                         const amtFcCh = isBaseSDG ? (amt / effRate) : amt;
                         const chequeAcct = 'cheques-receivable';
+                        
+                        const debCh = isReturn ? 0 : amtLocCh;
+                        const credCh = isReturn ? amtLocCh : 0;
+                        const debChFc = isReturn ? 0 : amtFcCh;
+                        const credChFc = isReturn ? amtFcCh : 0;
+                        
                         txns.push({
-                            date: inv.date, time: time, ref: `${refNo}-CH${idx+1}`, type: 'receipt', typeLabel: 'سداد فاتورة',
+                            date: inv.date, time: time, ref: `${refNo}-CH${idx+1}`, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
                             account: chequeAcct, counterAccount: customerAcct,
                             statement: `شيك رقم #${ch.chequeNo || ''} استحقاق ${ch.dueDate || ''}`,
-                            additionalNote: 'سداد شيك مع الفاتورة',
-                            debit: amtLocCh, credit: 0, 
-                            debitForeign: amtFcCh, creditForeign: 0,
+                            additionalNote: isReturn ? 'إرجاع شيك' : 'سداد شيك مع الفاتورة',
+                            debit: debCh, credit: credCh, 
+                            debitForeign: debChFc, creditForeign: credChFc,
                             costCenter, currency,
                             exchangeRate: effRate,
                             isPosted: isPosted
                         });
                         txns.push({
-                            date: inv.date, time: time, ref: `${refNo}-CH${idx+1}`, type: 'receipt', typeLabel: 'سداد فاتورة',
+                            date: inv.date, time: time, ref: `${refNo}-CH${idx+1}`, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
                             account: customerAcct, counterAccount: chequeAcct,
                             statement: `شيك رقم #${ch.chequeNo || ''} استحقاق ${ch.dueDate || ''}`,
-                            additionalNote: 'سداد شيك مع الفاتورة',
-                            debit: 0, credit: amtLocCh, 
-                            debitForeign: 0, creditForeign: amtFcCh,
+                            additionalNote: isReturn ? 'إرجاع شيك' : 'سداد شيك مع الفاتورة',
+                            debit: credCh, credit: debCh, 
+                            debitForeign: credChFc, creditForeign: debChFc,
                             costCenter, currency,
                             exchangeRate: effRate,
                             isPosted: isPosted
@@ -895,24 +957,30 @@ function collectAllTransactions() {
             }
         } else if (inv.paymentMethod !== 'credit') {
             const paymentAcct = inv.paymentAccountId || 'safe-001';
+            
+            const debFull = isReturn ? 0 : amtLoc;
+            const credFull = isReturn ? amtLoc : 0;
+            const debFullFc = isReturn ? 0 : amtFc;
+            const credFullFc = isReturn ? amtFc : 0;
+            
             txns.push({
-                date: inv.date, time: time, ref: refNo + '-PAID', type: 'receipt', typeLabel: 'سداد فاتورة',
+                date: inv.date, time: time, ref: refNo + '-PAID', type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
                 account: paymentAcct, counterAccount: customerAcct,
-                statement: 'استلام نقدية',
-                additionalNote: 'سداد نقدي مع الفاتورة',
-                debit: amtLoc, credit: 0, 
-                debitForeign: amtFc, creditForeign: 0,
+                statement: isReturn ? 'سداد مرتجع نقدي/بنكي' : 'استلام نقدية',
+                additionalNote: isReturn ? 'صرف مبالغ المرتجع' : 'سداد نقدي مع الفاتورة',
+                debit: debFull, credit: credFull, 
+                debitForeign: debFullFc, creditForeign: credFullFc,
                 costCenter, currency,
                 exchangeRate: effRate,
                 isPosted: isPosted
             });
             txns.push({
-                date: inv.date, time: time, ref: refNo + '-PAID', type: 'receipt', typeLabel: 'سداد فاتورة',
+                date: inv.date, time: time, ref: refNo + '-PAID', type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
                 account: customerAcct, counterAccount: paymentAcct,
-                statement: 'استلام نقدية',
-                additionalNote: 'سداد نقدي مع الفاتورة',
-                debit: 0, credit: amtLoc, 
-                debitForeign: 0, creditForeign: amtFc,
+                statement: isReturn ? 'سداد مرتجع نقدي/بنكي' : 'استلام نقدية',
+                additionalNote: isReturn ? 'صرف مبالغ المرتجع' : 'سداد نقدي مع الفاتورة',
+                debit: credFull, credit: debFull, 
+                debitForeign: credFullFc, creditForeign: debFullFc,
                 costCenter, currency,
                 exchangeRate: effRate,
                 isPosted: isPosted
