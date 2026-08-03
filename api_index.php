@@ -9,6 +9,8 @@ if (!empty($origin)) {
         'https://elsajana.com',
         'https://www.elsajana.com',
         'https://c.elsajana.com',
+        'http://localhost',
+        'http://127.0.0.1',
         'http://localhost:8080',
         'http://localhost:3000',
         'http://127.0.0.1:8080',

@@ -1043,6 +1043,7 @@ JSON.parse = function(val) {
     };
 
     // Global helper for showing a stunning, modern duplicate warning modal
+    // Global helper for showing a stunning, modern duplicate warning modal with natural rain & atmospheric lightning
     window.showDuplicateWarningModal = function(referenceNo, type) {
         // Remove existing duplicate modal if any
         const existing = document.getElementById('duplicate-warning-modal');
@@ -1050,7 +1051,6 @@ JSON.parse = function(val) {
 
         const isCheck = type === 'check';
         const typeLabel = isCheck ? 'شيك' : 'حوالة بنكية';
-        const typeIcon = isCheck ? '🧾' : '🏦';
         
         // Create elements
         const overlay = document.createElement('div');
@@ -1061,9 +1061,9 @@ JSON.parse = function(val) {
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(8, 10, 18, 0.65);
-            backdrop-filter: blur(15px) saturate(160%);
-            -webkit-backdrop-filter: blur(15px) saturate(160%);
+            background: rgba(8, 12, 22, 0.75);
+            backdrop-filter: blur(16px) saturate(170%);
+            -webkit-backdrop-filter: blur(16px) saturate(170%);
             z-index: 999999;
             display: flex;
             align-items: center;
@@ -1072,39 +1072,42 @@ JSON.parse = function(val) {
             transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
             font-family: 'Tajawal', 'Inter', sans-serif;
             direction: rtl;
+            overflow: hidden;
         `;
 
         overlay.innerHTML = `
-            <!-- Background Canvas for Sparkles/Rays -->
-            <canvas id="modal-particle-canvas" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none;"></canvas>
+            <!-- Background Canvas for Raindrops & Subtle Lightning Flashes -->
+            <canvas id="modal-particle-canvas" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index:1;"></canvas>
             
-            <!-- Glowing Light Beam -->
+            <!-- Glowing Radial Atmosphere -->
             <div style="
                 position: absolute;
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
-                width: 500px;
-                height: 500px;
-                background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0) 70%);
+                width: 550px;
+                height: 550px;
+                background: radial-gradient(circle, rgba(14, 165, 233, 0.18) 0%, rgba(56, 189, 248, 0.05) 50%, rgba(0,0,0,0) 70%);
                 pointer-events: none;
-                filter: blur(40px);
+                filter: blur(50px);
                 animation: pulseGlow 4s infinite ease-in-out;
+                z-index: 2;
             "></div>
 
-            <!-- Glassmorphism Modal Card -->
+            <!-- Glassmorphism Storm Modal Card -->
             <div style="
                 position: relative;
-                background: linear-gradient(135deg, rgba(30, 41, 59, 0.45) 0%, rgba(15, 23, 42, 0.65) 100%);
-                border: 1px solid rgba(239, 68, 68, 0.35);
+                z-index: 3;
+                background: linear-gradient(145deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.90) 100%);
+                border: 1px solid rgba(56, 189, 248, 0.35);
                 box-shadow: 
-                    0 24px 70px rgba(0, 0, 0, 0.65), 
-                    inset 0 1px 2px rgba(255, 255, 255, 0.1),
-                    0 0 40px rgba(239, 68, 68, 0.15);
+                    0 30px 80px rgba(0, 0, 0, 0.75), 
+                    inset 0 1px 2px rgba(255, 255, 255, 0.15),
+                    0 0 50px rgba(14, 165, 233, 0.2);
                 border-radius: 24px;
                 padding: 40px 35px;
                 width: 90%;
-                max-width: 500px;
+                max-width: 520px;
                 text-align: center;
                 transform: scale(0.85) translateY(20px);
                 transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -1120,74 +1123,81 @@ JSON.parse = function(val) {
                     left: -100%;
                     width: 100%;
                     height: 100%;
-                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
                     transform: skewX(-25deg);
                     animation: glassShimmer 5s infinite ease-in-out;
                 "></div>
 
-                <!-- Header Icon (glowing/pulsing) -->
+                <!-- Header Icon with Atmospheric Pulse -->
                 <div style="
-                    width: 80px;
-                    height: 80px;
-                    background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0.05) 100%);
-                    border: 2px solid rgba(239, 68, 68, 0.6);
-                    box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
+                    width: 86px;
+                    height: 86px;
+                    background: radial-gradient(circle, rgba(14, 165, 233, 0.3) 0%, rgba(56, 189, 248, 0.08) 100%);
+                    border: 2px solid rgba(56, 189, 248, 0.6);
+                    box-shadow: 0 0 30px rgba(14, 165, 233, 0.45);
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    margin: 0 auto 25px auto;
-                    font-size: 2.8rem;
-                    animation: pulseIcon 2s infinite ease-in-out;
+                    margin: 0 auto 22px auto;
+                    font-size: 3rem;
+                    animation: pulseIcon 2.5s infinite ease-in-out;
                 ">
-                    ${typeIcon}
+                    ⛈️
                 </div>
 
                 <!-- Title -->
                 <h2 style="
                     color: #ffffff;
-                    font-size: 1.8rem;
+                    font-size: 1.85rem;
                     font-weight: 900;
-                    margin: 0 0 15px 0;
-                    text-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+                    margin: 0 0 14px 0;
+                    text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
                     letter-spacing: 0.5px;
-                ">تنبيه: ${typeLabel} مكرر!</h2>
+                ">تنبيه: هذه الـ${typeLabel} تم استخدامها ومطابقتها مسبقاً!</h2>
 
                 <!-- Message Description -->
                 <p style="
-                    color: #e2e8f0;
+                    color: #f1f5f9;
                     font-size: 1.15rem;
                     line-height: 1.6;
-                    margin: 0 0 20px 0;
+                    margin: 0 0 18px 0;
                     font-weight: 500;
                 ">
                     رقم الـ${typeLabel} <span style="
-                        color: #f87171;
-                        font-family: monospace;
+                        color: #38bdf8;
+                        font-family: 'JetBrains Mono', monospace;
                         font-weight: 900;
-                        background: rgba(239, 68, 68, 0.15);
-                        padding: 3px 10px;
-                        border-radius: 6px;
-                        border: 1px solid rgba(239, 68, 68, 0.25);
-                        font-size: 1.25rem;
-                    ">${referenceNo}</span> تم تسجيله مسبقاً في النظام.
+                        background: rgba(14, 165, 233, 0.18);
+                        padding: 4px 12px;
+                        border-radius: 8px;
+                        border: 1px solid rgba(56, 189, 248, 0.35);
+                        font-size: 1.3rem;
+                        display: inline-block;
+                        direction: ltr;
+                        letter-spacing: 1px;
+                    ">${referenceNo}</span> تم إدخاله ومطابقته مسبقاً في النظام.
                 </p>
                 
                 <p style="
                     color: #94a3b8;
                     font-size: 0.95rem;
-                    line-height: 1.5;
-                    margin: 0 0 30px 0;
+                    line-height: 1.6;
+                    margin: 0 0 28px 0;
+                    background: rgba(15, 23, 42, 0.5);
+                    padding: 12px 15px;
+                    border-radius: 12px;
+                    border: 1px solid rgba(255, 255, 255, 0.05);
                 ">
-                    الـ 6 أرقام الأخيرة متطابقة مع معاملة مسجلة مسبقاً. لمنع الحجوزات المكررة وضمان دقة الحسابات، لا يمكن حفظ هذه الحركة.
+                    ⚠️ الـ 6 أرقام الأخيرة متطابقة تماماً مع معاملة سابقة مسجلة بالصندوق/البنك. تجنباً لإدخال نفس التحويلة مرتين وحفاظاً على صحة الحسابات المالية، يرجى عدم تكرار الإدخال.
                 </p>
 
                 <!-- Close Button with Glass Glow -->
                 <button onclick="closeDuplicateWarningModal()" style="
-                    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+                    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
                     color: #ffffff;
-                    border: 1px solid rgba(255, 255, 255, 0.15);
-                    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    box-shadow: 0 8px 25px rgba(2, 132, 199, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.3);
                     padding: 14px 30px;
                     border-radius: 12px;
                     font-weight: 800;
@@ -1197,21 +1207,21 @@ JSON.parse = function(val) {
                     width: 100%;
                     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                     outline: none;
-                " onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 12px 30px rgba(239, 68, 68, 0.55)';"
-                   onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 8px 25px rgba(239, 68, 68, 0.4)';"
+                " onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 12px 32px rgba(2, 132, 199, 0.65)';"
+                   onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 8px 25px rgba(2, 132, 199, 0.45)';"
                    onmousedown="this.style.transform='translateY(1px) scale(0.98)';">
-                    فهمت، سأقوم بمراجعة الرقم ✖
+                    فهمت، سأراجع الرقم ومطابقته ✖
                 </button>
             </div>
 
             <style>
                 @keyframes pulseGlow {
-                    0%, 100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
+                    0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
                     50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
                 }
                 @keyframes pulseIcon {
-                    0%, 100% { transform: scale(1); box-shadow: 0 0 25px rgba(239, 68, 68, 0.4); }
-                    50% { transform: scale(1.08); box-shadow: 0 0 35px rgba(239, 68, 68, 0.6), 0 0 15px rgba(239, 68, 68, 0.3); }
+                    0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(14, 165, 233, 0.45); }
+                    50% { transform: scale(1.08); box-shadow: 0 0 45px rgba(56, 189, 248, 0.7), 0 0 20px rgba(14, 165, 233, 0.4); }
                 }
                 @keyframes glassShimmer {
                     0% { left: -120%; }
@@ -1222,23 +1232,22 @@ JSON.parse = function(val) {
 
         document.body.appendChild(overlay);
 
-        // Audio/Click Beep Warning
+        // Audio Warning Tone
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             if (AudioCtx) {
                 const ctx = new AudioCtx();
-                // Low warning buzz sound
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, ctx.currentTime);
-                osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.15);
-                gain.gain.setValueAtTime(0.12, ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 0.25);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.25);
                 osc.connect(gain);
                 gain.connect(ctx.destination);
                 osc.start();
-                osc.stop(ctx.currentTime + 0.15);
+                osc.stop(ctx.currentTime + 0.25);
             }
         } catch(e) {}
 
@@ -1251,7 +1260,7 @@ JSON.parse = function(val) {
             }
         });
 
-        // Particle Canvas Animation (Rain / Glow droplets falling down)
+        // Natural Rain & Subtle Lightning Canvas Animation
         const canvas = document.getElementById('modal-particle-canvas');
         if (canvas) {
             const ctx = canvas.getContext('2d');
@@ -1264,46 +1273,132 @@ JSON.parse = function(val) {
             window.addEventListener('resize', resize);
             resize();
 
-            // Particles Array
-            const particles = [];
-            for (let i = 0; i < 45; i++) {
-                particles.push({
-                    x: Math.random() * canvas.width,
+            // Raindrops Array in Natural Realistic Colors
+            const raindrops = [];
+            const dropCount = 95;
+            for (let i = 0; i < dropCount; i++) {
+                raindrops.push({
+                    x: Math.random() * (canvas.width + 100),
                     y: Math.random() * canvas.height,
-                    length: 15 + Math.random() * 20,
-                    speed: 1.5 + Math.random() * 2.5,
-                    opacity: 0.1 + Math.random() * 0.45,
-                    width: 1 + Math.random() * 1.5
+                    length: 22 + Math.random() * 26,
+                    speedY: 10 + Math.random() * 8,
+                    speedX: -1.8 - Math.random() * 0.8,
+                    opacity: 0.25 + Math.random() * 0.55,
+                    width: 1 + Math.random() * 1.5,
+                    colorType: Math.random() > 0.4 ? 'cyan' : (Math.random() > 0.4 ? 'blue' : 'white')
                 });
+            }
+
+            // Splashes Array
+            const splashes = [];
+
+            // Lightning Flash State
+            let lightningTimer = 0;
+            let lightningNext = 100 + Math.floor(Math.random() * 140);
+            let lightningAlpha = 0;
+            let lightningBolt = [];
+
+            function createLightningBolt() {
+                const startX = canvas.width * (0.2 + Math.random() * 0.6);
+                const points = [{x: startX, y: 0}];
+                let curX = startX;
+                let curY = 0;
+                while (curY < canvas.height * 0.65) {
+                    curY += 20 + Math.random() * 30;
+                    curX += (Math.random() - 0.5) * 50;
+                    points.push({x: curX, y: curY});
+                }
+                return points;
             }
 
             const animate = () => {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                // Draw particles (glow rain drops falling down)
-                ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
+                // 1. Subtle Lightning Flash Handling
+                lightningTimer++;
+                if (lightningTimer >= lightningNext) {
+                    lightningTimer = 0;
+                    lightningNext = 140 + Math.floor(Math.random() * 200);
+                    lightningAlpha = 0.25 + Math.random() * 0.25;
+                    lightningBolt = createLightningBolt();
+                }
+
+                if (lightningAlpha > 0.01) {
+                    // Flash Background Glow
+                    ctx.fillStyle = `rgba(224, 242, 254, ${lightningAlpha * 0.25})`;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    // Draw Electric Lightning Bolt
+                    if (lightningBolt.length > 1) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(240, 249, 255, ${lightningAlpha})`;
+                        ctx.lineWidth = 2.2;
+                        ctx.shadowColor = 'rgba(186, 230, 253, 0.9)';
+                        ctx.shadowBlur = 18;
+                        lightningBolt.forEach((pt, idx) => {
+                            if (idx === 0) ctx.moveTo(pt.x, pt.y);
+                            else ctx.lineTo(pt.x, pt.y);
+                        });
+                        ctx.stroke();
+                        ctx.shadowBlur = 0;
+                    }
+
+                    lightningAlpha *= 0.84; // Fast fade out for real lightning flash
+                }
+
+                // 2. Render Natural Raindrops
                 ctx.lineCap = 'round';
-                
-                for (let i = 0; i < particles.length; i++) {
-                    const p = particles[i];
+                for (let i = 0; i < raindrops.length; i++) {
+                    const p = raindrops[i];
+                    
+                    let strokeStyle = `rgba(186, 230, 253, ${p.opacity})`;
+                    if (p.colorType === 'blue') strokeStyle = `rgba(147, 197, 253, ${p.opacity})`;
+                    else if (p.colorType === 'white') strokeStyle = `rgba(255, 255, 255, ${p.opacity * 0.9})`;
+
                     ctx.beginPath();
                     ctx.lineWidth = p.width;
-                    ctx.strokeStyle = `rgba(239, 68, 68, ${p.opacity})`;
+                    ctx.strokeStyle = strokeStyle;
                     
-                    // Drawing falling line/beam
                     ctx.moveTo(p.x, p.y);
-                    ctx.lineTo(p.x - 1, p.y + p.length);
+                    ctx.lineTo(p.x + p.speedX, p.y + p.length);
                     ctx.stroke();
 
-                    // Update particle y coordinate
-                    p.y += p.speed;
+                    // Movement update
+                    p.y += p.speedY;
+                    p.x += p.speedX;
                     
-                    // Reset particle to top if it reaches bottom
-                    if (p.y > canvas.height) {
+                    // Rain Splash when hitting screen bottom
+                    if (p.y > canvas.height - 25) {
+                        if (Math.random() > 0.6) {
+                            splashes.push({
+                                x: p.x,
+                                y: canvas.height - 8,
+                                r: 1,
+                                maxR: 6 + Math.random() * 8,
+                                alpha: p.opacity * 0.8
+                            });
+                        }
                         p.y = -p.length;
-                        p.x = Math.random() * canvas.width;
+                        p.x = Math.random() * (canvas.width + 100);
                     }
                 }
+
+                // 3. Render Water Splashes (Ripples at bottom)
+                for (let i = splashes.length - 1; i >= 0; i--) {
+                    const s = splashes[i];
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    ctx.strokeStyle = `rgba(186, 230, 253, ${s.alpha})`;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+
+                    s.r += 0.8;
+                    s.alpha -= 0.04;
+                    if (s.alpha <= 0 || s.r >= s.maxR) {
+                        splashes.splice(i, 1);
+                    }
+                }
+
                 animationId = requestAnimationFrame(animate);
             };
             animate();
