@@ -927,7 +927,7 @@
 </div>
 
 <script defer src="js/localforage.min.js"></script>
-<script defer src="js/app.js?v=20260723_v14"></script>
+<script defer src="js/app.js?v=20260803_v14"></script>
 <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
 <script>
 // Language switcher logic for settings page

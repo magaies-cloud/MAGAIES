@@ -279,7 +279,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=1783054966.73732"></script>
+    <script defer src="js/app.js?v=20260803.73732"></script>
     <script defer src="js/cash-receipt.js"></script>
 </body>
 </html>

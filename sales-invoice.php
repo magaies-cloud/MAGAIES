@@ -476,7 +476,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=1783054969.81822"></script>
+    <script defer src="js/app.js?v=20260803.81822"></script>
     <script defer src="js/print-engine.js?v=<?php echo time(); ?>"></script>
     <script defer src="js/sales-invoice.js?v=2"></script>
 </body>

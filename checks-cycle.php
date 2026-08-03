@@ -419,7 +419,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=1783054966.76188"></script>
+    <script defer src="js/app.js?v=20260803.76188"></script>
     <script defer src="js/checks-cycle.js"></script>
 </body>
 </html>

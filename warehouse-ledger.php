@@ -278,7 +278,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=1783054970.52149"></script>
+    <script defer src="js/app.js?v=20260803.52149"></script>
     <script>
         document.addEventListener('DBReady', () => {
             // Load Warehouses

@@ -219,6 +219,6 @@ usort($report_data, function($a, $b) { return $a['days_coverage'] <=> $b['days_c
     </div> <!-- Close .dashboard-container -->
 
     <script defer src="js/localforage.min.js?v=20260723_v14"></script>
-    <script defer src="js/app.js?v=20260723_v14"></script>
+    <script defer src="js/app.js?v=20260803_v14"></script>
 </body>
 </html>

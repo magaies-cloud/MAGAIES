@@ -504,7 +504,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=1783054969.46011"></script>
+    <script defer src="js/app.js?v=20260803.46011"></script>
     <script defer src="js/print-engine.js"></script>
     <script defer src="js/reserved-sales.js?v=3"></script>
 </body>

@@ -924,7 +924,7 @@
 
     <!-- Scripts -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260717"></script>
+    <script defer src="js/app.js?v=20260803"></script>
     <script>
         function renderAllMasterData() {
             renderCustomers();

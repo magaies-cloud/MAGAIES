@@ -353,7 +353,7 @@
 
     <!-- Global App JS (for Auth, Themes) -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=1783054969.75678"></script>
+    <script defer src="js/app.js?v=20260803.75678"></script>
     <script defer src="js/print-engine.js"></script>
     <script defer src="js/sales-delivery.js"></script>
 </body>

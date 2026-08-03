@@ -271,7 +271,7 @@
 
     <!-- Required for DBReady and IndexedDB -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=1783054968.0814"></script>
+    <script defer src="js/app.js?v=20260803.0814"></script>
     <script>
         let jobs = [];
 

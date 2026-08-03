@@ -198,7 +198,7 @@
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=1783054966.48162"></script>
+    <script defer src="js/app.js?v=20260803.48162"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script defer src="js/barcode-printer.js"></script>
 </body>

@@ -335,7 +335,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=1783054967.9791"></script>
+    <script defer src="js/app.js?v=20260803.9791"></script>
     <script>
         const ITEMS_STORAGE_KEY = 'erp_items_v1';
         let itemsDb = [];

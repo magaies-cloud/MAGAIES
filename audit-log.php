@@ -231,7 +231,7 @@
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=1783054966.09151"></script>
+    <script defer src="js/app.js?v=20260803.09151"></script>
     <script>
         document.addEventListener('DBReady', () => {
             const userStr = localStorage.getItem('user');

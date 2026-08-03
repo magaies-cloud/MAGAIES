@@ -230,7 +230,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=1783054967.88578"></script>
+    <script defer src="js/app.js?v=20260803.88578"></script>
     <script>
         document.addEventListener('DBReady', () => {
             const searchBox = document.getElementById('search-box');

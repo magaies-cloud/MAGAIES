@@ -320,7 +320,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=1783054968.10515"></script>
+    <script defer src="js/app.js?v=20260803.10515"></script>
     <script defer src="js/journal-voucher.js"></script>
 </body>
 </html>

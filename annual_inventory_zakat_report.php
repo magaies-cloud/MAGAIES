@@ -776,6 +776,6 @@ $net_capital_after_zakat = $net_total_capital_all - $zakat_amount;
 
     <!-- System Scripts for Sidebar & Theme Integration -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260717"></script>
+    <script defer src="js/app.js?v=20260803"></script>
 </body>
 </html>

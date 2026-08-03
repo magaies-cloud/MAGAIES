@@ -394,7 +394,7 @@
 
     </div>
 
-    <script defer src="js/app.js?v=1783054967.64462"></script>
+    <script defer src="js/app.js?v=20260803.64462"></script>
     <script>
         // Clock functionality for header
         function updateClock() {

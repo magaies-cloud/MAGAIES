@@ -1051,7 +1051,7 @@
 </div>
 
 <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260717"></script>
+    <script defer src="js/app.js?v=20260803"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         // We might want to wait for DBReady, but let's initialize directly if data is in localStorage

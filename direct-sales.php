@@ -2311,7 +2311,7 @@
     </div>
 
     <!-- ═══ SPLIT INVOICE VIEW ═══ -->
-    <div id="split-invoice-view" style="display: none; flex-direction: column; height: 100%; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 0 5px;">
+    <div id="split-invoice-view" style="display: none; flex-direction: column; height: 100%; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 0 5px; position: relative; z-index: 9999; background: var(--bg-main);">
         <div class="neo-card" style="flex: 1; display: flex; flex-direction: column; overflow: visible; margin-bottom: 15px;">
 
             

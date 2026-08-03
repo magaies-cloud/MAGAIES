@@ -17,7 +17,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>لوحة التحكم</title>
     <link rel="preload" href="css/design-system.css?v=20260723_v14" as="style">
-    <link rel="preload" href="js/app.js?v=20260723_v14" as="script">
+    <link rel="preload" href="js/app.js?v=20260803_v14" as="script">
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -1198,7 +1198,7 @@
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260723_v14"></script>
+    <script defer src="js/app.js?v=20260803_v14"></script>
     <script>
         // Spotlight Effect Mouse Tracker (throttled to 60fps)
         let _spotlightTick = false;
