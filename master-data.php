@@ -749,13 +749,12 @@
                             <div class="input-group"><label>الايميل (البريد الإلكتروني)</label><input type="email" id="cust-email" placeholder="example@email.com"></div>
                             <div class="input-group" style="grid-column: span 2;"><label>العنوان</label><input type="text" id="cust-address" placeholder="مثال: الخرطوم، مقاييس"></div>
                             <div class="input-group"><label>العملة</label><select id="cust-currency" class="system-currency-select" onchange="updateCustExchangeRate()"></select></div>
-                            <div class="input-group" id="cust-ex-rate-group" style="display: none;"><label id="cust-ex-rate-label" style="color:#38bdf8; font-weight:800;">💵 سعر الصرف (مقابل المحلية)</label><input type="number" id="cust-ex-rate" step="any" value="1" placeholder="سعر الصرف مقابل SDG" style="font-weight:800; color:#38bdf8;" oninput="updateUsdOpeningHint('cust-currency', 'cust-ex-rate', 'cust-opening-balance', 'cust-usd-hint')"></div>
+                            <div class="input-group" id="cust-ex-rate-group" style="display: none;"><label id="cust-ex-rate-label" style="color:#38bdf8; font-weight:800;">💵 سعر الصرف (مقابل المحلية)</label><input type="number" id="cust-ex-rate" step="any" value="1" placeholder="سعر الصرف مقابل SDG" style="font-weight:800; color:#38bdf8;"></div>
                             <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="cust-tax" placeholder="الرقم الضريبي للعميل"></div>
                             <input type="hidden" id="cust-account-no" value="">
                             <div class="input-group">
-                                <label>الرصيد الافتتاحي بالعملة المحلية <small style="color:#f97316; font-weight:normal;">(موجب = عليه | سالب = له)</small></label>
-                                <input type="number" id="cust-opening-balance" step="any" placeholder="0.00" style="direction:ltr; text-align:center;" oninput="updateUsdOpeningHint('cust-currency', 'cust-ex-rate', 'cust-opening-balance', 'cust-usd-hint')">
-                                <div id="cust-usd-hint" style="font-size: 0.92rem; font-weight: 800; color: #34d399; margin-top: 6px; display: none;"></div>
+                                <label>الرصيد الافتتاحي <small style="color:#f97316; font-weight:normal;">(موجب = عليه | سالب = له (يريد منا))</small></label>
+                                <input type="number" id="cust-opening-balance" step="any" placeholder="0.00" style="direction:ltr; text-align:center;">
                                 <input type="hidden" id="cust-opening-debit" value="0">
                                 <input type="hidden" id="cust-opening-credit" value="0">
                             </div>
@@ -816,13 +815,12 @@
                             <div class="input-group"><label>الايميل (البريد الإلكتروني)</label><input type="email" id="sup-email" placeholder="example@email.com"></div>
                             <div class="input-group" style="grid-column: span 2;"><label>العنوان</label><input type="text" id="sup-address" placeholder="موقع المصنع / المعرض"></div>
                             <div class="input-group"><label>العملة</label><select id="sup-currency" class="system-currency-select" onchange="updateSupExchangeRate()"></select></div>
-                            <div class="input-group" id="sup-ex-rate-group" style="display: none;"><label id="sup-ex-rate-label" style="color:#38bdf8; font-weight:800;">💵 سعر الصرف (مقابل المحلية)</label><input type="number" id="sup-ex-rate" step="any" value="1" placeholder="سعر الصرف مقابل SDG" style="font-weight:800; color:#38bdf8;" oninput="updateUsdOpeningHint('sup-currency', 'sup-ex-rate', 'sup-opening-balance', 'sup-usd-hint')"></div>
+                            <div class="input-group" id="sup-ex-rate-group" style="display: none;"><label id="sup-ex-rate-label" style="color:#38bdf8; font-weight:800;">💵 سعر الصرف (مقابل المحلية)</label><input type="number" id="sup-ex-rate" step="any" value="1" placeholder="سعر الصرف مقابل SDG" style="font-weight:800; color:#38bdf8;"></div>
                             <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="sup-tax" placeholder="الرقم الضريبي للمورد"></div>
                             <input type="hidden" id="sup-account-no" value="">
                             <div class="input-group">
-                                <label>الرصيد الافتتاحي بالعملة المحلية <small style="color:#f97316; font-weight:normal;">(موجب = له | سالب = عليه)</small></label>
-                                <input type="number" id="sup-opening-balance" step="any" placeholder="0.00" style="direction:ltr; text-align:center;" oninput="updateUsdOpeningHint('sup-currency', 'sup-ex-rate', 'sup-opening-balance', 'sup-usd-hint')">
-                                <div id="sup-usd-hint" style="font-size: 0.92rem; font-weight: 800; color: #34d399; margin-top: 6px; display: none;"></div>
+                                <label>الرصيد الافتتاحي <small style="color:#f97316; font-weight:normal;">(موجب = له | سالب = عليه (نريد منه))</small></label>
+                                <input type="number" id="sup-opening-balance" step="any" placeholder="0.00" style="direction:ltr; text-align:center;">
                                 <input type="hidden" id="sup-opening-debit" value="0">
                                 <input type="hidden" id="sup-opening-credit" value="0">
                             </div>
@@ -857,18 +855,14 @@
                             <div class="input-group"><label>الرقم</label><input type="text" id="bank-code" placeholder="رقم الحساب أو الخزينة"></div>
                             <div class="input-group"><label>الاسم</label><input type="text" id="bank-name" placeholder="مثال: الخزينة الرئيسية"></div>
                             <div class="input-group" id="bank-branch-group"><label>الفرع</label><input type="text" id="bank-branch" placeholder="مثال: فرع مقاييس"></div>
-                            <div class="input-group">
-                                 <label>الرصيد الافتتاحي بالعملة المحلية</label>
-                                 <input type="number" id="bank-opening-balance" placeholder="0.00" oninput="updateUsdOpeningHint('bank-currency', 'bank-ex-rate', 'bank-opening-balance', 'bank-usd-hint')">
-                                 <div id="bank-usd-hint" style="font-size: 0.92rem; font-weight: 800; color: #34d399; margin-top: 6px; display: none;"></div>
-                             </div>
+                            <div class="input-group"><label>الرصيد الافتتاحي</label><input type="number" id="bank-opening-balance" placeholder="0.00"></div>
                             <div class="input-group"><label>تاريخ الرصيد الافتتاحي</label><input type="date" id="bank-opening-date"></div>
                             <div class="input-group"><label>رقم حساب الأستاذ (GL)</label><input type="text" id="bank-gl-account" placeholder="مثال: 110101"></div>
                             <div class="input-group bank-only-field"><label>IBAN</label><input type="text" id="bank-iban" placeholder="SA..."></div>
                             <div class="input-group bank-only-field"><label>SWIFT</label><input type="text" id="bank-swift" placeholder="BOKS..."></div>
                             
                             <div class="input-group"><label>العملة</label><select id="bank-currency" class="system-currency-select" onchange="updateBankExchangeRate()"></select></div>
-                            <div class="input-group" id="bank-ex-rate-group" style="display: none;"><label id="bank-ex-rate-label" style="color:#38bdf8; font-weight:800;">💵 سعر الصرف (مقابل المحلية)</label><input type="number" id="bank-ex-rate" step="any" value="1" placeholder="سعر الصرف مقابل SDG" style="font-weight:800; color:#38bdf8;" oninput="updateUsdOpeningHint('bank-currency', 'bank-ex-rate', 'bank-opening-balance', 'bank-usd-hint')"></div>
+                            <div class="input-group" id="bank-ex-rate-group" style="display: none;"><label id="bank-ex-rate-label" style="color:#38bdf8; font-weight:800;">💵 سعر الصرف (مقابل المحلية)</label><input type="number" id="bank-ex-rate" step="any" value="1" placeholder="سعر الصرف مقابل SDG" style="font-weight:800; color:#38bdf8;"></div>
                             
                             
                             <div class="input-group"><label>درجة السرية</label><select id="bank-confidentiality"><option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option></select></div>
@@ -1435,19 +1429,13 @@
             const opBalance = parseFloat(document.getElementById('cust-opening-balance').value) || 0;
             const openingDebit = opBalance >= 0 ? opBalance : 0;
             const openingCredit = opBalance < 0 ? Math.abs(opBalance) : 0;
+            // Auto-read exchange rate from settings based on currency
             const currency = document.getElementById('cust-currency').value || 'SDG';
-            const exRateInput = document.getElementById('cust-ex-rate');
-            let exRate = parseFloat(exRateInput ? exRateInput.value : 1) || 1;
-            if (currency === 'SDG') exRate = 1;
-
-            const opBalance = parseFloat(document.getElementById('cust-opening-balance').value) || 0;
-            const openingDebit = opBalance >= 0 ? opBalance : 0;
-            const openingCredit = opBalance < 0 ? Math.abs(opBalance) : 0;
-
-            const openingDebitUSD = exRate > 0 ? (openingDebit / exRate) : openingDebit;
-            const openingCreditUSD = exRate > 0 ? (openingCredit / exRate) : openingCredit;
-            const openingBalanceUSD = exRate > 0 ? (opBalance / exRate) : opBalance;
-
+            let exRate = 1;
+            try {
+                const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+                if (currency !== 'SDG' && cfg.rateUSD) exRate = parseFloat(cfg.rateUSD) || 1;
+            } catch(e) {}
             const taxNumber = document.getElementById('cust-tax').value || '';
             const accountNo = document.getElementById('cust-account-no').value || '';
             const limit = parseFloat(document.getElementById('cust-limit').value) || 0;
@@ -1499,8 +1487,7 @@
             const custData = {
                 id, name, phone, whatsapp, email, contactPerson, address, 
                 openingDebit, openingCredit, 
-                openingDebitUSD, openingCreditUSD, openingBalanceUSD,
-                currency, exRate, exchangeRate: exRate, taxNumber, accountNo,
+                currency, exRate, taxNumber, accountNo,
                 currentBalance: (openingDebit - openingCredit), 
                 creditLimit: limit,
                 securityLevel: security, status: status, notes,
@@ -3028,31 +3015,8 @@ function openSafeForm() {
             }
         }
 
-        function updateUsdOpeningHint(currId, rateId, balId, hintId) {
-            const currEl = document.getElementById(currId);
-            const rateEl = document.getElementById(rateId);
-            const balEl = document.getElementById(balId);
-            const hintEl = document.getElementById(hintId);
-            if (!currEl || !balEl || !hintEl) return;
-
-            const curr = currEl.value || 'SDG';
-            const rate = parseFloat(rateEl ? rateEl.value : 1) || 1;
-            const bal = parseFloat(balEl.value) || 0;
-
-            if (curr !== 'SDG' && rate > 1 && bal !== 0) {
-                const usdVal = (bal / rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                const balFormatted = Math.abs(bal).toLocaleString();
-                const rateFormatted = rate.toLocaleString();
-                hintEl.innerHTML = `💡 الرصيد المعادل بالعملة الأجنبية: <span style="color:#fbbf24; font-size:1.05rem; font-weight:900;">$${usdVal} ${curr}</span> (${balFormatted} ÷ ${rateFormatted})`;
-                hintEl.style.display = 'block';
-            } else {
-                hintEl.style.display = 'none';
-            }
-        }
-
         function updateCustExchangeRate() {
             updateExchangeRateField('cust-currency', 'cust-ex-rate', 'cust-ex-rate-group', 'cust-ex-rate-label');
-            updateUsdOpeningHint('cust-currency', 'cust-ex-rate', 'cust-opening-balance', 'cust-usd-hint');
         }
 
         function updateSupExchangeRate() {
