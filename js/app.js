@@ -3521,7 +3521,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const token = localStorage.getItem('authToken');
         if (!token) return;
         try {
-            const res = await fetch('api_index.php/ping', {
+            const res = await fetch('api_index.php?r=ping', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
