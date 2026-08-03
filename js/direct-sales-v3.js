@@ -4741,26 +4741,41 @@ function revertSalesInvoiceEffects(invNo, revertInventory = true) {
         }
 
         // 2. Revert Bank/Safe Balance
+        let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+        let safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
+        
         if (oldInv.paymentMethod === 'hybrid' || oldInv.paymentMethod === 'multipay') {
-            let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
             if (oldInv.cashAmount > 0 && oldInv.paymentAccountId) {
                 const bIdx = banks.findIndex(b => b.id === oldInv.paymentAccountId);
                 if (bIdx > -1) banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - parseFloat(oldInv.cashAmount);
+                else {
+                    const sIdx = safes.findIndex(s => s.id === oldInv.paymentAccountId);
+                    if (sIdx > -1) safes[sIdx].currentBalance = (parseFloat(safes[sIdx].currentBalance) || 0) - parseFloat(oldInv.cashAmount);
+                }
             }
             if (oldInv.bankTransfers && oldInv.bankTransfers.length > 0) {
                 oldInv.bankTransfers.forEach(bt => {
                     const bIdx = banks.findIndex(b => b.id === bt.bankAccountId);
                     if (bIdx > -1) banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - parseFloat(bt.amount);
+                    else {
+                        const sIdx = safes.findIndex(s => s.id === bt.bankAccountId);
+                        if (sIdx > -1) safes[sIdx].currentBalance = (parseFloat(safes[sIdx].currentBalance) || 0) - parseFloat(bt.amount);
+                    }
                 });
             }
             localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+            localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
         } else if (oldInv.paymentMethod !== 'credit' && oldInv.paymentAccountId) {
-            let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
             const bIdx = banks.findIndex(b => b.id === oldInv.paymentAccountId);
             if (bIdx > -1) {
-                let currentBalance = parseFloat(banks[bIdx].currentBalance) || 0;
-                banks[bIdx].currentBalance = currentBalance - grandAmount;
+                banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - grandAmount;
                 localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+            } else {
+                const sIdx = safes.findIndex(s => s.id === oldInv.paymentAccountId);
+                if (sIdx > -1) {
+                    safes[sIdx].currentBalance = (parseFloat(safes[sIdx].currentBalance) || 0) - grandAmount;
+                    localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
+                }
             }
         }
     }
