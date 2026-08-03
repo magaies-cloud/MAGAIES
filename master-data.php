@@ -171,18 +171,190 @@
         .user-info { display: flex; align-items: center; gap: 8px; background: rgba(15,23,42,0.6); padding: 6px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); }
 
         /* Master Data Specific Styles */
+        /* Master Data Specific Styles - Ultra Premium Animated Glassmorphic Tabs */
         .md-tabs-sidebar {
-            background: rgba(10, 8, 15, 0.5); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border); border-radius: 18px; padding: 8px;
-            display: flex; flex-direction: row; align-items: center; overflow-x: auto;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.03);
-            gap: 10px; margin-bottom: 0;
+            background: rgba(12, 10, 22, 0.65);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 12px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            overflow-x: auto;
+            gap: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+            margin-bottom: 5px;
         }
-        .md-tabs-title { display: none; }
-        .md-tab-btn { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); text-align: center; padding: 10px 15px; font-size: 0.9rem; font-weight: 700; color: #94a3b8; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px; white-space: nowrap; border-radius: 12px; }
-        .md-tab-btn:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.1); transform: translateY(-2px); }
-        .md-tab-btn.active { color: #fff; background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; box-shadow: 0 5px 15px rgba(56,189,248,0.2); }
-        .md-tab-icon { font-size: 1.1rem; }
+
+        .md-tab-btn {
+            position: relative;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 2.5px solid var(--tab-border-color, rgba(255, 255, 255, 0.12));
+            border-radius: 14px;
+            padding: 11px 18px;
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #e2e8f0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        /* الإيماءة الضوئية الساطعة على سطح الزر عند التمرير */
+        .md-tab-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 70%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+            transform: skewX(-25deg);
+            transition: 0.5s;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .md-tab-btn:hover::before {
+            left: 140%;
+            transition: 0.75s ease-in-out;
+        }
+
+        /* تحريك الأيقونة داخل الزر عند التمرير */
+        .md-tab-icon {
+            font-size: 1.3rem;
+            display: inline-block;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.4));
+        }
+
+        .md-tab-btn:hover {
+            transform: translateY(-5px) scale(1.08);
+            color: #ffffff !important;
+            border-color: var(--tab-border-color) !important;
+            box-shadow: 0 12px 30px var(--tab-glow-color), 0 0 20px var(--tab-glow-color), inset 0 1px 2px rgba(255,255,255,0.4) !important;
+            background: var(--tab-hover-bg) !important;
+            z-index: 10;
+        }
+
+        .md-tab-btn:hover .md-tab-icon {
+            transform: scale(1.35) rotate(8deg);
+        }
+
+        /* حالة التحديد الزر النشط (Active Tab) مع الإضاءة العاكسة الخاطفة للأبصار */
+        .md-tab-btn.active {
+            color: #ffffff !important;
+            background: var(--tab-active-bg) !important;
+            border-color: var(--tab-border-color) !important;
+            box-shadow: 0 10px 30px var(--tab-glow-color), 0 0 25px var(--tab-glow-color), inset 0 2px 4px rgba(255,255,255,0.5) !important;
+            transform: translateY(-3px) scale(1.05);
+            animation: tabPulse 2.5s infinite alternate ease-in-out;
+        }
+
+        .md-tab-btn.active .md-tab-icon {
+            transform: scale(1.25);
+        }
+
+        @keyframes tabPulse {
+            0% { box-shadow: 0 10px 25px var(--tab-glow-color), 0 0 15px var(--tab-glow-color), inset 0 2px 4px rgba(255,255,255,0.4); }
+            100% { box-shadow: 0 16px 40px var(--tab-glow-color), 0 0 35px var(--tab-glow-color), inset 0 2px 6px rgba(255,255,255,0.7); }
+        }
+
+        /* 🎨 تخصيص الألوان والحدود والإضاءة العاكسة لكل تبويب */
+        
+        /* 🏢 المخازن - سماوي زاهي (Sky Blue) */
+        .md-tab-btn.tab-warehouses {
+            --tab-border-color: #38bdf8;
+            --tab-glow-color: rgba(56, 189, 248, 0.55);
+            --tab-hover-bg: linear-gradient(135deg, rgba(2, 132, 199, 0.4), rgba(56, 189, 248, 0.6));
+            --tab-active-bg: linear-gradient(135deg, #0284c7, #38bdf8);
+        }
+
+        /* 👥 العملاء - زمردي نيون (Emerald Green) */
+        .md-tab-btn.tab-customers {
+            --tab-border-color: #34d399;
+            --tab-glow-color: rgba(52, 211, 153, 0.55);
+            --tab-hover-bg: linear-gradient(135deg, rgba(5, 150, 105, 0.4), rgba(52, 211, 153, 0.6));
+            --tab-active-bg: linear-gradient(135deg, #059669, #34d399);
+        }
+
+        /* 🏭 الموردين - بنفسجي ساحر (Purple Violet) */
+        .md-tab-btn.tab-suppliers {
+            --tab-border-color: #c084fc;
+            --tab-glow-color: rgba(192, 132, 252, 0.55);
+            --tab-hover-bg: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(192, 132, 252, 0.6));
+            --tab-active-bg: linear-gradient(135deg, #7c3aed, #c084fc);
+        }
+
+        /* 🏦 البنوك - ذهبي متألق (Amber Gold) */
+        .md-tab-btn.tab-banks {
+            --tab-border-color: #fbbf24;
+            --tab-glow-color: rgba(251, 191, 36, 0.55);
+            --tab-hover-bg: linear-gradient(135deg, rgba(217, 119, 6, 0.4), rgba(251, 191, 36, 0.6));
+            --tab-active-bg: linear-gradient(135deg, #d97706, #fbbf24);
+        }
+
+        /* 💰 الخزن - ليموني فسفوري (Neon Lime) */
+        .md-tab-btn.tab-safes {
+            --tab-border-color: #4ade80;
+            --tab-glow-color: rgba(74, 222, 128, 0.55);
+            --tab-hover-bg: linear-gradient(135deg, rgba(22, 163, 74, 0.4), rgba(74, 222, 128, 0.6));
+            --tab-active-bg: linear-gradient(135deg, #16a34a, #4ade80);
+        }
+
+        /* 📦 الأصناف والوحدات - وردي ملكي (Fuchsia Rose) */
+        .md-tab-btn.tab-items {
+            --tab-border-color: #f472b6;
+            --tab-glow-color: rgba(244, 114, 182, 0.55);
+            --tab-hover-bg: linear-gradient(135deg, rgba(219, 39, 119, 0.4), rgba(244, 114, 182, 0.6));
+            --tab-active-bg: linear-gradient(135deg, #db2777, #f472b6);
+        }
+
+        /* 👤 الموظفين - نيلي براق (Indigo Blue) */
+        .md-tab-btn.tab-employees {
+            --tab-border-color: #818cf8;
+            --tab-glow-color: rgba(129, 140, 248, 0.55);
+            --tab-hover-bg: linear-gradient(135deg, rgba(79, 70, 229, 0.4), rgba(129, 140, 248, 0.6));
+            --tab-active-bg: linear-gradient(135deg, #4f46e5, #818cf8);
+        }
+
+        /* 📊 مراكز التكلفة - برتقالي متوهج (Vibrant Orange) */
+        .md-tab-btn.tab-costcenters {
+            --tab-border-color: #fb923c;
+            --tab-glow-color: rgba(251, 146, 60, 0.55);
+            --tab-hover-bg: linear-gradient(135deg, rgba(234, 88, 12, 0.4), rgba(251, 146, 60, 0.6));
+            --tab-active-bg: linear-gradient(135deg, #ea580c, #fb923c);
+        }
+
+        /* 🚪 خروج / رجوع - روبي أحمر (Ruby Red) */
+        .md-tab-btn.tab-exit {
+            --tab-border-color: #f87171;
+            --tab-glow-color: rgba(248, 113, 113, 0.55);
+            --tab-hover-bg: linear-gradient(135deg, rgba(220, 38, 38, 0.4), rgba(248, 113, 113, 0.6));
+            --tab-active-bg: linear-gradient(135deg, #dc2626, #f87171);
+        }
+
+        /* التوافق التام مع الوضع الفاتح Light Theme */
+        :root.light-theme .md-tabs-sidebar {
+            background: rgba(255, 255, 255, 0.8) !important;
+            border-color: rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+        }
+        :root.light-theme .md-tab-btn {
+            color: #1e293b !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+        }
+        :root.light-theme .md-tab-btn:hover,
+        :root.light-theme .md-tab-btn.active {
+            color: #ffffff !important;
+        }
 
         .md-content-area { flex: 1; display: flex; flex-direction: column; width: 100%; box-sizing: border-box; }
         .md-tab-content { display: none; height: 100%; animation: fadeInSlideUp 0.4s ease-out forwards; }
@@ -474,17 +646,17 @@
         <?php $header_theme_class = 'header-theme-masterdata'; include 'includes/header.php'; ?>
 
         <aside class="md-tabs-sidebar">
-            <button class="md-tab-btn active" onclick="openTab(event, 'tab-warehouses')"><span class="md-tab-icon">🏢</span> المخازن</button>
-            <button class="md-tab-btn" onclick="openTab(event, 'tab-customers')"><span class="md-tab-icon">👥</span> العملاء</button>
-            <button class="md-tab-btn" onclick="openTab(event, 'tab-suppliers')"><span class="md-tab-icon">🏭</span> الموردين</button>
-            <button class="md-tab-btn" onclick="openTab(event, 'tab-banks')"><span class="md-tab-icon">🏦</span> البنوك</button>
-            <button class="md-tab-btn" onclick="openTab(event, 'tab-safes')"><span class="md-tab-icon">💰</span> الخزن</button>
-            <button class="md-tab-btn" onclick="openTab(event, 'tab-items'); setTimeout(openItemForm, 50);"><span class="md-tab-icon">📦</span> الأصناف والوحدات</button>
-            <button class="md-tab-btn" onclick="openTab(event, 'tab-employees')"><span class="md-tab-icon">👥</span> الموظفين</button>
-            <button class="md-tab-btn" onclick="openTab(event, 'tab-costcenters')"><span class="md-tab-icon">📊</span> مراكز التكلفة</button>
+            <button class="md-tab-btn tab-warehouses active" onclick="openTab(event, 'tab-warehouses')"><span class="md-tab-icon">🏢</span> المخازن</button>
+            <button class="md-tab-btn tab-customers" onclick="openTab(event, 'tab-customers')"><span class="md-tab-icon">👥</span> العملاء</button>
+            <button class="md-tab-btn tab-suppliers" onclick="openTab(event, 'tab-suppliers')"><span class="md-tab-icon">🏭</span> الموردين</button>
+            <button class="md-tab-btn tab-banks" onclick="openTab(event, 'tab-banks')"><span class="md-tab-icon">🏦</span> البنوك</button>
+            <button class="md-tab-btn tab-safes" onclick="openTab(event, 'tab-safes')"><span class="md-tab-icon">💰</span> الخزن</button>
+            <button class="md-tab-btn tab-items" onclick="openTab(event, 'tab-items'); setTimeout(openItemForm, 50);"><span class="md-tab-icon">📦</span> الأصناف والوحدات</button>
+            <button class="md-tab-btn tab-employees" onclick="openTab(event, 'tab-employees')"><span class="md-tab-icon">👤</span> الموظفين</button>
+            <button class="md-tab-btn tab-costcenters" onclick="openTab(event, 'tab-costcenters')"><span class="md-tab-icon">📊</span> مراكز التكلفة</button>
 
             <div style="flex: 1;"></div>
-            <button class="md-tab-btn" onclick="goBackOrExit()" style="color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.1); font-weight: 900; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);"><span class="md-tab-icon">🚪</span> خروج / رجوع</button>
+            <button class="md-tab-btn tab-exit" onclick="goBackOrExit()"><span class="md-tab-icon">🚪</span> خروج / رجوع</button>
         </aside>
 
         <main class="md-content-area">
