@@ -229,11 +229,80 @@
             .md-tabs-sidebar { padding: 8px; }
         }
 
-        /* --- تحسينات الخطوط والتفاعلات المطلوبة --- */
+        /* --- تحسين وتكبير الخطوط داخل جميع الحقول والمستندات في البيانات الأساسية --- */
         body { font-size: 1.05rem; }
-        .input-group label { font-size: 1rem; font-weight: 600; }
-        input, select { font-size: 1.05rem !important; }
-        table.pro-table { font-size: 0.95rem !important; }
+        
+        input, 
+        select, 
+        textarea,
+        .input-group input, 
+        .input-group select, 
+        .input-group textarea,
+        .form-control,
+        .search-input,
+        .system-currency-select {
+            font-size: 1.25rem !important;  /* تكبير الخط داخل الحقول بدرجات مضاعفة (حوالي 20px) ليكون واضحاً وجلياً */
+            font-weight: 700 !important;    /* خط بارز وعريض لسهولة القراءة والوضوح */
+            min-height: 48px !important;    /* ضبط مقاس وتناسق ارتفاع الحقل مع حجم الخط المكبر */
+            padding: 10px 16px !important;  /* حشو داخلي متناسب مع مقاس الحقول */
+            line-height: 1.4 !important;
+            box-sizing: border-box !important;
+            font-family: 'Tajawal', sans-serif !important;
+        }
+
+        select option {
+            font-size: 1.15rem !important;
+            font-weight: 600 !important;
+            padding: 10px 14px !important;
+            background-color: #0f172a;
+            color: #ffffff;
+        }
+        :root.light-theme select option {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+
+        textarea,
+        .input-group textarea,
+        #cust-notes,
+        #sup-notes,
+        #item-description {
+            font-size: 1.2rem !important;
+            font-weight: 700 !important;
+            min-height: 95px !important;
+            padding: 12px 16px !important;
+            line-height: 1.5 !important;
+        }
+
+        table input,
+        table select,
+        table textarea,
+        table.pro-table input,
+        table.pro-table select {
+            font-size: 1.15rem !important;
+            font-weight: 700 !important;
+            min-height: 42px !important;
+            padding: 6px 12px !important;
+        }
+
+        .input-group label,
+        label {
+            font-size: 1.05rem !important;
+            font-weight: 800 !important;
+            margin-bottom: 6px !important;
+        }
+        
+        #customer-search-input,
+        #item-search-input,
+        #supplier-search-input {
+            font-size: 1.25rem !important;
+            font-weight: 700 !important;
+            min-height: 52px !important;
+            padding-right: 48px !important;
+        }
+
+        table.pro-table { font-size: 1rem !important; }
+
         
         .split-container {
             display: grid;
