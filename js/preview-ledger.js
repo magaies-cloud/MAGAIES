@@ -43,7 +43,9 @@ function getRawFieldValue(row, field) {
     if (field === 'credit') return parseFloat(row.credit || row.cr || 0);
     if (field === 'debitForeign') return parseFloat(row.debitForeign || row.dr_foreign || 0);
     if (field === 'creditForeign') return parseFloat(row.creditForeign || row.cr_foreign || 0);
+    if (field === 'exchangeRate') return parseFloat(row.exchangeRate || row.exRate || row.rate || 0);
     if (field === 'balance') return parseFloat(row.balance !== undefined ? row.balance : ((row.debit || 0) - (row.credit || 0)));
+    if (field === 'balanceForeign') return parseFloat(row.balanceForeign !== undefined ? row.balanceForeign : ((row.debitForeign || 0) - (row.creditForeign || 0)));
     if (field === 'additionalNote') return row.additionalNote || row.notes || row.costCenter || '';
     return row[field] !== undefined ? row[field] : '';
 }
@@ -160,8 +162,9 @@ function calculateLedgerTxns() {
     let priorTxns = [];
     let currentTxns = [];
 
-    // Account Filter
-    let intrinsicBal = 0;
+    // Account Filter & Opening Balance Resolver
+    let opInfo = { intrinsicBal: 0, opDebitLoc: 0, opCreditLoc: 0, opDebitFc: 0, opCreditFc: 0, opBalFc: 0, exchangeRate: 1, currency: 'SDG' };
+    
     if (accVal !== 'ALL') {
         const cleanFilter = accVal.replace(/^(cust|supp|bank|safe|exp)-/, '');
         txns = txns.filter(t => {
@@ -170,18 +173,90 @@ function calculateLedgerTxns() {
             return false;
         });
 
-        // Compute intrinsic balance from ACCOUNTS
+        // Resolve opening balance from Master Data records (Customers, Suppliers, Banks, Safes, Accounts)
+        let usdRate = 600;
+        if (typeof window.getExchangeRateForCurrency === 'function') {
+            const r = window.getExchangeRateForCurrency('USD');
+            if (r && r > 0) usdRate = parseFloat(r);
+        } else {
+            try {
+                const rates = JSON.parse(localStorage.getItem('erp_currency_rates_v1')) || {};
+                if (rates['USD'] && rates['USD'] > 0) usdRate = parseFloat(rates['USD']);
+            } catch(e){}
+        }
+
+        let custs = []; try { custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => x && !x.deleted); } catch(e){}
+        let sups = []; try { sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => x && !x.deleted); } catch(e){}
+        let banks = []; try { banks = (JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => x && !x.deleted); } catch(e){}
+        let safes = []; try { safes = (JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => x && !x.deleted); } catch(e){}
+        let accounts = []; try { accounts = (JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => x && !x.deleted); } catch(e){}
+        
         if (typeof ALL_ACCOUNTS !== 'undefined' && Array.isArray(ALL_ACCOUNTS)) {
-            const found = ALL_ACCOUNTS.find(a => a.name === accVal || a.id === accVal);
-            if (found) {
-                const bal = parseFloat(found.opening_balance || found.openingBalance || 0);
-                if (found.balance_type === 'credit' || found.balanceType === 'credit') {
-                    intrinsicBal = -bal;
+            accounts = accounts.concat(ALL_ACCOUNTS);
+        }
+
+        let masterRec = custs.find(x => x && (x.id === accVal || x.id === cleanFilter || x.name === accVal)) 
+                     || sups.find(x => x && (x.id === accVal || x.id === cleanFilter || x.name === accVal)) 
+                     || banks.find(x => x && (x.id === accVal || x.id === cleanFilter || x.name === accVal)) 
+                     || safes.find(x => x && (x.id === accVal || x.id === cleanFilter || x.name === accVal))
+                     || accounts.find(x => x && (x.id === accVal || x.id === cleanFilter || x.code === cleanFilter || x.name === accVal));
+        
+        let intrinsicBal = 0;
+        let currency = 'SDG';
+        let exchangeRate = 0;
+
+        if (masterRec) {
+            let opDebit = parseFloat(masterRec.openingDebit || masterRec.debit || 0);
+            let opCredit = parseFloat(masterRec.openingCredit || masterRec.credit || 0);
+            let rawBal = parseFloat(masterRec.openingBalance || masterRec.opening_balance || masterRec.balance || 0);
+            
+            if (opDebit > 0 || opCredit > 0) {
+                intrinsicBal = opDebit - opCredit;
+            } else if (rawBal !== 0) {
+                if (masterRec.balance_type === 'credit' || masterRec.balanceType === 'credit') {
+                    intrinsicBal = -Math.abs(rawBal);
                 } else {
-                    intrinsicBal = bal;
+                    intrinsicBal = Math.abs(rawBal);
                 }
             }
+            currency = masterRec.currency || 'SDG';
+            exchangeRate = parseFloat(masterRec.exchangeRate || masterRec.exRate || masterRec.rate || 0);
         }
+
+        if (!exchangeRate || exchangeRate <= 0) {
+            exchangeRate = usdRate;
+        }
+
+        let opDebitLoc = intrinsicBal > 0 ? intrinsicBal : 0;
+        let opCreditLoc = intrinsicBal < 0 ? Math.abs(intrinsicBal) : 0;
+
+        let opDebitFc = 0;
+        let opCreditFc = 0;
+        let opBalFc = 0;
+
+        if (currency === 'USD') {
+            opDebitFc = opDebitLoc;
+            opCreditFc = opCreditLoc;
+            opBalFc = intrinsicBal;
+            opDebitLoc = opDebitFc * exchangeRate;
+            opCreditLoc = opCreditFc * exchangeRate;
+            intrinsicBal = opBalFc * exchangeRate;
+        } else {
+            opDebitFc = exchangeRate > 0 ? (opDebitLoc / exchangeRate) : 0;
+            opCreditFc = exchangeRate > 0 ? (opCreditLoc / exchangeRate) : 0;
+            opBalFc = exchangeRate > 0 ? (intrinsicBal / exchangeRate) : 0;
+        }
+
+        opInfo = {
+            intrinsicBal,
+            opDebitLoc,
+            opCreditLoc,
+            opDebitFc,
+            opCreditFc,
+            opBalFc,
+            exchangeRate,
+            currency
+        };
     }
 
     // Separate based on dates first
@@ -246,10 +321,11 @@ function calculateLedgerTxns() {
     });
 
     let runningBal = 0;
+    let runningBalFc = 0;
 
     // Handle Opening Balance
     if (accVal !== 'ALL') {
-        let hasOpening = (intrinsicBal !== 0);
+        let hasOpening = (opInfo.intrinsicBal !== 0);
         let hasPrior = (currentDateMode !== 'all' && priorTxns.length > 0 && fromDate);
         
         let priorSum = 0;
@@ -259,14 +335,18 @@ function calculateLedgerTxns() {
         if (txns.length > 0) opDate = txns.reduce((min, t) => t.date < min ? t.date : min, txns[0].date);
 
         if (hasOpening || currentDateMode === 'all' || !hasPrior) {
-            let opDebit = intrinsicBal > 0 ? intrinsicBal : 0;
-            let opCredit = intrinsicBal < 0 ? Math.abs(intrinsicBal) : 0;
-            
             currentTxns.unshift({
                 date: opDate, time: '', ref: 'OPENING', type: 'opening', typeLabel: 'افتتاحي',
                 account: accVal, counterAccount: '-', statement: 'رصيد افتتاحي', additionalNote: 'رصيد افتتاحي',
-                debit: opDebit, credit: opCredit, costCenter: '', 
-                currency: 'SDG', debitForeign: 0, creditForeign: 0, balance: 0,
+                debit: opInfo.opDebitLoc, 
+                credit: opInfo.opCreditLoc, 
+                debitForeign: opInfo.opDebitFc, 
+                creditForeign: opInfo.opCreditFc, 
+                exchangeRate: opInfo.exchangeRate, 
+                costCenter: '', 
+                currency: opInfo.currency, 
+                balance: opInfo.intrinsicBal,
+                balanceForeign: opInfo.opBalFc,
                 isOpening: true
             });
         }
@@ -274,12 +354,15 @@ function calculateLedgerTxns() {
         if (hasPrior && priorSum !== 0) {
             let preDebit = priorSum > 0 ? priorSum : 0;
             let preCredit = priorSum < 0 ? Math.abs(priorSum) : 0;
+            let preDebitFc = opInfo.exchangeRate > 0 ? (preDebit / opInfo.exchangeRate) : 0;
+            let preCreditFc = opInfo.exchangeRate > 0 ? (preCredit / opInfo.exchangeRate) : 0;
             
             currentTxns.unshift({
                 date: fromDate, time: '', ref: 'PRE-PERIOD', type: 'opening', typeLabel: 'افتتاحي',
                 account: accVal, counterAccount: '-', statement: 'رصيد ما قبل الفترة', additionalNote: 'رصيد ما قبل الفترة',
                 debit: preDebit, credit: preCredit, costCenter: '', 
-                currency: 'SDG', debitForeign: 0, creditForeign: 0, balance: 0,
+                debitForeign: preDebitFc, creditForeign: preCreditFc, exchangeRate: opInfo.exchangeRate,
+                currency: 'SDG', balance: 0, balanceForeign: 0,
                 isOpening: true
             });
         }
@@ -288,9 +371,18 @@ function calculateLedgerTxns() {
     currentTxns.forEach(t => {
         t.debit = t.debit || 0;
         t.credit = t.credit || 0;
-        runningBal += t.debit;
-        runningBal -= t.credit;
-        t.balance = runningBal;
+        t.debitForeign = t.debitForeign || 0;
+        t.creditForeign = t.creditForeign || 0;
+
+        if (t.isOpening) {
+            runningBal = t.balance !== undefined ? t.balance : (t.debit - t.credit);
+            runningBalFc = t.balanceForeign !== undefined ? t.balanceForeign : (t.debitForeign - t.creditForeign);
+        } else {
+            runningBal += (t.debit - t.credit);
+            runningBalFc += (t.debitForeign - t.creditForeign);
+            t.balance = runningBal;
+            t.balanceForeign = runningBalFc;
+        }
     });
 
     return currentTxns;

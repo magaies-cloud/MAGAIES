@@ -1762,27 +1762,78 @@ function runReport() {
             if (isAM && h === 12) h = 0;
             return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
         };
-        // ── Load Opening Balance (Intrinsic Balance) from Master Data ──
+        // ── Load Opening Balance (Intrinsic Balance) & Foreign Dollar Rates from Master Data ──
         let intrinsicBal = 0;
         let intrinsicBalFc = 0;
+        let entityCurrency = 'SDG';
+        let entityExRate = 0;
+
+        let usdRate = 600;
+        if (typeof window.getExchangeRateForCurrency === 'function') {
+            const r = window.getExchangeRateForCurrency('USD');
+            if (r && r > 0) usdRate = parseFloat(r);
+        } else {
+            try {
+                const rates = JSON.parse(localStorage.getItem('erp_currency_rates_v1')) || {};
+                if (rates['USD'] && rates['USD'] > 0) usdRate = parseFloat(rates['USD']);
+            } catch(e){}
+        }
+
         if (accVal !== 'ALL') {
             const cleanId = accVal.replace(/^(cust|supp|bank|safe|exp)-/, '');
             
-            const custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
-            const sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
-            const banks = (JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => !x.deleted);
-            const safes = (JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => !x.deleted);
+            const custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => x && !x.deleted);
+            const sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => x && !x.deleted);
+            const banks = (JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => x && !x.deleted);
+            const safes = (JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => x && !x.deleted);
+            const accounts = (JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => x && !x.deleted);
             
-            let masterRec = custs.find(x => x.id === accVal || x.id === cleanId) 
-                         || sups.find(x => x.id === accVal || x.id === cleanId) 
-                         || banks.find(x => x.id === accVal || x.id === cleanId) 
-                         || safes.find(x => x.id === accVal || x.id === cleanId);
+            let masterRec = custs.find(x => x && (x.id === accVal || x.id === cleanId || x.name === accVal)) 
+                         || sups.find(x => x && (x.id === accVal || x.id === cleanId || x.name === accVal)) 
+                         || banks.find(x => x && (x.id === accVal || x.id === cleanId || x.name === accVal)) 
+                         || safes.find(x => x && (x.id === accVal || x.id === cleanId || x.name === accVal))
+                         || accounts.find(x => x && (x.id === accVal || x.id === cleanId || x.code === cleanId || x.name === accVal));
             
             if (masterRec) {
-                const opDebit = parseNum(masterRec.openingDebit || 0);
-                const opCredit = parseNum(masterRec.openingCredit || 0);
-                intrinsicBal = opDebit - opCredit;
+                const opDebit = parseNum(masterRec.openingDebit || masterRec.debit || 0);
+                const opCredit = parseNum(masterRec.openingCredit || masterRec.credit || 0);
+                const rawBal = parseNum(masterRec.openingBalance || masterRec.opening_balance || masterRec.balance || 0);
+
+                if (opDebit > 0 || opCredit > 0) {
+                    intrinsicBal = opDebit - opCredit;
+                } else if (rawBal !== 0) {
+                    if (masterRec.balance_type === 'credit' || masterRec.balanceType === 'credit') {
+                        intrinsicBal = -Math.abs(rawBal);
+                    } else {
+                        intrinsicBal = Math.abs(rawBal);
+                    }
+                }
+                entityCurrency = masterRec.currency || 'SDG';
+                entityExRate = parseNum(masterRec.exchangeRate || masterRec.exRate || masterRec.rate || 0);
             }
+        }
+
+        if (!entityExRate || entityExRate <= 0) {
+            entityExRate = usdRate;
+        }
+
+        let opDebitLoc = intrinsicBal > 0 ? intrinsicBal : 0;
+        let opCreditLoc = intrinsicBal < 0 ? Math.abs(intrinsicBal) : 0;
+
+        let opDebitFc = 0;
+        let opCreditFc = 0;
+
+        if (entityCurrency === 'USD') {
+            opDebitFc = opDebitLoc;
+            opCreditFc = opCreditLoc;
+            intrinsicBalFc = intrinsicBal;
+            opDebitLoc = opDebitFc * entityExRate;
+            opCreditLoc = opCreditFc * entityExRate;
+            intrinsicBal = intrinsicBalFc * entityExRate;
+        } else {
+            opDebitFc = entityExRate > 0 ? (opDebitLoc / entityExRate) : 0;
+            opCreditFc = entityExRate > 0 ? (opCreditLoc / entityExRate) : 0;
+            intrinsicBalFc = entityExRate > 0 ? (intrinsicBal / entityExRate) : 0;
         }
 
         // Compute running balance in chronological order (oldest first)
@@ -1800,14 +1851,15 @@ function runReport() {
 
         // Insert opening balance row if account-specific view
         if (accVal !== 'ALL' && (intrinsicBal !== 0 || chronological.length > 0)) {
-            const openingDebit = intrinsicBal > 0 ? intrinsicBal : 0;
-            const openingCredit = intrinsicBal < 0 ? Math.abs(intrinsicBal) : 0;
             chronological.unshift({
                 date: fromDate || '0000-00-00', time: '', ref: 'OPENING', type: 'opening',
                 typeLabel: 'رصيد افتتاحي', account: accVal, counterAccount: '-',
                 statement: 'الرصيد الافتتاحي',
-                debit: openingDebit, credit: openingCredit,
-                costCenter: '', currency: 'SDG', isOpening: true, isPosted: true
+                debit: opDebitLoc, credit: opCreditLoc,
+                debitForeign: opDebitFc, creditForeign: opCreditFc,
+                exchangeRate: entityExRate,
+                balance: intrinsicBal, balanceForeign: intrinsicBalFc,
+                costCenter: '', currency: entityCurrency, isOpening: true, isPosted: true
             });
         }
 
@@ -1815,9 +1867,8 @@ function runReport() {
             if (!t) return;
             if (accVal !== 'ALL') {
                 if (t.isOpening) {
-                    // Opening row: balance = intrinsicBal (already set as runningBal)
-                    t.balance = runningBal;
-                    t.balanceForeign = runningBalFc;
+                    t.balance = t.balance !== undefined ? t.balance : runningBal;
+                    t.balanceForeign = t.balanceForeign !== undefined ? t.balanceForeign : runningBalFc;
                 } else {
                     runningBal += (t.debit || 0) - (t.credit || 0);
                     runningBalFc += (t.debitForeign || t.dr_foreign || 0) - (t.creditForeign || t.cr_foreign || 0);
