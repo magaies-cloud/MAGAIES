@@ -2222,7 +2222,7 @@ function submitInvoice(ignoreWarnings = false) {
     };
 
     const postingMode = window.getPostingMode ? window.getPostingMode() : 'auto';
-    const shouldApplyEffects = (postingMode === 'auto');
+    const shouldApplyEffects = (postingMode === 'auto' && saleType !== 'proforma');
 
     // Set status based on posting mode
     if (shouldApplyEffects) {
@@ -2246,17 +2246,26 @@ function submitInvoice(ignoreWarnings = false) {
     if (shouldApplyEffects) {
         // Update Bank/Safe balance based on new payment fields
         let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+        let safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
 
         if (paymentMethod === 'hybrid' || paymentMethod === 'multipay') {
             // Subtract cash portion (always in local base currency)
             const localCashAmt = isBase ? cashAmt : cashAmt * rate;
             if (cashAmt > 0) {
                 const paymentAccountId = document.getElementById('hdr-payment-account').value;
-                const bIdx = banks.findIndex(b => b.id === paymentAccountId);
+                let bIdx = banks.findIndex(b => b.id === paymentAccountId);
+                let sIdx = safes.findIndex(s => s.id === paymentAccountId);
+                
                 if (bIdx > -1) {
                     banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - localCashAmt;
                     data.paymentAccountId = paymentAccountId;
                     usedAccountName = banks[bIdx].name;
+                    localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+                } else if (sIdx > -1) {
+                    safes[sIdx].currentBalance = (parseFloat(safes[sIdx].currentBalance) || 0) - localCashAmt;
+                    data.paymentAccountId = paymentAccountId;
+                    usedAccountName = safes[sIdx].name;
+                    localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
                 }
             }
             // Subtract bank transfers (always in local base currency)
@@ -2268,16 +2277,23 @@ function submitInvoice(ignoreWarnings = false) {
                         banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - localBtAmt;
                     }
                 });
+                localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
             }
-            localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
         } else if (paymentMethod !== 'credit') {
             const paymentAccountId = document.getElementById('hdr-payment-account').value;
-            const bIdx = banks.findIndex(b => b.id === paymentAccountId);
+            let bIdx = banks.findIndex(b => b.id === paymentAccountId);
+            let sIdx = safes.findIndex(s => s.id === paymentAccountId);
+            
             if (bIdx > -1) {
                 banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - localGrandAmount;
                 localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
                 data.paymentAccountId = paymentAccountId;
                 usedAccountName = banks[bIdx].name;
+            } else if (sIdx > -1) {
+                safes[sIdx].currentBalance = (parseFloat(safes[sIdx].currentBalance) || 0) - localGrandAmount;
+                localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
+                data.paymentAccountId = paymentAccountId;
+                usedAccountName = safes[sIdx].name;
             }
         }
 
@@ -2759,12 +2775,18 @@ function revertOldInvoiceEffects(currentInvNo) {
     // 2. Revert Bank/Safe Balance
     if (oldInv.paymentMethod === 'hybrid' || oldInv.paymentMethod === 'multipay') {
         let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+        let safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
+        
         // Revert cash portion
         if (oldInv.cashAmount > 0 && oldInv.paymentAccountId) {
             const bIdx = banks.findIndex(b => b.id === oldInv.paymentAccountId);
+            const sIdx = safes.findIndex(s => s.id === oldInv.paymentAccountId);
+            
+            const localCashAmt = isOldBase ? oldInv.cashAmount : oldInv.cashAmount * oldRate;
             if (bIdx > -1) {
-                const localCashAmt = isOldBase ? oldInv.cashAmount : oldInv.cashAmount * oldRate;
                 banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) + localCashAmt;
+            } else if (sIdx > -1) {
+                safes[sIdx].currentBalance = (parseFloat(safes[sIdx].currentBalance) || 0) + localCashAmt;
             }
         }
         // Revert bank transfers
@@ -2778,13 +2800,22 @@ function revertOldInvoiceEffects(currentInvNo) {
             });
         }
         localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+        localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
     } else if (oldInv.paymentMethod !== 'credit' && oldInv.paymentAccountId) {
         let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+        let safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
+        
         const bIdx = banks.findIndex(b => b.id === oldInv.paymentAccountId);
+        const sIdx = safes.findIndex(s => s.id === oldInv.paymentAccountId);
+        
         if (bIdx > -1) {
             let currentBalance = parseFloat(banks[bIdx].currentBalance) || 0;
             banks[bIdx].currentBalance = currentBalance + oldGrandLoc; // Revert payment
             localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+        } else if (sIdx > -1) {
+            let currentBalance = parseFloat(safes[sIdx].currentBalance) || 0;
+            safes[sIdx].currentBalance = currentBalance + oldGrandLoc; // Revert payment
+            localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
         }
     }
 

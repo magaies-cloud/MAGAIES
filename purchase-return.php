@@ -681,6 +681,45 @@
             allPurchases.push(retInv);
             localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
 
+            // --- Apply Inventory Effects (Decrease stock because we return to supplier) ---
+            let inventory = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+            let itemsDb = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+            
+            newItems.forEach(retItem => {
+                const dbItem = itemsDb.find(i => String(i.id) === String(retItem.itemId));
+                if (dbItem) {
+                    const returnQtyNum = Math.abs(retItem.quantity);
+                    let unitRate = 1;
+                    if (retItem.unitId !== dbItem.primaryUnit) {
+                        const alt = (dbItem.alternativeUnits || []).find(u => u.unitId === retItem.unitId);
+                        if (alt) unitRate = parseFloat(alt.conversionRate) || 1;
+                    }
+                    const baseQty = returnQtyNum * unitRate;
+                    
+                    const invRec = inventory.find(x => String(x.itemId) === String(retItem.itemId) && String(x.warehouseId) === String(currentInvoice.warehouse));
+                    if (invRec) {
+                        invRec.quantity = (parseFloat(invRec.quantity) || 0) - baseQty;
+                    }
+                    dbItem.stock = (parseFloat(dbItem.stock) || 0) - baseQty;
+                }
+            });
+            localStorage.setItem('erp_inventory_v1', JSON.stringify(inventory));
+            localStorage.setItem('erp_items_v1', JSON.stringify(itemsDb));
+
+            // --- Apply Supplier Effects ---
+            let suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+            let custId = currentInvoice.customer || currentInvoice.customerId || currentInvoice.supplierId;
+            if (custId && custId !== 'walk-in') {
+                const sIdx = suppliers.findIndex(s => s.id === custId);
+                if (sIdx > -1) {
+                    const exRate = parseFloat(currentInvoice.exchangeRate) || parseFloat(currentInvoice.currencyRate) || 1;
+                    const grandLocal = grand * exRate;
+                    let currentBalance = parseFloat(suppliers[sIdx].currentBalance) || 0;
+                    suppliers[sIdx].currentBalance = currentBalance - grandLocal; 
+                    localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
+                }
+            }
+
             showToast(`تم حفظ المردودات بنجاح برقم ${retInv.id}`, 'success');
             
             setTimeout(() => {
