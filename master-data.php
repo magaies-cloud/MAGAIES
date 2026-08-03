@@ -2907,16 +2907,31 @@ function openSafeForm() {
                 rates = JSON.parse(localStorage.getItem('erp_currency_rates_v1')) || {};
             } catch(e) {}
             
+            let manualUsd = 0;
+            try {
+                const sysSettings = JSON.parse(localStorage.getItem('erp_settings_v1')) || {};
+                manualUsd = parseFloat(sysSettings.rateUSD || sysSettings.usd_rate || sysSettings.usdRate || sysSettings.exchangeRate || 0);
+            } catch(e){}
+
+            if (!manualUsd && typeof window.getExchangeRateForCurrency === 'function') {
+                const sysUsd = window.getExchangeRateForCurrency('USD');
+                if (sysUsd && sysUsd > 1) manualUsd = sysUsd;
+            }
+
+            if (!manualUsd) {
+                manualUsd = parseFloat(localStorage.getItem('erp_rate_usd') || 0);
+            }
+
             const defaults = {
                 'SDG': 1,
-                'USD': 600,
+                'USD': manualUsd > 0 ? manualUsd : 600,
                 'SAR': 160,
                 'AED': 163,
                 'EGP': 12
             };
             
             for (let cur in defaults) {
-                if (rates[cur] === undefined) {
+                if (rates[cur] === undefined || (cur === 'USD' && manualUsd > 0)) {
                     rates[cur] = defaults[cur];
                 }
             }
@@ -3005,8 +3020,8 @@ function openSafeForm() {
             
             if (cur !== 'SDG' && cur !== '') {
                 if (exGroup) exGroup.style.display = 'block';
-                if (exLabel) exLabel.innerHTML = `💵 سعر الصرف (قيمة 1 ${cur} مقابل العملة المحلية SDG)`;
-                if (!exInput.value || exInput.value == 1) {
+                if (exLabel) exLabel.innerHTML = `💵 سعر الصرف (قيمة 1 ${cur} مقابل العملة المحلية SDG - مسجل بالإعدادات: ${defaultRate.toLocaleString()})`;
+                if (!exInput.value || exInput.value == 1 || exInput.value == 600) {
                     exInput.value = defaultRate;
                 }
             } else {
