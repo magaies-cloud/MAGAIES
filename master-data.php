@@ -303,6 +303,45 @@
 
         table.pro-table { font-size: 1rem !important; }
 
+        /* --- تكبير خطوط الأرقام (في الحقول والجداول والأرصدة) بدرجتين إضافيتين --- */
+        input[type="number"],
+        input[type="tel"],
+        input[type="date"],
+        input[step],
+        input.num-input,
+        .num-val,
+        [id*="balance"],
+        [id*="price"],
+        [id*="limit"],
+        [id*="phone"],
+        [id*="qty"],
+        [id*="rate"],
+        [id*="code"],
+        [id*="whatsapp"] {
+            font-size: 1.38rem !important;   /* تكبير الأرقام بدرجتين إضافيتين لبروز ووضوح فائق (~22px) */
+            font-weight: 800 !important;     /* خط عريض جداً للأرقام */
+            font-family: 'Outfit', 'Tajawal', sans-serif !important;
+            font-variant-numeric: tabular-nums !important;
+            letter-spacing: 0.5px !important;
+        }
+
+        table.pro-table td,
+        table.pro-table td strong,
+        .tot-val, 
+        .val {
+            font-size: 1.15rem !important;
+            font-weight: 700 !important;
+            font-variant-numeric: tabular-nums !important;
+        }
+
+        table input[type="number"],
+        table.pro-table input[type="number"] {
+            font-size: 1.25rem !important;
+            font-weight: 800 !important;
+            font-family: 'Outfit', 'Tajawal', sans-serif !important;
+        }
+
+
         
         .split-container {
             display: grid;
