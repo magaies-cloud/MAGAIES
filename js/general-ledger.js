@@ -1865,13 +1865,32 @@ function runReport() {
 
         chronological.forEach(t => {
             if (!t) return;
+            let debLoc = parseNum(t.debit || t.dr || 0);
+            let credLoc = parseNum(t.credit || t.cr || 0);
+            let rate = parseNum(t.exchangeRate || t.exRate || t.rate || entityExRate || 1);
+            if (!rate || rate <= 0) rate = entityExRate || 1;
+            t.exchangeRate = rate;
+
+            let df = parseNum(t.debitForeign || t.dr_foreign || 0);
+            let cf = parseNum(t.creditForeign || t.cr_foreign || 0);
+
+            if (debLoc > 0 && (df === 0 || df === debLoc) && rate > 1) {
+                df = debLoc / rate;
+            }
+            if (credLoc > 0 && (cf === 0 || cf === credLoc) && rate > 1) {
+                cf = credLoc / rate;
+            }
+
+            t.debitForeign = df;
+            t.creditForeign = cf;
+
             if (accVal !== 'ALL') {
                 if (t.isOpening) {
                     t.balance = t.balance !== undefined ? t.balance : runningBal;
                     t.balanceForeign = t.balanceForeign !== undefined ? t.balanceForeign : runningBalFc;
                 } else {
-                    runningBal += (t.debit || 0) - (t.credit || 0);
-                    runningBalFc += (t.debitForeign || t.dr_foreign || 0) - (t.creditForeign || t.cr_foreign || 0);
+                    runningBal += (debLoc - credLoc);
+                    runningBalFc += (df - cf);
                     t.balance = runningBal;
                     t.balanceForeign = runningBalFc;
                 }

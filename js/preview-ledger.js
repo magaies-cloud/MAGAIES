@@ -39,13 +39,43 @@ function getRawFieldValue(row, field) {
     if (field === 'statement') return row.statement || row.description || row.desc || row.notes || '';
     if (field === 'counterAccount') return row.counterAccount || row.accountName || row.account || '-';
     if (field === 'typeLabel') return row.typeLabel || row.type || '-';
-    if (field === 'debit') return parseFloat(row.debit || row.dr || 0);
-    if (field === 'credit') return parseFloat(row.credit || row.cr || 0);
-    if (field === 'debitForeign') return parseFloat(row.debitForeign || row.dr_foreign || 0);
-    if (field === 'creditForeign') return parseFloat(row.creditForeign || row.cr_foreign || 0);
-    if (field === 'exchangeRate') return parseFloat(row.exchangeRate || row.exRate || row.rate || 0);
-    if (field === 'balance') return parseFloat(row.balance !== undefined ? row.balance : ((row.debit || 0) - (row.credit || 0)));
-    if (field === 'balanceForeign') return parseFloat(row.balanceForeign !== undefined ? row.balanceForeign : ((row.debitForeign || 0) - (row.creditForeign || 0)));
+    
+    let debLoc = parseFloat(row.debit || row.dr || 0);
+    let credLoc = parseFloat(row.credit || row.cr || 0);
+    let exRate = parseFloat(row.exchangeRate || row.exRate || row.rate || 0);
+    
+    if (field === 'debit') return debLoc;
+    if (field === 'credit') return credLoc;
+    if (field === 'exchangeRate') return exRate > 0 ? exRate : '-';
+
+    if (field === 'debitForeign') {
+        let df = parseFloat(row.debitForeign || row.dr_foreign || 0);
+        if ((df === 0 || df === debLoc) && debLoc > 0 && exRate > 1) {
+            df = debLoc / exRate;
+        }
+        return df;
+    }
+
+    if (field === 'creditForeign') {
+        let cf = parseFloat(row.creditForeign || row.cr_foreign || 0);
+        if ((cf === 0 || cf === credLoc) && credLoc > 0 && exRate > 1) {
+            cf = credLoc / exRate;
+        }
+        return cf;
+    }
+
+    if (field === 'balance') {
+        return parseFloat(row.balance !== undefined ? row.balance : (debLoc - credLoc));
+    }
+
+    if (field === 'balanceForeign') {
+        let bf = parseFloat(row.balanceForeign !== undefined ? row.balanceForeign : ((row.debitForeign || 0) - (row.creditForeign || 0)));
+        if ((bf === 0 || Math.abs(bf) === Math.abs(row.balance || 0)) && row.balance && exRate > 1) {
+            bf = row.balance / exRate;
+        }
+        return bf;
+    }
+
     if (field === 'additionalNote') return row.additionalNote || row.notes || row.costCenter || '';
     return row[field] !== undefined ? row[field] : '';
 }
@@ -369,10 +399,26 @@ function calculateLedgerTxns() {
     }
 
     currentTxns.forEach(t => {
-        t.debit = t.debit || 0;
-        t.credit = t.credit || 0;
-        t.debitForeign = t.debitForeign || 0;
-        t.creditForeign = t.creditForeign || 0;
+        t.debit = parseFloat(t.debit || 0);
+        t.credit = parseFloat(t.credit || 0);
+
+        let rate = parseFloat(t.exchangeRate || t.exRate || t.rate || opInfo.exchangeRate || 1);
+        if (!rate || rate <= 0) rate = opInfo.exchangeRate || 1;
+        t.exchangeRate = rate;
+
+        let df = parseFloat(t.debitForeign || t.dr_foreign || 0);
+        let cf = parseFloat(t.creditForeign || t.cr_foreign || 0);
+
+        // If local debit/credit is set and foreign amount is missing or equals local amount, calculate local / exchangeRate
+        if (t.debit > 0 && (df === 0 || df === t.debit) && rate > 1) {
+            df = t.debit / rate;
+        }
+        if (t.credit > 0 && (cf === 0 || cf === t.credit) && rate > 1) {
+            cf = t.credit / rate;
+        }
+
+        t.debitForeign = df;
+        t.creditForeign = cf;
 
         if (t.isOpening) {
             runningBal = t.balance !== undefined ? t.balance : (t.debit - t.credit);
