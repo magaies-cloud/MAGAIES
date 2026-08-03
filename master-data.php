@@ -193,7 +193,7 @@
             background: rgba(255, 255, 255, 0.04);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
-            border: 2.5px solid var(--tab-border-color, rgba(255, 255, 255, 0.12));
+            border: 3.8px solid var(--tab-border-color, rgba(255, 255, 255, 0.2)); /* زيادة سمك الحواف بـ 1.5 مرة (3.8px) */
             border-radius: 14px;
             padding: 11px 18px;
             font-size: 1.05rem;
@@ -206,11 +206,51 @@
             white-space: nowrap;
             overflow: hidden;
             transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             z-index: 1;
         }
 
-        /* الإيماءة الضوئية الساطعة على سطح الزر عند التمرير */
+        /* تأثير لمعة الجليتر البرّاقة الجذابة في الداخل */
+        .md-tab-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(circle at 20% 35%, rgba(255, 255, 255, 0.95) 1.5px, transparent 1.5px),
+                radial-gradient(circle at 75% 25%, rgba(255, 255, 255, 0.85) 1.2px, transparent 1.2px),
+                radial-gradient(circle at 45% 70%, rgba(255, 255, 255, 0.9) 1.5px, transparent 1.5px),
+                radial-gradient(circle at 85% 75%, rgba(255, 255, 255, 0.8) 1.2px, transparent 1.2px),
+                linear-gradient(135deg, transparent 35%, rgba(255, 255, 255, 0.22) 50%, transparent 65%);
+            background-size: 55px 55px, 40px 40px, 48px 48px, 42px 42px, 200% 200%;
+            background-repeat: repeat, repeat, repeat, repeat, no-repeat;
+            opacity: 0.55;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            z-index: 2;
+            animation: glitterShimmer 3.5s infinite linear;
+        }
+
+        .md-tab-btn:hover::after,
+        .md-tab-btn.active::after {
+            opacity: 0.95;
+            animation: glitterShimmer 2.2s infinite linear;
+        }
+
+        @keyframes glitterShimmer {
+            0% {
+                background-position: 0 0, 0 0, 0 0, 0 0, -100% -100%;
+                filter: brightness(1) drop-shadow(0 0 1px #fff);
+            }
+            50% {
+                filter: brightness(1.75) drop-shadow(0 0 3px #fff);
+            }
+            100% {
+                background-position: 55px 55px, -40px 40px, 48px -48px, -42px -42px, 200% 200%;
+                filter: brightness(1) drop-shadow(0 0 1px #fff);
+            }
+        }
+
+        /* الإيماءة الضوئية الساطعة العابرة على سطح الزر */
         .md-tab-btn::before {
             content: '';
             position: absolute;
@@ -220,7 +260,7 @@
             transform: skewX(-25deg);
             transition: 0.5s;
             pointer-events: none;
-            z-index: 2;
+            z-index: 3;
         }
         .md-tab-btn:hover::before {
             left: 140%;
@@ -233,6 +273,8 @@
             display: inline-block;
             transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
             filter: drop-shadow(0 2px 5px rgba(0,0,0,0.4));
+            position: relative;
+            z-index: 4;
         }
 
         .md-tab-btn:hover {
@@ -248,7 +290,7 @@
             transform: scale(1.35) rotate(8deg);
         }
 
-        /* حالة التحديد الزر النشط (Active Tab) مع الإضاءة العاكسة الخاطفة للأبصار */
+        /* حالة التحديد الزر النشط (Active Tab) مع الحفاظ الكلي على الإضاءة العاكسة الخاطفة للأبصار */
         .md-tab-btn.active {
             color: #ffffff !important;
             background: var(--tab-active-bg) !important;
