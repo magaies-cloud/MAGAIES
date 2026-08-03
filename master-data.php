@@ -303,7 +303,7 @@
 
         table.pro-table { font-size: 1rem !important; }
 
-        /* --- تكبير خطوط الأرقام (في الحقول والجداول والأرصدة) بدرجتين إضافيتين --- */
+        /* --- تكبير خطوط الأرقام (في الحقول والجداول والأرصدة) بدرجتين إضافيتين زيادة (حجم فائق البروز والوضوح) --- */
         input[type="number"],
         input[type="tel"],
         input[type="date"],
@@ -318,28 +318,30 @@
         [id*="rate"],
         [id*="code"],
         [id*="whatsapp"] {
-            font-size: 1.38rem !important;   /* تكبير الأرقام بدرجتين إضافيتين لبروز ووضوح فائق (~22px) */
-            font-weight: 800 !important;     /* خط عريض جداً للأرقام */
+            font-size: 1.55rem !important;   /* تكبير الأرقام بدرجتين إضافيتين زيادة (~25px) لبروز ووضوح فائق ومريح للعين */
+            font-weight: 900 !important;     /* خط عريض وفائق البروز للأرقام */
             font-family: 'Outfit', 'Tajawal', sans-serif !important;
             font-variant-numeric: tabular-nums !important;
             letter-spacing: 0.5px !important;
+            min-height: 52px !important;
         }
 
         table.pro-table td,
         table.pro-table td strong,
         .tot-val, 
         .val {
-            font-size: 1.15rem !important;
-            font-weight: 700 !important;
+            font-size: 1.28rem !important;   /* تكبير أرقام الخلايا والأرصدة والحدود في الجداول (~20.5px) */
+            font-weight: 800 !important;
             font-variant-numeric: tabular-nums !important;
         }
 
         table input[type="number"],
         table.pro-table input[type="number"] {
-            font-size: 1.25rem !important;
-            font-weight: 800 !important;
+            font-size: 1.38rem !important;   /* تكبير أرقام الحقول داخل الجداول والمصفوفات (~22px) */
+            font-weight: 900 !important;
             font-family: 'Outfit', 'Tajawal', sans-serif !important;
         }
+
 
 
         
@@ -532,9 +534,8 @@
                             <div class="input-group"><label>رقم الواتساب</label><input type="text" id="cust-whatsapp" placeholder="00249123000000"></div>
                             <div class="input-group"><label>الايميل (البريد الإلكتروني)</label><input type="email" id="cust-email" placeholder="example@email.com"></div>
                             <div class="input-group" style="grid-column: span 2;"><label>العنوان</label><input type="text" id="cust-address" placeholder="مثال: الخرطوم، مقاييس"></div>
-                            <div class="input-group"><label>العملة</label><select id="cust-currency" class="system-currency-select"></select></div>
-                            <!-- سعر الصرف يُسحب تلقائياً من الإعدادات -->
-                            <input type="hidden" id="cust-ex-rate" value="1">
+                            <div class="input-group"><label>العملة</label><select id="cust-currency" class="system-currency-select" onchange="updateCustExchangeRate()"></select></div>
+                            <div class="input-group" id="cust-ex-rate-group" style="display: none;"><label id="cust-ex-rate-label" style="color:#38bdf8; font-weight:800;">💵 سعر الصرف (مقابل المحلية)</label><input type="number" id="cust-ex-rate" step="any" value="1" placeholder="سعر الصرف مقابل SDG" style="font-weight:800; color:#38bdf8;"></div>
                             <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="cust-tax" placeholder="الرقم الضريبي للعميل"></div>
                             <input type="hidden" id="cust-account-no" value="">
                             <div class="input-group">
@@ -599,9 +600,8 @@
                             <div class="input-group"><label>رقم الواتساب</label><input type="text" id="sup-whatsapp" placeholder="00249123000000"></div>
                             <div class="input-group"><label>الايميل (البريد الإلكتروني)</label><input type="email" id="sup-email" placeholder="example@email.com"></div>
                             <div class="input-group" style="grid-column: span 2;"><label>العنوان</label><input type="text" id="sup-address" placeholder="موقع المصنع / المعرض"></div>
-                            <div class="input-group"><label>العملة</label><select id="sup-currency" class="system-currency-select"></select></div>
-                            <!-- سعر الصرف يُسحب تلقائياً من الإعدادات -->
-                            <input type="hidden" id="sup-ex-rate" value="1">
+                            <div class="input-group"><label>العملة</label><select id="sup-currency" class="system-currency-select" onchange="updateSupExchangeRate()"></select></div>
+                            <div class="input-group" id="sup-ex-rate-group" style="display: none;"><label id="sup-ex-rate-label" style="color:#38bdf8; font-weight:800;">💵 سعر الصرف (مقابل المحلية)</label><input type="number" id="sup-ex-rate" step="any" value="1" placeholder="سعر الصرف مقابل SDG" style="font-weight:800; color:#38bdf8;"></div>
                             <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="sup-tax" placeholder="الرقم الضريبي للمورد"></div>
                             <input type="hidden" id="sup-account-no" value="">
                             <div class="input-group">
@@ -647,7 +647,8 @@
                             <div class="input-group bank-only-field"><label>IBAN</label><input type="text" id="bank-iban" placeholder="SA..."></div>
                             <div class="input-group bank-only-field"><label>SWIFT</label><input type="text" id="bank-swift" placeholder="BOKS..."></div>
                             
-                            <div class="input-group"><label>العملة</label><select id="bank-currency" class="system-currency-select"><option value="SDG">SDG</option><option value="USD">USD</option></select></div>
+                            <div class="input-group"><label>العملة</label><select id="bank-currency" class="system-currency-select" onchange="updateBankExchangeRate()"></select></div>
+                            <div class="input-group" id="bank-ex-rate-group" style="display: none;"><label id="bank-ex-rate-label" style="color:#38bdf8; font-weight:800;">💵 سعر الصرف (مقابل المحلية)</label><input type="number" id="bank-ex-rate" step="any" value="1" placeholder="سعر الصرف مقابل SDG" style="font-weight:800; color:#38bdf8;"></div>
                             
                             
                             <div class="input-group"><label>درجة السرية</label><select id="bank-confidentiality"><option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option></select></div>
@@ -693,7 +694,8 @@
                             
                             
                             <div class="input-group" id="safe-responsible-group"><label>المسؤول</label><select id="safe-responsible"><option value="">-- اختر --</option></select></div>
-                            <div class="input-group"><label>العملة</label><select id="safe-currency" class="system-currency-select"><option value="SDG">SDG</option><option value="USD">USD</option></select></div>
+                            <div class="input-group"><label>العملة</label><select id="safe-currency" class="system-currency-select" onchange="updateSafeExchangeRate()"></select></div>
+                            <div class="input-group" id="safe-ex-rate-group" style="display: none;"><label id="safe-ex-rate-label" style="color:#38bdf8; font-weight:800;">💵 سعر الصرف (مقابل المحلية)</label><input type="number" id="safe-ex-rate" step="any" value="1" placeholder="سعر الصرف مقابل SDG" style="font-weight:800; color:#38bdf8;"></div>
                             <div class="input-group" id="safe-max-limit-group"><label>الحد الأعلى</label><input type="number" id="safe-max-limit" placeholder="0.00"></div>
                             <div class="input-group" id="safe-min-limit-group"><label>الحد الأدنى</label><input type="number" id="safe-min-limit" placeholder="0.00"></div>
                             <div class="input-group"><label>درجة السرية</label><select id="safe-confidentiality"><option value="1">1 (الأقل سرية)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 (الأعلى سرية)</option></select></div>
@@ -2751,19 +2753,79 @@ function openSafeForm() {
             alert('✅ تم حفظ معاملات العملات بنجاح!');
         }
 
-        function updateCustExchangeRate() {
-            const cur = document.getElementById('cust-currency').value;
+        function populateSystemCurrencySelects() {
+            const selects = document.querySelectorAll('.system-currency-select');
             const rates = getCurrencyRates();
-            const rate = rates[cur] || 1;
-            document.getElementById('cust-ex-rate').value = rate;
+            const currencyLabels = {
+                'SDG': 'SDG - جنيه سوداني (محلي)',
+                'USD': 'USD - دولار أمريكي',
+                'SAR': 'SAR - ريال سعودي',
+                'AED': 'AED - درهم إماراتي',
+                'EGP': 'EGP - جنيه مصري'
+            };
+            selects.forEach(select => {
+                const currentVal = select.value;
+                select.innerHTML = '';
+                for (let cur in rates) {
+                    const opt = document.createElement('option');
+                    opt.value = cur;
+                    opt.textContent = currencyLabels[cur] || cur;
+                    select.appendChild(opt);
+                }
+                if (currentVal && rates[currentVal]) {
+                    select.value = currentVal;
+                }
+            });
+        }
+
+        function updateExchangeRateField(selectId, inputId, groupId, labelId) {
+            const curSelect = document.getElementById(selectId);
+            const exInput = document.getElementById(inputId);
+            const exGroup = document.getElementById(groupId);
+            const exLabel = document.getElementById(labelId);
+            if (!curSelect || !exInput) return;
+            
+            const cur = curSelect.value || 'SDG';
+            const rates = getCurrencyRates();
+            const defaultRate = rates[cur] || 1;
+            
+            if (cur !== 'SDG' && cur !== '') {
+                if (exGroup) exGroup.style.display = 'block';
+                if (exLabel) exLabel.innerHTML = `💵 سعر الصرف (قيمة 1 ${cur} مقابل العملة المحلية SDG)`;
+                if (!exInput.value || exInput.value == 1) {
+                    exInput.value = defaultRate;
+                }
+            } else {
+                if (exGroup) exGroup.style.display = 'none';
+                exInput.value = 1;
+            }
+        }
+
+        function updateCustExchangeRate() {
+            updateExchangeRateField('cust-currency', 'cust-ex-rate', 'cust-ex-rate-group', 'cust-ex-rate-label');
         }
 
         function updateSupExchangeRate() {
-            const cur = document.getElementById('sup-currency').value;
-            const rates = getCurrencyRates();
-            const rate = rates[cur] || 1;
-            document.getElementById('sup-ex-rate').value = rate;
+            updateExchangeRateField('sup-currency', 'sup-ex-rate', 'sup-ex-rate-group', 'sup-ex-rate-label');
         }
+
+        function updateBankExchangeRate() {
+            updateExchangeRateField('bank-currency', 'bank-ex-rate', 'bank-ex-rate-group', 'bank-ex-rate-label');
+        }
+
+        function updateSafeExchangeRate() {
+            updateExchangeRateField('safe-currency', 'safe-ex-rate', 'safe-ex-rate-group', 'safe-ex-rate-label');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                populateSystemCurrencySelects();
+                updateCustExchangeRate();
+                updateSupExchangeRate();
+                updateBankExchangeRate();
+                updateSafeExchangeRate();
+            }, 100);
+        });
 
         function goBackOrExit() {
             if (window.history.length > 1 && document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
