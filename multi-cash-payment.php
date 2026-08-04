@@ -300,40 +300,40 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
         /* ═══ MASTER DATA ULTRA-PREMIUM ICON & BUTTON DESIGN SYSTEM ═══ */
 
-        /* 1. Glitter Shimmer Sparkles Effect (From Master Data) */
+        /* 1. Highly Visible Glitter Shimmer Sparkles (From Master Data) */
         @keyframes glitterShimmer {
             0% {
-                background-position: 0 0, 0 0, 0 0, 0 0, -100% -100%;
-                filter: brightness(1) drop-shadow(0 0 1px #fff);
+                background-position: 0 0, 0 0, 0 0, 0 0, 0 0, -100% -100%;
+                filter: brightness(1.3) drop-shadow(0 0 3px #ffffff);
             }
             50% {
-                filter: brightness(1.75) drop-shadow(0 0 3px #fff);
+                filter: brightness(2.4) drop-shadow(0 0 8px #ffffff);
             }
             100% {
-                background-position: 55px 55px, -40px 40px, 48px -48px, -42px -42px, 200% 200%;
-                filter: brightness(1) drop-shadow(0 0 1px #fff);
+                background-position: 55px 55px, -40px 40px, 48px -48px, -42px -42px, 30px -30px, 200% 200%;
+                filter: brightness(1.3) drop-shadow(0 0 3px #ffffff);
             }
         }
 
-        /* 2. Ray Light Sweep Animation */
-        @keyframes raySweep {
-            0% { left: -100%; }
-            100% { left: 160%; }
+        /* 2. Rear Bottom Light Ray Pulse */
+        @keyframes rearRayPulse {
+            0%, 100% { transform: scaleX(1) translateY(0); opacity: 0.65; }
+            50% { transform: scaleX(1.35) translateY(3px); opacity: 1; filter: blur(16px) brightness(1.5); }
         }
 
         /* 3. Rim Glow Pulse Animation */
         @keyframes rimPulseGlow {
-            0%, 100% { box-shadow: 0 0 14px var(--tab-glow-color, rgba(56, 189, 248, 0.4)), inset 0 1px 2px rgba(255, 255, 255, 0.4); }
-            50% { box-shadow: 0 0 28px var(--tab-glow-color, rgba(56, 189, 248, 0.8)), inset 0 2px 4px rgba(255, 255, 255, 0.7); }
+            0%, 100% { box-shadow: 0 0 16px var(--tab-glow-color, rgba(56, 189, 248, 0.5)), inset 0 1px 2px rgba(255, 255, 255, 0.5); }
+            50% { box-shadow: 0 0 32px var(--tab-glow-color, rgba(56, 189, 248, 0.9)), inset 0 2px 5px rgba(255, 255, 255, 0.8); }
         }
 
         /* ═══ Base Crystal Button (Master Data Inspired) ═══ */
         .crystal-btn, .voucher-type-btn, .pay-toggle-btn {
             position: relative;
             background: rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 3.8px solid var(--tab-border-color, rgba(255, 255, 255, 0.2)) !important;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 3.8px solid var(--tab-border-color, rgba(255, 255, 255, 0.25)) !important;
             border-radius: 14px;
             padding: 10px 18px;
             font-size: 1rem;
@@ -345,9 +345,9 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             justify-content: center;
             gap: 8px;
             white-space: nowrap;
-            overflow: hidden;
+            overflow: visible; /* Allows rear bottom glow projection */
             transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
             z-index: 1;
             font-family: 'Tajawal', sans-serif;
             user-select: none;
@@ -355,75 +355,102 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-sizing: border-box;
         }
 
-        /* Internal Glitter Sparkles Overlay */
+        /* Highly Visible Internal Glitter Sparkles Overlay */
         .crystal-btn::after, .voucher-type-btn::after, .pay-toggle-btn::after {
             content: '';
             position: absolute;
             inset: 0;
+            border-radius: 10px;
             background-image: 
-                radial-gradient(circle at 20% 35%, rgba(255, 255, 255, 0.95) 1.5px, transparent 1.5px),
-                radial-gradient(circle at 75% 25%, rgba(255, 255, 255, 0.85) 1.2px, transparent 1.2px),
-                radial-gradient(circle at 45% 70%, rgba(255, 255, 255, 0.9) 1.5px, transparent 1.5px),
-                radial-gradient(circle at 85% 75%, rgba(255, 255, 255, 0.8) 1.2px, transparent 1.2px),
-                linear-gradient(135deg, transparent 35%, rgba(255, 255, 255, 0.22) 50%, transparent 65%);
-            background-size: 55px 55px, 40px 40px, 48px 48px, 42px 42px, 200% 200%;
-            background-repeat: repeat, repeat, repeat, repeat, no-repeat;
-            opacity: 0.45;
+                radial-gradient(circle at 15% 25%, rgba(255, 255, 255, 1) 2px, transparent 2px),
+                radial-gradient(circle at 75% 15%, rgba(255, 255, 255, 0.95) 1.8px, transparent 1.8px),
+                radial-gradient(circle at 35% 75%, rgba(255, 255, 255, 1) 2px, transparent 2px),
+                radial-gradient(circle at 85% 80%, rgba(255, 255, 255, 0.9) 1.5px, transparent 1.5px),
+                radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.85) 1.5px, transparent 1.5px),
+                linear-gradient(135deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+            background-size: 50px 50px, 38px 38px, 45px 45px, 40px 40px, 35px 35px, 200% 200%;
+            background-repeat: repeat, repeat, repeat, repeat, repeat, no-repeat;
+            opacity: 0.85; /* Crystal clear glitter visibility */
             mix-blend-mode: overlay;
             pointer-events: none;
             z-index: 2;
-            animation: glitterShimmer 3.5s infinite linear;
+            animation: glitterShimmer 3s infinite linear;
         }
 
         .crystal-btn:hover::after, .voucher-type-btn:hover::after, .pay-toggle-btn:hover::after {
-            opacity: 0.95;
-            animation: glitterShimmer 2.2s infinite linear;
+            opacity: 1;
+            animation: glitterShimmer 1.8s infinite linear;
         }
 
-        /* Light Beam Sweep Across Surface */
+        /* Rear Bottom Light Ray Beam Projection (الإضاءة الخلفية من الأسفل فقط) */
         .crystal-btn::before, .voucher-type-btn::before, .pay-toggle-btn::before {
             content: '';
             position: absolute;
-            top: 0; left: -100%;
-            width: 70%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
-            transform: skewX(-25deg);
-            transition: 0.5s;
+            bottom: -16px;
+            left: 10%;
+            width: 80%;
+            height: 18px;
+            background: var(--tab-glow-color, rgba(56, 189, 248, 0.75));
+            border-radius: 50%;
+            filter: blur(14px);
+            opacity: 0.65;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             pointer-events: none;
-            z-index: 3;
+            z-index: -1;
+            animation: rearRayPulse 3s infinite ease-in-out;
         }
 
         .crystal-btn:hover::before, .voucher-type-btn:hover::before, .pay-toggle-btn:hover::before {
-            left: 140%;
-            transition: 0.75s ease-in-out;
+            opacity: 1 !important;
+            transform: scaleX(1.4) translateY(5px) !important;
+            filter: blur(18px) brightness(1.6) !important;
         }
 
-        /* Icon Styling & Rotation from Master Data */
+        /* Icon Styling & Detailed Icon Glow Halo (إضاءة مفصلة خلفية من الأيقونة) */
         .btn-icon, .md-tab-icon {
-            font-size: 1.3rem;
+            font-size: 1.35rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease;
-            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
             position: relative;
             z-index: 4;
+        }
+
+        /* Detailed Icon Rear Glow Ring */
+        .btn-icon::after, .md-tab-icon::after {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            background: var(--tab-glow-color, rgba(255, 255, 255, 0.6));
+            filter: blur(10px);
+            opacity: 0.4;
+            z-index: -1;
+            transition: all 0.35s ease;
         }
 
         /* Hover Scale + Light Glow + Text Contrast Protection */
         .crystal-btn:hover, .voucher-type-btn:hover, .pay-toggle-btn:hover {
             transform: translateY(-5px) scale(1.08) !important;
             color: #ffffff !important;
-            text-shadow: 0 0 10px var(--tab-glow-color, rgba(255,255,255,0.9)), 0 2px 5px rgba(0,0,0,0.9) !important;
+            text-shadow: 0 0 12px var(--tab-glow-color, rgba(255,255,255,0.95)), 0 2px 5px rgba(0,0,0,0.9) !important;
             border-color: var(--tab-border-color) !important;
-            box-shadow: 0 14px 32px var(--tab-glow-color, rgba(56,189,248,0.5)), 0 0 25px var(--tab-glow-color, rgba(56,189,248,0.4)), inset 0 1px 2px rgba(255,255,255,0.6) !important;
+            box-shadow: 0 16px 36px var(--tab-glow-color, rgba(56,189,248,0.55)), 0 0 28px var(--tab-glow-color, rgba(56,189,248,0.45)), inset 0 1px 3px rgba(255,255,255,0.7) !important;
             background: var(--tab-hover-bg, rgba(255,255,255,0.12)) !important;
             z-index: 10;
         }
 
         .crystal-btn:hover .btn-icon, .voucher-type-btn:hover .btn-icon, .pay-toggle-btn:hover .btn-icon {
-            transform: scale(1.35) rotate(8deg);
-            filter: drop-shadow(0 0 8px #ffffff);
+            transform: scale(1.38) rotate(8deg);
+            filter: drop-shadow(0 0 10px #ffffff);
+        }
+
+        .crystal-btn:hover .btn-icon::after, .voucher-type-btn:hover .btn-icon::after, .pay-toggle-btn:hover .btn-icon::after {
+            opacity: 0.95 !important;
+            transform: scale(1.6) !important;
+            filter: blur(14px) brightness(1.8) !important;
         }
 
         /* ═══ Voucher Type Buttons (صرف مجمع 📤 vs استلام مجمع 📥) ═══ */
@@ -917,10 +944,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         </div>
                         <div style="display: flex; gap: 10px;">
                             <button id="btn-payment" class="voucher-type-btn active-payment" onclick="setVoucherType('payment')">
-                                <span class="btn-icon">📤</span> <span class="btn-text">صرف مجمع</span>
+                                <span class="btn-icon">💸📤</span> <span class="btn-text">صرف مجمع</span>
                             </button>
                             <button id="btn-receipt" class="voucher-type-btn" onclick="setVoucherType('receipt')">
-                                <span class="btn-icon">📥</span> <span class="btn-text">استلام مجمع</span>
+                                <span class="btn-icon">💰📥</span> <span class="btn-text">استلام مجمع</span>
                             </button>
                         </div>
                     </div>
