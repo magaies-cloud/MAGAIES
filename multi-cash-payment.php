@@ -298,165 +298,294 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         /* Sticky Footer */
         .sticky-footer { position: sticky; bottom: 0; background: rgba(15,23,42,0.9); border-top: 1px solid rgba(249,115,22,0.3); padding: 15px 25px; border-radius: 0 0 16px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 50; backdrop-filter: blur(10px); margin-top: 20px; margin-left: -25px; margin-right: -25px; margin-bottom: -25px; }
 
-        /* ═══ Ultra-Modern Glassmorphic Crystal Buttons ═══ */
-        .crystal-btn {
-            flex: 1;
-            min-width: 140px;
-            padding: 14px 22px;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            background-color: rgba(15, 23, 42, 0.65);
-            background-image: 
-                radial-gradient(circle, rgba(255, 255, 255, 0.35) 1px, transparent 1.5px),
-                linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
-            background-size: 14px 14px, 100% 100%;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            color: #f8fafc;
-            font-size: 1.05rem;
-            font-weight: 800;
-            font-family: 'Tajawal', sans-serif;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        /* ═══ MASTER DATA ULTRA-PREMIUM ICON & BUTTON DESIGN SYSTEM ═══ */
+
+        /* 1. Glitter Shimmer Sparkles Effect (From Master Data) */
+        @keyframes glitterShimmer {
+            0% {
+                background-position: 0 0, 0 0, 0 0, 0 0, -100% -100%;
+                filter: brightness(1) drop-shadow(0 0 1px #fff);
+            }
+            50% {
+                filter: brightness(1.75) drop-shadow(0 0 3px #fff);
+            }
+            100% {
+                background-position: 55px 55px, -40px 40px, 48px -48px, -42px -42px, 200% 200%;
+                filter: brightness(1) drop-shadow(0 0 1px #fff);
+            }
+        }
+
+        /* 2. Ray Light Sweep Animation */
+        @keyframes raySweep {
+            0% { left: -100%; }
+            100% { left: 160%; }
+        }
+
+        /* 3. Rim Glow Pulse Animation */
+        @keyframes rimPulseGlow {
+            0%, 100% { box-shadow: 0 0 14px var(--tab-glow-color, rgba(56, 189, 248, 0.4)), inset 0 1px 2px rgba(255, 255, 255, 0.4); }
+            50% { box-shadow: 0 0 28px var(--tab-glow-color, rgba(56, 189, 248, 0.8)), inset 0 2px 4px rgba(255, 255, 255, 0.7); }
+        }
+
+        /* ═══ Base Crystal Button (Master Data Inspired) ═══ */
+        .crystal-btn, .voucher-type-btn, .pay-toggle-btn {
             position: relative;
-            overflow: hidden;
-            display: flex;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 3.8px solid var(--tab-border-color, rgba(255, 255, 255, 0.2)) !important;
+            border-radius: 14px;
+            padding: 10px 18px;
+            font-size: 1rem;
+            font-weight: 800;
+            color: #f8fafc !important;
+            cursor: pointer;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            box-shadow: 
-                0 8px 25px rgba(0, 0, 0, 0.45),
-                inset 0 1px 1px rgba(255, 255, 255, 0.45),
-                inset 0 -1px 2px rgba(0, 0, 0, 0.3);
-            user-select: none;
-        }
-
-        /* Light Ray Beam Sweep Animation across Button Face */
-        .crystal-btn::before {
-            content: '';
-            position: absolute;
-            top: -60%; left: -120%;
-            width: 70%; height: 220%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-            transform: rotate(25deg);
-            transition: all 0.8s ease;
-            pointer-events: none;
-        }
-        .crystal-btn:hover::before {
-            left: 160%;
-        }
-
-        /* Glowing Under-Light Pool projected underneath each button */
-        .crystal-btn::after {
-            content: '';
-            position: absolute;
-            bottom: -10px; left: 10%;
-            width: 80%; height: 12px;
-            background: var(--btn-glow, rgba(56, 189, 248, 0.65));
-            border-radius: 50%;
-            filter: blur(12px);
-            opacity: 0;
-            transition: all 0.4s ease;
-            pointer-events: none;
-        }
-
-        /* Hover Scale Up + Radiant Beam Emission + Light Wave Pulse */
-        .crystal-btn:hover {
-            transform: translateY(-6px) scale(1.06) !important;
-            border-color: rgba(255, 255, 255, 0.65) !important;
-            color: #ffffff !important;
-            box-shadow: 
-                0 22px 45px -5px rgba(0, 0, 0, 0.75),
-                0 0 35px var(--btn-glow, rgba(56, 189, 248, 0.6)),
-                inset 0 1px 3px rgba(255, 255, 255, 0.8) !important;
-            animation: lightWavePulse 2.2s infinite ease-in-out !important;
-        }
-        .crystal-btn:hover::after {
-            opacity: 1;
-            transform: scale(1.3);
-        }
-
-        .crystal-btn:active {
-            transform: translateY(-1px) scale(0.97) !important;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.5) !important;
-        }
-
-        /* Individual Button Crystal Themes & Glow Rays */
-        .btn-save-master {
-            --btn-glow: rgba(16, 185, 129, 0.8);
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(4, 120, 87, 0.75)) !important;
-            border-color: rgba(52, 211, 153, 0.8) !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 12px rgba(52, 211, 153, 0.7);
-        }
-        .btn-new {
-            --btn-glow: rgba(56, 189, 248, 0.8);
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(3, 105, 161, 0.55)) !important;
-            border-color: rgba(56, 189, 248, 0.7) !important;
-            color: #7dd3fc !important;
-        }
-        .btn-print {
-            --btn-glow: rgba(168, 85, 247, 0.8);
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(126, 34, 206, 0.55)) !important;
-            border-color: rgba(192, 132, 252, 0.7) !important;
-            color: #e9d5ff !important;
-        }
-        .btn-print-preview {
-            --btn-glow: rgba(6, 182, 212, 0.8);
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(14, 116, 144, 0.55)) !important;
-            border-color: rgba(34, 211, 238, 0.7) !important;
-            color: #a5f3fc !important;
-        }
-        .btn-delete {
-            --btn-glow: rgba(244, 63, 94, 0.8);
-            background: linear-gradient(135deg, rgba(244, 63, 94, 0.25), rgba(190, 18, 60, 0.55)) !important;
-            border-color: rgba(251, 113, 133, 0.7) !important;
-            color: #fecdd3 !important;
-        }
-        .btn-exit {
-            --btn-glow: rgba(148, 163, 184, 0.8);
-            background: linear-gradient(135deg, rgba(100, 116, 139, 0.25), rgba(51, 65, 85, 0.55)) !important;
-            border-color: rgba(148, 163, 184, 0.7) !important;
-            color: #f1f5f9 !important;
-        }
-
-        /* Pay Toggle Buttons (نقدي / تحويل / شيك) */
-        .pay-toggle-btn {
-            --btn-glow: rgba(148, 163, 184, 0.4);
-            background: rgba(15, 23, 42, 0.6) !important;
-            border: 1px solid rgba(255, 255, 255, 0.18) !important;
-            backdrop-filter: blur(12px);
-            position: relative;
+            gap: 8px;
+            white-space: nowrap;
             overflow: hidden;
-            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+            z-index: 1;
+            font-family: 'Tajawal', sans-serif;
+            user-select: none;
+            height: 44px; /* Uniform height & width alignment */
+            box-sizing: border-box;
         }
-        .pay-toggle-btn:hover {
+
+        /* Internal Glitter Sparkles Overlay */
+        .crystal-btn::after, .voucher-type-btn::after, .pay-toggle-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(circle at 20% 35%, rgba(255, 255, 255, 0.95) 1.5px, transparent 1.5px),
+                radial-gradient(circle at 75% 25%, rgba(255, 255, 255, 0.85) 1.2px, transparent 1.2px),
+                radial-gradient(circle at 45% 70%, rgba(255, 255, 255, 0.9) 1.5px, transparent 1.5px),
+                radial-gradient(circle at 85% 75%, rgba(255, 255, 255, 0.8) 1.2px, transparent 1.2px),
+                linear-gradient(135deg, transparent 35%, rgba(255, 255, 255, 0.22) 50%, transparent 65%);
+            background-size: 55px 55px, 40px 40px, 48px 48px, 42px 42px, 200% 200%;
+            background-repeat: repeat, repeat, repeat, repeat, no-repeat;
+            opacity: 0.45;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            z-index: 2;
+            animation: glitterShimmer 3.5s infinite linear;
+        }
+
+        .crystal-btn:hover::after, .voucher-type-btn:hover::after, .pay-toggle-btn:hover::after {
+            opacity: 0.95;
+            animation: glitterShimmer 2.2s infinite linear;
+        }
+
+        /* Light Beam Sweep Across Surface */
+        .crystal-btn::before, .voucher-type-btn::before, .pay-toggle-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 70%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+            transform: skewX(-25deg);
+            transition: 0.5s;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .crystal-btn:hover::before, .voucher-type-btn:hover::before, .pay-toggle-btn:hover::before {
+            left: 140%;
+            transition: 0.75s ease-in-out;
+        }
+
+        /* Icon Styling & Rotation from Master Data */
+        .btn-icon, .md-tab-icon {
+            font-size: 1.3rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
+            position: relative;
+            z-index: 4;
+        }
+
+        /* Hover Scale + Light Glow + Text Contrast Protection */
+        .crystal-btn:hover, .voucher-type-btn:hover, .pay-toggle-btn:hover {
+            transform: translateY(-5px) scale(1.08) !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 10px var(--tab-glow-color, rgba(255,255,255,0.9)), 0 2px 5px rgba(0,0,0,0.9) !important;
+            border-color: var(--tab-border-color) !important;
+            box-shadow: 0 14px 32px var(--tab-glow-color, rgba(56,189,248,0.5)), 0 0 25px var(--tab-glow-color, rgba(56,189,248,0.4)), inset 0 1px 2px rgba(255,255,255,0.6) !important;
+            background: var(--tab-hover-bg, rgba(255,255,255,0.12)) !important;
+            z-index: 10;
+        }
+
+        .crystal-btn:hover .btn-icon, .voucher-type-btn:hover .btn-icon, .pay-toggle-btn:hover .btn-icon {
+            transform: scale(1.35) rotate(8deg);
+            filter: drop-shadow(0 0 8px #ffffff);
+        }
+
+        /* ═══ Voucher Type Buttons (صرف مجمع 📤 vs استلام مجمع 📥) ═══ */
+        .voucher-type-btn.active-payment, #btn-payment.active-payment {
+            --tab-border-color: #ef4444;
+            --tab-glow-color: rgba(239, 68, 68, 0.7);
+            --tab-hover-bg: linear-gradient(135deg, #f87171, #dc2626);
+            background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
+            border-color: #f87171 !important;
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.65), 0 0 25px rgba(239, 68, 68, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
             transform: translateY(-3px) scale(1.05) !important;
-            border-color: rgba(255, 255, 255, 0.4) !important;
+            animation: rimPulseGlow 2.5s infinite ease-in-out !important;
+        }
+
+        .voucher-type-btn.active-receipt, #btn-receipt.active-receipt {
+            --tab-border-color: #10b981;
+            --tab-glow-color: rgba(16, 185, 129, 0.7);
+            --tab-hover-bg: linear-gradient(135deg, #34d399, #059669);
+            background: linear-gradient(135deg, #10b981, #047857) !important;
+            border-color: #34d399 !important;
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.65), 0 0 25px rgba(16, 185, 129, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
+            transform: translateY(-3px) scale(1.05) !important;
+            animation: rimPulseGlow 2.5s infinite ease-in-out !important;
+        }
+
+        /* ═══ Payment Method Toggle Buttons (نقدي 💵 / تحويل 🏦 / شيك ✍️) ═══ */
+        .pay-toggle-btn.block-btn-cash {
+            --tab-border-color: rgba(251, 191, 36, 0.45);
+            --tab-glow-color: rgba(251, 191, 36, 0.65);
+            --tab-hover-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.35), rgba(180, 83, 9, 0.5));
         }
         .pay-toggle-btn.active.block-btn-cash {
-            --btn-glow: rgba(251, 191, 36, 0.7);
-            background: linear-gradient(135deg, rgba(251, 191, 36, 0.28), rgba(180, 83, 9, 0.45)) !important;
-            border-color: rgba(251, 191, 36, 0.75) !important;
-            color: #fef08a !important;
-            box-shadow: 0 10px 25px rgba(251, 191, 36, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
-            transform: translateY(-2px) scale(1.04) !important;
+            --tab-border-color: #fbbf24;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.45), rgba(180, 83, 9, 0.7)) !important;
+            border-color: #fbbf24 !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            box-shadow: 0 10px 25px rgba(251, 191, 36, 0.5), 0 0 20px rgba(251, 191, 36, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
+            transform: translateY(-3px) scale(1.05) !important;
+        }
+
+        .pay-toggle-btn.block-btn-bank {
+            --tab-border-color: rgba(34, 211, 238, 0.45);
+            --tab-glow-color: rgba(34, 211, 238, 0.65);
+            --tab-hover-bg: linear-gradient(135deg, rgba(34, 211, 238, 0.35), rgba(14, 116, 144, 0.5));
         }
         .pay-toggle-btn.active.block-btn-bank {
-            --btn-glow: rgba(34, 211, 238, 0.7);
-            background: linear-gradient(135deg, rgba(14, 116, 144, 0.4), rgba(8, 145, 178, 0.6)) !important;
-            border-color: rgba(34, 211, 238, 0.75) !important;
-            color: #cffafe !important;
-            box-shadow: 0 10px 25px rgba(34, 211, 238, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
-            transform: translateY(-2px) scale(1.04) !important;
+            --tab-border-color: #22d3ee;
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.45), rgba(14, 116, 144, 0.7)) !important;
+            border-color: #22d3ee !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(34, 211, 238, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            box-shadow: 0 10px 25px rgba(34, 211, 238, 0.5), 0 0 20px rgba(34, 211, 238, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
+            transform: translateY(-3px) scale(1.05) !important;
+        }
+
+        .pay-toggle-btn.block-btn-cheque {
+            --tab-border-color: rgba(192, 132, 252, 0.45);
+            --tab-glow-color: rgba(192, 132, 252, 0.65);
+            --tab-hover-bg: linear-gradient(135deg, rgba(192, 132, 252, 0.35), rgba(126, 34, 206, 0.5));
         }
         .pay-toggle-btn.active.block-btn-cheque {
-            --btn-glow: rgba(192, 132, 252, 0.7);
-            background: linear-gradient(135deg, rgba(126, 34, 206, 0.4), rgba(147, 51, 234, 0.6)) !important;
+            --tab-border-color: #c084fc;
+            background: linear-gradient(135deg, rgba(192, 132, 252, 0.45), rgba(126, 34, 206, 0.7)) !important;
+            border-color: #c084fc !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(192, 132, 252, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            box-shadow: 0 10px 25px rgba(192, 132, 252, 0.5), 0 0 20px rgba(192, 132, 252, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
+            transform: translateY(-3px) scale(1.05) !important;
+        }
+
+        /* ═══ Footer Action Buttons ═══ */
+        .btn-save-master {
+            --tab-border-color: #34d399;
+            --tab-glow-color: rgba(16, 185, 129, 0.75);
+            --tab-hover-bg: linear-gradient(135deg, #10b981, #059669);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(4, 120, 87, 0.75)) !important;
+            border-color: #34d399 !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 12px rgba(52, 211, 153, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+        }
+        .btn-new {
+            --tab-border-color: #38bdf8;
+            --tab-glow-color: rgba(56, 189, 248, 0.75);
+            --tab-hover-bg: linear-gradient(135deg, #0284c7, #0369a1);
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(3, 105, 161, 0.6)) !important;
+            border-color: #38bdf8 !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+        }
+        .btn-print {
+            --tab-border-color: #c084fc;
+            --tab-glow-color: rgba(168, 85, 247, 0.75);
+            --tab-hover-bg: linear-gradient(135deg, #9333ea, #7e22ce);
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(126, 34, 206, 0.6)) !important;
+            border-color: #c084fc !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(192, 132, 252, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+        }
+        .btn-print-preview {
+            --tab-border-color: #22d3ee;
+            --tab-glow-color: rgba(6, 182, 212, 0.75);
+            --tab-hover-bg: linear-gradient(135deg, #0891b2, #0e7490);
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(14, 116, 144, 0.6)) !important;
+            border-color: #22d3ee !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(34, 211, 238, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+        }
+        .btn-delete {
+            --tab-border-color: #fb7185;
+            --tab-glow-color: rgba(244, 63, 94, 0.75);
+            --tab-hover-bg: linear-gradient(135deg, #e11d48, #be123c);
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.3), rgba(190, 18, 60, 0.6)) !important;
+            border-color: #fb7185 !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(251, 113, 133, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+        }
+        .btn-exit {
+            --tab-border-color: #94a3b8;
+            --tab-glow-color: rgba(148, 163, 184, 0.75);
+            --tab-hover-bg: linear-gradient(135deg, #475569, #334155);
+            background: linear-gradient(135deg, rgba(100, 116, 139, 0.3), rgba(51, 65, 85, 0.6)) !important;
+            border-color: #94a3b8 !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(148, 163, 184, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+        }
+
+        /* Luminous Glowing Borders on Hover for Account Blocks & Details Panels */
+        .glass-container:hover, .account-block:hover {
+            border-color: rgba(255, 255, 255, 0.45) !important;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.7),
+                0 0 35px var(--block-glow-color, rgba(56, 189, 248, 0.4)),
+                inset 0 1px 3px rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .glass-red:hover {
+            --block-glow-color: rgba(239, 68, 68, 0.5);
+            border-color: rgba(248, 113, 113, 0.75) !important;
+        }
+        .glass-green:hover {
+            --block-glow-color: rgba(16, 185, 129, 0.5);
+            border-color: rgba(52, 211, 153, 0.75) !important;
+        }
+
+        .block-cash-details:hover {
+            border-color: rgba(251, 191, 36, 0.75) !important;
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
+        }
+        .block-bank-details:hover {
+            border-color: rgba(34, 211, 238, 0.75) !important;
+            box-shadow: 0 0 25px rgba(34, 211, 238, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
+        }
+        .block-cheque-details:hover {
             border-color: rgba(192, 132, 252, 0.75) !important;
-            color: #f3e8ff !important;
-            box-shadow: 0 10px 25px rgba(192, 132, 252, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
-            transform: translateY(-2px) scale(1.04) !important;
+            box-shadow: 0 0 25px rgba(192, 132, 252, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
         }
 
 
@@ -786,12 +915,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         <div id="main-party-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.1rem; font-weight: 700; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
                             <span>👤</span> بيان الطرف الرئيسي
                         </div>
-                        <div style="display: flex; gap: 8px;">
-                            <button id="btn-payment" class="voucher-type-btn active-payment" onclick="setVoucherType('payment')" style="padding: 8px 16px; font-size: 1rem; border-radius: 8px; font-weight: 800; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Tajawal', sans-serif; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-                                <span style="width: 12px; height: 12px; border-radius: 50%; background: #ef4444; display: inline-block; box-shadow: 0 0 10px #ef4444;"></span> صرف مجمع
+                        <div style="display: flex; gap: 10px;">
+                            <button id="btn-payment" class="voucher-type-btn active-payment" onclick="setVoucherType('payment')">
+                                <span class="btn-icon">📤</span> <span class="btn-text">صرف مجمع</span>
                             </button>
-                            <button id="btn-receipt" class="voucher-type-btn" onclick="setVoucherType('receipt')" style="padding: 8px 16px; font-size: 1rem; border-radius: 8px; font-weight: 800; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Tajawal', sans-serif; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-                                <span style="width: 12px; height: 12px; border-radius: 50%; background: #10b981; display: inline-block; box-shadow: 0 0 10px #10b981;"></span> استلام مجمع
+                            <button id="btn-receipt" class="voucher-type-btn" onclick="setVoucherType('receipt')">
+                                <span class="btn-icon">📥</span> <span class="btn-text">استلام مجمع</span>
                             </button>
                         </div>
                     </div>
@@ -905,10 +1034,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             </div>
                             
                             <!-- Payment Toggles -->
-                            <div style="display: flex; gap: 5px; flex: 1.5; min-width: 240px;">
-                                <button type="button" id="pm-cash-{ID}" class="pay-toggle-btn block-btn-cash" data-action="toggle-pm" data-block="{ID}" data-method="cash" style="flex: 1; padding: 0 10px; border-radius: 8px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 4px; font-family: 'Tajawal', sans-serif; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; height: 100%;">💵 نقدي</button>
-                                <button type="button" id="pm-bank-{ID}" class="pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank" style="flex: 1; padding: 0 10px; border-radius: 8px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 4px; font-family: 'Tajawal', sans-serif; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; height: 100%;">🏦 تحويل</button>
-                                <button type="button" id="pm-cheque-{ID}" class="pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque" style="flex: 1; padding: 0 10px; border-radius: 8px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 4px; font-family: 'Tajawal', sans-serif; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; height: 100%;">✍️ شيك</button>
+                            <div style="display: flex; gap: 8px; flex: 1.5; min-width: 240px;">
+                                <button type="button" id="pm-cash-{ID}" class="pay-toggle-btn block-btn-cash" data-action="toggle-pm" data-block="{ID}" data-method="cash"><span class="btn-icon">💵</span> <span class="btn-text">نقدي</span></button>
+                                <button type="button" id="pm-bank-{ID}" class="pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon">🏦</span> <span class="btn-text">تحويل</span></button>
+                                <button type="button" id="pm-cheque-{ID}" class="pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon">✍️</span> <span class="btn-text">شيك</span></button>
                             </div>
                         </div>
 
