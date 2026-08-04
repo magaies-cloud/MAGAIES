@@ -22,6 +22,8 @@ const baseColumns = [
     { idx: 2, defaultLabel: "البيان / الوصف", field: "statement", isNum: false },
     { idx: 3, defaultLabel: "الحساب المقابل", field: "counterAccount", isNum: false },
     { idx: 4, defaultLabel: "نوع الحركة", field: "typeLabel", isNum: false },
+    { idx: 13, defaultLabel: "رقم التحويلة", field: "transferNo", isNum: false },
+    { idx: 14, defaultLabel: "رقم الشيك", field: "checkNo", isNum: false },
     { idx: 5, defaultLabel: "مدين (محلي)", field: "debit", isNum: true },
     { idx: 6, defaultLabel: "دائن (محلي)", field: "credit", isNum: true },
     { idx: 7, defaultLabel: "مدين (أجنبي)", field: "debitForeign", isNum: true },
@@ -39,6 +41,8 @@ function getRawFieldValue(row, field) {
     if (field === 'statement') return row.statement || row.description || row.desc || row.notes || '';
     if (field === 'counterAccount') return row.counterAccount || row.accountName || row.account || '-';
     if (field === 'typeLabel') return row.typeLabel || row.type || '-';
+    if (field === 'transferNo') return row.transferNo || row.transfer_no || row.transferNumber || row.transfer_number || row.mobileTransferNo || '-';
+    if (field === 'checkNo') return row.checkNo || row.check_no || row.checkNumber || row.check_number || row.chequeNo || '-';
     
     let debLoc = parseFloat(row.debit || row.dr || 0);
     let credLoc = parseFloat(row.credit || row.cr || 0);
@@ -80,7 +84,7 @@ function getRawFieldValue(row, field) {
     return row[field] !== undefined ? row[field] : '';
 }
 
-let columnOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+let columnOrder = [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12];
 let columnConfigs = {};
 
 function loadCompanyHeader() {
@@ -551,8 +555,10 @@ function filterTableRows(query) {
             const ref = String(getRawFieldValue(row, 'ref')).toLowerCase();
             const counter = String(getRawFieldValue(row, 'counterAccount')).toLowerCase();
             const type = String(getRawFieldValue(row, 'typeLabel')).toLowerCase();
+            const transferNo = String(getRawFieldValue(row, 'transferNo')).toLowerCase();
+            const checkNo = String(getRawFieldValue(row, 'checkNo')).toLowerCase();
             const note = String(getRawFieldValue(row, 'additionalNote')).toLowerCase();
-            return stmt.includes(q) || ref.includes(q) || counter.includes(q) || type.includes(q) || note.includes(q);
+            return stmt.includes(q) || ref.includes(q) || counter.includes(q) || type.includes(q) || transferNo.includes(q) || checkNo.includes(q) || note.includes(q);
         });
     }
     renderTable();
@@ -625,7 +631,7 @@ function initPresets() {
             {
                 name: '💎 افتراضي 1',
                 configs: getDefaultConfigs(),
-                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                order: [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12],
                 theme: 'theme-classic-navy',
                 font: 'font-ultra',
                 paperSize: 'A4',
@@ -639,7 +645,7 @@ function initPresets() {
             {
                 name: '⭐ افتراضي 2',
                 configs: getDefaultConfigs(),
-                order: [0, 1, 2, 3, 6, 7, 8, 9, 10, 11, 4, 5, 12],
+                order: [0, 1, 2, 3, 4, 13, 14, 6, 7, 8, 9, 10, 11, 5, 12],
                 theme: 'theme-emerald-pro',
                 font: 'font-newsons',
                 paperSize: 'A4',
@@ -653,7 +659,7 @@ function initPresets() {
             {
                 name: '🎨 افتراضي 3',
                 configs: getDefaultConfigs(),
-                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                order: [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12],
                 theme: 'theme-modern-slate',
                 font: 'font-tajawal',
                 paperSize: 'A4',
@@ -666,7 +672,7 @@ function initPresets() {
             },
             {
                 name: '🔥 افتراضي 4',
-                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                order: [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12],
                 theme: 'theme-luxury-gold',
                 font: 'font-cairo',
                 paperSize: 'A4',
@@ -680,7 +686,7 @@ function initPresets() {
             {
                 name: '✨ نموذج 1',
                 configs: getDefaultConfigs(),
-                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                order: [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12],
                 theme: '',
                 font: 'font-ultra',
                 paperSize: 'A4',
@@ -694,7 +700,7 @@ function initPresets() {
             {
                 name: '🚀 نموذج 2',
                 configs: getDefaultConfigs(),
-                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                order: [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12],
                 theme: '',
                 font: 'font-ultra',
                 paperSize: 'A4',
@@ -708,7 +714,7 @@ function initPresets() {
             {
                 name: '🌟 نموذج 3',
                 configs: getDefaultConfigs(),
-                order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                order: [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12],
                 theme: '',
                 font: 'font-ultra',
                 paperSize: 'A4',
@@ -1212,18 +1218,32 @@ function loadPreset(idx) {
     
     if (preset) {
         columnConfigs = preset.configs || getDefaultConfigs();
-        columnOrder = preset.order || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        columnOrder = preset.order || [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12];
         
         // Migration for old configs
         if (!columnOrder.includes(12)) {
             if(!columnOrder.includes(11)) columnOrder.push(11);
             if(!columnOrder.includes(12)) columnOrder.push(12);
-            const defaults = getDefaultConfigs();
-            [9, 10, 11, 12].forEach(i => {
-                if (columnConfigs[i]) columnConfigs[i].label = defaults[i].label;
-                else columnConfigs[i] = defaults[i];
-            });
         }
+        if (!columnOrder.includes(13)) {
+            const pos4 = columnOrder.indexOf(4);
+            if (pos4 !== -1) {
+                columnOrder.splice(pos4 + 1, 0, 13, 14);
+            } else {
+                columnOrder.push(13, 14);
+            }
+        } else if (!columnOrder.includes(14)) {
+            const pos13 = columnOrder.indexOf(13);
+            columnOrder.splice(pos13 + 1, 0, 14);
+        }
+        const defaults = getDefaultConfigs();
+        [9, 10, 11, 12, 13, 14].forEach(i => {
+            if (columnConfigs[i]) {
+                if (!columnConfigs[i].label) columnConfigs[i].label = defaults[i].label;
+            } else {
+                columnConfigs[i] = defaults[i];
+            }
+        });
         currentTheme = preset.theme || '';
         currentFont = preset.font || 'font-newsons';
         currentPaperSize = preset.paperSize || 'A4';
@@ -1232,7 +1252,7 @@ function loadPreset(idx) {
         showHeaderInfo = preset.showInfo !== undefined ? preset.showInfo : true;
     } else {
         columnConfigs = getDefaultConfigs();
-        columnOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        columnOrder = [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12];
         currentTheme = '';
         currentFont = 'font-newsons';
         currentPaperSize = 'A4';

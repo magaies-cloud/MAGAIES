@@ -5,7 +5,7 @@
     
     // رصد وتطبيق كلاس الشريط الجانبي فورا على HTML و Body لمنع اختفاء/تداخل الشاشة خلف الشريط الجانبي عند بداية الفتح
     const pageName = window.location.pathname.split('/').pop().toLowerCase();
-    if (pageName !== 'login.php' && pageName !== 'index.php' && pageName !== 'register.php') {
+    if (pageName !== 'login.php' && pageName !== 'index.php' && pageName !== 'register.php' && !pageName.includes('preview')) {
         document.documentElement.classList.add('has-sidebar');
         if (document.body) {
             document.body.classList.add('has-sidebar');

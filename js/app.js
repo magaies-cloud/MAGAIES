@@ -2068,7 +2068,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 2. Global Smart Sidebar ---
     function injectSidebar() {
-        if (window.location.pathname.includes('login') || window.location.pathname.includes('index.php')) return;
+        if (window.location.pathname.includes('login') || window.location.pathname.includes('index.php') || window.location.pathname.includes('preview') || document.body.classList.contains('no-sidebar') || document.documentElement.classList.contains('no-sidebar')) return;
         if (document.querySelector('.global-sidebar')) return; 
         
         const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -2152,7 +2152,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </a>`).join('');
 
         const sidebarHTML = `
-        <aside class="global-sidebar" style="z-index: 999999 !important; display: flex; visibility: visible;">
+        <aside class="global-sidebar">
             <div class="sidebar-header">
                 <span class="sidebar-logo-icon">
                     <svg width="26" height="26" fill="none" stroke="#38bdf8" viewBox="0 0 24 24">
