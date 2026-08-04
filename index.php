@@ -222,8 +222,8 @@
         /* Ads Banner */
         .ads-banner {
             width: 100%;
-            height: 120px;
-            margin-top: 80px; 
+            height: 180px;
+            margin-top: 80px;
             position: relative;
             overflow: hidden;
             display: none;
@@ -257,9 +257,9 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         .ad-slide img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
             cursor: default;
         }
     
