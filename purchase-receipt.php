@@ -1012,25 +1012,32 @@
             });
             localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
 
+            // Refresh from storage to prevent stale data overwrites (Concurrency fix)
+            let freshPurchases = [];
+            try {
+                freshPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+            } catch(e) {}
+
             if (editingGRNId) {
-                // Edit mode: overwrite old GRN in allPurchases
-                const grnIdx = allPurchases.findIndex(p => p.id === editingGRNId);
+                // Edit mode: overwrite old GRN in freshPurchases
+                const grnIdx = freshPurchases.findIndex(p => p.id === editingGRNId);
                 if (grnIdx > -1) {
-                    allPurchases[grnIdx].items = newItems;
-                    allPurchases[grnIdx].date = new Date().toISOString();
-                    allPurchases[grnIdx].warehouse = firstWh;
-                    allPurchases[grnIdx].notes = `تعديل مذكرة استلام بضاعة للفاتورة ${currentInvoiceId}`;
-                    allPurchases[grnIdx].createdBy = (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown';
+                    freshPurchases[grnIdx].items = newItems;
+                    freshPurchases[grnIdx].date = new Date().toISOString();
+                    freshPurchases[grnIdx].warehouse = firstWh;
+                    freshPurchases[grnIdx].notes = `تعديل مذكرة استلام بضاعة للفاتورة ${currentInvoiceId}`;
+                    freshPurchases[grnIdx].createdBy = (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown';
                 }
                 showToast(`تم تعديل الإذن ${editingGRNId} بنجاح`, 'success');
                 editingGRNId = null; // Clear edit mode
             } else {
                 // New mode: add new GRN
-                allPurchases.push(grnInv);
+                freshPurchases.push(grnInv);
                 showToast(`تم حفظ مذكرة الاستلام وتحديث المخزون الفعلي بنجاح`, 'success');
             }
 
-            localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+            localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(freshPurchases));
+            allPurchases = freshPurchases; // Update local memory reference
             
             setTimeout(() => {
                 calculatePendingGoods();
