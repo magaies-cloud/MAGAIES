@@ -902,12 +902,24 @@ JSON.parse = function(val) {
                     if (token) {
                         const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
                         const url = SYNC_PUSH_URL + '?token=' + encodeURIComponent(token);
-                        navigator.sendBeacon(url, blob);
+                        
+                        // Attempt sendBeacon first (fastest, asynchronous but 64KB limit)
+                        const sent = navigator.sendBeacon(url, blob);
+                        
+                        // Fallback to synchronous XHR if sendBeacon fails (e.g., payload > 64KB)
+                        if (!sent) {
+                            console.warn("sendBeacon failed (likely >64KB limit). Falling back to synchronous XHR.");
+                            const xhr = new XMLHttpRequest();
+                            xhr.open("POST", url, false); // false makes it synchronous
+                            xhr.setRequestHeader("Content-Type", "application/json");
+                            xhr.send(JSON.stringify(payload));
+                        }
+                        
                         dirtyKeys.clear();
                     }
                 }
             } catch(beaconErr) {
-                console.warn('sendBeacon fallback failed:', beaconErr);
+                console.warn('Sync on unload failed:', beaconErr);
             }
         }
     });
@@ -2858,35 +2870,31 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // --- GLOBAL SECURE LOGOUT (MULTI-TENANT ISOLATION) ---
-window.logout = function(force = false) {
+window.logout = async function(force = false) {
     if (!navigator.onLine && !force) {
         if (!confirm('أنت غير متصل بالإنترنت. تسجيل الخروج سيمسح بياناتك المحلية ولن تستطيع الوصول لها مجدداً حتى تعاود الاتصال بالإنترنت. هل أنت متأكد من تسجيل الخروج؟')) {
             return;
         }
     }
     
+    // Ensure pending changes are pushed
+    if (typeof dirtyKeys !== 'undefined' && dirtyKeys.size > 0 && navigator.onLine) {
+        console.log("Pushing dirty keys before logout...");
+        const btn = document.querySelector('.sidebar-logout');
+        if (btn) btn.innerHTML = '<span class="sidebar-text">جاري المزامنة...</span>';
+        try {
+            await window.pushToCloud();
+        } catch(e) {
+            console.warn("Failed to push during logout", e);
+        }
+    }
+
     // 1. Remove Core Session
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
     sessionStorage.removeItem('session_active');
     sessionStorage.removeItem('cloud_synced');
     document.cookie = "saas_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    
-    // 2. Remove ALL ERP tenant data securely
-    // تم تعطيل الحذف المؤقت للبيانات المحلية للحفاظ عليها أثناء العمل بدون اتصال بالسيرفر الحي
-    /*
-    const keysToRemove = [];
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        // Keep theme and offline auth, but remove other business data (erp_*)
-        if (key && key.startsWith('erp_') && key !== 'erp_theme') {
-            keysToRemove.push(key);
-        }
-    }
-    
-    keysToRemove.forEach(k => localStorage.removeItem(k));
-    console.log("Tenant data isolated & cleared:", keysToRemove);
-    */
     
     // 3. Redirect
     window.location.href = 'login.php';
