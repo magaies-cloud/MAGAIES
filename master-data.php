@@ -2991,25 +2991,40 @@ function openSafeForm() {
 
         function populateSystemCurrencySelects() {
             const selects = document.querySelectorAll('.system-currency-select');
-            const rates = getCurrencyRates();
+            
+            const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+            const baseCur = cfg.currency || 'SDG';
+            const foreignCur = cfg.foreignCurrency || 'USD';
+            
             const currencyLabels = {
                 'SDG': 'SDG - جنيه سوداني (محلي)',
                 'USD': 'USD - دولار أمريكي',
                 'SAR': 'SAR - ريال سعودي',
                 'AED': 'AED - درهم إماراتي',
-                'EGP': 'EGP - جنيه مصري'
+                'EGP': 'EGP - جنيه مصري',
+                'QAR': 'QAR - ريال قطري'
             };
+            
             selects.forEach(select => {
                 const currentVal = select.value;
                 select.innerHTML = '';
-                for (let cur in rates) {
-                    const opt = document.createElement('option');
-                    opt.value = cur;
-                    opt.textContent = currencyLabels[cur] || cur;
-                    select.appendChild(opt);
+                
+                const optBase = document.createElement('option');
+                optBase.value = baseCur;
+                optBase.textContent = currencyLabels[baseCur] || baseCur;
+                select.appendChild(optBase);
+                
+                if (foreignCur && foreignCur !== baseCur) {
+                    const optForeign = document.createElement('option');
+                    optForeign.value = foreignCur;
+                    optForeign.textContent = currencyLabels[foreignCur] || foreignCur;
+                    select.appendChild(optForeign);
                 }
-                if (currentVal && rates[currentVal]) {
+                
+                if (currentVal && (currentVal === baseCur || currentVal === foreignCur)) {
                     select.value = currentVal;
+                } else {
+                    select.value = baseCur;
                 }
             });
         }
