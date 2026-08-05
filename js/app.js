@@ -879,10 +879,15 @@ JSON.parse = function(val) {
     let pushTimeout = null;
     let dirtyKeys = new Set();
 
-    window.addEventListener('beforeunload', () => {
+    window.addEventListener('beforeunload', (e) => {
         if (pushTimeout) {
             clearTimeout(pushTimeout);
             pushToCloud();
+        }
+        if (dirtyKeys.size > 0 || typeof isPushing !== 'undefined' && isPushing) {
+            e.preventDefault();
+            e.returnValue = 'جاري حفظ البيانات في السيرفر. الرجاء الانتظار قليلاً لتجنب فقدان البيانات.';
+            return e.returnValue;
         }
     });
 
@@ -1331,8 +1336,7 @@ JSON.parse = function(val) {
             fetch(SYNC_PUSH_URL, {
                 method: "POST",
                 headers: getAuthHeaders(),
-                body: JSON.stringify(payload),
-                keepalive: true
+                body: JSON.stringify(payload)
             }).then(res => {
                 resStatus = res.status;
                 if (res.status === 401) {
