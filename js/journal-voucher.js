@@ -222,8 +222,16 @@ function calculateTotals() {
 }
 
 function setNextVoucherNumber() {
-    const seq = parseInt(localStorage.getItem('erp_jv_seq') || '0') + 1;
-    document.getElementById('voucher-number').innerText = 'JV-' + String(seq).padStart(5, '0');
+    let max = 0;
+    const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
+    jvs.forEach(j => {
+        const str = String(j.id || j.voucherNo || j.jvNo || '');
+        const num = parseInt(str.replace(/\D/g, ''), 10);
+        if (!isNaN(num) && num > max) max = num;
+    });
+    const savedSeq = parseInt(localStorage.getItem('erp_jv_seq') || '0', 10);
+    const nextSeq = Math.max(savedSeq, max) + 1;
+    document.getElementById('voucher-number').innerText = 'JV-' + String(nextSeq).padStart(5, '0');
 }
 
 function resetVoucher() {

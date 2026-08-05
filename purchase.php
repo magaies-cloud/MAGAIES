@@ -2648,6 +2648,15 @@
             let invStr = localStorage.getItem('erp_pur_' + invNo);
             let inv = null;
             if (invStr) try { inv = JSON.parse(invStr); } catch(e) {}
+            if (!inv) {
+                let savedData = localStorage.getItem('erp_purchase_invoices_v1');
+                if (savedData) {
+                    try {
+                        let invoices = JSON.parse(savedData);
+                        inv = invoices.find(i => String(i.invoiceNo) === String(invNo) || String(i.id) === String(invNo));
+                    } catch(e) {}
+                }
+            }
             
             if (inv && inv.status === 'posted') {
                 showToast('⛔ لا يمكن حذف فاتورة مرحلة — يجب عكس الترحيل أولاً', 'error', 4000);
@@ -2674,12 +2683,15 @@
                 invoices = invoices.filter(i => i.invoiceNo !== invNo);
                 localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(invoices));
             }
+            if (typeof window.pushToCloud === 'function') {
+                window.pushToCloud(true).catch(e => console.warn("Delete push failed:", e));
+            }
             
             showToast('🗑️ تم حذف الفاتورة وعكس تأثيراتها بنجاح', 'success');
             loadHubTransactions();
         }
 
-        function migratePurchaseInvoiceIds() {
+        function migratePurchaseInvoiceIds() { return;
             if (localStorage.getItem('erp_pur_migrated_p260') === 'true') return;
 
             let savedData = localStorage.getItem('erp_purchase_invoices_v1');

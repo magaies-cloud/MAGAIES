@@ -343,6 +343,13 @@
                         } else if (inv.isGRN) {
                             typeName = 'مذكرة استلام مخزني';
                         }
+                        
+                        // Handle negative quantities (e.g. taking items OUT of PENDING_RECEIPT during a GRN)
+                        if (baseQty < 0 && !inv.isReturn) {
+                            typeCode = 'out';
+                            valIn = 0;
+                            valOut = Math.abs(baseQty);
+                        }
 
                         history.push({
                             date: new Date(inv.date || inv.receiveDate || Date.now()),

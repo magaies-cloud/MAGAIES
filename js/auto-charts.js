@@ -7,8 +7,14 @@
     // 1. Check if we should execute on this page
     const pageName = window.location.pathname.split('/').pop().toLowerCase();
     
-    // Skip pages that already have custom tailored canvases or are not reports
-    if (pageName.includes('next_gen_analytics') || pageName.includes('profitability_analysis') || pageName.includes('login') || pageName.includes('index') || pageName === '') {
+    // Skip pages that already have custom tailored canvases or are not reports (transactional screens)
+    const excludePages = [
+        'next_gen_analytics', 'profitability_analysis', 'login', 'index', 
+        'purchase-receipt', 'purchase-return', 'purchase', 'purchase-hub',
+        'sales-invoice', 'direct-sales', 'reserved-sales', 'sales-hub',
+        'cash-receipt', 'cash-payment', 'journal-voucher', 'pos', 'settings', 'users'
+    ];
+    if (excludePages.some(ex => pageName.includes(ex)) || pageName === '') {
         return;
     }
 
@@ -51,6 +57,11 @@
         let mainTable = null;
         let maxRows = 0;
         tables.forEach(table => {
+            // Do not inject charts into transactional POS grids or editor tables
+            if (table.classList.contains('pos-grid') || table.closest('.pos-grid') || table.closest('.view-container') || table.classList.contains('no-auto-chart')) {
+                return;
+            }
+
             const rows = table.querySelectorAll('tbody tr');
             if (rows.length > maxRows) {
                 maxRows = rows.length;

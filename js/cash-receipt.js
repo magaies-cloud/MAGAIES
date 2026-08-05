@@ -82,8 +82,15 @@ if (window.APP_READY) {
 }
 
 function setNextVoucherNumber() {
-    const seq = parseInt(localStorage.getItem('erp_receipt_seq') || '0') + 1;
-    document.getElementById('voucher-number').innerText = String(seq).padStart(6, '0');
+    let max = 0;
+    const receipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
+    receipts.forEach(r => {
+        const no = parseInt(r.id || r.voucherNo || '0', 10);
+        if (!isNaN(no) && no > max) max = no;
+    });
+    const savedSeq = parseInt(localStorage.getItem('erp_receipt_seq') || '0', 10);
+    const nextSeq = Math.max(savedSeq, max) + 1;
+    document.getElementById('voucher-number').innerText = String(nextSeq).padStart(6, '0');
 }
 
 // ════════════════════════════════════════

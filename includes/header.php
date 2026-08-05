@@ -188,4 +188,4 @@
         </script>
     </div>
 </header>
-<script src="js/auto-charts.js"></script>
+<script src="js/auto-charts.js?v=<?php echo time(); ?>"></script>

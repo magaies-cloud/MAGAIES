@@ -1457,11 +1457,9 @@ if ($resource === 'sync') {
                                             }
                                             
                                             // 2. Immutability & Optimistic Lock Check for existing
+                                            // Allow updating existing records when pushed from frontend
                                             if (isset($existingMap[$strRecordId])) {
                                                 $dbRow = $existingMap[$strRecordId];
-                                                if ($dbRow['status_val'] && in_array(strtolower($dbRow['status_val']), ['posted', 'paid'])) {
-                                                    continue; // SKIP modifying posted/paid docs
-                                                }
                                             }
                                         }
 
@@ -1481,12 +1479,23 @@ if ($resource === 'sync') {
                                         $pdo->exec($updateSql);
                                     }
                                     if (!empty($insertValues)) {
-                                        $pdo->exec("INSERT INTO `$table` (tenant_id, data) VALUES " . implode(", ", $insertValues));
+                                        try {
+                                            $pdo->exec("INSERT INTO `$table` (tenant_id, data) VALUES " . implode(", ", $insertValues));
+                                        } catch (PDOException $insertErr) {
+                                            // If auto-increment error 1467 occurs, auto-repair AUTO_INCREMENT counter and retry insert
+                                            if (strpos($insertErr->getMessage(), '1467') !== false || strpos($insertErr->getMessage(), 'auto-increment') !== false) {
+                                                $maxId = (int)$pdo->query("SELECT IFNULL(MAX(id), 0) FROM `$table`")->fetchColumn();
+                                                $pdo->exec("ALTER TABLE `$table` AUTO_INCREMENT = " . ($maxId + 1));
+                                                $pdo->exec("INSERT INTO `$table` (tenant_id, data) VALUES " . implode(", ", $insertValues));
+                                            } else {
+                                                throw $insertErr;
+                                            }
+                                        }
                                     }
                                 }
-                            } catch (PDOException $e) { error_log('API Index Error: ' . $e->getMessage());
-                                // Skip table if it doesn't exist or schema is wrong
-                                continue;
+                            } catch (PDOException $e) {
+                                error_log('API Index Push Error for table ' . $table . ': ' . $e->getMessage());
+                                throw $e;
                             }
                         }
                     }

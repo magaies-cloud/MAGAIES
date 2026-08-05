@@ -952,6 +952,11 @@ JSON.parse = function(val) {
                 originalSetItem.call(localStorage, tenantKey, value);
             } catch (e) {
                 console.warn("localStorage quota exceeded for key", key, e);
+                // Alert the user so they know data might not be saved synchronously
+                if (!window._quotaAlertShown) {
+                    window._quotaAlertShown = true;
+                    alert("تحذير: مساحة التخزين المؤقتة للمتصفح ممتلئة! يرجى إبقاء الصفحة مفتوحة قليلاً لضمان حفظ البيانات في الخلفية، أو قم بتفريغ بعض البيانات القديمة.");
+                }
             }
 
             if (syncKeys.includes(key)) {
@@ -1488,14 +1493,23 @@ JSON.parse = function(val) {
                                             // Build a set of server record IDs for fast lookup
                                             const serverIds = new Set();
                                             serverVal.forEach(rec => {
-                                                const rid = rec?.id || rec?.invoiceNo || rec?.receiptNo || rec?.paymentNo || rec?.jvNo;
-                                                if (rid) serverIds.add(String(rid));
+                                                if (rec?.id) serverIds.add(String(rec.id));
+                                                if (rec?.invoiceNo) serverIds.add(String(rec.invoiceNo));
+                                                if (rec?.receiptNo) serverIds.add(String(rec.receiptNo));
+                                                if (rec?.paymentNo) serverIds.add(String(rec.paymentNo));
+                                                if (rec?.jvNo) serverIds.add(String(rec.jvNo));
                                             });
                                             
                                             // Find local records that don't exist on server (not yet pushed)
                                             const localOnlyRecords = localArr.filter(rec => {
                                                 const rid = rec?.id || rec?.invoiceNo || rec?.receiptNo || rec?.paymentNo || rec?.jvNo;
-                                                return rid && !serverIds.has(String(rid));
+                                                const invNo = rec?.invoiceNo;
+                                                const recId = rec?.id;
+                                                let existsOnServer = false;
+                                                if (rid && serverIds.has(String(rid))) existsOnServer = true;
+                                                if (invNo && serverIds.has(String(invNo))) existsOnServer = true;
+                                                if (recId && serverIds.has(String(recId))) existsOnServer = true;
+                                                return !existsOnServer;
                                             });
                                             
                                             if (localOnlyRecords.length > 0) {
@@ -2883,7 +2897,7 @@ window.logout = async function(force = false) {
         const btn = document.querySelector('.sidebar-logout');
         if (btn) btn.innerHTML = '<span class="sidebar-text">جاري المزامنة...</span>';
         try {
-            await window.pushToCloud();
+            await window.pushToCloud(true);
         } catch(e) {
             console.warn("Failed to push during logout", e);
         }

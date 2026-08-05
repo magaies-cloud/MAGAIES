@@ -430,9 +430,9 @@
                         <button class="btn-action btn-cancel" style="padding: 6px 12px; font-size: 0.8rem;" onclick="showHub()">إلغاء وتراجع</button>
                     </div>
                     
-                    <div class="grid-scroll-wrap" style="flex:1; overflow-y: auto;">
+                    <div class="grid-scroll-wrap" style="flex:1; max-height: 420px; min-height: 220px; overflow-y: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: rgba(15, 23, 42, 0.4);">
                         <table class="pos-grid" style="width: 100%;">
-                            <thead>
+                            <thead style="position: sticky; top: 0; z-index: 10; background: #0f172a;">
                                 <tr>
                                     <th style="text-align:right; width:20%;">الصنف</th>
                                     <th style="text-align:center; width:8%;">الوحدة</th>
@@ -766,6 +766,9 @@
         }
 
         function renderReceiptLines() {
+            const scrollWrap = document.querySelector('#view-editor .grid-scroll-wrap');
+            const savedScrollTop = scrollWrap ? scrollWrap.scrollTop : 0;
+
             const tbody = document.getElementById('items-tbody');
             tbody.innerHTML = '';
 
@@ -816,8 +819,8 @@
                     </td>
                     <td style="text-align:center; display: flex; gap: 4px; justify-content: center; align-items: center; border: none; padding-top: 12px;">
                         <button type="button" class="btn-action" style="padding: 4px 8px; font-size: 0.8rem; background: rgba(56,189,248,0.2); border-color: rgba(56,189,248,0.3); color: #38bdf8;" 
-                                onclick="splitLine('${line.id}')" title="تقسيم استلام هذا الصنف">➕</button>
-                        ${line.isSplit ? `<button type="button" class="btn-action" style="padding: 4px 8px; font-size: 0.8rem; background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.3); color: #ef4444;" onclick="removeSplit('${line.id}')" title="حذف هذا التقسيم">❌</button>` : ''}
+                                onclick="splitLine(event, '${line.id}')" title="تقسيم استلام هذا الصنف">➕</button>
+                        ${line.isSplit ? `<button type="button" class="btn-action" style="padding: 4px 8px; font-size: 0.8rem; background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.3); color: #ef4444;" onclick="removeSplit(event, '${line.id}')" title="حذف هذا التقسيم">❌</button>` : ''}
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -841,6 +844,10 @@
             document.getElementById('lbl-total-received-items').textContent = totalItems + ' أصناف';
             document.getElementById('lbl-total-received-qty').textContent = fmtNum(totalQty);
             document.getElementById('lbl-total-received-val').textContent = fmtNum(totalVal) + ' SDG';
+
+            if (scrollWrap) {
+                scrollWrap.scrollTop = savedScrollTop;
+            }
         }
 
         function updateLineWarehouse(lineId, whId) {
@@ -858,7 +865,11 @@
             }
         }
 
-        function splitLine(lineId) {
+        function splitLine(e, lineId) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
             const line = receiptLines.find(x => x.id === lineId);
             if (!line) return;
             
@@ -869,9 +880,8 @@
             const totalAssigned = groupSplits.reduce((acc, x) => acc + (x.receiveQty || 0), 0);
             const remaining = Math.max(0, line.maxPending - totalAssigned);
 
-            const splitCount = groupSplits.length;
             const newLine = {
-                id: line.id + '_split' + splitCount,
+                id: line.lineGroup + '_split_' + Date.now() + '_' + Math.floor(Math.random() * 10000),
                 itemId: line.itemId,
                 unitId: line.unitId,
                 unitName: line.unitName,
@@ -887,7 +897,11 @@
             renderReceiptLines();
         }
 
-        function removeSplit(lineId) {
+        function removeSplit(e, lineId) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
             receiptLines = receiptLines.filter(x => x.id !== lineId);
             renderReceiptLines();
         }
@@ -1038,6 +1052,11 @@
 
             localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(freshPurchases));
             allPurchases = freshPurchases; // Update local memory reference
+            
+            // 🔥 CRITICAL: Force immediate cloud sync to prevent data loss when navigating to reports
+            if (typeof window.pushToCloud === 'function') {
+                window.pushToCloud(true);
+            }
             
             setTimeout(() => {
                 calculatePendingGoods();

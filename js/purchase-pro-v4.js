@@ -131,7 +131,10 @@ const SALE_PREFIX = { direct:'', split:'', delivery:'', proforma:'' };
 // Peek: show the next number WITHOUT incrementing (safe for refresh)
 function peekNextInvoiceNumber(type) {
     let list = getPurchaseInvoicesList();
-    const datePrefix = 'P260';
+    const now = new Date();
+    const yy = String(now.getFullYear()).substring(2, 4);
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const datePrefix = 'P' + yy + mm;
     
     let max = 0;
     list.forEach(inv => {
@@ -139,6 +142,17 @@ function peekNextInvoiceNumber(type) {
         if (invNo.startsWith(datePrefix)) {
             const seqStr = invNo.substring(datePrefix.length);
             const seq = parseInt(seqStr, 10);
+            if (!isNaN(seq) && seq > max) {
+                max = seq;
+            }
+        } else if (invNo.startsWith('P260')) {
+            const seqStr = invNo.substring(4);
+            const seq = parseInt(seqStr, 10);
+            if (!isNaN(seq) && seq > max) {
+                max = seq;
+            }
+        } else if (/^\d{8}$/.test(invNo) || /^C-\d+$/.test(invNo)) {
+            let seq = parseInt(invNo.replace(/\D/g, ''), 10) % 10000;
             if (!isNaN(seq) && seq > max) {
                 max = seq;
             }
@@ -641,26 +655,28 @@ function loadNextInvoice() {
     showToast('✨ فاتورة جديدة', 'success');
 }
 
-function loadInvoiceFromStorage(invNo) {
-    let str = localStorage.getItem('erp_pur_' + invNo);
-    if (!str) {
-        str = localStorage.getItem('erp_draft_' + invNo);
-    }
-    let data;
+function getSinglePurchaseInvoice(invNo) {
+    if (!invNo) return null;
+    let str = localStorage.getItem('erp_pur_' + invNo) || localStorage.getItem('erp_draft_' + invNo);
     if (str) {
-        try { data = JSON.parse(str); } catch(e) {}
+        try { return JSON.parse(str); } catch(e) {}
     }
-    
-    if (!data) {
-        let allPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-        data = allPurchases.find(inv => String(inv.invoiceNo) === String(invNo) || String(inv.id) === String(invNo));
+    let allPurchases = getPurchaseInvoicesList();
+    const data = allPurchases.find(inv => String(inv.invoiceNo) === String(invNo) || String(inv.id) === String(invNo));
+    if (data) {
+        try { localStorage.setItem('erp_pur_' + (data.invoiceNo || invNo), JSON.stringify(data)); } catch(e) {}
+        return data;
     }
-    
+    return null;
+}
+
+function loadInvoiceFromStorage(invNo) {
+    let data = getSinglePurchaseInvoice(invNo);
     if (!data) return false;
     
     try {
-        // If loading a confirmed invoice, enter Edit Mode
-        if (data.status === 'confirmed' || localStorage.getItem('erp_pur_' + invNo)) {
+        // If loading a confirmed or posted invoice, enter Edit Mode
+        if (data.status === 'confirmed' || data.status === 'posted' || localStorage.getItem('erp_pur_' + invNo)) {
             currentViewedInvoiceNo = data.invoiceNo || data.id;
             showToast('✏️ أنت الآن في وضع التعديل للفاتورة الأصلية', 'warning', 4000);
         } else {
@@ -2072,16 +2088,30 @@ function submitInvoice(ignoreWarnings = false) {
     let custId = document.getElementById('hdr-customer').value;
     const searchVal = document.getElementById('hdr-customer-search').value.trim();
     if (!custId && searchVal) {
-        const exactMatch = VENDORS.find(c => c.name === searchVal);
+        let exactMatch = VENDORS.find(c => c.name === searchVal);
+        if (!exactMatch) {
+            exactMatch = VENDORS.find(c => c.name && c.name.trim().toLowerCase() === searchVal.toLowerCase());
+        }
+        if (!exactMatch) {
+            exactMatch = VENDORS.find(c => c.name && c.name.toLowerCase().includes(searchVal.toLowerCase()));
+        }
         if (exactMatch) {
             selectCustomer(exactMatch.id, exactMatch.name);
             custId = exactMatch.id;
         }
     }
 
-    if (!custId) { 
-        showToast('❌ يرجى تحديد المورد من القائمة المنسدلة لتأكيد الفاتورة', 'error'); 
-        return; 
+    // Fallback: If still no vendor ID but searchVal exists or if empty, default to general supplier
+    if (!custId) {
+        let defaultSupp = VENDORS.find(c => c.id === 'walk-in' || c.id === 'SUP-GENERAL' || (c.name && c.name.includes('عام')));
+        if (!defaultSupp && VENDORS.length > 0) defaultSupp = VENDORS[0];
+        if (defaultSupp) {
+            selectCustomer(defaultSupp.id, searchVal || defaultSupp.name);
+            custId = defaultSupp.id;
+        } else {
+            custId = 'SUP-GENERAL';
+            selectCustomer(custId, searchVal || 'مورد عام');
+        }
     }
 
     if (rows.length === 0) { showToast('❌ لا يمكن تأكيد فاتورة فارغة', 'error'); return; }
@@ -2124,6 +2154,9 @@ function submitInvoice(ignoreWarnings = false) {
     const fcGrandAmount = isBase ? grandAmount / rate : grandAmount;
 
     // --- 1. Multi-Payment Read & Validation ---
+    if (typeof recalcPaymentSummary === 'function') {
+        recalcPaymentSummary();
+    }
     const cashActive = document.getElementById('toggle-cash').classList.contains('active');
     const creditActive = document.getElementById('toggle-credit').classList.contains('active');
     const bankActive = document.getElementById('toggle-bank').classList.contains('active');
@@ -2405,6 +2438,14 @@ function submitInvoice(ignoreWarnings = false) {
         localStorage.setItem('erp_items_v1', JSON.stringify(ITEMS));
         localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
         localStorage.setItem('erp_pur_' + committedNo, JSON.stringify(data));
+    }
+
+    window._cachedPurchaseInvoicesRaw = null;
+    window._cachedPurchaseList = null;
+
+    // Trigger immediate cloud push so changes are immediately persisted to MySQL
+    if (typeof window.pushToCloud === 'function') {
+        window.pushToCloud(true).catch(e => console.warn("Immediate cloud sync failed:", e));
     }
 
     // Show professional success modal
