@@ -493,6 +493,8 @@ async function loadAllTransactions() {
                 let validItems = data.filter(item => item && !item.deleted);
                 if (meta.key === 'erp_sales_invoices_v1') {
                     validItems = validItems.filter(item => item.saleType !== 'preliminary' && item.status !== 'preliminary');
+                } else if (meta.key === 'erp_purchase_invoices_v1') {
+                    validItems = validItems.filter(item => !item.isGRN);
                 }
                 validItems.forEach(item => {
                     const dateVal = item.date || item.createdAt;

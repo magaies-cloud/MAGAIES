@@ -255,7 +255,7 @@
 
         /* Editor View */
         .editor-layout { display: flex; gap: 20px; height: 100%; }
-        .editor-left { flex: 1; display: flex; flex-direction: column; background: rgba(15, 23, 42, 0.65); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); overflow: hidden; }
+        .editor-left { flex: 1; display: flex; flex-direction: column; background: rgba(15, 23, 42, 0.65); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); overflow: hidden; min-height: 0; }
         .editor-right { width: 350px; display: flex; flex-direction: column; gap: 20px; }
         
         .info-card { background: rgba(0,0,0,0.4); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); padding: 20px; }
@@ -422,7 +422,7 @@
                 </div>
             </div>
 
-            <div class="editor-layout" style="display: flex; gap: 20px; flex: 1; align-items: stretch;">
+            <div class="editor-layout" style="display: flex; gap: 20px; flex: 1; align-items: stretch; min-height: 0;">
                 <!-- Left: Items Table -->
                 <div class="editor-left" style="flex: 1; display: flex; flex-direction: column;">
                     <div class="neo-card-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
