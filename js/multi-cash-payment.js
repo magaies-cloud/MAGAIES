@@ -1723,15 +1723,20 @@ async function saveVoucher() {
             }
             
             if (saveBtn) {
-                saveBtn.innerHTML = '✅ حفظ واعتماد السند';
+                saveBtn.innerHTML = '✅ تم الحفظ بنجاح';
                 saveBtn.style.transform = 'scale(1)';
                 saveBtn.style.boxShadow = '0 0 15px rgba(16,185,129,0.4)';
                 saveBtn.style.background = '';
-                saveBtn.disabled = false;
+                saveBtn.disabled = true;
                 saveBtn.style.opacity = '1';
-                saveBtn.style.pointerEvents = 'auto';
+                saveBtn.style.pointerEvents = 'none';
             }
-            resetVoucher();
+            
+            // Refresh navigation list and keep the current saved voucher on screen
+            refreshVoucherNavigationList().then(() => {
+                currentVoucherIndex = currentVoucherList.length - 1;
+            });
+            
         }, 3200);
 
     } catch (e) {
