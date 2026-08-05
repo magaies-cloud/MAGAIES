@@ -882,12 +882,33 @@ JSON.parse = function(val) {
     window.addEventListener('beforeunload', (e) => {
         if (pushTimeout) {
             clearTimeout(pushTimeout);
-            pushToCloud();
         }
-        if (dirtyKeys.size > 0 || typeof isPushing !== 'undefined' && isPushing) {
-            e.preventDefault();
-            e.returnValue = 'جاري حفظ البيانات في السيرفر. الرجاء الانتظار قليلاً لتجنب فقدان البيانات.';
-            return e.returnValue;
+        // Use sendBeacon for reliable delivery on page close
+        if (dirtyKeys.size > 0) {
+            try {
+                const prefix = getTenantPrefix();
+                let payload = {};
+                let hasData = false;
+                const keysToSync = Array.from(dirtyKeys);
+                keysToSync.forEach(k => {
+                    const pk = window.getTenantKey(k);
+                    const d = window.DB_STORE[pk] || localGetItem(pk);
+                    if (d) {
+                        try { payload[k] = JSON.parse(d); hasData = true; } catch(e){}
+                    }
+                });
+                if (hasData) {
+                    const token = localStorage.getItem('authToken');
+                    if (token) {
+                        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+                        const url = SYNC_PUSH_URL + '?token=' + encodeURIComponent(token);
+                        navigator.sendBeacon(url, blob);
+                        dirtyKeys.clear();
+                    }
+                }
+            } catch(beaconErr) {
+                console.warn('sendBeacon fallback failed:', beaconErr);
+            }
         }
     });
 
@@ -1443,7 +1464,41 @@ JSON.parse = function(val) {
                             }
 
                             if (serverHasData || localIsEmpty) {
-                                const valStr = typeof serverVal === 'string' ? serverVal : JSON.stringify(serverVal);
+                                // ══════════════════════════════════════
+                                // SMART MERGE: Preserve local-only records not yet pushed to server
+                                // ══════════════════════════════════════
+                                let finalVal = serverVal;
+                                
+                                if (Array.isArray(serverVal) && !localIsEmpty) {
+                                    try {
+                                        const localArr = JSON.parse(localDataStr);
+                                        if (Array.isArray(localArr) && localArr.length > 0) {
+                                            // Build a set of server record IDs for fast lookup
+                                            const serverIds = new Set();
+                                            serverVal.forEach(rec => {
+                                                const rid = rec?.id || rec?.invoiceNo || rec?.receiptNo || rec?.paymentNo || rec?.jvNo;
+                                                if (rid) serverIds.add(String(rid));
+                                            });
+                                            
+                                            // Find local records that don't exist on server (not yet pushed)
+                                            const localOnlyRecords = localArr.filter(rec => {
+                                                const rid = rec?.id || rec?.invoiceNo || rec?.receiptNo || rec?.paymentNo || rec?.jvNo;
+                                                return rid && !serverIds.has(String(rid));
+                                            });
+                                            
+                                            if (localOnlyRecords.length > 0) {
+                                                console.log(`[Smart Merge] ${key}: Preserving ${localOnlyRecords.length} local-only records not yet on server`);
+                                                finalVal = [...serverVal, ...localOnlyRecords];
+                                                // Mark these keys as dirty so they get pushed to server
+                                                dirtyKeys.add(key);
+                                            }
+                                        }
+                                    } catch(mergeErr) {
+                                        console.warn(`[Smart Merge] Failed for ${key}:`, mergeErr);
+                                    }
+                                }
+
+                                const valStr = typeof finalVal === 'string' ? finalVal : JSON.stringify(finalVal);
                                 window.DB_STORE[pk] = valStr;
                                 localforage.setItem(pk, valStr).catch(e=>{});
                                 try { localSetItem(pk, valStr); } catch(e){}

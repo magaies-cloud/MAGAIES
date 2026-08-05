@@ -2758,6 +2758,13 @@
                 showPurchaseHub();
             }, 50);
         });
+
+        // Refresh invoice list after cloud sync completes (smart merge may add records)
+        window.addEventListener('cloudDataRestored', () => {
+            if (currentPurchaseView === 'hub') {
+                loadHubTransactions();
+            }
+        });
     </script>
     <script>
 async function sendInvoiceWA(invoiceNo) {
