@@ -1082,9 +1082,10 @@
             if (res && res.ok && data && data.success !== false && data.token) {
                 document.cookie = "session_active=true; path=/";
                 sessionStorage.setItem('session_active', 'true');
-                sessionStorage.setItem('cloud_synced', 'true');
+                sessionStorage.removeItem('cloud_synced');
                 localStorage.setItem('authToken', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
+                if (typeof window._clearTenantCache === 'function') window._clearTenantCache();
                 const userNameToDisplay = data.user.fullName || data.user.name || data.user.username || 'المستخدم';
                 showLoginSuccessAnimation(userNameToDisplay, data.user.subdomain, data.token, JSON.stringify(data.user));
                 return;
@@ -1300,8 +1301,48 @@
                     `;
 
                     setTimeout(() => {
-                        window.location.href = targetUrl;
-                    }, 2800);
+                        // Pre-fetch sync data during animation wait
+                        const syncToken = localStorage.getItem('authToken');
+                        let redirectDone = false;
+                        const doRedirect = () => {
+                            if (redirectDone) return;
+                            redirectDone = true;
+                            window.location.href = targetUrl;
+                        };
+                        if (syncToken) {
+                            const origin = window.location.origin;
+                            const path = window.location.pathname;
+                            let dir = path.substring(0, path.lastIndexOf('/'));
+                            if (dir.endsWith('/')) dir = dir.slice(0, -1);
+                            const baseUrl = origin + (dir ? dir : '') + "/";
+                            fetch(baseUrl + "api_index.php/sync/pull", {
+                                headers: { "Content-Type": "application/json", "Authorization": "Bearer " + syncToken }
+                            })
+                            .then(r => r.json())
+                            .then(syncData => {
+                                if (syncData.success && syncData.data) {
+                                    const userObj = JSON.parse(localStorage.getItem('user') || '{}');
+                                    const tenantId = userObj.tenant_id || 'default';
+                                    const prefix = 'tenant_' + tenantId + '_';
+                                    Object.keys(syncData.data).forEach(key => {
+                                        if (syncData.data[key]) {
+                                            const pk = key.startsWith('tenant_') ? key : prefix + key;
+                                            const val = typeof syncData.data[key] === 'string' ? syncData.data[key] : JSON.stringify(syncData.data[key]);
+                                            try { localStorage.setItem(pk, val); } catch(e) {}
+                                        }
+                                    });
+                                    sessionStorage.setItem('cloud_synced', 'true');
+                                    console.log('Login pre-sync completed for tenant:', prefix);
+                                }
+                                doRedirect();
+                            })
+                            .catch(e => { console.warn('Login pre-sync failed:', e); doRedirect(); });
+                            // Safety timeout: redirect after 4s max even if sync is slow
+                            setTimeout(doRedirect, 4000);
+                        } else {
+                            doRedirect();
+                        }
+                    }, 800);
                 }, 400);
             }, 800);
         }

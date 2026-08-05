@@ -1605,7 +1605,15 @@ function renderTable() {
                 firstVisible = false;
             } else if (c.isNum) {
                 td.classList.add('num-cell');
-                td.innerText = formatCustomNumber(colTotals[idx], conf);
+                let footerVal = colTotals[idx];
+                if (c.field === 'exchangeRate') {
+                    footerVal = filteredData.length > 0 ? (footerVal / filteredData.length) : 0;
+                } else if (c.field === 'balance') {
+                    footerVal = filteredData.length > 0 ? parseFloat(getRawFieldValue(filteredData[filteredData.length - 1], 'balance') || 0) : 0;
+                } else if (c.field === 'balanceForeign') {
+                    footerVal = filteredData.length > 0 ? parseFloat(getRawFieldValue(filteredData[filteredData.length - 1], 'balanceForeign') || 0) : 0;
+                }
+                td.innerText = formatCustomNumber(footerVal, conf);
                 td.style.fontWeight = '900';
             } else {
                 td.innerText = '-';

@@ -1281,6 +1281,13 @@
             if (typeof renderGlobalUnitsList === 'function') renderGlobalUnitsList();
             if (typeof updateUnitDropdowns === 'function') updateUnitDropdowns();
         });
+        window.addEventListener('strictDataReady', () => {
+            console.log("[Master Data] Strict data ready. Re-rendering lists...");
+            renderAllMasterData();
+            if (typeof deduplicateEntities === 'function') deduplicateEntities();
+            if (typeof renderGlobalUnitsList === 'function') renderGlobalUnitsList();
+            if (typeof updateUnitDropdowns === 'function') updateUnitDropdowns();
+        });
 
         function openTab(evt, tabId) {
             document.querySelectorAll('.md-tab-content').forEach(c => c.classList.remove('active'));

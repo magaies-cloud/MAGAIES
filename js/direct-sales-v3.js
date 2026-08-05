@@ -349,6 +349,7 @@ function initSalesApp() {
             addRow(true);
             recalcAll();
         }
+        if (typeof loadHubTransactions === 'function') loadHubTransactions();
     } catch(globalErr) {
         console.error("Critical error during initSalesApp:", globalErr);
     }
@@ -2867,24 +2868,29 @@ function saveDraft() {
 }
 
 function submitInvoice(ignoreWarnings = false) {
-    if (currentViewedInvoiceNo) {
-        // Edit mode check
-        const invDate = document.getElementById('hdr-date').value;
-        if (!window.canEditRecord(invDate, 'sales')) {
-            return; // blocked by policy
+    if (window.isSubmitting) return;
+    window.isSubmitting = true;
+
+    try {
+        if (currentViewedInvoiceNo) {
+            // Edit mode check
+            const invDate = document.getElementById('hdr-date').value;
+            if (!window.canEditRecord(invDate, 'sales')) {
+                window.isSubmitting = false;
+                return; // blocked by policy
+            }
         }
-    }
 
-    const custId = document.getElementById('hdr-customer').value;
-    if (!custId) { showToast('❌ يرجى تحديد العميل لتأكيد الفاتورة', 'error'); return; }
+        const custId = document.getElementById('hdr-customer').value;
+        if (!custId) { showToast('❌ يرجى تحديد العميل لتأكيد الفاتورة', 'error'); window.isSubmitting = false; return; }
 
-    if (rows.length === 0) { showToast('❌ لا يمكن تأكيد فاتورة فارغة', 'error'); return; }
+        if (rows.length === 0) { showToast('❌ لا يمكن تأكيد فاتورة فارغة', 'error'); window.isSubmitting = false; return; }
 
-    const hasEmptyItems = rows.some(r => !r.itemId);
-    if (hasEmptyItems) { showToast('⚠️ يرجى اختيار الصنف لكل سطر', 'warning'); return; }
+        const hasEmptyItems = rows.some(r => !r.itemId);
+        if (hasEmptyItems) { showToast('⚠️ يرجى اختيار الصنف لكل سطر', 'warning'); window.isSubmitting = false; return; }
 
-    const hasZeroQty = rows.some(r => r.quantity <= 0);
-    if (hasZeroQty) { showToast('⚠️ الكمية يجب أن تكون أكبر من صفر', 'warning'); return; }
+        const hasZeroQty = rows.some(r => r.quantity <= 0);
+        if (hasZeroQty) { showToast('⚠️ الكمية يجب أن تكون أكبر من صفر', 'warning'); window.isSubmitting = false; return; }
 
     const cur = getCurrency();
     const grandTotal = document.getElementById('t-grand').textContent;
@@ -2942,7 +2948,7 @@ function submitInvoice(ignoreWarnings = false) {
 
         if (Math.abs(remaining) > 0.05) {
             showToast(`❌ مجموع المبالغ المدفوعة لا يتطابق مع إجمالي الفاتورة. المتبقي: ${fmtNum(remaining)} ${cur}`, 'error', 5000);
-            return;
+            window.isSubmitting = false; return;
         }
 
         paymentMethod = getPaymentMethodFromUI();
@@ -2976,7 +2982,7 @@ function submitInvoice(ignoreWarnings = false) {
                 if (existing) existing.remove();
                 
                 alert(`❌ حظر ائتماني صارم!\nالعميل (${cust.name}) لديه ${unpaidCount} فواتير آجلة سابقة لم يقم بسدادها بالكامل.\nيجب سداد الديون القديمة أولاً لإنشاء فاتورة آجلة جديدة.`);
-                return;
+                window.isSubmitting = false; return;
             }
         }
     }
@@ -3008,14 +3014,13 @@ function submitInvoice(ignoreWarnings = false) {
         }
 
         if (warnings.length > 0) {
+            window.isSubmitting = false;
             showConfirmWarningModal(warnings);
             return;
         }
     }
 
-    if (window.isSubmitting) return;
-    window.isSubmitting = true;
-    setTimeout(() => { window.isSubmitting = false; }, 2000);
+    setTimeout(() => { window.isSubmitting = false; }, 3000);
 
     // Commit the invoice number
     let committedNo;
@@ -3189,6 +3194,12 @@ function submitInvoice(ignoreWarnings = false) {
     }
 
     showSuccessModal(committedNo, grandTotal, cur, finalWarnings);
+    } catch(err) {
+        console.error("Error in submitInvoice:", err);
+        showToast("❌ حدث خطأ غير متوقع أثناء الحفظ: " + (err.message || err), "error");
+    } finally {
+        window.isSubmitting = false;
+    }
 }
 
 // ════════════════════════════════════════

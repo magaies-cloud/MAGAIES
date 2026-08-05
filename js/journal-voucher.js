@@ -21,16 +21,14 @@ window.openRateEditor = function(inputEl) {
         alert("وحدة التحكم المركزية لسعر الصرف غير متوفرة.");
     }
 };
+
 /* ═══════════════════════════════════════════════════════
    journal-voucher.js — Journal Voucher Module
    ═══════════════════════════════════════════════════════ */
 
-// Load real accounts from master-data
 let ACCOUNTS = [];
-// (Moved to DBReady event)
-
 let jvData = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
-let currentViewedIndex = -1; 
+let currentViewedIndex = -1;
 
 function fmtNum(n) {
     if (n === 0 || n === '0' || !n) return '0.00';
@@ -41,6 +39,7 @@ function parseNum(str) {
 }
 function showToast(msg, type = 'success', ms = 3000) {
     const c = document.getElementById('toast-container');
+    if (!c) return;
     const t = document.createElement('div');
     t.className = `toast ${type}`;
     t.innerHTML = msg;
@@ -48,7 +47,10 @@ function showToast(msg, type = 'success', ms = 3000) {
     setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 500); }, ms);
 }
 
-document.addEventListener('DBReady', () => {
+function initJVApp() {
+    if (window._jvAppInitialized) return;
+    window._jvAppInitialized = true;
+
     // Load real accounts from master-data
     const localBanks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
     const localCusts = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
@@ -56,6 +58,7 @@ document.addEventListener('DBReady', () => {
     const localSafes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
     const localExp = JSON.parse(localStorage.getItem('erp_accounts_v1')) || [];
 
+    ACCOUNTS = [];
     localCusts.forEach(c => ACCOUNTS.push({ id: c.id, name: c.name }));
     localSups.forEach(s => ACCOUNTS.push({ id: s.id, name: s.name }));
     localBanks.forEach(b => ACCOUNTS.push({ id: b.id, name: b.name }));
@@ -66,12 +69,18 @@ document.addEventListener('DBReady', () => {
     const __y = __d.getFullYear();
     const __m = String(__d.getMonth() + 1).padStart(2, '0');
     const __day = String(__d.getDate()).padStart(2, '0');
-    document.getElementById('hdr-date').value = `${__y}-${__m}-${__day}`;
-    setNextVoucherNumber();
+    const dateEl = document.getElementById('hdr-date');
+    if (dateEl) dateEl.value = `${__y}-${__m}-${__day}`;
+    if (typeof setNextVoucherNumber === 'function') setNextVoucherNumber();
     
     // Initialize with 2 empty rows by default
-    addGridRow();
-    addGridRow();
+    const tbody = document.getElementById('jv-tbody');
+    if (tbody && tbody.children.length === 0) {
+        if (typeof addGridRow === 'function') {
+            addGridRow();
+            addGridRow();
+        }
+    }
 
     // Deep Drill-down
     const urlParams = new URLSearchParams(window.location.search);
@@ -79,25 +88,22 @@ document.addEventListener('DBReady', () => {
     if (voucherId) {
         jvData = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
         const idx = jvData.findIndex(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId) || String(v.jvNo) === String(voucherId));
-        if (idx !== -1) {
+        if (idx !== -1 && typeof renderVoucher === 'function') {
             currentViewedIndex = idx;
             renderVoucher(jvData[idx]);
         }
     }
-});
+}
 
-function getAccountOptions(selectedId = '') {
-    let opts = `<option value="">-- اختر الحساب --</option>`;
-    ACCOUNTS.forEach(a => {
-        opts += `<option value="${a.id}" ${a.id === selectedId ? 'selected' : ''}>${a.name}</option>`;
-    });
-    return opts;
+if (window.APP_READY) {
+    initJVApp();
+} else {
+    document.addEventListener('DBReady', initJVApp);
 }
 
 let jvRowIdCounter = 0;
 function addGridRow(data = {}) {
     jvRowIdCounter++;
-    const tbody = document.getElementById('jv-tbody');
     const tr = document.createElement('tr');
     tr.className = 'jv-row';
     

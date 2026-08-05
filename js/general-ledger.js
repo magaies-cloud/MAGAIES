@@ -756,6 +756,48 @@ function collectAllTransactions() {
             });
         }
     });
+    // 2c2. Comprehensive Payments (erp_comprehensive_payments_v1)
+    const compPayments = JSON.parse(localStorage.getItem('erp_comprehensive_payments_v1')) || [];
+    compPayments.forEach(v => {
+        const costCenter = v.costCenter || 'بدون مركز';
+        const currency = v.currency || 'SDG';
+        const time = v.time || timeNow;
+        const isPosted = v.isPosted !== false;
+        
+        const rate = parseNum(v.exchangeRate || 1);
+        const effRate = getEffectiveRate(v, rate);
+        const isBaseSDG = (currency === 'SDG');
+        const amt = parseNum(v.amount);
+        const valLoc = isBaseSDG ? amt : amt * rate;
+        const valFc = isBaseSDG ? (amt / effRate) : amt;
+        
+        let safeAcct = v.withdrawalAccount || 'safe-001';
+        if (v.paymentType === 'check') safeAcct = v.checkBank || 'banks-cheques';
+        else if (v.paymentType === 'bank') safeAcct = v.bankSourceName || safeAcct;
+        else if (v.paymentType === 'mobile') safeAcct = v.mobileWallet || safeAcct;
+        
+        const stmt = v.description || v.withdrawalDesc || 'سند صرف شامل';
+
+        // Safe/Bank Account (Credit)
+        txns.push({
+            date: v.date, time: time, ref: v.id, type: 'comprehensive-payment', typeLabel: 'سند صرف شامل',
+            account: safeAcct, counterAccount: v.accountId,
+            statement: stmt, additionalNote: stmt,
+            debit: 0, credit: valLoc, 
+            debitForeign: 0, creditForeign: valFc,
+            costCenter, currency, exchangeRate: effRate, isPosted
+        });
+        
+        // Payee Account (Debit)
+        txns.push({
+            date: v.date, time: time, ref: v.id, type: 'comprehensive-payment', typeLabel: 'سند صرف شامل',
+            account: v.accountId, counterAccount: safeAcct,
+            statement: stmt, additionalNote: stmt,
+            debit: valLoc, credit: 0, 
+            debitForeign: valFc, creditForeign: 0,
+            costCenter, currency, exchangeRate: effRate, isPosted
+        });
+    });
 
     // 3. Journal Vouchers
     const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];

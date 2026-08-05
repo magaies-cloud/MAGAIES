@@ -549,6 +549,30 @@
             background: #c084fc;
         }
 
+        .scope-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #94a3b8;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .scope-btn:hover {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+        }
+        .scope-btn.active {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(99, 102, 241, 0.3));
+            border-color: #38bdf8;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+        }
+
         .screen-popover-item {
             position: relative;
             overflow: hidden;
@@ -1020,17 +1044,32 @@
             </div>
         </div>
 
-        <!-- 6 Compact Executive KPI Stat Cards Grid (50% reduced height, pure white titles, exact unit placement) -->
+        <!-- Global Date Scope Filter Bar -->
+        <div class="glass-panel" style="padding: 10px 16px; margin-bottom: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.25);">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-calendar-days text-sky-400" style="font-size: 1.1rem;"></i>
+                <span style="font-size: 0.9rem; font-weight: 800; color: #fff;">نطاق التقرير والتحليلات:</span>
+                <span id="current-scope-label" style="font-size: 0.8rem; color: #38bdf8; font-weight: 700; background: rgba(56, 189, 248, 0.12); padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.3);">الكل</span>
+            </div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="dashboard-scope-btns">
+                <button type="button" onclick="setDashboardScope('all')" class="scope-btn active" id="scope-btn-all">🌐 الكل</button>
+                <button type="button" onclick="setDashboardScope('today')" class="scope-btn" id="scope-btn-today">📅 اليوم</button>
+                <button type="button" onclick="setDashboardScope('week')" class="scope-btn" id="scope-btn-week">📊 آخر 7 أيام</button>
+                <button type="button" onclick="setDashboardScope('month')" class="scope-btn" id="scope-btn-month">🗓️ الشهر الحالي</button>
+            </div>
+        </div>
+
+        <!-- 6 Compact Executive KPI Stat Cards Grid -->
         <div class="kpi-cards" style="margin-bottom: 15px; display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 8px;">
-            <!-- 1. Daily Sales -->
+            <!-- 1. Sales KPI (Title changes dynamically with scope) -->
             <div class="glass-panel spotlight-card neon-border-primary" style="padding: 5px 10px !important; border-radius: 10px !important;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="kpi-title" style="font-size: 0.74rem; font-weight: 800; color: #ffffff !important;">مبيعات اليوم</span>
+                    <span id="kpi-sales-title" class="kpi-title" style="font-size: 0.74rem; font-weight: 800; color: #ffffff !important;">إجمالي المبيعات</span>
                     <div class="kpi-icon-bg" style="background: rgba(59, 130, 246, 0.15); padding: 2px 5px; border-radius: 6px;"><i class="fa-solid fa-cash-register text-sky-400" style="font-size: 0.75rem;"></i></div>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 2px;">
                     <h3 id="kpi-sales" class="kpi-val" style="font-size: 0.80rem !important; font-weight: 800; margin: 0; color: #38bdf8;">0 SDG</h3>
-                    <div class="kpi-desc" style="color:#34d399; font-size: 0.6rem; font-weight: 700;">↑ 15% بالأمس</div>
+                    <div class="kpi-desc" style="color:#34d399; font-size: 0.6rem; font-weight: 700;">↑ حسب النطاق</div>
                 </div>
             </div>
             
@@ -1061,7 +1100,7 @@
             <!-- 4. Current Month Profit -->
             <div class="glass-panel spotlight-card neon-border-purple" style="padding: 5px 10px !important; border-radius: 10px !important;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="kpi-title" style="font-size: 0.74rem; font-weight: 800; color: #ffffff !important;">أرباح الشهر الجاري</span>
+                    <span class="kpi-title" style="font-size: 0.74rem; font-weight: 800; color: #ffffff !important;">أرباح النطاق الجاري</span>
                     <div class="kpi-icon-bg" style="background: rgba(168, 85, 247, 0.15); padding: 2px 5px; border-radius: 6px;"><i class="fa-solid fa-arrow-trend-up text-purple-400" style="font-size: 0.75rem;"></i></div>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 2px;">
@@ -1095,17 +1134,22 @@
             </div>
         </div>
 
-        <!-- Top Customers & Credit Limit Full-Width (Placed ABOVE Cashflow & Inventory Radar) -->
+        <!-- Top Customers & Suppliers Credit Limit & Debt Analysis Full-Width -->
         <div class="glass-panel neon-border-primary" style="padding: 20px; margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
                 <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #fff;">
-                    <i class="fa-solid fa-users-viewfinder text-sky-400" style="margin-left: 8px;"></i> المديونية وسقف الائتمان (حد الائتمان المسموح)
+                    <i class="fa-solid fa-users-viewfinder text-sky-400" style="margin-left: 8px;"></i> المديونية وسقف الائتمان (شامل العملاء والموردين)
                 </h3>
-                <span class="qa-badge" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">
-                    📊 تحليل ائتماني شامل للعملاء والموردين
-                </span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="qa-badge" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">
+                        📊 تحليل مزدوج: السقف vs المديونية
+                    </span>
+                    <a href="credit_limits_dashboard.php" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24; text-decoration: none; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; transition: all 0.2s;">
+                        🔍 التقرير التفصيلي 🔗
+                    </a>
+                </div>
             </div>
-            <div class="chart-container" style="height: 350px; width: 100%;">
+            <div class="chart-container" style="height: 380px; width: 100%;">
                 <canvas id="customersChart"></canvas>
             </div>
         </div>
@@ -1114,8 +1158,13 @@
         <div class="charts-grid">
             <!-- Cashflow -->
             <div class="glass-panel neon-border-success">
-                <h3><i class="fa-solid fa-money-bill-trend-up text-emerald-400" style="margin-left: 8px;"></i> التدفق النقدي (أسبوعي)</h3>
+                <h3><i class="fa-solid fa-money-bill-trend-up text-emerald-400" style="margin-left: 8px;"></i> التدفق النقدي وميزان السيولة</h3>
                 <div class="chart-container"><canvas id="cashflowChart"></canvas></div>
+                <div style="display: flex; justify-content: space-around; gap: 8px; margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.75rem; text-align: center;">
+                    <div><span style="color:#94a3b8;">المقبوضات: </span><strong id="cf-summary-in" style="color:#10b981;">0 SDG</strong></div>
+                    <div><span style="color:#94a3b8;">المصروفات: </span><strong id="cf-summary-out" style="color:#f87171;">0 SDG</strong></div>
+                    <div><span style="color:#94a3b8;">صافي التدفق: </span><strong id="cf-summary-net" style="color:#38bdf8;">0 SDG</strong></div>
+                </div>
             </div>
             <!-- Sales Distribution -->
             <div class="glass-panel neon-border-primary">
@@ -1241,14 +1290,12 @@
             window.requestAnimationFrame(step);
         }
 
-        // Check Authentication
-        document.addEventListener('DBReady', () => {
+        // Check Authentication & Initialize Dashboard App
+        function initDashboardApp() {
             if (!localStorage.getItem('authToken')) {
                 window.location.href = 'dashboard-pro.php';
                 return;
             }
-
-
 
             // Initialize Charts
             initProCharts();
@@ -1276,15 +1323,26 @@
             try {
                 const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
                 if (cfg.showAthkar !== false) { // Default is true
-                    document.getElementById('dashboard-athkar-container').style.display = 'flex';
+                    const athkarEl = document.getElementById('dashboard-athkar-container');
+                    if (athkarEl) athkarEl.style.display = 'flex';
                 }
             } catch (e) {}
-        });
+        }
 
-        // Reload page once background cloud sync completes (essential for iOS Safari onboarding)
+        if (window.APP_READY) {
+            initDashboardApp();
+        } else {
+            document.addEventListener('DBReady', initDashboardApp);
+        }
+
+        // Re-render when background cloud sync completes without forcing page reload loop
         window.addEventListener('cloudDataRestored', () => {
-            console.log("[Dashboard] Cloud sync completed. Reloading...");
-            window.location.reload();
+            console.log("[Dashboard] Cloud sync completed. Updating UI...");
+            initDashboardApp();
+        });
+        window.addEventListener('strictDataReady', () => {
+            console.log("[Dashboard] Strict data ready. Updating UI...");
+            initDashboardApp();
         });
 
         // Toggle Notifications Dropdown (Modal)
@@ -1406,9 +1464,28 @@
             const day = String(now.getDate()).padStart(2, '0');
             const todayStr = `${year}-${month}-${day}`;
 
-            // 1. Calculate Today's Sales using grandTotal/totalAmount
-            const todaySales = invoices.filter(inv => inv.date && inv.date.startsWith(todayStr)).reduce((sum, inv) => sum + (Number(inv.grandTotal) || Number(inv.totalAmount) || 0), 0);
-            animateValue('kpi-sales', 0, todaySales, 1300, 'SDG');
+            const sevenDaysAgo = new Date(now);
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0];
+
+            // Filter invoices by scope
+            let scopedInvoices = invoices;
+            if (window.currentDashboardScope === 'today') {
+                scopedInvoices = invoices.filter(inv => inv.date && inv.date.startsWith(todayStr));
+                if (document.getElementById('kpi-sales-title')) document.getElementById('kpi-sales-title').textContent = 'مبيعات اليوم';
+            } else if (window.currentDashboardScope === 'week') {
+                scopedInvoices = invoices.filter(inv => inv.date && inv.date >= sevenDaysAgoStr);
+                if (document.getElementById('kpi-sales-title')) document.getElementById('kpi-sales-title').textContent = 'مبيعات آخر 7 أيام';
+            } else if (window.currentDashboardScope === 'month') {
+                scopedInvoices = invoices.filter(inv => inv.date && inv.date.startsWith(`${year}-${month}`));
+                if (document.getElementById('kpi-sales-title')) document.getElementById('kpi-sales-title').textContent = 'مبيعات الشهر';
+            } else {
+                if (document.getElementById('kpi-sales-title')) document.getElementById('kpi-sales-title').textContent = 'إجمالي المبيعات';
+            }
+
+            // 1. Calculate Scoped Sales using grandTotal/totalAmount
+            const totalScopedSales = scopedInvoices.reduce((sum, inv) => sum + (Number(inv.grandTotal) || Number(inv.totalAmount) || 0), 0);
+            animateValue('kpi-sales', 0, totalScopedSales, 1300, 'SDG');
 
             // 2. Calculate Vault Liquidity & Total Liquidity
             let vaultLiquidity = 0;
@@ -1499,8 +1576,8 @@
                 return 0;
             }
 
-            // Calculate Today's Profit & Monthly Profit
-            const todayInvoices = invoices.filter(inv => inv.date && inv.date.startsWith(todayStr));
+            // Calculate Profit
+            const todayInvoices = scopedInvoices;
             let todayProfit = 0;
             todayInvoices.forEach(inv => {
                 let invProfit = 0;
@@ -1530,7 +1607,7 @@
             });
 
             // Update Ticker
-            if (document.getElementById('ticker-sales')) document.getElementById('ticker-sales').innerText = todaySales.toLocaleString('en-US') + ' SDG';
+            if (document.getElementById('ticker-sales')) document.getElementById('ticker-sales').innerText = totalScopedSales.toLocaleString('en-US') + ' SDG';
             if (document.getElementById('ticker-profit')) document.getElementById('ticker-profit').innerText = todayProfit.toLocaleString('en-US') + ' SDG';
             if (document.getElementById('ticker-monthly-profit')) document.getElementById('ticker-monthly-profit').innerText = monthlyProfit.toLocaleString('en-US') + ' SDG';
             if (document.getElementById('ticker-liquidity')) document.getElementById('ticker-liquidity').innerText = totalLiquidity.toLocaleString('en-US') + ' SDG';
@@ -1543,7 +1620,7 @@
             }
 
             // 4.5 Pending Deliveries
-            const pendingDeliveries = invoices.filter(inv => {
+            const pendingDeliveries = scopedInvoices.filter(inv => {
                 const s = inv.deliveryStatus;
                 return s !== 'delivered' && s !== 'Admin_Closed' && s !== 'Delivered_Pending_Admin';
             }).slice(0, 5);
@@ -1572,7 +1649,7 @@
 
             // 5. Recent Transactions
             let allTx = [];
-            invoices.forEach(i => allTx.push({ id: i.invoiceNo, type: 'مبيعات', desc: 'فاتورة مبيعات', amount: i.grandTotal, date: i.date }));
+            scopedInvoices.forEach(i => allTx.push({ id: i.invoiceNo, type: 'مبيعات', desc: 'فاتورة مبيعات', amount: i.grandTotal, date: i.date }));
             
             const purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted && !x.isGRN && !x.isReturn);
             purchases.forEach(i => allTx.push({ id: i.invoiceNo, type: 'مشتريات', desc: 'فاتورة مشتريات', amount: i.grandTotal, date: i.date }));
@@ -1594,37 +1671,29 @@
                 return `
                 <tr>
                     <td><strong style="color:var(--theme-blue);">#${entry.id}</strong></td>
-                    <td><span style="background: rgba(255,255,255,0.05); padding: 3px 8px; border-radius: 6px; font-size: 0.8rem;">${entry.type}</span></td>
-                    <td>${entry.desc}</td>
-                    <td><strong style="font-family: 'Outfit', sans-serif;">${(Number(entry.amount) || 0).toLocaleString('en-US')}</strong></td>
+                    <td><span class="type-badge">${entry.type}</span></td>
+                    <td>${entry.desc || '-'}</td>
+                    <td><strong style="color:#fff;">${(Number(entry.amount)||0).toLocaleString()} SDG</strong></td>
                     <td>${badge}</td>
                 </tr>
                 `;
             }).join('');
             document.getElementById('recent-transactions-tbody').innerHTML = recentHTML || '<tr><td colspan="5" style="text-align:center; padding:15px; color:var(--text-secondary); font-size: 0.85rem;">لا توجد حركات مالية مسجلة بعد.</td></tr>';
 
-            return { invoices, items, customers, banks };
+            return { invoices: scopedInvoices, items, customers, banks };
         }
 
-        // Initialize Chart.js Graphs
         // Initialize Chart.js Graphs
         function initProCharts() {
             const data = loadDynamicDashboardData();
             const inventory = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
-
-            // Helper to get total actual stock of an item across warehouses (ignoring virtual pending states)
-            function getItemActualStock(itemId) {
-                return inventory
-                    .filter(inv => inv.itemId === itemId && inv.warehouse !== 'PENDING_RECEIPT')
-                    .reduce((sum, inv) => sum + (Number(inv.qty) || 0), 0);
-            }
             
             const textColor = '#94a3b8';
             const gridColor = 'rgba(255, 255, 255, 0.05)';
 
             Chart.defaults.color = textColor;
             Chart.defaults.font.family = "'Tajawal', sans-serif";
-            Chart.defaults.font.size = 11; // Smaller default font
+            Chart.defaults.font.size = 11;
 
             // 1. Cashflow Chart (Dynamic Weekly) using grandTotal/totalAmount
             const sReceipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
@@ -1654,7 +1723,30 @@
                 paymentsData[6-i] = dayPayments + cashPurchases;
             }
 
-            new Chart(document.getElementById('cashflowChart').getContext('2d'), {
+            let totalReceiptsInScope = receiptsData.reduce((a, b) => a + b, 0);
+            let totalPaymentsInScope = paymentsData.reduce((a, b) => a + b, 0);
+            let netCashflow = totalReceiptsInScope - totalPaymentsInScope;
+
+            if (document.getElementById('cf-summary-in')) document.getElementById('cf-summary-in').innerText = totalReceiptsInScope.toLocaleString('en-US') + ' SDG';
+            if (document.getElementById('cf-summary-out')) document.getElementById('cf-summary-out').innerText = totalPaymentsInScope.toLocaleString('en-US') + ' SDG';
+            if (document.getElementById('cf-summary-net')) {
+                const netEl = document.getElementById('cf-summary-net');
+                netEl.innerText = (netCashflow >= 0 ? '+' : '') + netCashflow.toLocaleString('en-US') + ' SDG';
+                netEl.style.color = netCashflow >= 0 ? '#10b981' : '#f87171';
+            }
+
+            window._dashboardChartInstances = window._dashboardChartInstances || {};
+            function createOrUpdateChart(id, config) {
+                if (window._dashboardChartInstances[id]) {
+                    try { window._dashboardChartInstances[id].destroy(); } catch(e) {}
+                }
+                const canvas = document.getElementById(id);
+                if (canvas) {
+                    window._dashboardChartInstances[id] = new Chart(canvas.getContext('2d'), config);
+                }
+            }
+
+            createOrUpdateChart('cashflowChart', {
                 type: 'line',
                 data: {
                     labels: daysLabels,
@@ -1683,7 +1775,7 @@
             const catLabels = Object.keys(catSales).length > 0 ? Object.keys(catSales) : ['بدون مبيعات'];
             const catData = Object.keys(catSales).length > 0 ? Object.values(catSales) : [1];
 
-            new Chart(document.getElementById('categoryChart').getContext('2d'), {
+            createOrUpdateChart('categoryChart', {
                 type: 'doughnut',
                 data: {
                     labels: catLabels,
@@ -1693,6 +1785,12 @@
             });
 
             // 3. Inventory Radar (Dynamic - Lowest Stock Items)
+            function getItemActualStock(itemId) {
+                return inventory
+                    .filter(inv => inv.itemId === itemId && inv.warehouse !== 'PENDING_RECEIPT')
+                    .reduce((sum, inv) => sum + (Number(inv.qty) || 0), 0);
+            }
+            
             let radarItemsList = [...data.items].map(i => {
                 let avail = getItemActualStock(i.id);
                 let safe = Number(i.safeLimit) || Number(i.minQty) || 10;
@@ -1706,7 +1804,7 @@
             const radarAvail = radarItems.length > 0 ? radarItems.map(i => i.avail) : [0];
             const radarSafe = radarItems.length > 0 ? radarItems.map(i => i.safe) : [0];
 
-            new Chart(document.getElementById('inventoryChart').getContext('2d'), {
+            createOrUpdateChart('inventoryChart', {
                 type: 'radar',
                 data: {
                     labels: radarLabels,
@@ -1744,7 +1842,7 @@
             const whLabels = Object.keys(whTotals).length > 0 ? Object.keys(whTotals) : ['لا توجد مخازن'];
             const whData = Object.keys(whTotals).length > 0 ? Object.values(whTotals) : [0];
 
-            new Chart(document.getElementById('warehousesChart').getContext('2d'), {
+            createOrUpdateChart('warehousesChart', {
                 type: 'doughnut',
                 data: {
                     labels: whLabels,
@@ -1753,68 +1851,99 @@
                 options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 10, font: {family: "'Tajawal'", size: 11} } }, tooltip: { callbacks: { label: function(context) { return ' ' + context.label + ': ' + context.raw.toLocaleString() + ' وحدة'; } } } } }
             });
 
-            // 5. Customer & Supplier Credit Limit (Vertical Bar Chart - Exact Match to User's Image)
+            // 5. Customer & Supplier Credit & Debt Analysis (Dual Bar Chart)
             let allCreditEntities = [];
             try {
-                const cList = JSON.parse(localStorage.getItem('erp_customers_v1')) || data.customers || [];
-                const sList = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
-                allCreditEntities = [...cList, ...sList];
+                const cList = (JSON.parse(localStorage.getItem('erp_customers_v1')) || data.customers || []).filter(x => !x.deleted);
+                const sList = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
+                
+                const cMapped = cList.map(c => ({
+                    name: c.name || 'عميل',
+                    typeLabel: '👤 عميل',
+                    creditLimit: parseFloat(c.creditLimit) || 0,
+                    debt: Math.abs(parseFloat(c.currentBalance) || 0)
+                }));
+
+                const sMapped = sList.map(s => ({
+                    name: s.name || 'مورد',
+                    typeLabel: '🏭 مورد',
+                    creditLimit: parseFloat(s.creditLimit) || 0,
+                    debt: Math.abs(parseFloat(s.currentBalance) || 0)
+                }));
+
+                allCreditEntities = [...cMapped, ...sMapped];
             } catch(e) {
-                allCreditEntities = data.customers || [];
+                allCreditEntities = (data.customers || []).map(c => ({
+                    name: c.name || 'عميل',
+                    typeLabel: '👤 عميل',
+                    creditLimit: parseFloat(c.creditLimit) || 0,
+                    debt: Math.abs(parseFloat(c.currentBalance) || 0)
+                }));
             }
 
-            // Filter or provide real sample items matching user's image structure
-            let validEntities = allCreditEntities.filter(c => (parseFloat(c.creditLimit) || 0) > 0);
+            let validEntities = allCreditEntities.filter(c => c.creditLimit > 0 || c.debt > 0);
             if (validEntities.length === 0) {
                 validEntities = [
-                    { name: 'محمد عمار', creditLimit: 33500000 },
-                    { name: 'حسن علي', creditLimit: 450000 },
-                    { name: 'C', creditLimit: 280000 },
-                    { name: 'شفقع', creditLimit: 320000 },
-                    { name: 'التجاني', creditLimit: 220000 },
-                    { name: 'محمد عثمان حمتو عبد الدايم', creditLimit: 380000 },
-                    { name: 'ابدول حمتو', creditLimit: 190000 },
-                    { name: 'مهدي مصر', creditLimit: 260000 },
-                    { name: 'عمر طارق', creditLimit: 210000 },
-                    { name: 'شريبهان احمد عثمان تاج الدين', creditLimit: 2200000 },
-                    { name: 'حدكي', creditLimit: 310000 },
-                    { name: 'كوستا', creditLimit: 3400000 },
-                    { name: 'فلفله', creditLimit: 10200000 },
-                    { name: 'محمد حسن علي مكي', creditLimit: 650000 },
-                    { name: 'همس مهدي', creditLimit: 900000 }
+                    { name: 'محمد عمار', typeLabel: '👤 عميل', creditLimit: 33500000, debt: 12400000 },
+                    { name: 'شركة البركة للتوريدات', typeLabel: '🏭 مورد', creditLimit: 25000000, debt: 8900000 },
+                    { name: 'حسن علي', typeLabel: '👤 عميل', creditLimit: 450000, debt: 210000 },
+                    { name: 'مصنع السلام للحديد', typeLabel: '🏭 مورد', creditLimit: 18000000, debt: 6500000 },
+                    { name: 'C', typeLabel: '👤 عميل', creditLimit: 280000, debt: 95000 },
+                    { name: 'شفقع', typeLabel: '👤 عميل', creditLimit: 320000, debt: 150000 },
+                    { name: 'مؤسسة النيل للأسمنت', typeLabel: '🏭 مورد', creditLimit: 15000000, debt: 4200000 },
+                    { name: 'التجاني', typeLabel: '👤 عميل', creditLimit: 220000, debt: 80000 },
+                    { name: 'شريبهان احمد', typeLabel: '👤 عميل', creditLimit: 2200000, debt: 1100000 },
+                    { name: 'شركة الهدى العالمية', typeLabel: '🏭 مورد', creditLimit: 12000000, debt: 3800000 },
+                    { name: 'فلفله', typeLabel: '👤 عميل', creditLimit: 10200000, debt: 4800000 },
+                    { name: 'كوستا', typeLabel: '👤 عميل', creditLimit: 3400000, debt: 1600000 }
                 ];
             }
 
             const topEntities = validEntities.slice(0, 15);
-            const creditLabels = topEntities.map(c => `${c.name}  🟢 نشط`);
-            const creditValues = topEntities.map(c => parseFloat(c.creditLimit) || 0);
+            const creditLabels = topEntities.map(c => `${c.name} (${c.typeLabel})`);
+            const creditValues = topEntities.map(c => c.creditLimit);
+            const debtValues = topEntities.map(c => c.debt);
 
             const canvasCust = document.getElementById('customersChart');
             if (canvasCust) {
                 const ctxCust = canvasCust.getContext('2d');
+                
                 const skyGrad = ctxCust.createLinearGradient(0, 0, 0, 320);
                 skyGrad.addColorStop(0, '#38bdf8');
                 skyGrad.addColorStop(1, '#0284c7');
 
-                new Chart(ctxCust, {
+                const roseGrad = ctxCust.createLinearGradient(0, 0, 0, 320);
+                roseGrad.addColorStop(0, '#fb7185');
+                roseGrad.addColorStop(1, '#e11d48');
+
+                createOrUpdateChart('customersChart', {
                     type: 'bar',
                     data: {
                         labels: creditLabels,
                         datasets: [
                             {
-                                label: 'حد الائتمان (المسموح)',
+                                label: '💳 سقف الائتمان (المسموح)',
                                 data: creditValues,
                                 backgroundColor: skyGrad,
                                 borderColor: '#38bdf8',
                                 borderWidth: 1,
-                                borderRadius: { topLeft: 8, topRight: 8 },
-                                barPercentage: 0.55,
+                                borderRadius: { topLeft: 6, topRight: 6 },
+                                barPercentage: 0.45,
+                                categoryPercentage: 0.7
+                            },
+                            {
+                                label: '⚠️ المديونية القائمة (المسحوب)',
+                                data: debtValues,
+                                backgroundColor: roseGrad,
+                                borderColor: '#fb7185',
+                                borderWidth: 1,
+                                borderRadius: { topLeft: 6, topRight: 6 },
+                                barPercentage: 0.45,
                                 categoryPercentage: 0.7
                             }
                         ]
                     },
                     options: {
-                        indexAxis: 'x',
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
@@ -1823,12 +1952,10 @@
                                 position: 'top',
                                 align: 'center',
                                 labels: {
-                                    color: '#38bdf8',
-                                    usePointStyle: false,
-                                    boxWidth: 40,
-                                    boxHeight: 14,
+                                    color: '#e2e8f0',
+                                    usePointStyle: true,
                                     padding: 15,
-                                    font: { family: "'Tajawal', sans-serif", size: 13, weight: '800' }
+                                    font: { family: "'Tajawal', sans-serif", size: 12, weight: '800' }
                                 }
                             },
                             tooltip: {
@@ -1839,8 +1966,23 @@
                                 borderWidth: 1,
                                 padding: 12,
                                 callbacks: {
+                                    title: function(items) {
+                                        const entity = topEntities[items[0].dataIndex];
+                                        return entity.name + ' (' + entity.typeLabel + ')';
+                                    },
                                     label: function(context) {
-                                        return ' حد الائتمان (المسموح): ' + Number(context.raw).toLocaleString('en-US') + ' SDG';
+                                        const entity = topEntities[context.dataIndex];
+                                        const val = Number(context.raw).toLocaleString('en-US') + ' SDG';
+                                        if (context.datasetIndex === 0) {
+                                            return ' 💳 سقف الائتمان: ' + val;
+                                        } else {
+                                            const rem = Math.max(0, entity.creditLimit - entity.debt);
+                                            const usage = entity.creditLimit > 0 ? Math.round((entity.debt / entity.creditLimit) * 100) : 0;
+                                            return [
+                                                ' ⚠️ المديونية القائمة: ' + val + ' (' + usage + '% من السقف)',
+                                                ' 🟢 المتبقي المتاح: ' + rem.toLocaleString('en-US') + ' SDG'
+                                            ];
+                                        }
                                     }
                                 }
                             }

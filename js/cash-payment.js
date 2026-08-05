@@ -46,7 +46,10 @@ function showToast(msg, type = 'success', ms = 3000) {
 // ════════════════════════════════════════
 //  INITIALIZATION
 // ════════════════════════════════════════
-document.addEventListener('DBReady', () => {
+function initCashPaymentApp() {
+    if (window._cashPaymentAppInitialized) return;
+    window._cashPaymentAppInitialized = true;
+
     // Load accounts dynamically here to ensure DB_STORE is populated
     const localCusts = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
     const localSups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
@@ -62,14 +65,21 @@ document.addEventListener('DBReady', () => {
     localExp.forEach(e => ACCOUNTS.push({ id: e.id || e.code, name: e.name }));
 
     // Set today's date
-    document.getElementById('hdr-date').valueAsDate = new Date();
+    const dateInput = document.getElementById('hdr-date');
+    if (dateInput) dateInput.valueAsDate = new Date();
     
     // Set next voucher number
     setNextVoucherNumber();
 
     // Add first row by default
-    addRow();
-});
+    if (rows.length === 0) addRow();
+}
+
+if (window.APP_READY) {
+    initCashPaymentApp();
+} else {
+    document.addEventListener('DBReady', initCashPaymentApp);
+}
 
 function setNextVoucherNumber() {
     const seq = parseInt(localStorage.getItem('erp_payment_seq') || '0') + 1;

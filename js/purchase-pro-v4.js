@@ -258,6 +258,7 @@ function initPurchaseApp() {
         renderGrid();
         recalcAll();
         initMultiPaymentSystem();
+        if (typeof loadHubTransactions === 'function') loadHubTransactions();
     };
 
     window.refreshAllMasterData();
@@ -2103,6 +2104,8 @@ function submitInvoice(ignoreWarnings = false) {
     window.isSubmitting = true;
     setTimeout(() => { window.isSubmitting = false; }, 2000);
 
+    try {
+
     // Commit the invoice number
     let committedNo;
     if (currentViewedInvoiceNo) {
@@ -2222,7 +2225,7 @@ function submitInvoice(ignoreWarnings = false) {
     };
 
     const postingMode = window.getPostingMode ? window.getPostingMode() : 'auto';
-    const shouldApplyEffects = (postingMode === 'auto' && saleType !== 'proforma');
+    const shouldApplyEffects = (postingMode === 'auto' && currentSaleType !== 'proforma');
 
     // Set status based on posting mode
     if (shouldApplyEffects) {
@@ -2418,8 +2421,11 @@ function submitInvoice(ignoreWarnings = false) {
     onSuccessNewInvoice(false);
     showSuccessModal(committedNo, grandTotal, cur, finalWarnings);
 
-    // In production: POST to API
-    // fetch('/api/v1/sales/invoices', { method:'POST', body:JSON.stringify(data) })
+    } catch (err) {
+        console.error("Critical error in submitInvoice:", err);
+        window.isSubmitting = false;
+        showToast("❌ حدث خطأ أثناء حفظ الفاتورة: " + (err.message || err), "error", 6000);
+    }
 }
 
 
