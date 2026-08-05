@@ -281,6 +281,8 @@ function updateCurrency() {
     const rateEl = document.getElementById('exchange-rate');
     const symbolEl1 = document.getElementById('amount-currency-symbol');
     const symbolEl2 = document.getElementById('amount-foreign-currency-symbol');
+    const label1 = document.getElementById('label-box-1');
+    const label2 = document.getElementById('label-box-2');
     
     // Fetch local default currency from settings
     let localCurr = 'SDG';
@@ -292,27 +294,32 @@ function updateCurrency() {
         localCurr = 'SDG';
     }
     
-    // symbolEl1 is the Local Amount (المبلغ), so it uses the system local currency
-    if (symbolEl1) symbolEl1.innerText = localCurr;
-    // symbolEl2 is the Foreign Amount (القيمة), so it uses the selected currency
-    if (symbolEl2) symbolEl2.innerText = curr;
-
+    let foreignCurr = 'USD'; // Default fallback foreign currency
+    let targetForeignCurr = (curr === localCurr || curr === 'SDG') ? foreignCurr : curr;
+    
+    // Set labels and symbols
     if (curr === localCurr || curr === 'SDG') {
-        rateEl.value = '1.0';
-        rateEl.readOnly = true;
+        if (symbolEl1) symbolEl1.innerText = localCurr;
+        if (symbolEl2) symbolEl2.innerText = foreignCurr;
+        if (label1) label1.innerHTML = '<span class="vivid-icon vivid-green" style="width:24px; height:24px; font-size:1.1rem;">💰</span> المبلغ (محلي)';
+        if (label2) label2.innerHTML = '💵 القيمة (أجنبي)';
     } else {
-        rateEl.readOnly = false;
-        if (typeof window.getExchangeRateForCurrency === 'function') {
-            const fetchedRate = window.getExchangeRateForCurrency(curr);
-            if (fetchedRate && fetchedRate !== 1) {
-                rateEl.value = fetchedRate;
-            } else if(parseNum(rateEl.value) === 1) {
-                rateEl.value = ''; 
-            }
-        } else {
-            if(parseNum(rateEl.value) === 1) rateEl.value = ''; 
+        if (symbolEl1) symbolEl1.innerText = curr;
+        if (symbolEl2) symbolEl2.innerText = localCurr;
+        if (label1) label1.innerHTML = '<span class="vivid-icon vivid-green" style="width:24px; height:24px; font-size:1.1rem;">💰</span> المبلغ (أجنبي)';
+        if (label2) label2.innerHTML = '💵 القيمة (محلي)';
+    }
+
+    rateEl.readOnly = false;
+    if (typeof window.getExchangeRateForCurrency === 'function') {
+        const fetchedRate = window.getExchangeRateForCurrency(targetForeignCurr);
+        if (fetchedRate && fetchedRate !== 1) {
+            rateEl.value = fetchedRate;
+        } else if(parseNum(rateEl.value) <= 1) {
+            rateEl.value = ''; 
         }
     }
+
     calcEquiv('rate');
     if (typeof adjustAmountFontSize === 'function') {
         adjustAmountFontSize(rateEl);
@@ -361,10 +368,30 @@ function calcEquiv(source) {
     const amtEl = document.getElementById('amount-local');
     const rateEl = document.getElementById('exchange-rate');
     const eqEl = document.getElementById('amount-foreign');
+    const curr = document.getElementById('currency').value;
     
-    let amt = parseNum(amtEl.value);
+    let localCurr = 'SDG';
+    try {
+        const getTenantKey = window.getTenantKey || ((k) => k);
+        const settings = JSON.parse(localStorage.getItem(getTenantKey('erp_settings_v1')) || localStorage.getItem('erp_settings_v1')) || {};
+        localCurr = settings.currency || 'SDG';
+    } catch (e) {
+        localCurr = 'SDG';
+    }
+
+    let val1 = parseNum(amtEl.value);
     let rate = parseNum(rateEl.value) || 1;
-    let eq = parseNum(eqEl.value);
+    let val2 = parseNum(eqEl.value);
+
+    let actualRateForForeign = rate;
+    if (rate === 1 && typeof window.getExchangeRateForCurrency === 'function') {
+        const globalRate = window.getExchangeRateForCurrency('USD');
+        if (globalRate && globalRate > 1) actualRateForForeign = globalRate;
+        else if (typeof window.getTenantKey === 'function') {
+            const settings = JSON.parse(localStorage.getItem(window.getTenantKey('erp_settings_v1')) || localStorage.getItem('erp_settings_v1')) || {};
+            if (settings.exchangeRate && settings.exchangeRate > 1) actualRateForForeign = settings.exchangeRate;
+        }
+    }
 
     function addCommas(numStr) {
         let parts = numStr.split('.');
@@ -372,32 +399,37 @@ function calcEquiv(source) {
         return parts.join('.');
     }
 
-    if (source === 'local' || source === 'rate') {
-        let actualRateForForeign = rate;
-        if (rate === 1 && typeof window.getExchangeRateForCurrency === 'function') {
-            const globalRate = window.getExchangeRateForCurrency('USD');
-            if (globalRate && globalRate > 1) actualRateForForeign = globalRate;
-            else if (typeof window.getTenantKey === 'function') {
-                const settings = JSON.parse(localStorage.getItem(window.getTenantKey('erp_settings_v1')) || localStorage.getItem('erp_settings_v1')) || {};
-                if (settings.exchangeRate && settings.exchangeRate > 1) actualRateForForeign = settings.exchangeRate;
-            }
-        }
-        eq = actualRateForForeign === 0 ? 0 : amt / actualRateForForeign;
+    function setAnimatedValue(el, val) {
         if (typeof animateInputNumber === 'function') {
-            animateInputNumber(eqEl, addCommas(eq.toFixed(2)));
+            animateInputNumber(el, addCommas(val.toFixed(2)));
         } else {
-            eqEl.value = addCommas(eq.toFixed(2));
-            if (typeof adjustAmountFontSize === 'function') adjustAmountFontSize(eqEl);
-        }
-    } else if (source === 'foreign') {
-        amt = eq * (typeof actualRateForForeign !== 'undefined' ? actualRateForForeign : rate);
-        if (typeof animateInputNumber === 'function') {
-            animateInputNumber(amtEl, addCommas(amt.toFixed(2)));
-        } else {
-            amtEl.value = addCommas(amt.toFixed(2));
-            if (typeof adjustAmountFontSize === 'function') adjustAmountFontSize(amtEl);
+            el.value = addCommas(val.toFixed(2));
+            if (typeof adjustAmountFontSize === 'function') adjustAmountFontSize(el);
         }
     }
+
+    if (curr === localCurr || curr === 'SDG') {
+        // Box 1 = Local, Box 2 = Foreign
+        if (source === 'local' || source === 'rate') {
+            val2 = actualRateForForeign === 0 ? 0 : val1 / actualRateForForeign;
+            setAnimatedValue(eqEl, val2);
+        } else if (source === 'foreign') {
+            val1 = val2 * actualRateForForeign;
+            setAnimatedValue(amtEl, val1);
+        }
+    } else {
+        // Box 1 = Foreign, Box 2 = Local
+        if (source === 'local' || source === 'rate') {
+            // "local" source is actually Box 1 which is Foreign now
+            val2 = val1 * actualRateForForeign;
+            setAnimatedValue(eqEl, val2);
+        } else if (source === 'foreign') {
+            // "foreign" source is actually Box 2 which is Local now
+            val1 = actualRateForForeign === 0 ? 0 : val2 / actualRateForForeign;
+            setAnimatedValue(amtEl, val1);
+        }
+    }
+
     if (typeof syncFirstRowAmount === 'function') syncFirstRowAmount();
     if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();
 }
