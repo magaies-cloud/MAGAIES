@@ -1331,7 +1331,8 @@ JSON.parse = function(val) {
             fetch(SYNC_PUSH_URL, {
                 method: "POST",
                 headers: getAuthHeaders(),
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                keepalive: true
             }).then(res => {
                 resStatus = res.status;
                 if (res.status === 401) {
