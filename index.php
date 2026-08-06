@@ -257,9 +257,12 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         .ad-slide img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
             cursor: default;
         }
     
